@@ -367,6 +367,14 @@ package from Result output, or feed Result back into preparation.
 
 ## User Flow Contract
 
+Party editing creates a draft without changing the applied party, focus,
+setups, or Result. The applied Result remains visible while the user changes
+the draft. Cancel discards only the draft and leaves the applied state
+unchanged. Apply commits the resolved draft party and focus, then prepares all
+three Agents for that new context and recalculates Result. Before any party has
+been applied, there is no prior setup or Result to preserve while composing the
+initial draft.
+
 1. Select three distinct admitted Agents and resolve focus.
 2. Prepare all three Agents for the current party using Rank-default Mindscape,
    full pool, authored equipment and main-stat first choices, and zero effective
@@ -379,8 +387,9 @@ package from Result output, or feed Result back into preparation.
    resetting unrelated current inputs.
 7. Changing one Agent's Mindscape or pool prepares only that Agent again.
 8. Applying a changed party or focus prepares all three Agents again.
-9. Every edit discards derived output and either recalculates the complete party
-   or returns to the empty-Result state if a required selection is incomplete.
+9. Every edit to an applied setup or party context discards derived output and
+   either recalculates the complete party or returns to the empty-Result state
+   if a required selection is incomplete.
 10. Expanded rows show numeric breakdown, action differences, and gauges without
     a narrative explanation surface.
 
