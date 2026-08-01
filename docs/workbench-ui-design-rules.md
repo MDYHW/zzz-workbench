@@ -79,8 +79,8 @@ separate candidate popup attached to each slot.
 - Filtering changes only which consumer-admitted candidates are visible. It
   does not admit unsupported Agents or change setup policy.
 
-Cancel, Apply party, focus validation, current-party working-copy preservation,
-and incoming-Agent initialization keep the meanings owned by the
+Cancel, Apply party, focus validation, and prepared initialization of all three
+party slots keep the meanings owned by the
 [User Flow Contract](setup-workbench-product-contract.md#user-flow-contract).
 
 ## Area, Type, And Padding
@@ -217,7 +217,8 @@ The W-Engine identity and its refinement form one
 editing group. Refinement must not appear as an unrelated setting separated
 from the selected W-Engine. Candidate selection changes only the meanings owned
 by the [product flow](setup-workbench-product-contract.md#user-flow-contract);
-presentation must not imply an engine-specific full setup replacement.
+presentation must distinguish a direct W-Engine edit from a pool change, which
+does initialize that Agent's complete prepared setup.
 
 ### Drive Disc Effects
 
@@ -266,10 +267,19 @@ context early. That order and emphasis are guidance, not a blocking step: every
 other available setup input remains editable, and the user may return to
 Mindscape at any time.
 
-W-Engine, Drive Disc, and main-stat inputs begin unselected. Until all three
-party-member setups are complete, the Result region remains empty; it must not
-render placeholder values or values calculated from a first-candidate fallback.
+W-Engine, Drive Disc, and main-stat inputs begin with the visible prepared
+choices for the current party, Mindscape, and pool. Effective-substat hit counts
+begin at zero. The complete prepared party displays Result immediately. If any
+required input becomes incomplete, the Result region becomes empty; it must not
+render placeholder values or values calculated from a hidden fallback.
 Potential Awakening is fixed completed progression and is not an input.
+
+Changing one Agent's Mindscape or pool visibly initializes only that Agent's
+prepared setup. Applying a changed party or focus initializes all three slots.
+Direct equipment and stat edits do not reset unrelated inputs. When a selected
+equipment effect creates a current stat pressure, its competitive main-stat,
+effective-substat, and set-supply candidates appear at their owning selectors
+without adding rationale prose.
 
 Geometry may be linear, orbital, or another coherent structure. It must make
 this order and the relationship between groups more apparent than the shape
@@ -307,6 +317,8 @@ without taking visual priority from equipment and main stats.
   and remain entirely inside the owning control.
 - The numeric count receives no default visual emphasis solely because it is
   the count.
+- Every offered count displays zero after prepared initialization until the
+  user supplies a value.
 - Within the compact Effective Substat control only, `Anomaly Proficiency` is
   presented as `AP`. Canonical stat labels and accessible control names keep
   the full term.
@@ -403,10 +415,16 @@ At minimum, select the applicable cases:
 - two and three offered effective substat hit counts;
 - longest current Agent, W-Engine, Drive Disc, and stat labels;
 - the supported browser zoom and viewport range;
-- the preparation-default Mindscape without confirmation and a changed
-  Mindscape with the other setup inputs still available;
-- an incomplete setup with an empty Result region and no implicit candidate
-  selection;
+- the preparation-default Mindscape and a changed Mindscape that visibly
+  initializes only that Agent's setup;
+- a complete prepared party with immediate Result and zero effective-substat
+  counts;
+- full/non-limited pool changes that initialize only the changed Agent;
+- a changed party or focus that initializes all three Agent setups;
+- a selected equipment effect that adds stat-supply candidates at the owning
+  selectors without rationale copy;
+- an incomplete setup, when reachable, with an empty Result region and no
+  hidden fallback;
 - Result rows with and without detail, threshold, or cap visuals;
 - Result rows whose aggregates do and do not differ by action, with differing
   action values in expansion and no Attribute-restriction copy; and

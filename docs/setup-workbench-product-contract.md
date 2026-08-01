@@ -6,11 +6,13 @@ Status: product-behavior authority for the setup workbench foundation.
 
 The service is a Zenless Zone Zero party setup workbench centered on calculated
 values, comparisons, graphs, and images. The user selects a three-Agent party,
-chooses each Agent's competitive setup inputs, and inspects how the current
-party changes all three Agents' applicable stats and modifiers. The service
-shows no Result until every required setup selection is complete. Expanded
-Result rows visually decompose the current numeric value into its contributing
-amounts and concise source identities.
+receives a complete competitive starting setup prepared for each Agent's
+current Mindscape, party, and W-Engine availability pool, and adjusts those
+inputs while inspecting how the current party changes all three Agents'
+applicable stats and modifiers. A complete prepared party shows Result
+immediately. If any required setup selection is incomplete, Result remains
+empty. Expanded Result rows visually decompose the current numeric value into
+its contributing amounts and concise source identities.
 
 This document defines product behavior, not runtime, transport, storage, or UI
 architecture.
@@ -32,14 +34,16 @@ Meaning flows in one direction:
 1. completed Agent facts and Mindscape-qualified values;
 2. setup direction, roles, formula relationships, and candidate policy;
 3. effective candidates for current Mindscape, party, and availability pool;
-4. user selections;
-5. the complete-selection gate;
-6. three-surface calculation and recipient-aware composition; and
-7. visual Result projection.
+4. authored first choices and one complete prepared starting setup;
+5. current editable selections;
+6. the complete-selection gate;
+7. three-surface calculation and recipient-aware composition; and
+8. visual Result projection.
 
 A Result, test, UI label, current selection, or candidate order cannot create an
-earlier fact or policy. The service never chooses a W-Engine, Drive Disc, or
-main stat on the user's behalf.
+earlier fact or policy. Prepared first choices come from authored competitive
+policy. Session logic may resolve those choices for the current context, but it
+does not rank arbitrary equipment or optimize a package from Result output.
 
 ## Setup Policy
 
@@ -79,10 +83,12 @@ source it changes. It is not a separate input or Result source identity.
 | selected A-Rank W-Engine | W5 |
 
 Mindscape is already selected when an Agent enters setup editing and remains
-editable. Changing it re-evaluates candidates, clears only selections no longer
-admitted, resolves any retained skill-table value for its level tier, and
-recalculates only when the whole party remains complete. It does not change
-direction, roles, formula relationships, pools, or focus eligibility.
+editable. Changing it resolves any retained skill-table value for its level
+tier and initializes that Agent with the complete prepared setup for the new
+Mindscape, current party, and current pool. The other two Agents keep their
+editable setups, while all three Results are recalculated from the changed
+party contribution. Mindscape does not change direction, roles, formula
+relationships, pools, or focus eligibility.
 
 The three ordinary-skill levels are derived qualifiers, not another setup input,
 Result row, or complete skill-level model. They do not admit ordinary action
@@ -134,8 +140,9 @@ Candidate authoring follows this order:
    to restrict inspection;
 4. compare remaining packages against that Agent's exact kit, activation,
    opportunity costs, availability, and current competitive practice;
-5. retain only materially distinct candidates; and
-6. apply only authored Agent-local Mindscape or party adjustments.
+5. retain only materially distinct candidates;
+6. apply only authored Agent-local Mindscape or party adjustments; and
+7. author the deterministic first choices needed to prepare one complete setup.
 
 Patterns order inspection but cannot inherit another Agent's result. New items
 are routed first to roles, formulas, actions, stat pressures, and Specialties
@@ -152,6 +159,23 @@ slot opportunity cost; and an effective substat must materially strengthen a
 supported finite-investment axis after supply, thresholds, caps, conversions,
 and alternatives.
 
+Main-stat and effective-substat candidates begin from the Agent's direction,
+roles, formulas, and current Agent sources. Do not re-derive the whole candidate
+set from every party and equipment combination. A selected equipment effect may
+create a bounded stat pressure when that stat changes the direction's current
+choice or Result. In that case, evaluate the competitive setup inputs that can
+supply the stat. A threshold alone does not admit every supplier: main-stat
+slot cost, substat competition, set-piece opportunity cost, and whole-package
+equipment value still apply.
+
+For example, selecting a 4-piece effect that links the holder's CRIT Rate
+threshold to a party-facing modifier creates CRIT Rate pressure up to that
+threshold. Current candidates may then include Slot 4 CRIT Rate, CRIT Rate
+effective-substat hits, and a competitive 2-piece CRIT Rate set. The 2-piece
+identity is a result of supplying the pressure, not a named exception. A
+W-Engine that supplies CRIT Rate still passes the normal Base ATK, advanced
+stat, passive, and availability comparison rather than entering automatically.
+
 Candidate membership is itself a user-visible setup outcome. It does not need a
 paired calculated output merely to justify its presence. Do not invent a
 personal-damage or raw-Daze Result to retain an otherwise competitive residual
@@ -161,6 +185,12 @@ Most Mindscape and party changes narrow candidates. Addition is exceptional and
 requires a newly material external contribution or operation. A recipient-
 applied Ultimate opportunity can add an authored Puffer Electro 4-piece case
 for an applicable crit-capable general-damage direction; it does not select it.
+
+New equipment normally enters as a competing W-Engine, 4-piece, or 2-piece
+candidate and may change the prepared main-stat choice through its stat package.
+Reconsider an effective-substat candidate only when the new equipment creates a
+competitive stat pressure after the Agent's existing investment opportunities
+and opportunity costs are applied.
 
 ### Competitive Candidate Set
 
@@ -182,15 +212,37 @@ Result actually exposes. Formula participation alone is insufficient. Flat PEN
 is not current valid stat pressure, an effective substat, or a Result row; PEN
 Ratio is separate.
 
+### Prepared Starting Setup
+
+Preparation supplies one deterministic first choice from the admitted
+candidates for the current Agent, Mindscape, party, focus, and availability
+pool. It chooses a W-Engine and Rank-default refinement, a 4-piece set, a
+different 2-piece set, legal Slot 4/5/6 main stats, and zero for every offered
+effective-substat hit count.
+
+The first choice is authored competitive policy, not a runtime score. Resolve
+the W-Engine and Disc package before choosing main stats so their fixed stat
+supply, usable effects, thresholds, caps, and slot opportunity costs can change
+the prepared choice. Do not assume undisclosed substat investment. Zero counts
+mean no user-supplied substat investment, not a recommendation to avoid those
+stats.
+
+Prepared setup is an initialization point, not a rule that continuously
+overwrites edits. Direct W-Engine, refinement, Disc, main-stat, and substat
+edits keep the other current inputs unless a selected-input dependency changes
+their available candidates. A selected equipment effect may add or remove only
+the setup candidates justified by its current stat pressure.
+
 ### W-Engine Availability Pools
 
 - **full pool** includes every admitted W-Engine, including limited S-Rank;
 - **non-limited pool** excludes limited S-Rank while retaining admitted non-
   limited S-Rank and A-Rank engines.
 
-Pool defaults to full and only filters candidates. It never selects an engine.
-Switching pools keeps the current W-Engine if admitted and otherwise clears it.
-Other admitted setup inputs and substat counts remain unchanged.
+Pool defaults to full. Initial preparation selects the authored first choice
+from that pool. Switching pools initializes that Agent with the complete
+prepared setup for the target pool, including zero effective-substat counts.
+The initial product keeps no separate edited setup for each pool.
 
 ### Complete Setup Selection
 
@@ -199,16 +251,19 @@ and refinement, different Drive Disc 4-piece and 2-piece sets, legal Slot 4/5/6
 main stats, and a count for every offered effective substat.
 
 A party Result is calculated only when all three setups are complete. Before
-then, Result surfaces are empty. The service never uses placeholders, the first
-candidate, a remembered recommendation, or a hidden fallback.
+then, Result surfaces are empty. A prepared setup is a visible current
+selection, not a placeholder, first-candidate fallback, or hidden
+recommendation.
 
 If selecting a Disc set already used by the other piece role can swap the two
 currently admitted sets, the workbench swaps them atomically. Otherwise it
 rejects the conflict rather than choosing a third set.
 
-There is no prepared setup reset. An edit changes its input and directly
-invalidated dependents only. Clearing or invalidating a required selection
-returns the party to incomplete and removes Result until completion.
+Changing one Agent's Mindscape or pool initializes only that Agent with the
+corresponding prepared setup. Changing party composition or focus initializes
+all three Agents for the new party context. Direct setup edits do not reset the
+whole setup. Clearing or invalidating a required selection returns the party to
+incomplete and removes Result until completion.
 
 ## Party Context And Recipient Distribution
 
@@ -230,12 +285,12 @@ Fully enabled composition proceeds in this order:
 Attribute applicability remains internal. Result presents the value applicable
 to the current Agent without `Ice only`-style copy.
 
-Party replacement preserves unchanged Agents' selections only while admitted.
-Invalid selections are cleared. An incoming Agent receives Rank-default
-Mindscape, full pool, empty equipment/main stats, and zero substat counts when
-available. A departed Agent has no hidden working copy. Focus changes follow the
-same preservation rule. Derived Results are always discarded and recalculated
-only if all three setups remain complete.
+Applying a changed party or focus creates a new party context and initializes
+all three Agents with their complete prepared setups. Each Agent receives its
+Rank-default Mindscape and full pool when newly admitted; an unchanged Agent
+keeps its current Mindscape and pool before its setup is prepared for the new
+context. A departed Agent has no hidden working copy. Derived Results are
+discarded and recalculated from the three new current setups.
 
 ## Display Surfaces
 
@@ -300,31 +355,32 @@ numeric breakdown. Do not model sequential replacement.
 ## Static Preparation And Dynamic Session
 
 Static preparation owns completed facts, direction, roles, focus eligibility,
-candidate policy, bounded predicates, and availability. Session owns party,
-focus, pool, Mindscape, refinement, editable selections, completeness,
-recipient resolution, calculation, and Result.
+candidate policy, authored first choices, bounded predicates, and availability.
+Session owns party, focus, pool, Mindscape, refinement, editable selections,
+prepared initialization, completeness, recipient resolution, calculation, and
+Result.
 
-Session may evaluate authored alternatives and clear invalid selections. It
-cannot invent candidates, rank equipment, choose a package, or feed Result back
-into preparation.
+Session may evaluate authored alternatives, compose selected-equipment stat
+pressure with current setup candidates, and resolve the authored prepared
+setup. It cannot invent candidates, assign runtime equipment scores, optimize a
+package from Result output, or feed Result back into preparation.
 
 ## User Flow Contract
 
 1. Select three distinct admitted Agents and resolve focus.
-2. Each incoming Agent receives Rank-default Mindscape and full pool; equipment
-   and main-stat selections are empty.
-3. Mindscape appears first with modest emphasis but is not a confirmation gate.
-4. Select W-Engine/refinement, Disc 4-piece/2-piece, Slot 4/5/6 main stats, and
-   effective substat counts for all three Agents.
-5. Authored Mindscape and party predicates re-evaluate membership. Invalid
-   selections clear rather than substitute.
-6. Until all required selections are complete, display no Result.
-7. Once complete, calculate all Agents across the three surfaces using recipient
-   distribution and internal action/Attribute applicability.
-8. Every edit discards derived output and either recalculates or returns to the
-   empty-Result state.
-9. Party replacement initializes the incoming Agent as incomplete and preserves
-   valid selections for unchanged Agents.
+2. Prepare all three Agents for the current party using Rank-default Mindscape,
+   full pool, authored equipment and main-stat first choices, and zero effective
+   substat counts.
+3. Display the complete party Result immediately.
+4. Mindscape appears first with modest emphasis but is not a confirmation gate.
+5. Edit W-Engine/refinement, Disc 4-piece/2-piece, Slot 4/5/6 main stats, and
+   effective substat counts for any Agent.
+6. A selected equipment effect may update dependent setup candidates without
+   resetting unrelated current inputs.
+7. Changing one Agent's Mindscape or pool prepares only that Agent again.
+8. Applying a changed party or focus prepares all three Agents again.
+9. Every edit discards derived output and either recalculates the complete party
+   or returns to the empty-Result state if a required selection is incomplete.
 10. Expanded rows show numeric breakdown, action differences, and gauges without
     a narrative explanation surface.
 
@@ -332,7 +388,8 @@ into preparation.
 
 - provider ingestion, universal schemas, source registries, or persisted output;
 - API, persistence, authentication, deployment, or hidden build history;
-- multiple setup directions, runtime ranking, or automatic setup generation;
+- multiple setup directions, runtime equipment scoring, universal package
+  optimization, or per-pool edited-setup memory;
 - damage totals, rotations, uptime, action frequency, average stacks, clear time,
   enemy-specific optimization, editable ordinary-skill levels, complete skill
   tables, base action coefficients, or raw action damage and Daze; and
