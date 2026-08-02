@@ -1,0 +1,30 @@
+/* Individual second-pass corrections after full-scale browser review. */
+
+/* 01: keep the setup overlap expressive without hiding Result labels. */
+.bleed .result { padding-left: 210px; }
+.bleed .identity-name { display: none; }
+
+/* 02: let the corridor overlap the Result field, not the Result title. */
+.corridor .result { padding-left: 72px; }
+
+/* 03: retain the inserted setup card while exposing the full action row. */
+.canvas .actions { margin-left: 185px; }
+
+/* 04: separate focus state from the oversized identity wordmark. */
+.stage .focus { top: 118px; }
+
+/* 05: restore the face and keep the stepped choices clear of Result actions. */
+.breach .art-full {
+  top: 0;
+  left: -10%;
+  width: 118%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 0;
+}
+
+.breach .actions { margin-left: 72px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .expanded:hover .art { transform: none; }
+}

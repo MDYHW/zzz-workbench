@@ -1,0 +1,115 @@
+/* 01 / Balanced seam ? 18 identity / 41 setup / 41 Result. */
+.balanced-seam {
+  --identity-bg: #171615;
+  --identity-text: #ece8df;
+  --setup-bg: #1e1b19;
+  --setup-text: #f0e9de;
+  --setup-muted: #b8aaa0;
+  --setup-line: #5e5149;
+  --result-bg: #f1ece3;
+  --result-text: #181614;
+  --result-muted: #71675f;
+  --result-line: #c7bbb0;
+  --result-track: #d3c8bd;
+  --result-active: rgba(214,82,48,.1);
+  --ui-accent: #d65230;
+  --line: #181614;
+}
+.balanced-seam .identity { width: 34%; }
+.balanced-seam .identity::before { top: 0; left: 0; width: 109%; height: 190px; clip-path: polygon(0 0,100% 0,76% 100%,0 84%); }
+.balanced-seam .identity::after { top: 153px; left: -6px; width: 150px; transform: rotate(-5deg); transform-origin: left; }
+.balanced-seam .mindscape-art { top: -1%; left: -15%; width: 119%; height: 102%; object-position: 50% 0; }
+.balanced-seam .agent-name { top: 22px; left: 17px; font-size: 58px; }
+.balanced-seam .focus { top: 91px; left: 18px; }
+.balanced-seam .mindscape-chip { top: 91px; left: 107px; }
+.balanced-seam .agent-symbols { bottom: 18px; left: 17px; }
+.balanced-seam .setup { left: 18%; width: 42%; padding: 24px 30px 22px 62px; }
+.balanced-seam .result { left: 59%; padding: 24px 22px 20px 41px; }
+
+.balanced-seam-row .compact { --compact-bg: #101828; --compact-text: #e8e9e5; --compact-line: #40506d; }
+.balanced-seam-row .compact-art { inset: 0 -72% auto; width: 244%; height: 73%; object-position: 50% 5%; }
+.balanced-seam-row .compact::after { background: linear-gradient(180deg,transparent 30%,rgba(16,24,40,.18) 49%,#101828 76%); }
+.balanced-seam-row .compact-index { top: 17px; left: 11px; color: #101828; background: #d1d4d2; }
+.balanced-seam-row .compact-copy { right: 11px; bottom: 16px; left: 11px; }
+.balanced-seam-row .compact-copy h3 { font-size: 30px; }
+
+/* 02 / Result seam ? 16 identity / 39 setup / 45 Result. */
+.result-seam {
+  --identity-bg: #151b1f;
+  --identity-text: #e7e9e7;
+  --setup-bg: #172128;
+  --setup-text: #e9ece9;
+  --setup-muted: #96a4aa;
+  --setup-line: #44545b;
+  --result-bg: #e9ebe7;
+  --result-text: #12191d;
+  --result-muted: #617077;
+  --result-line: #bac1c0;
+  --result-track: #c8ceca;
+  --result-active: rgba(61,100,174,.11);
+  --ui-accent: #3d64ae;
+  --line: #dfe3df;
+}
+.result-seam .identity { width: 31%; }
+.result-seam .identity::before { top: 0; bottom: 0; left: 0; width: 100%; background: linear-gradient(90deg,var(--mind-wash),color-mix(in srgb,var(--mind-wash) 58%,transparent) 70%,transparent 100%); }
+.result-seam .identity::after { top: 0; bottom: 0; left: 15px; width: 6px; height: auto; }
+.result-seam .mindscape-art { top: -2%; left: -25%; width: 128%; height: 104%; object-position: 50% 0; }
+.result-seam .agent-name { top: 22px; left: 34px; font-size: 55px; writing-mode: vertical-rl; transform: rotate(180deg); }
+.result-seam .focus { top: 22px; left: 103px; }
+.result-seam .mindscape-chip { top: 52px; left: 103px; }
+.result-seam .agent-symbols { bottom: 18px; left: 32px; flex-direction: column; }
+.result-seam .setup { left: 16%; width: 40%; padding: 24px 29px 22px 59px; }
+.result-seam .setup-flow { gap: 1px; }
+.result-seam .setting-row { min-height: 65px; }
+.result-seam .result { left: 55%; padding: 24px 22px 20px 38px; }
+
+.result-seam-row .compact { --compact-bg: #e8eae6; --compact-text: #12191d; --compact-line: #818b8e; }
+.result-seam-row .compact-art { top: 0; left: -42%; width: 184%; height: 64%; object-position: 50% 5%; clip-path: polygon(0 0,100% 0,100% 86%,0 100%); }
+.result-seam-row .compact::after { background: linear-gradient(180deg,transparent 22%,rgba(232,234,230,.12) 48%,#e8eae6 68%); }
+.result-seam-row .compact-index { top: 17px; right: 10px; color: #e8eae6; background: #151b1f; }
+.result-seam-row .compact-copy { right: 11px; bottom: 16px; left: 11px; }
+.result-seam-row .compact-copy h3 { writing-mode: vertical-rl; transform: rotate(180deg); }
+
+/* 03 / Deep seam ? 17 identity / 41 setup / 42 Result. */
+.deep-seam {
+  --identity-bg: #191816;
+  --identity-text: #ebe7dd;
+  --setup-bg: #22201d;
+  --setup-text: #eee9df;
+  --setup-muted: #b4aca1;
+  --setup-line: #5c574f;
+  --result-bg: #efeee8;
+  --result-text: #181816;
+  --result-muted: #696a65;
+  --result-line: #c4c3ba;
+  --result-track: #d0cfc7;
+  --result-active: rgba(181,137,44,.13);
+  --ui-accent: #b5892c;
+  --line: #181816;
+}
+.deep-seam .identity { width: 33%; }
+.deep-seam .identity::before { top: 0; left: 0; width: 112%; height: 184px; clip-path: polygon(0 0,100% 0,68% 100%,0 88%); }
+.deep-seam .identity::after { top: 147px; left: -4px; width: 126px; transform: rotate(-4deg); transform-origin: left; }
+.deep-seam .mindscape-art { top: 0; left: -18%; width: 122%; height: 102%; object-position: 50% 0; }
+.deep-seam .agent-name { top: 21px; left: 16px; font-size: 59px; }
+.deep-seam .focus { top: 91px; left: 17px; }
+.deep-seam .mindscape-chip { top: 91px; left: 106px; }
+.deep-seam .agent-symbols { bottom: 17px; left: 16px; }
+.deep-seam .setup { left: 17%; width: 44%; padding: 24px 31px 22px 66px; }
+.deep-seam .setup-flow { gap: 3px; }
+.deep-seam .setting-row { min-height: 65px; }
+.deep-seam .result { left: 58%; padding: 24px 21px 20px 56px; clip-path: polygon(3% 0,100% 0,100% 100%,0 100%,0 5%); }
+
+.deep-seam-row .compact { --compact-bg: #191816; --compact-text: #ebe7dd; --compact-line: #5f5a51; }
+.deep-seam-row .compact-art { top: 5%; left: -56%; width: 212%; height: 66%; object-position: 50% 4%; clip-path: polygon(7% 0,100% 0,93% 100%,0 100%); }
+.deep-seam-row .compact::after { background: linear-gradient(180deg,transparent 28%,rgba(25,24,22,.12) 47%,#191816 74%); }
+.deep-seam-row .compact-index { top: 17px; right: 10px; color: #191816; background: #d5d3cb; }
+.deep-seam-row .compact-copy { right: 11px; bottom: 16px; left: 11px; }
+.deep-seam-row .compact-copy h3 { font-size: 29px; }
+
+.soft-finalist[data-mindscape="m3"] .mindscape-chip::after { content: " / MUTED COLOR"; }
+.soft-finalist[data-mindscape="m6"] .mindscape-chip::after { content: " / FULL COLOR"; }
+
+@media (prefers-reduced-motion: reduce) {
+  .soft-finalist .identity::before, .soft-finalist .identity::after { transition: none; }
+}

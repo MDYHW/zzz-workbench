@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expanded Slot Composition Studies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="expanded-slot-compositions-base.css" />
+    <link rel="stylesheet" href="expanded-slot-compositions-layouts.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="intro">
+        <h1>Expanded slot<br />composition studies</h1>
+        <p>
+          Five full-scale arrangements using identical placeholder setup and Result content.
+          The expanded slot stays fixed while both compact slots share the remaining rail.
+        </p>
+      </header>
+
+      <div class="study-list">
+        <section class="study" aria-labelledby="study-ribbon">
+          <header class="study-heading">
+            <h2 id="study-ribbon">01 / Identity ribbon</h2>
+            <p>Identity spans above / setup and Result share the workbench below</p>
+          </header>
+          <div class="sample-frame"><div class="party-row">
+            <article class="expanded-slot layout-ribbon" aria-label="Expanded Yixuan slot with identity ribbon">
+              <section class="region identity-region" data-fragment="identity"></section>
+              <section class="region setup-region" data-fragment="setup"></section>
+              <section class="region result-region" data-fragment="result"></section>
+            </article>
+            <aside class="compact-slot compact-dialyn" data-mark="D" data-compact="dialyn" aria-label="Compact Dialyn slot"></aside>
+            <aside class="compact-slot compact-lucia" data-mark="L" data-compact="lucia" aria-label="Compact Lucia slot"></aside>
+          </div></div>
+        </section>
+
+        <section class="study" aria-labelledby="study-causal">
+          <header class="study-heading">
+            <h2 id="study-causal">02 / Density gradient</h2>
+            <p>Identity to setup to Result / expression decreases as information increases</p>
+          </header>
+          <div class="sample-frame"><div class="party-row">
+            <article class="expanded-slot layout-causal" aria-label="Expanded Yixuan slot with left-to-right density gradient">
+              <section class="region identity-region" data-fragment="identity"></section>
+              <section class="region setup-region" data-fragment="setup"></section>
+              <section class="region result-region" data-fragment="result"></section>
+            </article>
+            <aside class="compact-slot compact-dialyn" data-mark="D" data-compact="dialyn" aria-label="Compact Dialyn slot"></aside>
+            <aside class="compact-slot compact-lucia" data-mark="L" data-compact="lucia" aria-label="Compact Lucia slot"></aside>
+          </div></div>
+        </section>
+
+        <section class="study" aria-labelledby="study-wall">
+          <header class="study-heading">
+            <h2 id="study-wall">03 / Result wall</h2>
+            <p>Identity sits above setup / Result receives one uninterrupted surface</p>
+          </header>
+          <div class="sample-frame"><div class="party-row">
+            <article class="expanded-slot layout-result-wall" aria-label="Expanded Yixuan slot with full-height Result wall">
+              <section class="region identity-region" data-fragment="identity"></section>
+              <section class="region setup-region" data-fragment="setup"></section>
+              <section class="region result-region" data-fragment="result"></section>
+            </article>
+            <aside class="compact-slot compact-dialyn" data-mark="D" data-compact="dialyn" aria-label="Compact Dialyn slot"></aside>
+            <aside class="compact-slot compact-lucia" data-mark="L" data-compact="lucia" aria-label="Compact Lucia slot"></aside>
+          </div></div>
+        </section>
+
+        <section class="study" aria-labelledby="study-stacked">
+          <header class="study-heading">
+            <h2 id="study-stacked">04 / Stacked workbench</h2>
+            <p>Identity remains a side anchor / setup and Result attach vertically</p>
+          </header>
+          <div class="sample-frame"><div class="party-row">
+            <article class="expanded-slot layout-stacked" aria-label="Expanded Yixuan slot with vertically stacked setup and Result">
+              <section class="region identity-region" data-fragment="identity"></section>
+              <section class="region setup-region" data-fragment="setup"></section>
+              <section class="region result-region" data-fragment="result"></section>
+            </article>
+            <aside class="compact-slot compact-dialyn" data-mark="D" data-compact="dialyn" aria-label="Compact Dialyn slot"></aside>
+            <aside class="compact-slot compact-lucia" data-mark="L" data-compact="lucia" aria-label="Compact Lucia slot"></aside>
+          </div></div>
+        </section>
+
+        <section class="study" aria-labelledby="study-floor">
+          <header class="study-heading">
+            <h2 id="study-floor">05 / Result floor</h2>
+            <p>Identity and setup lead above / Result receives the full slot width below</p>
+          </header>
+          <div class="sample-frame"><div class="party-row">
+            <article class="expanded-slot layout-result-floor" aria-label="Expanded Yixuan slot with full-width Result floor">
+              <section class="region identity-region" data-fragment="identity"></section>
+              <section class="region setup-region" data-fragment="setup"></section>
+              <section class="region result-region" data-fragment="result"></section>
+            </article>
+            <aside class="compact-slot compact-dialyn" data-mark="D" data-compact="dialyn" aria-label="Compact Dialyn slot"></aside>
+            <aside class="compact-slot compact-lucia" data-mark="L" data-compact="lucia" aria-label="Compact Lucia slot"></aside>
+          </div></div>
+        </section>
+      </div>
+    </main>
+
+    <template id="identity-template">
+      <div class="identity-inner">
+        <img class="identity-portrait" src="assets/yixuan-portrait.png" alt="Yixuan" />
+        <div class="identity-copy">
+          <h3>Yixuan</h3>
+          <span class="focus-mark">Focus / Slot 01</span>
+        </div>
+        <div class="identity-symbols" aria-label="Yixuan identity summary">
+          <div class="symbol-item">
+            <img src="assets/zzz-rank-s.png" alt="" />
+            <span><small>Rank</small>S-Rank</span>
+          </div>
+          <div class="symbol-item">
+            <img src="assets/zzz-attribute-auric-ink.png" alt="" />
+            <span><small>Attribute</small>Auric Ink</span>
+          </div>
+          <div class="symbol-item">
+            <img src="assets/zzz-specialty-rupture.png" alt="" />
+            <span><small>Specialty</small>Rupture</span>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template id="setup-template">
+      <div class="setup-inner">
+        <header class="region-title">
+          <div><span>Prepared inputs</span><h3>Setup</h3></div>
+          <b>EDITABLE</b>
+        </header>
+        <div class="setup-stack">
+          <div class="setup-block">
+            <span class="setup-index">01 / State</span>
+            <span class="setup-value"><strong>Mindscape M0</strong><small>Lv. 60 / Core max</small></span>
+            <span class="setup-chevron">&rsaquo;</span>
+          </div>
+          <div class="setup-block">
+            <span class="setup-index">02 / Pool</span>
+            <span class="setup-value"><strong>Full W-Engine pool</strong><small>Limited + standard</small></span>
+            <span class="setup-chevron">&rsaquo;</span>
+          </div>
+          <div class="setup-block">
+            <span class="setup-index">03 / Engine</span>
+            <span class="setup-value"><strong>Qingming Birdcage / W1</strong><small>Rank-default refinement</small></span>
+            <span class="setup-chevron">&rsaquo;</span>
+          </div>
+          <div class="setup-block">
+            <span class="setup-index">04 / Discs</span>
+            <span class="setup-value"><strong>Yunkui Tales 4 / Woodpecker Electro 2</strong><small>Prepared competitive first choice</small></span>
+            <span class="setup-chevron">&rsaquo;</span>
+          </div>
+          <div class="main-stat-row" aria-label="Prepared main stats">
+            <span>D4 <b>CRIT Rate</b></span>
+            <span>D5 <b>Ether DMG</b></span>
+            <span>D6 <b>HP</b></span>
+          </div>
+          <div class="substat-row" aria-label="Illustrative effective substat hit counts">
+            <span>CRIT Rate <b>3</b></span>
+            <span>CRIT DMG <b>3</b></span>
+            <span>HP <b>4</b></span>
+            <span>ATK <b>2</b></span>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template id="result-template">
+      <div class="result-inner">
+        <header class="region-title">
+          <div><span>Current setup</span><h3>Result</h3></div>
+          <b>LIVE</b>
+        </header>
+        <div class="result-body">
+          <div class="surface-labels" aria-hidden="true">
+            <span>Quantity</span><span>Initial</span><span>Combat</span><span>Fully enabled</span>
+          </div>
+          <table class="metric-table" aria-label="Illustrative Yixuan Result values">
+            <tbody>
+              <tr><th scope="row">Max HP</th><td>16,890</td><td>16,890</td><td>19,340</td></tr>
+              <tr><th scope="row">Sheer Force</th><td>2,104</td><td>2,104</td><td>2,432</td></tr>
+              <tr><th scope="row">CRIT Rate</th><td>58.6%</td><td>78.6%</td><td>83.4%</td></tr>
+              <tr><th scope="row">CRIT DMG</th><td>64.4%</td><td>64.4%</td><td>154.4%</td></tr>
+            </tbody>
+          </table>
+          <div class="gauge">
+            <div class="gauge-labels"><span>Fully enabled CRIT Rate</span><strong>83.4 / 100%</strong></div>
+            <div class="gauge-track" aria-label="Illustrative CRIT Rate cap gauge">
+              <span class="gauge-fill"></span><i class="gauge-cap"></i>
+            </div>
+          </div>
+          <div class="action-strip">
+            <span>Sheer DMG bonus / action</span>
+            <div class="action-values">
+              <span>Basic Attack <b>+58%</b></span>
+              <span>EX Special <b>+78%</b></span>
+              <span>Ultimate <b>+78%</b></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template id="dialyn-template">
+      <span class="compact-index">02</span>
+      <div class="compact-copy"><h3>Dialyn</h3><p>Physical / Stun<br />M0 / Full</p></div>
+    </template>
+
+    <template id="lucia-template">
+      <span class="compact-index">03</span>
+      <div class="compact-copy"><h3>Lucia</h3><p>Ether / Support<br />M0 / Full</p></div>
+    </template>
+
+    <script>
+      document.querySelectorAll("[data-fragment]").forEach((host) => {
+        const template = document.getElementById(`${host.dataset.fragment}-template`)
+        host.append(template.content.cloneNode(true))
+      })
+
+      document.querySelectorAll("[data-compact]").forEach((host) => {
+        const template = document.getElementById(`${host.dataset.compact}-template`)
+        host.append(template.content.cloneNode(true))
+      })
+    </script>
+  </body>
+</html>

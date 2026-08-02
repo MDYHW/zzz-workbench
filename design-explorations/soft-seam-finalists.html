@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soft seam / three refinements</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="expanded-slot-refined-base.css">
+  <link rel="stylesheet" href="soft-seam-finalists-common.css">
+  <link rel="stylesheet" href="soft-seam-finalists-variants.css">
+</head>
+<body>
+  <main class="page">
+    <header class="intro">
+      <h1>Soft seam<br>/ 03</h1>
+      <p>One structural direction, refined three ways. Identity is narrower; Setup and Result receive the space. The same Yixuan artwork stays fixed while Mindscape changes only its colour treatment.</p>
+    </header>
+
+    <section class="preview-panel" aria-label="Mindscape identity preview">
+      <div class="preview-copy">
+        <strong>Identity colour treatment</strong>
+        <span>Structure and placeholder Result values remain fixed for this visual comparison.</span>
+      </div>
+      <div class="preview-buttons" role="group" aria-label="Preview Mindscape colour treatment">
+        <button type="button" data-state="m0" aria-pressed="true">M0</button>
+        <button type="button" data-state="m3" aria-pressed="false">M3</button>
+        <button type="button" data-state="m6" aria-pressed="false">M6</button>
+      </div>
+    </section>
+
+    <div class="candidate-list" id="candidate-list"></div>
+  </main>
+
+  <template id="identity-template">
+    <section class="identity" aria-label="Yixuan identity">
+      <img class="agent-art mindscape-art" src="assets/yixuan-portrait.png" alt="Yixuan">
+      <h3 class="agent-name">Yixuan</h3>
+      <span class="focus">Focus / Slot 01</span>
+      <span class="mindscape-chip">M0</span>
+      <div class="agent-symbols" aria-label="S-Rank, Auric Ink, Rupture">
+        <img src="assets/zzz-rank-s.png" alt="S-Rank">
+        <img src="assets/zzz-attribute-auric-ink.png" alt="Auric Ink">
+        <img src="assets/zzz-specialty-rupture.png" alt="Rupture">
+      </div>
+    </section>
+  </template>
+
+  <template id="setup-template">
+    <section class="setup" aria-label="Yixuan setup">
+      <header class="section-label"><div><span>Prepared inputs</span><h3>Setup</h3></div><b>EDITABLE</b></header>
+      <div class="setup-flow">
+        <div class="setting-row"><span class="setting-index">01 / State</span><span class="setting-copy"><strong class="mindscape-value">Mindscape M0</strong><small>Lv.60 / Core max</small></span><span class="setting-mark">+</span></div>
+        <div class="setting-row"><span class="setting-index">02 / Pool</span><span class="setting-copy"><strong>Full W-Engine pool</strong><small>Limited + standard</small></span><span class="setting-mark">+</span></div>
+        <div class="setting-row"><span class="setting-index">03 / Engine</span><span class="setting-copy"><strong>Qingming Birdcage</strong><small>W1 / Rank default</small></span><span class="setting-mark">+</span></div>
+        <div class="setting-row"><span class="setting-index">04 / Discs</span><span class="setting-copy"><strong>Yunkui Tales 4</strong><small>Woodpecker Electro 2</small></span><span class="setting-mark">+</span></div>
+      </div>
+      <div class="setup-foot">
+        <div class="main-stats"><span>D4<b>CRIT Rate</b></span><span>D5<b>Ether DMG</b></span><span>D6<b>HP</b></span></div>
+        <div class="substats"><span>CRIT Rate<b>3</b></span><span>CRIT DMG<b>3</b></span><span>HP<b>4</b></span><span>ATK<b>2</b></span></div>
+      </div>
+    </section>
+  </template>
+
+  <template id="result-template">
+    <section class="result" aria-label="Yixuan Result">
+      <header class="section-label"><div><span>Current setup</span><h3>Result</h3></div><b>LIVE</b></header>
+      <div class="surface-head"><span>Important value</span><span>Initial</span><span>Combat</span><span>Fully enabled</span></div>
+      <table class="metrics" aria-label="Important Result values"><tbody>
+        <tr><th>Max HP</th><td>16,890</td><td>16,890</td><td>19,340</td></tr>
+        <tr><th>Sheer Force</th><td>2,104</td><td>2,104</td><td>2,432</td></tr>
+        <tr><th>CRIT Rate</th><td>58.6%</td><td>78.6%</td><td>83.4%</td></tr>
+        <tr><th>CRIT DMG</th><td>64.4%</td><td>64.4%</td><td>154.4%</td></tr>
+      </tbody></table>
+      <div class="gauge"><div class="gauge-labels"><span>Fully enabled CRIT Rate</span><span>83.4 / 100%</span></div><div class="gauge-track"><span class="gauge-fill"></span><i class="gauge-cap"></i></div></div>
+      <div class="actions"><span>Material action difference</span><div class="action-values"><span>Basic Attack<b>+58</b></span><span>EX Special<b>+78</b></span><span>Ultimate<b>+78</b></span></div></div>
+    </section>
+  </template>
+
+  <script>
+    const candidates = [
+      { n: '01', cls: 'balanced-seam', title: 'Balanced seam', note: '18 / 41 / 41 - compact dark portrait' },
+      { n: '02', cls: 'result-seam', title: 'Result seam', note: '16 / 39 / 45 - expanded Result field' },
+      { n: '03', cls: 'deep-seam', title: 'Deep seam', note: '17 / 41 / 42 - deeper Setup overlap' }
+    ];
+    const clone = id => document.getElementById(id).content.cloneNode(true);
+    const compact = (agent, index, role, image) => {
+      const node = document.createElement('aside');
+      node.className = 'compact';
+      node.setAttribute('aria-label', agent + ', compact party slot');
+      node.innerHTML = '<img class="compact-art" src="' + image + '" alt="' + agent + '"><span class="compact-index">0' + index + '</span><div class="compact-copy"><h3>' + agent + '</h3><p>S-Rank / ' + role + '<br>Party slot 0' + index + '</p></div>';
+      return node;
+    };
+    const list = document.getElementById('candidate-list');
+    candidates.forEach(item => {
+      const candidate = document.createElement('section');
+      candidate.className = 'candidate';
+      candidate.innerHTML = '<header class="candidate-heading"><h2>' + item.n + ' / ' + item.title + '</h2><p class="ratio-note">' + item.note + '</p></header>';
+      const windowNode = document.createElement('div');
+      windowNode.className = 'rail-window';
+      const row = document.createElement('div');
+      row.className = 'party-row soft-finalist-row ' + item.cls + '-row';
+      const expanded = document.createElement('article');
+      expanded.className = 'expanded soft-finalist ' + item.cls;
+      expanded.dataset.mindscape = 'm0';
+      expanded.append(clone('identity-template'), clone('setup-template'), clone('result-template'));
+      row.append(expanded, compact('Dialyn', 2, 'Stun', 'assets/dialyn-card.webp'), compact('Lucia', 3, 'Support', 'assets/lucia-card.webp'));
+      windowNode.append(row); candidate.append(windowNode); list.append(candidate);
+    });
+    document.querySelectorAll('.preview-buttons button').forEach(button => button.addEventListener('click', () => {
+      const state = button.dataset.state;
+      document.querySelectorAll('.preview-buttons button').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      document.querySelectorAll('.soft-finalist').forEach(slot => {
+        slot.dataset.mindscape = state;
+        slot.querySelector('.mindscape-chip').textContent = state.toUpperCase();
+        slot.querySelector('.mindscape-value').textContent = 'Mindscape ' + state.toUpperCase();
+      });
+    }));
+  </script>
+</body>
+</html>

@@ -183,6 +183,10 @@ surface without crowding:
 - the focused-character marker cannot overlap the portrait, slot number, name,
   or identity symbols.
 
+Compact Agent artwork uses one consistent neutral treatment. That treatment is
+a compact-view presentation choice and does not vary with the Agent's current
+Mindscape.
+
 ### Expanded State
 
 The expanded header uses the same portrait, name,
@@ -197,6 +201,28 @@ Attribute and Specialty images use transparent surrounding backgrounds. Agent
 Rank uses the admitted in-game Rank image. Faction is not a default primary
 identity in the preview; expose it only where party-condition explanation makes
 it useful.
+
+Expanded Agent artwork uses one consistent full-color treatment for every
+current Mindscape. Identity does not display the current Mindscape or change
+color with it. The editable M0 through M6 value remains visible only at its
+owning Setup input.
+
+Compact and expanded states retain the same Agent artwork identity. Calibrate
+each crop from the Agent's face position and body center rather than from the
+source image bounds so different source dimensions keep comparable perceived
+scale.
+
+### Expanded Slot Composition
+
+The desktop expanded slot reads left to right as Identity, Setup, and Result.
+Setup and Result remain adjacent. Identity is a constrained identification
+plane; it may create a soft asymmetric seam into Setup, but artwork, color, and
+decoration must not cover Setup content or make Identity the workbench's visual
+center.
+
+Exact ratios and pixel dimensions are calibration inputs rather than product
+meaning. Rebalance the areas from real content before reducing readable type,
+images, or controls.
 
 ## Equipment Presentation
 
@@ -284,6 +310,18 @@ without adding rationale prose.
 Geometry may be linear, orbital, or another coherent structure. It must make
 this order and the relationship between groups more apparent than the shape
 itself.
+
+The current expanded-slot direction uses a top-to-bottom assembly stack because
+Setup shares constrained horizontal space with the adjacent Result. W-Engine
+and refinement occupy one row, the 4-piece and 2-piece fields remain adjacent,
+main stats form the next group, and effective-substat counts finish the flow.
+
+Do not compress a width-dependent horizontal equipment core into this Setup
+area. It may be reconsidered only if a later allocation can show W-Engine and
+Disc content side by side without shrinking their readable content, weakening
+Result, or adding a competing horizontal attention path. Stacking that geometry
+after it no longer expresses the horizontal relationship is not preservation of
+the same direction.
 
 ### Main Stats
 
@@ -378,12 +416,22 @@ geometry to explain hierarchy and action.
 
 - Use asymmetry, cropped planes, weight contrast, and selective geometric cuts
   where they strengthen reading order.
+- Use neutral surfaces as the base hierarchy. Accent hue and proportion may
+  vary, but accent exists to orient a current action or selection rather than
+  to fill every region.
+- Keep Agent artwork subordinate to the Setup and Result work surfaces. A
+  cartoon-poster composition in which character scale or broad saturated color
+  fields dominate the workbench is not the selected direction.
+- Keep Rank, Attribute, and Specialty symbols compact because their purpose is
+  to compress identity.
 - Use yellow markers sparingly for a current action, selected state, or primary
   orientation point.
 - Do not add a diagonal merely to make a rectangular component appear more
   game-like.
 - Do not add a circle unless it expresses a center, orbit, grouping, control,
   or selection relationship.
+- Use boundary collision or penetration only when it joins adjacent surfaces
+  without obscuring their current value or available action.
 - Preserve calm negative space around dense information; do not manufacture
   empty space by shrinking the information itself.
 - Product clarity and internal consistency outrank spectacle.
@@ -447,5 +495,13 @@ The following patterns contradict this authority:
 - letting circular substat controls protrude beyond their owning circle;
 - using one generic target ellipse for incompatible target shapes;
 - repeating yellow markers or diagonal cuts without a hierarchy or action role;
+- displaying Mindscape in Agent Identity or varying Identity color by
+  Mindscape;
+- letting Agent art or saturated Identity surfaces take visual priority from
+  Setup and Result;
+- appending missing Setup inputs into leftover footer space instead of
+  recalculating the complete Setup footprint;
+- forcing a width-dependent horizontal equipment composition into a narrow
+  Setup surface by shrinking its content;
 - allowing a horizontal swipe plane around the workbench; and
 - promoting mockup pixel values or geometry into permanent product meaning.
