@@ -35,6 +35,16 @@ describe('integrated party workbench', () => {
     expectExpandedFrame('295%')
   })
 
+  it('uses actual Attribute and Specialty symbols for every current Agent', () => {
+    render(<App />)
+
+    for (const label of ['Auric Ink, Rupture', 'Physical, Stun', 'Ether, Support']) {
+      expect(screen.getByLabelText(label).querySelectorAll('img')).toHaveLength(2)
+    }
+
+    expect(screen.queryByText('Damage contributor')).not.toBeInTheDocument()
+  })
+
   it('presents distinct prepared Disc effects and stable main-stat values', () => {
     render(<App />)
 

@@ -1,10 +1,14 @@
 import { useEffect, useRef, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
-import dialynPortrait from '../assets/agents/dialyn.webp'
-import luciaPortrait from '../assets/agents/lucia.webp'
-import yixuanPortrait from '../assets/agents/yixuan.webp'
-import auricInkMark from '../assets/identity/attribute-auric-ink.png'
-import rankSMark from '../assets/identity/rank-s.png'
-import ruptureMark from '../assets/identity/specialty-rupture.png'
+import dialynPortrait from '../assets/agents/portraits/dialyn.webp'
+import luciaPortrait from '../assets/agents/portraits/lucia.webp'
+import yixuanPortrait from '../assets/agents/portraits/yixuan.webp'
+import auricInkMark from '../assets/game/attributes/auric-ink.webp'
+import etherMark from '../assets/game/attributes/ether.webp'
+import physicalMark from '../assets/game/attributes/physical.webp'
+import rankSMark from '../assets/game/ranks/s.webp'
+import ruptureMark from '../assets/game/specialties/rupture.webp'
+import stunMark from '../assets/game/specialties/stun.webp'
+import supportMark from '../assets/game/specialties/support.webp'
 import { PARTY_AGENTS, type AgentId } from '../workbench/content'
 
 const PORTRAITS: Record<AgentId, string> = {
@@ -12,6 +16,13 @@ const PORTRAITS: Record<AgentId, string> = {
   dialyn: dialynPortrait,
   lucia: luciaPortrait,
 }
+
+const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> = {
+  yixuan: { attribute: auricInkMark, specialty: ruptureMark },
+  dialyn: { attribute: physicalMark, specialty: stunMark },
+  lucia: { attribute: etherMark, specialty: supportMark },
+}
+
 type PortraitVariant = 'expanded' | 'compact'
 
 interface PortraitPoint {
@@ -142,19 +153,12 @@ function RankMark() {
 }
 
 function IdentityMarks({ agentId, attribute, specialty }: { agentId: AgentId; attribute: string; specialty: string }) {
-  if (agentId === 'yixuan') {
-    return (
-      <span className="identity-pair identity-pair--symbols" aria-label={`${attribute}, ${specialty}`}>
-        <img src={auricInkMark} alt="" />
-        <img src={ruptureMark} alt="" />
-      </span>
-    )
-  }
+  const marks = IDENTITY_MARKS[agentId]
 
   return (
-    <span className="identity-pair identity-pair--text" aria-label={`${attribute}, ${specialty}`}>
-      <span>{attribute}</span>
-      <span>{specialty}</span>
+    <span className="identity-pair identity-pair--symbols" aria-label={`${attribute}, ${specialty}`}>
+      <img src={marks.attribute} alt="" />
+      <img src={marks.specialty} alt="" />
     </span>
   )
 }
@@ -186,7 +190,6 @@ function ExpandedIdentity({ agentId, onSelect, onKeyDown }: SlotControlProps) {
         <span className="slot-number">0{agent.order}</span>
         <strong className={`focus-marker ${agent.id === 'yixuan' ? '' : 'focus-marker--reserved'}`} aria-hidden={agent.id !== 'yixuan'}>Focus</strong>
         <span className="slot-name-line"><strong className="identity-name">{agent.name}</strong></span>
-        <span className="role-line">{agent.roles.join(' \u00B7 ')}</span>
         <span className="identity-band">
           <RankMark />
           <IdentityMarks agentId={agent.id} attribute={agent.attribute} specialty={agent.specialty} />
