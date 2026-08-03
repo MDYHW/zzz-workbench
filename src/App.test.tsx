@@ -1,85 +1,125 @@
-﻿import { render, screen, within } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { App } from './App'
 
-describe('setup workbench', () => {
-  it('renders the complete prepared party and current Result immediately', () => {
+describe('integrated party workbench', () => {
+  it('starts with Yixuan expanded and exactly one visible Result without a global party-effects region', () => {
     render(<App />)
 
-    expect(screen.getByRole('heading', { name: 'Setup Workbench' })).toBeInTheDocument()
-    expect(screen.getByText('Yixuan', { selector: '.slot-name-line h3' })).toBeInTheDocument()
-    expect(screen.getByText('Dialyn', { selector: '.slot-name-line h3' })).toBeInTheDocument()
-    expect(screen.getByText('Lucia', { selector: '.slot-name-line h3' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Select Qingming Birdcage W1' })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByRole('button', { name: 'Select Cauldron of Clarity W5' })).toBeInTheDocument()
-    expect(screen.getAllByText('16,434').length).toBeGreaterThan(0)
-    const exUltimateRow = screen.getByText('EX Special & Ultimate').closest('tr') as HTMLElement
-    expect(exUltimateRow).toBeInTheDocument()
-    const exUltimateSources = within(exUltimateRow).getAllByText(/Qingming Birdcage.*EX\/Ultimate/)
-    expect(exUltimateSources).toHaveLength(2)
-    expect(exUltimateSources.every((source) => source.closest('li')?.textContent?.includes('+20.0%'))).toBe(true)  })
-
-  it('shows each full-pool engine package and static prepared equipment truthfully', () => {
-    render(<App />)
-
-    const qingming = screen.getByRole('button', { name: 'Select Qingming Birdcage W1' })
-    const cauldron = screen.getByRole('button', { name: 'Select Cauldron of Clarity W5' })
-    expect(within(qingming).getByText(/Base ATK/)).toBeInTheDocument()
-    expect(within(qingming).getByText('EX Special & Ultimate Ether Sheer DMG +20%')).toBeInTheDocument()
-    expect(within(cauldron).getByText(/3 EX Special stacks.*CRIT Rate \+10\.4%/)).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /King of the Summit/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Yixuan setup' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Yixuan Result' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'View Dialyn setup and Result' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'View Lucia setup and Result' })).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { name: /Result$/i })).toHaveLength(1)
+    expect(screen.queryByLabelText(/party effects/i)).not.toBeInTheDocument()
   })
 
-  it('preserves substat counts on a direct W-Engine edit and recalculates Result', async () => {
+  it('changes only the viewed slot and preserves Yixuan Focus and input state', async () => {
     const user = userEvent.setup()
     render(<App />)
 
     await user.click(screen.getByRole('button', { name: 'Increase HP hits' }))
-    expect(screen.getByLabelText('HP hit count')).toHaveTextContent('1')
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    expect(screen.getByRole('heading', { name: 'Dialyn setup' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Dialyn Result' })).toBeInTheDocument()
+    expect(screen.getAllByText('Focus')).not.toHaveLength(0)
+    expect(screen.queryByRole('button', { name: /Increase .* hits/ })).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Select Cauldron of Clarity W5' }))
+    await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
     expect(screen.getByLabelText('HP hit count')).toHaveTextContent('1')
-    expect(screen.getByRole('button', { name: 'Select Cauldron of Clarity W5' })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.queryByText('EX Special & Ultimate')).not.toBeInTheDocument()
   })
 
-  it('re-prepares Yixuan and resets counts when the pool changes', async () => {
+  it('keeps the selected full-pool engine closed until opened and preserves direct edits', async () => {
     const user = userEvent.setup()
     render(<App />)
 
+    expect(screen.queryByRole('button', { name: 'Select Cauldron of Clarity W5' })).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Increase CRIT Rate hits' }))
+    await user.click(screen.getByRole('button', { name: /Change W-Engine from Qingming Birdcage/ }))
+    await user.click(screen.getByRole('button', { name: 'Select Cauldron of Clarity W5' }))
     expect(screen.getByLabelText('CRIT Rate hit count')).toHaveTextContent('1')
-
-    await user.click(screen.getByRole('button', { name: /^Non-limited/ }))
-    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveTextContent('0')
     expect(screen.queryByRole('button', { name: 'Select Qingming Birdcage W1' })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Select Cauldron of Clarity W5' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: /Change W-Engine from Cauldron/ })).toHaveFocus()
   })
 
-  it('updates only the consumed values for one substat click', async () => {
+  it('re-prepares only the pool-owned setup and does not show a false selector in the one-engine pool', async () => {
     const user = userEvent.setup()
     render(<App />)
-
-    const yixuanResult = document.querySelector<HTMLElement>('.agent-result--yixuan')!
-    const beforeAtk = within(yixuanResult).getAllByText('1,931')
-    expect(beforeAtk.length).toBeGreaterThan(0)
 
     await user.click(screen.getByRole('button', { name: 'Increase ATK hits' }))
-    expect(within(yixuanResult).getAllByText('1,979').length).toBeGreaterThan(0)
-    expect(screen.getByLabelText('ATK hit count')).toHaveTextContent('1')
+    await user.click(screen.getByRole('button', { name: /^Non-limited/ }))
+    expect(screen.getByLabelText('ATK hit count')).toHaveTextContent('0')
+    expect(screen.getByText('Cauldron of Clarity')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Change W-Engine/ })).not.toBeInTheDocument()
   })
 
-  it('expands a Result row into numeric source contributions', async () => {
+  it('shows complete non-interactive partner summaries with only approved effective substats', async () => {
     const user = userEvent.setup()
     render(<App />)
 
-    const critButton = screen.getAllByRole('button', { name: /CRIT Rate/ })
-      .find((button) => button.classList.contains('metric-toggle'))!
-    await user.click(critButton)
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    expect(screen.getByLabelText('Dialyn prepared effective substats')).toHaveTextContent('CRIT Rate')
+    expect(screen.getByLabelText('Dialyn prepared effective substats')).toHaveTextContent('0')
+    expect(screen.queryByRole('button', { name: /Change W-Engine/ })).not.toBeInTheDocument()
 
-    expect(critButton).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getAllByText(/Drive Disc.*Slot 4/).length).toBeGreaterThan(0)
-    expect(screen.getByLabelText('Fully Enabled CRIT Rate gauge')).toBeInTheDocument()
+    await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
+    const substats = screen.getByLabelText('Lucia prepared effective substats')
+    expect(within(substats).getAllByText('HP')).toHaveLength(2)
+    expect(within(substats).getAllByText('0')).toHaveLength(2)
+  })
+
+  it('discloses incremental source breakdown, calculation-supplied gauges, and owned operations', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Impact' }))
+    expect(screen.getByRole('group', { name: /Initial CRIT Rate: current 75\.4, cap 100, threshold 50\.0/ })).toBeInTheDocument()
+    expect(screen.getByText('Threshold 50.0')).toBeInTheDocument()
+    expect(screen.getByLabelText('Agent operations')).toHaveTextContent('Fully enabled')
+    expect(screen.getByLabelText('Agent operations')).toHaveTextContent('Enemy Stun DMG Multiplier')
+    expect(screen.getAllByText('0.0%').length).toBeGreaterThan(0)
+
+    await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Squad Sheer Force' }))
+    expect(screen.getByRole('group', { name: /Initial Max HP: current 21,697\.1, cap 24,000/ })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Max HP' }))
+    expect(screen.getAllByText('Combat subtotal').length).toBeGreaterThan(0)
+  })
+  it('uses one roving slot tab stop before setup controls', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const yixuanTab = screen.getByRole('tab', { name: 'View Yixuan setup and Result' })
+    yixuanTab.focus()
+    expect(yixuanTab).toHaveAttribute('aria-selected', 'true')
+
+    await user.keyboard('{ArrowRight}')
+    const dialynTab = screen.getByRole('tab', { name: 'View Dialyn setup and Result' })
+    expect(dialynTab).toHaveAttribute('aria-selected', 'true')
+    expect(dialynTab).toHaveFocus()
+    expect(screen.getByText(/Focus.*Yixuan/)).toBeInTheDocument()
+
+    await user.keyboard('{ArrowLeft}')
+    const returnedYixuanTab = screen.getByRole('tab', { name: 'View Yixuan setup and Result' })
+    expect(returnedYixuanTab).toHaveFocus()
+    await user.tab()
+    expect(screen.getByRole('button', { name: /^Full pool/ })).toHaveFocus()
+  })
+
+  it('closes engine alternatives across pool re-preparation', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: /Change W-Engine from Qingming Birdcage/ }))
+    expect(screen.getByRole('button', { name: 'Select Cauldron of Clarity W5' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /^Non-limited/ }))
+    expect(screen.queryByRole('button', { name: /Change W-Engine/ })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /^Full pool/ }))
+    expect(screen.getByText('Qingming Birdcage')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Select Cauldron of Clarity W5' })).not.toBeInTheDocument()
   })
 })

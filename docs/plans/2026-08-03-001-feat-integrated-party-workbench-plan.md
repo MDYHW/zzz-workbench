@@ -1,7 +1,7 @@
 ---
 title: "feat: Integrate the fixed-party workbench surface"
 type: feat
-status: active
+status: completed
 date: 2026-08-03
 origin: docs/brainstorms/2026-08-02-agent-slot-setup-result-ui-requirements.md
 ---

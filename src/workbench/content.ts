@@ -6,7 +6,6 @@ export type SubstatKey = 'critRate' | 'critDmg' | 'hpPct' | 'atkPct'
 export interface WEngineChoice {
   id: EngineId
   name: string
-  rank: 'S' | 'A'
   refinement: 'W1' | 'W5'
   baseAtk: number
   advancedStat: {
@@ -40,34 +39,30 @@ export interface AgentSummary {
     refinement: 'W1'
   }
   equipment: PreparedEquipment
-  accent: string
-  portraitMark: string
 }
 
 export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   qingming: {
     id: 'qingming',
     name: 'Qingming Birdcage',
-    rank: 'S',
     refinement: 'W1',
     baseAtk: 743,
     advancedStat: { label: 'HP', value: 30 },
     passiveLines: [
-      'Entering combat \u00B7 CRIT Rate +20%',
-      '2 Qingming Companion stacks \u00B7 Ether DMG +16%',
+      'Passive \u00B7 CRIT Rate +20%',
+      'Combat entry \u00B7 Ether DMG +16%',
       'EX Special & Ultimate Ether Sheer DMG +20%',
     ],
   },
   cauldron: {
     id: 'cauldron',
     name: 'Cauldron of Clarity',
-    rank: 'A',
     refinement: 'W5',
     baseAtk: 594,
     advancedStat: { label: 'HP', value: 25 },
     passiveLines: [
-      '3 EX Special stacks \u00B7 DMG +19.2%',
-      '3 EX Special stacks \u00B7 CRIT Rate +10.4%',
+      'Fully enabled \u00B7 DMG +19.2%',
+      'Fully enabled \u00B7 CRIT Rate +10.4%',
     ],
   },
 }
@@ -101,6 +96,18 @@ export const SUBSTAT_CHOICES: Record<SubstatKey, { label: string; perHit: number
 
 export const SUBSTAT_KEYS = Object.keys(SUBSTAT_CHOICES) as SubstatKey[]
 
+export const PARTNER_EFFECTIVE_SUBSTATS: Record<Exclude<AgentId, 'yixuan'>, Array<{
+  label: string
+  perHit: number
+  unit: '%' | ''
+}>> = {
+  dialyn: [{ label: 'CRIT Rate', perHit: 2.4, unit: '%' }],
+  lucia: [
+    { label: 'HP', perHit: 3, unit: '%' },
+    { label: 'HP', perHit: 112, unit: '' },
+  ],
+}
+
 export const PARTY_AGENTS: AgentSummary[] = [
   {
     id: 'yixuan',
@@ -113,8 +120,6 @@ export const PARTY_AGENTS: AgentSummary[] = [
     pool: 'Full',
     engine: { name: 'Qingming Birdcage', refinement: 'W1' },
     equipment: TARGET_EQUIPMENT,
-    accent: '#1c7f70',
-    portraitMark: '\u6613',
   },
   {
     id: 'dialyn',
@@ -135,8 +140,6 @@ export const PARTY_AGENTS: AgentSummary[] = [
         slot6: 'Energy Regen +60%',
       },
     },
-    accent: '#c3653b',
-    portraitMark: '\u94C3',
   },
   {
     id: 'lucia',
@@ -157,8 +160,6 @@ export const PARTY_AGENTS: AgentSummary[] = [
         slot6: 'HP +30%',
       },
     },
-    accent: '#7182bd',
-    portraitMark: '\u68A6',
   },
 ]
 
@@ -189,9 +190,11 @@ export const VERTICAL_VALUES = {
     woodpeckerCritRate: 8,
     yunkuiCritRate: 12,
     yunkuiSheerDmg: 10,
+    slot5EtherDmg: 30,
     hpToSheer: 0.1,
     atkToSheer: 0.3,
-    coreActionDmg: 30,
+    coreActionDmg: 60,
+    additionalExDmg: 30,
   },
   dialyn: {
     critRate: 19.4,
@@ -243,13 +246,15 @@ export const SOURCE_LABELS = {
   woodpecker2: 'Woodpecker Electro \u00B7 2-piece',
   qingming: 'Qingming Birdcage \u00B7 W1',
   cauldron: 'Cauldron of Clarity \u00B7 W5',
-  dialynCore: 'Dialyn \u00B7 Five-Star Service Hotline',
-  dialynAbility: 'Dialyn \u00B7 External Line',
+  yixuanCore: 'Yixuan \u00B7 Core Passive',
+  yixuanAbility: 'Yixuan \u00B7 Additional Ability',
+  dialynCore: 'Dialyn \u00B7 Core Passive',
+  dialynAbility: 'Dialyn \u00B7 Additional Ability',
   yesterday: 'Dialyn \u00B7 Yesterday Calls W1',
   king: 'Dialyn \u00B7 King of the Summit',
-  luciaCore: 'Lucia \u00B7 Lost Nocturne',
+  luciaCore: 'Lucia \u00B7 Core Passive',
   luciaAbility: 'Lucia \u00B7 Additional Ability',
   dreamlit: 'Lucia \u00B7 Dreamlit Hearth W1',
   moonlight: 'Lucia \u00B7 Moonlight Lullaby',
-  darkbreaker: 'Lucia \u00B7 Darkbreaker',
+  luciaSheer: 'Lucia \u00B7 EX Special Attack',
 } as const

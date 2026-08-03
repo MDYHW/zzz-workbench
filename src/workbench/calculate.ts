@@ -15,6 +15,7 @@ export interface Contribution {
 }
 
 export interface GaugeResult {
+  source: string
   basisLabel: string
   current: number
   threshold?: number
@@ -34,34 +35,32 @@ export interface ResultMetric {
   gauge?: GaugeResult
 }
 
-export interface AgentResult {
-  agentId: AgentId
-  metrics: ResultMetric[]
-}
-
 export interface ActionModifier {
   id: string
   label: string
-  combat: number
-  fully: number
-  sources: {
-    combat: Contribution[]
-    fully: Contribution[]
-  }
+  metricId: string
+  values: Record<SurfaceKey, number>
+  breakdown: Record<SurfaceKey, Contribution[]>
 }
 
-export interface PartyEffect {
-  source: string
+export interface ResultOperation {
+  id: string
   label: string
+  source: string
+  surface: 'fully'
   value: number
   unit: string
-  recipient: string
+}
+
+export interface AgentResult {
+  agentId: AgentId
+  metrics: ResultMetric[]
+  actionModifiers: ActionModifier[]
+  operations: ResultOperation[]
 }
 
 export interface PartyResult {
   agents: AgentResult[]
-  actionModifiers: ActionModifier[]
-  partyEffects: PartyEffect[]
 }
 
 const surfaces = <T>(initial: T, combat: T, fully: T): Record<SurfaceKey, T> => ({
@@ -71,9 +70,29 @@ const surfaces = <T>(initial: T, combat: T, fully: T): Record<SurfaceKey, T> => 
 })
 
 const contribution = (source: string, amount: number): Contribution => ({ source, amount })
+const subtotal = (surface: 'Initial' | 'Combat', amount: number): Contribution =>
+  contribution(`${surface} subtotal`, amount)
 
 const withoutZero = (items: Contribution[]): Contribution[] =>
   items.filter((item) => Math.abs(item.amount) > 0.000_001)
+
+const sumContributions = (items: Contribution[]): number =>
+  items.reduce((total, item) => total + item.amount, 0)
+
+function cappedAdditions(
+  priorValue: number,
+  cap: number,
+  additions: Contribution[],
+): Contribution[] {
+  const rawAddition = sumContributions(additions)
+  const displayedAddition = Math.min(priorValue + rawAddition, cap) - priorValue
+  const capAdjustment = displayedAddition - rawAddition
+
+  return withoutZero([
+    ...additions,
+    contribution('Displayed CRIT Rate cap', capAdjustment),
+  ])
+}
 
 function isComplete(state: WorkbenchState): state is WorkbenchState & {
   engineId: EngineId
@@ -93,7 +112,7 @@ function isComplete(state: WorkbenchState): state is WorkbenchState & {
   )
 }
 
-function calculateLuciaDarkbreaker(initialHp: number): number {
+function calculateLuciaSquadSheer(initialHp: number): number {
   const { darkbreakerBase, darkbreakerPer200Hp, darkbreakerCap } = VERTICAL_VALUES.lucia
   return Math.min(
     darkbreakerBase + (initialHp / 200) * darkbreakerPer200Hp,
@@ -111,15 +130,100 @@ function partyCritDmgBonus(): number {
   return party.dialynEngineCritDmg + party.dialynKingCritDmg + party.luciaCritDmg
 }
 
+function partyDmgBreakdown(): Contribution[] {
+  const party = VERTICAL_VALUES.party
+  return [
+    contribution(SOURCE_LABELS.dialynAbility, party.dialynDmg),
+    contribution(SOURCE_LABELS.luciaCore, party.luciaCoreDmg),
+    contribution(SOURCE_LABELS.moonlight, party.luciaDiscDmg),
+    contribution(SOURCE_LABELS.dreamlit, party.luciaEngineDmg),
+  ]
+}
+
+function partyCritDmgBreakdown(): Contribution[] {
+  const party = VERTICAL_VALUES.party
+  return [
+    contribution(SOURCE_LABELS.yesterday, party.dialynEngineCritDmg),
+    contribution(SOURCE_LABELS.king, party.dialynKingCritDmg),
+    contribution(SOURCE_LABELS.luciaAbility, party.luciaCritDmg),
+  ]
+}
+
 function calculateLuciaInitialHp(): number {
   const lucia = VERTICAL_VALUES.lucia
   return lucia.hp * (1 + (lucia.engineHp + lucia.yunkuiHp + lucia.mainHp) / 100)
     + VERTICAL_VALUES.fixedDisc.hp
 }
 
+function buildYixuanActionModifiers(
+  engineId: EngineId,
+): ActionModifier[] {
+  const yixuan = VERTICAL_VALUES.yixuan
+  const qingmingActionBonus = engineId === 'qingming' ? 20 : 0
+  const combatCommon = yixuan.coreActionDmg
+  const fullyCommon = combatCommon + yixuan.yunkuiSheerDmg
+
+  const buildRow = (
+    id: string,
+    label: string,
+    actionBonus: number,
+    fullyOnlyActionBonus = 0,
+  ): ActionModifier => {
+    const combat = combatCommon + actionBonus
+    const fully = fullyCommon + actionBonus + fullyOnlyActionBonus
+    const combatSources = [
+      subtotal('Initial', 0),
+      contribution(SOURCE_LABELS.yixuanCore, combatCommon),
+      ...withoutZero([
+        contribution(
+        'Qingming Birdcage · EX Special / Ultimate',
+        actionBonus,
+      ),
+      ]),
+    ]
+
+    return {
+      id,
+      label,
+      metricId: 'sheerDmgBonus',
+      values: surfaces(0, combat, fully),
+      breakdown: surfaces(
+        [],
+        combatSources,
+        [
+          subtotal('Combat', combat),
+          contribution(SOURCE_LABELS.yunkui4, yixuan.yunkuiSheerDmg),
+          ...withoutZero([
+            contribution(SOURCE_LABELS.yixuanAbility, fullyOnlyActionBonus),
+          ]),
+        ],
+      ),
+    }
+  }
+
+  return [
+    buildRow(
+      'basicAssistChain',
+      'Basic Attack / Assist Follow-Up / Chain Attack',
+      0,
+    ),
+    buildRow(
+      'exSpecial',
+      'EX Special Attack',
+      qingmingActionBonus,
+      yixuan.additionalExDmg,
+    ),
+    buildRow(
+      'ultimate',
+      'Ultimate',
+      qingmingActionBonus,
+    ),
+  ]
+}
+
 function calculateYixuan(
   state: WorkbenchState & { engineId: EngineId },
-  luciaDarkbreaker: number,
+  luciaSquadSheer: number,
 ): AgentResult {
   const values = VERTICAL_VALUES
   const yixuan = values.yixuan
@@ -143,51 +247,64 @@ function calculateYixuan(
   const initialSheer = initialHp * yixuan.hpToSheer + initialAtk * yixuan.atkToSheer
   const fullySheer = fullyHp * yixuan.hpToSheer
     + initialAtk * yixuan.atkToSheer
-    + luciaDarkbreaker
+    + luciaSquadSheer
 
-  const initialCritRate = yixuan.critRate
+  const uncappedInitialCritRate = yixuan.critRate
     + yixuan.slot4CritRate
     + yixuan.woodpeckerCritRate
     + critRateSubstat
+  const initialCritRate = Math.min(uncappedInitialCritRate, 100)
   const combatEngineCrit = state.engineId === 'qingming' ? 20 : 0
   const fullyEngineCrit = state.engineId === 'cauldron' ? 10.4 : 0
   const combatCritRate = Math.min(initialCritRate + combatEngineCrit, 100)
-  const uncappedFullyCritRate = initialCritRate
-    + combatEngineCrit
-    + fullyEngineCrit
-    + yixuan.yunkuiCritRate
-  const fullyCritRate = Math.min(uncappedFullyCritRate, 100)
+  const fullyCritRate = Math.min(
+    combatCritRate + fullyEngineCrit + yixuan.yunkuiCritRate,
+    100,
+  )
 
   const initialCritDmg = yixuan.critDmg + critDmgSubstat
-  const fullCritDmgBonus = partyCritDmgBonus()
-  const fullyCritDmg = initialCritDmg + fullCritDmgBonus
+  const fullyCritDmg = initialCritDmg + partyCritDmgBonus()
+
+  const initialDmgBonus = yixuan.slot5EtherDmg
+  const combatDmgBonus = initialDmgBonus + (state.engineId === 'qingming' ? 16 : 0)
+  const fullyDmgBonus = combatDmgBonus
+    + partyDmgBonus()
+    + (state.engineId === 'cauldron' ? 19.2 : 0)
+  const commonDmgBonus = surfaces(initialDmgBonus, combatDmgBonus, fullyDmgBonus)
 
   const hpInitialBreakdown = withoutZero([
     contribution(SOURCE_LABELS.agent, yixuan.hp),
     contribution(engineSource, yixuan.hp * engine.advancedStat.value / 100),
     contribution(SOURCE_LABELS.yunkui2, yixuan.hp * yixuan.yunkuiHp / 100),
     contribution(SOURCE_LABELS.slot6, yixuan.hp * yixuan.slot6Hp / 100),
-    contribution('Effective substat hits \u00B7 HP', yixuan.hp * hpSubstatPct / 100),
+    contribution('Effective substat hits · HP', yixuan.hp * hpSubstatPct / 100),
     contribution(SOURCE_LABELS.disc1, values.fixedDisc.hp),
   ])
 
-  const atkBreakdown = withoutZero([
+  const atkInitialBreakdown = withoutZero([
     contribution(SOURCE_LABELS.agent, yixuan.atk),
     contribution(engineSource, engine.baseAtk),
-    contribution('Effective substat hits \u00B7 ATK', atkSubstatAmount),
+    contribution('Effective substat hits · ATK', atkSubstatAmount),
     contribution(SOURCE_LABELS.disc2, values.fixedDisc.atk),
   ])
 
-  const critInitialBreakdown = withoutZero([
+  const rawCritInitialBreakdown = withoutZero([
     contribution(SOURCE_LABELS.agent, yixuan.critRate),
     contribution(SOURCE_LABELS.slot4, yixuan.slot4CritRate),
     contribution(SOURCE_LABELS.woodpecker2, yixuan.woodpeckerCritRate),
-    contribution('Effective substat hits \u00B7 CRIT Rate', critRateSubstat),
+    contribution('Effective substat hits · CRIT Rate', critRateSubstat),
+  ])
+  const critInitialBreakdown = withoutZero([
+    ...rawCritInitialBreakdown,
+    contribution(
+      'Displayed CRIT Rate cap',
+      initialCritRate - sumContributions(rawCritInitialBreakdown),
+    ),
   ])
 
   const critDmgInitialBreakdown = withoutZero([
     contribution(SOURCE_LABELS.agent, yixuan.critDmg),
-    contribution('Effective substat hits \u00B7 CRIT DMG', critDmgSubstat),
+    contribution('Effective substat hits · CRIT DMG', critDmgSubstat),
   ])
 
   return {
@@ -201,9 +318,9 @@ function calculateYixuan(
         values: surfaces(initialHp, initialHp, fullyHp),
         breakdown: surfaces(
           hpInitialBreakdown,
-          hpInitialBreakdown,
+          [subtotal('Initial', initialHp)],
           [
-            ...hpInitialBreakdown,
+            subtotal('Combat', initialHp),
             contribution(SOURCE_LABELS.luciaCore, luciaCoreHpAmount),
             contribution(SOURCE_LABELS.dreamlit, luciaEngineHpAmount),
           ],
@@ -215,7 +332,11 @@ function calculateYixuan(
         unit: '',
         decimals: 0,
         values: surfaces(initialAtk, initialAtk, initialAtk),
-        breakdown: surfaces(atkBreakdown, atkBreakdown, atkBreakdown),
+        breakdown: surfaces(
+          atkInitialBreakdown,
+          [subtotal('Initial', initialAtk)],
+          [subtotal('Combat', initialAtk)],
+        ),
       },
       {
         id: 'sheerForce',
@@ -225,17 +346,21 @@ function calculateYixuan(
         values: surfaces(initialSheer, initialSheer, fullySheer),
         breakdown: surfaces(
           [
-            contribution('Current Max HP \u00D7 0.1', initialHp * yixuan.hpToSheer),
-            contribution('Current ATK \u00D7 0.3', initialAtk * yixuan.atkToSheer),
+            contribution('Current Max HP × 0.1', initialHp * yixuan.hpToSheer),
+            contribution('Current ATK × 0.3', initialAtk * yixuan.atkToSheer),
           ],
+          [subtotal('Initial', initialSheer)],
           [
-            contribution('Current Max HP \u00D7 0.1', initialHp * yixuan.hpToSheer),
-            contribution('Current ATK \u00D7 0.3', initialAtk * yixuan.atkToSheer),
-          ],
-          [
-            contribution('Current Max HP \u00D7 0.1', fullyHp * yixuan.hpToSheer),
-            contribution('Current ATK \u00D7 0.3', initialAtk * yixuan.atkToSheer),
-            contribution(SOURCE_LABELS.darkbreaker, luciaDarkbreaker),
+            subtotal('Combat', initialSheer),
+            contribution(
+              SOURCE_LABELS.luciaCore,
+              luciaCoreHpAmount * yixuan.hpToSheer,
+            ),
+            contribution(
+              SOURCE_LABELS.dreamlit,
+              luciaEngineHpAmount * yixuan.hpToSheer,
+            ),
+            contribution(SOURCE_LABELS.luciaSheer, luciaSquadSheer),
           ],
         ),
       },
@@ -247,24 +372,26 @@ function calculateYixuan(
         values: surfaces(initialCritRate, combatCritRate, fullyCritRate),
         breakdown: surfaces(
           critInitialBreakdown,
-          withoutZero([
-            ...critInitialBreakdown,
-            contribution(engineSource, combatEngineCrit),
-          ]),
-          withoutZero([
-            ...critInitialBreakdown,
-            contribution(engineSource, combatEngineCrit + fullyEngineCrit),
-            contribution(SOURCE_LABELS.yunkui4, yixuan.yunkuiCritRate),
-          ]),
+          [
+            subtotal('Initial', initialCritRate),
+            ...cappedAdditions(
+              initialCritRate,
+              100,
+              [contribution(engineSource, combatEngineCrit)],
+            ),
+          ],
+          [
+            subtotal('Combat', combatCritRate),
+            ...cappedAdditions(
+              combatCritRate,
+              100,
+              [
+                contribution(engineSource, fullyEngineCrit),
+                contribution(SOURCE_LABELS.yunkui4, yixuan.yunkuiCritRate),
+              ],
+            ),
+          ],
         ),
-        gauge: {
-          basisLabel: 'Fully Enabled CRIT Rate',
-          current: Math.min(uncappedFullyCritRate, 100),
-          cap: 100,
-          outputLabel: 'Displayed CRIT Rate',
-          outputValue: fullyCritRate,
-          outputUnit: '%',
-        },
       },
       {
         id: 'critDmg',
@@ -274,16 +401,72 @@ function calculateYixuan(
         values: surfaces(initialCritDmg, initialCritDmg, fullyCritDmg),
         breakdown: surfaces(
           critDmgInitialBreakdown,
-          critDmgInitialBreakdown,
+          [subtotal('Initial', initialCritDmg)],
           [
-            ...critDmgInitialBreakdown,
-            contribution(SOURCE_LABELS.yesterday, values.party.dialynEngineCritDmg),
-            contribution(SOURCE_LABELS.king, values.party.dialynKingCritDmg),
-            contribution(SOURCE_LABELS.luciaAbility, values.party.luciaCritDmg),
+            subtotal('Combat', initialCritDmg),
+            ...partyCritDmgBreakdown(),
+          ],
+        ),
+      },
+      {
+        id: 'dmgBonus',
+        label: 'DMG Bonus',
+        unit: '%',
+        decimals: 1,
+        values: commonDmgBonus,
+        breakdown: surfaces(
+          [contribution(SOURCE_LABELS.slot5, initialDmgBonus)],
+          withoutZero([
+            subtotal('Initial', initialDmgBonus),
+            contribution(SOURCE_LABELS.qingming, combatDmgBonus - initialDmgBonus),
+          ]),
+          withoutZero([
+            subtotal('Combat', combatDmgBonus),
+            ...partyDmgBreakdown(),
+            contribution(SOURCE_LABELS.cauldron, state.engineId === 'cauldron' ? 19.2 : 0),
+          ]),
+        ),
+      },
+      {
+        id: 'sheerDmgBonus',
+        label: 'Sheer DMG Bonus',
+        unit: '%',
+        decimals: 1,
+        values: surfaces(
+          0,
+          yixuan.coreActionDmg,
+          yixuan.coreActionDmg + yixuan.yunkuiSheerDmg,
+        ),
+        breakdown: surfaces(
+          [],
+          [
+            subtotal('Initial', 0),
+            contribution(SOURCE_LABELS.yixuanCore, yixuan.coreActionDmg),
+          ],
+          [
+            subtotal('Combat', yixuan.coreActionDmg),
+            contribution(SOURCE_LABELS.yunkui4, yixuan.yunkuiSheerDmg),
+          ],
+        ),
+      },
+      {
+        id: 'stunDmgMultiplier',
+        label: 'Stun DMG Multiplier',
+        unit: '%',
+        decimals: 1,
+        values: surfaces(0, 0, values.party.dialynStunMultiplier),
+        breakdown: surfaces(
+          [],
+          [subtotal('Initial', 0)],
+          [
+            subtotal('Combat', 0),
+            contribution(SOURCE_LABELS.dialynCore, values.party.dialynStunMultiplier),
           ],
         ),
       },
     ],
+    actionModifiers: buildYixuanActionModifiers(state.engineId),
+    operations: [],
   }
 }
 
@@ -299,10 +482,9 @@ function calculateDialyn(): AgentResult {
     dialyn.impactBonusCap,
   )
   const combatImpact = dialyn.impact + impactBonus
-  const fullCritDmg = dialyn.critDmg + partyCritDmgBonus()
-  const fullDmg = partyDmgBonus()
+  const fullyCritDmg = dialyn.critDmg + partyCritDmgBonus()
 
-  const critBreakdown = [
+  const critInitialBreakdown = [
     contribution(SOURCE_LABELS.agent, dialyn.critRate),
     contribution(SOURCE_LABELS.yesterday, dialyn.engineCritRate),
     contribution(SOURCE_LABELS.slot4, dialyn.slot4CritRate),
@@ -318,16 +500,11 @@ function calculateDialyn(): AgentResult {
         unit: '%',
         decimals: 1,
         values: surfaces(initialCritRate, initialCritRate, initialCritRate),
-        breakdown: surfaces(critBreakdown, critBreakdown, critBreakdown),
-        gauge: {
-          basisLabel: 'Initial CRIT Rate',
-          current: initialCritRate,
-          threshold: dialyn.critThreshold,
-          cap: 100,
-          outputLabel: 'Combat Impact bonus',
-          outputValue: impactBonus,
-          outputUnit: '',
-        },
+        breakdown: surfaces(
+          critInitialBreakdown,
+          [subtotal('Initial', initialCritRate)],
+          [subtotal('Combat', initialCritRate)],
+        ),
       },
       {
         id: 'impact',
@@ -338,14 +515,21 @@ function calculateDialyn(): AgentResult {
         breakdown: surfaces(
           [contribution(SOURCE_LABELS.agent, dialyn.impact)],
           [
-            contribution(SOURCE_LABELS.agent, dialyn.impact),
+            subtotal('Initial', dialyn.impact),
             contribution(SOURCE_LABELS.dialynCore, impactBonus),
           ],
-          [
-            contribution(SOURCE_LABELS.agent, dialyn.impact),
-            contribution(SOURCE_LABELS.dialynCore, impactBonus),
-          ],
+          [subtotal('Combat', combatImpact)],
         ),
+        gauge: {
+          source: SOURCE_LABELS.dialynCore,
+          basisLabel: 'Initial CRIT Rate',
+          current: initialCritRate,
+          threshold: dialyn.critThreshold,
+          cap: 100,
+          outputLabel: 'Combat Impact bonus',
+          outputValue: impactBonus,
+          outputUnit: '',
+        },
       },
       {
         id: 'dazeBonus',
@@ -355,9 +539,12 @@ function calculateDialyn(): AgentResult {
         values: surfaces(0, dialyn.kingDaze, dialyn.kingDaze + dialyn.engineDaze),
         breakdown: surfaces(
           [],
-          [contribution(SOURCE_LABELS.king, dialyn.kingDaze)],
           [
+            subtotal('Initial', 0),
             contribution(SOURCE_LABELS.king, dialyn.kingDaze),
+          ],
+          [
+            subtotal('Combat', dialyn.kingDaze),
             contribution(SOURCE_LABELS.yesterday, dialyn.engineDaze),
           ],
         ),
@@ -367,15 +554,13 @@ function calculateDialyn(): AgentResult {
         label: 'CRIT DMG',
         unit: '%',
         decimals: 1,
-        values: surfaces(dialyn.critDmg, dialyn.critDmg, fullCritDmg),
+        values: surfaces(dialyn.critDmg, dialyn.critDmg, fullyCritDmg),
         breakdown: surfaces(
           [contribution(SOURCE_LABELS.agent, dialyn.critDmg)],
-          [contribution(SOURCE_LABELS.agent, dialyn.critDmg)],
+          [subtotal('Initial', dialyn.critDmg)],
           [
-            contribution(SOURCE_LABELS.agent, dialyn.critDmg),
-            contribution(SOURCE_LABELS.yesterday, values.party.dialynEngineCritDmg),
-            contribution(SOURCE_LABELS.king, values.party.dialynKingCritDmg),
-            contribution(SOURCE_LABELS.luciaAbility, values.party.luciaCritDmg),
+            subtotal('Combat', dialyn.critDmg),
+            ...partyCritDmgBreakdown(),
           ],
         ),
       },
@@ -384,36 +569,49 @@ function calculateDialyn(): AgentResult {
         label: 'DMG Bonus',
         unit: '%',
         decimals: 1,
-        values: surfaces(0, 0, fullDmg),
-        breakdown: surfaces([], [], partyDmgBreakdown()),
+        values: surfaces(0, 0, partyDmgBonus()),
+        breakdown: surfaces(
+          [],
+          [subtotal('Initial', 0)],
+          [subtotal('Combat', 0), ...partyDmgBreakdown()],
+        ),
+      },
+    ],
+    actionModifiers: [],
+    operations: [
+      {
+        id: 'stunMultiplier',
+        label: 'Enemy Stun DMG Multiplier',
+        source: SOURCE_LABELS.dialynCore,
+        surface: 'fully',
+        value: values.party.dialynStunMultiplier,
+        unit: '%',
+      },
+      {
+        id: 'stunDuration',
+        label: 'Enemy Stun duration',
+        source: SOURCE_LABELS.dialynCore,
+        surface: 'fully',
+        value: values.party.dialynStunExtension,
+        unit: 's',
       },
     ],
   }
 }
 
-function partyDmgBreakdown(): Contribution[] {
-  const party = VERTICAL_VALUES.party
-  return [
-    contribution(SOURCE_LABELS.dialynAbility, party.dialynDmg),
-    contribution(SOURCE_LABELS.luciaCore, party.luciaCoreDmg),
-    contribution(SOURCE_LABELS.moonlight, party.luciaDiscDmg),
-    contribution(SOURCE_LABELS.dreamlit, party.luciaEngineDmg),
-  ]
-}
-
-function calculateLucia(initialHp: number, darkbreaker: number): AgentResult {
+function calculateLucia(initialHp: number, squadSheer: number): AgentResult {
   const values = VERTICAL_VALUES
   const lucia = values.lucia
   const luciaCoreHpAmount = initialHp * values.party.luciaCoreHp / 100
   const luciaEngineHpAmount = initialHp * values.party.luciaEngineHp / 100
   const fullyHp = initialHp + luciaCoreHpAmount + luciaEngineHpAmount
-  const fullCritDmg = lucia.critDmg + partyCritDmgBonus()
+  const fullyCritDmg = lucia.critDmg + partyCritDmgBonus()
 
-  const hpBreakdown = [
+  const hpInitialBreakdown = [
     contribution(SOURCE_LABELS.agent, lucia.hp),
     contribution(SOURCE_LABELS.dreamlit, lucia.hp * lucia.engineHp / 100),
     contribution(SOURCE_LABELS.yunkui2, lucia.hp * lucia.yunkuiHp / 100),
-    contribution('Drive Discs \u00B7 Slots 4/5/6', lucia.hp * lucia.mainHp / 100),
+    contribution('Drive Discs · Slots 4/5/6', lucia.hp * lucia.mainHp / 100),
     contribution(SOURCE_LABELS.disc1, values.fixedDisc.hp),
   ]
 
@@ -427,52 +625,55 @@ function calculateLucia(initialHp: number, darkbreaker: number): AgentResult {
         decimals: 0,
         values: surfaces(initialHp, initialHp, fullyHp),
         breakdown: surfaces(
-          hpBreakdown,
-          hpBreakdown,
+          hpInitialBreakdown,
+          [subtotal('Initial', initialHp)],
           [
-            ...hpBreakdown,
+            subtotal('Combat', initialHp),
             contribution(SOURCE_LABELS.luciaCore, luciaCoreHpAmount),
             contribution(SOURCE_LABELS.dreamlit, luciaEngineHpAmount),
           ],
         ),
+      },
+      {
+        id: 'squadSheerForce',
+        label: 'Squad Sheer Force',
+        unit: '',
+        decimals: 1,
+        values: surfaces(0, 0, squadSheer),
+        breakdown: surfaces(
+          [],
+          [subtotal('Initial', 0)],
+          [
+            subtotal('Combat', 0),
+            contribution('EX Special Attack · base', lucia.darkbreakerBase),
+            contribution(
+              'EX Special Attack · Initial Max HP scaling',
+              squadSheer - lucia.darkbreakerBase,
+            ),
+          ],
+        ),
         gauge: {
+          source: SOURCE_LABELS.luciaSheer,
           basisLabel: 'Initial Max HP',
           current: initialHp,
           cap: 24000,
-          outputLabel: 'Darkbreaker Sheer Force',
-          outputValue: darkbreaker,
+          outputLabel: 'Squad Sheer Force',
+          outputValue: squadSheer,
           outputUnit: '',
         },
-      },
-      {
-        id: 'darkbreaker',
-        label: 'Darkbreaker Sheer Force',
-        unit: '',
-        decimals: 1,
-        values: surfaces(0, 0, darkbreaker),
-        breakdown: surfaces(
-          [],
-          [],
-          [
-            contribution('Darkbreaker base', lucia.darkbreakerBase),
-            contribution('Initial Max HP scaling', darkbreaker - lucia.darkbreakerBase),
-          ],
-        ),
       },
       {
         id: 'critDmg',
         label: 'CRIT DMG',
         unit: '%',
         decimals: 1,
-        values: surfaces(lucia.critDmg, lucia.critDmg, fullCritDmg),
+        values: surfaces(lucia.critDmg, lucia.critDmg, fullyCritDmg),
         breakdown: surfaces(
           [contribution(SOURCE_LABELS.agent, lucia.critDmg)],
-          [contribution(SOURCE_LABELS.agent, lucia.critDmg)],
+          [subtotal('Initial', lucia.critDmg)],
           [
-            contribution(SOURCE_LABELS.agent, lucia.critDmg),
-            contribution(SOURCE_LABELS.yesterday, values.party.dialynEngineCritDmg),
-            contribution(SOURCE_LABELS.king, values.party.dialynKingCritDmg),
-            contribution(SOURCE_LABELS.luciaAbility, values.party.luciaCritDmg),
+            subtotal('Combat', lucia.critDmg),
+            ...partyCritDmgBreakdown(),
           ],
         ),
       },
@@ -482,103 +683,29 @@ function calculateLucia(initialHp: number, darkbreaker: number): AgentResult {
         unit: '%',
         decimals: 1,
         values: surfaces(0, 0, partyDmgBonus()),
-        breakdown: surfaces([], [], partyDmgBreakdown()),
+        breakdown: surfaces(
+          [],
+          [subtotal('Initial', 0)],
+          [subtotal('Combat', 0), ...partyDmgBreakdown()],
+        ),
       },
     ],
+    actionModifiers: [],
+    operations: [],
   }
-}
-
-function buildActionModifiers(engineId: EngineId): ActionModifier[] {
-  const yixuan = VERTICAL_VALUES.yixuan
-  const fullParty = partyDmgBonus()
-  const engineCombat = engineId === 'qingming' ? 16 : 0
-  const engineFully = engineId === 'qingming' ? 16 : 19.2
-  const engineSource = engineId === 'qingming' ? SOURCE_LABELS.qingming : SOURCE_LABELS.cauldron
-  const baseCombat = engineCombat
-  const baseFully = fullParty + yixuan.yunkuiSheerDmg + engineFully
-  const commonFully = [
-    ...partyDmgBreakdown(),
-    contribution(SOURCE_LABELS.yunkui4, yixuan.yunkuiSheerDmg),
-    contribution(engineSource, engineFully),
-  ]
-  const rows: ActionModifier[] = [
-    {
-      id: 'allSheer',
-      label: 'All Sheer actions',
-      combat: baseCombat,
-      fully: baseFully,
-      sources: {
-        combat: withoutZero([contribution(engineSource, engineCombat)]),
-        fully: commonFully,
-      },
-    },
-    {
-      id: 'coreActions',
-      label: 'Core-supported actions',
-      combat: baseCombat + yixuan.coreActionDmg,
-      fully: baseFully + yixuan.coreActionDmg,
-      sources: {
-        combat: withoutZero([
-          contribution(engineSource, engineCombat),
-          contribution('Yixuan \u00B7 Grandmaster of Mysticism', yixuan.coreActionDmg),
-        ]),
-        fully: [
-          ...commonFully,
-          contribution('Yixuan \u00B7 Grandmaster of Mysticism', yixuan.coreActionDmg),
-        ],
-      },
-    },
-  ]
-
-  if (engineId === 'qingming') {
-    rows.push({
-      id: 'exUltimate',
-      label: 'EX Special & Ultimate',
-      combat: baseCombat + yixuan.coreActionDmg + 20,
-      fully: baseFully + yixuan.coreActionDmg + 20,
-      sources: {
-        combat: [
-          contribution(SOURCE_LABELS.qingming, engineCombat),
-          contribution('Qingming Birdcage \u00B7 EX/Ultimate', 20),
-          contribution('Yixuan \u00B7 Grandmaster of Mysticism', yixuan.coreActionDmg),
-        ],
-        fully: [
-          ...commonFully,
-          contribution('Yixuan \u00B7 Grandmaster of Mysticism', yixuan.coreActionDmg),
-          contribution('Qingming Birdcage \u00B7 EX/Ultimate', 20),
-        ],
-      },
-    })
-  }
-
-  return rows
-}
-
-function buildPartyEffects(luciaDarkbreaker: number): PartyEffect[] {
-  const party = VERTICAL_VALUES.party
-  return [
-    { source: SOURCE_LABELS.dialynAbility, label: 'DMG Bonus', value: party.dialynDmg, unit: '%', recipient: 'All Agents' },
-    { source: SOURCE_LABELS.dialynCore, label: 'Stun DMG Multiplier', value: party.dialynStunMultiplier, unit: '%', recipient: 'Enemy' },
-    { source: SOURCE_LABELS.dialynCore, label: 'Stun duration', value: party.dialynStunExtension, unit: 's', recipient: 'Enemy' },
-    { source: SOURCE_LABELS.luciaCore, label: 'Max HP', value: party.luciaCoreHp, unit: '%', recipient: 'All Agents' },
-    { source: SOURCE_LABELS.dreamlit, label: 'Max HP', value: party.luciaEngineHp, unit: '%', recipient: 'All Agents' },
-    { source: SOURCE_LABELS.darkbreaker, label: 'Sheer Force', value: luciaDarkbreaker, unit: '', recipient: 'Rupture / Stun' },
-  ]
 }
 
 export function calculateParty(state: WorkbenchState): PartyResult | null {
   if (!isComplete(state)) return null
 
   const luciaInitialHp = calculateLuciaInitialHp()
-  const luciaDarkbreaker = calculateLuciaDarkbreaker(luciaInitialHp)
+  const luciaSquadSheer = calculateLuciaSquadSheer(luciaInitialHp)
 
   return {
     agents: [
-      calculateYixuan(state, luciaDarkbreaker),
+      calculateYixuan(state, luciaSquadSheer),
       calculateDialyn(),
-      calculateLucia(luciaInitialHp, luciaDarkbreaker),
+      calculateLucia(luciaInitialHp, luciaSquadSheer),
     ],
-    actionModifiers: buildActionModifiers(state.engineId),
-    partyEffects: buildPartyEffects(luciaDarkbreaker),
   }
 }
