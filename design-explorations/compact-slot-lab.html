@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Compact identity typography and marks</title>
+<style>
+:root{color-scheme:dark;--accent:#d5a83c;--line:#514c43;--display:"Bahnschrift Condensed","Arial Narrow",sans-serif;--mono:"IBM Plex Mono",Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;color:#eee9dd;background:linear-gradient(#d5a83c08 1px,transparent 1px),linear-gradient(90deg,#d5a83c08 1px,transparent 1px),#141411;background-size:28px 28px;font-family:var(--mono)}
+button{font:inherit}
+.lab{width:min(1540px,calc(100% - 28px));min-width:1160px;margin:auto;padding:18px 0 52px}
+.lab-head{display:grid;grid-template-columns:.8fr 1.2fr;gap:38px;align-items:end;padding:18px 22px;border:1px solid var(--line);background:#1b1a17f5;box-shadow:7px 7px 0 #0005}
+.eyebrow,.label{color:#efc85f;font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
+h1{margin:5px 0 0;font:900 clamp(40px,5vw,66px)/.84 var(--display);letter-spacing:-.035em;text-transform:uppercase}
+.lab-head p{max-width:75ch;margin:0;color:#bdb6aa;font-size:11px;line-height:1.65}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:14px 0}
+.rules article{padding:10px 12px;border-top:2px solid var(--accent);background:#1a1916d9;color:#9f988d;font-size:8px;line-height:1.5}
+.rules strong{display:block;margin-bottom:4px;color:#ded7ca;font-size:9px;text-transform:uppercase}
+.controls{position:sticky;z-index:20;top:0;display:grid;grid-template-columns:1fr auto;gap:14px;margin-bottom:12px;padding:11px 13px;border:1px solid var(--line);background:#131210f2;backdrop-filter:blur(10px)}
+.candidate-tabs,.agent-tabs{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.controls button{min-height:32px;padding:0 11px;border:1px solid #585248;color:#d3ccc0;background:transparent;cursor:pointer}
+.controls button[aria-pressed=true]{border-color:var(--accent);color:#171611;background:var(--accent);font-weight:700}
+.candidate-info{display:grid;grid-template-columns:58px minmax(0,1fr) minmax(270px,.7fr);gap:16px;align-items:start;margin-bottom:12px;padding:12px 14px;border:1px solid var(--line);background:#1d1c19ef}
+.candidate-number{display:grid;width:50px;height:50px;place-items:center;color:#171611;background:var(--accent);font:900 23px/1 var(--display)}
+h2{margin:0;font:900 31px/.92 var(--display);text-transform:uppercase}
+.candidate-info p,.candidate-info aside{margin:5px 0 0;color:#aaa398;font-size:10px;line-height:1.5}
+.candidate-info aside{margin:0;padding:7px 9px;border-left:3px solid var(--accent);background:#191815}
+.preview-shell{overflow:hidden;border:1px solid #5c574e;background:#12120f;box-shadow:8px 8px 0 #0006}
+iframe{display:block;width:100%;height:900px;border:0;background:#151512}
+.reading{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-top:14px}
+.reading article{min-height:78px;padding:10px 11px;border-top:1px solid #5b554b;background:#191815c2;color:#989186;font-size:8px;line-height:1.45}
+.reading strong{display:block;margin-bottom:4px;color:#e1d9cd;text-transform:uppercase}
+</style>
+</head>
+<body>
+<main class="lab">
+<header class="lab-head"><div><span class="eyebrow">Compact slot / selected direction</span><h1>Name-led identity<br>without slot numbers</h1></div><p>The selected A composition is now the working direction. Slot order text is removed from all three Agents, and every compact Agent name uses one shared size that stays on a single line.</p></header>
+<section class="rules"><article><strong>Selected composition</strong>Large Agent name followed by one balanced horizontal mark row.</article><article><strong>Removed duplicate</strong>Visible 01, 02, and 03 slot-order text is absent.</article><article><strong>Shared typography</strong>No per-Agent font sizing, truncation, or forced clipping.</article></section>
+<nav class="controls" aria-label="Selected compact identity"><div class="candidate-tabs" id="candidate-tabs"></div><div class="agent-tabs"><span class="label">Expanded Agent</span><button type="button" data-agent="yixuan" aria-pressed="true">Yixuan</button><button type="button" data-agent="dialyn" aria-pressed="false">Dialyn</button><button type="button" data-agent="lucia" aria-pressed="false">Lucia</button></div></nav>
+<section class="candidate-info" aria-live="polite"><span class="candidate-number" id="candidate-number">A</span><div><span class="eyebrow">Selected identity lockup</span><h2 id="candidate-title"></h2><p id="candidate-description"></p></div><aside id="candidate-map"></aside></section>
+<section class="preview-shell"><iframe id="product-frame" title="Actual workbench compact identity preview" src="/"></iframe></section>
+<section class="reading"><article><strong>A Selected</strong>One-line name first, balanced horizontal Rank, Attribute, and Specialty marks second.</article></section>
+</main>
+<script>
+const commonCss=[
+'.party-slot--compact{isolation:isolate!important;background:#171714!important}',
+'.party-slot--compact::before{content:"";position:absolute;z-index:4;pointer-events:none;inset:0 0 auto 0;height:360px;background:#24231f;clip-path:polygon(0 0,100% 0,100% 190px,0 317px)}',
+'.party-slot--compact::after{display:none!important}',
+'.party-slot--compact .identity-art{z-index:5!important;top:-12px!important;right:0!important;bottom:0!important;left:0!important;clip-path:none!important}',
+'.party-slot--compact .agent-art{--portrait-target-x:50%!important;--portrait-target-y:24%!important;--portrait-width:460%!important}',
+'.party-slot--compact .identity-shade{z-index:3!important;background:linear-gradient(180deg,rgba(18,18,16,.05) 20%,rgba(18,18,16,.2) 48%,#1b1a18 92%)!important}',
+'.party-slot--compact>.slot-identity{z-index:6!important;inset:0!important;width:auto!important;height:auto!important}',
+'.party-slot--compact .slot-name-line,.party-slot--compact .rank-mark,.party-slot--compact .identity-pair--symbols img{position:absolute!important;z-index:6}',
+'.party-slot--compact .identity-band,.party-slot--compact .identity-pair{display:contents!important;width:auto!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important}',
+'.party-slot--compact .slot-name-line strong{display:block!important;max-width:none!important;overflow-wrap:normal!important;white-space:nowrap!important;text-shadow:0 2px 9px #000e}',
+'.party-slot--compact .rank-mark{display:grid!important;place-items:center!important}',
+'.party-slot--compact .rank-mark img,.party-slot--compact .identity-pair--symbols img{display:block!important;object-fit:contain!important}',
+'.party-slot--compact .identity-band img{filter:saturate(.28) brightness(.92) contrast(.96)!important;opacity:.82!important}',
+'.party-slot--compact>.focus-marker{z-index:7!important;top:104px!important;right:auto!important;left:10px!important}',
+'.slot-identity--expanded .slot-number,.party-slot--compact>.slot-number{display:none!important}',
+].join('');
+const drafts=[
+{id:'selected',number:'A',short:'Selected',title:'Name-led caption',description:'The Agent name stays on one line at the largest shared size that fits the compact slots. Rank, Attribute, and Specialty remain a balanced second line.',map:'Name 31px / one line<br>Rank 27 x 26<br>Attribute / Specialty 30 x 30',css:'.party-slot--compact .slot-name-line{top:18px;right:8px;left:10px}.party-slot--compact .slot-name-line strong{font-size:31px!important;line-height:.86!important}.party-slot--compact .rank-mark{top:58px;left:10px;width:27px!important;height:26px!important}.party-slot--compact .identity-pair--symbols img:nth-child(1){top:56px;left:45px;width:30px!important;height:30px!important}.party-slot--compact .identity-pair--symbols img:nth-child(2){top:56px;left:82px;width:30px!important;height:30px!important}'}
+];
+let currentDraft=drafts[0],currentAgent='yixuan';
+const frame=document.querySelector('#product-frame'),tabs=document.querySelector('#candidate-tabs');
+function renderTabs(){tabs.innerHTML=drafts.map(draft=>'<button type="button" data-draft="'+draft.id+'" aria-pressed="'+(draft.id===currentDraft.id)+'">'+draft.number+' '+draft.short+'</button>').join('')}
+function updateInfo(){document.querySelector('#candidate-number').textContent=currentDraft.number;document.querySelector('#candidate-title').textContent=currentDraft.title;document.querySelector('#candidate-description').textContent=currentDraft.description;document.querySelector('#candidate-map').innerHTML=currentDraft.map}
+function injectDraft(){const doc=frame.contentDocument;if(!doc||!doc.head)return;doc.querySelector('#compact-slot-lab-style')?.remove();const style=doc.createElement('style');style.id='compact-slot-lab-style';style.textContent=commonCss+currentDraft.css;doc.head.append(style);frame.contentWindow.scrollTo({top:0,behavior:'instant'})}
+function selectDraft(id){currentDraft=drafts.find(draft=>draft.id===id);renderTabs();updateInfo();injectDraft()}
+function selectAgent(id){currentAgent=id;document.querySelectorAll('[data-agent]').forEach(button=>button.setAttribute('aria-pressed',button.dataset.agent===id));frame.contentDocument?.querySelector('#party-tab-'+id)?.click();setTimeout(injectDraft,40)}
+tabs.addEventListener('click',event=>{const button=event.target.closest('[data-draft]');if(button)selectDraft(button.dataset.draft)});
+document.querySelector('.agent-tabs').addEventListener('click',event=>{const button=event.target.closest('[data-agent]');if(button)selectAgent(button.dataset.agent)});
+frame.addEventListener('load',()=>setTimeout(()=>{selectAgent(currentAgent);injectDraft()},180));
+renderTabs();updateInfo();
+</script>
+</body>
+</html>

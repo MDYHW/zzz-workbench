@@ -13,9 +13,12 @@ describe('integrated party workbench', () => {
     expect(screen.getByRole('tab', { name: 'View Lucia setup and Result' })).toBeInTheDocument()
     expect(screen.getAllByRole('heading', { name: /Result$/i })).toHaveLength(1)
     expect(screen.queryByLabelText(/party effects/i)).not.toBeInTheDocument()
+    for (const tab of screen.getAllByRole('tab')) {
+      expect(within(tab).queryByText(/^0[1-3]$/)).not.toBeInTheDocument()
+    }
   })
 
-  it('uses one expanded face target with a bounded Dialyn optical scale correction', async () => {
+  it('uses shared expanded and compact face targets with one bounded optical correction', async () => {
     const user = userEvent.setup()
     render(<App />)
 
@@ -28,11 +31,25 @@ describe('integrated party workbench', () => {
       expect(portrait!.style.getPropertyValue('--portrait-width')).toBe(expectedWidth)
     }
 
+    const expectCompactFrames = () => {
+      const portraits = document.querySelectorAll<HTMLElement>('.party-slot--compact .agent-art')
+
+      expect(portraits).toHaveLength(2)
+      for (const portrait of portraits) {
+        expect(portrait.style.getPropertyValue('--portrait-target-x')).toBe('50%')
+        expect(portrait.style.getPropertyValue('--portrait-target-y')).toBe('24%')
+        expect(portrait.style.getPropertyValue('--portrait-width')).toBe('460%')
+      }
+    }
+
     expectExpandedFrame('295%')
+    expectCompactFrames()
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
     expectExpandedFrame('288%')
+    expectCompactFrames()
     await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
     expectExpandedFrame('295%')
+    expectCompactFrames()
   })
 
   it('uses actual Attribute and Specialty symbols for every current Agent', () => {

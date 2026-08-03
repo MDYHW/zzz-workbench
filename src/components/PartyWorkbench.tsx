@@ -70,7 +70,12 @@ const DESKTOP_EXPANDED_PORTRAIT_FRAME: PortraitFrame = {
   width: 295,
 }
 
-// Compact and responsive destinations are calibrated separately from desktop.
+const DESKTOP_COMPACT_PORTRAIT_FRAME: PortraitFrame = {
+  anchor: { x: 50, y: 24 },
+  width: 460,
+}
+
+// Compact desktop, stacked, and mobile destinations are calibrated separately.
 const PORTRAIT_PRESENTATION: Record<AgentId, PortraitPresentation> = {
   yixuan: {
     source: { face: { x: 55.8, y: 12 } },
@@ -79,7 +84,7 @@ const PORTRAIT_PRESENTATION: Record<AgentId, PortraitPresentation> = {
       mobile: { anchor: { x: 31.7, y: 46.1 }, width: 85 },
     },
     compact: {
-      default: { anchor: { x: 79.6, y: 23.5 }, width: 470 },
+      default: DESKTOP_COMPACT_PORTRAIT_FRAME,
       stacked: { anchor: { x: 55.7, y: 42.9 }, width: 102 },
       mobile: { anchor: { x: 58.7, y: 40.6 }, width: 149 },
     },
@@ -91,7 +96,7 @@ const PORTRAIT_PRESENTATION: Record<AgentId, PortraitPresentation> = {
       mobile: { anchor: { x: 25, y: 49.8 }, width: 108 },
     },
     compact: {
-      default: { anchor: { x: 50, y: 26.4 }, width: 430 },
+      default: DESKTOP_COMPACT_PORTRAIT_FRAME,
       stacked: { anchor: { x: 50, y: 45.9 }, width: 104 },
       mobile: { anchor: { x: 50, y: 45.1 }, width: 144 },
     },
@@ -103,7 +108,7 @@ const PORTRAIT_PRESENTATION: Record<AgentId, PortraitPresentation> = {
       mobile: { anchor: { x: 23.7, y: 52 }, width: 130 },
     },
     compact: {
-      default: { anchor: { x: 45.3, y: 28 }, width: 470 },
+      default: DESKTOP_COMPACT_PORTRAIT_FRAME,
       stacked: { anchor: { x: 49, y: 48 }, width: 100 },
       mobile: { anchor: { x: 48, y: 48 }, width: 200 },
     },
@@ -187,7 +192,6 @@ function ExpandedIdentity({ agentId, onSelect, onKeyDown }: SlotControlProps) {
       <PortraitArt agentId={agent.id} variant="expanded" />
       <span className="identity-shade" aria-hidden="true" />
       <span className="identity-copy">
-        <span className="slot-number">0{agent.order}</span>
         <strong className={`focus-marker ${agent.id === 'yixuan' ? '' : 'focus-marker--reserved'}`} aria-hidden={agent.id !== 'yixuan'}>Focus</strong>
         <span className="slot-name-line"><strong className="identity-name">{agent.name}</strong></span>
         <span className="identity-band">
@@ -217,7 +221,6 @@ function CompactSlot({ agentId, onSelect, onKeyDown }: SlotControlProps) {
     >
       <PortraitArt agentId={agent.id} variant="compact" />
       <span className="identity-shade" aria-hidden="true" />
-      <span className="slot-number">0{agent.order}</span>
       <span className="slot-identity">
         <span className="slot-name-line"><strong>{agent.name}</strong></span>
         <span className="identity-band">
