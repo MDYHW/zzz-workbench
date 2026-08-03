@@ -105,9 +105,7 @@ function isComplete(state: WorkbenchState): state is WorkbenchState & {
       && state.refinement
       && equipment?.fourPiece
       && equipment.twoPiece
-      && equipment.mains.slot4
-      && equipment.mains.slot5
-      && equipment.mains.slot6
+      && Object.values(equipment.mains).every(({ stat, value }) => Boolean(stat && value))
       && hasCompleteSubstats(state.substats),
   )
 }
@@ -176,7 +174,7 @@ function buildYixuanActionModifiers(
       contribution(SOURCE_LABELS.yixuanCore, combatCommon),
       ...withoutZero([
         contribution(
-        'Qingming Birdcage · EX Special / Ultimate',
+        SOURCE_LABELS.qingming,
         actionBonus,
       ),
       ]),

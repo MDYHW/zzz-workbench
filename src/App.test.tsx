@@ -15,6 +15,44 @@ describe('integrated party workbench', () => {
     expect(screen.queryByLabelText(/party effects/i)).not.toBeInTheDocument()
   })
 
+  it('uses one expanded face target with a bounded Dialyn optical scale correction', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const expectExpandedFrame = (expectedWidth: string) => {
+      const portrait = document.querySelector<HTMLElement>('.slot-identity--expanded .agent-art')
+
+      expect(portrait).not.toBeNull()
+      expect(portrait!.style.getPropertyValue('--portrait-target-x')).toBe('38%')
+      expect(portrait!.style.getPropertyValue('--portrait-target-y')).toBe('25.2%')
+      expect(portrait!.style.getPropertyValue('--portrait-width')).toBe(expectedWidth)
+    }
+
+    expectExpandedFrame('295%')
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    expectExpandedFrame('288%')
+    await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
+    expectExpandedFrame('295%')
+  })
+
+  it('presents distinct prepared Disc effects and stable main-stat values', () => {
+    render(<App />)
+
+    const yunkuiEffects = screen.getByRole('list', { name: 'Yunkui Tales effects' })
+    expect(within(yunkuiEffects).getAllByRole('listitem')).toHaveLength(3)
+    expect(within(yunkuiEffects).getByText('Fully enabled \u00B7 CRIT Rate +12%')).toBeInTheDocument()
+    expect(within(yunkuiEffects).getByText('Fully enabled \u00B7 Sheer DMG +10%')).toBeInTheDocument()
+    expect(within(yunkuiEffects).getByText('2-piece \u00B7 HP +10%')).toBeInTheDocument()
+
+    const mainStats = screen.getByLabelText('Yixuan prepared main stats')
+    expect(within(mainStats).getByText('Disc 4')).toBeInTheDocument()
+    expect(within(mainStats).getByText('CRIT Rate')).toBeInTheDocument()
+    expect(within(mainStats).getByText('+24%')).toBeInTheDocument()
+    expect(within(mainStats).getByText('Ether DMG')).toBeInTheDocument()
+    expect(within(mainStats).getByText('HP')).toBeInTheDocument()
+    expect(within(mainStats).getAllByText('+30%')).toHaveLength(2)
+  })
+
   it('changes only the viewed slot and preserves Yixuan Focus and input state', async () => {
     const user = userEvent.setup()
     render(<App />)

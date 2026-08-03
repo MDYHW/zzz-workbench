@@ -19,9 +19,9 @@ export interface PreparedEquipment {
   fourPiece: string
   twoPiece: string
   mains: {
-    slot4: string
-    slot5: string
-    slot6: string
+    slot4: { stat: string; value: string }
+    slot5: { stat: string; value: string }
+    slot6: { stat: string; value: string }
   }
 }
 
@@ -76,9 +76,9 @@ export const TARGET_EQUIPMENT: PreparedEquipment = {
   fourPiece: 'Yunkui Tales',
   twoPiece: 'Woodpecker Electro',
   mains: {
-    slot4: 'CRIT Rate +24%',
-    slot5: 'Ether DMG +30%',
-    slot6: 'HP +30%',
+    slot4: { stat: 'CRIT Rate', value: '+24%' },
+    slot5: { stat: 'Ether DMG', value: '+30%' },
+    slot6: { stat: 'HP', value: '+30%' },
   },
 }
 
@@ -135,9 +135,9 @@ export const PARTY_AGENTS: AgentSummary[] = [
       fourPiece: 'King of the Summit',
       twoPiece: 'Woodpecker Electro',
       mains: {
-        slot4: 'CRIT Rate +24%',
-        slot5: 'ATK +30%',
-        slot6: 'Energy Regen +60%',
+        slot4: { stat: 'CRIT Rate', value: '+24%' },
+        slot5: { stat: 'ATK', value: '+30%' },
+        slot6: { stat: 'Energy Regen', value: '+60%' },
       },
     },
   },
@@ -155,9 +155,9 @@ export const PARTY_AGENTS: AgentSummary[] = [
       fourPiece: 'Moonlight Lullaby',
       twoPiece: 'Yunkui Tales',
       mains: {
-        slot4: 'HP +30%',
-        slot5: 'HP +30%',
-        slot6: 'HP +30%',
+        slot4: { stat: 'HP', value: '+30%' },
+        slot5: { stat: 'HP', value: '+30%' },
+        slot6: { stat: 'HP', value: '+30%' },
       },
     },
   },
@@ -166,11 +166,15 @@ export const PARTY_AGENTS: AgentSummary[] = [
 export const DISC_SUMMARIES = {
   yunkui: {
     name: 'Yunkui Tales',
-    effect: '2-piece \u00B7 HP +10% / 4-piece fully enabled \u00B7 CRIT Rate +12%, Sheer DMG +10%',
+    effects: [
+      'Fully enabled \u00B7 CRIT Rate +12%',
+      'Fully enabled \u00B7 Sheer DMG +10%',
+      '2-piece \u00B7 HP +10%',
+    ],
   },
   woodpecker: {
     name: 'Woodpecker Electro',
-    effect: '2-piece \u00B7 CRIT Rate +8%',
+    effects: ['2-piece \u00B7 CRIT Rate +8%'],
   },
 } as const
 

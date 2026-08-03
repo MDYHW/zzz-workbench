@@ -70,7 +70,7 @@ describe('calculateParty', () => {
       amount: 60,
     })
     expect(exSpecial.breakdown.combat).toContainEqual({
-      source: 'Qingming Birdcage · EX Special / Ultimate',
+      source: 'Qingming Birdcage · W1',
       amount: 20,
     })
     expect(exSpecial.breakdown.combat.some((item) => item.source.includes('Additional Ability'))).toBe(false)
@@ -341,6 +341,17 @@ describe('calculateParty', () => {
   it('returns no Result when a required target selection is incomplete', () => {
     const prepared = createPreparedState()
     const missingEngine: WorkbenchState = { ...prepared, engineId: null }
+    if (!prepared.equipment) throw new Error('Prepared state must include equipment')
+    const missingMainStat: WorkbenchState = {
+      ...prepared,
+      equipment: {
+        ...prepared.equipment,
+        mains: {
+          ...prepared.equipment.mains,
+          slot5: { ...prepared.equipment.mains.slot5, stat: '' },
+        },
+      },
+    }
     const missingEquipment: WorkbenchState = { ...prepared, equipment: null }
     const missingCount: WorkbenchState = {
       ...prepared,
@@ -350,5 +361,6 @@ describe('calculateParty', () => {
     expect(calculateParty(missingEngine)).toBeNull()
     expect(calculateParty(missingEquipment)).toBeNull()
     expect(calculateParty(missingCount)).toBeNull()
+    expect(calculateParty(missingMainStat)).toBeNull()
   })
 })

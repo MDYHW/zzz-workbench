@@ -1,7 +1,7 @@
-import { useEffect, useRef, type KeyboardEvent, type ReactNode } from 'react'
+import { useEffect, useRef, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
 import dialynPortrait from '../assets/agents/dialyn.webp'
 import luciaPortrait from '../assets/agents/lucia.webp'
-import yixuanPortrait from '../assets/agents/yixuan.png'
+import yixuanPortrait from '../assets/agents/yixuan.webp'
 import auricInkMark from '../assets/identity/attribute-auric-ink.png'
 import rankSMark from '../assets/identity/rank-s.png'
 import ruptureMark from '../assets/identity/specialty-rupture.png'
@@ -11,6 +11,124 @@ const PORTRAITS: Record<AgentId, string> = {
   yixuan: yixuanPortrait,
   dialyn: dialynPortrait,
   lucia: luciaPortrait,
+}
+type PortraitVariant = 'expanded' | 'compact'
+
+interface PortraitPoint {
+  x: number
+  y: number
+}
+
+interface PortraitFrame {
+  anchor: PortraitPoint
+  width: number
+}
+
+interface PortraitTarget {
+  default: PortraitFrame
+  stacked?: PortraitFrame
+  mobile?: PortraitFrame
+}
+
+interface PortraitPresentation {
+  source: {
+    face: PortraitPoint
+  }
+  expanded: PortraitTarget
+  compact: PortraitTarget
+}
+
+type PortraitStyle = CSSProperties & {
+  '--portrait-landmark-x': string
+  '--portrait-landmark-y': string
+  '--portrait-target-x': string
+  '--portrait-target-y': string
+  '--portrait-width': string
+  '--portrait-stacked-target-x': string
+  '--portrait-stacked-target-y': string
+  '--portrait-stacked-width': string
+  '--portrait-mobile-target-x': string
+  '--portrait-mobile-target-y': string
+  '--portrait-mobile-width': string
+}
+
+// Each source owns only its face landmark. The desktop expanded slot owns one
+// shared destination and scale so Agent changes preserve the same visual frame.
+const DESKTOP_EXPANDED_PORTRAIT_FRAME: PortraitFrame = {
+  anchor: { x: 38, y: 25.2 },
+  width: 295,
+}
+
+// Compact and responsive destinations are calibrated separately from desktop.
+const PORTRAIT_PRESENTATION: Record<AgentId, PortraitPresentation> = {
+  yixuan: {
+    source: { face: { x: 55.8, y: 12 } },
+    expanded: {
+      default: DESKTOP_EXPANDED_PORTRAIT_FRAME,
+      mobile: { anchor: { x: 31.7, y: 46.1 }, width: 85 },
+    },
+    compact: {
+      default: { anchor: { x: 79.6, y: 23.5 }, width: 470 },
+      stacked: { anchor: { x: 55.7, y: 42.9 }, width: 102 },
+      mobile: { anchor: { x: 58.7, y: 40.6 }, width: 149 },
+    },
+  },
+  dialyn: {
+    source: { face: { x: 50, y: 15 } },
+    expanded: {
+      default: { ...DESKTOP_EXPANDED_PORTRAIT_FRAME, width: 288 },
+      mobile: { anchor: { x: 25, y: 49.8 }, width: 108 },
+    },
+    compact: {
+      default: { anchor: { x: 50, y: 26.4 }, width: 430 },
+      stacked: { anchor: { x: 50, y: 45.9 }, width: 104 },
+      mobile: { anchor: { x: 50, y: 45.1 }, width: 144 },
+    },
+  },
+  lucia: {
+    source: { face: { x: 44, y: 14 } },
+    expanded: {
+      default: DESKTOP_EXPANDED_PORTRAIT_FRAME,
+      mobile: { anchor: { x: 23.7, y: 52 }, width: 130 },
+    },
+    compact: {
+      default: { anchor: { x: 45.3, y: 28 }, width: 470 },
+      stacked: { anchor: { x: 49, y: 48 }, width: 100 },
+      mobile: { anchor: { x: 48, y: 48 }, width: 200 },
+    },
+  },
+}
+
+function PortraitArt({ agentId, variant }: { agentId: AgentId; variant: PortraitVariant }) {
+  const presentation = PORTRAIT_PRESENTATION[agentId]
+  const target = presentation[variant]
+  const defaultFrame = target.default
+  const stackedFrame = target.stacked ?? defaultFrame
+  const mobileFrame = target.mobile ?? stackedFrame
+  const style: PortraitStyle = {
+    '--portrait-landmark-x': `-${presentation.source.face.x}%`,
+    '--portrait-landmark-y': `-${presentation.source.face.y}%`,
+    '--portrait-target-x': `${defaultFrame.anchor.x}%`,
+    '--portrait-target-y': `${defaultFrame.anchor.y}%`,
+    '--portrait-width': `${defaultFrame.width}%`,
+    '--portrait-stacked-target-x': `${stackedFrame.anchor.x}%`,
+    '--portrait-stacked-target-y': `${stackedFrame.anchor.y}%`,
+    '--portrait-stacked-width': `${stackedFrame.width}%`,
+    '--portrait-mobile-target-x': `${mobileFrame.anchor.x}%`,
+    '--portrait-mobile-target-y': `${mobileFrame.anchor.y}%`,
+    '--portrait-mobile-width': `${mobileFrame.width}%`,
+  }
+
+  return (
+    <span className="identity-art" aria-hidden="true">
+      <img
+        className="agent-art"
+        src={PORTRAITS[agentId]}
+        alt=""
+        style={style}
+      />
+    </span>
+  )
 }
 
 interface PartyWorkbenchProps {
@@ -62,9 +180,7 @@ function ExpandedIdentity({ agentId, onSelect, onKeyDown }: SlotControlProps) {
       onClick={onSelect}
       onKeyDown={onKeyDown}
     >
-      <span className="identity-art" aria-hidden="true">
-        <img className={`agent-art agent-art--${agent.id}`} src={PORTRAITS[agent.id]} alt="" />
-      </span>
+      <PortraitArt agentId={agent.id} variant="expanded" />
       <span className="identity-shade" aria-hidden="true" />
       <span className="identity-copy">
         <span className="slot-number">0{agent.order}</span>
@@ -96,7 +212,7 @@ function CompactSlot({ agentId, onSelect, onKeyDown }: SlotControlProps) {
       onClick={onSelect}
       onKeyDown={onKeyDown}
     >
-      <span className="identity-art" aria-hidden="true"><img className={`agent-art agent-art--${agent.id}`} src={PORTRAITS[agent.id]} alt="" /></span>
+      <PortraitArt agentId={agent.id} variant="compact" />
       <span className="identity-shade" aria-hidden="true" />
       <span className="slot-number">0{agent.order}</span>
       <span className="slot-identity">

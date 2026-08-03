@@ -207,10 +207,38 @@ current Mindscape. Identity does not display the current Mindscape or change
 color with it. The editable M0 through M6 value remains visible only at its
 owning Setup input.
 
-Compact and expanded states retain the same Agent artwork identity. Calibrate
-each crop from the Agent's face position and body center rather than from the
-source image bounds so different source dimensions keep comparable perceived
-scale.
+Compact and expanded states retain the same Agent artwork identity. Each source
+asset records the face position inside its own canvas. The desktop expanded
+slot then aligns that source landmark to one shared destination and renders all
+current Agents from one nominal canvas scale. Agent-specific source landmarks
+correct differences in composition. A source may receive a small optical scale
+correction only when its pose, head-to-body proportion, hair, clothing, or
+surrounding objects make it materially heavier or lighter than the other
+current portraits at the nominal scale. The correction balances perceived
+identity weight; it does not model the Agent's canonical height.
+
+For the current desktop geometry and current square source canvases, the shared
+face destination is `11.4%` of the full expanded-slot width and `25.2%` of the
+Identity height. The artwork surface currently spans `30%` of the full slot, so
+the implementation expresses the horizontal destination as `38%` of that
+surface. The nominal expanded canvas width is `295%` of the artwork surface.
+Dialyn currently uses `288%` as the admitted optical correction while keeping
+the shared face destination unchanged. These numbers are current visual
+calibration inputs, not game or product meaning.
+
+Use the face landmark as the deterministic placement anchor. Do not derive
+placement from source-canvas center, transparent bounds, visible silhouette
+mass, or a synthetic body axis. Those measurements vary with pose, hair,
+clothing, and surrounding objects and did not preserve a stable identity frame.
+Body balance remains a visual acceptance check rather than a second placement
+input.
+
+The accepted desktop crop keeps each face in the corridor between the center
+of the `16%` Identity track and the Identity-to-Setup edge, places the face below
+the name without a hard collision, preserves a comparable perceived Agent
+scale, and keeps artwork out of Setup content. Compact, stacked, and mobile
+frames are separate responsive calibrations; this desktop frame does not
+silently replace them.
 
 ### Expanded Slot Composition
 

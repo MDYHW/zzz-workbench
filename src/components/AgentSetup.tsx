@@ -36,8 +36,8 @@ function EquipmentSummary({ agentId }: { agentId: AgentId }) {
   const discs = agentId === 'yixuan'
     ? [DISC_SUMMARIES.yunkui, DISC_SUMMARIES.woodpecker]
     : [
-        { name: agent.equipment.fourPiece, effect: 'Prepared 4-piece selection' },
-        { name: agent.equipment.twoPiece, effect: 'Prepared 2-piece selection' },
+        { name: agent.equipment.fourPiece, effects: ['Prepared 4-piece selection'] },
+        { name: agent.equipment.twoPiece, effects: ['Prepared 2-piece selection'] },
       ]
 
   return (
@@ -49,16 +49,18 @@ function EquipmentSummary({ agentId }: { agentId: AgentId }) {
             <div>
               <small>{index === 0 ? '4-PIECE' : '2-PIECE'}</small>
               <strong>{disc.name}</strong>
-              <p>{disc.effect}</p>
+              <ul className="disc-effect-list" aria-label={`${disc.name} effects`}>
+                {disc.effects.map((effect) => <li key={effect}>{effect}</li>)}
+              </ul>
             </div>
           </article>
         ))}
       </div>
       <dl className="main-stat-grid" aria-label={`${agent.name} prepared main stats`}>
-        {Object.entries(agent.equipment.mains).map(([slot, value]) => (
+        {Object.entries(agent.equipment.mains).map(([slot, selection]) => (
           <div key={slot}>
             <dt>Disc {slot.replace('slot', '')}</dt>
-            <dd>{value}</dd>
+            <dd><span>{selection.stat}</span><strong>{selection.value}</strong></dd>
           </div>
         ))}
       </dl>
