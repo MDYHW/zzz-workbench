@@ -30,6 +30,11 @@ describe('workbench state lifecycle', () => {
     expect(state.equipment?.fourPiece).toBe('Yunkui Tales')
     expect(state.equipment?.twoPiece).toBe('Woodpecker Electro')
     expect(state.substats).toEqual({ critRate: 0, critDmg: 0, hpPct: 0 })
+    expect(state.partnerSubstats).toEqual({
+      dialynCritRate: 0,
+      luciaHpPct: 0,
+      luciaHpFlat: 0,
+    })
   })
 
   it('preserves downstream setup inputs on a direct W-Engine edit', () => {
@@ -83,6 +88,28 @@ describe('workbench state lifecycle', () => {
 
     expect(below.substats.critRate).toBe(0)
     expect(above.substats.critRate).toBe(36)
+  })
+
+  it('edits partner substats independently and preserves them across Yixuan pool preparation', () => {
+    let state = createPreparedState()
+    state = workbenchReducer(state, {
+      type: 'adjustPartnerSubstat',
+      key: 'dialynCritRate',
+      delta: 1,
+    })
+    state = workbenchReducer(state, {
+      type: 'setPartnerSubstat',
+      key: 'luciaHpPct',
+      value: 3,
+    })
+    state = workbenchReducer(state, { type: 'switchPool', pool: 'nonLimited' })
+
+    expect(state.substats).toEqual({ critRate: 0, critDmg: 0, hpPct: 0 })
+    expect(state.partnerSubstats).toEqual({
+      dialynCritRate: 1,
+      luciaHpPct: 3,
+      luciaHpFlat: 0,
+    })
   })
 
   it('does not admit an engine outside the current pool', () => {

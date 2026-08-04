@@ -240,7 +240,7 @@ stat itself a formula component.
 | Term | Game meaning needed by the workbench | Boundary |
 | --- | --- | --- |
 | Base Stat | value before equipment and other stat bonuses; Agent and W-Engine Base ATK contribute to the applicable base | composition belongs to formula mechanics |
-| Base Energy Regen | Agent Energy Regen basis before percentage contributions; applied Core upgrades can increase this base when the source names them | composition belongs to formula mechanics; Energy gains and Energy-per-second operations remain separate |
+| Base Energy Regen | Agent Energy Regen basis before percentage contributions; applied Core upgrades can increase this base when the source names them | composition belongs to formula mechanics; per-second operations are not part of this base or its percentage region, and one-time Energy gains remain separate |
 | initial stat | stat shown before combat after applicable pre-combat equipment contributions; some source effects explicitly read this value | the product contract owns the initial-stat display surface |
 | combat stat | stat after in-combat stat changes are applied | the product contract owns the combat-baseline display surface |
 

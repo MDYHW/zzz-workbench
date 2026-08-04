@@ -59,10 +59,26 @@ modifier regions keep their separately owned additive or multiplicative
 relationships.
 
 Base Energy Regen includes an Agent's applied Core-upgrade contribution when
-the source names it as part of the base. Energy-per-second operations and
-one-time Energy gains remain operation results rather than Energy Regen stat
-contributions. A percentage shown on a setup input or source contribution is
-therefore not the unit of the composed current stat.
+the source names it as part of the base. The workbench composes the Energy
+Regen stat from that base and applicable percentages before applying any
+per-second Energy operation.
+
+When Result projects Energy Regen, each surface shows the current automatic
+Energy recovered per second:
+
+```text
+Current Energy recovery per second (surface)
+  = composed Energy Regen stat (surface)
+  + sum of applicable Energy-per-second operations (surface)
+```
+
+An Energy-per-second operation is added after percentage composition and is
+never multiplied by an Energy Regen percentage. Its `/s` amount remains a
+distinct atomic contribution in the expanded Result even though the surface
+aggregate includes it. One-time Energy gains remain standalone operation
+results and never change the Energy Regen surface value. A percentage shown on
+a setup input or source contribution is therefore not the unit of the composed
+current stat or the later per-second operation.
 
 This section identifies composition order and source basis. It does not define
 storage fields or calculate a final character sheet.
@@ -290,24 +306,35 @@ setting pressures because the current setup-source boundary admits no Agent,
 W-Engine, or Drive Disc contribution to that region. Source-fact treatment owns
 that exclusion and the wording distinctions used to preserve it.
 
-A current mechanics relationship states that Rupture Agents convert 30% of
-`current ATK` into Sheer Force. `Current ATK` is the mechanics source's
-wording for the ATK value in the calculation context, not the name of another
-stat surface. The workbench therefore calculates each applicable Sheer Force
-result from the ATK on the same display surface. Initial, combat-baseline, and
-fully-enabled results each read their respective surface ATK, although equal
-input values can produce equal outputs.
+A current mechanics relationship states that current Rupture Agents convert
+30% of current ATK and 10% of current Max HP into Sheer Force. The Max HP
+clause appears as the first clause of each current Rupture Agent Core Passive,
+but it is already applied before combat. The source container therefore does not
+make this conversion a combat-baseline activation.
 
-Individual Agent sources can add other conversions, such as Yixuan's Max HP
-relationship. Unless a source explicitly fixes a basis surface, the conversion
-reads its basis stat on each applicable display surface; a source that says
-`initial ATK` remains fixed to initial stats. `Rupture` remains a specialty, ATK
-and Sheer Force remain separate stats, and `sheer_damage` remains a formula
-family; the conversion relates these axes without merging them.
+For every display surface:
 
-A source conversion creates a relationship between two axes; it does not rename
-either axis. Yixuan's Max HP to Sheer Force relation
-does not make HP and Sheer Force the same stat.
+```text
+rupture_sheer_force(surface)
+  = current_ATK(surface) * 0.30
+  + current_Max_HP(surface) * 0.10
+```
+
+`current ATK` and `current Max HP` mean the calculated values on that
+same display surface, not the names of separate fixed stat surfaces. Initial,
+combat-baseline, and fully-enabled Sheer Force each read their respective ATK
+and Max HP values, although equal inputs can produce equal outputs.
+
+Direct Sheer Force additions are applied after this conversion on the surface
+where their own source becomes available. Unless another source explicitly
+fixes a basis surface, any other retained conversion likewise reads its basis
+stat on each applicable display surface; a source that says `initial ATK`
+remains fixed to initial stats. `Rupture` remains a specialty, ATK, Max
+HP, and Sheer Force remain separate stats, and `sheer_damage` remains a
+formula family; the conversion relates these axes without merging them.
+
+A source conversion creates a relationship between axes; it does not rename
+any of those axes.
 
 ## Modifier Balance And Party Pressure
 

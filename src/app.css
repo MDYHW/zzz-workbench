@@ -795,6 +795,8 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
   background: rgba(255, 255, 255, 0.03);
 }
 
+.engine-candidate--fixed { padding-right: 12px; }
+
 .engine-candidate__body { min-width: 0; }
 
 .engine-name-line {

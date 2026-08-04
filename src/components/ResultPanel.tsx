@@ -45,11 +45,13 @@ function formatContributionValue(
   amount: number,
   display: Contribution['display'],
   fallbackUnit: string,
+  notation: Contribution['notation'],
 ): string {
   const value = display?.value ?? amount
   const unit = display?.unit ?? fallbackUnit
   const decimals = display?.decimals ?? 1
-  return `${value < 0 ? '' : '+'}${formatNumber(value, decimals)}${unit}`
+  const positivePrefix = notation === 'surface-value' || value < 0 ? '' : '+'
+  return `${positivePrefix}${formatNumber(value, decimals)}${unit}`
 }
 
 function sourceLabel(
@@ -88,6 +90,7 @@ interface GroupedSource {
   source: ResultSource
   amounts: Partial<Record<SurfaceKey, number>>
   displays: Partial<Record<SurfaceKey, NonNullable<Contribution['display']>>>
+  notations: Partial<Record<SurfaceKey, NonNullable<Contribution['notation']>>>
 }
 
 function groupContributions(
@@ -108,6 +111,7 @@ function groupContributions(
         },
         amounts: {},
         displays: {},
+        notations: {},
       }
       row.amounts[surface] = (row.amounts[surface] ?? 0) + item.amount
       if (item.display) {
@@ -120,6 +124,7 @@ function groupContributions(
             }
           : item.display
       }
+      if (item.notation) row.notations[surface] = item.notation
       grouped.set(key, row)
     }
   }
@@ -187,7 +192,7 @@ function SourceMatrix({
                   <td key={surface}>
                     {row.amounts[surface] === undefined
                       ? null
-                      : <b>{formatContributionValue(row.amounts[surface]!, row.displays[surface], unit)}</b>}
+                      : <b>{formatContributionValue(row.amounts[surface]!, row.displays[surface], unit, row.notations[surface])}</b>}
                   </td>
                 ))}
               </tr>
@@ -356,7 +361,7 @@ function ActionRows({
                             <td key={surface}>
                               {row.amounts[surface] === undefined
                                 ? null
-                                : <b>{formatContributionValue(row.amounts[surface]!, row.displays[surface], metric.unit)}</b>}
+                                : <b>{formatContributionValue(row.amounts[surface]!, row.displays[surface], metric.unit, row.notations[surface])}</b>}
                             </td>
                           ))}
                         </tr>

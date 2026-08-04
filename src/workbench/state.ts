@@ -1,15 +1,18 @@
 import {
   ENGINE_IDS_BY_POOL,
   PREPARED_ENGINE_BY_POOL,
+  PARTNER_SUBSTAT_KEYS,
   SUBSTAT_KEYS,
   TARGET_EQUIPMENT,
   W_ENGINES,
   type EngineId,
+  type PartnerSubstatKey,
   type PoolId,
   type SubstatKey,
 } from './content'
 
 export type SubstatCounts = Record<SubstatKey, number>
+export type PartnerSubstatCounts = Record<PartnerSubstatKey, number>
 
 export interface WorkbenchState {
   pool: PoolId
@@ -17,6 +20,7 @@ export interface WorkbenchState {
   refinement: 'W1' | 'W5' | null
   equipment: typeof TARGET_EQUIPMENT | null
   substats: SubstatCounts
+  partnerSubstats: PartnerSubstatCounts
 }
 
 export type WorkbenchAction =
@@ -24,12 +28,22 @@ export type WorkbenchAction =
   | { type: 'selectEngine'; engineId: EngineId }
   | { type: 'adjustSubstat'; key: SubstatKey; delta: number }
   | { type: 'setSubstat'; key: SubstatKey; value: number }
+  | { type: 'adjustPartnerSubstat'; key: PartnerSubstatKey; delta: number }
+  | { type: 'setPartnerSubstat'; key: PartnerSubstatKey; value: number }
 
 export function zeroSubstats(): SubstatCounts {
   return {
     critRate: 0,
     critDmg: 0,
     hpPct: 0,
+  }
+}
+
+export function zeroPartnerSubstats(): PartnerSubstatCounts {
+  return {
+    dialynCritRate: 0,
+    luciaHpPct: 0,
+    luciaHpFlat: 0,
   }
 }
 
@@ -42,6 +56,7 @@ export function createPreparedState(pool: PoolId = 'full'): WorkbenchState {
     refinement: W_ENGINES[engineId].refinement,
     equipment: TARGET_EQUIPMENT,
     substats: zeroSubstats(),
+    partnerSubstats: zeroPartnerSubstats(),
   }
 }
 
@@ -51,9 +66,14 @@ function clampCount(value: number): number {
 
 export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction): WorkbenchState {
   switch (action.type) {
-    case 'switchPool':
+    case 'switchPool': {
       if (action.pool === state.pool) return state
-      return createPreparedState(action.pool)
+      const prepared = createPreparedState(action.pool)
+      return {
+        ...prepared,
+        partnerSubstats: state.partnerSubstats,
+      }
+    }
 
     case 'selectEngine': {
       if (!ENGINE_IDS_BY_POOL[state.pool].includes(action.engineId)) return state
@@ -83,6 +103,24 @@ export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction)
         },
       }
 
+    case 'adjustPartnerSubstat':
+      return {
+        ...state,
+        partnerSubstats: {
+          ...state.partnerSubstats,
+          [action.key]: clampCount(state.partnerSubstats[action.key] + action.delta),
+        },
+      }
+
+    case 'setPartnerSubstat':
+      return {
+        ...state,
+        partnerSubstats: {
+          ...state.partnerSubstats,
+          [action.key]: clampCount(action.value),
+        },
+      }
+
     default:
       return state
   }
@@ -90,4 +128,10 @@ export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction)
 
 export function hasCompleteSubstats(counts: Partial<SubstatCounts>): counts is SubstatCounts {
   return SUBSTAT_KEYS.every((key) => Number.isFinite(counts[key]))
+}
+
+export function hasCompletePartnerSubstats(
+  counts: Partial<PartnerSubstatCounts>,
+): counts is PartnerSubstatCounts {
+  return PARTNER_SUBSTAT_KEYS.every((key) => Number.isFinite(counts[key]))
 }

@@ -326,6 +326,22 @@ source defines a percentage input, disclosure shows that percentage rather than
 substituting the derived absolute increase; the aggregate still shows the
 calculated final value.
 
+An Energy Regen row shows current automatic Energy recovered per second on
+each surface. Its aggregate includes the composed Energy Regen stat and every
+applicable per-second Energy operation, using the composition owned by formula
+mechanics. Expanded breakdown preserves a percentage stat source and a `/s`
+operation as distinct atomic amounts. A one-time Energy gain remains a separate
+operation and does not change the row.
+
+A retained relationship that is independently evaluated from each display
+surface's current inputs shows its complete current contribution in every
+surface column, without a positive sign. A direct source addition remains an
+incremental signed amount on the surface where that atomic amount first becomes
+available.
+This lets one expanded row distinguish a continuing formula contribution from
+a newly enabled additive effect without introducing history or activation
+prose.
+
 Action scope can create expanded action rows but not a second Result surface or damage model.
 The Result does not expose an action's ordinary skill level, base DMG
 Multiplier, base Daze Multiplier, `base_damage`, `skill_daze`, or final damage or

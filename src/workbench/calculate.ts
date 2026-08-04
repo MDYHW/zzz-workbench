@@ -1,12 +1,14 @@
 ﻿import {
+  PARTNER_EFFECTIVE_SUBSTATS,
   SOURCE_LABELS,
   SUBSTAT_CHOICES,
   VERTICAL_VALUES,
   W_ENGINES,
   type AgentId,
   type EngineId,
+  type PartnerSubstatKey,
 } from './content'
-import { hasCompleteSubstats, type WorkbenchState } from './state'
+import { hasCompletePartnerSubstats, hasCompleteSubstats, type WorkbenchState } from './state'
 
 export type SurfaceKey = 'initial' | 'combat' | 'fully'
 
@@ -35,6 +37,7 @@ export interface ResultSource {
 
 export interface Contribution extends ResultSource {
   amount: number
+  notation?: 'surface-value'
   display?: {
     value: number
     unit: string
@@ -111,6 +114,11 @@ const contribution = (
   display?: Contribution['display'],
 ): Contribution => ({ ...resultSource, amount, display })
 
+const surfaceValueContribution = (
+  resultSource: ResultSource,
+  amount: number,
+): Contribution => ({ ...resultSource, amount, notation: 'surface-value' })
+
 const percentageContribution = (
   resultSource: ResultSource,
   amount: number,
@@ -119,6 +127,15 @@ const percentageContribution = (
   value: percentage,
   unit: '%',
   decimals: Number.isInteger(percentage) ? 0 : 1,
+})
+
+const perSecondEnergyContribution = (
+  resultSource: ResultSource,
+  amount: number,
+): Contribution => contribution(resultSource, amount, {
+  value: amount,
+  unit: '/s',
+  decimals: 1,
 })
 
 const SOURCES = {
@@ -134,8 +151,12 @@ const SOURCES = {
     critRateSubstat: source('Effective substat hits \u00B7 CRIT Rate', 'yixuan', 'substat-1'),
     critDmgSubstat: source('Effective substat hits \u00B7 CRIT DMG', 'yixuan', 'substat-2'),
     hpSubstat: source('Effective substat hits \u00B7 HP', 'yixuan', 'substat-3'),
-    hpToSheer: source(SOURCE_LABELS.yixuanCore, 'yixuan', 'core', 'Max HP \u00D7 0.1'),
-    atkToSheer: source('Rupture specialty', 'yixuan', 'identity', 'ATK \u00D7 0.3'),
+    ruptureConversion: source(
+      'Rupture specialty',
+      'yixuan',
+      'identity',
+      'Current ATK \u00D7 0.3 + Current Max HP \u00D7 0.1',
+    ),
     core: source(SOURCE_LABELS.yixuanCore, 'yixuan', 'core'),
     additional: source(SOURCE_LABELS.yixuanAbility, 'yixuan', 'additional'),
     critCap: source('Displayed CRIT Rate cap', 'yixuan', 'calculation'),
@@ -148,6 +169,9 @@ const SOURCES = {
     king4: source(SOURCE_LABELS.king4, 'dialyn', 'disc-4pc'),
     twoPiece: source(SOURCE_LABELS.woodpecker2, 'dialyn', 'disc-2pc'),
     slot4: source(SOURCE_LABELS.slot4, 'dialyn', 'disc-slot-4'),
+    slot6: source(SOURCE_LABELS.slot6, 'dialyn', 'disc-slot-6'),
+    critRateSubstat: source('Effective substat hits · CRIT Rate', 'dialyn', 'substat-1'),
+    critCap: source('Displayed CRIT Rate cap', 'dialyn', 'calculation'),
   },
   lucia: {
     core: source(SOURCE_LABELS.luciaCore, 'lucia', 'core'),
@@ -159,8 +183,17 @@ const SOURCES = {
     slot5: source(SOURCE_LABELS.slot5, 'lucia', 'disc-slot-5'),
     slot6: source(SOURCE_LABELS.slot6, 'lucia', 'disc-slot-6'),
     exSpecial: source(SOURCE_LABELS.luciaSheer, 'lucia', 'ex-special'),
+    hpPctSubstat: source('Effective substat hits · HP%', 'lucia', 'substat-1'),
+    hpFlatSubstat: source('Effective substat hits · HP', 'lucia', 'substat-2'),
   },
 } as const
+
+function partnerSubstatPerHit(
+  agentId: Exclude<AgentId, 'yixuan'>,
+  key: PartnerSubstatKey,
+): number {
+  return PARTNER_EFFECTIVE_SUBSTATS[agentId].find((choice) => choice.key === key)!.perHit
+}
 
 const withoutZero = (items: Contribution[]): Contribution[] =>
   items.filter((item) => Math.abs(item.amount) > 0.000_001)
@@ -196,7 +229,8 @@ function isComplete(state: WorkbenchState): state is WorkbenchState & {
       && equipment?.fourPiece
       && equipment.twoPiece
       && Object.values(equipment.mains).every(({ stat, value }) => Boolean(stat && value))
-      && hasCompleteSubstats(state.substats),
+      && hasCompleteSubstats(state.substats)
+      && hasCompletePartnerSubstats(state.partnerSubstats),
   )
 }
 
@@ -237,10 +271,15 @@ function partyCritDmgBreakdown(): Contribution[] {
   ]
 }
 
-function calculateLuciaInitialHp(): number {
+function calculateLuciaInitialHp(state: WorkbenchState): number {
   const lucia = VERTICAL_VALUES.lucia
-  return lucia.hp * (1 + (lucia.engineHp + lucia.yunkuiHp + lucia.mainHp) / 100)
+  const hpPct = state.partnerSubstats.luciaHpPct
+    * partnerSubstatPerHit('lucia', 'luciaHpPct')
+  const flatHp = state.partnerSubstats.luciaHpFlat
+    * partnerSubstatPerHit('lucia', 'luciaHpFlat')
+  return lucia.hp * (1 + (lucia.engineHp + lucia.yunkuiHp + lucia.mainHp + hpPct) / 100)
     + VERTICAL_VALUES.fixedDisc.hp
+    + flatHp
 }
 
 function buildYixuanActionModifiers(
@@ -311,6 +350,7 @@ function calculateYixuan(
   luciaSquadSheer: number,
 ): AgentResult {
   const values = VERTICAL_VALUES
+  const rupture = values.rupture
   const yixuan = values.yixuan
   const engine = W_ENGINES[state.engineId]
   const engineSource = state.engineId === 'qingming'
@@ -322,16 +362,21 @@ function calculateYixuan(
 
   const hpPercent = engine.advancedStat.value + yixuan.yunkuiHp + yixuan.slot6Hp + hpSubstatPct
   const initialHp = yixuan.hp * (1 + hpPercent / 100) + values.fixedDisc.hp
+  const combatHp = initialHp
   const luciaCoreHpAmount = initialHp * values.party.luciaCoreHp / 100
   const luciaEngineHpAmount = initialHp * values.party.luciaEngineHp / 100
   const fullyHp = initialHp + luciaCoreHpAmount + luciaEngineHpAmount
 
   const initialAtk = yixuan.atk + engine.baseAtk + values.fixedDisc.atk
+  const combatAtk = initialAtk
+  const fullyAtk = combatAtk
 
-  const initialSheer = initialHp * yixuan.hpToSheer + initialAtk * yixuan.atkToSheer
-  const fullySheer = fullyHp * yixuan.hpToSheer
-    + initialAtk * yixuan.atkToSheer
-    + luciaSquadSheer
+  const convertRuptureStats = (atk: number, maxHp: number) =>
+    atk * rupture.currentAtkToSheer + maxHp * rupture.currentHpToSheer
+  const initialSheer = convertRuptureStats(initialAtk, initialHp)
+  const combatSheer = convertRuptureStats(combatAtk, combatHp)
+  const fullyRuptureSheer = convertRuptureStats(fullyAtk, fullyHp)
+  const fullySheer = fullyRuptureSheer + luciaSquadSheer
 
   const uncappedInitialCritRate = yixuan.critRate
     + yixuan.slot4CritRate
@@ -404,7 +449,7 @@ function calculateYixuan(
       label: 'Max HP',
       unit: '',
       decimals: 0,
-      values: surfaces(initialHp, initialHp, fullyHp),
+      values: surfaces(initialHp, combatHp, fullyHp),
       breakdown: surfaces(
         hpInitialBreakdown,
         [],
@@ -427,7 +472,7 @@ function calculateYixuan(
       label: 'ATK',
       unit: '',
       decimals: 0,
-      values: surfaces(initialAtk, initialAtk, initialAtk),
+      values: surfaces(initialAtk, combatAtk, fullyAtk),
       breakdown: surfaces([], [], []),
     },
     {
@@ -435,16 +480,12 @@ function calculateYixuan(
       label: 'Sheer Force',
       unit: '',
       decimals: 1,
-      values: surfaces(initialSheer, initialSheer, fullySheer),
+      values: surfaces(initialSheer, combatSheer, fullySheer),
       breakdown: surfaces(
+        [surfaceValueContribution(SOURCES.yixuan.ruptureConversion, initialSheer)],
+        [surfaceValueContribution(SOURCES.yixuan.ruptureConversion, combatSheer)],
         [
-          contribution(SOURCES.yixuan.hpToSheer, initialHp * yixuan.hpToSheer),
-          contribution(SOURCES.yixuan.atkToSheer, initialAtk * yixuan.atkToSheer),
-        ],
-        [],
-        [
-          contribution(SOURCES.lucia.core, luciaCoreHpAmount * yixuan.hpToSheer),
-          contribution(SOURCES.lucia.engine, luciaEngineHpAmount * yixuan.hpToSheer),
+          surfaceValueContribution(SOURCES.yixuan.ruptureConversion, fullyRuptureSheer),
           contribution(SOURCES.lucia.exSpecial, luciaSquadSheer),
         ],
       ),
@@ -544,24 +585,32 @@ function calculateYixuan(
   }
 }
 
-function calculateDialyn(): AgentResult {
+function calculateDialyn(state: WorkbenchState): AgentResult {
   const values = VERTICAL_VALUES
   const dialyn = values.dialyn
-  const initialCritRate = dialyn.critRate
+  const critRateSubstat = state.partnerSubstats.dialynCritRate
+    * partnerSubstatPerHit('dialyn', 'dialynCritRate')
+  const uncappedInitialCritRate = dialyn.critRate
     + dialyn.engineCritRate
     + dialyn.slot4CritRate
     + dialyn.woodpeckerCritRate
+    + critRateSubstat
+  const initialCritRate = Math.min(uncappedInitialCritRate, 100)
   const impactBonus = Math.min(
     Math.max(initialCritRate - dialyn.critThreshold, 0) * dialyn.impactPerCrit,
     dialyn.impactBonusCap,
   )
   const combatImpact = dialyn.impact + impactBonus
+  const initialEnergyRegen = dialyn.baseEnergyRegen * (1 + dialyn.energyRegenPct / 100)
+  const combatEnergyRecoveryPerSecond = initialEnergyRegen + dialyn.engineEnergyPerSecond
 
-  const critInitialBreakdown = [
+  const critInitialBreakdown = withoutZero([
     contribution(SOURCES.dialyn.engine, dialyn.engineCritRate),
     contribution(SOURCES.dialyn.slot4, dialyn.slot4CritRate),
     contribution(SOURCES.dialyn.twoPiece, dialyn.woodpeckerCritRate),
-  ]
+    contribution(SOURCES.dialyn.critRateSubstat, critRateSubstat),
+    contribution(SOURCES.dialyn.critCap, initialCritRate - uncappedInitialCritRate),
+  ])
 
   return {
     agentId: 'dialyn',
@@ -597,6 +646,28 @@ function calculateDialyn(): AgentResult {
         ),
       },
       {
+        id: 'energyRegen',
+        label: 'Energy Regen',
+        unit: '',
+        decimals: 2,
+        values: surfaces(
+          initialEnergyRegen,
+          combatEnergyRecoveryPerSecond,
+          combatEnergyRecoveryPerSecond,
+        ),
+        breakdown: surfaces(
+          [
+            percentageContribution(
+              SOURCES.dialyn.slot6,
+              initialEnergyRegen - dialyn.baseEnergyRegen,
+              dialyn.energyRegenPct,
+            ),
+          ],
+          [perSecondEnergyContribution(SOURCES.dialyn.engine, dialyn.engineEnergyPerSecond)],
+          [],
+        ),
+      },
+      {
         id: 'dazeBonus',
         label: 'Daze Bonus',
         unit: '%',
@@ -623,15 +694,25 @@ function calculateDialyn(): AgentResult {
   }
 }
 
-function calculateLucia(initialHp: number, squadSheer: number): AgentResult {
+function calculateLucia(
+  state: WorkbenchState,
+  initialHp: number,
+  squadSheer: number,
+): AgentResult {
   const values = VERTICAL_VALUES
   const lucia = values.lucia
+  const hpPct = state.partnerSubstats.luciaHpPct
+    * partnerSubstatPerHit('lucia', 'luciaHpPct')
+  const flatHp = state.partnerSubstats.luciaHpFlat
+    * partnerSubstatPerHit('lucia', 'luciaHpFlat')
   const luciaCoreHpAmount = initialHp * values.party.luciaCoreHp / 100
   const luciaEngineHpAmount = initialHp * values.party.luciaEngineHp / 100
   const fullyHp = initialHp + luciaCoreHpAmount + luciaEngineHpAmount
   const mainStatHpAmount = lucia.hp * (lucia.mainHp / 3) / 100
+  const initialEnergyRegen = lucia.baseEnergyRegen
+  const combatEnergyRecoveryPerSecond = initialEnergyRegen + lucia.engineEnergyPerSecond
 
-  const hpInitialBreakdown = [
+  const hpInitialBreakdown = withoutZero([
     percentageContribution(
       SOURCES.lucia.engine,
       lucia.hp * lucia.engineHp / 100,
@@ -645,7 +726,9 @@ function calculateLucia(initialHp: number, squadSheer: number): AgentResult {
     percentageContribution(SOURCES.lucia.slot4, mainStatHpAmount, lucia.mainHp / 3),
     percentageContribution(SOURCES.lucia.slot5, mainStatHpAmount, lucia.mainHp / 3),
     percentageContribution(SOURCES.lucia.slot6, mainStatHpAmount, lucia.mainHp / 3),
-  ]
+    percentageContribution(SOURCES.lucia.hpPctSubstat, lucia.hp * hpPct / 100, hpPct),
+    contribution(SOURCES.lucia.hpFlatSubstat, flatHp),
+  ])
 
   return {
     agentId: 'lucia',
@@ -682,6 +765,22 @@ function calculateLucia(initialHp: number, squadSheer: number): AgentResult {
           outputUnit: '',
         },
       },
+      {
+        id: 'energyRegen',
+        label: 'Energy Regen',
+        unit: '',
+        decimals: 2,
+        values: surfaces(
+          initialEnergyRegen,
+          combatEnergyRecoveryPerSecond,
+          combatEnergyRecoveryPerSecond,
+        ),
+        breakdown: surfaces(
+          [],
+          [perSecondEnergyContribution(SOURCES.lucia.engine, lucia.engineEnergyPerSecond)],
+          [],
+        ),
+      },
     ],
     actionModifiers: [],
     operations: [],
@@ -691,14 +790,14 @@ function calculateLucia(initialHp: number, squadSheer: number): AgentResult {
 export function calculateParty(state: WorkbenchState): PartyResult | null {
   if (!isComplete(state)) return null
 
-  const luciaInitialHp = calculateLuciaInitialHp()
+  const luciaInitialHp = calculateLuciaInitialHp(state)
   const luciaSquadSheer = calculateLuciaSquadSheer(luciaInitialHp)
 
   return {
     agents: [
       calculateYixuan(state, luciaSquadSheer),
-      calculateDialyn(),
-      calculateLucia(luciaInitialHp, luciaSquadSheer),
+      calculateDialyn(state),
+      calculateLucia(state, luciaInitialHp, luciaSquadSheer),
     ],
   }
 }

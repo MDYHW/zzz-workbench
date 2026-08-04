@@ -80,7 +80,7 @@ describe('integrated party workbench', () => {
     expect(within(mainStats).getAllByText('+30%')).toHaveLength(2)
   })
 
-  it('changes only the viewed slot and preserves Yixuan Focus and input state', async () => {
+  it('switches slots while preserving Focus and each Agent setup state', async () => {
     const user = userEvent.setup()
     render(<App />)
 
@@ -89,10 +89,17 @@ describe('integrated party workbench', () => {
     expect(screen.getByRole('heading', { name: 'Dialyn setup' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Dialyn Result' })).toBeInTheDocument()
     expect(screen.getAllByText('Focus')).not.toHaveLength(0)
-    expect(screen.queryByRole('button', { name: /Increase .* hits/ })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Increase CRIT Rate hits' }))
+    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveTextContent('1')
+
+    await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Increase HP% hits' }))
+    expect(screen.getByLabelText('HP% hit count')).toHaveTextContent('1')
 
     await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
     expect(screen.getByLabelText('HP hit count')).toHaveTextContent('1')
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveTextContent('1')
   })
 
   it('keeps the selected full-pool engine closed until opened and preserves direct edits', async () => {
@@ -137,19 +144,59 @@ describe('integrated party workbench', () => {
     expect(screen.queryByRole('button', { name: /Change W-Engine/ })).not.toBeInTheDocument()
   })
 
-  it('shows complete non-interactive partner summaries with only approved effective substats', async () => {
+  it('shows complete partner setup sequences with editable approved substats and no false equipment selectors', async () => {
     const user = userEvent.setup()
     render(<App />)
 
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
-    expect(screen.getByLabelText('Dialyn prepared effective substats')).toHaveTextContent('CRIT Rate')
-    expect(screen.getByLabelText('Dialyn prepared effective substats')).toHaveTextContent('0')
+    expect(screen.getByText('Yesterday Calls')).toBeInTheDocument()
+    expect(screen.getByText('Combat · Off-field Energy recovery +1.5/s')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Increase CRIT Rate hits' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Dialyn prepared main stats')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Change W-Engine/ })).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
-    const substats = screen.getByLabelText('Lucia prepared effective substats')
-    expect(within(substats).getAllByText('HP')).toHaveLength(2)
-    expect(within(substats).getAllByText('0')).toHaveLength(2)
+    expect(screen.getByText('Dreamlit Hearth')).toBeInTheDocument()
+    expect(screen.getByText('Combat · Energy recovery +0.4/s')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Increase HP% hits' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Increase HP hits' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Lucia prepared main stats')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Change W-Engine/ })).not.toBeInTheDocument()
+  })
+
+  it('recalculates partner Results from their visible setup controls', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Increase CRIT Rate hits' }))
+    expect(screen.getByRole('row', { name: /CRIT Rate.*77\.8%.*77\.8%.*77\.8%/ })).toBeInTheDocument()
+    expect(screen.getByRole('row', { name: /Impact.*110\.0.*165\.6.*165\.6/ })).toBeInTheDocument()
+    expect(screen.getByRole('row', { name: /Energy Regen.*1\.92.*3\.42.*3\.42/ })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Energy Regen' }))
+    const dialynEnergySources = screen.getByRole('table', {
+      name: 'Energy Regen source contributions',
+    })
+    expect(within(dialynEnergySources).getByRole('row', {
+      name: /Drive Disc \u00B7 Slot 6.*\+60%/,
+    })).toHaveAttribute('data-source-tone', 'disc-slot-6')
+    expect(within(dialynEnergySources).getByRole('row', {
+      name: /Yesterday Calls \u00B7 W1.*\+1\.5\/s/,
+    })).toHaveAttribute('data-source-tone', 'w-engine')
+
+    await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Increase HP% hits' }))
+    expect(screen.getByRole('row', { name: /Max HP.*21,951.*21,951.*26,342/ })).toBeInTheDocument()
+    expect(screen.getByRole('row', { name: /Energy Regen.*1\.56.*1\.96.*1\.96/ })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Energy Regen' }))
+    const luciaEnergySources = screen.getByRole('table', {
+      name: 'Energy Regen source contributions',
+    })
+    expect(within(luciaEnergySources).getByRole('row', {
+      name: /Dreamlit Hearth \u00B7 W1.*\+0\.4\/s/,
+    })).toHaveAttribute('data-source-tone', 'w-engine')
   })
 
   it('discloses incremental source breakdown, calculation-supplied gauges, and owned operations', async () => {
@@ -196,7 +243,25 @@ describe('integrated party workbench', () => {
 
     await user.click(screen.getByRole('button', { name: 'Sheer Force' }))
     const sheerSources = screen.getByRole('table', { name: 'Sheer Force source contributions' })
-    const identitySource = within(sheerSources).getByRole('row', { name: /Rupture specialty/ })
+    expect(within(sheerSources).queryByRole('row', { name: /Lucia · Core Passive/ }))
+      .not.toBeInTheDocument()
+    expect(within(sheerSources).queryByRole('row', { name: /Lucia · Dreamlit Hearth/ }))
+      .not.toBeInTheDocument()
+    const luciaDirectSource = within(sheerSources).getByRole('row', {
+      name: /Lucia · EX Special Attack/,
+    })
+    expect(luciaDirectSource).toHaveAttribute('data-source-tone', 'agent-lucia')
+    expect(luciaDirectSource).toHaveTextContent('+814.8')
+    expect(within(sheerSources).queryByRole('row', { name: /^Core Passive/ }))
+      .not.toBeInTheDocument()
+    const ruptureSources = within(sheerSources).getAllByRole('row', { name: /Rupture specialty/ })
+    expect(ruptureSources).toHaveLength(1)
+    const identitySource = ruptureSources[0]
+    expect(identitySource).toHaveTextContent('Current ATK × 0.3 + Current Max HP × 0.1')
+    expect(within(identitySource).getAllByRole('cell').map((cell) => cell.textContent))
+      .toEqual(['2,222.7', '2,222.7', '2,551.4'])
+    expect(identitySource).not.toHaveTextContent('+2,222.7')
+    expect(identitySource).not.toHaveTextContent('+2,551.4')
     expect(identitySource).toHaveAttribute('data-source-tone', 'agent-yixuan')
     await user.hover(identitySource)
     expect(screen.getByRole('tab', { name: 'View Yixuan setup and Result' })).toHaveClass('is-source-active')
@@ -286,6 +351,31 @@ describe('integrated party workbench', () => {
     const sources = screen.getByRole('table', { name: 'CRIT Rate source contributions' })
     expect(within(sources).getByRole('row', { name: /Effective substat hits \u00B7 CRIT Rate/ }))
       .toHaveAttribute('data-source-tone', 'substat-1')
+
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    const dialynControl = document.querySelector<HTMLElement>(
+      '.substat-control[data-source-tone="substat-1"]',
+    )!
+    await user.click(screen.getByRole('button', { name: 'Increase CRIT Rate hits' }))
+    await user.click(screen.getByRole('button', { name: 'CRIT Rate' }))
+    const dialynSources = screen.getByRole('table', { name: 'CRIT Rate source contributions' })
+    const dialynSubstatSource = within(dialynSources).getByRole('row', {
+      name: /Effective substat hits \u00B7 CRIT Rate/,
+    })
+    expect(dialynSubstatSource).toHaveAttribute('data-source-tone', 'substat-1')
+    await user.hover(dialynSubstatSource)
+    expect(dialynControl).toHaveClass('is-source-active')
+    await user.unhover(dialynSubstatSource)
+    await user.hover(dialynControl)
+    expect(dialynSubstatSource).toHaveClass('is-source-active')
+    await user.unhover(dialynControl)
+
+    await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
+    const luciaControls = document.querySelectorAll<HTMLElement>(
+      '.substat-control[data-source-tone]',
+    )
+    expect([...luciaControls].map((control) => control.dataset.sourceTone))
+      .toEqual(['substat-1', 'substat-2'])
   })
 
   it('keeps a focused Result source active after the pointer leaves it', async () => {

@@ -2,7 +2,9 @@ import { useEffect, useRef, useState, type Dispatch } from 'react'
 import {
   DISC_SUMMARIES,
   ENGINE_IDS_BY_POOL,
+  PARTNER_DISC_SUMMARIES,
   PARTNER_EFFECTIVE_SUBSTATS,
+  PARTNER_ENGINE_PRESENTATION,
   PARTY_AGENTS,
   SUBSTAT_CHOICES,
   SUBSTAT_KEYS,
@@ -64,10 +66,7 @@ function EquipmentSummary({
   const agent = PARTY_AGENTS.find((item) => item.id === agentId)!
   const discs = agentId === 'yixuan'
     ? [DISC_SUMMARIES.yunkui, DISC_SUMMARIES.woodpecker]
-    : [
-        { name: agent.equipment.fourPiece, effects: ['Prepared 4-piece selection'] },
-        { name: agent.equipment.twoPiece, effects: ['Prepared 2-piece selection'] },
-      ]
+    : PARTNER_DISC_SUMMARIES[agentId]
 
   return (
     <section
@@ -118,45 +117,127 @@ function EquipmentSummary({
   )
 }
 
+function SubstatStepper({
+  activeSourceTone,
+  count,
+  label,
+  onDecrease,
+  onIncrease,
+  onSourceToneChange,
+  perHit,
+  tone,
+  unit,
+}: {
+  count: number
+  label: string
+  onDecrease: () => void
+  onIncrease: () => void
+  perHit: number
+  tone: string
+  unit: string
+} & SourceInteractionProps) {
+  return (
+    <div
+      className={targetClass('substat-control', tone, activeSourceTone)}
+      data-source-tone={tone}
+      {...targetEvents(tone, onSourceToneChange)}
+    >
+      <div className="substat-copy">
+        <strong>{label}</strong>
+        <span>+{perHit}{unit} / hit</span>
+      </div>
+      <div className="stepper">
+        <button type="button" aria-label={'Decrease ' + label + ' hits'} disabled={count === 0} onClick={onDecrease}>{'−'}</button>
+        <output aria-live="polite" aria-label={label + ' hit count'}>{count}</output>
+        <button type="button" aria-label={'Increase ' + label + ' hits'} disabled={count === 36} onClick={onIncrease}>+</button>
+      </div>
+    </div>
+  )
+}
+
 function PartnerSetup({
   activeSourceTone,
   agentId,
+  dispatch,
   onSourceToneChange,
+  state,
 }: {
   agentId: Exclude<AgentId, 'yixuan'>
+  state: WorkbenchState
+  dispatch: Dispatch<WorkbenchAction>
 } & SourceInteractionProps) {
   const agent = PARTY_AGENTS.find((item) => item.id === agentId)!
+  const engine = PARTNER_ENGINE_PRESENTATION[agentId]
+
   return (
-    <section className="setup-panel" aria-labelledby={`${agentId}-setup-heading`}>
-      <SetupHeading agentId={agentId} editable={false} />
-      <dl className="upstream-strip" aria-label={`${agent.name} setup context`}>
-        <div><dt>MINDSCAPE</dt><dd>{agent.mindscape}</dd></div>
-        <div><dt>POOL</dt><dd>{agent.pool}</dd></div>
-        <div
-          className={targetClass('', 'w-engine', activeSourceTone)}
-          data-source-tone="w-engine"
-          tabIndex={0}
-          {...targetEvents('w-engine', onSourceToneChange)}
-        >
-          <dt>W-ENGINE</dt><dd>{agent.engine.name} {'\u00B7'} {agent.engine.refinement}</dd>
+    <section className="setup-panel" aria-labelledby={agentId + '-setup-heading'}>
+      <SetupHeading agentId={agentId} editable />
+      <fieldset className="setup-group pool-fieldset">
+        <legend><span>01</span> Mindscape and W-Engine pool</legend>
+        <div className="upstream-strip">
+          <span><small>MINDSCAPE</small><strong>{agent.mindscape}</strong></span>
+          <span><small>W-ENGINE POOL</small><strong>{agent.pool} pool</strong></span>
         </div>
-      </dl>
+      </fieldset>
+      <fieldset
+        className={targetClass('setup-group', 'w-engine', activeSourceTone)}
+        data-source-tone="w-engine"
+        tabIndex={0}
+        {...targetEvents('w-engine', onSourceToneChange)}
+      >
+        <legend><span>02</span> W-Engine · Rank default</legend>
+        <div className="engine-selection">
+          <div className="engine-candidate engine-candidate--selected engine-candidate--fixed">
+            <div className="engine-candidate__body">
+              <div className="engine-name-line">
+                <strong>{agent.engine.name}</strong>
+                <span>{agent.engine.refinement}</span>
+              </div>
+              <div className="engine-stats">
+                <span>{engine.advancedStat.label} <b>+{engine.advancedStat.value}{engine.advancedStat.unit}</b></span>
+              </div>
+              <ul>{engine.passiveLines.map((line) => <li key={line}>{line}</li>)}</ul>
+            </div>
+          </div>
+        </div>
+      </fieldset>
       <EquipmentSummary
         activeSourceTone={activeSourceTone}
         agentId={agentId}
         onSourceToneChange={onSourceToneChange}
       />
-      <section className="setup-group" aria-labelledby={`${agentId}-substats-heading`}>
-        <h3 id={`${agentId}-substats-heading`}><span>04</span> Effective substat hits</h3>
-        <dl className="substat-grid" aria-label={`${agent.name} prepared effective substats`}>
-          {PARTNER_EFFECTIVE_SUBSTATS[agentId].map((choice) => (
-            <div className="substat-control" key={`${choice.label}-${choice.unit}`}>
-              <dt>{choice.label}</dt>
-              <dd>0 <small>+{choice.perHit}{choice.unit} / hit</small></dd>
-            </div>
-          ))}
-        </dl>
-      </section>
+      <fieldset className="setup-group substat-fieldset">
+        <legend><span>04</span> Effective substat hits</legend>
+        <p className="field-note">Independent setup inputs · prepared at zero · range 0–36</p>
+        <div className="substat-grid" aria-label={agent.name + ' prepared effective substats'}>
+          {PARTNER_EFFECTIVE_SUBSTATS[agentId].map((choice, index) => {
+            const count = state.partnerSubstats[choice.key]
+            const tone = 'substat-' + (index + 1)
+            return (
+              <SubstatStepper
+                activeSourceTone={activeSourceTone}
+                count={count}
+                key={choice.key}
+                label={choice.label}
+                onDecrease={() => dispatch({
+                  type: 'adjustPartnerSubstat',
+                  key: choice.key,
+                  delta: -1,
+                })}
+                onIncrease={() => dispatch({
+                  type: 'adjustPartnerSubstat',
+                  key: choice.key,
+                  delta: 1,
+                })}
+                onSourceToneChange={onSourceToneChange}
+                perHit={choice.perHit}
+                tone={tone}
+                unit={choice.unit}
+              />
+            )
+          })}
+        </div>
+      </fieldset>
     </section>
   )
 }
@@ -283,15 +364,18 @@ function YixuanSetup({
             const count = state.substats[key]
             const tone = `substat-${index + 1}`
             return (
-              <div
-                className={targetClass('substat-control', tone, activeSourceTone)}
-                data-source-tone={tone}
+              <SubstatStepper
+                activeSourceTone={activeSourceTone}
+                count={count}
                 key={key}
-                {...targetEvents(tone, onSourceToneChange)}
-              >
-                <div className="substat-copy"><strong>{choice.label}</strong><span>+{choice.perHit}{choice.unit} / hit</span></div>
-                <div className="stepper"><button type="button" aria-label={`Decrease ${choice.label} hits`} disabled={count === 0} onClick={() => dispatch({ type: 'adjustSubstat', key, delta: -1 })}>{'\u2212'}</button><output aria-live="polite" aria-label={`${choice.label} hit count`}>{count}</output><button type="button" aria-label={`Increase ${choice.label} hits`} disabled={count === 36} onClick={() => dispatch({ type: 'adjustSubstat', key, delta: 1 })}>+</button></div>
-              </div>
+                label={choice.label}
+                onDecrease={() => dispatch({ type: 'adjustSubstat', key, delta: -1 })}
+                onIncrease={() => dispatch({ type: 'adjustSubstat', key, delta: 1 })}
+                onSourceToneChange={onSourceToneChange}
+                perHit={choice.perHit}
+                tone={tone}
+                unit={choice.unit}
+              />
             )
           })}
         </div>
@@ -320,6 +404,8 @@ export function AgentSetup({
         <PartnerSetup
           activeSourceTone={activeSourceTone}
           agentId={agentId}
+          state={state}
+          dispatch={dispatch}
           onSourceToneChange={onSourceToneChange}
         />
       )

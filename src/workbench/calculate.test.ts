@@ -30,7 +30,9 @@ function action(result: AgentResult, id: string): ActionModifier {
 }
 
 function contributionTotal(items: Contribution[]) {
-  return items.reduce((sum, item) => sum + item.amount, 0)
+  return items
+    .filter((item) => item.notation !== 'surface-value')
+    .reduce((sum, item) => sum + item.amount, 0)
 }
 
 function sourceLabels(items: Contribution[]) {
@@ -68,6 +70,53 @@ describe('calculateParty', () => {
       combat: 0,
       fully: 10,
     })
+  })
+
+  it('uses one always-on Rupture conversion source with each surface current stats', () => {
+    const result = calculateParty(createPreparedState())!
+    const yixuan = agent(result, 'yixuan')
+    const hp = metric(yixuan, 'maxHp')
+    const sheer = metric(yixuan, 'sheerForce')
+    const lucia = agent(result, 'lucia')
+    const luciaHp = metric(lucia, 'maxHp')
+    const directSheer = luciaHp.gauge!.outputValue
+
+    expect(sheer.values.initial).toBeCloseTo(2222.71)
+    expect(sheer.values.combat).toBeCloseTo(2222.71)
+    expect(sheer.values.fully - sheer.values.combat).toBeCloseTo(
+      (hp.values.fully - hp.values.combat) * 0.1 + directSheer,
+    )
+    const ruptureContribution = {
+      label: 'Rupture specialty',
+      detail: 'Current ATK × 0.3 + Current Max HP × 0.1',
+      ownerAgentId: 'yixuan',
+      locus: 'identity',
+      notation: 'surface-value',
+    }
+    expect(sheer.breakdown.initial).toEqual([
+      expect.objectContaining({
+        ...ruptureContribution,
+        amount: expect.closeTo(sheer.values.initial),
+      }),
+    ])
+    expect(sheer.breakdown.combat).toEqual([
+      expect.objectContaining({
+        ...ruptureContribution,
+        amount: expect.closeTo(sheer.values.combat),
+      }),
+    ])
+    expect(sheer.breakdown.fully).toEqual([
+      expect.objectContaining({
+        ...ruptureContribution,
+        amount: expect.closeTo(sheer.values.fully - directSheer),
+      }),
+      expect.objectContaining({
+        label: 'EX Special Attack',
+        ownerAgentId: 'lucia',
+        amount: expect.closeTo(directSheer),
+      }),
+    ])
+    expect(sourceLabels(sheer.breakdown.initial)).not.toContain('Core Passive')
   })
 
   it('keeps W-Engine advanced stats in Initial and passives out of Initial', () => {
@@ -171,7 +220,7 @@ describe('calculateParty', () => {
     expect(JSON.stringify(yixuan.actionModifiers)).not.toMatch(/Cauldron/)
   })
 
-  it('keeps later-surface deltas reproducible while omitting fixed Initial terms', () => {
+  it('keeps disclosed direct later-surface deltas reproducible without repeating derived conversions', () => {
     const result = calculateParty(createPreparedState())!
 
     for (const agentResult of result.agents) {
@@ -179,9 +228,11 @@ describe('calculateParty', () => {
         expect(contributionTotal(resultMetric.breakdown.combat)).toBeCloseTo(
           resultMetric.values.combat - resultMetric.values.initial,
         )
-        expect(contributionTotal(resultMetric.breakdown.fully)).toBeCloseTo(
-          resultMetric.values.fully - resultMetric.values.combat,
-        )
+        if (agentResult.agentId !== 'yixuan' || resultMetric.id !== 'sheerForce') {
+          expect(contributionTotal(resultMetric.breakdown.fully)).toBeCloseTo(
+            resultMetric.values.fully - resultMetric.values.combat,
+          )
+        }
       }
 
       for (const currentAction of agentResult.actionModifiers) {
@@ -229,9 +280,10 @@ describe('calculateParty', () => {
     expect(dialyn.metrics.map((item) => item.id)).toEqual([
       'critRate',
       'impact',
+      'energyRegen',
       'dazeBonus',
     ])
-    expect(lucia.metrics.map((item) => item.id)).toEqual(['maxHp'])
+    expect(lucia.metrics.map((item) => item.id)).toEqual(['maxHp', 'energyRegen'])
 
     expect(metric(yixuan, 'stunDmgMultiplier').values.fully).toBe(30)
     expect(dialyn.operations).toHaveLength(1)
@@ -283,6 +335,92 @@ describe('calculateParty', () => {
     expect(metric(hp, 'sheerForce').values.fully - metric(baseline, 'sheerForce').values.fully)
       .toBeCloseTo(30.1428)
     expect(metric(hp, 'atk').values.initial).toBe(metric(baseline, 'atk').values.initial)
+  })
+
+  it('recalculates Dialyn CRIT Rate, threshold output, and Impact from her effective substat', () => {
+    const prepared = createPreparedState()
+    const changed = workbenchReducer(prepared, {
+      type: 'setPartnerSubstat',
+      key: 'dialynCritRate',
+      value: 1,
+    })
+    const dialyn = agent(calculateParty(changed)!, 'dialyn')
+    const critRate = metric(dialyn, 'critRate')
+    const impact = metric(dialyn, 'impact')
+
+    expect(critRate.values.initial).toBeCloseTo(77.8)
+    expect(critRate.values.combat).toBeCloseTo(77.8)
+    expect(critRate.values.fully).toBeCloseTo(77.8)
+    expect(critRate.breakdown.initial).toContainEqual(expect.objectContaining({
+      label: 'Effective substat hits \u00B7 CRIT Rate',
+      amount: 2.4,
+      locus: 'substat-1',
+    }))
+    expect(critRate.gauge?.current).toBeCloseTo(77.8)
+    expect(critRate.gauge?.outputValue).toBeCloseTo(55.6)
+    expect(impact.values.initial).toBeCloseTo(110)
+    expect(impact.values.combat).toBeCloseTo(165.6)
+    expect(impact.values.fully).toBeCloseTo(165.6)
+  })
+
+  it('adds per-second Energy operations after percentage-based Energy Regen composition', () => {
+    const result = calculateParty(createPreparedState())!
+    const dialynEnergy = metric(agent(result, 'dialyn'), 'energyRegen')
+    const luciaEnergy = metric(agent(result, 'lucia'), 'energyRegen')
+
+    expect(dialynEnergy.values).toEqual({ initial: 1.92, combat: 3.42, fully: 3.42 })
+    expect(dialynEnergy.values.combat).not.toBeCloseTo((1.2 + 1.5) * 1.6)
+    expect(dialynEnergy.breakdown.initial).toEqual([
+      expect.objectContaining({
+        label: 'Drive Disc \u00B7 Slot 6',
+        amount: expect.closeTo(0.72),
+        display: { value: 60, unit: '%', decimals: 0 },
+      }),
+    ])
+    expect(dialynEnergy.breakdown.combat).toEqual([
+      expect.objectContaining({
+        label: 'Yesterday Calls \u00B7 W1',
+        amount: 1.5,
+        display: { value: 1.5, unit: '/s', decimals: 1 },
+      }),
+    ])
+    expect(dialynEnergy.breakdown.fully).toEqual([])
+
+    expect(luciaEnergy.values).toEqual({ initial: 1.56, combat: 1.96, fully: 1.96 })
+    expect(luciaEnergy.breakdown.initial).toEqual([])
+    expect(luciaEnergy.breakdown.combat).toEqual([
+      expect.objectContaining({
+        label: 'Dreamlit Hearth \u00B7 W1',
+        amount: 0.4,
+        display: { value: 0.4, unit: '/s', decimals: 1 },
+      }),
+    ])
+    expect(luciaEnergy.breakdown.fully).toEqual([])
+  })
+  it('recalculates Lucia Max HP, Squad Sheer Force, and Yixuan Sheer Force from both HP inputs', () => {
+    const prepared = createPreparedState()
+    const baseline = calculateParty(prepared)!
+    let changed = workbenchReducer(prepared, {
+      type: 'setPartnerSubstat',
+      key: 'luciaHpPct',
+      value: 1,
+    })
+    changed = workbenchReducer(changed, {
+      type: 'setPartnerSubstat',
+      key: 'luciaHpFlat',
+      value: 1,
+    })
+    const result = calculateParty(changed)!
+    const luciaHp = metric(agent(result, 'lucia'), 'maxHp')
+    const baselineYixuanSheer = metric(agent(baseline, 'yixuan'), 'sheerForce')
+    const changedYixuanSheer = metric(agent(result, 'yixuan'), 'sheerForce')
+
+    expect(luciaHp.values.initial).toBeCloseTo(22063.41)
+    expect(luciaHp.values.fully).toBeCloseTo(26476.092)
+    expect(luciaHp.gauge?.outputValue).toBeCloseTo(828.34617)
+    expect(changedYixuanSheer.values.fully - baselineYixuanSheer.values.fully).toBeCloseTo(13.55347)
+    expect(sourceLabels(luciaHp.breakdown.initial)).toContain('Effective substat hits \u00B7 HP%')
+    expect(sourceLabels(luciaHp.breakdown.initial)).toContain('Effective substat hits \u00B7 HP')
   })
 
   it('caps displayed CRIT Rate without creating a generic gauge', () => {
@@ -337,7 +475,7 @@ describe('calculateParty', () => {
     expect(lucia.metrics.some((item) => item.id === 'squadSheerForce')).toBe(false)
   })
 
-  it('returns no Result when a required target selection is incomplete', () => {
+  it('returns no Result when any required setup selection is incomplete', () => {
     const prepared = createPreparedState()
     const missingEngine: WorkbenchState = { ...prepared, engineId: null }
     if (!prepared.equipment) throw new Error('Prepared state must include equipment')
@@ -356,10 +494,15 @@ describe('calculateParty', () => {
       ...prepared,
       substats: { ...prepared.substats, hpPct: Number.NaN },
     }
+    const missingPartnerCount: WorkbenchState = {
+      ...prepared,
+      partnerSubstats: { ...prepared.partnerSubstats, luciaHpFlat: Number.NaN },
+    }
 
     expect(calculateParty(missingEngine)).toBeNull()
     expect(calculateParty(missingEquipment)).toBeNull()
     expect(calculateParty(missingCount)).toBeNull()
+    expect(calculateParty(missingPartnerCount)).toBeNull()
     expect(calculateParty(missingMainStat)).toBeNull()
   })
 })

@@ -87,6 +87,16 @@ A source-local name is not automatically a shared term. Canonicalize it to an
 existing action, Attribute, stat, formula region, or source identity when that
 produces the same Result.
 
+For current Rupture Agents, canonicalize the shared 30% current-ATK and 10%
+current-Max-HP conversion clauses to one `Rupture specialty` source
+identity. The Max HP clause remains a game-authored Core Passive clause, but
+that source container does not require a separate workbench source identity
+for an identical always-on conversion. Do not reclassify unrelated Core
+Passive clauses. Effects that change ATK or Max HP remain sources on their own
+stat surfaces, and their derived Sheer Force change is not repeated as another
+source contribution. A direct Sheer Force addition keeps its own source
+identity.
+
 For identical non-stacking effects, keep only the origins and compatibility
 needed to calculate and display the current numeric breakdown. Do not model
 combat replacement order when the service does not calculate it.

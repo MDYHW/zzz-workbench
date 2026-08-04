@@ -2,6 +2,7 @@
 export type EngineId = 'qingming' | 'cauldron'
 export type AgentId = 'yixuan' | 'dialyn' | 'lucia'
 export type SubstatKey = 'critRate' | 'critDmg' | 'hpPct'
+export type PartnerSubstatKey = 'dialynCritRate' | 'luciaHpPct' | 'luciaHpFlat'
 
 export interface WEngineChoice {
   id: EngineId
@@ -96,14 +97,69 @@ export const SUBSTAT_CHOICES: Record<SubstatKey, { label: string; perHit: number
 export const SUBSTAT_KEYS = Object.keys(SUBSTAT_CHOICES) as SubstatKey[]
 
 export const PARTNER_EFFECTIVE_SUBSTATS: Record<Exclude<AgentId, 'yixuan'>, Array<{
+  key: PartnerSubstatKey
   label: string
   perHit: number
   unit: '%' | ''
 }>> = {
-  dialyn: [{ label: 'CRIT Rate', perHit: 2.4, unit: '%' }],
+  dialyn: [{ key: 'dialynCritRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }],
   lucia: [
-    { label: 'HP', perHit: 3, unit: '%' },
-    { label: 'HP', perHit: 112, unit: '' },
+    { key: 'luciaHpPct', label: 'HP%', perHit: 3, unit: '%' },
+    { key: 'luciaHpFlat', label: 'HP', perHit: 112, unit: '' },
+  ],
+}
+
+export const PARTNER_SUBSTAT_KEYS: PartnerSubstatKey[] = [
+  'dialynCritRate',
+  'luciaHpPct',
+  'luciaHpFlat',
+]
+
+export const PARTNER_ENGINE_PRESENTATION: Record<Exclude<AgentId, 'yixuan'>, {
+  advancedStat: { label: string; value: number; unit: '%' }
+  passiveLines: string[]
+}> = {
+  dialyn: {
+    advancedStat: { label: 'CRIT Rate', value: 24, unit: '%' },
+    passiveLines: [
+      'Combat · Off-field Energy recovery +1.5/s',
+      'Fully enabled · Daze +27%',
+      'Fully enabled · Squad CRIT DMG +30%',
+    ],
+  },
+  lucia: {
+    advancedStat: { label: 'HP', value: 30, unit: '%' },
+    passiveLines: [
+      'Combat · Energy recovery +0.4/s',
+      'Fully enabled · Max HP +15%',
+      'Fully enabled · Squad DMG +25%',
+    ],
+  },
+}
+
+export const PARTNER_DISC_SUMMARIES: Record<Exclude<AgentId, 'yixuan'>, Array<{
+  name: string
+  effects: string[]
+}>> = {
+  dialyn: [
+    {
+      name: 'King of the Summit',
+      effects: ['Fully enabled · Squad CRIT DMG +30%', '2-piece · Daze +6%'],
+    },
+    {
+      name: 'Woodpecker Electro',
+      effects: ['2-piece · CRIT Rate +8%'],
+    },
+  ],
+  lucia: [
+    {
+      name: 'Moonlight Lullaby',
+      effects: ['Fully enabled · Squad DMG +18%'],
+    },
+    {
+      name: 'Yunkui Tales',
+      effects: ['2-piece · HP +10%'],
+    },
   ],
 }
 
@@ -182,6 +238,10 @@ export const VERTICAL_VALUES = {
     hp: 2200,
     atk: 316,
   },
+  rupture: {
+    currentAtkToSheer: 0.3,
+    currentHpToSheer: 0.1,
+  },
   yixuan: {
     hp: 8373,
     atk: 872,
@@ -194,8 +254,6 @@ export const VERTICAL_VALUES = {
     yunkuiCritRate: 12,
     yunkuiSheerDmg: 10,
     slot5EtherDmg: 30,
-    hpToSheer: 0.1,
-    atkToSheer: 0.3,
     coreActionDmgBonus: 60,
     additionalCritDmg: 40,
     additionalExDmgBonus: 30,
@@ -204,6 +262,9 @@ export const VERTICAL_VALUES = {
     critRate: 19.4,
     critDmg: 50,
     impact: 110,
+    baseEnergyRegen: 1.2,
+    energyRegenPct: 60,
+    engineEnergyPerSecond: 1.5,
     engineCritRate: 24,
     slot4CritRate: 24,
     woodpeckerCritRate: 8,
@@ -216,6 +277,8 @@ export const VERTICAL_VALUES = {
   lucia: {
     hp: 8477,
     critDmg: 50,
+    baseEnergyRegen: 1.56,
+    engineEnergyPerSecond: 0.4,
     engineHp: 30,
     yunkuiHp: 10,
     mainHp: 90,
