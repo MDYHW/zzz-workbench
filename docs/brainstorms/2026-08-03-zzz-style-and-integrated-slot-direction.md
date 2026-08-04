@@ -167,8 +167,7 @@ The following remain later UI work rather than unresolved product policy:
 
 ## Visual Reference
 
-The current [integrated expanded-slot reference](../../design-explorations/soft-seam-integrated-final.html)
-combines the selected Identity, vertical Setup assembly, Result surface, and two
-compact party slots. It is the visual baseline for later refinement, not
-permanent evidence for its exact dimensions, text size, color values, or sample
-data.
+The permanent presentation baseline is owned by the
+[Workbench UI Design Rules](../workbench-ui-design-rules.md). It retains the selected
+Identity, vertical Setup assembly, Result surface, and two compact party slots;
+exact dimensions, type sizes, colors, and sample data remain calibration inputs.

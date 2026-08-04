@@ -106,7 +106,6 @@ Supporting records used by this checkpoint:
 - docs/plans/2026-08-01-001-feat-yixuan-setup-workbench-plan.md
 - docs/brainstorms/2026-08-02-agent-slot-setup-result-ui-requirements.md
 - docs/brainstorms/2026-08-03-zzz-style-and-integrated-slot-direction.md
-- design-explorations/soft-seam-integrated-final.html
 
 ## Technical Decisions Needed Now
 
@@ -128,9 +127,9 @@ Return aggregate values for all three surfaces while distinguishing contribution
 
 Move action rows into the owning AgentResult projection. Remove partyEffects only after every retained contribution has an Agent-owned destination. Replace provisional action labels with the minimum common-action rows required by the current two W-Engines and party effects. Do not wrap the Party Effects strip into a collapsed panel.
 
-### Reuse selected local assets without an asset system
+### Keep selected local assets in production paths
 
-Copy only consumed portraits and current identity symbols from design-explorations/assets into production paths. Keep per-Agent focal-position values close to current Agent content. Do not introduce runtime image processing, a registry, or imports from exploration CSS.
+Keep only consumed portraits and current identity symbols in production asset paths. Keep per-Agent focal-position values close to current Agent content. Do not introduce runtime image processing, a registry, or dependencies on exploration-only CSS.
 
 ## Pre-Implementation Knowledge Dependencies
 
@@ -388,4 +387,3 @@ The controller owns authority interpretation, product questions, acceptance crit
 - docs/plans/2026-08-01-001-feat-yixuan-setup-workbench-plan.md
 - docs/brainstorms/2026-08-02-agent-slot-setup-result-ui-requirements.md
 - docs/brainstorms/2026-08-03-zzz-style-and-integrated-slot-direction.md
-- design-explorations/soft-seam-integrated-final.html
