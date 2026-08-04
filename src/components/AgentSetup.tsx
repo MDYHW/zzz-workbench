@@ -309,19 +309,30 @@ function DiscEffectRows({
 
 function DiscCard({
   discId,
+  isDialynEnergyRegenChoice = false,
   piece,
 }: {
   discId: DiscId
+  isDialynEnergyRegenChoice?: boolean
   piece: 'fourPiece' | 'twoPiece'
 }) {
   const disc = DRIVE_DISCS[discId]
   return (
     <>
       <span className="equipment-art equipment-art--disc">
-        <img src={disc.image} alt="" />
+        {isDialynEnergyRegenChoice ? (
+          <span className="disc-composite-art" aria-hidden="true">
+            <img className="disc-composite-art__a" src={DRIVE_DISCS.swingJazz.image} alt="" />
+            <img className="disc-composite-art__b" src={DRIVE_DISCS.moonlight.image} alt="" />
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+              <line className="disc-composite-art__seam" x1="62" y1="0" x2="42" y2="100" />
+              <line className="disc-composite-art__accent" x1="62" y1="0" x2="42" y2="100" />
+            </svg>
+            <i className="disc-composite-art__or">OR</i>
+          </span>
+        ) : <img src={disc.image} alt="" />}
       </span>
       <span className="equipment-copy">
-        <strong className="disc-name">{disc.name}</strong>
         <DiscEffectRows discId={discId} piece={piece} />
       </span>
     </>
@@ -351,6 +362,12 @@ function DiscSelection({
   const alternatives = candidates.filter((id) => id !== selectedId)
   const isOpen = openSelector === selectorId
   const disc = DRIVE_DISCS[selectedId]
+  const isDialynEnergyRegenChoice = agentId === 'dialyn'
+    && piece === 'twoPiece'
+    && selectedId === 'swingJazz'
+  const selectedName = isDialynEnergyRegenChoice
+    ? 'Swing Jazz or Moonlight Lullaby'
+    : disc.name
 
   const openerRef = useRef<HTMLButtonElement>(null)
   const [restoreFocus, setRestoreFocus] = useState(false)
@@ -369,36 +386,52 @@ function DiscSelection({
       <SelectionSurface
         ariaLabel={
           alternatives.length
-            ? `Change ${piece === 'fourPiece' ? '4-piece' : '2-piece'} Drive Disc from ${disc.name}`
-            : `${disc.name} selected as ${piece === 'fourPiece' ? '4-piece' : '2-piece'}`
+            ? `Change ${piece === 'fourPiece' ? '4-piece' : '2-piece'} Drive Disc from ${selectedName}`
+            : `${selectedName} selected as ${piece === 'fourPiece' ? '4-piece' : '2-piece'}`
         }
         editable={alternatives.length > 0}
         expanded={isOpen}
         onClick={() => setOpenSelector(isOpen ? null : selectorId)}
         buttonRef={openerRef}
       >
-        <DiscCard discId={selectedId} piece={piece} />
+        <DiscCard
+          discId={selectedId}
+          isDialynEnergyRegenChoice={isDialynEnergyRegenChoice}
+          piece={piece}
+        />
       </SelectionSurface>
       {isOpen && (
         <div
           className="selector-region selector-region--disc"
           aria-label={piece + ' Drive Disc candidates'}
         >
-          {alternatives.map((candidateId) => (
-            <button
-              type="button"
-              className="selector-candidate selector-candidate--disc"
-              key={candidateId}
-              aria-label={`Select ${DRIVE_DISCS[candidateId].name} as ${piece}`}
-              onClick={() => {
-                dispatch({ type: 'selectDisc', agentId, piece, discId: candidateId })
-                setOpenSelector(null)
-                setRestoreFocus(true)
-              }}
-            >
-              <DiscCard discId={candidateId} piece={piece} />
-            </button>
-          ))}
+          {alternatives.map((candidateId) => {
+            const isEnergyRegenAlternative = agentId === 'dialyn'
+              && piece === 'twoPiece'
+              && candidateId === 'swingJazz'
+            const candidateName = isEnergyRegenAlternative
+              ? 'Swing Jazz or Moonlight Lullaby'
+              : DRIVE_DISCS[candidateId].name
+            return (
+              <button
+                type="button"
+                className="selector-candidate selector-candidate--disc"
+                key={candidateId}
+                aria-label={`Select ${candidateName} as ${piece}`}
+                onClick={() => {
+                  dispatch({ type: 'selectDisc', agentId, piece, discId: candidateId })
+                  setOpenSelector(null)
+                  setRestoreFocus(true)
+                }}
+              >
+                <DiscCard
+                  discId={candidateId}
+                  isDialynEnergyRegenChoice={isEnergyRegenAlternative}
+                  piece={piece}
+                />
+              </button>
+            )
+          })}
         </div>
       )}
     </div>

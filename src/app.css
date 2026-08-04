@@ -438,17 +438,30 @@ main { margin-top: 18px; }
   min-height: 790px;
   padding: 0;
   overflow: hidden;
-  border: 1px solid #5f5b53;
+  border: 1px solid transparent;
   background: #1b1a18;
   color: #eee8dc;
   text-align: left;
   cursor: pointer;
-  transition: border-color 160ms ease, transform 160ms ease;
+  transition: transform 160ms ease;
+}
+
+.party-slot--compact::after {
+  content: "";
+  position: absolute;
+  z-index: 9;
+  inset: 0;
+  box-sizing: border-box;
+  border: 1px solid #5f5b53;
+  pointer-events: none;
 }
 
 .party-slot--compact:hover {
-  border-color: var(--accent-soft);
   transform: translateY(-2px);
+}
+
+.party-slot--compact:hover::after {
+  border-color: var(--source-highlight);
 }
 
 .party-slot--compact .identity-art { inset: 0 0 28%; clip-path: polygon(7% 0, 100% 0, 93% 100%, 0 100%); }
@@ -986,7 +999,6 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
 
 .selection-surface--editable {
   padding-right: 45px;
-  border-left: 3px solid var(--accent);
 }
 
 .selection-surface--editable:hover,
@@ -1040,11 +1052,67 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
 
 .equipment-art--disc {
   height: 88px;
+  background: transparent;
 }
 
 .equipment-art--disc img {
   width: 88%;
   height: 88%;
+}
+
+.disc-composite-art {
+  position: relative;
+  display: block;
+  width: 88%;
+  height: 88%;
+}
+
+.disc-composite-art img,
+.disc-composite-art svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.disc-composite-art img {
+  object-fit: contain;
+}
+
+.disc-composite-art__a {
+  clip-path: polygon(0 0, 62% 0, 42% 100%, 0 100%);
+}
+
+.disc-composite-art__b {
+  clip-path: polygon(62% 0, 100% 0, 100% 100%, 42% 100%);
+}
+
+.disc-composite-art__seam {
+  stroke: #171613;
+  stroke-width: 5;
+}
+
+.disc-composite-art__accent {
+  stroke: rgba(240, 223, 169, 0.58);
+  stroke-width: 1;
+}
+
+.disc-composite-art__or {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 52%;
+  display: grid;
+  width: 14px;
+  height: 11px;
+  place-items: center;
+  padding: 0;
+  transform: translate(-50%, -50%);
+  clip-path: polygon(15% 0, 100% 0, 85% 100%, 0 100%);
+  background: #5a564f;
+  color: #f0eadf;
+  font: 900 7px/1 var(--mono);
+  font-style: normal;
 }
 
 .equipment-copy {
@@ -1062,8 +1130,7 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
   gap: 8px;
 }
 
-.equipment-name-line strong,
-.disc-name {
+.equipment-name-line strong {
   color: #f1ecdf;
   font-family: "Bahnschrift Condensed", "Arial Narrow", sans-serif;
   font-size: 19px;
@@ -1154,7 +1221,6 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
   margin-top: 6px;
   padding: 7px;
   border: 1px solid #6b655a;
-  border-left: 3px solid var(--accent);
   background: #121210;
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
 }
@@ -1790,16 +1856,48 @@ button.main-stat-block:focus-visible {
     0 0 0 1px rgba(15, 15, 13, 0.68);
 }
 
-.slot-identity--expanded.source-target.is-source-active {
-  box-shadow: inset -5px 0 0 var(--source-highlight);
+.party-slot--compact.source-target.is-source-active {
+  border-color: transparent !important;
+  box-shadow: none;
 }
 
-.party-slot--compact.source-target.is-source-active {
+.equipment-fieldset.source-target.is-source-active {
+  border-color: var(--line-soft) !important;
+  box-shadow: none;
+}
+
+.disc-selection.source-target.is-source-active,
+.main-stat-selection.source-target.is-source-active {
+  box-shadow: none;
+}
+
+.equipment-fieldset.source-target.is-source-active > .selection-stack > .selection-surface,
+.disc-selection.source-target.is-source-active > .selection-surface,
+.main-stat-selection.source-target.is-source-active > .main-stat-block {
   border-color: var(--source-highlight);
-  box-shadow:
-    inset 0 0 0 3px var(--source-highlight),
-    0 0 18px rgba(0, 0, 0, 0.28);
-  filter: brightness(1.08);
+  background: color-mix(in srgb, var(--source-color) 14%, #191917);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--source-highlight) 55%, transparent);
+}
+
+.substat-control.source-target.is-source-active {
+  background: color-mix(in srgb, var(--source-color) 14%, #1d1c19);
+}
+
+.slot-identity--expanded .source-tint,
+.party-slot--compact .source-tint {
+  position: absolute;
+  z-index: 8;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 130ms ease;
+}
+
+.slot-identity--expanded.source-target.is-source-active .source-tint,
+.party-slot--compact.source-target.is-source-active .source-tint {
+  background: color-mix(in srgb, var(--source-color) 14%, transparent);
+  opacity: 1;
 }
 
 .result-heading {

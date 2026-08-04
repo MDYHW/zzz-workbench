@@ -485,11 +485,10 @@ and hover or focus state must communicate editability.
 
 ### Candidate Information
 
-A candidate exposes the information needed for that choice.
-Drive Disc candidates do not reduce to image and name when their effects decide
-the setup choice. A 4-piece Disc candidate presents its compressed 4-piece and
-2-piece effects, with the name serving identification rather than replacing the
-comparison.
+A candidate exposes the information needed for that choice. Drive Disc current
+and candidate blocks omit visible names while their accessible names retain
+them; compressed effects perform comparison. A same-effect OR choice uses one
+composite image and one effect row, and means either set rather than both.
 
 Candidate panels must not use one fixed size for text-only main stats and image-
 led equipment. Each selector uses the smallest readable candidate footprint for

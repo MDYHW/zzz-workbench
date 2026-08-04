@@ -207,6 +207,7 @@ function ExpandedIdentity({ activeSourceTone, agentId, onSourceToneChange, onSel
     >
       <PortraitArt agentId={agent.id} variant="expanded" />
       <span className="identity-shade" aria-hidden="true" />
+      <span className="source-tint" aria-hidden="true" />
       <span className="identity-copy">
         <strong className={`focus-marker ${agent.id === 'yixuan' ? '' : 'focus-marker--reserved'}`} aria-hidden={agent.id !== 'yixuan'}>Focus</strong>
         <span className="slot-name-line"><strong className="identity-name">{agent.name}</strong></span>
@@ -243,6 +244,7 @@ function CompactSlot({ activeSourceTone, agentId, onSourceToneChange, onSelect, 
     >
       <PortraitArt agentId={agent.id} variant="compact" />
       <span className="identity-shade" aria-hidden="true" />
+      <span className="source-tint" aria-hidden="true" />
       <span className="slot-identity">
         <span className="slot-name-line"><strong>{agent.name}</strong></span>
         <span className="identity-band">

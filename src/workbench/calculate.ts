@@ -217,8 +217,11 @@ function discSource(
   discId: DiscId,
   piece: '4-piece' | '2-piece',
 ): ResultSource {
+  const label = agentId === 'dialyn' && discId === 'swingJazz' && piece === '2-piece'
+    ? 'Swing Jazz or Moonlight Lullaby'
+    : DRIVE_DISCS[discId].name
   return source(
-    `${DRIVE_DISCS[discId].name} \u00B7 ${piece}`,
+    `${label} \u00B7 ${piece}`,
     agentId,
     piece === '4-piece' ? 'disc-4pc' : 'disc-2pc',
   )

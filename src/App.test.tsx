@@ -64,6 +64,52 @@ describe('integrated party workbench', () => {
     expect(slot6.tagName).toBe('DIV')
   })
 
+  it('presents Dialyn Energy Regen Discs as one accessible either-set choice', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    expect(screen.queryByText('Yunkui Tales')).not.toBeInTheDocument()
+    expect(screen.queryByText('Woodpecker Electro')).not.toBeInTheDocument()
+    expect(screen.getByText('Qingming Birdcage')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    await user.click(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Woodpecker Electro',
+    }))
+    const candidates = screen.getByLabelText('twoPiece Drive Disc candidates')
+    const energyRegenChoice = within(candidates).getByRole('button', {
+      name: 'Select Swing Jazz or Moonlight Lullaby as twoPiece',
+    })
+    expect(within(candidates).getAllByRole('button', {
+      name: /Swing Jazz or Moonlight Lullaby/,
+    })).toHaveLength(1)
+    expect(within(candidates).queryByText('Swing Jazz')).not.toBeInTheDocument()
+    expect(within(candidates).queryByText('Moonlight Lullaby')).not.toBeInTheDocument()
+
+    await user.click(energyRegenChoice)
+    const selected = screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Swing Jazz or Moonlight Lullaby',
+    })
+    expect(selected).toHaveFocus()
+    expect(screen.queryByLabelText('twoPiece Drive Disc candidates')).not.toBeInTheDocument()
+    const composite = selected.querySelector<HTMLElement>('.disc-composite-art')
+    expect(composite).not.toBeNull()
+    expect(composite!.querySelectorAll('.disc-composite-art__or')).toHaveLength(1)
+    expect(composite!.querySelector('.disc-composite-art__or')).toHaveTextContent('OR')
+    expect(within(selected).getAllByText('2PC')).toHaveLength(1)
+    expect(within(selected).getAllByText('Energy Regen +20%')).toHaveLength(1)
+    expect(screen.getByRole('row', {
+      name: /Energy Regen.*2\.16.*3\.66.*3\.66/,
+    })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Energy Regen' }))
+    expect(within(screen.getByRole('table', {
+      name: 'Energy Regen source contributions',
+    })).getByRole('row', {
+      name: /Swing Jazz or Moonlight Lullaby/,
+    })).toBeInTheDocument()
+  })
+
   it('opens only current-pool W-Engine alternatives and applies Rank defaults', async () => {
     const user = userEvent.setup()
     render(<App />)
@@ -142,7 +188,7 @@ describe('integrated party workbench', () => {
       name: 'Change 2-piece Drive Disc from Woodpecker Electro',
     }))
     await user.click(screen.getByRole('button', {
-      name: 'Select Swing Jazz as twoPiece',
+      name: 'Select Swing Jazz or Moonlight Lullaby as twoPiece',
     }))
     await user.click(screen.getByRole('button', { name: /^Non-limited/ }))
 
@@ -301,6 +347,79 @@ describe('integrated party workbench', () => {
     await user.unhover(branchSource)
     await user.hover(setupTarget)
     expect(branchSource).toHaveClass('is-source-active')
+  })
+
+  it('links every prepared Drive Disc source to its visible setup surface', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Max HP' }))
+    await user.click(screen.getByRole('button', { name: /^CRIT Rate$/ }))
+    await user.click(screen.getByRole('button', { name: 'DMG Bonus' }))
+
+    const maxHpSources = screen.getByRole('table', {
+      name: 'Max HP source contributions',
+    })
+    const critRateSources = screen.getByRole('table', {
+      name: 'CRIT Rate source contributions',
+    })
+    const dmgBonusSources = screen.getByRole('table', {
+      name: 'DMG Bonus source contributions',
+    })
+    const links = [
+      {
+        source: within(critRateSources).getByRole('row', { name: /Yunkui Tales.*4-piece/ }),
+        target: '.disc-selection[data-source-tone="disc-4pc"]',
+      },
+      {
+        source: within(critRateSources).getByRole('row', { name: /Woodpecker Electro.*2-piece/ }),
+        target: '.disc-selection[data-source-tone="disc-2pc"]',
+      },
+      {
+        source: within(critRateSources).getByRole('row', { name: /Drive Disc.*Slot 4/ }),
+        target: '.main-stat-selection[data-source-tone="disc-slot-4"]',
+      },
+      {
+        source: within(dmgBonusSources).getByRole('row', { name: /Drive Disc.*Slot 5/ }),
+        target: '.main-stat-selection[data-source-tone="disc-slot-5"]',
+      },
+      {
+        source: within(maxHpSources).getByRole('row', { name: /Drive Disc.*Slot 6/ }),
+        target: '.main-stat-selection[data-source-tone="disc-slot-6"]',
+      },
+    ]
+
+    for (const link of links) {
+      const target = document.querySelector<HTMLElement>(link.target)!
+      await user.hover(link.source)
+      expect(target).toHaveClass('is-source-active')
+      await user.unhover(link.source)
+      await user.hover(target)
+      expect(link.source).toHaveClass('is-source-active')
+      await user.unhover(target)
+    }
+  })
+
+  it('activates and clears every remaining visible setup source target', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const targets = [
+      document.querySelector<HTMLElement>('.equipment-fieldset[data-source-tone="w-engine"]')!,
+      document.querySelector<HTMLElement>('.substat-control[data-source-tone="substat-1"]')!,
+      document.querySelector<HTMLElement>('.substat-control[data-source-tone="substat-2"]')!,
+      document.querySelector<HTMLElement>('.substat-control[data-source-tone="substat-3"]')!,
+      screen.getByRole('tab', { name: 'View Yixuan setup and Result' }),
+      screen.getByRole('tab', { name: 'View Dialyn setup and Result' }),
+      screen.getByRole('tab', { name: 'View Lucia setup and Result' }),
+    ]
+
+    for (const target of targets) {
+      await user.hover(target)
+      expect(target).toHaveClass('is-source-active')
+      await user.unhover(target)
+      expect(target).not.toHaveClass('is-source-active')
+    }
   })
 
   it('replaces obsolete source text while keeping the newly selected engine connected', async () => {
