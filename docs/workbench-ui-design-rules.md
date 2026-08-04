@@ -193,6 +193,26 @@ contribution changes.
 - When one aggregate differs by canonical action, keep the base Result row
   concise and show the differing action aggregates when that row is expanded.
   Do not create a second Result surface for the comparison.
+- An expanded quantity orders disclosure as common sources, action outcomes,
+  and then the actual sources for one action when the user opens that action.
+  Common sources apply to the action outcomes without an `inherits` label,
+  repeated subtotal, or duplicated action-delta copy. The action row displays
+  the resulting aggregate where it differs from its parent; an unchanged
+  surface remains neutral. Its second disclosure identifies the W-Engine,
+  Drive Disc, canonical Agent source, or other retained source that produced
+  the action-only difference.
+- Common-source, action-outcome, and action-source rows share the Initial,
+  Combat, and Fully Enabled column tracks. The action table may use a structural
+  hierarchy gutter, but it must not create alignment drift or simulate nesting
+  by padding only the text. Canonical actions in one outcome group occupy
+  separate text lines, keep one readable type size, and grow the row when more
+  actions are present. The disclosure control stays aligned at the right of the
+  action-label region.
+- An expanded action-source row uses an internal hierarchy cue, its resolved
+  source color, and a subdued source-row surface. Pointer hover or keyboard
+  focus highlights the visible source cells as one row while leaving any
+  transparent hierarchy gutter unhighlighted. The source text, not color or the
+  action name, remains the identity of the contribution.
 - For an independent source-stated action DMG Multiplier or Daze Multiplier
   modifier operation, show only its added amount or scale factor and numeric
   source breakdown. Do not show the resolved ordinary skill level, base action

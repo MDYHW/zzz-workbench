@@ -132,6 +132,7 @@ interface SourceMatrixProps extends SourceInteractionProps {
   breakdown: Record<SurfaceKey, Contribution[]>
   label: string
   shownSurfaces?: SurfaceKey[]
+  sourceHeading?: string
   unit: string
 }
 
@@ -142,6 +143,7 @@ function SourceMatrix({
   label,
   onSourceToneChange,
   shownSurfaces = allSurfaces,
+  sourceHeading = 'Source',
   unit,
 }: SourceMatrixProps) {
   const rows = useMemo(
@@ -156,7 +158,7 @@ function SourceMatrix({
       <table className="source-matrix" aria-label={label}>
         <thead>
           <tr>
-            <th scope="col">Source</th>
+            <th scope="col">{sourceHeading}</th>
             {shownSurfaces.map((surface) => (
               <th scope="col" key={surface}>{surfaceLabels[surface]}</th>
             ))}
@@ -249,51 +251,127 @@ function ActionRows({
   actions,
   activeSourceTone,
   agentId,
+  metric,
   onSourceToneChange,
 }: {
   actions: ActionModifier[]
   agentId: AgentResult['agentId']
+  metric: ResultMetric
 } & SourceInteractionProps) {
+  const [expandedActions, setExpandedActions] = useState<Set<string>>(new Set())
+
   if (actions.length === 0) return null
 
+  const actionById = new Map(actions.map((action) => [action.id, action]))
+  const toggleAction = (actionId: string) => setExpandedActions((current) => {
+    const next = new Set(current)
+    if (next.has(actionId)) next.delete(actionId)
+    else next.add(actionId)
+    return next
+  })
+
   return (
-    <section className="action-differences" aria-label="Action differences">
-      <h5>Action aggregates</h5>
-      <table className="action-aggregate-table">
-        <thead>
-          <tr><th>Action</th><th>Combat</th><th>Fully enabled</th></tr>
-        </thead>
-        <tbody>
-          {actions.map((row) => (
-            <Fragment key={row.id}>
-              <tr className={row.baseActionId ? 'action-aggregate--variant' : undefined}>
-                <th>{row.label}</th>
-                <td>{formatValue(row.values.combat, '%', 1)}</td>
-                <td>{formatValue(row.values.fully, '%', 1)}</td>
-              </tr>
-              {groupContributions(row.breakdown, ['combat', 'fully']).length > 0 && (
-                <tr className="action-source-row">
-                  <td colSpan={3}>
-                    <SourceMatrix
-                      activeSourceTone={activeSourceTone}
-                      agentId={agentId}
-                      breakdown={row.breakdown}
-                      label={`${row.label} source contributions`}
-                      onSourceToneChange={onSourceToneChange}
-                      shownSurfaces={['combat', 'fully']}
-                      unit="%"
-                    />
-                  </td>
-                </tr>
-              )}
-            </Fragment>
-          ))}
-        </tbody>
-      </table>
+    <section className="action-differences" aria-label={`${metric.label} action outcomes`}>
+      <h5 className="hierarchy-caption">Action outcomes</h5>
+      <div className="action-matrix-wrap">
+        <table className="source-matrix action-matrix" aria-label={`${metric.label} action outcome values`}>
+          <colgroup>
+            <col className="action-hierarchy-track" />
+            <col className="action-label-track" />
+            <col className="action-surface-track" span={3} />
+          </colgroup>
+          <thead>
+            <tr>
+              <th className="action-hierarchy-cell" aria-hidden="true" />
+              <th scope="col">Action outcome</th>
+              {allSurfaces.map((surface) => <th scope="col" key={surface}>{surfaceLabels[surface]}</th>)}
+            </tr>
+          </thead>
+          {actions.map((action) => {
+            const actionKey = `${metric.id}-${action.id}`
+            const isExpanded = expandedActions.has(actionKey)
+            const sourceRows = groupContributions(action.breakdown, allSurfaces)
+            const sourceRegionId = `action-sources-${agentId}-${metric.id}-${action.id}`
+            const parentValues = action.baseActionId
+              ? actionById.get(action.baseActionId)?.values ?? metric.values
+              : metric.values
+            const actionName = action.actions.join(', ')
+
+            return (
+              <Fragment key={action.id}>
+                <tbody className="action-outcome-group">
+                  <tr className={action.baseActionId ? 'action-outcome--variant' : undefined}>
+                    <td className="action-hierarchy-cell" aria-hidden="true" />
+                    <th scope="row">
+                      {sourceRows.length > 0 ? (
+                        <button
+                          type="button"
+                          className="action-row-toggle"
+                          aria-controls={sourceRegionId}
+                          aria-expanded={isExpanded}
+                          aria-label={`${isExpanded ? 'Hide' : 'Show'} sources for ${actionName}`}
+                          onClick={() => toggleAction(actionKey)}
+                        >
+                          <span className="action-lines">
+                            {action.actions.map((label) => <span key={label}>{label}</span>)}
+                          </span>
+                          <i aria-hidden="true">{isExpanded ? '\u2212' : '+'}</i>
+                        </button>
+                      ) : (
+                        <span className="action-lines">
+                          {action.actions.map((label) => <span key={label}>{label}</span>)}
+                        </span>
+                      )}
+                    </th>
+                    {allSurfaces.map((surface) => (
+                      <td key={surface}>
+                        {Math.abs(action.values[surface] - parentValues[surface]) < 0.0001
+                          ? <span className="action-result--empty">{'—'}</span>
+                          : <b className="action-result-value">{formatValue(action.values[surface], '%', 1)}</b>}
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+                {sourceRows.length > 0 && (
+                  <tbody className="action-source-detail" id={sourceRegionId} hidden={!isExpanded}>
+                    {sourceRows.map((row) => {
+                      const tone = sourceTone(row.source, agentId)
+                      return (
+                        <tr
+                          key={`${row.source.ownerAgentId}-${row.source.locus}-${row.source.label}-${row.source.detail ?? ''}`}
+                          className={toneClass(tone, activeSourceTone)}
+                          data-source-tone={tone}
+                          {...sourceEvents(tone, onSourceToneChange)}
+                        >
+                          <td className="action-hierarchy-cell" aria-hidden="true" />
+                          <th scope="row" tabIndex={0}>
+                            <span className="action-source-arrow" aria-hidden="true">{'↳'}</span>
+                            <i aria-hidden="true" />
+                            <span className="source-copy">
+                              <span>{sourceLabel(row.source, agentId)}</span>
+                              {row.source.detail && <small>{row.source.detail}</small>}
+                            </span>
+                          </th>
+                          {allSurfaces.map((surface) => (
+                            <td key={surface}>
+                              {row.amounts[surface] === undefined
+                                ? null
+                                : <b>{formatContributionValue(row.amounts[surface]!, row.displays[surface], metric.unit)}</b>}
+                            </td>
+                          ))}
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                )}
+              </Fragment>
+            )
+          })}
+        </table>
+      </div>
     </section>
   )
 }
-
 function Operations({
   activeSourceTone,
   agentId,
@@ -352,6 +430,7 @@ function MetricDetail({
         breakdown={metric.breakdown}
         label={`${metric.label} source contributions`}
         onSourceToneChange={onSourceToneChange}
+        sourceHeading={actions.length > 0 ? 'Common source' : 'Source'}
         unit={metric.unit}
       />
       {metric.gauge && (
@@ -366,6 +445,7 @@ function MetricDetail({
         actions={actions}
         activeSourceTone={activeSourceTone}
         agentId={agentId}
+        metric={metric}
         onSourceToneChange={onSourceToneChange}
       />
     </div>

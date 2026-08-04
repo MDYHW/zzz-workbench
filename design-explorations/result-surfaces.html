@@ -1,71 +1,119 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Result surfaces — ZZZ workbench exploration</title>
-  <style>
-    :root { color-scheme: dark; --ink:#10120d; --panel:#191b16; --paper:#f1f0e7; --quiet:#a7a89e; --rule:#4b4d43; --acid:#dcff31; --acid-dim:#99ae20; }
-    * { box-sizing:border-box; } body { margin:0; min-width:320px; background:var(--ink); color:var(--paper); font-family:"Arial Narrow","Roboto Condensed",sans-serif; letter-spacing:.015em; }
-    button { font:inherit; } .page { width:min(1440px,calc(100% - 32px)); margin:auto; padding:42px 0 72px; } .eyebrow,.meta,.legend,.source,.small,.column-head,.gauge { font-family:Consolas,"Courier New",monospace; text-transform:uppercase; letter-spacing:.085em; }
-    .eyebrow { margin:0; color:var(--acid); font-size:.72rem; } h1,h2,p { margin-top:0; } h1 { margin:10px 0 12px; max-width:900px; font-size:clamp(2.25rem,5vw,4.5rem); line-height:.9; text-transform:uppercase; letter-spacing:-.055em; } h2 { margin:5px 0 0; font-size:clamp(1.5rem,3vw,2.5rem); line-height:.95; text-transform:uppercase; }
-    .intro,.hypothesis,.footnote { max-width:790px; color:var(--quiet); line-height:1.55; } .legend { display:flex; flex-wrap:wrap; gap:10px 20px; margin:22px 0 44px; color:var(--quiet); font-size:.7rem; } .legend b { color:var(--paper); }
-    .variant { margin-top:52px; } .variant-heading { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:end; gap:20px; padding-bottom:12px; border-bottom:2px solid var(--paper); } .meta { color:var(--acid); font-size:.68rem; white-space:nowrap; } .hypothesis { margin:14px 0 20px; }
-    .surface { background:var(--panel); border:1px solid var(--rule); overflow-x:auto; } .row { min-width:780px; display:grid; grid-template-columns:minmax(205px,1.18fr) repeat(3,minmax(170px,1fr)); } .row > * { min-width:0; } .head { background:var(--paper); color:var(--ink); font-family:Consolas,monospace; font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.07em; } .head > * { padding:11px 16px; border-right:1px solid #b8b8af; } .head > *:last-child { border-right:0; }
-    .data { border-top:1px solid var(--rule); transition:background-color 160ms linear; } .data:hover,.data:focus-within { background:#25291c; } .label { padding:13px 16px; display:flex; flex-direction:column; justify-content:center; gap:4px; } .label strong { font-size:1rem; } .small { color:var(--quiet); font-size:.64rem; } .value { min-height:72px; padding:11px 16px; border-left:1px solid var(--rule); display:flex; align-items:center; justify-content:space-between; gap:8px; } .number { font-size:clamp(1.28rem,2.5vw,2rem); font-weight:800; letter-spacing:-.05em; font-variant-numeric:tabular-nums; } .unit { color:var(--quiet); font-family:Consolas,monospace; font-size:.65rem; } .delta { display:block; color:var(--acid); font-family:Consolas,monospace; font-size:.66rem; font-variant-numeric:tabular-nums; }
-    .reveal { display:inline-flex; align-items:center; justify-content:center; min-width:31px; min-height:31px; padding:5px; border:1px solid var(--acid-dim); background:transparent; color:var(--acid); cursor:pointer; font-size:.68rem; } .reveal:hover,.reveal[aria-expanded="true"] { background:var(--acid); color:var(--ink); } .reveal:focus-visible,.expand:focus-visible { outline:3px solid var(--paper); outline-offset:-3px; } .source { grid-column:1 / -1; display:none; padding:11px 16px 15px; border-top:1px dashed var(--acid-dim); background:#16180f; color:var(--quiet); font-size:.7rem; line-height:1.55; } .source[data-open="true"] { display:block; } .source b { color:var(--acid); }
-    .matrix .head > div { min-height:94px; padding-top:22px; position:relative; background:#22251c; } .matrix .head > div::before { content:""; position:absolute; inset:0 0 auto; height:7px; background:var(--paper); } .matrix .head > div:nth-child(3)::before { background:#92968a; } .matrix .head > div:nth-child(4)::before { background:var(--acid); } .matrix .data .label { border-right:1px solid var(--rule); } .matrix .value.enabled { background:linear-gradient(90deg,rgba(220,255,49,.13),transparent 76%); } .matrix .data[data-expanded="true"] > :not(.source) { background-color:#2a2e1e; } .expand { padding:0; border:0; text-align:left; background:transparent; color:inherit; cursor:pointer; } .expand:hover strong { color:var(--acid); }
-    .gauge { max-width:900px; margin:14px 0 0 auto; padding:13px 16px 15px; border:1px solid var(--acid-dim); background:#16180f; color:var(--quiet); font-size:.67rem; line-height:1.55; } .gauge b { color:var(--paper); } .track { position:relative; height:14px; margin:8px 0 4px; border:1px solid var(--rule); background:repeating-linear-gradient(90deg,#25271f 0 18px,#14150f 18px 20px); } .fill { display:block; width:75.4%; height:100%; background:var(--acid); } .mark { position:absolute; top:-6px; height:25px; border-left:2px solid var(--paper); } .current { left:75.4%; border-color:var(--acid); } .target { left:50%; } .gauge-note { color:var(--paper); text-transform:none; letter-spacing:normal; } .gauge-note b { color:var(--acid); }
-    @media (max-width:720px) { .page { width:min(100% - 20px,1440px); padding-top:25px; } .variant-heading { grid-template-columns:1fr; gap:8px; } } @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Result action source disclosure</title>
+<link rel="stylesheet" href="/src/app.css">
+<style>
+body{overflow-x:auto}.lab-shell{width:min(1320px,calc(100% - 28px));margin:auto;padding:14px 0 72px}.lab-masthead{margin-bottom:18px}.lab-masthead .masthead__status{grid-template-columns:1fr}.lab-masthead .masthead__status strong{font-size:14px}.lab-intro{display:flex;justify-content:space-between;gap:20px;margin:0 0 34px;padding:11px 14px;border:1px solid #4d4942;background:#1b1a17;color:#b4aea2;font:700 10px/1.55 var(--mono)}.lab-intro b{color:var(--accent-soft)}.selected-heading{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:13px;width:min(820px,100%);margin:0 auto 9px}.selected-index{display:grid;width:42px;height:38px;place-items:center;background:var(--accent);color:var(--ink);font:900 11px/1 var(--mono);clip-path:polygon(0 0,83% 0,100% 31%,100% 100%,14% 100%,0 72%)}.selected-heading h2{margin:0;color:#eee9dd;font-family:"Bahnschrift Condensed","Arial Narrow",sans-serif;font-size:25px;line-height:.9;letter-spacing:-.02em;text-transform:uppercase}.selected-heading p{max-width:540px;margin:4px 0 0;color:#9f998e;font:700 9px/1.4 var(--mono)}.selected-heading>small{color:var(--accent-soft);font:800 8px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase}.result-frame{width:min(820px,100%);margin:auto;border:1px solid #625e56;background:#1d1c19;box-shadow:7px 7px 0 rgba(0,0,0,.32)}.result-frame .result-panel{min-height:0;margin-left:0;padding:18px 16px 22px 42px}.result-frame .result-heading h2{font-size:42px}.result-frame .agent-result thead th{font-size:10px}.result-frame .agent-result tbody td{font-size:16px}.result-frame .metric-toggle,.result-frame .metric-label{min-height:42px;font-size:13px}.result-frame .source-matrix thead th{font-size:9px}.result-frame .source-matrix thead th:first-child{width:36%}.result-frame .source-matrix tbody th,.result-frame .source-matrix tbody td{height:35px;padding:7px 8px;font-size:11px}.result-frame .breakdown-grid{display:block;padding:6px}.source-matrix tbody th{white-space:normal!important}.source-copy span{white-space:normal!important}.metric-detail[hidden],.action-source-detail[hidden]{display:none}.hierarchy-caption{display:flex;align-items:center;gap:7px;margin:8px 0 6px;color:#705619;font:900 10px/1 var(--mono);letter-spacing:.04em;text-transform:uppercase}.hierarchy-caption:before{content:"↳";color:#8a8175;font-size:13px}.action-zone{--action-table-indent:18px;position:relative;padding-left:var(--action-table-indent);border-left:0}.result-frame .action-matrix thead th:first-child,.result-frame .action-source-shell .source-matrix thead th:first-child{width:calc(36% - 12px)}.action-matrix tbody th{color:#34322e}.action-matrix tbody th i{display:none}.action-matrix>tbody>tr:not(.action-source-detail)>th{padding:0}.action-row-toggle{display:grid;width:100%;min-height:42px;grid-template-columns:minmax(0,1fr) 20px;align-items:center;gap:8px;padding:7px 8px;border:0;background:transparent;color:#34322e;font:800 11px/1.2 var(--mono);text-align:left;cursor:pointer}.action-lines{display:grid;gap:2px;min-width:0}.action-lines span{display:block}.action-matrix .action-row-toggle i{display:grid;width:20px;height:20px;place-items:center;background:var(--ink);color:#f3eee4;font:normal 900 11px/1 var(--mono);clip-path:none;margin:0;vertical-align:middle}.action-matrix .action-row-toggle[aria-expanded=true] i{background:var(--ink);color:#f3eee4}.action-row-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}.action-result{display:flex;flex-direction:column;align-items:flex-end;gap:3px}.action-result b{color:#24231f!important;font-size:14px}.action-result small{color:#766f64;font:900 8px/1 var(--mono)}.action-result--empty{color:#908a80}.action-source-detail>td{padding:0!important;background:#e2dcd0}.action-source-shell{margin-left:0;border-left:0}.action-source-shell .source-matrix-wrap{border-width:1px 0 0;border-color:#b9b1a4}.action-source-shell .source-matrix tbody th{width:calc(36% - 12px)}.action-source-shell .source-matrix tbody th i{display:inline-block}.action-source-shell .source-matrix tbody th{color:var(--source-color)}.flow-note{width:min(820px,100%);margin:8px auto 0;color:#817b72;font:700 8px/1.45 var(--mono);letter-spacing:.04em;text-transform:uppercase}.flow-note b{color:#aaa399}.stage{display:inline-flex;align-items:center;gap:5px;margin-left:7px}.stage i{display:grid;width:15px;height:15px;place-items:center;background:#d1c9bc;color:#4b4740;font-style:normal}.stage i.on{background:var(--accent);color:var(--ink)}
+@media(max-width:760px){.selected-heading{grid-template-columns:42px 1fr}.selected-heading>small{grid-column:2}.result-frame{overflow-x:auto}.result-frame .result-panel{min-width:690px;padding-left:30px}}
+
+/* Shared surface tracks with a dedicated hierarchy gutter. */
+.action-zone{--action-hierarchy-gutter:18px;padding-left:0}
+.action-zone>.source-matrix-wrap{overflow:visible;border:0;background:transparent}
+.action-matrix col.action-hierarchy-track{width:var(--action-hierarchy-gutter)}
+.action-matrix col.action-label-track{width:calc(36% - var(--action-hierarchy-gutter))}
+.action-matrix col.action-surface-track{width:21.333333%}
+.result-frame .action-matrix thead th:first-child{width:auto}
+.action-matrix thead .action-hierarchy-cell,
+.action-matrix tbody .action-hierarchy-cell{height:auto;padding:0;border:0;background:transparent}
+.action-matrix thead th:not(.action-hierarchy-cell){border-top:1px solid #aaa397}
+.action-matrix thead th:nth-child(2){border-left:1px solid #aaa397;text-align:left}
+.action-matrix thead th:last-child{border-right:1px solid #aaa397}
+.action-matrix>tbody>tr>th,
+.action-matrix>tbody>tr>td:not(.action-hierarchy-cell){border-bottom:1px solid #d1c9bc;background:#ece6da}
+.action-matrix>tbody>tr>th{border-left:1px solid #aaa397}
+.action-matrix>tbody>tr>td:last-child{border-right:1px solid #aaa397}
+.action-matrix>tbody.action-source-detail>tr>th,
+.action-matrix>tbody.action-source-detail>tr>td:not(.action-hierarchy-cell){padding:7px 8px;background:#e2dcd0}
+.action-matrix>tbody.action-source-detail th i{display:inline-block}
+
+
+.action-matrix>tbody.action-source-detail>tr>th{color:var(--source-color)}
+.action-source-arrow{display:inline-block;margin-right:7px;color:#8a8175;font:900 12px/1 var(--mono);vertical-align:0}
+.action-matrix>tbody.action-source-detail>tr.source-link{background:transparent;box-shadow:none}
+.action-matrix>tbody.action-source-detail>tr.source-link>th,
+.action-matrix>tbody.action-source-detail>tr.source-link>td:not(.action-hierarchy-cell){transition:background 120ms ease,box-shadow 120ms ease}
+.action-matrix>tbody.action-source-detail>tr.source-link:is(:hover,.is-source-active,:focus-within){background:transparent;box-shadow:none}
+.action-matrix>tbody.action-source-detail>tr.source-link:is(:hover,.is-source-active,:focus-within)>th,
+.action-matrix>tbody.action-source-detail>tr.source-link:is(:hover,.is-source-active,:focus-within)>td:not(.action-hierarchy-cell){background:#f7f1e6}
+.action-matrix>tbody.action-source-detail>tr.source-link:is(:hover,.is-source-active,:focus-within)>th{box-shadow:inset 3px 0 0 var(--source-color)}
+</style>
 </head>
 <body>
-  <main class="page">
-    <p class="eyebrow">Zenless setup workbench / visual hypothesis 02</p>
-    <h1>Result as a field instrument.</h1>
-    <p class="intro">These are <strong>setting-relevant values, not a full stat sheet.</strong> Both hypotheses expose Yixuan's current Qingming prepared setup across Initial, Combat, and Fully Enabled. Each surface keeps the absolute aggregate; lime notes reveal only the source newly added at that surface.</p>
-    <div class="legend" aria-label="Result legend"><span><b>Initial</b> · prepared setup</span><span><b>Combat</b> · new combat source</span><span><b>Fully Enabled</b> · new action/state source</span><span>▲ expand source evidence</span></div>
+<div class="lab-shell">
+<header class="masthead lab-masthead"><div class="masthead__index">RESULT // LAB</div><div class="masthead__title"><span class="eyebrow">SELECTED DISCLOSURE</span><h1>ACTION SOURCES</h1></div><div class="masthead__status"><span>AGREED STRUCTURE</span><strong>OUTCOME ≠ SOURCE</strong></div></header>
+<p class="lab-intro"><span><b>Fixed meaning:</b> Action identifies the affected outcome. Expanding it reveals the W-Engine, Disc, passive, ability, or Agent effect that actually produced the difference.</span><span>Placeholder values.</span></p>
 
-    <section class="variant" aria-labelledby="ledger-title">
-      <div class="variant-heading"><div><p class="eyebrow">Variant A / dense</p><h2 id="ledger-title">Combat ledger</h2></div><p class="meta">01 — direct reading</p></div>
-      <p class="hypothesis">A technical ledger makes the Result read like a controlled combat record: one stable scan path, absolute totals in every column, and source detail revealed exactly where an increment enters.</p>
-      <div class="surface" role="region" aria-label="Yixuan Combat ledger comparing Result surfaces">
-        <div class="row head"><div>Yixuan · relevant value</div><div>Initial</div><div>Combat</div><div>Fully Enabled</div></div>
-        <div class="row data"><div class="label"><strong>Max HP</strong><span class="small">prepared survivability aggregate</span></div><div class="value"><span class="number">16,434</span><button class="reveal" aria-expanded="false" aria-controls="a-hp">▲</button></div><div class="value"><span class="number">16,434</span></div><div class="value"><span><span class="number">19,721</span><span class="delta">+3,287 · Lucia · Core Passive</span></span></div><div class="source" id="a-hp"><b>Initial</b> · Yixuan + Qingming Birdcage + Yunkui Tales + prepared Drive Discs. <b>Combat</b> · no new source. <b>Fully Enabled</b> · Lucia · Core Passive and Dreamlit Hearth W1 enter Max HP directly.</div></div>
-        <div class="row data"><div class="label"><strong>ATK</strong><span class="small">prepared aggregate</span></div><div class="value"><span class="number">1,931</span><button class="reveal" aria-expanded="false" aria-controls="a-atk">▲</button></div><div class="value"><span class="number">1,931</span></div><div class="value"><span class="number">1,931</span></div><div class="source" id="a-atk"><b>Initial</b> · Yixuan + Qingming Birdcage + prepared Drive Discs. <b>Combat</b> · no new source. <b>Fully Enabled</b> · no new source.</div></div>
-        <div class="row data"><div class="label"><strong>Sheer Force</strong><span class="small">Rupture output aggregate</span></div><div class="value"><span class="number">2,222.7</span><button class="reveal" aria-expanded="false" aria-controls="a-sheer">▲</button></div><div class="value"><span class="number">2,222.7</span></div><div class="value"><span><span class="number">3,366.2</span><span class="delta">+1,143.5 · Lucia</span></span></div><div class="source" id="a-sheer"><b>Initial</b> · Current Max HP × 0.1 + Current ATK × 0.3. <b>Combat</b> · no new source. <b>Fully Enabled</b> · Lucia’s Max HP contribution and Darkbreaker Sheer Force enter this affected value.</div></div>
-        <div class="row data"><div class="label"><strong>CRIT Rate</strong><span class="small">prepared reliability</span></div><div class="value"><span><span class="number">51.4</span><span class="unit"> %</span></span><button class="reveal" aria-expanded="false" aria-controls="a-crit">▲</button></div><div class="value"><span><span class="number">71.4</span><span class="delta">+20.0 · Qingming Birdcage</span></span></div><div class="value"><span><span class="number">83.4</span><span class="delta">+12.0 · Yunkui Tales</span></span></div><div class="source" id="a-crit"><b>Initial</b> · Yixuan + Slot 4 + Woodpecker Electro + prepared substats. <b>Combat</b> · Qingming Birdcage entering-combat CRIT Rate. <b>Fully Enabled</b> · Yunkui Tales 4-piece only.</div></div>
-        <div class="row data"><div class="label"><strong>CRIT DMG</strong><span class="small">prepared burst scaling</span></div><div class="value"><span><span class="number">50.0</span><span class="unit"> %</span></span><button class="reveal" aria-expanded="false" aria-controls="a-dmg">▲</button></div><div class="value"><span><span class="number">50.0</span><span class="unit"> %</span></span></div><div class="value"><span><span class="number">140.0</span><span class="delta">+90.0 · Dialyn / Lucia</span></span></div><div class="source" id="a-dmg"><b>Initial</b> · Yixuan prepared CRIT DMG. <b>Combat</b> · no new source. <b>Fully Enabled</b> · Dialyn equipment contributions and Lucia · Additional Ability enter CRIT DMG directly.</div></div>
-        <div class="row data"><div class="label"><strong>Ultimate · Sheer DMG Bonus</strong><span class="small">canonical action aggregate</span></div><div class="value"><span class="number">—</span><button class="reveal" aria-expanded="false" aria-controls="a-ultimate">▲</button></div><div class="value"><span><span class="number">66.0</span><span class="unit"> %</span><span class="delta">+36.0 Qingming Birdcage · +30.0 Core Passive</span></span></div><div class="value"><span><span class="number">179.0</span><span class="unit"> %</span><span class="delta">+113.0 · party / Yunkui sources</span></span></div><div class="source" id="a-ultimate"><b>Initial</b> · not applicable. <b>Combat</b> · newly includes Qingming Birdcage clauses totaling +36.0 and Yixuan · Core Passive +30.0. <b>Fully Enabled</b> · adds only +113.0: Dialyn · Additional Ability +40.0, Lucia · Core Passive +20.0, Moonlight Lullaby +18.0, Dreamlit Hearth +25.0, and Yunkui Tales +10.0.</div></div>
-      </div>
-      <aside class="gauge" aria-label="Dialyn target example"><b>Dialyn target example</b> · Initial CRIT Rate threshold · Current 75.4 / Target 50<div class="track" aria-hidden="true"><span class="fill"></span><i class="mark current"></i><i class="mark target"></i></div><div class="gauge-note">Dialyn only: crossing <b>50 CRIT Rate</b> links to <b>Combat Impact bonus +50.8</b>. This is adjacent context, not a Yixuan Result row.</div></aside>
-    </section>
+<header class="selected-heading"><span class="selected-index">B</span><div><h2>Two-stage source disclosure</h2><p>Open the Quantity for common sources and Action outcomes. Open one Action to inspect only the sources that change that outcome.</p></div><small>Selected direction</small></header>
+<div class="result-frame">
+<section class="result-panel">
+<header class="panel-heading result-heading"><div><span class="eyebrow">RESULT // LIVE</span><h2>Sample Result</h2></div></header>
+<article class="agent-result"><div class="result-table-wrap"><table>
+<thead><tr><th>Quantity</th><th>Initial</th><th>Combat</th><th>Fully enabled</th></tr></thead>
+<tbody>
+<tr><th><span class="metric-label">CRIT DMG</span></th><td>80.0%</td><td>95.0%</td><td>140.0%</td></tr>
+<tr class="is-expanded" data-parent-row><th><button class="metric-toggle" data-quantity-toggle aria-expanded="true" aria-controls="metric-detail"><span>DMG Bonus</span><i>−</i></button></th><td>30.0%</td><td>46.0%</td><td>149.0%</td></tr>
+<tr class="breakdown-row metric-detail" id="metric-detail"><td colspan="4"><div class="breakdown-grid">
 
-    <section class="variant" aria-labelledby="matrix-title">
-      <div class="variant-heading"><div><p class="eyebrow">Variant B / graphic</p><h2 id="matrix-title">Signal matrix</h2></div><p class="meta">02 — state topology</p></div>
-      <p class="hypothesis">A graphic treatment gives each surface a distinct signal band while preserving direct three-column comparison. Every source remains attached to its affected Result channel, never isolated in a modifier inventory.</p>
-      <div class="surface matrix" role="region" aria-label="Yixuan Signal matrix comparing Result surfaces">
-        <div class="row head"><div>Yixuan · Result channel</div><div>Initial<div class="small">prepared aggregate</div></div><div>Combat<div class="small">new combat source</div></div><div>Fully Enabled<div class="small">new action/state source</div></div></div>
-        <div class="row data" data-expanded="false"><button class="label expand" aria-expanded="false" aria-controls="b-hp"><strong>Max HP</strong><span class="small">prepared survivability aggregate · open trace</span></button><div class="value"><span class="number">16,434</span></div><div class="value"><span class="number">16,434</span></div><div class="value enabled"><span><span class="number">19,721</span><span class="delta">+3,287 · Lucia · Core Passive</span></span></div><div class="source" id="b-hp"><b>Initial</b> · Yixuan + Qingming Birdcage + Yunkui Tales + prepared Drive Discs. <b>Combat</b> · no new source. <b>Fully Enabled</b> · Lucia · Core Passive and Dreamlit Hearth W1.</div></div>
-        <div class="row data" data-expanded="false"><button class="label expand" aria-expanded="false" aria-controls="b-atk"><strong>ATK</strong><span class="small">prepared aggregate · open trace</span></button><div class="value"><span class="number">1,931</span></div><div class="value"><span class="number">1,931</span></div><div class="value enabled"><span class="number">1,931</span></div><div class="source" id="b-atk"><b>Initial</b> · Yixuan + Qingming Birdcage + prepared Drive Discs. <b>Combat</b> · no new source. <b>Fully Enabled</b> · no new source.</div></div>
-        <div class="row data" data-expanded="false"><button class="label expand" aria-expanded="false" aria-controls="b-sheer"><strong>Sheer Force</strong><span class="small">Rupture output aggregate · open trace</span></button><div class="value"><span class="number">2,222.7</span></div><div class="value"><span class="number">2,222.7</span></div><div class="value enabled"><span><span class="number">3,366.2</span><span class="delta">+1,143.5 · Lucia</span></span></div><div class="source" id="b-sheer"><b>Initial</b> · Current Max HP × 0.1 + Current ATK × 0.3. <b>Combat</b> · no new source. <b>Fully Enabled</b> · Lucia contribution enters the affected value.</div></div>
-        <div class="row data" data-expanded="false"><button class="label expand" aria-expanded="false" aria-controls="b-crit"><strong>CRIT Rate</strong><span class="small">prepared reliability · open trace</span></button><div class="value"><span class="number">51.4%</span></div><div class="value"><span><span class="number">71.4%</span><span class="delta">+20.0 · Qingming Birdcage</span></span></div><div class="value enabled"><span><span class="number">83.4%</span><span class="delta">+12.0 · Yunkui Tales</span></span></div><div class="source" id="b-crit"><b>Initial</b> · Yixuan + Slot 4 + Woodpecker Electro + prepared substats. <b>Combat</b> · Qingming Birdcage. <b>Fully Enabled</b> · Yunkui Tales 4-piece.</div></div>
-        <div class="row data" data-expanded="false"><button class="label expand" aria-expanded="false" aria-controls="b-dmg"><strong>CRIT DMG</strong><span class="small">prepared burst scaling · open trace</span></button><div class="value"><span class="number">50.0%</span></div><div class="value"><span class="number">50.0%</span></div><div class="value enabled"><span><span class="number">140.0%</span><span class="delta">+90.0 · Dialyn / Lucia</span></span></div><div class="source" id="b-dmg"><b>Initial</b> · Yixuan prepared CRIT DMG. <b>Combat</b> · no new source. <b>Fully Enabled</b> · Dialyn equipment and Lucia · Additional Ability.</div></div>
-        <div class="row data" data-expanded="false"><button class="label expand" aria-expanded="false" aria-controls="b-ultimate"><strong>Ultimate · Sheer DMG Bonus</strong><span class="small">canonical action aggregate · open trace</span></button><div class="value"><span class="number">—</span></div><div class="value"><span><span class="number">66.0%</span><span class="delta">+36.0 Qingming Birdcage · +30.0 Core Passive</span></span></div><div class="value enabled"><span><span class="number">179.0%</span><span class="delta">+113.0 · party / Yunkui sources</span></span></div><div class="source" id="b-ultimate"><b>Initial</b> · not applicable. <b>Combat</b> · newly includes Qingming Birdcage clauses totaling +36.0 and Yixuan · Core Passive +30.0. <b>Fully Enabled</b> · adds only +113.0: Dialyn · Additional Ability +40.0, Lucia · Core Passive +20.0, Moonlight Lullaby +18.0, Dreamlit Hearth +25.0, and Yunkui Tales +10.0.</div></div>
-      </div>
-      <aside class="gauge" aria-label="Dialyn target example"><b>Dialyn target example</b> · Initial CRIT Rate threshold · Current 75.4 / Target 50<div class="track" aria-hidden="true"><span class="fill"></span><i class="mark current"></i><i class="mark target"></i></div><div class="gauge-note">Dialyn only: crossing <b>50 CRIT Rate</b> links to <b>Combat Impact bonus +50.8</b>. This is adjacent context, not a Yixuan Result row.</div></aside>
-    </section>
-    <p class="footnote">Exploration data is from the current Qingming prepared vertical. Every column keeps its aggregate and each progressive source is disclosed as an incremental change.</p>
-  </main>
-  <script>
-    document.querySelectorAll('.reveal,.expand').forEach((button) => button.addEventListener('click', () => {
-      const source = document.getElementById(button.getAttribute('aria-controls'));
-      const open = button.getAttribute('aria-expanded') === 'true';
-      button.setAttribute('aria-expanded', String(!open));
-      source.dataset.open = String(!open);
-      const row = button.closest('.data');
-      if (row) row.dataset.expanded = String(!open);
-    }));
-  </script>
+<div class="source-matrix-wrap"><table class="source-matrix"><thead><tr><th>Common source</th><th>Initial</th><th>Combat</th><th>Fully enabled</th></tr></thead><tbody>
+<tr class="source-link source-tone--disc-slot-5"><th><i></i><span class="source-copy"><span>Main Stat · Slot 5</span></span></th><td><b>+30.0%</b></td><td></td><td></td></tr>
+<tr class="source-link source-tone--w-engine"><th><i></i><span class="source-copy"><span>W-Engine · Passive</span></span></th><td></td><td><b>+16.0%</b></td><td></td></tr>
+<tr class="source-link source-tone--agent-dialyn"><th><i></i><span class="source-copy"><span>Party slot 2</span></span></th><td></td><td></td><td><b>+103.0%</b></td></tr>
+</tbody></table></div>
+
+<h5 class="hierarchy-caption">Action outcomes</h5>
+<div class="action-zone"><div class="source-matrix-wrap"><table class="source-matrix action-matrix">
+<colgroup><col class="action-hierarchy-track"><col class="action-label-track"><col class="action-surface-track" span="3"></colgroup>
+<thead><tr><th class="action-hierarchy-cell" aria-hidden="true"></th><th>Action outcome</th><th>Initial</th><th>Combat</th><th>Fully enabled</th></tr></thead>
+<tbody class="action-outcome-group">
+<tr><td class="action-hierarchy-cell" aria-hidden="true"></td><th><button class="action-row-toggle" aria-label="Toggle grouped Action sources" aria-expanded="false" aria-controls="basic-sources"><span class="action-lines"><span>Basic Attack</span><span>Dash Attack</span><span>Assist Follow-Up</span><span>Chain Attack</span><span>Ultimate</span></span><i aria-hidden="true">+</i></button></th><td class="action-result--empty">—</td><td><span class="action-result"><b>66.0%</b></span></td><td><span class="action-result"><b>169.0%</b></span></td></tr>
+</tbody>
+<tbody class="action-source-detail" id="basic-sources" hidden>
+<tr class="source-link source-tone--core"><td class="action-hierarchy-cell" aria-hidden="true"></td><th><span class="action-source-arrow" aria-hidden="true">↳</span><i></i><span class="source-copy"><span>Core Passive</span></span></th><td></td><td><b>+20.0%</b></td><td></td></tr>
+</tbody>
+<tbody class="action-outcome-group">
+<tr><td class="action-hierarchy-cell" aria-hidden="true"></td><th><button class="action-row-toggle" aria-label="Toggle EX Special Attack sources" aria-expanded="false" aria-controls="ex-sources"><span class="action-lines"><span>EX Special Attack</span></span><i aria-hidden="true">+</i></button></th><td class="action-result--empty">—</td><td><span class="action-result"><b>82.0%</b></span></td><td><span class="action-result"><b>205.0%</b></span></td></tr>
+</tbody>
+<tbody class="action-source-detail" id="ex-sources" hidden>
+<tr class="source-link source-tone--w-engine"><td class="action-hierarchy-cell" aria-hidden="true"></td><th><span class="action-source-arrow" aria-hidden="true">↳</span><i></i><span class="source-copy"><span>W-Engine · Passive</span></span></th><td></td><td><b>+36.0%</b></td><td></td></tr>
+<tr class="source-link source-tone--additional"><td class="action-hierarchy-cell" aria-hidden="true"></td><th><span class="action-source-arrow" aria-hidden="true">↳</span><i></i><span class="source-copy"><span>Additional Ability</span></span></th><td></td><td></td><td><b>+20.0%</b></td></tr>
+</tbody>
+</table></div></div>
+
+</div></td></tr>
+</tbody></table></div></article>
+</section>
+</div>
+<p class="flow-note"><b>Disclosure:</b><span class="stage"><i class="on">1</i> Common sources + outcomes</span><span class="stage"><i>2</i> Actual sources for the selected Action</span></p>
+</div>
+<script>
+var quantityButton=document.querySelector('[data-quantity-toggle]');
+quantityButton.addEventListener('click',function(){
+  var detail=document.getElementById(quantityButton.getAttribute('aria-controls'));
+  var open=quantityButton.getAttribute('aria-expanded')==='true';
+  quantityButton.setAttribute('aria-expanded',String(!open));
+  quantityButton.querySelector('i').textContent=open?'+':'−';
+  detail.hidden=open;
+  quantityButton.closest('tr').classList.toggle('is-expanded',!open);
+  if(!open){
+    detail.querySelectorAll('.action-row-toggle').forEach(function(actionButton){
+      actionButton.setAttribute('aria-expanded','false');
+      actionButton.querySelector('i').textContent='+';
+      document.getElementById(actionButton.getAttribute('aria-controls')).hidden=true;
+    });
+  }
+});
+document.querySelectorAll('.action-row-toggle').forEach(function(button){
+  button.addEventListener('click',function(){
+    var detail=document.getElementById(button.getAttribute('aria-controls'));
+    var open=button.getAttribute('aria-expanded')==='true';
+    button.setAttribute('aria-expanded',String(!open));
+    button.querySelector('i').textContent=open?'+':'−';
+    detail.hidden=open;
+  });
+});
+</script>
 </body>
 </html>

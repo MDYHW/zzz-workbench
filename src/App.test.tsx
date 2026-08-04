@@ -215,6 +215,43 @@ describe('integrated party workbench', () => {
     expect(within(luciaHpSources).queryByText(/Lucia \u00B7 Core Passive/)).not.toBeInTheDocument()
   })
 
+  it('orders common sources before action outcomes and reveals actual action sources separately', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'DMG Bonus' }))
+
+    const commonSources = screen.getByRole('table', { name: 'DMG Bonus source contributions' })
+    expect(within(commonSources).getByRole('columnheader', { name: 'Common source' })).toBeInTheDocument()
+
+    const outcomes = screen.getByRole('table', { name: 'DMG Bonus action outcome values' })
+    expect(within(outcomes).getByRole('columnheader', { name: 'Initial' })).toBeInTheDocument()
+    expect(within(outcomes).getByRole('columnheader', { name: 'Combat' })).toBeInTheDocument()
+    expect(within(outcomes).getByRole('columnheader', { name: 'Fully enabled' })).toBeInTheDocument()
+    expect(within(outcomes).getByText('Basic Attack')).toBeInTheDocument()
+    expect(within(outcomes).getByText('Assist Follow-Up')).toBeInTheDocument()
+    expect(within(outcomes).getByText('Ultimate')).toBeInTheDocument()
+    expect(screen.queryByText(/qualifying forms|vs Stunned/i)).not.toBeInTheDocument()
+
+    const sharedAction = within(outcomes).getByRole('button', {
+      name: /Show sources for Basic Attack, EX Special Attack, Assist Follow-Up, Chain Attack, Ultimate/,
+    })
+    expect(within(outcomes).queryByRole('row', { name: /Core Passive.*\+60\.0%/ })).not.toBeInTheDocument()
+
+    await user.click(sharedAction)
+    const coreSource = within(outcomes).getByRole('row', { name: /Core Passive.*\+60\.0%/ })
+    expect(coreSource).toHaveAttribute('data-source-tone', 'core')
+    expect(sharedAction).toHaveAttribute('aria-expanded', 'true')
+    await user.hover(coreSource)
+    expect(document.querySelector('.slot-identity--expanded')).toHaveClass('is-source-active')
+    await user.unhover(coreSource)
+
+    const exAction = within(outcomes).getByRole('button', { name: 'Show sources for EX Special Attack' })
+    expect(within(outcomes).queryByRole('row', { name: /Additional Ability.*\+30\.0%/ })).not.toBeInTheDocument()
+    await user.click(exAction)
+    expect(within(outcomes).getByRole('row', { name: /Additional Ability.*\+30\.0%/ }))
+      .toHaveAttribute('data-source-tone', 'additional')
+  })
   it('links Setup source hover and keyboard focus to Result sources, then clears on leave and blur', async () => {
     const user = userEvent.setup()
     render(<App />)

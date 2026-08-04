@@ -65,7 +65,7 @@ export interface ResultMetric {
 
 export interface ActionModifier {
   id: string
-  label: string
+  actions: string[]
   metricId: string
   baseActionId?: string
   values: Record<SurfaceKey, number>
@@ -253,7 +253,7 @@ function buildYixuanActionModifiers(
   const actions: ActionModifier[] = [
     {
       id: 'coreActions',
-      label: 'Basic Attack / EX Special Attack / Assist Follow-Up / Chain Attack / Ultimate',
+      actions: ['Basic Attack', 'EX Special Attack', 'Assist Follow-Up', 'Chain Attack', 'Ultimate'],
       metricId: 'dmgBonus',
       values: surfaces(
         commonDmgBonus.initial,
@@ -268,7 +268,7 @@ function buildYixuanActionModifiers(
     },
     {
       id: 'exSpecialStunned',
-      label: 'EX Special Attack \u00B7 qualifying forms \u00B7 vs Stunned',
+      actions: ['EX Special Attack'],
       metricId: 'dmgBonus',
       baseActionId: 'coreActions',
       values: surfaces(
@@ -288,7 +288,7 @@ function buildYixuanActionModifiers(
     const qingmingSheerBonus = 20
     actions.push({
       id: 'qingmingSheerActions',
-      label: 'EX Special Attack / Ultimate',
+      actions: ['EX Special Attack', 'Ultimate'],
       metricId: 'sheerDmgBonus',
       values: surfaces(
         commonSheerDmgBonus.initial,

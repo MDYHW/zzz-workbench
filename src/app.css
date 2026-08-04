@@ -1576,35 +1576,189 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
   margin-top: 8px;
 }
 
-.action-aggregate-table > tbody > tr:not(.action-source-row) > th,
-.action-aggregate-table > tbody > tr:not(.action-source-row) > td {
-  padding-top: 7px;
-  padding-bottom: 7px;
+.breakdown-grid > .action-differences {
+  margin: 8px 0 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
-.action-aggregate--variant > th:first-child {
-  padding-left: 16px !important;
+.action-differences .hierarchy-caption {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 8px 0 6px;
 }
 
-.action-aggregate--variant > th:first-child::before {
+.action-differences .hierarchy-caption::before {
   content: "↳";
-  margin-right: 6px;
   color: #8a8175;
+  font-size: 1.1em;
 }
 
-.action-source-row > td {
-  padding: 0 6px 8px !important;
-  border-bottom: 1px solid #bdb5a8;
+.action-matrix-wrap {
+  min-width: 0;
+  overflow-x: auto;
+  background: transparent;
 }
 
-.action-source-row .source-matrix {
-  min-width: 330px;
+.action-matrix {
+  --action-hierarchy-gutter: 18px;
 }
 
-.action-source-row .source-matrix thead th:first-child {
-  width: 58%;
+.action-matrix col.action-hierarchy-track {
+  width: var(--action-hierarchy-gutter);
 }
 
+.action-matrix col.action-label-track {
+  width: calc(46% - var(--action-hierarchy-gutter));
+}
+
+.action-matrix col.action-surface-track {
+  width: 18%;
+}
+
+.action-matrix thead .action-hierarchy-cell,
+.action-matrix tbody .action-hierarchy-cell {
+  width: var(--action-hierarchy-gutter);
+  height: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.action-matrix thead th:not(.action-hierarchy-cell) {
+  border-top: 1px solid #aaa397;
+}
+
+.action-matrix thead th:nth-child(2) {
+  border-left: 1px solid #aaa397;
+  text-align: left;
+}
+
+.action-matrix thead th:last-child,
+.action-matrix > tbody > tr > td:last-child {
+  border-right: 1px solid #aaa397;
+}
+
+.action-matrix > tbody > tr > th,
+.action-matrix > tbody > tr > td:not(.action-hierarchy-cell) {
+  border-bottom: 1px solid #d1c9bc;
+  background: #ece6da;
+}
+
+.action-matrix > tbody > tr > th {
+  border-left: 1px solid #aaa397;
+}
+
+.action-matrix > tbody.action-outcome-group > tr > th {
+  padding: 0;
+  color: #34322e;
+}
+
+.action-row-toggle {
+  display: grid;
+  width: 100%;
+  min-height: 42px;
+  grid-template-columns: minmax(0, 1fr) 20px;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border: 0;
+  background: transparent;
+  color: #34322e;
+  font: 800 clamp(10px, 2.45cqw, 12px)/1.2 var(--mono);
+  text-align: left;
+  cursor: pointer;
+}
+
+.action-lines {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  white-space: normal;
+}
+
+.action-lines > span {
+  display: block;
+}
+
+.action-outcome-group th > .action-lines {
+  padding: 7px 8px;
+}
+
+.action-row-toggle > i {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  margin: 0;
+  clip-path: none;
+  background: var(--ink);
+  color: #f3eee4;
+  font: normal 900 11px/1 var(--mono);
+}
+
+.action-row-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.action-matrix > tbody.action-outcome-group > tr > td {
+  color: #24231f;
+  font: 800 clamp(10px, 2.45cqw, 12px)/1 var(--mono);
+  text-align: right;
+}
+
+.action-result-value {
+  color: #24231f;
+}
+
+.action-result--empty {
+  color: #908a80;
+}
+
+.action-matrix > tbody.action-source-detail > tr > th,
+.action-matrix > tbody.action-source-detail > tr > td:not(.action-hierarchy-cell) {
+  padding: 7px 8px;
+  background: #e2dcd0;
+}
+
+.action-matrix > tbody.action-source-detail > tr > th {
+  color: var(--source-color);
+}
+
+.action-source-arrow {
+  display: inline-block;
+  margin-right: 7px;
+  color: #8a8175;
+  font: 900 12px/1 var(--mono);
+  vertical-align: 0;
+}
+
+.action-matrix > tbody.action-source-detail > tr.source-link {
+  background: transparent;
+  box-shadow: none;
+}
+
+.action-matrix > tbody.action-source-detail > tr.source-link > th,
+.action-matrix > tbody.action-source-detail > tr.source-link > td:not(.action-hierarchy-cell) {
+  transition: background 120ms ease, box-shadow 120ms ease;
+}
+
+.action-matrix > tbody.action-source-detail > tr.source-link:is(:hover, .is-source-active, :focus-within) {
+  background: transparent;
+  box-shadow: none;
+}
+
+.action-matrix > tbody.action-source-detail > tr.source-link:is(:hover, .is-source-active, :focus-within) > th,
+.action-matrix > tbody.action-source-detail > tr.source-link:is(:hover, .is-source-active, :focus-within) > td:not(.action-hierarchy-cell) {
+  background: #f7f1e6;
+}
+
+.action-matrix > tbody.action-source-detail > tr.source-link:is(:hover, .is-source-active, :focus-within) > th {
+  box-shadow: inset 3px 0 0 var(--source-color);
+}
 .action-source-list .source-link {
   padding: 7px;
   border-left: 4px solid var(--source-color);
@@ -1642,19 +1796,6 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
   white-space: normal;
 }
 
-.action-aggregate-table > thead > tr > th:first-child,
-.action-aggregate-table > tbody > tr:not(.action-source-row) > th:first-child {
-  width: 58%;
-  overflow-wrap: anywhere;
-  line-height: 1.35;
-  white-space: normal;
-}
-
-.action-aggregate-table > thead > tr > th:not(:first-child),
-.action-aggregate-table > tbody > tr:not(.action-source-row) > td {
-  width: 21%;
-  white-space: nowrap;
-}
 /* Result type scales from the Result surface itself, not from the viewport. */
 .result-panel {
   container-type: inline-size;
@@ -1730,10 +1871,6 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
   font-size: clamp(9px, 2.15cqw, 10px);
 }
 
-.action-aggregate-table > thead > tr > th:first-child,
-.action-aggregate-table > tbody > tr:not(.action-source-row) > th:first-child {
-  font-size: clamp(9px, 2.1cqw, 10px);
-}
 
 .action-source-list li {
   font-size: clamp(11px, 2.45cqw, 12px);

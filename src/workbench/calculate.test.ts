@@ -98,6 +98,7 @@ describe('calculateParty', () => {
     const qingmingSheer = action(yixuan, 'qingmingSheerActions')
 
     expect(shared.metricId).toBe('dmgBonus')
+    expect(shared.actions).toEqual(['Basic Attack', 'EX Special Attack', 'Assist Follow-Up', 'Chain Attack', 'Ultimate'])
     expect(shared.values).toEqual({ initial: 30, combat: 106, fully: 209 })
     expect(shared.breakdown.combat).toEqual([
       expect.objectContaining({ label: 'Core Passive', amount: 60, locus: 'core' }),
@@ -105,13 +106,14 @@ describe('calculateParty', () => {
 
     expect(exStunned.metricId).toBe('dmgBonus')
     expect(exStunned.baseActionId).toBe('coreActions')
-    expect(exStunned.label).toBe('EX Special Attack \u00B7 qualifying forms \u00B7 vs Stunned')
+    expect(exStunned.actions).toEqual(['EX Special Attack'])
     expect(exStunned.values).toEqual({ initial: 30, combat: 106, fully: 239 })
     expect(exStunned.breakdown.fully).toEqual([
       expect.objectContaining({ label: 'Additional Ability', amount: 30, locus: 'additional' }),
     ])
 
     expect(qingmingSheer.metricId).toBe('sheerDmgBonus')
+    expect(qingmingSheer.actions).toEqual(['EX Special Attack', 'Ultimate'])
     expect(qingmingSheer.values).toEqual({ initial: 0, combat: 20, fully: 30 })
     expect(qingmingSheer.breakdown.combat).toEqual([
       expect.objectContaining({ label: 'Qingming Birdcage \u00B7 W1', amount: 20, locus: 'w-engine' }),
@@ -126,7 +128,7 @@ describe('calculateParty', () => {
     expect(coreOccurrences).toHaveLength(1)
 
     const publicLabels = JSON.stringify(yixuan)
-    expect(publicLabels).not.toMatch(/Grandmaster|Core-supported|All Sheer|Cloud-Shaper|Ashen Ink|Companion|stack/i)
+    expect(publicLabels).not.toMatch(/Grandmaster|Core-supported|All Sheer|Cloud-Shaper|Ashen Ink|Companion|stack|qualifying forms|vs Stunned/i)
   })
 
   it('calculates Cauldron without inventing a downstream action dependency', () => {
