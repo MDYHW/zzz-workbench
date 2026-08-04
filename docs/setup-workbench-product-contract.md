@@ -318,8 +318,15 @@ Expanded numeric breakdown is the explanation surface. Guide URLs, source
 wording, candidate rationale, activation prose, historical deltas, and narrative
 explanations are not stored or displayed.
 
-Aggregates remain reproducible from atomic contributions. Action scope can
-create expanded action rows but not a second Result surface or damage model.
+Aggregates remain reproducible from their complete internal atomic
+contributions. Consumer disclosure is not an exhaustive ledger: it omits the
+completed-progression Agent base value, fixed Slot 1/2/3 Drive Disc main stats,
+and W-Engine Base ATK while retaining them in calculation. When a retained
+source defines a percentage input, disclosure shows that percentage rather than
+substituting the derived absolute increase; the aggregate still shows the
+calculated final value.
+
+Action scope can create expanded action rows but not a second Result surface or damage model.
 The Result does not expose an action's ordinary skill level, base DMG
 Multiplier, base Daze Multiplier, `base_damage`, `skill_daze`, or final damage or
 Daze. When an applicable source independently modifies an existing action's DMG

@@ -30,7 +30,6 @@ export function zeroSubstats(): SubstatCounts {
     critRate: 0,
     critDmg: 0,
     hpPct: 0,
-    atkPct: 0,
   }
 }
 

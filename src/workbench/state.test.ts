@@ -19,7 +19,6 @@ describe('workbench state lifecycle', () => {
       ['critRate', 2.4],
       ['critDmg', 4.8],
       ['hpPct', 3],
-      ['atkPct', 3],
     ])
   })
   it('starts with the authored full-pool setup', () => {
@@ -30,7 +29,7 @@ describe('workbench state lifecycle', () => {
     expect(state.refinement).toBe('W1')
     expect(state.equipment?.fourPiece).toBe('Yunkui Tales')
     expect(state.equipment?.twoPiece).toBe('Woodpecker Electro')
-    expect(state.substats).toEqual({ critRate: 0, critDmg: 0, hpPct: 0, atkPct: 0 })
+    expect(state.substats).toEqual({ critRate: 0, critDmg: 0, hpPct: 0 })
   })
 
   it('preserves downstream setup inputs on a direct W-Engine edit', () => {
@@ -59,14 +58,14 @@ describe('workbench state lifecycle', () => {
     expect(state.pool).toBe('nonLimited')
     expect(state.engineId).toBe('cauldron')
     expect(state.refinement).toBe('W5')
-    expect(state.substats).toEqual({ critRate: 0, critDmg: 0, hpPct: 0, atkPct: 0 })
+    expect(state.substats).toEqual({ critRate: 0, critDmg: 0, hpPct: 0 })
 
-    state = workbenchReducer(state, { type: 'setSubstat', key: 'atkPct', value: 2 })
+    state = workbenchReducer(state, { type: 'setSubstat', key: 'hpPct', value: 2 })
     state = workbenchReducer(state, { type: 'switchPool', pool: 'full' })
 
     expect(state.engineId).toBe('qingming')
     expect(state.refinement).toBe('W1')
-    expect(state.substats).toEqual({ critRate: 0, critDmg: 0, hpPct: 0, atkPct: 0 })
+    expect(state.substats).toEqual({ critRate: 0, critDmg: 0, hpPct: 0 })
   })
 
   it('bounds each independent substat count from 0 through 36', () => {

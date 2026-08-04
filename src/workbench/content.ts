@@ -1,7 +1,7 @@
 ﻿export type PoolId = 'full' | 'nonLimited'
 export type EngineId = 'qingming' | 'cauldron'
 export type AgentId = 'yixuan' | 'dialyn' | 'lucia'
-export type SubstatKey = 'critRate' | 'critDmg' | 'hpPct' | 'atkPct'
+export type SubstatKey = 'critRate' | 'critDmg' | 'hpPct'
 
 export interface WEngineChoice {
   id: EngineId
@@ -49,7 +49,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     baseAtk: 743,
     advancedStat: { label: 'HP', value: 30 },
     passiveLines: [
-      'Passive \u00B7 CRIT Rate +20%',
+      'Combat \u00B7 CRIT Rate +20%',
       'Combat entry \u00B7 Ether DMG +16%',
       'EX Special & Ultimate Ether Sheer DMG +20%',
     ],
@@ -91,7 +91,6 @@ export const SUBSTAT_CHOICES: Record<SubstatKey, { label: string; perHit: number
   critRate: { label: 'CRIT Rate', perHit: 2.4, unit: '%' },
   critDmg: { label: 'CRIT DMG', perHit: 4.8, unit: '%' },
   hpPct: { label: 'HP', perHit: 3, unit: '%' },
-  atkPct: { label: 'ATK', perHit: 3, unit: '%' },
 }
 
 export const SUBSTAT_KEYS = Object.keys(SUBSTAT_CHOICES) as SubstatKey[]
@@ -197,8 +196,9 @@ export const VERTICAL_VALUES = {
     slot5EtherDmg: 30,
     hpToSheer: 0.1,
     atkToSheer: 0.3,
-    coreActionDmg: 60,
-    additionalExDmg: 30,
+    coreActionDmgBonus: 60,
+    additionalCritDmg: 40,
+    additionalExDmgBonus: 30,
   },
   dialyn: {
     critRate: 19.4,
@@ -239,9 +239,6 @@ export const VERTICAL_VALUES = {
 } as const
 
 export const SOURCE_LABELS = {
-  agent: 'Agent Lv.60 + max Core',
-  disc1: 'Drive Disc \u00B7 Slot 1',
-  disc2: 'Drive Disc \u00B7 Slot 2',
   slot4: 'Drive Disc \u00B7 Slot 4',
   slot5: 'Drive Disc \u00B7 Slot 5',
   slot6: 'Drive Disc \u00B7 Slot 6',
@@ -250,15 +247,16 @@ export const SOURCE_LABELS = {
   woodpecker2: 'Woodpecker Electro \u00B7 2-piece',
   qingming: 'Qingming Birdcage \u00B7 W1',
   cauldron: 'Cauldron of Clarity \u00B7 W5',
-  yixuanCore: 'Yixuan \u00B7 Core Passive',
-  yixuanAbility: 'Yixuan \u00B7 Additional Ability',
-  dialynCore: 'Dialyn \u00B7 Core Passive',
-  dialynAbility: 'Dialyn \u00B7 Additional Ability',
-  yesterday: 'Dialyn \u00B7 Yesterday Calls W1',
-  king: 'Dialyn \u00B7 King of the Summit',
-  luciaCore: 'Lucia \u00B7 Core Passive',
-  luciaAbility: 'Lucia \u00B7 Additional Ability',
-  dreamlit: 'Lucia \u00B7 Dreamlit Hearth W1',
-  moonlight: 'Lucia \u00B7 Moonlight Lullaby',
-  luciaSheer: 'Lucia \u00B7 EX Special Attack',
+  yixuanCore: 'Core Passive',
+  yixuanAbility: 'Additional Ability',
+  dialynCore: 'Core Passive',
+  dialynAbility: 'Additional Ability',
+  yesterday: 'Yesterday Calls \u00B7 W1',
+  king2: 'King of the Summit \u00B7 2-piece',
+  king4: 'King of the Summit \u00B7 4-piece',
+  luciaCore: 'Core Passive',
+  luciaAbility: 'Additional Ability',
+  dreamlit: 'Dreamlit Hearth \u00B7 W1',
+  moonlight: 'Moonlight Lullaby \u00B7 4-piece',
+  luciaSheer: 'EX Special Attack',
 } as const

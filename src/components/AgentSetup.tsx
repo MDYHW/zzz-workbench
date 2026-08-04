@@ -12,10 +12,33 @@ import {
 } from '../workbench/content'
 import type { WorkbenchAction, WorkbenchState } from '../workbench/state'
 
-interface AgentSetupProps {
+type SourceToneChannel = 'pointer' | 'focus'
+
+interface SourceInteractionProps {
+  activeSourceTone: string | null
+  onSourceToneChange: (channel: SourceToneChannel, tone: string | null) => void
+}
+
+interface AgentSetupProps extends SourceInteractionProps {
   agentId: AgentId
   state: WorkbenchState
   dispatch: Dispatch<WorkbenchAction>
+}
+
+function targetClass(base: string, tone: string, activeSourceTone: string | null): string {
+  return `${base} source-target source-tone--${tone}${activeSourceTone === tone ? ' is-source-active' : ''}`
+}
+
+function targetEvents(
+  tone: string,
+  onSourceToneChange: SourceInteractionProps['onSourceToneChange'],
+) {
+  return {
+    onMouseEnter: () => onSourceToneChange('pointer', tone),
+    onMouseLeave: () => onSourceToneChange('pointer', null),
+    onFocus: () => onSourceToneChange('focus', tone),
+    onBlur: () => onSourceToneChange('focus', null),
+  }
 }
 
 function SetupHeading({ agentId, editable }: { agentId: AgentId; editable: boolean }) {
@@ -31,7 +54,13 @@ function SetupHeading({ agentId, editable }: { agentId: AgentId; editable: boole
   )
 }
 
-function EquipmentSummary({ agentId }: { agentId: AgentId }) {
+function EquipmentSummary({
+  activeSourceTone,
+  agentId,
+  onSourceToneChange,
+}: {
+  agentId: AgentId
+} & SourceInteractionProps) {
   const agent = PARTY_AGENTS.find((item) => item.id === agentId)!
   const discs = agentId === 'yixuan'
     ? [DISC_SUMMARIES.yunkui, DISC_SUMMARIES.woodpecker]
@@ -41,34 +70,61 @@ function EquipmentSummary({ agentId }: { agentId: AgentId }) {
       ]
 
   return (
-    <section className="setup-group prepared-block" aria-labelledby={`${agentId}-disc-heading`}>
+    <section
+      className="setup-group prepared-block"
+      aria-labelledby={`${agentId}-disc-heading`}
+    >
       <h3 id={`${agentId}-disc-heading`}><span>03</span> Drive Discs</h3>
       <div className="disc-grid">
-        {discs.map((disc, index) => (
-          <article className="disc-summary" key={`${disc.name}-${index}`}>
-            <div>
-              <small>{index === 0 ? '4-PIECE' : '2-PIECE'}</small>
-              <strong>{disc.name}</strong>
-              <ul className="disc-effect-list" aria-label={`${disc.name} effects`}>
-                {disc.effects.map((effect) => <li key={effect}>{effect}</li>)}
-              </ul>
-            </div>
-          </article>
-        ))}
+        {discs.map((disc, index) => {
+          const tone = index === 0 ? 'disc-4pc' : 'disc-2pc'
+          return (
+            <article
+              className={targetClass('disc-summary', tone, activeSourceTone)}
+              data-source-tone={tone}
+              key={`${disc.name}-${index}`}
+              tabIndex={0}
+              {...targetEvents(tone, onSourceToneChange)}
+            >
+              <div>
+                <small>{index === 0 ? '4-PIECE' : '2-PIECE'}</small>
+                <strong>{disc.name}</strong>
+                <ul className="disc-effect-list" aria-label={`${disc.name} effects`}>
+                  {disc.effects.map((effect) => <li key={effect}>{effect}</li>)}
+                </ul>
+              </div>
+            </article>
+          )
+        })}
       </div>
       <dl className="main-stat-grid" aria-label={`${agent.name} prepared main stats`}>
-        {Object.entries(agent.equipment.mains).map(([slot, selection]) => (
-          <div key={slot}>
-            <dt>Disc {slot.replace('slot', '')}</dt>
-            <dd><span>{selection.stat}</span><strong>{selection.value}</strong></dd>
-          </div>
-        ))}
+        {Object.entries(agent.equipment.mains).map(([slot, selection]) => {
+          const tone = `disc-slot-${slot.replace('slot', '')}`
+          return (
+            <div
+              className={targetClass('', tone, activeSourceTone)}
+              data-source-tone={tone}
+              key={slot}
+              tabIndex={0}
+              {...targetEvents(tone, onSourceToneChange)}
+            >
+              <dt>Disc {slot.replace('slot', '')}</dt>
+              <dd><span>{selection.stat}</span><strong>{selection.value}</strong></dd>
+            </div>
+          )
+        })}
       </dl>
     </section>
   )
 }
 
-function PartnerSetup({ agentId }: { agentId: Exclude<AgentId, 'yixuan'> }) {
+function PartnerSetup({
+  activeSourceTone,
+  agentId,
+  onSourceToneChange,
+}: {
+  agentId: Exclude<AgentId, 'yixuan'>
+} & SourceInteractionProps) {
   const agent = PARTY_AGENTS.find((item) => item.id === agentId)!
   return (
     <section className="setup-panel" aria-labelledby={`${agentId}-setup-heading`}>
@@ -76,9 +132,20 @@ function PartnerSetup({ agentId }: { agentId: Exclude<AgentId, 'yixuan'> }) {
       <dl className="upstream-strip" aria-label={`${agent.name} setup context`}>
         <div><dt>MINDSCAPE</dt><dd>{agent.mindscape}</dd></div>
         <div><dt>POOL</dt><dd>{agent.pool}</dd></div>
-        <div><dt>W-ENGINE</dt><dd>{agent.engine.name} {'\u00B7'} {agent.engine.refinement}</dd></div>
+        <div
+          className={targetClass('', 'w-engine', activeSourceTone)}
+          data-source-tone="w-engine"
+          tabIndex={0}
+          {...targetEvents('w-engine', onSourceToneChange)}
+        >
+          <dt>W-ENGINE</dt><dd>{agent.engine.name} {'\u00B7'} {agent.engine.refinement}</dd>
+        </div>
       </dl>
-      <EquipmentSummary agentId={agentId} />
+      <EquipmentSummary
+        activeSourceTone={activeSourceTone}
+        agentId={agentId}
+        onSourceToneChange={onSourceToneChange}
+      />
       <section className="setup-group" aria-labelledby={`${agentId}-substats-heading`}>
         <h3 id={`${agentId}-substats-heading`}><span>04</span> Effective substat hits</h3>
         <dl className="substat-grid" aria-label={`${agent.name} prepared effective substats`}>
@@ -94,7 +161,15 @@ function PartnerSetup({ agentId }: { agentId: Exclude<AgentId, 'yixuan'> }) {
   )
 }
 
-function EngineSelection({ state, dispatch }: { state: WorkbenchState; dispatch: Dispatch<WorkbenchAction> }) {
+function EngineSelection({
+  activeSourceTone,
+  dispatch,
+  onSourceToneChange,
+  state,
+}: {
+  state: WorkbenchState
+  dispatch: Dispatch<WorkbenchAction>
+} & SourceInteractionProps) {
   const [isOpen, setIsOpen] = useState(false)
   const changeButtonRef = useRef<HTMLButtonElement>(null)
   const restoreFocusAfterSelection = useRef(false)
@@ -112,13 +187,17 @@ function EngineSelection({ state, dispatch }: { state: WorkbenchState; dispatch:
   if (!engine) return null
 
   return (
-    <fieldset className="setup-group">
+    <fieldset
+      className={targetClass('setup-group', 'w-engine', activeSourceTone)}
+      data-source-tone="w-engine"
+      {...targetEvents('w-engine', onSourceToneChange)}
+    >
       <legend><span>02</span> W-Engine {'\u00B7'} Rank default</legend>
       <div className="engine-selection">
         <div className="engine-candidate engine-candidate--selected">
           <div className="engine-candidate__body">
             <div className="engine-name-line"><strong>{engine.name}</strong><span>{engine.refinement}</span></div>
-            <div className="engine-stats"><span>Base ATK <b>{engine.baseAtk}</b></span><span>{engine.advancedStat.label} <b>+{engine.advancedStat.value}%</b></span></div>
+            <div className="engine-stats"><span>{engine.advancedStat.label} <b>+{engine.advancedStat.value}%</b></span></div>
             <ul>{engine.passiveLines.map((line) => <li key={line}>{line}</li>)}</ul>
           </div>
           {alternatives.length > 0 && (
@@ -150,7 +229,7 @@ function EngineSelection({ state, dispatch }: { state: WorkbenchState; dispatch:
                 >
                   <div className="engine-candidate__body">
                     <div className="engine-name-line"><strong>{alternative.name}</strong><span>{alternative.refinement}</span></div>
-                    <div className="engine-stats"><span>Base ATK <b>{alternative.baseAtk}</b></span><span>{alternative.advancedStat.label} <b>+{alternative.advancedStat.value}%</b></span></div>
+                    <div className="engine-stats"><span>{alternative.advancedStat.label} <b>+{alternative.advancedStat.value}%</b></span></div>
                     <ul>{alternative.passiveLines.map((line) => <li key={line}>{line}</li>)}</ul>
                   </div>
                 </button>
@@ -163,7 +242,15 @@ function EngineSelection({ state, dispatch }: { state: WorkbenchState; dispatch:
   )
 }
 
-function YixuanSetup({ state, dispatch }: { state: WorkbenchState; dispatch: Dispatch<WorkbenchAction> }) {
+function YixuanSetup({
+  activeSourceTone,
+  dispatch,
+  onSourceToneChange,
+  state,
+}: {
+  state: WorkbenchState
+  dispatch: Dispatch<WorkbenchAction>
+} & SourceInteractionProps) {
   return (
     <section className="setup-panel" aria-labelledby="yixuan-setup-heading">
       <SetupHeading agentId="yixuan" editable />
@@ -175,16 +262,37 @@ function YixuanSetup({ state, dispatch }: { state: WorkbenchState; dispatch: Dis
           <button type="button" className={state.pool === 'nonLimited' ? 'is-selected' : ''} aria-pressed={state.pool === 'nonLimited'} onClick={() => dispatch({ type: 'switchPool', pool: 'nonLimited' })}>Non-limited<small>Standard + A-Rank</small></button>
         </div>
       </fieldset>
-      <EngineSelection key={state.pool} state={state} dispatch={dispatch} />
-      <EquipmentSummary agentId="yixuan" />
+      <EngineSelection
+        activeSourceTone={activeSourceTone}
+        key={state.pool}
+        state={state}
+        dispatch={dispatch}
+        onSourceToneChange={onSourceToneChange}
+      />
+      <EquipmentSummary
+        activeSourceTone={activeSourceTone}
+        agentId="yixuan"
+        onSourceToneChange={onSourceToneChange}
+      />
       <fieldset className="setup-group substat-fieldset">
         <legend><span>04</span> Effective substat hits</legend>
         <p className="field-note">Independent setup inputs {'\u00B7'} prepared at zero {'\u00B7'} range 0{'\u2013'}36</p>
         <div className="substat-grid">
-          {SUBSTAT_KEYS.map((key) => {
+          {SUBSTAT_KEYS.map((key, index) => {
             const choice = SUBSTAT_CHOICES[key]
             const count = state.substats[key]
-            return <div className="substat-control" key={key}><div className="substat-copy"><strong>{choice.label}</strong><span>+{choice.perHit}{choice.unit} / hit</span></div><div className="stepper"><button type="button" aria-label={`Decrease ${choice.label} hits`} disabled={count === 0} onClick={() => dispatch({ type: 'adjustSubstat', key, delta: -1 })}>{'\u2212'}</button><output aria-live="polite" aria-label={`${choice.label} hit count`}>{count}</output><button type="button" aria-label={`Increase ${choice.label} hits`} disabled={count === 36} onClick={() => dispatch({ type: 'adjustSubstat', key, delta: 1 })}>+</button></div></div>
+            const tone = `substat-${index + 1}`
+            return (
+              <div
+                className={targetClass('substat-control', tone, activeSourceTone)}
+                data-source-tone={tone}
+                key={key}
+                {...targetEvents(tone, onSourceToneChange)}
+              >
+                <div className="substat-copy"><strong>{choice.label}</strong><span>+{choice.perHit}{choice.unit} / hit</span></div>
+                <div className="stepper"><button type="button" aria-label={`Decrease ${choice.label} hits`} disabled={count === 0} onClick={() => dispatch({ type: 'adjustSubstat', key, delta: -1 })}>{'\u2212'}</button><output aria-live="polite" aria-label={`${choice.label} hit count`}>{count}</output><button type="button" aria-label={`Increase ${choice.label} hits`} disabled={count === 36} onClick={() => dispatch({ type: 'adjustSubstat', key, delta: 1 })}>+</button></div>
+              </div>
+            )
           })}
         </div>
       </fieldset>
@@ -192,8 +300,27 @@ function YixuanSetup({ state, dispatch }: { state: WorkbenchState; dispatch: Dis
   )
 }
 
-export function AgentSetup({ agentId, state, dispatch }: AgentSetupProps) {
+export function AgentSetup({
+  activeSourceTone,
+  agentId,
+  dispatch,
+  onSourceToneChange,
+  state,
+}: AgentSetupProps) {
   return agentId === 'yixuan'
-    ? <YixuanSetup state={state} dispatch={dispatch} />
-    : <PartnerSetup agentId={agentId} />
+    ? (
+        <YixuanSetup
+          activeSourceTone={activeSourceTone}
+          state={state}
+          dispatch={dispatch}
+          onSourceToneChange={onSourceToneChange}
+        />
+      )
+    : (
+        <PartnerSetup
+          activeSourceTone={activeSourceTone}
+          agentId={agentId}
+          onSourceToneChange={onSourceToneChange}
+        />
+      )
 }

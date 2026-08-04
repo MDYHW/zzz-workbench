@@ -48,6 +48,10 @@ preview.
 - When all three slots are compact, they divide the available width equally.
 - When one slot is expanded, it consumes the flexible editing area and the two
   compact slots divide the remaining width equally.
+- Compact slots use only the width needed to preserve immediate Agent
+  identification. Reclaimed width enlarges the expanded slot; once Identity and
+  Setup retain their admitted readable footprints, that additional width belongs
+  to Result rather than enlarging those two regions.
 - Selecting another compact slot expands that slot without an intermediate
   all-collapsed state.
 - The focused-character marker uses space reserved by every slot. Adding or
@@ -110,10 +114,16 @@ numeric contribution breakdown and mapped source identity, while Setup Inputs
 show the current choice and only the compressed effect needed to compare
 candidates. Research notes and candidate rationale are not consumer UI.
 
+W-Engine selection blocks and candidate lists show Rank-default refinement,
+advanced stat, and the competitive passive package. Base ATK remains an
+internal calculation and candidate-authoring fact and is not displayed.
+
 The Result table uses the width required for its exact aggregates and
-disclosure. It does not consume surplus width merely because it is available.
-Setup Inputs receive the remaining useful width, and their type and internal
-structure must be reconsidered when that allocation changes.
+disclosure. It does not consume surplus width merely because it is available,
+but source matrices and action differences must not be compressed while Setup
+already has its admitted readable footprint. In that state, newly reclaimed
+expanded-slot width belongs to Result. Setup type and internal structure must be
+reconsidered when its readable footprint cannot be preserved.
 
 ### Result Source Presentation
 
@@ -134,6 +144,42 @@ contribution changes.
   number, such as `125%` or `+125%`. Internal value-mode distinctions remain
   required to prevent invalid aggregation, but they do not add explanatory
   suffixes to the displayed number.
+- Do not disclose completed-progression Agent base values, fixed Slot 1/2/3
+  Drive Disc main stats, or W-Engine Base ATK as Result sources. They remain in
+  the calculated aggregate. The source matrix explains decision-relevant setup
+  and enabled effects rather than reconstructing every fixed internal term.
+- When a retained source defines a percentage, show its source-defined
+  percentage rather than replacing it with the derived absolute stat increase.
+- Keep aggregate rows neutral. Expanded disclosure assigns color to the current
+  source locus: W-Engine, Drive Disc piece or slot, effective-substat input,
+  canonical action, Core Passive, or Additional Ability. Different effects from
+  that same source keep the same color.
+- Effective-substat colors belong to displayed input positions 1, 2, and 3,
+  not to stat identities. The first effective-substat input therefore keeps the
+  same color across Agents even when one Agent shows CRIT Rate there and another
+  shows HP.
+- An Agent-identity formula source uses its owning Agent slot's color. A
+  contribution from another party member also uses that provider Agent slot's
+  one color even when its detailed text names that Agent's W-Engine, Drive Disc,
+  Core Passive, or another internal source. Selecting that Agent's slot exposes
+  those local distinctions; source hover or focus must not expand the slot
+  automatically.
+- Only current, retained source loci consume semantic colors. Calculation clamps
+  remain neutral, and absent actions or omitted fixed inputs do not reserve
+  speculative colors.
+- In one expanded Result quantity, show each source identity once. Place its
+  amount at the earliest surface where that contribution appears and show only
+  later increments in later surface cells. The parent aggregate remains
+  cumulative. Do not insert subtotal pseudo-sources or empty-state copy such as
+  `No new contribution`.
+- Pointer hover or keyboard focus on a source highlights its owning Setup locus
+  or provider Agent slot. Hover or focus on an unambiguous Setup locus highlights
+  the matching Result sources. Exact source text remains visible, so color is a
+  linking cue rather than the only carrier of meaning.
+- Source color belongs to the locus, not the selected item identity. Direct
+  equipment replacement retains the locus color while replacing its source text,
+  contributions, and action rows atomically. Removed sources leave no stale
+  highlight. Pool re-preparation clears the active source link.
 - A gauge repeats that same resolved source presentation, including a Drive Disc
   piece identity such as `4pc`; inactive fallback copy must not rename it.
 - The gauge heading names its basis display surface directly. The expanded

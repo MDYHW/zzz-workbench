@@ -72,7 +72,7 @@ const DESKTOP_EXPANDED_PORTRAIT_FRAME: PortraitFrame = {
 
 const DESKTOP_COMPACT_PORTRAIT_FRAME: PortraitFrame = {
   anchor: { x: 50, y: 24 },
-  width: 460,
+  width: 400,
 }
 
 // Compact desktop, stacked, and mobile destinations are calibrated separately.
@@ -147,8 +147,12 @@ function PortraitArt({ agentId, variant }: { agentId: AgentId; variant: Portrait
   )
 }
 
+type SourceToneChannel = 'pointer' | 'focus'
+
 interface PartyWorkbenchProps {
+  activeSourceTone: string | null
   viewedAgentId: AgentId
+  onSourceToneChange: (channel: SourceToneChannel, tone: string | null) => void
   onViewAgent: (agentId: AgentId) => void
   children: ReactNode
 }
@@ -169,25 +173,37 @@ function IdentityMarks({ agentId, attribute, specialty }: { agentId: AgentId; at
 }
 
 interface SlotControlProps {
+  activeSourceTone: string | null
   agentId: AgentId
+  onSourceToneChange: (channel: SourceToneChannel, tone: string | null) => void
   onSelect: () => void
   onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void
 }
 
-function ExpandedIdentity({ agentId, onSelect, onKeyDown }: SlotControlProps) {
+function ExpandedIdentity({ activeSourceTone, agentId, onSourceToneChange, onSelect, onKeyDown }: SlotControlProps) {
   const agent = PARTY_AGENTS.find((item) => item.id === agentId)!
+  const identityTone = `agent-${agentId}`
+  const identityTones = [identityTone, 'core', 'additional', 'ex-special']
+  const matchingTone = identityTones.find((tone) => tone === activeSourceTone)
+  const className = matchingTone
+    ? `slot-identity slot-identity--expanded source-target source-tone--${matchingTone} is-source-active`
+    : 'slot-identity slot-identity--expanded source-target'
 
   return (
     <button
       type="button"
       id={`party-tab-${agent.id}`}
-      className="slot-identity slot-identity--expanded"
+      className={className}
       role="tab"
       aria-selected="true"
       aria-controls="party-panel"
       aria-label={`View ${agent.name} setup and Result`}
       onClick={onSelect}
       onKeyDown={onKeyDown}
+      onMouseEnter={() => onSourceToneChange('pointer', identityTone)}
+      onMouseLeave={() => onSourceToneChange('pointer', null)}
+      onFocus={() => onSourceToneChange('focus', identityTone)}
+      onBlur={() => onSourceToneChange('focus', null)}
     >
       <PortraitArt agentId={agent.id} variant="expanded" />
       <span className="identity-shade" aria-hidden="true" />
@@ -203,14 +219,16 @@ function ExpandedIdentity({ agentId, onSelect, onKeyDown }: SlotControlProps) {
   )
 }
 
-function CompactSlot({ agentId, onSelect, onKeyDown }: SlotControlProps) {
+function CompactSlot({ activeSourceTone, agentId, onSourceToneChange, onSelect, onKeyDown }: SlotControlProps) {
   const agent = PARTY_AGENTS.find((item) => item.id === agentId)!
+  const tone = `agent-${agentId}`
+  const className = `party-slot party-slot--compact source-target source-tone--${tone}${activeSourceTone === tone ? ' is-source-active' : ''}`
 
   return (
     <button
       type="button"
       id={`party-tab-${agent.id}`}
-      className="party-slot party-slot--compact"
+      className={className}
       role="tab"
       tabIndex={-1}
       aria-selected="false"
@@ -218,6 +236,10 @@ function CompactSlot({ agentId, onSelect, onKeyDown }: SlotControlProps) {
       aria-label={`View ${agent.name} setup and Result`}
       onClick={onSelect}
       onKeyDown={onKeyDown}
+      onMouseEnter={() => onSourceToneChange('pointer', tone)}
+      onMouseLeave={() => onSourceToneChange('pointer', null)}
+      onFocus={() => onSourceToneChange('focus', tone)}
+      onBlur={() => onSourceToneChange('focus', null)}
     >
       <PortraitArt agentId={agent.id} variant="compact" />
       <span className="identity-shade" aria-hidden="true" />
@@ -233,7 +255,13 @@ function CompactSlot({ agentId, onSelect, onKeyDown }: SlotControlProps) {
   )
 }
 
-export function PartyWorkbench({ viewedAgentId, onViewAgent, children }: PartyWorkbenchProps) {
+export function PartyWorkbench({
+  activeSourceTone,
+  viewedAgentId,
+  onSourceToneChange,
+  onViewAgent,
+  children,
+}: PartyWorkbenchProps) {
   const previousViewedAgentId = useRef(viewedAgentId)
 
   useEffect(() => {
@@ -281,13 +309,17 @@ export function PartyWorkbench({ viewedAgentId, onViewAgent, children }: PartyWo
             >
               {selected ? (
                 <ExpandedIdentity
+                  activeSourceTone={activeSourceTone}
                   agentId={agent.id}
+                  onSourceToneChange={onSourceToneChange}
                   onSelect={() => onViewAgent(agent.id)}
                   onKeyDown={(event) => navigateSlots(agent.id, event)}
                 />
               ) : (
                 <CompactSlot
+                  activeSourceTone={activeSourceTone}
                   agentId={agent.id}
+                  onSourceToneChange={onSourceToneChange}
                   onSelect={() => onViewAgent(agent.id)}
                   onKeyDown={(event) => navigateSlots(agent.id, event)}
                 />
