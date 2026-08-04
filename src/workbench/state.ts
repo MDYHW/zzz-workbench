@@ -1,62 +1,89 @@
 import {
-  ENGINE_IDS_BY_POOL,
-  PREPARED_ENGINE_BY_POOL,
-  PARTNER_SUBSTAT_KEYS,
-  SUBSTAT_KEYS,
-  TARGET_EQUIPMENT,
+  DISC_IDS_BY_AGENT_AND_PIECE,
+  ENGINE_IDS_BY_AGENT_AND_POOL,
+  MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
+  PARTY_AGENTS,
+  PREPARED_SETUP_BY_AGENT_AND_POOL,
+  SUBSTAT_CHOICES_BY_AGENT,
   W_ENGINES,
+  type AgentId,
+  type DiscId,
   type EngineId,
-  type PartnerSubstatKey,
+  type MainSlot,
+  type MainStatId,
   type PoolId,
-  type SubstatKey,
+  type Refinement,
+  type SubstatId,
 } from './content'
 
-export type SubstatCounts = Record<SubstatKey, number>
-export type PartnerSubstatCounts = Record<PartnerSubstatKey, number>
+export type SubstatCounts = Partial<Record<SubstatId, number>>
 
-export interface WorkbenchState {
+export interface AgentSetupState {
   pool: PoolId
   engineId: EngineId | null
-  refinement: 'W1' | 'W5' | null
-  equipment: typeof TARGET_EQUIPMENT | null
+  refinement: Refinement | null
+  fourPieceId: DiscId | null
+  twoPieceId: DiscId | null
+  mains: Record<MainSlot, MainStatId | null>
   substats: SubstatCounts
-  partnerSubstats: PartnerSubstatCounts
+}
+
+export interface WorkbenchState {
+  setups: Record<AgentId, AgentSetupState>
 }
 
 export type WorkbenchAction =
-  | { type: 'switchPool'; pool: PoolId }
-  | { type: 'selectEngine'; engineId: EngineId }
-  | { type: 'adjustSubstat'; key: SubstatKey; delta: number }
-  | { type: 'setSubstat'; key: SubstatKey; value: number }
-  | { type: 'adjustPartnerSubstat'; key: PartnerSubstatKey; delta: number }
-  | { type: 'setPartnerSubstat'; key: PartnerSubstatKey; value: number }
+  | { type: 'switchPool'; agentId: AgentId; pool: PoolId }
+  | { type: 'selectEngine'; agentId: AgentId; engineId: EngineId }
+  | { type: 'setRefinement'; agentId: AgentId; refinement: Refinement }
+  | {
+      type: 'selectDisc'
+      agentId: AgentId
+      piece: 'fourPiece' | 'twoPiece'
+      discId: DiscId
+    }
+  | {
+      type: 'selectMainStat'
+      agentId: AgentId
+      slot: MainSlot
+      mainStatId: MainStatId
+    }
+  | { type: 'adjustSubstat'; agentId: AgentId; key: SubstatId; delta: number }
+  | { type: 'setSubstat'; agentId: AgentId; key: SubstatId; value: number }
 
-export function zeroSubstats(): SubstatCounts {
-  return {
-    critRate: 0,
-    critDmg: 0,
-    hpPct: 0,
-  }
+export function zeroSubstats(agentId: AgentId): SubstatCounts {
+  return Object.fromEntries(
+    SUBSTAT_CHOICES_BY_AGENT[agentId].map((choice) => [choice.id, 0]),
+  )
 }
 
-export function zeroPartnerSubstats(): PartnerSubstatCounts {
-  return {
-    dialynCritRate: 0,
-    luciaHpPct: 0,
-    luciaHpFlat: 0,
-  }
-}
-
-export function createPreparedState(pool: PoolId = 'full'): WorkbenchState {
-  const engineId = PREPARED_ENGINE_BY_POOL[pool]
-
+export function createPreparedAgentSetup(
+  agentId: AgentId,
+  pool: PoolId = 'full',
+): AgentSetupState {
+  const prepared = PREPARED_SETUP_BY_AGENT_AND_POOL[agentId][pool]
+  const engine = W_ENGINES[prepared.engineId]
   return {
     pool,
-    engineId,
-    refinement: W_ENGINES[engineId].refinement,
-    equipment: TARGET_EQUIPMENT,
-    substats: zeroSubstats(),
-    partnerSubstats: zeroPartnerSubstats(),
+    engineId: prepared.engineId,
+    refinement: engine.defaultRefinement,
+    fourPieceId: prepared.fourPieceId,
+    twoPieceId: prepared.twoPieceId,
+    mains: { ...prepared.mains },
+    substats: zeroSubstats(agentId),
+  }
+}
+
+export function createPreparedState(
+  pools: Partial<Record<AgentId, PoolId>> = {},
+): WorkbenchState {
+  return {
+    setups: Object.fromEntries(
+      PARTY_AGENTS.map((agent) => [
+        agent.id,
+        createPreparedAgentSetup(agent.id, pools[agent.id] ?? 'full'),
+      ]),
+    ) as Record<AgentId, AgentSetupState>,
   }
 }
 
@@ -64,74 +91,133 @@ function clampCount(value: number): number {
   return Math.min(36, Math.max(0, Math.round(value)))
 }
 
+function updateSetup(
+  state: WorkbenchState,
+  agentId: AgentId,
+  update: (setup: AgentSetupState) => AgentSetupState,
+): WorkbenchState {
+  const current = state.setups[agentId]
+  const next = update(current)
+  if (next === current) return state
+  return {
+    ...state,
+    setups: {
+      ...state.setups,
+      [agentId]: next,
+    },
+  }
+}
+
 export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction): WorkbenchState {
   switch (action.type) {
-    case 'switchPool': {
-      if (action.pool === state.pool) return state
-      const prepared = createPreparedState(action.pool)
-      return {
-        ...prepared,
-        partnerSubstats: state.partnerSubstats,
-      }
-    }
-
-    case 'selectEngine': {
-      if (!ENGINE_IDS_BY_POOL[state.pool].includes(action.engineId)) return state
-      const engine = W_ENGINES[action.engineId]
+    case 'switchPool':
+      if (state.setups[action.agentId].pool === action.pool) return state
       return {
         ...state,
-        engineId: action.engineId,
-        refinement: engine.refinement,
+        setups: {
+          ...state.setups,
+          [action.agentId]: createPreparedAgentSetup(action.agentId, action.pool),
+        },
       }
-    }
+
+    case 'selectEngine':
+      return updateSetup(state, action.agentId, (setup) => {
+        if (!ENGINE_IDS_BY_AGENT_AND_POOL[action.agentId][setup.pool].includes(action.engineId)) {
+          return setup
+        }
+        const engine = W_ENGINES[action.engineId]
+        return {
+          ...setup,
+          engineId: action.engineId,
+          refinement: engine.defaultRefinement,
+        }
+      })
+
+    case 'setRefinement':
+      return updateSetup(state, action.agentId, (setup) => (
+        setup.engineId
+          ? { ...setup, refinement: action.refinement }
+          : setup
+      ))
+
+    case 'selectDisc':
+      return updateSetup(state, action.agentId, (setup) => {
+        const candidates = DISC_IDS_BY_AGENT_AND_PIECE[action.agentId][action.piece]
+        if (!candidates.includes(action.discId)) return setup
+        if (
+          (action.piece === 'fourPiece' && setup.twoPieceId === action.discId)
+          || (action.piece === 'twoPiece' && setup.fourPieceId === action.discId)
+        ) {
+          return setup
+        }
+        return { ...setup, [`${action.piece}Id`]: action.discId }
+      })
+
+    case 'selectMainStat':
+      return updateSetup(state, action.agentId, (setup) => {
+        if (!MAIN_STAT_IDS_BY_AGENT_AND_SLOT[action.agentId][action.slot]
+          .includes(action.mainStatId)) {
+          return setup
+        }
+        return {
+          ...setup,
+          mains: {
+            ...setup.mains,
+            [action.slot]: action.mainStatId,
+          },
+        }
+      })
 
     case 'adjustSubstat':
-      return {
-        ...state,
-        substats: {
-          ...state.substats,
-          [action.key]: clampCount(state.substats[action.key] + action.delta),
-        },
-      }
+      return updateSetup(state, action.agentId, (setup) => {
+        if (!SUBSTAT_CHOICES_BY_AGENT[action.agentId].some(({ id }) => id === action.key)) {
+          return setup
+        }
+        return {
+          ...setup,
+          substats: {
+            ...setup.substats,
+            [action.key]: clampCount((setup.substats[action.key] ?? 0) + action.delta),
+          },
+        }
+      })
 
     case 'setSubstat':
-      return {
-        ...state,
-        substats: {
-          ...state.substats,
-          [action.key]: clampCount(action.value),
-        },
-      }
-
-    case 'adjustPartnerSubstat':
-      return {
-        ...state,
-        partnerSubstats: {
-          ...state.partnerSubstats,
-          [action.key]: clampCount(state.partnerSubstats[action.key] + action.delta),
-        },
-      }
-
-    case 'setPartnerSubstat':
-      return {
-        ...state,
-        partnerSubstats: {
-          ...state.partnerSubstats,
-          [action.key]: clampCount(action.value),
-        },
-      }
+      return updateSetup(state, action.agentId, (setup) => {
+        if (!SUBSTAT_CHOICES_BY_AGENT[action.agentId].some(({ id }) => id === action.key)) {
+          return setup
+        }
+        return {
+          ...setup,
+          substats: {
+            ...setup.substats,
+            [action.key]: clampCount(action.value),
+          },
+        }
+      })
 
     default:
       return state
   }
 }
 
-export function hasCompleteSubstats(counts: Partial<SubstatCounts>): counts is SubstatCounts {
-  return SUBSTAT_KEYS.every((key) => Number.isFinite(counts[key]))
+export function isCompleteAgentSetup(
+  agentId: AgentId,
+  setup: AgentSetupState,
+): boolean {
+  return Boolean(
+    setup.engineId
+      && setup.refinement
+      && setup.fourPieceId
+      && setup.twoPieceId
+      && setup.fourPieceId !== setup.twoPieceId
+      && Object.values(setup.mains).every(Boolean)
+      && SUBSTAT_CHOICES_BY_AGENT[agentId].every(
+        ({ id }) => Number.isFinite(setup.substats[id]),
+      ),
+  )
 }
 
-export function hasCompletePartnerSubstats(
-  counts: Partial<PartnerSubstatCounts>,
-): counts is PartnerSubstatCounts {
-  return PARTNER_SUBSTAT_KEYS.every((key) => Number.isFinite(counts[key]))
+export function isCompleteWorkbench(state: WorkbenchState): boolean {
+  return PARTY_AGENTS.every((agent) => isCompleteAgentSetup(agent.id, state.setups[agent.id]))
 }

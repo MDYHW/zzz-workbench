@@ -25,7 +25,7 @@ export function App() {
 
   useEffect(() => {
     setSourceTones(emptySourceTones)
-  }, [state.engineId, state.pool, viewedAgentId])
+  }, [viewedAgentId])
 
   return (
     <div className="app-shell">

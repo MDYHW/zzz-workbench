@@ -1,54 +1,105 @@
-﻿import { describe, expect, it } from 'vitest'
-import {
-  calculateParty,
-  type ActionModifier,
-  type AgentResult,
-  type Contribution,
-  type ResultMetric,
-  type SurfaceKey,
-} from './calculate'
+import { describe, expect, it } from 'vitest'
+import { calculateParty, type AgentResult, type Contribution, type PartyResult } from './calculate'
 import { createPreparedState, workbenchReducer, type WorkbenchState } from './state'
+import type {
+  AgentId,
+  DiscId,
+  EngineId,
+  MainSlot,
+  MainStatId,
+  Refinement,
+  SubstatId,
+} from './content'
 
-const SURFACES: SurfaceKey[] = ['initial', 'combat', 'fully']
-
-function agent(result: NonNullable<ReturnType<typeof calculateParty>>, id: AgentResult['agentId']) {
+function agent(result: PartyResult, id: AgentId): AgentResult {
   const found = result.agents.find((item) => item.agentId === id)
   if (!found) throw new Error(`Missing ${id} Result`)
   return found
 }
 
-function metric(result: AgentResult, id: string): ResultMetric {
+function metric(result: AgentResult, id: string) {
   const found = result.metrics.find((item) => item.id === id)
   if (!found) throw new Error(`Missing ${id} metric`)
   return found
 }
 
-function action(result: AgentResult, id: string): ActionModifier {
+function action(result: AgentResult, id: string) {
   const found = result.actionModifiers.find((item) => item.id === id)
-  if (!found) throw new Error(`Missing ${id} action aggregate`)
+  if (!found) throw new Error(`Missing ${id} action`)
   return found
 }
 
-function contributionTotal(items: Contribution[]) {
-  return items
-    .filter((item) => item.notation !== 'surface-value')
-    .reduce((sum, item) => sum + item.amount, 0)
-}
-
-function sourceLabels(items: Contribution[]) {
+function sourceLabels(items: Contribution[]): string[] {
   return items.map((item) => item.label)
 }
 
-describe('calculateParty', () => {
-  it('calculates the authored Qingming baseline and corrected modifier regions', () => {
-    const result = calculateParty(createPreparedState())
-    expect(result).not.toBeNull()
-    expect(Object.keys(result!)).toEqual(['agents'])
+function selectEngine(
+  state: WorkbenchState,
+  agentId: AgentId,
+  engineId: EngineId,
+): WorkbenchState {
+  return workbenchReducer(state, { type: 'selectEngine', agentId, engineId })
+}
 
-    const yixuan = agent(result!, 'yixuan')
-    expect(metric(yixuan, 'maxHp').values.initial).toBeCloseTo(16434.1)
-    expect(metric(yixuan, 'atk').values.initial).toBeCloseTo(1931)
+function setRefinement(
+  state: WorkbenchState,
+  agentId: AgentId,
+  refinement: Refinement,
+): WorkbenchState {
+  return workbenchReducer(state, { type: 'setRefinement', agentId, refinement })
+}
+
+function selectDisc(
+  state: WorkbenchState,
+  agentId: AgentId,
+  piece: 'fourPiece' | 'twoPiece',
+  discId: DiscId,
+): WorkbenchState {
+  return workbenchReducer(state, { type: 'selectDisc', agentId, piece, discId })
+}
+
+function selectMain(
+  state: WorkbenchState,
+  agentId: AgentId,
+  slot: MainSlot,
+  mainStatId: MainStatId,
+): WorkbenchState {
+  return workbenchReducer(state, {
+    type: 'selectMainStat',
+    agentId,
+    slot,
+    mainStatId,
+  })
+}
+
+function setSubstat(
+  state: WorkbenchState,
+  agentId: AgentId,
+  key: SubstatId,
+  value: number,
+): WorkbenchState {
+  return workbenchReducer(state, { type: 'setSubstat', agentId, key, value })
+}
+
+describe('calculateParty', () => {
+  it('preserves the authored full-pool baseline and surface meanings', () => {
+    const result = calculateParty(createPreparedState())!
+    const yixuan = agent(result, 'yixuan')
+    const dialyn = agent(result, 'dialyn')
+    const lucia = agent(result, 'lucia')
+
+    expect(metric(yixuan, 'maxHp').values).toEqual({
+      initial: 16434.1,
+      combat: 16434.1,
+      fully: 19720.92,
+    })
+    expect(metric(yixuan, 'atk').values).toEqual({
+      initial: 1931,
+      combat: 1931,
+      fully: 1931,
+    })
     expect(metric(yixuan, 'sheerForce').values.initial).toBeCloseTo(2222.71)
+    expect(metric(yixuan, 'sheerForce').values.fully).toBeCloseTo(3366.1847)
     expect(metric(yixuan, 'critRate').values).toEqual({
       initial: 51.4,
       combat: 71.4,
@@ -59,7 +110,6 @@ describe('calculateParty', () => {
       combat: 50,
       fully: 180,
     })
-    expect(metric(yixuan, 'sheerForce').values.fully).toBeCloseTo(3366.1847)
     expect(metric(yixuan, 'dmgBonus').values).toEqual({
       initial: 30,
       combat: 46,
@@ -70,439 +120,304 @@ describe('calculateParty', () => {
       combat: 0,
       fully: 10,
     })
+
+    expect(metric(dialyn, 'critRate').values.initial).toBeCloseTo(75.4)
+    expect(metric(dialyn, 'impact').values).toEqual({
+      initial: 110,
+      combat: 160.8,
+      fully: 160.8,
+    })
+    expect(metric(dialyn, 'energyRegen').values).toEqual({
+      initial: 1.92,
+      combat: 3.42,
+      fully: 3.42,
+    })
+    expect(metric(dialyn, 'dazeBonus').values).toEqual({
+      initial: 6,
+      combat: 6,
+      fully: 33,
+    })
+
+    expect(metric(lucia, 'maxHp').values.initial).toBeCloseTo(21697.1)
+    expect(metric(lucia, 'energyRegen').values).toEqual({
+      initial: 1.56,
+      combat: 1.96,
+      fully: 1.96,
+    })
   })
 
-  it('uses one always-on Rupture conversion source with each surface current stats', () => {
+  it('keeps advanced stats in Initial and W-Engine passives after Initial', () => {
     const result = calculateParty(createPreparedState())!
     const yixuan = agent(result, 'yixuan')
-    const hp = metric(yixuan, 'maxHp')
-    const sheer = metric(yixuan, 'sheerForce')
+    const dialyn = agent(result, 'dialyn')
     const lucia = agent(result, 'lucia')
-    const luciaHp = metric(lucia, 'maxHp')
-    const directSheer = luciaHp.gauge!.outputValue
 
-    expect(sheer.values.initial).toBeCloseTo(2222.71)
-    expect(sheer.values.combat).toBeCloseTo(2222.71)
-    expect(sheer.values.fully - sheer.values.combat).toBeCloseTo(
-      (hp.values.fully - hp.values.combat) * 0.1 + directSheer,
+    expect(sourceLabels(metric(yixuan, 'maxHp').breakdown.initial))
+      .toContain('Qingming Birdcage \u00B7 W1')
+    expect(sourceLabels(metric(yixuan, 'critRate').breakdown.initial))
+      .not.toContain('Qingming Birdcage \u00B7 W1')
+    expect(metric(yixuan, 'critRate').breakdown.combat).toContainEqual(
+      expect.objectContaining({ label: 'Qingming Birdcage \u00B7 W1', amount: 20 }),
     )
-    const ruptureContribution = {
-      label: 'Rupture specialty',
-      detail: 'Current ATK × 0.3 + Current Max HP × 0.1',
-      ownerAgentId: 'yixuan',
-      locus: 'identity',
-      notation: 'surface-value',
-    }
-    expect(sheer.breakdown.initial).toEqual([
-      expect.objectContaining({
-        ...ruptureContribution,
-        amount: expect.closeTo(sheer.values.initial),
-      }),
-    ])
-    expect(sheer.breakdown.combat).toEqual([
-      expect.objectContaining({
-        ...ruptureContribution,
-        amount: expect.closeTo(sheer.values.combat),
-      }),
-    ])
-    expect(sheer.breakdown.fully).toEqual([
-      expect.objectContaining({
-        ...ruptureContribution,
-        amount: expect.closeTo(sheer.values.fully - directSheer),
-      }),
-      expect.objectContaining({
-        label: 'EX Special Attack',
-        ownerAgentId: 'lucia',
-        amount: expect.closeTo(directSheer),
-      }),
-    ])
-    expect(sourceLabels(sheer.breakdown.initial)).not.toContain('Core Passive')
+
+    expect(sourceLabels(metric(dialyn, 'critRate').breakdown.initial))
+      .toContain('Yesterday Calls \u00B7 W1')
+    expect(sourceLabels(metric(dialyn, 'energyRegen').breakdown.initial))
+      .not.toContain('Yesterday Calls \u00B7 W1')
+    expect(metric(dialyn, 'energyRegen').breakdown.combat).toContainEqual(
+      expect.objectContaining({ label: 'Yesterday Calls \u00B7 W1', amount: 1.5 }),
+    )
+
+    expect(sourceLabels(metric(lucia, 'maxHp').breakdown.initial))
+      .toContain('Dreamlit Hearth \u00B7 W1')
+    expect(sourceLabels(metric(lucia, 'energyRegen').breakdown.initial))
+      .not.toContain('Dreamlit Hearth \u00B7 W1')
   })
 
-  it('keeps W-Engine advanced stats in Initial and passives out of Initial', () => {
-    const yixuan = agent(calculateParty(createPreparedState())!, 'yixuan')
-    const hp = metric(yixuan, 'maxHp')
-    const critRate = metric(yixuan, 'critRate')
-    const dmgBonus = metric(yixuan, 'dmgBonus')
+  it('recalculates every retained Yixuan W-Engine package without changing downstream candidates', () => {
+    const prepared = createPreparedState()
 
-    expect(sourceLabels(hp.breakdown.initial)).toContain('Qingming Birdcage \u00B7 W1')
-    expect(sourceLabels(critRate.breakdown.initial)).not.toContain('Qingming Birdcage \u00B7 W1')
-    expect(critRate.breakdown.combat).toContainEqual(expect.objectContaining({
-      label: 'Qingming Birdcage \u00B7 W1',
-      amount: 20,
-      ownerAgentId: 'yixuan',
-      locus: 'w-engine',
-    }))
-    expect(dmgBonus.breakdown.combat).toContainEqual(expect.objectContaining({
-      label: 'Qingming Birdcage \u00B7 W1',
-      amount: 16,
-      locus: 'w-engine',
-    }))
+    const cauldron = agent(calculateParty(selectEngine(
+      prepared,
+      'yixuan',
+      'cauldron',
+    ))!, 'yixuan')
+    expect(metric(cauldron, 'maxHp').values.initial).toBeCloseTo(16015.45)
+    expect(metric(cauldron, 'critRate').values.fully).toBeCloseTo(73.8)
+    expect(metric(cauldron, 'dmgBonus').values.fully).toBeCloseTo(152.2)
+
+    const radiowave = agent(calculateParty(selectEngine(
+      prepared,
+      'yixuan',
+      'radiowave',
+    ))!, 'yixuan')
+    expect(metric(radiowave, 'sheerForce').values.fully).toBeCloseTo(3655.2467)
+    expect(metric(radiowave, 'sheerForce').breakdown.fully).toContainEqual(
+      expect.objectContaining({
+        label: 'Radiowave Journey \u00B7 W5',
+        amount: 384,
+        locus: 'w-engine',
+      }),
+    )
+
+    const puzzle = agent(calculateParty(selectEngine(
+      prepared,
+      'yixuan',
+      'puzzleSphere',
+    ))!, 'yixuan')
+    expect(metric(puzzle, 'atk').values.initial).toBeCloseTo(2148.5)
+    expect(metric(puzzle, 'atk').breakdown.initial).toContainEqual(
+      expect.objectContaining({
+        label: 'Puzzle Sphere \u00B7 W5',
+        display: { value: 25, unit: '%', decimals: 0 },
+      }),
+    )
+    expect(metric(puzzle, 'critDmg').values.fully).toBeCloseTo(205.6)
+    expect(action(puzzle, 'exSpecialStunned').values.fully).toBeCloseTo(255)
   })
 
-  it('maps Core, Additional Ability, W-Engine, and Disc bonuses to separate action regions', () => {
-    const yixuan = agent(calculateParty(createPreparedState())!, 'yixuan')
-    const shared = action(yixuan, 'coreActions')
-    const exStunned = action(yixuan, 'exSpecialStunned')
-    const qingmingSheer = action(yixuan, 'qingmingSheerActions')
+  it('uses editable refinement values and current refinement source identity', () => {
+    const changed = setRefinement(createPreparedState(), 'yixuan', 2)
+    const yixuan = agent(calculateParty(changed)!, 'yixuan')
 
-    expect(shared.metricId).toBe('dmgBonus')
-    expect(shared.actions).toEqual(['Basic Attack', 'EX Special Attack', 'Assist Follow-Up', 'Chain Attack', 'Ultimate'])
-    expect(shared.values).toEqual({ initial: 30, combat: 106, fully: 209 })
-    expect(shared.breakdown.combat).toEqual([
-      expect.objectContaining({ label: 'Core Passive', amount: 60, locus: 'core' }),
-    ])
-
-    expect(exStunned.metricId).toBe('dmgBonus')
-    expect(exStunned.baseActionId).toBe('coreActions')
-    expect(exStunned.actions).toEqual(['EX Special Attack'])
-    expect(exStunned.values).toEqual({ initial: 30, combat: 106, fully: 239 })
-    expect(exStunned.breakdown.fully).toEqual([
-      expect.objectContaining({ label: 'Additional Ability', amount: 30, locus: 'additional' }),
-    ])
-
-    expect(qingmingSheer.metricId).toBe('sheerDmgBonus')
-    expect(qingmingSheer.actions).toEqual(['EX Special Attack', 'Ultimate'])
-    expect(qingmingSheer.values).toEqual({ initial: 0, combat: 20, fully: 30 })
-    expect(qingmingSheer.breakdown.combat).toEqual([
-      expect.objectContaining({ label: 'Qingming Birdcage \u00B7 W1', amount: 20, locus: 'w-engine' }),
-    ])
-    expect(metric(yixuan, 'sheerDmgBonus').breakdown.fully).toEqual([
-      expect.objectContaining({ label: 'Yunkui Tales \u00B7 4-piece', amount: 10, locus: 'disc-4pc' }),
-    ])
-
-    const coreOccurrences = yixuan.actionModifiers
-      .flatMap((item) => SURFACES.flatMap((surface) => item.breakdown[surface]))
-      .filter((item) => item.label === 'Core Passive')
-    expect(coreOccurrences).toHaveLength(1)
-
-    const publicLabels = JSON.stringify(yixuan)
-    expect(publicLabels).not.toMatch(/Grandmaster|Core-supported|All Sheer|Cloud-Shaper|Ashen Ink|Companion|stack|qualifying forms|vs Stunned/i)
+    expect(metric(yixuan, 'critRate').values.combat).toBeCloseTo(74.4)
+    expect(metric(yixuan, 'dmgBonus').values.combat).toBeCloseTo(48.4)
+    expect(metric(yixuan, 'critRate').breakdown.combat).toContainEqual(
+      expect.objectContaining({ label: 'Qingming Birdcage \u00B7 W2', amount: 23 }),
+    )
+    expect(action(yixuan, 'engineSheerActions').values.combat).toBeCloseTo(23)
   })
 
-  it('calculates Cauldron without inventing a downstream action dependency', () => {
-    const state = workbenchReducer(createPreparedState(), {
-      type: 'selectEngine',
-      engineId: 'cauldron',
-    })
+  it('recalculates Yixuan Disc and main-stat alternatives as direct setup edits', () => {
+    let state = createPreparedState()
+    state = selectDisc(state, 'yixuan', 'twoPiece', 'branchAndBlade')
+    state = selectMain(state, 'yixuan', 'slot4', 'critDmg')
+    state = selectMain(state, 'yixuan', 'slot5', 'hpPct')
     const yixuan = agent(calculateParty(state)!, 'yixuan')
 
-    expect(metric(yixuan, 'maxHp').values.initial).toBeCloseTo(16015.45)
-    expect(metric(yixuan, 'atk').values.initial).toBeCloseTo(1782)
-    expect(metric(yixuan, 'sheerForce').values.initial).toBeCloseTo(2136.145)
-    expect(metric(yixuan, 'critRate').values.fully).toBeCloseTo(73.8)
-    expect(metric(yixuan, 'sheerForce').values.fully).toBeCloseTo(3271.2467)
-    expect(metric(yixuan, 'dmgBonus').values).toEqual({
-      initial: 30,
-      combat: 30,
-      fully: 152.2,
-    })
-    expect(metric(yixuan, 'sheerDmgBonus').values).toEqual({
-      initial: 0,
-      combat: 0,
-      fully: 10,
-    })
-
-    expect(action(yixuan, 'coreActions').values).toEqual({
-      initial: 30,
-      combat: 90,
-      fully: 212.2,
-    })
-    expect(action(yixuan, 'exSpecialStunned').values).toEqual({
-      initial: 30,
-      combat: 90,
-      fully: 242.2,
-    })
-    expect(yixuan.actionModifiers.some((item) => item.metricId === 'sheerDmgBonus')).toBe(false)
-    expect(metric(yixuan, 'dmgBonus').breakdown.fully).toContainEqual(
-      expect.objectContaining({ label: 'Cauldron of Clarity \u00B7 W5', amount: 19.2 }),
-    )
-    expect(JSON.stringify(yixuan.actionModifiers)).not.toMatch(/Cauldron/)
+    expect(metric(yixuan, 'critRate').values.initial).toBeCloseTo(19.4)
+    expect(metric(yixuan, 'critDmg').values.initial).toBeCloseTo(114)
+    expect(metric(yixuan, 'maxHp').values.initial).toBeCloseTo(18946)
+    expect(metric(yixuan, 'dmgBonus').values.initial).toBe(0)
+    expect(sourceLabels(metric(yixuan, 'critDmg').breakdown.initial))
+      .toContain('Branch & Blade Song \u00B7 2-piece')
+    expect(sourceLabels(metric(yixuan, 'dmgBonus').breakdown.initial))
+      .not.toContain('Drive Disc \u00B7 Slot 5')
   })
 
-  it('keeps disclosed direct later-surface deltas reproducible without repeating derived conversions', () => {
-    const result = calculateParty(createPreparedState())!
+  it('distinguishes all Dialyn W-Engine operations and the two-piece tradeoff', () => {
+    const prepared = createPreparedState()
 
-    for (const agentResult of result.agents) {
-      for (const resultMetric of agentResult.metrics) {
-        expect(contributionTotal(resultMetric.breakdown.combat)).toBeCloseTo(
-          resultMetric.values.combat - resultMetric.values.initial,
-        )
-        if (agentResult.agentId !== 'yixuan' || resultMetric.id !== 'sheerForce') {
-          expect(contributionTotal(resultMetric.breakdown.fully)).toBeCloseTo(
-            resultMetric.values.fully - resultMetric.values.combat,
-          )
-        }
-      }
+    const chief = agent(calculateParty(selectEngine(
+      prepared,
+      'dialyn',
+      'chiefSidekick',
+    ))!, 'dialyn')
+    expect(metric(chief, 'impact').values).toEqual({
+      initial: 110,
+      combat: 190.8,
+      fully: 190.8,
+    })
+    expect(metric(chief, 'energyRegen').values.combat).toBeCloseTo(2.32)
+    expect(metric(chief, 'dazeBonus').values.fully).toBe(6)
 
-      for (const currentAction of agentResult.actionModifiers) {
-        const parentValues = currentAction.baseActionId
-          ? action(agentResult, currentAction.baseActionId).values
-          : metric(agentResult, currentAction.metricId).values
-        let actionDelta = 0
-        for (const surface of SURFACES) {
-          actionDelta += contributionTotal(currentAction.breakdown[surface])
-          expect(parentValues[surface] + actionDelta).toBeCloseTo(currentAction.values[surface])
-        }
-      }
-    }
+    const hellfire = agent(calculateParty(selectEngine(
+      prepared,
+      'dialyn',
+      'hellfireGears',
+    ))!, 'dialyn')
+    expect(metric(hellfire, 'critRate').values.initial).toBeCloseTo(51.4)
+    expect(metric(hellfire, 'impact').values.initial).toBeCloseTo(129.8)
+    expect(metric(hellfire, 'impact').values.combat).toBeCloseTo(132.6)
+    expect(metric(hellfire, 'impact').values.fully).toBeCloseTo(154.6)
 
-    expect(JSON.stringify(result)).not.toMatch(/subtotal|No new contribution/i)
+    const steam = agent(calculateParty(selectEngine(
+      prepared,
+      'dialyn',
+      'steamOven',
+    ))!, 'dialyn')
+    expect(metric(steam, 'energyRegen').values.initial).toBeCloseTo(2.52)
+    expect(metric(steam, 'impact').values.fully).toBeCloseTo(140.96)
 
-    const yixuan = agent(result, 'yixuan')
-    const maxHp = metric(yixuan, 'maxHp')
-    expect(maxHp.breakdown.initial).toContainEqual(expect.objectContaining({
-      label: 'Qingming Birdcage \u00B7 W1',
-      amount: expect.closeTo(2511.9),
-      display: { value: 30, unit: '%', decimals: 0 },
-    }))
-    expect(metric(yixuan, 'atk').breakdown.initial).toEqual([])
-    expect(JSON.stringify(yixuan.metrics)).not.toMatch(
-      /Agent base|Drive Disc \u00B7 Slot [123]|Base ATK/i,
-    )
+    const swing = agent(calculateParty(selectDisc(
+      prepared,
+      'dialyn',
+      'twoPiece',
+      'swingJazz',
+    ))!, 'dialyn')
+    expect(metric(swing, 'critRate').values.initial).toBeCloseTo(67.4)
+    expect(metric(swing, 'impact').values.combat).toBeCloseTo(144.8)
+    expect(metric(swing, 'energyRegen').values.combat).toBeCloseTo(3.66)
   })
 
-  it('keeps shared effects out of Initial and identifies their provider Agent', () => {
-    const result = calculateParty(createPreparedState())!
-    const yixuan = agent(result, 'yixuan')
-    const dialyn = agent(result, 'dialyn')
-    const lucia = agent(result, 'lucia')
+  it('retains partial and non-limited Lucia packages for distinct visible operations', () => {
+    const prepared = createPreparedState()
 
-    for (const resultMetric of result.agents.flatMap((item) => item.metrics)) {
-      for (const item of resultMetric.breakdown.initial) {
-        expect(item.ownerAgentId).toBe(result.agents.find((candidate) =>
-          candidate.metrics.includes(resultMetric))!.agentId)
-      }
-    }
+    const thought = calculateParty(selectEngine(
+      prepared,
+      'lucia',
+      'thoughtbop',
+    ))!
+    expect(metric(agent(thought, 'lucia'), 'maxHp').values.initial).toBeCloseTo(19154)
+    expect(metric(agent(thought, 'lucia'), 'energyRegen').values.initial).toBeCloseTo(2.34)
+    expect(metric(agent(thought, 'lucia'), 'energyRegen').values.combat).toBeCloseTo(2.94)
+    expect(metric(agent(thought, 'lucia'), 'energyRegen').values.fully).toBeCloseTo(2.94)
+    expect(metric(agent(thought, 'yixuan'), 'dmgBonus').values.fully).toBeCloseTo(124)
 
-    expect(metric(yixuan, 'dmgBonus').breakdown.fully.map((item) => item.ownerAgentId))
-      .toEqual(['dialyn', 'lucia', 'lucia', 'lucia'])
-    expect(dialyn.metrics.map((item) => item.id)).toEqual([
-      'critRate',
-      'impact',
-      'energyRegen',
-      'dazeBonus',
-    ])
-    expect(lucia.metrics.map((item) => item.id)).toEqual(['maxHp', 'energyRegen'])
-
-    expect(metric(yixuan, 'stunDmgMultiplier').values.fully).toBe(30)
-    expect(dialyn.operations).toHaveLength(1)
-    expect(dialyn.operations[0]).toMatchObject({
-      id: 'stunDuration',
-      label: 'Enemy Stun duration',
-      source: {
-        label: 'Core Passive',
-        ownerAgentId: 'dialyn',
-        locus: 'core',
-      },
+    const weeping = calculateParty(selectEngine(
+      prepared,
+      'lucia',
+      'weepingCradle',
+    ))!
+    expect(metric(agent(weeping, 'lucia'), 'energyRegen').values).toEqual({
+      initial: 1.56,
+      combat: 2.16,
+      fully: 2.16,
     })
-    expect(metric(yixuan, 'sheerForce').breakdown.fully).toContainEqual(
-      expect.objectContaining({
-        label: 'EX Special Attack',
+    expect(metric(agent(weeping, 'yixuan'), 'dmgBonus').values.fully).toBeCloseTo(144.2)
+    expect(metric(agent(weeping, 'yixuan'), 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Weeping Cradle \u00B7 W1',
+        amount: 20.2,
         ownerAgentId: 'lucia',
-        amount: expect.closeTo(814.7927),
+      }))
+
+    const kaboom = calculateParty(selectEngine(
+      prepared,
+      'lucia',
+      'kaboom',
+    ))!
+    expect(metric(agent(kaboom, 'yixuan'), 'atk').values.fully).toBeCloseTo(2189.4)
+    expect(metric(agent(kaboom, 'lucia'), 'energyRegen').values.initial).toBeCloseTo(2.21)
+
+    const gameBall = calculateParty(selectEngine(
+      prepared,
+      'lucia',
+      'unfetteredGameBall',
+    ))!
+    expect(metric(agent(gameBall, 'yixuan'), 'critRate').values.fully).toBe(100)
+    expect(metric(agent(gameBall, 'dialyn'), 'critRate').values.fully).toBeCloseTo(95.4)
+  })
+
+  it('keeps fixed Base ATK and fixed Disc values out of displayed source rows', () => {
+    const result = calculateParty(createPreparedState())!
+    const serialized = JSON.stringify(result)
+
+    expect(metric(agent(result, 'yixuan'), 'atk').breakdown.initial).toEqual([])
+    expect(serialized).not.toMatch(/Agent base|Drive Disc \u00B7 Slot [123]|Base ATK/i)
+    expect(metric(agent(result, 'lucia'), 'energyRegen').breakdown.initial)
+      .toContainEqual(expect.objectContaining({
+        label: 'Moonlight Lullaby \u00B7 4-piece',
+        display: { value: 20, unit: '%', decimals: 0 },
+      }))
+  })
+
+  it('updates current source identity after equipment and refinement edits', () => {
+    let state = selectEngine(createPreparedState(), 'dialyn', 'hellfireGears')
+    state = setRefinement(state, 'dialyn', 3)
+    const dialyn = agent(calculateParty(state)!, 'dialyn')
+    const serialized = JSON.stringify(dialyn)
+
+    expect(serialized).toContain('Hellfire Gears \u00B7 W3')
+    expect(serialized).not.toContain('Yesterday Calls')
+    expect(metric(dialyn, 'impact').breakdown.initial).toContainEqual(
+      expect.objectContaining({
+        label: 'Hellfire Gears \u00B7 W3',
+        locus: 'w-engine',
       }),
     )
   })
 
-  it('retains only CRIT Rate, CRIT DMG, and HP as Yixuan effective substats', () => {
-    const prepared = createPreparedState()
-    const baseline = agent(calculateParty(prepared)!, 'yixuan')
+  it('recalculates finite substat inputs per Agent', () => {
+    let state = createPreparedState()
+    state = setSubstat(state, 'yixuan', 'hpPct', 1)
+    state = setSubstat(state, 'dialyn', 'critRate', 1)
+    state = setSubstat(state, 'lucia', 'hpPct', 1)
+    state = setSubstat(state, 'lucia', 'hpFlat', 1)
+    const result = calculateParty(state)!
 
-    const critRate = agent(calculateParty(workbenchReducer(prepared, {
-      type: 'setSubstat',
-      key: 'critRate',
-      value: 1,
-    }))!, 'yixuan')
-    expect(metric(critRate, 'critRate').values.fully - metric(baseline, 'critRate').values.fully)
-      .toBeCloseTo(2.4)
-
-    const critDmg = agent(calculateParty(workbenchReducer(prepared, {
-      type: 'setSubstat',
-      key: 'critDmg',
-      value: 1,
-    }))!, 'yixuan')
-    expect(metric(critDmg, 'critDmg').values.fully - metric(baseline, 'critDmg').values.fully)
-      .toBeCloseTo(4.8)
-
-    const hp = agent(calculateParty(workbenchReducer(prepared, {
-      type: 'setSubstat',
-      key: 'hpPct',
-      value: 1,
-    }))!, 'yixuan')
-    expect(metric(hp, 'maxHp').values.initial - metric(baseline, 'maxHp').values.initial)
-      .toBeCloseTo(251.19)
-    expect(metric(hp, 'sheerForce').values.fully - metric(baseline, 'sheerForce').values.fully)
-      .toBeCloseTo(30.1428)
-    expect(metric(hp, 'atk').values.initial).toBe(metric(baseline, 'atk').values.initial)
-  })
-
-  it('recalculates Dialyn CRIT Rate, threshold output, and Impact from her effective substat', () => {
-    const prepared = createPreparedState()
-    const changed = workbenchReducer(prepared, {
-      type: 'setPartnerSubstat',
-      key: 'dialynCritRate',
-      value: 1,
-    })
-    const dialyn = agent(calculateParty(changed)!, 'dialyn')
-    const critRate = metric(dialyn, 'critRate')
-    const impact = metric(dialyn, 'impact')
-
-    expect(critRate.values.initial).toBeCloseTo(77.8)
-    expect(critRate.values.combat).toBeCloseTo(77.8)
-    expect(critRate.values.fully).toBeCloseTo(77.8)
-    expect(critRate.breakdown.initial).toContainEqual(expect.objectContaining({
-      label: 'Effective substat hits \u00B7 CRIT Rate',
-      amount: 2.4,
-      locus: 'substat-1',
-    }))
-    expect(critRate.gauge?.current).toBeCloseTo(77.8)
-    expect(critRate.gauge?.outputValue).toBeCloseTo(55.6)
-    expect(impact.values.initial).toBeCloseTo(110)
-    expect(impact.values.combat).toBeCloseTo(165.6)
-    expect(impact.values.fully).toBeCloseTo(165.6)
-  })
-
-  it('adds per-second Energy operations after percentage-based Energy Regen composition', () => {
-    const result = calculateParty(createPreparedState())!
-    const dialynEnergy = metric(agent(result, 'dialyn'), 'energyRegen')
-    const luciaEnergy = metric(agent(result, 'lucia'), 'energyRegen')
-
-    expect(dialynEnergy.values).toEqual({ initial: 1.92, combat: 3.42, fully: 3.42 })
-    expect(dialynEnergy.values.combat).not.toBeCloseTo((1.2 + 1.5) * 1.6)
-    expect(dialynEnergy.breakdown.initial).toEqual([
-      expect.objectContaining({
-        label: 'Drive Disc \u00B7 Slot 6',
-        amount: expect.closeTo(0.72),
-        display: { value: 60, unit: '%', decimals: 0 },
-      }),
-    ])
-    expect(dialynEnergy.breakdown.combat).toEqual([
-      expect.objectContaining({
-        label: 'Yesterday Calls \u00B7 W1',
-        amount: 1.5,
-        display: { value: 1.5, unit: '/s', decimals: 1 },
-      }),
-    ])
-    expect(dialynEnergy.breakdown.fully).toEqual([])
-
-    expect(luciaEnergy.values).toEqual({ initial: 1.56, combat: 1.96, fully: 1.96 })
-    expect(luciaEnergy.breakdown.initial).toEqual([])
-    expect(luciaEnergy.breakdown.combat).toEqual([
-      expect.objectContaining({
-        label: 'Dreamlit Hearth \u00B7 W1',
-        amount: 0.4,
-        display: { value: 0.4, unit: '/s', decimals: 1 },
-      }),
-    ])
-    expect(luciaEnergy.breakdown.fully).toEqual([])
-  })
-  it('recalculates Lucia Max HP, Squad Sheer Force, and Yixuan Sheer Force from both HP inputs', () => {
-    const prepared = createPreparedState()
-    const baseline = calculateParty(prepared)!
-    let changed = workbenchReducer(prepared, {
-      type: 'setPartnerSubstat',
-      key: 'luciaHpPct',
-      value: 1,
-    })
-    changed = workbenchReducer(changed, {
-      type: 'setPartnerSubstat',
-      key: 'luciaHpFlat',
-      value: 1,
-    })
-    const result = calculateParty(changed)!
-    const luciaHp = metric(agent(result, 'lucia'), 'maxHp')
-    const baselineYixuanSheer = metric(agent(baseline, 'yixuan'), 'sheerForce')
-    const changedYixuanSheer = metric(agent(result, 'yixuan'), 'sheerForce')
-
-    expect(luciaHp.values.initial).toBeCloseTo(22063.41)
-    expect(luciaHp.values.fully).toBeCloseTo(26476.092)
-    expect(luciaHp.gauge?.outputValue).toBeCloseTo(828.34617)
-    expect(changedYixuanSheer.values.fully - baselineYixuanSheer.values.fully).toBeCloseTo(13.55347)
-    expect(sourceLabels(luciaHp.breakdown.initial)).toContain('Effective substat hits \u00B7 HP%')
-    expect(sourceLabels(luciaHp.breakdown.initial)).toContain('Effective substat hits \u00B7 HP')
-  })
-
-  it('caps displayed CRIT Rate without creating a generic gauge', () => {
-    const state = workbenchReducer(createPreparedState(), {
-      type: 'setSubstat',
-      key: 'critRate',
-      value: 36,
-    })
-    const critRate = metric(agent(calculateParty(state)!, 'yixuan'), 'critRate')
-
-    expect(critRate.values).toEqual({ initial: 100, combat: 100, fully: 100 })
-    expect(critRate.gauge).toBeUndefined()
-    expect(critRate.breakdown.initial).toContainEqual(expect.objectContaining({
-      label: 'Displayed CRIT Rate cap',
-      amount: expect.closeTo(-37.8),
-    }))
-    expect(contributionTotal(critRate.breakdown.combat)).toBeCloseTo(0)
-    expect(contributionTotal(critRate.breakdown.fully)).toBeCloseTo(0)
-  })
-
-  it('exposes only source-defined Dialyn and Lucia gauges', () => {
-    const result = calculateParty(createPreparedState())!
-    const yixuan = agent(result, 'yixuan')
-    const dialyn = agent(result, 'dialyn')
-    const lucia = agent(result, 'lucia')
-    const dialynCritRate = metric(dialyn, 'critRate')
-    const dialynImpact = metric(dialyn, 'impact')
-    const dialynDaze = metric(dialyn, 'dazeBonus')
-    const luciaMaxHp = metric(lucia, 'maxHp')
-
-    expect(yixuan.metrics.every((item) => item.gauge === undefined)).toBe(true)
-    expect(dialynImpact.values.combat).toBeCloseTo(160.8)
-    expect(dialynImpact.gauge).toBeUndefined()
-    expect(dialynCritRate.gauge).toMatchObject({
-      source: { label: 'Core Passive', ownerAgentId: 'dialyn', locus: 'core' },
-      current: 75.4,
-      threshold: 50,
-      cap: 100,
-      outputValue: expect.closeTo(50.8),
-    })
-    expect(dialynDaze.values).toEqual({ initial: 6, combat: 6, fully: 33 })
-    expect(dialynDaze.breakdown.initial).toContainEqual(expect.objectContaining({
-      label: 'King of the Summit \u00B7 2-piece',
-      amount: 6,
-    }))
-    expect(luciaMaxHp.gauge).toMatchObject({
-      source: { label: 'EX Special Attack', ownerAgentId: 'lucia', locus: 'ex-special' },
-      current: 21697.1,
-      cap: 24000,
-      outputValue: expect.closeTo(814.7927),
-    })
-    expect(lucia.metrics.some((item) => item.id === 'squadSheerForce')).toBe(false)
+    expect(metric(agent(result, 'yixuan'), 'maxHp').values.initial).toBeCloseTo(16685.29)
+    expect(metric(agent(result, 'dialyn'), 'critRate').values.initial).toBeCloseTo(77.8)
+    expect(metric(agent(result, 'lucia'), 'maxHp').values.initial).toBeCloseTo(22063.41)
+    expect(sourceLabels(metric(agent(result, 'lucia'), 'maxHp').breakdown.initial))
+      .toEqual(expect.arrayContaining([
+        'Effective substat hits \u00B7 HP%',
+        'Effective substat hits \u00B7 HP',
+      ]))
   })
 
   it('returns no Result when any required setup selection is incomplete', () => {
     const prepared = createPreparedState()
-    const missingEngine: WorkbenchState = { ...prepared, engineId: null }
-    if (!prepared.equipment) throw new Error('Prepared state must include equipment')
-    const missingMainStat: WorkbenchState = {
+    const missingEngine: WorkbenchState = {
       ...prepared,
-      equipment: {
-        ...prepared.equipment,
-        mains: {
-          ...prepared.equipment.mains,
-          slot5: { ...prepared.equipment.mains.slot5, stat: '' },
+      setups: {
+        ...prepared.setups,
+        yixuan: { ...prepared.setups.yixuan, engineId: null },
+      },
+    }
+    const missingMain: WorkbenchState = {
+      ...prepared,
+      setups: {
+        ...prepared.setups,
+        dialyn: {
+          ...prepared.setups.dialyn,
+          mains: { ...prepared.setups.dialyn.mains, slot6: null },
         },
       },
     }
-    const missingEquipment: WorkbenchState = { ...prepared, equipment: null }
     const missingCount: WorkbenchState = {
       ...prepared,
-      substats: { ...prepared.substats, hpPct: Number.NaN },
-    }
-    const missingPartnerCount: WorkbenchState = {
-      ...prepared,
-      partnerSubstats: { ...prepared.partnerSubstats, luciaHpFlat: Number.NaN },
+      setups: {
+        ...prepared.setups,
+        lucia: {
+          ...prepared.setups.lucia,
+          substats: { ...prepared.setups.lucia.substats, hpFlat: Number.NaN },
+        },
+      },
     }
 
     expect(calculateParty(missingEngine)).toBeNull()
-    expect(calculateParty(missingEquipment)).toBeNull()
+    expect(calculateParty(missingMain)).toBeNull()
     expect(calculateParty(missingCount)).toBeNull()
-    expect(calculateParty(missingPartnerCount)).toBeNull()
-    expect(calculateParty(missingMainStat)).toBeNull()
   })
 })

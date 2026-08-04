@@ -149,9 +149,11 @@ are routed first to roles, formulas, actions, stat pressures, and Specialties
 that can consume them; unrelated Agents do not require full re-derivation.
 
 For W-Engines, inspect matching-Specialty packages first and compare Base ATK,
-advanced stat, and usable passive together at S-Rank W1 or A-Rank W5. Advanced
-stat is equal package meaning. An off-Specialty advanced-stat-only exception is
-Agent-local and survives the same whole-package comparison.
+advanced stat, and usable passive together at S-Rank W1 or A-Rank W5. No one
+package component is an automatic gate. An unused advanced stat or passive
+clause is an opportunity cost in the whole-package comparison, not an automatic
+rejection. An off-Specialty package remains Agent-local and survives only when
+its usable whole package is competitive for the current direction.
 
 A 4-piece Disc needs a material core effect; a 2-piece needs a competitive
 complement beside a different 4-piece; a main stat must be legal and survive
@@ -200,10 +202,17 @@ accessibility, stat or modifier balance, thresholds, caps, operation, or a
 supported preference may distinguish it. Reachability, signature association,
 a different trigger, or an isolated clause is insufficient.
 
-Compare fully usable W-Engines before partial packages. Compare fallbacks against
-the nearest package in the same availability and ownership context, and compare
-limited fallbacks with each other. Keep only materially distinct
-representatives; do not expose every viable fallback.
+Compare fully usable W-Engines before partial packages. A partial package may
+remain when its usable portion creates a material alternate setup or operation
+after its unused portion is charged as opportunity cost. Compare fallbacks
+against the nearest package in the same availability and ownership context, and
+compare limited fallbacks with each other. Keep the stronger representative when
+two partial packages express the same direction; keep both only when their
+whole packages create materially different current choices. This applies in
+both pools: a non-limited S-Rank package is not rejected merely because its
+advanced stat is unused when its usable passive remains competitive. Candidate
+count is never a target, and the workbench does not expose every viable
+fallback.
 
 Individual viability is not enough. Numerical difference alone creates no
 cutoff. Candidate count is not a target. A direction's valid stat pressure keeps

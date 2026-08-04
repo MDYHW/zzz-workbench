@@ -465,6 +465,11 @@ A selector opens near the setting point being changed. W-Engine,
 Drive Disc, and main-stat selectors must not all reuse one unrelated fixed
 screen position.
 
+The selected choice remains visible before editing. A setting with only one
+admitted candidate is still shown as part of the complete setup, but it does not
+claim an unavailable change interaction. Candidate count changes the available
+interaction, not the visual truth of the current selection.
+
 - Choose an arc, rail, or local region from the target's position.
 - Account for the actual candidate footprint and label, not only a nominal
   angle.
