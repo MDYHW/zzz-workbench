@@ -161,6 +161,10 @@ function SourceMatrix({
   return (
     <div className="source-matrix-wrap">
       <table className="source-matrix" aria-label={label}>
+        <colgroup>
+          <col className="result-label-track" />
+          <col className="result-surface-track" span={3} />
+        </colgroup>
         <thead>
           <tr>
             <th scope="col">{sourceHeading}</th>
@@ -283,7 +287,7 @@ function ActionRows({
           <colgroup>
             <col className="action-hierarchy-track" />
             <col className="action-label-track" />
-            <col className="action-surface-track" span={3} />
+            <col className="result-surface-track" span={3} />
           </colgroup>
           <thead>
             <tr>
@@ -489,6 +493,10 @@ export function ResultPanel({
       <article className={`agent-result agent-result--${agentResult.agentId}`}>
         <div className="result-table-wrap">
           <table>
+            <colgroup>
+              <col className="result-label-track" />
+              <col className="result-surface-track" span={3} />
+            </colgroup>
             <thead>
               <tr><th scope="col">Quantity</th><th scope="col">Initial</th><th scope="col">Combat</th><th scope="col">Fully enabled</th></tr>
             </thead>

@@ -619,6 +619,10 @@ main { margin-top: 18px; }
 }
 
 .result-panel {
+  --result-label-track: 46%;
+  --result-surface-track: 18%;
+  --result-surface-edge: 7px;
+  --result-detail-inset: 6px;
   position: relative;
   z-index: 2;
   margin-left: var(--result-seam-offset);
@@ -1052,6 +1056,9 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
   table-layout: fixed;
 }
 
+.result-label-track { width: var(--result-label-track); }
+.result-surface-track { width: var(--result-surface-track); }
+
 .agent-result th,
 .agent-result td,
 .action-differences th,
@@ -1067,7 +1074,6 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
 }
 
 .agent-result thead th:first-child {
-  width: 36%;
   text-align: left;
 }
 
@@ -1450,15 +1456,16 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
 
 .breakdown-grid {
   display: block;
-  padding: 6px;
+  padding: var(--result-detail-inset);
   background: #d8d1c4;
 }
 
 .source-matrix-wrap {
   min-width: 0;
   overflow-x: auto;
-  border: 1px solid #aaa397;
+  border: 0;
   background: #ece6da;
+  box-shadow: inset 0 0 0 1px #aaa397;
 }
 
 .source-matrix {
@@ -1479,7 +1486,6 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
 }
 
 .source-matrix thead th:first-child {
-  width: 46%;
   text-align: left;
 }
 
@@ -1613,11 +1619,7 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
 }
 
 .action-matrix col.action-label-track {
-  width: calc(46% - var(--action-hierarchy-gutter));
-}
-
-.action-matrix col.action-surface-track {
-  width: 18%;
+  width: calc(var(--result-label-track) - var(--action-hierarchy-gutter));
 }
 
 .action-matrix thead .action-hierarchy-cell,
@@ -1634,13 +1636,15 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
 }
 
 .action-matrix thead th:nth-child(2) {
-  border-left: 1px solid #aaa397;
+  border-left: 0;
+  box-shadow: inset 1px 0 #aaa397;
   text-align: left;
 }
 
 .action-matrix thead th:last-child,
 .action-matrix > tbody > tr > td:last-child {
-  border-right: 1px solid #aaa397;
+  border-right: 0;
+  box-shadow: inset -1px 0 #aaa397;
 }
 
 .action-matrix > tbody > tr > th,
@@ -1650,7 +1654,8 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
 }
 
 .action-matrix > tbody > tr > th {
-  border-left: 1px solid #aaa397;
+  border-left: 0;
+  box-shadow: inset 1px 0 #aaa397;
 }
 
 .action-matrix > tbody.action-outcome-group > tr > th {
@@ -1778,9 +1783,7 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
 }
 
 @media (max-width: 760px) {
-  .breakdown-grid {
-    padding: 7px;
-  }
+  .result-panel { --result-detail-inset: 7px; }
 
   .source-matrix {
     min-width: 390px;
@@ -1880,4 +1883,23 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
 
 .action-source-list li small {
   font-size: clamp(9px, 2.15cqw, 10px);
+}
+
+@media (min-width: 521px) {
+  .source-matrix-wrap,
+  .action-matrix-wrap {
+    margin-right: calc(var(--result-detail-inset) * -1);
+    margin-left: calc(var(--result-detail-inset) * -1);
+  }
+
+  .agent-result thead th:not(:first-child),
+  .agent-result tbody td,
+  .source-matrix:not(.action-matrix) thead th:not(:first-child),
+  .source-matrix:not(.action-matrix) tbody td,
+  .action-matrix thead th:nth-child(n + 3),
+  .action-matrix tbody td:nth-child(n + 3) {
+    padding-right: var(--result-surface-edge);
+    padding-left: var(--result-surface-edge);
+    font-variant-numeric: tabular-nums;
+  }
 }
