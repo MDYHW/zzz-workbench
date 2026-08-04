@@ -42,5 +42,22 @@ imported unless the user explicitly authorizes a specific reuse later.
   fallback. Party changes rebuild all three setups; Mindscape and pool changes
   rebuild only the changed Agent's setup.
 
+## Delegation And Parallel Work
+
+- Delegate bounded work whose behavior is settled to a worker using the lowest
+  model and reasoning level that can complete it reliably. The controller owns
+  product or semantic decisions, task boundaries, and final integration.
+- Give every worker explicit file or responsibility ownership, mutation limits,
+  and a completion contract covering changed files, tests, browser checks, and
+  unresolved deviations.
+- While a worker runs, continue independent discussion, read-only inspection,
+  or non-conflicting research. Before calling `wait_agent`, confirm that no
+  independent controller work remains.
+- Use only one mutating worker in a shared checkout. Use separate worktrees and
+  branches when multiple workers must modify overlapping or uncertain scope.
+- A worker `FINAL_ANSWER` reports that its turn ended; it does not establish
+  task completion. The controller must inspect the diff and verify applicable
+  tests, build, and browser-visible behavior before marking work complete.
+
 Use npm when a Node project is introduced. Preserve unrelated work and do not
 stage or commit unless the user asks.
