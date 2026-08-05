@@ -339,6 +339,77 @@ describe('integrated party workbench', () => {
       .toHaveAttribute('data-source-tone', 'disc-slot-4')
   })
 
+  it('offers Dialyn residual Slot 5 choices without inventing a damage Result', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('tab', {
+      name: 'View Dialyn setup and Result',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Change Disc 5 main stat from ATK',
+    }))
+    const candidates = screen.getByLabelText('Disc 5 main-stat candidates')
+    expect(within(candidates).getByRole('button', {
+      name: 'Select Physical DMG for Disc 5',
+    })).toBeInTheDocument()
+    expect(within(candidates).getByRole('button', {
+      name: 'Select PEN Ratio for Disc 5',
+    })).toBeInTheDocument()
+
+    await user.click(within(candidates).getByRole('button', {
+      name: 'Select PEN Ratio for Disc 5',
+    }))
+    expect(screen.getByRole('button', {
+      name: 'Change Disc 5 main stat from PEN Ratio',
+    })).toHaveFocus()
+    expect(screen.queryByRole('button', { name: 'PEN Ratio' })).not.toBeInTheDocument()
+  })
+
+  it('recalculates Lucia Slot 6 support through the existing Result flow', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
+    await user.click(screen.getByRole('button', {
+      name: 'Change Disc 6 main stat from HP',
+    }))
+    const candidates = screen.getByLabelText('Disc 6 main-stat candidates')
+    const energyRegenChoice = within(candidates).getByRole('button', {
+      name: 'Select Energy Regen for Disc 6',
+    })
+    expect(energyRegenChoice).toBeInTheDocument()
+    await user.click(energyRegenChoice)
+    const selectedSlot6 = screen.getByRole('button', {
+      name: 'Change Disc 6 main stat from Energy Regen',
+    })
+    expect(selectedSlot6).toHaveFocus()
+
+    expect(screen.getByRole('row', {
+      name: /Energy Regen.*2[.]34.*2[.]74.*2[.]74/,
+    })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Max HP' }))
+    expect(screen.getByRole('group', {
+      name: /Initial Max HP: current 19,154.*cap 24,000; Squad Sheer Force: [+]720[.]7, cap 900/,
+    })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Energy Regen' }))
+    const energySources = screen.getByRole('table', {
+      name: 'Energy Regen source contributions',
+    })
+    const slot6Source = within(energySources).getByRole('row', {
+      name: /Drive Disc.*Slot 6.*[+]60%/,
+    })
+    expect(slot6Source).toHaveAttribute('data-source-tone', 'disc-slot-6')
+    await user.hover(slot6Source)
+    expect(selectedSlot6.closest('.main-stat-selection')).toHaveClass('is-source-active')
+
+    await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
+    expect(screen.getByRole('row', {
+      name: /Sheer Force.*2,222[.]7.*2,222[.]7.*3,272[.]1/,
+    })).toBeInTheDocument()
+  })
+
   it('offers and recalculates partner W-Engine directions', async () => {
     const user = userEvent.setup()
     render(<App />)

@@ -50,6 +50,8 @@ export type MainStatId =
   | 'etherDmg'
   | 'hpPct'
   | 'atkPct'
+  | 'physicalDmg'
+  | 'penRatio'
   | 'energyRegenPct'
 export type SubstatId = 'critRate' | 'critDmg' | 'hpPct' | 'hpFlat'
 
@@ -360,6 +362,8 @@ export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
   etherDmg: { id: 'etherDmg', label: 'Ether DMG', value: '+30%', numericValue: 30 },
   hpPct: { id: 'hpPct', label: 'HP', value: '+30%', numericValue: 30 },
   atkPct: { id: 'atkPct', label: 'ATK', value: '+30%', numericValue: 30 },
+  physicalDmg: { id: 'physicalDmg', label: 'Physical DMG', value: '+30%', numericValue: 30 },
+  penRatio: { id: 'penRatio', label: 'PEN Ratio', value: '+24%', numericValue: 24 },
   energyRegenPct: {
     id: 'energyRegenPct',
     label: 'Energy Regen',
@@ -379,13 +383,13 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   },
   dialyn: {
     slot4: ['critRate'],
-    slot5: ['atkPct'],
+    slot5: ['atkPct', 'physicalDmg', 'penRatio'],
     slot6: ['energyRegenPct'],
   },
   lucia: {
     slot4: ['hpPct'],
     slot5: ['hpPct'],
-    slot6: ['hpPct'],
+    slot6: ['hpPct', 'energyRegenPct'],
   },
 }
 

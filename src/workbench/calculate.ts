@@ -1143,8 +1143,9 @@ function calculateLucia(
 
   const engineEnergyRegenPct = engineAdvanced(setup, 'energyRegenPct')
   const discEnergyRegenPct = setup.fourPieceId === 'moonlight' ? 20 : 0
+  const slotEnergyRegenPct = mainAmount(setup, 'slot6', 'energyRegenPct')
   const initialEnergyRegen = lucia.baseEnergyRegen
-    * (1 + (engineEnergyRegenPct + discEnergyRegenPct) / 100)
+    * (1 + (engineEnergyRegenPct + discEnergyRegenPct + slotEnergyRegenPct) / 100)
   const combatEnergyRecoveryPerSecond = initialEnergyRegen + engineEffects.energyPerSecond
 
   return {
@@ -1204,6 +1205,11 @@ function calculateLucia(
               selectedFourPieceSource,
               lucia.baseEnergyRegen * discEnergyRegenPct / 100,
               discEnergyRegenPct,
+            ),
+            percentageContribution(
+              mainSource('lucia', 'slot6'),
+              lucia.baseEnergyRegen * slotEnergyRegenPct / 100,
+              slotEnergyRegenPct,
             ),
           ]),
           withoutZero([

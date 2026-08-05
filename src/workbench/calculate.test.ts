@@ -168,6 +168,35 @@ describe('calculateParty', () => {
     })
   })
 
+  it('recalculates Lucia Slot 6 Energy Regen and downstream Sheer Force', () => {
+    const result = calculateParty(selectMain(
+      createPreparedState(),
+      'lucia',
+      'slot6',
+      'energyRegenPct',
+    ))!
+    const lucia = agent(result, 'lucia')
+    const yixuan = agent(result, 'yixuan')
+
+    expect(metric(lucia, 'maxHp').values.initial).toBeCloseTo(19154)
+    const energyRegen = metric(lucia, 'energyRegen')
+    expect(energyRegen.values.initial).toBeCloseTo(2.34)
+    expect(energyRegen.values.combat).toBeCloseTo(2.74)
+    expect(energyRegen.values.fully).toBeCloseTo(2.74)
+    expect(metric(lucia, 'energyRegen').breakdown.initial).toContainEqual(
+      expect.objectContaining({
+        label: 'Drive Disc \u00B7 Slot 6',
+        amount: 0.78,
+        display: { value: 60, unit: '%', decimals: 0 },
+      }),
+    )
+    expect(metric(lucia, 'maxHp').gauge).toMatchObject({
+      current: 19154,
+      outputValue: 720.698,
+    })
+    expect(metric(yixuan, 'sheerForce').values.fully).toBeCloseTo(3272.09)
+  })
+
   it('keeps advanced stats in Initial and W-Engine passives after Initial', () => {
     const result = calculateParty(createPreparedState())!
     const yixuan = agent(result, 'yixuan')
