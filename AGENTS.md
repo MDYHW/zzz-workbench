@@ -24,6 +24,11 @@ The archived predecessor repository, its Git history, tasks, implementation,
 tests, plans, and assets are not authorities and must not be consulted or
 imported unless the user explicitly authorizes a specific reuse later.
 
+`docs/solutions/` contains category-organized workflow and implementation
+learnings with searchable YAML frontmatter such as `module`, `tags`, and
+`problem_type`. These records are relevant when similar work recurs, but they
+do not become product authorities.
+
 ## Work
 
 - Begin from concrete user inputs and visible Result behavior.
@@ -50,6 +55,14 @@ imported unless the user explicitly authorizes a specific reuse later.
 - Give every worker explicit file or responsibility ownership, mutation limits,
   and a completion contract covering changed files, tests, browser checks, and
   unresolved deviations.
+- Before delegating a visual experiment on an existing interactive surface,
+  separate the preserved baseline, authority-required gaps, explicit experiment
+  variables, and out-of-scope items. Name the current values, available actions,
+  and representative interaction states the artifact must retain or propose.
+- For that experiment, controller acceptance checks every in-scope element,
+  action, and state against both the current consumer and the applicable
+  authority before judging style, geometry, clipping, or overflow. A clean
+  screenshot or worker completion report does not establish baseline fidelity.
 - While a worker runs, continue independent discussion, read-only inspection,
   or non-conflicting research. Before calling `wait_agent`, confirm that no
   independent controller work remains.

@@ -425,13 +425,17 @@ height or padding. Do not reduce their type to preserve a previously chosen
 block dimension. Rebalance the block footprint and neighboring geometry around
 the longest supported label.
 
-- Each block uses stable `Slot | Stat | Value` visual regions without adding a
-  header or dividing rules.
+- In the current constrained Setup width, each block places Slot in one compact
+  upper header and keeps Stat and Value together in the row below. This protects
+  readable Stat and Value copy without widening Setup or weakening Result.
+- The three Slot headers use the same height, weight, alignment, and divider;
+  their lower `Stat | Value` rows keep equal outer footprints.
 - Stat copy uses one smaller type step and receives all flexible width. Value
   copy stays left-aligned in a reduced fixed minimum width and expands only
   when its displayed value requires more room.
-- A small, consistent inset separates Stat copy from the Slot region; do not
-  insert literal whitespace into the stat label.
+- This two-row treatment is the current bounded-width presentation, not a
+  universal main-stat rule. Reconsider it during later Setup allocation work
+  only against the real three-block content and adjacent Result footprint.
 - Within Main Stat presentation only, Attribute damage choices omit `Bonus`:
   for example, `Fire DMG +30%`. This shorthand does not rename the canonical
   `DMG Bonus` stat or Result surface.
@@ -536,6 +540,39 @@ geometry to explain hierarchy and action.
 
 
 ## Change Protocol
+
+### Experiment Baseline Gate
+
+An isolated UI experiment may remove unrelated page chrome, data wiring, and
+surrounding surfaces. It must not reduce the selected surface to static labels
+or silently change an interaction merely because the experiment is temporary.
+
+Before producing comparable variants, record one small reference-state
+contract from the applicable authorities and the current consumer:
+
+- list every in-scope setting, its visible current value, its available user
+  action, and the representative closed, open, selected, disabled, hover, or
+  focus states needed to judge its footprint;
+- classify each item as preserved baseline, explicit experiment variable, or
+  out of scope;
+- identify a current implementation that differs from the presentation
+  authority as a named authority-conformance correction rather than silently
+  preserving or changing it; and
+- name the one comparison question each set of variants is intended to answer.
+
+Comparable variants keep all undeclared content, state, behavior, peer sizing,
+and control grammar fixed. A static value, focusable container, or `Change`
+label is not evidence that a selector has been represented. When selector
+presentation is in scope, show the current closed selection and enough of its
+candidate state to judge the local opening, candidate footprint, and available
+action. A minimal fixture may isolate one Setup, but it still carries every
+input and interaction state needed by that Setup comparison.
+
+The controller performs a semantic parity check before judging typography,
+color, geometry, clipping, or overflow. Compare the experiment with the current
+consumer and the applicable authority input by input. An omitted action,
+undeclared control redesign, or unresolved authority-to-runtime difference
+blocks visual review even when the artifact renders cleanly.
 
 Before an ambiguous or structural UI change:
 

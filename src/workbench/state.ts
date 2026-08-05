@@ -16,9 +16,11 @@ import {
   type SubstatId,
 } from './content'
 
+export type Mindscape = 0 | 1 | 2 | 3 | 4 | 5 | 6
 export type SubstatCounts = Partial<Record<SubstatId, number>>
 
 export interface AgentSetupState {
+  mindscape: Mindscape
   pool: PoolId
   engineId: EngineId | null
   refinement: Refinement | null
@@ -33,6 +35,7 @@ export interface WorkbenchState {
 }
 
 export type WorkbenchAction =
+  | { type: 'setMindscape'; agentId: AgentId; mindscape: Mindscape }
   | { type: 'switchPool'; agentId: AgentId; pool: PoolId }
   | { type: 'selectEngine'; agentId: AgentId; engineId: EngineId }
   | { type: 'setRefinement'; agentId: AgentId; refinement: Refinement }
@@ -60,10 +63,12 @@ export function zeroSubstats(agentId: AgentId): SubstatCounts {
 export function createPreparedAgentSetup(
   agentId: AgentId,
   pool: PoolId = 'full',
+  mindscape: Mindscape = 0,
 ): AgentSetupState {
   const prepared = PREPARED_SETUP_BY_AGENT_AND_POOL[agentId][pool]
   const engine = W_ENGINES[prepared.engineId]
   return {
+    mindscape,
     pool,
     engineId: prepared.engineId,
     refinement: engine.defaultRefinement,
@@ -110,15 +115,37 @@ function updateSetup(
 
 export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction): WorkbenchState {
   switch (action.type) {
-    case 'switchPool':
-      if (state.setups[action.agentId].pool === action.pool) return state
+    case 'setMindscape': {
+      const current = state.setups[action.agentId]
+      if (current.mindscape === action.mindscape) return state
       return {
         ...state,
         setups: {
           ...state.setups,
-          [action.agentId]: createPreparedAgentSetup(action.agentId, action.pool),
+          [action.agentId]: createPreparedAgentSetup(
+            action.agentId,
+            current.pool,
+            action.mindscape,
+          ),
         },
       }
+    }
+
+    case 'switchPool': {
+      const current = state.setups[action.agentId]
+      if (current.pool === action.pool) return state
+      return {
+        ...state,
+        setups: {
+          ...state.setups,
+          [action.agentId]: createPreparedAgentSetup(
+            action.agentId,
+            action.pool,
+            current.mindscape,
+          ),
+        },
+      }
+    }
 
     case 'selectEngine':
       return updateSetup(state, action.agentId, (setup) => {

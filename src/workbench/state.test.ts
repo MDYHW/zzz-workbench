@@ -49,6 +49,7 @@ describe('workbench state lifecycle', () => {
     const state = createPreparedState()
 
     expect(state.setups.yixuan).toMatchObject({
+      mindscape: 0,
       pool: 'full',
       engineId: 'qingming',
       refinement: 1,
@@ -135,6 +136,51 @@ describe('workbench state lifecycle', () => {
     })
   })
 
+  it('re-prepares only the Agent whose Mindscape changes and preserves its pool', () => {
+    let state = createPreparedState({ yixuan: 'nonLimited' })
+    state = workbenchReducer(state, {
+      type: 'setSubstat',
+      agentId: 'yixuan',
+      key: 'critRate',
+      value: 5,
+    })
+    state = workbenchReducer(state, {
+      type: 'selectDisc',
+      agentId: 'yixuan',
+      piece: 'twoPiece',
+      discId: 'branchAndBlade',
+    })
+    const dialynBefore = state.setups.dialyn
+    const luciaBefore = state.setups.lucia
+
+    state = workbenchReducer(state, {
+      type: 'setMindscape',
+      agentId: 'yixuan',
+      mindscape: 3,
+    })
+
+    expect(state.setups.dialyn).toBe(dialynBefore)
+    expect(state.setups.lucia).toBe(luciaBefore)
+    expect(state.setups.yixuan).toMatchObject({
+      mindscape: 3,
+      pool: 'nonLimited',
+      engineId: PREPARED_SETUP_BY_AGENT_AND_POOL.yixuan.nonLimited.engineId,
+      refinement: W_ENGINES.cauldron.defaultRefinement,
+      fourPieceId: 'yunkui',
+      twoPieceId: 'woodpecker',
+      mains: { slot4: 'critRate', slot5: 'etherDmg', slot6: 'hpPct' },
+      substats: { critRate: 0, critDmg: 0, hpPct: 0 },
+    })
+
+    state = workbenchReducer(state, {
+      type: 'switchPool',
+      agentId: 'yixuan',
+      pool: 'full',
+    })
+    expect(state.setups.yixuan.mindscape).toBe(3)
+    expect(state.setups.yixuan.pool).toBe('full')
+  })
+
   it('re-prepares only the Agent whose pool changes', () => {
     let state = createPreparedState()
     state = workbenchReducer(state, {
@@ -167,6 +213,7 @@ describe('workbench state lifecycle', () => {
     expect(state.setups.yixuan).toBe(yixuanBefore)
     expect(state.setups.lucia).toBe(luciaBefore)
     expect(state.setups.dialyn).toEqual({
+      mindscape: 0,
       pool: 'nonLimited',
       engineId: PREPARED_SETUP_BY_AGENT_AND_POOL.dialyn.nonLimited.engineId,
       refinement: 1,

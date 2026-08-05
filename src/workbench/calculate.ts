@@ -206,9 +206,10 @@ function completeSetup(state: WorkbenchState, agentId: AgentId): CompleteSetup {
 function engineSource(agentId: AgentId, setup: CompleteSetup): ResultSource {
   const engine = W_ENGINES[setup.engineId]
   return source(
-    `${engine.name} \u00B7 W${setup.refinement}`,
+    engine.name,
     agentId,
     'w-engine',
+    `W${setup.refinement}`,
   )
 }
 
@@ -221,9 +222,10 @@ function discSource(
     ? 'Swing Jazz or Moonlight Lullaby'
     : DRIVE_DISCS[discId].name
   return source(
-    `${label} \u00B7 ${piece}`,
+    label,
     agentId,
     piece === '4-piece' ? 'disc-4pc' : 'disc-2pc',
+    piece,
   )
 }
 
@@ -240,9 +242,10 @@ function substatSource(
   const index = choices.findIndex(({ id }) => id === substatId)
   const choice = choices[index]
   return source(
-    `Effective substat hits \u00B7 ${choice.label}`,
+    'Effective substat hits',
     agentId,
     `substat-${index + 1}` as SourceLocus,
+    choice.label,
   )
 }
 

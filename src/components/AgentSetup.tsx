@@ -16,7 +16,7 @@ import {
   type PoolId,
   type Refinement,
 } from '../workbench/content'
-import type { WorkbenchAction, WorkbenchState } from '../workbench/state'
+import type { Mindscape, WorkbenchAction, WorkbenchState } from '../workbench/state'
 
 type SourceToneChannel = 'pointer' | 'focus'
 
@@ -55,7 +55,9 @@ function SetupHeading({ agentId }: { agentId: AgentId }) {
         <span className="eyebrow">SETUP // 0{agent.order}</span>
         <h2 id={`${agentId}-setup-heading`}>{agent.name} setup</h2>
       </div>
-      <span className="edit-state">EDITABLE</span>
+      <span className="edit-state">
+        {agentId === 'yixuan' ? 'FOCUS / YIXUAN' : 'EDITABLE'}
+      </span>
     </header>
   )
 }
@@ -63,40 +65,58 @@ function SetupHeading({ agentId }: { agentId: AgentId }) {
 function PoolSelection({
   agentId,
   dispatch,
+  mindscape,
   pool,
 }: {
   agentId: AgentId
   dispatch: Dispatch<WorkbenchAction>
+  mindscape: Mindscape
   pool: PoolId
 }) {
   return (
-    <fieldset className="setup-group pool-fieldset">
-      <legend><span>01</span> Mindscape and W-Engine pool</legend>
-      <div className="upstream-strip">
-        <span><small>MINDSCAPE</small><strong>M0</strong></span>
-        {agentId === 'yixuan' && <span><small>FOCUS</small><strong>Yixuan</strong></span>}
+    <section className="setup-group pool-fieldset" aria-labelledby={agentId + '-loadout-heading'}>
+      <h3 id={agentId + '-loadout-heading'}><span>01</span> Loadout control</h3>
+      <div className="loadout-control-grid">
+        <div className="mindscape-control">
+          <small>MINDSCAPE</small>
+          <div className="mindscape-rail" role="group" aria-label="Mindscape">
+            {([0, 1, 2, 3, 4, 5, 6] as Mindscape[]).map((level) => (
+              <button
+                type="button"
+                key={level}
+                aria-label={`M${level}`}
+                aria-pressed={mindscape === level}
+                onClick={() => dispatch({ type: 'setMindscape', agentId, mindscape: level })}
+              >
+                M{level}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="pool-control">
+          <small>W-ENGINE POOL</small>
+          <div className="segmented-control">
+            <button
+              type="button"
+              className={pool === 'full' ? 'is-selected' : ''}
+              aria-label="Full pool"
+              aria-pressed={pool === 'full'}
+              onClick={() => dispatch({ type: 'switchPool', agentId, pool: 'full' })}
+            >
+              Full
+            </button>
+            <button
+              type="button"
+              className={pool === 'nonLimited' ? 'is-selected' : ''}
+              aria-pressed={pool === 'nonLimited'}
+              onClick={() => dispatch({ type: 'switchPool', agentId, pool: 'nonLimited' })}
+            >
+              Non-limited
+            </button>
+          </div>
+        </div>
       </div>
-      <div className="segmented-control">
-        <button
-          type="button"
-          className={pool === 'full' ? 'is-selected' : ''}
-          aria-pressed={pool === 'full'}
-          onClick={() => dispatch({ type: 'switchPool', agentId, pool: 'full' })}
-        >
-          Full pool
-          <small>Limited + standard</small>
-        </button>
-        <button
-          type="button"
-          className={pool === 'nonLimited' ? 'is-selected' : ''}
-          aria-pressed={pool === 'nonLimited'}
-          onClick={() => dispatch({ type: 'switchPool', agentId, pool: 'nonLimited' })}
-        >
-          Non-limited
-          <small>Standard + A-Rank</small>
-        </button>
-      </div>
-    </fieldset>
+    </section>
   )
 }
 
@@ -125,11 +145,12 @@ function SelectionSurface({
       ref={buttonRef}
     >
       {children}
-      <span className="selection-surface__change">CHANGE</span>
+      <span className="selection-surface__change" aria-hidden="true">&#9660;</span>
     </button>
   ) : (
     <div className="selection-surface selection-surface--fixed" aria-label={ariaLabel}>
       {children}
+      <span className="selection-surface__fixed" role="img" aria-label="Fixed selection" />
     </div>
   )
 }
@@ -138,10 +159,12 @@ function EngineCard({
   engineId,
   refinement,
   compact = false,
+  candidate = false,
 }: {
   engineId: EngineId
   refinement: Refinement
   compact?: boolean
+  candidate?: boolean
 }) {
   const engine = W_ENGINES[engineId]
   return (
@@ -152,7 +175,9 @@ function EngineCard({
       <span className="equipment-copy">
         <span className="equipment-name-line">
           <strong>{engine.name}</strong>
-          <span>{engine.rank}-Rank</span>
+          <span className="equipment-rank">
+            {candidate ? engine.rank + ' / W' + refinement : engine.rank}
+          </span>
         </span>
         <span className="equipment-advanced">
           {engine.advancedStat.label}
@@ -202,12 +227,13 @@ function EngineSelection({
   }, [restoreFocus])
 
   return (
-    <fieldset
+    <section
       className={targetClass('setup-group equipment-fieldset', 'w-engine', activeSourceTone)}
       data-source-tone="w-engine"
+      aria-labelledby={agentId + '-engine-heading'}
       {...targetEvents('w-engine', onSourceToneChange)}
     >
-      <legend><span>02</span> W-Engine and refinement</legend>
+      <h3 id={agentId + '-engine-heading'}><span>02</span> Engine bay</h3>
       <div className="selection-stack">
         <SelectionSurface
           ariaLabel={
@@ -239,6 +265,7 @@ function EngineSelection({
                   }}
                 >
                   <EngineCard
+                    candidate
                     engineId={candidateId}
                     refinement={candidate.defaultRefinement}
                   />
@@ -272,7 +299,7 @@ function EngineSelection({
           ))}
         </div>
       </div>
-    </fieldset>
+    </section>
   )
 }
 
@@ -284,25 +311,29 @@ function DiscEffectRows({
   piece: 'fourPiece' | 'twoPiece'
 }) {
   const disc = DRIVE_DISCS[discId]
-  const rows = piece === 'fourPiece'
-    ? [...(disc.fourPieceEffects ?? []), disc.twoPieceEffect]
-    : [disc.twoPieceEffect]
+  if (piece === 'twoPiece') {
+    return (
+      <span className="disc-effect-rows disc-effect-rows--two-piece">
+        <span>
+          <small>2PC</small>
+          <b>{disc.twoPieceEffect}</b>
+        </span>
+      </span>
+    )
+  }
+
   return (
-    <span className="disc-effect-rows">
-      {rows.map((effect, index) => (
+    <span className="disc-effect-rows disc-effect-rows--four-piece">
+      {(disc.fourPieceEffects ?? []).map((effect, index) => (
         <span key={effect}>
-          <small>
-            {piece === 'fourPiece'
-              ? index === 0
-                ? '4PC'
-                : index === rows.length - 1
-                  ? '2PC'
-                  : ''
-              : '2PC'}
-          </small>
+          <small>{index === 0 ? '4PC' : ''}</small>
           <b>{effect}</b>
         </span>
       ))}
+      <span className="disc-effect-row--two-piece">
+        <small>2PC</small>
+        <b>{disc.twoPieceEffect}</b>
+      </span>
     </span>
   )
 }
@@ -472,9 +503,11 @@ function MainStatSelection({
 
   const content = (
     <>
-      <small>DISC {slot.replace('slot', '')}</small>
-      <span>{selected.label}</span>
-      <strong>{selected.value}</strong>
+      <small className="main-stat-block__slot">DISC {slot.replace('slot', '')}</small>
+      <span className="main-stat-block__details">
+        <span>{selected.label}</span>
+        <strong>{selected.value}</strong>
+      </span>
     </>
   )
 
@@ -494,6 +527,7 @@ function MainStatSelection({
           onClick={() => setOpenSelector(isOpen ? null : selectorId)}
         >
           {content}
+          <span className="main-stat-block__change" aria-hidden="true">&#9660;</span>
         </button>
       ) : (
         <div
@@ -501,6 +535,7 @@ function MainStatSelection({
           aria-label={`Disc ${slot.replace('slot', '')} ${selected.label} selected`}
         >
           {content}
+          <span className="main-stat-block__fixed" role="img" aria-label="Fixed selection" />
         </div>
       )}
       {isOpen && (
@@ -554,15 +589,13 @@ function EquipmentSelection({
 } & SourceInteractionProps) {
   const setup = state.setups[agentId]
   if (!setup.fourPieceId || !setup.twoPieceId) return null
-  if (!Object.values(setup.mains).every(Boolean)) return null
-  const agent = PARTY_AGENTS.find(({ id }) => id === agentId)!
 
   return (
     <section
       className="setup-group prepared-block"
       aria-labelledby={agentId + '-disc-heading'}
     >
-      <h3 id={agentId + '-disc-heading'}><span>03</span> Drive Discs</h3>
+      <h3 id={agentId + '-disc-heading'}><span>03</span> Disc deck</h3>
       <div className="disc-grid">
         <DiscSelection
           activeSourceTone={activeSourceTone}
@@ -585,21 +618,7 @@ function EquipmentSelection({
           setOpenSelector={setOpenSelector}
         />
       </div>
-      <div className="main-stat-grid" aria-label={agent.name + ' prepared main stats'}>
-        {(['slot4', 'slot5', 'slot6'] as MainSlot[]).map((slot) => (
-          <MainStatSelection
-            activeSourceTone={activeSourceTone}
-            agentId={agentId}
-            dispatch={dispatch}
-            key={slot}
-            mainStatId={setup.mains[slot]!}
-            onSourceToneChange={onSourceToneChange}
-            openSelector={openSelector}
-            setOpenSelector={setOpenSelector}
-            slot={slot}
-          />
-        ))}
-      </div>
+
     </section>
   )
 }
@@ -652,6 +671,74 @@ function SubstatStepper({
   )
 }
 
+function StatBank({
+  activeSourceTone,
+  agentId,
+  dispatch,
+  onSourceToneChange,
+  openSelector,
+  setOpenSelector,
+  state,
+}: {
+  agentId: AgentId
+  state: WorkbenchState
+  dispatch: Dispatch<WorkbenchAction>
+  openSelector: string | null
+  setOpenSelector: (value: string | null) => void
+} & SourceInteractionProps) {
+  const setup = state.setups[agentId]
+  if (!Object.values(setup.mains).every(Boolean)) return null
+  const agent = PARTY_AGENTS.find(({ id }) => id === agentId)!
+
+  return (
+    <section className="setup-group stat-bank" aria-labelledby={agentId + '-stat-bank-heading'}>
+      <h3 id={agentId + '-stat-bank-heading'}><span>04</span> Stat bank</h3>
+      <div className="main-stat-grid" aria-label={agent.name + ' prepared main stats'}>
+        {(['slot4', 'slot5', 'slot6'] as MainSlot[]).map((slot) => (
+          <MainStatSelection
+            activeSourceTone={activeSourceTone}
+            agentId={agentId}
+            dispatch={dispatch}
+            key={slot}
+            mainStatId={setup.mains[slot]!}
+            onSourceToneChange={onSourceToneChange}
+            openSelector={openSelector}
+            setOpenSelector={setOpenSelector}
+            slot={slot}
+          />
+        ))}
+      </div>
+      <p className="field-note">Effective substat hits / prepared at zero / range 0-36</p>
+      <div className="substat-grid" aria-label={agent.name + ' prepared effective substats'}>
+        {SUBSTAT_CHOICES_BY_AGENT[agentId].map((choice, index) => (
+          <SubstatStepper
+            activeSourceTone={activeSourceTone}
+            count={setup.substats[choice.id] ?? 0}
+            key={choice.id}
+            label={choice.label}
+            onDecrease={() => dispatch({
+              type: 'adjustSubstat',
+              agentId,
+              key: choice.id,
+              delta: -1,
+            })}
+            onIncrease={() => dispatch({
+              type: 'adjustSubstat',
+              agentId,
+              key: choice.id,
+              delta: 1,
+            })}
+            onSourceToneChange={onSourceToneChange}
+            perHit={choice.perHit}
+            tone={`substat-${index + 1}`}
+            unit={choice.unit}
+          />
+        ))}
+      </div>
+    </section>
+  )
+}
+
 export function AgentSetup({
   activeSourceTone,
   agentId,
@@ -661,64 +748,49 @@ export function AgentSetup({
 }: AgentSetupProps) {
   const [openSelector, setOpenSelector] = useState<string | null>(null)
   const setup = state.setups[agentId]
-  const agent = PARTY_AGENTS.find((item) => item.id === agentId)!
 
   useEffect(() => {
     setOpenSelector(null)
-  }, [agentId, setup.pool])
+  }, [agentId, setup.mindscape, setup.pool])
 
   return (
     <section className="setup-panel" aria-labelledby={agentId + '-setup-heading'}>
       <SetupHeading agentId={agentId} />
-      <PoolSelection agentId={agentId} dispatch={dispatch} pool={setup.pool} />
-      <EngineSelection
-        activeSourceTone={activeSourceTone}
-        agentId={agentId}
-        dispatch={dispatch}
-        onSourceToneChange={onSourceToneChange}
-        openSelector={openSelector}
-        setOpenSelector={setOpenSelector}
-        state={state}
-      />
-      <EquipmentSelection
-        activeSourceTone={activeSourceTone}
-        agentId={agentId}
-        dispatch={dispatch}
-        onSourceToneChange={onSourceToneChange}
-        openSelector={openSelector}
-        setOpenSelector={setOpenSelector}
-        state={state}
-      />
-      <fieldset className="setup-group substat-fieldset">
-        <legend><span>04</span> Effective substat hits</legend>
-        <p className="field-note">Independent setup inputs {'\u00B7'} prepared at zero {'\u00B7'} range 0{'\u2013'}36</p>
-        <div className="substat-grid" aria-label={agent.name + ' prepared effective substats'}>
-          {SUBSTAT_CHOICES_BY_AGENT[agentId].map((choice, index) => (
-            <SubstatStepper
-              activeSourceTone={activeSourceTone}
-              count={setup.substats[choice.id] ?? 0}
-              key={choice.id}
-              label={choice.label}
-              onDecrease={() => dispatch({
-                type: 'adjustSubstat',
-                agentId,
-                key: choice.id,
-                delta: -1,
-              })}
-              onIncrease={() => dispatch({
-                type: 'adjustSubstat',
-                agentId,
-                key: choice.id,
-                delta: 1,
-              })}
-              onSourceToneChange={onSourceToneChange}
-              perHit={choice.perHit}
-              tone={`substat-${index + 1}`}
-              unit={choice.unit}
-            />
-          ))}
-        </div>
-      </fieldset>
+      <div className="setup-chassis">
+        <PoolSelection
+          agentId={agentId}
+          dispatch={dispatch}
+          mindscape={setup.mindscape}
+          pool={setup.pool}
+        />
+        <EngineSelection
+          activeSourceTone={activeSourceTone}
+          agentId={agentId}
+          dispatch={dispatch}
+          onSourceToneChange={onSourceToneChange}
+          openSelector={openSelector}
+          setOpenSelector={setOpenSelector}
+          state={state}
+        />
+        <EquipmentSelection
+          activeSourceTone={activeSourceTone}
+          agentId={agentId}
+          dispatch={dispatch}
+          onSourceToneChange={onSourceToneChange}
+          openSelector={openSelector}
+          setOpenSelector={setOpenSelector}
+          state={state}
+        />
+        <StatBank
+          activeSourceTone={activeSourceTone}
+          agentId={agentId}
+          dispatch={dispatch}
+          onSourceToneChange={onSourceToneChange}
+          openSelector={openSelector}
+          setOpenSelector={setOpenSelector}
+          state={state}
+        />
+      </div>
     </section>
   )
 }

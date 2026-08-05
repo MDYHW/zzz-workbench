@@ -30,7 +30,7 @@ function action(result: AgentResult, id: string) {
 }
 
 function sourceLabels(items: Contribution[]): string[] {
-  return items.map((item) => item.label)
+  return items.map((item) => [item.label, item.detail].filter(Boolean).join(' \u00B7 '))
 }
 
 function selectEngine(
@@ -157,7 +157,7 @@ describe('calculateParty', () => {
     expect(sourceLabels(metric(yixuan, 'critRate').breakdown.initial))
       .not.toContain('Qingming Birdcage \u00B7 W1')
     expect(metric(yixuan, 'critRate').breakdown.combat).toContainEqual(
-      expect.objectContaining({ label: 'Qingming Birdcage \u00B7 W1', amount: 20 }),
+      expect.objectContaining({ label: 'Qingming Birdcage', detail: 'W1', amount: 20 }),
     )
 
     expect(sourceLabels(metric(dialyn, 'critRate').breakdown.initial))
@@ -165,7 +165,7 @@ describe('calculateParty', () => {
     expect(sourceLabels(metric(dialyn, 'energyRegen').breakdown.initial))
       .not.toContain('Yesterday Calls \u00B7 W1')
     expect(metric(dialyn, 'energyRegen').breakdown.combat).toContainEqual(
-      expect.objectContaining({ label: 'Yesterday Calls \u00B7 W1', amount: 1.5 }),
+      expect.objectContaining({ label: 'Yesterday Calls', detail: 'W1', amount: 1.5 }),
     )
 
     expect(sourceLabels(metric(lucia, 'maxHp').breakdown.initial))
@@ -194,7 +194,8 @@ describe('calculateParty', () => {
     expect(metric(radiowave, 'sheerForce').values.fully).toBeCloseTo(3655.2467)
     expect(metric(radiowave, 'sheerForce').breakdown.fully).toContainEqual(
       expect.objectContaining({
-        label: 'Radiowave Journey \u00B7 W5',
+        label: 'Radiowave Journey',
+        detail: 'W5',
         amount: 384,
         locus: 'w-engine',
       }),
@@ -208,7 +209,8 @@ describe('calculateParty', () => {
     expect(metric(puzzle, 'atk').values.initial).toBeCloseTo(2148.5)
     expect(metric(puzzle, 'atk').breakdown.initial).toContainEqual(
       expect.objectContaining({
-        label: 'Puzzle Sphere \u00B7 W5',
+        label: 'Puzzle Sphere',
+        detail: 'W5',
         display: { value: 25, unit: '%', decimals: 0 },
       }),
     )
@@ -223,7 +225,7 @@ describe('calculateParty', () => {
     expect(metric(yixuan, 'critRate').values.combat).toBeCloseTo(74.4)
     expect(metric(yixuan, 'dmgBonus').values.combat).toBeCloseTo(48.4)
     expect(metric(yixuan, 'critRate').breakdown.combat).toContainEqual(
-      expect.objectContaining({ label: 'Qingming Birdcage \u00B7 W2', amount: 23 }),
+      expect.objectContaining({ label: 'Qingming Birdcage', detail: 'W2', amount: 23 }),
     )
     expect(action(yixuan, 'engineSheerActions').values.combat).toBeCloseTo(23)
   })
@@ -317,7 +319,8 @@ describe('calculateParty', () => {
     expect(metric(agent(weeping, 'yixuan'), 'dmgBonus').values.fully).toBeCloseTo(144.2)
     expect(metric(agent(weeping, 'yixuan'), 'dmgBonus').breakdown.fully)
       .toContainEqual(expect.objectContaining({
-        label: 'Weeping Cradle \u00B7 W1',
+        label: 'Weeping Cradle',
+        detail: 'W1',
         amount: 20.2,
         ownerAgentId: 'lucia',
       }))
@@ -347,7 +350,8 @@ describe('calculateParty', () => {
     expect(serialized).not.toMatch(/Agent base|Drive Disc \u00B7 Slot [123]|Base ATK/i)
     expect(metric(agent(result, 'lucia'), 'energyRegen').breakdown.initial)
       .toContainEqual(expect.objectContaining({
-        label: 'Moonlight Lullaby \u00B7 4-piece',
+        label: 'Moonlight Lullaby',
+        detail: '4-piece',
         display: { value: 20, unit: '%', decimals: 0 },
       }))
   })
@@ -358,11 +362,13 @@ describe('calculateParty', () => {
     const dialyn = agent(calculateParty(state)!, 'dialyn')
     const serialized = JSON.stringify(dialyn)
 
-    expect(serialized).toContain('Hellfire Gears \u00B7 W3')
+    expect(serialized).toContain('Hellfire Gears')
+    expect(serialized).toContain('W3')
     expect(serialized).not.toContain('Yesterday Calls')
     expect(metric(dialyn, 'impact').breakdown.initial).toContainEqual(
       expect.objectContaining({
-        label: 'Hellfire Gears \u00B7 W3',
+        label: 'Hellfire Gears',
+        detail: 'W3',
         locus: 'w-engine',
       }),
     )

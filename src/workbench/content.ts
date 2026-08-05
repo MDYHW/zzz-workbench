@@ -330,7 +330,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     name: 'King of the Summit',
     image: kingImage,
     twoPieceEffect: 'Daze +6%',
-    fourPieceEffects: ['Squad CRIT DMG +15%', 'At 50% CRIT Rate \u00B7 +15%'],
+    fourPieceEffects: ['Squad CRIT DMG +30%'],
   },
   swingJazz: {
     id: 'swingJazz',

@@ -50,18 +50,57 @@ describe('integrated party workbench', () => {
     expect(engine.querySelector('img')).not.toBeNull()
     expect(within(engine).getByText('HP')).toBeInTheDocument()
     expect(within(engine).getByText('+30%')).toBeInTheDocument()
+    expect(within(engine).getByText('S')).toHaveClass('equipment-rank')
+    expect(engine.querySelector('.selection-surface__change'))
+      .toHaveTextContent(String.fromCharCode(9660))
     expect(screen.queryByText('Base ATK')).not.toBeInTheDocument()
+    const mindscape = screen.getByRole('group', { name: 'Mindscape' })
+    expect(within(mindscape).getAllByRole('button')).toHaveLength(7)
+    expect(within(mindscape).getByRole('button', { name: 'M0' }))
+      .toHaveAttribute('aria-pressed', 'true')
+    expect(within(mindscape).getByRole('button', { name: 'M6' }))
+      .toHaveAttribute('aria-pressed', 'false')
+    expect(document.querySelector('.workbench-footer')).not.toHaveTextContent('M0')
 
     const fourPiece = screen.getByLabelText('Yunkui Tales selected as 4-piece')
     expect(fourPiece.querySelector('img')).not.toBeNull()
     expect(within(fourPiece).getByText('CRIT Rate +12%')).toBeInTheDocument()
     expect(within(fourPiece).getByText('Sheer DMG +10%')).toBeInTheDocument()
     expect(within(fourPiece).getByText('HP +10%')).toBeInTheDocument()
+    const discRows = fourPiece.querySelectorAll('.disc-effect-rows > span')
+    expect(discRows).toHaveLength(3)
+    expect(discRows[0]).toHaveTextContent('4PCCRIT Rate +12%')
+    expect(discRows[1]).toHaveTextContent('Sheer DMG +10%')
+    expect(discRows[1]).not.toHaveTextContent('4PC')
+    expect(discRows[2]).toHaveTextContent('2PCHP +10%')
+    expect(within(fourPiece).getByRole('img', { name: 'Fixed selection' }))
+      .toHaveClass('selection-surface__fixed')
     expect(screen.queryByRole('button', { name: /Change 4-piece Drive Disc/ }))
       .not.toBeInTheDocument()
 
     const slot6 = screen.getByLabelText('Disc 6 HP selected')
     expect(slot6.tagName).toBe('DIV')
+    expect(within(slot6).getByRole('img', { name: 'Fixed selection' }))
+      .toHaveClass('main-stat-block__fixed')
+  })
+
+  it('re-prepares only the visible Agent when Mindscape changes', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Increase HP hits' }))
+    expect(screen.getByLabelText('HP hit count')).toHaveTextContent('1')
+
+    const mindscape = screen.getByRole('group', { name: 'Mindscape' })
+    await user.click(within(mindscape).getByRole('button', { name: 'M3' }))
+
+    expect(within(mindscape).getByRole('button', { name: 'M3' }))
+      .toHaveAttribute('aria-pressed', 'true')
+    expect(within(mindscape).getByRole('button', { name: 'M0' }))
+      .toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByLabelText('HP hit count')).toHaveTextContent('0')
+    expect(screen.getByText('Qingming Birdcage')).toBeInTheDocument()
+    expect(document.querySelector('.workbench-footer')).not.toHaveTextContent('M0')
   })
 
   it('presents Dialyn Energy Regen Discs as one accessible either-set choice', async () => {
@@ -73,6 +112,8 @@ describe('integrated party workbench', () => {
     expect(screen.getByText('Qingming Birdcage')).toBeInTheDocument()
 
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    expect(screen.getByText('Squad CRIT DMG +30%')).toBeInTheDocument()
+    expect(screen.queryByText(/At 50% CRIT Rate/)).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', {
       name: 'Change 2-piece Drive Disc from Woodpecker Electro',
     }))
@@ -127,6 +168,7 @@ describe('integrated party workbench', () => {
     ]) {
       const candidate = within(candidates).getByRole('button', { name })
       expect(candidate.querySelector('img')).not.toBeNull()
+      expect(candidate.querySelector('.equipment-rank')).toHaveTextContent('/ W5')
     }
     expect(within(candidates).queryByRole('button', { name: /Qingming/ }))
       .not.toBeInTheDocument()
@@ -172,7 +214,7 @@ describe('integrated party workbench', () => {
     const sources = screen.getByRole('table', {
       name: 'CRIT Rate source contributions',
     })
-    expect(within(sources).getByRole('row', { name: /Cauldron of Clarity \u00B7 W2/ }))
+    expect(within(sources).getByRole('row', { name: /Cauldron of Clarity.*W2/ }))
       .toHaveAttribute('data-source-tone', 'w-engine')
     expect(within(sources).getByRole('row', { name: /Cauldron of Clarity/ })).toHaveClass('is-source-active')
   })
@@ -470,7 +512,12 @@ describe('integrated party workbench', () => {
     const sharedAction = within(outcomes).getByRole('button', {
       name: /Show sources for Basic Attack, EX Special Attack, Assist Follow-Up, Chain Attack, Ultimate/,
     })
+    const sharedActionIndicator = sharedAction.querySelector('i')
+    expect(sharedAction).toHaveAttribute('aria-expanded', 'false')
+    expect(sharedActionIndicator).toHaveTextContent('+')
     await user.click(sharedAction)
+    expect(sharedAction).toHaveAttribute('aria-expanded', 'true')
+    expect(sharedActionIndicator).toHaveTextContent('\u2212')
     expect(within(outcomes).getByRole('row', {
       name: /Core Passive.*\+60\.0%/,
     })).toHaveAttribute('data-source-tone', 'core')
@@ -527,6 +574,6 @@ describe('integrated party workbench', () => {
     })
     expect(returned).toHaveFocus()
     await user.tab()
-    expect(screen.getByRole('button', { name: /^Full pool/ })).toHaveFocus()
+    expect(screen.getByRole('button', { name: 'M0' })).toHaveFocus()
   })
 })
