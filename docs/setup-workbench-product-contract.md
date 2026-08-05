@@ -158,8 +158,8 @@ its usable whole package is competitive for the current direction.
 A 4-piece Disc needs a material core effect; a 2-piece needs a competitive
 complement beside a different 4-piece; a main stat must be legal and survive
 slot opportunity cost; and an effective substat must materially strengthen a
-supported finite-investment axis after supply, thresholds, caps, conversions,
-and alternatives.
+supported setup-tuning axis after current stat supply, thresholds, caps,
+conversions, and alternatives.
 
 Main-stat and effective-substat candidates begin from the Agent's direction,
 roles, formulas, and current Agent sources. Do not re-derive the whole candidate
@@ -191,8 +191,8 @@ for an applicable crit-capable general-damage direction; it does not select it.
 New equipment normally enters as a competing W-Engine, 4-piece, or 2-piece
 candidate and may change the prepared main-stat choice through its stat package.
 Reconsider an effective-substat candidate only when the new equipment creates a
-competitive stat pressure after the Agent's existing investment opportunities
-and opportunity costs are applied.
+competitive stat pressure after the Agent's existing retained stat-supply
+choices and opportunity costs are applied.
 
 ### Competitive Candidate Set
 

@@ -396,7 +396,7 @@ describe('calculateParty', () => {
     )
   })
 
-  it('recalculates finite substat inputs per Agent', () => {
+  it("recalculates each Agent's offered substat inputs", () => {
     let state = createPreparedState()
     state = setSubstat(state, 'yixuan', 'hpPct', 1)
     state = setSubstat(state, 'dialyn', 'critRate', 1)

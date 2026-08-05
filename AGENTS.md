@@ -10,9 +10,9 @@ action differences that materially change the Result, and threshold or cap
 gauges.
 
 Game accuracy is a means to that experience, not an independent product goal.
-Keep only the accuracy needed for a current user-visible choice or Result.
-Deliberate simplifications are preferred when additional realism does not
-materially improve the setup decision or its visual interpretation.
+Retain every distinction needed for a current user-visible choice or Result.
+Simplify additional realism only when it does not materially improve the setup
+decision or its visual interpretation.
 
 ## Authority
 
@@ -38,7 +38,8 @@ do not become product authorities.
   workbench experience needs that validation.
 - Do not add evidence systems, explanation payloads, compatibility layers,
   registries, or shared abstractions without a current consumer.
-- Use the simplest representation that produces the intended behavior.
+- Among representations that preserve every current materially valuable
+  distinction, use the least complex one.
 - Before implementation, explain the proposed user experience and identify
   any genuine product decision that cannot be derived from the authorities.
 - Preserve incomplete-selection behavior: Result remains empty until every

@@ -106,8 +106,6 @@ export interface AgentSummary {
   name: string
   attribute: string
   specialty: string
-  roles: string[]
-  mindscape: 'M0'
 }
 
 const round = (value: number): number => Math.round(value * 100) / 100
@@ -459,8 +457,6 @@ export const PARTY_AGENTS: AgentSummary[] = [
     name: 'Yixuan',
     attribute: 'Auric Ink',
     specialty: 'Rupture',
-    roles: ['Damage contributor', 'Fixed focus'],
-    mindscape: 'M0',
   },
   {
     id: 'dialyn',
@@ -468,8 +464,6 @@ export const PARTY_AGENTS: AgentSummary[] = [
     name: 'Dialyn',
     attribute: 'Physical',
     specialty: 'Stun',
-    roles: ['Daze contributor', 'Buffer'],
-    mindscape: 'M0',
   },
   {
     id: 'lucia',
@@ -477,8 +471,6 @@ export const PARTY_AGENTS: AgentSummary[] = [
     name: 'Lucia',
     attribute: 'Ether',
     specialty: 'Support',
-    roles: ['Buffer'],
-    mindscape: 'M0',
   },
 ]
 

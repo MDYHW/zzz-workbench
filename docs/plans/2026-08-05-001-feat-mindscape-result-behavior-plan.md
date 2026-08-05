@@ -1,7 +1,7 @@
 ---
 title: "feat: Add retained Mindscape setup and Result behavior"
 type: feat
-status: active
+status: completed
 date: 2026-08-05
 ---
 
@@ -570,9 +570,8 @@ decision that blocks implementation.
 
 - The five permanent authorities require no change; this plan implements their
   current meanings.
-- This plan remains `active` until implementation, `npm run check`, browser
-  verification, and final review are complete. This planning task does not
-  perform those steps or mark it completed.
+- Implementation, tests, production build, browser verification, and final
+  review are complete; this plan is `completed`.
 - Do not create an ADR, source record, research archive, changelog, migration,
   monitoring, CI, or rollout artifact.
 
