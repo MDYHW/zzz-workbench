@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { PARTY_AGENTS } from '../workbench/content'
 import type {
   ActionModifier,
@@ -39,6 +39,26 @@ function formatNumber(value: number, decimals: number): string {
 
 function formatValue(value: number, unit: string, decimals: number): string {
   return `${formatNumber(value, decimals)}${unit}`
+}
+
+function hasCurrentConsumer(metric: ResultMetric, actions: ActionModifier[]): boolean {
+  const hasValue = allSurfaces.some(
+    (surface) => Math.abs(metric.values[surface]) > 0.000_001,
+  )
+  const hasBreakdown = allSurfaces.some(
+    (surface) => metric.breakdown[surface].length > 0,
+  )
+
+  return hasValue || hasBreakdown || metric.gauge !== undefined || actions.length > 0
+}
+
+function currentMetricRows(result: AgentResult) {
+  return result.metrics
+    .map((metric) => ({
+      metric,
+      actions: result.actionModifiers.filter((row) => row.metricId === metric.id),
+    }))
+    .filter(({ metric, actions }) => hasCurrentConsumer(metric, actions))
 }
 
 function formatContributionValue(
@@ -222,7 +242,10 @@ function Gauge({
   const thresholdDescription = gauge.threshold === undefined
     ? ''
     : `, threshold ${formatNumber(gauge.threshold, 1)}`
-  const description = `${gauge.basisLabel}: current ${formatNumber(gauge.current, 1)}, cap ${formatNumber(gauge.cap, 0)}${thresholdDescription}; ${gauge.outputLabel}: +${formatNumber(gauge.outputValue, 1)}${gauge.outputUnit}`
+  const outputCapDescription = gauge.outputCap === undefined
+    ? ''
+    : `, cap ${formatNumber(gauge.outputCap, 0)}${gauge.outputUnit}`
+  const description = `${gauge.basisLabel}: current ${formatNumber(gauge.current, 1)}, cap ${formatNumber(gauge.cap, 0)}${thresholdDescription}; ${gauge.outputLabel}: +${formatNumber(gauge.outputValue, 1)}${gauge.outputUnit}${outputCapDescription}`
   const tone = sourceTone(gauge.source, agentId)
 
   return (
@@ -250,7 +273,10 @@ function Gauge({
       </div>
       <div className="gauge__output">
         <span>{gauge.outputLabel}</span>
-        <strong>+{formatNumber(gauge.outputValue, 1)}{gauge.outputUnit}</strong>
+        <strong>
+          +{formatNumber(gauge.outputValue, 1)}{gauge.outputUnit}
+          {gauge.outputCap === undefined ? '' : ` / ${formatNumber(gauge.outputCap, 0)}${gauge.outputUnit}`}
+        </strong>
       </div>
     </div>
   )
@@ -467,6 +493,18 @@ export function ResultPanel({
   onSourceToneChange,
 }: ResultPanelProps) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
+  const metricRows = useMemo(
+    () => agentResult ? currentMetricRows(agentResult) : [],
+    [agentResult],
+  )
+
+  useEffect(() => {
+    const visibleIds = new Set(metricRows.map(({ metric }) => metric.id))
+    setExpanded((current) => {
+      const next = new Set([...current].filter((id) => visibleIds.has(id)))
+      return next.size === current.size ? current : next
+    })
+  }, [metricRows])
 
   if (!agentResult) {
     return (
@@ -501,9 +539,8 @@ export function ResultPanel({
               <tr><th scope="col">Quantity</th><th scope="col">Initial</th><th scope="col">Combat</th><th scope="col">Fully enabled</th></tr>
             </thead>
             <tbody>
-              {agentResult.metrics.map((metric) => {
+              {metricRows.map(({ metric, actions }) => {
                 const isExpanded = expanded.has(metric.id)
-                const actions = agentResult.actionModifiers.filter((row) => row.metricId === metric.id)
                 const hasDetail = Boolean(
                   metric.gauge
                     || actions.length

@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { calculateParty, type AgentResult, type Contribution, type PartyResult } from './calculate'
-import { createPreparedState, workbenchReducer, type WorkbenchState } from './state'
+import {
+  createPreparedState,
+  workbenchReducer,
+  type Mindscape,
+  type WorkbenchState,
+} from './state'
 import type {
   AgentId,
   DiscId,
@@ -79,6 +84,23 @@ function setSubstat(
   value: number,
 ): WorkbenchState {
   return workbenchReducer(state, { type: 'setSubstat', agentId, key, value })
+}
+
+function withMindscape(
+  state: WorkbenchState,
+  agentId: AgentId,
+  mindscape: Mindscape,
+): WorkbenchState {
+  return {
+    ...state,
+    setups: {
+      ...state.setups,
+      [agentId]: {
+        ...state.setups[agentId],
+        mindscape,
+      },
+    },
+  }
 }
 
 describe('calculateParty', () => {
@@ -390,6 +412,229 @@ describe('calculateParty', () => {
         'Effective substat hits \u00B7 HP%',
         'Effective substat hits \u00B7 HP',
       ]))
+  })
+
+  it('applies Yixuan Mindscapes cumulatively to exact current Result consumers', () => {
+    const prepared = createPreparedState()
+    const at = (mindscape: Mindscape) => calculateParty(
+      withMindscape(prepared, 'yixuan', mindscape),
+    )!
+    const m0 = agent(at(0), 'yixuan')
+    const m1 = agent(at(1), 'yixuan')
+    const m2Result = at(2)
+    const m3 = agent(at(3), 'yixuan')
+    const m4 = agent(at(4), 'yixuan')
+    const m5 = agent(at(5), 'yixuan')
+    const m6 = agent(at(6), 'yixuan')
+
+    expect(metric(m1, 'critRate').values.initial)
+      .toBe(metric(m0, 'critRate').values.initial)
+    expect(metric(m1, 'critRate').values.combat
+      - metric(m0, 'critRate').values.combat).toBeCloseTo(10)
+    expect(metric(m1, 'critRate').values.fully
+      - metric(m0, 'critRate').values.fully).toBeCloseTo(10)
+    expect(sourceLabels(metric(m1, 'critRate').breakdown.combat))
+      .toContain('Mindscape \u00B7 M1')
+
+    const m2Operation = agent(m2Result, 'dialyn').operations[0]
+    expect(m2Operation).toMatchObject({
+      id: 'stunDuration',
+      value: 3,
+      source: {
+        label: 'Mindscape',
+        detail: 'M2',
+        ownerAgentId: 'yixuan',
+        locus: 'mindscape',
+      },
+    })
+    expect(m3.actionModifiers.find(({ id }) => id === 'mindscapeCloudShaper'))
+      .toBeUndefined()
+    expect(action(m4, 'mindscapeCloudShaper').values.fully).toBeCloseTo(299)
+    expect(action(m4, 'mindscapeCloudShaper').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Mindscape',
+        detail: 'M4 \u00B7 30% x 2 stacks',
+        amount: 60,
+      }))
+    expect(action(m5, 'mindscapeCloudShaper').values)
+      .toEqual(action(m4, 'mindscapeCloudShaper').values)
+    expect(action(m4, 'coreActions').values)
+      .toEqual(action(m3, 'coreActions').values)
+    expect(action(m4, 'exSpecialStunned').values)
+      .toEqual(action(m3, 'exSpecialStunned').values)
+    expect(metric(m6, 'sheerDmgBonus').values.fully).toBe(30)
+    expect(metric(m6, 'sheerDmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Mindscape',
+        detail: 'M6 \u00B7 during Meditation',
+        amount: 20,
+      }))
+  })
+
+  it('applies Dialyn M2 only to the current Yixuan recipient', () => {
+    const prepared = createPreparedState()
+    const m1 = calculateParty(withMindscape(prepared, 'dialyn', 1))!
+    const m2 = calculateParty(withMindscape(prepared, 'dialyn', 2))!
+    const yixuanM1 = agent(m1, 'yixuan')
+    const yixuanM2 = agent(m2, 'yixuan')
+
+    expect(metric(yixuanM2, 'dmgBonus').values.fully
+      - metric(yixuanM1, 'dmgBonus').values.fully).toBeCloseTo(15)
+    expect(metric(yixuanM2, 'stunDmgMultiplier').values.fully).toBe(50)
+    expect(metric(yixuanM2, 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Mindscape',
+        detail: 'M2 \u00B7 against Malicious Complaint',
+        amount: 15,
+        ownerAgentId: 'dialyn',
+      }))
+    expect(metric(yixuanM2, 'stunDmgMultiplier').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Mindscape',
+        detail: 'M2',
+        amount: 20,
+        ownerAgentId: 'dialyn',
+      }))
+    expect(agent(m2, 'dialyn').metrics).toEqual(agent(m1, 'dialyn').metrics)
+
+    for (const mindscape of [3, 4, 5, 6] as Mindscape[]) {
+      const current = agent(calculateParty(
+        withMindscape(prepared, 'dialyn', mindscape),
+      )!, 'yixuan')
+      expect(metric(current, 'dmgBonus').values.fully)
+        .toBe(metric(yixuanM2, 'dmgBonus').values.fully)
+    }
+  })
+
+  it('uses Lucia level 12, 14, and 16 Darkbreaker tiers cumulatively', () => {
+    const prepared = createPreparedState()
+    const at = (mindscape: Mindscape) => calculateParty(
+      withMindscape(prepared, 'lucia', mindscape),
+    )!
+    const m0 = at(0)
+    const m1 = at(1)
+    const m2 = at(2)
+    const m3 = at(3)
+    const m4 = at(4)
+    const m5 = at(5)
+    const m6 = at(6)
+
+    const yixuanM0 = agent(m0, 'yixuan')
+    expect(metric(yixuanM0, 'sheerForce').values.fully).toBeCloseTo(3366.1847)
+    expect(metric(agent(m1, 'yixuan'), 'sheerForce').values)
+      .toEqual(metric(yixuanM0, 'sheerForce').values)
+    expect(metric(agent(m2, 'yixuan'), 'sheerDmgBonus').values.fully).toBe(25)
+
+    const yixuanM3 = agent(m3, 'yixuan')
+    const yixuanM5 = agent(m5, 'yixuan')
+    expect(metric(yixuanM3, 'sheerForce').values.initial)
+      .toBe(metric(yixuanM0, 'sheerForce').values.initial)
+    expect(metric(yixuanM3, 'sheerForce').values.combat)
+      .toBe(metric(yixuanM0, 'sheerForce').values.combat)
+    expect(metric(yixuanM3, 'sheerForce').values.fully).toBeCloseTo(3409.5789)
+    expect(metric(yixuanM5, 'sheerForce').values.fully).toBeCloseTo(3452.9731)
+    expect(metric(agent(m4, 'yixuan'), 'sheerForce').values)
+      .toEqual(metric(yixuanM3, 'sheerForce').values)
+    expect(metric(agent(m6, 'yixuan'), 'sheerForce').values)
+      .toEqual(metric(yixuanM5, 'sheerForce').values)
+
+    const gauge0 = metric(agent(m0, 'lucia'), 'maxHp').gauge!
+    const gauge3 = metric(agent(m3, 'lucia'), 'maxHp').gauge!
+    const gauge5 = metric(agent(m5, 'lucia'), 'maxHp').gauge!
+    expect(gauge0).toMatchObject({
+      current: 21697.1,
+      cap: 24000,
+      outputCap: 900,
+      source: { label: 'EX Special Attack', locus: 'ex-special' },
+    })
+    expect(gauge0.outputValue).toBeCloseTo(814.7927)
+    expect(gauge3).toMatchObject({
+      cap: 24000,
+      outputCap: 948,
+      source: {
+        label: 'EX Special Attack',
+        detail: 'M3 tier',
+        locus: 'mindscape',
+      },
+    })
+    expect(gauge3.outputValue).toBeCloseTo(858.1869)
+    expect(gauge5).toMatchObject({
+      cap: 24000,
+      outputCap: 996,
+      source: {
+        label: 'EX Special Attack',
+        detail: 'M5 tier',
+        locus: 'mindscape',
+      },
+    })
+    expect(gauge5.outputValue).toBeCloseTo(901.5811)
+    expect(metric(yixuanM5, 'sheerDmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Mindscape',
+        detail: 'M2 \u00B7 Darkbreaker + Wellspring',
+        amount: 15,
+        ownerAgentId: 'lucia',
+      }))
+  })
+
+  it('clamps Lucia Darkbreaker output to completed skill-tier caps', () => {
+    const prepared = setSubstat(createPreparedState(), 'lucia', 'hpPct', 12)
+
+    for (const [mindscape, outputCap] of [
+      [0, 900],
+      [3, 948],
+      [5, 996],
+    ] as const) {
+      const result = calculateParty(withMindscape(prepared, 'lucia', mindscape))!
+      const gauge = metric(agent(result, 'lucia'), 'maxHp').gauge!
+      expect(gauge.current).toBeGreaterThanOrEqual(24000)
+      expect(gauge.outputValue).toBe(outputCap)
+      expect(gauge.outputCap).toBe(outputCap)
+    }
+  })
+
+  it('applies Dialyn and Lucia M1 RES Ignore cumulatively to Yixuan', () => {
+    const prepared = createPreparedState()
+    const dialynM1 = agent(calculateParty(withMindscape(prepared, 'dialyn', 1))!, 'yixuan')
+    const luciaM1 = agent(calculateParty(withMindscape(prepared, 'lucia', 1))!, 'yixuan')
+    const bothM1 = agent(calculateParty(
+      withMindscape(withMindscape(prepared, 'dialyn', 1), 'lucia', 1),
+    )!, 'yixuan')
+
+    expect(metric(agent(calculateParty(prepared)!, 'yixuan'), 'resIgnore').values)
+      .toEqual({ initial: 0, combat: 0, fully: 0 })
+    expect(metric(dialynM1, 'resIgnore').values.fully).toBe(15)
+    expect(metric(luciaM1, 'resIgnore').values.fully).toBe(18)
+    expect(metric(bothM1, 'resIgnore').values.fully).toBe(33)
+    expect(metric(bothM1, 'resIgnore').breakdown.fully).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        detail: 'M1 \u00b7 Overwhelmingly Positive', amount: 15, ownerAgentId: 'dialyn',
+      }),
+      expect.objectContaining({
+        detail: "M1 \u00b7 Dreamer's Nursery Rhyme", amount: 18, ownerAgentId: 'lucia',
+      }),
+    ]))
+    expect(metric(agent(calculateParty(withMindscape(
+      withMindscape(prepared, 'dialyn', 1), 'dialyn', 0,
+    ))!, 'yixuan'), 'resIgnore').values.fully).toBe(0)
+  })
+
+  it('adds Yixuan M2 Ether RES Ignore only to EX Special Attack and Ultimate', () => {
+    const prepared = withMindscape(withMindscape(createPreparedState(), 'dialyn', 1), 'lucia', 1)
+    const m1 = agent(calculateParty(withMindscape(prepared, 'yixuan', 1))!, 'yixuan')
+    const m2 = agent(calculateParty(withMindscape(prepared, 'yixuan', 2))!, 'yixuan')
+
+    expect(m1.actionModifiers.find(({ id }) => id === 'mindscapeEtherResIgnore')).toBeUndefined()
+    expect(action(m2, 'mindscapeEtherResIgnore')).toMatchObject({
+      actions: ['EX Special Attack', 'Ultimate'],
+      metricId: 'resIgnore',
+      values: { initial: 0, combat: 0, fully: 48 },
+    })
+    expect(action(m2, 'mindscapeEtherResIgnore').breakdown.fully).toContainEqual(
+      expect.objectContaining({
+        detail: 'M2 \u00b7 Ether RES Ignore', amount: 15, ownerAgentId: 'yixuan',
+      }),
+    )
   })
 
   it('returns no Result when any required setup selection is incomplete', () => {

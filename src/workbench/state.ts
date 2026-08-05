@@ -3,7 +3,7 @@ import {
   ENGINE_IDS_BY_AGENT_AND_POOL,
   MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
   PARTY_AGENTS,
-  PREPARED_SETUP_BY_AGENT_AND_POOL,
+  preparedSetupFor,
   SUBSTAT_CHOICES_BY_AGENT,
   W_ENGINES,
   type AgentId,
@@ -65,7 +65,7 @@ export function createPreparedAgentSetup(
   pool: PoolId = 'full',
   mindscape: Mindscape = 0,
 ): AgentSetupState {
-  const prepared = PREPARED_SETUP_BY_AGENT_AND_POOL[agentId][pool]
+  const prepared = preparedSetupFor(agentId, pool, mindscape)
   const engine = W_ENGINES[prepared.engineId]
   return {
     mindscape,

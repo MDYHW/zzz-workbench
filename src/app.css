@@ -1830,10 +1830,11 @@ button.main-stat-block:focus-visible {
 .source-tone--core { --source-color: #704d1a; }
 .source-tone--additional { --source-color: #0f0fc7; }
 .source-tone--ex-special { --source-color: #0d4eaf; }
+.source-tone--mindscape { --source-color: #6a238c; }
 .source-tone--agent-yixuan { --source-color: #124578; }
 .source-tone--agent-dialyn { --source-color: #800a21; }
 .source-tone--agent-lucia { --source-color: #ab1cba; }
-/* Calculation clamps stay neutral and are not one of the 15 semantic source colors. */
+/* Calculation clamps stay neutral and are not a semantic source color. */
 .source-tone--calculation { --source-color: #596169; }
 
 .source-target {
@@ -2140,8 +2141,16 @@ button.main-stat-block:focus-visible {
   white-space: normal;
 }
 
-.action-lines > span {
+.action-matrix .action-lines > span {
   display: block;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.action-outcome--variant .action-lines > span {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .action-outcome-group th > .action-lines {

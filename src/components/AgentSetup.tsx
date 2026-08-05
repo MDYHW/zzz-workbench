@@ -63,21 +63,27 @@ function SetupHeading({ agentId }: { agentId: AgentId }) {
 }
 
 function PoolSelection({
+  activeSourceTone,
   agentId,
   dispatch,
   mindscape,
+  onSourceToneChange,
   pool,
 }: {
   agentId: AgentId
   dispatch: Dispatch<WorkbenchAction>
   mindscape: Mindscape
   pool: PoolId
-}) {
+} & SourceInteractionProps) {
   return (
     <section className="setup-group pool-fieldset" aria-labelledby={agentId + '-loadout-heading'}>
       <h3 id={agentId + '-loadout-heading'}><span>01</span> Loadout control</h3>
       <div className="loadout-control-grid">
-        <div className="mindscape-control">
+        <div
+          className={targetClass('mindscape-control', 'mindscape', activeSourceTone)}
+          data-source-tone="mindscape"
+          {...targetEvents('mindscape', onSourceToneChange)}
+        >
           <small>MINDSCAPE</small>
           <div className="mindscape-rail" role="group" aria-label="Mindscape">
             {([0, 1, 2, 3, 4, 5, 6] as Mindscape[]).map((level) => (
@@ -758,9 +764,11 @@ export function AgentSetup({
       <SetupHeading agentId={agentId} />
       <div className="setup-chassis">
         <PoolSelection
+          activeSourceTone={activeSourceTone}
           agentId={agentId}
           dispatch={dispatch}
           mindscape={setup.mindscape}
+          onSourceToneChange={onSourceToneChange}
           pool={setup.pool}
         />
         <EngineSelection

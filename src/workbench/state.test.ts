@@ -179,6 +179,41 @@ describe('workbench state lifecycle', () => {
     })
     expect(state.setups.yixuan.mindscape).toBe(3)
     expect(state.setups.yixuan.pool).toBe('full')
+    expect(state.setups.yixuan.twoPieceId).toBe('branchAndBlade')
+  })
+
+  it('authors only Yixuan full-pool M1+ with Branch & Blade Song', () => {
+    let state = createPreparedState()
+    const m0 = state.setups.yixuan
+
+    state = workbenchReducer(state, {
+      type: 'setMindscape',
+      agentId: 'yixuan',
+      mindscape: 1,
+    })
+    expect(m0.twoPieceId).toBe('woodpecker')
+    expect(state.setups.yixuan.twoPieceId).toBe('branchAndBlade')
+
+    state = workbenchReducer(state, {
+      type: 'setMindscape',
+      agentId: 'yixuan',
+      mindscape: 6,
+    })
+    expect(state.setups.yixuan.twoPieceId).toBe('branchAndBlade')
+
+    state = workbenchReducer(state, {
+      type: 'setMindscape',
+      agentId: 'yixuan',
+      mindscape: 0,
+    })
+    expect(state.setups.yixuan.twoPieceId).toBe('woodpecker')
+
+    const unchanged = workbenchReducer(state, {
+      type: 'setMindscape',
+      agentId: 'yixuan',
+      mindscape: 0,
+    })
+    expect(unchanged).toBe(state)
   })
 
   it('re-prepares only the Agent whose pool changes', () => {

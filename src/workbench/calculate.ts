@@ -35,6 +35,7 @@ export type SourceLocus =
   | 'core'
   | 'additional'
   | 'ex-special'
+  | 'mindscape'
   | 'calculation'
 
 export interface ResultSource {
@@ -62,6 +63,7 @@ export interface GaugeResult {
   cap: number
   outputLabel: string
   outputValue: number
+  outputCap?: number
   outputUnit: string
 }
 
@@ -198,6 +200,15 @@ const STATIC_SOURCES = {
     exSpecial: source(SOURCE_LABELS.luciaSheer, 'lucia', 'ex-special'),
   },
 } as const
+
+function mindscapeSource(
+  agentId: AgentId,
+  minimumMindscape: number,
+  condition?: string,
+): ResultSource {
+  const detail = [`M${minimumMindscape}`, condition].filter(Boolean).join(' \u00B7 ')
+  return source(SOURCE_LABELS.mindscape, agentId, 'mindscape', detail)
+}
 
 function completeSetup(state: WorkbenchState, agentId: AgentId): CompleteSetup {
   return state.setups[agentId] as CompleteSetup
@@ -386,12 +397,39 @@ function calculateLuciaInitialHp(
   }
 }
 
-function calculateLuciaSquadSheer(initialHp: number): number {
+function luciaDarkbreakerTier(setup: CompleteSetup) {
   const { darkbreakerBase, darkbreakerPer200Hp, darkbreakerCap } = VERTICAL_VALUES.lucia
-  return Math.min(
-    darkbreakerBase + (initialHp / 200) * darkbreakerPer200Hp,
-    darkbreakerCap,
-  )
+  if (setup.mindscape >= 5) {
+    return {
+      base: darkbreakerBase,
+      per200Hp: darkbreakerPer200Hp.m5,
+      cap: darkbreakerCap.m5,
+      source: source(SOURCE_LABELS.luciaSheer, 'lucia', 'mindscape', 'M5 tier'),
+    }
+  }
+  if (setup.mindscape >= 3) {
+    return {
+      base: darkbreakerBase,
+      per200Hp: darkbreakerPer200Hp.m3,
+      cap: darkbreakerCap.m3,
+      source: source(SOURCE_LABELS.luciaSheer, 'lucia', 'mindscape', 'M3 tier'),
+    }
+  }
+  return {
+    base: darkbreakerBase,
+    per200Hp: darkbreakerPer200Hp.base,
+    cap: darkbreakerCap.base,
+    source: STATIC_SOURCES.lucia.exSpecial,
+  }
+}
+
+function calculateLuciaSquadSheer(initialHp: number, setup: CompleteSetup) {
+  const tier = luciaDarkbreakerTier(setup)
+  return {
+    value: Math.min(tier.base + (initialHp / 200) * tier.per200Hp, tier.cap),
+    cap: tier.cap,
+    source: tier.source,
+  }
 }
 
 function calculateDialynInitialCritRate(setup: CompleteSetup): number {
@@ -406,11 +444,16 @@ function calculateDialynInitialCritRate(setup: CompleteSetup): number {
 function partyDmgParts(
   state: WorkbenchState,
 ): { total: number; breakdown: Contribution[] } {
+  const dialynSetup = completeSetup(state, 'dialyn')
   const luciaSetup = completeSetup(state, 'lucia')
   const luciaEngine = luciaEngineEffects(luciaSetup)
   const party = VERTICAL_VALUES.party
   const breakdown = withoutZero([
     contribution(STATIC_SOURCES.dialyn.additional, party.dialynDmg),
+    contribution(
+      mindscapeSource('dialyn', 2, 'against Malicious Complaint'),
+      dialynSetup.mindscape >= 2 ? VERTICAL_VALUES.dialyn.mindscapeDmg : 0,
+    ),
     contribution(STATIC_SOURCES.lucia.core, party.luciaCoreDmg),
     contribution(
       discSource('lucia', luciaSetup.fourPieceId, '4-piece'),
@@ -445,6 +488,7 @@ function buildYixuanActionModifiers(
   setup: CompleteSetup,
   commonDmgBonus: Record<SurfaceKey, number>,
   commonSheerDmgBonus: Record<SurfaceKey, number>,
+  commonResIgnore: Record<SurfaceKey, number>,
 ): ActionModifier[] {
   const yixuan = VERTICAL_VALUES.yixuan
   const engineEffects = yixuanEngineEffects(setup)
@@ -489,6 +533,30 @@ function buildYixuanActionModifiers(
     },
   ]
 
+  if (setup.mindscape >= 4) {
+    const bonus = yixuan.mindscapeActionDmgPerStack * 2
+    const stunnedEx = actions.find(({ id }) => id === 'exSpecialStunned')!
+    actions.push({
+      id: 'mindscapeCloudShaper',
+      actions: [
+        'EX Special Attack: Cloud-Shaper',
+        'EX Special Attack: Ashen Ink Becomes Shadows',
+      ],
+      metricId: 'dmgBonus',
+      baseActionId: 'exSpecialStunned',
+      values: surfaces(
+        stunnedEx.values.initial,
+        stunnedEx.values.combat,
+        stunnedEx.values.fully + bonus,
+      ),
+      breakdown: surfaces(
+        [],
+        [],
+        [contribution(mindscapeSource('yixuan', 4, '30% x 2 stacks'), bonus)],
+      ),
+    })
+  }
+
   if (engineEffects.actionSheerDmg > 0) {
     actions.push({
       id: 'engineSheerActions',
@@ -507,16 +575,35 @@ function buildYixuanActionModifiers(
     })
   }
 
+  if (setup.mindscape >= 2) {
+    actions.push({
+      id: 'mindscapeEtherResIgnore',
+      actions: ['EX Special Attack', 'Ultimate'],
+      metricId: 'resIgnore',
+      values: surfaces(
+        commonResIgnore.initial,
+        commonResIgnore.combat,
+        commonResIgnore.fully + yixuan.mindscapeEtherResIgnore,
+      ),
+      breakdown: surfaces(
+        [],
+        [],
+        [contribution(mindscapeSource('yixuan', 2, 'Ether RES Ignore'), yixuan.mindscapeEtherResIgnore)],
+      ),
+    })
+  }
+
   return actions
 }
 
 function calculateYixuan(
   state: WorkbenchState,
-  luciaSquadSheer: number,
+  luciaSquadSheer: ReturnType<typeof calculateLuciaSquadSheer>,
   dialynInitialCritRate: number,
 ): AgentResult {
   const values = VERTICAL_VALUES
   const setup = completeSetup(state, 'yixuan')
+  const dialynSetup = completeSetup(state, 'dialyn')
   const luciaSetup = completeSetup(state, 'lucia')
   const yixuan = values.yixuan
   const engine = W_ENGINES[setup.engineId]
@@ -553,7 +640,8 @@ function calculateYixuan(
   const initialSheer = convertRuptureStats(initialAtk, initialHp)
   const combatSheer = convertRuptureStats(initialAtk, combatHp)
   const fullyRuptureSheer = convertRuptureStats(fullyAtk, fullyHp)
-  const fullySheer = fullyRuptureSheer + luciaSquadSheer + engineEffects.fullySheerForce
+  const fullySheer = fullyRuptureSheer + luciaSquadSheer.value
+    + engineEffects.fullySheerForce
 
   const mainCritRate = mainAmount(setup, 'slot4', 'critRate')
   const mainCritDmg = mainAmount(setup, 'slot4', 'critDmg')
@@ -566,7 +654,11 @@ function calculateYixuan(
     + twoPieceCritRate
     + critRateSubstat
   const initialCritRate = Math.min(uncappedInitialCritRate, 100)
-  const combatCritRate = Math.min(initialCritRate + engineEffects.combatCrit, 100)
+  const mindscapeCritRate = setup.mindscape >= 1 ? yixuan.mindscapeCritRate : 0
+  const combatCritRate = Math.min(
+    initialCritRate + engineEffects.combatCrit + mindscapeCritRate,
+    100,
+  )
   const fullyCritRate = Math.min(
     combatCritRate
       + engineEffects.fullyCrit
@@ -588,8 +680,28 @@ function calculateYixuan(
   const combatDmgBonus = initialDmgBonus + engineEffects.combatDmg
   const fullyDmgBonus = combatDmgBonus + partyDmg.total + engineEffects.fullyDmg
   const commonDmgBonus = surfaces(initialDmgBonus, combatDmgBonus, fullyDmgBonus)
-  const commonSheerDmgBonus = surfaces(0, 0, yunkuiSheerDmg)
+  const yixuanMindscapeSheerDmg = setup.mindscape >= 6
+    ? yixuan.mindscapeMeditationSheerDmg
+    : 0
+  const luciaMindscapeSheerDmg = luciaSetup.mindscape >= 2
+    ? values.lucia.mindscapeSheerDmg
+    : 0
+  const commonSheerDmgBonus = surfaces(
+    0,
+    0,
+    yunkuiSheerDmg + yixuanMindscapeSheerDmg + luciaMindscapeSheerDmg,
+  )
+  const dialynMindscapeStun = dialynSetup.mindscape >= 2
+    ? values.dialyn.mindscapeStunMultiplier
+    : 0
 
+  const dialynMindscapeResIgnore = dialynSetup.mindscape >= 1
+    ? values.dialyn.mindscapeResIgnore
+    : 0
+  const luciaMindscapeResIgnore = luciaSetup.mindscape >= 1
+    ? values.lucia.mindscapeResIgnore
+    : 0
+  const commonResIgnore = surfaces(0, 0, dialynMindscapeResIgnore + luciaMindscapeResIgnore)
   const hpInitialBreakdown = withoutZero([
     percentageContribution(selectedEngineSource, yixuan.hp * engineHpPct / 100, engineHpPct),
     percentageContribution(selectedFourPieceSource, yixuan.hp * discHpPct / 100, discHpPct),
@@ -687,7 +799,7 @@ function calculateYixuan(
               STATIC_SOURCES.yixuan.ruptureConversion,
               fullyRuptureSheer,
             ),
-            contribution(STATIC_SOURCES.lucia.exSpecial, luciaSquadSheer),
+            contribution(luciaSquadSheer.source, luciaSquadSheer.value),
             contribution(selectedEngineSource, engineEffects.fullySheerForce),
           ]),
         ),
@@ -703,7 +815,10 @@ function calculateYixuan(
           cappedAdditions(
             initialCritRate,
             100,
-            [contribution(selectedEngineSource, engineEffects.combatCrit)],
+            [
+              contribution(selectedEngineSource, engineEffects.combatCrit),
+              contribution(mindscapeSource('yixuan', 1), mindscapeCritRate),
+            ],
             STATIC_SOURCES.yixuan.critCap,
           ),
           cappedAdditions(
@@ -768,6 +883,14 @@ function calculateYixuan(
           [],
           withoutZero([
             contribution(selectedFourPieceSource, yunkuiSheerDmg),
+            contribution(
+              mindscapeSource('yixuan', 6, 'during Meditation'),
+              yixuanMindscapeSheerDmg,
+            ),
+            contribution(
+              mindscapeSource('lucia', 2, 'Darkbreaker + Wellspring'),
+              luciaMindscapeSheerDmg,
+            ),
           ]),
         ),
       },
@@ -776,11 +899,39 @@ function calculateYixuan(
         label: 'Stun DMG Multiplier',
         unit: '%',
         decimals: 1,
-        values: surfaces(0, 0, values.party.dialynStunMultiplier),
+        values: surfaces(
+          0,
+          0,
+          values.party.dialynStunMultiplier + dialynMindscapeStun,
+        ),
         breakdown: surfaces(
           [],
           [],
-          [contribution(STATIC_SOURCES.dialyn.core, values.party.dialynStunMultiplier)],
+          withoutZero([
+            contribution(STATIC_SOURCES.dialyn.core, values.party.dialynStunMultiplier),
+            contribution(mindscapeSource('dialyn', 2), dialynMindscapeStun),
+          ]),
+        ),
+      },
+      {
+        id: 'resIgnore',
+        label: 'RES Ignore',
+        unit: '%',
+        decimals: 1,
+        values: commonResIgnore,
+        breakdown: surfaces(
+          [],
+          [],
+          withoutZero([
+            contribution(
+              mindscapeSource('dialyn', 1, 'Overwhelmingly Positive'),
+              dialynMindscapeResIgnore,
+            ),
+            contribution(
+              mindscapeSource('lucia', 1, "Dreamer's Nursery Rhyme"),
+              luciaMindscapeResIgnore,
+            ),
+          ]),
         ),
       },
     ],
@@ -788,6 +939,7 @@ function calculateYixuan(
       setup,
       commonDmgBonus,
       commonSheerDmgBonus,
+      commonResIgnore,
     ),
     operations: [],
   }
@@ -796,6 +948,7 @@ function calculateYixuan(
 function calculateDialyn(state: WorkbenchState): AgentResult {
   const values = VERTICAL_VALUES
   const setup = completeSetup(state, 'dialyn')
+  const yixuanSetup = completeSetup(state, 'yixuan')
   const luciaSetup = completeSetup(state, 'lucia')
   const dialyn = values.dialyn
   const selectedEngineSource = engineSource('dialyn', setup)
@@ -958,9 +1111,13 @@ function calculateDialyn(state: WorkbenchState): AgentResult {
       {
         id: 'stunDuration',
         label: 'Enemy Stun duration',
-        source: STATIC_SOURCES.dialyn.core,
+        source: yixuanSetup.mindscape >= 2
+          ? mindscapeSource('yixuan', 2)
+          : STATIC_SOURCES.dialyn.core,
         surface: 'fully',
-        value: values.party.dialynStunExtension,
+        value: yixuanSetup.mindscape >= 2
+          ? values.yixuan.mindscapeStunExtension
+          : values.party.dialynStunExtension,
         unit: 's',
       },
     ],
@@ -971,7 +1128,7 @@ function calculateLucia(
   state: WorkbenchState,
   initialHp: number,
   hpInitialBreakdown: Contribution[],
-  squadSheer: number,
+  squadSheer: ReturnType<typeof calculateLuciaSquadSheer>,
 ): AgentResult {
   const values = VERTICAL_VALUES
   const setup = completeSetup(state, 'lucia')
@@ -1016,12 +1173,13 @@ function calculateLucia(
           ]),
         ),
         gauge: {
-          source: STATIC_SOURCES.lucia.exSpecial,
+          source: squadSheer.source,
           basisLabel: 'Initial Max HP',
           current: initialHp,
-          cap: 24000,
+          cap: values.lucia.darkbreakerHpCap,
           outputLabel: 'Squad Sheer Force',
-          outputValue: squadSheer,
+          outputValue: squadSheer.value,
+          outputCap: squadSheer.cap,
           outputUnit: '',
         },
       },
@@ -1066,8 +1224,9 @@ function calculateLucia(
 export function calculateParty(state: WorkbenchState): PartyResult | null {
   if (!isCompleteWorkbench(state)) return null
 
-  const luciaHp = calculateLuciaInitialHp(completeSetup(state, 'lucia'))
-  const luciaSquadSheer = calculateLuciaSquadSheer(luciaHp.value)
+  const luciaSetup = completeSetup(state, 'lucia')
+  const luciaHp = calculateLuciaInitialHp(luciaSetup)
+  const luciaSquadSheer = calculateLuciaSquadSheer(luciaHp.value, luciaSetup)
   const dialynInitialCritRate = calculateDialynInitialCritRate(
     completeSetup(state, 'dialyn'),
   )

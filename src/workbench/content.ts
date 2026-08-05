@@ -440,6 +440,18 @@ export const PREPARED_SETUP_BY_AGENT_AND_POOL: Record<
   },
 }
 
+export function preparedSetupFor(
+  agentId: AgentId,
+  pool: PoolId,
+  mindscape: number,
+): SetupSelection {
+  const prepared = PREPARED_SETUP_BY_AGENT_AND_POOL[agentId][pool]
+  if (agentId === 'yixuan' && pool === 'full' && mindscape >= 1) {
+    return { ...prepared, twoPieceId: 'branchAndBlade' }
+  }
+  return prepared
+}
+
 export const PARTY_AGENTS: AgentSummary[] = [
   {
     id: 'yixuan',
@@ -487,6 +499,11 @@ export const VERTICAL_VALUES = {
     coreActionDmgBonus: 60,
     additionalCritDmg: 40,
     additionalExDmgBonus: 30,
+    mindscapeCritRate: 10,
+    mindscapeEtherResIgnore: 15,
+    mindscapeStunExtension: 3,
+    mindscapeActionDmgPerStack: 30,
+    mindscapeMeditationSheerDmg: 20,
   },
   dialyn: {
     critRate: 19.4,
@@ -496,14 +513,20 @@ export const VERTICAL_VALUES = {
     critThreshold: 50,
     impactPerCrit: 2,
     impactBonusCap: 100,
+    mindscapeDmg: 15,
+    mindscapeStunMultiplier: 20,
+    mindscapeResIgnore: 15,
   },
   lucia: {
     hp: 8477,
     critDmg: 50,
     baseEnergyRegen: 1.3,
     darkbreakerBase: 12,
-    darkbreakerPer200Hp: 7.4,
-    darkbreakerCap: 900,
+    darkbreakerPer200Hp: { base: 7.4, m3: 7.8, m5: 8.2 },
+    darkbreakerCap: { base: 900, m3: 948, m5: 996 },
+    darkbreakerHpCap: 24000,
+    mindscapeSheerDmg: 15,
+    mindscapeResIgnore: 18,
   },
   party: {
     dialynDmg: 40,
@@ -528,4 +551,5 @@ export const SOURCE_LABELS = {
   luciaCore: 'Core Passive',
   luciaAbility: 'Additional Ability',
   luciaSheer: 'EX Special Attack',
+  mindscape: 'Mindscape',
 } as const

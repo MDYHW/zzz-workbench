@@ -15,6 +15,39 @@ describe('integrated party workbench', () => {
     expect(screen.queryByLabelText(/party effects/i)).not.toBeInTheDocument()
   })
 
+  it('renders a Result quantity only while it has a current consumer', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const result = screen.getByRole('region', { name: 'Yixuan Result' })
+    expect(within(result).queryByText('RES Ignore')).not.toBeInTheDocument()
+
+    const yixuanMindscape = screen.getByRole('group', { name: 'Mindscape' })
+    await user.click(within(yixuanMindscape).getByRole('button', { name: 'M2' }))
+    await user.click(within(result).getByRole('button', { name: 'RES Ignore' }))
+
+    expect(within(result).getByRole('row', {
+      name: /EX Special Attack.*Ultimate.*15[.]0%/,
+    })).toBeInTheDocument()
+
+    await user.click(within(yixuanMindscape).getByRole('button', { name: 'M1' }))
+    expect(within(result).queryByText('RES Ignore')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    const dialynMindscape = screen.getByRole('group', { name: 'Mindscape' })
+    await user.click(within(dialynMindscape).getByRole('button', { name: 'M1' }))
+    await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
+
+    const currentResult = screen.getByRole('region', { name: 'Yixuan Result' })
+    const resIgnore = within(currentResult).getByRole('button', {
+      name: 'RES Ignore',
+    })
+    expect(within(currentResult).getByRole('row', {
+      name: /RES Ignore.*0[.]0%.*0[.]0%.*15[.]0%/,
+    })).toBeInTheDocument()
+    expect(resIgnore).toHaveAttribute('aria-expanded', 'false')
+  })
+
   it('keeps the accepted portrait calibration and actual identity symbols', async () => {
     const user = userEvent.setup()
     render(<App />)
@@ -90,6 +123,9 @@ describe('integrated party workbench', () => {
 
     await user.click(screen.getByRole('button', { name: 'Increase HP hits' }))
     expect(screen.getByLabelText('HP hit count')).toHaveTextContent('1')
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Increase CRIT Rate hits' }))
+    await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
 
     const mindscape = screen.getByRole('group', { name: 'Mindscape' })
     await user.click(within(mindscape).getByRole('button', { name: 'M3' }))
@@ -100,7 +136,13 @@ describe('integrated party workbench', () => {
       .toHaveAttribute('aria-pressed', 'false')
     expect(screen.getByLabelText('HP hit count')).toHaveTextContent('0')
     expect(screen.getByText('Qingming Birdcage')).toBeInTheDocument()
+    expect(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Branch & Blade Song',
+    })).toBeInTheDocument()
     expect(document.querySelector('.workbench-footer')).not.toHaveTextContent('M0')
+
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveTextContent('1')
   })
 
   it('presents Dialyn Energy Regen Discs as one accessible either-set choice', async () => {
@@ -389,6 +431,118 @@ describe('integrated party workbench', () => {
     await user.unhover(branchSource)
     await user.hover(setupTarget)
     expect(branchSource).toHaveClass('is-source-active')
+  })
+
+  it('links local Mindscape sources and discloses the M4 action outcome', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const mindscape = screen.getByRole('group', { name: 'Mindscape' })
+    await user.click(within(mindscape).getByRole('button', { name: 'M4' }))
+    await user.click(screen.getByRole('button', { name: 'CRIT Rate' }))
+
+    const critSources = screen.getByRole('table', {
+      name: 'CRIT Rate source contributions',
+    })
+    const m1Source = within(critSources).getByRole('row', {
+      name: /Mindscape.*M1.*[+]10[.]0%/,
+    })
+    const mindscapeTarget = document.querySelector<HTMLElement>(
+      '.mindscape-control[data-source-tone="mindscape"]',
+    )!
+
+    expect(m1Source).toHaveAttribute('data-source-tone', 'mindscape')
+    await user.hover(m1Source)
+    expect(mindscapeTarget).toHaveClass('is-source-active')
+    await user.unhover(m1Source)
+    await user.hover(mindscapeTarget)
+    expect(m1Source).toHaveClass('is-source-active')
+    await user.unhover(mindscapeTarget)
+
+    await user.click(screen.getByRole('button', { name: 'DMG Bonus' }))
+    const outcomes = screen.getByRole('table', {
+      name: 'DMG Bonus action outcome values',
+    })
+    const m4Action = within(outcomes).getByRole('button', {
+      name: /Show sources for EX Special Attack: Cloud-Shaper, EX Special Attack: Ashen Ink Becomes Shadows/,
+    })
+    await user.click(m4Action)
+    expect(within(outcomes).getByRole('row', {
+      name: /Mindscape.*M4.*30% x 2 stacks.*[+]60[.]0%/,
+    })).toHaveAttribute('data-source-tone', 'mindscape')
+  })
+
+  it('shows Dialyn M2 as a cross-Agent Result source only on Yixuan', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    const mindscape = screen.getByRole('group', { name: 'Mindscape' })
+    await user.click(within(mindscape).getByRole('button', { name: 'M2' }))
+    await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
+
+    await user.click(screen.getByRole('button', { name: 'DMG Bonus' }))
+    const dmgSources = screen.getByRole('table', {
+      name: 'DMG Bonus source contributions',
+    })
+    expect(within(dmgSources).getByRole('row', {
+      name: /Dialyn.*Mindscape.*M2.*against Malicious Complaint.*[+]15[.]0%/,
+    })).toHaveAttribute('data-source-tone', 'agent-dialyn')
+
+    await user.click(screen.getByRole('button', { name: 'Stun DMG Multiplier' }))
+    const stunSources = screen.getByRole('table', {
+      name: 'Stun DMG Multiplier source contributions',
+    })
+    expect(within(stunSources).getByRole('row', {
+      name: /Dialyn.*Mindscape.*M2.*[+]20[.]0%/,
+    })).toHaveAttribute('data-source-tone', 'agent-dialyn')
+
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    expect(screen.queryByRole('table', {
+      name: 'DMG Bonus source contributions',
+    })).not.toBeInTheDocument()
+  })
+
+  it('shows Lucia M3 and M5 skill tiers in the gauge and Yixuan Result', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
+    const mindscape = screen.getByRole('group', { name: 'Mindscape' })
+    await user.click(within(mindscape).getByRole('button', { name: 'M3' }))
+    await user.click(screen.getByRole('button', { name: 'Max HP' }))
+
+    const m3Gauge = screen.getByRole('group', {
+      name: /Initial Max HP: current 21,697[.]1, cap 24,000; Squad Sheer Force: [+]858[.]2, cap 948/,
+    })
+    expect(m3Gauge).toHaveAttribute('data-source-tone', 'mindscape')
+    expect(within(m3Gauge).getByText('+858.2 / 948')).toBeInTheDocument()
+    expect(within(m3Gauge).getByText('M3 tier')).toBeInTheDocument()
+
+    await user.click(within(mindscape).getByRole('button', { name: 'M5' }))
+    const m5Gauge = screen.getByRole('group', {
+      name: /Initial Max HP: current 21,697[.]1, cap 24,000; Squad Sheer Force: [+]901[.]6, cap 996/,
+    })
+    expect(m5Gauge).toHaveAttribute('data-source-tone', 'mindscape')
+    expect(within(m5Gauge).getByText('+901.6 / 996')).toBeInTheDocument()
+    expect(within(m5Gauge).getByText('M5 tier')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Sheer Force' }))
+    const sheerSources = screen.getByRole('table', {
+      name: 'Sheer Force source contributions',
+    })
+    expect(within(sheerSources).getByRole('row', {
+      name: /Lucia.*EX Special Attack.*M5 tier.*[+]901[.]6/,
+    })).toHaveAttribute('data-source-tone', 'agent-lucia')
+
+    await user.click(screen.getByRole('button', { name: 'Sheer DMG Bonus' }))
+    const sheerDmgSources = screen.getByRole('table', {
+      name: 'Sheer DMG Bonus source contributions',
+    })
+    expect(within(sheerDmgSources).getByRole('row', {
+      name: /Lucia.*Mindscape.*M2.*Darkbreaker.*Wellspring.*[+]15[.]0%/,
+    })).toHaveAttribute('data-source-tone', 'agent-lucia')
   })
 
   it('links every prepared Drive Disc source to its visible setup surface', async () => {
