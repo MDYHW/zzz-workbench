@@ -1,0 +1,2 @@
+# Keep tracked text LF-normalized across Windows worktrees and patch tools.
+* text=auto eol=lf
