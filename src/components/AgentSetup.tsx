@@ -47,21 +47,6 @@ function targetEvents(
   }
 }
 
-function SetupHeading({ agentId }: { agentId: AgentId }) {
-  const agent = PARTY_AGENTS.find((item) => item.id === agentId)!
-  return (
-    <header className="panel-heading">
-      <div>
-        <span className="eyebrow">SETUP // 0{agent.order}</span>
-        <h2 id={`${agentId}-setup-heading`}>{agent.name} setup</h2>
-      </div>
-      <span className="edit-state">
-        {agentId === 'yixuan' ? 'FOCUS / YIXUAN' : 'EDITABLE'}
-      </span>
-    </header>
-  )
-}
-
 function PoolSelection({
   activeSourceTone,
   agentId,
@@ -84,7 +69,7 @@ function PoolSelection({
           data-source-tone="mindscape"
           {...targetEvents('mindscape', onSourceToneChange)}
         >
-          <small>MINDSCAPE</small>
+          <h4 className="loadout-control__group-heading">Mindscape</h4>
           <div className="mindscape-rail" role="group" aria-label="Mindscape">
             {([0, 1, 2, 3, 4, 5, 6] as Mindscape[]).map((level) => (
               <button
@@ -100,7 +85,7 @@ function PoolSelection({
           </div>
         </div>
         <div className="pool-control">
-          <small>W-ENGINE POOL</small>
+          <h4 className="loadout-control__group-heading">W-Engine Pool</h4>
           <div className="segmented-control">
             <button
               type="button"
@@ -175,7 +160,7 @@ function EngineCard({
   const engine = W_ENGINES[engineId]
   return (
     <>
-      <span className="equipment-art equipment-art--engine">
+      <span className={`equipment-art equipment-art--engine engine-art--${engineId}`}>
         <img src={engine.image} alt="" />
       </span>
       <span className="equipment-copy">
@@ -286,7 +271,6 @@ function EngineSelection({
         role="group"
         aria-label={W_ENGINES[engineId].name + ' refinement'}
       >
-        <span>REFINEMENT</span>
         <div>
           {([1, 2, 3, 4, 5] as Refinement[]).map((rank) => (
             <button
@@ -348,14 +332,19 @@ function DiscCard({
   discId,
   isDialynEnergyRegenChoice = false,
   piece,
+  showHead = false,
 }: {
   discId: DiscId
   isDialynEnergyRegenChoice?: boolean
   piece: 'fourPiece' | 'twoPiece'
+  showHead?: boolean
 }) {
   const disc = DRIVE_DISCS[discId]
   return (
     <>
+      {showHead && (
+        <small className="disc-card__head">{piece === 'fourPiece' ? '4PC' : '2PC'}</small>
+      )}
       <span className="equipment-art equipment-art--disc">
         {isDialynEnergyRegenChoice ? (
           <span className="disc-composite-art" aria-hidden="true">
@@ -435,6 +424,7 @@ function DiscSelection({
           discId={selectedId}
           isDialynEnergyRegenChoice={isDialynEnergyRegenChoice}
           piece={piece}
+          showHead
         />
       </SelectionSurface>
       {isOpen && (
@@ -635,6 +625,7 @@ function SubstatStepper({
   label,
   onDecrease,
   onIncrease,
+  onSetCount,
   onSourceToneChange,
   perHit,
   tone,
@@ -644,10 +635,35 @@ function SubstatStepper({
   label: string
   onDecrease: () => void
   onIncrease: () => void
+  onSetCount: (value: number) => void
   perHit: number
   tone: string
   unit: string
 } & SourceInteractionProps) {
+  const [draft, setDraft] = useState(String(count))
+
+  useEffect(() => {
+    setDraft(String(count))
+  }, [count])
+
+  const commitDraft = () => {
+    if (draft === '') {
+      setDraft(String(count))
+      return
+    }
+
+    const requested = Number(draft)
+    if (!Number.isInteger(requested)) {
+      setDraft(String(count))
+      return
+    }
+
+    const next = Math.min(36, Math.max(0, requested))
+
+    if (next !== count) onSetCount(next)
+    setDraft(String(next))
+  }
+
   return (
     <div
       className={targetClass('substat-control', tone, activeSourceTone)}
@@ -665,7 +681,28 @@ function SubstatStepper({
           disabled={count === 0}
           onClick={onDecrease}
         >{'\u2212'}</button>
-        <output aria-live="polite" aria-label={`${label} hit count`}>{count}</output>
+        <input
+          aria-label={`${label} hit count`}
+          inputMode="numeric"
+          max={36}
+          min={0}
+          onBlur={commitDraft}
+          onChange={(event) => {
+            const next = event.target.value
+            if (/^\d*$/.test(next)) {
+              setDraft(next)
+            }
+          }}
+          onFocus={(event) => event.currentTarget.select()}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault()
+              event.currentTarget.blur()
+            }
+          }}
+          type="text"
+          value={draft}
+        />
         <button
           type="button"
           aria-label={`Increase ${label} hits`}
@@ -699,6 +736,7 @@ function StatBank({
   return (
     <section className="setup-group stat-bank" aria-labelledby={agentId + '-stat-bank-heading'}>
       <h3 id={agentId + '-stat-bank-heading'}><span>04</span> Stat bank</h3>
+      <h4 className="stat-bank__group-heading">Main stats</h4>
       <div className="main-stat-grid" aria-label={agent.name + ' prepared main stats'}>
         {(['slot4', 'slot5', 'slot6'] as MainSlot[]).map((slot) => (
           <MainStatSelection
@@ -714,7 +752,7 @@ function StatBank({
           />
         ))}
       </div>
-      <p className="field-note">Effective substat hits / prepared at zero / range 0-36</p>
+      <h4 className="stat-bank__group-heading">Sub stats</h4>
       <div className="substat-grid" aria-label={agent.name + ' prepared effective substats'}>
         {SUBSTAT_CHOICES_BY_AGENT[agentId].map((choice, index) => (
           <SubstatStepper
@@ -733,6 +771,12 @@ function StatBank({
               agentId,
               key: choice.id,
               delta: 1,
+            })}
+            onSetCount={(value) => dispatch({
+              type: 'setSubstat',
+              agentId,
+              key: choice.id,
+              value,
             })}
             onSourceToneChange={onSourceToneChange}
             perHit={choice.perHit}
@@ -753,6 +797,7 @@ export function AgentSetup({
   state,
 }: AgentSetupProps) {
   const [openSelector, setOpenSelector] = useState<string | null>(null)
+  const agent = PARTY_AGENTS.find(({ id }) => id === agentId)!
   const setup = state.setups[agentId]
 
   useEffect(() => {
@@ -760,8 +805,7 @@ export function AgentSetup({
   }, [agentId, setup.mindscape, setup.pool])
 
   return (
-    <section className="setup-panel" aria-labelledby={agentId + '-setup-heading'}>
-      <SetupHeading agentId={agentId} />
+    <section className="setup-panel" aria-label={agent.name + ' setup'}>
       <div className="setup-chassis">
         <PoolSelection
           activeSourceTone={activeSourceTone}

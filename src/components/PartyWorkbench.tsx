@@ -30,8 +30,13 @@ interface PortraitPoint {
   y: number
 }
 
+interface PortraitAnchor {
+  x: number
+  y: number | string
+}
+
 interface PortraitFrame {
-  anchor: PortraitPoint
+  anchor: PortraitAnchor
   width: number
 }
 
@@ -66,13 +71,13 @@ type PortraitStyle = CSSProperties & {
 // Each source owns only its face landmark. The desktop expanded slot owns one
 // shared destination and scale so Agent changes preserve the same visual frame.
 const DESKTOP_EXPANDED_PORTRAIT_FRAME: PortraitFrame = {
-  anchor: { x: 38, y: 25.2 },
+  anchor: { x: 38, y: '204.22px' },
   width: 295,
 }
 
 const DESKTOP_COMPACT_PORTRAIT_FRAME: PortraitFrame = {
-  anchor: { x: 50, y: 24 },
-  width: 400,
+  anchor: { x: 50, y: '192px' },
+  width: 727,
 }
 
 // Compact desktop, stacked, and mobile destinations are calibrated separately.
@@ -84,7 +89,10 @@ const PORTRAIT_PRESENTATION: Record<AgentId, PortraitPresentation> = {
       mobile: { anchor: { x: 31.7, y: 46.1 }, width: 85 },
     },
     compact: {
-      default: DESKTOP_COMPACT_PORTRAIT_FRAME,
+      default: {
+        ...DESKTOP_COMPACT_PORTRAIT_FRAME,
+        anchor: { x: 50, y: '198.06px' },
+      },
       stacked: { anchor: { x: 55.7, y: 42.9 }, width: 102 },
       mobile: { anchor: { x: 58.7, y: 40.6 }, width: 149 },
     },
@@ -96,7 +104,10 @@ const PORTRAIT_PRESENTATION: Record<AgentId, PortraitPresentation> = {
       mobile: { anchor: { x: 25, y: 49.8 }, width: 108 },
     },
     compact: {
-      default: DESKTOP_COMPACT_PORTRAIT_FRAME,
+      default: {
+        ...DESKTOP_COMPACT_PORTRAIT_FRAME,
+        anchor: { x: 50, y: '191.56px' },
+      },
       stacked: { anchor: { x: 50, y: 45.9 }, width: 104 },
       mobile: { anchor: { x: 50, y: 45.1 }, width: 144 },
     },
@@ -108,7 +119,10 @@ const PORTRAIT_PRESENTATION: Record<AgentId, PortraitPresentation> = {
       mobile: { anchor: { x: 23.7, y: 52 }, width: 130 },
     },
     compact: {
-      default: DESKTOP_COMPACT_PORTRAIT_FRAME,
+      default: {
+        ...DESKTOP_COMPACT_PORTRAIT_FRAME,
+        anchor: { x: 50, y: '187.89px' },
+      },
       stacked: { anchor: { x: 49, y: 48 }, width: 100 },
       mobile: { anchor: { x: 48, y: 48 }, width: 200 },
     },
@@ -121,17 +135,18 @@ function PortraitArt({ agentId, variant }: { agentId: AgentId; variant: Portrait
   const defaultFrame = target.default
   const stackedFrame = target.stacked ?? defaultFrame
   const mobileFrame = target.mobile ?? stackedFrame
+  const targetY = (value: PortraitAnchor['y']) => typeof value === 'number' ? `${value}%` : value
   const style: PortraitStyle = {
     '--portrait-landmark-x': `-${presentation.source.face.x}%`,
     '--portrait-landmark-y': `-${presentation.source.face.y}%`,
     '--portrait-target-x': `${defaultFrame.anchor.x}%`,
-    '--portrait-target-y': `${defaultFrame.anchor.y}%`,
+    '--portrait-target-y': targetY(defaultFrame.anchor.y),
     '--portrait-width': `${defaultFrame.width}%`,
     '--portrait-stacked-target-x': `${stackedFrame.anchor.x}%`,
-    '--portrait-stacked-target-y': `${stackedFrame.anchor.y}%`,
+    '--portrait-stacked-target-y': targetY(stackedFrame.anchor.y),
     '--portrait-stacked-width': `${stackedFrame.width}%`,
     '--portrait-mobile-target-x': `${mobileFrame.anchor.x}%`,
-    '--portrait-mobile-target-y': `${mobileFrame.anchor.y}%`,
+    '--portrait-mobile-target-y': targetY(mobileFrame.anchor.y),
     '--portrait-mobile-width': `${mobileFrame.width}%`,
   }
 
@@ -151,9 +166,9 @@ type SourceToneChannel = 'pointer' | 'focus'
 
 interface PartyWorkbenchProps {
   activeSourceTone: string | null
-  viewedAgentId: AgentId
+  viewedAgentId: AgentId | null
   onSourceToneChange: (channel: SourceToneChannel, tone: string | null) => void
-  onViewAgent: (agentId: AgentId) => void
+  onViewAgent: (agentId: AgentId | null) => void
   children: ReactNode
 }
 
@@ -197,7 +212,7 @@ function ExpandedIdentity({ activeSourceTone, agentId, onSourceToneChange, onSel
       role="tab"
       aria-selected="true"
       aria-controls="party-panel"
-      aria-label={`View ${agent.name} setup and Result`}
+      aria-label={`Close ${agent.name} setup and Result`}
       onClick={onSelect}
       onKeyDown={onKeyDown}
       onMouseEnter={() => onSourceToneChange('pointer', identityTone)}
@@ -220,7 +235,7 @@ function ExpandedIdentity({ activeSourceTone, agentId, onSourceToneChange, onSel
   )
 }
 
-function CompactSlot({ activeSourceTone, agentId, onSourceToneChange, onSelect, onKeyDown }: SlotControlProps) {
+function CompactSlot({ activeSourceTone, agentId, isOverview = false, onSourceToneChange, onSelect, onKeyDown }: SlotControlProps & { isOverview?: boolean }) {
   const agent = PARTY_AGENTS.find((item) => item.id === agentId)!
   const tone = `agent-${agentId}`
   const className = `party-slot party-slot--compact source-target source-tone--${tone}${activeSourceTone === tone ? ' is-source-active' : ''}`
@@ -230,10 +245,10 @@ function CompactSlot({ activeSourceTone, agentId, onSourceToneChange, onSelect, 
       type="button"
       id={`party-tab-${agent.id}`}
       className={className}
-      role="tab"
-      tabIndex={-1}
-      aria-selected="false"
-      aria-controls="party-panel"
+      role={isOverview ? undefined : 'tab'}
+      tabIndex={isOverview ? 0 : -1}
+      aria-selected={isOverview ? undefined : 'false'}
+      aria-controls={isOverview ? undefined : 'party-panel'}
       aria-label={`View ${agent.name} setup and Result`}
       onClick={onSelect}
       onKeyDown={onKeyDown}
@@ -264,12 +279,13 @@ export function PartyWorkbench({
   onViewAgent,
   children,
 }: PartyWorkbenchProps) {
-  const previousViewedAgentId = useRef(viewedAgentId)
+  const previousViewedAgentId = useRef<AgentId | null>(viewedAgentId)
 
   useEffect(() => {
     if (previousViewedAgentId.current === viewedAgentId) return
+    const focusAgentId = viewedAgentId ?? previousViewedAgentId.current
     previousViewedAgentId.current = viewedAgentId
-    document.getElementById(`party-tab-${viewedAgentId}`)?.focus()
+    if (focusAgentId) document.getElementById(`party-tab-${focusAgentId}`)?.focus()
   }, [viewedAgentId])
 
   const navigateSlots = (
@@ -299,7 +315,11 @@ export function PartyWorkbench({
         <h2 id="party-heading">Applied party</h2>
         <span>Focus {'\u00B7'} Yixuan</span>
       </div>
-      <ol className={`party-rail party-rail--view-${viewedAgentId}`} role="tablist" aria-label="Applied party slots">
+      <ol
+        className={`party-rail ${viewedAgentId ? `party-rail--view-${viewedAgentId}` : 'party-rail--overview'}`}
+        role={viewedAgentId ? 'tablist' : undefined}
+        aria-label="Applied party slots"
+      >
         {PARTY_AGENTS.map((agent) => {
           const selected = agent.id === viewedAgentId
 
@@ -314,16 +334,31 @@ export function PartyWorkbench({
                   activeSourceTone={activeSourceTone}
                   agentId={agent.id}
                   onSourceToneChange={onSourceToneChange}
-                  onSelect={() => onViewAgent(agent.id)}
-                  onKeyDown={(event) => navigateSlots(agent.id, event)}
+                  onSelect={() => onViewAgent(null)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      onViewAgent(null)
+                      return
+                    }
+                    navigateSlots(agent.id, event)
+                  }}
                 />
               ) : (
                 <CompactSlot
                   activeSourceTone={activeSourceTone}
                   agentId={agent.id}
+                  isOverview={viewedAgentId === null}
                   onSourceToneChange={onSourceToneChange}
                   onSelect={() => onViewAgent(agent.id)}
-                  onKeyDown={(event) => navigateSlots(agent.id, event)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      onViewAgent(agent.id)
+                      return
+                    }
+                    navigateSlots(agent.id, event)
+                  }}
                 />
               )}
               {selected && (

@@ -525,8 +525,9 @@ export function ResultPanel({
 
   return (
     <section className="result-panel" aria-labelledby="result-heading">
-      <header className="panel-heading result-heading">
-        <div><span className="eyebrow">RESULT // LIVE</span><h2 id="result-heading">{agentName} Result</h2></div>
+      <header className="result-heading">
+        <span className="eyebrow">RESULT</span>
+        <h2 className="sr-only" id="result-heading">{agentName} Result</h2>
       </header>
       <article className={`agent-result agent-result--${agentResult.agentId}`}>
         <div className="result-table-wrap">

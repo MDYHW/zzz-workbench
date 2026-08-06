@@ -130,8 +130,8 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
     image: qingmingImage,
     passiveLines: (refinement) => [
-      `Combat \u00B7 CRIT Rate +${percent(20, refinement)}`,
-      `Combat \u00B7 Ether DMG +${percent(16, refinement)}`,
+      `CRIT Rate +${percent(20, refinement)}`,
+      `Ether DMG +${percent(16, refinement)}`,
       `EX Special & Ultimate \u00B7 Ether Sheer DMG +${percent(20, refinement)}`,
     ],
   },
@@ -144,8 +144,8 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: { id: 'hpPct', label: 'HP', value: 25, unit: '%' },
     image: cauldronImage,
     passiveLines: (refinement) => [
-      `Fully enabled \u00B7 DMG +${percent(12, refinement)}`,
-      `Fully enabled \u00B7 CRIT Rate +${percent(6.5, refinement)}`,
+      `DMG +${percent(12, refinement)}`,
+      `CRIT Rate +${percent(6.5, refinement)}`,
     ],
   },
   radiowave: {
@@ -157,7 +157,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: { id: 'hpPct', label: 'HP', value: 25, unit: '%' },
     image: radiowaveImage,
     passiveLines: (refinement) => [
-      `Fully enabled \u00B7 Sheer Force +${scaledEngineValue(240, refinement)}`,
+      `Sheer Force +${scaledEngineValue(240, refinement)}`,
     ],
   },
   puzzleSphere: {
@@ -169,7 +169,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
     image: puzzleSphereImage,
     passiveLines: (refinement) => [
-      `Fully enabled \u00B7 CRIT DMG +${percent(16, refinement)}`,
+      `CRIT DMG +${percent(16, refinement)}`,
       `EX Special Attack \u00B7 DMG +${percent(20, refinement)}`,
     ],
   },
@@ -182,9 +182,9 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
     image: yesterdayCallsImage,
     passiveLines: (refinement) => [
-      `Combat \u00B7 Off-field Energy +${perSecond(1.5, refinement)}`,
-      `Fully enabled \u00B7 Daze +${percent(27, refinement)}`,
-      `Fully enabled \u00B7 Squad CRIT DMG +${percent(30, refinement)}`,
+      `Off-field Energy +${perSecond(1.5, refinement)}`,
+      `Daze +${percent(27, refinement)}`,
+      `Squad CRIT DMG +${percent(30, refinement)}`,
     ],
   },
   chiefSidekick: {
@@ -196,8 +196,8 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
     image: chiefSidekickImage,
     passiveLines: (refinement) => [
-      `Combat \u00B7 Impact +${scaledEngineValue(30, refinement)}`,
-      `Combat \u00B7 Off-field Energy +${perSecond(0.4, refinement)}`,
+      `Impact +${scaledEngineValue(30, refinement)}`,
+      `Off-field Energy +${perSecond(0.4, refinement)}`,
     ],
   },
   hellfireGears: {
@@ -209,8 +209,8 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' },
     image: hellfireImage,
     passiveLines: (refinement) => [
-      `Combat \u00B7 Off-field Energy +${perSecond(0.6, refinement)}`,
-      `Fully enabled \u00B7 Impact +${percent(20, refinement)}`,
+      `Off-field Energy +${perSecond(0.6, refinement)}`,
+      `Impact +${percent(20, refinement)}`,
     ],
   },
   steamOven: {
@@ -222,7 +222,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
     image: steamOvenImage,
     passiveLines: (refinement) => [
-      `Fully enabled \u00B7 Impact +${percent(16, refinement)}`,
+      `Impact +${percent(16, refinement)}`,
     ],
   },
   dreamlitHearth: {
@@ -234,9 +234,9 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
     image: dreamlitImage,
     passiveLines: (refinement) => [
-      `Combat \u00B7 Energy +${perSecond(0.4, refinement)}`,
-      `Fully enabled \u00B7 Max HP +${percent(15, refinement)}`,
-      `Fully enabled \u00B7 Squad DMG +${percent(25, refinement)}`,
+      `Energy +${perSecond(0.4, refinement)}`,
+      `Max HP +${percent(15, refinement)}`,
+      `Squad DMG +${percent(25, refinement)}`,
     ],
   },
   thoughtbop: {
@@ -248,7 +248,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 60, unit: '%' },
     image: thoughtbopImage,
     passiveLines: (refinement) => [
-      `Combat \u00B7 Off-field Energy +${perSecond(0.6, refinement)}`,
+      `Off-field Energy +${perSecond(0.6, refinement)}`,
     ],
   },
   weepingCradle: {
@@ -260,8 +260,8 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: { id: 'penRatio', label: 'PEN Ratio', value: 24, unit: '%' },
     image: weepingCradleImage,
     passiveLines: (refinement) => [
-      `Combat \u00B7 Off-field Energy +${perSecond(0.6, refinement)}`,
-      `Fully enabled \u00B7 Squad DMG +${percent(20.2, refinement)}`,
+      `Off-field Energy +${perSecond(0.6, refinement)}`,
+      `Squad DMG +${percent(20.2, refinement)}`,
     ],
   },
   kaboom: {
@@ -273,7 +273,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
     image: kaboomImage,
     passiveLines: (refinement) => [
-      `Fully enabled \u00B7 Squad ATK +${percent(10, refinement)}`,
+      `Squad ATK +${percent(10, refinement)}`,
     ],
   },
   unfetteredGameBall: {
@@ -285,7 +285,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
     image: unfetteredImage,
     passiveLines: (refinement) => [
-      `Fully enabled \u00B7 Squad CRIT Rate +${10 + refinement * 2}%`,
+      `Squad CRIT Rate +${10 + refinement * 2}%`,
     ],
   },
 }
@@ -360,8 +360,8 @@ export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
   critRate: { id: 'critRate', label: 'CRIT Rate', value: '+24%', numericValue: 24 },
   critDmg: { id: 'critDmg', label: 'CRIT DMG', value: '+48%', numericValue: 48 },
   etherDmg: { id: 'etherDmg', label: 'Ether DMG', value: '+30%', numericValue: 30 },
-  hpPct: { id: 'hpPct', label: 'HP', value: '+30%', numericValue: 30 },
-  atkPct: { id: 'atkPct', label: 'ATK', value: '+30%', numericValue: 30 },
+  hpPct: { id: 'hpPct', label: 'HP%', value: '+30%', numericValue: 30 },
+  atkPct: { id: 'atkPct', label: 'ATK%', value: '+30%', numericValue: 30 },
   physicalDmg: { id: 'physicalDmg', label: 'Physical DMG', value: '+30%', numericValue: 30 },
   penRatio: { id: 'penRatio', label: 'PEN Ratio', value: '+24%', numericValue: 24 },
   energyRegenPct: {
@@ -397,7 +397,7 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   yixuan: [
     { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
     { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'hpPct', label: 'HP', perHit: 3, unit: '%' },
+    { id: 'hpPct', label: 'HP%', perHit: 3, unit: '%' },
   ],
   dialyn: [
     { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },

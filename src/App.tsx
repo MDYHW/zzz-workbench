@@ -15,11 +15,13 @@ const emptySourceTones: Record<SourceToneChannel, string | null> = {
 
 export function App() {
   const [state, dispatch] = useReducer(workbenchReducer, undefined, () => createPreparedState())
-  const [viewedAgentId, setViewedAgentId] = useState<AgentId>('yixuan')
+  const [viewedAgentId, setViewedAgentId] = useState<AgentId | null>('yixuan')
   const [sourceTones, setSourceTones] = useState(emptySourceTones)
   const activeSourceTone = sourceTones.pointer ?? sourceTones.focus
   const result = calculateParty(state)
-  const agentResult = result?.agents.find((agent) => agent.agentId === viewedAgentId) ?? null
+  const agentResult = viewedAgentId
+    ? result?.agents.find((agent) => agent.agentId === viewedAgentId) ?? null
+    : null
   const changeSourceTone = (channel: SourceToneChannel, tone: string | null) =>
     setSourceTones((current) => ({ ...current, [channel]: tone }))
 
@@ -41,18 +43,22 @@ export function App() {
           onSourceToneChange={changeSourceTone}
           onViewAgent={setViewedAgentId}
         >
-          <AgentSetup
-            activeSourceTone={activeSourceTone}
-            agentId={viewedAgentId}
-            state={state}
-            dispatch={dispatch}
-            onSourceToneChange={changeSourceTone}
-          />
-          <ResultPanel
-            activeSourceTone={activeSourceTone}
-            agentResult={agentResult}
-            onSourceToneChange={changeSourceTone}
-          />
+          {viewedAgentId && (
+            <>
+              <AgentSetup
+                activeSourceTone={activeSourceTone}
+                agentId={viewedAgentId}
+                state={state}
+                dispatch={dispatch}
+                onSourceToneChange={changeSourceTone}
+              />
+              <ResultPanel
+                activeSourceTone={activeSourceTone}
+                agentResult={agentResult}
+                onSourceToneChange={changeSourceTone}
+              />
+            </>
+          )}
         </PartyWorkbench>
       </main>
       <footer className="workbench-footer"><span>Lv.60 {'\u00B7'} max Core {'\u00B7'} fully enabled compatible window</span><span>No final damage or rotation simulation</span></footer>

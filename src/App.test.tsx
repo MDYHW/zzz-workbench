@@ -7,7 +7,7 @@ describe('integrated party workbench', () => {
   it('starts with one expanded prepared setup and one visible Result', () => {
     render(<App />)
 
-    expect(screen.getByRole('heading', { name: 'Yixuan setup' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Yixuan setup' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Yixuan Result' })).toBeInTheDocument()
     expect(screen.getAllByRole('heading', { name: /Result$/i })).toHaveLength(1)
     expect(screen.getByRole('tab', { name: 'View Dialyn setup and Result' })).toBeInTheDocument()
@@ -58,7 +58,7 @@ describe('integrated party workbench', () => {
       )
       expect(portrait).not.toBeNull()
       expect(portrait!.style.getPropertyValue('--portrait-target-x')).toBe('38%')
-      expect(portrait!.style.getPropertyValue('--portrait-target-y')).toBe('25.2%')
+      expect(portrait!.style.getPropertyValue('--portrait-target-y')).toBe('204.22px')
       expect(portrait!.style.getPropertyValue('--portrait-width')).toBe(expectedWidth)
     }
 
@@ -111,7 +111,7 @@ describe('integrated party workbench', () => {
     expect(screen.queryByRole('button', { name: /Change 4-piece Drive Disc/ }))
       .not.toBeInTheDocument()
 
-    const slot6 = screen.getByLabelText('Disc 6 HP selected')
+    const slot6 = screen.getByLabelText('Disc 6 HP% selected')
     expect(slot6.tagName).toBe('DIV')
     expect(within(slot6).getByRole('img', { name: 'Fixed selection' }))
       .toHaveClass('main-stat-block__fixed')
@@ -121,8 +121,8 @@ describe('integrated party workbench', () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: 'Increase HP hits' }))
-    expect(screen.getByLabelText('HP hit count')).toHaveTextContent('1')
+    await user.click(screen.getByRole('button', { name: 'Increase HP% hits' }))
+    expect(screen.getByLabelText('HP% hit count')).toHaveValue('1')
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
     await user.click(screen.getByRole('button', { name: 'Increase CRIT Rate hits' }))
     await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
@@ -134,7 +134,7 @@ describe('integrated party workbench', () => {
       .toHaveAttribute('aria-pressed', 'true')
     expect(within(mindscape).getByRole('button', { name: 'M0' }))
       .toHaveAttribute('aria-pressed', 'false')
-    expect(screen.getByLabelText('HP hit count')).toHaveTextContent('0')
+    expect(screen.getByLabelText('HP% hit count')).toHaveValue('0')
     expect(screen.getByText('Qingming Birdcage')).toBeInTheDocument()
     expect(screen.getByRole('button', {
       name: 'Change 2-piece Drive Disc from Branch & Blade Song',
@@ -142,7 +142,26 @@ describe('integrated party workbench', () => {
     expect(document.querySelector('.workbench-footer')).not.toHaveTextContent('M0')
 
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
-    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveTextContent('1')
+    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveValue('1')
+  })
+
+  it('commits direct substat counts on completion and clamps them to the offered range', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const count = screen.getByLabelText('CRIT Rate hit count')
+    await user.click(count)
+    await user.keyboard('12')
+    expect(count).toHaveValue('12')
+
+    await user.keyboard('{Enter}')
+    expect(count).toHaveValue('12')
+
+    await user.clear(count)
+    await user.type(count, '99')
+    await user.tab()
+    expect(count).toHaveValue('36')
+    expect(screen.getByRole('button', { name: 'Increase CRIT Rate hits' })).toBeDisabled()
   })
 
   it('presents Dialyn Energy Regen Discs as one accessible either-set choice', async () => {
@@ -154,7 +173,11 @@ describe('integrated party workbench', () => {
     expect(screen.getByText('Qingming Birdcage')).toBeInTheDocument()
 
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
-    expect(screen.getByText('Squad CRIT DMG +30%')).toBeInTheDocument()
+    const engine = screen.getByRole('button', {
+      name: 'Change W-Engine from Yesterday Calls',
+    })
+    expect(within(engine).getByText('Squad CRIT DMG +30%')).toBeInTheDocument()
+    expect(within(engine).queryByText(/Fully enabled ·/)).not.toBeInTheDocument()
     expect(screen.queryByText(/At 50% CRIT Rate/)).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', {
       name: 'Change 2-piece Drive Disc from Woodpecker Electro',
@@ -179,7 +202,7 @@ describe('integrated party workbench', () => {
     expect(composite).not.toBeNull()
     expect(composite!.querySelectorAll('.disc-composite-art__or')).toHaveLength(1)
     expect(composite!.querySelector('.disc-composite-art__or')).toHaveTextContent('OR')
-    expect(within(selected).getAllByText('2PC')).toHaveLength(1)
+    expect(within(selected.querySelector('.disc-effect-rows')!).getAllByText('2PC')).toHaveLength(1)
     expect(within(selected).getAllByText('Energy Regen +20%')).toHaveLength(1)
     expect(screen.getByRole('row', {
       name: /Energy Regen.*2\.16.*3\.66.*3\.66/,
@@ -229,7 +252,7 @@ describe('integrated party workbench', () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: 'Increase HP hits' }))
+    await user.click(screen.getByRole('button', { name: 'Increase HP% hits' }))
     await user.click(screen.getByRole('button', {
       name: 'Change Disc 4 main stat from CRIT Rate',
     }))
@@ -243,7 +266,7 @@ describe('integrated party workbench', () => {
       name: 'Select Cauldron of Clarity W5',
     }))
 
-    expect(screen.getByLabelText('HP hit count')).toHaveTextContent('1')
+    expect(screen.getByLabelText('HP% hit count')).toHaveValue('1')
     expect(screen.getByRole('button', {
       name: 'Change Disc 4 main stat from CRIT DMG',
     })).toBeInTheDocument()
@@ -265,7 +288,7 @@ describe('integrated party workbench', () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: 'Increase HP hits' }))
+    await user.click(screen.getByRole('button', { name: 'Increase HP% hits' }))
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
     await user.click(screen.getByRole('button', { name: 'Increase CRIT Rate hits' }))
     await user.click(screen.getByRole('button', {
@@ -277,13 +300,13 @@ describe('integrated party workbench', () => {
     await user.click(screen.getByRole('button', { name: /^Non-limited/ }))
 
     expect(screen.getByText('Hellfire Gears')).toBeInTheDocument()
-    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveTextContent('0')
+    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveValue('0')
     expect(screen.getByRole('button', {
       name: 'Change 2-piece Drive Disc from Woodpecker Electro',
     })).toBeInTheDocument()
 
     await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
-    expect(screen.getByLabelText('HP hit count')).toHaveTextContent('1')
+    expect(screen.getByLabelText('HP% hit count')).toHaveValue('1')
     expect(screen.getByText('Qingming Birdcage')).toBeInTheDocument()
   })
 
@@ -313,10 +336,10 @@ describe('integrated party workbench', () => {
       name: 'Change Disc 5 main stat from Ether DMG',
     }))
     await user.click(screen.getByRole('button', {
-      name: 'Select HP for Disc 5',
+      name: 'Select HP% for Disc 5',
     }))
     expect(screen.getByRole('button', {
-      name: 'Change Disc 5 main stat from HP',
+      name: 'Change Disc 5 main stat from HP%',
     })).toHaveFocus()
 
     expect(screen.getByRole('row', {
@@ -347,7 +370,7 @@ describe('integrated party workbench', () => {
       name: 'View Dialyn setup and Result',
     }))
     await user.click(screen.getByRole('button', {
-      name: 'Change Disc 5 main stat from ATK',
+      name: 'Change Disc 5 main stat from ATK%',
     }))
     const candidates = screen.getByLabelText('Disc 5 main-stat candidates')
     expect(within(candidates).getByRole('button', {
@@ -372,7 +395,7 @@ describe('integrated party workbench', () => {
 
     await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
     await user.click(screen.getByRole('button', {
-      name: 'Change Disc 6 main stat from HP',
+      name: 'Change Disc 6 main stat from HP%',
     }))
     const candidates = screen.getByLabelText('Disc 6 main-stat candidates')
     const energyRegenChoice = within(candidates).getByRole('button', {
@@ -461,18 +484,18 @@ describe('integrated party workbench', () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: 'Increase HP hits' }))
+    await user.click(screen.getByRole('button', { name: 'Increase HP% hits' }))
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
     await user.click(screen.getByRole('button', { name: 'Increase CRIT Rate hits' }))
     await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
     await user.click(screen.getByRole('button', { name: 'Increase HP% hits' }))
 
     await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
-    expect(screen.getByLabelText('HP hit count')).toHaveTextContent('1')
+    expect(screen.getByLabelText('HP% hit count')).toHaveValue('1')
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
-    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveTextContent('1')
+    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveValue('1')
     await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
-    expect(screen.getByLabelText('HP% hit count')).toHaveTextContent('1')
+    expect(screen.getByLabelText('HP% hit count')).toHaveValue('1')
   })
 
   it('links changed equipment sources back to the current setup locus', async () => {
@@ -676,7 +699,7 @@ describe('integrated party workbench', () => {
       document.querySelector<HTMLElement>('.substat-control[data-source-tone="substat-1"]')!,
       document.querySelector<HTMLElement>('.substat-control[data-source-tone="substat-2"]')!,
       document.querySelector<HTMLElement>('.substat-control[data-source-tone="substat-3"]')!,
-      screen.getByRole('tab', { name: 'View Yixuan setup and Result' }),
+      screen.getByRole('tab', { name: 'Close Yixuan setup and Result' }),
       screen.getByRole('tab', { name: 'View Dialyn setup and Result' }),
       screen.getByRole('tab', { name: 'View Lucia setup and Result' }),
     ]
@@ -782,23 +805,48 @@ describe('integrated party workbench', () => {
     render(<App />)
 
     const yixuanTab = screen.getByRole('tab', {
-      name: 'View Yixuan setup and Result',
+      name: 'Close Yixuan setup and Result',
     })
     yixuanTab.focus()
     await user.keyboard('{ArrowRight}')
 
     const dialynTab = screen.getByRole('tab', {
-      name: 'View Dialyn setup and Result',
+      name: 'Close Dialyn setup and Result',
     })
     expect(dialynTab).toHaveAttribute('aria-selected', 'true')
     expect(dialynTab).toHaveFocus()
 
     await user.keyboard('{ArrowLeft}')
     const returned = screen.getByRole('tab', {
-      name: 'View Yixuan setup and Result',
+      name: 'Close Yixuan setup and Result',
     })
     expect(returned).toHaveFocus()
     await user.tab()
     expect(screen.getByRole('button', { name: 'M0' })).toHaveFocus()
+  })
+
+  it('returns to equal compact slots and restores focus when the expanded identity closes', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const closeYixuan = screen.getByRole('tab', {
+      name: 'Close Yixuan setup and Result',
+    })
+    await user.click(closeYixuan)
+
+    expect(document.querySelector('[data-agent="yixuan"]')).not.toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Yixuan setup' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Yixuan Result' })).not.toBeInTheDocument()
+
+    const compactSlots = screen.getAllByRole('button', {
+      name: /View (Yixuan|Dialyn|Lucia) setup and Result/,
+    })
+    expect(compactSlots).toHaveLength(3)
+    expect(compactSlots[0]).toHaveFocus()
+
+    await user.keyboard('{Enter}')
+    expect(document.querySelector('[data-agent="yixuan"]')).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Yixuan setup' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Yixuan Result' })).toBeInTheDocument()
   })
 })
