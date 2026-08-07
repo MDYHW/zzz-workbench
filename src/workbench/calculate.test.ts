@@ -226,6 +226,40 @@ describe('calculateParty', () => {
       .not.toContain('Dreamlit Hearth \u00B7 W1')
   })
 
+  it('keeps a capped Combat CRIT source at its earliest surface without duplicating it', () => {
+    const state = setSubstat(createPreparedState(), 'yixuan', 'critRate', 10)
+    const yixuan = agent(calculateParty(state)!, 'yixuan')
+    const critRate = metric(yixuan, 'critRate')
+
+    expect(critRate.values.initial).toBeCloseTo(75.4)
+    expect(critRate.values.combat).toBeCloseTo(95.4)
+    expect(critRate.values.fully).toBe(100)
+    expect(critRate.breakdown.combat).toContainEqual(expect.objectContaining({
+      label: 'Qingming Birdcage',
+      detail: 'W1',
+      amount: 20,
+      ownerAgentId: 'yixuan',
+      locus: 'w-engine',
+    }))
+    const fullyCapAdjustment = critRate.breakdown.fully.find(
+      ({ label }) => label === 'Displayed CRIT Rate cap',
+    )!
+    expect(fullyCapAdjustment).toMatchObject({
+      ownerAgentId: 'yixuan',
+      locus: 'calculation',
+    })
+    expect(fullyCapAdjustment.amount).toBeCloseTo(-7.4)
+    expect(critRate.breakdown.fully).not.toContainEqual(expect.objectContaining({
+      label: 'Qingming Birdcage',
+    }))
+    expect(critRate.breakdown.fully).toContainEqual(expect.objectContaining({
+      label: 'Yunkui Tales',
+      amount: 12,
+    }))
+    expect(critRate.breakdown.fully.reduce((total, item) => total + item.amount, 0))
+      .toBeCloseTo(critRate.values.fully - critRate.values.combat)
+  })
+
   it('recalculates every retained Yixuan W-Engine package without changing downstream candidates', () => {
     const prepared = createPreparedState()
 
@@ -332,6 +366,14 @@ describe('calculateParty', () => {
     expect(metric(hellfire, 'impact').values.initial).toBeCloseTo(129.8)
     expect(metric(hellfire, 'impact').values.combat).toBeCloseTo(132.6)
     expect(metric(hellfire, 'impact').values.fully).toBeCloseTo(154.6)
+    expect(metric(hellfire, 'impact').breakdown.fully).toContainEqual(
+      expect.objectContaining({
+        label: 'Hellfire Gears',
+        detail: 'W1',
+        amount: 22,
+        display: { value: 20, unit: '%', decimals: 0 },
+      }),
+    )
 
     const steam = agent(calculateParty(selectEngine(
       prepared,
@@ -340,6 +382,13 @@ describe('calculateParty', () => {
     ))!, 'dialyn')
     expect(metric(steam, 'energyRegen').values.initial).toBeCloseTo(2.52)
     expect(metric(steam, 'impact').values.fully).toBeCloseTo(140.96)
+    const steamImpactContribution = metric(steam, 'impact').breakdown.fully[0]
+    expect(steamImpactContribution).toMatchObject({
+      label: 'Steam Oven',
+      detail: 'W5',
+      display: { value: 25.6, unit: '%', decimals: 1 },
+    })
+    expect(steamImpactContribution.amount).toBeCloseTo(28.16)
 
     const swing = agent(calculateParty(selectDisc(
       prepared,
@@ -421,6 +470,47 @@ describe('calculateParty', () => {
     )
   })
 
+  it('uses capped Dialyn Initial CRIT for Impact, King, and later party CRIT', () => {
+    let state = setSubstat(createPreparedState(), 'dialyn', 'critRate', 36)
+    state = selectEngine(state, 'lucia', 'unfetteredGameBall')
+    const result = calculateParty(state)!
+    const dialynCritRate = metric(agent(result, 'dialyn'), 'critRate')
+
+    expect(dialynCritRate.values).toEqual({ initial: 100, combat: 100, fully: 100 })
+    expect(dialynCritRate.gauge).toMatchObject({
+      current: 100,
+      outputValue: 100,
+    })
+    const initialCapAdjustment = dialynCritRate.breakdown.initial.find(
+      ({ label }) => label === 'Displayed CRIT Rate cap',
+    )!
+    expect(initialCapAdjustment).toMatchObject({
+      ownerAgentId: 'dialyn',
+      locus: 'calculation',
+    })
+    expect(initialCapAdjustment.amount).toBeCloseTo(-61.8)
+    expect(dialynCritRate.breakdown.fully).toEqual([
+      expect.objectContaining({
+        label: 'Unfettered Game Ball',
+        detail: 'W5',
+        ownerAgentId: 'lucia',
+        amount: 20,
+      }),
+      expect.objectContaining({
+        label: 'Displayed CRIT Rate cap',
+        ownerAgentId: 'dialyn',
+        locus: 'calculation',
+        amount: -20,
+      }),
+    ])
+    expect(metric(agent(result, 'yixuan'), 'critDmg').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'King of the Summit',
+        amount: 30,
+        ownerAgentId: 'dialyn',
+      }))
+  })
+
   it('retains partial and non-limited Lucia packages for distinct visible operations', () => {
     const prepared = createPreparedState()
 
@@ -460,6 +550,14 @@ describe('calculateParty', () => {
       'kaboom',
     ))!
     expect(metric(agent(kaboom, 'yixuan'), 'atk').values.fully).toBeCloseTo(2189.4)
+    expect(metric(agent(kaboom, 'yixuan'), 'atk').breakdown.fully).toContainEqual(
+      expect.objectContaining({
+        label: 'Kaboom the Cannon',
+        detail: 'W5',
+        amount: 258.4,
+        display: { value: 16, unit: '%', decimals: 0 },
+      }),
+    )
     expect(metric(agent(kaboom, 'lucia'), 'energyRegen').values.initial).toBeCloseTo(2.21)
 
     const gameBall = calculateParty(selectEngine(
@@ -469,6 +567,51 @@ describe('calculateParty', () => {
     ))!
     expect(metric(agent(gameBall, 'yixuan'), 'critRate').values.fully).toBe(100)
     expect(metric(agent(gameBall, 'dialyn'), 'critRate').values.fully).toBeCloseTo(95.4)
+    expect(agent(gameBall, 'lucia').metrics.some(({ id }) => id === 'critRate')).toBe(false)
+  })
+
+  it('keeps later Max HP percentages source-stated and outside Darkbreaker basis', () => {
+    const result = calculateParty(createPreparedState())!
+    const yixuanHp = metric(agent(result, 'yixuan'), 'maxHp')
+    const luciaHp = metric(agent(result, 'lucia'), 'maxHp')
+
+    expect(yixuanHp.breakdown.fully).toEqual([
+      expect.objectContaining({
+        label: 'Core Passive',
+        ownerAgentId: 'lucia',
+        locus: 'core',
+        amount: 821.705,
+        display: { value: 5, unit: '%', decimals: 0 },
+      }),
+      expect.objectContaining({
+        label: 'Dreamlit Hearth',
+        detail: 'W1',
+        ownerAgentId: 'lucia',
+        amount: 2465.115,
+        display: { value: 15, unit: '%', decimals: 0 },
+      }),
+    ])
+    expect(luciaHp.breakdown.fully).toEqual([
+      expect.objectContaining({
+        label: 'Core Passive',
+        ownerAgentId: 'lucia',
+        locus: 'core',
+        amount: 1084.855,
+        display: { value: 5, unit: '%', decimals: 0 },
+      }),
+      expect.objectContaining({
+        label: 'Dreamlit Hearth',
+        detail: 'W1',
+        ownerAgentId: 'lucia',
+        amount: 3254.565,
+        display: { value: 15, unit: '%', decimals: 0 },
+      }),
+    ])
+    expect(luciaHp.gauge).toMatchObject({
+      basisLabel: 'Initial Max HP',
+      current: 21697.1,
+      outputValue: 814.7927,
+    })
   })
 
   it('keeps fixed Base ATK and fixed Disc values out of displayed source rows', () => {
@@ -544,6 +687,8 @@ describe('calculateParty', () => {
       .toContain('Mindscape \u00B7 M1')
 
     const m2Operation = agent(m2Result, 'dialyn').operations[0]
+    expect(agent(at(0), 'dialyn').operations).toHaveLength(1)
+    expect(agent(m2Result, 'dialyn').operations).toHaveLength(1)
     expect(m2Operation).toMatchObject({
       id: 'stunDuration',
       value: 3,
@@ -763,6 +908,27 @@ describe('calculateParty', () => {
         },
       },
     }
+    const missingRefinement: WorkbenchState = {
+      ...prepared,
+      setups: {
+        ...prepared.setups,
+        yixuan: { ...prepared.setups.yixuan, refinement: null },
+      },
+    }
+    const missingFourPiece: WorkbenchState = {
+      ...prepared,
+      setups: {
+        ...prepared.setups,
+        dialyn: { ...prepared.setups.dialyn, fourPieceId: null },
+      },
+    }
+    const missingTwoPiece: WorkbenchState = {
+      ...prepared,
+      setups: {
+        ...prepared.setups,
+        lucia: { ...prepared.setups.lucia, twoPieceId: null },
+      },
+    }
     const missingCount: WorkbenchState = {
       ...prepared,
       setups: {
@@ -775,6 +941,9 @@ describe('calculateParty', () => {
     }
 
     expect(calculateParty(missingEngine)).toBeNull()
+    expect(calculateParty(missingRefinement)).toBeNull()
+    expect(calculateParty(missingFourPiece)).toBeNull()
+    expect(calculateParty(missingTwoPiece)).toBeNull()
     expect(calculateParty(missingMain)).toBeNull()
     expect(calculateParty(missingCount)).toBeNull()
   })
