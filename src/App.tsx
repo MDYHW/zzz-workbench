@@ -2,11 +2,10 @@ import { useEffect, useReducer, useState } from 'react'
 import { AgentSetup } from './components/AgentSetup'
 import { PartyWorkbench } from './components/PartyWorkbench'
 import { ResultPanel } from './components/ResultPanel'
+import type { SourceToneChannel } from './components/sourceInteraction'
 import { calculateParty } from './workbench/calculate'
 import type { AgentId } from './workbench/content'
 import { createPreparedState, workbenchReducer } from './workbench/state'
-
-type SourceToneChannel = 'pointer' | 'focus'
 
 const emptySourceTones: Record<SourceToneChannel, string | null> = {
   pointer: null,

@@ -1,9 +1,11 @@
 import {
+  DRIVE_DISC_FACTS,
   DRIVE_DISCS,
   MAIN_STATS,
   SOURCE_LABELS,
   SUBSTAT_CHOICES_BY_AGENT,
   VERTICAL_VALUES,
+  W_ENGINE_FACTS,
   W_ENGINES,
   scaledEngineValue,
   type AgentId,
@@ -116,6 +118,17 @@ type CompleteSetup = Omit<
   twoPieceId: DiscId
 }
 
+interface ResolvedSetupInput {
+  rawValue: number
+  unit: '%' | ''
+  source: ResultSource
+}
+
+interface EnergyRegenPerSecondOperation {
+  rawValue: number
+  source: ResultSource
+}
+
 const surfaces = <T>(initial: T, combat: T, fully: T): Record<SurfaceKey, T> => ({
   initial,
   combat,
@@ -158,6 +171,36 @@ const perSecondEnergyContribution = (
   unit: '/s',
   decimals: Number.isInteger(amount) ? 0 : 2,
 })
+
+function energyRegenProjection(
+  baseEnergyRegen: number,
+  initialPercentages: ResolvedSetupInput[],
+  perSecondOperations: EnergyRegenPerSecondOperation[],
+): Pick<ResultMetric, 'values' | 'breakdown'> {
+  const initial = baseEnergyRegen * (
+    1 + initialPercentages.reduce((total, input) => total + input.rawValue, 0) / 100
+  )
+  const later = initial + perSecondOperations.reduce(
+    (total, operation) => total + operation.rawValue,
+    0,
+  )
+
+  return {
+    values: surfaces(initial, later, later),
+    breakdown: surfaces(
+      withoutZero(initialPercentages.map((input) => percentageContribution(
+        input.source,
+        baseEnergyRegen * input.rawValue / 100,
+        input.rawValue,
+      ))),
+      withoutZero(perSecondOperations.map((operation) => perSecondEnergyContribution(
+        operation.source,
+        operation.rawValue,
+      ))),
+      [],
+    ),
+  }
+}
 
 const withoutZero = (items: Contribution[]): Contribution[] =>
   items.filter((item) => Math.abs(item.amount) > 0.000_001)
@@ -260,45 +303,78 @@ function substatSource(
   )
 }
 
-function substatAmount(
+function effectiveSubstatInput(
   setup: CompleteSetup,
   agentId: AgentId,
   substatId: SubstatId,
-): number {
-  const choice = SUBSTAT_CHOICES_BY_AGENT[agentId].find(({ id }) => id === substatId)
-  if (!choice) return 0
-  return (setup.substats[substatId] ?? 0) * choice.perHit
+): ResolvedSetupInput | undefined {
+  const choices = SUBSTAT_CHOICES_BY_AGENT[agentId]
+  const index = choices.findIndex(({ id }) => id === substatId)
+  if (index === -1) return undefined
+  const choice = choices[index]
+  return {
+    rawValue: (setup.substats[substatId] ?? 0) * choice.perHit,
+    unit: choice.unit,
+    source: substatSource(agentId, substatId),
+  }
 }
 
-function mainAmount(setup: CompleteSetup, slot: MainSlot, statId: string): number {
-  return setup.mains[slot] === statId
-    ? MAIN_STATS[setup.mains[slot]!].numericValue
-    : 0
+function mainStatInput(
+  setup: CompleteSetup,
+  agentId: AgentId,
+  slot: MainSlot,
+  statId: string,
+): ResolvedSetupInput | undefined {
+  const selectedStatId = setup.mains[slot]
+  if (selectedStatId !== statId) return undefined
+  const selected = MAIN_STATS[selectedStatId]
+  return {
+    rawValue: selected.numericValue,
+    unit: '%',
+    source: mainSource(agentId, slot),
+  }
 }
 
-function engineAdvanced(setup: CompleteSetup, statId: string): number {
+function engineAdvancedInput(
+  setup: CompleteSetup,
+  agentId: AgentId,
+  statId: string,
+): ResolvedSetupInput | undefined {
   const advanced = W_ENGINES[setup.engineId].advancedStat
-  return advanced.id === statId ? advanced.value : 0
+  if (advanced.id !== statId) return undefined
+  return {
+    rawValue: advanced.value,
+    unit: advanced.unit,
+    source: engineSource(agentId, setup),
+  }
 }
 
 function yixuanEngineEffects(setup: CompleteSetup) {
   const refinement = setup.refinement
   return {
-    combatCrit: setup.engineId === 'qingming' ? scaledEngineValue(20, refinement) : 0,
-    combatDmg: setup.engineId === 'qingming' ? scaledEngineValue(16, refinement) : 0,
-    fullyCrit: setup.engineId === 'cauldron' ? scaledEngineValue(6.5, refinement) : 0,
-    fullyDmg: setup.engineId === 'cauldron' ? scaledEngineValue(12, refinement) : 0,
+    combatCrit: setup.engineId === 'qingming'
+      ? scaledEngineValue(W_ENGINE_FACTS.qingming.critRate, refinement)
+      : 0,
+    combatDmg: setup.engineId === 'qingming'
+      ? scaledEngineValue(W_ENGINE_FACTS.qingming.etherDmg, refinement)
+      : 0,
+    fullyCrit: setup.engineId === 'cauldron'
+      ? scaledEngineValue(W_ENGINE_FACTS.cauldron.critRate, refinement)
+      : 0,
+    fullyDmg: setup.engineId === 'cauldron'
+      ? scaledEngineValue(W_ENGINE_FACTS.cauldron.dmg, refinement)
+      : 0,
     fullyCritDmg: setup.engineId === 'puzzleSphere'
-      ? scaledEngineValue(16, refinement)
+      ? scaledEngineValue(W_ENGINE_FACTS.puzzleSphere.critDmg, refinement)
       : 0,
     fullySheerForce: setup.engineId === 'radiowave'
-      ? scaledEngineValue(240, refinement)
+      ? scaledEngineValue(W_ENGINE_FACTS.radiowave.sheerForce, refinement)
       : 0,
     actionSheerDmg: setup.engineId === 'qingming'
-      ? scaledEngineValue(20, refinement)
+      ? scaledEngineValue(W_ENGINE_FACTS.qingming.actionSheerDmg, refinement)
       : 0,
     actionExDmg: setup.engineId === 'puzzleSphere'
-      ? scaledEngineValue(20, refinement)
+      ? scaledEngineValue(W_ENGINE_FACTS.puzzleSphere.actionExDmg, refinement)
       : 0,
   }
 }
@@ -307,25 +383,25 @@ function dialynEngineEffects(setup: CompleteSetup) {
   const refinement = setup.refinement
   return {
     energyPerSecond: setup.engineId === 'yesterdayCalls'
-      ? scaledEngineValue(1.5, refinement)
+      ? scaledEngineValue(W_ENGINE_FACTS.yesterdayCalls.energyPerSecond, refinement)
       : setup.engineId === 'chiefSidekick'
-        ? scaledEngineValue(0.4, refinement)
+        ? scaledEngineValue(W_ENGINE_FACTS.chiefSidekick.energyPerSecond, refinement)
         : setup.engineId === 'hellfireGears'
-          ? scaledEngineValue(0.6, refinement)
+          ? scaledEngineValue(W_ENGINE_FACTS.hellfireGears.energyPerSecond, refinement)
           : 0,
     combatFlatImpact: setup.engineId === 'chiefSidekick'
-      ? scaledEngineValue(30, refinement)
+      ? scaledEngineValue(W_ENGINE_FACTS.chiefSidekick.flatImpact, refinement)
       : 0,
     fullyImpactPct: setup.engineId === 'hellfireGears'
-      ? scaledEngineValue(20, refinement)
+      ? scaledEngineValue(W_ENGINE_FACTS.hellfireGears.impact, refinement)
       : setup.engineId === 'steamOven'
-        ? scaledEngineValue(16, refinement)
+        ? scaledEngineValue(W_ENGINE_FACTS.steamOven.impact, refinement)
         : 0,
     fullyDaze: setup.engineId === 'yesterdayCalls'
-      ? scaledEngineValue(27, refinement)
+      ? scaledEngineValue(W_ENGINE_FACTS.yesterdayCalls.daze, refinement)
       : 0,
     partyCritDmg: setup.engineId === 'yesterdayCalls'
-      ? scaledEngineValue(30, refinement)
+      ? scaledEngineValue(W_ENGINE_FACTS.yesterdayCalls.squadCritDmg, refinement)
       : 0,
   }
 }
@@ -334,23 +410,29 @@ function luciaEngineEffects(setup: CompleteSetup) {
   const refinement = setup.refinement
   return {
     energyPerSecond: setup.engineId === 'dreamlitHearth'
-      ? scaledEngineValue(0.4, refinement)
+      ? scaledEngineValue(W_ENGINE_FACTS.dreamlitHearth.energyPerSecond, refinement)
       : setup.engineId === 'thoughtbop' || setup.engineId === 'weepingCradle'
-        ? scaledEngineValue(0.6, refinement)
+        ? scaledEngineValue(
+            setup.engineId === 'thoughtbop'
+              ? W_ENGINE_FACTS.thoughtbop.energyPerSecond
+              : W_ENGINE_FACTS.weepingCradle.energyPerSecond,
+            refinement,
+          )
         : 0,
     fullyHpPct: setup.engineId === 'dreamlitHearth'
-      ? scaledEngineValue(15, refinement)
+      ? scaledEngineValue(W_ENGINE_FACTS.dreamlitHearth.hpPct, refinement)
       : 0,
     partyDmg: setup.engineId === 'dreamlitHearth'
-      ? scaledEngineValue(25, refinement)
+      ? scaledEngineValue(W_ENGINE_FACTS.dreamlitHearth.squadDmg, refinement)
       : setup.engineId === 'weepingCradle'
-        ? scaledEngineValue(20.2, refinement)
+        ? scaledEngineValue(W_ENGINE_FACTS.weepingCradle.squadDmg, refinement)
         : 0,
     partyAtkPct: setup.engineId === 'kaboom'
-      ? scaledEngineValue(10, refinement)
+      ? scaledEngineValue(W_ENGINE_FACTS.kaboom.squadAtkPct, refinement)
       : 0,
     partyCritRate: setup.engineId === 'unfetteredGameBall'
-      ? 10 + refinement * 2
+      ? W_ENGINE_FACTS.unfetteredGameBall.squadCritRateBase
+        + refinement * W_ENGINE_FACTS.unfetteredGameBall.squadCritRatePerRefinement
       : 0,
   }
 }
@@ -363,17 +445,22 @@ function calculateLuciaInitialHp(
 } {
   const values = VERTICAL_VALUES
   const lucia = values.lucia
-  const selectedEngineSource = engineSource('lucia', setup)
   const selectedFourPieceSource = discSource('lucia', setup.fourPieceId, '4-piece')
   const selectedTwoPieceSource = discSource('lucia', setup.twoPieceId, '2-piece')
-  const engineHpPct = engineAdvanced(setup, 'hpPct')
-  const discHpPct = (setup.fourPieceId === 'yunkui' || setup.twoPieceId === 'yunkui') ? 10 : 0
-  const mainHpPct = (['slot4', 'slot5', 'slot6'] as MainSlot[])
-    .reduce((total, slot) => total + mainAmount(setup, slot, 'hpPct'), 0)
-  const hpSubstatPct = substatAmount(setup, 'lucia', 'hpPct')
-  const hpFlat = substatAmount(setup, 'lucia', 'hpFlat')
-  const totalHpPct = engineHpPct + discHpPct + mainHpPct + hpSubstatPct
-  const value = lucia.hp * (1 + totalHpPct / 100) + values.fixedDisc.hp + hpFlat
+  const engineHp = engineAdvancedInput(setup, 'lucia', 'hpPct')
+  const discHpPct = (setup.fourPieceId === 'yunkui' || setup.twoPieceId === 'yunkui')
+    ? DRIVE_DISC_FACTS.yunkui.hpPct
+    : 0
+  const mainHpInputs = (['slot4', 'slot5', 'slot6'] as MainSlot[])
+    .map((slot) => mainStatInput(setup, 'lucia', slot, 'hpPct'))
+    .filter((input): input is ResolvedSetupInput => Boolean(input))
+  const hpSubstat = effectiveSubstatInput(setup, 'lucia', 'hpPct')
+  const hpFlat = effectiveSubstatInput(setup, 'lucia', 'hpFlat')
+  const totalHpPct = (engineHp?.rawValue ?? 0)
+    + discHpPct
+    + mainHpInputs.reduce((total, input) => total + input.rawValue, 0)
+    + (hpSubstat?.rawValue ?? 0)
+  const value = lucia.hp * (1 + totalHpPct / 100) + values.fixedDisc.hp + (hpFlat?.rawValue ?? 0)
   const hpDiscSource = setup.fourPieceId === 'yunkui'
     ? selectedFourPieceSource
     : selectedTwoPieceSource
@@ -381,18 +468,25 @@ function calculateLuciaInitialHp(
   return {
     value,
     breakdown: withoutZero([
-      percentageContribution(selectedEngineSource, lucia.hp * engineHpPct / 100, engineHpPct),
+      ...(engineHp ? [
+        percentageContribution(
+          engineHp.source,
+          lucia.hp * engineHp.rawValue / 100,
+          engineHp.rawValue,
+        ),
+      ] : []),
       percentageContribution(hpDiscSource, lucia.hp * discHpPct / 100, discHpPct),
-      ...(['slot4', 'slot5', 'slot6'] as MainSlot[]).map((slot) => {
-        const amount = mainAmount(setup, slot, 'hpPct')
-        return percentageContribution(mainSource('lucia', slot), lucia.hp * amount / 100, amount)
-      }),
-      percentageContribution(
-        substatSource('lucia', 'hpPct'),
-        lucia.hp * hpSubstatPct / 100,
-        hpSubstatPct,
-      ),
-      contribution(substatSource('lucia', 'hpFlat'), hpFlat),
+      ...mainHpInputs.map((input) => percentageContribution(
+        input.source,
+        lucia.hp * input.rawValue / 100,
+        input.rawValue,
+      )),
+      ...(hpSubstat ? [percentageContribution(
+        hpSubstat.source,
+        lucia.hp * hpSubstat.rawValue / 100,
+        hpSubstat.rawValue,
+      )] : []),
+      ...(hpFlat ? [contribution(hpFlat.source, hpFlat.rawValue)] : []),
     ]),
   }
 }
@@ -434,11 +528,20 @@ function calculateLuciaSquadSheer(initialHp: number, setup: CompleteSetup) {
 
 function calculateDialynInitialCritRate(setup: CompleteSetup): number {
   const dialyn = VERTICAL_VALUES.dialyn
-  const engineCrit = engineAdvanced(setup, 'critRate')
-  const mainCrit = mainAmount(setup, 'slot4', 'critRate')
-  const twoPieceCrit = setup.twoPieceId === 'woodpecker' ? 8 : 0
-  const substatCrit = substatAmount(setup, 'dialyn', 'critRate')
-  return Math.min(dialyn.critRate + engineCrit + mainCrit + twoPieceCrit + substatCrit, 100)
+  const engineCrit = engineAdvancedInput(setup, 'dialyn', 'critRate')
+  const mainCrit = mainStatInput(setup, 'dialyn', 'slot4', 'critRate')
+  const twoPieceCrit = setup.twoPieceId === 'woodpecker'
+    ? DRIVE_DISC_FACTS.woodpecker.critRate
+    : 0
+  const substatCrit = effectiveSubstatInput(setup, 'dialyn', 'critRate')
+  return Math.min(
+    dialyn.critRate
+      + (engineCrit?.rawValue ?? 0)
+      + (mainCrit?.rawValue ?? 0)
+      + twoPieceCrit
+      + (substatCrit?.rawValue ?? 0),
+    100,
+  )
 }
 
 function partyDmgParts(
@@ -457,7 +560,7 @@ function partyDmgParts(
     contribution(STATIC_SOURCES.lucia.core, party.luciaCoreDmg),
     contribution(
       discSource('lucia', luciaSetup.fourPieceId, '4-piece'),
-      luciaSetup.fourPieceId === 'moonlight' ? party.luciaDiscDmg : 0,
+      luciaSetup.fourPieceId === 'moonlight' ? DRIVE_DISC_FACTS.moonlight.squadDmg : 0,
     ),
     contribution(engineSource('lucia', luciaSetup), luciaEngine.partyDmg),
   ])
@@ -471,9 +574,9 @@ function partyCritDmgParts(
   const dialynSetup = completeSetup(state, 'dialyn')
   const dialynEngine = dialynEngineEffects(dialynSetup)
   const kingBonus = dialynSetup.fourPieceId === 'king'
-    ? VERTICAL_VALUES.party.dialynKingCritDmg
+    ? DRIVE_DISC_FACTS.king.squadCritDmg.base
       + (dialynInitialCritRate >= VERTICAL_VALUES.dialyn.critThreshold
-        ? VERTICAL_VALUES.party.dialynKingCritDmg
+        ? DRIVE_DISC_FACTS.king.squadCritDmg.atCritThreshold
         : 0)
     : 0
   const breakdown = withoutZero([
@@ -615,15 +718,19 @@ function calculateYixuan(
   const partyDmg = partyDmgParts(state)
   const partyCritDmg = partyCritDmgParts(state, dialynInitialCritRate)
 
-  const hpSubstatPct = substatAmount(setup, 'yixuan', 'hpPct')
-  const critRateSubstat = substatAmount(setup, 'yixuan', 'critRate')
-  const critDmgSubstat = substatAmount(setup, 'yixuan', 'critDmg')
-  const engineHpPct = engineAdvanced(setup, 'hpPct')
-  const engineAtkPct = engineAdvanced(setup, 'atkPct')
-  const discHpPct = setup.fourPieceId === 'yunkui' ? 10 : 0
-  const mainHpPct = mainAmount(setup, 'slot5', 'hpPct')
-    + mainAmount(setup, 'slot6', 'hpPct')
-  const hpPercent = engineHpPct + discHpPct + mainHpPct + hpSubstatPct
+  const hpSubstat = effectiveSubstatInput(setup, 'yixuan', 'hpPct')
+  const critRateSubstat = effectiveSubstatInput(setup, 'yixuan', 'critRate')
+  const critDmgSubstat = effectiveSubstatInput(setup, 'yixuan', 'critDmg')
+  const engineHp = engineAdvancedInput(setup, 'yixuan', 'hpPct')
+  const engineAtk = engineAdvancedInput(setup, 'yixuan', 'atkPct')
+  const discHpPct = setup.fourPieceId === 'yunkui' ? DRIVE_DISC_FACTS.yunkui.hpPct : 0
+  const slot5Hp = mainStatInput(setup, 'yixuan', 'slot5', 'hpPct')
+  const slot6Hp = mainStatInput(setup, 'yixuan', 'slot6', 'hpPct')
+  const hpPercent = (engineHp?.rawValue ?? 0)
+    + discHpPct
+    + (slot5Hp?.rawValue ?? 0)
+    + (slot6Hp?.rawValue ?? 0)
+    + (hpSubstat?.rawValue ?? 0)
   const initialHp = yixuan.hp * (1 + hpPercent / 100) + values.fixedDisc.hp
   const combatHp = initialHp
   const luciaCoreHpAmount = initialHp * values.party.luciaCoreHp / 100
@@ -631,9 +738,10 @@ function calculateYixuan(
   const fullyHp = initialHp + luciaCoreHpAmount + luciaEngineHpAmount
 
   const baseAtk = yixuan.atk + engine.baseAtk
-  const initialAtk = baseAtk * (1 + engineAtkPct / 100) + values.fixedDisc.atk
+  const initialAtk = baseAtk * (1 + (engineAtk?.rawValue ?? 0) / 100) + values.fixedDisc.atk
   const fullyAtkBonus = luciaEffects.partyAtkPct
-  const fullyAtk = baseAtk * (1 + (engineAtkPct + fullyAtkBonus) / 100) + values.fixedDisc.atk
+  const fullyAtk = baseAtk * (1 + ((engineAtk?.rawValue ?? 0) + fullyAtkBonus) / 100)
+    + values.fixedDisc.atk
 
   const convertRuptureStats = (atk: number, maxHp: number) =>
     atk * values.rupture.currentAtkToSheer + maxHp * values.rupture.currentHpToSheer
@@ -643,16 +751,24 @@ function calculateYixuan(
   const fullySheer = fullyRuptureSheer + luciaSquadSheer.value
     + engineEffects.fullySheerForce
 
-  const mainCritRate = mainAmount(setup, 'slot4', 'critRate')
-  const mainCritDmg = mainAmount(setup, 'slot4', 'critDmg')
-  const twoPieceCritRate = setup.twoPieceId === 'woodpecker' ? 8 : 0
-  const twoPieceCritDmg = setup.twoPieceId === 'branchAndBlade' ? 16 : 0
-  const yunkuiCritRate = setup.fourPieceId === 'yunkui' ? 12 : 0
-  const yunkuiSheerDmg = setup.fourPieceId === 'yunkui' ? 10 : 0
+  const mainCritRate = mainStatInput(setup, 'yixuan', 'slot4', 'critRate')
+  const mainCritDmg = mainStatInput(setup, 'yixuan', 'slot4', 'critDmg')
+  const twoPieceCritRate = setup.twoPieceId === 'woodpecker'
+    ? DRIVE_DISC_FACTS.woodpecker.critRate
+    : 0
+  const twoPieceCritDmg = setup.twoPieceId === 'branchAndBlade'
+    ? DRIVE_DISC_FACTS.branchAndBlade.critDmg
+    : 0
+  const yunkuiCritRate = setup.fourPieceId === 'yunkui'
+    ? DRIVE_DISC_FACTS.yunkui.critRate
+    : 0
+  const yunkuiSheerDmg = setup.fourPieceId === 'yunkui'
+    ? DRIVE_DISC_FACTS.yunkui.sheerDmg
+    : 0
   const uncappedInitialCritRate = yixuan.critRate
-    + mainCritRate
+    + (mainCritRate?.rawValue ?? 0)
     + twoPieceCritRate
-    + critRateSubstat
+    + (critRateSubstat?.rawValue ?? 0)
   const initialCritRate = Math.min(uncappedInitialCritRate, 100)
   const mindscapeCritRate = setup.mindscape >= 1 ? yixuan.mindscapeCritRate : 0
   const combatCritRate = Math.min(
@@ -668,15 +784,16 @@ function calculateYixuan(
   )
 
   const initialCritDmg = yixuan.critDmg
-    + mainCritDmg
+    + (mainCritDmg?.rawValue ?? 0)
     + twoPieceCritDmg
-    + critDmgSubstat
+    + (critDmgSubstat?.rawValue ?? 0)
   const fullyCritDmg = initialCritDmg
     + yixuan.additionalCritDmg
     + partyCritDmg.total
     + engineEffects.fullyCritDmg
 
-  const initialDmgBonus = mainAmount(setup, 'slot5', 'etherDmg')
+  const initialDmg = mainStatInput(setup, 'yixuan', 'slot5', 'etherDmg')
+  const initialDmgBonus = initialDmg?.rawValue ?? 0
   const combatDmgBonus = initialDmgBonus + engineEffects.combatDmg
   const fullyDmgBonus = combatDmgBonus + partyDmg.total + engineEffects.fullyDmg
   const commonDmgBonus = surfaces(initialDmgBonus, combatDmgBonus, fullyDmgBonus)
@@ -703,29 +820,35 @@ function calculateYixuan(
     : 0
   const commonResIgnore = surfaces(0, 0, dialynMindscapeResIgnore + luciaMindscapeResIgnore)
   const hpInitialBreakdown = withoutZero([
-    percentageContribution(selectedEngineSource, yixuan.hp * engineHpPct / 100, engineHpPct),
+    ...(engineHp ? [percentageContribution(
+      engineHp.source,
+      yixuan.hp * engineHp.rawValue / 100,
+      engineHp.rawValue,
+    )] : []),
     percentageContribution(selectedFourPieceSource, yixuan.hp * discHpPct / 100, discHpPct),
-    percentageContribution(
-      mainSource('yixuan', 'slot5'),
-      yixuan.hp * mainAmount(setup, 'slot5', 'hpPct') / 100,
-      mainAmount(setup, 'slot5', 'hpPct'),
-    ),
-    percentageContribution(
-      mainSource('yixuan', 'slot6'),
-      yixuan.hp * mainAmount(setup, 'slot6', 'hpPct') / 100,
-      mainAmount(setup, 'slot6', 'hpPct'),
-    ),
-    percentageContribution(
-      substatSource('yixuan', 'hpPct'),
-      yixuan.hp * hpSubstatPct / 100,
-      hpSubstatPct,
-    ),
+    ...(slot5Hp ? [percentageContribution(
+      slot5Hp.source,
+      yixuan.hp * slot5Hp.rawValue / 100,
+      slot5Hp.rawValue,
+    )] : []),
+    ...(slot6Hp ? [percentageContribution(
+      slot6Hp.source,
+      yixuan.hp * slot6Hp.rawValue / 100,
+      slot6Hp.rawValue,
+    )] : []),
+    ...(hpSubstat ? [percentageContribution(
+      hpSubstat.source,
+      yixuan.hp * hpSubstat.rawValue / 100,
+      hpSubstat.rawValue,
+    )] : []),
   ])
 
   const rawCritInitialBreakdown = withoutZero([
-    contribution(mainSource('yixuan', 'slot4'), mainCritRate),
+    ...(mainCritRate ? [contribution(mainCritRate.source, mainCritRate.rawValue)] : []),
     contribution(selectedTwoPieceSource, twoPieceCritRate),
-    contribution(substatSource('yixuan', 'critRate'), critRateSubstat),
+    ...(critRateSubstat ? [
+      contribution(critRateSubstat.source, critRateSubstat.rawValue),
+    ] : []),
   ])
   const critInitialBreakdown = withoutZero([
     ...rawCritInitialBreakdown,
@@ -769,11 +892,11 @@ function calculateYixuan(
         values: surfaces(initialAtk, initialAtk, fullyAtk),
         breakdown: surfaces(
           withoutZero([
-            percentageContribution(
-              selectedEngineSource,
-              baseAtk * engineAtkPct / 100,
-              engineAtkPct,
-            ),
+            ...(engineAtk ? [percentageContribution(
+              engineAtk.source,
+              baseAtk * engineAtk.rawValue / 100,
+              engineAtk.rawValue,
+            )] : []),
           ]),
           [],
           withoutZero([
@@ -841,9 +964,11 @@ function calculateYixuan(
         values: surfaces(initialCritDmg, initialCritDmg, fullyCritDmg),
         breakdown: surfaces(
           withoutZero([
-            contribution(mainSource('yixuan', 'slot4'), mainCritDmg),
+            ...(mainCritDmg ? [contribution(mainCritDmg.source, mainCritDmg.rawValue)] : []),
             contribution(selectedTwoPieceSource, twoPieceCritDmg),
-            contribution(substatSource('yixuan', 'critDmg'), critDmgSubstat),
+            ...(critDmgSubstat ? [
+              contribution(critDmgSubstat.source, critDmgSubstat.rawValue),
+            ] : []),
           ]),
           [],
           withoutZero([
@@ -861,7 +986,7 @@ function calculateYixuan(
         values: commonDmgBonus,
         breakdown: surfaces(
           withoutZero([
-            contribution(mainSource('yixuan', 'slot5'), initialDmgBonus),
+            ...(initialDmg ? [contribution(initialDmg.source, initialDmg.rawValue)] : []),
           ]),
           withoutZero([
             contribution(selectedEngineSource, engineEffects.combatDmg),
@@ -957,15 +1082,17 @@ function calculateDialyn(state: WorkbenchState): AgentResult {
   const engineEffects = dialynEngineEffects(setup)
   const luciaEffects = luciaEngineEffects(luciaSetup)
 
-  const engineCrit = engineAdvanced(setup, 'critRate')
-  const mainCrit = mainAmount(setup, 'slot4', 'critRate')
-  const twoPieceCrit = setup.twoPieceId === 'woodpecker' ? 8 : 0
-  const critRateSubstat = substatAmount(setup, 'dialyn', 'critRate')
+  const engineCrit = engineAdvancedInput(setup, 'dialyn', 'critRate')
+  const mainCrit = mainStatInput(setup, 'dialyn', 'slot4', 'critRate')
+  const twoPieceCrit = setup.twoPieceId === 'woodpecker'
+    ? DRIVE_DISC_FACTS.woodpecker.critRate
+    : 0
+  const critRateSubstat = effectiveSubstatInput(setup, 'dialyn', 'critRate')
   const uncappedInitialCritRate = dialyn.critRate
-    + engineCrit
-    + mainCrit
+    + (engineCrit?.rawValue ?? 0)
+    + (mainCrit?.rawValue ?? 0)
     + twoPieceCrit
-    + critRateSubstat
+    + (critRateSubstat?.rawValue ?? 0)
   const initialCritRate = Math.min(uncappedInitialCritRate, 100)
   const fullyCritRate = Math.min(initialCritRate + luciaEffects.partyCritRate, 100)
 
@@ -973,21 +1100,31 @@ function calculateDialyn(state: WorkbenchState): AgentResult {
     Math.max(initialCritRate - dialyn.critThreshold, 0) * dialyn.impactPerCrit,
     dialyn.impactBonusCap,
   )
-  const advancedImpactPct = engineAdvanced(setup, 'impactPct')
-  const initialImpact = dialyn.impact * (1 + advancedImpactPct / 100)
+  const advancedImpact = engineAdvancedInput(setup, 'dialyn', 'impactPct')
+  const initialImpact = dialyn.impact * (1 + (advancedImpact?.rawValue ?? 0) / 100)
   const combatImpact = initialImpact + impactBonus + engineEffects.combatFlatImpact
   const fullyImpact = combatImpact + dialyn.impact * engineEffects.fullyImpactPct / 100
 
-  const engineEnergyRegenPct = engineAdvanced(setup, 'energyRegenPct')
-  const slotEnergyRegenPct = mainAmount(setup, 'slot6', 'energyRegenPct')
-  const discEnergyRegenPct = setup.twoPieceId === 'swingJazz' ? 20 : 0
-  const totalEnergyRegenPct = engineEnergyRegenPct
-    + slotEnergyRegenPct
-    + discEnergyRegenPct
-  const initialEnergyRegen = dialyn.baseEnergyRegen * (1 + totalEnergyRegenPct / 100)
-  const combatEnergyRecoveryPerSecond = initialEnergyRegen + engineEffects.energyPerSecond
+  const engineEnergyRegen = engineAdvancedInput(setup, 'dialyn', 'energyRegenPct')
+  const slotEnergyRegen = mainStatInput(setup, 'dialyn', 'slot6', 'energyRegenPct')
+  const initialEnergyRegenInputs: ResolvedSetupInput[] = [
+    ...(engineEnergyRegen ? [engineEnergyRegen] : []),
+    ...(slotEnergyRegen ? [slotEnergyRegen] : []),
+    ...(setup.twoPieceId === 'swingJazz' ? [{
+      rawValue: DRIVE_DISC_FACTS.swingJazz.energyRegenPct,
+      unit: '%' as const,
+      source: selectedTwoPieceSource,
+    }] : []),
+  ]
+  const energyRegen = energyRegenProjection(
+    dialyn.baseEnergyRegen,
+    initialEnergyRegenInputs,
+    engineEffects.energyPerSecond > 0
+      ? [{ rawValue: engineEffects.energyPerSecond, source: selectedEngineSource }]
+      : [],
+  )
 
-  const kingDaze = setup.fourPieceId === 'king' ? 6 : 0
+  const kingDaze = setup.fourPieceId === 'king' ? DRIVE_DISC_FACTS.king.daze : 0
   const fullyDaze = kingDaze + engineEffects.fullyDaze
 
   return {
@@ -1001,10 +1138,12 @@ function calculateDialyn(state: WorkbenchState): AgentResult {
         values: surfaces(initialCritRate, initialCritRate, fullyCritRate),
         breakdown: surfaces(
           withoutZero([
-            contribution(selectedEngineSource, engineCrit),
-            contribution(mainSource('dialyn', 'slot4'), mainCrit),
+            ...(engineCrit ? [contribution(engineCrit.source, engineCrit.rawValue)] : []),
+            ...(mainCrit ? [contribution(mainCrit.source, mainCrit.rawValue)] : []),
             contribution(selectedTwoPieceSource, twoPieceCrit),
-            contribution(substatSource('dialyn', 'critRate'), critRateSubstat),
+            ...(critRateSubstat ? [
+              contribution(critRateSubstat.source, critRateSubstat.rawValue),
+            ] : []),
             contribution(
               STATIC_SOURCES.dialyn.critCap,
               initialCritRate - uncappedInitialCritRate,
@@ -1037,11 +1176,11 @@ function calculateDialyn(state: WorkbenchState): AgentResult {
         values: surfaces(initialImpact, combatImpact, fullyImpact),
         breakdown: surfaces(
           withoutZero([
-            percentageContribution(
-              selectedEngineSource,
+            ...(advancedImpact ? [percentageContribution(
+              advancedImpact.source,
               initialImpact - dialyn.impact,
-              advancedImpactPct,
-            ),
+              advancedImpact.rawValue,
+            )] : []),
           ]),
           withoutZero([
             contribution(STATIC_SOURCES.dialyn.core, impactBonus),
@@ -1061,37 +1200,8 @@ function calculateDialyn(state: WorkbenchState): AgentResult {
         label: 'Energy Regen',
         unit: '',
         decimals: 2,
-        values: surfaces(
-          initialEnergyRegen,
-          combatEnergyRecoveryPerSecond,
-          combatEnergyRecoveryPerSecond,
-        ),
-        breakdown: surfaces(
-          withoutZero([
-            percentageContribution(
-              selectedEngineSource,
-              dialyn.baseEnergyRegen * engineEnergyRegenPct / 100,
-              engineEnergyRegenPct,
-            ),
-            percentageContribution(
-              mainSource('dialyn', 'slot6'),
-              dialyn.baseEnergyRegen * slotEnergyRegenPct / 100,
-              slotEnergyRegenPct,
-            ),
-            percentageContribution(
-              selectedTwoPieceSource,
-              dialyn.baseEnergyRegen * discEnergyRegenPct / 100,
-              discEnergyRegenPct,
-            ),
-          ]),
-          withoutZero([
-            perSecondEnergyContribution(
-              selectedEngineSource,
-              engineEffects.energyPerSecond,
-            ),
-          ]),
-          [],
-        ),
+        values: energyRegen.values,
+        breakdown: energyRegen.breakdown,
       },
       {
         id: 'dazeBonus',
@@ -1141,12 +1251,24 @@ function calculateLucia(
   const luciaEngineHpAmount = initialHp * engineEffects.fullyHpPct / 100
   const fullyHp = initialHp + luciaCoreHpAmount + luciaEngineHpAmount
 
-  const engineEnergyRegenPct = engineAdvanced(setup, 'energyRegenPct')
-  const discEnergyRegenPct = setup.fourPieceId === 'moonlight' ? 20 : 0
-  const slotEnergyRegenPct = mainAmount(setup, 'slot6', 'energyRegenPct')
-  const initialEnergyRegen = lucia.baseEnergyRegen
-    * (1 + (engineEnergyRegenPct + discEnergyRegenPct + slotEnergyRegenPct) / 100)
-  const combatEnergyRecoveryPerSecond = initialEnergyRegen + engineEffects.energyPerSecond
+  const engineEnergyRegen = engineAdvancedInput(setup, 'lucia', 'energyRegenPct')
+  const slotEnergyRegen = mainStatInput(setup, 'lucia', 'slot6', 'energyRegenPct')
+  const initialEnergyRegenInputs: ResolvedSetupInput[] = [
+    ...(engineEnergyRegen ? [engineEnergyRegen] : []),
+    ...(setup.fourPieceId === 'moonlight' ? [{
+      rawValue: DRIVE_DISC_FACTS.moonlight.energyRegenPct,
+      unit: '%' as const,
+      source: selectedFourPieceSource,
+    }] : []),
+    ...(slotEnergyRegen ? [slotEnergyRegen] : []),
+  ]
+  const energyRegen = energyRegenProjection(
+    lucia.baseEnergyRegen,
+    initialEnergyRegenInputs,
+    engineEffects.energyPerSecond > 0
+      ? [{ rawValue: engineEffects.energyPerSecond, source: selectedEngineSource }]
+      : [],
+  )
 
   return {
     agentId: 'lucia',
@@ -1189,37 +1311,8 @@ function calculateLucia(
         label: 'Energy Regen',
         unit: '',
         decimals: 2,
-        values: surfaces(
-          initialEnergyRegen,
-          combatEnergyRecoveryPerSecond,
-          combatEnergyRecoveryPerSecond,
-        ),
-        breakdown: surfaces(
-          withoutZero([
-            percentageContribution(
-              selectedEngineSource,
-              lucia.baseEnergyRegen * engineEnergyRegenPct / 100,
-              engineEnergyRegenPct,
-            ),
-            percentageContribution(
-              selectedFourPieceSource,
-              lucia.baseEnergyRegen * discEnergyRegenPct / 100,
-              discEnergyRegenPct,
-            ),
-            percentageContribution(
-              mainSource('lucia', 'slot6'),
-              lucia.baseEnergyRegen * slotEnergyRegenPct / 100,
-              slotEnergyRegenPct,
-            ),
-          ]),
-          withoutZero([
-            perSecondEnergyContribution(
-              selectedEngineSource,
-              engineEffects.energyPerSecond,
-            ),
-          ]),
-          [],
-        ),
+        values: energyRegen.values,
+        breakdown: energyRegen.breakdown,
       },
     ],
     actionModifiers: [],

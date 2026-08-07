@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState, type Dispatch, type ReactNode, type Ref } from 'react'
+import { useEffect, useState, type Dispatch, type ReactNode, type Ref } from 'react'
 import {
   DISC_IDS_BY_AGENT_AND_PIECE,
+  defaultRefinementFor,
   DRIVE_DISCS,
   ENGINE_IDS_BY_AGENT_AND_POOL,
   MAIN_STATS,
+  mainStatDisplay,
   MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
   PARTY_AGENTS,
   SUBSTAT_CHOICES_BY_AGENT,
@@ -17,13 +19,11 @@ import {
   type Refinement,
 } from '../workbench/content'
 import type { Mindscape, WorkbenchAction, WorkbenchState } from '../workbench/state'
-
-type SourceToneChannel = 'pointer' | 'focus'
-
-interface SourceInteractionProps {
-  activeSourceTone: string | null
-  onSourceToneChange: (channel: SourceToneChannel, tone: string | null) => void
-}
+import {
+  sourceToneEvents,
+  useSelectionFocusReturn,
+  type SourceInteractionProps,
+} from './sourceInteraction'
 
 interface AgentSetupProps extends SourceInteractionProps {
   agentId: AgentId
@@ -33,18 +33,6 @@ interface AgentSetupProps extends SourceInteractionProps {
 
 function targetClass(base: string, tone: string, activeSourceTone: string | null): string {
   return `${base} source-target source-tone--${tone}${activeSourceTone === tone ? ' is-source-active' : ''}`
-}
-
-function targetEvents(
-  tone: string,
-  onSourceToneChange: SourceInteractionProps['onSourceToneChange'],
-) {
-  return {
-    onMouseEnter: () => onSourceToneChange('pointer', tone),
-    onMouseLeave: () => onSourceToneChange('pointer', null),
-    onFocus: () => onSourceToneChange('focus', tone),
-    onBlur: () => onSourceToneChange('focus', null),
-  }
 }
 
 function PoolSelection({
@@ -67,7 +55,7 @@ function PoolSelection({
         <div
           className={targetClass('mindscape-control', 'mindscape', activeSourceTone)}
           data-source-tone="mindscape"
-          {...targetEvents('mindscape', onSourceToneChange)}
+          {...sourceToneEvents('mindscape', onSourceToneChange)}
         >
           <h4 className="loadout-control__group-heading">Mindscape</h4>
           <div className="mindscape-rail" role="group" aria-label="Mindscape">
@@ -208,21 +196,14 @@ function EngineSelection({
   const candidates = ENGINE_IDS_BY_AGENT_AND_POOL[agentId][setup.pool]
   const alternatives = candidates.filter((id) => id !== engineId)
   const isOpen = openSelector === selectorId
-  const openerRef = useRef<HTMLButtonElement>(null)
-  const [restoreFocus, setRestoreFocus] = useState(false)
-
-  useEffect(() => {
-    if (!restoreFocus) return
-    openerRef.current?.focus()
-    setRestoreFocus(false)
-  }, [restoreFocus])
+  const { openerRef, requestFocusReturn } = useSelectionFocusReturn()
 
   return (
     <section
       className={targetClass('setup-group equipment-fieldset', 'w-engine', activeSourceTone)}
       data-source-tone="w-engine"
       aria-labelledby={agentId + '-engine-heading'}
-      {...targetEvents('w-engine', onSourceToneChange)}
+      {...sourceToneEvents('w-engine', onSourceToneChange)}
     >
       <h3 id={agentId + '-engine-heading'}><span>02</span> Engine bay</h3>
       <div className="selection-stack">
@@ -248,17 +229,17 @@ function EngineSelection({
                   type="button"
                   className="selector-candidate selector-candidate--engine"
                   key={candidateId}
-                  aria-label={`Select ${candidate.name} W${candidate.defaultRefinement}`}
+                  aria-label={`Select ${candidate.name} W${defaultRefinementFor(candidate.rank)}`}
                   onClick={() => {
                     dispatch({ type: 'selectEngine', agentId, engineId: candidateId })
                     setOpenSelector(null)
-                    setRestoreFocus(true)
+                    requestFocusReturn()
                   }}
                 >
                   <EngineCard
                     candidate
                     engineId={candidateId}
-                    refinement={candidate.defaultRefinement}
+                    refinement={defaultRefinementFor(candidate.rank)}
                   />
                 </button>
               )
@@ -395,19 +376,12 @@ function DiscSelection({
     ? 'Swing Jazz or Moonlight Lullaby'
     : disc.name
 
-  const openerRef = useRef<HTMLButtonElement>(null)
-  const [restoreFocus, setRestoreFocus] = useState(false)
-
-  useEffect(() => {
-    if (!restoreFocus) return
-    openerRef.current?.focus()
-    setRestoreFocus(false)
-  }, [restoreFocus])
+  const { openerRef, requestFocusReturn } = useSelectionFocusReturn()
   return (
     <div
       className={targetClass('disc-selection', tone, activeSourceTone)}
       data-source-tone={tone}
-      {...targetEvents(tone, onSourceToneChange)}
+      {...sourceToneEvents(tone, onSourceToneChange)}
     >
       <SelectionSurface
         ariaLabel={
@@ -448,7 +422,7 @@ function DiscSelection({
                 onClick={() => {
                   dispatch({ type: 'selectDisc', agentId, piece, discId: candidateId })
                   setOpenSelector(null)
-                  setRestoreFocus(true)
+                  requestFocusReturn()
                 }}
               >
                 <DiscCard
@@ -488,21 +462,14 @@ function MainStatSelection({
   const alternatives = candidates.filter((id) => id !== mainStatId)
   const isOpen = openSelector === selectorId
   const selected = MAIN_STATS[mainStatId]
-  const openerRef = useRef<HTMLButtonElement>(null)
-  const [restoreFocus, setRestoreFocus] = useState(false)
-
-  useEffect(() => {
-    if (!restoreFocus) return
-    openerRef.current?.focus()
-    setRestoreFocus(false)
-  }, [restoreFocus])
+  const { openerRef, requestFocusReturn } = useSelectionFocusReturn()
 
   const content = (
     <>
       <small className="main-stat-block__slot">DISC {slot.replace('slot', '')}</small>
       <span className="main-stat-block__details">
         <span>{selected.label}</span>
-        <strong>{selected.value}</strong>
+        <strong>{mainStatDisplay(selected.numericValue)}</strong>
       </span>
     </>
   )
@@ -511,7 +478,7 @@ function MainStatSelection({
     <div
       className={targetClass('main-stat-selection', tone, activeSourceTone)}
       data-source-tone={tone}
-      {...targetEvents(tone, onSourceToneChange)}
+      {...sourceToneEvents(tone, onSourceToneChange)}
     >
       {alternatives.length > 0 ? (
         <button
@@ -554,11 +521,11 @@ function MainStatSelection({
                     mainStatId: candidateId,
                   })
                   setOpenSelector(null)
-                  setRestoreFocus(true)
+                  requestFocusReturn()
                 }}
               >
                 <span>{candidate.label}</span>
-                <strong>{candidate.value}</strong>
+                <strong>{mainStatDisplay(candidate.numericValue)}</strong>
               </button>
             )
           })}
@@ -668,7 +635,7 @@ function SubstatStepper({
     <div
       className={targetClass('substat-control', tone, activeSourceTone)}
       data-source-tone={tone}
-      {...targetEvents(tone, onSourceToneChange)}
+      {...sourceToneEvents(tone, onSourceToneChange)}
     >
       <div className="substat-copy">
         <strong>{label}</strong>

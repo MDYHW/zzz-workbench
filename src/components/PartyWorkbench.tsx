@@ -10,6 +10,7 @@ import ruptureMark from '../assets/game/specialties/rupture.webp'
 import stunMark from '../assets/game/specialties/stun.webp'
 import supportMark from '../assets/game/specialties/support.webp'
 import { PARTY_AGENTS, type AgentId } from '../workbench/content'
+import { sourceToneEvents, type SourceInteractionProps } from './sourceInteraction'
 
 const PORTRAITS: Record<AgentId, string> = {
   yixuan: yixuanPortrait,
@@ -162,12 +163,8 @@ function PortraitArt({ agentId, variant }: { agentId: AgentId; variant: Portrait
   )
 }
 
-type SourceToneChannel = 'pointer' | 'focus'
-
-interface PartyWorkbenchProps {
-  activeSourceTone: string | null
+interface PartyWorkbenchProps extends SourceInteractionProps {
   viewedAgentId: AgentId | null
-  onSourceToneChange: (channel: SourceToneChannel, tone: string | null) => void
   onViewAgent: (agentId: AgentId | null) => void
   children: ReactNode
 }
@@ -187,10 +184,8 @@ function IdentityMarks({ agentId, attribute, specialty }: { agentId: AgentId; at
   )
 }
 
-interface SlotControlProps {
-  activeSourceTone: string | null
+interface SlotControlProps extends SourceInteractionProps {
   agentId: AgentId
-  onSourceToneChange: (channel: SourceToneChannel, tone: string | null) => void
   onSelect: () => void
   onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void
 }
@@ -215,10 +210,7 @@ function ExpandedIdentity({ activeSourceTone, agentId, onSourceToneChange, onSel
       aria-label={`Close ${agent.name} setup and Result`}
       onClick={onSelect}
       onKeyDown={onKeyDown}
-      onMouseEnter={() => onSourceToneChange('pointer', identityTone)}
-      onMouseLeave={() => onSourceToneChange('pointer', null)}
-      onFocus={() => onSourceToneChange('focus', identityTone)}
-      onBlur={() => onSourceToneChange('focus', null)}
+      {...sourceToneEvents(identityTone, onSourceToneChange)}
     >
       <PortraitArt agentId={agent.id} variant="expanded" />
       <span className="identity-shade" aria-hidden="true" />
@@ -252,10 +244,7 @@ function CompactSlot({ activeSourceTone, agentId, isOverview = false, onSourceTo
       aria-label={`View ${agent.name} setup and Result`}
       onClick={onSelect}
       onKeyDown={onKeyDown}
-      onMouseEnter={() => onSourceToneChange('pointer', tone)}
-      onMouseLeave={() => onSourceToneChange('pointer', null)}
-      onFocus={() => onSourceToneChange('focus', tone)}
-      onBlur={() => onSourceToneChange('focus', null)}
+      {...sourceToneEvents(tone, onSourceToneChange)}
     >
       <PortraitArt agentId={agent.id} variant="compact" />
       <span className="identity-shade" aria-hidden="true" />

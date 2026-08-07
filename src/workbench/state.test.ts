@@ -4,7 +4,6 @@ import {
   ENGINE_IDS_BY_AGENT_AND_POOL,
   MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
   PREPARED_SETUP_BY_AGENT_AND_POOL,
-  W_ENGINES,
 } from './content'
 import {
   createPreparedState,
@@ -94,7 +93,7 @@ describe('workbench state lifecycle', () => {
 
     expect(state.setups.yixuan).toMatchObject({
       engineId: 'cauldron',
-      refinement: W_ENGINES.cauldron.defaultRefinement,
+      refinement: 5,
       fourPieceId: before.fourPieceId,
       twoPieceId: before.twoPieceId,
       mains: before.mains,
@@ -165,7 +164,7 @@ describe('workbench state lifecycle', () => {
       mindscape: 3,
       pool: 'nonLimited',
       engineId: PREPARED_SETUP_BY_AGENT_AND_POOL.yixuan.nonLimited.engineId,
-      refinement: W_ENGINES.cauldron.defaultRefinement,
+      refinement: 5,
       fourPieceId: 'yunkui',
       twoPieceId: 'woodpecker',
       mains: { slot4: 'critRate', slot5: 'etherDmg', slot6: 'hpPct' },

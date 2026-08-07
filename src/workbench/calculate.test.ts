@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { calculateParty, type AgentResult, type Contribution, type PartyResult } from './calculate'
 import {
   createPreparedState,
+  isCompleteWorkbench,
   workbenchReducer,
   type Mindscape,
   type WorkbenchState,
@@ -298,6 +299,14 @@ describe('calculateParty', () => {
       .not.toContain('Drive Disc \u00B7 Slot 5')
   })
 
+  it('keeps Dialyn Slot 5 complete without creating a Party Result consequence', () => {
+    const prepared = createPreparedState()
+    const penRatio = selectMain(prepared, 'dialyn', 'slot5', 'penRatio')
+
+    expect(isCompleteWorkbench(penRatio)).toBe(true)
+    expect(calculateParty(penRatio)).toEqual(calculateParty(prepared))
+  })
+
   it('distinguishes all Dialyn W-Engine operations and the two-piece tradeoff', () => {
     const prepared = createPreparedState()
 
@@ -341,6 +350,75 @@ describe('calculateParty', () => {
     expect(metric(swing, 'critRate').values.initial).toBeCloseTo(67.4)
     expect(metric(swing, 'impact').values.combat).toBeCloseTo(144.8)
     expect(metric(swing, 'energyRegen').values.combat).toBeCloseTo(3.66)
+  })
+
+  it('keeps Energy Regen percentage sources separate from later per-second operations', () => {
+    const dialyn = agent(calculateParty(selectDisc(
+      createPreparedState(),
+      'dialyn',
+      'twoPiece',
+      'swingJazz',
+    ))!, 'dialyn')
+    const dialynEnergy = metric(dialyn, 'energyRegen')
+
+    expect(dialynEnergy.values).toEqual({ initial: 2.16, combat: 3.66, fully: 3.66 })
+    expect(dialynEnergy.breakdown.initial).toContainEqual(expect.objectContaining({
+      label: 'Swing Jazz or Moonlight Lullaby',
+      detail: '2-piece',
+      display: { value: 20, unit: '%', decimals: 0 },
+    }))
+    expect(dialynEnergy.breakdown.combat).toContainEqual(expect.objectContaining({
+      label: 'Yesterday Calls',
+      detail: 'W1',
+      display: { value: 1.5, unit: '/s', decimals: 2 },
+    }))
+    expect(dialynEnergy.breakdown.fully).toEqual([])
+
+    const lucia = agent(calculateParty(selectEngine(
+      createPreparedState(),
+      'lucia',
+      'thoughtbop',
+    ))!, 'lucia')
+    const luciaEnergy = metric(lucia, 'energyRegen')
+    expect(luciaEnergy.values.initial).toBeCloseTo(2.34)
+    expect(luciaEnergy.values.combat).toBeCloseTo(2.94)
+    expect(luciaEnergy.values.fully).toBeCloseTo(2.94)
+    expect(luciaEnergy.breakdown.initial).toContainEqual(expect.objectContaining({
+      label: 'Thoughtbop',
+      detail: 'W1',
+      display: { value: 60, unit: '%', decimals: 0 },
+    }))
+    expect(luciaEnergy.breakdown.combat).toContainEqual(expect.objectContaining({
+      label: 'Thoughtbop',
+      detail: 'W1',
+      display: { value: 0.6, unit: '/s', decimals: 2 },
+    }))
+  })
+
+  it('keeps King of the Summit conditional CRIT DMG separate from its Setup total', () => {
+    let belowThreshold = selectEngine(createPreparedState(), 'dialyn', 'hellfireGears')
+    belowThreshold = selectDisc(belowThreshold, 'dialyn', 'twoPiece', 'swingJazz')
+    const below = agent(calculateParty(belowThreshold)!, 'yixuan')
+
+    expect(metric(below, 'critDmg').breakdown.fully).toContainEqual(
+      expect.objectContaining({
+        label: 'King of the Summit',
+        detail: '4-piece',
+        amount: 15,
+        ownerAgentId: 'dialyn',
+      }),
+    )
+
+    const atThreshold = setSubstat(belowThreshold, 'dialyn', 'critRate', 3)
+    const at = agent(calculateParty(atThreshold)!, 'yixuan')
+    expect(metric(at, 'critDmg').breakdown.fully).toContainEqual(
+      expect.objectContaining({
+        label: 'King of the Summit',
+        detail: '4-piece',
+        amount: 30,
+        ownerAgentId: 'dialyn',
+      }),
+    )
   })
 
   it('retains partial and non-limited Lucia packages for distinct visible operations', () => {

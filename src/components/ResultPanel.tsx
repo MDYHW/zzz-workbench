@@ -10,13 +10,7 @@ import type {
   ResultSource,
   SurfaceKey,
 } from '../workbench/calculate'
-
-type SourceToneChannel = 'pointer' | 'focus'
-
-interface SourceInteractionProps {
-  activeSourceTone: string | null
-  onSourceToneChange: (channel: SourceToneChannel, tone: string | null) => void
-}
+import { sourceToneEvents, type SourceInteractionProps } from './sourceInteraction'
 
 interface ResultPanelProps extends SourceInteractionProps {
   agentResult: AgentResult | null
@@ -92,18 +86,6 @@ function sourceTone(source: ResultSource, currentAgentId: AgentResult['agentId']
 
 function toneClass(tone: string, activeSourceTone: string | null): string {
   return `source-link source-tone--${tone}${activeSourceTone === tone ? ' is-source-active' : ''}`
-}
-
-function sourceEvents(
-  tone: string,
-  onSourceToneChange: SourceInteractionProps['onSourceToneChange'],
-) {
-  return {
-    onMouseEnter: () => onSourceToneChange('pointer', tone),
-    onMouseLeave: () => onSourceToneChange('pointer', null),
-    onFocus: () => onSourceToneChange('focus', tone),
-    onBlur: () => onSourceToneChange('focus', null),
-  }
 }
 
 interface GroupedSource {
@@ -201,7 +183,7 @@ function SourceMatrix({
                 key={`${row.source.ownerAgentId}-${row.source.locus}-${row.source.label}`}
                 className={toneClass(tone, activeSourceTone)}
                 data-source-tone={tone}
-                {...sourceEvents(tone, onSourceToneChange)}
+                {...sourceToneEvents(tone, onSourceToneChange)}
               >
                 <th scope="row" tabIndex={0}>
                   <i aria-hidden="true" />
@@ -254,7 +236,7 @@ function Gauge({
       data-source-tone={tone}
       role="group"
       aria-label={description}
-      {...sourceEvents(tone, onSourceToneChange)}
+      {...sourceToneEvents(tone, onSourceToneChange)}
     >
       <small className="gauge__source" tabIndex={0}>
         <span>{sourceLabel(gauge.source, agentId)}</span>
@@ -376,7 +358,7 @@ function ActionRows({
                           key={`${row.source.ownerAgentId}-${row.source.locus}-${row.source.label}-${row.source.detail ?? ''}`}
                           className={toneClass(tone, activeSourceTone)}
                           data-source-tone={tone}
-                          {...sourceEvents(tone, onSourceToneChange)}
+                          {...sourceToneEvents(tone, onSourceToneChange)}
                         >
                           <td className="action-hierarchy-cell" aria-hidden="true" />
                           <th scope="row" tabIndex={0}>
@@ -430,7 +412,7 @@ function Operations({
               data-source-tone={tone}
               key={operation.id}
               tabIndex={0}
-              {...sourceEvents(tone, onSourceToneChange)}
+              {...sourceToneEvents(tone, onSourceToneChange)}
             >
               <span>
                 <small>{surfaceLabels[operation.surface]}</small>

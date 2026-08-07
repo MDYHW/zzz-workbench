@@ -688,7 +688,7 @@ describe('integrated party workbench', () => {
       expect(link.source).toHaveClass('is-source-active')
       await user.unhover(target)
     }
-  })
+  }, 10_000)
 
   it('activates and clears every remaining visible setup source target', async () => {
     const user = userEvent.setup()

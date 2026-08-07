@@ -1,5 +1,6 @@
 import {
   DISC_IDS_BY_AGENT_AND_PIECE,
+  defaultRefinementFor,
   ENGINE_IDS_BY_AGENT_AND_POOL,
   MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
   PARTY_AGENTS,
@@ -66,12 +67,11 @@ export function createPreparedAgentSetup(
   mindscape: Mindscape = 0,
 ): AgentSetupState {
   const prepared = preparedSetupFor(agentId, pool, mindscape)
-  const engine = W_ENGINES[prepared.engineId]
   return {
     mindscape,
     pool,
     engineId: prepared.engineId,
-    refinement: engine.defaultRefinement,
+    refinement: defaultRefinementFor(W_ENGINES[prepared.engineId].rank),
     fourPieceId: prepared.fourPieceId,
     twoPieceId: prepared.twoPieceId,
     mains: { ...prepared.mains },
@@ -152,11 +152,10 @@ export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction)
         if (!ENGINE_IDS_BY_AGENT_AND_POOL[action.agentId][setup.pool].includes(action.engineId)) {
           return setup
         }
-        const engine = W_ENGINES[action.engineId]
         return {
           ...setup,
           engineId: action.engineId,
-          refinement: engine.defaultRefinement,
+          refinement: defaultRefinementFor(W_ENGINES[action.engineId].rank),
         }
       })
 
