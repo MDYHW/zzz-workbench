@@ -7,7 +7,7 @@ import {
   MAIN_STATS,
   mainStatDisplay,
   MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
-  PARTY_AGENTS,
+  ADMITTED_AGENTS,
   SUBSTAT_CHOICES_BY_AGENT,
   W_ENGINES,
   type AgentId,
@@ -18,7 +18,7 @@ import {
   type PoolId,
   type Refinement,
 } from '../workbench/content'
-import type { Mindscape, WorkbenchAction, WorkbenchState } from '../workbench/state'
+import type { AgentSetupState, AppliedSlot, Mindscape, WorkbenchAction } from '../workbench/state'
 import {
   sourceToneEvents,
   useSelectionFocusReturn,
@@ -26,8 +26,9 @@ import {
 } from './sourceInteraction'
 
 interface AgentSetupProps extends SourceInteractionProps {
+  slot: AppliedSlot
   agentId: AgentId
-  state: WorkbenchState
+  setup: AgentSetupState
   dispatch: Dispatch<WorkbenchAction>
 }
 
@@ -38,12 +39,14 @@ function targetClass(base: string, tone: string, activeSourceTone: string | null
 function PoolSelection({
   activeSourceTone,
   agentId,
+  slot,
   dispatch,
   mindscape,
   onSourceToneChange,
   pool,
 }: {
   agentId: AgentId
+  slot: AppliedSlot
   dispatch: Dispatch<WorkbenchAction>
   mindscape: Mindscape
   pool: PoolId
@@ -65,7 +68,7 @@ function PoolSelection({
                 key={level}
                 aria-label={`M${level}`}
                 aria-pressed={mindscape === level}
-                onClick={() => dispatch({ type: 'setMindscape', agentId, mindscape: level })}
+                onClick={() => dispatch({ type: 'setMindscape', slot, mindscape: level })}
               >
                 M{level}
               </button>
@@ -80,7 +83,7 @@ function PoolSelection({
               className={pool === 'full' ? 'is-selected' : ''}
               aria-label="Full pool"
               aria-pressed={pool === 'full'}
-              onClick={() => dispatch({ type: 'switchPool', agentId, pool: 'full' })}
+              onClick={() => dispatch({ type: 'switchPool', slot, pool: 'full' })}
             >
               Full
             </button>
@@ -88,7 +91,7 @@ function PoolSelection({
               type="button"
               className={pool === 'nonLimited' ? 'is-selected' : ''}
               aria-pressed={pool === 'nonLimited'}
-              onClick={() => dispatch({ type: 'switchPool', agentId, pool: 'nonLimited' })}
+              onClick={() => dispatch({ type: 'switchPool', slot, pool: 'nonLimited' })}
             >
               Non-limited
             </button>
@@ -175,19 +178,20 @@ function EngineCard({
 function EngineSelection({
   activeSourceTone,
   agentId,
+  slot,
   dispatch,
   onSourceToneChange,
   openSelector,
   setOpenSelector,
-  state,
+  setup,
 }: {
   agentId: AgentId
-  state: WorkbenchState
+  slot: AppliedSlot
+  setup: AgentSetupState
   dispatch: Dispatch<WorkbenchAction>
   openSelector: string | null
   setOpenSelector: (value: string | null) => void
 } & SourceInteractionProps) {
-  const setup = state.setups[agentId]
   const engineId = setup.engineId
   const refinement = setup.refinement
   if (!engineId || !refinement) return null
@@ -231,7 +235,7 @@ function EngineSelection({
                   key={candidateId}
                   aria-label={`Select ${candidate.name} W${defaultRefinementFor(candidate.rank)}`}
                   onClick={() => {
-                    dispatch({ type: 'selectEngine', agentId, engineId: candidateId })
+                    dispatch({ type: 'selectEngine', slot, engineId: candidateId })
                     setOpenSelector(null)
                     requestFocusReturn()
                   }}
@@ -261,7 +265,7 @@ function EngineSelection({
               className={refinement === rank ? 'is-selected' : ''}
               onClick={() => dispatch({
                 type: 'setRefinement',
-                agentId,
+                slot,
                 refinement: rank,
               })}
             >
@@ -349,6 +353,7 @@ function DiscCard({
 function DiscSelection({
   activeSourceTone,
   agentId,
+  slot,
   dispatch,
   onSourceToneChange,
   openSelector,
@@ -357,6 +362,7 @@ function DiscSelection({
   setOpenSelector,
 }: {
   agentId: AgentId
+  slot: AppliedSlot
   dispatch: Dispatch<WorkbenchAction>
   openSelector: string | null
   piece: 'fourPiece' | 'twoPiece'
@@ -420,7 +426,7 @@ function DiscSelection({
                 key={candidateId}
                 aria-label={`Select ${candidateName} as ${piece}`}
                 onClick={() => {
-                  dispatch({ type: 'selectDisc', agentId, piece, discId: candidateId })
+                  dispatch({ type: 'selectDisc', slot, piece, discId: candidateId })
                   setOpenSelector(null)
                   requestFocusReturn()
                 }}
@@ -442,23 +448,25 @@ function DiscSelection({
 function MainStatSelection({
   activeSourceTone,
   agentId,
+  appliedSlot,
   dispatch,
   mainStatId,
   onSourceToneChange,
   openSelector,
   setOpenSelector,
-  slot,
+  mainSlot,
 }: {
   agentId: AgentId
+  appliedSlot: AppliedSlot
   dispatch: Dispatch<WorkbenchAction>
   mainStatId: MainStatId
   openSelector: string | null
   setOpenSelector: (value: string | null) => void
-  slot: MainSlot
+  mainSlot: MainSlot
 } & SourceInteractionProps) {
-  const tone = `disc-slot-${slot.replace('slot', '')}`
-  const selectorId = `${agentId}-${slot}`
-  const candidates = MAIN_STAT_IDS_BY_AGENT_AND_SLOT[agentId][slot]
+  const tone = `disc-slot-${mainSlot.replace('slot', '')}`
+  const selectorId = `${agentId}-${mainSlot}`
+  const candidates = MAIN_STAT_IDS_BY_AGENT_AND_SLOT[agentId][mainSlot]
   const alternatives = candidates.filter((id) => id !== mainStatId)
   const isOpen = openSelector === selectorId
   const selected = MAIN_STATS[mainStatId]
@@ -466,7 +474,7 @@ function MainStatSelection({
 
   const content = (
     <>
-      <small className="main-stat-block__slot">DISC {slot.replace('slot', '')}</small>
+      <small className="main-stat-block__slot">DISC {mainSlot.replace('slot', '')}</small>
       <span className="main-stat-block__details">
         <span>{selected.label}</span>
         <strong>{mainStatDisplay(selected.numericValue)}</strong>
@@ -484,7 +492,7 @@ function MainStatSelection({
         <button
           type="button"
           className="main-stat-block main-stat-block--editable"
-          aria-label={`Change Disc ${slot.replace('slot', '')} main stat from ${selected.label}`}
+          aria-label={`Change Disc ${mainSlot.replace('slot', '')} main stat from ${selected.label}`}
           aria-expanded={isOpen}
           ref={openerRef}
           onClick={() => setOpenSelector(isOpen ? null : selectorId)}
@@ -495,7 +503,7 @@ function MainStatSelection({
       ) : (
         <div
           className="main-stat-block main-stat-block--fixed"
-          aria-label={`Disc ${slot.replace('slot', '')} ${selected.label} selected`}
+          aria-label={`Disc ${mainSlot.replace('slot', '')} ${selected.label} selected`}
         >
           {content}
           <span className="main-stat-block__fixed" role="img" aria-label="Fixed selection" />
@@ -504,7 +512,7 @@ function MainStatSelection({
       {isOpen && (
         <div
           className="selector-region selector-region--main"
-          aria-label={'Disc ' + slot.replace('slot', '') + ' main-stat candidates'}
+          aria-label={'Disc ' + mainSlot.replace('slot', '') + ' main-stat candidates'}
         >
           {alternatives.map((candidateId) => {
             const candidate = MAIN_STATS[candidateId]
@@ -512,12 +520,12 @@ function MainStatSelection({
               <button
                 type="button"
                 key={candidateId}
-                aria-label={`Select ${candidate.label} for Disc ${slot.replace('slot', '')}`}
+                aria-label={`Select ${candidate.label} for Disc ${mainSlot.replace('slot', '')}`}
                 onClick={() => {
                   dispatch({
                     type: 'selectMainStat',
-                    agentId,
-                    slot,
+                    slot: appliedSlot,
+                    mainSlot,
                     mainStatId: candidateId,
                   })
                   setOpenSelector(null)
@@ -538,19 +546,20 @@ function MainStatSelection({
 function EquipmentSelection({
   activeSourceTone,
   agentId,
+  slot,
   dispatch,
   onSourceToneChange,
   openSelector,
   setOpenSelector,
-  state,
+  setup,
 }: {
   agentId: AgentId
-  state: WorkbenchState
+  slot: AppliedSlot
+  setup: AgentSetupState
   dispatch: Dispatch<WorkbenchAction>
   openSelector: string | null
   setOpenSelector: (value: string | null) => void
 } & SourceInteractionProps) {
-  const setup = state.setups[agentId]
   if (!setup.fourPieceId || !setup.twoPieceId) return null
 
   return (
@@ -563,6 +572,7 @@ function EquipmentSelection({
         <DiscSelection
           activeSourceTone={activeSourceTone}
           agentId={agentId}
+          slot={slot}
           dispatch={dispatch}
           onSourceToneChange={onSourceToneChange}
           openSelector={openSelector}
@@ -573,6 +583,7 @@ function EquipmentSelection({
         <DiscSelection
           activeSourceTone={activeSourceTone}
           agentId={agentId}
+          slot={slot}
           dispatch={dispatch}
           onSourceToneChange={onSourceToneChange}
           openSelector={openSelector}
@@ -684,38 +695,40 @@ function SubstatStepper({
 function StatBank({
   activeSourceTone,
   agentId,
+  slot,
   dispatch,
   onSourceToneChange,
   openSelector,
   setOpenSelector,
-  state,
+  setup,
 }: {
   agentId: AgentId
-  state: WorkbenchState
+  slot: AppliedSlot
+  setup: AgentSetupState
   dispatch: Dispatch<WorkbenchAction>
   openSelector: string | null
   setOpenSelector: (value: string | null) => void
 } & SourceInteractionProps) {
-  const setup = state.setups[agentId]
   if (!Object.values(setup.mains).every(Boolean)) return null
-  const agent = PARTY_AGENTS.find(({ id }) => id === agentId)!
+  const agent = ADMITTED_AGENTS.find(({ id }) => id === agentId)!
 
   return (
     <section className="setup-group stat-bank" aria-labelledby={agentId + '-stat-bank-heading'}>
       <h3 id={agentId + '-stat-bank-heading'}><span>04</span> Stat bank</h3>
       <h4 className="stat-bank__group-heading">Main stats</h4>
       <div className="main-stat-grid" aria-label={agent.name + ' prepared main stats'}>
-        {(['slot4', 'slot5', 'slot6'] as MainSlot[]).map((slot) => (
+        {(['slot4', 'slot5', 'slot6'] as MainSlot[]).map((mainSlot) => (
           <MainStatSelection
             activeSourceTone={activeSourceTone}
             agentId={agentId}
+            appliedSlot={slot}
             dispatch={dispatch}
-            key={slot}
-            mainStatId={setup.mains[slot]!}
+            key={mainSlot}
+            mainStatId={setup.mains[mainSlot]!}
             onSourceToneChange={onSourceToneChange}
             openSelector={openSelector}
             setOpenSelector={setOpenSelector}
-            slot={slot}
+            mainSlot={mainSlot}
           />
         ))}
       </div>
@@ -729,19 +742,19 @@ function StatBank({
             label={choice.label}
             onDecrease={() => dispatch({
               type: 'adjustSubstat',
-              agentId,
+              slot,
               key: choice.id,
               delta: -1,
             })}
             onIncrease={() => dispatch({
               type: 'adjustSubstat',
-              agentId,
+              slot,
               key: choice.id,
               delta: 1,
             })}
             onSetCount={(value) => dispatch({
               type: 'setSubstat',
-              agentId,
+              slot,
               key: choice.id,
               value,
             })}
@@ -759,13 +772,13 @@ function StatBank({
 export function AgentSetup({
   activeSourceTone,
   agentId,
+  slot,
   dispatch,
   onSourceToneChange,
-  state,
+  setup,
 }: AgentSetupProps) {
   const [openSelector, setOpenSelector] = useState<string | null>(null)
-  const agent = PARTY_AGENTS.find(({ id }) => id === agentId)!
-  const setup = state.setups[agentId]
+  const agent = ADMITTED_AGENTS.find(({ id }) => id === agentId)!
 
   useEffect(() => {
     setOpenSelector(null)
@@ -777,6 +790,7 @@ export function AgentSetup({
         <PoolSelection
           activeSourceTone={activeSourceTone}
           agentId={agentId}
+          slot={slot}
           dispatch={dispatch}
           mindscape={setup.mindscape}
           onSourceToneChange={onSourceToneChange}
@@ -785,29 +799,32 @@ export function AgentSetup({
         <EngineSelection
           activeSourceTone={activeSourceTone}
           agentId={agentId}
+          slot={slot}
           dispatch={dispatch}
           onSourceToneChange={onSourceToneChange}
           openSelector={openSelector}
           setOpenSelector={setOpenSelector}
-          state={state}
+          setup={setup}
         />
         <EquipmentSelection
           activeSourceTone={activeSourceTone}
           agentId={agentId}
+          slot={slot}
           dispatch={dispatch}
           onSourceToneChange={onSourceToneChange}
           openSelector={openSelector}
           setOpenSelector={setOpenSelector}
-          state={state}
+          setup={setup}
         />
         <StatBank
           activeSourceTone={activeSourceTone}
           agentId={agentId}
+          slot={slot}
           dispatch={dispatch}
           onSourceToneChange={onSourceToneChange}
           openSelector={openSelector}
           setOpenSelector={setOpenSelector}
-          state={state}
+          setup={setup}
         />
       </div>
     </section>

@@ -9,7 +9,8 @@ import rankSMark from '../assets/game/ranks/s.webp'
 import ruptureMark from '../assets/game/specialties/rupture.webp'
 import stunMark from '../assets/game/specialties/stun.webp'
 import supportMark from '../assets/game/specialties/support.webp'
-import { PARTY_AGENTS, type AgentId } from '../workbench/content'
+import { ADMITTED_AGENTS, type AgentId } from '../workbench/content'
+import type { AppliedAgentSlot, AppliedSlot } from '../workbench/state'
 import { sourceToneEvents, type SourceInteractionProps } from './sourceInteraction'
 
 const PORTRAITS: Record<AgentId, string> = {
@@ -164,8 +165,10 @@ function PortraitArt({ agentId, variant }: { agentId: AgentId; variant: Portrait
 }
 
 interface PartyWorkbenchProps extends SourceInteractionProps {
-  viewedAgentId: AgentId | null
-  onViewAgent: (agentId: AgentId | null) => void
+  slots: [AppliedAgentSlot, AppliedAgentSlot, AppliedAgentSlot]
+  focusSlot: AppliedSlot
+  viewedSlot: AppliedSlot | null
+  onViewSlot: (slot: AppliedSlot | null) => void
   children: ReactNode
 }
 
@@ -185,13 +188,15 @@ function IdentityMarks({ agentId, attribute, specialty }: { agentId: AgentId; at
 }
 
 interface SlotControlProps extends SourceInteractionProps {
+  slot: AppliedSlot
   agentId: AgentId
+  isFocus: boolean
   onSelect: () => void
   onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void
 }
 
-function ExpandedIdentity({ activeSourceTone, agentId, onSourceToneChange, onSelect, onKeyDown }: SlotControlProps) {
-  const agent = PARTY_AGENTS.find((item) => item.id === agentId)!
+function ExpandedIdentity({ activeSourceTone, agentId, isFocus, onSourceToneChange, onSelect, onKeyDown, slot }: SlotControlProps) {
+  const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
   const identityTone = `agent-${agentId}`
   const identityTones = [identityTone, 'core', 'additional', 'ex-special']
   const matchingTone = identityTones.find((tone) => tone === activeSourceTone)
@@ -202,11 +207,12 @@ function ExpandedIdentity({ activeSourceTone, agentId, onSourceToneChange, onSel
   return (
     <button
       type="button"
-      id={`party-tab-${agent.id}`}
+      id={`party-tab-${slot + 1}`}
       className={className}
       role="tab"
+      tabIndex={0}
       aria-selected="true"
-      aria-controls="party-panel"
+      aria-controls={`party-panel-${slot + 1}`}
       aria-label={`Close ${agent.name} setup and Result`}
       onClick={onSelect}
       onKeyDown={onKeyDown}
@@ -216,7 +222,7 @@ function ExpandedIdentity({ activeSourceTone, agentId, onSourceToneChange, onSel
       <span className="identity-shade" aria-hidden="true" />
       <span className="source-tint" aria-hidden="true" />
       <span className="identity-copy">
-        <strong className={`focus-marker ${agent.id === 'yixuan' ? '' : 'focus-marker--reserved'}`} aria-hidden={agent.id !== 'yixuan'}>Focus</strong>
+        <strong className={`focus-marker ${isFocus ? '' : 'focus-marker--reserved'}`} aria-hidden={!isFocus}>Focus</strong>
         <span className="slot-name-line"><strong className="identity-name">{agent.name}</strong></span>
         <span className="identity-band">
           <RankMark />
@@ -227,20 +233,20 @@ function ExpandedIdentity({ activeSourceTone, agentId, onSourceToneChange, onSel
   )
 }
 
-function CompactSlot({ activeSourceTone, agentId, isOverview = false, onSourceToneChange, onSelect, onKeyDown }: SlotControlProps & { isOverview?: boolean }) {
-  const agent = PARTY_AGENTS.find((item) => item.id === agentId)!
+function CompactSlot({ activeSourceTone, agentId, isFocus, isOverview = false, onSourceToneChange, onSelect, onKeyDown, slot }: SlotControlProps & { isOverview?: boolean }) {
+  const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
   const tone = `agent-${agentId}`
   const className = `party-slot party-slot--compact source-target source-tone--${tone}${activeSourceTone === tone ? ' is-source-active' : ''}`
 
   return (
     <button
       type="button"
-      id={`party-tab-${agent.id}`}
+      id={`party-tab-${slot + 1}`}
       className={className}
       role={isOverview ? undefined : 'tab'}
       tabIndex={isOverview ? 0 : -1}
       aria-selected={isOverview ? undefined : 'false'}
-      aria-controls={isOverview ? undefined : 'party-panel'}
+      aria-controls={isOverview ? undefined : `party-panel-${slot + 1}`}
       aria-label={`View ${agent.name} setup and Result`}
       onClick={onSelect}
       onKeyDown={onKeyDown}
@@ -256,107 +262,114 @@ function CompactSlot({ activeSourceTone, agentId, isOverview = false, onSourceTo
           <IdentityMarks agentId={agent.id} attribute={agent.attribute} specialty={agent.specialty} />
         </span>
       </span>
-      <strong className={`focus-marker ${agent.id === 'yixuan' ? '' : 'focus-marker--reserved'}`} aria-hidden={agent.id !== 'yixuan'}>Focus</strong>
+      <strong className={`focus-marker ${isFocus ? '' : 'focus-marker--reserved'}`} aria-hidden={!isFocus}>Focus</strong>
     </button>
   )
 }
 
 export function PartyWorkbench({
   activeSourceTone,
-  viewedAgentId,
+  slots,
+  focusSlot,
+  viewedSlot,
   onSourceToneChange,
-  onViewAgent,
+  onViewSlot,
   children,
 }: PartyWorkbenchProps) {
-  const previousViewedAgentId = useRef<AgentId | null>(viewedAgentId)
+  const previousViewedSlot = useRef<AppliedSlot | null>(viewedSlot)
 
   useEffect(() => {
-    if (previousViewedAgentId.current === viewedAgentId) return
-    const focusAgentId = viewedAgentId ?? previousViewedAgentId.current
-    previousViewedAgentId.current = viewedAgentId
-    if (focusAgentId) document.getElementById(`party-tab-${focusAgentId}`)?.focus()
-  }, [viewedAgentId])
+    if (previousViewedSlot.current === viewedSlot) return
+    const focusSlot = viewedSlot ?? previousViewedSlot.current
+    previousViewedSlot.current = viewedSlot
+    if (focusSlot !== null) document.getElementById(`party-tab-${focusSlot + 1}`)?.focus()
+  }, [viewedSlot])
 
   const navigateSlots = (
-    agentId: AgentId,
+    slot: AppliedSlot,
     event: KeyboardEvent<HTMLButtonElement>,
   ) => {
-    const index = PARTY_AGENTS.findIndex((agent) => agent.id === agentId)
+    const index = slot
     let nextIndex: number | undefined
 
     if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
-      nextIndex = (index + 1) % PARTY_AGENTS.length
+      nextIndex = (index + 1) % slots.length
     } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
-      nextIndex = (index - 1 + PARTY_AGENTS.length) % PARTY_AGENTS.length
+      nextIndex = (index - 1 + slots.length) % slots.length
     } else if (event.key === 'Home') {
       nextIndex = 0
     } else if (event.key === 'End') {
-      nextIndex = PARTY_AGENTS.length - 1
+      nextIndex = slots.length - 1
     }
 
     if (nextIndex === undefined) return
     event.preventDefault()
-    onViewAgent(PARTY_AGENTS[nextIndex].id)
+    onViewSlot(nextIndex as AppliedSlot)
   }
   return (
     <section className="party-section" aria-labelledby="party-heading">
       <div className="section-kicker">
         <h2 id="party-heading">Applied party</h2>
-        <span>Focus {'\u00B7'} Yixuan</span>
+        <span>Focus {'\u00B7'} {ADMITTED_AGENTS.find(({ id }) => id === slots[focusSlot].agentId)!.name}</span>
       </div>
       <ol
-        className={`party-rail ${viewedAgentId ? `party-rail--view-${viewedAgentId}` : 'party-rail--overview'}`}
-        role={viewedAgentId ? 'tablist' : undefined}
+        className={`party-rail ${viewedSlot !== null ? `party-rail--view-${viewedSlot + 1}` : 'party-rail--overview'}`}
+        role={viewedSlot !== null ? 'tablist' : undefined}
         aria-label="Applied party slots"
       >
-        {PARTY_AGENTS.map((agent) => {
-          const selected = agent.id === viewedAgentId
+        {slots.map(({ agentId }, slot) => {
+          const slotPosition = slot as AppliedSlot
+          const selected = slotPosition === viewedSlot
 
           return (
             <li
-              key={agent.id}
+              key={slotPosition}
               role="presentation"
               className={selected ? 'party-slot party-slot--expanded' : undefined}
             >
               {selected ? (
                 <ExpandedIdentity
                   activeSourceTone={activeSourceTone}
-                  agentId={agent.id}
+                  agentId={agentId}
+                  isFocus={slotPosition === focusSlot}
+                  slot={slotPosition}
                   onSourceToneChange={onSourceToneChange}
-                  onSelect={() => onViewAgent(null)}
+                  onSelect={() => onViewSlot(null)}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
                       event.preventDefault()
-                      onViewAgent(null)
+                      onViewSlot(null)
                       return
                     }
-                    navigateSlots(agent.id, event)
+                    navigateSlots(slotPosition, event)
                   }}
                 />
               ) : (
                 <CompactSlot
                   activeSourceTone={activeSourceTone}
-                  agentId={agent.id}
-                  isOverview={viewedAgentId === null}
+                  agentId={agentId}
+                  isFocus={slotPosition === focusSlot}
+                  isOverview={viewedSlot === null}
+                  slot={slotPosition}
                   onSourceToneChange={onSourceToneChange}
-                  onSelect={() => onViewAgent(agent.id)}
+                  onSelect={() => onViewSlot(slotPosition)}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
                       event.preventDefault()
-                      onViewAgent(agent.id)
+                      onViewSlot(slotPosition)
                       return
                     }
-                    navigateSlots(agent.id, event)
+                    navigateSlots(slotPosition, event)
                   }}
                 />
               )}
               {selected && (
                 <div
-                  id="party-panel"
+                  id={`party-panel-${slotPosition + 1}`}
                   className="expanded-slot__workbench"
                   role="tabpanel"
-                  aria-labelledby={`party-tab-${agent.id}`}
-                  data-agent={agent.id}
+                  aria-labelledby={`party-tab-${slotPosition + 1}`}
+                  data-agent={agentId}
                 >
                   {children}
                 </div>

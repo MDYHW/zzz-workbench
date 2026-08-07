@@ -27,11 +27,8 @@ import {
   effectiveSubstatInput,
   engineAdvancedInput,
   mainStatInput,
-  resolveDialynEffects,
-  resolveDialynStunDuration,
-  resolveLuciaEffects,
-  resolveLuciaProviderClauses,
-  resolveYixuanEffects,
+  resolveDeliveredClauses,
+  resolveProviderClauses,
   source,
 } from './effects'
 
@@ -96,6 +93,30 @@ export interface AgentResult {
 
 export interface PartyResult {
   agents: AgentResult[]
+}
+
+type ProviderContext =
+  | {
+    agentId: 'yixuan'
+    slot: WorkbenchState['slots'][number]
+    setup: CompleteSetup
+  }
+  | {
+    agentId: 'dialyn'
+    slot: WorkbenchState['slots'][number]
+    setup: CompleteSetup
+    initialCrit: DialynInitialCritObservation
+  }
+  | {
+    agentId: 'lucia'
+    slot: WorkbenchState['slots'][number]
+    setup: CompleteSetup
+    initialHp: { value: number; breakdown: Contribution[] }
+    squadSheer: ReturnType<typeof calculateLuciaSquadSheer>
+  }
+
+function assertNever(value: never): never {
+  throw new Error(`Unhandled Agent context: ${String(value)}`)
 }
 
 const surfaces = <T>(initial: T, combat: T, fully: T): Record<SurfaceKey, T> => ({
@@ -455,14 +476,37 @@ function buildYixuanActionModifiers(
   return actions
 }
 
+function orderYixuanEffects(effects: ResolvedCurrentEffect[]): ResolvedCurrentEffect[] {
+  const priority = (effect: ResolvedCurrentEffect): number => {
+    if (effect.metric === 'sheerForce') return effect.source.ownerAgentId === 'lucia' ? 0 : 1
+    if (effect.metric === 'critDmg') {
+      if (effect.source.ownerAgentId === 'dialyn') return 1
+      if (effect.source.ownerAgentId === 'lucia') return 2
+      return effect.source.label === SOURCE_LABELS.yixuanAbility ? 0 : 3
+    }
+    if (effect.metric === 'dmgBonus') {
+      if (effect.source.ownerAgentId === 'dialyn') return 1
+      if (effect.source.ownerAgentId === 'lucia') return 2
+      if (
+        !effect.action
+        && effect.earliestSurface === 'fully'
+        && effect.source.ownerAgentId === 'yixuan'
+        && effect.source.locus === 'w-engine'
+      ) return 3
+      return 0
+    }
+    if (effect.metric === 'resIgnore') return effect.source.ownerAgentId === 'dialyn' ? 0 : 1
+    return effect.source.ownerAgentId === 'lucia' ? 1 : 0
+  }
+  return [...effects].sort((left, right) => priority(left) - priority(right))
+}
+
 function calculateYixuan(
-  state: WorkbenchState,
-  luciaSquadSheer: ReturnType<typeof calculateLuciaSquadSheer>,
-  dialynInitialCrit: DialynInitialCritObservation,
-  luciaClauses: SourceBoundCurrentClause[],
+  setup: CompleteSetup,
+  inbox: SourceBoundCurrentClause[],
+  enemyContext: SourceBoundCurrentClause[],
 ): AgentResult {
   const values = VERTICAL_VALUES
-  const setup = completeSetup(state, 'yixuan')
   const yixuan = values.yixuan
   const engine = W_ENGINES[setup.engineId]
 
@@ -489,12 +533,10 @@ function calculateYixuan(
 
   const baseAtk = yixuan.atk + engine.baseAtk
   const initialAtk = baseAtk * (1 + (engineAtk?.rawValue ?? 0) / 100) + values.fixedDisc.atk
-  const effects = resolveYixuanEffects(state, {
-    initialHp,
-    baseAtk,
-    dialynInitialCritRate: dialynInitialCrit.value,
-    luciaSquadSheer,
-  }, luciaClauses)
+  const effects = orderYixuanEffects(resolveDeliveredClauses(
+    [...inbox, ...enemyContext],
+    { maxHp: initialHp, atk: baseAtk },
+  ))
 
   const mainCritRate = mainStatInput(setup, 'yixuan', 'slot4', 'critRate')
   const mainCritDmg = mainStatInput(setup, 'yixuan', 'slot4', 'critDmg')
@@ -743,17 +785,27 @@ function calculateYixuan(
 }
 
 function calculateDialyn(
-  state: WorkbenchState,
+  setup: CompleteSetup,
   initialCrit: DialynInitialCritObservation,
-  luciaClauses: SourceBoundCurrentClause[],
+  inbox: SourceBoundCurrentClause[],
+  enemyContext: SourceBoundCurrentClause[],
 ): AgentResult {
   const values = VERTICAL_VALUES
-  const setup = completeSetup(state, 'dialyn')
   const dialyn = values.dialyn
 
-  const resolved = resolveDialynEffects(state, initialCrit.value, luciaClauses)
+  const effects = resolveDeliveredClauses(inbox, { impact: dialyn.impact })
+  const impactFromCrit = Math.min(
+    Math.max(initialCrit.value - dialyn.critThreshold, 0) * dialyn.impactPerCrit,
+    dialyn.impactBonusCap,
+  )
   const advancedImpact = engineAdvancedInput(setup, 'dialyn', 'impactPct')
-  const initialImpact = dialyn.impact * (1 + (advancedImpact?.rawValue ?? 0) / 100)
+  const slotImpact = mainStatInput(setup, 'dialyn', 'slot6', 'impact')
+  const initialImpactInputs = [advancedImpact, slotImpact].filter(
+    (input): input is ResolvedSetupInput => Boolean(input),
+  )
+  const initialImpact = dialyn.impact * (
+    1 + initialImpactInputs.reduce((total, input) => total + input.rawValue, 0) / 100
+  )
 
   const engineEnergyRegen = engineAdvancedInput(setup, 'dialyn', 'energyRegenPct')
   const slotEnergyRegen = mainStatInput(setup, 'dialyn', 'slot6', 'energyRegenPct')
@@ -772,7 +824,7 @@ function calculateDialyn(
   const energyRegen = energyRegenProjection(
     dialyn.baseEnergyRegen,
     initialEnergyRegenInputs,
-    resolved.effects,
+    effects,
   )
 
   const kingDaze = discStatInput(
@@ -798,22 +850,22 @@ function calculateDialyn(
       [],
       [],
     ),
-    resolved.effects,
+    effects,
     'critRate',
     { value: 100, source: STATIC_SOURCES.dialyn.critCap },
   )
   const impact = composeMetricEffects(
     surfaces(initialImpact, initialImpact, initialImpact),
     surfaces(
-      withoutZero(advancedImpact ? [percentageContribution(
-        advancedImpact.source,
-        initialImpact - dialyn.impact,
-        advancedImpact.rawValue,
-      )] : []),
+      withoutZero(initialImpactInputs.map((input) => percentageContribution(
+        input.source,
+        dialyn.impact * input.rawValue / 100,
+        input.rawValue,
+      ))),
       [],
       [],
     ),
-    resolved.effects,
+    effects,
     'impact',
   )
   const dazeBonus = composeMetricEffects(
@@ -825,10 +877,13 @@ function calculateDialyn(
       [],
       [],
     ),
-    resolved.effects,
+    effects,
     'dazeBonus',
   )
-  const stunDuration = resolveDialynStunDuration(state)
+  const enemyEffects = resolveDeliveredClauses(enemyContext, {})
+  const stunDuration = enemyEffects.find((effect) => (
+    effect.metric === 'stunDuration' && effect.source.ownerAgentId === 'yixuan'
+  )) ?? enemyEffects.find((effect) => effect.metric === 'stunDuration')!
 
   return {
     agentId: 'dialyn',
@@ -846,7 +901,7 @@ function calculateDialyn(
           threshold: dialyn.critThreshold,
           cap: 100,
           outputLabel: 'Combat Impact bonus',
-          outputValue: resolved.impactFromCrit.amount,
+          outputValue: impactFromCrit,
           outputUnit: '',
         },
       },
@@ -880,7 +935,7 @@ function calculateDialyn(
         label: 'Enemy Stun duration',
         source: stunDuration.source,
         surface: 'fully',
-        value: stunDuration.value,
+        value: stunDuration.amount,
         unit: 's',
       },
     ],
@@ -888,16 +943,15 @@ function calculateDialyn(
 }
 
 function calculateLucia(
-  state: WorkbenchState,
+  setup: CompleteSetup,
   initialHp: number,
   hpInitialBreakdown: Contribution[],
   squadSheer: ReturnType<typeof calculateLuciaSquadSheer>,
-  luciaClauses: SourceBoundCurrentClause[],
+  inbox: SourceBoundCurrentClause[],
 ): AgentResult {
   const values = VERTICAL_VALUES
-  const setup = completeSetup(state, 'lucia')
   const lucia = values.lucia
-  const effects = resolveLuciaEffects(luciaClauses, initialHp)
+  const effects = resolveDeliveredClauses(inbox, { maxHp: initialHp })
   const maxHp = composeMetricEffects(
     surfaces(initialHp, initialHp, initialHp),
     surfaces(hpInitialBreakdown, [], []),
@@ -962,25 +1016,101 @@ function calculateLucia(
 export function calculateParty(state: WorkbenchState): PartyResult | null {
   if (!isCompleteWorkbench(state)) return null
 
-  const luciaSetup = completeSetup(state, 'lucia')
-  const luciaHp = calculateLuciaInitialHp(luciaSetup)
-  const luciaSquadSheer = calculateLuciaSquadSheer(luciaHp.value, luciaSetup)
-  const dialynInitialCrit = resolveDialynInitialCritObservation(
-    completeSetup(state, 'dialyn'),
-  )
-  const luciaClauses = resolveLuciaProviderClauses(state)
+  const contexts: ProviderContext[] = []
+  const inboxes: [
+    SourceBoundCurrentClause[],
+    SourceBoundCurrentClause[],
+    SourceBoundCurrentClause[],
+  ] = [[], [], []]
+  const enemyContext: SourceBoundCurrentClause[] = []
+
+  for (const slot of state.slots) {
+    const setup = completeSetup(slot)
+    let context: ProviderContext
+    switch (slot.agentId) {
+      case 'yixuan':
+        context = { agentId: slot.agentId, slot, setup }
+        break
+      case 'dialyn':
+        context = {
+          agentId: slot.agentId,
+          slot,
+          setup,
+          initialCrit: resolveDialynInitialCritObservation(setup),
+        }
+        break
+      case 'lucia': {
+        const initialHp = calculateLuciaInitialHp(setup)
+        context = {
+          agentId: slot.agentId,
+          slot,
+          setup,
+          initialHp,
+          squadSheer: calculateLuciaSquadSheer(initialHp.value, setup),
+        }
+        break
+      }
+      default:
+        assertNever(slot.agentId)
+    }
+    contexts.push(context)
+    let clauses: SourceBoundCurrentClause[]
+    switch (context.agentId) {
+      case 'yixuan':
+        clauses = resolveProviderClauses(context.slot)
+        break
+      case 'dialyn':
+        clauses = resolveProviderClauses(context.slot, {
+          initialCritRate: context.initialCrit.value,
+        })
+        break
+      case 'lucia':
+        clauses = resolveProviderClauses(context.slot, {
+          squadSheer: context.squadSheer,
+        })
+        break
+      default:
+        assertNever(context)
+    }
+    for (const clause of clauses) {
+      if (clause.recipient === 'enemy-context') {
+        enemyContext.push(clause)
+        continue
+      }
+      for (const [index, recipient] of state.slots.entries()) {
+        const receives = clause.recipient === 'all-party'
+          || (clause.recipient === 'self' && recipient === context.slot)
+          || (clause.recipient === 'focus' && index === state.focusSlot)
+          || (clause.recipient === 'other-party' && recipient !== context.slot)
+        if (receives) inboxes[index].push(clause)
+      }
+    }
+  }
 
   return {
-    agents: [
-      calculateYixuan(state, luciaSquadSheer, dialynInitialCrit, luciaClauses),
-      calculateDialyn(state, dialynInitialCrit, luciaClauses),
-      calculateLucia(
-        state,
-        luciaHp.value,
-        luciaHp.breakdown,
-        luciaSquadSheer,
-        luciaClauses,
-      ),
-    ],
+    agents: state.slots.map((_slot, index) => {
+      const context = contexts[index]
+      switch (context.agentId) {
+        case 'yixuan':
+          return calculateYixuan(context.setup, inboxes[index], enemyContext)
+        case 'dialyn':
+          return calculateDialyn(
+            context.setup,
+            context.initialCrit,
+            inboxes[index],
+            enemyContext,
+          )
+        case 'lucia':
+          return calculateLucia(
+            context.setup,
+            context.initialHp.value,
+            context.initialHp.breakdown,
+            context.squadSheer,
+            inboxes[index],
+          )
+        default:
+          return assertNever(context)
+      }
+    }),
   }
 }

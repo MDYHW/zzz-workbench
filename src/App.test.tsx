@@ -2,6 +2,8 @@ import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { App } from './App'
+import { PartyWorkbench } from './components/PartyWorkbench'
+import { createPreparedState } from './workbench/state'
 
 describe('integrated party workbench', () => {
   it('starts with one expanded prepared setup and one visible Result', () => {
@@ -13,6 +15,15 @@ describe('integrated party workbench', () => {
     expect(screen.getByRole('tab', { name: 'View Dialyn setup and Result' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'View Lucia setup and Result' })).toBeInTheDocument()
     expect(screen.queryByLabelText(/party effects/i)).not.toBeInTheDocument()
+
+    const selected = screen.getByRole('tab', { name: 'Close Yixuan setup and Result' })
+    const panel = document.getElementById('party-panel-1')!
+    expect(selected).toHaveAttribute('aria-selected', 'true')
+    expect(selected).toHaveAttribute('aria-controls', 'party-panel-1')
+    expect(panel).toHaveAttribute('aria-labelledby', 'party-tab-1')
+    expect(selected).toHaveAttribute('tabindex', '0')
+    expect(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+      .toHaveAttribute('tabindex', '-1')
   })
 
   it('renders a Result quantity only while it has a current consumer', async () => {
@@ -387,6 +398,40 @@ describe('integrated party workbench', () => {
       name: 'Change Disc 5 main stat from PEN Ratio',
     })).toHaveFocus()
     expect(screen.queryByRole('button', { name: 'PEN Ratio' })).not.toBeInTheDocument()
+  })
+
+  it('offers Dialyn Slot 6 Impact and recalculates its existing Result row', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('tab', {
+      name: 'View Dialyn setup and Result',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Change Disc 6 main stat from Energy Regen',
+    }))
+    const candidates = screen.getByLabelText('Disc 6 main-stat candidates')
+    const impactChoice = within(candidates).getByRole('button', {
+      name: 'Select Impact for Disc 6',
+    })
+    expect(impactChoice).toBeInTheDocument()
+
+    await user.click(impactChoice)
+    const selectedSlot6 = screen.getByRole('button', {
+      name: 'Change Disc 6 main stat from Impact',
+    })
+    expect(selectedSlot6).toHaveFocus()
+    expect(screen.getByRole('row', {
+      name: /Impact.*129[.]8.*180[.]6.*180[.]6/,
+    })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Impact' }))
+    const impactSources = screen.getByRole('table', {
+      name: 'Impact source contributions',
+    })
+    expect(within(impactSources).getByRole('row', {
+      name: /Drive Disc.*Slot 6.*[+]18%/,
+    })).toHaveAttribute('data-source-tone', 'disc-slot-6')
   })
 
   it('recalculates Lucia Slot 6 support through the existing Result flow', async () => {
@@ -823,6 +868,29 @@ describe('integrated party workbench', () => {
     expect(returned).toHaveFocus()
     await user.tab()
     expect(screen.getByRole('button', { name: 'M0' })).toHaveFocus()
+  })
+
+  it('keeps focus position independent from the viewed slot', () => {
+    const state = createPreparedState()
+    render(
+      <PartyWorkbench
+        activeSourceTone={null}
+        focusSlot={2}
+        onSourceToneChange={() => {}}
+        onViewSlot={() => {}}
+        slots={state.slots}
+        viewedSlot={1}
+      >
+        <div>Fixture workbench</div>
+      </PartyWorkbench>,
+    )
+
+    expect(screen.getByText('Focus · Lucia')).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Close Dialyn setup and Result' }))
+      .toHaveAttribute('aria-selected', 'true')
+    expect(screen.getAllByText('Focus').filter((marker) => (
+      marker.getAttribute('aria-hidden') === 'false'
+    ))).toHaveLength(1)
   })
 
   it('returns to equal compact slots and restores focus when the expanded identity closes', async () => {

@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
-import { PARTY_AGENTS } from '../workbench/content'
+import { ADMITTED_AGENTS } from '../workbench/content'
 import type {
   ActionModifier,
   AgentResult,
@@ -73,7 +73,7 @@ function sourceLabel(
   currentAgentId: AgentResult['agentId'],
 ): string {
   if (source.ownerAgentId === currentAgentId) return source.label
-  const provider = PARTY_AGENTS.find((agent) => agent.id === source.ownerAgentId)!
+  const provider = ADMITTED_AGENTS.find((agent) => agent.id === source.ownerAgentId)!
   return [provider.name, source.label].join(' \u00B7 ')
 }
 
@@ -503,7 +503,7 @@ export function ResultPanel({
     else next.add(metricId)
     return next
   })
-  const agentName = PARTY_AGENTS.find((agent) => agent.id === agentResult.agentId)!.name
+  const agentName = ADMITTED_AGENTS.find((agent) => agent.id === agentResult.agentId)!.name
 
   return (
     <section className="result-panel" aria-labelledby="result-heading">

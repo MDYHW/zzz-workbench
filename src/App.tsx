@@ -4,8 +4,7 @@ import { PartyWorkbench } from './components/PartyWorkbench'
 import { ResultPanel } from './components/ResultPanel'
 import type { SourceToneChannel } from './components/sourceInteraction'
 import { calculateParty } from './workbench/calculate'
-import type { AgentId } from './workbench/content'
-import { createPreparedState, workbenchReducer } from './workbench/state'
+import { createPreparedState, workbenchReducer, type AppliedSlot } from './workbench/state'
 
 const emptySourceTones: Record<SourceToneChannel, string | null> = {
   pointer: null,
@@ -14,19 +13,20 @@ const emptySourceTones: Record<SourceToneChannel, string | null> = {
 
 export function App() {
   const [state, dispatch] = useReducer(workbenchReducer, undefined, () => createPreparedState())
-  const [viewedAgentId, setViewedAgentId] = useState<AgentId | null>('yixuan')
+  const [viewedSlot, setViewedSlot] = useState<AppliedSlot | null>(0)
   const [sourceTones, setSourceTones] = useState(emptySourceTones)
   const activeSourceTone = sourceTones.pointer ?? sourceTones.focus
   const result = calculateParty(state)
-  const agentResult = viewedAgentId
-    ? result?.agents.find((agent) => agent.agentId === viewedAgentId) ?? null
-    : null
+  const viewedSetup = viewedSlot === null ? null : state.slots[viewedSlot]
+  const agentResult = viewedSlot === null
+    ? null
+    : result?.agents[viewedSlot] ?? null
   const changeSourceTone = (channel: SourceToneChannel, tone: string | null) =>
     setSourceTones((current) => ({ ...current, [channel]: tone }))
 
   useEffect(() => {
     setSourceTones(emptySourceTones)
-  }, [viewedAgentId])
+  }, [viewedSlot])
 
   return (
     <div className="app-shell">
@@ -38,16 +38,19 @@ export function App() {
       <main>
         <PartyWorkbench
           activeSourceTone={activeSourceTone}
-          viewedAgentId={viewedAgentId}
+          slots={state.slots}
+          focusSlot={state.focusSlot}
+          viewedSlot={viewedSlot}
           onSourceToneChange={changeSourceTone}
-          onViewAgent={setViewedAgentId}
+          onViewSlot={setViewedSlot}
         >
-          {viewedAgentId && (
+          {viewedSetup && viewedSlot !== null && (
             <>
               <AgentSetup
                 activeSourceTone={activeSourceTone}
-                agentId={viewedAgentId}
-                state={state}
+                slot={viewedSlot}
+                agentId={viewedSetup.agentId}
+                setup={viewedSetup.setup}
                 dispatch={dispatch}
                 onSourceToneChange={changeSourceTone}
               />

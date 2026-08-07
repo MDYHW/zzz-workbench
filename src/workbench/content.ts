@@ -52,6 +52,7 @@ export type MainStatId =
   | 'atkPct'
   | 'physicalDmg'
   | 'penRatio'
+  | 'impact'
   | 'energyRegenPct'
 export type SubstatId = 'critRate' | 'critDmg' | 'hpPct' | 'hpFlat'
 
@@ -103,7 +104,6 @@ export interface SetupSelection {
 
 export interface AgentSummary {
   id: AgentId
-  order: number
   name: string
   attribute: string
   specialty: string
@@ -450,6 +450,7 @@ export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
   atkPct: { id: 'atkPct', label: 'ATK%', numericValue: 30 },
   physicalDmg: { id: 'physicalDmg', label: 'Physical DMG', numericValue: 30 },
   penRatio: { id: 'penRatio', label: 'PEN Ratio', numericValue: 24 },
+  impact: { id: 'impact', label: 'Impact', numericValue: 18 },
   energyRegenPct: {
     id: 'energyRegenPct',
     label: 'Energy Regen',
@@ -469,7 +470,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   dialyn: {
     slot4: ['critRate'],
     slot5: ['atkPct', 'physicalDmg', 'penRatio'],
-    slot6: ['energyRegenPct'],
+    slot6: ['energyRegenPct', 'impact'],
   },
   lucia: {
     slot4: ['hpPct'],
@@ -539,28 +540,31 @@ export function preparedSetupFor(
   return prepared
 }
 
-export const PARTY_AGENTS: AgentSummary[] = [
+export const ADMITTED_AGENTS: AgentSummary[] = [
   {
     id: 'yixuan',
-    order: 1,
     name: 'Yixuan',
     attribute: 'Auric Ink',
     specialty: 'Rupture',
   },
   {
     id: 'dialyn',
-    order: 2,
     name: 'Dialyn',
     attribute: 'Physical',
     specialty: 'Stun',
   },
   {
     id: 'lucia',
-    order: 3,
     name: 'Lucia',
     attribute: 'Ether',
     specialty: 'Support',
   },
+]
+
+export const DEFAULT_APPLIED_AGENT_IDS: [AgentId, AgentId, AgentId] = [
+  'yixuan',
+  'dialyn',
+  'lucia',
 ]
 
 export const VERTICAL_VALUES = {

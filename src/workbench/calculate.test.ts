@@ -39,12 +39,18 @@ function sourceLabels(items: Contribution[]): string[] {
   return items.map((item) => [item.label, item.detail].filter(Boolean).join(' \u00B7 '))
 }
 
+function slotOf(state: WorkbenchState, agentId: AgentId): 0 | 1 | 2 {
+  const index = state.slots.findIndex((slot) => slot.agentId === agentId)
+  if (index < 0) throw new Error(`Missing ${agentId} slot`)
+  return index as 0 | 1 | 2
+}
+
 function selectEngine(
   state: WorkbenchState,
   agentId: AgentId,
   engineId: EngineId,
 ): WorkbenchState {
-  return workbenchReducer(state, { type: 'selectEngine', agentId, engineId })
+  return workbenchReducer(state, { type: 'selectEngine', slot: slotOf(state, agentId), engineId })
 }
 
 function setRefinement(
@@ -52,7 +58,7 @@ function setRefinement(
   agentId: AgentId,
   refinement: Refinement,
 ): WorkbenchState {
-  return workbenchReducer(state, { type: 'setRefinement', agentId, refinement })
+  return workbenchReducer(state, { type: 'setRefinement', slot: slotOf(state, agentId), refinement })
 }
 
 function selectDisc(
@@ -61,7 +67,7 @@ function selectDisc(
   piece: 'fourPiece' | 'twoPiece',
   discId: DiscId,
 ): WorkbenchState {
-  return workbenchReducer(state, { type: 'selectDisc', agentId, piece, discId })
+  return workbenchReducer(state, { type: 'selectDisc', slot: slotOf(state, agentId), piece, discId })
 }
 
 function selectMain(
@@ -72,8 +78,8 @@ function selectMain(
 ): WorkbenchState {
   return workbenchReducer(state, {
     type: 'selectMainStat',
-    agentId,
-    slot,
+    slot: slotOf(state, agentId),
+    mainSlot: slot,
     mainStatId,
   })
 }
@@ -84,7 +90,7 @@ function setSubstat(
   key: SubstatId,
   value: number,
 ): WorkbenchState {
-  return workbenchReducer(state, { type: 'setSubstat', agentId, key, value })
+  return workbenchReducer(state, { type: 'setSubstat', slot: slotOf(state, agentId), key, value })
 }
 
 function withMindscape(
@@ -92,16 +98,27 @@ function withMindscape(
   agentId: AgentId,
   mindscape: Mindscape,
 ): WorkbenchState {
+  const slot = slotOf(state, agentId)
+  const slots = [...state.slots] as WorkbenchState['slots']
+  slots[slot] = {
+    ...slots[slot],
+    setup: { ...slots[slot].setup, mindscape },
+  }
   return {
     ...state,
-    setups: {
-      ...state.setups,
-      [agentId]: {
-        ...state.setups[agentId],
-        mindscape,
-      },
-    },
+    slots,
   }
+}
+
+function withSetup(
+  state: WorkbenchState,
+  agentId: AgentId,
+  update: (setup: WorkbenchState['slots'][number]['setup']) => WorkbenchState['slots'][number]['setup'],
+): WorkbenchState {
+  const slot = slotOf(state, agentId)
+  const slots = [...state.slots] as WorkbenchState['slots']
+  slots[slot] = { ...slots[slot], setup: update(slots[slot].setup) }
+  return { ...state, slots }
 }
 
 describe('calculateParty', () => {
@@ -167,6 +184,47 @@ describe('calculateParty', () => {
       combat: 1.96,
       fully: 1.96,
     })
+  })
+
+  it('uses applied slot order for output without changing current per-Agent Results', () => {
+    const baseline = calculateParty(createPreparedState())!
+    const reordered = calculateParty(createPreparedState({}, ['lucia', 'dialyn', 'yixuan'], 2))!
+
+    expect(reordered.agents.map(({ agentId }) => agentId)).toEqual(['lucia', 'dialyn', 'yixuan'])
+    for (const agentId of ['yixuan', 'dialyn', 'lucia'] as AgentId[]) {
+      expect(agent(reordered, agentId)).toEqual(agent(baseline, agentId))
+    }
+    expect(sourceLabels(metric(agent(reordered, 'yixuan'), 'critDmg').breakdown.fully))
+      .toEqual(sourceLabels(metric(agent(baseline, 'yixuan'), 'critDmg').breakdown.fully))
+  })
+
+  it('orders Cauldron Fully DMG sources by the authored cross-provider sequence', () => {
+    const sourceOrder = (state: WorkbenchState) => sourceLabels(metric(
+      agent(calculateParty(selectEngine(state, 'yixuan', 'cauldron'))!, 'yixuan'),
+      'dmgBonus',
+    ).breakdown.fully)
+
+    const expected = [
+      'Additional Ability',
+      'Core Passive',
+      'Moonlight Lullaby \u00B7 4-piece',
+      'Dreamlit Hearth \u00B7 W1',
+      'Cauldron of Clarity \u00B7 W5',
+    ]
+    expect(sourceOrder(createPreparedState())).toEqual(expected)
+    expect(sourceOrder(createPreparedState({}, ['lucia', 'dialyn', 'yixuan'], 2)))
+      .toEqual(expected)
+  })
+
+  it('delivers Dialyn M2 to the configured focus slot rather than a named Agent position', () => {
+    const focusedYixuan = createPreparedState({}, ['dialyn', 'lucia', 'yixuan'], 2)
+    const m1 = calculateParty(withMindscape(focusedYixuan, 'dialyn', 1))!
+    const m2 = calculateParty(withMindscape(focusedYixuan, 'dialyn', 2))!
+
+    expect(metric(agent(m2, 'yixuan'), 'dmgBonus').values.fully
+      - metric(agent(m1, 'yixuan'), 'dmgBonus').values.fully).toBeCloseTo(15)
+    expect(metric(agent(m2, 'lucia'), 'maxHp').values)
+      .toEqual(metric(agent(m1, 'lucia'), 'maxHp').values)
   })
 
   it('recalculates Lucia Slot 6 Energy Regen and downstream Sheer Force', () => {
@@ -339,6 +397,27 @@ describe('calculateParty', () => {
 
     expect(isCompleteWorkbench(penRatio)).toBe(true)
     expect(calculateParty(penRatio)).toEqual(calculateParty(prepared))
+  })
+
+  it('recalculates Dialyn Slot 6 Impact as an initial percentage input', () => {
+    const result = calculateParty(selectMain(
+      createPreparedState(),
+      'dialyn',
+      'slot6',
+      'impact',
+    ))!
+    const dialyn = agent(result, 'dialyn')
+
+    expect(metric(dialyn, 'impact').values.initial).toBeCloseTo(129.8)
+    expect(metric(dialyn, 'impact').values.combat).toBeCloseTo(180.6)
+    expect(metric(dialyn, 'impact').values.fully).toBeCloseTo(180.6)
+    expect(metric(dialyn, 'impact').breakdown.initial).toContainEqual(
+      expect.objectContaining({
+        label: 'Drive Disc \u00B7 Slot 6',
+        amount: expect.closeTo(19.8),
+        display: { value: 18, unit: '%', decimals: 0 },
+      }),
+    )
   })
 
   it('distinguishes all Dialyn W-Engine operations and the two-piece tradeoff', () => {
@@ -891,54 +970,16 @@ describe('calculateParty', () => {
 
   it('returns no Result when any required setup selection is incomplete', () => {
     const prepared = createPreparedState()
-    const missingEngine: WorkbenchState = {
-      ...prepared,
-      setups: {
-        ...prepared.setups,
-        yixuan: { ...prepared.setups.yixuan, engineId: null },
-      },
-    }
-    const missingMain: WorkbenchState = {
-      ...prepared,
-      setups: {
-        ...prepared.setups,
-        dialyn: {
-          ...prepared.setups.dialyn,
-          mains: { ...prepared.setups.dialyn.mains, slot6: null },
-        },
-      },
-    }
-    const missingRefinement: WorkbenchState = {
-      ...prepared,
-      setups: {
-        ...prepared.setups,
-        yixuan: { ...prepared.setups.yixuan, refinement: null },
-      },
-    }
-    const missingFourPiece: WorkbenchState = {
-      ...prepared,
-      setups: {
-        ...prepared.setups,
-        dialyn: { ...prepared.setups.dialyn, fourPieceId: null },
-      },
-    }
-    const missingTwoPiece: WorkbenchState = {
-      ...prepared,
-      setups: {
-        ...prepared.setups,
-        lucia: { ...prepared.setups.lucia, twoPieceId: null },
-      },
-    }
-    const missingCount: WorkbenchState = {
-      ...prepared,
-      setups: {
-        ...prepared.setups,
-        lucia: {
-          ...prepared.setups.lucia,
-          substats: { ...prepared.setups.lucia.substats, hpFlat: Number.NaN },
-        },
-      },
-    }
+    const missingEngine = withSetup(prepared, 'yixuan', (setup) => ({ ...setup, engineId: null }))
+    const missingMain = withSetup(prepared, 'dialyn', (setup) => ({
+      ...setup, mains: { ...setup.mains, slot6: null },
+    }))
+    const missingRefinement = withSetup(prepared, 'yixuan', (setup) => ({ ...setup, refinement: null }))
+    const missingFourPiece = withSetup(prepared, 'dialyn', (setup) => ({ ...setup, fourPieceId: null }))
+    const missingTwoPiece = withSetup(prepared, 'lucia', (setup) => ({ ...setup, twoPieceId: null }))
+    const missingCount = withSetup(prepared, 'lucia', (setup) => ({
+      ...setup, substats: { ...setup.substats, hpFlat: Number.NaN },
+    }))
 
     expect(calculateParty(missingEngine)).toBeNull()
     expect(calculateParty(missingRefinement)).toBeNull()

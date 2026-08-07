@@ -1,9 +1,9 @@
 import {
   DISC_IDS_BY_AGENT_AND_PIECE,
+  DEFAULT_APPLIED_AGENT_IDS,
   defaultRefinementFor,
   ENGINE_IDS_BY_AGENT_AND_POOL,
   MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
-  PARTY_AGENTS,
   preparedSetupFor,
   SUBSTAT_CHOICES_BY_AGENT,
   W_ENGINES,
@@ -31,29 +31,37 @@ export interface AgentSetupState {
   substats: SubstatCounts
 }
 
+export type AppliedSlot = 0 | 1 | 2
+
+export interface AppliedAgentSlot {
+  agentId: AgentId
+  setup: AgentSetupState
+}
+
 export interface WorkbenchState {
-  setups: Record<AgentId, AgentSetupState>
+  slots: [AppliedAgentSlot, AppliedAgentSlot, AppliedAgentSlot]
+  focusSlot: AppliedSlot
 }
 
 export type WorkbenchAction =
-  | { type: 'setMindscape'; agentId: AgentId; mindscape: Mindscape }
-  | { type: 'switchPool'; agentId: AgentId; pool: PoolId }
-  | { type: 'selectEngine'; agentId: AgentId; engineId: EngineId }
-  | { type: 'setRefinement'; agentId: AgentId; refinement: Refinement }
+  | { type: 'setMindscape'; slot: AppliedSlot; mindscape: Mindscape }
+  | { type: 'switchPool'; slot: AppliedSlot; pool: PoolId }
+  | { type: 'selectEngine'; slot: AppliedSlot; engineId: EngineId }
+  | { type: 'setRefinement'; slot: AppliedSlot; refinement: Refinement }
   | {
       type: 'selectDisc'
-      agentId: AgentId
+      slot: AppliedSlot
       piece: 'fourPiece' | 'twoPiece'
       discId: DiscId
     }
   | {
       type: 'selectMainStat'
-      agentId: AgentId
-      slot: MainSlot
+      slot: AppliedSlot
+      mainSlot: MainSlot
       mainStatId: MainStatId
     }
-  | { type: 'adjustSubstat'; agentId: AgentId; key: SubstatId; delta: number }
-  | { type: 'setSubstat'; agentId: AgentId; key: SubstatId; value: number }
+  | { type: 'adjustSubstat'; slot: AppliedSlot; key: SubstatId; delta: number }
+  | { type: 'setSubstat'; slot: AppliedSlot; key: SubstatId; value: number }
 
 export function zeroSubstats(agentId: AgentId): SubstatCounts {
   return Object.fromEntries(
@@ -81,14 +89,15 @@ export function createPreparedAgentSetup(
 
 export function createPreparedState(
   pools: Partial<Record<AgentId, PoolId>> = {},
+  agentIds: [AgentId, AgentId, AgentId] = DEFAULT_APPLIED_AGENT_IDS,
+  focusSlot: AppliedSlot = 0,
 ): WorkbenchState {
   return {
-    setups: Object.fromEntries(
-      PARTY_AGENTS.map((agent) => [
-        agent.id,
-        createPreparedAgentSetup(agent.id, pools[agent.id] ?? 'full'),
-      ]),
-    ) as Record<AgentId, AgentSetupState>,
+    slots: agentIds.map((agentId) => ({
+      agentId,
+      setup: createPreparedAgentSetup(agentId, pools[agentId] ?? 'full'),
+    })) as WorkbenchState['slots'],
+    focusSlot,
   }
 }
 
@@ -98,58 +107,64 @@ function clampCount(value: number): number {
 
 function updateSetup(
   state: WorkbenchState,
-  agentId: AgentId,
+  slot: AppliedSlot,
   update: (setup: AgentSetupState) => AgentSetupState,
 ): WorkbenchState {
-  const current = state.setups[agentId]
+  const current = state.slots[slot].setup
   const next = update(current)
   if (next === current) return state
+  const slots = [...state.slots] as WorkbenchState['slots']
+  slots[slot] = { ...slots[slot], setup: next }
   return {
     ...state,
-    setups: {
-      ...state.setups,
-      [agentId]: next,
-    },
+    slots,
   }
 }
 
 export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction): WorkbenchState {
   switch (action.type) {
     case 'setMindscape': {
-      const current = state.setups[action.agentId]
+      const currentSlot = state.slots[action.slot]
+      const current = currentSlot.setup
       if (current.mindscape === action.mindscape) return state
+      const slots = [...state.slots] as WorkbenchState['slots']
+      slots[action.slot] = {
+        ...currentSlot,
+        setup: createPreparedAgentSetup(
+          currentSlot.agentId,
+          current.pool,
+          action.mindscape,
+        ),
+      }
       return {
         ...state,
-        setups: {
-          ...state.setups,
-          [action.agentId]: createPreparedAgentSetup(
-            action.agentId,
-            current.pool,
-            action.mindscape,
-          ),
-        },
+        slots,
       }
     }
 
     case 'switchPool': {
-      const current = state.setups[action.agentId]
+      const currentSlot = state.slots[action.slot]
+      const current = currentSlot.setup
       if (current.pool === action.pool) return state
+      const slots = [...state.slots] as WorkbenchState['slots']
+      slots[action.slot] = {
+        ...currentSlot,
+        setup: createPreparedAgentSetup(
+          currentSlot.agentId,
+          action.pool,
+          current.mindscape,
+        ),
+      }
       return {
         ...state,
-        setups: {
-          ...state.setups,
-          [action.agentId]: createPreparedAgentSetup(
-            action.agentId,
-            action.pool,
-            current.mindscape,
-          ),
-        },
+        slots,
       }
     }
 
     case 'selectEngine':
-      return updateSetup(state, action.agentId, (setup) => {
-        if (!ENGINE_IDS_BY_AGENT_AND_POOL[action.agentId][setup.pool].includes(action.engineId)) {
+      return updateSetup(state, action.slot, (setup) => {
+        const agentId = state.slots[action.slot].agentId
+        if (!ENGINE_IDS_BY_AGENT_AND_POOL[agentId][setup.pool].includes(action.engineId)) {
           return setup
         }
         return {
@@ -160,15 +175,16 @@ export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction)
       })
 
     case 'setRefinement':
-      return updateSetup(state, action.agentId, (setup) => (
+      return updateSetup(state, action.slot, (setup) => (
         setup.engineId
           ? { ...setup, refinement: action.refinement }
           : setup
       ))
 
     case 'selectDisc':
-      return updateSetup(state, action.agentId, (setup) => {
-        const candidates = DISC_IDS_BY_AGENT_AND_PIECE[action.agentId][action.piece]
+      return updateSetup(state, action.slot, (setup) => {
+        const agentId = state.slots[action.slot].agentId
+        const candidates = DISC_IDS_BY_AGENT_AND_PIECE[agentId][action.piece]
         if (!candidates.includes(action.discId)) return setup
         if (
           (action.piece === 'fourPiece' && setup.twoPieceId === action.discId)
@@ -180,8 +196,9 @@ export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction)
       })
 
     case 'selectMainStat':
-      return updateSetup(state, action.agentId, (setup) => {
-        if (!MAIN_STAT_IDS_BY_AGENT_AND_SLOT[action.agentId][action.slot]
+      return updateSetup(state, action.slot, (setup) => {
+        const agentId = state.slots[action.slot].agentId
+        if (!MAIN_STAT_IDS_BY_AGENT_AND_SLOT[agentId][action.mainSlot]
           .includes(action.mainStatId)) {
           return setup
         }
@@ -189,14 +206,15 @@ export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction)
           ...setup,
           mains: {
             ...setup.mains,
-            [action.slot]: action.mainStatId,
+            [action.mainSlot]: action.mainStatId,
           },
         }
       })
 
     case 'adjustSubstat':
-      return updateSetup(state, action.agentId, (setup) => {
-        if (!SUBSTAT_CHOICES_BY_AGENT[action.agentId].some(({ id }) => id === action.key)) {
+      return updateSetup(state, action.slot, (setup) => {
+        const agentId = state.slots[action.slot].agentId
+        if (!SUBSTAT_CHOICES_BY_AGENT[agentId].some(({ id }) => id === action.key)) {
           return setup
         }
         return {
@@ -209,8 +227,9 @@ export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction)
       })
 
     case 'setSubstat':
-      return updateSetup(state, action.agentId, (setup) => {
-        if (!SUBSTAT_CHOICES_BY_AGENT[action.agentId].some(({ id }) => id === action.key)) {
+      return updateSetup(state, action.slot, (setup) => {
+        const agentId = state.slots[action.slot].agentId
+        if (!SUBSTAT_CHOICES_BY_AGENT[agentId].some(({ id }) => id === action.key)) {
           return setup
         }
         return {
@@ -245,5 +264,5 @@ export function isCompleteAgentSetup(
 }
 
 export function isCompleteWorkbench(state: WorkbenchState): boolean {
-  return PARTY_AGENTS.every((agent) => isCompleteAgentSetup(agent.id, state.setups[agent.id]))
+  return state.slots.every(({ agentId, setup }) => isCompleteAgentSetup(agentId, setup))
 }
