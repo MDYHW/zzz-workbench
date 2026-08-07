@@ -1,0 +1,342 @@
+import { render, screen, within, act } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it } from 'vitest'
+import { App } from './App'
+
+describe('integrated party workbench: result', () => {
+  it('renders a Result quantity only while it has a current consumer', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const result = screen.getByRole('region', { name: 'Yixuan Result' })
+    expect(within(result).queryByText('RES Ignore')).not.toBeInTheDocument()
+
+    const yixuanMindscape = screen.getByRole('group', { name: 'Mindscape' })
+    await user.click(within(yixuanMindscape).getByRole('button', { name: 'M2' }))
+    await user.click(within(result).getByRole('button', { name: 'RES Ignore' }))
+
+    expect(within(result).getByRole('row', {
+      name: /EX Special Attack.*Ultimate.*15[.]0%/,
+    })).toBeInTheDocument()
+
+    await user.click(within(yixuanMindscape).getByRole('button', { name: 'M1' }))
+    expect(within(result).queryByText('RES Ignore')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    const dialynMindscape = screen.getByRole('group', { name: 'Mindscape' })
+    await user.click(within(dialynMindscape).getByRole('button', { name: 'M1' }))
+    await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
+
+    const currentResult = screen.getByRole('region', { name: 'Yixuan Result' })
+    const resIgnore = within(currentResult).getByRole('button', {
+      name: 'RES Ignore',
+    })
+    expect(within(currentResult).getByRole('row', {
+      name: /RES Ignore.*0[.]0%.*0[.]0%.*15[.]0%/,
+    })).toBeInTheDocument()
+    expect(resIgnore).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('links changed equipment sources back to the current setup locus', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Woodpecker Electro',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Branch & Blade Song as twoPiece',
+    }))
+    await user.click(screen.getByRole('button', { name: 'CRIT DMG' }))
+
+    const sources = screen.getByRole('table', {
+      name: 'CRIT DMG source contributions',
+    })
+    const branchSource = within(sources).getByRole('row', {
+      name: /Branch & Blade Song/,
+    })
+    const setupTarget = document.querySelector<HTMLElement>(
+      '.disc-selection[data-source-tone="disc-2pc"]',
+    )!
+
+    await user.hover(branchSource)
+    expect(setupTarget).toHaveClass('is-source-active')
+    await user.unhover(branchSource)
+    await user.hover(setupTarget)
+    expect(branchSource).toHaveClass('is-source-active')
+  })
+
+  it('links local Mindscape sources and discloses the M4 action outcome', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const mindscape = screen.getByRole('group', { name: 'Mindscape' })
+    await user.click(within(mindscape).getByRole('button', { name: 'M4' }))
+    await user.click(screen.getByRole('button', { name: 'CRIT Rate' }))
+
+    const critSources = screen.getByRole('table', {
+      name: 'CRIT Rate source contributions',
+    })
+    const m1Source = within(critSources).getByRole('row', {
+      name: /Mindscape.*M1.*[+]10[.]0%/,
+    })
+    const mindscapeTarget = document.querySelector<HTMLElement>(
+      '.mindscape-control[data-source-tone="mindscape"]',
+    )!
+
+    expect(m1Source).toHaveAttribute('data-source-tone', 'mindscape')
+    await user.hover(m1Source)
+    expect(mindscapeTarget).toHaveClass('is-source-active')
+    await user.unhover(m1Source)
+    await user.hover(mindscapeTarget)
+    expect(m1Source).toHaveClass('is-source-active')
+    await user.unhover(mindscapeTarget)
+
+    await user.click(screen.getByRole('button', { name: 'DMG Bonus' }))
+    const outcomes = screen.getByRole('table', {
+      name: 'DMG Bonus action outcome values',
+    })
+    const m4Action = within(outcomes).getByRole('button', {
+      name: /Show sources for EX Special Attack: Cloud-Shaper, EX Special Attack: Ashen Ink Becomes Shadows/,
+    })
+    await user.click(m4Action)
+    expect(within(outcomes).getByRole('row', {
+      name: /Mindscape.*M4.*30% x 2 stacks.*[+]60[.]0%/,
+    })).toHaveAttribute('data-source-tone', 'mindscape')
+  })
+
+  it('shows Dialyn M2 as a cross-Agent Result source only on Yixuan', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    const mindscape = screen.getByRole('group', { name: 'Mindscape' })
+    await user.click(within(mindscape).getByRole('button', { name: 'M2' }))
+    await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
+
+    await user.click(screen.getByRole('button', { name: 'DMG Bonus' }))
+    const dmgSources = screen.getByRole('table', {
+      name: 'DMG Bonus source contributions',
+    })
+    expect(within(dmgSources).getByRole('row', {
+      name: /Dialyn.*Mindscape.*M2.*against Malicious Complaint.*[+]15[.]0%/,
+    })).toHaveAttribute('data-source-tone', 'agent-dialyn')
+
+    await user.click(screen.getByRole('button', { name: 'Stun DMG Multiplier' }))
+    const stunSources = screen.getByRole('table', {
+      name: 'Stun DMG Multiplier source contributions',
+    })
+    expect(within(stunSources).getByRole('row', {
+      name: /Dialyn.*Mindscape.*M2.*[+]20[.]0%/,
+    })).toHaveAttribute('data-source-tone', 'agent-dialyn')
+
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    expect(screen.queryByRole('table', {
+      name: 'DMG Bonus source contributions',
+    })).not.toBeInTheDocument()
+  })
+
+  it('shows Lucia M3 and M5 skill tiers in the gauge and Yixuan Result', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
+    const mindscape = screen.getByRole('group', { name: 'Mindscape' })
+    await user.click(within(mindscape).getByRole('button', { name: 'M3' }))
+    await user.click(screen.getByRole('button', { name: 'Max HP' }))
+
+    const m3Gauge = screen.getByRole('group', {
+      name: /Initial Max HP: current 21,697[.]1, cap 24,000; Squad Sheer Force: [+]858[.]2, cap 948/,
+    })
+    expect(m3Gauge).toHaveAttribute('data-source-tone', 'mindscape')
+    expect(within(m3Gauge).getByText('+858.2 / 948')).toBeInTheDocument()
+    expect(within(m3Gauge).getByText('M3 tier')).toBeInTheDocument()
+
+    await user.click(within(mindscape).getByRole('button', { name: 'M5' }))
+    const m5Gauge = screen.getByRole('group', {
+      name: /Initial Max HP: current 21,697[.]1, cap 24,000; Squad Sheer Force: [+]901[.]6, cap 996/,
+    })
+    expect(m5Gauge).toHaveAttribute('data-source-tone', 'mindscape')
+    expect(within(m5Gauge).getByText('+901.6 / 996')).toBeInTheDocument()
+    expect(within(m5Gauge).getByText('M5 tier')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Sheer Force' }))
+    const sheerSources = screen.getByRole('table', {
+      name: 'Sheer Force source contributions',
+    })
+    expect(within(sheerSources).getByRole('row', {
+      name: /Lucia.*EX Special Attack.*M5 tier.*[+]901[.]6/,
+    })).toHaveAttribute('data-source-tone', 'agent-lucia')
+
+    await user.click(screen.getByRole('button', { name: 'Sheer DMG Bonus' }))
+    const sheerDmgSources = screen.getByRole('table', {
+      name: 'Sheer DMG Bonus source contributions',
+    })
+    expect(within(sheerDmgSources).getByRole('row', {
+      name: /Lucia.*Mindscape.*M2.*Darkbreaker.*Wellspring.*[+]15[.]0%/,
+    })).toHaveAttribute('data-source-tone', 'agent-lucia')
+  })
+
+  it('links every prepared Drive Disc source to its visible setup surface', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Max HP' }))
+    await user.click(screen.getByRole('button', { name: /^CRIT Rate$/ }))
+    await user.click(screen.getByRole('button', { name: 'DMG Bonus' }))
+
+    const maxHpSources = screen.getByRole('table', {
+      name: 'Max HP source contributions',
+    })
+    const critRateSources = screen.getByRole('table', {
+      name: 'CRIT Rate source contributions',
+    })
+    const dmgBonusSources = screen.getByRole('table', {
+      name: 'DMG Bonus source contributions',
+    })
+    const links = [
+      {
+        source: within(critRateSources).getByRole('row', { name: /Yunkui Tales.*4-piece/ }),
+        target: '.disc-selection[data-source-tone="disc-4pc"]',
+      },
+      {
+        source: within(critRateSources).getByRole('row', { name: /Woodpecker Electro.*2-piece/ }),
+        target: '.disc-selection[data-source-tone="disc-2pc"]',
+      },
+      {
+        source: within(critRateSources).getByRole('row', { name: /Drive Disc.*Slot 4/ }),
+        target: '.main-stat-selection[data-source-tone="disc-slot-4"]',
+      },
+      {
+        source: within(dmgBonusSources).getByRole('row', { name: /Drive Disc.*Slot 5/ }),
+        target: '.main-stat-selection[data-source-tone="disc-slot-5"]',
+      },
+      {
+        source: within(maxHpSources).getByRole('row', { name: /Drive Disc.*Slot 6/ }),
+        target: '.main-stat-selection[data-source-tone="disc-slot-6"]',
+      },
+    ]
+
+    for (const link of links) {
+      const target = document.querySelector<HTMLElement>(link.target)!
+      await user.hover(link.source)
+      expect(target).toHaveClass('is-source-active')
+      await user.unhover(link.source)
+      await user.hover(target)
+      expect(link.source).toHaveClass('is-source-active')
+      await user.unhover(target)
+    }
+  }, 10_000)
+
+  it('activates and clears every remaining visible setup source target', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const targets = [
+      document.querySelector<HTMLElement>('.equipment-fieldset[data-source-tone="w-engine"]')!,
+      document.querySelector<HTMLElement>('.substat-control[data-source-tone="substat-1"]')!,
+      document.querySelector<HTMLElement>('.substat-control[data-source-tone="substat-2"]')!,
+      document.querySelector<HTMLElement>('.substat-control[data-source-tone="substat-3"]')!,
+      screen.getByRole('tab', { name: 'Close Yixuan setup and Result' }),
+      screen.getByRole('tab', { name: 'View Dialyn setup and Result' }),
+      screen.getByRole('tab', { name: 'View Lucia setup and Result' }),
+    ]
+
+    for (const target of targets) {
+      await user.hover(target)
+      expect(target).toHaveClass('is-source-active')
+      await user.unhover(target)
+      expect(target).not.toHaveClass('is-source-active')
+    }
+  })
+
+  it('replaces obsolete source text while keeping the newly selected engine connected', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'CRIT Rate' }))
+    const initialSources = screen.getByRole('table', {
+      name: 'CRIT Rate source contributions',
+    })
+    const qingming = within(initialSources).getByRole('row', {
+      name: /Qingming Birdcage/,
+    })
+    await user.hover(qingming)
+    expect(qingming).toHaveClass('is-source-active')
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change W-Engine from Qingming Birdcage',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Cauldron of Clarity W5',
+    }))
+
+    const changedSources = screen.getByRole('table', {
+      name: 'CRIT Rate source contributions',
+    })
+    expect(within(changedSources).queryByRole('row', { name: /Qingming/ }))
+      .not.toBeInTheDocument()
+    expect(screen.getByRole('button', {
+      name: 'Change W-Engine from Cauldron of Clarity',
+    })).toHaveFocus()
+  })
+
+  it('keeps common sources before nested action outcomes', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'DMG Bonus' }))
+    expect(screen.getByRole('table', {
+      name: 'DMG Bonus source contributions',
+    })).toBeInTheDocument()
+    const outcomes = screen.getByRole('table', {
+      name: 'DMG Bonus action outcome values',
+    })
+    expect(within(outcomes).getByText('Basic Attack')).toBeInTheDocument()
+    expect(within(outcomes).getByText('Ultimate')).toBeInTheDocument()
+
+    const sharedAction = within(outcomes).getByRole('button', {
+      name: /Show sources for Basic Attack, EX Special Attack, Assist Follow-Up, Chain Attack, Ultimate/,
+    })
+    const sharedActionIndicator = sharedAction.querySelector('i')
+    expect(sharedAction).toHaveAttribute('aria-expanded', 'false')
+    expect(sharedActionIndicator).toHaveTextContent('+')
+    await user.click(sharedAction)
+    expect(sharedAction).toHaveAttribute('aria-expanded', 'true')
+    expect(sharedActionIndicator).toHaveTextContent('\u2212')
+    expect(within(outcomes).getByRole('row', {
+      name: /Core Passive.*\+60\.0%/,
+    })).toHaveAttribute('data-source-tone', 'core')
+
+    const exAction = within(outcomes).getByRole('button', {
+      name: 'Show sources for EX Special Attack',
+    })
+    await user.click(exAction)
+    expect(within(outcomes).getByRole('row', {
+      name: /Additional Ability.*\+30\.0%/,
+    })).toHaveAttribute('data-source-tone', 'additional')
+  })
+
+  it('keeps a focused Result source active until blur', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'DMG Bonus' }))
+    const sources = screen.getByRole('table', {
+      name: 'DMG Bonus source contributions',
+    })
+    const qingming = within(sources).getByRole('row', {
+      name: /Qingming Birdcage/,
+    })
+    const focusTarget = within(qingming).getByRole('rowheader')
+
+    act(() => focusTarget.focus())
+    await user.hover(qingming)
+    await user.unhover(qingming)
+    expect(qingming).toHaveClass('is-source-active')
+    act(() => focusTarget.blur())
+    expect(qingming).not.toHaveClass('is-source-active')
+  })
+})
+
