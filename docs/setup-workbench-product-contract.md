@@ -117,18 +117,38 @@ direction per Agent and does not expose direction selection.
 | daze contributor | Daze contribution intentionally strengthened |
 | buffer | party-facing stat or modifier contribution intentionally strengthened |
 
-A kit effect does not grant a role by existence alone. Specialty is a game
-identity, not a setup role or formula family. Focus eligibility is separate
-prepared policy and requires both the damage-contributor role and supported
-operation as the fixed on-field damage-concentration observation point.
+A role belongs to the authored direction rather than to one source container.
+Agent facts and admitted equipment can each realize that role when their whole
+package intentionally strengthens its contribution. A kit or equipment effect
+does not grant a role by existence alone. Specialty is a game identity, not a
+setup role or formula family. Focus eligibility is separate prepared policy and
+requires both the damage-contributor role and supported operation as the fixed
+on-field damage-concentration observation point.
+
+A direction can combine roles and can support more than one of the formula
+families owned by `docs/zzz-formula-mechanics.md`. Role and formula remain
+separate: a damage contributor may use an applicable damage family; a direction
+that supports anomaly output may need both anomaly damage and anomaly buildup;
+and a daze contributor uses Daze buildup. A buffer may change components read
+by several recipient formula families while its own preparation is driven by
+an initial-stat relationship, threshold, cap, Energy operation, or another
+retained local relationship rather than by a separate buffer formula family.
 
 Candidate preparation strengthens the direction's roles first. A direction
 without the damage-contributor role does not retain personal-damage W-Engine,
 Drive Disc, effective-substat, or Mindscape cases merely because they are legal
-or improve damage. When a variable main-stat slot offers no stat that
-strengthens the primary role, current competitive residual choices may remain
-for that slot without creating a damage-contributor role or personal-damage
-Result.
+or improve damage. For each role, candidate policy considers the applicable
+formula components and retained scaling relationships together with the setup
+inputs that can actually supply them. A role's valid stat can therefore have
+different opportunity cost across W-Engine, set, main-stat, and substat inputs.
+
+When a variable main-stat slot offers no stat that strengthens the direction's
+roles or retained relationships, current competitive residual personal-damage
+choices may remain for that slot without creating a damage-contributor role or
+personal-damage Result. This residual exception is limited to variable main
+stats. It does not admit a personal-damage W-Engine, 4-piece, 2-piece,
+effective substat, or Mindscape case for a direction without the damage-
+contributor role.
 
 ### Candidate Preparation Dependency
 
@@ -171,13 +191,39 @@ supply the stat. A threshold alone does not admit every supplier: main-stat
 slot cost, substat competition, set-piece opportunity cost, and whole-package
 equipment value still apply.
 
-For example, selecting a 4-piece effect that links the holder's CRIT Rate
-threshold to a party-facing modifier creates CRIT Rate pressure up to that
-threshold. Current candidates may then include Slot 4 CRIT Rate, CRIT Rate
-effective-substat hits, and a competitive 2-piece CRIT Rate set. The 2-piece
-identity is a result of supplying the pressure, not a named exception. A
-W-Engine that supplies CRIT Rate still passes the normal Base ATK, advanced
-stat, passive, and availability comparison rather than entering automatically.
+Competitive candidates are choices still worth comparing in the current setup
+context, not every stat whose numerical contribution remains positive. An
+active provider effect may therefore carry an authored candidate-pressure
+meaning after recipient, action, formula, and current competitive practice are
+resolved. Candidate policy consumes that meaning rather than the provider's
+Agent, W-Engine, or Disc identity, its Result row, or a runtime score.
+
+Material broad pre-PEN DEF Reduction or DEF Ignore may remove Slot 5 PEN Ratio
+from an applied setup whose authored direction admits residual or primary
+general-damage investment and therefore consumes the DEF region. A limited
+action-scoped pre-PEN modifier does not remove PEN Ratio merely because it
+precedes PEN in the formula. A direction whose damage family omits the DEF
+region never admits PEN Ratio from this rule. The current broad Spectral Gaze
+pressure removes PEN Ratio for applicable Anby, Dialyn, and Trigger setups,
+while Cordis Germina's Basic/Ultimate-only DEF Ignore does not do so by itself.
+This is authored candidate policy, not a numerical threshold inferred at
+runtime.
+
+For example, under the legal main-stat and substat pools owned by
+`docs/zzz-game-vocabulary.md`, a Stun direction can exhaust its direct Daze
+stat supply without using every editable investment position: Impact is
+available as a Slot 6 main stat, while Impact and Daze Bonus are not Drive Disc
+substats and Daze Bonus is not a main stat. A 4-piece package that retains a
+Daze 2-piece effect and links the holder's CRIT Rate threshold to a party-
+facing modifier can therefore strengthen both daze-contributor and buffer
+roles. Current candidates may then
+include Slot 4 CRIT Rate, CRIT Rate effective-substat hits, and a competitive
+2-piece CRIT Rate set because they supply the buffer threshold or another
+retained CRIT-derived relationship, not because they provide residual personal
+damage. The 2-piece identity is a result of supplying that pressure, not a named
+exception. A W-Engine that supplies CRIT Rate still passes the normal Base ATK,
+advanced stat, passive, and availability comparison rather than entering
+automatically.
 
 Candidate membership is itself a user-visible setup outcome. It does not need a
 paired calculated output merely to justify its presence. Do not invent a
@@ -243,6 +289,14 @@ edits keep the other current inputs unless a selected-input dependency changes
 their available candidates. A selected equipment effect may add or remove only
 the setup candidates justified by its current stat pressure.
 
+A direct edit that changes candidate pressure does not prepare the provider or
+any recipient. The session reevaluates effective candidates for the applied
+party in one pass, clears every selected input that is no longer admitted, and
+keeps all unrelated current inputs. It chooses no fallback and restores no
+previous selection automatically. Result remains empty until every invalidated
+required selection is repaired or a later authorized preparation supplies an
+authored first choice.
+
 ### W-Engine Availability Pools
 
 - **full pool** includes every admitted W-Engine, including limited S-Rank;
@@ -274,6 +328,13 @@ corresponding prepared setup. Changing party composition or focus initializes
 all three Agents for the new party context. Direct setup edits do not reset the
 whole setup. Clearing or invalidating a required selection returns the party to
 incomplete and removes Result until completion.
+
+Target-only preparation does not limit effect or candidate reevaluation to the
+changed Agent. After a Mindscape or pool preparation, the session reevaluates
+active effects and effective candidates for all three applied setups. Other
+Agents are not prepared again; only their now-invalid dependent selections are
+cleared together. Preparing or repairing only one affected Agent does not
+restore Result while another required selection remains incomplete.
 
 ## Party Context And Recipient Distribution
 
@@ -417,8 +478,12 @@ initial draft.
 5. Edit W-Engine/refinement, Disc 4-piece/2-piece, Slot 4/5/6 main stats, and
    effective substat counts for any Agent.
 6. A selected equipment effect may update dependent setup candidates without
-   resetting unrelated current inputs.
+   preparing any Agent, selecting a fallback, or resetting unrelated current
+   inputs. Multiple invalid dependent selections clear in the same transition.
 7. Changing one Agent's Mindscape or pool prepares only that Agent again.
+   Active effects and effective candidates are still reevaluated for the whole
+   applied party; other Agents keep valid edits and lose only invalid dependent
+   selections.
 8. Applying a changed party or focus prepares all three Agents again.
 9. Every edit to an applied setup or party context discards derived output and
    either recalculates the complete party or returns to the empty-Result state

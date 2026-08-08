@@ -2,33 +2,15 @@ import {
   isCompleteWorkbench,
   type WorkbenchState,
 } from './state'
-import {
-  completeSetup,
-  type SourceBoundCurrentClause,
-} from './effects'
-import {
-  calculateYixuan,
-  observeYixuan,
-  resolveYixuanProviderClauses,
-  type YixuanCalculationContext,
-} from './calculation/agents/yixuan'
-import {
-  calculateDialyn,
-  observeDialyn,
-  resolveDialynProviderClauses,
-  type DialynCalculationContext,
-} from './calculation/agents/dialyn'
-import {
-  calculateLucia,
-  observeLucia,
-  resolveLuciaProviderClauses,
-  type LuciaCalculationContext,
-} from './calculation/agents/lucia'
-import { anbyFullyCrit, calculateAnby, observeAnby, resolveAnbyProviderClauses, type AnbyCalculationContext } from './calculation/agents/anby-soldier-0'
-import { calculateTrigger, observeTrigger, resolveTriggerProviderClauses, type TriggerCalculationContext } from './calculation/agents/trigger'
-import { calculateAstra, observeAstra, resolveAstraProviderClauses, type AstraCalculationContext } from './calculation/agents/astra-yao'
-import { additive, source } from './effects'
+import { additive, source, type SourceBoundCurrentClause } from './effects'
+import { calculateYixuan } from './calculation/agents/yixuan'
+import { calculateDialyn } from './calculation/agents/dialyn'
+import { calculateLucia } from './calculation/agents/lucia'
+import { anbyFullyCrit, calculateAnby } from './calculation/agents/anby-soldier-0'
+import { calculateTrigger } from './calculation/agents/trigger'
+import { calculateAstra } from './calculation/agents/astra-yao'
 import type { PartyResult } from './calculation/result'
+import { resolveProviderEffects } from './provider-effects'
 
 export type { ResultSource, SourceLocus, SurfaceKey } from './effects'
 export type {
@@ -40,14 +22,6 @@ export type {
   ResultMetric,
   ResultOperation,
 } from './calculation/result'
-
-type ProviderContext =
-  | YixuanCalculationContext
-  | DialynCalculationContext
-  | LuciaCalculationContext
-  | AnbyCalculationContext
-  | TriggerCalculationContext
-  | AstraCalculationContext
 
 function assertNever(value: never): never {
   throw new Error(`Unhandled Agent context: ${String(value)}`)
@@ -73,87 +47,7 @@ function orderedClauses(
 export function calculateParty(state: WorkbenchState): PartyResult | null {
   if (!isCompleteWorkbench(state)) return null
 
-  const contexts: ProviderContext[] = []
-  const inboxes: [
-    SourceBoundCurrentClause[],
-    SourceBoundCurrentClause[],
-    SourceBoundCurrentClause[],
-  ] = [[], [], []]
-  const enemyContext: SourceBoundCurrentClause[] = []
-  const hasStunOrSupport = state.slots.some(({ agentId }) => agentId !== 'anbySoldier0' && (agentId === 'dialyn' || agentId === 'trigger' || agentId === 'lucia' || agentId === 'astraYao'))
-  const hasAnby = state.slots.some(({ agentId }) => agentId === 'anbySoldier0')
-
-  for (const [providerIndex, slot] of state.slots.entries()) {
-    const setup = completeSetup(slot)
-    let context: ProviderContext
-    switch (slot.agentId) {
-      case 'yixuan':
-        context = observeYixuan(setup)
-        break
-      case 'dialyn':
-        context = observeDialyn(setup)
-        break
-      case 'lucia':
-        context = observeLucia(setup)
-        break
-      case 'anbySoldier0':
-        context = observeAnby(setup, hasStunOrSupport, providerIndex === state.focusSlot)
-        break
-      case 'trigger':
-        context = observeTrigger(setup, hasAnby)
-        break
-      case 'astraYao':
-        context = observeAstra(setup)
-        break
-      default:
-        assertNever(slot.agentId)
-    }
-    contexts.push(context)
-
-    let clauses: SourceBoundCurrentClause[]
-    switch (context.agentId) {
-      case 'yixuan':
-        clauses = resolveYixuanProviderClauses(context.setup)
-        break
-      case 'dialyn':
-        clauses = resolveDialynProviderClauses(
-          context.setup,
-          context.initialCrit.value,
-        )
-        break
-      case 'lucia':
-        clauses = resolveLuciaProviderClauses(
-          context.setup,
-          context.squadSheer,
-        )
-        break
-      case 'anbySoldier0':
-        clauses = resolveAnbyProviderClauses(context)
-        break
-      case 'trigger':
-        clauses = resolveTriggerProviderClauses(context.setup)
-        break
-      case 'astraYao':
-        clauses = resolveAstraProviderClauses(context)
-        break
-      default:
-        assertNever(context)
-    }
-
-    for (const clause of clauses) {
-      if (clause.recipient === 'enemy-context') {
-        enemyContext.push(clause)
-        continue
-      }
-      for (const [recipientIndex] of state.slots.entries()) {
-        const receives = clause.recipient === 'all-party'
-          || (clause.recipient === 'self' && recipientIndex === providerIndex)
-          || (clause.recipient === 'focus' && recipientIndex === state.focusSlot)
-          || (clause.recipient === 'other-party' && recipientIndex !== providerIndex)
-        if (receives && (!clause.eligibleAgentIds || clause.eligibleAgentIds.includes(state.slots[recipientIndex].agentId))) inboxes[recipientIndex].push(clause)
-      }
-    }
-  }
+  const { contexts, inboxes, enemyContext } = resolveProviderEffects(state)
 
   // Phase 2 has one deliberately acyclic consumer: Anby's delivered Fully CRIT DMG.
   for (const [index, context] of contexts.entries()) {

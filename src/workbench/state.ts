@@ -4,7 +4,6 @@ import {
   defaultRefinementFor,
   DISC_IDS_BY_AGENT_AND_PIECE,
   ENGINE_IDS_BY_AGENT_AND_POOL,
-  MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
   preparedSetupFor,
   SUBSTAT_CHOICES_BY_AGENT,
   W_ENGINES,
@@ -17,6 +16,10 @@ import {
   type Refinement,
   type SubstatId,
 } from './content'
+import {
+  effectiveMainStatIds,
+  invalidMainStatSelections,
+} from './candidates'
 
 export type Mindscape = 0 | 1 | 2 | 3 | 4 | 5 | 6
 export type SubstatCounts = Partial<Record<SubstatId, number>>
@@ -146,7 +149,7 @@ function updateSetup(
   }
 }
 
-export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction): WorkbenchState {
+function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): WorkbenchState {
   switch (action.type) {
     case 'openPartyEdit':
       return state.draft ? state : {
@@ -277,8 +280,7 @@ export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction)
 
     case 'selectMainStat':
       return updateSetup(state, action.slot, (setup) => {
-        const agentId = state.slots[action.slot].agentId
-        if (!MAIN_STAT_IDS_BY_AGENT_AND_SLOT[agentId][action.mainSlot]
+        if (!effectiveMainStatIds(state, action.slot, action.mainSlot)
           .includes(action.mainStatId)) {
           return setup
         }
@@ -326,6 +328,44 @@ export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction)
   }
 }
 
+function isDraftOnlyAction(action: WorkbenchAction): boolean {
+  return action.type === 'openPartyEdit'
+    || action.type === 'closePartyEdit'
+    || action.type === 'replaceDraftAgent'
+    || action.type === 'setDraftFocus'
+}
+
+function reconcileEffectiveMainStats(state: WorkbenchState): WorkbenchState {
+  const invalid = invalidMainStatSelections(state)
+  if (!invalid.length) return state
+
+  const slots = [...state.slots] as WorkbenchState['slots']
+  for (const { slot, mainSlot } of invalid) {
+    const current = slots[slot]
+    slots[slot] = {
+      ...current,
+      setup: {
+        ...current.setup,
+        mains: {
+          ...current.setup.mains,
+          [mainSlot]: null,
+        },
+      },
+    }
+  }
+  return { ...state, slots }
+}
+
+export function workbenchReducer(
+  state: WorkbenchState,
+  action: WorkbenchAction,
+): WorkbenchState {
+  const next = reduceWorkbenchState(state, action)
+  return next === state || isDraftOnlyAction(action)
+    ? next
+    : reconcileEffectiveMainStats(next)
+}
+
 export function isCompleteAgentSetup(
   agentId: AgentId,
   setup: AgentSetupState,
@@ -344,5 +384,6 @@ export function isCompleteAgentSetup(
 }
 
 export function isCompleteWorkbench(state: WorkbenchState): boolean {
-  return state.slots.every(({ agentId, setup }) => isCompleteAgentSetup(agentId, setup))
+  return !invalidMainStatSelections(state).length
+    && state.slots.every(({ agentId, setup }) => isCompleteAgentSetup(agentId, setup))
 }

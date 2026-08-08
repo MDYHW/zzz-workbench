@@ -7,7 +7,7 @@ topic: soldier-zero-second-vertical
 
 ## Summary
 
-Admit Anby: Soldier 0, Trigger, and Astra Yao as the second complete setup-workbench vertical, with Anby as the authored Focus. Add the authority-defined Party Edit flow for the resulting six-Agent roster, extend general-damage Result regions only where the new setups consume them, and replace the current two-pass party calculation with the smallest explicit three-phase sequence needed for Anby's received-CRIT-dependent Aftershock relationship. Preserve the completed Yixuan, Dialyn, and Lucia vertical exactly when it is reapplied.
+Admit Anby: Soldier 0, Trigger, and Astra Yao as the second complete setup-workbench vertical, with Anby as the authored Focus. Add the authority-defined Party Edit flow, derive current candidates from direction roles, formula participation, stat-supply opportunity, and active effect pressure, and use the smallest explicit three-phase calculation needed for Anby's received-CRIT-dependent Aftershock relationship. Preserve the completed Yixuan, Dialyn, and Lucia vertical exactly when it is reapplied.
 
 ---
 
@@ -16,6 +16,13 @@ Admit Anby: Soldier 0, Trigger, and Astra Yao as the second complete setup-workb
 The workbench currently admits exactly the first applied trio. It has no way to compose a party from a larger admitted roster, and its two-pass calculation intentionally stops when an outgoing value depends on a received value. The approved second trio introduces both current consumers at once: Party Edit must distinguish six admitted Agents from three applied slots, while Anby's source-stated Aftershock effect must read her Fully Enabled CRIT DMG after Trigger and Astra have delivered their buffs.
 
 The extension must remain a setup workbench. It may expose setting-relevant stats, formula regions, action differences, thresholds, caps, and source identities, but it must not become a damage simulator, rotation model, catalogue, runtime optimizer, evidence system, or universal effect engine.
+
+The first contextual candidate pass treated prior Agent-indexed Slot 5
+membership as a proxy for formula applicability. That reproduces Anby and
+Dialyn pressure but cannot explain why Trigger should regain PEN Ratio without
+broad pre-PEN pressure, why Yixuan never consumes it, or why a Stun direction
+can invest CRIT Rate for King of the Summit without displacing unavailable
+Impact or Daze substats.
 
 ```mermaid
 flowchart TB
@@ -57,8 +64,8 @@ The prose requirements govern if this diagram and the text ever differ.
 - F3. Setup adjustment
   - **Trigger:** The user changes one applied Agent's Mindscape, pool, equipment, main stat, or effective substat count.
   - **Actors:** A1, A2
-  - **Steps:** Mindscape or pool rebuilds only that Agent; direct setup edits preserve every unrelated selection; all Results recalculate only when all required inputs are complete.
-  - **Outcome:** The authored preparation lifecycle remains visible and deterministic for either vertical.
+  - **Steps:** Mindscape or pool rebuilds only that Agent; direct setup edits preserve every unrelated selection; active effects and effective candidates are reevaluated for all three applied setups; all Results recalculate only when all required inputs are complete.
+  - **Outcome:** The authored preparation lifecycle remains visible and deterministic while cross-Agent candidate invalidation never becomes cross-Agent preparation.
   - **Covered by:** R11-R25
 - F4. Three-phase calculation
   - **Trigger:** Every applied setup is complete.
@@ -81,7 +88,7 @@ The prose requirements govern if this diagram and the text ever differ.
 
 - R1. Admit exactly six current Agents: Yixuan, Dialyn, Lucia, Anby: Soldier 0, Trigger, and Astra Yao. Admission must not change the applied party until Party Edit is applied.
 - R2. Retain Anby as an ordinary ATK-based general-damage contributor and the authored Focus for the selected second trio.
-- R3. Retain Trigger as an off-field Daze contributor and Stun-DMG buffer with a retained Aftershock tag consumer; retain Astra as a low-field party buffer. Neither is Focus-eligible for the current directions.
+- R3. Retain Trigger as an off-field Daze contributor and buffer with a retained Aftershock tag consumer; retain Astra as a low-field party buffer. Trigger's Stun DMG Multiplier and party CRIT DMG are concrete buffer outputs rather than separate setup roles. Neither Agent is Focus-eligible for the current directions.
 - R4. Focus eligibility is explicit authored content rather than inferred from Specialty. If a draft contains exactly one eligible Agent, select it automatically; if it contains more than one, require the user to choose; if it contains none, keep Apply unavailable.
 
 ### Party Edit and setup lifecycle
@@ -94,8 +101,8 @@ The prose requirements govern if this diagram and the text ever differ.
 - R9. Cancel discards the draft and leaves applied state unchanged. Apply is available only for three distinct admitted Agents with resolved Focus.
 - R9a. Each eligible draft slot exposes one explicit Focus choice. Replacing a draft Agent recomputes the eligible set: one eligible Agent is selected automatically; none remains unresolved; more than one becomes unresolved when the eligible set changed and requires an explicit choice. Apply is disabled unless the resolved draft party order or Focus differs from the applied context.
 - R10. Applying a changed party or Focus commits both atomically and prepares all three slots. An unchanged Agent keeps its current Mindscape and pool before its setup is rebuilt for the new party context; a newly applied Agent starts at rank-default Mindscape and full pool. A departed Agent keeps no hidden setup.
-- R11. Changing one applied Agent's Mindscape or pool rebuilds only that Agent's setup. Direct equipment, refinement, main-stat, and effective-substat edits preserve unrelated selections.
-- R12. Result remains empty while any required selection in the applied party is incomplete. Draft incompleteness never empties the still-applied Result.
+- R11. Changing one applied Agent's Mindscape or pool rebuilds only that Agent's setup. Direct equipment, refinement, main-stat, and effective-substat edits preserve unrelated selections. Either transition reevaluates active effects and effective candidates across the applied party without rebuilding another Agent.
+- R12. Result remains empty while any required selection in the applied party is incomplete. Draft incompleteness never empties the still-applied Result. When one transition invalidates multiple applied selections, repairing only a subset keeps Result empty.
 
 ### Candidate and prepared setup policy
 
@@ -104,28 +111,36 @@ The prose requirements govern if this diagram and the text ever differ.
 - R15. Anby prepares Shadow Harmony 4-piece. Her retained 2-piece candidates are Woodpecker Electro and Branch & Blade Song; Slot 4 offers CRIT Rate and CRIT DMG; Slot 5 offers Electric DMG, ATK%, and PEN Ratio; Slot 6 offers ATK%; effective substats are CRIT Rate, CRIT DMG, and ATK%.
 - R16. Anby's full prepared setup is Shadow Harmony plus Woodpecker, CRIT Rate / Electric DMG / ATK%. Her non-limited prepared setup uses Branch & Blade instead. All effective-substat counts start at zero.
 - R17. Trigger W-Engine candidates are Spectral Gaze, Ice-Jade Teapot, The Restrained, Precious Fossilized Core, and Steam Oven. Full prepares Spectral Gaze W1; non-limited prepares The Restrained W1.
-- R18. Trigger's retained 4-piece candidates are King of the Summit and Shockstar Disco. Her retained 2-piece candidates are Shockstar Disco, King of the Summit, and Woodpecker Electro, subject to the existing same-set piece-role conflict rule. Slot 4 offers CRIT Rate; Slot 5 offers Electric DMG and ATK%; Slot 6 offers Impact; CRIT Rate is her only effective substat. All effective-substat counts start at zero.
+- R18. Trigger's retained 4-piece candidates are King of the Summit and Shockstar Disco. Her retained 2-piece candidates are Shockstar Disco, King of the Summit, and Woodpecker Electro, subject to the existing same-set piece-role conflict rule. Slot 4 offers CRIT Rate; Slot 5 base candidates are Electric DMG, ATK%, and PEN Ratio; Slot 6 offers Impact; CRIT Rate is her only effective substat. CRIT Rate strengthens her CRIT-to-Aftershock-Daze relationship and applicable King threshold rather than admitting a personal-damage substat direction. All effective-substat counts start at zero.
 - R19. Trigger's full prepared setup is Spectral Gaze W1 with King of the Summit 4-piece and Shockstar Disco 2-piece. Her non-limited prepared setup is The Restrained W1 with Shockstar Disco 4-piece and King of the Summit 2-piece. Both retain CRIT Rate/Electric DMG/Impact as their prepared mains and are independent of applied-party identity.
 - R20. Astra W-Engine candidates are Elegant Vanity, Bashful Demon, and Kaboom the Cannon. Full prepares Elegant Vanity W1; non-limited prepares Bashful Demon W5. Do not admit Weeping Cradle or The Vault for Astra in this vertical.
 - R21. Astra prepares Astral Voice 4-piece. Her retained 2-piece candidates are the one equal-effect `Swing Jazz or Moonlight Lullaby` Energy Regen choice and Hormone Punk; Slot 4 and Slot 5 offer ATK%; Slot 6 offers ATK% and Energy Regen; effective substats are ATK% and flat ATK.
 - R22. Astra full M0-M1 prepares the `Swing Jazz or Moonlight Lullaby` Energy Regen choice with ATK% in Slots 4/5/6. At M2-M6 it changes only Slot 6 to Energy Regen. Astra non-limited uses Hormone Punk and the same M0-M1 versus M2-M6 Slot 6 rule. All effective-substat counts start at zero.
-- R23. A selected candidate may change the currently offered competitive main-stat or set pressure only where a researched current consumer requires it; it must not reset unrelated current selections or create runtime scoring.
+- R23. Base candidate policy begins from the authored direction's roles, supported formula families and relationships, and the legal setup inputs that can supply their components. A selected candidate may then change the currently offered competitive main-stat or set pressure only where a researched current consumer requires it; it must not reset unrelated current selections or create runtime scoring. Candidate policy consumes provider-neutral effect/formula pressure rather than Agent, W-Engine, or Disc identity.
+- R23a. Spectral Gaze's active broad enemy DEF Reduction supplies the current material pre-PEN pressure. It removes Slot 5 PEN Ratio from Anby, Dialyn, and Trigger because each direction admits primary or residual `general_damage` investment that consumes the DEF region. Dialyn and Trigger are candidate-pressure recipients rather than Spectral or DEF Result consumers. Cordis Germina's Basic/Ultimate-only DEF Ignore does not remove PEN Ratio by itself.
+- R23b. Directly selecting a pressure-producing W-Engine changes that engine and its Rank-default refinement while preserving the provider's Discs, mains, and substats. One reconciliation clears every selected recipient main stat outside its effective candidates, chooses no fallback, and restores no history. Party/focus Apply may prepare all three later; Mindscape/pool may prepare only its changed Agent later.
+- R23c. A direction without the damage-contributor role may retain competitive residual personal-damage choices only in a variable main-stat slot that cannot strengthen its daze-contributor or buffer roles or another retained relationship. The exception does not admit personal-damage W-Engines, 4-piece or 2-piece sets, effective substats, Mindscapes, or Result rows. King CRIT Rate supply is not residual personal damage: its Daze 2-piece effect, party CRIT threshold, and the current Dialyn/Trigger CRIT-derived Daze relationships strengthen retained roles directly.
 - R24. Mindscapes apply cumulatively. Ordinary-skill level tiers are read only for Astra's retained Cadenza table: M0-M2 level 12, M3-M4 level 14, and M5-M6 level 16.
 - R25. Prepared choices remain authored policy. Result values never feed back into automatic preparation.
 - R25a. The retained numerical tables below are the complete current fact contract for implementation. Values not listed there or in the preserved first-vertical content do not enter selectors, preparation, calculation, Result, or source disclosure.
 
 #### Admitted Agent identity facts
 
-| Agent | Attribute | Specialty | Focus eligible | Retained setup role |
-|---|---|---|---|---|
-| Yixuan | Auric Ink | Rupture | Yes | Sheer damage contributor |
-| Dialyn | Physical | Stun | No | Daze contributor and buffer |
-| Lucia | Ether | Support | No | Buffer |
-| Anby: Soldier 0 | Electric | Attack | Yes | General-damage contributor |
-| Trigger | Electric | Stun | No | Off-field Daze contributor, Stun-DMG buffer, and retained Aftershock tag consumer |
-| Astra Yao | Ether | Support | No | Low-field buffer |
+| Agent | Attribute | Specialty | Focus eligible | Retained setup role | Candidate-relevant formula or relationship |
+|---|---|---|---|---|---|
+| Yixuan | Auric Ink | Rupture | Yes | Sheer damage contributor | `sheer_damage`; Rupture current-ATK/current-Max-HP-to-Sheer conversion |
+| Dialyn | Physical | Stun | No | Daze contributor and buffer | `daze_buildup`; Initial-CRIT-to-Impact; party modifiers; residual `general_damage` Slot 5 |
+| Lucia | Ether | Support | No | Buffer | Initial-HP scaling and caps; Energy operation; party modifiers |
+| Anby: Soldier 0 | Electric | Attack | Yes | General-damage contributor | `general_damage`; retained Aftershock tag relationships |
+| Trigger | Electric | Stun | No | Off-field Daze contributor, buffer, and retained Aftershock tag consumer | `daze_buildup`; CRIT-to-Aftershock-Daze; party modifiers; residual `general_damage` Slot 5 |
+| Astra Yao | Ether | Support | No | Low-field buffer | Initial-ATK scaling and cap; Energy operation; party modifiers |
 
-Party Edit Attribute/Specialty filters and the party predicates in R40 consume these explicit identity fields. Focus eligibility remains independently authored and is not inferred from Specialty.
+Party Edit Attribute/Specialty filters and the party predicates in R40 consume
+the explicit identity fields. Focus eligibility remains independently authored
+and is not inferred from Specialty. The final column is one candidate-policy
+input rather than a complete ranking rule. It does not add an unsupported
+personal-damage Result or make formula family, role, Specialty, and source
+relationship one hierarchy.
 
 #### Completed Agent stats
 
@@ -272,6 +287,18 @@ Every Anby-derived Aftershock clause additionally requires Anby to be applied an
 
 These are consumer mappings for the current six-Agent product, not a universal eligibility system.
 
+#### Current candidate-pressure applicability
+
+| Active pressure | Effective-candidate recipients | Boundary |
+|---|---|---|
+| No material broad pre-PEN pressure | Anby, Dialyn, and Trigger Slot 5 retain PEN Ratio among their base candidates | Anby uses primary `general_damage`; Dialyn and Trigger use competitive residual `general_damage` without gaining a damage-contributor role or personal-damage Result |
+| Material broad pre-PEN DEF bypass supplied by Spectral Gaze | Anby, Dialyn, and Trigger Slot 5 remove PEN Ratio | Candidate applicability follows each direction's DEF-region formula participation and remains separate from Result projection; Dialyn and Trigger gain no Spectral or DEF Result row |
+| Cordis Germina Basic/Ultimate DEF Ignore without another material broad pressure | Anby, Dialyn, and Trigger Slot 5 keep PEN Ratio | Limited action scope may change a future prepared preference but does not remove the candidate by itself |
+| Any current pre-PEN pressure applied beside Yixuan | Yixuan never gains Slot 5 PEN Ratio | `sheer_damage` omits the DEF region, so effect pressure cannot admit an otherwise invalid candidate |
+
+The session evaluates this table from active effect meaning, not source-name
+branches in candidate policy. Provider order does not change the outcome.
+
 ### Presentation and preserved baseline
 
 - R44. Preserve the current applied-party rail, expanded-slot workbench, setup control grammar, Result table, source disclosure/highlighting, keyboard navigation, responsive behavior, and first-vertical copy. Party Edit is a bounded functional addition, not a redesign.
@@ -307,6 +334,9 @@ These are consumer mappings for the current six-Agent product, not a universal e
 - AE17. **Covers R45-R45b.** Given a screen reader and keyboard, occupied candidates announce unavailable, current draft target and Focus choices expose selected state, automatic/unresolved Focus and candidate count/no-results changes are announced, and every action can be completed with native Enter/Space or selection behavior.
 - AE18. **Covers R45c.** Given a 390px viewport, the editor follows the required draft/Focus/filter/pool/action reading order in one column, the applied workbench remains separately labeled below it, and neither editor nor page requires horizontal scrolling.
 - AE19. **Covers R38-R43.** Given Astra/Yixuan/Anby, Astra's current party buffs and Astral Voice project to Yixuan and Anby but not Astra. Given Astra/Yixuan/Dialyn or Astra/Anby/Trigger at M4+, the next-Quick-Assist Daze operation projects only to the respectively applied Stun recipient. Removing the provider or its qualifying equipment removes only the applicable delivered contribution.
+- AE20. **Covers R11-R12, R23-R23c.** Given Anby/Dialyn/Trigger with all three Slot 5 selections manually set to PEN Ratio and Trigger manually using a non-Spectral full-pool W-Engine, directly selecting Spectral changes only Trigger's engine/default refinement, preserves every other Trigger input, clears all three Slot 5 selections in one transition, cues all three applied cards, announces the aggregate change once without moving focus, and leaves Result empty. Repairing only one or two Agents clears only their cues and keeps Result empty; repairing the third restores Result.
+- AE21. **Covers R10-R12, R23-R23c.** Given Cordis without Spectral, Anby, Dialyn, and Trigger keep PEN Ratio. Given Cordis and Spectral in either provider order, all three remove PEN Ratio. Removing Spectral restores candidate availability without restoring an old selection. A later recipient Mindscape/pool preparation or Party Apply may supply an authored choice under the existing target-only/all-three preparation lifecycle. Yixuan never gains PEN Ratio in either state because `sheer_damage` omits the DEF region.
+- AE22. **Covers R3, R18, R23-R23c.** Given prepared Dialyn or full-pool Trigger with King of the Summit, Slot 4 CRIT Rate and CRIT Rate effective substats remain role-strengthening inputs because they supply the current CRIT-derived Daze relationship and party threshold. ATK or CRIT DMG effective substats do not enter through the residual exception; Slot 5 personal-damage choices may remain without adding a damage-contributor role or personal-damage Result.
 
 ---
 
@@ -315,6 +345,8 @@ These are consumer mappings for the current six-Agent product, not a universal e
 - Six Agents are admitted while exactly three applied slots remain the complete calculation and setup boundary.
 - Party Edit draft/apply/cancel and Focus resolution follow the permanent lifecycle without hidden setup copies or draft leakage.
 - Every admitted setup has bounded candidates and one deterministic prepared choice for each current pool/Mindscape context.
+- Setup roles, supported formula families and relationships, and actual stat-supply opportunity cost explain every current candidate without turning Specialty or Agent identity into candidate policy.
+- Active provider effects derive effective candidates from formula applicability without source-identity branches; simultaneous invalid selections clear atomically, remain recoverable, and never cause automatic fallback or cross-Agent preparation.
 - The three-phase calculation produces the correct received-dependent Anby Aftershock value and remains explicitly acyclic and order-independent.
 - New general-damage regions, action differences, gauges, and sources appear only for current consumers.
 - Reapplying the first trio reproduces its complete existing behavior and presentation.
@@ -327,6 +359,8 @@ These are consumer mappings for the current six-Agent product, not a universal e
 - No Agents or verticals beyond the six admitted here; specifically no Seed, Cissia, or later Astra party research.
 - No Bangboo input, rotations, clear time, raw/final damage, raw/final Daze, simulator behavior, optimizer, ranking, or exhaustive skill coefficients.
 - No iteration, fixed-point solver, dependency graph, formula registry, universal snapshot, condition language, universal content schema, evidence archive, catalogue, or rationale payload.
+- No formula-derived catalogue that admits every legal or numerically positive stat, and no runtime candidate score or enemy-specific cutoff.
+- No residual personal-damage admission for W-Engines, 4-piece or 2-piece sets, effective substats, or Mindscapes on a direction without the damage-contributor role.
 - No API, persistence, authentication, deployment, analytics, or unrelated UI stabilization.
 - No redesign of the applied-party rail, Setup, Result, identity hierarchy, source interaction, or established responsive direction.
 - No legacy compatibility layer or second vertical-specific workbench/calculation pipeline.
@@ -335,6 +369,9 @@ These are consumer mappings for the current six-Agent product, not a universal e
 
 ## Key Decisions
 
+- Treat setup roles as authored direction outcomes that Agent facts and admitted equipment can realize together; do not derive them from Specialty or one source container.
+- Combine roles with all applicable formula families, retained relationships, and actual stat-supply opportunity cost. King of the Summit uses otherwise unavailable Daze-investment positions to strengthen daze-contributor and buffer roles rather than creating a personal-damage direction.
+- Limit residual personal-damage admission to variable main-stat slots that cannot strengthen a retained role or relationship; keep other candidate classes role-strengthening.
 - Extend the existing explicit content maps and exhaustive Agent-local calculation dispatch rather than introducing a registry.
 - Treat Astra M4 as a source-stated action operation separate from Daze Bonus, because the source establishes action scope while the formula authority forbids merging such operations into ordinary Daze Bonus.
 - Treat Astral Voice as one shared stack state with recipient-specific reachable output, not a uniform all-party damage clause.

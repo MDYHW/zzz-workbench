@@ -584,6 +584,39 @@ main { margin-top: 18px; }
   left: 10px;
 }
 
+.slot-incomplete-marker {
+  position: absolute;
+  z-index: 10;
+  right: 10px;
+  bottom: 14px;
+  display: inline-flex;
+  min-height: 22px;
+  align-items: center;
+  padding: 0 7px;
+  border: 1px solid var(--danger);
+  color: #fff2ed;
+  background: rgba(122, 42, 30, 0.92);
+  font: 800 8px/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.party-slot.is-setup-incomplete,
+.party-slot--compact.is-setup-incomplete::after,
+.slot-identity--expanded.is-setup-incomplete {
+  border-color: var(--danger);
+}
+
+.main-stat-block--required {
+  border-color: var(--danger);
+  background: rgba(201, 93, 72, 0.1);
+}
+
+.main-stat-block__details--required strong {
+  color: #f3a18f;
+  text-transform: uppercase;
+}
+
 @media (min-width: 1041px) {
   .party-rail--overview .party-slot--compact .agent-art {
     width: 170%;

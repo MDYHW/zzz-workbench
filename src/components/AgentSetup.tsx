@@ -1,4 +1,4 @@
-import { useEffect, useState, type Dispatch, type ReactNode, type Ref } from 'react'
+import { useEffect, useRef, useState, type Dispatch, type ReactNode, type Ref } from 'react'
 import {
   DISC_IDS_BY_AGENT_AND_PIECE,
   defaultRefinementFor,
@@ -6,7 +6,6 @@ import {
   ENGINE_IDS_BY_AGENT_AND_POOL,
   MAIN_STATS,
   mainStatDisplay,
-  MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
   ADMITTED_AGENTS,
   SUBSTAT_CHOICES_BY_AGENT,
   W_ENGINES,
@@ -29,6 +28,7 @@ interface AgentSetupProps extends SourceInteractionProps {
   slot: AppliedSlot
   agentId: AgentId
   setup: AgentSetupState
+  mainStatCandidates: Record<MainSlot, readonly MainStatId[]>
   dispatch: Dispatch<WorkbenchAction>
 }
 
@@ -452,6 +452,7 @@ function MainStatSelection({
   agentId,
   appliedSlot,
   dispatch,
+  candidates,
   mainStatId,
   onSourceToneChange,
   openSelector,
@@ -461,25 +462,44 @@ function MainStatSelection({
   agentId: AgentId
   appliedSlot: AppliedSlot
   dispatch: Dispatch<WorkbenchAction>
-  mainStatId: MainStatId
+  candidates: readonly MainStatId[]
+  mainStatId: MainStatId | null
   openSelector: string | null
   setOpenSelector: (value: string | null) => void
   mainSlot: MainSlot
 } & SourceInteractionProps) {
   const tone = `disc-slot-${mainSlot.replace('slot', '')}`
   const selectorId = `${agentId}-${mainSlot}`
-  const candidates = MAIN_STAT_IDS_BY_AGENT_AND_SLOT[agentId][mainSlot]
-  const alternatives = candidates.filter((id) => id !== mainStatId)
+  const alternatives = mainStatId === null
+    ? candidates
+    : candidates.filter((id) => id !== mainStatId)
   const isOpen = openSelector === selectorId
-  const selected = MAIN_STATS[mainStatId]
-  const { openerRef, requestFocusReturn } = useSelectionFocusReturn()
+  const selected = mainStatId === null ? null : MAIN_STATS[mainStatId]
+  const focusTargetRef = useRef<HTMLElement | null>(null)
+  const [shouldReturnFocus, setShouldReturnFocus] = useState(false)
 
-  const content = (
+  useEffect(() => {
+    if (!shouldReturnFocus) return
+    focusTargetRef.current?.focus()
+    setShouldReturnFocus(false)
+  }, [shouldReturnFocus])
+
+  const selectedContent = selected && (
     <>
       <small className="main-stat-block__slot">DISC {mainSlot.replace('slot', '')}</small>
       <span className="main-stat-block__details">
         <span>{selected.label}</span>
         <strong>{mainStatDisplay(selected.numericValue)}</strong>
+      </span>
+    </>
+  )
+
+  const requiredContent = (
+    <>
+      <small className="main-stat-block__slot">DISC {mainSlot.replace('slot', '')}</small>
+      <span className="main-stat-block__details main-stat-block__details--required">
+        <span>Main stat required</span>
+        <strong>Select</strong>
       </span>
     </>
   )
@@ -490,24 +510,28 @@ function MainStatSelection({
       data-source-tone={tone}
       {...sourceToneEvents(tone, onSourceToneChange)}
     >
-      {alternatives.length > 0 ? (
+      {mainStatId === null || alternatives.length > 0 ? (
         <button
           type="button"
-          className="main-stat-block main-stat-block--editable"
-          aria-label={`Change Disc ${mainSlot.replace('slot', '')} main stat from ${selected.label}`}
+          className={`main-stat-block main-stat-block--editable${mainStatId === null ? ' main-stat-block--required' : ''}`}
+          aria-label={mainStatId === null
+            ? `Disc ${mainSlot.replace('slot', '')} main stat required`
+            : `Change Disc ${mainSlot.replace('slot', '')} main stat from ${selected!.label}`}
           aria-expanded={isOpen}
-          ref={openerRef}
+          ref={(node) => { focusTargetRef.current = node }}
           onClick={() => setOpenSelector(isOpen ? null : selectorId)}
         >
-          {content}
+          {mainStatId === null ? requiredContent : selectedContent}
           <span className="main-stat-block__change" aria-hidden="true">&#9660;</span>
         </button>
       ) : (
         <div
           className="main-stat-block main-stat-block--fixed"
-          aria-label={`Disc ${mainSlot.replace('slot', '')} ${selected.label} selected`}
+          aria-label={`Disc ${mainSlot.replace('slot', '')} ${selected!.label} selected`}
+          ref={(node) => { focusTargetRef.current = node }}
+          tabIndex={-1}
         >
-          {content}
+          {selectedContent}
           <span className="main-stat-block__fixed" role="img" aria-label="Fixed selection" />
         </div>
       )}
@@ -531,7 +555,7 @@ function MainStatSelection({
                     mainStatId: candidateId,
                   })
                   setOpenSelector(null)
-                  requestFocusReturn()
+                  setShouldReturnFocus(true)
                 }}
               >
                 <span>{candidate.label}</span>
@@ -703,15 +727,16 @@ function StatBank({
   openSelector,
   setOpenSelector,
   setup,
+  mainStatCandidates,
 }: {
   agentId: AgentId
   slot: AppliedSlot
   setup: AgentSetupState
+  mainStatCandidates: Record<MainSlot, readonly MainStatId[]>
   dispatch: Dispatch<WorkbenchAction>
   openSelector: string | null
   setOpenSelector: (value: string | null) => void
 } & SourceInteractionProps) {
-  if (!Object.values(setup.mains).every(Boolean)) return null
   const agent = ADMITTED_AGENTS.find(({ id }) => id === agentId)!
 
   return (
@@ -724,6 +749,7 @@ function StatBank({
             activeSourceTone={activeSourceTone}
             agentId={agentId}
             appliedSlot={slot}
+            candidates={mainStatCandidates[mainSlot]}
             dispatch={dispatch}
             key={mainSlot}
             mainStatId={setup.mains[mainSlot]!}
@@ -776,6 +802,7 @@ export function AgentSetup({
   agentId,
   slot,
   dispatch,
+  mainStatCandidates,
   onSourceToneChange,
   setup,
 }: AgentSetupProps) {
@@ -823,6 +850,7 @@ export function AgentSetup({
           agentId={agentId}
           slot={slot}
           dispatch={dispatch}
+          mainStatCandidates={mainStatCandidates}
           onSourceToneChange={onSourceToneChange}
           openSelector={openSelector}
           setOpenSelector={setOpenSelector}

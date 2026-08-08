@@ -54,6 +54,7 @@ export type ActionEffectId =
   | 'anbyAftershock' | 'anbyBasicUltimate'
   | 'anbyDash' | 'triggerBasic' | 'triggerQuickAssist'
 export type Recipient = 'self' | 'focus' | 'all-party' | 'other-party' | 'enemy-context'
+export type CandidatePressure = 'materialBroadPrePenDefBypass'
 
 export interface ResolvedCurrentEffect {
   metric: EffectMetric
@@ -74,9 +75,15 @@ export interface SourceBoundCurrentClause {
   action?: ActionEffectId
   eligibleAgentIds?: AgentId[]
   nonstackKey?: 'kingOfTheSummit'
+  candidatePressure?: CandidatePressure
   value: { kind: 'additive'; amount: number; display?: ResolvedCurrentEffect['display'] }
     | { kind: 'basis-percentage'; percentage: number }
 }
+
+export const withCandidatePressure = (
+  clause: SourceBoundCurrentClause,
+  candidatePressure: CandidatePressure,
+): SourceBoundCurrentClause => ({ ...clause, candidatePressure })
 
 export const source = (
   label: string,

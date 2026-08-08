@@ -1,5 +1,5 @@
 import { DRIVE_DISC_FACTS, VERTICAL_VALUES, W_ENGINE_FACTS, scaledEngineValue } from '../../content'
-import { STATIC_SOURCES, active, additive, discSource, discStatInput, effectiveSubstatInput, engineAdvancedInput, engineSource, mainStatInput, mindscapeSource, percentage, resolveDeliveredClauses, type CompleteSetup, type ResolvedSetupInput, type SourceBoundCurrentClause } from '../../effects'
+import { STATIC_SOURCES, active, additive, discSource, discStatInput, effectiveSubstatInput, engineAdvancedInput, engineSource, mainStatInput, mindscapeSource, percentage, resolveDeliveredClauses, withCandidatePressure, type CompleteSetup, type ResolvedSetupInput, type SourceBoundCurrentClause } from '../../effects'
 import { composeActionEffects, composeMetricEffects, contribution, percentageContribution, surfaces } from '../composition'
 import type { AgentResult, ResultMetric } from '../result'
 
@@ -20,7 +20,10 @@ export function resolveTriggerProviderClauses(setup: CompleteSetup): SourceBound
     additive('stunDmgMultiplier', 'fully', STATIC_SOURCES.trigger.core, setup.mindscape >= 1 ? 55 : 35, 'enemy-context', undefined, undefined, ['yixuan', 'anbySoldier0', 'trigger']),
     additive('critDmg', 'fully', mindscapeSource('trigger', 2, '4 stacks'), setup.mindscape >= 2 ? 24 : 0, 'all-party', undefined, undefined, ['yixuan', 'anbySoldier0', 'trigger']),
     additive('critDmg', 'fully', discSource('trigger', 'king', '4-piece'), kingCrit, 'all-party', undefined, undefined, ['yixuan', 'anbySoldier0', 'trigger'], 'kingOfTheSummit'),
-    additive('defReduction', 'fully', engine, setup.engineId === 'spectralGaze' ? scaledEngineValue(W_ENGINE_FACTS.spectralGaze.defReduction, refinement) : 0, 'enemy-context', undefined, undefined, ['anbySoldier0']),
+    withCandidatePressure(
+      additive('defReduction', 'fully', engine, setup.engineId === 'spectralGaze' ? scaledEngineValue(W_ENGINE_FACTS.spectralGaze.defReduction, refinement) : 0, 'enemy-context', undefined, undefined, ['anbySoldier0']),
+      'materialBroadPrePenDefBypass',
+    ),
     additive('dmgBonus', 'fully', engine, setup.engineId === 'iceJadeTeapot' ? scaledEngineValue(W_ENGINE_FACTS.iceJadeTeapot.dmg, refinement) : 0, 'all-party', undefined, undefined, ['yixuan', 'anbySoldier0', 'trigger']),
     additive('dazeBonus', 'fully', engine, setup.engineId === 'restrained' ? scaledEngineValue(W_ENGINE_FACTS.restrained.dazePerStack, refinement) * 5 : 0, 'self', 'triggerBasic'),
     additive('dazeBonus', 'fully', engine, setup.engineId === 'preciousFossilizedCore' ? scaledEngineValue(W_ENGINE_FACTS.preciousFossilizedCore.dazePerThreshold, refinement) * 2 : 0, 'self'),

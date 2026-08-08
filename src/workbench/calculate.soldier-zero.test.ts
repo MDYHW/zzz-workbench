@@ -113,6 +113,7 @@ describe('soldier zero vertical', () => {
     let state = createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
     state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 4 })
     state = workbenchReducer(state, { type: 'selectEngine', slot: 0, engineId: 'cordisGermina' })
+    state = workbenchReducer(state, { type: 'selectEngine', slot: 1, engineId: 'iceJadeTeapot' })
     state = workbenchReducer(state, { type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'penRatio' })
 
     const m0 = calculateParty(state)!
@@ -133,14 +134,21 @@ describe('soldier zero vertical', () => {
     expect(resultMetric(anby, 'penRatio').breakdown.initial)
       .toContainEqual(expect.objectContaining({ label: 'Drive Disc · Slot 5', amount: 24 }))
 
-    expect(resultMetric(anby, 'defReduction').values.fully).toBe(25)
-    expect(trigger.actionModifiers.find(({ id }) => id === 'triggerAftershockDefReduction')).toBeUndefined()
+    expect(anby.metrics.find(({ id }) => id === 'defReduction')).toBeUndefined()
     const yixuanWithTrigger = resultAgent(calculateParty(createPreparedState({}, ['yixuan', 'trigger', 'astraYao'], 0))!, 'yixuan')
     expect(yixuanWithTrigger.metrics.find(({ id }) => id === 'defReduction')).toBeUndefined()
     expect(resultMetric(trigger, 'stunDmgMultiplier').values.fully).toBe(35)
 
-    state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 1 })
-    const m1 = calculateParty(state)!
+    let spectral = createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
+    spectral = workbenchReducer(spectral, { type: 'setMindscape', slot: 0, mindscape: 4 })
+    spectral = workbenchReducer(spectral, { type: 'selectEngine', slot: 0, engineId: 'cordisGermina' })
+    const spectralAnby = resultAgent(calculateParty(spectral)!, 'anbySoldier0')
+    const spectralTrigger = resultAgent(calculateParty(spectral)!, 'trigger')
+    expect(resultMetric(spectralAnby, 'defReduction').values.fully).toBe(25)
+    expect(spectralTrigger.actionModifiers.find(({ id }) => id === 'triggerAftershockDefReduction')).toBeUndefined()
+
+    spectral = workbenchReducer(spectral, { type: 'setMindscape', slot: 1, mindscape: 1 })
+    const m1 = calculateParty(spectral)!
     expect(resultMetric(resultAgent(m1, 'trigger'), 'stunDmgMultiplier').values.fully).toBe(55)
   })
 
@@ -265,7 +273,7 @@ describe('soldier zero vertical', () => {
 
     const triggerSetup = createPreparedState({}, ['anbySoldier0', 'trigger', 'dialyn'], 0).slots[1].setup
     expect(triggerSetup).toMatchObject({ fourPieceId: 'king', twoPieceId: 'shockstar' })
-    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.trigger.slot5).toEqual(['electricDmg', 'atkPct'])
+    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.trigger.slot5).toEqual(['electricDmg', 'atkPct', 'penRatio'])
     expect(SUBSTAT_CHOICES_BY_AGENT.trigger.map(({ id }) => id)).toEqual(['critRate'])
   })
 

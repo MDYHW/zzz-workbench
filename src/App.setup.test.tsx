@@ -50,6 +50,7 @@ describe('integrated party workbench: setup', () => {
   it('presents Astra’s composite Energy Regen choice and keeps Trigger Disc candidates stable across applied parties', async () => {
     const user = userEvent.setup()
     render(<App />)
+    expect(screen.getByRole('status')).toBeEmptyDOMElement()
     const replace = async (slot: number, agent: RegExp) => {
       await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
       await user.click(screen.getByRole('button', { name: agent }))
@@ -353,6 +354,113 @@ describe('integrated party workbench: setup', () => {
       name: 'Change Disc 5 main stat from PEN Ratio',
     })).toHaveFocus()
     expect(screen.queryByRole('button', { name: 'PEN Ratio' })).not.toBeInTheDocument()
+  })
+
+  it('cues simultaneous contextual invalidations and restores Result only after every repair', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Anby: Soldier 0, Electric, Attack/)
+    await replace(3, /Trigger, Electric, Stun/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    await user.click(screen.getByRole('tab', { name: 'View Trigger setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Change W-Engine from Spectral Gaze' }))
+    await user.click(screen.getByRole('button', { name: 'Select Ice-Jade Teapot W1' }))
+    await user.click(screen.getByRole('button', { name: 'Change Disc 5 main stat from Electric DMG' }))
+    await user.click(screen.getByRole('button', { name: 'Select PEN Ratio for Disc 5' }))
+
+    await user.click(screen.getByRole('tab', { name: 'View Anby: Soldier 0 setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Change Disc 5 main stat from Electric DMG' }))
+    await user.click(screen.getByRole('button', { name: 'Select PEN Ratio for Disc 5' }))
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Change Disc 5 main stat from ATK%' }))
+    await user.click(screen.getByRole('button', { name: 'Select PEN Ratio for Disc 5' }))
+
+    await user.click(screen.getByRole('tab', { name: 'View Trigger setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Change W-Engine from Ice-Jade Teapot' }))
+    await user.click(screen.getByRole('button', { name: 'Select Spectral Gaze W1' }))
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '3 setup selections now require a choice: Anby: Soldier 0 Disc 5 main stat and Dialyn Disc 5 main stat and Trigger Disc 5 main stat.',
+    )
+    expect(screen.getByRole('tab', {
+      name: 'View Anby: Soldier 0 setup and Result, setup incomplete',
+    })).toHaveClass('is-setup-incomplete')
+    expect(screen.getByRole('tab', {
+      name: 'View Dialyn setup and Result, setup incomplete',
+    })).toHaveClass('is-setup-incomplete')
+    expect(screen.getByRole('tab', {
+      name: 'Close Trigger setup and Result, setup incomplete',
+    })).toHaveClass('is-setup-incomplete')
+    expect(screen.getByRole('button', {
+      name: 'Change W-Engine from Spectral Gaze',
+    })).toHaveFocus()
+    expect(screen.queryByRole('heading', { name: 'Trigger Result' })).not.toBeInTheDocument()
+    expect(screen.getByText('INCOMPLETE')).toBeInTheDocument()
+
+    const liveRegion = screen.getByRole('status')
+    const liveRegionMutations: MutationRecord[] = []
+    const liveRegionObserver = new MutationObserver((records) => {
+      liveRegionMutations.push(...records)
+    })
+    liveRegionObserver.observe(liveRegion, { childList: true, characterData: true, subtree: true })
+    await user.click(screen.getByRole('tab', {
+      name: 'View Anby: Soldier 0 setup and Result, setup incomplete',
+    }))
+    expect(screen.getByRole('button', { name: 'Disc 5 main stat required' })).toBeInTheDocument()
+    expect(screen.getByLabelText('CRIT Rate hit count')).toBeInTheDocument()
+    expect(liveRegionMutations).toEqual([])
+    liveRegionObserver.disconnect()
+    await user.click(screen.getByRole('button', { name: 'Disc 5 main stat required' }))
+    await user.click(screen.getByRole('button', { name: 'Select Electric DMG for Disc 5' }))
+
+    expect(screen.getByRole('status')).toBeEmptyDOMElement()
+    expect(screen.getByRole('tab', {
+      name: 'View Dialyn setup and Result, setup incomplete',
+    })).toHaveClass('is-setup-incomplete')
+    expect(screen.getByRole('tab', {
+      name: 'Close Anby: Soldier 0 setup and Result',
+    })).not.toHaveClass('is-setup-incomplete')
+    expect(screen.queryByRole('heading', { name: 'Anby: Soldier 0 Result' }))
+      .not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', {
+      name: 'View Dialyn setup and Result, setup incomplete',
+    }))
+    await user.click(screen.getByRole('button', { name: 'Disc 5 main stat required' }))
+    const candidates = screen.getByLabelText('Disc 5 main-stat candidates')
+    expect(within(candidates).queryByRole('button', {
+      name: 'Select PEN Ratio for Disc 5',
+    })).not.toBeInTheDocument()
+    await user.click(within(candidates).getByRole('button', {
+      name: 'Select ATK% for Disc 5',
+    }))
+
+    expect(screen.queryByRole('heading', { name: 'Dialyn Result' })).not.toBeInTheDocument()
+    expect(screen.getByText('INCOMPLETE')).toBeInTheDocument()
+    expect(document.querySelectorAll('.is-setup-incomplete')).toHaveLength(1)
+
+    await user.click(screen.getByRole('tab', {
+      name: 'View Trigger setup and Result, setup incomplete',
+    }))
+    await user.click(screen.getByRole('button', { name: 'Disc 5 main stat required' }))
+    const triggerCandidates = screen.getByLabelText('Disc 5 main-stat candidates')
+    expect(within(triggerCandidates).queryByRole('button', {
+      name: 'Select PEN Ratio for Disc 5',
+    })).not.toBeInTheDocument()
+    await user.click(within(triggerCandidates).getByRole('button', {
+      name: 'Select Electric DMG for Disc 5',
+    }))
+
+    expect(screen.getByRole('heading', { name: 'Trigger Result' })).toBeInTheDocument()
+    expect(screen.getByText('PREPARED')).toBeInTheDocument()
+    expect(document.querySelectorAll('.is-setup-incomplete')).toHaveLength(0)
   })
 
   it('offers Dialyn Slot 6 Impact and recalculates its existing Result row', async () => {
