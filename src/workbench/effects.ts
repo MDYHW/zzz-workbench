@@ -18,7 +18,7 @@ export type SourceLocus =
   | 'identity' | 'w-engine' | 'disc-4pc' | 'disc-2pc'
   | 'disc-slot-4' | 'disc-slot-5' | 'disc-slot-6'
   | 'substat-1' | 'substat-2' | 'substat-3'
-  | 'core' | 'additional' | 'ex-special' | 'mindscape' | 'calculation'
+  | 'core' | 'additional' | 'special' | 'ex-special' | 'mindscape' | 'calculation'
 
 export interface ResultSource {
   label: string
@@ -46,10 +46,13 @@ export type EffectMetric =
   | 'maxHp' | 'atk' | 'sheerForce' | 'impact' | 'critRate' | 'critDmg'
   | 'dmgBonus' | 'sheerDmgBonus' | 'resIgnore' | 'dazeBonus'
   | 'stunDmgMultiplier' | 'energyRegen' | 'stunDuration'
+  | 'penRatio' | 'defIgnore' | 'resReduction' | 'defReduction'
 
 export type ActionEffectId =
   | 'coreActions' | 'exSpecialStunned' | 'mindscapeCloudShaper'
   | 'engineSheerActions' | 'mindscapeEtherResIgnore'
+  | 'anbyAftershock' | 'anbyBasicUltimate' | 'triggerAftershock'
+  | 'triggerBasic' | 'triggerQuickAssist'
 export type Recipient = 'self' | 'focus' | 'all-party' | 'other-party' | 'enemy-context'
 
 export interface ResolvedCurrentEffect {
@@ -58,6 +61,8 @@ export interface ResolvedCurrentEffect {
   amount: number
   source: ResultSource
   action?: ActionEffectId
+  eligibleAgentIds?: AgentId[]
+  nonstackKey?: SourceBoundCurrentClause['nonstackKey']
   display?: { value: number; unit: '%' | '/s'; decimals: number }
 }
 
@@ -67,6 +72,8 @@ export interface SourceBoundCurrentClause {
   source: ResultSource
   recipient: Recipient
   action?: ActionEffectId
+  eligibleAgentIds?: AgentId[]
+  nonstackKey?: 'kingOfTheSummit'
   value: { kind: 'additive'; amount: number; display?: ResolvedCurrentEffect['display'] }
     | { kind: 'basis-percentage'; percentage: number }
 }
@@ -94,6 +101,20 @@ export const STATIC_SOURCES = {
     core: source(SOURCE_LABELS.luciaCore, 'lucia', 'core'),
     additional: source(SOURCE_LABELS.luciaAbility, 'lucia', 'additional'),
     exSpecial: source(SOURCE_LABELS.luciaSheer, 'lucia', 'ex-special'),
+  },
+  anbySoldier0: {
+    core: source(SOURCE_LABELS.anbyCore, 'anbySoldier0', 'core'),
+    additional: source(SOURCE_LABELS.anbyAbility, 'anbySoldier0', 'additional'),
+    critCap: source('Displayed CRIT Rate cap', 'anbySoldier0', 'calculation'),
+  },
+  trigger: {
+    core: source(SOURCE_LABELS.triggerCore, 'trigger', 'core'),
+    additional: source(SOURCE_LABELS.triggerAbility, 'trigger', 'additional'),
+    critCap: source('Displayed CRIT Rate cap', 'trigger', 'calculation'),
+  },
+  astraYao: {
+    core: source(SOURCE_LABELS.astraCore, 'astraYao', 'core'),
+    cadenza: source(SOURCE_LABELS.astraCadenza, 'astraYao', 'special'),
   },
 } as const
 
@@ -127,16 +148,17 @@ export function engineSource(
 export function discSource(
   agentId: AgentId,
   discId: DiscId,
-  piece: '4-piece' | '2-piece',
+  effectPiece: '4-piece' | '2-piece',
+  ownerPiece: '4-piece' | '2-piece' = effectPiece,
 ): ResultSource {
-  const label = agentId === 'dialyn' && discId === 'swingJazz' && piece === '2-piece'
+  const label = (agentId === 'dialyn' && discId === 'swingJazz' || agentId === 'astraYao' && discId === 'moonlight') && effectPiece === '2-piece'
     ? 'Swing Jazz or Moonlight Lullaby'
     : DRIVE_DISCS[discId].name
   return source(
     label,
     agentId,
-    piece === '4-piece' ? 'disc-4pc' : 'disc-2pc',
-    piece,
+    ownerPiece === '4-piece' ? 'disc-4pc' : 'disc-2pc',
+    effectPiece,
   )
 }
 
@@ -212,6 +234,7 @@ export function discStatInput(
   piece: 'fourPiece' | 'twoPiece',
   discId: DiscId,
   rawValue: number,
+  effectPiece: 'fourPiece' | 'twoPiece' = piece,
 ): ResolvedSetupInput | undefined {
   const selected = piece === 'fourPiece' ? setup.fourPieceId : setup.twoPieceId
   return selected === discId
@@ -221,6 +244,7 @@ export function discStatInput(
       source: discSource(
         agentId,
         discId,
+        effectPiece === 'fourPiece' ? '4-piece' : '2-piece',
         piece === 'fourPiece' ? '4-piece' : '2-piece',
       ),
     }
@@ -235,12 +259,16 @@ export const additive = (
   recipient: Recipient,
   action?: ActionEffectId,
   display?: ResolvedCurrentEffect['display'],
+  eligibleAgentIds?: AgentId[],
+  nonstackKey?: SourceBoundCurrentClause['nonstackKey'],
 ): SourceBoundCurrentClause => ({
   metric,
   earliestSurface,
   source: sourceValue,
   recipient,
   ...(action ? { action } : {}),
+  ...(eligibleAgentIds ? { eligibleAgentIds } : {}),
+  ...(nonstackKey ? { nonstackKey } : {}),
   value: { kind: 'additive', amount, ...(display ? { display } : {}) },
 })
 
@@ -250,11 +278,13 @@ export const percentage = (
   sourceValue: ResultSource,
   percentageValue: number,
   recipient: Recipient,
+  eligibleAgentIds?: AgentId[],
 ): SourceBoundCurrentClause => ({
   metric,
   earliestSurface,
   source: sourceValue,
   recipient,
+  ...(eligibleAgentIds ? { eligibleAgentIds } : {}),
   value: { kind: 'basis-percentage', percentage: percentageValue },
 })
 
@@ -305,7 +335,10 @@ export function resolveDeliveredClauses(
       source: clause.source,
       amount,
       ...(clause.action ? { action: clause.action } : {}),
+      ...(clause.eligibleAgentIds ? { eligibleAgentIds: clause.eligibleAgentIds } : {}),
+      ...(clause.nonstackKey ? { nonstackKey: clause.nonstackKey } : {}),
       ...(display ? { display } : {}),
     }
   }).filter(({ amount }) => Math.abs(amount) > 0.000_001)
+
 }

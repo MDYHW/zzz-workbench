@@ -56,6 +56,47 @@ function effectsForMetric(
   ))
 }
 
+function highestNonstackEffects(
+  effects: ResolvedCurrentEffect[],
+): ResolvedCurrentEffect[] {
+  const accepted: ResolvedCurrentEffect[] = []
+  const keys = [...new Set(effects.flatMap((effect) => effect.nonstackKey ? [effect.nonstackKey] : []))]
+
+  for (const effect of effects) {
+    if (!effect.nonstackKey) accepted.push(effect)
+  }
+  for (const key of keys) {
+    const matching = effects.filter((effect) => effect.nonstackKey === key)
+    const highest = Math.max(...matching.map(({ amount }) => amount))
+    const highestEffects = matching.filter(({ amount }) => Math.abs(amount - highest) < 0.000_001)
+    accepted.push(...highestEffects.map((effect) => (
+      highestEffects.length === 1
+        ? effect
+        : {
+            ...effect,
+            source: {
+              ...effect.source,
+              detail: [effect.source.detail, 'equal non-stacking origin'].filter(Boolean).join(' · '),
+            },
+          }
+    )))
+  }
+  return accepted
+}
+
+function valueEffectsForNonstack(
+  effects: ResolvedCurrentEffect[],
+): ResolvedCurrentEffect[] {
+  const accepted = effects.filter((effect) => !effect.nonstackKey)
+  const keys = [...new Set(effects.flatMap((effect) => effect.nonstackKey ? [effect.nonstackKey] : []))]
+  for (const key of keys) {
+    const matching = effects.filter((effect) => effect.nonstackKey === key)
+    const highest = Math.max(...matching.map(({ amount }) => amount))
+    accepted.push(matching.find(({ amount }) => Math.abs(amount - highest) < 0.000_001)!)
+  }
+  return accepted
+}
+
 export function energyRegenProjection(
   baseEnergyRegen: number,
   initialPercentages: ResolvedSetupInput[],
@@ -93,7 +134,9 @@ export function composeMetricEffects(
   metric: EffectMetric,
   cap?: { value: number; source: ResultSource },
 ): Pick<ResultMetric, 'values' | 'breakdown'> {
-  const metricEffects = effectsForMetric(effects, metric)
+  const allMetricEffects = effectsForMetric(effects, metric)
+  const metricEffects = highestNonstackEffects(allMetricEffects)
+  const valueMetricEffects = valueEffectsForNonstack(allMetricEffects)
   const breakdown = surfaces(
     [...baseBreakdown.initial],
     [...baseBreakdown.combat],
@@ -103,7 +146,7 @@ export function composeMetricEffects(
 
   if (!cap) {
     for (const [surfaceIndex, surface] of surfaceOrder.entries()) {
-      const cumulativeEffects = metricEffects.filter((effect) => (
+      const cumulativeEffects = valueMetricEffects.filter((effect) => (
         surfaceOrder.indexOf(effect.earliestSurface) <= surfaceIndex
       ))
       values[surface] = baseValues[surface]
@@ -119,7 +162,7 @@ export function composeMetricEffects(
   let priorValue = 0
   let priorBaseValue = 0
   for (const surface of surfaceOrder) {
-    const currentEffects = metricEffects.filter(
+    const currentEffects = valueMetricEffects.filter(
       (effect) => effect.earliestSurface === surface,
     )
     const additions = currentEffects.map(effectContribution)

@@ -1,7 +1,8 @@
 import {
-  DISC_IDS_BY_AGENT_AND_PIECE,
   DEFAULT_APPLIED_AGENT_IDS,
+  isFocusEligible,
   defaultRefinementFor,
+  DISC_IDS_BY_AGENT_AND_PIECE,
   ENGINE_IDS_BY_AGENT_AND_POOL,
   MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
   preparedSetupFor,
@@ -41,6 +42,12 @@ export interface AppliedAgentSlot {
 export interface WorkbenchState {
   slots: [AppliedAgentSlot, AppliedAgentSlot, AppliedAgentSlot]
   focusSlot: AppliedSlot
+  draft?: PartyDraft
+}
+
+export interface PartyDraft {
+  agentIds: [AgentId, AgentId, AgentId]
+  focusSlot: AppliedSlot | null
 }
 
 export type WorkbenchAction =
@@ -62,6 +69,24 @@ export type WorkbenchAction =
     }
   | { type: 'adjustSubstat'; slot: AppliedSlot; key: SubstatId; delta: number }
   | { type: 'setSubstat'; slot: AppliedSlot; key: SubstatId; value: number }
+  | { type: 'openPartyEdit' }
+  | { type: 'closePartyEdit' }
+  | { type: 'replaceDraftAgent'; slot: AppliedSlot; agentId: AgentId }
+  | { type: 'setDraftFocus'; slot: AppliedSlot }
+  | { type: 'applyPartyEdit' }
+
+function resolvedDraftFocus(agentIds: PartyDraft['agentIds']): AppliedSlot | null {
+  const eligible = agentIds.map((agentId, index) => isFocusEligible(agentId) ? index as AppliedSlot : null)
+    .filter((slot): slot is AppliedSlot => slot !== null)
+  return eligible.length === 1 ? eligible[0] : null
+}
+
+function sameEligibleAgents(
+  before: PartyDraft['agentIds'],
+  after: PartyDraft['agentIds'],
+): boolean {
+  return before.filter(isFocusEligible).join(',') === after.filter(isFocusEligible).join(',')
+}
 
 export function zeroSubstats(agentId: AgentId): SubstatCounts {
   return Object.fromEntries(
@@ -95,7 +120,7 @@ export function createPreparedState(
   return {
     slots: agentIds.map((agentId) => ({
       agentId,
-      setup: createPreparedAgentSetup(agentId, pools[agentId] ?? 'full'),
+      setup: createPreparedAgentSetup(agentId, pools[agentId] ?? 'full', 0),
     })) as WorkbenchState['slots'],
     focusSlot,
   }
@@ -123,6 +148,57 @@ function updateSetup(
 
 export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction): WorkbenchState {
   switch (action.type) {
+    case 'openPartyEdit':
+      return state.draft ? state : {
+        ...state,
+        draft: {
+          agentIds: state.slots.map(({ agentId }) => agentId) as PartyDraft['agentIds'],
+          focusSlot: state.focusSlot,
+        },
+      }
+
+    case 'closePartyEdit':
+      return state.draft ? { ...state, draft: undefined } : state
+
+    case 'replaceDraftAgent': {
+      const draft = state.draft
+      if (!draft || draft.agentIds.includes(action.agentId)) return state
+      const agentIds = [...draft.agentIds] as PartyDraft['agentIds']
+      agentIds[action.slot] = action.agentId
+      return {
+        ...state,
+        draft: {
+          ...draft,
+          agentIds,
+          focusSlot: sameEligibleAgents(draft.agentIds, agentIds)
+            ? draft.focusSlot
+            : resolvedDraftFocus(agentIds),
+        },
+      }
+    }
+
+    case 'setDraftFocus': {
+      const draft = state.draft
+      return draft && isFocusEligible(draft.agentIds[action.slot])
+        ? { ...state, draft: { ...draft, focusSlot: action.slot } }
+        : state
+    }
+
+    case 'applyPartyEdit': {
+      const draft = state.draft
+      if (!draft || draft.focusSlot === null || new Set(draft.agentIds).size !== 3) return state
+      const changed = draft.focusSlot !== state.focusSlot
+        || draft.agentIds.some((agentId, index) => agentId !== state.slots[index].agentId)
+      if (!changed) return state
+      const slots = draft.agentIds.map((agentId) => {
+        const existing = state.slots.find((slot) => slot.agentId === agentId)
+        return {
+          agentId,
+          setup: createPreparedAgentSetup(agentId, existing?.setup.pool ?? 'full', existing?.setup.mindscape ?? 0),
+        }
+      }) as WorkbenchState['slots']
+      return { slots, focusSlot: draft.focusSlot }
+    }
     case 'setMindscape': {
       const currentSlot = state.slots[action.slot]
       const current = currentSlot.setup
@@ -186,11 +262,15 @@ export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction)
         const agentId = state.slots[action.slot].agentId
         const candidates = DISC_IDS_BY_AGENT_AND_PIECE[agentId][action.piece]
         if (!candidates.includes(action.discId)) return setup
-        if (
-          (action.piece === 'fourPiece' && setup.twoPieceId === action.discId)
-          || (action.piece === 'twoPiece' && setup.fourPieceId === action.discId)
-        ) {
-          return setup
+        const otherPiece = action.piece === 'fourPiece' ? 'twoPiece' : 'fourPiece'
+        const otherId = otherPiece === 'fourPiece' ? setup.fourPieceId : setup.twoPieceId
+        if (otherId === action.discId) {
+          const oppositeCandidates = DISC_IDS_BY_AGENT_AND_PIECE[agentId][otherPiece]
+          const currentId = action.piece === 'fourPiece' ? setup.fourPieceId : setup.twoPieceId
+          if (!currentId || !oppositeCandidates.includes(currentId)) return setup
+          return action.piece === 'fourPiece'
+            ? { ...setup, fourPieceId: action.discId, twoPieceId: currentId }
+            : { ...setup, twoPieceId: action.discId, fourPieceId: currentId }
         }
         return { ...setup, [`${action.piece}Id`]: action.discId }
       })

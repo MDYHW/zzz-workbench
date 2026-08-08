@@ -338,5 +338,64 @@ describe('integrated party workbench: result', () => {
     act(() => focusTarget.blur())
     expect(qingming).not.toHaveClass('is-source-active')
   })
-})
 
+  it('presents the second trio derived source, gauge, cross-Agent link, and M4 operation separately', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+    await replace(1, /Anby: Soldier 0, Electric, Attack/)
+    await replace(2, /Trigger, Electric, Stun/)
+    await replace(3, /Astra Yao, Ether, Support/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    const anbyResult = screen.getByRole('region', { name: 'Anby: Soldier 0 Result' })
+    await user.click(within(anbyResult).getByRole('button', { name: 'CRIT DMG' }))
+    const critSources = within(anbyResult).getByRole('table', {
+      name: 'CRIT DMG source contributions',
+    })
+    const triggerSource = within(critSources).getByRole('row', {
+      name: /Trigger.*King of the Summit.*4-piece.*[+]30[.]0%/,
+    })
+    expect(triggerSource).toHaveAttribute('data-source-tone', 'agent-trigger')
+    await user.hover(triggerSource)
+    expect(screen.getByRole('tab', { name: 'View Trigger setup and Result' }))
+      .toHaveClass('is-source-active')
+    await user.unhover(triggerSource)
+
+    const outcomes = within(anbyResult).getByRole('table', {
+      name: 'CRIT DMG action outcome values',
+    })
+    await user.click(within(outcomes).getByRole('button', {
+      name: /Show sources for Aftershock, Chain Attack, Ultimate/,
+    }))
+    expect(within(outcomes).getByRole('row', {
+      name: /Core Passive.*35% of Fully Enabled CRIT DMG.*[+]74[.]6%/,
+    })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'View Trigger setup and Result' }))
+    const triggerResult = screen.getByRole('region', { name: 'Trigger Result' })
+    await user.click(within(triggerResult).getByRole('button', { name: 'Daze Bonus' }))
+    expect(within(triggerResult).getByRole('group', {
+      name: /Fully Enabled CRIT Rate: current 53[.]0, cap 90, threshold 40[.]0; Aftershock Daze bonus: [+]19[.]5%, cap 75%/,
+    })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'View Astra Yao setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'M4' }))
+    await user.click(screen.getByRole('tab', { name: 'View Trigger setup and Result' }))
+    const m4TriggerResult = screen.getByRole('region', { name: 'Trigger Result' })
+    expect(within(m4TriggerResult).getByRole('row', {
+      name: /Daze Bonus.*6[.]0%.*6[.]0%.*6[.]0%/,
+    })).toBeInTheDocument()
+    const operations = within(m4TriggerResult).getByRole('region', { name: 'Agent operations' })
+    const m4Operation = within(operations).getByRole('listitem')
+    expect(m4Operation).toHaveTextContent(
+      /Fully enabled.*Next Quick Assist Daze.*Astra Yao.*Mindscape.*M4.*Next Quick Assist.*[+]50[.]0%/,
+    )
+    expect(m4Operation).toHaveAttribute('data-source-tone', 'agent-astraYao')
+  })
+})

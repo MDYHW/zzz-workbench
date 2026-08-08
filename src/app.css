@@ -197,6 +197,63 @@ main { margin-top: 18px; }
   text-transform: uppercase;
 }
 
+.party-edit-trigger {
+  margin-left: auto;
+  padding: 5px 8px;
+  border: 1px solid #716b60;
+  background: #1c1b18;
+  color: var(--accent-soft);
+  cursor: pointer;
+  font: 800 9px/1 var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.party-edit-trigger:hover { border-color: var(--accent-soft); }
+
+.party-editor {
+  display: grid;
+  gap: 9px;
+  margin: 0 0 12px;
+  padding: 10px;
+  border: 1px solid #726b5d;
+  background: #1a1a17;
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, .2);
+}
+
+.party-editor__heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.party-editor__heading h2 { margin: 0; color: var(--accent-soft); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+.party-editor__heading span,
+.party-editor__pool > p { margin: 0; color: var(--muted); font: 700 9px/1.3 var(--mono); text-transform: uppercase; }
+.party-editor__slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.draft-slot { display: grid; min-width: 0; grid-template-columns: 54px minmax(0, 1fr); align-items: center; gap: 8px; padding: 5px; border: 1px solid #565249; background: #121310; color: #e8e3d7; text-align: left; cursor: pointer; }
+.draft-slot:hover,
+.draft-slot.is-target { border-color: var(--accent-soft); background: #272317; }
+.draft-slot img { width: 54px; height: 54px; object-fit: cover; object-position: top; filter: saturate(.86); }
+.draft-slot span { display: grid; min-width: 0; gap: 2px; }
+.draft-slot small,
+.draft-slot em { color: var(--muted); font: 700 8px/1.2 var(--mono); font-style: normal; text-transform: uppercase; }
+.draft-slot strong { overflow-wrap: anywhere; font: 900 clamp(16px, 1.5vw, 21px)/.9 "Bahnschrift Condensed", "Arial Narrow", sans-serif; text-transform: uppercase; }
+.party-editor__focus { display: flex; min-width: 0; flex-wrap: wrap; align-items: center; gap: 8px 15px; margin: 0; padding: 7px 8px; border: 1px solid #49463f; background: #141512; }
+.party-editor__focus legend { padding: 0 5px; color: var(--accent-soft); font: 800 9px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.party-editor__focus p { margin: 0; color: #d7d1c5; font-size: 12px; }
+.party-editor__focus label { font: 800 12px/1.2 var(--mono); }
+.party-editor__filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.party-editor__filters label { display: grid; gap: 4px; color: var(--muted); font: 800 8px/1 var(--mono); letter-spacing: .07em; text-transform: uppercase; }
+.party-editor__filters select { min-width: 0; padding: 7px; border: 1px solid #59544a; background: #11120f; color: #e9e5d9; font: 700 12px/1 var(--mono); }
+.party-editor__pool { display: grid; gap: 6px; }
+.party-editor__pool > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.party-editor__pool button { display: grid; min-width: 0; grid-template-columns: 40px minmax(0, 1fr); align-items: center; gap: 7px; padding: 4px; border: 1px solid #59554c; background: #151613; color: #ebe5d8; text-align: left; cursor: pointer; }
+.party-editor__pool button:hover:not(:disabled) { border-color: var(--accent-soft); }
+.party-editor__pool button:disabled { opacity: .48; cursor: not-allowed; }
+.party-editor__pool img { width: 40px; height: 40px; object-fit: cover; object-position: top; }
+.party-editor__pool span { display: grid; min-width: 0; gap: 2px; overflow-wrap: anywhere; font: 900 16px/.9 "Bahnschrift Condensed", "Arial Narrow", sans-serif; text-transform: uppercase; }
+.party-editor__pool small { color: var(--muted); font: 700 7px/1.2 var(--mono); text-transform: uppercase; }
+.party-editor__actions { display: flex; justify-content: flex-end; gap: 7px; }
+.party-editor__actions button { min-height: 32px; padding: 6px 11px; border: 1px solid #686157; background: #151613; color: #e9e5d9; cursor: pointer; font: 800 10px/1 var(--mono); text-transform: uppercase; }
+.party-editor__actions button:last-child { border-color: var(--accent); background: var(--accent); color: #1e1b14; }
+.party-editor__actions button:disabled { opacity: .43; cursor: not-allowed; }
+
 .party-rail {
   display: grid;
   grid-template-columns: minmax(0, 1fr) repeat(2, minmax(0, var(--compact-slot-width)));
@@ -408,6 +465,13 @@ main { margin-top: 18px; }
 
 .slot-identity--expanded .identity-band::after {
   display: none;
+}
+
+@media (min-width: 761px) {
+  .slot-identity--expanded[data-agent="anbySoldier0"] .identity-name {
+    font-size: clamp(28px, 2.5vw, 38px);
+    white-space: nowrap;
+  }
 }
 
 .rank-mark img {
@@ -1755,7 +1819,7 @@ button.main-stat-block:focus-visible {
   .masthead__status strong { grid-column: auto; justify-self: end; font-size: 16px; }
   .section-kicker { align-items: flex-start; flex-direction: column; gap: 3px; }
   .party-slot--expanded { display: block; }
-  .slot-identity--expanded { width: 100%; min-height: 225px; overflow: hidden; }
+  .slot-identity--expanded { width: 100%; height: 225px; min-height: 225px; overflow: hidden; }
   .slot-identity--expanded::before { width: 58%; height: 100%; clip-path: polygon(0 0, 100% 0, 72% 100%, 0 88%); }
   .slot-identity--expanded .identity-art,
   .slot-identity--expanded .identity-shade { right: 0; -webkit-mask-image: none; mask-image: none; }
@@ -1854,11 +1918,15 @@ button.main-stat-block:focus-visible {
 .source-tone--substat-3 { --source-color: #127812; }
 .source-tone--core { --source-color: #704d1a; }
 .source-tone--additional { --source-color: #0f0fc7; }
+.source-tone--special { --source-color: #0f0fc7; }
 .source-tone--ex-special { --source-color: #0d4eaf; }
 .source-tone--mindscape { --source-color: #6a238c; }
 .source-tone--agent-yixuan { --source-color: #124578; }
 .source-tone--agent-dialyn { --source-color: #800a21; }
 .source-tone--agent-lucia { --source-color: #ab1cba; }
+.source-tone--agent-anbySoldier0 { --source-color: #1b74b9; }
+.source-tone--agent-trigger { --source-color: #a17020; }
+.source-tone--agent-astraYao { --source-color: #a43e71; }
 /* Calculation clamps stay neutral and are not a semantic source color. */
 .source-tone--calculation { --source-color: #596169; }
 
@@ -2279,6 +2347,15 @@ button.main-stat-block:focus-visible {
   .source-matrix {
     min-width: 390px;
   }
+}
+
+@media (max-width: 520px) {
+  .party-editor__heading { align-items: flex-start; flex-direction: column; }
+  .party-editor__slots,
+  .party-editor__filters,
+  .party-editor__pool > div { grid-template-columns: 1fr; }
+  .party-editor__focus { align-items: flex-start; flex-direction: column; }
+  .party-editor__actions { display: grid; grid-template-columns: 1fr 1fr; }
 }
 
 

@@ -142,4 +142,135 @@ describe('integrated party workbench: party', () => {
     expect(screen.getByRole('region', { name: 'Yixuan setup' })).toBeInTheDocument()
     expect(screen.getByRole('region', { name: 'Yixuan Result' })).toBeInTheDocument()
   })
+
+  it('temporarily compacts inactive applied slots during Party Edit and restores the expanded slot on cancel', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    const edit = screen.getByRole('button', { name: 'Edit party' })
+    await user.click(edit)
+    for (const name of [
+      'Yixuan applied slot, inactive while editing party',
+      'Dialyn applied slot, inactive while editing party',
+      'Lucia applied slot, inactive while editing party',
+    ]) {
+      expect(screen.getByRole('button', { name })).toBeDisabled()
+    }
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument()
+    expect(screen.queryByRole('tabpanel')).not.toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Dialyn setup' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Dialyn Result' })).not.toBeInTheDocument()
+    const firstSlot = screen.getByRole('button', { name: 'Replace slot 1, Yixuan' })
+    expect(firstSlot).toHaveFocus()
+    await user.click(firstSlot)
+    expect(screen.getByRole('button', { name: /Unavailable, Yixuan/ })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Unavailable, Dialyn/ })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ })).toHaveFocus()
+
+    await user.selectOptions(screen.getByLabelText('Attribute'), 'Electric')
+    await user.selectOptions(screen.getByLabelText('Specialty'), 'Attack')
+    expect(screen.getByText('1 available candidates')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ }))
+    expect(screen.getByText('Focus · Yixuan')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Dialyn Result' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(edit).toHaveFocus()
+    expect(screen.getByText('Focus · Yixuan')).toBeInTheDocument()
+    expect(screen.queryByText('Edit party', { selector: 'h2' })).not.toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Dialyn setup' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Dialyn Result' })).toBeInTheDocument()
+  })
+
+  it('requires an explicit Focus for multiple eligible draft Agents', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await user.click(screen.getByRole('button', { name: 'Replace slot 2, Dialyn' }))
+    await user.click(screen.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ }))
+    expect(screen.getByText('Choose a Focus Agent before applying.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Apply party' })).toBeDisabled()
+    await user.click(screen.getByRole('radio', { name: 'Anby: Soldier 0' }))
+    expect(screen.getByRole('button', { name: 'Apply party' })).toBeEnabled()
+  })
+
+  it('keeps keyboard focus on a present filter when no replacement is available', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const edit = screen.getByRole('button', { name: 'Edit party' })
+    edit.focus()
+    await user.keyboard('{Enter}')
+    expect(screen.getByRole('button', { name: 'Replace slot 1, Yixuan' })).toHaveFocus()
+    await user.tab()
+    const target = screen.getByRole('button', { name: 'Replace slot 2, Dialyn' })
+    expect(target).toHaveFocus()
+    await user.keyboard('{Enter}')
+    expect(screen.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ })).toHaveFocus()
+
+    await user.keyboard('{Shift>}{Tab}{/Shift}')
+    const specialty = screen.getByLabelText('Specialty')
+    expect(specialty).toHaveFocus()
+    await user.selectOptions(specialty, 'Support')
+    expect(screen.getByRole('button', { name: /Astra Yao, Ether, Support/ })).toHaveFocus()
+    await user.keyboard('{Shift>}{Tab}{/Shift}{Shift>}{Tab}{/Shift}')
+    const attribute = screen.getByLabelText('Attribute')
+    expect(attribute).toHaveFocus()
+    await user.selectOptions(attribute, 'Electric')
+    expect(screen.getByText('No available candidates')).toBeInTheDocument()
+    expect(attribute).toHaveFocus()
+
+    await user.selectOptions(attribute, 'all')
+    expect(screen.getByRole('button', { name: /Astra Yao, Ether, Support/ })).toHaveFocus()
+    await user.keyboard('{Enter}')
+    expect(screen.getByRole('button', { name: 'Replace slot 2, Astra Yao' })).toHaveFocus()
+    await user.tab()
+    await user.tab()
+    await user.tab()
+    const apply = screen.getByRole('button', { name: 'Apply party' })
+    expect(apply).toHaveFocus()
+    await user.keyboard('{Enter}')
+    expect(edit).toHaveFocus()
+  })
+
+  it('applies the second trio atomically and can restore the first-vertical preparation', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+    await replace(1, /Anby: Soldier 0, Electric, Attack/)
+    await replace(2, /Trigger, Electric, Stun/)
+    await replace(3, /Astra Yao, Ether, Support/)
+    expect(screen.getByRole('button', { name: 'Apply party' })).toBeEnabled()
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    expect(screen.getByText('SETUP // 02')).toBeInTheDocument()
+    expect(screen.getByText('ANBY: SOLDIER 0 STRIKE TEAM')).toBeInTheDocument()
+    expect(screen.getByText('Focus · Anby: Soldier 0')).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Anby: Soldier 0 setup' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Anby: Soldier 0 Result' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Edit party' })).toHaveFocus()
+
+    await user.click(screen.getByRole('button', { name: 'M2' }))
+    await user.click(screen.getByRole('button', { name: 'Non-limited' }))
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Yixuan, Auric Ink, Rupture/)
+    await replace(2, /Dialyn, Physical, Stun/)
+    await replace(3, /Lucia, Ether, Support/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    expect(screen.getByText('SETUP // 01')).toBeInTheDocument()
+    expect(screen.getByText('YIXUAN STRIKE TEAM')).toBeInTheDocument()
+    expect(screen.getByText('Focus · Yixuan')).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Yixuan setup' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Yixuan Result' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'M0' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Full pool' })).toHaveAttribute('aria-pressed', 'true')
+  })
 })

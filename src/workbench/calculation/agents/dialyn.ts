@@ -114,7 +114,7 @@ export function resolveDialynProviderClauses(
     perSecond(engine, energy, 'self'),
     additive('dmgBonus', 'fully', STATIC_SOURCES.dialyn.additional, values.party.dialynDmg, 'all-party'),
     additive('critDmg', 'fully', engine, setup.engineId === 'yesterdayCalls' ? scaledEngineValue(W_ENGINE_FACTS.yesterdayCalls.squadCritDmg, refinement) : 0, 'all-party'),
-    additive('critDmg', 'fully', fourPiece, kingCrit, 'all-party'),
+    additive('critDmg', 'fully', fourPiece, kingCrit, 'all-party', undefined, undefined, undefined, 'kingOfTheSummit'),
     additive('dmgBonus', 'fully', mindscapeSource('dialyn', 2, 'against Malicious Complaint'), setup.mindscape >= 2 ? values.dialyn.mindscapeDmg : 0, 'focus'),
     additive('stunDmgMultiplier', 'fully', STATIC_SOURCES.dialyn.core, values.party.dialynStunMultiplier, 'enemy-context'),
     additive('stunDmgMultiplier', 'fully', mindscapeSource('dialyn', 2), setup.mindscape >= 2 ? values.dialyn.mindscapeStunMultiplier : 0, 'enemy-context'),
@@ -130,7 +130,6 @@ export function calculateDialyn(
   enemyContext: SourceBoundCurrentClause[],
 ): AgentResult {
   const dialyn = VERTICAL_VALUES.dialyn
-  const effects = resolveDeliveredClauses(inbox, { impact: dialyn.impact })
   const impactFromCrit = Math.min(
     Math.max(initialCrit.value - dialyn.critThreshold, 0) * dialyn.impactPerCrit,
     dialyn.impactBonusCap,
@@ -143,6 +142,7 @@ export function calculateDialyn(
   const initialImpact = dialyn.impact * (
     1 + initialImpactInputs.reduce((total, input) => total + input.rawValue, 0) / 100
   )
+  const effects = resolveDeliveredClauses(inbox, { impact: initialImpact })
 
   const engineEnergyRegen = engineAdvancedInput(setup, 'dialyn', 'energyRegenPct')
   const slotEnergyRegen = mainStatInput(setup, 'dialyn', 'slot6', 'energyRegenPct')
@@ -213,6 +213,9 @@ export function calculateDialyn(
     'dazeBonus',
   )
   const enemyEffects = resolveDeliveredClauses(enemyContext, {})
+  const quickAssist = resolveDeliveredClauses(inbox, {}).find((effect) => (
+    effect.action === 'triggerQuickAssist' && effect.metric === 'dazeBonus'
+  ))
   const stunDuration = enemyEffects.find((effect) => (
     effect.metric === 'stunDuration' && effect.source.ownerAgentId === 'yixuan'
   )) ?? enemyEffects.find((effect) => effect.metric === 'stunDuration')!
@@ -258,6 +261,14 @@ export function calculateDialyn(
         value: stunDuration.amount,
         unit: 's',
       },
+      ...(quickAssist ? [{
+        id: 'nextQuickAssistDaze',
+        label: 'Next Quick Assist Daze',
+        source: quickAssist.source,
+        surface: 'fully' as const,
+        value: quickAssist.amount,
+        unit: '%',
+      }] : []),
     ],
   }
 }

@@ -145,7 +145,7 @@ that states whether such a contribution is effective for a setup direction.
 | --- | --- | --- |
 | ordinary skill level | upgrade level of an Agent's Basic Attack, Dodge, Assist, Special Attack, and Chain Attack categories; M3 and M5 each add two levels to the completed categories | not editable; a retained effect uses only the completed tier qualified by the product contract |
 | Core Passive | game-named Agent effect with upgrade-dependent values | source value used by a setup, stat surface, modifier, threshold, or cap |
-| Potential Awakening | game-named Agent effect with its own upgrade levels, present only for Agents whose current source supplies it | completed progression qualifier applied to the affected Agent sources; after maximum application it does not remain a separate current source identity |
+| Potential Awakening | game-named Agent progression effect with its own upgrade levels, present only for Agents that have Potential Awakening; it may modify or extend an existing Agent source or supply a standalone clause | completed progression qualifier; source attribution follows `docs/source-fact-boundary.md` |
 | Mindscape | numbered Agent enhancement effects; M0 has no unlocked Mindscape effect, while M1 through M6 include effects through the stated number | qualifies applied Agent effects and selects any retained ordinary-skill tier defined by the product contract |
 
 Ordinary skill level, Core Passive, Potential Awakening, and Mindscape are

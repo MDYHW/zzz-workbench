@@ -66,15 +66,15 @@ describe('calculateParty: dialyn', () => {
     expect(metric(hellfire, 'critRate').values.initial).toBeCloseTo(51.4)
     expect(metric(hellfire, 'impact').values.initial).toBeCloseTo(129.8)
     expect(metric(hellfire, 'impact').values.combat).toBeCloseTo(132.6)
-    expect(metric(hellfire, 'impact').values.fully).toBeCloseTo(154.6)
-    expect(metric(hellfire, 'impact').breakdown.fully).toContainEqual(
-      expect.objectContaining({
-        label: 'Hellfire Gears',
-        detail: 'W1',
-        amount: 22,
-        display: { value: 20, unit: '%', decimals: 0 },
-      }),
-    )
+    expect(metric(hellfire, 'impact').values.fully).toBeCloseTo(158.56)
+    const hellfireImpact = metric(hellfire, 'impact').breakdown.fully.find(
+      ({ label }) => label === 'Hellfire Gears',
+    )!
+    expect(hellfireImpact).toMatchObject({
+      detail: 'W1',
+      display: { value: 20, unit: '%', decimals: 0 },
+    })
+    expect(hellfireImpact.amount).toBeCloseTo(25.96)
 
     const steam = agent(calculateParty(selectEngine(
       prepared,

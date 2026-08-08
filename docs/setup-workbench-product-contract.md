@@ -72,8 +72,9 @@ materially distinct candidates rather than every legal item.
 Agents are level 60, Core Passive is maximum, and Potential Awakening is maximum
 when present. W-Engines are level 60. Drive Discs are level 15 S-Rank items.
 
-Potential Awakening is applied to the Core Passive, Additional Ability, or skill
-source it changes. It is not a separate input or Result source identity.
+Potential Awakening remains completed progression rather than an input. Source
+attribution for its retained clauses belongs to
+`docs/source-fact-boundary.md`.
 
 | Identity | Initial editable value |
 | --- | --- |

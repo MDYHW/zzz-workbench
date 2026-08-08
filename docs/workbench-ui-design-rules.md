@@ -69,6 +69,10 @@ separate candidate popup attached to each slot.
 
 - Entering party edit shows all three equal compact slots without the Agent
   pool.
+- While party edit is open, the separate applied-party rail also presents its
+  three slots as equal compact inactive identities and does not render Setup or
+  Result. The underlying viewed slot remains unchanged so Cancel restores its
+  previous expansion.
 - Selecting one slot marks it as the replacement target and reveals the shared
   pool below all three slots.
 - Selecting an available Agent replaces the target in the draft, closes the
@@ -133,8 +137,9 @@ contribution changes.
 
 - An Agent source label uses the mapped source category, such as `Basic Attack`,
   `Core Passive`, or `Additional Ability`.
-- Maximum Potential Awakening is already applied to those Agent sources and
-  never receives a separate Result source label.
+- A Potential Awakening modification or extension uses the mapped existing
+  source label. A retained standalone Potential Awakening clause uses the
+  `Potential Awakening` label.
 - Do not derive an Agent source label from the effect fact's implementation key.
 - Every displayed Agent fact requires an explicit source presentation. A missing
   presentation is an error rather than a generic mechanics fallback.

@@ -14,6 +14,9 @@ describe('workbench state lifecycle', () => {
     expect(DISC_IDS_BY_AGENT_AND_PIECE.yixuan).toEqual({
       fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade'],
     })
+    expect(DISC_IDS_BY_AGENT_AND_PIECE.trigger).toEqual({
+      fourPiece: ['king', 'shockstar'], twoPiece: ['shockstar', 'king', 'woodpecker'],
+    })
     expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.yixuan.slot5).toEqual(['etherDmg', 'hpPct'])
 
     const state = createPreparedState()
@@ -162,5 +165,124 @@ describe('workbench state lifecycle', () => {
     expect(workbenchReducer(prepared, {
       type: 'setSubstat', slot: 1, key: 'hpPct', value: 1,
     })).toBe(prepared)
+  })
+
+  it('owns an isolated draft lifecycle and prepares all slots only when it applies', () => {
+    let state = createPreparedState()
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 3 })
+    state = workbenchReducer(state, { type: 'switchPool', slot: 1, pool: 'nonLimited' })
+    const applied = state.slots
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    expect(state.draft?.agentIds).toEqual(['yixuan', 'dialyn', 'lucia'])
+    state = workbenchReducer(state, { type: 'replaceDraftAgent', slot: 0, agentId: 'anbySoldier0' })
+    expect(state.slots).toBe(applied)
+    expect(state.draft).toMatchObject({ agentIds: ['anbySoldier0', 'dialyn', 'lucia'], focusSlot: 0 })
+    state = workbenchReducer(state, { type: 'closePartyEdit' })
+    expect(state.slots).toBe(applied)
+
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    state = workbenchReducer(state, { type: 'replaceDraftAgent', slot: 0, agentId: 'anbySoldier0' })
+    state = workbenchReducer(state, { type: 'applyPartyEdit' })
+    expect(state.slots.map(({ agentId }) => agentId)).toEqual(['anbySoldier0', 'dialyn', 'lucia'])
+    expect(state.slots[0].setup).toMatchObject({ mindscape: 0, pool: 'full', engineId: 'severedInnocence' })
+    expect(state.slots[1].setup).toMatchObject({ mindscape: 0, pool: 'nonLimited', engineId: 'hellfireGears' })
+    expect(state.draft).toBeUndefined()
+  })
+
+  it('requires an explicit focus after the eligible draft set changes and rejects unresolved drafts', () => {
+    let state = createPreparedState()
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    state = workbenchReducer(state, { type: 'replaceDraftAgent', slot: 1, agentId: 'anbySoldier0' })
+    expect(state.draft?.focusSlot).toBeNull()
+    expect(workbenchReducer(state, { type: 'applyPartyEdit' })).toBe(state)
+
+    state = workbenchReducer(state, { type: 'setDraftFocus', slot: 1 })
+    state = workbenchReducer(state, { type: 'applyPartyEdit' })
+    expect(state.focusSlot).toBe(1)
+    expect(state.slots.map(({ agentId }) => agentId)).toEqual(['yixuan', 'anbySoldier0', 'lucia'])
+
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    state = workbenchReducer(state, { type: 'replaceDraftAgent', slot: 0, agentId: 'astraYao' })
+    expect(state.draft?.focusSlot).toBe(1)
+    expect(workbenchReducer(state, { type: 'setDraftFocus', slot: 0 })).toBe(state)
+  })
+
+  it('applies a focus-only draft and re-prepares every applied setup', () => {
+    let state = createPreparedState({}, ['yixuan', 'anbySoldier0', 'lucia'], 0)
+    state = workbenchReducer(state, { type: 'setRefinement', slot: 0, refinement: 3 })
+    state = workbenchReducer(state, { type: 'setRefinement', slot: 1, refinement: 3 })
+    state = workbenchReducer(state, { type: 'setRefinement', slot: 2, refinement: 3 })
+
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    state = workbenchReducer(state, { type: 'setDraftFocus', slot: 1 })
+    state = workbenchReducer(state, { type: 'applyPartyEdit' })
+
+    expect(state.focusSlot).toBe(1)
+    expect(state.slots.map(({ setup }) => setup.refinement)).toEqual([1, 1, 1])
+    expect(state.slots.map(({ agentId }) => agentId)).toEqual(['yixuan', 'anbySoldier0', 'lucia'])
+  })
+
+  it('preserves an explicit draft focus only when replacing an ineligible member', () => {
+    let state = createPreparedState({}, ['yixuan', 'anbySoldier0', 'lucia'], 1)
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    state = workbenchReducer(state, { type: 'replaceDraftAgent', slot: 2, agentId: 'trigger' })
+    expect(state.draft).toMatchObject({ agentIds: ['yixuan', 'anbySoldier0', 'trigger'], focusSlot: 1 })
+
+    state = workbenchReducer(state, { type: 'replaceDraftAgent', slot: 0, agentId: 'astraYao' })
+    expect(state.draft?.focusSlot).toBe(1)
+  })
+
+  it('swaps overlapping Trigger Disc roles only when both resulting roles admit the pair', () => {
+    let state = createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'shockstar',
+    })
+    expect(state.slots[1].setup).toMatchObject({ fourPieceId: 'shockstar', twoPieceId: 'king' })
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'twoPiece', discId: 'shockstar',
+    })
+    expect(state.slots[1].setup).toMatchObject({ fourPieceId: 'king', twoPieceId: 'shockstar' })
+
+    const withDialyn = createPreparedState({}, ['anbySoldier0', 'trigger', 'dialyn'], 0)
+    expect(workbenchReducer(withDialyn, {
+      type: 'selectDisc', slot: 1, piece: 'twoPiece', discId: 'astralVoice',
+    })).toBe(withDialyn)
+  })
+
+  it('prepares Trigger identically across applied parties without rewriting direct engine edits', () => {
+    let state = createPreparedState({}, ['anbySoldier0', 'trigger', 'dialyn'], 0)
+    expect(state.slots[1].setup).toMatchObject({ fourPieceId: 'king', twoPieceId: 'shockstar' })
+
+    state = workbenchReducer(state, { type: 'selectEngine', slot: 1, engineId: 'iceJadeTeapot' })
+    expect(state.slots[1].setup).toMatchObject({ engineId: 'iceJadeTeapot', fourPieceId: 'king', twoPieceId: 'shockstar' })
+
+    const withAstra = createPreparedState({}, ['dialyn', 'trigger', 'astraYao'], 0)
+    expect(withAstra.slots[1].setup).toMatchObject({ fourPieceId: 'king', twoPieceId: 'shockstar' })
+  })
+
+  it('authors complete full and non-limited second-vertical packages', () => {
+    const full = createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
+    expect(full.slots.map(({ setup }) => ({
+      engineId: setup.engineId,
+      fourPieceId: setup.fourPieceId,
+      twoPieceId: setup.twoPieceId,
+      mains: setup.mains,
+      substats: setup.substats,
+    }))).toEqual([
+      { engineId: 'severedInnocence', fourPieceId: 'shadowHarmony', twoPieceId: 'woodpecker', mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'atkPct' }, substats: { critRate: 0, critDmg: 0, atkPct: 0 } },
+      { engineId: 'spectralGaze', fourPieceId: 'king', twoPieceId: 'shockstar', mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'impact' }, substats: { critRate: 0 } },
+      { engineId: 'elegantVanity', fourPieceId: 'astralVoice', twoPieceId: 'moonlight', mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'atkPct' }, substats: { atkPct: 0, atkFlat: 0 } },
+    ])
+
+    const nonLimited = createPreparedState({ anbySoldier0: 'nonLimited', trigger: 'nonLimited', astraYao: 'nonLimited' }, ['anbySoldier0', 'trigger', 'astraYao'], 0)
+    expect(nonLimited.slots.map(({ setup }) => [setup.engineId, setup.fourPieceId, setup.twoPieceId])).toEqual([
+      ['marcatoDesire', 'shadowHarmony', 'branchAndBlade'],
+      ['restrained', 'shockstar', 'king'],
+      ['bashfulDemon', 'astralVoice', 'hormonePunk'],
+    ])
+
+    const astraM2 = workbenchReducer(full, { type: 'setMindscape', slot: 2, mindscape: 2 })
+    expect(astraM2.slots[2].setup.mains.slot6).toBe('energyRegenPct')
   })
 })

@@ -1,12 +1,17 @@
 import { useEffect, useRef, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
 import dialynPortrait from '../assets/agents/portraits/dialyn.webp'
 import luciaPortrait from '../assets/agents/portraits/lucia.webp'
+import anbySoldier0Portrait from '../assets/agents/portraits/anby-soldier-zero.webp'
+import astraYaoPortrait from '../assets/agents/portraits/astra-yao.webp'
+import triggerPortrait from '../assets/agents/portraits/trigger.webp'
 import yixuanPortrait from '../assets/agents/portraits/yixuan.webp'
 import auricInkMark from '../assets/game/attributes/auric-ink.webp'
 import etherMark from '../assets/game/attributes/ether.webp'
 import physicalMark from '../assets/game/attributes/physical.webp'
+import electricMark from '../assets/game/attributes/electric.webp'
 import rankSMark from '../assets/game/ranks/s.webp'
 import ruptureMark from '../assets/game/specialties/rupture.webp'
+import attackMark from '../assets/game/specialties/attack.webp'
 import stunMark from '../assets/game/specialties/stun.webp'
 import supportMark from '../assets/game/specialties/support.webp'
 import { ADMITTED_AGENTS, type AgentId } from '../workbench/content'
@@ -17,12 +22,18 @@ const PORTRAITS: Record<AgentId, string> = {
   yixuan: yixuanPortrait,
   dialyn: dialynPortrait,
   lucia: luciaPortrait,
+  anbySoldier0: anbySoldier0Portrait,
+  trigger: triggerPortrait,
+  astraYao: astraYaoPortrait,
 }
 
 const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> = {
   yixuan: { attribute: auricInkMark, specialty: ruptureMark },
   dialyn: { attribute: physicalMark, specialty: stunMark },
   lucia: { attribute: etherMark, specialty: supportMark },
+  anbySoldier0: { attribute: electricMark, specialty: attackMark },
+  trigger: { attribute: electricMark, specialty: stunMark },
+  astraYao: { attribute: etherMark, specialty: supportMark },
 }
 
 type PortraitVariant = 'expanded' | 'compact'
@@ -129,6 +140,9 @@ const PORTRAIT_PRESENTATION: Record<AgentId, PortraitPresentation> = {
       mobile: { anchor: { x: 48, y: 48 }, width: 200 },
     },
   },
+  anbySoldier0: { source: { face: { x: 50, y: 13 } }, expanded: { default: DESKTOP_EXPANDED_PORTRAIT_FRAME, mobile: { anchor: { x: 30, y: 48 }, width: 105 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 52, y: 43 }, width: 106 }, mobile: { anchor: { x: 52, y: 43 }, width: 150 } } },
+  trigger: { source: { face: { x: 49, y: 14 } }, expanded: { default: { ...DESKTOP_EXPANDED_PORTRAIT_FRAME, width: 290 }, mobile: { anchor: { x: 28, y: 48 }, width: 112 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 50, y: 44 }, width: 104 }, mobile: { anchor: { x: 50, y: 44 }, width: 148 } } },
+  astraYao: { source: { face: { x: 48, y: 13 } }, expanded: { default: DESKTOP_EXPANDED_PORTRAIT_FRAME, mobile: { anchor: { x: 29, y: 47 }, width: 111 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 50, y: 43 }, width: 105 }, mobile: { anchor: { x: 50, y: 43 }, width: 150 } } },
 }
 
 function PortraitArt({ agentId, variant }: { agentId: AgentId; variant: PortraitVariant }) {
@@ -167,8 +181,10 @@ function PortraitArt({ agentId, variant }: { agentId: AgentId; variant: Portrait
 interface PartyWorkbenchProps extends SourceInteractionProps {
   slots: [AppliedAgentSlot, AppliedAgentSlot, AppliedAgentSlot]
   focusSlot: AppliedSlot
+  isPartyEditing?: boolean
   viewedSlot: AppliedSlot | null
   onViewSlot: (slot: AppliedSlot | null) => void
+  onEditParty?: () => void
   children: ReactNode
 }
 
@@ -198,7 +214,7 @@ interface SlotControlProps extends SourceInteractionProps {
 function ExpandedIdentity({ activeSourceTone, agentId, isFocus, onSourceToneChange, onSelect, onKeyDown, slot }: SlotControlProps) {
   const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
   const identityTone = `agent-${agentId}`
-  const identityTones = [identityTone, 'core', 'additional', 'ex-special']
+  const identityTones = [identityTone, 'core', 'additional', 'special', 'ex-special']
   const matchingTone = identityTones.find((tone) => tone === activeSourceTone)
   const className = matchingTone
     ? `slot-identity slot-identity--expanded source-target source-tone--${matchingTone} is-source-active`
@@ -209,6 +225,7 @@ function ExpandedIdentity({ activeSourceTone, agentId, isFocus, onSourceToneChan
       type="button"
       id={`party-tab-${slot + 1}`}
       className={className}
+      data-agent={agent.id}
       role="tab"
       tabIndex={0}
       aria-selected="true"
@@ -233,7 +250,7 @@ function ExpandedIdentity({ activeSourceTone, agentId, isFocus, onSourceToneChan
   )
 }
 
-function CompactSlot({ activeSourceTone, agentId, isFocus, isOverview = false, onSourceToneChange, onSelect, onKeyDown, slot }: SlotControlProps & { isOverview?: boolean }) {
+function CompactSlot({ activeSourceTone, agentId, isFocus, isInactive = false, isOverview = false, onSourceToneChange, onSelect, onKeyDown, slot }: SlotControlProps & { isInactive?: boolean; isOverview?: boolean }) {
   const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
   const tone = `agent-${agentId}`
   const className = `party-slot party-slot--compact source-target source-tone--${tone}${activeSourceTone === tone ? ' is-source-active' : ''}`
@@ -244,12 +261,13 @@ function CompactSlot({ activeSourceTone, agentId, isFocus, isOverview = false, o
       id={`party-tab-${slot + 1}`}
       className={className}
       role={isOverview ? undefined : 'tab'}
-      tabIndex={isOverview ? 0 : -1}
+      tabIndex={isInactive ? undefined : isOverview ? 0 : -1}
+      disabled={isInactive}
       aria-selected={isOverview ? undefined : 'false'}
       aria-controls={isOverview ? undefined : `party-panel-${slot + 1}`}
-      aria-label={`View ${agent.name} setup and Result`}
-      onClick={onSelect}
-      onKeyDown={onKeyDown}
+      aria-label={isInactive ? `${agent.name} applied slot, inactive while editing party` : `View ${agent.name} setup and Result`}
+      onClick={isInactive ? undefined : onSelect}
+      onKeyDown={isInactive ? undefined : onKeyDown}
       {...sourceToneEvents(tone, onSourceToneChange)}
     >
       <PortraitArt agentId={agent.id} variant="compact" />
@@ -271,9 +289,11 @@ export function PartyWorkbench({
   activeSourceTone,
   slots,
   focusSlot,
+  isPartyEditing = false,
   viewedSlot,
   onSourceToneChange,
   onViewSlot,
+  onEditParty = () => {},
   children,
 }: PartyWorkbenchProps) {
   const previousViewedSlot = useRef<AppliedSlot | null>(viewedSlot)
@@ -311,15 +331,16 @@ export function PartyWorkbench({
       <div className="section-kicker">
         <h2 id="party-heading">Applied party</h2>
         <span>Focus {'\u00B7'} {ADMITTED_AGENTS.find(({ id }) => id === slots[focusSlot].agentId)!.name}</span>
+        <button type="button" className="party-edit-trigger" onClick={onEditParty}>Edit party</button>
       </div>
       <ol
-        className={`party-rail ${viewedSlot !== null ? `party-rail--view-${viewedSlot + 1}` : 'party-rail--overview'}`}
-        role={viewedSlot !== null ? 'tablist' : undefined}
+        className={`party-rail ${!isPartyEditing && viewedSlot !== null ? `party-rail--view-${viewedSlot + 1}` : 'party-rail--overview'}`}
+        role={!isPartyEditing && viewedSlot !== null ? 'tablist' : undefined}
         aria-label="Applied party slots"
       >
         {slots.map(({ agentId }, slot) => {
           const slotPosition = slot as AppliedSlot
-          const selected = slotPosition === viewedSlot
+          const selected = !isPartyEditing && slotPosition === viewedSlot
 
           return (
             <li
@@ -349,7 +370,8 @@ export function PartyWorkbench({
                   activeSourceTone={activeSourceTone}
                   agentId={agentId}
                   isFocus={slotPosition === focusSlot}
-                  isOverview={viewedSlot === null}
+                  isInactive={isPartyEditing}
+                  isOverview={isPartyEditing || viewedSlot === null}
                   slot={slotPosition}
                   onSourceToneChange={onSourceToneChange}
                   onSelect={() => onViewSlot(slotPosition)}

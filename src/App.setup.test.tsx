@@ -47,6 +47,42 @@ describe('integrated party workbench: setup', () => {
       .toHaveClass('main-stat-block__fixed')
   })
 
+  it('presents Astra’s composite Energy Regen choice and keeps Trigger Disc candidates stable across applied parties', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Anby: Soldier 0, Electric, Attack/)
+    await replace(2, /Trigger, Electric, Stun/)
+    await replace(3, /Astra Yao, Ether, Support/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    await user.click(screen.getByRole('tab', { name: 'View Astra Yao setup and Result' }))
+    const energyChoice = screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Swing Jazz or Moonlight Lullaby',
+    })
+    expect(energyChoice.querySelector('.disc-composite-art')).not.toBeNull()
+
+    await user.click(screen.getByRole('tab', { name: 'View Trigger setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from King of the Summit' }))
+    const secondTrioCandidates = screen.getByLabelText('fourPiece Drive Disc candidates')
+    expect(within(secondTrioCandidates).getByRole('button', { name: 'Select Shockstar Disco as fourPiece' })).toBeInTheDocument()
+    expect(within(secondTrioCandidates).queryByRole('button', { name: 'Select Astral Voice as fourPiece' })).toBeNull()
+    await user.click(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from King of the Summit' }))
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(3, /Dialyn, Physical, Stun/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+    await user.click(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from King of the Summit' }))
+    const dialynPartyCandidates = screen.getByLabelText('fourPiece Drive Disc candidates')
+    expect(within(dialynPartyCandidates).getByRole('button', { name: 'Select Shockstar Disco as fourPiece' })).toBeInTheDocument()
+    expect(within(dialynPartyCandidates).queryByRole('button', { name: 'Select Astral Voice as fourPiece' })).toBeNull()
+  })
+
   it('re-prepares only the visible Agent when Mindscape changes', async () => {
     const user = userEvent.setup()
     render(<App />)

@@ -315,12 +315,12 @@ function DiscEffectRows({
 
 function DiscCard({
   discId,
-  isDialynEnergyRegenChoice = false,
+  isCompositeEnergyChoice = false,
   piece,
   showHead = false,
 }: {
   discId: DiscId
-  isDialynEnergyRegenChoice?: boolean
+  isCompositeEnergyChoice?: boolean
   piece: 'fourPiece' | 'twoPiece'
   showHead?: boolean
 }) {
@@ -331,7 +331,7 @@ function DiscCard({
         <small className="disc-card__head">{piece === 'fourPiece' ? '4PC' : '2PC'}</small>
       )}
       <span className="equipment-art equipment-art--disc">
-        {isDialynEnergyRegenChoice ? (
+        {isCompositeEnergyChoice ? (
           <span className="disc-composite-art" aria-hidden="true">
             <img className="disc-composite-art__a" src={DRIVE_DISCS.swingJazz.image} alt="" />
             <img className="disc-composite-art__b" src={DRIVE_DISCS.moonlight.image} alt="" />
@@ -375,10 +375,11 @@ function DiscSelection({
   const alternatives = candidates.filter((id) => id !== selectedId)
   const isOpen = openSelector === selectorId
   const disc = DRIVE_DISCS[selectedId]
-  const isDialynEnergyRegenChoice = agentId === 'dialyn'
-    && piece === 'twoPiece'
-    && selectedId === 'swingJazz'
-  const selectedName = isDialynEnergyRegenChoice
+  const isEnergyRegenChoice = piece === 'twoPiece' && (
+    agentId === 'dialyn' && selectedId === 'swingJazz'
+    || agentId === 'astraYao' && selectedId === 'moonlight'
+  )
+  const selectedName = isEnergyRegenChoice
     ? 'Swing Jazz or Moonlight Lullaby'
     : disc.name
 
@@ -402,7 +403,7 @@ function DiscSelection({
       >
         <DiscCard
           discId={selectedId}
-          isDialynEnergyRegenChoice={isDialynEnergyRegenChoice}
+          isCompositeEnergyChoice={isEnergyRegenChoice}
           piece={piece}
           showHead
         />
@@ -413,9 +414,10 @@ function DiscSelection({
           aria-label={piece + ' Drive Disc candidates'}
         >
           {alternatives.map((candidateId) => {
-            const isEnergyRegenAlternative = agentId === 'dialyn'
-              && piece === 'twoPiece'
-              && candidateId === 'swingJazz'
+            const isEnergyRegenAlternative = piece === 'twoPiece' && (
+              agentId === 'dialyn' && candidateId === 'swingJazz'
+              || agentId === 'astraYao' && candidateId === 'moonlight'
+            )
             const candidateName = isEnergyRegenAlternative
               ? 'Swing Jazz or Moonlight Lullaby'
               : DRIVE_DISCS[candidateId].name
@@ -433,7 +435,7 @@ function DiscSelection({
               >
                 <DiscCard
                   discId={candidateId}
-                  isDialynEnergyRegenChoice={isEnergyRegenAlternative}
+                  isCompositeEnergyChoice={isEnergyRegenAlternative}
                   piece={piece}
                 />
               </button>

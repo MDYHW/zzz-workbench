@@ -101,10 +101,16 @@ For identical non-stacking effects, keep only the origins and compatibility
 needed to calculate and display the current numeric breakdown. Do not model
 combat replacement order when the service does not calculate it.
 
-For Potential Awakening, use the completed Agent values. Apply changed values
-and added effects to the Core Passive, Additional Ability, or skill source they
-modify. Do not keep pre-awakening variants or a separate Potential Awakening
-source identity.
+For Potential Awakening, use the completed Agent values and do not keep
+pre-awakening variants. Source ownership is not determined by whether a clause
+is new or creates a stack, state, or mechanism. Attribute a completed Potential
+Awakening clause that changes or extends a named skill, Core Passive, or
+Additional Ability to that existing source, including a newly added effect,
+state, stack, or mechanism. An existing source named only as a trigger or
+affected scope does not acquire ownership. A retained clause uses Potential
+Awakening as its source identity only when the game authors it as a standalone
+Potential Awakening clause rather than a modification or extension of an
+existing source and it independently passes the current retention gate.
 
 Mindscape and refinement variants keep only values that can change the current
 Result. A selectable value with no applied Result difference needs no source-fact

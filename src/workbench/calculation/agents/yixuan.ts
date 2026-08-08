@@ -217,7 +217,7 @@ export function calculateYixuan(
   const initialAtk = baseAtk * (1 + (engineAtk?.rawValue ?? 0) / 100) + values.fixedDisc.atk
   const effects = orderYixuanEffects(resolveDeliveredClauses(
     [...inbox, ...enemyContext],
-    { maxHp: initialHp, atk: baseAtk },
+    { maxHp: initialHp, atk: initialAtk },
   ))
 
   const mainCritRate = mainStatInput(setup, 'yixuan', 'slot4', 'critRate')
@@ -379,6 +379,30 @@ export function calculateYixuan(
     effects,
     'resIgnore',
   )
+  const resReduction = composeMetricEffects(
+    surfaces(0, 0, 0),
+    surfaces([], [], []),
+    effects,
+    'resReduction',
+  )
+  const defReduction = composeMetricEffects(
+    surfaces(0, 0, 0),
+    surfaces([], [], []),
+    effects,
+    'defReduction',
+  )
+  const defIgnore = composeMetricEffects(
+    surfaces(0, 0, 0),
+    surfaces([], [], []),
+    effects,
+    'defIgnore',
+  )
+  const penRatio = composeMetricEffects(
+    surfaces(0, 0, 0),
+    surfaces([], [], []),
+    effects,
+    'penRatio',
+  )
 
   return {
     agentId: 'yixuan',
@@ -392,6 +416,10 @@ export function calculateYixuan(
       { id: 'sheerDmgBonus', label: 'Sheer DMG Bonus', unit: '%', decimals: 1, ...sheerDmgBonus },
       { id: 'stunDmgMultiplier', label: 'Stun DMG Multiplier', unit: '%', decimals: 1, ...stunDmgMultiplier },
       { id: 'resIgnore', label: 'RES Ignore', unit: '%', decimals: 1, ...resIgnore },
+      ...(resReduction.values.fully ? [{ id: 'resReduction', label: 'RES Reduction', unit: '%', decimals: 1, ...resReduction }] : []),
+      ...(defReduction.values.fully ? [{ id: 'defReduction', label: 'DEF Reduction', unit: '%', decimals: 1, ...defReduction }] : []),
+      ...(defIgnore.values.fully ? [{ id: 'defIgnore', label: 'DEF Ignore', unit: '%', decimals: 1, ...defIgnore }] : []),
+      ...(penRatio.values.fully ? [{ id: 'penRatio', label: 'PEN Ratio', unit: '%', decimals: 1, ...penRatio }] : []),
     ],
     actionModifiers: buildYixuanActionModifiers(
       effects,

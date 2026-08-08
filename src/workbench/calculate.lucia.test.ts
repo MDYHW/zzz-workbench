@@ -79,12 +79,12 @@ describe('calculateParty: lucia', () => {
       'lucia',
       'kaboom',
     ))!
-    expect(metric(agent(kaboom, 'yixuan'), 'atk').values.fully).toBeCloseTo(2189.4)
+    expect(metric(agent(kaboom, 'yixuan'), 'atk').values.fully).toBeCloseTo(2239.96)
     expect(metric(agent(kaboom, 'yixuan'), 'atk').breakdown.fully).toContainEqual(
       expect.objectContaining({
         label: 'Kaboom the Cannon',
         detail: 'W5',
-        amount: 258.4,
+        amount: 308.96,
         display: { value: 16, unit: '%', decimals: 0 },
       }),
     )
