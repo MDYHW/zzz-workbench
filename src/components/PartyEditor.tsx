@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type Dispatch } from 'react'
-import anbyPortrait from '../assets/agents/portraits/anby-soldier-zero.webp'
+import anbyPortrait from '../assets/agents/portraits/soldier-0-anby.webp'
 import astraPortrait from '../assets/agents/portraits/astra-yao.webp'
 import dialynPortrait from '../assets/agents/portraits/dialyn.webp'
 import luciaPortrait from '../assets/agents/portraits/lucia.webp'

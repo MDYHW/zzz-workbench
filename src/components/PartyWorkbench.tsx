@@ -1,7 +1,7 @@
 import { useEffect, useRef, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
 import dialynPortrait from '../assets/agents/portraits/dialyn.webp'
 import luciaPortrait from '../assets/agents/portraits/lucia.webp'
-import anbySoldier0Portrait from '../assets/agents/portraits/anby-soldier-zero.webp'
+import anbySoldier0Portrait from '../assets/agents/portraits/soldier-0-anby.webp'
 import astraYaoPortrait from '../assets/agents/portraits/astra-yao.webp'
 import triggerPortrait from '../assets/agents/portraits/trigger.webp'
 import yixuanPortrait from '../assets/agents/portraits/yixuan.webp'

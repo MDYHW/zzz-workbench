@@ -161,7 +161,7 @@ The prose dependencies below govern if this diagram and the unit text differ.
 **Files:**
 - Modify: `src/workbench/content.ts`
 - Modify: `src/components/PartyWorkbench.tsx`
-- Create: `src/assets/agents/portraits/anby-soldier-zero.webp`
+- Create: `src/assets/agents/portraits/soldier-0-anby.webp`
 - Create: `src/assets/agents/portraits/trigger.webp`
 - Create: `src/assets/agents/portraits/astra-yao.webp`
 - Create: `src/assets/equipment/w-engines/severed-innocence.webp`
