@@ -21,11 +21,18 @@ describe('soldier zero vertical', () => {
       .toContainEqual(expect.objectContaining({ label: 'Drive Disc · Slot 5', amount: 30 }))
     expect(resultMetric(anby, 'critDmg').values).toEqual({ initial: 98, combat: 128, fully: 213 })
     expect(resultMetric(anby, 'critRate').values).toEqual({ initial: 51.4, combat: 51.4, fully: 73.4 })
-    expect(aftershock.values).toEqual({ initial: 45, combat: 45, fully: 204 })
+    expect(aftershock).toMatchObject({
+      tag: 'aftershock', actions: [], values: { initial: 45, combat: 45, fully: 204 },
+    })
     const aftershockCrit = anby.actionModifiers.find(({ id }) => id === 'anbyAftershockCritDmg')!
     expect(aftershockCrit.values.fully).toBeCloseTo(287.55)
     expect(aftershockCrit.breakdown.fully).toContainEqual(expect.objectContaining({ label: 'Core Passive', detail: '35% of Fully Enabled CRIT DMG', amount: 74.55 }))
-    expect(resultAgent(result, 'trigger').actionModifiers.find(({ id }) => id === 'triggerAftershockCritDmg')?.breakdown.fully)
+    const trigger = resultAgent(result, 'trigger')
+    expect(resultMetric(trigger, 'critDmg').values.fully).toBe(105)
+    expect(trigger.actionModifiers.find(({ id }) => id === 'triggerAftershockCritDmg')).toMatchObject({
+      tag: 'aftershock', actions: [], values: { fully: 179.55 },
+    })
+    expect(trigger.actionModifiers.find(({ id }) => id === 'triggerAftershockCritDmg')?.breakdown.fully)
       .toContainEqual(expect.objectContaining({ label: 'Core Passive', detail: '35% of Fully Enabled CRIT DMG', amount: 74.55 }))
   })
 
@@ -42,6 +49,21 @@ describe('soldier zero vertical', () => {
     expect(resultMetric(resultAgent(result, 'trigger'), 'critDmg').values.fully).toBeCloseTo(105)
   })
 
+  it('admits Trigger action-only damage and CRIT regions only from Anby Aftershock clauses', () => {
+    const withoutAnby = resultAgent(calculateParty(createPreparedState({}, ['yixuan', 'trigger', 'astraYao'], 0))!, 'trigger')
+    expect(withoutAnby.metrics.find(({ id }) => id === 'critDmg')).toBeUndefined()
+    expect(withoutAnby.metrics.find(({ id }) => id === 'dmgBonus')).toBeUndefined()
+    expect(withoutAnby.metrics.find(({ id }) => id === 'atk' || id === 'energyRegen')).toBeUndefined()
+
+    let iceJade = createPreparedState({}, ['yixuan', 'trigger', 'astraYao'], 0)
+    iceJade = workbenchReducer(iceJade, { type: 'selectEngine', slot: 1, engineId: 'iceJadeTeapot' })
+    expect(resultAgent(calculateParty(iceJade)!, 'trigger').metrics.find(({ id }) => id === 'dmgBonus')).toBeUndefined()
+
+    const offField = resultAgent(calculateParty(createPreparedState({}, ['anbySoldier0', 'trigger', 'yixuan'], 2))!, 'trigger')
+    expect(offField.metrics.find(({ id }) => id === 'critDmg')).toBeDefined()
+    expect(offField.metrics.find(({ id }) => id === 'dmgBonus')).toBeUndefined()
+  })
+
   it('keeps provider filtering recipient-specific and reports only applicable gauges and operations', () => {
     let state = createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
     state = workbenchReducer(state, { type: 'setMindscape', slot: 2, mindscape: 4 })
@@ -51,7 +73,7 @@ describe('soldier zero vertical', () => {
     const astra = resultAgent(result, 'astraYao')
 
     expect(resultMetric(anby, 'resReduction').values.fully).toBe(18)
-    expect(resultMetric(trigger, 'resReduction').values.fully).toBe(18)
+    expect(trigger.metrics.find(({ id }) => id === 'resReduction')).toBeUndefined()
     expect(astra.metrics.find(({ id }) => id === 'resReduction')).toBeUndefined()
     expect(trigger.operations).toContainEqual(expect.objectContaining({ id: 'nextQuickAssistDaze', value: 50 }))
 
@@ -111,12 +133,10 @@ describe('soldier zero vertical', () => {
     expect(resultMetric(anby, 'penRatio').breakdown.initial)
       .toContainEqual(expect.objectContaining({ label: 'Drive Disc · Slot 5', amount: 24 }))
 
-    expect(trigger.actionModifiers.find(({ id }) => id === 'triggerAftershockDefReduction')).toMatchObject({
-      actions: ['Harmonizing Shot', 'Tartarus'],
-      metricId: 'defReduction',
-      values: { initial: 0, combat: 0, fully: 25 },
-    })
-    expect(anby.actionModifiers.some(({ metricId }) => metricId === 'defReduction')).toBe(false)
+    expect(resultMetric(anby, 'defReduction').values.fully).toBe(25)
+    expect(trigger.actionModifiers.find(({ id }) => id === 'triggerAftershockDefReduction')).toBeUndefined()
+    const yixuanWithTrigger = resultAgent(calculateParty(createPreparedState({}, ['yixuan', 'trigger', 'astraYao'], 0))!, 'yixuan')
+    expect(yixuanWithTrigger.metrics.find(({ id }) => id === 'defReduction')).toBeUndefined()
     expect(resultMetric(trigger, 'stunDmgMultiplier').values.fully).toBe(35)
 
     state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 1 })
@@ -126,7 +146,21 @@ describe('soldier zero vertical', () => {
 
   it('keeps Trigger gauge boundaries, Astra tiers, and Stun operations scoped to current recipients', () => {
     const full = calculateParty(createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0))!
-    expect(resultMetric(resultAgent(full, 'trigger'), 'dazeBonus').gauge).toMatchObject({ current: 53, outputValue: 19.5 })
+    const trigger = resultAgent(full, 'trigger')
+    expect(resultMetric(trigger, 'dazeBonus').gauge).toMatchObject({ current: 53, outputValue: 19.5 })
+    expect(trigger.actionModifiers.find(({ id }) => id === 'triggerBasic')).toMatchObject({
+      tag: 'aftershock', actions: [], values: { fully: 25.5 },
+    })
+    expect(trigger.actionModifiers.find(({ id }) => id === 'triggerBasic')?.breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Additional Ability', amount: 19.5 }))
+
+    let basicDaze = createPreparedState({ trigger: 'nonLimited' }, ['anbySoldier0', 'trigger', 'astraYao'], 0)
+    basicDaze = workbenchReducer(basicDaze, { type: 'setSubstat', slot: 1, key: 'critRate', value: 16 })
+    const basicOutcome = resultAgent(calculateParty(basicDaze)!, 'trigger').actionModifiers.find(({ id }) => id === 'triggerBasic')!
+    expect(basicOutcome).toMatchObject({ tag: 'aftershock', actions: [] })
+    expect(basicOutcome.breakdown.fully).toContainEqual(expect.objectContaining({ label: 'The Restrained', amount: 30 }))
+    expect(basicOutcome.breakdown.fully).toContainEqual(expect.objectContaining({ label: 'Shockstar Disco', amount: 20 }))
+    expect(basicOutcome.breakdown.fully).toContainEqual(expect.objectContaining({ label: 'Additional Ability' }))
 
     const nonLimited = calculateParty(createPreparedState({ trigger: 'nonLimited' }, ['anbySoldier0', 'trigger', 'astraYao'], 0))!
     expect(resultMetric(resultAgent(nonLimited, 'trigger'), 'dazeBonus').gauge).toMatchObject({ current: 29, outputValue: 0 })
@@ -196,6 +230,16 @@ describe('soldier zero vertical', () => {
     expect(offFieldAftershock.breakdown.fully).not.toContainEqual(expect.objectContaining({ label: /max Potential/ }))
   })
 
+  it('keeps Shadow Harmony Dash separate from Anby Aftershock-only clauses', () => {
+    const anby = resultAgent(calculateParty(createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0))!, 'anbySoldier0')
+    const aftershock = anby.actionModifiers.find(({ id }) => id === 'anbyAftershock')!
+    const dash = anby.actionModifiers.find(({ id }) => id === 'anbyDash')!
+    expect(dash.values.initial).toBe(45)
+    expect(dash.breakdown.fully).not.toContainEqual(expect.objectContaining({ label: 'Additional Ability', amount: 50 }))
+    expect(dash.breakdown.fully).not.toContainEqual(expect.objectContaining({ detail: '35% of Fully Enabled CRIT DMG' }))
+    expect(aftershock.values.fully).toBe(204)
+  })
+
   it('projects every Trigger Disc 2-piece once, including one supplied by a selected 4-piece', () => {
     let state = createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
     let trigger = resultAgent(calculateParty(state)!, 'trigger')
@@ -212,10 +256,12 @@ describe('soldier zero vertical', () => {
     expect(workbenchReducer(state, { type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'shadowHarmony' })).toBe(state)
   })
 
-  it('keeps Trigger authored setup sources while excluding removed local branches', () => {
+  it('keeps Trigger authored setup choices without admitting personal damage Result rows', () => {
     const secondTrio = calculateParty(createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0))!
-    expect(resultMetric(resultAgent(secondTrio, 'trigger'), 'dmgBonus').breakdown.initial)
-      .toContainEqual(expect.objectContaining({ label: 'Drive Disc · Slot 5', amount: 30 }))
+    const trigger = resultAgent(secondTrio, 'trigger')
+    expect(trigger.metrics.map(({ id }) => id)).toEqual(['critRate', 'impact', 'dazeBonus', 'stunDmgMultiplier', 'critDmg', 'dmgBonus'])
+    expect(trigger.metrics.find(({ id }) => id === 'atk')).toBeUndefined()
+    expect(trigger.metrics.find(({ id }) => id === 'energyRegen')).toBeUndefined()
 
     const triggerSetup = createPreparedState({}, ['anbySoldier0', 'trigger', 'dialyn'], 0).slots[1].setup
     expect(triggerSetup).toMatchObject({ fourPieceId: 'king', twoPieceId: 'shockstar' })
@@ -302,9 +348,10 @@ describe('soldier zero vertical', () => {
       ['anbySoldier0', 'trigger', 'astraYao'],
       0,
     ))!
-    const triggerAtk = resultMetric(resultAgent(nonLimited, 'trigger'), 'atk')
-    expect(triggerAtk.values.initial).toBeCloseTo(1750)
-    expect(triggerAtk.values.fully).toBeCloseTo(3174)
+    const trigger = resultAgent(nonLimited, 'trigger')
+    expect(trigger.metrics.find(({ id }) => id === 'atk')).toBeUndefined()
+    expect(resultMetric(trigger, 'dmgBonus').values.fully).toBe(0)
+    expect(trigger.actionModifiers.find(({ id }) => id === 'triggerAftershock')?.values.fully).toBe(50)
 
     const mixed = calculateParty(createPreparedState(
       { astraYao: 'nonLimited' },

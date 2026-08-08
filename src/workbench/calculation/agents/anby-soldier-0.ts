@@ -34,6 +34,7 @@ export function resolveAnbyProviderClauses(context: AnbyCalculationContext): Sou
     additive('dmgBonus', 'fully', STATIC_SOURCES.anbySoldier0.additional, hasStunOrSupport && isFocus ? 50 : 0, 'all-party', 'anbyAftershock', undefined, ['anbySoldier0', 'trigger']),
     additive('dmgBonus', 'fully', engine, setup.engineId === 'severedInnocence' ? scaledEngineValue(W_ENGINE_FACTS.severedInnocence.electricDmg, refinement) : 0, 'self'),
     additive('dmgBonus', 'initial', discSource('anbySoldier0', 'shadowHarmony', '2-piece', '4-piece'), setup.fourPieceId === 'shadowHarmony' ? DRIVE_DISC_FACTS.shadowHarmony.aftershockDmg : 0, 'self', 'anbyAftershock'),
+    additive('dmgBonus', 'initial', discSource('anbySoldier0', 'shadowHarmony', '2-piece', '4-piece'), setup.fourPieceId === 'shadowHarmony' ? DRIVE_DISC_FACTS.shadowHarmony.aftershockDmg : 0, 'self', 'anbyDash'),
     additive('dmgBonus', 'fully', engine, setup.engineId === 'cordisGermina' ? scaledEngineValue(W_ENGINE_FACTS.cordisGermina.electricDmgPerStack, refinement) * 2 : 0, 'self'),
     additive('defIgnore', 'fully', engine, setup.engineId === 'cordisGermina' ? scaledEngineValue(W_ENGINE_FACTS.cordisGermina.defIgnore, refinement) : 0, 'enemy-context', 'anbyBasicUltimate', undefined, ['anbySoldier0']),
     additive('resIgnore', 'fully', mindscapeSource('anbySoldier0', 4, 'Electric RES Ignore'), setup.mindscape >= 4 ? 12 : 0, 'enemy-context', undefined, undefined, ['anbySoldier0']),
@@ -91,10 +92,12 @@ export function calculateAnby(context: AnbyCalculationContext, inbox: SourceBoun
     'penRatio',
   )
   const action = composeActionEffects(regular.values, effects, 'dmgBonus', 'anbyAftershock')
+  const dash = composeActionEffects(regular.values, effects, 'dmgBonus', 'anbyDash')
   const aftershockCrit = composeActionEffects(critDmg.values, effects, 'critDmg', 'anbyAftershock')
   const actionModifiers: AgentResult['actionModifiers'] = [
-    { id: 'anbyAftershock', actions: ['Aftershock', 'Chain Attack', 'Ultimate'], metricId: 'dmgBonus', ...action },
-    { id: 'anbyAftershockCritDmg', actions: ['Aftershock', 'Chain Attack', 'Ultimate'], metricId: 'critDmg', ...aftershockCrit },
+    { id: 'anbyAftershock', actions: [], tag: 'aftershock', metricId: 'dmgBonus', ...action },
+    { id: 'anbyDash', actions: ['Dash Attack'], metricId: 'dmgBonus', ...dash },
+    { id: 'anbyAftershockCritDmg', actions: [], tag: 'aftershock', metricId: 'critDmg', ...aftershockCrit },
   ]
   if (effects.some((effect) => effect.action === 'anbyBasicUltimate' && effect.metric === 'defIgnore')) {
     actionModifiers.push({ id: 'anbyBasicUltimate', actions: ['Basic Attack', 'Ultimate'], metricId: 'defIgnore', ...composeActionEffects(surfaces(0, 0, 0), effects, 'defIgnore', 'anbyBasicUltimate') })

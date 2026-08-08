@@ -312,7 +312,9 @@ function ActionRows({
             const parentValues = action.baseActionId
               ? actionById.get(action.baseActionId)?.values ?? metric.values
               : metric.values
-            const actionName = action.actions.join(', ')
+            const actionName = action.tag === 'aftershock'
+              ? 'Aftershock'
+              : action.actions.join(', ')
 
             return (
               <Fragment key={action.id}>
@@ -329,15 +331,15 @@ function ActionRows({
                           aria-label={`${isExpanded ? 'Hide' : 'Show'} sources for ${actionName}`}
                           onClick={() => toggleAction(actionKey)}
                         >
-                          <span className="action-lines">
-                            {action.actions.map((label) => <span key={label}>{label}</span>)}
-                          </span>
+                          {action.tag === 'aftershock'
+                            ? <span className="action-tag" aria-label="Aftershock">AFTERSHOCK</span>
+                            : <span className="action-lines">{action.actions.map((label) => <span key={label}>{label}</span>)}</span>}
                           <i aria-hidden="true">{isExpanded ? '\u2212' : '+'}</i>
                         </button>
                       ) : (
-                        <span className="action-lines">
-                          {action.actions.map((label) => <span key={label}>{label}</span>)}
-                        </span>
+                        action.tag === 'aftershock'
+                          ? <span className="action-tag" aria-label="Aftershock">AFTERSHOCK</span>
+                          : <span className="action-lines">{action.actions.map((label) => <span key={label}>{label}</span>)}</span>
                       )}
                     </th>
                     {allSurfaces.map((surface) => (

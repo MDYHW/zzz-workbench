@@ -51,8 +51,8 @@ export type EffectMetric =
 export type ActionEffectId =
   | 'coreActions' | 'exSpecialStunned' | 'mindscapeCloudShaper'
   | 'engineSheerActions' | 'mindscapeEtherResIgnore'
-  | 'anbyAftershock' | 'anbyBasicUltimate' | 'triggerAftershock'
-  | 'triggerBasic' | 'triggerQuickAssist'
+  | 'anbyAftershock' | 'anbyBasicUltimate'
+  | 'anbyDash' | 'triggerBasic' | 'triggerQuickAssist'
 export type Recipient = 'self' | 'focus' | 'all-party' | 'other-party' | 'enemy-context'
 
 export interface ResolvedCurrentEffect {

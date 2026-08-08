@@ -2237,6 +2237,19 @@ button.main-stat-block:focus-visible {
   white-space: normal;
 }
 
+.action-tag {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 20px;
+  padding: 3px 6px;
+  border: 1px solid #716955;
+  background: #d8d0bd;
+  color: #34322e;
+  font: 900 10px/1 var(--mono);
+  letter-spacing: 0.08em;
+}
+
 .action-matrix .action-lines > span {
   display: block;
   min-width: 0;

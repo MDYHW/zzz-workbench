@@ -36,6 +36,7 @@ export interface ResultMetric {
 export interface ActionModifier {
   id: string
   actions: string[]
+  tag?: 'aftershock'
   metricId: string
   baseActionId?: string
   values: Record<SurfaceKey, number>

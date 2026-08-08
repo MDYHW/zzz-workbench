@@ -371,15 +371,34 @@ describe('integrated party workbench: result', () => {
       name: 'CRIT DMG action outcome values',
     })
     await user.click(within(outcomes).getByRole('button', {
-      name: /Show sources for Aftershock, Chain Attack, Ultimate/,
+      name: 'Show sources for Aftershock',
     }))
+    expect(within(outcomes).getByText('AFTERSHOCK')).toBeInTheDocument()
+    expect(within(outcomes).queryByText('Harmonizing Shot')).not.toBeInTheDocument()
+    expect(within(outcomes).queryByText('Tartarus')).not.toBeInTheDocument()
     expect(within(outcomes).getByRole('row', {
       name: /Core Passive.*35% of Fully Enabled CRIT DMG.*[+]74[.]6%/,
     })).toBeInTheDocument()
 
     await user.click(screen.getByRole('tab', { name: 'View Trigger setup and Result' }))
     const triggerResult = screen.getByRole('region', { name: 'Trigger Result' })
+    await user.click(within(triggerResult).getByRole('button', { name: 'CRIT DMG' }))
+    const triggerCritOutcomes = within(triggerResult).getByRole('table', {
+      name: 'CRIT DMG action outcome values',
+    })
+    expect(within(triggerCritOutcomes).getByRole('row', {
+      name: /Aftershock.*179[.]6%/,
+    })).toBeInTheDocument()
+    expect(within(triggerCritOutcomes).getByText('AFTERSHOCK')).toBeInTheDocument()
+    expect(within(triggerCritOutcomes).queryByText('Harmonizing Shot')).not.toBeInTheDocument()
+    expect(within(triggerCritOutcomes).queryByText('Tartarus')).not.toBeInTheDocument()
     await user.click(within(triggerResult).getByRole('button', { name: 'Daze Bonus' }))
+    const triggerDazeOutcomes = within(triggerResult).getByRole('table', {
+      name: 'Daze Bonus action outcome values',
+    })
+    expect(within(triggerDazeOutcomes).getByRole('row', {
+      name: /Aftershock.*25[.]5%/,
+    })).toBeInTheDocument()
     expect(within(triggerResult).getByRole('group', {
       name: /Fully Enabled CRIT Rate: current 53[.]0, cap 90, threshold 40[.]0; Aftershock Daze bonus: [+]19[.]5%, cap 75%/,
     })).toBeInTheDocument()
