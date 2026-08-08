@@ -204,7 +204,7 @@ composition path. It is an implementation checklist, not a runtime registry.
 | Path | Current clauses |
 |---|---|
 | Percentage-point additive/capped | CRIT Rate, CRIT DMG, DMG Bonus, Sheer DMG Bonus, RES Ignore, Daze Bonus, Stun DMG Multiplier |
-| Flat stat additive | Radiowave Sheer Force; Chief Sidekick Impact |
+| Flat stat additive | Radiowave Sheer Force |
 | Basis-scaled percentage | Lucia Core and Dreamlit recipient Max HP; Kaboom recipient Base-ATK scaling; Hellfire Gears and Steam Oven base-Impact scaling |
 | Energy projection | Initial Energy Regen percentages followed by current `/s` operations |
 | Explicit relationship/projection | Rupture; Lucia Darkbreaker and squad Sheer Force; Dialyn capped Initial CRIT-to-Impact; King threshold; CRIT cap adjustment; Yixuan M2 Stun-duration replacement |

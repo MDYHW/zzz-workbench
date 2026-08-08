@@ -10,7 +10,6 @@ import woodpeckerImage from '../assets/equipment/drive-discs/woodpecker-electro.
 import yunkuiImage from '../assets/equipment/drive-discs/yunkui-tales.webp'
 import cauldronImage from '../assets/equipment/w-engines/cauldron-of-clarity.webp'
 import bashfulDemonImage from '../assets/equipment/w-engines/bashful-demon.webp'
-import chiefSidekickImage from '../assets/equipment/w-engines/chief-sidekick.webp'
 import cordisGerminaImage from '../assets/equipment/w-engines/cordis-germina.webp'
 import dreamlitImage from '../assets/equipment/w-engines/dreamlit-hearth.webp'
 import elegantVanityImage from '../assets/equipment/w-engines/elegant-vanity.webp'
@@ -42,7 +41,6 @@ export type EngineId =
   | 'radiowave'
   | 'puzzleSphere'
   | 'yesterdayCalls'
-  | 'chiefSidekick'
   | 'hellfireGears'
   | 'steamOven'
   | 'dreamlitHearth'
@@ -170,11 +168,6 @@ export const W_ENGINE_FACTS = {
     daze: 27,
     squadCritDmg: 30,
   },
-  chiefSidekick: {
-    advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
-    flatImpact: 30,
-    energyPerSecond: 0.4,
-  },
   hellfireGears: {
     advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' },
     energyPerSecond: 0.6,
@@ -287,19 +280,6 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `Squad CRIT DMG +${percent(W_ENGINE_FACTS.yesterdayCalls.squadCritDmg, refinement)}`,
     ],
   },
-  chiefSidekick: {
-    id: 'chiefSidekick',
-    name: 'Chief Sidekick',
-    rank: 'S',
-    limited: true,
-    baseAtk: 713,
-    advancedStat: W_ENGINE_FACTS.chiefSidekick.advancedStat,
-    image: chiefSidekickImage,
-    passiveLines: (refinement) => [
-      `Impact +${scaledEngineValue(W_ENGINE_FACTS.chiefSidekick.flatImpact, refinement)}`,
-      `Off-field Energy +${perSecond(W_ENGINE_FACTS.chiefSidekick.energyPerSecond, refinement)}`,
-    ],
-  },
   hellfireGears: {
     id: 'hellfireGears',
     name: 'Hellfire Gears',
@@ -407,7 +387,7 @@ const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
 
 export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, EngineId[]>> = {
   yixuan: enginePools(['qingming', 'cauldron', 'radiowave', 'puzzleSphere']),
-  dialyn: enginePools(['yesterdayCalls', 'chiefSidekick', 'hellfireGears', 'steamOven']),
+  dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'steamOven']),
   lucia: enginePools([
     'dreamlitHearth',
     'thoughtbop',

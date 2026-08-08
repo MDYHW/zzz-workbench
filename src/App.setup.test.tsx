@@ -442,15 +442,8 @@ describe('integrated party workbench: setup', () => {
       name: 'Change W-Engine from Yesterday Calls',
     }))
     const dialynCandidates = screen.getByLabelText('W-Engine candidates')
-    expect(within(dialynCandidates).getByRole('button', {
-      name: 'Select Chief Sidekick W1',
-    })).toBeInTheDocument()
-    expect(within(dialynCandidates).getByRole('button', {
-      name: 'Select Hellfire Gears W1',
-    })).toBeInTheDocument()
-    expect(within(dialynCandidates).getByRole('button', {
-      name: 'Select Steam Oven W5',
-    })).toBeInTheDocument()
+    expect(within(dialynCandidates).getAllByRole('button').map(({ ariaLabel }) => ariaLabel))
+      .toEqual(['Select Hellfire Gears W1', 'Select Steam Oven W5'])
     await user.click(within(dialynCandidates).getByRole('button', {
       name: 'Select Steam Oven W5',
     }))

@@ -42,21 +42,8 @@ describe('calculateParty: dialyn', () => {
     )
   })
 
-  it('distinguishes all Dialyn W-Engine operations and the two-piece tradeoff', () => {
+  it('distinguishes remaining Dialyn W-Engine operations and the two-piece tradeoff', () => {
     const prepared = createPreparedState()
-
-    const chief = agent(calculateParty(selectEngine(
-      prepared,
-      'dialyn',
-      'chiefSidekick',
-    ))!, 'dialyn')
-    expect(metric(chief, 'impact').values).toEqual({
-      initial: 110,
-      combat: 190.8,
-      fully: 190.8,
-    })
-    expect(metric(chief, 'energyRegen').values.combat).toBeCloseTo(2.32)
-    expect(metric(chief, 'dazeBonus').values.fully).toBe(6)
 
     const hellfire = agent(calculateParty(selectEngine(
       prepared,

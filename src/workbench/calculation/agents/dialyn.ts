@@ -100,15 +100,12 @@ export function resolveDialynProviderClauses(
       : 0
   const energy = setup.engineId === 'yesterdayCalls'
     ? scaledEngineValue(W_ENGINE_FACTS.yesterdayCalls.energyPerSecond, refinement)
-    : setup.engineId === 'chiefSidekick'
-      ? scaledEngineValue(W_ENGINE_FACTS.chiefSidekick.energyPerSecond, refinement)
-      : setup.engineId === 'hellfireGears'
-        ? scaledEngineValue(W_ENGINE_FACTS.hellfireGears.energyPerSecond, refinement)
-        : 0
+    : setup.engineId === 'hellfireGears'
+      ? scaledEngineValue(W_ENGINE_FACTS.hellfireGears.energyPerSecond, refinement)
+      : 0
 
   return active([
     additive('impact', 'combat', STATIC_SOURCES.dialyn.core, impact, 'self'),
-    additive('impact', 'combat', engine, setup.engineId === 'chiefSidekick' ? scaledEngineValue(W_ENGINE_FACTS.chiefSidekick.flatImpact, refinement) : 0, 'self'),
     percentage('impact', 'fully', engine, laterImpact, 'self'),
     additive('dazeBonus', 'fully', engine, setup.engineId === 'yesterdayCalls' ? scaledEngineValue(W_ENGINE_FACTS.yesterdayCalls.daze, refinement) : 0, 'self'),
     perSecond(engine, energy, 'self'),
