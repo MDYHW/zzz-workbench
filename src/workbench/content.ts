@@ -513,7 +513,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot6: ['hpPct', 'energyRegenPct'],
   },
   anbySoldier0: { slot4: ['critRate', 'critDmg'], slot5: ['electricDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'] },
-  trigger: { slot4: ['critRate'], slot5: ['electricDmg'], slot6: ['impact'] },
+  trigger: { slot4: ['critRate'], slot5: ['electricDmg', 'atkPct'], slot6: ['impact'] },
   astraYao: { slot4: ['atkPct'], slot5: ['atkPct'], slot6: ['atkPct', 'energyRegenPct'] },
 }
 

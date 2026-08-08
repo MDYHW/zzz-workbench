@@ -265,7 +265,7 @@ describe('soldier zero vertical', () => {
 
     const triggerSetup = createPreparedState({}, ['anbySoldier0', 'trigger', 'dialyn'], 0).slots[1].setup
     expect(triggerSetup).toMatchObject({ fourPieceId: 'king', twoPieceId: 'shockstar' })
-    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.trigger.slot5).toEqual(['electricDmg'])
+    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.trigger.slot5).toEqual(['electricDmg', 'atkPct'])
     expect(SUBSTAT_CHOICES_BY_AGENT.trigger.map(({ id }) => id)).toEqual(['critRate'])
   })
 
