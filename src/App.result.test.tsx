@@ -444,6 +444,9 @@ describe('integrated party workbench: result', () => {
 
     await user.click(screen.getByRole('tab', { name: 'View Astra Yao setup and Result' }))
     await user.click(screen.getByRole('button', { name: 'M4' }))
+    const astraResult = screen.getByRole('region', { name: 'Astra Yao Result' })
+    expect(within(astraResult).queryByRole('region', { name: 'Agent operations' }))
+      .not.toBeInTheDocument()
     await user.click(screen.getByRole('tab', { name: 'View Trigger setup and Result' }))
     const m4TriggerResult = screen.getByRole('region', { name: 'Trigger Result' })
     expect(within(m4TriggerResult).getByRole('row', {

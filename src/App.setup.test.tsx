@@ -63,6 +63,11 @@ describe('integrated party workbench: setup', () => {
     await user.click(screen.getByRole('button', { name: 'Apply party' }))
 
     await user.click(screen.getByRole('tab', { name: 'View Astra Yao setup and Result' }))
+    const elegantVanity = screen.getByRole('button', {
+      name: 'Change W-Engine from Elegant Vanity',
+    })
+    expect(within(elegantVanity).getByText('Energy +5 on assist entry (5s cooldown)'))
+      .toBeInTheDocument()
     const energyChoice = screen.getByRole('button', {
       name: 'Change 2-piece Drive Disc from Moonlight Lullaby',
     })

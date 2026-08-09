@@ -179,8 +179,6 @@ export function calculateAstra(
       { id: 'energyRegen', label: 'Energy Regen', unit: '', decimals: 2, values: energy.values, breakdown: energy.breakdown },
     ],
     actionModifiers: [],
-    operations: setup.engineId === 'elegantVanity'
-      ? [{ id: 'elegantVanityEnergy', label: 'Energy', source: engineSource('astraYao', setup), surface: 'fully', value: 5, unit: '' }]
-      : [],
+    operations: [],
   }
 }

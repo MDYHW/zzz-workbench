@@ -103,6 +103,7 @@ describe('soldier zero vertical', () => {
     expect(W_ENGINES.iceJadeTeapot.passiveLines(1)).toContain('Squad DMG +20%')
     expect(W_ENGINES.restrained.passiveLines(1)).toEqual(['Basic Attack DMG +30%', 'Basic Attack Daze +30%'])
     expect(W_ENGINES.restrained.passiveLines(5)).toEqual(['Basic Attack DMG +48%', 'Basic Attack Daze +48%'])
+    expect(W_ENGINES.elegantVanity.passiveLines(1)).toContain('Energy +5 on assist entry (5s cooldown)')
     expect(W_ENGINES.elegantVanity.passiveLines(1)).toContain('Squad DMG +20%')
     expect(W_ENGINES.bashfulDemon.passiveLines(1)).toContain('Squad ATK +8%')
     expect(W_ENGINES.bashfulDemon.passiveLines(5)).toContain('Squad ATK +12.8%')
@@ -156,6 +157,7 @@ describe('soldier zero vertical', () => {
   it('keeps Trigger gauge boundaries, Astra tiers, and Stun operations scoped to current recipients', () => {
     const full = calculateParty(createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0))!
     const trigger = resultAgent(full, 'trigger')
+    expect(resultAgent(full, 'astraYao').operations).toEqual([])
     expect(resultMetric(trigger, 'critRate').gauge).toMatchObject({ current: 53, outputValue: 19.5 })
     expect(resultMetric(trigger, 'dazeBonus').gauge).toBeUndefined()
     expect(trigger.actionModifiers.find(({ id }) => id === 'triggerBasic')).toMatchObject({

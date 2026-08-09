@@ -221,7 +221,7 @@ export const W_ENGINE_FACTS = {
   iceJadeTeapot: { advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' }, impactPerStack: 0.7, dmg: 20 },
   restrained: { advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' }, dmgPerStack: 6, dazePerStack: 6 },
   preciousFossilizedCore: { advancedStat: { id: 'impactPct', label: 'Impact', value: 15, unit: '%' }, dazePerThreshold: 10 },
-  elegantVanity: { advancedStat: { id: 'atkPct', label: 'ATK', value: 30, unit: '%' }, dmgPerStack: 10 },
+  elegantVanity: { advancedStat: { id: 'atkPct', label: 'ATK', value: 30, unit: '%' }, energyOnAssistEntry: 5, energyCooldownSeconds: 5, dmgPerStack: 10 },
   bashfulDemon: { advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' }, atkPctPerStack: 2 },
 } as const
 
@@ -388,7 +388,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   iceJadeTeapot: { id: 'iceJadeTeapot', name: 'Ice-Jade Teapot', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.iceJadeTeapot.advancedStat, image: iceJadeTeapotImage, passiveLines: (refinement) => [`Impact +${percent(W_ENGINE_FACTS.iceJadeTeapot.impactPerStack * 30, refinement)}`, `Squad DMG +${percent(W_ENGINE_FACTS.iceJadeTeapot.dmg, refinement)}`] },
   restrained: { id: 'restrained', name: 'The Restrained', rank: 'S', limited: false, baseAtk: 684, advancedStat: W_ENGINE_FACTS.restrained.advancedStat, image: restrainedImage, passiveLines: (refinement) => [`Basic Attack DMG +${percent(W_ENGINE_FACTS.restrained.dmgPerStack * 5, refinement)}`, `Basic Attack Daze +${percent(W_ENGINE_FACTS.restrained.dazePerStack * 5, refinement)}`] },
   preciousFossilizedCore: { id: 'preciousFossilizedCore', name: 'Precious Fossilized Core', rank: 'A', limited: false, baseAtk: 594, advancedStat: W_ENGINE_FACTS.preciousFossilizedCore.advancedStat, image: preciousFossilizedCoreImage, passiveLines: (refinement) => [`Daze +${percent(W_ENGINE_FACTS.preciousFossilizedCore.dazePerThreshold, refinement)} at 50% HP`, `Daze +${percent(W_ENGINE_FACTS.preciousFossilizedCore.dazePerThreshold, refinement)} at 75% HP`] },
-  elegantVanity: { id: 'elegantVanity', name: 'Elegant Vanity', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.elegantVanity.advancedStat, image: elegantVanityImage, passiveLines: (refinement) => [`Squad DMG +${percent(W_ENGINE_FACTS.elegantVanity.dmgPerStack * 2, refinement)}`] },
+  elegantVanity: { id: 'elegantVanity', name: 'Elegant Vanity', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.elegantVanity.advancedStat, image: elegantVanityImage, passiveLines: (refinement) => [`Energy +${W_ENGINE_FACTS.elegantVanity.energyOnAssistEntry} on assist entry (${W_ENGINE_FACTS.elegantVanity.energyCooldownSeconds}s cooldown)`, `Squad DMG +${percent(W_ENGINE_FACTS.elegantVanity.dmgPerStack * 2, refinement)}`] },
   bashfulDemon: { id: 'bashfulDemon', name: 'Bashful Demon', rank: 'A', limited: false, baseAtk: 624, advancedStat: W_ENGINE_FACTS.bashfulDemon.advancedStat, image: bashfulDemonImage, passiveLines: (refinement) => [`Squad ATK +${percent(W_ENGINE_FACTS.bashfulDemon.atkPctPerStack * 4, refinement)}`] },
 }
 
