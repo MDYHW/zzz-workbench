@@ -60,8 +60,8 @@ relationships.
 
 Base Energy Regen includes an Agent's applied Core-upgrade contribution when
 the source names it as part of the base. The workbench composes the Energy
-Regen stat from that base and applicable percentages before applying any
-per-second Energy operation.
+Regen stat from that base and applicable percentages before adding any
+source-stated directly composable automatic per-second Energy recovery.
 
 When Result projects Energy Regen, each surface shows the current automatic
 Energy recovered per second:
@@ -69,16 +69,24 @@ Energy recovered per second:
 ```text
 Current Energy recovery per second (surface)
   = composed Energy Regen stat (surface)
-  + sum of applicable Energy-per-second operations (surface)
+  + sum of applicable directly composable automatic Energy-per-second sources (surface)
 ```
 
-An Energy-per-second operation is added after percentage composition and is
-never multiplied by an Energy Regen percentage. Its `/s` amount remains a
-distinct atomic contribution in the expanded Result even though the surface
-aggregate includes it. One-time Energy gains remain standalone operation
-results and never change the Energy Regen surface value. A percentage shown on
-a setup input or source contribution is therefore not the unit of the composed
-current stat or the later per-second operation.
+A directly composable automatic Energy-per-second source is added after
+percentage composition and is never multiplied by an Energy Regen percentage.
+Its `/s` amount remains a distinct atomic contribution in the expanded Result
+even though the surface aggregate includes it. Once any directly observed
+eligibility state such as off-field holds, no repeated action, trigger
+frequency, resource-spending cadence, field-time share, or uptime assumption
+determines its stated rate.
+
+An event-conditioned Energy or Adrenaline grant is outside this composition.
+Neither a source cooldown nor a theoretically repeatable trigger converts its
+per-event amount into automatic recovery or a `/s` value. One-time grants and
+cooldown-limited action grants therefore enter neither the Energy Regen
+aggregate nor a standalone Result operation. A percentage shown on a setup
+input or source contribution is likewise not the unit of the composed current
+stat or the later automatic per-second source.
 
 This section identifies composition order and source basis. It does not define
 storage fields or calculate a final character sheet.

@@ -87,6 +87,26 @@ Competitive candidate membership can pass the gate without a paired calculated
 output. Do not invent a raw damage, Daze, or personal-output Result merely to
 justify a candidate that already changes the visible choice set.
 
+Candidate or prepared-choice relevance can likewise retain an exact resource
+or survival clause without projecting it into Result. Keep only the value,
+trigger, applicability, and limit needed to express the whole package and its
+current setup consequence.
+
+For Result, a non-stat value passes the gate only when its meaning is complete
+for one canonical action or one state outcome without assuming trigger
+frequency, rotation, field time, resource-spending cadence, incoming damage, or
+uptime. Event-conditioned Energy or Adrenaline grants fail this Result branch:
+do not convert a per-event amount or cooldown into `/s`, a standalone operation,
+or an Energy Regen contribution. Their exact compressed facts may still pass
+through a current candidate or prepared-choice consumer.
+
+Do not proactively retain shield, healing, or survival amounts as generic
+Result operations; no current setup direction supplies that consumer. A later
+direction whose candidate or prepared policy materially strengthens a
+deterministic per-activation survival output must justify one dedicated current
+Result relationship at that time; it does not justify a survival schema in
+advance.
+
 Keep a value, threshold, cap, count, trigger, action scope, Attribute scope,
 recipient, duration, stack rule, or compatibility rule only when it changes a
 qualifying outcome. Trigger action, affected action, source owner, action

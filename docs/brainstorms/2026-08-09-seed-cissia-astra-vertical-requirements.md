@@ -114,13 +114,13 @@ The prose requirements govern if this diagram and the text ever differ.
   authored party identity do not override this comparison, and the workbench
   exposes no Vanguard selector, score, or optimizer.
 - R3a. If Seed has no other applied Attack teammate, there is no Vanguard:
-  Seed's Vanguard-dependent Core statuses, Besiege, Additional Ability, and
-  Energy operation are absent. One eligible teammate becomes Vanguard without
-  comparison. With multiple eligible teammates, compare their exact, unrounded
-  Initial ATK after every Initial input, including W-Engine Base ATK, advanced
-  stats, initial Disc effects, main stats, and effective-substat inputs; exclude
-  every Combat or Fully Enabled modifier, including Seed, Astra, Brimstone, and
-  Woodpecker buffs.
+  Seed's Vanguard-dependent Core statuses and Besiege are absent, and the
+  Additional Ability, including its event-conditioned Energy grant, is inactive.
+  One eligible teammate becomes Vanguard without comparison. With multiple
+  eligible teammates, compare their exact, unrounded Initial ATK after every
+  Initial input, including W-Engine Base ATK, advanced stats, initial Disc
+  effects, main stats, and effective-substat inputs; exclude every Combat or
+  Fully Enabled modifier, including Seed, Astra, Brimstone, and Woodpecker buffs.
 - R3b. Party Apply and any later complete applied setup transition that changes
   an eligible teammate's Initial ATK re-resolve Vanguard before Result
   projection. A direct edit can therefore move Vanguard and its received
@@ -219,11 +219,11 @@ The prose requirements govern if this diagram and the text ever differ.
   +30% CRIT DMG statuses and both receive +25% DMG while both statuses are
   active; these reachable values remain at Fully Enabled. Seed's Additional
   Ability grants the Vanguard +2 Energy when Seed deals damage as the active
-  character, limited to once per 1s. Fully Enabled therefore projects a
-  sustainable +2/s recipient operation on the Vanguard's Energy Regen row when
-  that recipient has a current projector. The operation is added after composed
-  Energy Regen; it does not change the Energy Regen stat or invent a row for a
-  recipient without that projector. The Additional Ability also grants Seed's
+  character, limited to once per 1s. This exact event-conditioned resource
+  clause remains compressed Setup content because it changes the whole-package
+  meaning used by candidate and representative authoring. It is not normalized
+  to +2/s, projected as a Result operation, or added to any recipient's Energy
+  Regen row. The Additional Ability also grants Seed's
   Slaughter, Downfall, and Ultimate outcomes +30% DMG and 25% Electric RES
   Ignore whenever another Attack Agent is applied.
 - R13. Seed Mindscapes apply cumulatively. M1 adds +30% CRIT DMG to Downfall.
@@ -299,8 +299,9 @@ The prose requirements govern if this diagram and the text ever differ.
   PEN suppliers. Cissia's already-active pressure can make this produce no
   additional candidate change. Serpentine Seeker is self-only, and Cordis
   Germina is Basic/Ultimate-only; neither supplies party candidate pressure.
-  RES Ignore, CRIT, DMG, Daze, and Energy clauses are Result-only and do not
-  alter candidate membership.
+  RES Ignore, CRIT, DMG, and Daze clauses are Result-only and do not alter
+  candidate membership. Seed's event-conditioned Energy grant retains Setup
+  package meaning but is neither candidate pressure nor a Result projection.
 - R18. Outgoing delivery and Result projection remain separate. A source first
   delivers only to its source-stated recipient; the recipient then projects the
   clause only when its authored direction has the matching Attribute, action,
@@ -308,8 +309,8 @@ The prose requirements govern if this diagram and the text ever differ.
   setup role or a generic Result row. Representative acceptance examples pin
   this semantic rule without freezing an exhaustive named-Agent matrix.
 - R18a. Seed's Core ATK, CRIT DMG, and Besiege DMG deliver only to Seed and the
-  current Vanguard; its +2 Energy operation belongs only to the Vanguard; and
-  Seed's Additional action clauses belong only to Seed. Cissia's Core DEF Ignore
+  current Vanguard, and Seed's Additional action clauses belong only to Seed.
+  Cissia's Core DEF Ignore
   and M1's 5% RES Ignore deliver to the party but project only through
   applicable Electric damage consumers. Her Additional and Ultimate CRIT DMG
   deliver to the party but remain absent on a recipient that has no current
@@ -320,9 +321,10 @@ The prose requirements govern if this diagram and the text ever differ.
   and projects only to compatible current damage consumers. Astra retains only
   her established ATK and Energy Regen Result: received Cissia CRIT DMG or
   Electric clauses do not invent personal Astra damage, CRIT, DEF, or RES rows.
-- R18c. Every new triggered, stacked, threshold, cap, and canonical-action
-  difference enters the earliest surface established above. Initial contains
-  Base/advanced stats, main/substats, and 2-piece effects; Combat adds
+- R18c. Every new retained Result difference from a trigger, stack, threshold,
+  cap, or canonical action enters the earliest surface established above.
+  Seed's event-conditioned Energy grant remains excluded under R12. Initial
+  contains Base/advanced stats, main/substats, and 2-piece effects; Combat adds
   unconditional 4-piece/W-Engine passives and effects established on combat
   entry, including Seed's Core, Cissia's Venom-backed clauses, and Serpentine
   Seeker; Fully Enabled adds post-entry actions, hits, stacks, and state changes.
@@ -426,16 +428,15 @@ The prose requirements govern if this diagram and the text ever differ.
   either active case, its party CRIT DMG projects only on recipients with a
   current CRIT DMG consumer.
 - AE9. **Covers R3-R3c, R12, R18-R18c.** Given Seed, Cissia, and Anby, Vanguard
-  is resolved from current Initial ATK. While Anby is Vanguard, Seed's
-  once-per-1s Energy clause is delivered only to Anby, but her current Result
-  has no Energy Regen projector and gains no invented row. A direct Initial-ATK
-  edit that moves Vanguard to Cissia moves the clause with that relationship;
-  Cissia's Fully Enabled Energy Regen row then includes Seed's +2/s recipient
-  operation after her composed Energy Regen, without changing the Energy Regen
-  stat. Cissia's Electric Core clause may project on every applicable Electric
-  general-damage consumer, and every delivered clause keeps its own source and
-  recipient rather than becoming a named-party aggregate. While Anby is
-  Vanguard, her existing Fully Enabled CRIT-DMG-derived Aftershock phase
+  is resolved from current Initial ATK. Whether Anby or Cissia is Vanguard,
+  Seed's exact +2 Energy once-per-1s passive remains compressed Setup content:
+  neither recipient gains a +2/s operation, a changed Energy Regen value, or a
+  new Energy Regen row. A direct Initial-ATK edit that moves Vanguard to Cissia
+  moves the applicable Vanguard Core sources without changing that Result
+  exclusion. Cissia's Electric Core clause may project on every applicable
+  Electric general-damage consumer, and every delivered clause keeps its own
+  source and recipient rather than becoming a named-party aggregate. While Anby
+  is Vanguard, her existing Fully Enabled CRIT-DMG-derived Aftershock phase
   observes both Seed's +30% Vanguard CRIT DMG and Cissia's party +40%; moving
   Vanguard to Cissia removes only Seed's +30% from Anby, and the same
   established Anby-only phase recalculates without adding another

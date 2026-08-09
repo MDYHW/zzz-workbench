@@ -505,9 +505,17 @@ For each complete setup, Result visually exposes current inputs and candidates;
 setting-relevant stats and modifier regions; atomic amounts with concise source
 identities and earliest surface; action aggregates only when they differ;
 stat-derived bases with linked buff, conversion, threshold, or cap outputs;
-source-stated DMG Multiplier and Daze Multiplier modifier operations for retained
-actions;
+source-stated non-stat operations only when their numeric meaning is complete for
+one canonical action or one state outcome without assuming trigger frequency,
+rotation, field time, resource-spending cadence, incoming damage, or uptime;
 threshold/cap state; and changes caused by visible inputs or party context.
+
+Result is not a generic ledger for every numeric operation. The governing test
+is whether a value is complete as a setting stat, canonical-action outcome, or
+state outcome without a rotation, resource, or incoming-damage model. Current
+retained non-stat examples are Dialyn's enemy Stun-duration extension and Astra
+M4's next-Quick-Assist Daze modifier. A numeric resource or survival clause does
+not enter Result merely because the source states an amount.
 
 Expanded numeric breakdown is the explanation surface. Guide URLs, source
 wording, candidate rationale, activation prose, historical deltas, and narrative
@@ -521,12 +529,22 @@ source defines a percentage input, disclosure shows that percentage rather than
 substituting the derived absolute increase; the aggregate still shows the
 calculated final value.
 
-An Energy Regen row shows current automatic Energy recovered per second on
-each surface. Its aggregate includes the composed Energy Regen stat and every
-applicable per-second Energy operation, using the composition owned by formula
-mechanics. Expanded breakdown preserves a percentage stat source and a `/s`
-operation as distinct atomic amounts. A one-time Energy gain remains a separate
-operation and does not change the row.
+An Energy Regen row shows current automatic Energy recovered per second on each
+surface. Its aggregate includes the composed Energy Regen stat and each
+applicable source-stated automatic per-second recovery whose rate is fixed once
+its directly observed eligibility state holds, using the composition owned by
+formula mechanics. Automatic off-field recovery therefore qualifies without
+assuming action cadence. Expanded breakdown preserves a percentage stat source
+and an automatic `/s` recovery source as distinct atomic amounts.
+
+An Energy or Adrenaline grant conditioned on an action, hit, resource spend, or
+other repeatable event is excluded from Result when interpreting its setting
+value would require cadence or rotation assumptions. Do not normalize such a
+grant into `/s`, expose it as a standalone operation, or add it to an Energy
+Regen row. A cooldown-limited trigger is not automatic recovery merely because
+it can theoretically recur. Its exact clause may still remain in compressed
+Setup content and candidate or representative policy under the source-fact
+retention gate.
 
 A retained relationship that is independently evaluated from each display
 surface's current inputs shows its complete current contribution in every
