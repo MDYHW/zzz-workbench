@@ -33,7 +33,8 @@ Meaning flows in one direction:
 
 1. completed Agent facts and Mindscape-qualified values;
 2. setup direction, roles, formula relationships, and candidate policy;
-3. effective candidates for current Mindscape, party, and availability pool;
+3. effective candidates for the current context and already-established
+   upstream effects;
 4. authored first choices and one complete prepared starting setup;
 5. current editable selections;
 6. the complete-selection gate;
@@ -155,15 +156,51 @@ contributor role.
 Candidate authoring follows this order:
 
 1. establish completed Agent facts and Rank-default Mindscape;
-2. establish direction, roles, actions, formulas, conversions, thresholds,
-   caps, and exclusions;
+2. establish direction, roles, actions, retained operations, formulas,
+   conversions, thresholds, caps, and exclusions;
 3. use recurring role, formula, action, stat-pressure, and Specialty patterns
    to restrict inspection;
 4. compare remaining packages against that Agent's exact kit, activation,
    opportunity costs, availability, and current competitive practice;
-5. retain only materially distinct candidates;
-6. apply only authored Agent-local Mindscape or party adjustments; and
-7. author the deterministic first choices needed to prepare one complete setup.
+5. retain only materially distinct authored base candidates;
+6. derive current effective candidates through only authored Mindscape, party,
+   focus, pool, or active-effect adjustments in the explicit acyclic order
+   below; and
+7. author the deterministic first choices from those effective candidates
+   needed to prepare one complete setup.
+
+Candidate-bearing setup inputs are W-Engines, 4-piece sets, 2-piece sets,
+variable main-stat slots, and effective-substat offerings. This term describes
+where candidate policy makes a choice; it does not rename an Agent investment
+axis or formula component. Candidate policy has three ordered stages:
+
+1. the **authored base candidate set** contains the materially distinct choices
+   admitted for one candidate-bearing setup input after direction, role,
+   formula, action, operation, whole-package, and opportunity-cost review;
+2. the **current effective candidate set** for one input applies the current
+   Mindscape, party, focus, pool, and effects produced by only already-
+   established upstream selections, together with recipient, Attribute,
+   action, and formula applicability, to that authored base; and
+3. the **prepared first choice** selects one authored representative only from
+   the current effective set during an authorized preparation transition.
+
+Each Agent direction settles the role-strengthened formula families, using the
+[Formula-Family Stat Consequences](zzz-formula-mechanics.md#formula-family-stat-consequences),
+and any formula family admitted only through the residual-main-stat exception.
+It also settles canonical action or output coverage only where that coverage
+changes a whole package's usability, candidate membership, or prepared first choice.
+Direction-defining output coverage is an authored competitive-practice
+judgment. It is not runtime action share, uptime, rotation, or a reason to keep
+a global action catalogue.
+
+Within one candidate-bearing setup input, a candidate is dominated only when
+its whole usable package expresses no materially distinct role, formula,
+action, or operation axis beside a stronger candidate. Choices that strengthen
+different axes remain comparable when both materially support the direction;
+their relative preference normally selects the prepared first choice rather
+than changing membership. Fixed supply from an earlier selected package may
+change pressure on a later input without merging their candidate sets or
+ranking arbitrary combinations.
 
 Patterns order inspection but cannot inherit another Agent's result. New items
 are routed first to roles, formulas, actions, stat pressures, and Specialties
@@ -180,7 +217,11 @@ A 4-piece Disc needs a material core effect; a 2-piece needs a competitive
 complement beside a different 4-piece; a main stat must be legal and survive
 slot opportunity cost; and an effective substat must materially strengthen a
 supported setup-tuning axis after current stat supply, thresholds, caps,
-conversions, and alternatives.
+conversions, and alternatives. Disc admission and preparation compare a
+complete legal package: the selected 4-piece set's inherent 2-piece effect and
+4-piece effect together with the different selected 2-piece complement. A Disc
+candidate survives in one piece role only when it participates in at least one
+materially competitive complete package.
 
 Main-stat and effective-substat candidates begin from the Agent's direction,
 roles, formulas, and current Agent sources. Do not re-derive the whole candidate
@@ -198,16 +239,31 @@ meaning after recipient, action, formula, and current competitive practice are
 resolved. Candidate policy consumes that meaning rather than the provider's
 Agent, W-Engine, or Disc identity, its Result row, or a runtime score.
 
-Material broad pre-PEN DEF Reduction or DEF Ignore may remove Slot 5 PEN Ratio
-from an applied setup whose authored direction admits residual or primary
-general-damage investment and therefore consumes the DEF region. A limited
-action-scoped pre-PEN modifier does not remove PEN Ratio merely because it
-precedes PEN in the formula. A direction whose damage family omits the DEF
-region never admits PEN Ratio from this rule. The current broad Spectral Gaze
-pressure removes PEN Ratio for applicable Anby, Dialyn, and Trigger setups,
-while Cordis Germina's Basic/Ultimate-only DEF Ignore does not do so by itself.
-This is authored candidate policy, not a numerical threshold inferred at
-runtime.
+Every researched current setup pressure ends in exactly one setup-policy
+outcome: no setup change, a prepared-choice-only adjustment, or a candidate-
+membership adjustment. A prepared-choice-only adjustment is consumed only
+during an authorized preparation transition and never overwrites a direct edit.
+A membership adjustment is reevaluated for the current session and may
+invalidate an edited selection under the lifecycle below. Persist only the
+bounded settled predicate and choice needed by the current consumer, never a
+score, ranking, research receipt, or provider-identity branch.
+
+The current candidate-membership adjustment admits material **broad** pre-PEN
+DEF Reduction or DEF Ignore as pressure that may remove Slot 5 PEN Ratio from
+an applied setup whose authored direction admits residual or primary general-
+damage investment and therefore consumes the DEF region. Breadth is the current
+admission boundary, not a universal proof of materiality. A limited action-
+scoped pre-PEN modifier does not remove PEN Ratio merely because it precedes
+PEN in the formula; it may affect an explicitly authored prepared preference
+when it covers direction-defining output, but a future scoped membership
+adjustment requires a new current consumer and product decision before the
+qualifier is expanded. A broad or numerically large modifier likewise does not
+establish exclusion without that authored policy. A direction whose damage
+family omits the DEF region never admits PEN Ratio from this rule. The current
+broad Spectral Gaze pressure removes PEN Ratio for applicable Anby, Dialyn, and
+Trigger setups, while Cordis Germina's Basic/Ultimate-only DEF Ignore does not
+do so by itself. This is authored candidate policy, not a numerical threshold
+or action-share calculation inferred at runtime.
 
 For example, under the legal main-stat and substat pools owned by
 `docs/zzz-game-vocabulary.md`, a Stun direction can exhaust its direct Daze
@@ -270,11 +326,11 @@ Ratio is separate.
 
 ### Prepared Starting Setup
 
-Preparation supplies one deterministic first choice from the admitted
-candidates for the current Agent, Mindscape, party, focus, and availability
-pool. It chooses a W-Engine and Rank-default refinement, a 4-piece set, a
-different 2-piece set, legal Slot 4/5/6 main stats, and zero for every offered
-effective-substat hit count.
+Preparation supplies one deterministic first choice from the current effective
+candidates for the Agent, Mindscape, party, focus, and availability pool. It
+chooses a W-Engine and Rank-default refinement, a 4-piece set, a different
+2-piece set, legal Slot 4/5/6 main stats, and zero for every offered effective-
+substat hit count.
 
 The first choice is authored competitive policy, not a runtime score. Resolve
 the W-Engine and Disc package before choosing main stats so their fixed stat
@@ -282,6 +338,24 @@ supply, usable effects, thresholds, caps, and slot opportunity costs can change
 the prepared choice. Do not assume undisclosed substat investment. Zero counts
 mean no user-supplied substat investment, not a recommendation to avoid those
 stats.
+
+Authorized preparation resolves these dependencies in two acyclic layers.
+First derive context-effective W-Engine and complete-Disc candidate sets from
+the applied directions, each package's own usable effects, party allocation or
+compatibility, and already-established context that does not depend on an
+unresolved equipment selection. Consume any authored prepared-choice-only
+adjustment for those inputs, then choose the W-Engine and complete Disc package.
+Second resolve active pressure from the established party and selected
+equipment, derive non-empty downstream main-stat and effective-substat
+candidate sets, choose main-stat first choices, and initialize every offered
+effective-substat count to zero. Every prepared choice must belong to its
+effective set at the point that input is resolved.
+
+Pressure may target only a later input in this order. A preference or candidate
+set that depends on pressure produced only by that same unresolved input, by a
+later input, or by a choice it would invalidate is an authoring stop requiring
+a new product decision. Do not add a fallback, iteration, fixed-point solver,
+or automatic restoration to cross that boundary.
 
 Prepared setup is an initialization point, not a rule that continuously
 overwrites edits. Direct W-Engine, refinement, Disc, main-stat, and substat

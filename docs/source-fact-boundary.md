@@ -17,16 +17,19 @@ audit trail, or universal game schema.
 For every proposed term, value, condition, field, hierarchy, relation, or
 payload, ask one counterfactual question:
 
-> If this distinction is removed or changed, does a current user-visible setup
-> choice or Result, or the calculation and applicability required to produce
-> that Result, change?
+> If this distinction is removed or changed, does current competitive candidate
+> membership, a prepared starting setup, another user-visible setup choice, or
+> Result change, or does the policy, calculation, or applicability required to
+> produce one of those outcomes change?
 
 If yes, keep the smallest representation that preserves that difference. If
 no, omit or delete it.
 
 Current qualifying outcomes are limited to:
 
-- competitive candidate membership in the selected availability pool;
+- competitive authored base candidate membership or current effective
+  candidate membership for the selected context and availability pool;
+- an authored prepared first choice and the complete starting setup it changes;
 - editable party, Mindscape, refinement, equipment, main-stat, and effective
   substat choices;
 - the initial, combat-baseline, and fully enabled values and modifiers;
@@ -49,10 +52,10 @@ The gate is evaluated against the current consumer. A speculative later Agent
 or release is not a consumer. When later content is explicitly admitted, apply
 the same gate to that content then.
 
-## Result-First Derivation
+## Qualifying-Outcome-First Derivation
 
-Start from the Result that may differ and work backward only as far as needed to
-calculate or apply it.
+Start from the user-visible setup choice or Result that may differ and work
+backward only as far as needed to select, calculate, or apply it.
 
 External sources and setup practice may be inspected during authoring to learn
 the current value, condition, scope, or competitive choice. That investigation
@@ -64,14 +67,15 @@ Implementation and tests consume settled meaning. They do not justify keeping
 a distinction that fails the gate.
 
 If a missing or conflicting game fact could change a qualifying outcome, do
-not guess. Leave that result unimplemented until the fact is resolved. This is
+not guess. Leave that outcome unimplemented until the fact is resolved. This is
 an authoring stop, not a reason to create a persistent uncertainty or evidence
 schema.
 
 ## Minimal Current Meaning
 
-Keep identity and eligibility only when they change an admitted choice, a party
-condition, or a calculated Result.
+Keep identity and eligibility only when they change candidate membership, a
+prepared first choice, another admitted choice, a party condition, or a
+calculated Result.
 
 Competitive candidate membership can pass the gate without a paired calculated
 output. Do not invent a raw damage, Daze, or personal-output Result merely to
@@ -85,7 +89,7 @@ change calculation or application.
 
 A source-local name is not automatically a shared term. Canonicalize it to an
 existing action, Attribute, stat, formula region, or source identity when that
-produces the same Result.
+produces the same qualifying outcome.
 
 For current Rupture Agents, canonicalize the shared 30% current-ATK and 10%
 current-Max-HP conversion clauses to one `Rupture specialty` source
@@ -112,15 +116,16 @@ Awakening as its source identity only when the game authors it as a standalone
 Potential Awakening clause rather than a modification or extension of an
 existing source and it independently passes the current retention gate.
 
-Mindscape and refinement variants keep only values that can change the current
-Result. A selectable value with no applied Result difference needs no source-fact
-record; the input contract still accepts the selection.
+Mindscape and refinement variants keep only values that can change a current
+qualifying outcome: candidate membership, an authored prepared first choice,
+or the current Result. A selectable value that changes none of those outcomes
+needs no source-fact record; the input contract still accepts the selection.
 
 When a retained effect reads an ordinary skill table and the product-qualified
-Mindscape tier changes its current Result, keep only its level-12, level-14, and
-level-16 values. Use one scalar when the retained value does not change; do not
-keep other levels or a general skill-level record. The product contract owns
-which Mindscape selects each tier.
+Mindscape tier changes a current qualifying outcome, keep only its level-12,
+level-14, and level-16 values. Use one scalar when the retained value does not
+change; do not keep other levels or a general skill-level record. The product
+contract owns which Mindscape selects each tier.
 
 Do not keep base action DMG or Daze Multipliers, calculated `base_damage` or
 `skill_daze`, or final action output. An additional skill-table coefficient that

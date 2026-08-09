@@ -359,7 +359,7 @@ Consequences for the workbench include:
   relative pressure on a different valid region;
 - PEN Ratio and Puffer Electro can be credible candidates when the DEF region is
   valid and otherwise under-supplied;
-- applicable DEF Reduction or DEF Ignore on a direction's dominant output can
+- applicable DEF Reduction or DEF Ignore on a direction-defining output can
   lower PEN Ratio's relative pressure because they compose in different ordered
   buckets inside the same DEF region;
 - Puffer Electro's PEN Ratio does not strengthen `sheer_damage` because that
@@ -367,8 +367,19 @@ Consequences for the workbench include:
 - CRIT Rate and CRIT DMG form one expected crit component, while candidate
   policy may separately account for critical-hit stability.
 
-These are calculation consequences. Candidate filtering and stability
-preference belong to setup policy; the user makes the final setup selection.
+Scope is evaluated relative to the authored direction rather than by breadth
+alone. An action-scoped modifier can create compositional pressure when it
+covers a direction-defining output, while a broad or numerically large modifier
+does not by itself prove candidate exclusion. Formula mechanics establishes
+only that applicability and pressure. Current setup policy admits broad pre-PEN
+pressure as a candidate-membership consumer; admitting an action-scoped
+membership consumer requires a separate current product decision rather than
+being inferred from the formula. The
+[Candidate Preparation Dependency](setup-workbench-product-contract.md#candidate-preparation-dependency)
+classifies that pressure as no setup change, a prepared-choice-only adjustment,
+or a candidate-membership adjustment after current competitive-practice review.
+It does so without runtime action share, uptime, scoring, or optimization; the
+user makes the final setup selection.
 
 ## Stat-Derived Scaling Relationships
 
