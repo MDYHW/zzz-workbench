@@ -1,11 +1,11 @@
 import {
   MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
-  SETUP_FORMULA_PARTICIPATION_BY_AGENT,
   type AgentId,
   type MainSlot,
   type MainStatId,
 } from './content'
 import { activeCandidatePressures } from './provider-effects'
+import { directionUsesDefRegion } from './formula-policy'
 import type { AppliedSlot, WorkbenchState } from './state'
 
 export interface IncompleteMainStatSelection {
@@ -16,13 +16,6 @@ export interface IncompleteMainStatSelection {
 
 const MAIN_SLOTS: MainSlot[] = ['slot4', 'slot5', 'slot6']
 
-function directionConsumesDefRegion(agentId: AgentId): boolean {
-  const { primary, residual } = SETUP_FORMULA_PARTICIPATION_BY_AGENT[agentId]
-  return [...primary, ...residual].some((formula) => (
-    formula === 'general_damage' || formula === 'anomaly_damage'
-  ))
-}
-
 function effectiveMainStatIdsForPressure(
   agentId: AgentId,
   mainSlot: MainSlot,
@@ -31,7 +24,7 @@ function effectiveMainStatIdsForPressure(
   const base = MAIN_STAT_IDS_BY_AGENT_AND_SLOT[agentId][mainSlot]
   return mainSlot === 'slot5'
     && base.includes('penRatio')
-    && directionConsumesDefRegion(agentId)
+    && directionUsesDefRegion(agentId)
     && hasMaterialBroadPrePenPressure
     ? base.filter((candidateId) => candidateId !== 'penRatio')
     : base

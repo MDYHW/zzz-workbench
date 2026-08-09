@@ -78,6 +78,7 @@ describe('soldier zero vertical', () => {
     expect(trigger.operations).toContainEqual(expect.objectContaining({ id: 'nextQuickAssistDaze', value: 50 }))
 
     const withoutAnby = calculateParty(createPreparedState({}, ['yixuan', 'trigger', 'astraYao'], 0))!
+    expect(resultMetric(resultAgent(withoutAnby, 'trigger'), 'critRate').gauge).toBeUndefined()
     expect(resultMetric(resultAgent(withoutAnby, 'trigger'), 'dazeBonus').gauge).toBeUndefined()
 
     let mixed = createPreparedState({}, ['yixuan', 'trigger', 'astraYao'], 0)
@@ -155,7 +156,8 @@ describe('soldier zero vertical', () => {
   it('keeps Trigger gauge boundaries, Astra tiers, and Stun operations scoped to current recipients', () => {
     const full = calculateParty(createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0))!
     const trigger = resultAgent(full, 'trigger')
-    expect(resultMetric(trigger, 'dazeBonus').gauge).toMatchObject({ current: 53, outputValue: 19.5 })
+    expect(resultMetric(trigger, 'critRate').gauge).toMatchObject({ current: 53, outputValue: 19.5 })
+    expect(resultMetric(trigger, 'dazeBonus').gauge).toBeUndefined()
     expect(trigger.actionModifiers.find(({ id }) => id === 'triggerBasic')).toMatchObject({
       tag: 'aftershock', actions: [], values: { fully: 25.5 },
     })
@@ -171,11 +173,13 @@ describe('soldier zero vertical', () => {
     expect(basicOutcome.breakdown.fully).toContainEqual(expect.objectContaining({ label: 'Additional Ability' }))
 
     const nonLimited = calculateParty(createPreparedState({ trigger: 'nonLimited' }, ['anbySoldier0', 'trigger', 'astraYao'], 0))!
-    expect(resultMetric(resultAgent(nonLimited, 'trigger'), 'dazeBonus').gauge).toMatchObject({ current: 29, outputValue: 0 })
+    expect(resultMetric(resultAgent(nonLimited, 'trigger'), 'critRate').gauge).toMatchObject({ current: 29, outputValue: 0 })
+    expect(resultMetric(resultAgent(nonLimited, 'trigger'), 'dazeBonus').gauge).toBeUndefined()
 
     let boundaries = createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
     boundaries = workbenchReducer(boundaries, { type: 'setSubstat', slot: 1, key: 'critRate', value: 16 })
-    expect(resultMetric(resultAgent(calculateParty(boundaries)!, 'trigger'), 'dazeBonus').gauge).toMatchObject({ current: 91.4, outputValue: 75 })
+    expect(resultMetric(resultAgent(calculateParty(boundaries)!, 'trigger'), 'critRate').gauge).toMatchObject({ current: 91.4, outputValue: 75 })
+    expect(resultMetric(resultAgent(calculateParty(boundaries)!, 'trigger'), 'dazeBonus').gauge).toBeUndefined()
 
     let astra = createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
     astra = workbenchReducer(astra, { type: 'setMindscape', slot: 2, mindscape: 3 })
@@ -272,7 +276,7 @@ describe('soldier zero vertical', () => {
     expect(trigger.metrics.find(({ id }) => id === 'energyRegen')).toBeUndefined()
 
     const triggerSetup = createPreparedState({}, ['anbySoldier0', 'trigger', 'dialyn'], 0).slots[1].setup
-    expect(triggerSetup).toMatchObject({ fourPieceId: 'king', twoPieceId: 'shockstar' })
+    expect(triggerSetup).toMatchObject({ fourPieceId: 'astralVoice', twoPieceId: 'shockstar' })
     expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.trigger.slot5).toEqual(['electricDmg', 'atkPct', 'penRatio'])
     expect(SUBSTAT_CHOICES_BY_AGENT.trigger.map(({ id }) => id)).toEqual(['critRate'])
   })

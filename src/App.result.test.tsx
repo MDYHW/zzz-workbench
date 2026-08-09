@@ -1,4 +1,4 @@
-import { render, screen, within, act } from '@testing-library/react'
+import { render, screen, within, act, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { App } from './App'
@@ -277,9 +277,33 @@ describe('integrated party workbench: result', () => {
     })
     expect(within(changedSources).queryByRole('row', { name: /Qingming/ }))
       .not.toBeInTheDocument()
+    expect(within(changedSources).getByRole('row', { name: /Cauldron of Clarity/ }))
+      .toHaveClass('is-source-active')
+    expect(document.querySelector('.equipment-fieldset[data-source-tone="w-engine"]'))
+      .toHaveClass('is-source-active')
     expect(screen.getByRole('button', {
       name: 'Change W-Engine from Cauldron of Clarity',
     })).toHaveFocus()
+  })
+
+  it('clears an active source link when an authorized preparation context changes', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'CRIT Rate' }))
+    const sources = screen.getByRole('table', { name: 'CRIT Rate source contributions' })
+    const qingming = within(sources).getByRole('row', { name: /Qingming Birdcage/ })
+    fireEvent.mouseEnter(qingming)
+    expect(qingming).toHaveClass('is-source-active')
+    expect(document.querySelector('.equipment-fieldset[data-source-tone="w-engine"]'))
+      .toHaveClass('is-source-active')
+
+    const mindscape = screen.getByRole('group', { name: 'Mindscape' })
+    fireEvent.click(within(mindscape).getByRole('button', { name: 'M1' }))
+
+    expect(qingming).not.toHaveClass('is-source-active')
+    expect(document.querySelector('.equipment-fieldset[data-source-tone="w-engine"]'))
+      .not.toHaveClass('is-source-active')
   })
 
   it('keeps common sources before nested action outcomes', async () => {
@@ -382,6 +406,13 @@ describe('integrated party workbench: result', () => {
 
     await user.click(screen.getByRole('tab', { name: 'View Trigger setup and Result' }))
     const triggerResult = screen.getByRole('region', { name: 'Trigger Result' })
+    const critRateToggle = within(triggerResult).getByRole('button', { name: 'CRIT Rate' })
+    await user.click(critRateToggle)
+    const critRateDetails = critRateToggle.closest('tr')?.nextElementSibling
+    expect(critRateDetails).not.toBeNull()
+    expect(within(critRateDetails as HTMLElement).getByRole('group', {
+      name: /Fully Enabled CRIT Rate: current 53[.]0, cap 90, threshold 40[.]0; Aftershock Daze bonus: [+]19[.]5%, cap 75%/,
+    })).toBeInTheDocument()
     await user.click(within(triggerResult).getByRole('button', { name: 'CRIT DMG' }))
     const triggerCritOutcomes = within(triggerResult).getByRole('table', {
       name: 'CRIT DMG action outcome values',
@@ -399,9 +430,17 @@ describe('integrated party workbench: result', () => {
     expect(within(triggerDazeOutcomes).getByRole('row', {
       name: /Aftershock.*25[.]5%/,
     })).toBeInTheDocument()
-    expect(within(triggerResult).getByRole('group', {
-      name: /Fully Enabled CRIT Rate: current 53[.]0, cap 90, threshold 40[.]0; Aftershock Daze bonus: [+]19[.]5%, cap 75%/,
+    await user.click(within(triggerDazeOutcomes).getByRole('button', {
+      name: 'Show sources for Aftershock',
+    }))
+    expect(within(triggerDazeOutcomes).getByRole('row', {
+      name: /Additional Ability.*[+]19[.]5%/,
     })).toBeInTheDocument()
+    const dazeDetails = within(triggerResult).getByRole('button', { name: 'Daze Bonus' }).closest('tr')?.nextElementSibling
+    expect(dazeDetails).not.toBeNull()
+    expect(within(dazeDetails as HTMLElement).queryByRole('group', {
+      name: /Fully Enabled CRIT Rate: current 53[.]0, cap 90, threshold 40[.]0; Aftershock Daze bonus: [+]19[.]5%, cap 75%/,
+    })).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('tab', { name: 'View Astra Yao setup and Result' }))
     await user.click(screen.getByRole('button', { name: 'M4' }))

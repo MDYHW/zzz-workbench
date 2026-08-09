@@ -47,7 +47,7 @@ describe('integrated party workbench: setup', () => {
       .toHaveClass('main-stat-block__fixed')
   })
 
-  it('presents Astra’s exact Energy Regen Disc and keeps Trigger candidates stable across applied parties', async () => {
+  it('presents Astra’s exact Energy Regen Disc and prepares Trigger holder allocation', async () => {
     const user = userEvent.setup()
     render(<App />)
     expect(screen.getByRole('status')).toBeEmptyDOMElement()
@@ -78,10 +78,35 @@ describe('integrated party workbench: setup', () => {
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
     await replace(3, /Dialyn, Physical, Stun/)
     await user.click(screen.getByRole('button', { name: 'Apply party' }))
-    await user.click(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from King of the Summit' }))
+    expect(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Astral Voice',
+    })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from Astral Voice' }))
     const dialynPartyCandidates = screen.getByLabelText('fourPiece Drive Disc candidates')
-    expect(within(dialynPartyCandidates).getByRole('button', { name: 'Select Shockstar Disco as fourPiece' })).toBeInTheDocument()
-    expect(within(dialynPartyCandidates).getByRole('button', { name: 'Select Astral Voice as fourPiece' })).toBeInTheDocument()
+    expect(within(dialynPartyCandidates).getByRole('button', { name: 'Select King of the Summit as fourPiece' })).toBeInTheDocument()
+    expect(within(dialynPartyCandidates).queryByRole('button', { name: 'Select Shockstar Disco as fourPiece' })).not.toBeInTheDocument()
+  })
+
+  it('shows focused formula preparation before downstream selector pressure', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(2, /Trigger, Electric, Stun/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+    await user.click(screen.getByRole('tab', { name: 'View Trigger setup and Result' }))
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Ice-Jade Teapot' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from King of the Summit' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Anby: Soldier 0, Electric, Attack/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Spectral Gaze' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from King of the Summit' })).toBeInTheDocument()
   })
 
   it('re-prepares only the visible Agent when Mindscape changes', async () => {

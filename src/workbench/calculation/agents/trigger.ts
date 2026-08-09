@@ -56,8 +56,9 @@ export function calculateTrigger(context: TriggerCalculationContext, inbox: Sour
   const daze = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus')
   const dazeGauge = context.hasAnby ? Math.min(Math.max(crit.values.fully - 40, 0) * 1.5, 75) : 0
   const quickAssist = effects.find((effect) => effect.action === 'triggerQuickAssist' && effect.metric === 'dazeBonus')
+  const critMetric: ResultMetric = { id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1, ...crit }
+  if (context.hasAnby) critMetric.gauge = { source: STATIC_SOURCES.trigger.additional, basisLabel: 'Fully Enabled CRIT Rate', current: crit.values.fully, threshold: 40, cap: 90, outputLabel: 'Aftershock Daze bonus', outputValue: dazeGauge, outputCap: 75, outputUnit: '%' }
   const dazeMetric: ResultMetric = { id: 'dazeBonus', label: 'Daze Bonus', unit: '%', decimals: 1, ...daze }
-  if (context.hasAnby) dazeMetric.gauge = { source: STATIC_SOURCES.trigger.additional, basisLabel: 'Fully Enabled CRIT Rate', current: crit.values.fully, threshold: 40, cap: 90, outputLabel: 'Aftershock Daze bonus', outputValue: dazeGauge, outputCap: 75, outputUnit: '%' }
   const aftershockDmg = composeActionEffects(surfaces(0, 0, 0), effects, 'dmgBonus', 'anbyAftershock')
   const aftershockCrit = composeActionEffects(critDmg.values, effects, 'critDmg', 'anbyAftershock')
   const actionEffects = [...effects, ...resolveDeliveredClauses([
@@ -70,5 +71,5 @@ export function calculateTrigger(context: TriggerCalculationContext, inbox: Sour
     ...(basicDaze.breakdown.fully.length ? [{ id: 'triggerBasic', actions: [], tag: 'aftershock' as const, metricId: 'dazeBonus', ...basicDaze }] : []),
   ]
   const stunDmgMultiplier = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'stunDmgMultiplier')
-  return { agentId: 'trigger', metrics: [{ id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1, ...crit }, { id: 'impact', label: 'Impact', unit: '', decimals: 1, ...impact }, dazeMetric, { id: 'stunDmgMultiplier', label: 'Stun DMG Multiplier', unit: '%', decimals: 1, ...stunDmgMultiplier }, ...(aftershockCrit.breakdown.fully.length ? [{ id: 'critDmg', label: 'CRIT DMG', unit: '%', decimals: 1, ...critDmg }] : []), ...(aftershockDmg.breakdown.fully.length ? [{ id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), [], 'dmgBonus') }] : [])], actionModifiers, operations: quickAssist ? [{ id: 'nextQuickAssistDaze', label: 'Next Quick Assist Daze', source: quickAssist.source, surface: 'fully', value: quickAssist.amount, unit: '%' }] : [] }
+  return { agentId: 'trigger', metrics: [critMetric, { id: 'impact', label: 'Impact', unit: '', decimals: 1, ...impact }, dazeMetric, { id: 'stunDmgMultiplier', label: 'Stun DMG Multiplier', unit: '%', decimals: 1, ...stunDmgMultiplier }, ...(aftershockCrit.breakdown.fully.length ? [{ id: 'critDmg', label: 'CRIT DMG', unit: '%', decimals: 1, ...critDmg }] : []), ...(aftershockDmg.breakdown.fully.length ? [{ id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), [], 'dmgBonus') }] : [])], actionModifiers, operations: quickAssist ? [{ id: 'nextQuickAssistDaze', label: 'Next Quick Assist Daze', source: quickAssist.source, surface: 'fully', value: quickAssist.amount, unit: '%' }] : [] }
 }

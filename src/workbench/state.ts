@@ -4,7 +4,7 @@ import {
   defaultRefinementFor,
   DISC_IDS_BY_AGENT_AND_PIECE,
   ENGINE_IDS_BY_AGENT_AND_POOL,
-  preparedSetupFor,
+  representativeSetupFor,
   SUBSTAT_CHOICES_BY_AGENT,
   W_ENGINES,
   type AgentId,
@@ -16,6 +16,12 @@ import {
   type Refinement,
   type SubstatId,
 } from './content'
+import {
+  preparePartySelections,
+  prepareTargetSelection,
+  type EstablishedDiscHolder,
+  type PreparationContext,
+} from './preparation'
 import {
   effectiveMainStatIds,
   invalidMainStatSelections,
@@ -102,17 +108,62 @@ export function createPreparedAgentSetup(
   pool: PoolId = 'full',
   mindscape: Mindscape = 0,
 ): AgentSetupState {
-  const prepared = preparedSetupFor(agentId, pool, mindscape)
+  return setupStateFromSelection(
+    agentId,
+    pool,
+    mindscape,
+    representativeSetupFor(agentId, pool, mindscape),
+  )
+}
+
+function setupStateFromSelection(
+  agentId: AgentId,
+  pool: PoolId,
+  mindscape: Mindscape,
+  selection: { engineId: EngineId; fourPieceId: DiscId; twoPieceId: DiscId; mains: Record<MainSlot, MainStatId> },
+): AgentSetupState {
   return {
     mindscape,
     pool,
-    engineId: prepared.engineId,
-    refinement: defaultRefinementFor(W_ENGINES[prepared.engineId].rank),
-    fourPieceId: prepared.fourPieceId,
-    twoPieceId: prepared.twoPieceId,
-    mains: { ...prepared.mains },
+    engineId: selection.engineId,
+    refinement: defaultRefinementFor(W_ENGINES[selection.engineId].rank),
+    fourPieceId: selection.fourPieceId,
+    twoPieceId: selection.twoPieceId,
+    mains: { ...selection.mains },
     substats: zeroSubstats(agentId),
   }
+}
+
+function preparationContext(
+  agentId: AgentId,
+  pool: PoolId,
+  mindscape: Mindscape,
+): PreparationContext {
+  return { agentId, pool, mindscape }
+}
+
+function establishedDiscHolders(
+  slots: readonly AppliedAgentSlot[],
+  targetSlot: AppliedSlot,
+): EstablishedDiscHolder[] {
+  return slots.flatMap(({ agentId, setup }, index) => index === targetSlot
+    ? []
+    : [{ agentId, fourPieceId: setup.fourPieceId }])
+}
+
+function createTargetPreparedSetup(
+  state: WorkbenchState,
+  slot: AppliedSlot,
+  pool: PoolId,
+  mindscape: Mindscape,
+): AgentSetupState {
+  const agentId = state.slots[slot].agentId
+  const selection = prepareTargetSelection(
+    preparationContext(agentId, pool, mindscape),
+    state.slots[state.focusSlot].agentId,
+    establishedDiscHolders(state.slots, slot),
+  )
+  return setupStateFromSelection(agentId, pool, mindscape, selection)
 }
 
 export function createPreparedState(
@@ -120,10 +171,16 @@ export function createPreparedState(
   agentIds: [AgentId, AgentId, AgentId] = DEFAULT_APPLIED_AGENT_IDS,
   focusSlot: AppliedSlot = 0,
 ): WorkbenchState {
+  const contexts = agentIds.map((agentId) => preparationContext(
+    agentId,
+    pools[agentId] ?? 'full',
+    0,
+  )) as [PreparationContext, PreparationContext, PreparationContext]
+  const selections = preparePartySelections(contexts, agentIds[focusSlot])
   return {
-    slots: agentIds.map((agentId) => ({
+    slots: agentIds.map((agentId, index) => ({
       agentId,
-      setup: createPreparedAgentSetup(agentId, pools[agentId] ?? 'full', 0),
+      setup: setupStateFromSelection(agentId, contexts[index].pool, 0, selections[index]),
     })) as WorkbenchState['slots'],
     focusSlot,
   }
@@ -193,13 +250,24 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
       const changed = draft.focusSlot !== state.focusSlot
         || draft.agentIds.some((agentId, index) => agentId !== state.slots[index].agentId)
       if (!changed) return state
-      const slots = draft.agentIds.map((agentId) => {
+      const contexts = draft.agentIds.map((agentId) => {
         const existing = state.slots.find((slot) => slot.agentId === agentId)
-        return {
+        return preparationContext(
           agentId,
-          setup: createPreparedAgentSetup(agentId, existing?.setup.pool ?? 'full', existing?.setup.mindscape ?? 0),
-        }
-      }) as WorkbenchState['slots']
+          existing?.setup.pool ?? 'full',
+          existing?.setup.mindscape ?? 0,
+        )
+      }) as [PreparationContext, PreparationContext, PreparationContext]
+      const selections = preparePartySelections(contexts, draft.agentIds[draft.focusSlot])
+      const slots = draft.agentIds.map((agentId, index) => ({
+        agentId,
+        setup: setupStateFromSelection(
+          agentId,
+          contexts[index].pool,
+          contexts[index].mindscape as Mindscape,
+          selections[index],
+        ),
+      })) as WorkbenchState['slots']
       return { slots, focusSlot: draft.focusSlot }
     }
     case 'setMindscape': {
@@ -209,11 +277,7 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
       const slots = [...state.slots] as WorkbenchState['slots']
       slots[action.slot] = {
         ...currentSlot,
-        setup: createPreparedAgentSetup(
-          currentSlot.agentId,
-          current.pool,
-          action.mindscape,
-        ),
+        setup: createTargetPreparedSetup(state, action.slot, current.pool, action.mindscape),
       }
       return {
         ...state,
@@ -228,11 +292,7 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
       const slots = [...state.slots] as WorkbenchState['slots']
       slots[action.slot] = {
         ...currentSlot,
-        setup: createPreparedAgentSetup(
-          currentSlot.agentId,
-          action.pool,
-          current.mindscape,
-        ),
+        setup: createTargetPreparedSetup(state, action.slot, action.pool, current.mindscape),
       }
       return {
         ...state,

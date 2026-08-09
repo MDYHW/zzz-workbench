@@ -29,6 +29,9 @@ export function App() {
   const viewedSetup = viewedSlot === null ? null : state.slots[viewedSlot]
   const focusedAgent = state.slots[state.focusSlot].agentId
   const appliedParty = state.slots.map(({ agentId }) => agentId).join(',')
+  const preparationContextKey = `${state.focusSlot}:${state.slots.map(({ agentId, setup }) => (
+    `${agentId}:${setup.pool}:${setup.mindscape}`
+  )).join('|')}`
   const firstTrio = appliedParty === 'yixuan,dialyn,lucia'
   const secondTrio = appliedParty === 'anbySoldier0,trigger,astraYao'
   const setupIndex = firstTrio ? '01' : secondTrio ? '02' : 'MIX'
@@ -48,6 +51,10 @@ export function App() {
   useEffect(() => {
     setSourceTones(emptySourceTones)
   }, [viewedSlot, viewedSetup?.agentId])
+
+  useEffect(() => {
+    setSourceTones(emptySourceTones)
+  }, [preparationContextKey])
 
   useEffect(() => {
     const currentKeys = new Set(incompleteKey ? incompleteKey.split('|') : [])

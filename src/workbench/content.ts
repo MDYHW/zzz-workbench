@@ -559,23 +559,23 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   astraYao: [{ id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' }, { id: 'atkFlat', label: 'ATK', perHit: 19, unit: '' }],
 }
 
-const yixuanPrepared: Omit<SetupSelection, 'engineId'> = {
+const yixuanRepresentative: Omit<SetupSelection, 'engineId'> = {
   fourPieceId: 'yunkui',
   twoPieceId: 'woodpecker',
   mains: { slot4: 'critRate', slot5: 'etherDmg', slot6: 'hpPct' },
 }
-const dialynPrepared: Omit<SetupSelection, 'engineId'> = {
+const dialynRepresentative: Omit<SetupSelection, 'engineId'> = {
   fourPieceId: 'king',
   twoPieceId: 'woodpecker',
   mains: { slot4: 'critRate', slot5: 'atkPct', slot6: 'energyRegenPct' },
 }
-const luciaPrepared: Omit<SetupSelection, 'engineId'> = {
+const luciaRepresentative: Omit<SetupSelection, 'engineId'> = {
   fourPieceId: 'moonlight',
   twoPieceId: 'yunkui',
   mains: { slot4: 'hpPct', slot5: 'hpPct', slot6: 'hpPct' },
 }
-const anbyPrepared: Omit<SetupSelection, 'engineId'> = { fourPieceId: 'shadowHarmony', twoPieceId: 'woodpecker', mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'atkPct' } }
-const triggerPrepared = (pool: PoolId): SetupSelection => {
+const anbyRepresentative: Omit<SetupSelection, 'engineId'> = { fourPieceId: 'shadowHarmony', twoPieceId: 'woodpecker', mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'atkPct' } }
+const triggerRepresentative = (pool: PoolId): SetupSelection => {
   return {
     engineId: pool === 'full' ? 'spectralGaze' : 'restrained',
     fourPieceId: 'king',
@@ -583,40 +583,40 @@ const triggerPrepared = (pool: PoolId): SetupSelection => {
     mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'impact' },
   }
 }
-const astraPrepared = (pool: PoolId, mindscape: number): SetupSelection => ({ engineId: pool === 'full' ? 'elegantVanity' : 'bashfulDemon', fourPieceId: 'astralVoice', twoPieceId: pool === 'full' ? 'moonlight' : 'hormonePunk', mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: mindscape >= 2 ? 'energyRegenPct' : 'atkPct' } })
+const astraRepresentative = (pool: PoolId, mindscape: number): SetupSelection => ({ engineId: pool === 'full' ? 'elegantVanity' : 'bashfulDemon', fourPieceId: 'astralVoice', twoPieceId: pool === 'full' ? 'moonlight' : 'hormonePunk', mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: mindscape >= 2 ? 'energyRegenPct' : 'atkPct' } })
 
-export const PREPARED_SETUP_BY_AGENT_AND_POOL: Record<
+export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
 > = {
   yixuan: {
-    full: { ...yixuanPrepared, engineId: 'qingming' },
-    nonLimited: { ...yixuanPrepared, engineId: 'cauldron' },
+    full: { ...yixuanRepresentative, engineId: 'qingming' },
+    nonLimited: { ...yixuanRepresentative, engineId: 'cauldron' },
   },
   dialyn: {
-    full: { ...dialynPrepared, engineId: 'yesterdayCalls' },
-    nonLimited: { ...dialynPrepared, engineId: 'hellfireGears' },
+    full: { ...dialynRepresentative, engineId: 'yesterdayCalls' },
+    nonLimited: { ...dialynRepresentative, engineId: 'hellfireGears' },
   },
   lucia: {
-    full: { ...luciaPrepared, engineId: 'dreamlitHearth' },
-    nonLimited: { ...luciaPrepared, engineId: 'weepingCradle' },
+    full: { ...luciaRepresentative, engineId: 'dreamlitHearth' },
+    nonLimited: { ...luciaRepresentative, engineId: 'weepingCradle' },
   },
-  anbySoldier0: { full: { ...anbyPrepared, engineId: 'severedInnocence' }, nonLimited: { ...anbyPrepared, engineId: 'marcatoDesire', twoPieceId: 'branchAndBlade' } },
-  trigger: { full: triggerPrepared('full'), nonLimited: triggerPrepared('nonLimited') },
-  astraYao: { full: astraPrepared('full', 0), nonLimited: astraPrepared('nonLimited', 0) },
+  anbySoldier0: { full: { ...anbyRepresentative, engineId: 'severedInnocence' }, nonLimited: { ...anbyRepresentative, engineId: 'marcatoDesire', twoPieceId: 'branchAndBlade' } },
+  trigger: { full: triggerRepresentative('full'), nonLimited: triggerRepresentative('nonLimited') },
+  astraYao: { full: astraRepresentative('full', 0), nonLimited: astraRepresentative('nonLimited', 0) },
 }
 
-export function preparedSetupFor(
+export function representativeSetupFor(
   agentId: AgentId,
   pool: PoolId,
   mindscape: number,
 ): SetupSelection {
-  const prepared = PREPARED_SETUP_BY_AGENT_AND_POOL[agentId][pool]
+  const representative = REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL[agentId][pool]
   if (agentId === 'yixuan' && pool === 'full' && mindscape >= 1) {
-    return { ...prepared, twoPieceId: 'branchAndBlade' }
+    return { ...representative, twoPieceId: 'branchAndBlade' }
   }
-  if (agentId === 'astraYao') return astraPrepared(pool, mindscape)
-  return prepared
+  if (agentId === 'astraYao') return astraRepresentative(pool, mindscape)
+  return representative
 }
 
 export const ADMITTED_AGENTS: AgentSummary[] = [
