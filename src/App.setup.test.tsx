@@ -535,6 +535,43 @@ describe('integrated party workbench: setup', () => {
     })).toBeInTheDocument()
   })
 
+  it('offers Lucia Swing Jazz as a local 2-piece Energy Regen tradeoff', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
+    expect(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Yunkui Tales',
+    })).toBeInTheDocument()
+    expect(screen.getByRole('row', {
+      name: /Max HP.*21,697.*21,697.*26,037/,
+    })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Yunkui Tales',
+    }))
+    const candidates = screen.getByLabelText('twoPiece Drive Disc candidates')
+    await user.click(within(candidates).getByRole('button', {
+      name: 'Select Swing Jazz as twoPiece',
+    }))
+    const selected = screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Swing Jazz',
+    })
+    expect(selected).toHaveFocus()
+    expect(screen.getByRole('row', {
+      name: /Energy Regen.*1[.]82.*2[.]22.*2[.]22/,
+    })).toBeInTheDocument()
+    expect(screen.getByRole('row', {
+      name: /Max HP.*20,849.*20,849.*25,019/,
+    })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Energy Regen' }))
+    expect(within(screen.getByRole('table', {
+      name: 'Energy Regen source contributions',
+    })).getByRole('row', { name: /Swing Jazz/ }))
+      .toHaveAttribute('data-source-tone', 'disc-2pc')
+  })
+
   it('offers and recalculates partner W-Engine directions', async () => {
     const user = userEvent.setup()
     render(<App />)

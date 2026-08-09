@@ -4,6 +4,7 @@ import { createPreparedState, type Mindscape } from './state'
 import {
   agent,
   metric,
+  selectDisc,
   selectEngine,
   selectMain,
   setSubstat,
@@ -12,6 +13,41 @@ import {
 
 
 describe('calculateParty: lucia', () => {
+  it('trades Lucia Yunkui 2-piece HP for Swing Jazz Energy Regen with exact sources', () => {
+    const prepared = createPreparedState()
+    const preparedLucia = agent(calculateParty(prepared)!, 'lucia')
+    const result = calculateParty(selectDisc(
+      prepared,
+      'lucia',
+      'twoPiece',
+      'swingJazz',
+    ))!
+    const lucia = agent(result, 'lucia')
+    const energyRegen = metric(lucia, 'energyRegen')
+
+    expect(metric(preparedLucia, 'maxHp').values.initial).toBeCloseTo(21697.1)
+    expect(metric(lucia, 'maxHp').values.initial).toBeCloseTo(20849.4)
+    expect(metric(lucia, 'maxHp').gauge?.outputValue)
+      .toBeLessThan(metric(preparedLucia, 'maxHp').gauge!.outputValue)
+    expect(energyRegen.values.initial).toBeCloseTo(1.82)
+    expect(energyRegen.values.combat).toBeCloseTo(2.22)
+    expect(energyRegen.values.fully).toBeCloseTo(2.22)
+    expect(energyRegen.breakdown.initial).toContainEqual(expect.objectContaining({
+      label: 'Swing Jazz',
+      detail: '2-piece',
+      ownerAgentId: 'lucia',
+      locus: 'disc-2pc',
+      display: { value: 20, unit: '%', decimals: 0 },
+    }))
+    expect(energyRegen.breakdown.initial).toContainEqual(expect.objectContaining({
+      label: 'Moonlight Lullaby',
+      detail: '2-piece',
+      ownerAgentId: 'lucia',
+      locus: 'disc-4pc',
+      display: { value: 20, unit: '%', decimals: 0 },
+    }))
+  })
+
   it('recalculates Lucia Slot 6 Energy Regen and downstream Sheer Force', () => {
     const result = calculateParty(selectMain(
       createPreparedState(),

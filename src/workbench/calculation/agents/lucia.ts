@@ -54,6 +54,12 @@ export interface LuciaCalculationContext {
   squadSheer: LuciaSquadSheerObservation
 }
 
+function presentInputs(
+  inputs: Array<ResolvedSetupInput | undefined>,
+): ResolvedSetupInput[] {
+  return inputs.filter((input): input is ResolvedSetupInput => Boolean(input))
+}
+
 function calculateLuciaInitialHp(
   setup: CompleteSetup,
 ): LuciaInitialHpObservation {
@@ -228,16 +234,26 @@ export function calculateLucia(
 
   const engineEnergyRegen = engineAdvancedInput(setup, 'lucia', 'energyRegenPct')
   const slotEnergyRegen = mainStatInput(setup, 'lucia', 'slot6', 'energyRegenPct')
-  const discEnergyRegen = discStatInput(
-    setup,
-    'lucia',
-    'fourPiece',
-    'moonlight',
-    DRIVE_DISC_FACTS.moonlight.energyRegenPct,
-  )
+  const discEnergyRegen = presentInputs([
+    discStatInput(
+      setup,
+      'lucia',
+      'fourPiece',
+      'moonlight',
+      DRIVE_DISC_FACTS.moonlight.energyRegenPct,
+      'twoPiece',
+    ),
+    discStatInput(
+      setup,
+      'lucia',
+      'twoPiece',
+      'swingJazz',
+      DRIVE_DISC_FACTS.swingJazz.energyRegenPct,
+    ),
+  ])
   const initialEnergyRegenInputs: ResolvedSetupInput[] = [
     ...(engineEnergyRegen ? [engineEnergyRegen] : []),
-    ...(discEnergyRegen ? [discEnergyRegen] : []),
+    ...discEnergyRegen,
     ...(slotEnergyRegen ? [slotEnergyRegen] : []),
   ]
   const energyRegen = energyRegenProjection(

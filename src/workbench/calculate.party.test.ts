@@ -167,7 +167,8 @@ describe('calculateParty: party', () => {
     expect(metric(agent(result, 'lucia'), 'energyRegen').breakdown.initial)
       .toContainEqual(expect.objectContaining({
         label: 'Moonlight Lullaby',
-        detail: '4-piece',
+        detail: '2-piece',
+        locus: 'disc-4pc',
         display: { value: 20, unit: '%', decimals: 0 },
       }))
   })

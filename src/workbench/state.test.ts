@@ -29,6 +29,9 @@ describe('workbench state lifecycle', () => {
     expect(DISC_IDS_BY_AGENT_AND_PIECE.dialyn).toEqual({
       fourPiece: ['king'], twoPiece: ['woodpecker', 'swingJazz', 'moonlight'],
     })
+    expect(DISC_IDS_BY_AGENT_AND_PIECE.lucia).toEqual({
+      fourPiece: ['moonlight'], twoPiece: ['yunkui', 'swingJazz'],
+    })
     expect(ENGINE_IDS_BY_AGENT_AND_POOL.trigger).toEqual({
       full: ['spectralGaze', 'iceJadeTeapot', 'restrained', 'preciousFossilizedCore', 'steamOven'],
       nonLimited: ['restrained', 'preciousFossilizedCore', 'steamOven'],
@@ -50,7 +53,9 @@ describe('workbench state lifecycle', () => {
     })
     expect(state.slots[1].setup.engineId).toBe('yesterdayCalls')
     expect(state.slots[2].setup).toMatchObject({
-      engineId: 'dreamlitHearth', substats: { hpPct: 0, hpFlat: 0 },
+      engineId: 'dreamlitHearth', fourPieceId: 'moonlight', twoPieceId: 'yunkui',
+      mains: { slot4: 'hpPct', slot5: 'hpPct', slot6: 'hpPct' },
+      substats: { hpPct: 0, hpFlat: 0 },
     })
     expect(isCompleteWorkbench(state)).toBe(true)
   })
@@ -128,6 +133,16 @@ describe('workbench state lifecycle', () => {
       mains: { slot4: 'critRate', slot5: 'hpPct', slot6: 'hpPct' },
       substats: { critRate: 0, critDmg: 4, hpPct: 0 },
     })
+  })
+
+  it("keeps Lucia's prepared Moonlight/Yunkui package while allowing a local Swing Jazz 2-piece edit", () => {
+    const prepared = createPreparedState()
+    const before = prepared.slots[2].setup
+    const state = workbenchReducer(prepared, {
+      type: 'selectDisc', slot: 2, piece: 'twoPiece', discId: 'swingJazz',
+    })
+
+    expect(state.slots[2].setup).toEqual({ ...before, twoPieceId: 'swingJazz' })
   })
 
   it('re-prepares authored Yixuan M1+ with Branch & Blade and returns to Woodpecker at M0', () => {

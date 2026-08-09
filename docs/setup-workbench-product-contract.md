@@ -232,6 +232,17 @@ supply the stat. A threshold alone does not admit every supplier: main-stat
 slot cost, substat competition, set-piece opportunity cost, and whole-package
 equipment value still apply.
 
+Same-axis dominance may exclude an effective substat only when current research
+establishes a materially stronger competing contribution and the weaker choice
+adds no distinct threshold, cap, operation, or formula relationship. This is an
+authored candidate decision, not an automatic comparison across every pair of
+positive stats. For example, Yixuan's HP% and ATK% each feed the same current
+Sheer Force direction, but the current base-stat magnitudes and Rupture
+conversion make an HP% hit materially stronger, so only HP% is retained. This
+does not compare choices from distinct axes such as Dialyn's Slot 6 Energy Regen
+and Impact, which remain separately comparable as resource-operation and direct
+Daze investments.
+
 Competitive candidates are choices still worth comparing in the current setup
 context, not every stat whose numerical contribution remains positive. An
 active provider effect may therefore carry an authored candidate-pressure
