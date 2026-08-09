@@ -98,6 +98,11 @@ export function resolveDialynProviderClauses(
     : setup.engineId === 'steamOven'
       ? scaledEngineValue(W_ENGINE_FACTS.steamOven.impact, refinement)
       : 0
+  const fullyDaze = setup.engineId === 'yesterdayCalls'
+    ? scaledEngineValue(W_ENGINE_FACTS.yesterdayCalls.daze, refinement)
+    : setup.engineId === 'preciousFossilizedCore'
+      ? scaledEngineValue(W_ENGINE_FACTS.preciousFossilizedCore.dazePerThreshold, refinement) * 2
+      : 0
   const energy = setup.engineId === 'yesterdayCalls'
     ? scaledEngineValue(W_ENGINE_FACTS.yesterdayCalls.energyPerSecond, refinement)
     : setup.engineId === 'hellfireGears'
@@ -107,7 +112,7 @@ export function resolveDialynProviderClauses(
   return active([
     additive('impact', 'combat', STATIC_SOURCES.dialyn.core, impact, 'self'),
     percentage('impact', 'fully', engine, laterImpact, 'self'),
-    additive('dazeBonus', 'fully', engine, setup.engineId === 'yesterdayCalls' ? scaledEngineValue(W_ENGINE_FACTS.yesterdayCalls.daze, refinement) : 0, 'self'),
+    additive('dazeBonus', 'fully', engine, fullyDaze, 'self'),
     perSecond(engine, energy, 'self'),
     additive('dmgBonus', 'fully', STATIC_SOURCES.dialyn.additional, values.party.dialynDmg, 'all-party'),
     additive('critDmg', 'fully', engine, setup.engineId === 'yesterdayCalls' ? scaledEngineValue(W_ENGINE_FACTS.yesterdayCalls.squadCritDmg, refinement) : 0, 'all-party'),

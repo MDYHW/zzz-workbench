@@ -36,13 +36,26 @@ export const percentageContribution = (
 })
 
 export const withoutZero = (items: Contribution[]): Contribution[] =>
-  items.filter((item) => Math.abs(item.amount) > 0.000_001)
+  items.filter((item) => (
+    item.notation === 'equal-nonstack-origin'
+    || Math.abs(item.amount) > 0.000_001
+  ))
 
 const sumContributions = (items: Contribution[]): number =>
   items.reduce((total, item) => total + item.amount, 0)
 
-const effectContribution = (effect: ResolvedCurrentEffect): Contribution =>
-  contribution(effect.source, effect.amount, effect.display)
+type BreakdownEffect = ResolvedCurrentEffect & {
+  breakdownNotation?: Contribution['notation']
+}
+
+const effectContribution = (effect: BreakdownEffect): Contribution => {
+  const isEqualOrigin = effect.breakdownNotation === 'equal-nonstack-origin'
+  return {
+    ...contribution(effect.source, isEqualOrigin ? 0 : effect.amount, effect.display),
+    notation: effect.breakdownNotation,
+    referenceValue: isEqualOrigin ? effect.display?.value ?? effect.amount : undefined,
+  }
+}
 
 const surfaceOrder: SurfaceKey[] = ['initial', 'combat', 'fully']
 
@@ -58,43 +71,65 @@ function effectsForMetric(
 
 function highestNonstackEffects(
   effects: ResolvedCurrentEffect[],
-): ResolvedCurrentEffect[] {
-  const accepted: ResolvedCurrentEffect[] = []
+): BreakdownEffect[] {
   const keys = [...new Set(effects.flatMap((effect) => effect.nonstackKey ? [effect.nonstackKey] : []))]
-
-  for (const effect of effects) {
-    if (!effect.nonstackKey) accepted.push(effect)
-  }
-  for (const key of keys) {
+  const highestByKey = new Map(keys.map((key) => {
     const matching = effects.filter((effect) => effect.nonstackKey === key)
-    const highest = Math.max(...matching.map(({ amount }) => amount))
-    const highestEffects = matching.filter(({ amount }) => Math.abs(amount - highest) < 0.000_001)
-    accepted.push(...highestEffects.map((effect) => (
-      highestEffects.length === 1
-        ? effect
-        : {
-            ...effect,
-            source: {
-              ...effect.source,
-              detail: [effect.source.detail, 'equal non-stacking origin'].filter(Boolean).join(' · '),
-            },
-          }
-    )))
-  }
-  return accepted
+    return [key, Math.max(...matching.map(({ amount }) => amount))]
+  }))
+  const equalOriginCounts = new Map(keys.map((key) => [
+    key,
+    effects.filter((effect) => (
+      effect.nonstackKey === key
+      && Math.abs(effect.amount - highestByKey.get(key)!) < 0.000_001
+    )).length,
+  ]))
+  const acceptedEqualOrigins = new Set<NonNullable<ResolvedCurrentEffect['nonstackKey']>>()
+
+  const accepted = effects.flatMap((effect) => {
+    if (!effect.nonstackKey) return [effect]
+    if (Math.abs(effect.amount - highestByKey.get(effect.nonstackKey)!) >= 0.000_001) {
+      return []
+    }
+    if (equalOriginCounts.get(effect.nonstackKey) === 1) return [effect]
+    const isContributingOrigin = !acceptedEqualOrigins.has(effect.nonstackKey)
+    acceptedEqualOrigins.add(effect.nonstackKey)
+    return [{
+      ...effect,
+      breakdownNotation: isContributingOrigin ? undefined : 'equal-nonstack-origin',
+      source: {
+        ...effect.source,
+        detail: [effect.source.detail, 'equal non-stacking origin'].filter(Boolean).join(' · '),
+      },
+    }]
+  })
+
+  // King was already a deferred non-stacking source in the preserved first
+  // vertical. New set groups retain their authored provider-local position.
+  return [
+    ...accepted.filter(({ nonstackKey }) => nonstackKey !== 'kingOfTheSummit'),
+    ...accepted.filter(({ nonstackKey }) => nonstackKey === 'kingOfTheSummit'),
+  ]
 }
 
 function valueEffectsForNonstack(
   effects: ResolvedCurrentEffect[],
 ): ResolvedCurrentEffect[] {
-  const accepted = effects.filter((effect) => !effect.nonstackKey)
   const keys = [...new Set(effects.flatMap((effect) => effect.nonstackKey ? [effect.nonstackKey] : []))]
-  for (const key of keys) {
+  const highestByKey = new Map(keys.map((key) => {
     const matching = effects.filter((effect) => effect.nonstackKey === key)
-    const highest = Math.max(...matching.map(({ amount }) => amount))
-    accepted.push(matching.find(({ amount }) => Math.abs(amount - highest) < 0.000_001)!)
-  }
-  return accepted
+    return [key, Math.max(...matching.map(({ amount }) => amount))]
+  }))
+  const acceptedKeys = new Set<NonNullable<ResolvedCurrentEffect['nonstackKey']>>()
+  return effects.filter((effect) => {
+    if (!effect.nonstackKey) return true
+    if (acceptedKeys.has(effect.nonstackKey)) return false
+    if (Math.abs(effect.amount - highestByKey.get(effect.nonstackKey)!) >= 0.000_001) {
+      return false
+    }
+    acceptedKeys.add(effect.nonstackKey)
+    return true
+  })
 }
 
 export function energyRegenProjection(

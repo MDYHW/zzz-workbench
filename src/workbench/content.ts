@@ -399,7 +399,7 @@ const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
 
 export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, EngineId[]>> = {
   yixuan: enginePools(['qingming', 'cauldron', 'radiowave', 'puzzleSphere']),
-  dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'steamOven']),
+  dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   lucia: enginePools([
     'dreamlitHearth',
     'thoughtbop',
@@ -481,11 +481,11 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
   { fourPiece: DiscId[]; twoPiece: DiscId[] }
 > = {
   yixuan: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade'] },
-  dialyn: { fourPiece: ['king'], twoPiece: ['woodpecker', 'swingJazz'] },
+  dialyn: { fourPiece: ['king'], twoPiece: ['woodpecker', 'swingJazz', 'moonlight'] },
   lucia: { fourPiece: ['moonlight'], twoPiece: ['yunkui'] },
   anbySoldier0: { fourPiece: ['shadowHarmony'], twoPiece: ['woodpecker', 'branchAndBlade'] },
-  trigger: { fourPiece: ['king', 'shockstar'], twoPiece: ['shockstar', 'king', 'woodpecker'] },
-  astraYao: { fourPiece: ['astralVoice'], twoPiece: ['moonlight', 'hormonePunk'] },
+  trigger: { fourPiece: ['king', 'astralVoice', 'shockstar'], twoPiece: ['shockstar', 'king', 'woodpecker', 'swingJazz', 'moonlight'] },
+  astraYao: { fourPiece: ['astralVoice', 'moonlight'], twoPiece: ['moonlight', 'swingJazz', 'hormonePunk', 'astralVoice'] },
 }
 
 export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
@@ -498,6 +498,39 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   anbySoldier0: { primary: ['general_damage'], residual: [] },
   trigger: { primary: ['daze_buildup'], residual: ['general_damage'] },
   astraYao: { primary: [], residual: [] },
+}
+
+export interface TwoPieceEquivalence {
+  ids: readonly [DiscId, DiscId]
+  label: string
+}
+
+export const TWO_PIECE_EQUIVALENCES: readonly TwoPieceEquivalence[] = [
+  { ids: ['swingJazz', 'moonlight'], label: 'Swing Jazz or Moonlight Lullaby' },
+  { ids: ['hormonePunk', 'astralVoice'], label: 'Hormone Punk or Astral Voice' },
+]
+
+export function twoPieceEquivalenceFor(discId: DiscId): TwoPieceEquivalence | undefined {
+  return TWO_PIECE_EQUIVALENCES.find(({ ids }) => ids.includes(discId))
+}
+
+export function twoPiecePresentationName(discId: DiscId): string {
+  return twoPieceEquivalenceFor(discId)?.label ?? DRIVE_DISCS[discId].name
+}
+
+export function equivalentTwoPieceIds(discId: DiscId): readonly DiscId[] {
+  return twoPieceEquivalenceFor(discId)?.ids ?? [discId]
+}
+
+export function representativeTwoPieceCandidates(candidates: readonly DiscId[]): DiscId[] {
+  return candidates.filter((candidate, index) => !candidates.slice(0, index).some((prior) => (
+    twoPieceEquivalenceFor(prior) === twoPieceEquivalenceFor(candidate)
+    && twoPieceEquivalenceFor(candidate) !== undefined
+  )))
+}
+
+export function selectableTwoPieceId(candidateId: DiscId, fourPieceId: DiscId): DiscId {
+  return equivalentTwoPieceIds(candidateId).find((id) => id !== fourPieceId) ?? candidateId
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -578,8 +611,8 @@ const anbyPrepared: Omit<SetupSelection, 'engineId'> = { fourPieceId: 'shadowHar
 const triggerPrepared = (pool: PoolId): SetupSelection => {
   return {
     engineId: pool === 'full' ? 'spectralGaze' : 'restrained',
-    fourPieceId: pool === 'full' ? 'king' : 'shockstar',
-    twoPieceId: pool === 'full' ? 'shockstar' : 'king',
+    fourPieceId: 'king',
+    twoPieceId: 'shockstar',
     mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'impact' },
   }
 }

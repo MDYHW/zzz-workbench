@@ -3,7 +3,8 @@ import type { ResultSource, SurfaceKey } from '../effects'
 
 export interface Contribution extends ResultSource {
   amount: number
-  notation?: 'surface-value'
+  notation?: 'surface-value' | 'equal-nonstack-origin'
+  referenceValue?: number
   display?: {
     value: number
     unit: string

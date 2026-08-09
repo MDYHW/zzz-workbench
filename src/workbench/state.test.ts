@@ -20,7 +20,22 @@ describe('workbench state lifecycle', () => {
       fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade'],
     })
     expect(DISC_IDS_BY_AGENT_AND_PIECE.trigger).toEqual({
-      fourPiece: ['king', 'shockstar'], twoPiece: ['shockstar', 'king', 'woodpecker'],
+      fourPiece: ['king', 'astralVoice', 'shockstar'], twoPiece: ['shockstar', 'king', 'woodpecker', 'swingJazz', 'moonlight'],
+    })
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.dialyn).toEqual({
+      full: ['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
+      nonLimited: ['hellfireGears', 'steamOven', 'preciousFossilizedCore'],
+    })
+    expect(DISC_IDS_BY_AGENT_AND_PIECE.dialyn).toEqual({
+      fourPiece: ['king'], twoPiece: ['woodpecker', 'swingJazz', 'moonlight'],
+    })
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.trigger).toEqual({
+      full: ['spectralGaze', 'iceJadeTeapot', 'restrained', 'preciousFossilizedCore', 'steamOven'],
+      nonLimited: ['restrained', 'preciousFossilizedCore', 'steamOven'],
+    })
+    expect(DISC_IDS_BY_AGENT_AND_PIECE.astraYao).toEqual({
+      fourPiece: ['astralVoice', 'moonlight'],
+      twoPiece: ['moonlight', 'swingJazz', 'hormonePunk', 'astralVoice'],
     })
     expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.yixuan.slot5).toEqual(['etherDmg', 'hpPct'])
 
@@ -494,7 +509,7 @@ describe('workbench state lifecycle', () => {
     const nonLimited = createPreparedState({ anbySoldier0: 'nonLimited', trigger: 'nonLimited', astraYao: 'nonLimited' }, ['anbySoldier0', 'trigger', 'astraYao'], 0)
     expect(nonLimited.slots.map(({ setup }) => [setup.engineId, setup.fourPieceId, setup.twoPieceId])).toEqual([
       ['marcatoDesire', 'shadowHarmony', 'branchAndBlade'],
-      ['restrained', 'shockstar', 'king'],
+      ['restrained', 'king', 'shockstar'],
       ['bashfulDemon', 'astralVoice', 'hormonePunk'],
     ])
 

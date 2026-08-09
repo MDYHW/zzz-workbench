@@ -202,7 +202,7 @@ export function resolveLuciaProviderClauses(
     additive('critRate', 'fully', engine, critRate, 'all-party'),
     additive('critDmg', 'fully', STATIC_SOURCES.lucia.additional, values.party.luciaCritDmg, 'all-party'),
     additive('dmgBonus', 'fully', STATIC_SOURCES.lucia.core, values.party.luciaCoreDmg, 'all-party'),
-    additive('dmgBonus', 'fully', fourPiece, setup.fourPieceId === 'moonlight' ? DRIVE_DISC_FACTS.moonlight.squadDmg : 0, 'all-party'),
+    additive('dmgBonus', 'fully', fourPiece, setup.fourPieceId === 'moonlight' ? DRIVE_DISC_FACTS.moonlight.squadDmg : 0, 'all-party', undefined, undefined, undefined, 'moonlightLullaby'),
     additive('dmgBonus', 'fully', engine, engineDmg, 'all-party'),
     additive('sheerForce', 'fully', squadSheer.source, squadSheer.value, 'all-party'),
     additive('sheerDmgBonus', 'fully', mindscapeSource('lucia', 2, 'Darkbreaker + Wellspring'), setup.mindscape >= 2 ? values.lucia.mindscapeSheerDmg : 0, 'all-party'),

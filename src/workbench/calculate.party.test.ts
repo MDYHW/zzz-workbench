@@ -91,6 +91,16 @@ describe('calculateParty: party', () => {
       .toEqual(sourceLabels(metric(agent(baseline, 'yixuan'), 'critDmg').breakdown.fully))
   })
 
+  it('preserves the first-vertical Fully CRIT DMG source order', () => {
+    const result = calculateParty(createPreparedState())!
+    expect(sourceLabels(metric(agent(result, 'yixuan'), 'critDmg').breakdown.fully)).toEqual([
+      'Additional Ability',
+      'Yesterday Calls · W1',
+      'Additional Ability',
+      'King of the Summit · 4-piece',
+    ])
+  })
+
   it('orders Cauldron Fully DMG sources by the authored cross-provider sequence', () => {
     const sourceOrder = (state: WorkbenchState) => sourceLabels(metric(
       agent(calculateParty(selectEngine(state, 'yixuan', 'cauldron'))!, 'yixuan'),

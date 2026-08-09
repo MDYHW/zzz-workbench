@@ -33,6 +33,7 @@ import {
 import type { AgentResult } from '../result'
 
 const damageRecipients = ['yixuan', 'anbySoldier0', 'trigger'] as const
+const partyDamageRecipients = ['yixuan', 'anbySoldier0'] as const
 const atkRecipients = ['yixuan', 'anbySoldier0', 'trigger'] as const
 const stunRecipients = ['dialyn', 'trigger'] as const
 
@@ -99,7 +100,8 @@ export function resolveAstraProviderClauses(
     additive('resReduction', 'fully', mindscapeSource('astraYao', 1, '3 stacks'), setup.mindscape >= 1 ? 18 : 0, 'enemy-context', undefined, undefined, [...damageRecipients]),
     additive('dazeBonus', 'fully', mindscapeSource('astraYao', 4, 'Next Quick Assist'), setup.mindscape >= 4 ? 50 : 0, 'all-party', 'triggerQuickAssist', undefined, [...stunRecipients]),
     additive('dmgBonus', 'fully', engine, setup.engineId === 'elegantVanity' ? scaledEngineValue(W_ENGINE_FACTS.elegantVanity.dmgPerStack, refinement) * 2 : 0, 'all-party', undefined, undefined, [...damageRecipients]),
-    additive('dmgBonus', 'fully', discSource('astraYao', 'astralVoice', '4-piece'), setup.fourPieceId === 'astralVoice' ? DRIVE_DISC_FACTS.astralVoice.entrantDmg : 0, 'all-party', undefined, undefined, [...damageRecipients]),
+    additive('dmgBonus', 'fully', discSource('astraYao', 'astralVoice', '4-piece'), setup.fourPieceId === 'astralVoice' ? DRIVE_DISC_FACTS.astralVoice.entrantDmg : 0, 'all-party', undefined, undefined, [...partyDamageRecipients], 'astralVoiceEntrant'),
+    additive('dmgBonus', 'fully', discSource('astraYao', 'moonlight', '4-piece'), setup.fourPieceId === 'moonlight' ? DRIVE_DISC_FACTS.moonlight.squadDmg : 0, 'all-party', undefined, undefined, [...partyDamageRecipients], 'moonlightLullaby'),
     percentage('atk', 'fully', engine, setup.engineId === 'bashfulDemon'
       ? scaledEngineValue(W_ENGINE_FACTS.bashfulDemon.atkPctPerStack, refinement) * 4
       : setup.engineId === 'kaboom'
@@ -129,6 +131,7 @@ export function calculateAstra(
   const energyInputs = presentInputs([
     engineAdvancedInput(setup, 'astraYao', 'energyRegenPct'),
     mainStatInput(setup, 'astraYao', 'slot6', 'energyRegenPct'),
+    discStatInput(setup, 'astraYao', 'fourPiece', 'moonlight', DRIVE_DISC_FACTS.moonlight.energyRegenPct, 'twoPiece'),
     discStatInput(setup, 'astraYao', 'twoPiece', 'moonlight', DRIVE_DISC_FACTS.moonlight.energyRegenPct),
   ])
   const energy = energyRegenProjection(VERTICAL_VALUES.astraYao.baseEnergyRegen, energyInputs, effects)

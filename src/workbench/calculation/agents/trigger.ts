@@ -20,6 +20,7 @@ export function resolveTriggerProviderClauses(setup: CompleteSetup): SourceBound
     additive('stunDmgMultiplier', 'fully', STATIC_SOURCES.trigger.core, setup.mindscape >= 1 ? 55 : 35, 'enemy-context', undefined, undefined, ['yixuan', 'anbySoldier0', 'trigger']),
     additive('critDmg', 'fully', mindscapeSource('trigger', 2, '4 stacks'), setup.mindscape >= 2 ? 24 : 0, 'all-party', undefined, undefined, ['yixuan', 'anbySoldier0', 'trigger']),
     additive('critDmg', 'fully', discSource('trigger', 'king', '4-piece'), kingCrit, 'all-party', undefined, undefined, ['yixuan', 'anbySoldier0', 'trigger'], 'kingOfTheSummit'),
+    additive('dmgBonus', 'fully', discSource('trigger', 'astralVoice', '4-piece'), setup.fourPieceId === 'astralVoice' ? DRIVE_DISC_FACTS.astralVoice.entrantDmg : 0, 'all-party', undefined, undefined, ['yixuan', 'anbySoldier0'], 'astralVoiceEntrant'),
     withCandidatePressure(
       additive('defReduction', 'fully', engine, setup.engineId === 'spectralGaze' ? scaledEngineValue(W_ENGINE_FACTS.spectralGaze.defReduction, refinement) : 0, 'enemy-context', undefined, undefined, ['anbySoldier0']),
       'materialBroadPrePenDefBypass',

@@ -87,6 +87,27 @@ describe('calculateParty: dialyn', () => {
     expect(metric(swing, 'critRate').values.initial).toBeCloseTo(67.4)
     expect(metric(swing, 'impact').values.combat).toBeCloseTo(144.8)
     expect(metric(swing, 'energyRegen').values.combat).toBeCloseTo(3.66)
+
+    const moonlight = agent(calculateParty(selectDisc(
+      prepared,
+      'dialyn',
+      'twoPiece',
+      'moonlight',
+    ))!, 'dialyn')
+    expect(metric(moonlight, 'energyRegen').values).toEqual(metric(swing, 'energyRegen').values)
+
+    const precious = agent(calculateParty(selectEngine(
+      prepared,
+      'dialyn',
+      'preciousFossilizedCore',
+    ))!, 'dialyn')
+    expect(metric(precious, 'impact').values.initial).toBeCloseTo(126.5)
+    expect(metric(precious, 'dazeBonus').values.fully).toBe(38)
+    expect(metric(precious, 'dazeBonus').breakdown.fully).toContainEqual(
+      expect.objectContaining({
+        label: 'Precious Fossilized Core', detail: 'W5', amount: 32,
+      }),
+    )
   })
 
   it('keeps Energy Regen percentage sources separate from later per-second operations', () => {

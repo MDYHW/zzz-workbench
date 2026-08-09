@@ -167,7 +167,7 @@ describe('soldier zero vertical', () => {
     const basicOutcome = resultAgent(calculateParty(basicDaze)!, 'trigger').actionModifiers.find(({ id }) => id === 'triggerBasic')!
     expect(basicOutcome).toMatchObject({ tag: 'aftershock', actions: [] })
     expect(basicOutcome.breakdown.fully).toContainEqual(expect.objectContaining({ label: 'The Restrained', amount: 30 }))
-    expect(basicOutcome.breakdown.fully).toContainEqual(expect.objectContaining({ label: 'Shockstar Disco', amount: 20 }))
+    expect(basicOutcome.breakdown.fully).not.toContainEqual(expect.objectContaining({ label: 'Shockstar Disco', amount: 20 }))
     expect(basicOutcome.breakdown.fully).toContainEqual(expect.objectContaining({ label: 'Additional Ability' }))
 
     const nonLimited = calculateParty(createPreparedState({ trigger: 'nonLimited' }, ['anbySoldier0', 'trigger', 'astraYao'], 0))!
@@ -295,7 +295,9 @@ describe('soldier zero vertical', () => {
       .filter(({ label }) => label === 'King of the Summit')
     expect(kingRows).toHaveLength(2)
     expect(kingRows.map(({ ownerAgentId }) => ownerAgentId).sort()).toEqual(['dialyn', 'trigger'])
-    expect(kingRows.map(({ amount }) => amount)).toEqual([30, 30])
+    expect(kingRows.map(({ amount }) => amount)).toEqual([30, 0])
+    expect(kingRows.map(({ notation }) => notation)).toEqual([undefined, 'equal-nonstack-origin'])
+    expect(kingRows.map(({ referenceValue }) => referenceValue)).toEqual([undefined, 30])
     expect(kingRows.every(({ detail }) => detail?.endsWith('equal non-stacking origin'))).toBe(true)
     const singleKingSlots = [...slots] as typeof slots
     singleKingSlots[1] = {
@@ -339,6 +341,43 @@ describe('soldier zero vertical', () => {
     state = workbenchReducer(state, { type: 'setMindscape', slot: 2, mindscape: 5 })
     expect(resultMetric(resultAgent(calculateParty(state)!, 'anbySoldier0'), 'critDmg').breakdown.fully)
       .toContainEqual(expect.objectContaining({ label: 'Special Attack', detail: 'Idyllic Cadenza · level 16', locus: 'special' }))
+  })
+
+  it('projects newly selectable Astral Voice and Moonlight Lullaby without stacking duplicate set effects', () => {
+    let astral = createPreparedState({}, ['yixuan', 'trigger', 'astraYao'], 0)
+    astral = workbenchReducer(astral, { type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice' })
+    astral = workbenchReducer(astral, { type: 'selectDisc', slot: 2, piece: 'fourPiece', discId: 'astralVoice' })
+    const astralRows = resultMetric(resultAgent(calculateParty(astral)!, 'yixuan'), 'dmgBonus')
+      .breakdown.fully.filter(({ label }) => label === 'Astral Voice')
+    expect(astralRows).toHaveLength(2)
+    expect(astralRows.every(({ detail }) => detail?.endsWith('equal non-stacking origin'))).toBe(true)
+    expect(astralRows.map(({ amount }) => amount)).toEqual([24, 0])
+    expect(astralRows.map(({ notation }) => notation)).toEqual([undefined, 'equal-nonstack-origin'])
+
+    let moonlight = createPreparedState({}, ['yixuan', 'lucia', 'astraYao'], 0)
+    moonlight = workbenchReducer(moonlight, { type: 'selectDisc', slot: 2, piece: 'fourPiece', discId: 'moonlight' })
+    const moonlightRows = resultMetric(resultAgent(calculateParty(moonlight)!, 'yixuan'), 'dmgBonus')
+      .breakdown.fully.filter(({ label }) => label === 'Moonlight Lullaby')
+    expect(moonlightRows).toHaveLength(2)
+    expect(moonlightRows.every(({ detail }) => detail?.endsWith('equal non-stacking origin'))).toBe(true)
+    expect(moonlightRows.map(({ amount }) => amount)).toEqual([18, 0])
+    expect(moonlightRows.map(({ notation }) => notation)).toEqual([undefined, 'equal-nonstack-origin'])
+
+    let distinctSets = createPreparedState({}, ['yixuan', 'trigger', 'astraYao'], 0)
+    distinctSets = workbenchReducer(distinctSets, { type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice' })
+    distinctSets = workbenchReducer(distinctSets, { type: 'selectDisc', slot: 2, piece: 'fourPiece', discId: 'moonlight' })
+    const distinctRows = resultMetric(resultAgent(calculateParty(distinctSets)!, 'yixuan'), 'dmgBonus')
+      .breakdown.fully.filter(({ label }) => label === 'Astral Voice' || label === 'Moonlight Lullaby')
+    expect(distinctRows).toEqual([
+      expect.objectContaining({ label: 'Astral Voice', amount: 24, ownerAgentId: 'trigger' }),
+      expect.objectContaining({ label: 'Moonlight Lullaby', amount: 18, ownerAgentId: 'astraYao' }),
+    ])
+
+    const astraEnergy = resultMetric(resultAgent(calculateParty(distinctSets)!, 'astraYao'), 'energyRegen')
+    expect(astraEnergy.values.initial).toBeCloseTo(1.872)
+    expect(astraEnergy.breakdown.initial).toContainEqual(expect.objectContaining({
+      label: 'Moonlight Lullaby', detail: '2-piece', locus: 'disc-4pc',
+    }))
   })
 
   it('resolves Fully percentage clauses from authoritative Initial stats', () => {

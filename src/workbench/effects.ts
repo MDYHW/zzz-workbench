@@ -1,5 +1,7 @@
 import {
   DRIVE_DISCS,
+  equivalentTwoPieceIds,
+  twoPiecePresentationName,
   MAIN_STATS,
   SOURCE_LABELS,
   SUBSTAT_CHOICES_BY_AGENT,
@@ -74,7 +76,7 @@ export interface SourceBoundCurrentClause {
   recipient: Recipient
   action?: ActionEffectId
   eligibleAgentIds?: AgentId[]
-  nonstackKey?: 'kingOfTheSummit'
+  nonstackKey?: 'kingOfTheSummit' | 'astralVoiceEntrant' | 'moonlightLullaby'
   candidatePressure?: CandidatePressure
   value: { kind: 'additive'; amount: number; display?: ResolvedCurrentEffect['display'] }
     | { kind: 'basis-percentage'; percentage: number }
@@ -158,8 +160,8 @@ export function discSource(
   effectPiece: '4-piece' | '2-piece',
   ownerPiece: '4-piece' | '2-piece' = effectPiece,
 ): ResultSource {
-  const label = (agentId === 'dialyn' && discId === 'swingJazz' || agentId === 'astraYao' && discId === 'moonlight') && effectPiece === '2-piece'
-    ? 'Swing Jazz or Moonlight Lullaby'
+  const label = effectPiece === '2-piece' && ownerPiece === '2-piece'
+    ? twoPiecePresentationName(discId)
     : DRIVE_DISCS[discId].name
   return source(
     label,
@@ -244,7 +246,7 @@ export function discStatInput(
   effectPiece: 'fourPiece' | 'twoPiece' = piece,
 ): ResolvedSetupInput | undefined {
   const selected = piece === 'fourPiece' ? setup.fourPieceId : setup.twoPieceId
-  return selected === discId
+  return (piece === 'twoPiece' ? equivalentTwoPieceIds(discId).includes(selected) : selected === discId)
     ? {
       rawValue,
       unit: '%',

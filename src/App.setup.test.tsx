@@ -72,7 +72,7 @@ describe('integrated party workbench: setup', () => {
     await user.click(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from King of the Summit' }))
     const secondTrioCandidates = screen.getByLabelText('fourPiece Drive Disc candidates')
     expect(within(secondTrioCandidates).getByRole('button', { name: 'Select Shockstar Disco as fourPiece' })).toBeInTheDocument()
-    expect(within(secondTrioCandidates).queryByRole('button', { name: 'Select Astral Voice as fourPiece' })).toBeNull()
+    expect(within(secondTrioCandidates).getByRole('button', { name: 'Select Astral Voice as fourPiece' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from King of the Summit' }))
 
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
@@ -81,7 +81,7 @@ describe('integrated party workbench: setup', () => {
     await user.click(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from King of the Summit' }))
     const dialynPartyCandidates = screen.getByLabelText('fourPiece Drive Disc candidates')
     expect(within(dialynPartyCandidates).getByRole('button', { name: 'Select Shockstar Disco as fourPiece' })).toBeInTheDocument()
-    expect(within(dialynPartyCandidates).queryByRole('button', { name: 'Select Astral Voice as fourPiece' })).toBeNull()
+    expect(within(dialynPartyCandidates).getByRole('button', { name: 'Select Astral Voice as fourPiece' })).toBeInTheDocument()
   })
 
   it('re-prepares only the visible Agent when Mindscape changes', async () => {
@@ -551,7 +551,11 @@ describe('integrated party workbench: setup', () => {
     }))
     const dialynCandidates = screen.getByLabelText('W-Engine candidates')
     expect(within(dialynCandidates).getAllByRole('button').map(({ ariaLabel }) => ariaLabel))
-      .toEqual(['Select Hellfire Gears W1', 'Select Steam Oven W5'])
+      .toEqual([
+        'Select Hellfire Gears W1',
+        'Select Steam Oven W5',
+        'Select Precious Fossilized Core W5',
+      ])
     await user.click(within(dialynCandidates).getByRole('button', {
       name: 'Select Steam Oven W5',
     }))
