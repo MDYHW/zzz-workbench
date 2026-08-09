@@ -500,39 +500,6 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   astraYao: { primary: [], residual: [] },
 }
 
-export interface TwoPieceEquivalence {
-  ids: readonly [DiscId, DiscId]
-  label: string
-}
-
-export const TWO_PIECE_EQUIVALENCES: readonly TwoPieceEquivalence[] = [
-  { ids: ['swingJazz', 'moonlight'], label: 'Swing Jazz or Moonlight Lullaby' },
-  { ids: ['hormonePunk', 'astralVoice'], label: 'Hormone Punk or Astral Voice' },
-]
-
-export function twoPieceEquivalenceFor(discId: DiscId): TwoPieceEquivalence | undefined {
-  return TWO_PIECE_EQUIVALENCES.find(({ ids }) => ids.includes(discId))
-}
-
-export function twoPiecePresentationName(discId: DiscId): string {
-  return twoPieceEquivalenceFor(discId)?.label ?? DRIVE_DISCS[discId].name
-}
-
-export function equivalentTwoPieceIds(discId: DiscId): readonly DiscId[] {
-  return twoPieceEquivalenceFor(discId)?.ids ?? [discId]
-}
-
-export function representativeTwoPieceCandidates(candidates: readonly DiscId[]): DiscId[] {
-  return candidates.filter((candidate, index) => !candidates.slice(0, index).some((prior) => (
-    twoPieceEquivalenceFor(prior) === twoPieceEquivalenceFor(candidate)
-    && twoPieceEquivalenceFor(candidate) !== undefined
-  )))
-}
-
-export function selectableTwoPieceId(candidateId: DiscId, fourPieceId: DiscId): DiscId {
-  return equivalentTwoPieceIds(candidateId).find((id) => id !== fourPieceId) ?? candidateId
-}
-
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
   critRate: { id: 'critRate', label: 'CRIT Rate', numericValue: 24 },
   critDmg: { id: 'critDmg', label: 'CRIT DMG', numericValue: 48 },

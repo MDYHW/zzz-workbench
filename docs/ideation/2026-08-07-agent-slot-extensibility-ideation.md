@@ -114,26 +114,29 @@ indirection.
 
 **Status:** Unexplored
 
-### 5. Move the Dialyn same-effect OR presentation to its semantic owner
+### 5. Keep same-effect 2-piece candidates exact
 
-**Description:** Replace repeated Dialyn checks in generic Setup and source
-presentation with one bounded authored choice projection that keeps its exact
-label, member identities, artwork, action, and Result source.
+**Description:** Keep each selected 2-piece Disc as an exact identity in setup,
+candidate presentation, calculation, and Result source disclosure. Do not
+collapse same-effect Discs into an OR projection.
 
-**Warrant:** `direct:` the same current exception is interpreted in both
-`src/components/AgentSetup.tsx` and `src/workbench/effects.ts`.
+**Warrant:** `direct:` exact identity owns the visible candidate, selected
+artwork, source label, and source-locus interaction even when another Disc has
+the same numeric 2-piece effect.
 
-**Rationale:** This is a current two-consumer semantic leak rather than
-speculative future-proofing.
+**Rationale:** The selected 4-piece already supplies its own 2-piece effect, so
+that identity is hidden only from current 2-piece alternatives. A legal role
+exchange is initiated from the 4-piece selector instead of by substituting an
+equivalent Disc identity.
 
-**Downsides:** It is not a blocker for admitting the next Agent and should not
-broaden the applied-party task.
+**Downsides:** Same-effect candidates occupy separate cards, but the authored
+candidate gate still bounds their count and preserves exact source meaning.
 
-**Confidence:** 84%
+**Confidence:** 100%
 
-**Complexity:** Low-medium
+**Complexity:** Low
 
-**Status:** Unexplored
+**Status:** Implemented
 
 ### 6. Let the next vertical pay for test compression
 

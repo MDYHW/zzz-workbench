@@ -343,6 +343,33 @@ describe('soldier zero vertical', () => {
       .toContainEqual(expect.objectContaining({ label: 'Special Attack', detail: 'Idyllic Cadenza · level 16', locus: 'special' }))
   })
 
+  it('keeps Astra same-stat two-piece inputs and sources exact', () => {
+    let state = createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
+    let astra = resultAgent(calculateParty(state)!, 'astraYao')
+    expect(resultMetric(astra, 'energyRegen').breakdown.initial).toContainEqual(expect.objectContaining({
+      label: 'Moonlight Lullaby', detail: '2-piece', locus: 'disc-2pc',
+    }))
+
+    state = workbenchReducer(state, { type: 'selectDisc', slot: 2, piece: 'twoPiece', discId: 'swingJazz' })
+    astra = resultAgent(calculateParty(state)!, 'astraYao')
+    expect(resultMetric(astra, 'energyRegen').breakdown.initial).toContainEqual(expect.objectContaining({
+      label: 'Swing Jazz', detail: '2-piece', locus: 'disc-2pc',
+    }))
+
+    state = createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
+    state = workbenchReducer(state, { type: 'selectDisc', slot: 2, piece: 'fourPiece', discId: 'moonlight' })
+    astra = resultAgent(calculateParty(state)!, 'astraYao')
+    expect(resultMetric(astra, 'atk').breakdown.initial).toContainEqual(expect.objectContaining({
+      label: 'Astral Voice', detail: '2-piece', locus: 'disc-2pc',
+    }))
+
+    state = workbenchReducer(state, { type: 'selectDisc', slot: 2, piece: 'twoPiece', discId: 'hormonePunk' })
+    astra = resultAgent(calculateParty(state)!, 'astraYao')
+    expect(resultMetric(astra, 'atk').breakdown.initial).toContainEqual(expect.objectContaining({
+      label: 'Hormone Punk', detail: '2-piece', locus: 'disc-2pc',
+    }))
+  })
+
   it('projects newly selectable Astral Voice and Moonlight Lullaby without stacking duplicate set effects', () => {
     let astral = createPreparedState({}, ['yixuan', 'trigger', 'astraYao'], 0)
     astral = workbenchReducer(astral, { type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice' })

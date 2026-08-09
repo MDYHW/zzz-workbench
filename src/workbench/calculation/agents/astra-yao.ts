@@ -64,6 +64,7 @@ export function observeAstra(setup: CompleteSetup): AstraCalculationContext {
   const initialInputs = presentInputs([
     engineAdvancedInput(setup, 'astraYao', 'atkPct'),
     discStatInput(setup, 'astraYao', 'fourPiece', 'astralVoice', DRIVE_DISC_FACTS.astralVoice.atkPct, 'twoPiece'),
+    discStatInput(setup, 'astraYao', 'twoPiece', 'astralVoice', DRIVE_DISC_FACTS.astralVoice.atkPct),
     discStatInput(setup, 'astraYao', 'twoPiece', 'hormonePunk', DRIVE_DISC_FACTS.hormonePunk.atkPct),
     mainStatInput(setup, 'astraYao', 'slot4', 'atkPct'),
     mainStatInput(setup, 'astraYao', 'slot5', 'atkPct'),
@@ -120,6 +121,7 @@ export function calculateAstra(
   const initialAtkInputs = presentInputs([
     engineAdvancedInput(setup, 'astraYao', 'atkPct'),
     discStatInput(setup, 'astraYao', 'fourPiece', 'astralVoice', DRIVE_DISC_FACTS.astralVoice.atkPct, 'twoPiece'),
+    discStatInput(setup, 'astraYao', 'twoPiece', 'astralVoice', DRIVE_DISC_FACTS.astralVoice.atkPct),
     discStatInput(setup, 'astraYao', 'twoPiece', 'hormonePunk', DRIVE_DISC_FACTS.hormonePunk.atkPct),
     mainStatInput(setup, 'astraYao', 'slot4', 'atkPct'),
     mainStatInput(setup, 'astraYao', 'slot5', 'atkPct'),
@@ -133,6 +135,7 @@ export function calculateAstra(
     mainStatInput(setup, 'astraYao', 'slot6', 'energyRegenPct'),
     discStatInput(setup, 'astraYao', 'fourPiece', 'moonlight', DRIVE_DISC_FACTS.moonlight.energyRegenPct, 'twoPiece'),
     discStatInput(setup, 'astraYao', 'twoPiece', 'moonlight', DRIVE_DISC_FACTS.moonlight.energyRegenPct),
+    discStatInput(setup, 'astraYao', 'twoPiece', 'swingJazz', DRIVE_DISC_FACTS.swingJazz.energyRegenPct),
   ])
   const energy = energyRegenProjection(VERTICAL_VALUES.astraYao.baseEnergyRegen, energyInputs, effects)
   // Astra's Core output is shown in the gauge and distributed to recipients; it

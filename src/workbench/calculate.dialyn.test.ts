@@ -121,7 +121,7 @@ describe('calculateParty: dialyn', () => {
 
     expect(dialynEnergy.values).toEqual({ initial: 2.16, combat: 3.66, fully: 3.66 })
     expect(dialynEnergy.breakdown.initial).toContainEqual(expect.objectContaining({
-      label: 'Swing Jazz or Moonlight Lullaby',
+      label: 'Swing Jazz',
       detail: '2-piece',
       display: { value: 20, unit: '%', decimals: 0 },
     }))
@@ -131,6 +131,19 @@ describe('calculateParty: dialyn', () => {
       display: { value: 1.5, unit: '/s', decimals: 2 },
     }))
     expect(dialynEnergy.breakdown.fully).toEqual([])
+
+    const moonlightDialyn = agent(calculateParty(selectDisc(
+      createPreparedState(),
+      'dialyn',
+      'twoPiece',
+      'moonlight',
+    ))!, 'dialyn')
+    expect(metric(moonlightDialyn, 'energyRegen').values).toEqual(dialynEnergy.values)
+    expect(metric(moonlightDialyn, 'energyRegen').breakdown.initial).toContainEqual(expect.objectContaining({
+      label: 'Moonlight Lullaby',
+      detail: '2-piece',
+      display: { value: 20, unit: '%', decimals: 0 },
+    }))
 
     const lucia = agent(calculateParty(selectEngine(
       createPreparedState(),

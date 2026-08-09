@@ -84,27 +84,6 @@ function DialynDiscHarness() {
   )
 }
 
-function AstraDiscHarness() {
-  const [state, dispatch] = useReducer(workbenchReducer, undefined, () => (
-    createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
-  ))
-  return (
-    <>
-      <AgentSetup
-        activeSourceTone={null}
-        agentId="astraYao"
-        dispatch={dispatch}
-        mainStatCandidates={MAIN_STAT_IDS_BY_AGENT_AND_SLOT.astraYao}
-        onSourceToneChange={vi.fn()}
-        setup={state.slots[2].setup}
-        slot={2}
-      />
-      <output data-testid="actual-four-piece">{state.slots[2].setup.fourPieceId}</output>
-      <output data-testid="actual-two-piece">{state.slots[2].setup.twoPieceId}</output>
-    </>
-  )
-}
-
 function TriggerDiscHarness() {
   const [state, dispatch] = useReducer(workbenchReducer, undefined, () => (
     createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
@@ -126,8 +105,8 @@ function TriggerDiscHarness() {
   )
 }
 
-describe('AgentSetup equivalent two-piece choices', () => {
-  it('presents exact same-effect discs as one candidate while retaining a legal actual ID', async () => {
+describe('AgentSetup exact two-piece choices', () => {
+  it('lists same-effect Disc identities separately', async () => {
     const user = userEvent.setup()
     render(<DialynDiscHarness />)
 
@@ -135,58 +114,82 @@ describe('AgentSetup equivalent two-piece choices', () => {
       name: 'Change 2-piece Drive Disc from Woodpecker Electro',
     }))
     const candidates = screen.getByLabelText('twoPiece Drive Disc candidates')
-    expect(within(candidates).getAllByRole('button')).toHaveLength(1)
+    expect(within(candidates).getAllByRole('button')).toHaveLength(2)
     await user.click(within(candidates).getByRole('button', {
-      name: 'Select Swing Jazz or Moonlight Lullaby as twoPiece',
+      name: 'Select Swing Jazz as twoPiece',
     }))
 
     expect(screen.getByRole('button', {
-      name: 'Change 2-piece Drive Disc from Swing Jazz or Moonlight Lullaby',
+      name: 'Change 2-piece Drive Disc from Swing Jazz',
     })).toBeInTheDocument()
     expect(screen.getByTestId('actual-two-piece')).toHaveTextContent('swingJazz')
   })
 
-  it('persists the legal underlying Disc when an equivalent group contains the selected 4-piece', async () => {
-    const user = userEvent.setup()
-    render(<AstraDiscHarness />)
-
-    await user.click(screen.getByRole('button', {
-      name: 'Change 2-piece Drive Disc from Swing Jazz or Moonlight Lullaby',
-    }))
-    await user.click(screen.getByRole('button', {
-      name: 'Select Hormone Punk or Astral Voice as twoPiece',
-    }))
-    expect(screen.getByTestId('actual-two-piece')).toHaveTextContent('hormonePunk')
-
-    await user.click(screen.getByRole('button', {
-      name: 'Change 4-piece Drive Disc from Astral Voice',
-    }))
-    await user.click(screen.getByRole('button', {
-      name: 'Select Moonlight Lullaby as fourPiece',
-    }))
-    expect(screen.getByTestId('actual-four-piece')).toHaveTextContent('moonlight')
-
-    await user.click(screen.getByRole('button', {
-      name: 'Change 2-piece Drive Disc from Hormone Punk or Astral Voice',
-    }))
-    await user.click(screen.getByRole('button', {
-      name: 'Select Swing Jazz or Moonlight Lullaby as twoPiece',
-    }))
-    expect(screen.getByTestId('actual-two-piece')).toHaveTextContent('swingJazz')
-  })
-
-  it('keeps a singleton same-set candidate available for the atomic piece-role swap', async () => {
+  it('omits the selected 4-piece only from visible two-piece alternatives', async () => {
     const user = userEvent.setup()
     render(<TriggerDiscHarness />)
 
     await user.click(screen.getByRole('button', {
       name: 'Change 2-piece Drive Disc from Shockstar Disco',
     }))
-    await user.click(screen.getByRole('button', {
+    const candidates = screen.getByLabelText('twoPiece Drive Disc candidates')
+    expect(within(candidates).queryByRole('button', {
       name: 'Select King of the Summit as twoPiece',
+    })).not.toBeInTheDocument()
+    expect(within(candidates).getByRole('button', {
+      name: 'Select Woodpecker Electro as twoPiece',
+    })).toBeInTheDocument()
+  })
+
+  it('swaps exact Disc roles only from the four-piece selector', async () => {
+    const user = userEvent.setup()
+    render(<TriggerDiscHarness />)
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from King of the Summit',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Shockstar Disco as fourPiece',
     }))
 
     expect(screen.getByTestId('actual-four-piece')).toHaveTextContent('shockstar')
     expect(screen.getByTestId('actual-two-piece')).toHaveTextContent('king')
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Shockstar Disco',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select King of the Summit as fourPiece',
+    }))
+
+    expect(screen.getByTestId('actual-four-piece')).toHaveTextContent('king')
+    expect(screen.getByTestId('actual-two-piece')).toHaveTextContent('shockstar')
+  })
+
+  it('omits an impossible four-piece swap and keeps ordinary two-piece changes local', async () => {
+    const user = userEvent.setup()
+    render(<TriggerDiscHarness />)
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from King of the Summit',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Astral Voice as fourPiece',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Shockstar Disco',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select King of the Summit as twoPiece',
+    }))
+    expect(screen.getByTestId('actual-four-piece')).toHaveTextContent('astralVoice')
+    expect(screen.getByTestId('actual-two-piece')).toHaveTextContent('king')
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Astral Voice',
+    }))
+    expect(within(screen.getByLabelText('fourPiece Drive Disc candidates')).queryByRole('button', {
+      name: 'Select King of the Summit as fourPiece',
+    })).not.toBeInTheDocument()
   })
 })

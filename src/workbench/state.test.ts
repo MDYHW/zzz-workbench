@@ -252,15 +252,20 @@ describe('workbench state lifecycle', () => {
     expect(state.draft?.focusSlot).toBe(1)
   })
 
-  it('swaps overlapping Trigger Disc roles only when both resulting roles admit the pair', () => {
+  it('swaps overlapping Trigger Disc roles only from a valid four-piece selection', () => {
     let state = createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
     state = workbenchReducer(state, {
       type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'shockstar',
     })
     expect(state.slots[1].setup).toMatchObject({ fourPieceId: 'shockstar', twoPieceId: 'king' })
 
-    state = workbenchReducer(state, {
+    const unchanged = workbenchReducer(state, {
       type: 'selectDisc', slot: 1, piece: 'twoPiece', discId: 'shockstar',
+    })
+    expect(unchanged).toBe(state)
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'king',
     })
     expect(state.slots[1].setup).toMatchObject({ fourPieceId: 'king', twoPieceId: 'shockstar' })
 

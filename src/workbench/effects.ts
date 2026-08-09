@@ -1,7 +1,5 @@
 import {
   DRIVE_DISCS,
-  equivalentTwoPieceIds,
-  twoPiecePresentationName,
   MAIN_STATS,
   SOURCE_LABELS,
   SUBSTAT_CHOICES_BY_AGENT,
@@ -160,11 +158,8 @@ export function discSource(
   effectPiece: '4-piece' | '2-piece',
   ownerPiece: '4-piece' | '2-piece' = effectPiece,
 ): ResultSource {
-  const label = effectPiece === '2-piece' && ownerPiece === '2-piece'
-    ? twoPiecePresentationName(discId)
-    : DRIVE_DISCS[discId].name
   return source(
-    label,
+    DRIVE_DISCS[discId].name,
     agentId,
     ownerPiece === '4-piece' ? 'disc-4pc' : 'disc-2pc',
     effectPiece,
@@ -246,7 +241,7 @@ export function discStatInput(
   effectPiece: 'fourPiece' | 'twoPiece' = piece,
 ): ResolvedSetupInput | undefined {
   const selected = piece === 'fourPiece' ? setup.fourPieceId : setup.twoPieceId
-  return (piece === 'twoPiece' ? equivalentTwoPieceIds(discId).includes(selected) : selected === discId)
+  return selected === discId
     ? {
       rawValue,
       unit: '%',

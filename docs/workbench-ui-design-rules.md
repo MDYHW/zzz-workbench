@@ -496,8 +496,11 @@ and hover or focus state must communicate editability.
 
 A candidate exposes the information needed for that choice. Drive Disc current
 and candidate blocks omit visible names while their accessible names retain
-them; compressed effects perform comparison. A same-effect OR choice uses one
-composite image and one effect row, and means either set rather than both.
+them; compressed effects perform comparison. Each candidate keeps its exact
+Disc identity even when another candidate has the same 2-piece effect. The
+current 4-piece identity is absent from the visible 2-piece alternatives because
+its 2-piece effect is already active; a legal role exchange is presented from
+the 4-piece selector instead.
 
 Candidate panels must not use one fixed size for text-only main stats and image-
 led equipment. Each selector uses the smallest readable candidate footprint for

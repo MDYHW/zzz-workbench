@@ -393,9 +393,13 @@ then, Result surfaces are empty. A prepared setup is a visible current
 selection, not a placeholder, first-candidate fallback, or hidden
 recommendation.
 
-If selecting a Disc set already used by the other piece role can swap the two
-currently admitted sets, the workbench swaps them atomically. Otherwise it
-rejects the conflict rather than choosing a third set.
+When the selected 4-piece identity is also an authored 2-piece candidate, it
+already supplies its own 2-piece effect and is omitted from the displayed
+2-piece alternatives. A normal 2-piece selection changes only the 2-piece set.
+Only a 4-piece selection can initiate an atomic role swap: selecting the current
+2-piece set as 4-piece swaps the two current identities when the prior 4-piece
+set is admitted as a 2-piece candidate. Otherwise that conflicting 4-piece
+alternative is not offered. The workbench never chooses a third set.
 
 Changing one Agent's Mindscape or pool initializes only that Agent with the
 corresponding prepared setup. Changing party composition or focus initializes

@@ -47,7 +47,7 @@ describe('integrated party workbench: setup', () => {
       .toHaveClass('main-stat-block__fixed')
   })
 
-  it('presents Astra’s composite Energy Regen choice and keeps Trigger Disc candidates stable across applied parties', async () => {
+  it('presents Astra’s exact Energy Regen Disc and keeps Trigger candidates stable across applied parties', async () => {
     const user = userEvent.setup()
     render(<App />)
     expect(screen.getByRole('status')).toBeEmptyDOMElement()
@@ -64,9 +64,9 @@ describe('integrated party workbench: setup', () => {
 
     await user.click(screen.getByRole('tab', { name: 'View Astra Yao setup and Result' }))
     const energyChoice = screen.getByRole('button', {
-      name: 'Change 2-piece Drive Disc from Swing Jazz or Moonlight Lullaby',
+      name: 'Change 2-piece Drive Disc from Moonlight Lullaby',
     })
-    expect(energyChoice.querySelector('.disc-composite-art')).not.toBeNull()
+    expect(energyChoice.querySelector('img')).not.toBeNull()
 
     await user.click(screen.getByRole('tab', { name: 'View Trigger setup and Result' }))
     await user.click(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from King of the Summit' }))
@@ -131,7 +131,7 @@ describe('integrated party workbench: setup', () => {
     expect(screen.getByRole('button', { name: 'Increase CRIT Rate hits' })).toBeDisabled()
   })
 
-  it('presents Dialyn Energy Regen Discs as one accessible either-set choice', async () => {
+  it('presents Dialyn Energy Regen Discs as separate exact choices', async () => {
     const user = userEvent.setup()
     render(<App />)
 
@@ -151,24 +151,18 @@ describe('integrated party workbench: setup', () => {
     }))
     const candidates = screen.getByLabelText('twoPiece Drive Disc candidates')
     const energyRegenChoice = within(candidates).getByRole('button', {
-      name: 'Select Swing Jazz or Moonlight Lullaby as twoPiece',
+      name: 'Select Swing Jazz as twoPiece',
     })
-    expect(within(candidates).getAllByRole('button', {
-      name: /Swing Jazz or Moonlight Lullaby/,
-    })).toHaveLength(1)
-    expect(within(candidates).queryByText('Swing Jazz')).not.toBeInTheDocument()
-    expect(within(candidates).queryByText('Moonlight Lullaby')).not.toBeInTheDocument()
+    expect(within(candidates).getByRole('button', {
+      name: 'Select Moonlight Lullaby as twoPiece',
+    })).toBeInTheDocument()
 
     await user.click(energyRegenChoice)
     const selected = screen.getByRole('button', {
-      name: 'Change 2-piece Drive Disc from Swing Jazz or Moonlight Lullaby',
+      name: 'Change 2-piece Drive Disc from Swing Jazz',
     })
     expect(selected).toHaveFocus()
     expect(screen.queryByLabelText('twoPiece Drive Disc candidates')).not.toBeInTheDocument()
-    const composite = selected.querySelector<HTMLElement>('.disc-composite-art')
-    expect(composite).not.toBeNull()
-    expect(composite!.querySelectorAll('.disc-composite-art__or')).toHaveLength(1)
-    expect(composite!.querySelector('.disc-composite-art__or')).toHaveTextContent('OR')
     expect(within(selected.querySelector('.disc-effect-rows')!).getAllByText('2PC')).toHaveLength(1)
     expect(within(selected).getAllByText('Energy Regen +20%')).toHaveLength(1)
     expect(screen.getByRole('row', {
@@ -179,7 +173,7 @@ describe('integrated party workbench: setup', () => {
     expect(within(screen.getByRole('table', {
       name: 'Energy Regen source contributions',
     })).getByRole('row', {
-      name: /Swing Jazz or Moonlight Lullaby/,
+      name: /Swing Jazz/,
     })).toBeInTheDocument()
   })
 
@@ -262,7 +256,7 @@ describe('integrated party workbench: setup', () => {
       name: 'Change 2-piece Drive Disc from Woodpecker Electro',
     }))
     await user.click(screen.getByRole('button', {
-      name: 'Select Swing Jazz or Moonlight Lullaby as twoPiece',
+      name: 'Select Swing Jazz as twoPiece',
     }))
     await user.click(screen.getByRole('button', { name: /^Non-limited/ }))
 

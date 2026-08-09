@@ -265,17 +265,17 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
         const agentId = state.slots[action.slot].agentId
         const candidates = DISC_IDS_BY_AGENT_AND_PIECE[agentId][action.piece]
         if (!candidates.includes(action.discId)) return setup
-        const otherPiece = action.piece === 'fourPiece' ? 'twoPiece' : 'fourPiece'
-        const otherId = otherPiece === 'fourPiece' ? setup.fourPieceId : setup.twoPieceId
-        if (otherId === action.discId) {
-          const oppositeCandidates = DISC_IDS_BY_AGENT_AND_PIECE[agentId][otherPiece]
-          const currentId = action.piece === 'fourPiece' ? setup.fourPieceId : setup.twoPieceId
-          if (!currentId || !oppositeCandidates.includes(currentId)) return setup
-          return action.piece === 'fourPiece'
-            ? { ...setup, fourPieceId: action.discId, twoPieceId: currentId }
-            : { ...setup, twoPieceId: action.discId, fourPieceId: currentId }
+        if (action.piece === 'twoPiece') {
+          if (action.discId === setup.fourPieceId) return setup
+          return { ...setup, twoPieceId: action.discId }
         }
-        return { ...setup, [`${action.piece}Id`]: action.discId }
+        if (action.discId === setup.twoPieceId) {
+          if (!setup.fourPieceId || !DISC_IDS_BY_AGENT_AND_PIECE[agentId].twoPiece.includes(setup.fourPieceId)) {
+            return setup
+          }
+          return { ...setup, fourPieceId: action.discId, twoPieceId: setup.fourPieceId }
+        }
+        return { ...setup, fourPieceId: action.discId }
       })
 
     case 'selectMainStat':

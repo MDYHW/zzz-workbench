@@ -44,6 +44,10 @@ export interface DialynCalculationContext {
   initialCrit: DialynInitialCritObservation
 }
 
+function presentInputs(inputs: Array<ResolvedSetupInput | undefined>): ResolvedSetupInput[] {
+  return inputs.filter((input): input is ResolvedSetupInput => Boolean(input))
+}
+
 export function observeDialyn(
   setup: CompleteSetup,
 ): DialynCalculationContext {
@@ -148,17 +152,26 @@ export function calculateDialyn(
 
   const engineEnergyRegen = engineAdvancedInput(setup, 'dialyn', 'energyRegenPct')
   const slotEnergyRegen = mainStatInput(setup, 'dialyn', 'slot6', 'energyRegenPct')
-  const discEnergyRegen = discStatInput(
-    setup,
-    'dialyn',
-    'twoPiece',
-    'swingJazz',
-    DRIVE_DISC_FACTS.swingJazz.energyRegenPct,
-  )
+  const discEnergyRegen = presentInputs([
+    discStatInput(
+      setup,
+      'dialyn',
+      'twoPiece',
+      'swingJazz',
+      DRIVE_DISC_FACTS.swingJazz.energyRegenPct,
+    ),
+    discStatInput(
+      setup,
+      'dialyn',
+      'twoPiece',
+      'moonlight',
+      DRIVE_DISC_FACTS.moonlight.energyRegenPct,
+    ),
+  ])
   const initialEnergyRegenInputs: ResolvedSetupInput[] = [
     ...(engineEnergyRegen ? [engineEnergyRegen] : []),
     ...(slotEnergyRegen ? [slotEnergyRegen] : []),
-    ...(discEnergyRegen ? [discEnergyRegen] : []),
+    ...discEnergyRegen,
   ]
   const energyRegen = energyRegenProjection(
     dialyn.baseEnergyRegen,

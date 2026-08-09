@@ -6,14 +6,9 @@ import {
   ENGINE_IDS_BY_AGENT_AND_POOL,
   MAIN_STATS,
   mainStatDisplay,
-  representativeTwoPieceCandidates,
-  selectableTwoPieceId,
   ADMITTED_AGENTS,
   SUBSTAT_CHOICES_BY_AGENT,
   W_ENGINES,
-  twoPieceEquivalenceFor,
-  twoPiecePresentationName,
-  equivalentTwoPieceIds,
   type AgentId,
   type DiscId,
   type EngineId,
@@ -320,12 +315,10 @@ function DiscEffectRows({
 
 function DiscCard({
   discId,
-  isEquivalentTwoPieceChoice = false,
   piece,
   showHead = false,
 }: {
   discId: DiscId
-  isEquivalentTwoPieceChoice?: boolean
   piece: 'fourPiece' | 'twoPiece'
   showHead?: boolean
 }) {
@@ -336,17 +329,7 @@ function DiscCard({
         <small className="disc-card__head">{piece === 'fourPiece' ? '4PC' : '2PC'}</small>
       )}
       <span className="equipment-art equipment-art--disc">
-        {isEquivalentTwoPieceChoice ? (
-          <span className="disc-composite-art" aria-hidden="true">
-            <img className="disc-composite-art__a" src={DRIVE_DISCS[equivalentTwoPieceIds(discId)[0]].image} alt="" />
-            <img className="disc-composite-art__b" src={DRIVE_DISCS[equivalentTwoPieceIds(discId)[1]].image} alt="" />
-            <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-              <line className="disc-composite-art__seam" x1="62" y1="0" x2="42" y2="100" />
-              <line className="disc-composite-art__accent" x1="62" y1="0" x2="42" y2="100" />
-            </svg>
-            <i className="disc-composite-art__or">OR</i>
-          </span>
-        ) : <img src={disc.image} alt="" />}
+        <img src={disc.image} alt="" />
       </span>
       <span className="equipment-copy">
         <DiscEffectRows discId={discId} piece={piece} />
@@ -378,18 +361,15 @@ function DiscSelection({
 } & SourceInteractionProps) {
   const tone = piece === 'fourPiece' ? 'disc-4pc' : 'disc-2pc'
   const selectorId = `${agentId}-${piece}`
-  const candidates = DISC_IDS_BY_AGENT_AND_PIECE[agentId][piece]
-  const options = piece === 'twoPiece'
-    ? representativeTwoPieceCandidates(candidates)
-    : candidates
-  const selectedOption = piece === 'twoPiece'
-    ? options.find((id) => equivalentTwoPieceIds(id).includes(selectedId)) ?? selectedId
-    : selectedId
-  const alternatives = options.filter((id) => id !== selectedOption)
+  const candidates = DISC_IDS_BY_AGENT_AND_PIECE[agentId]
+  const alternatives = piece === 'twoPiece'
+    ? candidates.twoPiece.filter((id) => id !== selectedId && id !== otherPieceId)
+    : candidates.fourPiece.filter((id) => id !== selectedId && (
+      id !== otherPieceId || candidates.twoPiece.includes(selectedId)
+    ))
   const isOpen = openSelector === selectorId
   const disc = DRIVE_DISCS[selectedId]
-  const isEquivalentTwoPieceChoice = piece === 'twoPiece' && Boolean(twoPieceEquivalenceFor(selectedId))
-  const selectedName = piece === 'twoPiece' ? twoPiecePresentationName(selectedId) : disc.name
+  const selectedName = disc.name
 
   const { openerRef, requestFocusReturn } = useSelectionFocusReturn()
   return (
@@ -411,7 +391,6 @@ function DiscSelection({
       >
         <DiscCard
           discId={selectedId}
-          isEquivalentTwoPieceChoice={isEquivalentTwoPieceChoice}
           piece={piece}
           showHead
         />
@@ -422,13 +401,7 @@ function DiscSelection({
           aria-label={piece + ' Drive Disc candidates'}
         >
           {alternatives.map((candidateId) => {
-            const isEquivalentTwoPieceAlternative = piece === 'twoPiece' && Boolean(twoPieceEquivalenceFor(candidateId))
-            const candidateName = piece === 'twoPiece'
-              ? twoPiecePresentationName(candidateId)
-              : DRIVE_DISCS[candidateId].name
-            const selectableId = piece === 'twoPiece'
-              ? selectableTwoPieceId(candidateId, otherPieceId)
-              : candidateId
+            const candidateName = DRIVE_DISCS[candidateId].name
             return (
               <button
                 type="button"
@@ -436,14 +409,13 @@ function DiscSelection({
                 key={candidateId}
                 aria-label={`Select ${candidateName} as ${piece}`}
                 onClick={() => {
-                  dispatch({ type: 'selectDisc', slot, piece, discId: selectableId })
+                  dispatch({ type: 'selectDisc', slot, piece, discId: candidateId })
                   setOpenSelector(null)
                   requestFocusReturn()
                 }}
               >
                 <DiscCard
                   discId={candidateId}
-                  isEquivalentTwoPieceChoice={isEquivalentTwoPieceAlternative}
                   piece={piece}
                 />
               </button>
