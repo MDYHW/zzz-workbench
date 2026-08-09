@@ -1,7 +1,7 @@
 ---
 title: "feat: Add party-directed prepared setups"
 type: feat
-status: active
+status: completed
 date: 2026-08-09
 origin: docs/brainstorms/2026-08-07-soldier-zero-vertical-requirements.md
 ---

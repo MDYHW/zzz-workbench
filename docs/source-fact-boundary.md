@@ -67,9 +67,15 @@ Implementation and tests consume settled meaning. They do not justify keeping
 a distinction that fails the gate.
 
 If a missing or conflicting game fact could change a qualifying outcome, do
-not guess. Leave that outcome unimplemented until the fact is resolved. This is
-an authoring stop, not a reason to create a persistent uncertainty or evidence
-schema.
+not guess. By default, leave that outcome unimplemented until the fact is
+resolved. This is an authoring stop, not a reason to create a persistent
+uncertainty or evidence schema.
+
+Only an explicit user-approved product behavior may resolve the missing fact
+instead. Document it as a product-authored deterministic fallback, never retain
+or present it as an exact game fact, and bound it to the approved consumer. This
+exception does not establish a default fallback, universal policy, runtime
+registry, or general uncertainty schema.
 
 ## Minimal Current Meaning
 
