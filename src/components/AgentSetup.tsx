@@ -104,6 +104,7 @@ function PoolSelection({
 
 function SelectionSurface({
   ariaLabel,
+  ariaDescribedBy,
   children,
   editable,
   expanded,
@@ -111,6 +112,7 @@ function SelectionSurface({
   buttonRef,
 }: {
   ariaLabel: string
+  ariaDescribedBy?: string
   children: ReactNode
   editable: boolean
   expanded: boolean
@@ -122,6 +124,7 @@ function SelectionSurface({
       type="button"
       className="selection-surface selection-surface--editable"
       aria-label={ariaLabel}
+      aria-describedby={ariaDescribedBy}
       aria-expanded={expanded}
       onClick={onClick}
       ref={buttonRef}
@@ -130,7 +133,11 @@ function SelectionSurface({
       <span className="selection-surface__change" aria-hidden="true">&#9660;</span>
     </button>
   ) : (
-    <div className="selection-surface selection-surface--fixed" aria-label={ariaLabel}>
+    <div
+      className="selection-surface selection-surface--fixed"
+      aria-label={ariaLabel}
+      aria-describedby={ariaDescribedBy}
+    >
       {children}
       <span className="selection-surface__fixed" role="img" aria-label="Fixed selection" />
     </div>
@@ -138,17 +145,24 @@ function SelectionSurface({
 }
 
 function EngineCard({
+  descriptionId,
   engineId,
   refinement,
   compact = false,
   candidate = false,
 }: {
+  descriptionId?: string
   engineId: EngineId
   refinement: Refinement
   compact?: boolean
   candidate?: boolean
 }) {
   const engine = W_ENGINES[engineId]
+  const passiveLines = engine.passiveLines(refinement)
+  const accessibleDescription = [
+    `${engine.advancedStat.label} +${engine.advancedStat.value}${engine.advancedStat.unit}`,
+    ...passiveLines,
+  ].join('. ')
   return (
     <>
       <span className={`equipment-art equipment-art--engine engine-art--${engineId}`}>
@@ -167,10 +181,11 @@ function EngineCard({
         </span>
         {!compact && (
           <span className="equipment-effects">
-            {engine.passiveLines(refinement).map((line) => <span key={line}>{line}</span>)}
+            {passiveLines.map((line) => <span key={line}>{line}</span>)}
           </span>
         )}
       </span>
+      {descriptionId && <span className="sr-only" id={descriptionId}>{accessibleDescription}</span>}
     </>
   )
 }
@@ -200,6 +215,7 @@ function EngineSelection({
   const candidates = ENGINE_IDS_BY_AGENT_AND_POOL[agentId][setup.pool]
   const alternatives = candidates.filter((id) => id !== engineId)
   const isOpen = openSelector === selectorId
+  const selectedDescriptionId = `${agentId}-engine-details`
   const { openerRef, requestFocusReturn } = useSelectionFocusReturn()
 
   return (
@@ -219,21 +235,28 @@ function EngineSelection({
           }
           editable={alternatives.length > 0}
           expanded={isOpen}
+          ariaDescribedBy={selectedDescriptionId}
           onClick={() => setOpenSelector(isOpen ? null : selectorId)}
           buttonRef={openerRef}
         >
-          <EngineCard engineId={engineId} refinement={refinement} />
+          <EngineCard
+            descriptionId={selectedDescriptionId}
+            engineId={engineId}
+            refinement={refinement}
+          />
         </SelectionSurface>
         {isOpen && (
           <div className="selector-region selector-region--engine" aria-label="W-Engine candidates">
             {alternatives.map((candidateId) => {
               const candidate = W_ENGINES[candidateId]
+              const candidateDescriptionId = `${agentId}-${candidateId}-engine-candidate-details`
               return (
                 <button
                   type="button"
                   className="selector-candidate selector-candidate--engine"
                   key={candidateId}
                   aria-label={`Select ${candidate.name} W${defaultRefinementFor(candidate.rank)}`}
+                  aria-describedby={candidateDescriptionId}
                   onClick={() => {
                     dispatch({ type: 'selectEngine', slot, engineId: candidateId })
                     setOpenSelector(null)
@@ -242,6 +265,7 @@ function EngineSelection({
                 >
                   <EngineCard
                     candidate
+                    descriptionId={candidateDescriptionId}
                     engineId={candidateId}
                     refinement={defaultRefinementFor(candidate.rank)}
                   />

@@ -122,6 +122,22 @@ W-Engine selection blocks and candidate lists show Rank-default refinement,
 advanced stat, and the competitive passive package. Base ATK remains an
 internal calculation and candidate-authoring fact and is not displayed.
 
+The W-Engine passive summary is source-owned rather than filtered to effects
+the current Agent can consume. It shows every materially distinct effect in the admitted
+W-Engine's competitive passive package so unused clauses remain visible as
+whole-package opportunity cost. Result still projects only effects consumed by
+the current Agent and setup.
+
+Compress simultaneously reachable clauses with the same metric, recipient,
+and effect scope into their total value. Omit calculation surfaces, stack or
+maintenance steps, routine trigger actions, durations, and cooldowns from the
+Setup summary. Preserve the recipient and affected action, Attribute, or
+outcome scope when they define what the effect changes. A trigger action is not
+an affected-action scope. Preserve an external target-state threshold when it
+materially changes the package's available magnitude: for example, Precious
+Fossilized Core shows its cumulative Daze outcomes at the target-HP thresholds
+instead of presenting its maximum as continuously available.
+
 The Result table uses the width required for its exact aggregates and
 disclosure. It does not consume surplus width merely because it is available,
 but source matrices and action differences must not be compressed while Setup

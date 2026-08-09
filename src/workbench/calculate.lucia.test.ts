@@ -90,6 +90,10 @@ describe('calculateParty: lucia', () => {
     expect(metric(agent(thought, 'lucia'), 'energyRegen').values.combat).toBeCloseTo(2.94)
     expect(metric(agent(thought, 'lucia'), 'energyRegen').values.fully).toBeCloseTo(2.94)
     expect(metric(agent(thought, 'yixuan'), 'dmgBonus').values.fully).toBeCloseTo(124)
+    expect(metric(agent(thought, 'yixuan'), 'dmgBonus').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ label: 'Thoughtbop' }))
+    expect(metric(agent(thought, 'yixuan'), 'atk').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ label: 'Thoughtbop' }))
 
     const weeping = calculateParty(selectEngine(
       prepared,

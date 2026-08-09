@@ -86,25 +86,34 @@ describe('soldier zero vertical', () => {
     expect(resultMetric(resultAgent(calculateParty(mixed)!, 'yixuan'), 'resReduction').values.fully).toBe(18)
   })
 
-  it('scales passive display values while leaving advanced stats fixed', () => {
+  it('compresses complete W-Engine packages while leaving advanced stats fixed', () => {
     const secondVerticalEngines = ['anbySoldier0', 'trigger', 'astraYao'] as const
     const engineIds = new Set(secondVerticalEngines.flatMap((agentId) => ENGINE_IDS_BY_AGENT_AND_POOL[agentId].full))
     for (const engineId of engineIds) for (const refinement of [1, 5] as const) {
       expect(W_ENGINES[engineId].passiveLines(refinement).join(' ')).not.toMatch(/per stack|\\bstacks?\\b|at maximum/i)
     }
-    expect(W_ENGINES.severedInnocence.passiveLines(1)).toEqual(['Combat CRIT DMG +30%', 'CRIT DMG +30%', 'Electric DMG +20%'])
-    expect(W_ENGINES.severedInnocence.passiveLines(5)).toEqual(['Combat CRIT DMG +48%', 'CRIT DMG +48%', 'Electric DMG +32%'])
+    expect(W_ENGINES.severedInnocence.passiveLines(1)).toEqual(['CRIT DMG +60%', 'Electric DMG +20%'])
+    expect(W_ENGINES.severedInnocence.passiveLines(5)).toEqual(['CRIT DMG +96%', 'Electric DMG +32%'])
+    expect(W_ENGINES.yesterdayCalls.passiveLines(1)).toEqual(['Energy +1.5/s', 'Daze +27%', 'Squad CRIT DMG +30%'])
+    expect(W_ENGINES.hellfireGears.passiveLines(1)).toEqual(['Energy +0.6/s', 'Impact +20%'])
+    expect(W_ENGINES.thoughtbop.passiveLines(1)).toEqual(['Energy +0.6/s', 'Squad DMG +25%', 'Squad ATK +10%'])
+    expect(W_ENGINES.thoughtbop.passiveLines(5)).toEqual(['Energy +0.96/s', 'Squad DMG +40%', 'Squad ATK +16%'])
+    expect(W_ENGINES.weepingCradle.passiveLines(1)).toEqual(['Energy +0.6/s', 'Squad DMG +20.2%'])
     expect(W_ENGINES.cordisGermina.passiveLines(1)).toContain('Electric DMG +25%')
     expect(W_ENGINES.cordisGermina.passiveLines(5)).toContain('Electric DMG +40%')
-    expect(W_ENGINES.spectralGaze.passiveLines(1)).toContain('Off-field Impact +20%')
-    expect(W_ENGINES.spectralGaze.passiveLines(5)).toContain('Off-field Impact +32%')
+    expect(W_ENGINES.marcatoDesire.passiveLines(5)).toEqual(['ATK +19.2%'])
+    expect(W_ENGINES.spectralGaze.passiveLines(1)).toEqual(['Enemy DEF Reduction +25%', 'Impact +20%'])
+    expect(W_ENGINES.spectralGaze.passiveLines(5)).toEqual(['Enemy DEF Reduction +40%', 'Impact +32%'])
     expect(W_ENGINES.iceJadeTeapot.passiveLines(1)).toContain('Impact +21%')
     expect(W_ENGINES.iceJadeTeapot.passiveLines(5)).toContain('Impact +33.6%')
     expect(W_ENGINES.iceJadeTeapot.passiveLines(1)).toContain('Squad DMG +20%')
     expect(W_ENGINES.restrained.passiveLines(1)).toEqual(['Basic Attack DMG +30%', 'Basic Attack Daze +30%'])
     expect(W_ENGINES.restrained.passiveLines(5)).toEqual(['Basic Attack DMG +48%', 'Basic Attack Daze +48%'])
-    expect(W_ENGINES.elegantVanity.passiveLines(1)).toContain('Energy +5 on assist entry (5s cooldown)')
-    expect(W_ENGINES.elegantVanity.passiveLines(1)).toContain('Squad DMG +20%')
+    expect(W_ENGINES.preciousFossilizedCore.passiveLines(5)).toEqual([
+      'Target HP ≥50% · Daze +16%',
+      'Target HP ≥75% · Daze +32% total',
+    ])
+    expect(W_ENGINES.elegantVanity.passiveLines(1)).toEqual(['Energy +5', 'Squad DMG +20%'])
     expect(W_ENGINES.bashfulDemon.passiveLines(1)).toContain('Squad ATK +8%')
     expect(W_ENGINES.bashfulDemon.passiveLines(5)).toContain('Squad ATK +12.8%')
     expect(W_ENGINES.bashfulDemon.advancedStat.value).toBe(25)

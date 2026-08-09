@@ -66,8 +66,10 @@ describe('integrated party workbench: setup', () => {
     const elegantVanity = screen.getByRole('button', {
       name: 'Change W-Engine from Elegant Vanity',
     })
-    expect(within(elegantVanity).getByText('Energy +5 on assist entry (5s cooldown)'))
-      .toBeInTheDocument()
+    expect(within(elegantVanity).getByText('Energy +5')).toBeInTheDocument()
+    expect(elegantVanity).toHaveAccessibleDescription(
+      'ATK +30%. Energy +5. Squad DMG +20%',
+    )
     const energyChoice = screen.getByRole('button', {
       name: 'Change 2-piece Drive Disc from Moonlight Lullaby',
     })
@@ -632,9 +634,15 @@ describe('integrated party workbench: setup', () => {
       name: 'Change W-Engine from Dreamlit Hearth',
     }))
     const luciaCandidates = screen.getByLabelText('W-Engine candidates')
-    expect(within(luciaCandidates).getByRole('button', {
+    const thoughtbop = within(luciaCandidates).getByRole('button', {
       name: 'Select Thoughtbop W1',
-    })).toBeInTheDocument()
+    })
+    expect(within(thoughtbop).getByText('Energy +0.6/s')).toBeInTheDocument()
+    expect(within(thoughtbop).getByText('Squad DMG +25%')).toBeInTheDocument()
+    expect(within(thoughtbop).getByText('Squad ATK +10%')).toBeInTheDocument()
+    expect(thoughtbop).toHaveAccessibleDescription(
+      'Energy Regen +60%. Energy +0.6/s. Squad DMG +25%. Squad ATK +10%',
+    )
     expect(within(luciaCandidates).getByRole('button', {
       name: 'Select Weeping Cradle W1',
     })).toBeInTheDocument()
