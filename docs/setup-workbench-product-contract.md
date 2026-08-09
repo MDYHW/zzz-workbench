@@ -260,21 +260,28 @@ bounded settled predicate and choice needed by the current consumer, never a
 score, ranking, research receipt, or provider-identity branch.
 
 The current candidate-membership adjustment admits material **broad** pre-PEN
-DEF Reduction or DEF Ignore as pressure that may remove Slot 5 PEN Ratio from
-an applied setup whose authored direction admits residual or primary general-
-damage investment and therefore consumes the DEF region. Breadth is the current
-admission boundary, not a universal proof of materiality. A limited action-
-scoped pre-PEN modifier does not remove PEN Ratio merely because it precedes
-PEN in the formula; it may affect an explicitly authored prepared preference
-when it covers direction-defining output, but a future scoped membership
-adjustment requires a new current consumer and product decision before the
-qualifier is expanded. A broad or numerically large modifier likewise does not
-establish exclusion without that authored policy. A direction whose damage
-family omits the DEF region never admits PEN Ratio from this rule. The current
-broad Spectral Gaze pressure removes PEN Ratio for applicable Anby, Dialyn, and
-Trigger setups, while Cordis Germina's Basic/Ultimate-only DEF Ignore does not
-do so by itself. This is authored candidate policy, not a numerical threshold
-or action-share calculation inferred at runtime.
+DEF Reduction or DEF Ignore as pressure that may remove an admitted PEN Ratio
+supplier from an applied setup whose authored direction admits residual or
+primary general-damage investment and therefore consumes the DEF region. This
+can affect a Slot 5 PEN Ratio main stat or a PEN Ratio 2-piece Disc when each is
+otherwise a competitive candidate. Resolve the pressure through its actual
+recipient, Attribute, action, and formula applicability; do not turn one
+provider's clause into a global party flag.
+
+Breadth is the current admission boundary, not a universal proof of
+materiality. A limited action-scoped pre-PEN modifier does not remove PEN Ratio
+merely because it precedes PEN in the formula; it may affect an explicitly
+authored prepared preference when it covers direction-defining output, but a
+future scoped membership adjustment requires a new current consumer and
+product decision before the qualifier is expanded. A broad or numerically
+large modifier likewise does not establish exclusion without that authored
+policy. A direction whose damage family omits the DEF region never admits PEN
+Ratio from this rule. The current broad Spectral Gaze pressure removes Slot 5
+PEN Ratio for applicable Anby, Dialyn, and Trigger setups. A broad party
+Electric DEF Ignore can remove both Slot 5 PEN Ratio and Puffer Electro for an
+applicable Electric general-damage setup. Cordis Germina's Basic/Ultimate-only
+DEF Ignore does not remove either by itself. This is authored candidate policy,
+not a numerical threshold or action-share calculation inferred at runtime.
 
 For example, under the legal main-stat and substat pools owned by
 `docs/zzz-game-vocabulary.md`, a Stun direction can exhaust its direct Daze
@@ -300,7 +307,34 @@ main-stat choice.
 Most Mindscape and party changes narrow candidates. Addition is exceptional and
 requires a newly material external contribution or operation. A recipient-
 applied Ultimate opportunity can add an authored Puffer Electro 4-piece case
-for an applicable crit-capable general-damage direction; it does not select it.
+for an applicable crit-capable general-damage direction. A provider-applied
+Quick Assist opportunity can likewise add an authored Astral Voice 4-piece case
+when that operation makes its entrant effect materially usable for the
+recipient's direction. Newly usable effect activation is necessary but not
+sufficient. Before the contextual case enters the effective set, its complete
+package must remain materially competitive after the holder's authored roles,
+current Focus responsibility, role-fitting 4-piece alternatives, and opportunity
+costs are applied. Astral Voice can survive this comparison when it materially
+strengthens a retained buffer role, or when the holder lacks a materially
+stronger operation-fitting 4-piece and Astral Voice's whole package remains a
+competitive alternate. A focused damage contributor with a strong personal
+operation-fitting 4-piece does not gain Astral Voice merely because the party
+can supply Quick Assists. The absence of a stronger operation-fitting case is
+authored competitive-practice policy, not a runtime absence check or score.
+
+These are operation- and recipient-applicability rules, not Dialyn-, Astra Yao-,
+or equipment-identity branches. They admit an already-authored contextual
+candidate case; they do not select it, continuously rank it, or overwrite a
+direct setup edit.
+
+Candidate addition is distinct from holder allocation. When an equipment case
+is already competitive for more than one applied Agent, a non-stacking party
+effect or a more suitable holder may change the prepared first choices without
+changing candidate membership. For example, allocating Astral Voice to another
+eligible holder may prepare Astra Yao with Moonlight Lullaby, while an Astral
+Voice case made usable only by an externally supplied Quick Assist is a
+candidate-membership addition. Persist these as separate authored policy
+outcomes even when both occur in the same party.
 
 New equipment normally enters as a competing W-Engine, 4-piece, or 2-piece
 candidate and may change the prepared main-stat choice through its stat package.
@@ -353,9 +387,10 @@ stats.
 Authorized preparation resolves these dependencies in two acyclic layers.
 First derive context-effective W-Engine and complete-Disc candidate sets from
 the applied directions, each package's own usable effects, party allocation or
-compatibility, and already-established context that does not depend on an
-unresolved equipment selection. Consume any authored prepared-choice-only
-adjustment for those inputs, then choose the W-Engine and complete Disc package.
+compatibility, newly material upstream contributions or operations, and other
+already-established context that does not depend on an unresolved equipment
+selection. Consume any authored prepared-choice-only adjustment for those
+inputs, then choose the W-Engine and complete Disc package.
 Second resolve active pressure from the established party and selected
 equipment, derive non-empty downstream main-stat and effective-substat
 candidate sets, choose main-stat first choices, and initialize every offered
