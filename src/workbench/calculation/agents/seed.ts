@@ -3,7 +3,9 @@ import {
   VERTICAL_VALUES,
   W_ENGINE_FACTS,
   W_ENGINES,
-  scaledEngineValue,
+  equipmentEffectBaseValue,
+  equipmentEffectMaximumValue,
+  equipmentEffectProgressionValue,
   type AgentId,
 } from '../../content'
 import {
@@ -90,9 +92,9 @@ export function observeSeed(setup: CompleteSetup): SeedCalculationContext {
 
 function dawnClauses(setup: CompleteSetup): SourceBoundCurrentClause[] {
   if (setup.fourPieceId !== 'dawnsBloom') return []
-  const initial = DRIVE_DISC_FACTS.dawnsBloom.basicDmg.initial
-  const combat = DRIVE_DISC_FACTS.dawnsBloom.basicDmg.combat
-  const fully = DRIVE_DISC_FACTS.dawnsBloom.basicDmg.fully
+  const initial = equipmentEffectBaseValue(DRIVE_DISC_FACTS.dawnsBloom.twoPiece.damage)
+  const combat = equipmentEffectBaseValue(DRIVE_DISC_FACTS.dawnsBloom.fourPiece.damage)
+  const fully = equipmentEffectProgressionValue(DRIVE_DISC_FACTS.dawnsBloom.fourPiece.damage)
   const twoPiece = discSource('seed', 'dawnsBloom', '2-piece', '4-piece')
   const fourPiece = discSource('seed', 'dawnsBloom', '4-piece')
   return [
@@ -110,10 +112,10 @@ export function resolveSeedProviderClauses(
   const engine = engineSource('seed', setup)
   const refinement = setup.refinement
   const cordisDmg = setup.engineId === 'cordisGermina'
-    ? scaledEngineValue(W_ENGINE_FACTS.cordisGermina.electricDmgPerStack * 2, refinement)
+    ? equipmentEffectMaximumValue(W_ENGINE_FACTS.cordisGermina.effects.damage, refinement)
     : 0
   const cordisDefIgnore = setup.engineId === 'cordisGermina'
-    ? scaledEngineValue(W_ENGINE_FACTS.cordisGermina.defIgnore, refinement)
+    ? equipmentEffectBaseValue(W_ENGINE_FACTS.cordisGermina.effects.defIgnore, refinement)
     : 0
   const hasVanguard = vanguardAgentId !== null
   const coreRecipients: AgentId[] = hasVanguard ? ['seed', vanguardAgentId] : []
@@ -154,24 +156,24 @@ export function resolveSeedProviderClauses(
     additive('critDmg', 'combat', mindscapeSource('seed', 6),
       setup.mindscape >= 6 ? 50 : 0, 'self'),
     additive('critDmg', 'combat', engine, setup.engineId === 'severedInnocence'
-      ? scaledEngineValue(W_ENGINE_FACTS.severedInnocence.combatCritDmg, refinement)
+      ? equipmentEffectBaseValue(W_ENGINE_FACTS.severedInnocence.effects.critDamage, refinement)
       : 0, 'self'),
     additive('critDmg', 'fully', engine, setup.engineId === 'severedInnocence'
-      ? scaledEngineValue(W_ENGINE_FACTS.severedInnocence.stackCritDmg * 3, refinement)
+      ? equipmentEffectProgressionValue(W_ENGINE_FACTS.severedInnocence.effects.critDamage, refinement)
       : 0, 'self'),
     additive('critRate', 'combat', engine, setup.engineId === 'cordisGermina'
-      ? scaledEngineValue(W_ENGINE_FACTS.cordisGermina.critRate, refinement)
+      ? equipmentEffectBaseValue(W_ENGINE_FACTS.cordisGermina.effects.critRate, refinement)
       : 0, 'self'),
     additive('dmgBonus', 'fully', engine, setup.engineId === 'severedInnocence'
-      ? scaledEngineValue(W_ENGINE_FACTS.severedInnocence.electricDmg, refinement)
+      ? equipmentEffectBaseValue(W_ENGINE_FACTS.severedInnocence.effects.damage, refinement)
       : 0, 'self'),
     percentage('atk', 'fully', engine, setup.engineId === 'brimstone'
-      ? W_ENGINE_FACTS.brimstone.atkAtMax[refinement - 1]
+      ? equipmentEffectMaximumValue(W_ENGINE_FACTS.brimstone.effects.atk, refinement)
       : setup.engineId === 'marcatoDesire'
-        ? scaledEngineValue(W_ENGINE_FACTS.marcatoDesire.atkPctPerClause, refinement) * 2
+        ? equipmentEffectMaximumValue(W_ENGINE_FACTS.marcatoDesire.effects.atk, refinement)
         : 0, 'self'),
     percentage('atk', 'fully', discSource('seed', 'woodpecker', '4-piece'),
-      setup.fourPieceId === 'woodpecker' ? DRIVE_DISC_FACTS.woodpecker.atkPctAtMax : 0,
+      setup.fourPieceId === 'woodpecker' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.fourPiece.atk) : 0,
       'self'),
     additive('dmgBonus', 'fully', engine, cordisDmg, 'self', 'seedActions'),
     additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', 'seedActions', undefined, ['seed']),
@@ -215,8 +217,8 @@ export function calculateSeed(
   const critRateInputs = presentInputs([
     engineAdvancedInput(setup, 'seed', 'critRate'),
     mainStatInput(setup, 'seed', 'slot4', 'critRate'),
-    discStatInput(setup, 'seed', 'twoPiece', 'woodpecker', DRIVE_DISC_FACTS.woodpecker.critRate),
-    discStatInput(setup, 'seed', 'fourPiece', 'woodpecker', DRIVE_DISC_FACTS.woodpecker.critRate, 'twoPiece'),
+    discStatInput(setup, 'seed', 'twoPiece', 'woodpecker', equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    discStatInput(setup, 'seed', 'fourPiece', 'woodpecker', equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate), 'twoPiece'),
     effectiveSubstatInput(setup, 'seed', 'critRate'),
   ])
   const initialCritRate = VERTICAL_VALUES.seed.critRate + critRateInputs.reduce((total, input) => total + input.rawValue, 0)
@@ -230,7 +232,7 @@ export function calculateSeed(
   const critDmgInputs = presentInputs([
     engineAdvancedInput(setup, 'seed', 'critDmg'),
     mainStatInput(setup, 'seed', 'slot4', 'critDmg'),
-    discStatInput(setup, 'seed', 'twoPiece', 'branchAndBlade', DRIVE_DISC_FACTS.branchAndBlade.critDmg),
+    discStatInput(setup, 'seed', 'twoPiece', 'branchAndBlade', equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
     effectiveSubstatInput(setup, 'seed', 'critDmg'),
   ])
   const initialCritDmg = VERTICAL_VALUES.seed.critDmg + critDmgInputs.reduce((total, input) => total + input.rawValue, 0)
@@ -248,13 +250,13 @@ export function calculateSeed(
     'dmgBonus',
   )
   const mainPen = mainStatInput(setup, 'seed', 'slot5', 'penRatio')
-  const pufferTwoPiecePen = discStatInput(setup, 'seed', 'twoPiece', 'pufferElectro', DRIVE_DISC_FACTS.pufferElectro.penRatio)
+  const pufferTwoPiecePen = discStatInput(setup, 'seed', 'twoPiece', 'pufferElectro', equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio))
   const pufferFourPiecePen = discStatInput(
     setup,
     'seed',
     'fourPiece',
     'pufferElectro',
-    DRIVE_DISC_FACTS.pufferElectro.penRatio,
+    equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio),
     'twoPiece',
   )
   const penInputs = presentInputs([mainPen, pufferTwoPiecePen, pufferFourPiecePen])

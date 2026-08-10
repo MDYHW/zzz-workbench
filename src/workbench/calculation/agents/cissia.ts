@@ -3,7 +3,9 @@ import {
   VERTICAL_VALUES,
   W_ENGINE_FACTS,
   W_ENGINES,
-  scaledEngineValue,
+  equipmentEffectBaseValue,
+  equipmentEffectMaximumValue,
+  equipmentEffectProgressionValue,
 } from '../../content'
 import {
   STATIC_SOURCES,
@@ -63,8 +65,8 @@ function cissiaAtkInputs(setup: CompleteSetup): ResolvedSetupInput[] {
     engineAdvancedInput(setup, 'cissia', 'atkPct'),
     mainStatInput(setup, 'cissia', 'slot5', 'atkPct'),
     mainStatInput(setup, 'cissia', 'slot6', 'atkPct'),
-    discStatInput(setup, 'cissia', 'fourPiece', 'astralVoice', DRIVE_DISC_FACTS.astralVoice.atkPct, 'twoPiece'),
-    discStatInput(setup, 'cissia', 'twoPiece', 'astralVoice', DRIVE_DISC_FACTS.astralVoice.atkPct),
+    discStatInput(setup, 'cissia', 'fourPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
+    discStatInput(setup, 'cissia', 'twoPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
     effectiveSubstatInput(setup, 'cissia', 'atkPct'),
   ])
 }
@@ -73,7 +75,7 @@ function cissiaEnergyInputs(setup: CompleteSetup): ResolvedSetupInput[] {
   return presentInputs([
     engineAdvancedInput(setup, 'cissia', 'energyRegenPct'),
     mainStatInput(setup, 'cissia', 'slot6', 'energyRegenPct'),
-    discStatInput(setup, 'cissia', 'twoPiece', 'swingJazz', DRIVE_DISC_FACTS.swingJazz.energyRegenPct),
+    discStatInput(setup, 'cissia', 'twoPiece', 'swingJazz', equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
   ])
 }
 
@@ -102,9 +104,9 @@ function cissiaCoreDefIgnore(
 
 function dawnClauses(setup: CompleteSetup): SourceBoundCurrentClause[] {
   if (setup.fourPieceId !== 'dawnsBloom') return []
-  const initial = DRIVE_DISC_FACTS.dawnsBloom.basicDmg.initial
-  const combat = DRIVE_DISC_FACTS.dawnsBloom.basicDmg.combat
-  const fully = DRIVE_DISC_FACTS.dawnsBloom.basicDmg.fully
+  const initial = equipmentEffectBaseValue(DRIVE_DISC_FACTS.dawnsBloom.twoPiece.damage)
+  const combat = equipmentEffectBaseValue(DRIVE_DISC_FACTS.dawnsBloom.fourPiece.damage)
+  const fully = equipmentEffectProgressionValue(DRIVE_DISC_FACTS.dawnsBloom.fourPiece.damage)
   const twoPiece = discSource('cissia', 'dawnsBloom', '2-piece', '4-piece')
   const fourPiece = discSource('cissia', 'dawnsBloom', '4-piece')
   return [
@@ -122,13 +124,13 @@ export function resolveCissiaProviderClauses(
   const engine = engineSource('cissia', setup)
   const refinement = setup.refinement
   const cordisDmg = setup.engineId === 'cordisGermina'
-    ? scaledEngineValue(W_ENGINE_FACTS.cordisGermina.electricDmgPerStack * 2, refinement)
+    ? equipmentEffectMaximumValue(W_ENGINE_FACTS.cordisGermina.effects.damage, refinement)
     : 0
   const cordisDefIgnore = setup.engineId === 'cordisGermina'
-    ? scaledEngineValue(W_ENGINE_FACTS.cordisGermina.defIgnore, refinement)
+    ? equipmentEffectBaseValue(W_ENGINE_FACTS.cordisGermina.effects.defIgnore, refinement)
     : 0
   const drillDmg = setup.engineId === 'drillRigRedAxis'
-    ? W_ENGINE_FACTS.drillRigRedAxis.basicDashElectricDmg[refinement - 1]
+    ? equipmentEffectBaseValue(W_ENGINE_FACTS.drillRigRedAxis.effects.damage, refinement)
     : 0
   const coreDefIgnore = cissiaCoreDefIgnore(context.initialEnergyRegen, setup.mindscape)
   const electricGeneral = (clause: SourceBoundCurrentClause) => withApplicability(
@@ -162,19 +164,19 @@ export function resolveCissiaProviderClauses(
     additive('dmgBonus', 'fully', mindscapeSource('cissia', 2, "Serpent's Kiss"),
       setup.mindscape >= 2 ? 35 : 0, 'self', 'cissiaSerpent'),
     additive('critRate', 'combat', engine, setup.engineId === 'serpentineSeeker'
-      ? W_ENGINE_FACTS.serpentineSeeker.critRate[refinement - 1]
+      ? equipmentEffectBaseValue(W_ENGINE_FACTS.serpentineSeeker.effects.critRate, refinement)
       : setup.engineId === 'cordisGermina'
-        ? scaledEngineValue(W_ENGINE_FACTS.cordisGermina.critRate, refinement)
+        ? equipmentEffectBaseValue(W_ENGINE_FACTS.cordisGermina.effects.critRate, refinement)
         : 0, 'self'),
     additive('defIgnore', 'combat', engine, setup.engineId === 'serpentineSeeker'
-      ? W_ENGINE_FACTS.serpentineSeeker.electricDefIgnore[refinement - 1]
+      ? equipmentEffectBaseValue(W_ENGINE_FACTS.serpentineSeeker.effects.defIgnore, refinement)
       : 0, 'enemy-context', undefined, undefined, ['cissia']),
     additive('dmgBonus', 'fully', engine, drillDmg + cordisDmg, 'self', 'cissiaBasicActions'),
     additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', 'cissiaBasicActions', undefined, ['cissia']),
     additive('dmgBonus', 'fully', engine, cordisDmg, 'self', 'cissiaUltimate'),
     additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', 'cissiaUltimate', undefined, ['cissia']),
     critRecipients(additive('dmgBonus', 'fully', discSource('cissia', 'astralVoice', '4-piece'),
-      setup.fourPieceId === 'astralVoice' ? DRIVE_DISC_FACTS.astralVoice.entrantDmg : 0,
+      setup.fourPieceId === 'astralVoice' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage) : 0,
       'all-party', undefined, undefined, undefined, 'astralVoiceEntrant')),
     ...dawnClauses(setup),
     ...pufferElectroFourPieceClauses('cissia', setup, 'cissiaUltimate'),
@@ -214,7 +216,7 @@ export function calculateCissia(
   const critRateInputs = presentInputs([
     engineAdvancedInput(setup, 'cissia', 'critRate'),
     mainStatInput(setup, 'cissia', 'slot4', 'critRate'),
-    discStatInput(setup, 'cissia', 'twoPiece', 'woodpecker', DRIVE_DISC_FACTS.woodpecker.critRate),
+    discStatInput(setup, 'cissia', 'twoPiece', 'woodpecker', equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
     effectiveSubstatInput(setup, 'cissia', 'critRate'),
   ])
   const initialCritRate = VERTICAL_VALUES.cissia.critRate + critRateInputs.reduce((total, input) => total + input.rawValue, 0)
@@ -228,7 +230,7 @@ export function calculateCissia(
   const critDmgInputs = presentInputs([
     engineAdvancedInput(setup, 'cissia', 'critDmg'),
     mainStatInput(setup, 'cissia', 'slot4', 'critDmg'),
-    discStatInput(setup, 'cissia', 'twoPiece', 'branchAndBlade', DRIVE_DISC_FACTS.branchAndBlade.critDmg),
+    discStatInput(setup, 'cissia', 'twoPiece', 'branchAndBlade', equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
     effectiveSubstatInput(setup, 'cissia', 'critDmg'),
   ])
   const initialCritDmg = VERTICAL_VALUES.cissia.critDmg + critDmgInputs.reduce((total, input) => total + input.rawValue, 0)
@@ -251,7 +253,7 @@ export function calculateCissia(
     'cissia',
     'fourPiece',
     'pufferElectro',
-    DRIVE_DISC_FACTS.pufferElectro.penRatio,
+    equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio),
     'twoPiece',
   )
   const penRatio = composeMetricEffects(

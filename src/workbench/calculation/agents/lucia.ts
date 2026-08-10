@@ -3,7 +3,7 @@ import {
   SOURCE_LABELS,
   VERTICAL_VALUES,
   W_ENGINE_FACTS,
-  scaledEngineValue,
+  equipmentEffectBaseValue,
   type MainSlot,
 } from '../../content'
 import {
@@ -71,13 +71,13 @@ function calculateLuciaInitialHp(
     'lucia',
     'fourPiece',
     'yunkui',
-    DRIVE_DISC_FACTS.yunkui.hpPct,
+    equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.twoPiece.maxHp),
   ) ?? discStatInput(
     setup,
     'lucia',
     'twoPiece',
     'yunkui',
-    DRIVE_DISC_FACTS.yunkui.hpPct,
+    equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.twoPiece.maxHp),
   )
   const mainHpInputs = (['slot4', 'slot5', 'slot6'] as MainSlot[])
     .map((slot) => mainStatInput(setup, 'lucia', slot, 'hpPct'))
@@ -179,26 +179,25 @@ export function resolveLuciaProviderClauses(
   const refinement = setup.refinement
   const values = VERTICAL_VALUES
   const engineHp = setup.engineId === 'dreamlitHearth'
-    ? scaledEngineValue(W_ENGINE_FACTS.dreamlitHearth.hpPct, refinement)
+    ? equipmentEffectBaseValue(W_ENGINE_FACTS.dreamlitHearth.effects.maxHp, refinement)
     : 0
   const engineEnergy = setup.engineId === 'dreamlitHearth'
-    ? scaledEngineValue(W_ENGINE_FACTS.dreamlitHearth.energyPerSecond, refinement)
+    ? equipmentEffectBaseValue(W_ENGINE_FACTS.dreamlitHearth.effects.energy, refinement)
     : setup.engineId === 'thoughtbop'
-      ? scaledEngineValue(W_ENGINE_FACTS.thoughtbop.energyPerSecond, refinement)
+      ? equipmentEffectBaseValue(W_ENGINE_FACTS.thoughtbop.effects.energy, refinement)
       : setup.engineId === 'weepingCradle'
-        ? scaledEngineValue(W_ENGINE_FACTS.weepingCradle.energyPerSecond, refinement)
+        ? equipmentEffectBaseValue(W_ENGINE_FACTS.weepingCradle.effects.energy, refinement)
         : 0
   const engineAtk = setup.engineId === 'kaboom'
-    ? scaledEngineValue(W_ENGINE_FACTS.kaboom.squadAtkPct, refinement)
+    ? equipmentEffectBaseValue(W_ENGINE_FACTS.kaboom.effects.atk, refinement)
     : 0
   const critRate = setup.engineId === 'unfetteredGameBall'
-    ? W_ENGINE_FACTS.unfetteredGameBall.squadCritRateBase
-      + refinement * W_ENGINE_FACTS.unfetteredGameBall.squadCritRatePerRefinement
+    ? equipmentEffectBaseValue(W_ENGINE_FACTS.unfetteredGameBall.effects.critRate, refinement)
     : 0
   const engineDmg = setup.engineId === 'dreamlitHearth'
-    ? scaledEngineValue(W_ENGINE_FACTS.dreamlitHearth.squadDmg, refinement)
+    ? equipmentEffectBaseValue(W_ENGINE_FACTS.dreamlitHearth.effects.damage, refinement)
     : setup.engineId === 'weepingCradle'
-      ? scaledEngineValue(W_ENGINE_FACTS.weepingCradle.squadDmg, refinement)
+      ? equipmentEffectBaseValue(W_ENGINE_FACTS.weepingCradle.effects.damage, refinement)
       : 0
 
   return active([
@@ -208,7 +207,7 @@ export function resolveLuciaProviderClauses(
     additive('critRate', 'fully', engine, critRate, 'all-party'),
     additive('critDmg', 'fully', STATIC_SOURCES.lucia.additional, values.party.luciaCritDmg, 'all-party'),
     additive('dmgBonus', 'fully', STATIC_SOURCES.lucia.core, values.party.luciaCoreDmg, 'all-party'),
-    additive('dmgBonus', 'fully', fourPiece, setup.fourPieceId === 'moonlight' ? DRIVE_DISC_FACTS.moonlight.squadDmg : 0, 'all-party', undefined, undefined, undefined, 'moonlightLullaby'),
+    additive('dmgBonus', 'fully', fourPiece, setup.fourPieceId === 'moonlight' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.fourPiece.damage) : 0, 'all-party', undefined, undefined, undefined, 'moonlightLullaby'),
     additive('dmgBonus', 'fully', engine, engineDmg, 'all-party'),
     additive('sheerForce', 'fully', squadSheer.source, squadSheer.value, 'all-party'),
     additive('sheerDmgBonus', 'fully', mindscapeSource('lucia', 2, 'Darkbreaker + Wellspring'), setup.mindscape >= 2 ? values.lucia.mindscapeSheerDmg : 0, 'all-party'),
@@ -240,7 +239,7 @@ export function calculateLucia(
       'lucia',
       'fourPiece',
       'moonlight',
-      DRIVE_DISC_FACTS.moonlight.energyRegenPct,
+      equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen),
       'twoPiece',
     ),
     discStatInput(
@@ -248,7 +247,7 @@ export function calculateLucia(
       'lucia',
       'twoPiece',
       'swingJazz',
-      DRIVE_DISC_FACTS.swingJazz.energyRegenPct,
+      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen),
     ),
   ])
   const initialEnergyRegenInputs: ResolvedSetupInput[] = [

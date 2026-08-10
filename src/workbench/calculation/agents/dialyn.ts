@@ -2,7 +2,9 @@ import {
   DRIVE_DISC_FACTS,
   VERTICAL_VALUES,
   W_ENGINE_FACTS,
-  scaledEngineValue,
+  equipmentEffectBaseValue,
+  equipmentEffectMaximumValue,
+  equipmentEffectProgressionValue,
 } from '../../content'
 import {
   STATIC_SOURCES,
@@ -59,7 +61,7 @@ export function observeDialyn(
     'dialyn',
     'twoPiece',
     'woodpecker',
-    DRIVE_DISC_FACTS.woodpecker.critRate,
+    equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate),
   )
   const substatCrit = effectiveSubstatInput(setup, 'dialyn', 'critRate')
   const inputs = [engineCrit, mainCrit, twoPieceCrit, substatCrit]
@@ -92,25 +94,25 @@ export function resolveDialynProviderClauses(
     values.dialyn.impactBonusCap,
   )
   const kingCrit = setup.fourPieceId === 'king'
-    ? DRIVE_DISC_FACTS.king.squadCritDmg.base
+    ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.fourPiece.critDamage)
       + (initialCritRate >= values.dialyn.critThreshold
-        ? DRIVE_DISC_FACTS.king.squadCritDmg.atCritThreshold
+        ? equipmentEffectProgressionValue(DRIVE_DISC_FACTS.king.fourPiece.critDamage)
         : 0)
     : 0
   const laterImpact = setup.engineId === 'hellfireGears'
-    ? scaledEngineValue(W_ENGINE_FACTS.hellfireGears.impact, refinement)
+    ? equipmentEffectBaseValue(W_ENGINE_FACTS.hellfireGears.effects.impact, refinement)
     : setup.engineId === 'steamOven'
-      ? scaledEngineValue(W_ENGINE_FACTS.steamOven.impact, refinement)
+      ? equipmentEffectBaseValue(W_ENGINE_FACTS.steamOven.effects.impact, refinement)
       : 0
   const fullyDaze = setup.engineId === 'yesterdayCalls'
-    ? scaledEngineValue(W_ENGINE_FACTS.yesterdayCalls.daze, refinement)
+    ? equipmentEffectBaseValue(W_ENGINE_FACTS.yesterdayCalls.effects.daze, refinement)
     : setup.engineId === 'preciousFossilizedCore'
-      ? scaledEngineValue(W_ENGINE_FACTS.preciousFossilizedCore.dazePerThreshold, refinement) * 2
+      ? equipmentEffectMaximumValue(W_ENGINE_FACTS.preciousFossilizedCore.effects.daze, refinement)
       : 0
   const energy = setup.engineId === 'yesterdayCalls'
-    ? scaledEngineValue(W_ENGINE_FACTS.yesterdayCalls.energyPerSecond, refinement)
+    ? equipmentEffectBaseValue(W_ENGINE_FACTS.yesterdayCalls.effects.energy, refinement)
     : setup.engineId === 'hellfireGears'
-      ? scaledEngineValue(W_ENGINE_FACTS.hellfireGears.energyPerSecond, refinement)
+      ? equipmentEffectBaseValue(W_ENGINE_FACTS.hellfireGears.effects.energy, refinement)
       : 0
 
   return active([
@@ -119,7 +121,7 @@ export function resolveDialynProviderClauses(
     additive('dazeBonus', 'fully', engine, fullyDaze, 'self'),
     perSecond(engine, energy, 'self'),
     additive('dmgBonus', 'fully', STATIC_SOURCES.dialyn.additional, values.party.dialynDmg, 'all-party'),
-    additive('critDmg', 'fully', engine, setup.engineId === 'yesterdayCalls' ? scaledEngineValue(W_ENGINE_FACTS.yesterdayCalls.squadCritDmg, refinement) : 0, 'all-party'),
+    additive('critDmg', 'fully', engine, setup.engineId === 'yesterdayCalls' ? equipmentEffectBaseValue(W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, refinement) : 0, 'all-party'),
     additive('critDmg', 'fully', fourPiece, kingCrit, 'all-party', undefined, undefined, undefined, 'kingOfTheSummit'),
     additive('dmgBonus', 'fully', mindscapeSource('dialyn', 2, 'against Malicious Complaint'), setup.mindscape >= 2 ? values.dialyn.mindscapeDmg : 0, 'focus'),
     additive('stunDmgMultiplier', 'fully', STATIC_SOURCES.dialyn.core, values.party.dialynStunMultiplier, 'enemy-context'),
@@ -158,14 +160,14 @@ export function calculateDialyn(
       'dialyn',
       'twoPiece',
       'swingJazz',
-      DRIVE_DISC_FACTS.swingJazz.energyRegenPct,
+      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen),
     ),
     discStatInput(
       setup,
       'dialyn',
       'twoPiece',
       'moonlight',
-      DRIVE_DISC_FACTS.moonlight.energyRegenPct,
+      equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen),
     ),
   ])
   const initialEnergyRegenInputs: ResolvedSetupInput[] = [
@@ -184,7 +186,7 @@ export function calculateDialyn(
     'dialyn',
     'fourPiece',
     'king',
-    DRIVE_DISC_FACTS.king.daze,
+    equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze),
   )
   const critRate = composeMetricEffects(
     surfaces(initialCrit.value, initialCrit.value, initialCrit.value),

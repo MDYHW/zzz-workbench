@@ -3,7 +3,8 @@ import {
   VERTICAL_VALUES,
   W_ENGINE_FACTS,
   W_ENGINES,
-  scaledEngineValue,
+  equipmentEffectBaseValue,
+  equipmentEffectMaximumValue,
   type SetupFormulaFamily,
 } from '../../content'
 import {
@@ -66,9 +67,9 @@ export function observeAstra(setup: CompleteSetup): AstraCalculationContext {
   const engine = W_ENGINES[setup.engineId]
   const initialInputs = presentInputs([
     engineAdvancedInput(setup, 'astraYao', 'atkPct'),
-    discStatInput(setup, 'astraYao', 'fourPiece', 'astralVoice', DRIVE_DISC_FACTS.astralVoice.atkPct, 'twoPiece'),
-    discStatInput(setup, 'astraYao', 'twoPiece', 'astralVoice', DRIVE_DISC_FACTS.astralVoice.atkPct),
-    discStatInput(setup, 'astraYao', 'twoPiece', 'hormonePunk', DRIVE_DISC_FACTS.hormonePunk.atkPct),
+    discStatInput(setup, 'astraYao', 'fourPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
+    discStatInput(setup, 'astraYao', 'twoPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
+    discStatInput(setup, 'astraYao', 'twoPiece', 'hormonePunk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
     mainStatInput(setup, 'astraYao', 'slot4', 'atkPct'),
     mainStatInput(setup, 'astraYao', 'slot5', 'atkPct'),
     mainStatInput(setup, 'astraYao', 'slot6', 'atkPct'),
@@ -116,22 +117,22 @@ export function resolveAstraProviderClauses(
     ),
     additive('dazeBonus', 'fully', mindscapeSource('astraYao', 4, 'Next Quick Assist'), setup.mindscape >= 4 ? 50 : 0, 'all-party', 'triggerQuickAssist', undefined, [...stunRecipients]),
     withApplicability(
-      additive('dmgBonus', 'fully', engine, setup.engineId === 'elegantVanity' ? scaledEngineValue(W_ENGINE_FACTS.elegantVanity.dmgPerStack, refinement) * 2 : 0, 'all-party'),
+      additive('dmgBonus', 'fully', engine, setup.engineId === 'elegantVanity' ? equipmentEffectMaximumValue(W_ENGINE_FACTS.elegantVanity.effects.damage, refinement) : 0, 'all-party'),
       { formulas: damageFormulas },
     ),
     withApplicability(
-      additive('dmgBonus', 'fully', discSource('astraYao', 'astralVoice', '4-piece'), setup.fourPieceId === 'astralVoice' ? DRIVE_DISC_FACTS.astralVoice.entrantDmg : 0, 'all-party', undefined, undefined, undefined, 'astralVoiceEntrant'),
+      additive('dmgBonus', 'fully', discSource('astraYao', 'astralVoice', '4-piece'), setup.fourPieceId === 'astralVoice' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage) : 0, 'all-party', undefined, undefined, undefined, 'astralVoiceEntrant'),
       { formulas: damageFormulas },
     ),
     withApplicability(
-      additive('dmgBonus', 'fully', discSource('astraYao', 'moonlight', '4-piece'), setup.fourPieceId === 'moonlight' ? DRIVE_DISC_FACTS.moonlight.squadDmg : 0, 'all-party', undefined, undefined, undefined, 'moonlightLullaby'),
+      additive('dmgBonus', 'fully', discSource('astraYao', 'moonlight', '4-piece'), setup.fourPieceId === 'moonlight' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.fourPiece.damage) : 0, 'all-party', undefined, undefined, undefined, 'moonlightLullaby'),
       { formulas: damageFormulas },
     ),
     withApplicability(
       percentage('atk', 'fully', engine, setup.engineId === 'bashfulDemon'
-        ? scaledEngineValue(W_ENGINE_FACTS.bashfulDemon.atkPctPerStack, refinement) * 4
+        ? equipmentEffectMaximumValue(W_ENGINE_FACTS.bashfulDemon.effects.atk, refinement)
         : setup.engineId === 'kaboom'
-          ? scaledEngineValue(W_ENGINE_FACTS.kaboom.squadAtkPct, refinement)
+          ? equipmentEffectBaseValue(W_ENGINE_FACTS.kaboom.effects.atk, refinement)
           : 0, 'all-party'),
       { formulas: damageFormulas },
     ),
@@ -147,9 +148,9 @@ export function calculateAstra(
   const baseAtk = VERTICAL_VALUES.astraYao.atk + engine.baseAtk
   const initialAtkInputs = presentInputs([
     engineAdvancedInput(setup, 'astraYao', 'atkPct'),
-    discStatInput(setup, 'astraYao', 'fourPiece', 'astralVoice', DRIVE_DISC_FACTS.astralVoice.atkPct, 'twoPiece'),
-    discStatInput(setup, 'astraYao', 'twoPiece', 'astralVoice', DRIVE_DISC_FACTS.astralVoice.atkPct),
-    discStatInput(setup, 'astraYao', 'twoPiece', 'hormonePunk', DRIVE_DISC_FACTS.hormonePunk.atkPct),
+    discStatInput(setup, 'astraYao', 'fourPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
+    discStatInput(setup, 'astraYao', 'twoPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
+    discStatInput(setup, 'astraYao', 'twoPiece', 'hormonePunk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
     mainStatInput(setup, 'astraYao', 'slot4', 'atkPct'),
     mainStatInput(setup, 'astraYao', 'slot5', 'atkPct'),
     mainStatInput(setup, 'astraYao', 'slot6', 'atkPct'),
@@ -160,9 +161,9 @@ export function calculateAstra(
   const energyInputs = presentInputs([
     engineAdvancedInput(setup, 'astraYao', 'energyRegenPct'),
     mainStatInput(setup, 'astraYao', 'slot6', 'energyRegenPct'),
-    discStatInput(setup, 'astraYao', 'fourPiece', 'moonlight', DRIVE_DISC_FACTS.moonlight.energyRegenPct, 'twoPiece'),
-    discStatInput(setup, 'astraYao', 'twoPiece', 'moonlight', DRIVE_DISC_FACTS.moonlight.energyRegenPct),
-    discStatInput(setup, 'astraYao', 'twoPiece', 'swingJazz', DRIVE_DISC_FACTS.swingJazz.energyRegenPct),
+    discStatInput(setup, 'astraYao', 'fourPiece', 'moonlight', equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen), 'twoPiece'),
+    discStatInput(setup, 'astraYao', 'twoPiece', 'moonlight', equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen)),
+    discStatInput(setup, 'astraYao', 'twoPiece', 'swingJazz', equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
   ])
   const energy = energyRegenProjection(VERTICAL_VALUES.astraYao.baseEnergyRegen, energyInputs, effects)
   // Astra's Core output is shown in the gauge and distributed to recipients; it

@@ -83,6 +83,72 @@ export interface AdvancedStat {
   unit: '%'
 }
 
+export type RefinementValues = readonly [number, number, number, number, number]
+
+export type EquipmentEffectModifier =
+  | 'maxHp' | 'atk' | 'sheerForce' | 'impact' | 'critRate' | 'critDmg'
+  | 'dmgBonus' | 'sheerDmgBonus' | 'dazeBonus' | 'energy' | 'energyRegen'
+  | 'penRatio' | 'defIgnore' | 'defReduction'
+
+export type EquipmentEffectAttribute = 'Electric' | 'Ether'
+
+export type EquipmentEffectAction =
+  | 'Basic Attack' | 'Dash Attack' | 'Dodge Counter'
+  | 'EX Special Attack' | 'Ultimate' | 'Aftershock'
+
+export type EquipmentEffectRecipient = 'self' | 'squad' | 'enemy'
+export type EquipmentEffectValue = number | RefinementValues
+
+export interface EquipmentEffectScope {
+  recipient?: EquipmentEffectRecipient
+  actions?: readonly EquipmentEffectAction[]
+  attributes?: readonly EquipmentEffectAttribute[]
+}
+
+export type EquipmentEffectProgression =
+  | {
+    kind: 'stacks'
+    perStack: EquipmentEffectValue
+    maxStacks: number
+    atMaximum?: EquipmentEffectValue
+    /** Exact aggregate when rounding the final value differs from summing rounded increments. */
+    maximum?: EquipmentEffectValue
+  }
+  | {
+    kind: 'conditions'
+    perCondition: EquipmentEffectValue
+    maxConditions: number
+  }
+  | {
+    kind: 'thresholds'
+    perThreshold: EquipmentEffectValue
+    thresholds: readonly number[]
+  }
+
+type EquipmentEffectMagnitude =
+  | { value: EquipmentEffectValue; progression?: EquipmentEffectProgression }
+  | { value?: never; progression: EquipmentEffectProgression }
+
+export type EquipmentEffectFact = {
+  modifier: EquipmentEffectModifier
+  unit: '%' | '' | '/s'
+  scope?: EquipmentEffectScope
+} & EquipmentEffectMagnitude
+
+// Setup-content facts only. Local collection keys are handles for explicit
+// consumers; this shape does not decide activation or project effects into Result.
+export type EquipmentEffectCollection = Readonly<Record<string, EquipmentEffectFact>>
+
+export interface WEngineFacts {
+  advancedStat: AdvancedStat
+  effects: EquipmentEffectCollection
+}
+
+export interface DriveDiscFacts {
+  twoPiece: EquipmentEffectCollection
+  fourPiece?: EquipmentEffectCollection
+}
+
 export interface WEngineChoice {
   id: EngineId
   name: string
@@ -147,6 +213,76 @@ const scaleAt = (refinement: Refinement): number => 1 + (refinement - 1) * 0.15
 
 export const scaledEngineValue = (baseValue: number, refinement: Refinement): number =>
   round(baseValue * scaleAt(refinement))
+
+export const scaledRefinementValues = (baseValue: number): RefinementValues => [
+  scaledEngineValue(baseValue, 1),
+  scaledEngineValue(baseValue, 2),
+  scaledEngineValue(baseValue, 3),
+  scaledEngineValue(baseValue, 4),
+  scaledEngineValue(baseValue, 5),
+]
+
+export const fixedRefinementValues = (value: number): RefinementValues =>
+  [value, value, value, value, value]
+
+const resolveEquipmentEffectValue = (
+  value: EquipmentEffectValue,
+  refinement?: Refinement,
+): number => {
+  if (typeof value === 'number') return value
+  if (refinement === undefined) {
+    throw new Error('A refinement is required for a W-Engine effect value')
+  }
+  return value[refinement - 1]
+}
+
+export const equipmentEffectBaseValue = (
+  effect: EquipmentEffectFact,
+  refinement?: Refinement,
+): number => effect.value === undefined ? 0 : resolveEquipmentEffectValue(effect.value, refinement)
+
+export const equipmentEffectProgressionValue = (
+  effect: EquipmentEffectFact,
+  refinement?: Refinement,
+): number => {
+  const progression = effect.progression
+  if (!progression) return 0
+  if (progression.kind === 'stacks') {
+    return equipmentEffectProgressionIncrementValue(effect, refinement) * progression.maxStacks
+      + (progression.atMaximum === undefined
+        ? 0
+        : resolveEquipmentEffectValue(progression.atMaximum, refinement))
+  }
+  if (progression.kind === 'conditions') {
+    return equipmentEffectProgressionIncrementValue(effect, refinement) * progression.maxConditions
+  }
+  return equipmentEffectProgressionIncrementValue(effect, refinement) * progression.thresholds.length
+}
+
+export const equipmentEffectProgressionIncrementValue = (
+  effect: EquipmentEffectFact,
+  refinement?: Refinement,
+): number => {
+  const progression = effect.progression
+  if (!progression) return 0
+  return resolveEquipmentEffectValue(
+    progression.kind === 'stacks'
+      ? progression.perStack
+      : progression.kind === 'conditions'
+        ? progression.perCondition
+        : progression.perThreshold,
+    refinement,
+  )
+}
+
+export const equipmentEffectMaximumValue = (
+  effect: EquipmentEffectFact,
+  refinement?: Refinement,
+): number => effect.progression?.kind === 'stacks'
+  && effect.progression.maximum !== undefined
+  ? resolveEquipmentEffectValue(effect.progression.maximum, refinement)
+  : equipmentEffectBaseValue(effect, refinement)
+    + equipmentEffectProgressionValue(effect, refinement)
 
 export const defaultRefinementFor = (rank: EngineRank): Refinement => rank === 'S' ? 1 : 5
 

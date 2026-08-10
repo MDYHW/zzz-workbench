@@ -10,89 +10,177 @@ import shockstarImage from '../../assets/equipment/drive-discs/shockstar-disco.w
 import swingJazzImage from '../../assets/equipment/drive-discs/swing-jazz.webp'
 import woodpeckerImage from '../../assets/equipment/drive-discs/woodpecker-electro.webp'
 import yunkuiImage from '../../assets/equipment/drive-discs/yunkui-tales.webp'
-import type { AgentId, DiscId, DriveDiscChoice } from './types'
+import {
+  equipmentEffectBaseValue,
+  equipmentEffectMaximumValue,
+  type AgentId,
+  type DiscId,
+  type DriveDiscChoice,
+  type DriveDiscFacts,
+} from './types'
 
 export const DRIVE_DISC_FACTS = {
-  yunkui: { hpPct: 10, critRate: 12, sheerDmg: 10 },
-  woodpecker: { critRate: 8, atkPctAtMax: 27 },
-  branchAndBlade: { critDmg: 16 },
-  king: { daze: 6, squadCritDmg: { base: 15, atCritThreshold: 15 } },
-  swingJazz: { energyRegenPct: 20 },
-  moonlight: { energyRegenPct: 20, squadDmg: 18 },
-  shadowHarmony: { aftershockDmg: 15, atkPct: 12, critRate: 12 },
-  shockstar: { impactPct: 6, daze: 20 },
-  astralVoice: { atkPct: 10, entrantDmg: 24 },
-  hormonePunk: { atkPct: 10 },
-  dawnsBloom: { basicDmg: { initial: 15, combat: 20, fully: 20 } },
-  pufferElectro: { penRatio: 8, ultimateDmg: 20, atkPct: 15 },
-} as const
+  yunkui: {
+    twoPiece: {
+      maxHp: { modifier: 'maxHp', unit: '%', value: 10 },
+    },
+    fourPiece: {
+      critRate: { modifier: 'critRate', unit: '%', value: 12 },
+      sheerDamage: { modifier: 'sheerDmgBonus', unit: '%', value: 10 },
+    },
+  },
+  woodpecker: {
+    twoPiece: {
+      critRate: { modifier: 'critRate', unit: '%', value: 8 },
+    },
+    fourPiece: {
+      atk: { modifier: 'atk', unit: '%', value: 27 },
+    },
+  },
+  branchAndBlade: {
+    twoPiece: {
+      critDamage: { modifier: 'critDmg', unit: '%', value: 16 },
+    },
+  },
+  king: {
+    twoPiece: {
+      daze: { modifier: 'dazeBonus', unit: '%', value: 6 },
+    },
+    fourPiece: {
+      critDamage: { modifier: 'critDmg', unit: '%', value: 15, progression: { kind: 'conditions', perCondition: 15, maxConditions: 1 }, scope: { recipient: 'squad' } },
+    },
+  },
+  swingJazz: {
+    twoPiece: {
+      energyRegen: { modifier: 'energyRegen', unit: '%', value: 20 },
+    },
+  },
+  moonlight: {
+    twoPiece: {
+      energyRegen: { modifier: 'energyRegen', unit: '%', value: 20 },
+    },
+    fourPiece: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: 18, scope: { recipient: 'squad' } },
+    },
+  },
+  shadowHarmony: {
+    twoPiece: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: 15, scope: { actions: ['Aftershock', 'Dash Attack'] } },
+    },
+    fourPiece: {
+      atk: { modifier: 'atk', unit: '%', value: 12 },
+      critRate: { modifier: 'critRate', unit: '%', value: 12 },
+    },
+  },
+  shockstar: {
+    twoPiece: {
+      impact: { modifier: 'impact', unit: '%', value: 6 },
+    },
+    fourPiece: {
+      daze: { modifier: 'dazeBonus', unit: '%', value: 20, scope: { actions: ['Basic Attack', 'Dash Attack', 'Dodge Counter'] } },
+    },
+  },
+  astralVoice: {
+    twoPiece: {
+      atk: { modifier: 'atk', unit: '%', value: 10 },
+    },
+    fourPiece: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: 24, scope: { recipient: 'squad' } },
+    },
+  },
+  hormonePunk: {
+    twoPiece: {
+      atk: { modifier: 'atk', unit: '%', value: 10 },
+    },
+  },
+  dawnsBloom: {
+    twoPiece: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: 15, scope: { actions: ['Basic Attack'] } },
+    },
+    fourPiece: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: 20, progression: { kind: 'conditions', perCondition: 20, maxConditions: 1 }, scope: { actions: ['Basic Attack'] } },
+    },
+  },
+  pufferElectro: {
+    twoPiece: {
+      penRatio: { modifier: 'penRatio', unit: '%', value: 8 },
+    },
+    fourPiece: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: 20, scope: { actions: ['Ultimate'] } },
+      atk: { modifier: 'atk', unit: '%', value: 15 },
+    },
+  },
+} as const satisfies Record<DiscId, DriveDiscFacts>
 
 export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   yunkui: {
     id: 'yunkui', name: 'Yunkui Tales', image: yunkuiImage,
-    twoPieceEffect: `HP +${DRIVE_DISC_FACTS.yunkui.hpPct}%`,
+    twoPieceEffect: `HP +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.twoPiece.maxHp)}%`,
     fourPieceEffects: [
-      `CRIT Rate +${DRIVE_DISC_FACTS.yunkui.critRate}%`,
-      `Sheer DMG +${DRIVE_DISC_FACTS.yunkui.sheerDmg}%`,
+      `CRIT Rate +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.fourPiece.critRate)}%`,
+      `Sheer DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.fourPiece.sheerDamage)}%`,
     ],
   },
   woodpecker: {
     id: 'woodpecker', name: 'Woodpecker Electro', image: woodpeckerImage,
-    twoPieceEffect: `CRIT Rate +${DRIVE_DISC_FACTS.woodpecker.critRate}%`,
-    fourPieceEffects: [`ATK +${DRIVE_DISC_FACTS.woodpecker.atkPctAtMax}%`],
+    twoPieceEffect: `CRIT Rate +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)}%`,
+    fourPieceEffects: [`ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.fourPiece.atk)}%`],
   },
   branchAndBlade: {
     id: 'branchAndBlade', name: 'Branch & Blade Song', image: branchAndBladeImage,
-    twoPieceEffect: `CRIT DMG +${DRIVE_DISC_FACTS.branchAndBlade.critDmg}%`,
+    twoPieceEffect: `CRIT DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)}%`,
   },
   king: {
     id: 'king', name: 'King of the Summit', image: kingImage,
-    twoPieceEffect: `Daze +${DRIVE_DISC_FACTS.king.daze}%`,
+    twoPieceEffect: `Daze +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze)}%`,
     fourPieceEffects: [
-      `Squad CRIT DMG +${DRIVE_DISC_FACTS.king.squadCritDmg.base + DRIVE_DISC_FACTS.king.squadCritDmg.atCritThreshold}%`,
+      `Squad CRIT DMG +${equipmentEffectMaximumValue(DRIVE_DISC_FACTS.king.fourPiece.critDamage)}%`,
     ],
   },
   swingJazz: {
     id: 'swingJazz', name: 'Swing Jazz', image: swingJazzImage,
-    twoPieceEffect: `Energy Regen +${DRIVE_DISC_FACTS.swingJazz.energyRegenPct}%`,
+    twoPieceEffect: `Energy Regen +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)}%`,
   },
   moonlight: {
     id: 'moonlight', name: 'Moonlight Lullaby', image: moonlightImage,
-    twoPieceEffect: `Energy Regen +${DRIVE_DISC_FACTS.moonlight.energyRegenPct}%`,
-    fourPieceEffects: [`Squad DMG +${DRIVE_DISC_FACTS.moonlight.squadDmg}%`],
+    twoPieceEffect: `Energy Regen +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen)}%`,
+    fourPieceEffects: [`Squad DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.fourPiece.damage)}%`],
   },
   shadowHarmony: {
     id: 'shadowHarmony', name: 'Shadow Harmony', image: shadowHarmonyImage,
-    twoPieceEffect: 'Aftershock & Dash Attack DMG +15%',
-    fourPieceEffects: ['ATK +12%', 'CRIT Rate +12%'],
+    twoPieceEffect: `Aftershock & Dash Attack DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.shadowHarmony.twoPiece.damage)}%`,
+    fourPieceEffects: [
+      `ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.shadowHarmony.fourPiece.atk)}%`,
+      `CRIT Rate +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.shadowHarmony.fourPiece.critRate)}%`,
+    ],
   },
   shockstar: {
     id: 'shockstar', name: 'Shockstar Disco', image: shockstarImage,
-    twoPieceEffect: 'Impact +6%',
-    fourPieceEffects: ['Basic Attack, Dash Attack & Dodge Counter Daze +20%'],
+    twoPieceEffect: `Impact +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact)}%`,
+    fourPieceEffects: [`Basic Attack, Dash Attack & Dodge Counter Daze +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze)}%`],
   },
   astralVoice: {
     id: 'astralVoice', name: 'Astral Voice', image: astralVoiceImage,
-    twoPieceEffect: 'ATK +10%',
-    fourPieceEffects: ['Entrant DMG +24%'],
+    twoPieceEffect: `ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)}%`,
+    fourPieceEffects: [`Entrant DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage)}%`],
   },
   hormonePunk: {
     id: 'hormonePunk', name: 'Hormone Punk', image: hormonePunkImage,
-    twoPieceEffect: 'ATK +10%',
+    twoPieceEffect: `ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)}%`,
   },
   dawnsBloom: {
     id: 'dawnsBloom', name: "Dawn's Bloom", image: dawnsBloomImage,
-    twoPieceEffect: `Basic Attack DMG +${DRIVE_DISC_FACTS.dawnsBloom.basicDmg.initial}%`,
+    twoPieceEffect: `Basic Attack DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.dawnsBloom.twoPiece.damage)}%`,
     fourPieceEffects: [
-      `Basic Attack DMG +${DRIVE_DISC_FACTS.dawnsBloom.basicDmg.combat + DRIVE_DISC_FACTS.dawnsBloom.basicDmg.fully}%`,
+      `Basic Attack DMG +${equipmentEffectMaximumValue(DRIVE_DISC_FACTS.dawnsBloom.fourPiece.damage)}%`,
     ],
   },
   pufferElectro: {
     id: 'pufferElectro', name: 'Puffer Electro', image: pufferElectroImage,
-    twoPieceEffect: `PEN Ratio +${DRIVE_DISC_FACTS.pufferElectro.penRatio}%`,
+    twoPieceEffect: `PEN Ratio +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio)}%`,
     fourPieceEffects: [
-      `Ultimate DMG +${DRIVE_DISC_FACTS.pufferElectro.ultimateDmg}%`,
-      `ATK +${DRIVE_DISC_FACTS.pufferElectro.atkPct}%`,
+      `Ultimate DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.damage)}%`,
+      `ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.atk)}%`,
     ],
   },
 }

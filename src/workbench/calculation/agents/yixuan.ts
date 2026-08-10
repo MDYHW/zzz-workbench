@@ -4,7 +4,7 @@ import {
   VERTICAL_VALUES,
   W_ENGINE_FACTS,
   W_ENGINES,
-  scaledEngineValue,
+  equipmentEffectBaseValue,
 } from '../../content'
 import {
   STATIC_SOURCES,
@@ -52,22 +52,22 @@ export function resolveYixuanProviderClauses(
   const values = VERTICAL_VALUES
 
   return active([
-    additive('critRate', 'combat', engine, setup.engineId === 'qingming' ? scaledEngineValue(W_ENGINE_FACTS.qingming.critRate, refinement) : 0, 'self'),
+    additive('critRate', 'combat', engine, setup.engineId === 'qingming' ? equipmentEffectBaseValue(W_ENGINE_FACTS.qingming.effects.critRate, refinement) : 0, 'self'),
     additive('critRate', 'combat', mindscapeSource('yixuan', 1), setup.mindscape >= 1 ? values.yixuan.mindscapeCritRate : 0, 'self'),
-    additive('critRate', 'fully', engine, setup.engineId === 'cauldron' ? scaledEngineValue(W_ENGINE_FACTS.cauldron.critRate, refinement) : 0, 'self'),
-    additive('critRate', 'fully', fourPiece, setup.fourPieceId === 'yunkui' ? DRIVE_DISC_FACTS.yunkui.critRate : 0, 'self'),
+    additive('critRate', 'fully', engine, setup.engineId === 'cauldron' ? equipmentEffectBaseValue(W_ENGINE_FACTS.cauldron.effects.critRate, refinement) : 0, 'self'),
+    additive('critRate', 'fully', fourPiece, setup.fourPieceId === 'yunkui' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.fourPiece.critRate) : 0, 'self'),
     additive('critDmg', 'fully', STATIC_SOURCES.yixuan.additional, values.yixuan.additionalCritDmg, 'self'),
-    additive('critDmg', 'fully', engine, setup.engineId === 'puzzleSphere' ? scaledEngineValue(W_ENGINE_FACTS.puzzleSphere.critDmg, refinement) : 0, 'self'),
-    additive('dmgBonus', 'combat', engine, setup.engineId === 'qingming' ? scaledEngineValue(W_ENGINE_FACTS.qingming.etherDmg, refinement) : 0, 'self'),
-    additive('dmgBonus', 'fully', engine, setup.engineId === 'cauldron' ? scaledEngineValue(W_ENGINE_FACTS.cauldron.dmg, refinement) : 0, 'self'),
-    additive('sheerForce', 'fully', engine, setup.engineId === 'radiowave' ? scaledEngineValue(W_ENGINE_FACTS.radiowave.sheerForce, refinement) : 0, 'self'),
-    additive('sheerDmgBonus', 'fully', fourPiece, setup.fourPieceId === 'yunkui' ? DRIVE_DISC_FACTS.yunkui.sheerDmg : 0, 'self'),
+    additive('critDmg', 'fully', engine, setup.engineId === 'puzzleSphere' ? equipmentEffectBaseValue(W_ENGINE_FACTS.puzzleSphere.effects.critDamage, refinement) : 0, 'self'),
+    additive('dmgBonus', 'combat', engine, setup.engineId === 'qingming' ? equipmentEffectBaseValue(W_ENGINE_FACTS.qingming.effects.damage, refinement) : 0, 'self'),
+    additive('dmgBonus', 'fully', engine, setup.engineId === 'cauldron' ? equipmentEffectBaseValue(W_ENGINE_FACTS.cauldron.effects.damage, refinement) : 0, 'self'),
+    additive('sheerForce', 'fully', engine, setup.engineId === 'radiowave' ? equipmentEffectBaseValue(W_ENGINE_FACTS.radiowave.effects.sheerForce, refinement) : 0, 'self'),
+    additive('sheerDmgBonus', 'fully', fourPiece, setup.fourPieceId === 'yunkui' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.fourPiece.sheerDamage) : 0, 'self'),
     additive('sheerDmgBonus', 'fully', mindscapeSource('yixuan', 6, 'during Meditation'), setup.mindscape >= 6 ? values.yixuan.mindscapeMeditationSheerDmg : 0, 'self'),
     additive('dmgBonus', 'combat', STATIC_SOURCES.yixuan.core, values.yixuan.coreActionDmgBonus, 'self', 'coreActions'),
     additive('dmgBonus', 'fully', STATIC_SOURCES.yixuan.additional, values.yixuan.additionalExDmgBonus, 'self', 'exSpecialStunned'),
-    additive('dmgBonus', 'fully', engine, setup.engineId === 'puzzleSphere' ? scaledEngineValue(W_ENGINE_FACTS.puzzleSphere.actionExDmg, refinement) : 0, 'self', 'exSpecialStunned'),
+    additive('dmgBonus', 'fully', engine, setup.engineId === 'puzzleSphere' ? equipmentEffectBaseValue(W_ENGINE_FACTS.puzzleSphere.effects.damage, refinement) : 0, 'self', 'exSpecialStunned'),
     additive('dmgBonus', 'fully', mindscapeSource('yixuan', 4, '30% x 2 stacks'), setup.mindscape >= 4 ? values.yixuan.mindscapeActionDmgPerStack * 2 : 0, 'self', 'mindscapeCloudShaper'),
-    additive('sheerDmgBonus', 'combat', engine, setup.engineId === 'qingming' ? scaledEngineValue(W_ENGINE_FACTS.qingming.actionSheerDmg, refinement) : 0, 'self', 'engineSheerActions'),
+    additive('sheerDmgBonus', 'combat', engine, setup.engineId === 'qingming' ? equipmentEffectBaseValue(W_ENGINE_FACTS.qingming.effects.sheerDamage, refinement) : 0, 'self', 'engineSheerActions'),
     additive('resIgnore', 'fully', mindscapeSource('yixuan', 2, 'Ether RES Ignore'), setup.mindscape >= 2 ? values.yixuan.mindscapeEtherResIgnore : 0, 'enemy-context', 'mindscapeEtherResIgnore'),
     additive('stunDuration', 'fully', mindscapeSource('yixuan', 2), setup.mindscape >= 2 ? values.yixuan.mindscapeStunExtension : 0, 'enemy-context'),
   ])
@@ -202,7 +202,7 @@ export function calculateYixuan(
     'yixuan',
     'fourPiece',
     'yunkui',
-    DRIVE_DISC_FACTS.yunkui.hpPct,
+    equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.twoPiece.maxHp),
   )
   const slot5Hp = mainStatInput(setup, 'yixuan', 'slot5', 'hpPct')
   const slot6Hp = mainStatInput(setup, 'yixuan', 'slot6', 'hpPct')
@@ -227,14 +227,14 @@ export function calculateYixuan(
     'yixuan',
     'twoPiece',
     'woodpecker',
-    DRIVE_DISC_FACTS.woodpecker.critRate,
+    equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate),
   )
   const twoPieceCritDmg = discStatInput(
     setup,
     'yixuan',
     'twoPiece',
     'branchAndBlade',
-    DRIVE_DISC_FACTS.branchAndBlade.critDmg,
+    equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage),
   )
   const uncappedInitialCritRate = yixuan.critRate
     + (mainCritRate?.rawValue ?? 0)

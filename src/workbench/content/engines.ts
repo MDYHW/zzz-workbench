@@ -24,228 +24,325 @@ import unfetteredImage from '../../assets/equipment/w-engines/unfettered-game-ba
 import weepingCradleImage from '../../assets/equipment/w-engines/weeping-cradle.webp'
 import yesterdayCallsImage from '../../assets/equipment/w-engines/yesterday-calls.webp'
 import {
-  scaledEngineValue,
+  equipmentEffectBaseValue,
+  equipmentEffectMaximumValue,
+  equipmentEffectProgressionIncrementValue,
+  fixedRefinementValues,
+  scaledRefinementValues,
   type AgentId,
   type EngineId,
+  type EquipmentEffectFact,
   type PoolId,
   type Refinement,
   type WEngineChoice,
+  type WEngineFacts,
 } from './types'
 
-const percent = (baseValue: number, refinement: Refinement): string =>
-  `${scaledEngineValue(baseValue, refinement)}%`
-const perSecond = (baseValue: number, refinement: Refinement): string =>
-  `${scaledEngineValue(baseValue, refinement)}/s`
+const percent = (
+  effect: EquipmentEffectFact,
+  refinement: Refinement,
+  maximum = false,
+): string => `${maximum
+  ? equipmentEffectMaximumValue(effect, refinement)
+  : equipmentEffectBaseValue(effect, refinement)}%`
+
+const perSecond = (effect: EquipmentEffectFact, refinement: Refinement): string =>
+  `${equipmentEffectBaseValue(effect, refinement)}/s`
 
 export const W_ENGINE_FACTS = {
   qingming: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
-    critRate: 20,
-    etherDmg: 16,
-    actionSheerDmg: 20,
+    effects: {
+      critRate: { modifier: 'critRate', unit: '%', value: scaledRefinementValues(20) },
+      damage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(16), scope: { attributes: ['Ether'] } },
+      sheerDamage: { modifier: 'sheerDmgBonus', unit: '%', value: scaledRefinementValues(20), scope: { actions: ['EX Special Attack', 'Ultimate'], attributes: ['Ether'] } },
+    },
   },
   cauldron: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 25, unit: '%' },
-    dmg: 12,
-    critRate: 6.5,
+    effects: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(12) },
+      critRate: { modifier: 'critRate', unit: '%', value: scaledRefinementValues(6.5) },
+    },
   },
   radiowave: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 25, unit: '%' },
-    sheerForce: 240,
+    effects: {
+      sheerForce: { modifier: 'sheerForce', unit: '', value: scaledRefinementValues(240) },
+    },
   },
   puzzleSphere: {
     advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
-    critDmg: 16,
-    actionExDmg: 20,
+    effects: {
+      critDamage: { modifier: 'critDmg', unit: '%', value: scaledRefinementValues(16) },
+      damage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(20), scope: { actions: ['EX Special Attack'] } },
+    },
   },
   yesterdayCalls: {
     advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
-    energyPerSecond: 1.5,
-    daze: 27,
-    squadCritDmg: 30,
+    effects: {
+      energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(1.5) },
+      daze: { modifier: 'dazeBonus', unit: '%', value: scaledRefinementValues(27) },
+      critDamage: { modifier: 'critDmg', unit: '%', value: scaledRefinementValues(30), scope: { recipient: 'squad' } },
+    },
   },
   hellfireGears: {
     advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' },
-    energyPerSecond: 0.6,
-    impact: 20,
+    effects: {
+      energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.6) },
+      impact: { modifier: 'impact', unit: '%', value: scaledRefinementValues(20) },
+    },
   },
   steamOven: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
-    impact: 16,
+    effects: {
+      impact: { modifier: 'impact', unit: '%', value: scaledRefinementValues(16) },
+    },
   },
   dreamlitHearth: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
-    energyPerSecond: 0.4,
-    hpPct: 15,
-    squadDmg: 25,
+    effects: {
+      energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.4) },
+      maxHp: { modifier: 'maxHp', unit: '%', value: scaledRefinementValues(15) },
+      damage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(25), scope: { recipient: 'squad' } },
+    },
   },
   thoughtbop: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 60, unit: '%' },
-    energyPerSecond: 0.6,
-    squadDmgPerStack: 12.5,
-    squadAtkPct: 10,
+    effects: {
+      energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.6) },
+      damage: { modifier: 'dmgBonus', unit: '%', progression: { kind: 'stacks', perStack: scaledRefinementValues(12.5), maxStacks: 2, maximum: scaledRefinementValues(25) }, scope: { recipient: 'squad' } },
+      atk: { modifier: 'atk', unit: '%', value: scaledRefinementValues(10), scope: { recipient: 'squad' } },
+    },
   },
   weepingCradle: {
     advancedStat: { id: 'penRatio', label: 'PEN Ratio', value: 24, unit: '%' },
-    energyPerSecond: 0.6,
-    squadDmg: 20.2,
+    effects: {
+      energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.6) },
+      damage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(20.2), scope: { recipient: 'squad' } },
+    },
   },
   kaboom: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
-    squadAtkPct: 10,
+    effects: {
+      atk: { modifier: 'atk', unit: '%', value: scaledRefinementValues(10), scope: { recipient: 'squad' } },
+    },
   },
   unfetteredGameBall: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
-    squadCritRateBase: 10,
-    squadCritRatePerRefinement: 2,
+    effects: {
+      critRate: { modifier: 'critRate', unit: '%', value: [12, 14, 16, 18, 20], scope: { recipient: 'squad' } },
+    },
   },
-  severedInnocence: { advancedStat: { id: 'critDmg', label: 'CRIT DMG', value: 48, unit: '%' }, combatCritDmg: 30, stackCritDmg: 10, electricDmg: 20 },
-  cordisGermina: { advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' }, critRate: 15, electricDmgPerStack: 12.5, defIgnore: 20 },
-  marcatoDesire: { advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 20, unit: '%' }, atkPctPerClause: 6 },
-  starlightEngine: { advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' }, atkPct: 12 },
-  spectralGaze: { advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' }, defReduction: 25, impactPerStack: 4, impactAtMax: 8 },
-  iceJadeTeapot: { advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' }, impactPerStack: 0.7, dmg: 20 },
-  restrained: { advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' }, dmgPerStack: 6, dazePerStack: 6 },
-  preciousFossilizedCore: { advancedStat: { id: 'impactPct', label: 'Impact', value: 15, unit: '%' }, dazePerThreshold: 10 },
-  elegantVanity: { advancedStat: { id: 'atkPct', label: 'ATK', value: 30, unit: '%' }, energy: 5, dmgPerStack: 10 },
-  bashfulDemon: { advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' }, atkPctPerStack: 2 },
+  severedInnocence: {
+    advancedStat: { id: 'critDmg', label: 'CRIT DMG', value: 48, unit: '%' },
+    effects: {
+      critDamage: { modifier: 'critDmg', unit: '%', value: scaledRefinementValues(30), progression: { kind: 'stacks', perStack: scaledRefinementValues(10), maxStacks: 3 } },
+      damage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(20), scope: { attributes: ['Electric'] } },
+    },
+  },
+  cordisGermina: {
+    advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
+    effects: {
+      critRate: { modifier: 'critRate', unit: '%', value: scaledRefinementValues(15) },
+      damage: { modifier: 'dmgBonus', unit: '%', progression: { kind: 'stacks', perStack: scaledRefinementValues(12.5), maxStacks: 2, maximum: scaledRefinementValues(25) }, scope: { attributes: ['Electric'] } },
+      defIgnore: { modifier: 'defIgnore', unit: '%', value: scaledRefinementValues(20), scope: { recipient: 'enemy', actions: ['Basic Attack', 'Ultimate'] } },
+    },
+  },
+  marcatoDesire: {
+    advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 20, unit: '%' },
+    effects: {
+      atk: { modifier: 'atk', unit: '%', progression: { kind: 'conditions', perCondition: scaledRefinementValues(6), maxConditions: 2 } },
+    },
+  },
+  starlightEngine: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
+    effects: {
+      atk: { modifier: 'atk', unit: '%', value: scaledRefinementValues(12) },
+    },
+  },
+  spectralGaze: {
+    advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
+    effects: {
+      defReduction: { modifier: 'defReduction', unit: '%', value: scaledRefinementValues(25), scope: { recipient: 'enemy' } },
+      impact: { modifier: 'impact', unit: '%', progression: { kind: 'stacks', perStack: scaledRefinementValues(4), maxStacks: 3, atMaximum: scaledRefinementValues(8) } },
+    },
+  },
+  iceJadeTeapot: {
+    advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' },
+    effects: {
+      impact: { modifier: 'impact', unit: '%', progression: { kind: 'stacks', perStack: scaledRefinementValues(0.7), maxStacks: 30, maximum: scaledRefinementValues(21) } },
+      damage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(20), scope: { recipient: 'squad' } },
+    },
+  },
+  restrained: {
+    advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' },
+    effects: {
+      damage: { modifier: 'dmgBonus', unit: '%', progression: { kind: 'stacks', perStack: scaledRefinementValues(6), maxStacks: 5 }, scope: { actions: ['Basic Attack'] } },
+      daze: { modifier: 'dazeBonus', unit: '%', progression: { kind: 'stacks', perStack: scaledRefinementValues(6), maxStacks: 5 }, scope: { actions: ['Basic Attack'] } },
+    },
+  },
+  preciousFossilizedCore: {
+    advancedStat: { id: 'impactPct', label: 'Impact', value: 15, unit: '%' },
+    effects: {
+      daze: { modifier: 'dazeBonus', unit: '%', progression: { kind: 'thresholds', perThreshold: scaledRefinementValues(10), thresholds: [50, 75] } },
+    },
+  },
+  elegantVanity: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 30, unit: '%' },
+    effects: {
+      energy: { modifier: 'energy', unit: '', value: fixedRefinementValues(5) },
+      damage: { modifier: 'dmgBonus', unit: '%', progression: { kind: 'stacks', perStack: scaledRefinementValues(10), maxStacks: 2 }, scope: { recipient: 'squad' } },
+    },
+  },
+  bashfulDemon: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
+    effects: {
+      atk: { modifier: 'atk', unit: '%', progression: { kind: 'stacks', perStack: scaledRefinementValues(2), maxStacks: 4 }, scope: { recipient: 'squad' } },
+    },
+  },
   brimstone: {
     advancedStat: { id: 'atkPct', label: 'ATK', value: 30, unit: '%' },
-    atkPerStack: [3.5, 4.4, 5.2, 6, 7],
-    atkAtMax: [28, 35.2, 41.6, 48, 56],
+    effects: {
+      atk: { modifier: 'atk', unit: '%', progression: { kind: 'stacks', perStack: [3.5, 4.4, 5.2, 6, 7], maxStacks: 8 } },
+    },
   },
   serpentineSeeker: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 60, unit: '%' },
-    critRate: [25, 28.8, 32.5, 36.3, 40],
-    electricDefIgnore: [28, 31.5, 35, 38.5, 42],
+    effects: {
+      critRate: { modifier: 'critRate', unit: '%', value: [25, 28.8, 32.5, 36.3, 40] },
+      defIgnore: { modifier: 'defIgnore', unit: '%', value: [28, 31.5, 35, 38.5, 42], scope: { recipient: 'enemy', attributes: ['Electric'] } },
+    },
   },
   drillRigRedAxis: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
-    basicDashElectricDmg: [50, 57.5, 65, 72.5, 80],
+    effects: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: [50, 57.5, 65, 72.5, 80], scope: { actions: ['Basic Attack', 'Dash Attack'], attributes: ['Electric'] } },
+    },
   },
-} as const
+} as const satisfies Record<EngineId, WEngineFacts>
 
 export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   qingming: {
     id: 'qingming', name: 'Qingming Birdcage', rank: 'S', limited: true, baseAtk: 743,
     advancedStat: W_ENGINE_FACTS.qingming.advancedStat, image: qingmingImage,
     passiveLines: (refinement) => [
-      `CRIT Rate +${percent(W_ENGINE_FACTS.qingming.critRate, refinement)}`,
-      `Ether DMG +${percent(W_ENGINE_FACTS.qingming.etherDmg, refinement)}`,
-      `EX Special & Ultimate \u00B7 Ether Sheer DMG +${percent(W_ENGINE_FACTS.qingming.actionSheerDmg, refinement)}`,
+      `CRIT Rate +${percent(W_ENGINE_FACTS.qingming.effects.critRate, refinement)}`,
+      `Ether DMG +${percent(W_ENGINE_FACTS.qingming.effects.damage, refinement)}`,
+      `EX Special & Ultimate \u00B7 Ether Sheer DMG +${percent(W_ENGINE_FACTS.qingming.effects.sheerDamage, refinement)}`,
     ],
   },
   cauldron: {
     id: 'cauldron', name: 'Cauldron of Clarity', rank: 'A', limited: false, baseAtk: 594,
     advancedStat: W_ENGINE_FACTS.cauldron.advancedStat, image: cauldronImage,
     passiveLines: (refinement) => [
-      `DMG +${percent(W_ENGINE_FACTS.cauldron.dmg, refinement)}`,
-      `CRIT Rate +${percent(W_ENGINE_FACTS.cauldron.critRate, refinement)}`,
+      `DMG +${percent(W_ENGINE_FACTS.cauldron.effects.damage, refinement)}`,
+      `CRIT Rate +${percent(W_ENGINE_FACTS.cauldron.effects.critRate, refinement)}`,
     ],
   },
   radiowave: {
     id: 'radiowave', name: 'Radiowave Journey', rank: 'A', limited: false, baseAtk: 594,
     advancedStat: W_ENGINE_FACTS.radiowave.advancedStat, image: radiowaveImage,
     passiveLines: (refinement) => [
-      `Sheer Force +${scaledEngineValue(W_ENGINE_FACTS.radiowave.sheerForce, refinement)}`,
+      `Sheer Force +${equipmentEffectBaseValue(W_ENGINE_FACTS.radiowave.effects.sheerForce, refinement)}`,
     ],
   },
   puzzleSphere: {
     id: 'puzzleSphere', name: 'Puzzle Sphere', rank: 'A', limited: false, baseAtk: 594,
     advancedStat: W_ENGINE_FACTS.puzzleSphere.advancedStat, image: puzzleSphereImage,
     passiveLines: (refinement) => [
-      `CRIT DMG +${percent(W_ENGINE_FACTS.puzzleSphere.critDmg, refinement)}`,
-      `EX Special Attack \u00B7 DMG +${percent(W_ENGINE_FACTS.puzzleSphere.actionExDmg, refinement)}`,
+      `CRIT DMG +${percent(W_ENGINE_FACTS.puzzleSphere.effects.critDamage, refinement)}`,
+      `EX Special Attack \u00B7 DMG +${percent(W_ENGINE_FACTS.puzzleSphere.effects.damage, refinement)}`,
     ],
   },
   yesterdayCalls: {
     id: 'yesterdayCalls', name: 'Yesterday Calls', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.yesterdayCalls.advancedStat, image: yesterdayCallsImage,
     passiveLines: (refinement) => [
-      `Energy +${perSecond(W_ENGINE_FACTS.yesterdayCalls.energyPerSecond, refinement)}`,
-      `Daze +${percent(W_ENGINE_FACTS.yesterdayCalls.daze, refinement)}`,
-      `Squad CRIT DMG +${percent(W_ENGINE_FACTS.yesterdayCalls.squadCritDmg, refinement)}`,
+      `Energy +${perSecond(W_ENGINE_FACTS.yesterdayCalls.effects.energy, refinement)}`,
+      `Daze +${percent(W_ENGINE_FACTS.yesterdayCalls.effects.daze, refinement)}`,
+      `Squad CRIT DMG +${percent(W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, refinement)}`,
     ],
   },
   hellfireGears: {
     id: 'hellfireGears', name: 'Hellfire Gears', rank: 'S', limited: false, baseAtk: 684,
     advancedStat: W_ENGINE_FACTS.hellfireGears.advancedStat, image: hellfireImage,
     passiveLines: (refinement) => [
-      `Energy +${perSecond(W_ENGINE_FACTS.hellfireGears.energyPerSecond, refinement)}`,
-      `Impact +${percent(W_ENGINE_FACTS.hellfireGears.impact, refinement)}`,
+      `Energy +${perSecond(W_ENGINE_FACTS.hellfireGears.effects.energy, refinement)}`,
+      `Impact +${percent(W_ENGINE_FACTS.hellfireGears.effects.impact, refinement)}`,
     ],
   },
   steamOven: {
     id: 'steamOven', name: 'Steam Oven', rank: 'A', limited: false, baseAtk: 594,
     advancedStat: W_ENGINE_FACTS.steamOven.advancedStat, image: steamOvenImage,
-    passiveLines: (refinement) => [`Impact +${percent(W_ENGINE_FACTS.steamOven.impact, refinement)}`],
+    passiveLines: (refinement) => [`Impact +${percent(W_ENGINE_FACTS.steamOven.effects.impact, refinement)}`],
   },
   dreamlitHearth: {
     id: 'dreamlitHearth', name: 'Dreamlit Hearth', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.dreamlitHearth.advancedStat, image: dreamlitImage,
     passiveLines: (refinement) => [
-      `Energy +${perSecond(W_ENGINE_FACTS.dreamlitHearth.energyPerSecond, refinement)}`,
-      `Max HP +${percent(W_ENGINE_FACTS.dreamlitHearth.hpPct, refinement)}`,
-      `Squad DMG +${percent(W_ENGINE_FACTS.dreamlitHearth.squadDmg, refinement)}`,
+      `Energy +${perSecond(W_ENGINE_FACTS.dreamlitHearth.effects.energy, refinement)}`,
+      `Max HP +${percent(W_ENGINE_FACTS.dreamlitHearth.effects.maxHp, refinement)}`,
+      `Squad DMG +${percent(W_ENGINE_FACTS.dreamlitHearth.effects.damage, refinement)}`,
     ],
   },
   thoughtbop: {
     id: 'thoughtbop', name: 'Thoughtbop', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.thoughtbop.advancedStat, image: thoughtbopImage,
     passiveLines: (refinement) => [
-      `Energy +${perSecond(W_ENGINE_FACTS.thoughtbop.energyPerSecond, refinement)}`,
-      `Squad DMG +${percent(W_ENGINE_FACTS.thoughtbop.squadDmgPerStack * 2, refinement)}`,
-      `Squad ATK +${percent(W_ENGINE_FACTS.thoughtbop.squadAtkPct, refinement)}`,
+      `Energy +${perSecond(W_ENGINE_FACTS.thoughtbop.effects.energy, refinement)}`,
+      `Squad DMG +${percent(W_ENGINE_FACTS.thoughtbop.effects.damage, refinement, true)}`,
+      `Squad ATK +${percent(W_ENGINE_FACTS.thoughtbop.effects.atk, refinement)}`,
     ],
   },
   weepingCradle: {
     id: 'weepingCradle', name: 'Weeping Cradle', rank: 'S', limited: false, baseAtk: 684,
     advancedStat: W_ENGINE_FACTS.weepingCradle.advancedStat, image: weepingCradleImage,
     passiveLines: (refinement) => [
-      `Energy +${perSecond(W_ENGINE_FACTS.weepingCradle.energyPerSecond, refinement)}`,
-      `Squad DMG +${percent(W_ENGINE_FACTS.weepingCradle.squadDmg, refinement)}`,
+      `Energy +${perSecond(W_ENGINE_FACTS.weepingCradle.effects.energy, refinement)}`,
+      `Squad DMG +${percent(W_ENGINE_FACTS.weepingCradle.effects.damage, refinement)}`,
     ],
   },
   kaboom: {
     id: 'kaboom', name: 'Kaboom the Cannon', rank: 'A', limited: false, baseAtk: 624,
     advancedStat: W_ENGINE_FACTS.kaboom.advancedStat, image: kaboomImage,
-    passiveLines: (refinement) => [`Squad ATK +${percent(W_ENGINE_FACTS.kaboom.squadAtkPct, refinement)}`],
+    passiveLines: (refinement) => [`Squad ATK +${percent(W_ENGINE_FACTS.kaboom.effects.atk, refinement)}`],
   },
   unfetteredGameBall: {
     id: 'unfetteredGameBall', name: 'Unfettered Game Ball', rank: 'A', limited: false, baseAtk: 594,
     advancedStat: W_ENGINE_FACTS.unfetteredGameBall.advancedStat, image: unfetteredImage,
     passiveLines: (refinement) => [
-      `Squad CRIT Rate +${W_ENGINE_FACTS.unfetteredGameBall.squadCritRateBase + refinement * W_ENGINE_FACTS.unfetteredGameBall.squadCritRatePerRefinement}%`,
+      `Squad CRIT Rate +${percent(W_ENGINE_FACTS.unfetteredGameBall.effects.critRate, refinement)}`,
     ],
   },
-  severedInnocence: { id: 'severedInnocence', name: 'Severed Innocence', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.severedInnocence.advancedStat, image: severedInnocenceImage, passiveLines: (refinement) => [`CRIT DMG +${percent(W_ENGINE_FACTS.severedInnocence.combatCritDmg + W_ENGINE_FACTS.severedInnocence.stackCritDmg * 3, refinement)}`, `Electric DMG +${percent(W_ENGINE_FACTS.severedInnocence.electricDmg, refinement)}`] },
-  cordisGermina: { id: 'cordisGermina', name: 'Cordis Germina', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.cordisGermina.advancedStat, image: cordisGerminaImage, passiveLines: (refinement) => [`CRIT Rate +${percent(W_ENGINE_FACTS.cordisGermina.critRate, refinement)}`, `Electric DMG +${percent(W_ENGINE_FACTS.cordisGermina.electricDmgPerStack * 2, refinement)}`, `Basic Attack & Ultimate DEF Ignore +${percent(W_ENGINE_FACTS.cordisGermina.defIgnore, refinement)}`] },
-  marcatoDesire: { id: 'marcatoDesire', name: 'Marcato Desire', rank: 'A', limited: false, baseAtk: 594, advancedStat: W_ENGINE_FACTS.marcatoDesire.advancedStat, image: marcatoDesireImage, passiveLines: (refinement) => [`ATK +${percent(W_ENGINE_FACTS.marcatoDesire.atkPctPerClause * 2, refinement)}`] },
-  starlightEngine: { id: 'starlightEngine', name: 'Starlight Engine', rank: 'A', limited: false, baseAtk: 594, advancedStat: W_ENGINE_FACTS.starlightEngine.advancedStat, image: starlightEngineImage, passiveLines: (refinement) => [`ATK +${percent(W_ENGINE_FACTS.starlightEngine.atkPct, refinement)}`] },
-  spectralGaze: { id: 'spectralGaze', name: 'Spectral Gaze', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.spectralGaze.advancedStat, image: spectralGazeImage, passiveLines: (refinement) => [`Enemy DEF Reduction +${percent(W_ENGINE_FACTS.spectralGaze.defReduction, refinement)}`, `Impact +${percent(W_ENGINE_FACTS.spectralGaze.impactPerStack * 3 + W_ENGINE_FACTS.spectralGaze.impactAtMax, refinement)}`] },
-  iceJadeTeapot: { id: 'iceJadeTeapot', name: 'Ice-Jade Teapot', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.iceJadeTeapot.advancedStat, image: iceJadeTeapotImage, passiveLines: (refinement) => [`Impact +${percent(W_ENGINE_FACTS.iceJadeTeapot.impactPerStack * 30, refinement)}`, `Squad DMG +${percent(W_ENGINE_FACTS.iceJadeTeapot.dmg, refinement)}`] },
-  restrained: { id: 'restrained', name: 'The Restrained', rank: 'S', limited: false, baseAtk: 684, advancedStat: W_ENGINE_FACTS.restrained.advancedStat, image: restrainedImage, passiveLines: (refinement) => [`Basic Attack DMG +${percent(W_ENGINE_FACTS.restrained.dmgPerStack * 5, refinement)}`, `Basic Attack Daze +${percent(W_ENGINE_FACTS.restrained.dazePerStack * 5, refinement)}`] },
-  preciousFossilizedCore: { id: 'preciousFossilizedCore', name: 'Precious Fossilized Core', rank: 'A', limited: false, baseAtk: 594, advancedStat: W_ENGINE_FACTS.preciousFossilizedCore.advancedStat, image: preciousFossilizedCoreImage, passiveLines: (refinement) => [`Target HP ≥50% \u00B7 Daze +${percent(W_ENGINE_FACTS.preciousFossilizedCore.dazePerThreshold, refinement)}`, `Target HP ≥75% \u00B7 Daze +${percent(W_ENGINE_FACTS.preciousFossilizedCore.dazePerThreshold * 2, refinement)} total`] },
-  elegantVanity: { id: 'elegantVanity', name: 'Elegant Vanity', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.elegantVanity.advancedStat, image: elegantVanityImage, passiveLines: (refinement) => [`Energy +${W_ENGINE_FACTS.elegantVanity.energy}`, `Squad DMG +${percent(W_ENGINE_FACTS.elegantVanity.dmgPerStack * 2, refinement)}`] },
-  bashfulDemon: { id: 'bashfulDemon', name: 'Bashful Demon', rank: 'A', limited: false, baseAtk: 624, advancedStat: W_ENGINE_FACTS.bashfulDemon.advancedStat, image: bashfulDemonImage, passiveLines: (refinement) => [`Squad ATK +${percent(W_ENGINE_FACTS.bashfulDemon.atkPctPerStack * 4, refinement)}`] },
+  severedInnocence: { id: 'severedInnocence', name: 'Severed Innocence', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.severedInnocence.advancedStat, image: severedInnocenceImage, passiveLines: (refinement) => [`CRIT DMG +${percent(W_ENGINE_FACTS.severedInnocence.effects.critDamage, refinement, true)}`, `Electric DMG +${percent(W_ENGINE_FACTS.severedInnocence.effects.damage, refinement)}`] },
+  cordisGermina: { id: 'cordisGermina', name: 'Cordis Germina', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.cordisGermina.advancedStat, image: cordisGerminaImage, passiveLines: (refinement) => [`CRIT Rate +${percent(W_ENGINE_FACTS.cordisGermina.effects.critRate, refinement)}`, `Electric DMG +${percent(W_ENGINE_FACTS.cordisGermina.effects.damage, refinement, true)}`, `Basic Attack & Ultimate DEF Ignore +${percent(W_ENGINE_FACTS.cordisGermina.effects.defIgnore, refinement)}`] },
+  marcatoDesire: { id: 'marcatoDesire', name: 'Marcato Desire', rank: 'A', limited: false, baseAtk: 594, advancedStat: W_ENGINE_FACTS.marcatoDesire.advancedStat, image: marcatoDesireImage, passiveLines: (refinement) => [`ATK +${percent(W_ENGINE_FACTS.marcatoDesire.effects.atk, refinement, true)}`] },
+  starlightEngine: { id: 'starlightEngine', name: 'Starlight Engine', rank: 'A', limited: false, baseAtk: 594, advancedStat: W_ENGINE_FACTS.starlightEngine.advancedStat, image: starlightEngineImage, passiveLines: (refinement) => [`ATK +${percent(W_ENGINE_FACTS.starlightEngine.effects.atk, refinement)}`] },
+  spectralGaze: { id: 'spectralGaze', name: 'Spectral Gaze', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.spectralGaze.advancedStat, image: spectralGazeImage, passiveLines: (refinement) => [`Enemy DEF Reduction +${percent(W_ENGINE_FACTS.spectralGaze.effects.defReduction, refinement)}`, `Impact +${percent(W_ENGINE_FACTS.spectralGaze.effects.impact, refinement, true)}`] },
+  iceJadeTeapot: { id: 'iceJadeTeapot', name: 'Ice-Jade Teapot', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.iceJadeTeapot.advancedStat, image: iceJadeTeapotImage, passiveLines: (refinement) => [`Impact +${percent(W_ENGINE_FACTS.iceJadeTeapot.effects.impact, refinement, true)}`, `Squad DMG +${percent(W_ENGINE_FACTS.iceJadeTeapot.effects.damage, refinement)}`] },
+  restrained: { id: 'restrained', name: 'The Restrained', rank: 'S', limited: false, baseAtk: 684, advancedStat: W_ENGINE_FACTS.restrained.advancedStat, image: restrainedImage, passiveLines: (refinement) => [`Basic Attack DMG +${percent(W_ENGINE_FACTS.restrained.effects.damage, refinement, true)}`, `Basic Attack Daze +${percent(W_ENGINE_FACTS.restrained.effects.daze, refinement, true)}`] },
+  preciousFossilizedCore: { id: 'preciousFossilizedCore', name: 'Precious Fossilized Core', rank: 'A', limited: false, baseAtk: 594, advancedStat: W_ENGINE_FACTS.preciousFossilizedCore.advancedStat, image: preciousFossilizedCoreImage, passiveLines: (refinement) => [`Target HP ≥50% \u00B7 Daze +${equipmentEffectProgressionIncrementValue(W_ENGINE_FACTS.preciousFossilizedCore.effects.daze, refinement)}%`, `Target HP ≥75% \u00B7 Daze +${percent(W_ENGINE_FACTS.preciousFossilizedCore.effects.daze, refinement, true)} total`] },
+  elegantVanity: { id: 'elegantVanity', name: 'Elegant Vanity', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.elegantVanity.advancedStat, image: elegantVanityImage, passiveLines: (refinement) => [`Energy +${equipmentEffectBaseValue(W_ENGINE_FACTS.elegantVanity.effects.energy, refinement)}`, `Squad DMG +${percent(W_ENGINE_FACTS.elegantVanity.effects.damage, refinement, true)}`] },
+  bashfulDemon: { id: 'bashfulDemon', name: 'Bashful Demon', rank: 'A', limited: false, baseAtk: 624, advancedStat: W_ENGINE_FACTS.bashfulDemon.advancedStat, image: bashfulDemonImage, passiveLines: (refinement) => [`Squad ATK +${percent(W_ENGINE_FACTS.bashfulDemon.effects.atk, refinement, true)}`] },
   brimstone: {
     id: 'brimstone', name: 'The Brimstone', rank: 'S', limited: false, baseAtk: 684,
     advancedStat: W_ENGINE_FACTS.brimstone.advancedStat, image: brimstoneImage,
-    passiveLines: (refinement) => [`ATK +${W_ENGINE_FACTS.brimstone.atkAtMax[refinement - 1]}%`],
+    passiveLines: (refinement) => [`ATK +${percent(W_ENGINE_FACTS.brimstone.effects.atk, refinement, true)}`],
   },
   serpentineSeeker: {
     id: 'serpentineSeeker', name: 'Serpentine Seeker', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.serpentineSeeker.advancedStat, image: serpentineSeekerImage,
     passiveLines: (refinement) => [
-      `CRIT Rate +${W_ENGINE_FACTS.serpentineSeeker.critRate[refinement - 1]}%`,
-      `Electric DMG \u00B7 DEF Ignore +${W_ENGINE_FACTS.serpentineSeeker.electricDefIgnore[refinement - 1]}%`,
+      `CRIT Rate +${percent(W_ENGINE_FACTS.serpentineSeeker.effects.critRate, refinement)}`,
+      `Electric DMG \u00B7 DEF Ignore +${percent(W_ENGINE_FACTS.serpentineSeeker.effects.defIgnore, refinement)}`,
     ],
   },
   drillRigRedAxis: {
     id: 'drillRigRedAxis', name: 'Drill Rig - Red Axis', rank: 'A', limited: false, baseAtk: 624,
     advancedStat: W_ENGINE_FACTS.drillRigRedAxis.advancedStat, image: drillRigImage,
     passiveLines: (refinement) => [
-      `Basic & Dash Attack Electric DMG +${W_ENGINE_FACTS.drillRigRedAxis.basicDashElectricDmg[refinement - 1]}%`,
+      `Basic & Dash Attack Electric DMG +${percent(W_ENGINE_FACTS.drillRigRedAxis.effects.damage, refinement)}`,
     ],
   },
 }
