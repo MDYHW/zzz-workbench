@@ -11,6 +11,7 @@ export type AgentId =
   | 'astraYao'
   | 'seed'
   | 'cissia'
+  | 'evelyn'
 
 export type Refinement = 1 | 2 | 3 | 4 | 5
 export type EngineRank = 'S' | 'A'
@@ -41,6 +42,8 @@ export type EngineId =
   | 'brimstone'
   | 'serpentineSeeker'
   | 'drillRigRedAxis'
+  | 'heartstringNocturne'
+  | 'steelCushion'
 
 export type DiscId =
   | 'yunkui'
@@ -55,6 +58,7 @@ export type DiscId =
   | 'hormonePunk'
   | 'dawnsBloom'
   | 'pufferElectro'
+  | 'infernoMetal'
 
 export type MainSlot = 'slot4' | 'slot5' | 'slot6'
 
@@ -69,6 +73,7 @@ export type MainStatId =
   | 'impact'
   | 'energyRegenPct'
   | 'electricDmg'
+  | 'fireDmg'
 
 export type SubstatId =
   | 'critRate'
@@ -90,9 +95,9 @@ export type RefinementValues = readonly [number, number, number, number, number]
 export type EquipmentEffectModifier =
   | 'maxHp' | 'atk' | 'sheerForce' | 'impact' | 'critRate' | 'critDmg'
   | 'dmgBonus' | 'sheerDmgBonus' | 'dazeBonus' | 'energy' | 'energyRegen'
-  | 'penRatio' | 'defIgnore' | 'defReduction'
+  | 'penRatio' | 'defIgnore' | 'defReduction' | 'resIgnore'
 
-export type EquipmentEffectAttribute = 'Electric' | 'Ether'
+export type EquipmentEffectAttribute = 'Electric' | 'Ether' | 'Fire' | 'Physical'
 
 export type EquipmentEffectAction =
   Extract<
@@ -101,10 +106,12 @@ export type EquipmentEffectAction =
   | 'Dash Attack'
   | 'Dodge Counter'
   | 'EX Special Attack'
+  | 'Chain Attack'
   | 'Ultimate'
   >
 
 export type EquipmentEffectTag = Extract<ActionTag, 'aftershock'>
+export type EquipmentEffectCondition = 'backAttack'
 
 export type EquipmentEffectRecipient = 'self' | 'squad' | 'enemy'
 export type EquipmentEffectValue = number | RefinementValues
@@ -114,6 +121,7 @@ export interface EquipmentEffectScope {
   actions?: readonly EquipmentEffectAction[]
   tags?: readonly EquipmentEffectTag[]
   attributes?: readonly EquipmentEffectAttribute[]
+  condition?: EquipmentEffectCondition
 }
 
 export type EquipmentEffectProgression =

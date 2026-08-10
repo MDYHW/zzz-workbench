@@ -6,6 +6,7 @@ import dreamlitImage from '../../assets/equipment/w-engines/dreamlit-hearth.webp
 import drillRigImage from '../../assets/equipment/w-engines/drill-rig-red-axis.webp'
 import elegantVanityImage from '../../assets/equipment/w-engines/elegant-vanity.webp'
 import hellfireImage from '../../assets/equipment/w-engines/hellfire-gears.webp'
+import heartstringNocturneImage from '../../assets/equipment/w-engines/heartstring-nocturne.webp'
 import iceJadeTeapotImage from '../../assets/equipment/w-engines/ice-jade-teapot.webp'
 import kaboomImage from '../../assets/equipment/w-engines/kaboom-the-cannon.webp'
 import marcatoDesireImage from '../../assets/equipment/w-engines/marcato-desire.webp'
@@ -19,6 +20,7 @@ import severedInnocenceImage from '../../assets/equipment/w-engines/severed-inno
 import spectralGazeImage from '../../assets/equipment/w-engines/spectral-gaze.webp'
 import starlightEngineImage from '../../assets/equipment/w-engines/starlight-engine.webp'
 import steamOvenImage from '../../assets/equipment/w-engines/steam-oven.webp'
+import steelCushionImage from '../../assets/equipment/w-engines/steel-cushion.webp'
 import thoughtbopImage from '../../assets/equipment/w-engines/thoughtbop.webp'
 import unfetteredImage from '../../assets/equipment/w-engines/unfettered-game-ball.webp'
 import weepingCradleImage from '../../assets/equipment/w-engines/weeping-cradle.webp'
@@ -220,6 +222,20 @@ export const W_ENGINE_FACTS = {
       damage: { modifier: 'dmgBonus', unit: '%', value: [50, 57.5, 65, 72.5, 80], scope: { actions: ['Basic Attack', 'Dash Attack'], attributes: ['Electric'] } },
     },
   },
+  heartstringNocturne: {
+    advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
+    effects: {
+      critDamage: { modifier: 'critDmg', unit: '%', value: [50, 57.5, 65, 72.5, 80] },
+      fireResIgnore: { modifier: 'resIgnore', unit: '%', progression: { kind: 'stacks', perStack: [12.5, 14.5, 16.5, 18.5, 20], maxStacks: 2 }, scope: { recipient: 'enemy', actions: ['Chain Attack', 'Ultimate'], attributes: ['Fire'] } },
+    },
+  },
+  steelCushion: {
+    advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
+    effects: {
+      physicalDamage: { modifier: 'dmgBonus', unit: '%', value: [20, 25, 30, 35, 40], scope: { attributes: ['Physical'] } },
+      damage: { modifier: 'dmgBonus', unit: '%', value: [25, 31.5, 38, 44, 50], scope: { condition: 'backAttack' } },
+    },
+  },
 } as const satisfies Record<EngineId, WEngineFacts>
 
 /** Exact authored fields for one admitted W-Engine, derived from the fact source. */
@@ -349,6 +365,22 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `Basic & Dash Attack Electric DMG +${percent(W_ENGINE_FACTS.drillRigRedAxis.effects.damage, refinement)}`,
     ],
   },
+  heartstringNocturne: {
+    id: 'heartstringNocturne', name: 'Heartstring Nocturne', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.heartstringNocturne.advancedStat, image: heartstringNocturneImage,
+    passiveLines: (refinement) => [
+      `CRIT DMG +${percent(W_ENGINE_FACTS.heartstringNocturne.effects.critDamage, refinement)}`,
+      `Chain Attack & Ultimate Fire RES Ignore +${percent(W_ENGINE_FACTS.heartstringNocturne.effects.fireResIgnore, refinement, true)}`,
+    ],
+  },
+  steelCushion: {
+    id: 'steelCushion', name: 'Steel Cushion', rank: 'S', limited: false, baseAtk: 684,
+    advancedStat: W_ENGINE_FACTS.steelCushion.advancedStat, image: steelCushionImage,
+    passiveLines: (refinement) => [
+      `Physical DMG +${percent(W_ENGINE_FACTS.steelCushion.effects.physicalDamage, refinement)}`,
+      `Back Attack DMG +${percent(W_ENGINE_FACTS.steelCushion.effects.damage, refinement)}`,
+    ],
+  },
 }
 
 const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
@@ -365,4 +397,5 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   astraYao: enginePools(['elegantVanity', 'bashfulDemon', 'kaboom']),
   seed: enginePools(['cordisGermina', 'severedInnocence', 'brimstone', 'marcatoDesire']),
   cissia: enginePools(['serpentineSeeker', 'drillRigRedAxis', 'cordisGermina']),
+  evelyn: enginePools(['heartstringNocturne', 'severedInnocence', 'cordisGermina', 'starlightEngine', 'steelCushion']),
 }

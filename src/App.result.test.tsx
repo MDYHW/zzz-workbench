@@ -4,6 +4,40 @@ import { describe, expect, it } from 'vitest'
 import { App } from './App'
 
 describe('integrated party workbench: result', () => {
+  it('projects Evelyn’s active and inactive Chain-and-Ultimate scale through the existing Result hierarchy', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Evelyn, Fire, Attack/)
+    await replace(2, /Dialyn, Physical, Stun/)
+    await replace(3, /Astra Yao, Ether, Support/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    const evelynResult = screen.getByRole('region', { name: 'Evelyn Result' })
+    await user.click(within(evelynResult).getByRole('button', { name: 'CRIT Rate' }))
+    expect(within(evelynResult).getByRole('group', {
+      name: /Combat CRIT Rate: current 92[.]4, cap 100, threshold 80, Active; Chain Attack & Ultimate DMG Multiplier: ×1[.]25/,
+    })).toBeInTheDocument()
+    expect(within(evelynResult).getByRole('region', { name: 'Agent operations' }))
+      .toHaveTextContent('×1.25')
+
+    await user.click(within(evelynResult).getByRole('button', { name: 'DMG Bonus' }))
+    const outcomes = within(evelynResult).getByRole('table', { name: 'DMG Bonus action outcome values' })
+    expect(within(outcomes).getByText('Chain Attack')).toBeInTheDocument()
+    expect(within(outcomes).getByText('Ultimate')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Non-limited' }))
+    expect(within(evelynResult).getByRole('group', {
+      name: /Fully Enabled CRIT Rate: current 68[.]4, cap 100, threshold 80; Chain Attack & Ultimate DMG Multiplier: ×1[.]00/,
+    })).toBeInTheDocument()
+    expect(within(evelynResult).queryByRole('region', { name: 'Agent operations' })).not.toBeInTheDocument()
+  }, 10_000)
+
   it('renders Cissia Core precision without rounding its calculation basis', async () => {
     const user = userEvent.setup()
     render(<App />)

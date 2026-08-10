@@ -43,6 +43,7 @@ import {
   type ActionScopeNode,
 } from '../composition'
 import type { AgentResult } from '../result'
+import { initialAtkFor } from '../initial-atk'
 
 export interface CissiaCalculationContext {
   agentId: 'cissia'
@@ -98,11 +99,8 @@ function cissiaEnergyInputs(setup: CompleteSetup): ResolvedSetupInput[] {
 }
 
 export function observeCissia(setup: CompleteSetup): CissiaCalculationContext {
-  const baseAtk = VERTICAL_VALUES.cissia.atk + W_ENGINES[setup.engineId].baseAtk
-  const initialAtk = baseAtk * (1 + cissiaAtkInputs(setup).reduce(
-    (total, input) => total + input.rawValue,
-    0,
-  ) / 100) + VERTICAL_VALUES.fixedDisc.atk
+  const initialAtk = initialAtkFor('cissia', setup)
+  if (initialAtk === null) throw new Error('Complete Cissia setup requires a W-Engine')
   const initialEnergyRegen = VERTICAL_VALUES.cissia.baseEnergyRegen * (
     1 + cissiaEnergyInputs(setup).reduce((total, input) => total + input.rawValue, 0) / 100
   )

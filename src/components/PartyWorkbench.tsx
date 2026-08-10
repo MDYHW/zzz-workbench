@@ -1,5 +1,6 @@
 import { useEffect, useRef, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
 import dialynPortrait from '../assets/agents/portraits/dialyn.webp'
+import evelynPortrait from '../assets/agents/portraits/evelyn.webp'
 import luciaPortrait from '../assets/agents/portraits/lucia.webp'
 import anbySoldier0Portrait from '../assets/agents/portraits/soldier-0-anby.webp'
 import astraYaoPortrait from '../assets/agents/portraits/astra-yao.webp'
@@ -11,6 +12,7 @@ import auricInkMark from '../assets/game/attributes/auric-ink.webp'
 import etherMark from '../assets/game/attributes/ether.webp'
 import physicalMark from '../assets/game/attributes/physical.webp'
 import electricMark from '../assets/game/attributes/electric.webp'
+import fireMark from '../assets/game/attributes/fire.webp'
 import rankSMark from '../assets/game/ranks/s.webp'
 import ruptureMark from '../assets/game/specialties/rupture.webp'
 import attackMark from '../assets/game/specialties/attack.webp'
@@ -30,6 +32,7 @@ const PORTRAITS: Record<AgentId, string> = {
   astraYao: astraYaoPortrait,
   seed: seedPortrait,
   cissia: cissiaPortrait,
+  evelyn: evelynPortrait,
 }
 
 const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> = {
@@ -41,6 +44,7 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   astraYao: { attribute: etherMark, specialty: supportMark },
   seed: { attribute: electricMark, specialty: attackMark },
   cissia: { attribute: electricMark, specialty: attackMark },
+  evelyn: { attribute: fireMark, specialty: attackMark },
 }
 
 type PortraitVariant = 'expanded' | 'compact'
@@ -152,6 +156,7 @@ const PORTRAIT_PRESENTATION: Record<AgentId, PortraitPresentation> = {
   astraYao: { source: { face: { x: 48, y: 13 } }, expanded: { default: DESKTOP_EXPANDED_PORTRAIT_FRAME, mobile: { anchor: { x: 29, y: 47 }, width: 111 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 50, y: 43 }, width: 105 }, mobile: { anchor: { x: 50, y: 43 }, width: 150 } } },
   seed: { source: { face: { x: 52, y: 14 } }, expanded: { default: DESKTOP_EXPANDED_PORTRAIT_FRAME, mobile: { anchor: { x: 29, y: 48 }, width: 112 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 51, y: 44 }, width: 105 }, mobile: { anchor: { x: 51, y: 44 }, width: 150 } } },
   cissia: { source: { face: { x: 55, y: 14 } }, expanded: { default: DESKTOP_EXPANDED_PORTRAIT_FRAME, mobile: { anchor: { x: 30, y: 48 }, width: 112 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 52, y: 44 }, width: 105 }, mobile: { anchor: { x: 52, y: 44 }, width: 150 } } },
+  evelyn: { source: { face: { x: 50, y: 13 } }, expanded: { default: DESKTOP_EXPANDED_PORTRAIT_FRAME, mobile: { anchor: { x: 29, y: 48 }, width: 110 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 51, y: 44 }, width: 105 }, mobile: { anchor: { x: 51, y: 44 }, width: 150 } } },
 }
 
 function PortraitArt({ agentId, variant }: { agentId: AgentId; variant: PortraitVariant }) {

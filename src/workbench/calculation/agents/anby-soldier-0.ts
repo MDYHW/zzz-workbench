@@ -2,6 +2,7 @@ import { DRIVE_DISC_FACTS, VERTICAL_VALUES, W_ENGINE_FACTS, W_ENGINES, equipment
 import { STATIC_SOURCES, active, additive, discSource, discStatInput, effectiveSubstatInput, engineAdvancedInput, engineSource, mainStatInput, mindscapeSource, percentage, presentSetupInputs, pufferElectroFourPieceClauses, resolveDeliveredClauses, type CompleteSetup, type EffectMetric, type ResolvedSetupInput, type SourceBoundCurrentClause } from '../../effects'
 import { actionTarget, canonicalAction } from '../../actions'
 import { composeActionEffects, composeMetricEffects, contribution, percentageContribution, surfaces } from '../composition'
+import { initialAtkFor } from '../initial-atk'
 import type { AgentResult } from '../result'
 
 export interface AnbyCalculationContext { agentId: 'anbySoldier0'; setup: CompleteSetup; hasStunOrSupport: boolean; isFocus: boolean; initialAtk: number }
@@ -25,8 +26,8 @@ function anbyAtkInputs(setup: CompleteSetup): ResolvedSetupInput[] {
 }
 
 export const observeAnby = (setup: CompleteSetup, hasStunOrSupport: boolean, isFocus: boolean): AnbyCalculationContext => {
-  const baseAtk = VERTICAL_VALUES.anbySoldier0.atk + W_ENGINES[setup.engineId].baseAtk
-  const initialAtk = baseAtk * (1 + anbyAtkInputs(setup).reduce((n, x) => n + x.rawValue, 0) / 100) + 316
+  const initialAtk = initialAtkFor('anbySoldier0', setup)
+  if (initialAtk === null) throw new Error('Complete Anby setup requires a W-Engine')
   return { agentId: 'anbySoldier0', setup, hasStunOrSupport, isFocus, initialAtk }
 }
 

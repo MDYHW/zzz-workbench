@@ -1907,6 +1907,7 @@ button.main-stat-block:focus-visible {
 .source-tone--agent-astraYao { --source-color: #a43e71; }
 .source-tone--agent-seed { --source-color: #0f7a76; }
 .source-tone--agent-cissia { --source-color: #a64a19; }
+.source-tone--agent-evelyn { --source-color: #b6482f; }
 /* Calculation clamps stay neutral and are not a semantic source color. */
 .source-tone--calculation { --source-color: #596169; }
 
@@ -2781,6 +2782,13 @@ button.main-stat-block:focus-visible {
 
 .setup-chassis .selector-region--engine {
   max-height: 430px;
+}
+
+.setup-chassis .selector-region--disc {
+  top: auto;
+  bottom: calc(100% + 4px);
+  max-height: 350px;
+  overflow-y: auto;
 }
 
 .setup-chassis .selector-candidate--engine {

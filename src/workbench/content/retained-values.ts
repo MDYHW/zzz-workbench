@@ -72,6 +72,18 @@ export const VERTICAL_VALUES = {
     } satisfies Record<'atk' | 'critDmg', number>,
   },
   cissia: { atk: 938, critRate: 5, critDmg: 50, baseEnergyRegen: 1.56 },
+  evelyn: {
+    atk: 929,
+    critRate: 19.4,
+    critDmg: 50,
+    coreCritRate: 25,
+    additionalChainUltimateDmg: 30,
+    additionalCritThreshold: 80,
+    additionalMultiplier: 1.25,
+    mindscapeDefIgnore: 12,
+    mindscapeAtk: 15,
+    mindscapeCritDmg: 40,
+  },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [
@@ -107,5 +119,7 @@ export const SOURCE_LABELS = {
   cissiaCore: SOURCE_CATEGORY_LABELS.corePassive,
   cissiaAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   cissiaBasic: 'Basic Attack',
+  evelynCore: SOURCE_CATEGORY_LABELS.corePassive,
+  evelynAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const

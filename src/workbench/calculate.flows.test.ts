@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { calculateParty } from './calculate'
 import { createPreparedState } from './state'
-import { action, agent, metric, sourceLabels } from './calculate.test-support'
+import {
+  action,
+  agent,
+  metric,
+  selectDisc,
+  sourceLabels,
+} from './calculate.test-support'
 
 describe('representative calculation flows', () => {
   it('projects the first prepared party through Initial, Combat, and Fully Enabled', () => {
@@ -77,5 +83,35 @@ describe('representative calculation flows', () => {
     expect(action(anby, 'anbyAftershockCritDmg').breakdown.fully
       .filter(({ detail }) => detail === '35% of Fully Enabled CRIT DMG'))
       .toHaveLength(1)
+  })
+
+  it('projects Evelyn through established party recipients and contextual equipment', () => {
+    const base = createPreparedState({}, ['evelyn', 'cissia', 'dialyn'], 0)
+    const evelyn = agent(calculateParty(base)!, 'evelyn')
+
+    expect(metric(evelyn, 'critDmg').breakdown.combat)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'cissia', amount: 40 }))
+    expect(metric(evelyn, 'resIgnore').values)
+      .toEqual({ initial: 0, combat: 0, fully: 0 })
+    expect(Object.values(metric(evelyn, 'resIgnore').breakdown).flat())
+      .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'cissia' }))
+    expect(evelyn.metrics.find(({ id }) => id === 'defIgnore')).toBeUndefined()
+    expect(evelyn.operations).toContainEqual(expect.objectContaining({
+      id: 'evelynChainUltimateDmgMultiplier', surface: 'combat', value: 1.25,
+    }))
+
+    let contextual = createPreparedState({}, ['evelyn', 'dialyn', 'astraYao'], 0)
+    contextual = selectDisc(contextual, 'evelyn', 'fourPiece', 'pufferElectro')
+    const selected = agent(calculateParty(contextual)!, 'evelyn')
+    const parent = action(selected, 'evelynChainUltimate')
+    const ultimate = action(selected, 'evelynUltimate')
+    expect(ultimate.baseActionId).toBe('evelynChainUltimate')
+    expect(ultimate.values.fully - parent.values.fully).toBe(20)
+    expect(metric(selected, 'dmgBonus').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ label: 'Puffer Electro' }))
+    expect(metric(selected, 'atk').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Puffer Electro', display: { value: 15, unit: '%', decimals: 0 },
+      }))
   })
 })

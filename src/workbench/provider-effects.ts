@@ -49,6 +49,15 @@ import {
   resolveCissiaProviderClauses,
   type CissiaCalculationContext,
 } from './calculation/agents/cissia'
+import {
+  observeEvelyn,
+  resolveEvelynProviderClauses,
+  type EvelynCalculationContext,
+} from './calculation/agents/evelyn'
+import {
+  initialAtkFor,
+  type SeedVanguardAtkAgentId,
+} from './calculation/initial-atk'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -59,6 +68,7 @@ export type ProviderContext =
   | AstraCalculationContext
   | SeedCalculationContext
   | CissiaCalculationContext
+  | EvelynCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -98,10 +108,11 @@ function observeProviderContext(
   const slot = state.slots[providerIndex]
   if (!hasProviderInputs(slot.setup)) return null
 
-  const hasStunOrSupport = state.slots.some(({ agentId }) => (
-    agentId !== 'anbySoldier0'
-      && (agentId === 'dialyn' || agentId === 'trigger' || agentId === 'lucia' || agentId === 'astraYao')
-  ))
+  const hasStunOrSupport = state.slots.some(({ agentId }, index) => {
+    if (index === providerIndex) return false
+    const specialty = ADMITTED_AGENTS.find(({ id }) => id === agentId)?.specialty
+    return specialty === 'Stun' || specialty === 'Support'
+  })
   const hasAnby = state.slots.some(({ agentId }) => agentId === 'anbySoldier0')
 
   switch (slot.agentId) {
@@ -121,6 +132,8 @@ function observeProviderContext(
       return observeSeed(slot.setup)
     case 'cissia':
       return observeCissia(slot.setup)
+    case 'evelyn':
+      return observeEvelyn(slot.setup, hasStunOrSupport)
     default:
       return assertNever(slot.agentId)
   }
@@ -156,6 +169,8 @@ function providerClauses(
         electricAgentCount: party.electricAgentCount,
         additionalActive: party.cissiaAdditionalActive,
       })
+    case 'evelyn':
+      return resolveEvelynProviderClauses(context)
     default:
       return assertNever(context)
   }
@@ -176,6 +191,13 @@ function isElectricGeneralDamageAgent(agentId: AgentId): boolean {
   return agent?.attribute === 'Electric' && isGeneralDamageAgent(agentId)
 }
 
+function isSeedVanguardAtkAgent(agentId: AgentId): agentId is SeedVanguardAtkAgentId {
+  return agentId === 'anbySoldier0'
+    || agentId === 'seed'
+    || agentId === 'cissia'
+    || agentId === 'evelyn'
+}
+
 export function resolveSeedVanguard(
   observations: readonly SeedVanguardObservation[],
 ): AgentId | null {
@@ -183,6 +205,12 @@ export function resolveSeedVanguard(
   const candidates = observations.filter(({ agentId }) => (
     agentId !== 'seed' && isAttackAgent(agentId)
   ))
+  return selectSeedVanguardCandidate(candidates)
+}
+
+function selectSeedVanguardCandidate(
+  candidates: readonly SeedVanguardObservation[],
+): AgentId | null {
   if (candidates.length === 0) return null
   return candidates.reduce((selected, candidate) => (
     candidate.initialAtk > selected.initialAtk
@@ -195,12 +223,25 @@ export function resolveSeedVanguard(
   )).agentId
 }
 
-function initialAtkObservation(
-  context: ProviderContext,
-  appliedSlot: AppliedSlot,
-): SeedVanguardObservation | null {
-  if (!('initialAtk' in context)) return null
-  return { agentId: context.agentId, appliedSlot, initialAtk: context.initialAtk }
+export function resolveSeedVanguardForState(state: WorkbenchState): AgentId | null {
+  if (!state.slots.some(({ agentId }) => agentId === 'seed')) return null
+  const eligible = state.slots.filter(({ agentId }) => (
+    agentId !== 'seed' && isAttackAgent(agentId)
+  ))
+  if (eligible.length === 0) return null
+
+  const observations: SeedVanguardObservation[] = []
+  for (const slot of eligible) {
+    if (!isSeedVanguardAtkAgent(slot.agentId)) return null
+    const initialAtk = initialAtkFor(slot.agentId, slot.setup)
+    if (initialAtk === null) return null
+    observations.push({
+      agentId: slot.agentId,
+      appliedSlot: state.slots.indexOf(slot) as AppliedSlot,
+      initialAtk,
+    })
+  }
+  return selectSeedVanguardCandidate(observations)
 }
 
 function observeAllProviderContexts(state: WorkbenchState): ProviderContext[] {
@@ -215,10 +256,7 @@ export function resolveProviderEffects(state: WorkbenchState): ProviderEffects {
   const contexts = observeAllProviderContexts(state)
   const inboxes: ProviderEffects['inboxes'] = [[], [], []]
   const enemyContext: SourceBoundCurrentClause[] = []
-  const seedVanguardAgentId = resolveSeedVanguard(contexts.flatMap((context, index) => {
-    const observation = initialAtkObservation(context, index as AppliedSlot)
-    return observation ? [observation] : []
-  }))
+  const seedVanguardAgentId = resolveSeedVanguardForState(state)
   const summaries = state.slots.map(({ agentId }) => (
     ADMITTED_AGENTS.find(({ id }) => id === agentId)!
   ))
@@ -265,29 +303,34 @@ export function activeCandidatePressures(
   const recipientAgentId = state.slots[recipientSlot].agentId
   const hasCissiaCore = isElectricGeneralDamageAgent(recipientAgentId)
     && state.slots.some(({ agentId }) => agentId === 'cissia')
-  const hasSpectralGaze = isGeneralDamageAgent(recipientAgentId)
+  const hasSpectralGaze = (
+    recipientAgentId === 'anbySoldier0'
+      || recipientAgentId === 'dialyn'
+      || recipientAgentId === 'trigger'
+  )
     && state.slots.some(({ agentId, setup }) => (
       agentId === 'trigger' && setup.engineId === 'spectralGaze'
     ))
-  const seed = state.slots.find(({ agentId }) => agentId === 'seed')
-  const incompleteSafeVanguard = state.slots.find(({ agentId }) => (
-    agentId !== 'seed'
-      && agentId !== 'cissia'
-      && isAttackAgent(agentId)
-  ))?.agentId ?? null
-  const hasSeedM2Besiege = isElectricGeneralDamageAgent(recipientAgentId) && Boolean(
-    seed
-      && seed.setup.mindscape >= 2
-      && incompleteSafeVanguard
-      && (
-        recipientAgentId === 'seed'
-          || recipientAgentId === incompleteSafeVanguard
-      ),
-  )
+  const hasSeedM2Besiege = hasSeedM2CandidatePressure(state, recipientSlot)
 
   return hasCissiaCore || hasSpectralGaze || hasSeedM2Besiege
     ? ['materialBroadPrePenDefBypass']
     : []
+}
+
+export function hasSeedM2CandidatePressure(
+  state: WorkbenchState,
+  recipientSlot: AppliedSlot,
+): boolean {
+  const recipientAgentId = state.slots[recipientSlot].agentId
+  const seed = state.slots.find(({ agentId }) => agentId === 'seed')
+  const seedVanguard = resolveSeedVanguardForState(state)
+  return isGeneralDamageAgent(recipientAgentId) && Boolean(
+    seed
+      && seed.setup.mindscape >= 2
+      && seedVanguard
+      && (recipientAgentId === 'seed' || recipientAgentId === seedVanguard),
+  )
 }
 
 export function hasDialynUltimateOpportunity(

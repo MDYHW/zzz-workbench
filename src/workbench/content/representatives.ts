@@ -54,6 +54,12 @@ const cissiaRepresentative: Omit<SetupSelection, 'engineId'> = {
   mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'energyRegenPct' },
 }
 
+const evelynRepresentative: Omit<SetupSelection, 'engineId'> = {
+  fourPieceId: 'hormonePunk',
+  twoPieceId: 'branchAndBlade',
+  mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
+}
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -93,6 +99,10 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   cissia: {
     full: { ...cissiaRepresentative, engineId: 'serpentineSeeker' },
     nonLimited: { ...cissiaRepresentative, engineId: 'drillRigRedAxis' },
+  },
+  evelyn: {
+    full: { ...evelynRepresentative, engineId: 'heartstringNocturne' },
+    nonLimited: { ...evelynRepresentative, engineId: 'starlightEngine' },
   },
 }
 

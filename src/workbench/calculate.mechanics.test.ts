@@ -215,21 +215,31 @@ describe('calculateParty mechanisms', () => {
       agentId: 'anbySoldier0',
       party: ['anbySoldier0', 'dialyn', 'astraYao'],
       ultimateId: 'anbyUltimate',
+      pen: 8,
     },
     {
       agentId: 'seed',
       party: ['seed', 'dialyn', 'astraYao'],
       ultimateId: 'seedUltimate',
+      pen: 8,
     },
     {
       agentId: 'cissia',
       party: ['cissia', 'dialyn', 'yixuan'],
       ultimateId: 'cissiaUltimate',
+      pen: 8,
+    },
+    {
+      agentId: 'evelyn',
+      party: ['evelyn', 'dialyn', 'astraYao'],
+      ultimateId: 'evelynUltimate',
+      pen: 32,
     },
   ] as const)('projects the complete selected Puffer package for $agentId', ({
     agentId,
     party,
     ultimateId,
+    pen: expectedPen,
   }) => {
     const prepared = createPreparedState({}, [...party], 0)
     const baseline = agent(calculateParty(prepared)!, agentId)
@@ -243,7 +253,9 @@ describe('calculateParty mechanisms', () => {
     }
 
     const pen = metric(selected, 'penRatio')
-    expect(pen.values).toEqual({ initial: 8, combat: 8, fully: 8 })
+    expect(pen.values).toEqual({
+      initial: expectedPen, combat: expectedPen, fully: expectedPen,
+    })
     expect(pen.breakdown.initial.filter(({ label }) => label === 'Puffer Electro'))
       .toEqual([expect.objectContaining({
         ...pufferSource,
@@ -290,6 +302,97 @@ describe('calculateParty mechanisms', () => {
           .not.toContainEqual(expect.objectContaining(pufferSource))
       }
     }
+  })
+
+  it('projects Evelyn equipment through the shared surfaces and action hierarchy', () => {
+    const prepared = createPreparedState({}, ['evelyn', 'dialyn', 'astraYao'], 0)
+    const result = agent(calculateParty(prepared)!, 'evelyn')
+    const critRate = metric(result, 'critRate')
+    const parent = action(result, 'evelynChainUltimate')
+    const resIgnore = action(result, 'evelynChainUltimateResIgnore')
+
+    expect(metric(result, 'atk').values.initial).toBeCloseTo(2614.8, 10)
+    expect(critRate.values).toEqual({ initial: 67.4, combat: 92.4, fully: 92.4 })
+    expect(critRate.gauge).toMatchObject({
+      basisLabel: 'Combat CRIT Rate', current: 92.4, threshold: 80,
+      outputValue: 1.25, presentation: 'scale',
+    })
+    expect(result.operations).toEqual([expect.objectContaining({
+      id: 'evelynChainUltimateDmgMultiplier', surface: 'combat', value: 1.25,
+      presentation: 'scale',
+    })])
+    expect(parent.values.combat - metric(result, 'dmgBonus').values.combat).toBe(30)
+    expect(resIgnore.values).toEqual({ initial: 0, combat: 12.5, fully: 25 })
+    expect(metric(result, 'critDmg').values).toMatchObject({ initial: 66, combat: 116 })
+    expect(metric(result, 'critDmg').breakdown.combat)
+      .toContainEqual(expect.objectContaining({
+        label: 'Heartstring Nocturne', ownerAgentId: 'evelyn', amount: 50,
+      }))
+
+    const w5 = agent(calculateParty(setRefinement(prepared, 'evelyn', 5))!, 'evelyn')
+    expect(metric(w5, 'critDmg').values.combat).toBe(146)
+    expect(action(w5, 'evelynChainUltimateResIgnore').values)
+      .toEqual({ initial: 0, combat: 20, fully: 40 })
+
+    const nonLimited = agent(calculateParty(createPreparedState(
+      { evelyn: 'nonLimited' },
+      ['evelyn', 'dialyn', 'astraYao'],
+      0,
+    ))!, 'evelyn')
+    expect(metric(nonLimited, 'critRate')).toMatchObject({
+      values: { initial: 43.4, combat: 68.4, fully: 68.4 },
+      gauge: {
+        basisLabel: 'Fully Enabled CRIT Rate', current: 68.4,
+        outputValue: 1, presentation: 'scale',
+      },
+    })
+    expect(nonLimited.operations).toEqual([])
+
+    const withoutActivation = agent(calculateParty(createPreparedState(
+      {},
+      ['evelyn', 'seed', 'cissia'],
+      0,
+    ))!, 'evelyn')
+    expect(metric(withoutActivation, 'critRate').gauge).toBeUndefined()
+    expect(withoutActivation.operations).toEqual([])
+  })
+
+  it('keeps partial Evelyn W-Engine packages on only their applicable consumers', () => {
+    const base = createPreparedState({}, ['evelyn', 'dialyn', 'astraYao'], 0)
+
+    const cordis = agent(calculateParty(selectEngine(base, 'evelyn', 'cordisGermina'))!, 'evelyn')
+    expect(action(cordis, 'evelynBasicUltimateDefIgnore')).toMatchObject({
+      outcomes: [
+        { kind: 'canonical', action: 'Basic Attack' },
+        { kind: 'canonical', action: 'Ultimate' },
+      ],
+      metricId: 'defIgnore',
+      values: { initial: 0, combat: 0, fully: 20 },
+    })
+    expect(Object.values(metric(cordis, 'dmgBonus').breakdown).flat())
+      .not.toContainEqual(expect.objectContaining({ label: 'Cordis Germina' }))
+
+    const severed = agent(calculateParty(selectEngine(base, 'evelyn', 'severedInnocence'))!, 'evelyn')
+    expect(metric(severed, 'critDmg').breakdown.combat)
+      .toContainEqual(expect.objectContaining({ label: 'Severed Innocence', amount: 30 }))
+    expect(metric(severed, 'critDmg').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Severed Innocence', amount: 30 }))
+    expect(Object.values(metric(severed, 'dmgBonus').breakdown).flat())
+      .not.toContainEqual(expect.objectContaining({ label: 'Severed Innocence' }))
+
+    const steel = agent(calculateParty(selectEngine(base, 'evelyn', 'steelCushion'))!, 'evelyn')
+    expect(Object.values(metric(steel, 'dmgBonus').breakdown).flat()
+      .filter(({ label }) => label === 'Steel Cushion'))
+      .toEqual([expect.objectContaining({ amount: 25 })])
+
+    const starlight = agent(calculateParty(createPreparedState(
+      { evelyn: 'nonLimited' }, ['evelyn', 'dialyn', 'astraYao'], 0,
+    ))!, 'evelyn')
+    expect(metric(starlight, 'atk').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Starlight Engine', detail: 'W5',
+        display: { value: 19.2, unit: '%', decimals: 1 },
+      }))
   })
 
   it('omits fixed base values from source disclosure', () => {

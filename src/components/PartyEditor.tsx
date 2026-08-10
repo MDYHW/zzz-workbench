@@ -3,6 +3,7 @@ import anbyPortrait from '../assets/agents/portraits/soldier-0-anby.webp'
 import astraPortrait from '../assets/agents/portraits/astra-yao.webp'
 import cissiaPortrait from '../assets/agents/portraits/cissia.webp'
 import dialynPortrait from '../assets/agents/portraits/dialyn.webp'
+import evelynPortrait from '../assets/agents/portraits/evelyn.webp'
 import luciaPortrait from '../assets/agents/portraits/lucia.webp'
 import triggerPortrait from '../assets/agents/portraits/trigger.webp'
 import seedPortrait from '../assets/agents/portraits/seed.webp'
@@ -19,6 +20,7 @@ const portraits: Record<AgentId, string> = {
   astraYao: astraPortrait,
   seed: seedPortrait,
   cissia: cissiaPortrait,
+  evelyn: evelynPortrait,
 }
 
 interface PartyEditorProps {

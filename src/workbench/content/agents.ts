@@ -57,6 +57,13 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     specialty: 'Attack',
     focusEligible: false,
   },
+  {
+    id: 'evelyn',
+    name: 'Evelyn',
+    attribute: 'Fire',
+    specialty: 'Attack',
+    focusEligible: true,
+  },
 ]
 
 export const isFocusEligible = (agentId: AgentId): boolean =>

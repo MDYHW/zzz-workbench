@@ -27,6 +27,7 @@ import {
   effectiveTwoPieceIds,
   invalidRequiredSelections,
 } from './candidates'
+import { hasSeedM2CandidatePressure } from './provider-effects'
 
 export type Mindscape = 0 | 1 | 2 | 3 | 4 | 5 | 6
 export type SubstatCounts = Partial<Record<SubstatId, number>>
@@ -152,6 +153,34 @@ function establishedDiscHolders(
     : [{ agentId, fourPieceId: setup.fourPieceId }])
 }
 
+function withPreparedEvelynPressureMain(
+  state: WorkbenchState,
+  slot: AppliedSlot,
+  setup: AgentSetupState,
+): AgentSetupState {
+  if (state.slots[slot].agentId !== 'evelyn' || setup.mains.slot5 !== 'penRatio') {
+    return setup
+  }
+  const slots = [...state.slots] as WorkbenchState['slots']
+  slots[slot] = { ...slots[slot], setup }
+  const provisional = { ...state, slots }
+  return hasSeedM2CandidatePressure(provisional, slot)
+    ? { ...setup, mains: { ...setup.mains, slot5: 'fireDmg' } }
+    : setup
+}
+
+function withPreparedPartyPressureMains(state: WorkbenchState): WorkbenchState {
+  const slots = state.slots.map((current, slotIndex) => ({
+    ...current,
+    setup: withPreparedEvelynPressureMain(
+      state,
+      slotIndex as AppliedSlot,
+      current.setup,
+    ),
+  })) as WorkbenchState['slots']
+  return { ...state, slots }
+}
+
 function createTargetPreparedSetup(
   state: WorkbenchState,
   slot: AppliedSlot,
@@ -164,7 +193,11 @@ function createTargetPreparedSetup(
     state.slots[state.focusSlot].agentId,
     establishedDiscHolders(state.slots, slot),
   )
-  return setupStateFromSelection(agentId, pool, mindscape, selection)
+  return withPreparedEvelynPressureMain(
+    state,
+    slot,
+    setupStateFromSelection(agentId, pool, mindscape, selection),
+  )
 }
 
 export function createPreparedState(
@@ -178,13 +211,13 @@ export function createPreparedState(
     0,
   )) as [PreparationContext, PreparationContext, PreparationContext]
   const selections = preparePartySelections(contexts, agentIds[focusSlot])
-  return {
+  return withPreparedPartyPressureMains({
     slots: agentIds.map((agentId, index) => ({
       agentId,
       setup: setupStateFromSelection(agentId, contexts[index].pool, 0, selections[index]),
     })) as WorkbenchState['slots'],
     focusSlot,
-  }
+  })
 }
 
 function clampCount(value: number): number {
@@ -269,7 +302,7 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
           selections[index],
         ),
       })) as WorkbenchState['slots']
-      return { slots, focusSlot: draft.focusSlot }
+      return withPreparedPartyPressureMains({ slots, focusSlot: draft.focusSlot })
     }
     case 'setMindscape': {
       const currentSlot = state.slots[action.slot]

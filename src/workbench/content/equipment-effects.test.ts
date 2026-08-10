@@ -7,9 +7,11 @@ import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
   equipmentEffectProgressionValue,
+  defaultRefinementFor,
   type DriveDiscEffectField,
   type DriveDiscPiece,
   type EquipmentEffectAction,
+  type EquipmentEffectCondition,
   type EquipmentEffectTag,
   type WEngineEffectField,
 } from '../content'
@@ -21,12 +23,16 @@ describe('bounded equipment effect facts', () => {
       | 'Dash Attack'
       | 'Dodge Counter'
       | 'EX Special Attack'
+      | 'Chain Attack'
       | 'Ultimate'
     >()
+    expectTypeOf<EquipmentEffectCondition>().toEqualTypeOf<'backAttack'>()
     expectTypeOf<EquipmentEffectTag>().toEqualTypeOf<'aftershock'>()
     expectTypeOf<WEngineEffectField<'cordisGermina'>>()
       .toEqualTypeOf<'critRate' | 'damage' | 'defIgnore'>()
     expectTypeOf<WEngineEffectField<'brimstone'>>().toEqualTypeOf<'atk'>()
+    expectTypeOf<WEngineEffectField<'heartstringNocturne'>>()
+      .toEqualTypeOf<'critDamage' | 'fireResIgnore'>()
 
     expectTypeOf<DriveDiscPiece<'dawnsBloom'>>()
       .toEqualTypeOf<'twoPiece' | 'fourPiece'>()
@@ -123,5 +129,65 @@ describe('bounded equipment effect facts', () => {
       twoPieceEffect: 'PEN Ratio +8%',
       fourPieceEffects: ['Ultimate DMG +20%', 'ATK +15%'],
     })
+  })
+
+  it('retains Evelyn equipment facts as scoped effects and concise packages', () => {
+    const heartstring = W_ENGINE_FACTS.heartstringNocturne.effects.fireResIgnore
+    const refinements = [1, 2, 3, 4, 5] as const
+    const heartstringLines = refinements.map((refinement) =>
+      W_ENGINES.heartstringNocturne.passiveLines(refinement),
+    )
+    const steelLines = refinements.map((refinement) =>
+      W_ENGINES.steelCushion.passiveLines(refinement),
+    )
+
+    expect(heartstring).toMatchObject({
+      modifier: 'resIgnore',
+      progression: { kind: 'stacks', maxStacks: 2 },
+      scope: { recipient: 'enemy', actions: ['Chain Attack', 'Ultimate'], attributes: ['Fire'] },
+    })
+    expect(refinements.map((refinement) =>
+      equipmentEffectMaximumValue(heartstring, refinement),
+    )).toEqual([25, 29, 33, 37, 40])
+    expect(heartstringLines).toEqual([
+      ['CRIT DMG +50%', 'Chain Attack & Ultimate Fire RES Ignore +25%'],
+      ['CRIT DMG +57.5%', 'Chain Attack & Ultimate Fire RES Ignore +29%'],
+      ['CRIT DMG +65%', 'Chain Attack & Ultimate Fire RES Ignore +33%'],
+      ['CRIT DMG +72.5%', 'Chain Attack & Ultimate Fire RES Ignore +37%'],
+      ['CRIT DMG +80%', 'Chain Attack & Ultimate Fire RES Ignore +40%'],
+    ])
+    expect(steelLines).toEqual([
+      ['Physical DMG +20%', 'Back Attack DMG +25%'],
+      ['Physical DMG +25%', 'Back Attack DMG +31.5%'],
+      ['Physical DMG +30%', 'Back Attack DMG +38%'],
+      ['Physical DMG +35%', 'Back Attack DMG +44%'],
+      ['Physical DMG +40%', 'Back Attack DMG +50%'],
+    ])
+    expect(W_ENGINES.heartstringNocturne).toMatchObject({
+      rank: 'S',
+      limited: true,
+      baseAtk: 713,
+      advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
+    })
+    expect(W_ENGINES.heartstringNocturne.image).toContain('heartstring-nocturne.webp')
+    expect(W_ENGINES.steelCushion).toMatchObject({
+      rank: 'S',
+      limited: false,
+      baseAtk: 684,
+      advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
+    })
+    expect(W_ENGINES.steelCushion.image).toContain('steel-cushion.webp')
+    expect(defaultRefinementFor(W_ENGINES.heartstringNocturne.rank)).toBe(1)
+    expect(defaultRefinementFor(W_ENGINES.steelCushion.rank)).toBe(1)
+    expect(W_ENGINE_FACTS.steelCushion.effects.damage.scope).toEqual({ condition: 'backAttack' })
+    expect(DRIVE_DISCS.infernoMetal).toMatchObject({ twoPieceEffect: 'Fire DMG +10%' })
+    expect(DRIVE_DISCS.infernoMetal).not.toHaveProperty('fourPieceEffects')
+    expect(DRIVE_DISCS.infernoMetal.image).toContain('inferno-metal.webp')
+    expect(DRIVE_DISCS.hormonePunk.fourPieceEffects).toEqual(['ATK +25%'])
+    expect(DRIVE_DISCS.hormonePunk.image).toContain('hormone-punk.webp')
+
+    for (const line of [...heartstringLines, ...steelLines].flat()) {
+      expect(line).not.toMatch(/Base ATK|entry|entering|acquir|stack|refresh|duration|seconds?/i)
+    }
   })
 })

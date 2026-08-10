@@ -19,6 +19,7 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   astraYao: { primary: [], residual: [] },
   seed: { primary: ['general_damage'], residual: [] },
   cissia: { primary: ['general_damage', 'daze_buildup'], residual: [] },
+  evelyn: { primary: ['general_damage'], residual: [] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -36,6 +37,7 @@ export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
     numericValue: 60,
   },
   electricDmg: { id: 'electricDmg', label: 'Electric DMG', numericValue: 30 },
+  fireDmg: { id: 'fireDmg', label: 'Fire DMG', numericValue: 30 },
 }
 
 export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
@@ -82,6 +84,11 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot5: ['electricDmg', 'atkPct'],
     slot6: ['energyRegenPct', 'atkPct'],
   },
+  evelyn: {
+    slot4: ['critRate', 'critDmg'],
+    slot5: ['penRatio', 'fireDmg', 'atkPct'],
+    slot6: ['atkPct'],
+  },
 }
 
 export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
@@ -111,6 +118,11 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
     { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
   ],
   cissia: [
+    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
+    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+  ],
+  evelyn: [
     { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
     { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
     { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },

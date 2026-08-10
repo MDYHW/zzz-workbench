@@ -2,6 +2,7 @@ import astralVoiceImage from '../../assets/equipment/drive-discs/astral-voice.we
 import branchAndBladeImage from '../../assets/equipment/drive-discs/branch-and-blade-song.webp'
 import dawnsBloomImage from '../../assets/equipment/drive-discs/dawns-bloom.webp'
 import hormonePunkImage from '../../assets/equipment/drive-discs/hormone-punk.webp'
+import infernoMetalImage from '../../assets/equipment/drive-discs/inferno-metal.webp'
 import kingImage from '../../assets/equipment/drive-discs/king-of-the-summit.webp'
 import moonlightImage from '../../assets/equipment/drive-discs/moonlight-lullaby.webp'
 import pufferElectroImage from '../../assets/equipment/drive-discs/puffer-electro.webp'
@@ -92,6 +93,14 @@ export const DRIVE_DISC_FACTS = {
     twoPiece: {
       atk: { modifier: 'atk', unit: '%', value: 10 },
     },
+    fourPiece: {
+      atk: { modifier: 'atk', unit: '%', value: 25 },
+    },
+  },
+  infernoMetal: {
+    twoPiece: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Fire'] } },
+    },
   },
   dawnsBloom: {
     twoPiece: {
@@ -178,6 +187,11 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   hormonePunk: {
     id: 'hormonePunk', name: 'Hormone Punk', image: hormonePunkImage,
     twoPieceEffect: `ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)}%`,
+    fourPieceEffects: [`ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.fourPiece.atk)}%`],
+  },
+  infernoMetal: {
+    id: 'infernoMetal', name: 'Inferno Metal', image: infernoMetalImage,
+    twoPieceEffect: `Fire DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.infernoMetal.twoPiece.damage)}%`,
   },
   dawnsBloom: {
     id: 'dawnsBloom', name: "Dawn's Bloom", image: dawnsBloomImage,
@@ -208,4 +222,5 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
   astraYao: { fourPiece: ['astralVoice', 'moonlight'], twoPiece: ['moonlight', 'swingJazz', 'hormonePunk', 'astralVoice'] },
   seed: { fourPiece: ['dawnsBloom', 'woodpecker'], twoPiece: ['woodpecker', 'branchAndBlade', 'pufferElectro'] },
   cissia: { fourPiece: ['dawnsBloom'], twoPiece: ['swingJazz', 'woodpecker', 'branchAndBlade'] },
+  evelyn: { fourPiece: ['hormonePunk', 'woodpecker'], twoPiece: ['branchAndBlade', 'infernoMetal', 'woodpecker', 'pufferElectro', 'hormonePunk'] },
 }

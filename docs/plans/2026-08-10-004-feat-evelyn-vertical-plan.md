@@ -1,7 +1,7 @@
 ---
 title: "feat: Add Evelyn vertical"
 type: feat
-status: active
+status: completed
 date: 2026-08-10
 origin: docs/brainstorms/2026-08-10-evelyn-vertical-requirements.md
 ---

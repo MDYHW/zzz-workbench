@@ -202,6 +202,11 @@ export const STATIC_SOURCES = {
     ultimate: source('Ultimate', 'cissia', 'special'),
     critCap: source('Displayed CRIT Rate cap', 'cissia', 'calculation'),
   },
+  evelyn: {
+    core: source(SOURCE_LABELS.evelynCore, 'evelyn', 'core'),
+    additional: source(SOURCE_LABELS.evelynAbility, 'evelyn', 'additional'),
+    critCap: source('Displayed CRIT Rate cap', 'evelyn', 'calculation'),
+  },
 } as const
 
 export const mindscapeSource = (
@@ -378,7 +383,7 @@ export const active = (
 ) > 0.000_001)
 
 export function pufferElectroFourPieceClauses(
-  agentId: 'anbySoldier0' | 'seed' | 'cissia',
+  agentId: 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn',
   setup: CompleteSetup,
   ultimateAction: ActionTarget,
 ): SourceBoundCurrentClause[] {

@@ -228,6 +228,30 @@ describe('integrated party workbench: party', () => {
     expect(screen.getByRole('tab', { name: 'View Cissia setup and Result' })).toBeInTheDocument()
   })
 
+  it('admits Evelyn as a Fire Attack Focus with the established party identity controls', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Evelyn, Fire, Attack/)
+    await replace(2, /Astra Yao, Ether, Support/)
+    await replace(3, /Dialyn, Physical, Stun/)
+    expect(screen.getAllByText('Evelyn is Focus automatically.')).toHaveLength(2)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    expect(screen.getByText(/Focus.*Evelyn/)).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Evelyn setup' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Evelyn Result' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Fire, Attack').querySelectorAll('img')).toHaveLength(2)
+    const evelynTab = screen.getByRole('tab', { name: 'Close Evelyn setup and Result' })
+    await user.hover(evelynTab)
+    expect(evelynTab).toHaveClass('source-tone--agent-evelyn')
+  })
+
   it('keeps keyboard focus on a present filter when no replacement is available', async () => {
     const user = userEvent.setup()
     render(<App />)

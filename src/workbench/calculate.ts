@@ -11,6 +11,7 @@ import { calculateTrigger } from './calculation/agents/trigger'
 import { calculateAstra } from './calculation/agents/astra-yao'
 import { calculateSeed } from './calculation/agents/seed'
 import { calculateCissia } from './calculation/agents/cissia'
+import { calculateEvelyn } from './calculation/agents/evelyn'
 import type { PartyResult } from './calculation/result'
 import { resolveProviderEffects } from './provider-effects'
 
@@ -41,6 +42,7 @@ function orderedClauses(
     'astraYao',
     'seed',
     'cissia',
+    'evelyn',
   ] as const
   return [...clauses].sort((left, right) => (
     sourceOrder.indexOf(left.source.ownerAgentId)
@@ -96,6 +98,8 @@ export function calculateParty(state: WorkbenchState): PartyResult | null {
           return calculateSeed(context, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
         case 'cissia':
           return calculateCissia(context, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
+        case 'evelyn':
+          return calculateEvelyn(context, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
         default:
           return assertNever(context)
       }

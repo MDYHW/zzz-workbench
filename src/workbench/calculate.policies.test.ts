@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { calculateParty } from './calculate'
-import { resolveProviderEffects, resolveSeedVanguard } from './provider-effects'
+import {
+  resolveProviderEffects,
+  resolveSeedVanguard,
+  resolveSeedVanguardForState,
+} from './provider-effects'
 import { createPreparedState, workbenchReducer } from './state'
 import { canonicalAction } from './actions'
 import {
@@ -68,6 +72,27 @@ describe('authored calculation policies', () => {
         .toContainEqual(expect.objectContaining({ ownerAgentId: 'seed', amount: 30 }))
       expect(metric(agent(after, 'anbySoldier0'), 'critDmg').breakdown.combat)
         .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'seed', amount: 30 }))
+    })
+
+    it('uses the same exact Initial-ATK observation for Evelyn Vanguard ties', () => {
+      let state = createPreparedState({}, ['seed', 'evelyn', 'anbySoldier0'], 1)
+      state = selectDisc(state, 'evelyn', 'fourPiece', 'woodpecker')
+      const effects = resolveProviderEffects(state)
+      const evelyn = effects.contexts.find(({ agentId }) => agentId === 'evelyn')
+      const anby = effects.contexts.find(({ agentId }) => agentId === 'anbySoldier0')
+      if (evelyn?.agentId !== 'evelyn' || anby?.agentId !== 'anbySoldier0') {
+        throw new Error('Missing exact Initial-ATK observations')
+      }
+
+      expect(evelyn.initialAtk).toBeCloseTo(2450.6, 10)
+      expect(anby.initialAtk).toBeCloseTo(2450.6, 10)
+      expect(resolveSeedVanguardForState(state)).toBe('evelyn')
+      expect(metric(agent(calculateParty(state)!, 'evelyn'), 'critDmg').breakdown.combat)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'seed', amount: 30 }))
+
+      const reordered = createPreparedState({}, ['anbySoldier0', 'evelyn', 'seed'], 1)
+      const tied = selectDisc(reordered, 'evelyn', 'fourPiece', 'woodpecker')
+      expect(resolveSeedVanguardForState(tied)).toBe('anbySoldier0')
     })
 
     it('applies Yixuan cumulative Mindscapes only to their parent and action scopes', () => {
@@ -455,5 +480,26 @@ describe('authored calculation policies', () => {
       expect(metric(stun, 'critDmg').values.combat).toBe(100)
       expect(action(electric, 'cissiaCorrodeDaze').values.fully).toBe(60)
       expect(action(stun, 'cissiaCorrodeDaze').values.fully).toBe(40)
+    })
+
+    it('applies Evelyn cumulative Mindscapes without admitting excluded outcomes', () => {
+      const base = createPreparedState({}, ['evelyn', 'dialyn', 'astraYao'], 0)
+      const m0 = agent(calculateParty(base)!, 'evelyn')
+      const m1 = agent(calculateParty(withMindscape(base, 'evelyn', 1))!, 'evelyn')
+      const m2 = agent(calculateParty(withMindscape(base, 'evelyn', 2))!, 'evelyn')
+      const m4 = agent(calculateParty(withMindscape(base, 'evelyn', 4))!, 'evelyn')
+      const m6 = agent(calculateParty(withMindscape(base, 'evelyn', 6))!, 'evelyn')
+
+      expect(metric(m1, 'defIgnore').values)
+        .toEqual({ initial: 0, combat: 12, fully: 12 })
+      expect(metric(m2, 'atk').values.combat - metric(m1, 'atk').values.combat)
+        .toBeCloseTo((929 + 713) * .15, 10)
+      expect(metric(m4, 'critDmg').values.fully - metric(m2, 'critDmg').values.fully)
+        .toBe(40)
+      expect(m6.metrics).toEqual(m4.metrics)
+      expect(m6.actionModifiers).toEqual(m4.actionModifiers)
+      expect(m0.operations).toHaveLength(1)
+      expect(m6.operations).toEqual(m4.operations)
+      expect(JSON.stringify(m6)).not.toMatch(/shield|decibel|burning|tether|coefficient/i)
     })
 })
