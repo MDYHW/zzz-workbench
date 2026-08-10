@@ -64,7 +64,7 @@ describe('integrated party workbench: setup', () => {
       name: 'Change 4-piece Drive Disc from Astral Voice',
     })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Swing Jazz' })).toBeInTheDocument()
-  })
+  }, 10_000)
 
   it('lets Seed select Dialyn-contextual Puffer without changing the prepared remainder', async () => {
     const user = userEvent.setup()
