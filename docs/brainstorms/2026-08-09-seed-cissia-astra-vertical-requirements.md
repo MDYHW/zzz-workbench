@@ -221,9 +221,10 @@ The prose requirements govern if this diagram and the text ever differ.
   and their 2-piece rows show `Basic Attack DMG +15%` and `CRIT Rate +8%`.
   Routine trigger and category-acquisition steps are absent from the summary.
 - R12. Entering combat with a Vanguard immediately establishes Seed's Core at
-  Combat: Seed and the current Vanguard receive their respective +1,000 ATK and
-  +30% CRIT DMG statuses and both receive +25% DMG while both statuses are
-  active; these reachable values remain at Fully Enabled. Seed's Additional
+  Combat: Seed and the current Vanguard each receive +1,000 ATK and +30% CRIT
+  DMG through their respective statuses, and both receive broad +25% DMG while
+  both statuses are active. The Besiege DMG clause has no Attribute restriction;
+  these reachable values remain at Fully Enabled. Seed's Additional
   Ability grants the Vanguard +2 Energy when Seed deals damage as the active
   character, limited to once per 1s. This exact event-conditioned resource
   clause remains compressed Setup content because it changes the whole-package
@@ -245,12 +246,14 @@ The prose requirements govern if this diagram and the text ever differ.
   rotation model, generic DMG row, or new combat-state lifecycle.
 - R14a. Seed exposes ATK, CRIT Rate, CRIT DMG, DMG Bonus, selected PEN Ratio,
   and any nonzero applicable DEF Ignore, DEF Reduction, RES Ignore, RES
-  Reduction, or Stun DMG Multiplier parent region. `Slaughter`, `Downfall`, and
-  `Ultimate` are the three canonical action outcomes. Dawn's Bloom and Cordis
-  Germina Basic scope applies to Slaughter and Downfall, while Cordis Germina
-  Ultimate scope also applies to Ultimate. Seed's Additional Ability applies
-  to all three; M1 applies only to Downfall; M2's +120% applies only to
-  Slaughter; and M4 applies only to Ultimate. Seed exposes no Energy, Energy
+  Reduction, or Stun DMG Multiplier parent region. The retained visible scopes
+  are `Basic Attack: Falling Petals - Slaughter`, `Basic Attack: Falling Petals
+  - Downfall`, and `Ultimate`. Sources common to all three form one action
+  outcome group; Dawn's Bloom and Cordis Germina Basic scope form a nested group
+  for the two Basic Attack forms, while narrower differences remain child
+  outcomes. Seed's Additional Ability applies to all three; M1 applies only to
+  Downfall; M2's +120% applies only to Slaughter; and M4 applies only to
+  Ultimate. Seed exposes no Energy, Energy
   Regen, Steel Charge, or Vanguard gauge. Conditional parent regions and action
   outcomes are absent when no current source contributes.
 - R15. Each Corrode Bone trigger grants +6% CRIT Rate; Fully Enabled reaches the
@@ -283,11 +286,14 @@ The prose requirements govern if this diagram and the text ever differ.
   DEF Ignore, DEF Reduction, RES Ignore, RES Reduction, or Stun DMG Multiplier
   region. Her Initial Energy Regen owns a visible threshold/cap gauge whose
   Combat output is the R16 Core DEF Ignore, with a 25% M0 cap or 35% M1+ cap;
-  Fully Enabled retains the same current output. `Corrode Bone` and `Serpent's
-  Kiss` are canonical Basic Attack outcomes, so Dawn's Bloom, Drill Rig - Red
-  Axis, and applicable Basic-scoped sources
-  project on both. Corrode Bone additionally owns the Daze and M1
-  action-specific RES Ignore outcomes; Cissia M2 applies only to Serpent's Kiss.
+  Fully Enabled retains the same current output. The retained visible scopes
+  are the source-local `Corrode Bone` outcome and `Basic Attack: Serpent's
+  Kiss`. Dawn's Bloom, Drill Rig - Red Axis, and applicable Basic-scoped sources
+  project on both under the current authored applicability, but that shared
+  applicability does not rename Corrode Bone as a Basic Attack. Their common
+  values form one action outcome group; Corrode Bone additionally owns the Daze
+  and M1 action-specific RES Ignore outcomes; Cissia M2 applies only to
+  Serpent's Kiss.
   Serpent's Kiss and Ultimate Quick Assist triggers remain exact activation and
   preparation facts for Astral Voice, not standalone numeric Result operations.
   No raw DMG, raw Daze, Venom count, or Serpentine Shadow gauge is admitted.
@@ -314,8 +320,9 @@ The prose requirements govern if this diagram and the text ever differ.
   formula region, and current parent or action projector. Delivery never adds a
   setup role or a generic Result row. Representative acceptance examples pin
   this semantic rule without freezing an exhaustive named-Agent matrix.
-- R18a. Seed's Core ATK, CRIT DMG, and Besiege DMG deliver only to Seed and the
-  current Vanguard, and Seed's Additional action clauses belong only to Seed.
+- R18a. Seed's Core ATK and CRIT DMG each deliver to both Seed and the current
+  Vanguard; broad Besiege DMG delivers to those same two recipients. Seed's
+  Additional action clauses belong only to Seed.
   Cissia's Core DEF Ignore
   and M1's 5% RES Ignore deliver to the party but project only through
   applicable Electric damage consumers. Her Additional and Ultimate CRIT DMG
@@ -399,7 +406,11 @@ The prose requirements govern if this diagram and the text ever differ.
 - AE5. **Covers R11a-R14a.** Given Seed M2 Fully Enabled, Slaughter shows one
   +120% action outcome from the maximum 120-Energy source relationship. It does
   not create a generic DMG row, Energy gauge, average rotation value, or a
-  feedback calculation phase. Dawn's Bloom supplies Slaughter and Downfall
+  feedback calculation phase. At Combat, both Seed and the resolved Vanguard
+  show one Seed Core +1,000 ATK source and one Seed Core +30% CRIT DMG source.
+  Result groups the three complete Seed action labels for common sources, nests
+  the two Basic Attack forms for shared Basic scope, and adds only the narrower
+  Mindscape child outcome. Dawn's Bloom supplies Slaughter and Downfall
   +15% at Initial, +35% at Combat, and +55% at Fully Enabled; M1 adds only to
   Downfall and M4 only to Ultimate. The entry-established Core and M2 DEF Ignore
   appear at Combat. Selecting Brimstone W1 uses 684 Base ATK internally for
@@ -420,8 +431,9 @@ The prose requirements govern if this diagram and the text ever differ.
   Serpentine Seeker contributes Combat CRIT Rate +25% and its entry-established
   28% Electric DEF Ignore; W5 changes those sources to 40% and 42%. Switching
   only Cissia to the non-limited Drill Rig W5 representative reads 3.588 and
-  24.233%, while both Corrode Bone and Serpent's Kiss gain the exact +80% Basic
-  Electric DMG source; Drill Rig W1 instead contributes +50%. M1 scales the Core
+  24.233%, while the grouped `Corrode Bone` and `Basic Attack: Serpent's Kiss`
+  outcome gains the exact +80% Basic Electric DMG source; Drill Rig W1 instead
+  contributes +50%. M1 scales the Core
   values to 35% and 33.927% without changing another Agent's setup, and M2 adds
   +35% only to Serpent's Kiss.
 - AE7. **Covers R18-R18c.** Given the selected complete party, Astral Voice is

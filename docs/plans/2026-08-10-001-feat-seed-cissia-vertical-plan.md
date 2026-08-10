@@ -34,7 +34,7 @@ The first two verticals established the setup-to-Result product loop, but the th
 
 **Calculation and delivery**
 
-- R5. Calculate Seed's Initial, Combat, and Fully Enabled metrics and canonical Slaughter, Downfall, and Ultimate outcomes, including cumulative M0-M6 behavior and the Fully Enabled M2 Slaughter maximum, while retaining the event Energy passive only in Setup content (origin R12-R14a, AE5, AE9).
+- R5. Calculate Seed's Initial, Combat, and Fully Enabled metrics and retained Basic Attack form and Ultimate scopes, including cumulative M0-M6 behavior and the Fully Enabled M2 Slaughter maximum, while retaining the event Energy passive only in Setup content (origin R12-R14a, AE5, AE9).
 - R6. Calculate Cissia's Initial, Combat, and Fully Enabled metrics, exact Core Energy Regen formula and M1 post-cap multiplier, Corrode Bone and Serpent's Kiss outcomes, cumulative M0-M6 behavior, and threshold/cap gauge without projecting event-conditioned Energy operations (origin R15-R16b, AE6, AE8-AE9).
 - R7. Deliver Seed, Cissia, and existing Astra effects through source recipient plus Attribute/action/formula applicability, projecting only through each current Agent projector and preserving the existing Anby received-effect-dependent phase as the sole feedback phase (origin R18-R18c, R20, AE7-AE9).
 
@@ -396,9 +396,10 @@ The prose dependencies below govern if the diagram and unit text differ.
 **Approach:**
 - Calculate Seed and Cissia from exact local setup facts plus delivered current clauses, composing Initial, Combat, and Fully Enabled values with source-stable breakdown ordering.
 - Complete Seed/Cissia outgoing provider clauses here, using the U3 Vanguard/applicability seam. Keep party Attribute/Specialty predicates semantic and current; do not split clause ownership back into U3.
-- Map Dawn and Cordis Basic scope to Seed Slaughter/Downfall; map Cordis Ultimate to Seed Ultimate. Apply Seed Additional, M1, M2, M4, and M6 only to their approved metrics/actions/surfaces.
+- Deliver both Seed Core ATK +1,000 and CRIT DMG +30% to Seed and the resolved Vanguard; keep broad Besiege DMG and M2 DEF Ignore free of an invented Attribute restriction.
+- Map Dawn and Cordis Basic scope to Seed's two complete Basic Attack form labels and map Cordis Ultimate to Seed Ultimate. Group common scopes, nest the shared Basic scope, and retain narrower Mindscape outcomes as children. Apply Seed Additional, M1, M2, M4, and M6 only to their approved metrics/actions/surfaces.
 - Resolve Seed M2 broad DEF Ignore for Seed/Vanguard where recipient formula permits it and the Fully Enabled Slaughter maximum at `+120%`. Omit Steel Charge, raw-hit, and event-Energy projections.
-- Treat Corrode Bone and Serpent's Kiss as canonical Basic actions for Dawn/Drill/Cordis scope. Keep Corrode-only Daze/M1 RES Ignore and Serpent-only M2 damage distinct.
+- Keep `Corrode Bone` as its source-local outcome label and display `Basic Attack: Serpent's Kiss` with its canonical kind. Group their current Dawn/Drill/Cordis applicability without renaming Corrode Bone; keep Corrode-only Daze/M1 RES Ignore and Serpent-only M2 damage distinct.
 - Calculate Cissia Core as `6 + 1 percentage point per 0.12 Initial Energy Regen above 1.4`, cap at 25, then apply M1 `x1.4`; expose basis threshold/cap and output cap in the existing gauge shape.
 - Resolve Cissia's Corrode Daze tier and Additional Ability from current applied Attribute/Specialty facts, not named party cases. Deliver party CRIT DMG or Electric DEF/RES effects and let each recipient projector decide visibility.
 - Keep Astral/Moonlight non-stacking selection and source origins in the existing composition path. Add no Result operation for Seed Energy, Cissia activation, shield/healing, or other model-dependent facts.
@@ -410,16 +411,16 @@ The prose dependencies below govern if the diagram and unit text differ.
 - Surface-aware composition, action differences, gauge output, and source ordering in existing Agent modules and `composition.ts`.
 
 **Test scenarios:**
-- Covers AE1. Seed/Cissia/Astra resolves Cissia as the sole Vanguard; Seed/Yixuan/Astra resolves no Vanguard and omits every Vanguard-dependent Seed Core status, Besiege source, and Additional Ability clause on both Seed and recipients.
+- Covers AE1. Seed/Cissia/Astra resolves Cissia as the sole Vanguard and gives both Seed and Cissia one Core +1,000 ATK source and one Core +30% CRIT DMG source; Seed/Yixuan/Astra resolves no Vanguard and omits every Vanguard-dependent Seed Core status, Besiege source, and Additional Ability clause on both Seed and recipients.
 - Covers AE1a/AE9. In Seed/Cissia/Anby, directly changing only Cissia Slot 5 from Electric DMG to ATK% moves Vanguard from Anby to Cissia at the exact authored values. Before the handoff Anby's derived basis contains Seed `+30%` and Cissia `+40%`; afterward it retains only Cissia `+40%`, produces exactly one derived output in both states, and preserves source ordering.
 - Covers AE1b. Applied-slot permutation and reversed provider/calculation traversal keep all non-tie outcomes and canonical source order stable; exact ties use only earlier applied slot.
 - Covers AE5. Seed full/non-limited Initial ATK and retained engine refinements are exact; W-Engine Base ATK contributes internally but is omitted from Result disclosure.
-- Covers AE5. Seed M0-M6 cumulative outputs distinguish parent metrics from Slaughter, Downfall, and Ultimate outcomes; M2 Fully Enabled Slaughter reaches `+120%` and other actions do not inherit it.
+- Covers AE5. Seed M0-M6 cumulative outputs distinguish parent metrics from the complete Slaughter, Downfall, and Ultimate scopes; shared actions occupy one group, the Basic forms one nested group, and M2 Fully Enabled Slaughter reaches `+120%` without leaking to siblings.
 - Covers AE5. Dawn/Cordis Basic sources affect Slaughter/Downfall and Cordis Ultimate affects Ultimate, with source identities and surfaces preserved.
 - Covers AE5. In the full authored party, M2 Seed has `45%` broad Combat DEF Ignore and `65%` on Cordis-scoped Basic/Ultimate outcomes; Vanguard Cissia has `73%`; Astra omits the DEF region.
 - Covers AE6. Cissia full Initial Energy Regen `3.744` resolves to `25%`; non-limited `3.588` resolves to `24.233333...%`; M1 resolves those post-cap to `35%` and `33.926666...%`.
-- Covers AE6. Serpentine and Drill W1-W5 vectors, Dawn Initial/Combat/Fully Basic scope, Corrode stacks, Ultimate party CRIT, M1 Corrode RES Ignore, and M2 Serpent damage affect only approved metrics/actions/surfaces.
-- Covers AE6. Selecting Cordis on Cissia applies its Basic-scoped contributions to both Corrode Bone and Serpent's Kiss, does not leak its Ultimate scope into either Basic action, and creates no broad candidate pressure.
+- Covers AE6. Serpentine and Drill W1-W5 vectors, grouped Dawn Initial/Combat/Fully Basic scope, Corrode stacks, Ultimate party CRIT, M1 Corrode RES Ignore, and M2 Serpent damage affect only approved metrics/actions/surfaces; visible labels preserve `Corrode Bone` and `Basic Attack: Serpent's Kiss` as distinct identities.
+- Covers AE6. Selecting Cordis on Cissia applies its Basic-scoped contributions to both Corrode Bone and Serpent's Kiss, does not create an Ultimate outcome, and creates no broad candidate pressure.
 - Covers AE8. Cissia/Yixuan/Astra shows the 40-Daze tier without Additional activation; Cissia/Anby/Yixuan shows 60 plus Electric activation; Cissia/Dialyn/Yixuan shows 40 plus Stun activation.
 - Covers AE8-AE9. Cissia's Electric clauses reach Seed, Anby, and Trigger where Attribute/formula/action applicability permits, but not Dialyn's non-Electric direction or Yixuan's Sheer direction; CRIT DMG appears only on current projectors.
 - Covers AE4. Cissia Core pressure removes Puffer/PEN only from compatible Electric general-damage recipients; Cordis alone leaves both available and Serpentine's self-only effect creates no party candidate pressure.

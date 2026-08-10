@@ -180,8 +180,8 @@ describe('shared clause applicability', () => {
     const astra = agent(result, 'astraYao')
 
     expect(metric(seed, 'atk').values.fully).toBeCloseTo(4650.6, 10)
-    expect(metric(cissia, 'atk').values.fully).toBeCloseTo(3332.1, 10)
-    expect(metric(seed, 'critDmg').values.fully).toBeCloseTo(148.8, 10)
+    expect(metric(cissia, 'atk').values.fully).toBeCloseTo(4332.1, 10)
+    expect(metric(seed, 'critDmg').values.fully).toBeCloseTo(178.8, 10)
     expect(metric(cissia, 'critDmg').values.fully).toBe(160)
     expect(metric(seed, 'dmgBonus').values.fully).toBe(137)
     expect(metric(cissia, 'dmgBonus').values.fully).toBe(137)
@@ -197,6 +197,15 @@ describe('Seed and Cissia local calculation boundary', () => {
     const cissia = agent(result, 'cissia')
     const astra = agent(result, 'astraYao')
 
+    for (const recipient of [seed, cissia]) {
+      expect(metric(recipient, 'atk').breakdown.combat).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'seed', label: 'Core Passive', amount: 1000,
+      }))
+      expect(metric(recipient, 'critDmg').breakdown.combat)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'seed', label: 'Core Passive', amount: 30,
+        }))
+    }
     expect(metric(seed, 'atk').values.combat).toBeCloseTo(3450.6, 10)
     expect(metric(cissia, 'critDmg').values.combat).toBe(130)
     expect(metric(seed, 'dmgBonus').values.combat).toBe(55)
@@ -248,10 +257,10 @@ describe('Seed and Cissia local calculation boundary', () => {
     const m2Result = calculateParty(withMindscape(base, 'seed', 2))!
     const m2 = agent(m2Result, 'seed')
     expect(metric(m2, 'defIgnore').values.combat).toBe(45)
-    expect(action(m2, 'seedSlaughterDefIgnore').values.fully).toBe(65)
+    expect(action(m2, 'seedActionsDefIgnore').values.fully).toBe(65)
     expect(action(m2, 'seedSlaughter').values.fully).toBe(367)
-    expect(action(m2, 'seedDownfall').values.fully).toBe(247)
-    expect(action(m2, 'seedUltimate').values.fully).toBe(192)
+    expect(action(m2, 'seedBasicActions').values.fully).toBe(247)
+    expect(action(m2, 'seedActions').values.fully).toBe(192)
     expect(metric(agent(m2Result, 'cissia'), 'defIgnore').values.combat).toBe(73)
     expect(agent(m2Result, 'astraYao').metrics.map(({ id }) => id))
       .toEqual(['atk', 'energyRegen'])
@@ -313,7 +322,7 @@ describe('Seed and Cissia local calculation boundary', () => {
       ...breakdown.combat,
       ...breakdown.fully,
     ])).not.toContainEqual(expect.objectContaining({ label: 'Additional Ability' }))
-    expect(action(seed, 'seedSlaughter').values.fully - action(seed, 'seedDownfall').values.fully)
+    expect(action(seed, 'seedSlaughter').values.fully - action(seed, 'seedBasicActions').values.fully)
       .toBe(120)
   })
 
@@ -386,7 +395,7 @@ describe('Seed and Cissia local calculation boundary', () => {
     const drillBase = selectEngine(fullBase, 'cissia', 'drillRigRedAxis')
     expect(([1, 2, 3, 4, 5] as const).map((refinement) => {
       const cissia = agent(calculateParty(setRefinement(drillBase, 'cissia', refinement))!, 'cissia')
-      return action(cissia, 'cissiaCorrode').values.fully
+      return action(cissia, 'cissiaBasicActions').values.fully
     })).toEqual([175, 182.5, 190, 197.5, 205])
   })
 
@@ -398,13 +407,9 @@ describe('Seed and Cissia local calculation boundary', () => {
       'cordisGermina',
     )
     const cissia = agent(calculateParty(state)!, 'cissia')
-    expect(action(cissia, 'cissiaCorrode').breakdown.fully)
+    expect(action(cissia, 'cissiaBasicActions').breakdown.fully)
       .toContainEqual(expect.objectContaining({ label: 'Cordis Germina', amount: 25 }))
-    expect(action(cissia, 'cissiaSerpent').breakdown.fully)
-      .toContainEqual(expect.objectContaining({ label: 'Cordis Germina', amount: 25 }))
-    expect(action(cissia, 'cissiaCorrodeDefIgnore').values.fully)
-      .toBe(metric(cissia, 'defIgnore').values.fully + 20)
-    expect(action(cissia, 'cissiaSerpentDefIgnore').values.fully)
+    expect(action(cissia, 'cissiaBasicActionsDefIgnore').values.fully)
       .toBe(metric(cissia, 'defIgnore').values.fully + 20)
     expect(cissia.actionModifiers.map(({ id }) => id).some((id) => /ultimate/i.test(id)))
       .toBe(false)
@@ -468,10 +473,23 @@ describe('Seed and Cissia local calculation boundary', () => {
     expect(metric(seed, 'atk').values.initial).toBeCloseTo(2450.6, 10)
     expect(metric(seed, 'critRate').values.initial).toBe(61)
     expect(metric(seed, 'critDmg').values.initial).toBe(78.8)
-    expect(action(seed, 'seedSlaughter').values).toEqual({ initial: 45, combat: 120, fully: 247 })
-    expect(action(seed, 'seedDownfall').values).toEqual({ initial: 45, combat: 120, fully: 247 })
-    expect(action(seed, 'seedUltimate').values).toEqual({ initial: 30, combat: 85, fully: 192 })
-    expect(action(seed, 'seedSlaughterDefIgnore').values.fully).toBe(45)
+    expect(action(seed, 'seedActions')).toMatchObject({
+      actions: [
+        'Basic Attack: Falling Petals - Slaughter',
+        'Basic Attack: Falling Petals - Downfall',
+        'Ultimate',
+      ],
+      values: { initial: 30, combat: 85, fully: 192 },
+    })
+    expect(action(seed, 'seedBasicActions')).toMatchObject({
+      actions: [
+        'Basic Attack: Falling Petals - Slaughter',
+        'Basic Attack: Falling Petals - Downfall',
+      ],
+      baseActionId: 'seedActions',
+      values: { initial: 45, combat: 120, fully: 247 },
+    })
+    expect(action(seed, 'seedActionsDefIgnore').values.fully).toBe(45)
     expect(seed.operations).toEqual([])
     expect(seed.metrics.map(({ id }) => id)).not.toContain('energyRegen')
 
@@ -535,7 +553,7 @@ describe('Seed and Cissia local calculation boundary', () => {
     expect(metric(agent(result, 'cissia'), 'defIgnore').values.combat).toBe(67)
   })
 
-  it('projects Drill Rig locally for both canonical Basic actions in the non-limited pool', () => {
+  it('projects Drill Rig locally through the grouped retained Cissia outcomes', () => {
     const state = createPreparedState(
       { seed: 'nonLimited', cissia: 'nonLimited' },
       ['seed', 'cissia', 'astraYao'],
@@ -544,8 +562,10 @@ describe('Seed and Cissia local calculation boundary', () => {
     const result = calculateParty(state)!
     const cissia = agent(result, 'cissia')
     expect(metric(cissia, 'energyRegen').values.initial).toBeCloseTo(3.588, 10)
-    expect(action(cissia, 'cissiaCorrode').values).toEqual({ initial: 30, combat: 55, fully: 217 })
-    expect(action(cissia, 'cissiaSerpent').values).toEqual({ initial: 30, combat: 55, fully: 217 })
+    expect(action(cissia, 'cissiaBasicActions')).toMatchObject({
+      actions: ['Corrode Bone', "Basic Attack: Serpent's Kiss"],
+      values: { initial: 30, combat: 55, fully: 217 },
+    })
   })
 
   it('retains only Seed Additional rows when the selected equipment creates no action difference', () => {
@@ -556,12 +576,8 @@ describe('Seed and Cissia local calculation boundary', () => {
     const seed = agent(calculateParty(state)!, 'seed')
     expect(metric(seed, 'critRate').values.initial).toBe(37)
     expect(seed.actionModifiers.map(({ id }) => id)).toEqual([
-      'seedSlaughter',
-      'seedSlaughterResIgnore',
-      'seedDownfall',
-      'seedDownfallResIgnore',
-      'seedUltimate',
-      'seedUltimateResIgnore',
+      'seedActions',
+      'seedActionsResIgnore',
     ])
   })
 

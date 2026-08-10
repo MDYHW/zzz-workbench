@@ -70,12 +70,9 @@ function dawnClauses(setup: CompleteSetup): SourceBoundCurrentClause[] {
   const twoPiece = discSource('seed', 'dawnsBloom', '2-piece', '4-piece')
   const fourPiece = discSource('seed', 'dawnsBloom', '4-piece')
   return [
-    additive('dmgBonus', 'initial', twoPiece, initial, 'self', 'seedSlaughter'),
-    additive('dmgBonus', 'initial', twoPiece, initial, 'self', 'seedDownfall'),
-    additive('dmgBonus', 'combat', fourPiece, combat, 'self', 'seedSlaughter'),
-    additive('dmgBonus', 'combat', fourPiece, combat, 'self', 'seedDownfall'),
-    additive('dmgBonus', 'fully', fourPiece, fully, 'self', 'seedSlaughter'),
-    additive('dmgBonus', 'fully', fourPiece, fully, 'self', 'seedDownfall'),
+    additive('dmgBonus', 'initial', twoPiece, initial, 'self', 'seedBasicActions'),
+    additive('dmgBonus', 'combat', fourPiece, combat, 'self', 'seedBasicActions'),
+    additive('dmgBonus', 'fully', fourPiece, fully, 'self', 'seedBasicActions'),
   ]
 }
 
@@ -94,31 +91,28 @@ export function resolveSeedProviderClauses(
     : 0
   const hasVanguard = vanguardAgentId !== null
   const coreRecipients: AgentId[] = hasVanguard ? ['seed', vanguardAgentId] : []
+  const generalDamage = (clause: SourceBoundCurrentClause) => withApplicability(
+    clause,
+    { formulas: ['general_damage'] },
+  )
   const electricGeneral = (clause: SourceBoundCurrentClause) => withApplicability(
     clause,
     { attributes: ['Electric'], formulas: ['general_damage'] },
   )
   return active([
-    additive('atk', 'combat', STATIC_SOURCES.seed.core, hasVanguard ? 1000 : 0, 'self'),
+    additive('atk', 'combat', STATIC_SOURCES.seed.core, hasVanguard ? 1000 : 0,
+      'all-party', undefined, undefined, coreRecipients),
     additive('critDmg', 'combat', STATIC_SOURCES.seed.core, hasVanguard ? 30 : 0,
-      'all-party', undefined, undefined, vanguardAgentId ? [vanguardAgentId] : []),
-    electricGeneral(additive('dmgBonus', 'combat', STATIC_SOURCES.seed.core,
+      'all-party', undefined, undefined, coreRecipients),
+    generalDamage(additive('dmgBonus', 'combat', STATIC_SOURCES.seed.core,
       hasVanguard ? 25 : 0, 'all-party', undefined, undefined, coreRecipients)),
     additive('dmgBonus', 'combat', STATIC_SOURCES.seed.additional,
-      hasVanguard ? 30 : 0, 'self', 'seedSlaughter'),
-    additive('dmgBonus', 'combat', STATIC_SOURCES.seed.additional,
-      hasVanguard ? 30 : 0, 'self', 'seedDownfall'),
-    additive('dmgBonus', 'combat', STATIC_SOURCES.seed.additional,
-      hasVanguard ? 30 : 0, 'self', 'seedUltimate'),
+      hasVanguard ? 30 : 0, 'self', 'seedActions'),
     electricGeneral(additive('resIgnore', 'combat', STATIC_SOURCES.seed.additional,
-      hasVanguard ? 25 : 0, 'enemy-context', 'seedSlaughter', undefined, ['seed'])),
-    electricGeneral(additive('resIgnore', 'combat', STATIC_SOURCES.seed.additional,
-      hasVanguard ? 25 : 0, 'enemy-context', 'seedDownfall', undefined, ['seed'])),
-    electricGeneral(additive('resIgnore', 'combat', STATIC_SOURCES.seed.additional,
-      hasVanguard ? 25 : 0, 'enemy-context', 'seedUltimate', undefined, ['seed'])),
+      hasVanguard ? 25 : 0, 'enemy-context', 'seedActions', undefined, ['seed'])),
     additive('critDmg', 'fully', mindscapeSource('seed', 1, 'Downfall'),
       setup.mindscape >= 1 ? 30 : 0, 'self', 'seedDownfall'),
-    electricGeneral(additive('defIgnore', 'combat', mindscapeSource('seed', 2, 'Besiege'),
+    generalDamage(additive('defIgnore', 'combat', mindscapeSource('seed', 2, 'Besiege'),
       setup.mindscape >= 2 && hasVanguard ? 20 : 0,
       'enemy-context', undefined, undefined, coreRecipients)),
     additive('dmgBonus', 'fully', mindscapeSource('seed', 2, 'Slaughter'),
@@ -147,12 +141,8 @@ export function resolveSeedProviderClauses(
     percentage('atk', 'fully', discSource('seed', 'woodpecker', '4-piece'),
       setup.fourPieceId === 'woodpecker' ? DRIVE_DISC_FACTS.woodpecker.atkPctAtMax : 0,
       'self'),
-    additive('dmgBonus', 'fully', engine, cordisDmg, 'self', 'seedSlaughter'),
-    additive('dmgBonus', 'fully', engine, cordisDmg, 'self', 'seedDownfall'),
-    additive('dmgBonus', 'fully', engine, cordisDmg, 'self', 'seedUltimate'),
-    additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', 'seedSlaughter', undefined, ['seed']),
-    additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', 'seedDownfall', undefined, ['seed']),
-    additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', 'seedUltimate', undefined, ['seed']),
+    additive('dmgBonus', 'fully', engine, cordisDmg, 'self', 'seedActions'),
+    additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', 'seedActions', undefined, ['seed']),
     ...dawnClauses(setup),
   ])
 }
@@ -234,30 +224,72 @@ export function calculateSeed(
     effects,
     'penRatio',
   )
-  const actionNames = [
-    ['seedSlaughter', 'Slaughter'],
-    ['seedDownfall', 'Downfall'],
-    ['seedUltimate', 'Ultimate'],
-  ] as const
-  const differsFromParent = (values: typeof regular.values) => (
-    values.initial !== regular.values.initial
-    || values.combat !== regular.values.combat
-    || values.fully !== regular.values.fully
-  )
   const broadDefIgnore = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'defIgnore')
   const broadResIgnore = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'resIgnore')
-  const actionModifiers: AgentResult['actionModifiers'] = actionNames.flatMap(([actionId, label]) => {
-    const damage = composeActionEffects(regular.values, effects, 'dmgBonus', actionId)
-    const defIgnore = composeActionEffects(broadDefIgnore.values, effects, 'defIgnore', actionId)
-    const resIgnore = composeActionEffects(broadResIgnore.values, effects, 'resIgnore', actionId)
-    const actionCritDmg = composeActionEffects(critDmg.values, effects, 'critDmg', actionId)
-    return [
-      ...(differsFromParent(damage.values) ? [{ id: actionId, actions: [label], metricId: 'dmgBonus', ...damage }] : []),
-      ...(defIgnore.values.fully !== broadDefIgnore.values.fully ? [{ id: `${actionId}DefIgnore`, actions: [label], metricId: 'defIgnore', ...defIgnore }] : []),
-      ...(resIgnore.values.fully !== broadResIgnore.values.fully ? [{ id: `${actionId}ResIgnore`, actions: [label], metricId: 'resIgnore', ...resIgnore }] : []),
-      ...(actionCritDmg.values.fully !== critDmg.values.fully ? [{ id: `${actionId}CritDmg`, actions: [label], metricId: 'critDmg', ...actionCritDmg }] : []),
-    ]
-  })
+  const actionModifiers: AgentResult['actionModifiers'] = []
+  const allActionLabels = [
+    'Basic Attack: Falling Petals - Slaughter',
+    'Basic Attack: Falling Petals - Downfall',
+    'Ultimate',
+  ]
+  const basicActionLabels = allActionLabels.slice(0, 2)
+  const actionLabel = {
+    seedSlaughter: allActionLabels[0],
+    seedDownfall: allActionLabels[1],
+    seedUltimate: allActionLabels[2],
+  } as const
+  const differs = (left: typeof regular.values, right: typeof regular.values) => (
+    left.initial !== right.initial
+    || left.combat !== right.combat
+    || left.fully !== right.fully
+  )
+  const buildActionHierarchy = (
+    metricId: EffectMetric,
+    parentValues: typeof regular.values,
+    suffix: string,
+  ) => {
+    const shared = composeActionEffects(parentValues, effects, metricId, 'seedActions')
+    const sharedId = `seedActions${suffix}`
+    const hasShared = differs(shared.values, parentValues)
+    if (hasShared) actionModifiers.push({
+      id: sharedId,
+      actions: allActionLabels,
+      metricId,
+      ...shared,
+    })
+
+    const basic = composeActionEffects(shared.values, effects, metricId, 'seedBasicActions')
+    const basicId = `seedBasicActions${suffix}`
+    const hasBasic = differs(basic.values, shared.values)
+    if (hasBasic) actionModifiers.push({
+      id: basicId,
+      actions: basicActionLabels,
+      metricId,
+      ...(hasShared ? { baseActionId: sharedId } : {}),
+      ...basic,
+    })
+
+    const scopes = [
+      ['seedSlaughter', basic.values, hasBasic ? basicId : hasShared ? sharedId : undefined],
+      ['seedDownfall', basic.values, hasBasic ? basicId : hasShared ? sharedId : undefined],
+      ['seedUltimate', shared.values, hasShared ? sharedId : undefined],
+    ] as const
+    for (const [scopeId, baseValues, baseActionId] of scopes) {
+      const scoped = composeActionEffects(baseValues, effects, metricId, scopeId)
+      if (!differs(scoped.values, baseValues)) continue
+      actionModifiers.push({
+        id: `${scopeId}${suffix}`,
+        actions: [actionLabel[scopeId]],
+        metricId,
+        ...(baseActionId ? { baseActionId } : {}),
+        ...scoped,
+      })
+    }
+  }
+  buildActionHierarchy('dmgBonus', regular.values, '')
+  buildActionHierarchy('defIgnore', broadDefIgnore.values, 'DefIgnore')
+  buildActionHierarchy('resIgnore', broadResIgnore.values, 'ResIgnore')
+  buildActionHierarchy('critDmg', critDmg.values, 'CritDmg')
 
   return {
     agentId: 'seed',

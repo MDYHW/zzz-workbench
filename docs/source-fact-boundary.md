@@ -83,6 +83,11 @@ Keep identity and eligibility only when they change candidate membership, a
 prepared first choice, another admitted choice, a party condition, or a
 calculated Result.
 
+When one source gives multiple recipients the same retained stat bundle, keep
+the complete bundle for every named recipient. Recipient projection may omit a
+row only when that recipient has no current projector for the stat; it must not
+split different members of the bundle across recipients.
+
 Competitive candidate membership can pass the gate without a paired calculated
 output. Do not invent a raw damage, Daze, or personal-output Result merely to
 justify a candidate that already changes the visible choice set.

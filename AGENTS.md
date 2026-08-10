@@ -48,6 +48,9 @@ do not become product authorities.
   tests, including their accessible descriptions.
 - Before implementation, explain the proposed user experience and identify
   any genuine product decision that cannot be derived from the authorities.
+- In Codex desktop, use the available in-app Browser for local visual and
+  interaction verification. Do not invoke an `agent-browser`-only workflow or
+  ask to install `agent-browser` unless the user explicitly requests it.
 - Preserve incomplete-selection behavior: Result remains empty until every
   required setup selection is complete.
 - Prepared setup initialization is explicit product behavior, not a hidden

@@ -261,6 +261,13 @@ action kind. Use the canonical kind when it produces the same candidate and
 Result. Keep an entity-local qualifier only when two forms of the same action
 kind produce different current Results.
 
+When Result retains a source-named form inside a canonical action kind, its
+visible scope includes both the canonical kind and the form, such as
+`EX Special Attack: Cloud-Shaper` or `Basic Attack: Falling Petals - Slaughter`.
+A source-local outcome that the source does not name as that canonical action
+keeps its source-local label even when a Basic-scoped effect currently applies
+to it. Shared applicability does not rename the outcome.
+
 A source-local condition is a requirement stated with a game identity, action,
 state, resource, mark, stance, action property, enemy condition, stat threshold,
 equipment state, stack count, or local mechanism. Its original name does not

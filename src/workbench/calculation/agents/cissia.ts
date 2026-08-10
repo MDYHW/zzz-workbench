@@ -94,12 +94,9 @@ function dawnClauses(setup: CompleteSetup): SourceBoundCurrentClause[] {
   const twoPiece = discSource('cissia', 'dawnsBloom', '2-piece', '4-piece')
   const fourPiece = discSource('cissia', 'dawnsBloom', '4-piece')
   return [
-    additive('dmgBonus', 'initial', twoPiece, initial, 'self', 'cissiaCorrode'),
-    additive('dmgBonus', 'initial', twoPiece, initial, 'self', 'cissiaSerpent'),
-    additive('dmgBonus', 'combat', fourPiece, combat, 'self', 'cissiaCorrode'),
-    additive('dmgBonus', 'combat', fourPiece, combat, 'self', 'cissiaSerpent'),
-    additive('dmgBonus', 'fully', fourPiece, fully, 'self', 'cissiaCorrode'),
-    additive('dmgBonus', 'fully', fourPiece, fully, 'self', 'cissiaSerpent'),
+    additive('dmgBonus', 'initial', twoPiece, initial, 'self', 'cissiaBasicActions'),
+    additive('dmgBonus', 'combat', fourPiece, combat, 'self', 'cissiaBasicActions'),
+    additive('dmgBonus', 'fully', fourPiece, fully, 'self', 'cissiaBasicActions'),
   ]
 }
 
@@ -158,10 +155,8 @@ export function resolveCissiaProviderClauses(
     additive('defIgnore', 'combat', engine, setup.engineId === 'serpentineSeeker'
       ? W_ENGINE_FACTS.serpentineSeeker.electricDefIgnore[refinement - 1]
       : 0, 'enemy-context', undefined, undefined, ['cissia']),
-    additive('dmgBonus', 'fully', engine, drillDmg + cordisDmg, 'self', 'cissiaCorrode'),
-    additive('dmgBonus', 'fully', engine, drillDmg + cordisDmg, 'self', 'cissiaSerpent'),
-    additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', 'cissiaCorrode', undefined, ['cissia']),
-    additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', 'cissiaSerpent', undefined, ['cissia']),
+    additive('dmgBonus', 'fully', engine, drillDmg + cordisDmg, 'self', 'cissiaBasicActions'),
+    additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', 'cissiaBasicActions', undefined, ['cissia']),
     critRecipients(additive('dmgBonus', 'fully', discSource('cissia', 'astralVoice', '4-piece'),
       setup.fourPieceId === 'astralVoice' ? DRIVE_DISC_FACTS.astralVoice.entrantDmg : 0,
       'all-party', undefined, undefined, undefined, 'astralVoiceEntrant')),
@@ -234,30 +229,51 @@ export function calculateCissia(
     effects,
     'dmgBonus',
   )
-  const actionNames = [
-    ['cissiaCorrode', 'Corrode Bone'],
-    ['cissiaSerpent', "Serpent's Kiss"],
-  ] as const
-  const differsFromParent = (values: typeof regular.values) => (
-    values.initial !== regular.values.initial
-    || values.combat !== regular.values.combat
-    || values.fully !== regular.values.fully
-  )
   const broadDefIgnore = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'defIgnore')
   const broadResIgnore = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'resIgnore')
   const dazeBonus = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus')
-  const actionModifiers: AgentResult['actionModifiers'] = actionNames.flatMap(([actionId, label]) => {
-    const damage = composeActionEffects(regular.values, effects, 'dmgBonus', actionId)
-    const defIgnore = composeActionEffects(broadDefIgnore.values, effects, 'defIgnore', actionId)
-    const resIgnore = composeActionEffects(broadResIgnore.values, effects, 'resIgnore', actionId)
-    const dazeBonus = composeActionEffects(surfaces(0, 0, 0), effects, 'dazeBonus', actionId)
-    return [
-      ...(differsFromParent(damage.values) ? [{ id: actionId, actions: [label], metricId: 'dmgBonus', ...damage }] : []),
-      ...(defIgnore.values.fully !== broadDefIgnore.values.fully ? [{ id: `${actionId}DefIgnore`, actions: [label], metricId: 'defIgnore', ...defIgnore }] : []),
-      ...(resIgnore.values.fully !== broadResIgnore.values.fully ? [{ id: `${actionId}ResIgnore`, actions: [label], metricId: 'resIgnore', ...resIgnore }] : []),
-      ...(dazeBonus.values.fully ? [{ id: `${actionId}Daze`, actions: [label], metricId: 'dazeBonus', ...dazeBonus }] : []),
-    ]
-  })
+  const actionModifiers: AgentResult['actionModifiers'] = []
+  const basicActionLabels = ['Corrode Bone', "Basic Attack: Serpent's Kiss"]
+  const actionLabel = {
+    cissiaCorrode: basicActionLabels[0],
+    cissiaSerpent: basicActionLabels[1],
+  } as const
+  const differs = (left: typeof regular.values, right: typeof regular.values) => (
+    left.initial !== right.initial
+    || left.combat !== right.combat
+    || left.fully !== right.fully
+  )
+  const buildActionHierarchy = (
+    metricId: EffectMetric,
+    parentValues: typeof regular.values,
+    suffix: string,
+  ) => {
+    const shared = composeActionEffects(parentValues, effects, metricId, 'cissiaBasicActions')
+    const sharedId = `cissiaBasicActions${suffix}`
+    const hasShared = differs(shared.values, parentValues)
+    if (hasShared) actionModifiers.push({
+      id: sharedId,
+      actions: basicActionLabels,
+      metricId,
+      ...shared,
+    })
+
+    for (const scopeId of ['cissiaCorrode', 'cissiaSerpent'] as const) {
+      const scoped = composeActionEffects(shared.values, effects, metricId, scopeId)
+      if (!differs(scoped.values, shared.values)) continue
+      actionModifiers.push({
+        id: `${scopeId}${suffix}`,
+        actions: [actionLabel[scopeId]],
+        metricId,
+        ...(hasShared ? { baseActionId: sharedId } : {}),
+        ...scoped,
+      })
+    }
+  }
+  buildActionHierarchy('dmgBonus', regular.values, '')
+  buildActionHierarchy('defIgnore', broadDefIgnore.values, 'DefIgnore')
+  buildActionHierarchy('resIgnore', broadResIgnore.values, 'ResIgnore')
+  buildActionHierarchy('dazeBonus', dazeBonus.values, 'Daze')
 
   return {
     agentId: 'cissia',
