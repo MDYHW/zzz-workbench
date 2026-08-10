@@ -1,3 +1,5 @@
+import type { ActionTag, CanonicalActionKind } from '../actions'
+
 export type PoolId = 'full' | 'nonLimited'
 
 export type AgentId =
@@ -93,8 +95,16 @@ export type EquipmentEffectModifier =
 export type EquipmentEffectAttribute = 'Electric' | 'Ether'
 
 export type EquipmentEffectAction =
-  | 'Basic Attack' | 'Dash Attack' | 'Dodge Counter'
-  | 'EX Special Attack' | 'Ultimate' | 'Aftershock'
+  Extract<
+  CanonicalActionKind,
+  | 'Basic Attack'
+  | 'Dash Attack'
+  | 'Dodge Counter'
+  | 'EX Special Attack'
+  | 'Ultimate'
+  >
+
+export type EquipmentEffectTag = Extract<ActionTag, 'aftershock'>
 
 export type EquipmentEffectRecipient = 'self' | 'squad' | 'enemy'
 export type EquipmentEffectValue = number | RefinementValues
@@ -102,6 +112,7 @@ export type EquipmentEffectValue = number | RefinementValues
 export interface EquipmentEffectScope {
   recipient?: EquipmentEffectRecipient
   actions?: readonly EquipmentEffectAction[]
+  tags?: readonly EquipmentEffectTag[]
   attributes?: readonly EquipmentEffectAttribute[]
 }
 

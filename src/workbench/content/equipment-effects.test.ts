@@ -9,11 +9,21 @@ import {
   equipmentEffectProgressionValue,
   type DriveDiscEffectField,
   type DriveDiscPiece,
+  type EquipmentEffectAction,
+  type EquipmentEffectTag,
   type WEngineEffectField,
 } from '../content'
 
 describe('bounded equipment effect facts', () => {
   it('exposes exact item-local W-Engine and Drive Disc field contracts', () => {
+    expectTypeOf<EquipmentEffectAction>().toEqualTypeOf<
+      | 'Basic Attack'
+      | 'Dash Attack'
+      | 'Dodge Counter'
+      | 'EX Special Attack'
+      | 'Ultimate'
+    >()
+    expectTypeOf<EquipmentEffectTag>().toEqualTypeOf<'aftershock'>()
     expectTypeOf<WEngineEffectField<'cordisGermina'>>()
       .toEqualTypeOf<'critRate' | 'damage' | 'defIgnore'>()
     expectTypeOf<WEngineEffectField<'brimstone'>>().toEqualTypeOf<'atk'>()
@@ -89,6 +99,12 @@ describe('bounded equipment effect facts', () => {
       modifier: 'dmgBonus',
       value: 20,
       scope: { actions: ['Ultimate'] },
+    })
+    expect(DRIVE_DISC_FACTS.shadowHarmony.twoPiece.damage).toMatchObject({
+      scope: {
+        actions: ['Dash Attack'],
+        tags: ['aftershock'],
+      },
     })
   })
 

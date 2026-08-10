@@ -24,6 +24,11 @@ import {
   type SurfaceKey,
 } from '../../effects'
 import {
+  actionForm,
+  actionTarget,
+  canonicalAction,
+} from '../../actions'
+import {
   composeActionEffects,
   composeMetricEffects,
   contribution,
@@ -38,6 +43,33 @@ export interface YixuanCalculationContext {
   agentId: 'yixuan'
   setup: CompleteSetup
 }
+
+const YIXUAN_CORE_ACTIONS = actionTarget([
+    canonicalAction('Basic Attack'),
+    canonicalAction('EX Special Attack'),
+    canonicalAction('Assist Follow-Up'),
+    canonicalAction('Chain Attack'),
+    canonicalAction('Ultimate'),
+])
+
+const YIXUAN_STUNNED_EX_SPECIAL = actionTarget(
+  [canonicalAction('EX Special Attack')],
+)
+
+const YIXUAN_CLOUD_SHAPER = actionTarget([
+    actionForm('EX Special Attack', 'Cloud-Shaper'),
+    actionForm('EX Special Attack', 'Ashen Ink Becomes Shadows'),
+])
+
+const YIXUAN_SHEER_ACTIONS = actionTarget([
+    canonicalAction('EX Special Attack'),
+    canonicalAction('Ultimate'),
+])
+
+const YIXUAN_ETHER_RES_ACTIONS = actionTarget([
+    canonicalAction('EX Special Attack'),
+    canonicalAction('Ultimate'),
+])
 
 export const observeYixuan = (
   setup: CompleteSetup,
@@ -63,12 +95,12 @@ export function resolveYixuanProviderClauses(
     additive('sheerForce', 'fully', engine, setup.engineId === 'radiowave' ? equipmentEffectBaseValue(W_ENGINE_FACTS.radiowave.effects.sheerForce, refinement) : 0, 'self'),
     additive('sheerDmgBonus', 'fully', fourPiece, setup.fourPieceId === 'yunkui' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.fourPiece.sheerDamage) : 0, 'self'),
     additive('sheerDmgBonus', 'fully', mindscapeSource('yixuan', 6, 'during Meditation'), setup.mindscape >= 6 ? values.yixuan.mindscapeMeditationSheerDmg : 0, 'self'),
-    additive('dmgBonus', 'combat', STATIC_SOURCES.yixuan.core, values.yixuan.coreActionDmgBonus, 'self', 'coreActions'),
-    additive('dmgBonus', 'fully', STATIC_SOURCES.yixuan.additional, values.yixuan.additionalExDmgBonus, 'self', 'exSpecialStunned'),
-    additive('dmgBonus', 'fully', engine, setup.engineId === 'puzzleSphere' ? equipmentEffectBaseValue(W_ENGINE_FACTS.puzzleSphere.effects.damage, refinement) : 0, 'self', 'exSpecialStunned'),
-    additive('dmgBonus', 'fully', mindscapeSource('yixuan', 4, '30% x 2 stacks'), setup.mindscape >= 4 ? values.yixuan.mindscapeActionDmgPerStack * 2 : 0, 'self', 'mindscapeCloudShaper'),
-    additive('sheerDmgBonus', 'combat', engine, setup.engineId === 'qingming' ? equipmentEffectBaseValue(W_ENGINE_FACTS.qingming.effects.sheerDamage, refinement) : 0, 'self', 'engineSheerActions'),
-    additive('resIgnore', 'fully', mindscapeSource('yixuan', 2, 'Ether RES Ignore'), setup.mindscape >= 2 ? values.yixuan.mindscapeEtherResIgnore : 0, 'enemy-context', 'mindscapeEtherResIgnore'),
+    additive('dmgBonus', 'combat', STATIC_SOURCES.yixuan.core, values.yixuan.coreActionDmgBonus, 'self', YIXUAN_CORE_ACTIONS),
+    additive('dmgBonus', 'fully', STATIC_SOURCES.yixuan.additional, values.yixuan.additionalExDmgBonus, 'self', YIXUAN_STUNNED_EX_SPECIAL),
+    additive('dmgBonus', 'fully', engine, setup.engineId === 'puzzleSphere' ? equipmentEffectBaseValue(W_ENGINE_FACTS.puzzleSphere.effects.damage, refinement) : 0, 'self', YIXUAN_STUNNED_EX_SPECIAL),
+    additive('dmgBonus', 'fully', mindscapeSource('yixuan', 4, '30% x 2 stacks'), setup.mindscape >= 4 ? values.yixuan.mindscapeActionDmgPerStack * 2 : 0, 'self', YIXUAN_CLOUD_SHAPER),
+    additive('sheerDmgBonus', 'combat', engine, setup.engineId === 'qingming' ? equipmentEffectBaseValue(W_ENGINE_FACTS.qingming.effects.sheerDamage, refinement) : 0, 'self', YIXUAN_SHEER_ACTIONS),
+    additive('resIgnore', 'fully', mindscapeSource('yixuan', 2, 'Ether RES Ignore'), setup.mindscape >= 2 ? values.yixuan.mindscapeEtherResIgnore : 0, 'enemy-context', YIXUAN_ETHER_RES_ACTIONS),
     additive('stunDuration', 'fully', mindscapeSource('yixuan', 2), setup.mindscape >= 2 ? values.yixuan.mindscapeStunExtension : 0, 'enemy-context'),
   ])
 }
@@ -83,72 +115,74 @@ function buildYixuanActionModifiers(
     commonDmgBonus,
     effects,
     'dmgBonus',
-    'coreActions',
+    YIXUAN_CORE_ACTIONS,
   )
   const stunnedEx = composeActionEffects(
     coreActions.values,
     effects,
     'dmgBonus',
-    'exSpecialStunned',
+    YIXUAN_STUNNED_EX_SPECIAL,
   )
   const actions: ActionModifier[] = [
     {
       id: 'coreActions',
-      actions: ['Basic Attack', 'EX Special Attack', 'Assist Follow-Up', 'Chain Attack', 'Ultimate'],
+      outcomes: [...YIXUAN_CORE_ACTIONS.outcomes],
+      tags: [...YIXUAN_CORE_ACTIONS.tags],
       metricId: 'dmgBonus',
       ...coreActions,
     },
     {
       id: 'exSpecialStunned',
-      actions: ['EX Special Attack'],
+      outcomes: [...YIXUAN_STUNNED_EX_SPECIAL.outcomes],
+      tags: [...YIXUAN_STUNNED_EX_SPECIAL.tags],
       metricId: 'dmgBonus',
       baseActionId: 'coreActions',
       ...stunnedEx,
     },
   ]
 
-  if (effects.some(({ action }) => action === 'mindscapeCloudShaper')) {
+  if (effects.some(({ action }) => action === YIXUAN_CLOUD_SHAPER)) {
     actions.push({
       id: 'mindscapeCloudShaper',
-      actions: [
-        'EX Special Attack: Cloud-Shaper',
-        'EX Special Attack: Ashen Ink Becomes Shadows',
-      ],
+      outcomes: [...YIXUAN_CLOUD_SHAPER.outcomes],
+      tags: [...YIXUAN_CLOUD_SHAPER.tags],
       metricId: 'dmgBonus',
       baseActionId: 'exSpecialStunned',
       ...composeActionEffects(
         stunnedEx.values,
         effects,
         'dmgBonus',
-        'mindscapeCloudShaper',
+        YIXUAN_CLOUD_SHAPER,
       ),
     })
   }
 
-  if (effects.some(({ action }) => action === 'engineSheerActions')) {
+  if (effects.some(({ action }) => action === YIXUAN_SHEER_ACTIONS)) {
     actions.push({
       id: 'engineSheerActions',
-      actions: ['EX Special Attack', 'Ultimate'],
+      outcomes: [...YIXUAN_SHEER_ACTIONS.outcomes],
+      tags: [...YIXUAN_SHEER_ACTIONS.tags],
       metricId: 'sheerDmgBonus',
       ...composeActionEffects(
         commonSheerDmgBonus,
         effects,
         'sheerDmgBonus',
-        'engineSheerActions',
+        YIXUAN_SHEER_ACTIONS,
       ),
     })
   }
 
-  if (effects.some(({ action }) => action === 'mindscapeEtherResIgnore')) {
+  if (effects.some(({ action }) => action === YIXUAN_ETHER_RES_ACTIONS)) {
     actions.push({
       id: 'mindscapeEtherResIgnore',
-      actions: ['EX Special Attack', 'Ultimate'],
+      outcomes: [...YIXUAN_ETHER_RES_ACTIONS.outcomes],
+      tags: [...YIXUAN_ETHER_RES_ACTIONS.tags],
       metricId: 'resIgnore',
       ...composeActionEffects(
         commonResIgnore,
         effects,
         'resIgnore',
-        'mindscapeEtherResIgnore',
+        YIXUAN_ETHER_RES_ACTIONS,
       ),
     })
   }
@@ -404,23 +438,25 @@ export function calculateYixuan(
     'penRatio',
   )
 
+  const metrics: AgentResult['metrics'] = [
+    { id: 'maxHp', label: 'Max HP', unit: '', decimals: 0, ...maxHp },
+    { id: 'atk', label: 'ATK', unit: '', decimals: 0, ...atk },
+    { id: 'sheerForce', label: 'Sheer Force', unit: '', decimals: 1, ...sheerForce },
+    { id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1, ...critRate },
+    { id: 'critDmg', label: 'CRIT DMG', unit: '%', decimals: 1, ...critDmg },
+    { id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...dmgBonus },
+    { id: 'sheerDmgBonus', label: 'Sheer DMG Bonus', unit: '%', decimals: 1, ...sheerDmgBonus },
+    { id: 'stunDmgMultiplier', label: 'Stun DMG Multiplier', unit: '%', decimals: 1, ...stunDmgMultiplier },
+    { id: 'resIgnore', label: 'RES Ignore', unit: '%', decimals: 1, ...resIgnore },
+    ...(resReduction.values.fully ? [{ id: 'resReduction' as const, label: 'RES Reduction', unit: '%', decimals: 1, ...resReduction }] : []),
+    ...(defReduction.values.fully ? [{ id: 'defReduction' as const, label: 'DEF Reduction', unit: '%', decimals: 1, ...defReduction }] : []),
+    ...(defIgnore.values.fully ? [{ id: 'defIgnore' as const, label: 'DEF Ignore', unit: '%', decimals: 1, ...defIgnore }] : []),
+    ...(penRatio.values.fully ? [{ id: 'penRatio' as const, label: 'PEN Ratio', unit: '%', decimals: 1, ...penRatio }] : []),
+  ]
+
   return {
     agentId: 'yixuan',
-    metrics: [
-      { id: 'maxHp', label: 'Max HP', unit: '', decimals: 0, ...maxHp },
-      { id: 'atk', label: 'ATK', unit: '', decimals: 0, ...atk },
-      { id: 'sheerForce', label: 'Sheer Force', unit: '', decimals: 1, ...sheerForce },
-      { id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1, ...critRate },
-      { id: 'critDmg', label: 'CRIT DMG', unit: '%', decimals: 1, ...critDmg },
-      { id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...dmgBonus },
-      { id: 'sheerDmgBonus', label: 'Sheer DMG Bonus', unit: '%', decimals: 1, ...sheerDmgBonus },
-      { id: 'stunDmgMultiplier', label: 'Stun DMG Multiplier', unit: '%', decimals: 1, ...stunDmgMultiplier },
-      { id: 'resIgnore', label: 'RES Ignore', unit: '%', decimals: 1, ...resIgnore },
-      ...(resReduction.values.fully ? [{ id: 'resReduction', label: 'RES Reduction', unit: '%', decimals: 1, ...resReduction }] : []),
-      ...(defReduction.values.fully ? [{ id: 'defReduction', label: 'DEF Reduction', unit: '%', decimals: 1, ...defReduction }] : []),
-      ...(defIgnore.values.fully ? [{ id: 'defIgnore', label: 'DEF Ignore', unit: '%', decimals: 1, ...defIgnore }] : []),
-      ...(penRatio.values.fully ? [{ id: 'penRatio', label: 'PEN Ratio', unit: '%', decimals: 1, ...penRatio }] : []),
-    ],
+    metrics,
     actionModifiers: buildYixuanActionModifiers(
       effects,
       dmgBonus.values,

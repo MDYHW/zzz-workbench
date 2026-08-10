@@ -6,7 +6,7 @@ import { additive, source, type SourceBoundCurrentClause } from './effects'
 import { calculateYixuan } from './calculation/agents/yixuan'
 import { calculateDialyn } from './calculation/agents/dialyn'
 import { calculateLucia } from './calculation/agents/lucia'
-import { anbyFullyCrit, calculateAnby } from './calculation/agents/anby-soldier-0'
+import { ANBY_AFTERSHOCK_TARGET, anbyFullyCrit, calculateAnby } from './calculation/agents/anby-soldier-0'
 import { calculateTrigger } from './calculation/agents/trigger'
 import { calculateAstra } from './calculation/agents/astra-yao'
 import { calculateSeed } from './calculation/agents/seed'
@@ -59,7 +59,7 @@ export function calculateParty(state: WorkbenchState): PartyResult | null {
     const critDmg = anbyFullyCrit(context.setup, orderedClauses(inboxes[index]), context.hasStunOrSupport)
     const derived = additive(
       'critDmg', 'fully', source('Core Passive', 'anbySoldier0', 'core', '35% of Fully Enabled CRIT DMG'),
-      critDmg * .35, 'all-party', 'anbyAftershock', undefined, ['anbySoldier0', 'trigger'],
+      critDmg * .35, 'all-party', ANBY_AFTERSHOCK_TARGET, undefined, ['anbySoldier0', 'trigger'],
     )
     for (const [recipientIndex, slot] of state.slots.entries()) {
       if (derived.eligibleAgentIds!.includes(slot.agentId)) inboxes[recipientIndex].push(derived)

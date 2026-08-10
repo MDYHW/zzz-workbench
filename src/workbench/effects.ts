@@ -17,6 +17,7 @@ import {
   type SetupFormulaFamily,
   type SubstatId,
 } from './content'
+import type { ActionTarget } from './actions'
 import type { AgentSetupState, AppliedAgentSlot } from './state'
 
 export type SurfaceKey = 'initial' | 'combat' | 'fully'
@@ -48,20 +49,18 @@ export interface ResolvedSetupInput {
   source: ResultSource
 }
 
+export function presentSetupInputs(
+  inputs: Array<ResolvedSetupInput | undefined>,
+): ResolvedSetupInput[] {
+  return inputs.filter((input): input is ResolvedSetupInput => input !== undefined)
+}
+
 export type EffectMetric =
   | 'maxHp' | 'atk' | 'sheerForce' | 'impact' | 'critRate' | 'critDmg'
   | 'dmgBonus' | 'sheerDmgBonus' | 'resIgnore' | 'dazeBonus'
   | 'stunDmgMultiplier' | 'energyRegen' | 'stunDuration'
   | 'penRatio' | 'defIgnore' | 'resReduction' | 'defReduction'
 
-export type ActionEffectId =
-  | 'coreActions' | 'exSpecialStunned' | 'mindscapeCloudShaper'
-  | 'engineSheerActions' | 'mindscapeEtherResIgnore'
-  | 'anbyAftershock' | 'anbyBasicUltimate' | 'anbyUltimate'
-  | 'anbyDash' | 'triggerBasic' | 'triggerQuickAssist'
-  | 'seedActions' | 'seedBasicActions'
-  | 'seedSlaughter' | 'seedDownfall' | 'seedUltimate'
-  | 'cissiaBasicActions' | 'cissiaCorrode' | 'cissiaSerpent' | 'cissiaUltimate'
 export type Recipient = 'self' | 'focus' | 'all-party' | 'other-party' | 'enemy-context'
 export type CandidatePressure = 'materialBroadPrePenDefBypass'
 export type EffectAttribute = 'Physical' | 'Fire' | 'Ice' | 'Electric' | 'Ether'
@@ -82,7 +81,7 @@ export interface ResolvedCurrentEffect {
   earliestSurface: SurfaceKey
   amount: number
   source: ResultSource
-  action?: ActionEffectId
+  action?: ActionTarget
   eligibleAgentIds?: AgentId[]
   nonstackKey?: SourceBoundCurrentClause['nonstackKey']
   display?: { value: number; unit: '%' | '/s'; decimals: number }
@@ -93,7 +92,7 @@ export interface SourceBoundCurrentClause {
   earliestSurface: SurfaceKey
   source: ResultSource
   recipient: Recipient
-  action?: ActionEffectId
+  action?: ActionTarget
   eligibleAgentIds?: AgentId[]
   attributes?: readonly EffectAttribute[]
   formulas?: readonly SetupFormulaFamily[]
@@ -341,7 +340,7 @@ export const additive = (
   sourceValue: ResultSource,
   amount: number,
   recipient: Recipient,
-  action?: ActionEffectId,
+  action?: ActionTarget,
   display?: ResolvedCurrentEffect['display'],
   eligibleAgentIds?: AgentId[],
   nonstackKey?: SourceBoundCurrentClause['nonstackKey'],
@@ -381,7 +380,7 @@ export const active = (
 export function pufferElectroFourPieceClauses(
   agentId: 'anbySoldier0' | 'seed' | 'cissia',
   setup: CompleteSetup,
-  ultimateAction: 'anbyUltimate' | 'seedUltimate' | 'cissiaUltimate',
+  ultimateAction: ActionTarget,
 ): SourceBoundCurrentClause[] {
   if (setup.fourPieceId !== 'pufferElectro') return []
   const fourPiece = discSource(agentId, 'pufferElectro', '4-piece')

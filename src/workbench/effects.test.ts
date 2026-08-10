@@ -3,12 +3,20 @@ import {
   additive,
   additiveMetricBundle,
   clauseAppliesToContext,
+  presentSetupInputs,
   resolveDeliveredClauses,
   source,
   withApplicability,
 } from './effects'
 
 describe('effect construction and applicability', () => {
+  it('keeps only resolved setup inputs without changing their order or identity', () => {
+    const first = { rawValue: 10, unit: '%' as const, source: source('First', 'seed', 'calculation') }
+    const second = { rawValue: 0, unit: '' as const, source: source('Second', 'seed', 'calculation') }
+
+    expect(presentSetupInputs([first, undefined, second])).toEqual([first, second])
+  })
+
   it('keeps every metric in one bundle on the same recipient boundary', () => {
     const recipients = ['seed', 'cissia'] as const
     const clauses = additiveMetricBundle(

@@ -65,7 +65,7 @@ export const DRIVE_DISC_FACTS = {
   },
   shadowHarmony: {
     twoPiece: {
-      damage: { modifier: 'dmgBonus', unit: '%', value: 15, scope: { actions: ['Aftershock', 'Dash Attack'] } },
+      damage: { modifier: 'dmgBonus', unit: '%', value: 15, scope: { actions: ['Dash Attack'], tags: ['aftershock'] } },
     },
     fourPiece: {
       atk: { modifier: 'atk', unit: '%', value: 12 },

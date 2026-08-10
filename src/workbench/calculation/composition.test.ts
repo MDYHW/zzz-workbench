@@ -1,31 +1,83 @@
-import { describe, expect, it } from 'vitest'
-import { source, type ResolvedCurrentEffect } from '../effects'
+import { describe, expect, expectTypeOf, it } from 'vitest'
+import { source, type EffectMetric, type ResolvedCurrentEffect } from '../effects'
+import {
+  actionForm,
+  actionOutcomeLabel,
+  actionTagLabel,
+  canonicalAction,
+  sourceLocalAction,
+  actionTarget,
+  type ActionOutcome,
+  type ActionTag,
+  type CanonicalActionKind,
+} from '../actions'
 import {
   composeActionHierarchy,
   surfaces,
   type ActionScopeNode,
 } from './composition'
+import type { ActionModifier, ResultMetric } from './result'
+
+const sharedTarget = actionTarget([
+  canonicalAction('Basic Attack'),
+  sourceLocalAction('Source-local outcome'),
+])
+
+const canonicalTarget = actionTarget([canonicalAction('Basic Attack')])
+
+const leafTarget = actionTarget([canonicalAction('Basic Attack')])
+
+const sourceLocalTarget = actionTarget(
+  [sourceLocalAction('Source-local outcome')],
+)
 
 const actionScopes: readonly ActionScopeNode[] = [{
   id: 'seedActions',
-  actions: ['Canonical action', 'Source-local outcome'],
+  target: sharedTarget,
   children: [
     {
       id: 'seedBasicActions',
-      actions: ['Canonical action'],
+      target: canonicalTarget,
       children: [{
         id: 'seedSlaughter',
-        actions: ['Canonical action'],
+        target: leafTarget,
       }],
     },
     {
       id: 'seedUltimate',
-      actions: ['Source-local outcome'],
+      target: sourceLocalTarget,
     },
   ],
 }]
 
 describe('Result composition', () => {
+  it('uses the shared effect metric vocabulary for Result rows and action outcomes', () => {
+    expectTypeOf<ResultMetric['id']>().toEqualTypeOf<EffectMetric>()
+    expectTypeOf<ActionModifier['metricId']>().toEqualTypeOf<EffectMetric>()
+    expectTypeOf<ActionModifier['outcomes'][number]>().toEqualTypeOf<ActionOutcome>()
+    expectTypeOf<ActionModifier['tags'][number]>().toEqualTypeOf<ActionTag>()
+    expectTypeOf<CanonicalActionKind>().toEqualTypeOf<
+      | 'Basic Attack'
+      | 'Dash Attack'
+      | 'Dodge Counter'
+      | 'Special Attack'
+      | 'EX Special Attack'
+      | 'Assist'
+      | 'Assist Follow-Up'
+      | 'Chain Attack'
+      | 'Ultimate'
+    >()
+    expect(actionOutcomeLabel(actionForm('EX Special Attack', 'Cloud-Shaper')))
+      .toBe('EX Special Attack: Cloud-Shaper')
+    expect(actionOutcomeLabel(sourceLocalAction('Corrode Bone', 'Basic Attack')))
+      .toBe('Corrode Bone')
+    expect(actionTarget([], ['aftershock'])).toMatchObject({
+      outcomes: [],
+      tags: ['aftershock'],
+    })
+    expect(actionTagLabel('aftershock')).toBe('Aftershock')
+  })
+
   it('projects only changed action scopes and links each one to its nearest visible parent', () => {
     const syntheticSource = source('Synthetic action source', 'seed', 'core')
     const effects: ResolvedCurrentEffect[] = [
@@ -34,21 +86,21 @@ describe('Result composition', () => {
         earliestSurface: 'combat',
         amount: 10,
         source: syntheticSource,
-        action: 'seedActions',
+        action: sharedTarget,
       },
       {
         metric: 'dmgBonus',
         earliestSurface: 'fully',
         amount: 20,
         source: syntheticSource,
-        action: 'seedBasicActions',
+        action: canonicalTarget,
       },
       {
         metric: 'dmgBonus',
         earliestSurface: 'fully',
         amount: 30,
         source: syntheticSource,
-        action: 'seedSlaughter',
+        action: leafTarget,
       },
     ]
 
@@ -60,18 +112,21 @@ describe('Result composition', () => {
     )).toMatchObject([
       {
         id: 'seedActions',
-        actions: ['Canonical action', 'Source-local outcome'],
+        outcomes: sharedTarget.outcomes,
+        tags: [],
         values: { initial: 0, combat: 10, fully: 10 },
       },
       {
         id: 'seedBasicActions',
-        actions: ['Canonical action'],
+        outcomes: canonicalTarget.outcomes,
+        tags: [],
         baseActionId: 'seedActions',
         values: { initial: 0, combat: 10, fully: 30 },
       },
       {
         id: 'seedSlaughter',
-        actions: ['Canonical action'],
+        outcomes: leafTarget.outcomes,
+        tags: [],
         baseActionId: 'seedBasicActions',
         values: { initial: 0, combat: 10, fully: 60 },
       },
@@ -86,14 +141,14 @@ describe('Result composition', () => {
         earliestSurface: 'combat',
         amount: 10,
         source: syntheticSource,
-        action: 'seedActions',
+        action: sharedTarget,
       },
       {
         metric: 'dmgBonus',
         earliestSurface: 'fully',
         amount: 30,
         source: syntheticSource,
-        action: 'seedSlaughter',
+        action: leafTarget,
       },
     ]
 

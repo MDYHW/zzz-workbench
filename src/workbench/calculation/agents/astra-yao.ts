@@ -19,11 +19,11 @@ import {
   mainStatInput,
   mindscapeSource,
   percentage,
+  presentSetupInputs,
   resolveDeliveredClauses,
   source,
   withApplicability,
   type CompleteSetup,
-  type ResolvedSetupInput,
   type SourceBoundCurrentClause,
 } from '../../effects'
 import {
@@ -34,6 +34,7 @@ import {
   surfaces,
 } from '../composition'
 import type { AgentResult } from '../result'
+import { TRIGGER_QUICK_ASSIST_TARGET } from './trigger'
 
 const stunRecipients = ['dialyn', 'trigger'] as const
 const damageFormulas: readonly SetupFormulaFamily[] = [
@@ -45,10 +46,6 @@ export interface AstraCalculationContext {
   agentId: 'astraYao'
   setup: CompleteSetup
   initialAtk: number
-}
-
-function presentInputs(inputs: Array<ResolvedSetupInput | undefined>): ResolvedSetupInput[] {
-  return inputs.filter((input): input is ResolvedSetupInput => input !== undefined)
 }
 
 function cadenzaAt(mindscape: number): { dmg: number; critDmg: number; level: 12 | 14 | 16 } {
@@ -65,7 +62,7 @@ function coreAt(initialAtk: number, mindscape: number): number {
 
 export function observeAstra(setup: CompleteSetup): AstraCalculationContext {
   const engine = W_ENGINES[setup.engineId]
-  const initialInputs = presentInputs([
+  const initialInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'astraYao', 'atkPct'),
     discStatInput(setup, 'astraYao', 'fourPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
     discStatInput(setup, 'astraYao', 'twoPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
@@ -115,7 +112,7 @@ export function resolveAstraProviderClauses(
       additive('resReduction', 'fully', mindscapeSource('astraYao', 1, '3 stacks'), setup.mindscape >= 1 ? 18 : 0, 'enemy-context'),
       { formulas: damageFormulas },
     ),
-    additive('dazeBonus', 'fully', mindscapeSource('astraYao', 4, 'Next Quick Assist'), setup.mindscape >= 4 ? 50 : 0, 'all-party', 'triggerQuickAssist', undefined, [...stunRecipients]),
+    additive('dazeBonus', 'fully', mindscapeSource('astraYao', 4, 'Next Quick Assist'), setup.mindscape >= 4 ? 50 : 0, 'all-party', TRIGGER_QUICK_ASSIST_TARGET, undefined, [...stunRecipients]),
     withApplicability(
       additive('dmgBonus', 'fully', engine, setup.engineId === 'elegantVanity' ? equipmentEffectMaximumValue(W_ENGINE_FACTS.elegantVanity.effects.damage, refinement) : 0, 'all-party'),
       { formulas: damageFormulas },
@@ -146,7 +143,7 @@ export function calculateAstra(
   const { setup, initialAtk } = context
   const engine = W_ENGINES[setup.engineId]
   const baseAtk = VERTICAL_VALUES.astraYao.atk + engine.baseAtk
-  const initialAtkInputs = presentInputs([
+  const initialAtkInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'astraYao', 'atkPct'),
     discStatInput(setup, 'astraYao', 'fourPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
     discStatInput(setup, 'astraYao', 'twoPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
@@ -158,7 +155,7 @@ export function calculateAstra(
   ])
   const flatAtkInput = effectiveSubstatInput(setup, 'astraYao', 'atkFlat')
   const effects = resolveDeliveredClauses(inbox, {})
-  const energyInputs = presentInputs([
+  const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'astraYao', 'energyRegenPct'),
     mainStatInput(setup, 'astraYao', 'slot6', 'energyRegenPct'),
     discStatInput(setup, 'astraYao', 'fourPiece', 'moonlight', equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen), 'twoPiece'),

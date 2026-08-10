@@ -19,6 +19,7 @@ import {
   mainStatInput,
   mindscapeSource,
   pufferElectroFourPieceClauses,
+  presentSetupInputs,
   resolveDeliveredClauses,
   withApplicability,
   type CompleteSetup,
@@ -26,6 +27,12 @@ import {
   type ResolvedSetupInput,
   type SourceBoundCurrentClause,
 } from '../../effects'
+import {
+  actionForm,
+  actionTarget,
+  canonicalAction,
+  sourceLocalAction,
+} from '../../actions'
 import {
   composeActionHierarchy,
   composeMetricEffects,
@@ -44,24 +51,35 @@ export interface CissiaCalculationContext {
   initialEnergyRegen: number
 }
 
+const CISSIA_CORRODE = actionTarget([
+  sourceLocalAction('Corrode Bone', 'Basic Attack'),
+])
+
+const CISSIA_SERPENT = actionTarget([
+  actionForm('Basic Attack', "Serpent's Kiss"),
+])
+
+const CISSIA_BASIC_ACTIONS = actionTarget([
+  ...CISSIA_CORRODE.outcomes,
+  ...CISSIA_SERPENT.outcomes,
+])
+
+const CISSIA_ULTIMATE = actionTarget([canonicalAction('Ultimate')])
+
 const CISSIA_ACTION_SCOPES = [{
   id: 'cissiaBasicActions',
-  actions: ['Corrode Bone', "Basic Attack: Serpent's Kiss"],
+  target: CISSIA_BASIC_ACTIONS,
   children: [
-    { id: 'cissiaCorrode', actions: ['Corrode Bone'] },
-    { id: 'cissiaSerpent', actions: ["Basic Attack: Serpent's Kiss"] },
+    { id: 'cissiaCorrode', target: CISSIA_CORRODE },
+    { id: 'cissiaSerpent', target: CISSIA_SERPENT },
   ],
 }, {
   id: 'cissiaUltimate',
-  actions: ['Ultimate'],
+  target: CISSIA_ULTIMATE,
 }] satisfies readonly ActionScopeNode[]
 
-function presentInputs(inputs: Array<ResolvedSetupInput | undefined>): ResolvedSetupInput[] {
-  return inputs.filter((input): input is ResolvedSetupInput => input !== undefined)
-}
-
 function cissiaAtkInputs(setup: CompleteSetup): ResolvedSetupInput[] {
-  return presentInputs([
+  return presentSetupInputs([
     engineAdvancedInput(setup, 'cissia', 'atkPct'),
     mainStatInput(setup, 'cissia', 'slot5', 'atkPct'),
     mainStatInput(setup, 'cissia', 'slot6', 'atkPct'),
@@ -72,7 +90,7 @@ function cissiaAtkInputs(setup: CompleteSetup): ResolvedSetupInput[] {
 }
 
 function cissiaEnergyInputs(setup: CompleteSetup): ResolvedSetupInput[] {
-  return presentInputs([
+  return presentSetupInputs([
     engineAdvancedInput(setup, 'cissia', 'energyRegenPct'),
     mainStatInput(setup, 'cissia', 'slot6', 'energyRegenPct'),
     discStatInput(setup, 'cissia', 'twoPiece', 'swingJazz', equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
@@ -110,9 +128,9 @@ function dawnClauses(setup: CompleteSetup): SourceBoundCurrentClause[] {
   const twoPiece = discSource('cissia', 'dawnsBloom', '2-piece', '4-piece')
   const fourPiece = discSource('cissia', 'dawnsBloom', '4-piece')
   return [
-    additive('dmgBonus', 'initial', twoPiece, initial, 'self', 'cissiaBasicActions'),
-    additive('dmgBonus', 'combat', fourPiece, combat, 'self', 'cissiaBasicActions'),
-    additive('dmgBonus', 'fully', fourPiece, fully, 'self', 'cissiaBasicActions'),
+    additive('dmgBonus', 'initial', twoPiece, initial, 'self', CISSIA_BASIC_ACTIONS),
+    additive('dmgBonus', 'combat', fourPiece, combat, 'self', CISSIA_BASIC_ACTIONS),
+    additive('dmgBonus', 'fully', fourPiece, fully, 'self', CISSIA_BASIC_ACTIONS),
   ]
 }
 
@@ -150,7 +168,7 @@ export function resolveCissiaProviderClauses(
       })),
     additive('critRate', 'fully', STATIC_SOURCES.cissia.basic, 18, 'self'),
     additive('dazeBonus', 'fully', STATIC_SOURCES.cissia.basic,
-      party.electricAgentCount >= 2 ? 60 : 40, 'self', 'cissiaCorrode'),
+      party.electricAgentCount >= 2 ? 60 : 40, 'self', CISSIA_CORRODE),
     critRecipients(additive('critDmg', 'combat', STATIC_SOURCES.cissia.additional,
       party.additionalActive ? 40 : 0, 'all-party')),
     additive('critDmg', 'combat', STATIC_SOURCES.cissia.additional,
@@ -160,9 +178,9 @@ export function resolveCissiaProviderClauses(
     electricGeneral(additive('resIgnore', 'combat', mindscapeSource('cissia', 1),
       setup.mindscape >= 1 ? 5 : 0, 'enemy-context')),
     electricGeneral(additive('resIgnore', 'fully', mindscapeSource('cissia', 1, 'Corrode Bone'),
-      setup.mindscape >= 1 ? 10 : 0, 'enemy-context', 'cissiaCorrode', undefined, ['cissia'])),
+      setup.mindscape >= 1 ? 10 : 0, 'enemy-context', CISSIA_CORRODE, undefined, ['cissia'])),
     additive('dmgBonus', 'fully', mindscapeSource('cissia', 2, "Serpent's Kiss"),
-      setup.mindscape >= 2 ? 35 : 0, 'self', 'cissiaSerpent'),
+      setup.mindscape >= 2 ? 35 : 0, 'self', CISSIA_SERPENT),
     additive('critRate', 'combat', engine, setup.engineId === 'serpentineSeeker'
       ? equipmentEffectBaseValue(W_ENGINE_FACTS.serpentineSeeker.effects.critRate, refinement)
       : setup.engineId === 'cordisGermina'
@@ -171,25 +189,25 @@ export function resolveCissiaProviderClauses(
     additive('defIgnore', 'combat', engine, setup.engineId === 'serpentineSeeker'
       ? equipmentEffectBaseValue(W_ENGINE_FACTS.serpentineSeeker.effects.defIgnore, refinement)
       : 0, 'enemy-context', undefined, undefined, ['cissia']),
-    additive('dmgBonus', 'fully', engine, drillDmg + cordisDmg, 'self', 'cissiaBasicActions'),
-    additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', 'cissiaBasicActions', undefined, ['cissia']),
-    additive('dmgBonus', 'fully', engine, cordisDmg, 'self', 'cissiaUltimate'),
-    additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', 'cissiaUltimate', undefined, ['cissia']),
+    additive('dmgBonus', 'fully', engine, drillDmg + cordisDmg, 'self', CISSIA_BASIC_ACTIONS),
+    additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', CISSIA_BASIC_ACTIONS, undefined, ['cissia']),
+    additive('dmgBonus', 'fully', engine, cordisDmg, 'self', CISSIA_ULTIMATE),
+    additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', CISSIA_ULTIMATE, undefined, ['cissia']),
     critRecipients(additive('dmgBonus', 'fully', discSource('cissia', 'astralVoice', '4-piece'),
       setup.fourPieceId === 'astralVoice' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage) : 0,
       'all-party', undefined, undefined, undefined, 'astralVoiceEntrant')),
     ...dawnClauses(setup),
-    ...pufferElectroFourPieceClauses('cissia', setup, 'cissiaUltimate'),
+    ...pufferElectroFourPieceClauses('cissia', setup, CISSIA_ULTIMATE),
   ])
 }
 
 function optionalMetric(
   metric: EffectMetric,
-  id: string,
+  id: EffectMetric,
   label: string,
   effects: ReturnType<typeof resolveDeliveredClauses>,
   decimals = 1,
-) {
+): AgentResult['metrics'] {
   const data = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, metric)
   return data.values.fully === 0 ? [] : [{ id, label, unit: '%', decimals, ...data }]
 }
@@ -213,7 +231,7 @@ export function calculateCissia(
     effects,
     'atk',
   )
-  const critRateInputs = presentInputs([
+  const critRateInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'cissia', 'critRate'),
     mainStatInput(setup, 'cissia', 'slot4', 'critRate'),
     discStatInput(setup, 'cissia', 'twoPiece', 'woodpecker', equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
@@ -227,7 +245,7 @@ export function calculateCissia(
     'critRate',
     { value: 100, source: STATIC_SOURCES.cissia.critCap },
   )
-  const critDmgInputs = presentInputs([
+  const critDmgInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'cissia', 'critDmg'),
     mainStatInput(setup, 'cissia', 'slot4', 'critDmg'),
     discStatInput(setup, 'cissia', 'twoPiece', 'branchAndBlade', equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
@@ -316,7 +334,7 @@ export function calculateCissia(
         },
       },
       { id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...regular },
-      ...(penRatio.values.fully ? [{ id: 'penRatio', label: 'PEN Ratio', unit: '%', decimals: 1, ...penRatio }] : []),
+      ...(penRatio.values.fully ? [{ id: 'penRatio' as const, label: 'PEN Ratio', unit: '%', decimals: 1, ...penRatio }] : []),
       { id: 'dazeBonus', label: 'Daze Bonus', unit: '%', decimals: 1, ...dazeBonus },
       ...optionalMetric('defIgnore', 'defIgnore', 'DEF Ignore', effects, 3),
       ...optionalMetric('defReduction', 'defReduction', 'DEF Reduction', effects),

@@ -4,8 +4,8 @@ import type {
   ResolvedSetupInput,
   ResultSource,
   SurfaceKey,
-  ActionEffectId,
 } from '../effects'
+import type { ActionTarget } from '../actions'
 import type { ActionModifier, Contribution, ResultMetric } from './result'
 
 export const surfaces = <T>(
@@ -62,7 +62,7 @@ const surfaceOrder: SurfaceKey[] = ['initial', 'combat', 'fully']
 function effectsForMetric(
   effects: ResolvedCurrentEffect[],
   metric: EffectMetric,
-  action?: ActionEffectId,
+  action?: ActionTarget,
 ): ResolvedCurrentEffect[] {
   return effects.filter((effect) => (
     effect.metric === metric && effect.action === action
@@ -219,9 +219,9 @@ export function composeActionEffects(
   baseValues: Record<SurfaceKey, number>,
   effects: ResolvedCurrentEffect[],
   metric: EffectMetric,
-  actionId: ActionEffectId,
+  action: ActionTarget,
 ): Pick<ActionModifier, 'values' | 'breakdown'> {
-  const scopedEffects = effectsForMetric(effects, metric, actionId)
+  const scopedEffects = effectsForMetric(effects, metric, action)
   return composeMetricEffects(
     baseValues,
     surfaces([], [], []),
@@ -231,8 +231,8 @@ export function composeActionEffects(
 }
 
 export interface ActionScopeNode {
-  id: ActionEffectId
-  actions: readonly string[]
+  id: string
+  target: ActionTarget
   children?: readonly ActionScopeNode[]
 }
 
@@ -257,12 +257,13 @@ export function composeActionHierarchy(
     parentValues: Record<SurfaceKey, number>,
     nearestVisibleParentId?: string,
   ) => {
-    const composed = composeActionEffects(parentValues, effects, metric, node.id)
+    const composed = composeActionEffects(parentValues, effects, metric, node.target)
     const id = `${node.id}${idSuffix}`
     const changed = surfaceValuesDiffer(composed.values, parentValues)
     if (changed) rows.push({
       id,
-      actions: [...node.actions],
+      outcomes: [...node.target.outcomes],
+      tags: [...node.target.tags],
       metricId: metric,
       ...(nearestVisibleParentId ? { baseActionId: nearestVisibleParentId } : {}),
       ...composed,

@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { ADMITTED_AGENTS } from '../workbench/content'
+import { actionOutcomeLabel, actionTagLabel } from '../workbench/actions'
 import type {
   ActionModifier,
   AgentResult,
@@ -346,9 +347,10 @@ function ActionRows({
             const parentValues = action.baseActionId
               ? actionById.get(action.baseActionId)?.values ?? metric.values
               : metric.values
-            const actionName = action.tag === 'aftershock'
-              ? 'Aftershock'
-              : action.actions.join(', ')
+            const actionLabels = action.outcomes.map(actionOutcomeLabel)
+            const actionName = action.tags.length
+              ? action.tags.map(actionTagLabel).join(', ')
+              : actionLabels.join(', ')
 
             return (
               <Fragment key={action.id}>
@@ -365,15 +367,15 @@ function ActionRows({
                           aria-label={`${isExpanded ? 'Hide' : 'Show'} sources for ${actionName}`}
                           onClick={() => toggleAction(actionKey)}
                         >
-                          {action.tag === 'aftershock'
+                          {action.tags.includes('aftershock')
                             ? <span className="action-tag" aria-label="Aftershock">AFTERSHOCK</span>
-                            : <span className="action-lines">{action.actions.map((label) => <span key={label}>{label}</span>)}</span>}
+                            : <span className="action-lines">{actionLabels.map((label) => <span key={label}>{label}</span>)}</span>}
                           <i aria-hidden="true">{isExpanded ? '\u2212' : '+'}</i>
                         </button>
                       ) : (
-                        action.tag === 'aftershock'
+                        action.tags.includes('aftershock')
                           ? <span className="action-tag" aria-label="Aftershock">AFTERSHOCK</span>
-                          : <span className="action-lines">{action.actions.map((label) => <span key={label}>{label}</span>)}</span>
+                          : <span className="action-lines">{actionLabels.map((label) => <span key={label}>{label}</span>)}</span>
                       )}
                     </th>
                     {allSurfaces.map((surface) => (
@@ -523,7 +525,7 @@ export function ResultPanel({
   agentResult,
   onSourceToneChange,
 }: ResultPanelProps) {
-  const [expanded, setExpanded] = useState<Set<string>>(new Set())
+  const [expanded, setExpanded] = useState<Set<ResultMetric['id']>>(new Set())
   const metricRows = useMemo(
     () => agentResult ? currentMetricRows(agentResult) : [],
     [agentResult],
@@ -546,7 +548,7 @@ export function ResultPanel({
     )
   }
 
-  const toggle = (metricId: string) => setExpanded((current) => {
+  const toggle = (metricId: ResultMetric['id']) => setExpanded((current) => {
     const next = new Set(current)
     if (next.has(metricId)) next.delete(metricId)
     else next.add(metricId)

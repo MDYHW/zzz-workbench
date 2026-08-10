@@ -21,6 +21,7 @@ import {
   mainStatInput,
   mindscapeSource,
   percentage,
+  presentSetupInputs,
   pufferElectroFourPieceClauses,
   resolveDeliveredClauses,
   withApplicability,
@@ -29,6 +30,11 @@ import {
   type ResolvedSetupInput,
   type SourceBoundCurrentClause,
 } from '../../effects'
+import {
+  actionForm,
+  actionTarget,
+  canonicalAction,
+} from '../../actions'
 import {
   composeActionHierarchy,
   composeMetricEffects,
@@ -45,35 +51,45 @@ export interface SeedCalculationContext {
   initialAtk: number
 }
 
+const SEED_ACTIONS = actionTarget([
+    actionForm('Basic Attack', 'Falling Petals - Slaughter'),
+    actionForm('Basic Attack', 'Falling Petals - Downfall'),
+    canonicalAction('Ultimate'),
+])
+
+const SEED_BASIC_ACTIONS = actionTarget([
+    actionForm('Basic Attack', 'Falling Petals - Slaughter'),
+    actionForm('Basic Attack', 'Falling Petals - Downfall'),
+])
+
+const SEED_SLAUGHTER = actionTarget([
+  actionForm('Basic Attack', 'Falling Petals - Slaughter'),
+])
+
+const SEED_DOWNFALL = actionTarget([
+  actionForm('Basic Attack', 'Falling Petals - Downfall'),
+])
+
+const SEED_ULTIMATE = actionTarget([canonicalAction('Ultimate')])
+
 const SEED_ACTION_SCOPES = [{
   id: 'seedActions',
-  actions: [
-    'Basic Attack: Falling Petals - Slaughter',
-    'Basic Attack: Falling Petals - Downfall',
-    'Ultimate',
-  ],
+  target: SEED_ACTIONS,
   children: [
     {
       id: 'seedBasicActions',
-      actions: [
-        'Basic Attack: Falling Petals - Slaughter',
-        'Basic Attack: Falling Petals - Downfall',
-      ],
+      target: SEED_BASIC_ACTIONS,
       children: [
-        { id: 'seedSlaughter', actions: ['Basic Attack: Falling Petals - Slaughter'] },
-        { id: 'seedDownfall', actions: ['Basic Attack: Falling Petals - Downfall'] },
+        { id: 'seedSlaughter', target: SEED_SLAUGHTER },
+        { id: 'seedDownfall', target: SEED_DOWNFALL },
       ],
     },
-    { id: 'seedUltimate', actions: ['Ultimate'] },
+    { id: 'seedUltimate', target: SEED_ULTIMATE },
   ],
 }] satisfies readonly ActionScopeNode[]
 
-function presentInputs(inputs: Array<ResolvedSetupInput | undefined>): ResolvedSetupInput[] {
-  return inputs.filter((input): input is ResolvedSetupInput => input !== undefined)
-}
-
 function seedAtkInputs(setup: CompleteSetup): ResolvedSetupInput[] {
-  return presentInputs([
+  return presentSetupInputs([
     engineAdvancedInput(setup, 'seed', 'atkPct'),
     mainStatInput(setup, 'seed', 'slot5', 'atkPct'),
     mainStatInput(setup, 'seed', 'slot6', 'atkPct'),
@@ -98,9 +114,9 @@ function dawnClauses(setup: CompleteSetup): SourceBoundCurrentClause[] {
   const twoPiece = discSource('seed', 'dawnsBloom', '2-piece', '4-piece')
   const fourPiece = discSource('seed', 'dawnsBloom', '4-piece')
   return [
-    additive('dmgBonus', 'initial', twoPiece, initial, 'self', 'seedBasicActions'),
-    additive('dmgBonus', 'combat', fourPiece, combat, 'self', 'seedBasicActions'),
-    additive('dmgBonus', 'fully', fourPiece, fully, 'self', 'seedBasicActions'),
+    additive('dmgBonus', 'initial', twoPiece, initial, 'self', SEED_BASIC_ACTIONS),
+    additive('dmgBonus', 'combat', fourPiece, combat, 'self', SEED_BASIC_ACTIONS),
+    additive('dmgBonus', 'fully', fourPiece, fully, 'self', SEED_BASIC_ACTIONS),
   ]
 }
 
@@ -141,18 +157,18 @@ export function resolveSeedProviderClauses(
     generalDamage(additive('dmgBonus', 'combat', STATIC_SOURCES.seed.core,
       hasVanguard ? 25 : 0, 'all-party', undefined, undefined, coreRecipients)),
     additive('dmgBonus', 'combat', STATIC_SOURCES.seed.additional,
-      hasVanguard ? 30 : 0, 'self', 'seedActions'),
+      hasVanguard ? 30 : 0, 'self', SEED_ACTIONS),
     electricGeneral(additive('resIgnore', 'combat', STATIC_SOURCES.seed.additional,
-      hasVanguard ? 25 : 0, 'enemy-context', 'seedActions', undefined, ['seed'])),
+      hasVanguard ? 25 : 0, 'enemy-context', SEED_ACTIONS, undefined, ['seed'])),
     additive('critDmg', 'fully', mindscapeSource('seed', 1, 'Downfall'),
-      setup.mindscape >= 1 ? 30 : 0, 'self', 'seedDownfall'),
+      setup.mindscape >= 1 ? 30 : 0, 'self', SEED_DOWNFALL),
     generalDamage(additive('defIgnore', 'combat', mindscapeSource('seed', 2, 'Besiege'),
       setup.mindscape >= 2 && hasVanguard ? 20 : 0,
       'enemy-context', undefined, undefined, coreRecipients)),
     additive('dmgBonus', 'fully', mindscapeSource('seed', 2, 'Slaughter'),
-      setup.mindscape >= 2 ? 120 : 0, 'self', 'seedSlaughter'),
+      setup.mindscape >= 2 ? 120 : 0, 'self', SEED_SLAUGHTER),
     additive('dmgBonus', 'fully', mindscapeSource('seed', 4, 'Ultimate'),
-      setup.mindscape >= 4 ? 20 : 0, 'self', 'seedUltimate'),
+      setup.mindscape >= 4 ? 20 : 0, 'self', SEED_ULTIMATE),
     additive('critDmg', 'combat', mindscapeSource('seed', 6),
       setup.mindscape >= 6 ? 50 : 0, 'self'),
     additive('critDmg', 'combat', engine, setup.engineId === 'severedInnocence'
@@ -175,20 +191,20 @@ export function resolveSeedProviderClauses(
     percentage('atk', 'fully', discSource('seed', 'woodpecker', '4-piece'),
       setup.fourPieceId === 'woodpecker' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.fourPiece.atk) : 0,
       'self'),
-    additive('dmgBonus', 'fully', engine, cordisDmg, 'self', 'seedActions'),
-    additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', 'seedActions', undefined, ['seed']),
+    additive('dmgBonus', 'fully', engine, cordisDmg, 'self', SEED_ACTIONS),
+    additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', SEED_ACTIONS, undefined, ['seed']),
     ...dawnClauses(setup),
-    ...pufferElectroFourPieceClauses('seed', setup, 'seedUltimate'),
+    ...pufferElectroFourPieceClauses('seed', setup, SEED_ULTIMATE),
   ])
 }
 
 function optionalMetric(
   metric: EffectMetric,
-  id: string,
+  id: EffectMetric,
   label: string,
   effects: ReturnType<typeof resolveDeliveredClauses>,
   actions: AgentResult['actionModifiers'] = [],
-) {
+): AgentResult['metrics'] {
   const data = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, metric)
   return data.values.fully === 0 && !actions.some(({ metricId }) => metricId === id)
     ? []
@@ -214,7 +230,7 @@ export function calculateSeed(
     effects,
     'atk',
   )
-  const critRateInputs = presentInputs([
+  const critRateInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'seed', 'critRate'),
     mainStatInput(setup, 'seed', 'slot4', 'critRate'),
     discStatInput(setup, 'seed', 'twoPiece', 'woodpecker', equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
@@ -229,7 +245,7 @@ export function calculateSeed(
     'critRate',
     { value: 100, source: STATIC_SOURCES.seed.critCap },
   )
-  const critDmgInputs = presentInputs([
+  const critDmgInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'seed', 'critDmg'),
     mainStatInput(setup, 'seed', 'slot4', 'critDmg'),
     discStatInput(setup, 'seed', 'twoPiece', 'branchAndBlade', equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
@@ -259,7 +275,7 @@ export function calculateSeed(
     equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio),
     'twoPiece',
   )
-  const penInputs = presentInputs([mainPen, pufferTwoPiecePen, pufferFourPiecePen])
+  const penInputs = presentSetupInputs([mainPen, pufferTwoPiecePen, pufferFourPiecePen])
   const initialPen = penInputs.reduce((total, input) => total + input.rawValue, 0)
   const penRatio = composeMetricEffects(
     surfaces(initialPen, initialPen, initialPen),
@@ -301,7 +317,7 @@ export function calculateSeed(
       { id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1, ...critRate },
       { id: 'critDmg', label: 'CRIT DMG', unit: '%', decimals: 1, ...critDmg },
       { id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...regular },
-      ...(penRatio.values.fully ? [{ id: 'penRatio', label: 'PEN Ratio', unit: '%', decimals: 1, ...penRatio }] : []),
+      ...(penRatio.values.fully ? [{ id: 'penRatio' as const, label: 'PEN Ratio', unit: '%', decimals: 1, ...penRatio }] : []),
       ...optionalMetric('defIgnore', 'defIgnore', 'DEF Ignore', effects, actionModifiers),
       ...optionalMetric('defReduction', 'defReduction', 'DEF Reduction', effects),
       ...optionalMetric('resIgnore', 'resIgnore', 'RES Ignore', effects, actionModifiers),

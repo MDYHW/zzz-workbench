@@ -1,5 +1,6 @@
 import type { AgentId } from '../content'
-import type { ResultSource, SurfaceKey } from '../effects'
+import type { EffectMetric, ResultSource, SurfaceKey } from '../effects'
+import type { ActionOutcome, ActionTag } from '../actions'
 
 export interface Contribution extends ResultSource {
   amount: number
@@ -33,7 +34,7 @@ export interface GaugeResult {
 }
 
 export interface ResultMetric {
-  id: string
+  id: EffectMetric
   label: string
   unit: string
   decimals: number
@@ -44,9 +45,9 @@ export interface ResultMetric {
 
 export interface ActionModifier {
   id: string
-  actions: string[]
-  tag?: 'aftershock'
-  metricId: string
+  outcomes: ActionOutcome[]
+  tags: ActionTag[]
+  metricId: EffectMetric
   baseActionId?: string
   values: Record<SurfaceKey, number>
   breakdown: Record<SurfaceKey, Contribution[]>

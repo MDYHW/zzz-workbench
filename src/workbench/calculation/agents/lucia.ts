@@ -19,6 +19,7 @@ import {
   mindscapeSource,
   perSecond,
   percentage,
+  presentSetupInputs,
   resolveDeliveredClauses,
   source,
   type CompleteSetup,
@@ -54,12 +55,6 @@ export interface LuciaCalculationContext {
   squadSheer: LuciaSquadSheerObservation
 }
 
-function presentInputs(
-  inputs: Array<ResolvedSetupInput | undefined>,
-): ResolvedSetupInput[] {
-  return inputs.filter((input): input is ResolvedSetupInput => Boolean(input))
-}
-
 function calculateLuciaInitialHp(
   setup: CompleteSetup,
 ): LuciaInitialHpObservation {
@@ -79,9 +74,10 @@ function calculateLuciaInitialHp(
     'yunkui',
     equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.twoPiece.maxHp),
   )
-  const mainHpInputs = (['slot4', 'slot5', 'slot6'] as MainSlot[])
-    .map((slot) => mainStatInput(setup, 'lucia', slot, 'hpPct'))
-    .filter((input): input is ResolvedSetupInput => Boolean(input))
+  const mainHpInputs = presentSetupInputs(
+    (['slot4', 'slot5', 'slot6'] as MainSlot[])
+      .map((slot) => mainStatInput(setup, 'lucia', slot, 'hpPct')),
+  )
   const hpSubstat = effectiveSubstatInput(setup, 'lucia', 'hpPct')
   const hpFlat = effectiveSubstatInput(setup, 'lucia', 'hpFlat')
   const totalHpPct = (engineHp?.rawValue ?? 0)
@@ -233,7 +229,7 @@ export function calculateLucia(
 
   const engineEnergyRegen = engineAdvancedInput(setup, 'lucia', 'energyRegenPct')
   const slotEnergyRegen = mainStatInput(setup, 'lucia', 'slot6', 'energyRegenPct')
-  const discEnergyRegen = presentInputs([
+  const discEnergyRegen = presentSetupInputs([
     discStatInput(
       setup,
       'lucia',

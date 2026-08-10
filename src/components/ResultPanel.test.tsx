@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import type { AgentResult } from '../workbench/calculation/result'
 import { surfaces } from '../workbench/calculation/composition'
+import { canonicalAction, sourceLocalAction } from '../workbench/actions'
 import { ResultPanel } from './ResultPanel'
 
 const syntheticSource = {
@@ -50,7 +51,11 @@ describe('ResultPanel action hierarchy', () => {
       actionModifiers: [
         {
           id: 'shared',
-          actions: ['Canonical action', 'Source-local outcome'],
+          outcomes: [
+            canonicalAction('Basic Attack'),
+            sourceLocalAction('Source-local outcome'),
+          ],
+          tags: [],
           metricId: 'dmgBonus',
           values: surfaces(0, 20, 30),
           breakdown: emptyBreakdown,
@@ -58,7 +63,8 @@ describe('ResultPanel action hierarchy', () => {
         {
           id: 'nested',
           baseActionId: 'shared',
-          actions: ['Canonical action'],
+          outcomes: [canonicalAction('Basic Attack')],
+          tags: [],
           metricId: 'dmgBonus',
           values: surfaces(0, 20, 40),
           breakdown: emptyBreakdown,
@@ -81,10 +87,10 @@ describe('ResultPanel action hierarchy', () => {
     })
 
     expect(within(actions).getByRole('rowheader', {
-      name: 'Canonical actionSource-local outcome',
+      name: 'Basic AttackSource-local outcome',
     })).toBeInTheDocument()
     expect(within(actions).getByRole('rowheader', {
-      name: /^Canonical action$/,
+      name: /^Basic Attack$/,
     })).toBeInTheDocument()
   })
 })
@@ -189,7 +195,7 @@ describe('ResultPanel operation presentation', () => {
 
   it('presents active and inactive threshold-scale gauges', async () => {
     const user = userEvent.setup()
-    const scaleMetric = (current: number, outputValue: number) => ({
+    const scaleMetric = (current: number, outputValue: number): AgentResult['metrics'][number] => ({
       id: 'critRate',
       label: 'CRIT Rate',
       unit: '%',

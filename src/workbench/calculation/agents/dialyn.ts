@@ -19,6 +19,7 @@ import {
   mindscapeSource,
   perSecond,
   percentage,
+  presentSetupInputs,
   resolveDeliveredClauses,
   type CompleteSetup,
   type ResolvedSetupInput,
@@ -33,6 +34,7 @@ import {
   withoutZero,
 } from '../composition'
 import type { AgentResult } from '../result'
+import { TRIGGER_QUICK_ASSIST_TARGET } from './trigger'
 
 export interface DialynInitialCritObservation {
   value: number
@@ -44,10 +46,6 @@ export interface DialynCalculationContext {
   agentId: 'dialyn'
   setup: CompleteSetup
   initialCrit: DialynInitialCritObservation
-}
-
-function presentInputs(inputs: Array<ResolvedSetupInput | undefined>): ResolvedSetupInput[] {
-  return inputs.filter((input): input is ResolvedSetupInput => Boolean(input))
 }
 
 export function observeDialyn(
@@ -64,8 +62,7 @@ export function observeDialyn(
     equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate),
   )
   const substatCrit = effectiveSubstatInput(setup, 'dialyn', 'critRate')
-  const inputs = [engineCrit, mainCrit, twoPieceCrit, substatCrit]
-    .filter((input): input is ResolvedSetupInput => Boolean(input))
+  const inputs = presentSetupInputs([engineCrit, mainCrit, twoPieceCrit, substatCrit])
   const uncappedValue = dialyn.critRate
     + inputs.reduce((total, input) => total + input.rawValue, 0)
 
@@ -144,9 +141,7 @@ export function calculateDialyn(
   )
   const advancedImpact = engineAdvancedInput(setup, 'dialyn', 'impactPct')
   const slotImpact = mainStatInput(setup, 'dialyn', 'slot6', 'impact')
-  const initialImpactInputs = [advancedImpact, slotImpact].filter(
-    (input): input is ResolvedSetupInput => Boolean(input),
-  )
+  const initialImpactInputs = presentSetupInputs([advancedImpact, slotImpact])
   const initialImpact = dialyn.impact * (
     1 + initialImpactInputs.reduce((total, input) => total + input.rawValue, 0) / 100
   )
@@ -154,7 +149,7 @@ export function calculateDialyn(
 
   const engineEnergyRegen = engineAdvancedInput(setup, 'dialyn', 'energyRegenPct')
   const slotEnergyRegen = mainStatInput(setup, 'dialyn', 'slot6', 'energyRegenPct')
-  const discEnergyRegen = presentInputs([
+  const discEnergyRegen = presentSetupInputs([
     discStatInput(
       setup,
       'dialyn',
@@ -231,7 +226,7 @@ export function calculateDialyn(
   )
   const enemyEffects = resolveDeliveredClauses(enemyContext, {})
   const quickAssist = resolveDeliveredClauses(inbox, {}).find((effect) => (
-    effect.action === 'triggerQuickAssist' && effect.metric === 'dazeBonus'
+    effect.action === TRIGGER_QUICK_ASSIST_TARGET && effect.metric === 'dazeBonus'
   ))
   const stunDuration = enemyEffects.find((effect) => (
     effect.metric === 'stunDuration' && effect.source.ownerAgentId === 'yixuan'

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { calculateParty } from './calculate'
 import { resolveProviderEffects, resolveSeedVanguard } from './provider-effects'
 import { createPreparedState, workbenchReducer } from './state'
+import { canonicalAction } from './actions'
 import {
   action,
   agent,
@@ -80,7 +81,10 @@ describe('authored calculation policies', () => {
       expect(metric(m1, 'critRate').values.combat - metric(m0, 'critRate').values.combat)
         .toBeCloseTo(10)
       expect(action(m2, 'mindscapeEtherResIgnore')).toMatchObject({
-        actions: ['EX Special Attack', 'Ultimate'],
+        outcomes: [
+          canonicalAction('EX Special Attack'),
+          canonicalAction('Ultimate'),
+        ],
         metricId: 'resIgnore',
         values: { initial: 0, combat: 0, fully: 15 },
       })
@@ -219,7 +223,10 @@ describe('authored calculation policies', () => {
       const anby = agent(result, 'anbySoldier0')
 
       expect(action(anby, 'anbyBasicUltimate')).toMatchObject({
-        actions: ['Basic Attack', 'Ultimate'],
+        outcomes: [
+          canonicalAction('Basic Attack'),
+          canonicalAction('Ultimate'),
+        ],
         metricId: 'defIgnore',
         values: { initial: 0, combat: 0, fully: 20 },
       })
@@ -252,7 +259,10 @@ describe('authored calculation policies', () => {
       )
       nonLimited = setSubstat(nonLimited, 'trigger', 'critRate', 16)
       const basic = action(agent(calculateParty(nonLimited)!, 'trigger'), 'triggerBasic')
-      expect(basic).toMatchObject({ tag: 'aftershock', actions: [] })
+      expect(basic).toMatchObject({
+        tags: ['aftershock'],
+        outcomes: [canonicalAction('Basic Attack')],
+      })
       expect(basic.breakdown.fully)
         .toContainEqual(expect.objectContaining({ label: 'The Restrained', amount: 30 }))
       expect(basic.breakdown.fully)
@@ -376,9 +386,12 @@ describe('authored calculation policies', () => {
       const aftershock = action(anby, 'anbyAftershock')
       const ultimate = action(anby, 'anbyUltimate')
 
-      expect(aftershock).toMatchObject({ tag: 'aftershock', actions: [] })
+      expect(aftershock).toMatchObject({
+        tags: ['aftershock'],
+        outcomes: [],
+      })
       expect(ultimate).toMatchObject({
-        actions: ['Ultimate'],
+        outcomes: [canonicalAction('Ultimate')],
         metricId: 'dmgBonus',
         baseActionId: 'anbyAftershock',
       })
