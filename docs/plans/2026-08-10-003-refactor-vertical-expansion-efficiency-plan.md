@@ -288,6 +288,10 @@ Lean V2 changes the validation shape, not the accepted product scope:
    diff and the named acceptance patch; its pre-apply check covers patch
    whitespace that ordinary `git diff --check` cannot see for an untracked test.
    Concurrent worktree load cannot become an uncontrolled variable.
+   Every Node command uses the repository-approved npm executable. If npm is not
+   on a worker's `PATH`, the controller supplies its already-verified absolute
+   path; the worker stops instead of substituting pnpm/yarn or installing or
+   rearranging shared dependencies.
 7. The frozen reviewer explicitly checks production-default coverage, required
    and forbidden outputs, preserved baselines, schema restraint, and whether a
    test fixture is carrying behavior that belongs to production.
@@ -504,8 +508,8 @@ index, not a second rationale document.
 | ID | Purpose | Target / unit | Protocol | Checkpoint | Outcome |
 |---|---|---|---|---|---|
 | W1 | Current versus lean post-contract implementation pair | Existing Result scale presentation | V1 | `8dcf7e039b79b0104cad8f0aeddcc622d0188e2d` | Both first-pass attempts failed; corrected reference result committed at `8513e80` |
-| M1-W | Current versus Lean V2 workflow calibration | Source-owned Evelyn equipment facts and summaries | V2 | Stable V2 documentation base commit plus resolved external path/SHA-256 for the identical uncommitted red-suite patch; pending | Not run |
-| M1-M | Lean V2 reference versus lower-worker calibration | The same source-owned Evelyn equipment facts and summaries | V2 | The same base, path, and patch hash; gated on the M1-W Lean arm passing | Not run |
+| M1-W | Current versus Lean V2 workflow calibration | Source-owned Evelyn equipment facts and summaries | V2, then the single permitted V3 recalibration | `ac068c2551359a9f20dcd1a470d48f42cbf6448b`; acceptance patch SHA-256 `ACAD6933579977CCC8112095F8B56C65C80F8B2FF91E7063E0372FAE7C554B36`; baseline-stability patch SHA-256 `2AE805DBE380D5B5023E052D3A372A5A30FC9FAD8099D1E986F01A865D691848` | V2 failed on a shared baseline timeout; after the one recalibration, both V3 arms passed 152/152, build, diff check, and blind review with equivalent quality |
+| M1-M | Lean V2 reference versus lower-worker calibration | The same source-owned Evelyn equipment facts and summaries | V3 | Same base and hashed patches; exact passing Lean-V2/sol artifact reused as reference | terra-low passed 5/5 focused checks but introduced a package-manager tooling deviation and failed the controller full gate at 149/152 on three 5-second integration-test timeouts; later inspection also found two Disc summaries duplicating retained numeric facts instead of deriving from them; Lean-V2/sol retained procedurally, without a model-superiority claim |
 | C1 | Approved version-2.8-or-earlier confirmation vertical | Pending product approval | Pending | Pending | Not run |
 | C2 | Approved version-2.8-or-earlier confirmation vertical | Pending product approval | Pending | Pending | Not run |
 | C3 | Approved version-2.8-or-earlier confirmation vertical | Pending product approval | Pending | Pending | Not run |
@@ -527,6 +531,40 @@ No workflow-efficiency claim is supported: both first-pass attempts failed the
 frozen review gate, and exact comparable resource totals were unavailable. The
 corrected reference result completes the product unit but remains part of the
 failed W1 experiment row.
+
+#### M1 staged calibration result
+
+| Field | Current / sol-xhigh | Lean V2 / sol-xhigh | Lean V2 / terra-low |
+|---|---|---|---|
+| Fixed input | Base `ac068c2551359a9f20dcd1a470d48f42cbf6448b`; acceptance patch SHA-256 `ACAD6933579977CCC8112095F8B56C65C80F8B2FF91E7063E0372FAE7C554B36` | Same | Same |
+| V2 first attempt | Focused 5/5 and production diff check passed; full gate failed on the same existing App Setup timeout reproduced on the clean base | Same | Not run because Stage A had not passed |
+| V3 recalibration | Baseline-stability patch SHA-256 `2AE805DBE380D5B5023E052D3A372A5A30FC9FAD8099D1E986F01A865D691848`; focused 5/5, full 152/152, strict build, and diff check passed | Same | Same fixed input; focused 5/5 and diff check passed |
+| Blind review | Pass; no findings | Pass; no findings; semantically equivalent to current apart from declaration order | Not run after the failed complete gate |
+| Post-gate artifact inspection | Source-owned summaries derive from retained facts | Same | `types.ts` and `engines.ts` are byte-identical to the Lean-V2/sol artifact; `discs.ts` preserves the same visible values but hard-codes `ATK +25%` and `Fire DMG +10%` instead of deriving those summaries from the retained facts |
+| Complete-gate deviation | None | None | Worker used `pnpm` after failing to locate npm, moving shared npm packages into `.ignored`; the controller restored dependencies without retaining a lockfile change, then the full gate stopped at 149/152 on three existing 5-second integration-test timeouts |
+| Production artifact | 39 additions / 1 deletion in the three owned content files | 39 additions / 1 deletion in the three owned content files | Same scope and size |
+| Resource evidence | Exact tokens, active elapsed time, turns, and comparable total cost unavailable | Same | Same; worker also reported no exact aggregate metrics |
+| Outcome | Passing workflow control; cannot replace the pre-registered Lean reference after Lean passes | **Selected final M1 production artifact** | Failed fixed gate; no retry at the same level |
+
+The selected production patch is preserved outside the product repository at
+`C:\Users\mdy06\.codex\visualizations\2026\08\09\019fe6ab-6e74-7213-8dc4-947536edfd55\m1-v3\artifacts\m1-final-production.patch`
+with SHA-256
+`273559587DDC3B911781D5D031D8FBD6BA79CB0B9AD6BE016B5AD9107A8B110C`.
+The immutable acceptance patch remains at
+`C:\Users\mdy06\.codex\visualizations\2026\08\09\019fe6ab-6e74-7213-8dc4-947536edfd55\m1-v2\artifacts\m1-equipment-acceptance.patch`
+with SHA-256
+`ACAD6933579977CCC8112095F8B56C65C80F8B2FF91E7063E0372FAE7C554B36`.
+Neither patch is applied, staged, or committed to the product branch alone;
+Evelyn U3 must apply them atomically with the admitted identity and candidate
+consumers.
+
+M1 demonstrates that Lean V2 can preserve correctness for this settled
+source-owned equipment-content seam at the reference model. The frozen rule's
+selection of Lean-V2/sol is procedural, not evidence that sol-xhigh is inherently
+superior: exact comparable resource totals were unavailable, terra-low's full
+gate was confounded by the execution environment, and its otherwise correct
+visible output retained one source-derivation quality gap. M1 therefore supports
+neither a workflow-efficiency claim nor a lower-model default.
 
 ---
 
@@ -578,7 +616,8 @@ failed W1 experiment row.
 - **Resolved:** Evelyn is the calibration target; Soldier 11 is the reserve.
   Evelyn's exact retained requirements, implementation plan, paired units, and
   fixed browser route are authored and reviewed. W1 is completed at `8513e80`;
-  M1 remains gated on Lean V2 stabilization and its documentation checkpoint.
+  M1 selected the externally preserved Lean-V2/sol production patch recorded in
+  the ledger, which remains gated on atomic application with Evelyn U3.
 - **Version boundary:** Complete content through version 2.8 first. Sigrid and
   Remielle are version-3.0+ pressure tests and are not current alternatives even
   if exact release facts later become available.
