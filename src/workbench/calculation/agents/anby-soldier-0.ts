@@ -3,8 +3,17 @@ import { STATIC_SOURCES, active, additive, discSource, discStatInput, effectiveS
 import { composeActionEffects, composeMetricEffects, contribution, percentageContribution, surfaces } from '../composition'
 import type { AgentResult } from '../result'
 
-export interface AnbyCalculationContext { agentId: 'anbySoldier0'; setup: CompleteSetup; hasStunOrSupport: boolean; isFocus: boolean }
-export const observeAnby = (setup: CompleteSetup, hasStunOrSupport: boolean, isFocus: boolean): AnbyCalculationContext => ({ agentId: 'anbySoldier0', setup, hasStunOrSupport, isFocus })
+export interface AnbyCalculationContext { agentId: 'anbySoldier0'; setup: CompleteSetup; hasStunOrSupport: boolean; isFocus: boolean; initialAtk: number }
+
+function anbyAtkInputs(setup: CompleteSetup): ResolvedSetupInput[] {
+  return presentInputs([engineAdvancedInput(setup, 'anbySoldier0', 'atkPct'), mainStatInput(setup, 'anbySoldier0', 'slot5', 'atkPct'), mainStatInput(setup, 'anbySoldier0', 'slot6', 'atkPct'), effectiveSubstatInput(setup, 'anbySoldier0', 'atkPct')])
+}
+
+export const observeAnby = (setup: CompleteSetup, hasStunOrSupport: boolean, isFocus: boolean): AnbyCalculationContext => {
+  const baseAtk = VERTICAL_VALUES.anbySoldier0.atk + W_ENGINES[setup.engineId].baseAtk
+  const initialAtk = baseAtk * (1 + anbyAtkInputs(setup).reduce((n, x) => n + x.rawValue, 0) / 100) + 316
+  return { agentId: 'anbySoldier0', setup, hasStunOrSupport, isFocus, initialAtk }
+}
 
 export function resolveAnbyProviderClauses(context: AnbyCalculationContext): SourceBoundCurrentClause[] {
   const { setup, hasStunOrSupport, isFocus } = context
@@ -65,12 +74,11 @@ function optionalMetric(
 }
 
 export function calculateAnby(context: AnbyCalculationContext, inbox: SourceBoundCurrentClause[], enemy: SourceBoundCurrentClause[]): AgentResult {
-  const { setup } = context
+  const { setup, initialAtk } = context
   const values = VERTICAL_VALUES.anbySoldier0
   const engine = W_ENGINES[setup.engineId]
   const baseAtk = values.atk + engine.baseAtk
-  const atkInputs = presentInputs([engineAdvancedInput(setup, 'anbySoldier0', 'atkPct'), mainStatInput(setup, 'anbySoldier0', 'slot5', 'atkPct'), mainStatInput(setup, 'anbySoldier0', 'slot6', 'atkPct'), effectiveSubstatInput(setup, 'anbySoldier0', 'atkPct')])
-  const initialAtk = baseAtk * (1 + atkInputs.reduce((n, x) => n + x.rawValue, 0) / 100) + 316
+  const atkInputs = anbyAtkInputs(setup)
   const effects = resolveDeliveredClauses([...inbox, ...enemy], { atk: initialAtk })
   const atk = composeMetricEffects(surfaces(initialAtk, initialAtk, initialAtk), surfaces(atkInputs.map((x) => percentageContribution(x.source, baseAtk * x.rawValue / 100, x.rawValue)), [], []), effects, 'atk')
   const critRateInputs = presentInputs([engineAdvancedInput(setup, 'anbySoldier0', 'critRate'), mainStatInput(setup, 'anbySoldier0', 'slot4', 'critRate'), discStatInput(setup, 'anbySoldier0', 'twoPiece', 'woodpecker', DRIVE_DISC_FACTS.woodpecker.critRate), effectiveSubstatInput(setup, 'anbySoldier0', 'critRate')])

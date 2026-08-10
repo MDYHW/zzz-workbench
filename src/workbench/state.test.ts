@@ -3,10 +3,13 @@ import {
   DISC_IDS_BY_AGENT_AND_PIECE,
   ENGINE_IDS_BY_AGENT_AND_POOL,
   MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
+  W_ENGINES,
 } from './content'
 import {
+  effectiveFourPieceIds,
   effectiveMainStatIds,
-  incompleteMainStatSelections,
+  effectiveTwoPieceIds,
+  incompleteRequiredSelections,
 } from './candidates'
 import { calculateParty } from './calculate'
 import {
@@ -412,10 +415,10 @@ describe('workbench state lifecycle', () => {
       ...dialynBefore,
       mains: { ...dialynBefore.mains, slot5: null },
     })
-    expect(incompleteMainStatSelections(state)).toEqual([
-      { slot: 0, agentId: 'anbySoldier0', mainSlot: 'slot5' },
-      { slot: 1, agentId: 'trigger', mainSlot: 'slot5' },
-      { slot: 2, agentId: 'dialyn', mainSlot: 'slot5' },
+    expect(incompleteRequiredSelections(state)).toEqual([
+      { kind: 'mainStat', slot: 0, agentId: 'anbySoldier0', mainSlot: 'slot5' },
+      { kind: 'mainStat', slot: 1, agentId: 'trigger', mainSlot: 'slot5' },
+      { kind: 'mainStat', slot: 2, agentId: 'dialyn', mainSlot: 'slot5' },
     ])
     expect(effectiveMainStatIds(state, 0, 'slot5')).not.toContain('penRatio')
     expect(effectiveMainStatIds(state, 1, 'slot5')).not.toContain('penRatio')
@@ -435,7 +438,7 @@ describe('workbench state lifecycle', () => {
       type: 'replaceDraftAgent', slot: 2, agentId: 'astraYao',
     })
     partyPrepared = workbenchReducer(partyPrepared, { type: 'applyPartyEdit' })
-    expect(incompleteMainStatSelections(partyPrepared)).toEqual([])
+    expect(incompleteRequiredSelections(partyPrepared)).toEqual([])
     expect(partyPrepared.slots[0].setup.mains.slot5).toBe('electricDmg')
     expect(partyPrepared.slots[2]).toMatchObject({
       agentId: 'astraYao',
@@ -450,7 +453,7 @@ describe('workbench state lifecycle', () => {
     expect(effectiveMainStatIds(pressureRemoved, 0, 'slot5')).toContain('penRatio')
     expect(effectiveMainStatIds(pressureRemoved, 1, 'slot5')).toContain('penRatio')
     expect(effectiveMainStatIds(pressureRemoved, 2, 'slot5')).toContain('penRatio')
-    expect(incompleteMainStatSelections(pressureRemoved)).toHaveLength(3)
+    expect(incompleteRequiredSelections(pressureRemoved)).toHaveLength(3)
     expect(pressureRemoved.slots[0].setup.mains.slot5).toBeNull()
     expect(pressureRemoved.slots[1].setup.mains.slot5).toBeNull()
     expect(pressureRemoved.slots[2].setup.mains.slot5).toBeNull()
@@ -459,24 +462,24 @@ describe('workbench state lifecycle', () => {
     state = workbenchReducer(state, {
       type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'electricDmg',
     })
-    expect(incompleteMainStatSelections(state)).toEqual([
-      { slot: 1, agentId: 'trigger', mainSlot: 'slot5' },
-      { slot: 2, agentId: 'dialyn', mainSlot: 'slot5' },
+    expect(incompleteRequiredSelections(state)).toEqual([
+      { kind: 'mainStat', slot: 1, agentId: 'trigger', mainSlot: 'slot5' },
+      { kind: 'mainStat', slot: 2, agentId: 'dialyn', mainSlot: 'slot5' },
     ])
     expect(calculateParty(state)).toBeNull()
 
     state = workbenchReducer(state, {
       type: 'selectMainStat', slot: 2, mainSlot: 'slot5', mainStatId: 'atkPct',
     })
-    expect(incompleteMainStatSelections(state)).toEqual([
-      { slot: 1, agentId: 'trigger', mainSlot: 'slot5' },
+    expect(incompleteRequiredSelections(state)).toEqual([
+      { kind: 'mainStat', slot: 1, agentId: 'trigger', mainSlot: 'slot5' },
     ])
     expect(calculateParty(state)).toBeNull()
 
     state = workbenchReducer(state, {
       type: 'selectMainStat', slot: 1, mainSlot: 'slot5', mainStatId: 'electricDmg',
     })
-    expect(incompleteMainStatSelections(state)).toEqual([])
+    expect(incompleteRequiredSelections(state)).toEqual([])
     expect(isCompleteWorkbench(state)).toBe(true)
     expect(calculateParty(state)).not.toBeNull()
   })
@@ -515,8 +518,131 @@ describe('workbench state lifecycle', () => {
     expect(effectiveMainStatIds(state, 0, 'slot5')).toEqual(
       MAIN_STAT_IDS_BY_AGENT_AND_SLOT.yixuan.slot5,
     )
-    expect(incompleteMainStatSelections(state)).toEqual([])
+    expect(incompleteRequiredSelections(state)).toEqual([])
     expect(isCompleteWorkbench(state)).toBe(true)
+  })
+
+  it('scopes Cissia Core pressure by Electric general-damage recipient', () => {
+    const seedParty = createPreparedState({}, ['seed', 'cissia', 'anbySoldier0'], 0)
+    expect(effectiveTwoPieceIds(seedParty, 0)).not.toContain('pufferElectro')
+    expect(effectiveMainStatIds(seedParty, 0, 'slot5')).not.toContain('penRatio')
+    expect(effectiveMainStatIds(seedParty, 2, 'slot5')).not.toContain('penRatio')
+
+    const incomplete = {
+      ...seedParty,
+      slots: [...seedParty.slots] as typeof seedParty.slots,
+    }
+    incomplete.slots[0] = {
+      ...incomplete.slots[0],
+      setup: {
+        ...incomplete.slots[0].setup,
+        mains: { ...incomplete.slots[0].setup.mains, slot5: null },
+      },
+    }
+    incomplete.slots[1] = {
+      ...incomplete.slots[1],
+      setup: { ...incomplete.slots[1].setup, fourPieceId: null },
+    }
+    expect(effectiveTwoPieceIds(incomplete, 0)).not.toContain('pufferElectro')
+    expect(effectiveMainStatIds(incomplete, 0, 'slot5')).not.toContain('penRatio')
+
+    const mixedParty = createPreparedState({}, ['cissia', 'trigger', 'dialyn'], 2)
+    expect(effectiveMainStatIds(mixedParty, 1, 'slot5')).not.toContain('penRatio')
+    expect(effectiveMainStatIds(mixedParty, 2, 'slot5')).toContain('penRatio')
+
+    const sheerParty = createPreparedState({}, ['cissia', 'yixuan', 'astraYao'], 1)
+    expect(effectiveMainStatIds(sheerParty, 1, 'slot5')).toEqual(
+      MAIN_STAT_IDS_BY_AGENT_AND_SLOT.yixuan.slot5,
+    )
+  })
+
+  it('keeps Seed M2 pressure bounded to an actual Vanguard and its recipients', () => {
+    let withoutVanguard = createPreparedState({}, ['seed', 'yixuan', 'astraYao'], 0)
+    withoutVanguard = workbenchReducer(withoutVanguard, {
+      type: 'setMindscape', slot: 0, mindscape: 2,
+    })
+    expect(effectiveTwoPieceIds(withoutVanguard, 0)).toContain('pufferElectro')
+    expect(effectiveMainStatIds(withoutVanguard, 0, 'slot5')).toContain('penRatio')
+
+    let withVanguard = createPreparedState({}, ['seed', 'anbySoldier0', 'astraYao'], 0)
+    withVanguard = workbenchReducer(withVanguard, {
+      type: 'setMindscape', slot: 0, mindscape: 2,
+    })
+    expect(effectiveTwoPieceIds(withVanguard, 0)).not.toContain('pufferElectro')
+    expect(effectiveMainStatIds(withVanguard, 0, 'slot5')).not.toContain('penRatio')
+    expect(effectiveMainStatIds(withVanguard, 1, 'slot5')).not.toContain('penRatio')
+  })
+
+  it('clears Puffer and Slot 5 PEN atomically while pressure remains stable under incompleteness', () => {
+    let state = createPreparedState({}, ['seed', 'trigger', 'astraYao'], 0)
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 1, engineId: 'iceJadeTeapot',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'pufferElectro',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'penRatio',
+    })
+    const seedBefore = state.slots[0].setup
+    const astraBefore = state.slots[2]
+
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 1, engineId: 'spectralGaze',
+    })
+
+    expect(state.slots[0].setup).toEqual({
+      ...seedBefore,
+      twoPieceId: null,
+      mains: { ...seedBefore.mains, slot5: null },
+    })
+    expect(state.slots[0].setup.fourPieceId).toBe('dawnsBloom')
+    expect(state.slots[2]).toBe(astraBefore)
+    expect(incompleteRequiredSelections(state)).toEqual([
+      { kind: 'disc', slot: 0, agentId: 'seed', piece: 'twoPiece' },
+      { kind: 'mainStat', slot: 0, agentId: 'seed', mainSlot: 'slot5' },
+    ])
+    expect(effectiveTwoPieceIds(state, 0)).not.toContain('pufferElectro')
+    expect(effectiveMainStatIds(state, 0, 'slot5')).not.toContain('penRatio')
+    expect(calculateParty(state)).toBeNull()
+
+    const missingProviderDisc = {
+      ...state,
+      slots: [...state.slots] as typeof state.slots,
+    }
+    missingProviderDisc.slots[1] = {
+      ...missingProviderDisc.slots[1],
+      setup: { ...missingProviderDisc.slots[1].setup, fourPieceId: null },
+    }
+    expect(effectiveTwoPieceIds(missingProviderDisc, 0)).not.toContain('pufferElectro')
+    expect(effectiveMainStatIds(missingProviderDisc, 0, 'slot5')).not.toContain('penRatio')
+
+    const pressureRemoved = workbenchReducer(state, {
+      type: 'selectEngine', slot: 1, engineId: 'iceJadeTeapot',
+    })
+    expect(effectiveTwoPieceIds(pressureRemoved, 0)).toContain('pufferElectro')
+    expect(effectiveMainStatIds(pressureRemoved, 0, 'slot5')).toContain('penRatio')
+    expect(pressureRemoved.slots[0].setup.twoPieceId).toBeNull()
+    expect(pressureRemoved.slots[0].setup.mains.slot5).toBeNull()
+    expect(calculateParty(pressureRemoved)).toBeNull()
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'woodpecker',
+    })
+    expect(incompleteRequiredSelections(state)).toEqual([
+      { kind: 'mainStat', slot: 0, agentId: 'seed', mainSlot: 'slot5' },
+    ])
+    expect(effectiveMainStatIds(state, 0, 'slot5')).not.toContain('penRatio')
+    expect(calculateParty(state)).toBeNull()
+  })
+
+  it('applies Spectral Gaze pressure to new general-damage recipients without a named matrix', () => {
+    const state = createPreparedState({}, ['seed', 'trigger', 'astraYao'], 0)
+    expect(effectiveMainStatIds(state, 0, 'slot5')).not.toContain('penRatio')
+    expect(effectiveMainStatIds(state, 1, 'slot5')).not.toContain('penRatio')
+    expect(effectiveMainStatIds(state, 2, 'slot5')).toEqual(
+      MAIN_STAT_IDS_BY_AGENT_AND_SLOT.astraYao.slot5,
+    )
   })
 
   it('re-prepares only the Mindscape target before reconciling its outgoing pressure', () => {
@@ -597,5 +723,140 @@ describe('workbench state lifecycle', () => {
 
     const astraM2 = workbenchReducer(full, { type: 'setMindscape', slot: 2, mindscape: 2 })
     expect(astraM2.slots[2].setup.mains.slot6).toBe('energyRegenPct')
+  })
+
+  it('authors exact Seed and Cissia local candidates and pool representatives', () => {
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.seed).toEqual({
+      full: ['cordisGermina', 'severedInnocence', 'brimstone', 'marcatoDesire'],
+      nonLimited: ['brimstone', 'marcatoDesire'],
+    })
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.cissia).toEqual({
+      full: ['serpentineSeeker', 'drillRigRedAxis', 'cordisGermina'],
+      nonLimited: ['drillRigRedAxis'],
+    })
+    expect(DISC_IDS_BY_AGENT_AND_PIECE.seed).toEqual({
+      fourPiece: ['dawnsBloom', 'woodpecker'],
+      twoPiece: ['woodpecker', 'branchAndBlade', 'pufferElectro'],
+    })
+    expect(DISC_IDS_BY_AGENT_AND_PIECE.cissia).toEqual({
+      fourPiece: ['dawnsBloom'],
+      twoPiece: ['swingJazz', 'woodpecker', 'branchAndBlade'],
+    })
+    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.seed).toEqual({
+      slot4: ['critRate', 'critDmg'],
+      slot5: ['electricDmg', 'atkPct', 'penRatio'],
+      slot6: ['atkPct'],
+    })
+    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.cissia).toEqual({
+      slot4: ['critRate', 'critDmg'],
+      slot5: ['electricDmg', 'atkPct'],
+      slot6: ['energyRegenPct', 'atkPct'],
+    })
+
+    const full = createPreparedState({}, ['seed', 'cissia', 'anbySoldier0'], 0)
+    expect(full.slots.slice(0, 2).map(({ setup }) => ({
+      engineId: setup.engineId,
+      refinement: setup.refinement,
+      fourPieceId: setup.fourPieceId,
+      twoPieceId: setup.twoPieceId,
+      mains: setup.mains,
+      substats: setup.substats,
+    }))).toEqual([
+      { engineId: 'cordisGermina', refinement: 1, fourPieceId: 'dawnsBloom', twoPieceId: 'woodpecker', mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'atkPct' }, substats: { critRate: 0, critDmg: 0, atkPct: 0 } },
+      { engineId: 'serpentineSeeker', refinement: 1, fourPieceId: 'dawnsBloom', twoPieceId: 'swingJazz', mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'energyRegenPct' }, substats: { critRate: 0, critDmg: 0, atkPct: 0 } },
+    ])
+
+    const nonLimited = createPreparedState(
+      { seed: 'nonLimited', cissia: 'nonLimited' },
+      ['seed', 'cissia', 'anbySoldier0'],
+      0,
+    )
+    expect(nonLimited.slots.slice(0, 2).map(({ setup }) => [
+      setup.engineId,
+      setup.refinement,
+      setup.fourPieceId,
+      setup.twoPieceId,
+      setup.mains,
+    ])).toEqual([
+      ['marcatoDesire', 5, 'dawnsBloom', 'woodpecker', { slot4: 'critRate', slot5: 'electricDmg', slot6: 'atkPct' }],
+      ['drillRigRedAxis', 5, 'dawnsBloom', 'swingJazz', { slot4: 'critRate', slot5: 'electricDmg', slot6: 'energyRegenPct' }],
+    ])
+    expect(W_ENGINES.brimstone.baseAtk).toBe(684)
+    expect(W_ENGINES.serpentineSeeker.baseAtk).toBe(713)
+    expect(W_ENGINES.drillRigRedAxis.baseAtk).toBe(624)
+  })
+
+  it('owns contextual Cissia and Astra allocation by all-party versus target-only preparation', () => {
+    let state = createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0)
+    expect(state.slots[1].setup).toMatchObject({
+      engineId: 'serpentineSeeker', fourPieceId: 'astralVoice', twoPieceId: 'swingJazz',
+    })
+    expect(state.slots[2].setup).toMatchObject({
+      engineId: 'elegantVanity', fourPieceId: 'moonlight', twoPieceId: 'astralVoice',
+    })
+    expect(effectiveFourPieceIds(state, 1)).toEqual(['dawnsBloom', 'astralVoice'])
+
+    const seedBefore = state.slots[0]
+    const astraBefore = state.slots[2]
+    state = workbenchReducer(state, { type: 'setSubstat', slot: 1, key: 'critRate', value: 7 })
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 2 })
+    expect(state.slots[0]).toBe(seedBefore)
+    expect(state.slots[2]).toBe(astraBefore)
+    expect(state.slots[1].setup).toMatchObject({
+      mindscape: 2,
+      engineId: 'serpentineSeeker',
+      fourPieceId: 'astralVoice',
+      twoPieceId: 'swingJazz',
+      substats: { critRate: 0, critDmg: 0, atkPct: 0 },
+    })
+
+    const seedBeforePool = state.slots[0]
+    const astraBeforePool = state.slots[2]
+    state = workbenchReducer(state, { type: 'switchPool', slot: 1, pool: 'nonLimited' })
+    expect(state.slots[0]).toBe(seedBeforePool)
+    expect(state.slots[2]).toBe(astraBeforePool)
+    expect(state.slots[1].setup).toMatchObject({
+      pool: 'nonLimited', engineId: 'drillRigRedAxis', refinement: 5,
+      fourPieceId: 'astralVoice', twoPieceId: 'swingJazz',
+    })
+  })
+
+  it('keeps direct Disc edits local and allows target-only preparation to leave duplicate Astral holders', () => {
+    let state = createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0)
+    const astraMoonlight = state.slots[2]
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'dawnsBloom',
+    })
+    expect(state.slots[1].setup.fourPieceId).toBe('dawnsBloom')
+    expect(state.slots[2]).toBe(astraMoonlight)
+
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 2, mindscape: 1 })
+    expect(state.slots[2].setup).toMatchObject({
+      mindscape: 1, fourPieceId: 'astralVoice', twoPieceId: 'moonlight',
+    })
+    const astraLocalAstral = state.slots[2]
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 1 })
+    expect(state.slots[1].setup).toMatchObject({
+      mindscape: 1, fourPieceId: 'astralVoice', twoPieceId: 'swingJazz',
+    })
+    expect(state.slots[2]).toBe(astraLocalAstral)
+    expect(state.slots[2].setup.fourPieceId).toBe('astralVoice')
+  })
+
+  it('admits contextual Astral as a direct Cissia edit only while the opportunity exists', () => {
+    let contextual = createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0)
+    contextual = workbenchReducer(contextual, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'dawnsBloom',
+    })
+    contextual = workbenchReducer(contextual, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    expect(contextual.slots[1].setup.fourPieceId).toBe('astralVoice')
+
+    let local = createPreparedState({}, ['seed', 'cissia', 'anbySoldier0'], 0)
+    local = workbenchReducer(local, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    expect(local.slots[1].setup.fourPieceId).toBe('dawnsBloom')
   })
 })

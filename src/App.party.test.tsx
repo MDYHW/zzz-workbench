@@ -170,7 +170,7 @@ describe('integrated party workbench: party', () => {
 
     await user.selectOptions(screen.getByLabelText('Attribute'), 'Electric')
     await user.selectOptions(screen.getByLabelText('Specialty'), 'Attack')
-    expect(screen.getByText('1 available candidates')).toBeInTheDocument()
+    expect(screen.getByText('3 available candidates')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ }))
     expect(screen.getByText('Focus · Yixuan')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Dialyn Result' })).not.toBeInTheDocument()
@@ -194,6 +194,38 @@ describe('integrated party workbench: party', () => {
     expect(screen.getByRole('button', { name: 'Apply party' })).toBeDisabled()
     await user.click(screen.getByRole('radio', { name: 'Anby: Soldier 0' }))
     expect(screen.getByRole('button', { name: 'Apply party' })).toBeEnabled()
+  })
+
+  it('applies Seed, Cissia, and Astra with Seed as sole Focus and preserves it on Cancel', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await user.click(screen.getByRole('button', { name: 'Replace slot 1, Yixuan' }))
+    expect(screen.getByRole('button', { name: /Seed, Electric, Attack/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Cissia, Electric, Attack/ })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /Seed, Electric, Attack/ }))
+    await replace(2, /Cissia, Electric, Attack/)
+    await replace(3, /Astra Yao, Ether, Support/)
+    expect(screen.getAllByText('Seed is Focus automatically.')).toHaveLength(2)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    expect(screen.getByText('Focus · Seed')).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Seed setup' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Seed Result' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'View Cissia setup and Result' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'View Astra Yao setup and Result' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(2, /Dialyn, Physical, Stun/)
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(screen.getByText('Focus · Seed')).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Seed setup' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'View Cissia setup and Result' })).toBeInTheDocument()
   })
 
   it('keeps keyboard focus on a present filter when no replacement is available', async () => {

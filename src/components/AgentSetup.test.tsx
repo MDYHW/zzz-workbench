@@ -2,8 +2,8 @@ import { useReducer } from 'react'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { MAIN_STAT_IDS_BY_AGENT_AND_SLOT, type MainSlot, type MainStatId } from '../workbench/content'
-import { createPreparedState, workbenchReducer } from '../workbench/state'
+import { DISC_IDS_BY_AGENT_AND_PIECE, MAIN_STAT_IDS_BY_AGENT_AND_SLOT, type MainSlot, type MainStatId } from '../workbench/content'
+import { createPreparedState, isCompleteWorkbench, workbenchReducer } from '../workbench/state'
 import { AgentSetup } from './AgentSetup'
 
 const singleCandidateMains: Record<MainSlot, readonly MainStatId[]> = {
@@ -29,6 +29,7 @@ function IncompleteSetupHarness() {
     <AgentSetup
       activeSourceTone={null}
       agentId="yixuan"
+      discCandidates={DISC_IDS_BY_AGENT_AND_PIECE.yixuan}
       dispatch={dispatch}
       mainStatCandidates={singleCandidateMains}
       onSourceToneChange={vi.fn()}
@@ -66,6 +67,30 @@ describe('AgentSetup incomplete main-stat recovery', () => {
   })
 })
 
+describe('AgentSetup Seed Additional Ability', () => {
+  it('keeps Seed\'s event Energy fact as compact Setup content only', () => {
+    const state = createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0)
+
+    render(
+      <AgentSetup
+        activeSourceTone={null}
+        agentId="seed"
+        discCandidates={DISC_IDS_BY_AGENT_AND_PIECE.seed}
+        dispatch={vi.fn()}
+        mainStatCandidates={MAIN_STAT_IDS_BY_AGENT_AND_SLOT.seed}
+        onSourceToneChange={vi.fn()}
+        setup={state.slots[0].setup}
+        slot={0}
+      />,
+    )
+
+    expect(screen.getByLabelText('Seed Additional Ability')).toHaveTextContent(
+      'Vanguard +2 Energy when Seed deals damage as the active character, once per 1s',
+    )
+    expect(screen.queryByText(/\+2\/s|Energy Regen/)).not.toBeInTheDocument()
+  })
+})
+
 function DialynDiscHarness() {
   const [state, dispatch] = useReducer(workbenchReducer, undefined, createPreparedState)
   return (
@@ -73,6 +98,7 @@ function DialynDiscHarness() {
       <AgentSetup
         activeSourceTone={null}
         agentId="dialyn"
+        discCandidates={DISC_IDS_BY_AGENT_AND_PIECE.dialyn}
         dispatch={dispatch}
         mainStatCandidates={MAIN_STAT_IDS_BY_AGENT_AND_SLOT.dialyn}
         onSourceToneChange={vi.fn()}
@@ -93,6 +119,7 @@ function TriggerDiscHarness() {
       <AgentSetup
         activeSourceTone={null}
         agentId="trigger"
+        discCandidates={DISC_IDS_BY_AGENT_AND_PIECE.trigger}
         dispatch={dispatch}
         mainStatCandidates={MAIN_STAT_IDS_BY_AGENT_AND_SLOT.trigger}
         onSourceToneChange={vi.fn()}
@@ -104,6 +131,64 @@ function TriggerDiscHarness() {
     </>
   )
 }
+
+function IncompleteDiscHarness() {
+  const [state, dispatch] = useReducer(workbenchReducer, undefined, () => {
+    const prepared = createPreparedState()
+    prepared.slots[0] = {
+      ...prepared.slots[0],
+      setup: {
+        ...prepared.slots[0].setup,
+        twoPieceId: null,
+        mains: { ...prepared.slots[0].setup.mains, slot5: null },
+      },
+    }
+    return prepared
+  })
+
+  return (
+    <>
+      <AgentSetup
+        activeSourceTone={null}
+        agentId="yixuan"
+        discCandidates={{ fourPiece: ['yunkui'], twoPiece: ['woodpecker'] }}
+        dispatch={dispatch}
+        mainStatCandidates={singleCandidateMains}
+        onSourceToneChange={vi.fn()}
+        setup={state.slots[0].setup}
+        slot={0}
+      />
+      <output data-testid="workbench-complete">{String(isCompleteWorkbench(state))}</output>
+    </>
+  )
+}
+
+describe('AgentSetup incomplete Disc recovery', () => {
+  it('keeps a sole required Disc candidate actionable and returns focus to the repaired fixed surface', async () => {
+    const user = userEvent.setup()
+    render(<IncompleteDiscHarness />)
+
+    expect(screen.getByLabelText("Yunkui Tales selected as 4-piece")).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Disc 5 main stat required' })).toBeInTheDocument()
+    const required = screen.getByRole('button', { name: '2-piece Drive Disc required' })
+    required.focus()
+    await user.keyboard('{Enter}')
+
+    const candidates = screen.getByLabelText('twoPiece Drive Disc candidates')
+    expect(within(candidates).getAllByRole('button')).toHaveLength(1)
+    const soleCandidate = within(candidates).getByRole('button', {
+      name: 'Select Woodpecker Electro as twoPiece',
+    })
+    soleCandidate.focus()
+    await user.keyboard('{Enter}')
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Woodpecker Electro selected as 2-piece')).toHaveFocus()
+    })
+    expect(screen.getByRole('button', { name: 'Disc 5 main stat required' })).toBeInTheDocument()
+    expect(screen.getByTestId('workbench-complete')).toHaveTextContent('false')
+  })
+})
 
 describe('AgentSetup exact two-piece choices', () => {
   it('lists same-effect Disc identities separately', async () => {

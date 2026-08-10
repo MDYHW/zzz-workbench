@@ -2,7 +2,6 @@ import {
   DEFAULT_APPLIED_AGENT_IDS,
   isFocusEligible,
   defaultRefinementFor,
-  DISC_IDS_BY_AGENT_AND_PIECE,
   ENGINE_IDS_BY_AGENT_AND_POOL,
   representativeSetupFor,
   SUBSTAT_CHOICES_BY_AGENT,
@@ -23,8 +22,10 @@ import {
   type PreparationContext,
 } from './preparation'
 import {
+  effectiveFourPieceIds,
   effectiveMainStatIds,
-  invalidMainStatSelections,
+  effectiveTwoPieceIds,
+  invalidRequiredSelections,
 } from './candidates'
 
 export type Mindscape = 0 | 1 | 2 | 3 | 4 | 5 | 6
@@ -322,15 +323,16 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
 
     case 'selectDisc':
       return updateSetup(state, action.slot, (setup) => {
-        const agentId = state.slots[action.slot].agentId
-        const candidates = DISC_IDS_BY_AGENT_AND_PIECE[agentId][action.piece]
+        const candidates = action.piece === 'fourPiece'
+          ? effectiveFourPieceIds(state, action.slot)
+          : effectiveTwoPieceIds(state, action.slot)
         if (!candidates.includes(action.discId)) return setup
         if (action.piece === 'twoPiece') {
           if (action.discId === setup.fourPieceId) return setup
           return { ...setup, twoPieceId: action.discId }
         }
         if (action.discId === setup.twoPieceId) {
-          if (!setup.fourPieceId || !DISC_IDS_BY_AGENT_AND_PIECE[agentId].twoPiece.includes(setup.fourPieceId)) {
+          if (!setup.fourPieceId || !effectiveTwoPieceIds(state, action.slot).includes(setup.fourPieceId)) {
             return setup
           }
           return { ...setup, fourPieceId: action.discId, twoPieceId: setup.fourPieceId }
@@ -395,21 +397,35 @@ function isDraftOnlyAction(action: WorkbenchAction): boolean {
     || action.type === 'setDraftFocus'
 }
 
-function reconcileEffectiveMainStats(state: WorkbenchState): WorkbenchState {
-  const invalid = invalidMainStatSelections(state)
+function reconcileEffectiveSelections(state: WorkbenchState): WorkbenchState {
+  const invalid = invalidRequiredSelections(state)
   if (!invalid.length) return state
 
   const slots = [...state.slots] as WorkbenchState['slots']
-  for (const { slot, mainSlot } of invalid) {
-    const current = slots[slot]
+  for (const slot of [0, 1, 2] as AppliedSlot[]) {
+    const slotInvalid = invalid.filter((selection) => selection.slot === slot)
+    if (!slotInvalid.length) continue
+    const current = state.slots[slot]
+    const invalidMainSlots = slotInvalid.flatMap((selection) => (
+      selection.kind === 'mainStat' ? [selection.mainSlot] : []
+    ))
+    const mains = invalidMainSlots.length
+      ? {
+        ...current.setup.mains,
+        ...Object.fromEntries(invalidMainSlots.map((mainSlot) => [mainSlot, null])),
+      }
+      : current.setup.mains
     slots[slot] = {
       ...current,
       setup: {
         ...current.setup,
-        mains: {
-          ...current.setup.mains,
-          [mainSlot]: null,
-        },
+        fourPieceId: slotInvalid.some((selection) => (
+          selection.kind === 'disc' && selection.piece === 'fourPiece'
+        )) ? null : current.setup.fourPieceId,
+        twoPieceId: slotInvalid.some((selection) => (
+          selection.kind === 'disc' && selection.piece === 'twoPiece'
+        )) ? null : current.setup.twoPieceId,
+        mains,
       },
     }
   }
@@ -423,7 +439,7 @@ export function workbenchReducer(
   const next = reduceWorkbenchState(state, action)
   return next === state || isDraftOnlyAction(action)
     ? next
-    : reconcileEffectiveMainStats(next)
+    : reconcileEffectiveSelections(next)
 }
 
 export function isCompleteAgentSetup(
@@ -444,6 +460,6 @@ export function isCompleteAgentSetup(
 }
 
 export function isCompleteWorkbench(state: WorkbenchState): boolean {
-  return !invalidMainStatSelections(state).length
+  return !invalidRequiredSelections(state).length
     && state.slots.every(({ agentId, setup }) => isCompleteAgentSetup(agentId, setup))
 }

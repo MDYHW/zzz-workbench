@@ -4,6 +4,7 @@ import {
   W_ENGINE_FACTS,
   W_ENGINES,
   scaledEngineValue,
+  type SetupFormulaFamily,
 } from '../../content'
 import {
   STATIC_SOURCES,
@@ -19,6 +20,7 @@ import {
   percentage,
   resolveDeliveredClauses,
   source,
+  withApplicability,
   type CompleteSetup,
   type ResolvedSetupInput,
   type SourceBoundCurrentClause,
@@ -32,10 +34,11 @@ import {
 } from '../composition'
 import type { AgentResult } from '../result'
 
-const damageRecipients = ['yixuan', 'anbySoldier0', 'trigger'] as const
-const partyDamageRecipients = ['yixuan', 'anbySoldier0'] as const
-const atkRecipients = ['yixuan', 'anbySoldier0', 'trigger'] as const
 const stunRecipients = ['dialyn', 'trigger'] as const
+const damageFormulas: readonly SetupFormulaFamily[] = [
+  'general_damage',
+  'sheer_damage',
+]
 
 export interface AstraCalculationContext {
   agentId: 'astraYao'
@@ -95,19 +98,43 @@ export function resolveAstraProviderClauses(
   const refinement = setup.refinement
 
   return active([
-    additive('atk', 'fully', STATIC_SOURCES.astraYao.core, coreAt(initialAtk, setup.mindscape), 'all-party', undefined, undefined, [...atkRecipients]),
-    additive('dmgBonus', 'fully', cadenzaSource, cadenza.dmg, 'all-party', undefined, undefined, [...damageRecipients]),
-    additive('critDmg', 'fully', cadenzaSource, cadenza.critDmg, 'all-party', undefined, undefined, [...damageRecipients]),
-    additive('resReduction', 'fully', mindscapeSource('astraYao', 1, '3 stacks'), setup.mindscape >= 1 ? 18 : 0, 'enemy-context', undefined, undefined, [...damageRecipients]),
+    withApplicability(
+      additive('atk', 'fully', STATIC_SOURCES.astraYao.core, coreAt(initialAtk, setup.mindscape), 'all-party'),
+      { formulas: damageFormulas },
+    ),
+    withApplicability(
+      additive('dmgBonus', 'fully', cadenzaSource, cadenza.dmg, 'all-party'),
+      { formulas: damageFormulas },
+    ),
+    withApplicability(
+      additive('critDmg', 'fully', cadenzaSource, cadenza.critDmg, 'all-party'),
+      { formulas: damageFormulas },
+    ),
+    withApplicability(
+      additive('resReduction', 'fully', mindscapeSource('astraYao', 1, '3 stacks'), setup.mindscape >= 1 ? 18 : 0, 'enemy-context'),
+      { formulas: damageFormulas },
+    ),
     additive('dazeBonus', 'fully', mindscapeSource('astraYao', 4, 'Next Quick Assist'), setup.mindscape >= 4 ? 50 : 0, 'all-party', 'triggerQuickAssist', undefined, [...stunRecipients]),
-    additive('dmgBonus', 'fully', engine, setup.engineId === 'elegantVanity' ? scaledEngineValue(W_ENGINE_FACTS.elegantVanity.dmgPerStack, refinement) * 2 : 0, 'all-party', undefined, undefined, [...damageRecipients]),
-    additive('dmgBonus', 'fully', discSource('astraYao', 'astralVoice', '4-piece'), setup.fourPieceId === 'astralVoice' ? DRIVE_DISC_FACTS.astralVoice.entrantDmg : 0, 'all-party', undefined, undefined, [...partyDamageRecipients], 'astralVoiceEntrant'),
-    additive('dmgBonus', 'fully', discSource('astraYao', 'moonlight', '4-piece'), setup.fourPieceId === 'moonlight' ? DRIVE_DISC_FACTS.moonlight.squadDmg : 0, 'all-party', undefined, undefined, [...partyDamageRecipients], 'moonlightLullaby'),
-    percentage('atk', 'fully', engine, setup.engineId === 'bashfulDemon'
-      ? scaledEngineValue(W_ENGINE_FACTS.bashfulDemon.atkPctPerStack, refinement) * 4
-      : setup.engineId === 'kaboom'
-        ? scaledEngineValue(W_ENGINE_FACTS.kaboom.squadAtkPct, refinement)
-        : 0, 'all-party', [...damageRecipients]),
+    withApplicability(
+      additive('dmgBonus', 'fully', engine, setup.engineId === 'elegantVanity' ? scaledEngineValue(W_ENGINE_FACTS.elegantVanity.dmgPerStack, refinement) * 2 : 0, 'all-party'),
+      { formulas: damageFormulas },
+    ),
+    withApplicability(
+      additive('dmgBonus', 'fully', discSource('astraYao', 'astralVoice', '4-piece'), setup.fourPieceId === 'astralVoice' ? DRIVE_DISC_FACTS.astralVoice.entrantDmg : 0, 'all-party', undefined, undefined, undefined, 'astralVoiceEntrant'),
+      { formulas: damageFormulas },
+    ),
+    withApplicability(
+      additive('dmgBonus', 'fully', discSource('astraYao', 'moonlight', '4-piece'), setup.fourPieceId === 'moonlight' ? DRIVE_DISC_FACTS.moonlight.squadDmg : 0, 'all-party', undefined, undefined, undefined, 'moonlightLullaby'),
+      { formulas: damageFormulas },
+    ),
+    withApplicability(
+      percentage('atk', 'fully', engine, setup.engineId === 'bashfulDemon'
+        ? scaledEngineValue(W_ENGINE_FACTS.bashfulDemon.atkPctPerStack, refinement) * 4
+        : setup.engineId === 'kaboom'
+          ? scaledEngineValue(W_ENGINE_FACTS.kaboom.squadAtkPct, refinement)
+          : 0, 'all-party'),
+      { formulas: damageFormulas },
+    ),
   ])
 }
 

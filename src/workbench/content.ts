@@ -1,8 +1,10 @@
 import branchAndBladeImage from '../assets/equipment/drive-discs/branch-and-blade-song.webp'
 import astralVoiceImage from '../assets/equipment/drive-discs/astral-voice.webp'
+import dawnsBloomImage from '../assets/equipment/drive-discs/dawns-bloom.webp'
 import hormonePunkImage from '../assets/equipment/drive-discs/hormone-punk.webp'
 import kingImage from '../assets/equipment/drive-discs/king-of-the-summit.webp'
 import moonlightImage from '../assets/equipment/drive-discs/moonlight-lullaby.webp'
+import pufferElectroImage from '../assets/equipment/drive-discs/puffer-electro.webp'
 import shadowHarmonyImage from '../assets/equipment/drive-discs/shadow-harmony.webp'
 import shockstarImage from '../assets/equipment/drive-discs/shockstar-disco.webp'
 import swingJazzImage from '../assets/equipment/drive-discs/swing-jazz.webp'
@@ -10,8 +12,10 @@ import woodpeckerImage from '../assets/equipment/drive-discs/woodpecker-electro.
 import yunkuiImage from '../assets/equipment/drive-discs/yunkui-tales.webp'
 import cauldronImage from '../assets/equipment/w-engines/cauldron-of-clarity.webp'
 import bashfulDemonImage from '../assets/equipment/w-engines/bashful-demon.webp'
+import brimstoneImage from '../assets/equipment/w-engines/the-brimstone.webp'
 import cordisGerminaImage from '../assets/equipment/w-engines/cordis-germina.webp'
 import dreamlitImage from '../assets/equipment/w-engines/dreamlit-hearth.webp'
+import drillRigImage from '../assets/equipment/w-engines/drill-rig-red-axis.webp'
 import elegantVanityImage from '../assets/equipment/w-engines/elegant-vanity.webp'
 import hellfireImage from '../assets/equipment/w-engines/hellfire-gears.webp'
 import iceJadeTeapotImage from '../assets/equipment/w-engines/ice-jade-teapot.webp'
@@ -21,6 +25,7 @@ import preciousFossilizedCoreImage from '../assets/equipment/w-engines/precious-
 import puzzleSphereImage from '../assets/equipment/w-engines/puzzle-sphere.webp'
 import qingmingImage from '../assets/equipment/w-engines/qingming-birdcage.webp'
 import radiowaveImage from '../assets/equipment/w-engines/radiowave-journey.webp'
+import serpentineSeekerImage from '../assets/equipment/w-engines/serpentine-seeker.webp'
 import restrainedImage from '../assets/equipment/w-engines/the-restrained.webp'
 import severedInnocenceImage from '../assets/equipment/w-engines/severed-innocence.webp'
 import spectralGazeImage from '../assets/equipment/w-engines/spectral-gaze.webp'
@@ -32,7 +37,7 @@ import weepingCradleImage from '../assets/equipment/w-engines/weeping-cradle.web
 import yesterdayCallsImage from '../assets/equipment/w-engines/yesterday-calls.webp'
 
 export type PoolId = 'full' | 'nonLimited'
-export type AgentId = 'yixuan' | 'dialyn' | 'lucia' | 'anbySoldier0' | 'trigger' | 'astraYao'
+export type AgentId = 'yixuan' | 'dialyn' | 'lucia' | 'anbySoldier0' | 'trigger' | 'astraYao' | 'seed' | 'cissia'
 export type Refinement = 1 | 2 | 3 | 4 | 5
 export type EngineRank = 'S' | 'A'
 export type EngineId =
@@ -51,6 +56,7 @@ export type EngineId =
   | 'severedInnocence' | 'cordisGermina' | 'marcatoDesire' | 'starlightEngine'
   | 'spectralGaze' | 'iceJadeTeapot' | 'restrained' | 'preciousFossilizedCore'
   | 'elegantVanity' | 'bashfulDemon'
+  | 'brimstone' | 'serpentineSeeker' | 'drillRigRedAxis'
 export type DiscId =
   | 'yunkui'
   | 'woodpecker'
@@ -59,6 +65,7 @@ export type DiscId =
   | 'swingJazz'
   | 'moonlight'
   | 'shadowHarmony' | 'shockstar' | 'astralVoice' | 'hormonePunk'
+  | 'dawnsBloom' | 'pufferElectro'
 export type MainSlot = 'slot4' | 'slot5' | 'slot6'
 export type MainStatId =
   | 'critRate'
@@ -225,6 +232,20 @@ export const W_ENGINE_FACTS = {
   preciousFossilizedCore: { advancedStat: { id: 'impactPct', label: 'Impact', value: 15, unit: '%' }, dazePerThreshold: 10 },
   elegantVanity: { advancedStat: { id: 'atkPct', label: 'ATK', value: 30, unit: '%' }, energy: 5, dmgPerStack: 10 },
   bashfulDemon: { advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' }, atkPctPerStack: 2 },
+  brimstone: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 30, unit: '%' },
+    atkPerStack: [3.5, 4.4, 5.2, 6, 7],
+    atkAtMax: [28, 35.2, 41.6, 48, 56],
+  },
+  serpentineSeeker: {
+    advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 60, unit: '%' },
+    critRate: [25, 28.8, 32.5, 36.3, 40],
+    electricDefIgnore: [28, 31.5, 35, 38.5, 42],
+  },
+  drillRigRedAxis: {
+    advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
+    basicDashElectricDmg: [50, 57.5, 65, 72.5, 80],
+  },
 } as const
 
 export const W_ENGINES: Record<EngineId, WEngineChoice> = {
@@ -394,6 +415,28 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   preciousFossilizedCore: { id: 'preciousFossilizedCore', name: 'Precious Fossilized Core', rank: 'A', limited: false, baseAtk: 594, advancedStat: W_ENGINE_FACTS.preciousFossilizedCore.advancedStat, image: preciousFossilizedCoreImage, passiveLines: (refinement) => [`Target HP ≥50% · Daze +${percent(W_ENGINE_FACTS.preciousFossilizedCore.dazePerThreshold, refinement)}`, `Target HP ≥75% · Daze +${percent(W_ENGINE_FACTS.preciousFossilizedCore.dazePerThreshold * 2, refinement)} total`] },
   elegantVanity: { id: 'elegantVanity', name: 'Elegant Vanity', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.elegantVanity.advancedStat, image: elegantVanityImage, passiveLines: (refinement) => [`Energy +${W_ENGINE_FACTS.elegantVanity.energy}`, `Squad DMG +${percent(W_ENGINE_FACTS.elegantVanity.dmgPerStack * 2, refinement)}`] },
   bashfulDemon: { id: 'bashfulDemon', name: 'Bashful Demon', rank: 'A', limited: false, baseAtk: 624, advancedStat: W_ENGINE_FACTS.bashfulDemon.advancedStat, image: bashfulDemonImage, passiveLines: (refinement) => [`Squad ATK +${percent(W_ENGINE_FACTS.bashfulDemon.atkPctPerStack * 4, refinement)}`] },
+  brimstone: {
+    id: 'brimstone', name: 'The Brimstone', rank: 'S', limited: false, baseAtk: 684,
+    advancedStat: W_ENGINE_FACTS.brimstone.advancedStat, image: brimstoneImage,
+    passiveLines: (refinement) => [
+      `ATK +${W_ENGINE_FACTS.brimstone.atkAtMax[refinement - 1]}%`,
+    ],
+  },
+  serpentineSeeker: {
+    id: 'serpentineSeeker', name: 'Serpentine Seeker', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.serpentineSeeker.advancedStat, image: serpentineSeekerImage,
+    passiveLines: (refinement) => [
+      `CRIT Rate +${W_ENGINE_FACTS.serpentineSeeker.critRate[refinement - 1]}%`,
+      `Electric DMG \u00B7 DEF Ignore +${W_ENGINE_FACTS.serpentineSeeker.electricDefIgnore[refinement - 1]}%`,
+    ],
+  },
+  drillRigRedAxis: {
+    id: 'drillRigRedAxis', name: 'Drill Rig - Red Axis', rank: 'A', limited: false, baseAtk: 624,
+    advancedStat: W_ENGINE_FACTS.drillRigRedAxis.advancedStat, image: drillRigImage,
+    passiveLines: (refinement) => [
+      `Basic & Dash Attack Electric DMG +${W_ENGINE_FACTS.drillRigRedAxis.basicDashElectricDmg[refinement - 1]}%`,
+    ],
+  },
 }
 
 const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
@@ -414,11 +457,13 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   anbySoldier0: enginePools(['severedInnocence', 'cordisGermina', 'marcatoDesire', 'starlightEngine']),
   trigger: enginePools(['spectralGaze', 'iceJadeTeapot', 'restrained', 'preciousFossilizedCore', 'steamOven']),
   astraYao: enginePools(['elegantVanity', 'bashfulDemon', 'kaboom']),
+  seed: enginePools(['cordisGermina', 'severedInnocence', 'brimstone', 'marcatoDesire']),
+  cissia: enginePools(['serpentineSeeker', 'drillRigRedAxis', 'cordisGermina']),
 }
 
 export const DRIVE_DISC_FACTS = {
   yunkui: { hpPct: 10, critRate: 12, sheerDmg: 10 },
-  woodpecker: { critRate: 8 },
+  woodpecker: { critRate: 8, atkPctPerCategory: 9, atkPctAtMax: 27 },
   branchAndBlade: { critDmg: 16 },
   king: { daze: 6, squadCritDmg: { base: 15, atCritThreshold: 15 } },
   swingJazz: { energyRegenPct: 20 },
@@ -427,6 +472,8 @@ export const DRIVE_DISC_FACTS = {
   shockstar: { impactPct: 6, daze: 20 },
   astralVoice: { atkPct: 10, entrantDmg: 24 },
   hormonePunk: { atkPct: 10 },
+  dawnsBloom: { basicDmg: { initial: 15, combat: 20, fully: 20 } },
+  pufferElectro: { penRatio: 8 },
 } as const
 
 export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
@@ -445,6 +492,9 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     name: 'Woodpecker Electro',
     image: woodpeckerImage,
     twoPieceEffect: `CRIT Rate +${DRIVE_DISC_FACTS.woodpecker.critRate}%`,
+    fourPieceEffects: [
+      `Basic, Dodge Counter & EX Special CRIT \u00B7 ATK +${DRIVE_DISC_FACTS.woodpecker.atkPctPerCategory}% each \u00B7 max +${DRIVE_DISC_FACTS.woodpecker.atkPctAtMax}%`,
+    ],
   },
   branchAndBlade: {
     id: 'branchAndBlade',
@@ -478,6 +528,18 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   shockstar: { id: 'shockstar', name: 'Shockstar Disco', image: shockstarImage, twoPieceEffect: 'Impact +6%', fourPieceEffects: ['Basic Attack, Dash Attack & Dodge Counter Daze +20%'] },
   astralVoice: { id: 'astralVoice', name: 'Astral Voice', image: astralVoiceImage, twoPieceEffect: 'ATK +10%', fourPieceEffects: ['Entrant DMG +24%'] },
   hormonePunk: { id: 'hormonePunk', name: 'Hormone Punk', image: hormonePunkImage, twoPieceEffect: 'ATK +10%' },
+  dawnsBloom: {
+    id: 'dawnsBloom', name: "Dawn's Bloom", image: dawnsBloomImage,
+    twoPieceEffect: `Basic Attack DMG +${DRIVE_DISC_FACTS.dawnsBloom.basicDmg.initial}%`,
+    fourPieceEffects: [
+      `Basic Attack DMG +${DRIVE_DISC_FACTS.dawnsBloom.basicDmg.combat}%`,
+      `EX Special or Ultimate \u00B7 Basic Attack DMG +${DRIVE_DISC_FACTS.dawnsBloom.basicDmg.fully}%`,
+    ],
+  },
+  pufferElectro: {
+    id: 'pufferElectro', name: 'Puffer Electro', image: pufferElectroImage,
+    twoPieceEffect: `PEN Ratio +${DRIVE_DISC_FACTS.pufferElectro.penRatio}%`,
+  },
 }
 
 export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
@@ -490,6 +552,8 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
   anbySoldier0: { fourPiece: ['shadowHarmony'], twoPiece: ['woodpecker', 'branchAndBlade'] },
   trigger: { fourPiece: ['king', 'astralVoice', 'shockstar'], twoPiece: ['shockstar', 'king', 'woodpecker', 'swingJazz', 'moonlight'] },
   astraYao: { fourPiece: ['astralVoice', 'moonlight'], twoPiece: ['moonlight', 'swingJazz', 'hormonePunk', 'astralVoice'] },
+  seed: { fourPiece: ['dawnsBloom', 'woodpecker'], twoPiece: ['woodpecker', 'branchAndBlade', 'pufferElectro'] },
+  cissia: { fourPiece: ['dawnsBloom'], twoPiece: ['swingJazz', 'woodpecker', 'branchAndBlade'] },
 }
 
 export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
@@ -502,6 +566,8 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   anbySoldier0: { primary: ['general_damage'], residual: [] },
   trigger: { primary: ['daze_buildup'], residual: ['general_damage'] },
   astraYao: { primary: [], residual: [] },
+  seed: { primary: ['general_damage'], residual: [] },
+  cissia: { primary: ['general_damage', 'daze_buildup'], residual: [] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -543,6 +609,8 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   anbySoldier0: { slot4: ['critRate', 'critDmg'], slot5: ['electricDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'] },
   trigger: { slot4: ['critRate'], slot5: ['electricDmg', 'atkPct', 'penRatio'], slot6: ['impact'] },
   astraYao: { slot4: ['atkPct'], slot5: ['atkPct'], slot6: ['atkPct', 'energyRegenPct'] },
+  seed: { slot4: ['critRate', 'critDmg'], slot5: ['electricDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'] },
+  cissia: { slot4: ['critRate', 'critDmg'], slot5: ['electricDmg', 'atkPct'], slot6: ['energyRegenPct', 'atkPct'] },
 }
 
 export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
@@ -561,6 +629,8 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   anbySoldier0: [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }, { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' }, { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' }],
   trigger: [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }],
   astraYao: [{ id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' }, { id: 'atkFlat', label: 'ATK', perHit: 19, unit: '' }],
+  seed: [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }, { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' }, { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' }],
+  cissia: [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }, { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' }, { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' }],
 }
 
 const yixuanRepresentative: Omit<SetupSelection, 'engineId'> = {
@@ -588,6 +658,8 @@ const triggerRepresentative = (pool: PoolId): SetupSelection => {
   }
 }
 const astraRepresentative = (pool: PoolId, mindscape: number): SetupSelection => ({ engineId: pool === 'full' ? 'elegantVanity' : 'bashfulDemon', fourPieceId: 'astralVoice', twoPieceId: pool === 'full' ? 'moonlight' : 'hormonePunk', mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: mindscape >= 2 ? 'energyRegenPct' : 'atkPct' } })
+const seedRepresentative: Omit<SetupSelection, 'engineId'> = { fourPieceId: 'dawnsBloom', twoPieceId: 'woodpecker', mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'atkPct' } }
+const cissiaRepresentative: Omit<SetupSelection, 'engineId'> = { fourPieceId: 'dawnsBloom', twoPieceId: 'swingJazz', mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'energyRegenPct' } }
 
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
@@ -608,6 +680,8 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   anbySoldier0: { full: { ...anbyRepresentative, engineId: 'severedInnocence' }, nonLimited: { ...anbyRepresentative, engineId: 'marcatoDesire', twoPieceId: 'branchAndBlade' } },
   trigger: { full: triggerRepresentative('full'), nonLimited: triggerRepresentative('nonLimited') },
   astraYao: { full: astraRepresentative('full', 0), nonLimited: astraRepresentative('nonLimited', 0) },
+  seed: { full: { ...seedRepresentative, engineId: 'cordisGermina' }, nonLimited: { ...seedRepresentative, engineId: 'marcatoDesire' } },
+  cissia: { full: { ...cissiaRepresentative, engineId: 'serpentineSeeker' }, nonLimited: { ...cissiaRepresentative, engineId: 'drillRigRedAxis' } },
 }
 
 export function representativeSetupFor(
@@ -648,6 +722,8 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
   { id: 'anbySoldier0', name: 'Anby: Soldier 0', attribute: 'Electric', specialty: 'Attack', focusEligible: true },
   { id: 'trigger', name: 'Trigger', attribute: 'Electric', specialty: 'Stun', focusEligible: false },
   { id: 'astraYao', name: 'Astra Yao', attribute: 'Ether', specialty: 'Support', focusEligible: false },
+  { id: 'seed', name: 'Seed', attribute: 'Electric', specialty: 'Attack', focusEligible: true },
+  { id: 'cissia', name: 'Cissia', attribute: 'Electric', specialty: 'Attack', focusEligible: false },
 ]
 
 export const isFocusEligible = (agentId: AgentId): boolean =>
@@ -716,7 +792,13 @@ export const VERTICAL_VALUES = {
   anbySoldier0: { hp: 7673, atk: 929, critRate: 19.4, critDmg: 50, impact: 93 },
   trigger: { hp: 7923, atk: 750, critRate: 5, critDmg: 50, impact: 131, baseEnergyRegen: 1.2 },
   astraYao: { hp: 8609, atk: 715, baseEnergyRegen: 1.56 },
+  seed: { atk: 929, critRate: 5, critDmg: 78.8 },
+  cissia: { atk: 938, critRate: 5, critDmg: 50, baseEnergyRegen: 1.56 },
 } as const
+
+export const SEED_SETUP_PASSIVE_LINES = [
+  'Vanguard +2 Energy when Seed deals damage as the active character, once per 1s',
+] as const
 
 const SOURCE_CATEGORY_LABELS = {
   corePassive: 'Core Passive',
@@ -742,5 +824,10 @@ export const SOURCE_LABELS = {
   triggerAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   astraCore: SOURCE_CATEGORY_LABELS.corePassive,
   astraCadenza: 'Special Attack',
+  seedCore: SOURCE_CATEGORY_LABELS.corePassive,
+  seedAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  cissiaCore: SOURCE_CATEGORY_LABELS.corePassive,
+  cissiaAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  cissiaBasic: 'Basic Attack',
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const

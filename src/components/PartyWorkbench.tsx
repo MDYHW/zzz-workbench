@@ -3,7 +3,9 @@ import dialynPortrait from '../assets/agents/portraits/dialyn.webp'
 import luciaPortrait from '../assets/agents/portraits/lucia.webp'
 import anbySoldier0Portrait from '../assets/agents/portraits/soldier-0-anby.webp'
 import astraYaoPortrait from '../assets/agents/portraits/astra-yao.webp'
+import cissiaPortrait from '../assets/agents/portraits/cissia.webp'
 import triggerPortrait from '../assets/agents/portraits/trigger.webp'
+import seedPortrait from '../assets/agents/portraits/seed.webp'
 import yixuanPortrait from '../assets/agents/portraits/yixuan.webp'
 import auricInkMark from '../assets/game/attributes/auric-ink.webp'
 import etherMark from '../assets/game/attributes/ether.webp'
@@ -15,7 +17,7 @@ import attackMark from '../assets/game/specialties/attack.webp'
 import stunMark from '../assets/game/specialties/stun.webp'
 import supportMark from '../assets/game/specialties/support.webp'
 import { ADMITTED_AGENTS, type AgentId } from '../workbench/content'
-import type { IncompleteMainStatSelection } from '../workbench/candidates'
+import type { RequiredSetupSelection } from '../workbench/candidates'
 import type { AppliedAgentSlot, AppliedSlot } from '../workbench/state'
 import { sourceToneEvents, type SourceInteractionProps } from './sourceInteraction'
 
@@ -26,6 +28,8 @@ const PORTRAITS: Record<AgentId, string> = {
   anbySoldier0: anbySoldier0Portrait,
   trigger: triggerPortrait,
   astraYao: astraYaoPortrait,
+  seed: seedPortrait,
+  cissia: cissiaPortrait,
 }
 
 const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> = {
@@ -35,6 +39,8 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   anbySoldier0: { attribute: electricMark, specialty: attackMark },
   trigger: { attribute: electricMark, specialty: stunMark },
   astraYao: { attribute: etherMark, specialty: supportMark },
+  seed: { attribute: electricMark, specialty: attackMark },
+  cissia: { attribute: electricMark, specialty: attackMark },
 }
 
 type PortraitVariant = 'expanded' | 'compact'
@@ -144,6 +150,8 @@ const PORTRAIT_PRESENTATION: Record<AgentId, PortraitPresentation> = {
   anbySoldier0: { source: { face: { x: 50, y: 13 } }, expanded: { default: DESKTOP_EXPANDED_PORTRAIT_FRAME, mobile: { anchor: { x: 30, y: 48 }, width: 105 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 52, y: 43 }, width: 106 }, mobile: { anchor: { x: 52, y: 43 }, width: 150 } } },
   trigger: { source: { face: { x: 49, y: 14 } }, expanded: { default: { ...DESKTOP_EXPANDED_PORTRAIT_FRAME, width: 290 }, mobile: { anchor: { x: 28, y: 48 }, width: 112 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 50, y: 44 }, width: 104 }, mobile: { anchor: { x: 50, y: 44 }, width: 148 } } },
   astraYao: { source: { face: { x: 48, y: 13 } }, expanded: { default: DESKTOP_EXPANDED_PORTRAIT_FRAME, mobile: { anchor: { x: 29, y: 47 }, width: 111 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 50, y: 43 }, width: 105 }, mobile: { anchor: { x: 50, y: 43 }, width: 150 } } },
+  seed: { source: { face: { x: 52, y: 14 } }, expanded: { default: DESKTOP_EXPANDED_PORTRAIT_FRAME, mobile: { anchor: { x: 29, y: 48 }, width: 112 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 51, y: 44 }, width: 105 }, mobile: { anchor: { x: 51, y: 44 }, width: 150 } } },
+  cissia: { source: { face: { x: 55, y: 14 } }, expanded: { default: DESKTOP_EXPANDED_PORTRAIT_FRAME, mobile: { anchor: { x: 30, y: 48 }, width: 112 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 52, y: 44 }, width: 105 }, mobile: { anchor: { x: 52, y: 44 }, width: 150 } } },
 }
 
 function PortraitArt({ agentId, variant }: { agentId: AgentId; variant: PortraitVariant }) {
@@ -183,7 +191,7 @@ interface PartyWorkbenchProps extends SourceInteractionProps {
   slots: [AppliedAgentSlot, AppliedAgentSlot, AppliedAgentSlot]
   focusSlot: AppliedSlot
   isPartyEditing?: boolean
-  incompleteSelections?: readonly IncompleteMainStatSelection[]
+  incompleteSelections?: readonly RequiredSetupSelection[]
   viewedSlot: AppliedSlot | null
   onViewSlot: (slot: AppliedSlot | null) => void
   onEditParty?: () => void

@@ -4,6 +4,115 @@ import { describe, expect, it } from 'vitest'
 import { App } from './App'
 
 describe('integrated party workbench: result', () => {
+  it('renders Cissia Core gauge precision without rounding its calculation basis', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Seed, Electric, Attack/)
+    await replace(2, /Cissia, Electric, Attack/)
+    await replace(3, /Astra Yao, Ether, Support/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+    await user.click(screen.getByRole('tab', { name: 'View Cissia setup and Result' }))
+
+    const result = screen.getByRole('region', { name: 'Cissia Result' })
+    await user.click(within(result).getByRole('button', { name: 'Energy Regen' }))
+    expect(within(result).getByRole('group', {
+      name: /Initial Energy Regen: current 3[.]744, cap 3[.]68, threshold 1[.]4; Electric DEF Ignore: [+]25[.]000%, cap 25%/,
+    })).toBeInTheDocument()
+  })
+
+  it('links received Seed and Cissia sources to their compact provider slots', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Seed, Electric, Attack/)
+    await replace(2, /Cissia, Electric, Attack/)
+    await replace(3, /Astra Yao, Ether, Support/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    const seedResult = screen.getByRole('region', { name: 'Seed Result' })
+    await user.click(within(seedResult).getByRole('button', { name: 'DEF Ignore' }))
+    const seedSources = within(seedResult).getByRole('table', {
+      name: 'DEF Ignore source contributions',
+    })
+    const cissiaSource = within(seedSources).getByRole('row', {
+      name: /Cissia.*Core Passive/,
+    })
+    const cissiaSlot = screen.getByRole('tab', { name: 'View Cissia setup and Result' })
+    expect(cissiaSource).toHaveAttribute('data-source-tone', 'agent-cissia')
+
+    await user.hover(cissiaSource)
+    expect(cissiaSlot).toHaveClass('is-source-active')
+    expect(screen.getByRole('region', { name: 'Seed Result' })).toBeInTheDocument()
+    await user.unhover(cissiaSource)
+    expect(cissiaSlot).not.toHaveClass('is-source-active')
+
+    act(() => within(cissiaSource).getByRole('rowheader').focus())
+    expect(cissiaSlot).toHaveClass('is-source-active')
+    act(() => within(cissiaSource).getByRole('rowheader').blur())
+    expect(cissiaSlot).not.toHaveClass('is-source-active')
+
+    await user.click(cissiaSlot)
+    const cissiaResult = screen.getByRole('region', { name: 'Cissia Result' })
+    await user.click(within(cissiaResult).getByRole('button', { name: 'CRIT DMG' }))
+    const cissiaSources = within(cissiaResult).getByRole('table', {
+      name: 'CRIT DMG source contributions',
+    })
+    const seedSource = within(cissiaSources).getByRole('row', {
+      name: /Seed.*Core Passive/,
+    })
+    expect(seedSource).toHaveAttribute('data-source-tone', 'agent-seed')
+    await user.hover(seedSource)
+    expect(screen.getByRole('tab', { name: 'View Seed setup and Result' }))
+      .toHaveClass('is-source-active')
+  })
+
+  it('keeps Seed M2 complete when no eligible Vanguard can establish Besiege pressure', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Seed, Electric, Attack/)
+    await replace(2, /Yixuan, Auric Ink, Rupture/)
+    await replace(3, /Astra Yao, Ether, Support/)
+    await user.click(screen.getByRole('radio', { name: 'Seed' }))
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    await user.click(screen.getByRole('button', { name: 'M2' }))
+    expect(screen.getByRole('heading', { name: 'Seed Result' })).toBeInTheDocument()
+    expect(screen.getByText('PREPARED')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Woodpecker Electro',
+    }))
+    expect(screen.getByRole('button', {
+      name: 'Select Puffer Electro as twoPiece',
+    })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Woodpecker Electro',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Change Disc 5 main stat from Electric DMG',
+    }))
+    expect(screen.getByRole('button', {
+      name: 'Select PEN Ratio for Disc 5',
+    })).toBeInTheDocument()
+  })
+
   it('renders a Result quantity only while it has a current consumer', async () => {
     const user = userEvent.setup()
     render(<App />)

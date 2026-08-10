@@ -1,6 +1,8 @@
 import {
+  ADMITTED_AGENTS,
   DRIVE_DISCS,
   MAIN_STATS,
+  SETUP_FORMULA_PARTICIPATION_BY_AGENT,
   SOURCE_LABELS,
   SUBSTAT_CHOICES_BY_AGENT,
   W_ENGINES,
@@ -9,6 +11,7 @@ import {
   type EngineId,
   type MainSlot,
   type Refinement,
+  type SetupFormulaFamily,
   type SubstatId,
 } from './content'
 import type { AgentSetupState, AppliedAgentSlot } from './state'
@@ -53,8 +56,16 @@ export type ActionEffectId =
   | 'engineSheerActions' | 'mindscapeEtherResIgnore'
   | 'anbyAftershock' | 'anbyBasicUltimate'
   | 'anbyDash' | 'triggerBasic' | 'triggerQuickAssist'
+  | 'seedSlaughter' | 'seedDownfall' | 'seedUltimate'
+  | 'cissiaCorrode' | 'cissiaSerpent'
 export type Recipient = 'self' | 'focus' | 'all-party' | 'other-party' | 'enemy-context'
 export type CandidatePressure = 'materialBroadPrePenDefBypass'
+export type EffectAttribute = 'Physical' | 'Fire' | 'Ice' | 'Electric' | 'Ether'
+
+export interface ClauseApplicability {
+  attributes?: readonly EffectAttribute[]
+  formulas?: readonly SetupFormulaFamily[]
+}
 
 export interface ResolvedCurrentEffect {
   metric: EffectMetric
@@ -74,6 +85,8 @@ export interface SourceBoundCurrentClause {
   recipient: Recipient
   action?: ActionEffectId
   eligibleAgentIds?: AgentId[]
+  attributes?: readonly EffectAttribute[]
+  formulas?: readonly SetupFormulaFamily[]
   nonstackKey?: 'kingOfTheSummit' | 'astralVoiceEntrant' | 'moonlightLullaby'
   candidatePressure?: CandidatePressure
   value: { kind: 'additive'; amount: number; display?: ResolvedCurrentEffect['display'] }
@@ -84,6 +97,40 @@ export const withCandidatePressure = (
   clause: SourceBoundCurrentClause,
   candidatePressure: CandidatePressure,
 ): SourceBoundCurrentClause => ({ ...clause, candidatePressure })
+
+export const withApplicability = (
+  clause: SourceBoundCurrentClause,
+  applicability: ClauseApplicability,
+): SourceBoundCurrentClause => ({ ...clause, ...applicability })
+
+function baseAttributeFor(agentId: AgentId): EffectAttribute {
+  const attribute = ADMITTED_AGENTS.find(({ id }) => id === agentId)?.attribute
+  if (attribute === 'Auric Ink') return 'Ether'
+  if (attribute === 'Frost') return 'Ice'
+  if (
+    attribute === 'Physical'
+    || attribute === 'Fire'
+    || attribute === 'Ice'
+    || attribute === 'Electric'
+    || attribute === 'Ether'
+  ) return attribute
+  throw new Error(`Unsupported Attribute for effect applicability: ${String(attribute)}`)
+}
+
+export function clauseAppliesToAgent(
+  clause: SourceBoundCurrentClause,
+  agentId: AgentId,
+): boolean {
+  if (clause.eligibleAgentIds && !clause.eligibleAgentIds.includes(agentId)) return false
+  if (clause.attributes && !clause.attributes.includes(baseAttributeFor(agentId))) return false
+  const formulas = clause.formulas
+  if (formulas) {
+    const participation = SETUP_FORMULA_PARTICIPATION_BY_AGENT[agentId]
+    if (![...participation.primary, ...participation.residual]
+      .some((formula) => formulas.includes(formula))) return false
+  }
+  return true
+}
 
 export const source = (
   label: string,
@@ -122,6 +169,18 @@ export const STATIC_SOURCES = {
   astraYao: {
     core: source(SOURCE_LABELS.astraCore, 'astraYao', 'core'),
     cadenza: source(SOURCE_LABELS.astraCadenza, 'astraYao', 'special'),
+  },
+  seed: {
+    core: source(SOURCE_LABELS.seedCore, 'seed', 'core'),
+    additional: source(SOURCE_LABELS.seedAbility, 'seed', 'additional'),
+    critCap: source('Displayed CRIT Rate cap', 'seed', 'calculation'),
+  },
+  cissia: {
+    core: source(SOURCE_LABELS.cissiaCore, 'cissia', 'core'),
+    additional: source(SOURCE_LABELS.cissiaAbility, 'cissia', 'additional'),
+    basic: source(SOURCE_LABELS.cissiaBasic, 'cissia', 'special'),
+    ultimate: source('Ultimate', 'cissia', 'special'),
+    critCap: source('Displayed CRIT Rate cap', 'cissia', 'calculation'),
   },
 } as const
 

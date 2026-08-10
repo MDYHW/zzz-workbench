@@ -228,13 +228,18 @@ function Gauge({
 } & SourceInteractionProps) {
   const progress = Math.min(gauge.current / gauge.cap * 100, 100)
   const threshold = gauge.threshold === undefined ? undefined : gauge.threshold / gauge.cap * 100
+  const currentDecimals = gauge.decimals?.current ?? 1
+  const thresholdDecimals = gauge.decimals?.threshold ?? 1
+  const capDecimals = gauge.decimals?.cap ?? 0
+  const outputDecimals = gauge.decimals?.output ?? 1
+  const outputCapDecimals = gauge.decimals?.outputCap ?? 0
   const thresholdDescription = gauge.threshold === undefined
     ? ''
-    : `, threshold ${formatNumber(gauge.threshold, 1)}`
+    : `, threshold ${formatNumber(gauge.threshold, thresholdDecimals)}`
   const outputCapDescription = gauge.outputCap === undefined
     ? ''
-    : `, cap ${formatNumber(gauge.outputCap, 0)}${gauge.outputUnit}`
-  const description = `${gauge.basisLabel}: current ${formatNumber(gauge.current, 1)}, cap ${formatNumber(gauge.cap, 0)}${thresholdDescription}; ${gauge.outputLabel}: +${formatNumber(gauge.outputValue, 1)}${gauge.outputUnit}${outputCapDescription}`
+    : `, cap ${formatNumber(gauge.outputCap, outputCapDecimals)}${gauge.outputUnit}`
+  const description = `${gauge.basisLabel}: current ${formatNumber(gauge.current, currentDecimals)}, cap ${formatNumber(gauge.cap, capDecimals)}${thresholdDescription}; ${gauge.outputLabel}: +${formatNumber(gauge.outputValue, outputDecimals)}${gauge.outputUnit}${outputCapDescription}`
   const tone = sourceTone(gauge.source, agentId)
 
   return (
@@ -251,10 +256,10 @@ function Gauge({
       </small>
       <div className="gauge__labels">
         <span>{gauge.basisLabel}</span>
-        <strong>{formatNumber(gauge.current, 1)} / {formatNumber(gauge.cap, 0)}</strong>
+        <strong>{formatNumber(gauge.current, currentDecimals)} / {formatNumber(gauge.cap, capDecimals)}</strong>
       </div>
       {gauge.threshold !== undefined && (
-        <small className="gauge__threshold-copy">Threshold {formatNumber(gauge.threshold, 1)}</small>
+        <small className="gauge__threshold-copy">Threshold {formatNumber(gauge.threshold, thresholdDecimals)}</small>
       )}
       <div className="gauge__track" aria-hidden="true">
         <span className="gauge__fill" style={{ width: `${progress}%` }} />
@@ -263,8 +268,8 @@ function Gauge({
       <div className="gauge__output">
         <span>{gauge.outputLabel}</span>
         <strong>
-          +{formatNumber(gauge.outputValue, 1)}{gauge.outputUnit}
-          {gauge.outputCap === undefined ? '' : ` / ${formatNumber(gauge.outputCap, 0)}${gauge.outputUnit}`}
+          +{formatNumber(gauge.outputValue, outputDecimals)}{gauge.outputUnit}
+          {gauge.outputCap === undefined ? '' : ` / ${formatNumber(gauge.outputCap, outputCapDecimals)}${gauge.outputUnit}`}
         </strong>
       </div>
     </div>

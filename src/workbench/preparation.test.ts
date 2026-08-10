@@ -8,12 +8,23 @@ import {
   DISC_IDS_BY_AGENT_AND_PIECE,
   ENGINE_IDS_BY_AGENT_AND_POOL,
 } from './content'
+import { effectiveFourPieceIds } from './candidates'
+import { createPreparedState } from './state'
 
 const context = (
   agentId: PreparationContext['agentId'],
   pool: PreparationContext['pool'] = 'full',
   mindscape = 0,
 ): PreparationContext => ({ agentId, pool, mindscape })
+
+const permutations = <T,>(items: readonly [T, T, T]): [T, T, T][] => [
+  [items[0], items[1], items[2]],
+  [items[0], items[2], items[1]],
+  [items[1], items[0], items[2]],
+  [items[1], items[2], items[0]],
+  [items[2], items[0], items[1]],
+  [items[2], items[1], items[0]],
+]
 
 describe('party-directed preparation', () => {
   it('chooses the Trigger full-pool engine from the focused formula without changing her representative Disc package', () => {
@@ -85,6 +96,81 @@ describe('party-directed preparation', () => {
     expect(full).toMatchObject({ fourPieceId: 'moonlight', twoPieceId: 'astralVoice' })
     expect(nonLimited).toMatchObject({ fourPieceId: 'moonlight', twoPieceId: 'hormonePunk' })
     expect(local).toMatchObject({ fourPieceId: 'astralVoice', twoPieceId: 'moonlight' })
+  })
+
+  it('keeps Cissia local on Dawn and adds Astral only for the bounded repeated Quick Assist opportunity', () => {
+    const local = prepareTargetSelection(
+      context('cissia'),
+      'seed',
+      [{ agentId: 'seed', fourPieceId: 'dawnsBloom' }],
+    )
+    const contextual = prepareTargetSelection(
+      context('cissia'),
+      'seed',
+      [{ agentId: 'astraYao', fourPieceId: 'astralVoice' }],
+    )
+    const contextualNonLimited = prepareTargetSelection(
+      context('cissia', 'nonLimited'),
+      'seed',
+      [{ agentId: 'astraYao', fourPieceId: 'astralVoice' }],
+    )
+
+    expect(local).toMatchObject({
+      engineId: 'serpentineSeeker', fourPieceId: 'dawnsBloom', twoPieceId: 'swingJazz',
+      mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'energyRegenPct' },
+    })
+    expect(contextual).toMatchObject({
+      engineId: 'serpentineSeeker', fourPieceId: 'astralVoice', twoPieceId: 'swingJazz',
+      mains: local.mains,
+    })
+    expect(contextualNonLimited).toMatchObject({
+      engineId: 'drillRigRedAxis', fourPieceId: 'astralVoice', twoPieceId: 'swingJazz',
+      mains: local.mains,
+    })
+
+    const withoutOpportunity = createPreparedState({}, ['seed', 'cissia', 'anbySoldier0'], 0)
+    const withOpportunity = createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0)
+    expect(effectiveFourPieceIds(withoutOpportunity, 1)).toEqual(['dawnsBloom'])
+    expect(effectiveFourPieceIds(withOpportunity, 1)).toEqual(['dawnsBloom', 'astralVoice'])
+    expect(effectiveFourPieceIds(withOpportunity, 0)).toEqual(['dawnsBloom', 'woodpecker'])
+    expect(effectiveFourPieceIds(withOpportunity, 2)).toEqual(['astralVoice', 'moonlight'])
+  })
+
+  it('prepares Cissia Astral then Astra Moonlight for every approved party permutation', () => {
+    const parties = [
+      { members: [context('seed'), context('cissia'), context('astraYao')] as const, focus: 'seed' as const },
+      { members: [context('cissia'), context('anbySoldier0'), context('astraYao')] as const, focus: 'anbySoldier0' as const },
+      { members: [context('cissia'), context('yixuan'), context('astraYao')] as const, focus: 'yixuan' as const },
+    ]
+
+    for (const { members, focus } of parties) {
+      for (const ordered of permutations(members)) {
+        const prepared = preparePartySelections(ordered, focus)
+        const cissiaIndex = ordered.findIndex(({ agentId }) => agentId === 'cissia')
+        const astraIndex = ordered.findIndex(({ agentId }) => agentId === 'astraYao')
+        expect(prepared[cissiaIndex]).toMatchObject({
+          fourPieceId: 'astralVoice', twoPieceId: 'swingJazz',
+        })
+        expect(prepared[astraIndex]).toMatchObject({
+          fourPieceId: 'moonlight', twoPieceId: 'astralVoice',
+        })
+      }
+    }
+
+    const nonLimited = preparePartySelections([
+      context('astraYao', 'nonLimited'),
+      context('seed', 'nonLimited'),
+      context('cissia', 'nonLimited'),
+    ], 'seed')
+    expect(nonLimited.map((selection) => [
+      selection.engineId,
+      selection.fourPieceId,
+      selection.twoPieceId,
+    ])).toEqual([
+      ['bashfulDemon', 'moonlight', 'hormonePunk'],
+      ['marcatoDesire', 'dawnsBloom', 'woodpecker'],
+      ['drillRigRedAxis', 'astralVoice', 'swingJazz'],
+    ])
   })
 
   it('leaves first-vertical representative packages unchanged when no adjustment applies', () => {

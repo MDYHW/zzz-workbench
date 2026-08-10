@@ -22,6 +22,13 @@ export interface GaugeResult {
   outputValue: number
   outputCap?: number
   outputUnit: string
+  decimals?: {
+    current?: number
+    threshold?: number
+    cap?: number
+    output?: number
+    outputCap?: number
+  }
 }
 
 export interface ResultMetric {

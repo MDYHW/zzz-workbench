@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState, type Dispatch } from 'react'
 import anbyPortrait from '../assets/agents/portraits/soldier-0-anby.webp'
 import astraPortrait from '../assets/agents/portraits/astra-yao.webp'
+import cissiaPortrait from '../assets/agents/portraits/cissia.webp'
 import dialynPortrait from '../assets/agents/portraits/dialyn.webp'
 import luciaPortrait from '../assets/agents/portraits/lucia.webp'
 import triggerPortrait from '../assets/agents/portraits/trigger.webp'
+import seedPortrait from '../assets/agents/portraits/seed.webp'
 import yixuanPortrait from '../assets/agents/portraits/yixuan.webp'
 import { ADMITTED_AGENTS, type AgentId } from '../workbench/content'
 import type { AppliedSlot, PartyDraft, WorkbenchAction, WorkbenchState } from '../workbench/state'
@@ -15,6 +17,8 @@ const portraits: Record<AgentId, string> = {
   anbySoldier0: anbyPortrait,
   trigger: triggerPortrait,
   astraYao: astraPortrait,
+  seed: seedPortrait,
+  cissia: cissiaPortrait,
 }
 
 interface PartyEditorProps {

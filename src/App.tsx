@@ -5,7 +5,13 @@ import { PartyEditor } from './components/PartyEditor'
 import { ResultPanel } from './components/ResultPanel'
 import type { SourceToneChannel } from './components/sourceInteraction'
 import { calculateParty } from './workbench/calculate'
-import { effectiveMainStatIds, incompleteMainStatSelections } from './workbench/candidates'
+import {
+  effectiveFourPieceIds,
+  effectiveMainStatIds,
+  effectiveTwoPieceIds,
+  incompleteRequiredSelections,
+  type RequiredSetupSelection,
+} from './workbench/candidates'
 import { ADMITTED_AGENTS, type MainSlot } from './workbench/content'
 import { createPreparedState, isCompleteWorkbench, workbenchReducer, type AppliedSlot } from './workbench/state'
 
@@ -14,13 +20,17 @@ const emptySourceTones: Record<SourceToneChannel, string | null> = {
   focus: null,
 }
 
+const requiredSelectionKey = (selection: RequiredSetupSelection) => selection.kind === 'disc'
+  ? `${selection.slot}:disc:${selection.piece}`
+  : `${selection.slot}:main:${selection.mainSlot}`
+
 export function App() {
   const [state, dispatch] = useReducer(workbenchReducer, undefined, () => createPreparedState())
   const [viewedSlot, setViewedSlot] = useState<AppliedSlot | null>(0)
   const [sourceTones, setSourceTones] = useState(emptySourceTones)
-  const incompleteSelections = incompleteMainStatSelections(state)
+  const incompleteSelections = incompleteRequiredSelections(state)
   const incompleteKey = incompleteSelections
-    .map(({ slot, mainSlot }) => `${slot}:${mainSlot}`)
+    .map(requiredSelectionKey)
     .join('|')
   const previousIncompleteKeys = useRef(new Set(incompleteKey ? incompleteKey.split('|') : []))
   const [candidateAnnouncement, setCandidateAnnouncement] = useState('')
@@ -45,6 +55,10 @@ export function App() {
       effectiveMainStatIds(state, viewedSlot, mainSlot),
     ]),
   ) as Record<MainSlot, ReturnType<typeof effectiveMainStatIds>>
+  const viewedDiscCandidates = viewedSlot === null ? null : {
+    fourPiece: effectiveFourPieceIds(state, viewedSlot),
+    twoPiece: effectiveTwoPieceIds(state, viewedSlot),
+  }
   const changeSourceTone = (channel: SourceToneChannel, tone: string | null) =>
     setSourceTones((current) => ({ ...current, [channel]: tone }))
 
@@ -58,8 +72,8 @@ export function App() {
 
   useEffect(() => {
     const currentKeys = new Set(incompleteKey ? incompleteKey.split('|') : [])
-    const newlyInvalidated = incompleteSelections.filter(({ slot, mainSlot }) => (
-      !previousIncompleteKeys.current.has(`${slot}:${mainSlot}`)
+    const newlyInvalidated = incompleteSelections.filter((selection) => (
+      !previousIncompleteKeys.current.has(requiredSelectionKey(selection))
     ))
     previousIncompleteKeys.current = currentKeys
 
@@ -68,12 +82,15 @@ export function App() {
       return
     }
 
-    const selections = newlyInvalidated.map(({ agentId, mainSlot }) => {
+    const selections = incompleteSelections.map((selection) => {
+      const { agentId } = selection
       const agentName = ADMITTED_AGENTS.find(({ id }) => id === agentId)!.name
-      return `${agentName} Disc ${mainSlot.replace('slot', '')} main stat`
+      return selection.kind === 'disc'
+        ? `${agentName} ${selection.piece === 'fourPiece' ? '4-piece' : '2-piece'} Drive Disc`
+        : `${agentName} Disc ${selection.mainSlot.replace('slot', '')} main stat`
     })
     setCandidateAnnouncement(
-      `${newlyInvalidated.length} setup selections now require a choice: ${selections.join(' and ')}.`,
+      `${incompleteSelections.length} setup selections now require a choice: ${selections.join(' and ')}.`,
     )
   }, [incompleteKey])
 
@@ -98,12 +115,13 @@ export function App() {
           onViewSlot={setViewedSlot}
           onEditParty={() => dispatch({ type: 'openPartyEdit' })}
         >
-          {viewedSetup && viewedSlot !== null && viewedMainStatCandidates && (
+          {viewedSetup && viewedSlot !== null && viewedMainStatCandidates && viewedDiscCandidates && (
             <>
               <AgentSetup
                 activeSourceTone={activeSourceTone}
                 slot={viewedSlot}
                 agentId={viewedSetup.agentId}
+                discCandidates={viewedDiscCandidates}
                 mainStatCandidates={viewedMainStatCandidates}
                 setup={viewedSetup.setup}
                 dispatch={dispatch}

@@ -9,6 +9,8 @@ import { calculateLucia } from './calculation/agents/lucia'
 import { anbyFullyCrit, calculateAnby } from './calculation/agents/anby-soldier-0'
 import { calculateTrigger } from './calculation/agents/trigger'
 import { calculateAstra } from './calculation/agents/astra-yao'
+import { calculateSeed } from './calculation/agents/seed'
+import { calculateCissia } from './calculation/agents/cissia'
 import type { PartyResult } from './calculation/result'
 import { resolveProviderEffects } from './provider-effects'
 
@@ -37,6 +39,8 @@ function orderedClauses(
     'anbySoldier0',
     'trigger',
     'astraYao',
+    'seed',
+    'cissia',
   ] as const
   return [...clauses].sort((left, right) => (
     sourceOrder.indexOf(left.source.ownerAgentId)
@@ -88,6 +92,10 @@ export function calculateParty(state: WorkbenchState): PartyResult | null {
           return calculateTrigger(context, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
         case 'astraYao':
           return calculateAstra(context, orderedClauses(inboxes[index]))
+        case 'seed':
+          return calculateSeed(context, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
+        case 'cissia':
+          return calculateCissia(context, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
         default:
           return assertNever(context)
       }

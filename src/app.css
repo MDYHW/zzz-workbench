@@ -1905,6 +1905,8 @@ button.main-stat-block:focus-visible {
 .source-tone--agent-anbySoldier0 { --source-color: #1b74b9; }
 .source-tone--agent-trigger { --source-color: #a17020; }
 .source-tone--agent-astraYao { --source-color: #a43e71; }
+.source-tone--agent-seed { --source-color: #0f7a76; }
+.source-tone--agent-cissia { --source-color: #a64a19; }
 /* Calculation clamps stay neutral and are not a semantic source color. */
 .source-tone--calculation { --source-color: #596169; }
 

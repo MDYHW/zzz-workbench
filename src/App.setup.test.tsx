@@ -4,6 +4,65 @@ import { describe, expect, it } from 'vitest'
 import { App } from './App'
 
 describe('integrated party workbench: setup', () => {
+  it('presents exact Seed and contextual Cissia equipment packages without Puffer 4-piece', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Seed, Electric, Attack/)
+    await replace(2, /Cissia, Electric, Attack/)
+    await replace(3, /Astra Yao, Ether, Support/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Cordis Germina' })).toBeInTheDocument()
+    expect(screen.getByLabelText("Dawn's Bloom selected as 4-piece")).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Woodpecker Electro' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Change W-Engine from Cordis Germina' }))
+    const seedEngines = screen.getByLabelText('W-Engine candidates')
+    expect(within(seedEngines).getByText('The Brimstone')).toBeInTheDocument()
+    const brimstone = within(seedEngines).getByRole('button', { name: 'Select The Brimstone W1' })
+    expect(within(brimstone).getByText('ATK +28%')).toBeInTheDocument()
+    expect(brimstone).toHaveAccessibleDescription('ATK +30%. ATK +28%')
+    expect(within(seedEngines).queryByText('Base ATK')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Change W-Engine from Cordis Germina' }))
+    await user.click(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Woodpecker Electro' }))
+    await user.click(screen.getByRole('button', { name: 'Select Branch & Blade Song as twoPiece' }))
+    await user.click(screen.getByRole('button', { name: "Change 4-piece Drive Disc from Dawn's Bloom" }))
+    const seedFourPiece = screen.getByLabelText('fourPiece Drive Disc candidates')
+    expect(within(seedFourPiece).getByRole('button', { name: 'Select Woodpecker Electro as fourPiece' })).toBeInTheDocument()
+    expect(within(seedFourPiece).queryByRole('button', { name: /Puffer Electro as fourPiece/ })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: "Change 4-piece Drive Disc from Dawn's Bloom" }))
+
+    await user.click(screen.getByRole('tab', { name: 'View Cissia setup and Result' }))
+    const serpentine = screen.getByRole('button', { name: 'Change W-Engine from Serpentine Seeker' })
+    expect(within(serpentine).getByText('Energy Regen')).toBeInTheDocument()
+    expect(within(serpentine).getByText('+60%')).toBeInTheDocument()
+    expect(within(serpentine).getByText('CRIT Rate +25%')).toBeInTheDocument()
+    expect(within(serpentine).getByText('Electric DMG · DEF Ignore +28%')).toBeInTheDocument()
+    expect(serpentine).toHaveAccessibleDescription(
+      'Energy Regen +60%. CRIT Rate +25%. Electric DMG · DEF Ignore +28%',
+    )
+    expect(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Astral Voice',
+    })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Swing Jazz' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Non-limited' }))
+    const drill = screen.getByLabelText('Drill Rig - Red Axis selected')
+    expect(within(drill).getByText('Basic & Dash Attack Electric DMG +80%')).toBeInTheDocument()
+    expect(drill).toHaveAccessibleDescription(
+      'Energy Regen +50%. Basic & Dash Attack Electric DMG +80%',
+    )
+    expect(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Astral Voice',
+    })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Swing Jazz' })).toBeInTheDocument()
+  })
+
   it('shows image-led prepared equipment without Base ATK or false single-candidate controls', () => {
     render(<App />)
 
@@ -487,6 +546,93 @@ describe('integrated party workbench: setup', () => {
     expect(screen.getByRole('heading', { name: 'Trigger Result' })).toBeInTheDocument()
     expect(screen.getByText('PREPARED')).toBeInTheDocument()
     expect(document.querySelectorAll('.is-setup-incomplete')).toHaveLength(0)
+  })
+
+  it('keeps the Disc deck actionable through simultaneous Puffer and PEN recovery', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Seed, Electric, Attack/)
+    await replace(2, /Trigger, Electric, Stun/)
+    await replace(3, /Astra Yao, Ether, Support/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    await user.click(screen.getByRole('tab', { name: 'View Trigger setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Change W-Engine from Spectral Gaze' }))
+    await user.click(screen.getByRole('button', { name: 'Select Ice-Jade Teapot W1' }))
+
+    await user.click(screen.getByRole('tab', { name: 'View Seed setup and Result' }))
+    await user.click(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Woodpecker Electro',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Branch & Blade Song as twoPiece',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: "Change 4-piece Drive Disc from Dawn's Bloom",
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Woodpecker Electro as fourPiece',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Branch & Blade Song',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Puffer Electro as twoPiece',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Change Disc 5 main stat from Electric DMG',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select PEN Ratio for Disc 5',
+    }))
+
+    await user.click(screen.getByRole('tab', { name: 'View Trigger setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Change W-Engine from Ice-Jade Teapot' }))
+    await user.click(screen.getByRole('button', { name: 'Select Spectral Gaze W1' }))
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '2 setup selections now require a choice: Seed 2-piece Drive Disc and Seed Disc 5 main stat.',
+    )
+    expect(screen.getByRole('tab', {
+      name: 'View Seed setup and Result, setup incomplete',
+    })).toHaveClass('is-setup-incomplete')
+
+    await user.click(screen.getByRole('tab', {
+      name: 'View Seed setup and Result, setup incomplete',
+    }))
+    expect(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Woodpecker Electro',
+    })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '2-piece Drive Disc required' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Disc 5 main stat required' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: '2-piece Drive Disc required' }))
+    const discCandidates = screen.getByLabelText('twoPiece Drive Disc candidates')
+    expect(within(discCandidates).getAllByRole('button')).toHaveLength(1)
+    await user.click(within(discCandidates).getByRole('button', {
+      name: 'Select Branch & Blade Song as twoPiece',
+    }))
+    expect(screen.getByLabelText('Branch & Blade Song selected as 2-piece')).toHaveFocus()
+    expect(screen.getByRole('button', { name: 'Disc 5 main stat required' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Seed Result' })).not.toBeInTheDocument()
+    expect(screen.getByText('INCOMPLETE')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Disc 5 main stat required' }))
+    const mainCandidates = screen.getByLabelText('Disc 5 main-stat candidates')
+    expect(within(mainCandidates).queryByRole('button', {
+      name: 'Select PEN Ratio for Disc 5',
+    })).not.toBeInTheDocument()
+    await user.click(within(mainCandidates).getByRole('button', {
+      name: 'Select Electric DMG for Disc 5',
+    }))
+    expect(screen.getByRole('heading', { name: 'Seed Result' })).toBeInTheDocument()
+    expect(screen.getByText('PREPARED')).toBeInTheDocument()
   })
 
   it('offers Dialyn Slot 6 Impact and recalculates its existing Result row', async () => {

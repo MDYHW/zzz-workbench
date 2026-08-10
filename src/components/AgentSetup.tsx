@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState, type Dispatch, type ReactNode, type Ref } from 'react'
 import {
-  DISC_IDS_BY_AGENT_AND_PIECE,
   defaultRefinementFor,
   DRIVE_DISCS,
   ENGINE_IDS_BY_AGENT_AND_POOL,
   MAIN_STATS,
   mainStatDisplay,
   ADMITTED_AGENTS,
+  SEED_SETUP_PASSIVE_LINES,
   SUBSTAT_CHOICES_BY_AGENT,
   W_ENGINES,
   type AgentId,
@@ -28,6 +28,7 @@ interface AgentSetupProps extends SourceInteractionProps {
   slot: AppliedSlot
   agentId: AgentId
   setup: AgentSetupState
+  discCandidates: Record<'fourPiece' | 'twoPiece', readonly DiscId[]>
   mainStatCandidates: Record<MainSlot, readonly MainStatId[]>
   dispatch: Dispatch<WorkbenchAction>
 }
@@ -98,6 +99,13 @@ function PoolSelection({
           </div>
         </div>
       </div>
+      {agentId === 'seed' && (
+        <div className="equipment-effects" aria-label="Seed Additional Ability">
+          {SEED_SETUP_PASSIVE_LINES.map((line) => (
+            <span key={line}>Additional Ability · {line}</span>
+          ))}
+        </div>
+      )}
     </section>
   )
 }
@@ -110,6 +118,8 @@ function SelectionSurface({
   expanded,
   onClick,
   buttonRef,
+  fixedRef,
+  fixedTabIndex,
 }: {
   ariaLabel: string
   ariaDescribedBy?: string
@@ -118,6 +128,8 @@ function SelectionSurface({
   expanded: boolean
   onClick: () => void
   buttonRef?: Ref<HTMLButtonElement>
+  fixedRef?: Ref<HTMLDivElement>
+  fixedTabIndex?: number
 }) {
   return editable ? (
     <button
@@ -137,6 +149,8 @@ function SelectionSurface({
       className="selection-surface selection-surface--fixed"
       aria-label={ariaLabel}
       aria-describedby={ariaDescribedBy}
+      ref={fixedRef}
+      tabIndex={fixedTabIndex}
     >
       {children}
       <span className="selection-surface__fixed" role="img" aria-label="Fixed selection" />
@@ -370,6 +384,8 @@ function DiscSelection({
   onSourceToneChange,
   openSelector,
   piece,
+  candidates,
+  twoPieceCandidates,
   selectedId,
   otherPieceId,
   setOpenSelector,
@@ -379,23 +395,31 @@ function DiscSelection({
   dispatch: Dispatch<WorkbenchAction>
   openSelector: string | null
   piece: 'fourPiece' | 'twoPiece'
-  selectedId: DiscId
-  otherPieceId: DiscId
+  candidates: readonly DiscId[]
+  twoPieceCandidates: readonly DiscId[]
+  selectedId: DiscId | null
+  otherPieceId: DiscId | null
   setOpenSelector: (value: string | null) => void
 } & SourceInteractionProps) {
   const tone = piece === 'fourPiece' ? 'disc-4pc' : 'disc-2pc'
   const selectorId = `${agentId}-${piece}`
-  const candidates = DISC_IDS_BY_AGENT_AND_PIECE[agentId]
   const alternatives = piece === 'twoPiece'
-    ? candidates.twoPiece.filter((id) => id !== selectedId && id !== otherPieceId)
-    : candidates.fourPiece.filter((id) => id !== selectedId && (
-      id !== otherPieceId || candidates.twoPiece.includes(selectedId)
+    ? candidates.filter((id) => id !== selectedId && id !== otherPieceId)
+    : candidates.filter((id) => id !== selectedId && (
+      id !== otherPieceId || Boolean(selectedId && twoPieceCandidates.includes(selectedId))
     ))
   const isOpen = openSelector === selectorId
-  const disc = DRIVE_DISCS[selectedId]
-  const selectedName = disc.name
+  const selectedName = selectedId ? DRIVE_DISCS[selectedId].name : null
+  const pieceLabel = piece === 'fourPiece' ? '4-piece' : '2-piece'
+  const focusTargetRef = useRef<HTMLElement | null>(null)
+  const [shouldReturnFocus, setShouldReturnFocus] = useState(false)
 
-  const { openerRef, requestFocusReturn } = useSelectionFocusReturn()
+  useEffect(() => {
+    if (!shouldReturnFocus) return
+    focusTargetRef.current?.focus()
+    setShouldReturnFocus(false)
+  }, [shouldReturnFocus])
+
   return (
     <div
       className={targetClass('disc-selection', tone, activeSourceTone)}
@@ -404,20 +428,32 @@ function DiscSelection({
     >
       <SelectionSurface
         ariaLabel={
-          alternatives.length
-            ? `Change ${piece === 'fourPiece' ? '4-piece' : '2-piece'} Drive Disc from ${selectedName}`
-            : `${selectedName} selected as ${piece === 'fourPiece' ? '4-piece' : '2-piece'}`
+          selectedId === null
+            ? `${pieceLabel} Drive Disc required`
+            : alternatives.length
+              ? `Change ${pieceLabel} Drive Disc from ${selectedName}`
+              : `${selectedName} selected as ${pieceLabel}`
         }
-        editable={alternatives.length > 0}
+        editable={selectedId === null || alternatives.length > 0}
         expanded={isOpen}
         onClick={() => setOpenSelector(isOpen ? null : selectorId)}
-        buttonRef={openerRef}
+        buttonRef={(node) => { focusTargetRef.current = node }}
+        fixedRef={(node) => { focusTargetRef.current = node }}
+        fixedTabIndex={-1}
       >
-        <DiscCard
-          discId={selectedId}
-          piece={piece}
-          showHead
-        />
+        {selectedId ? (
+          <DiscCard
+            discId={selectedId}
+            piece={piece}
+            showHead
+          />
+        ) : (
+          <span className="disc-required">
+            <small className="disc-card__head">{piece === 'fourPiece' ? '4PC' : '2PC'}</small>
+            <strong>Drive Disc required</strong>
+            <span>Select</span>
+          </span>
+        )}
       </SelectionSurface>
       {isOpen && (
         <div
@@ -435,7 +471,7 @@ function DiscSelection({
                 onClick={() => {
                   dispatch({ type: 'selectDisc', slot, piece, discId: candidateId })
                   setOpenSelector(null)
-                  requestFocusReturn()
+                  setShouldReturnFocus(true)
                 }}
               >
                 <DiscCard
@@ -582,16 +618,16 @@ function EquipmentSelection({
   openSelector,
   setOpenSelector,
   setup,
+  discCandidates,
 }: {
   agentId: AgentId
   slot: AppliedSlot
   setup: AgentSetupState
+  discCandidates: Record<'fourPiece' | 'twoPiece', readonly DiscId[]>
   dispatch: Dispatch<WorkbenchAction>
   openSelector: string | null
   setOpenSelector: (value: string | null) => void
 } & SourceInteractionProps) {
-  if (!setup.fourPieceId || !setup.twoPieceId) return null
-
   return (
     <section
       className="setup-group prepared-block"
@@ -607,6 +643,8 @@ function EquipmentSelection({
           onSourceToneChange={onSourceToneChange}
           openSelector={openSelector}
           piece="fourPiece"
+          candidates={discCandidates.fourPiece}
+          twoPieceCandidates={discCandidates.twoPiece}
           selectedId={setup.fourPieceId}
           otherPieceId={setup.twoPieceId}
           setOpenSelector={setOpenSelector}
@@ -619,6 +657,8 @@ function EquipmentSelection({
           onSourceToneChange={onSourceToneChange}
           openSelector={openSelector}
           piece="twoPiece"
+          candidates={discCandidates.twoPiece}
+          twoPieceCandidates={discCandidates.twoPiece}
           selectedId={setup.twoPieceId}
           otherPieceId={setup.fourPieceId}
           setOpenSelector={setOpenSelector}
@@ -808,6 +848,7 @@ export function AgentSetup({
   agentId,
   slot,
   dispatch,
+  discCandidates,
   mainStatCandidates,
   onSourceToneChange,
   setup,
@@ -846,6 +887,7 @@ export function AgentSetup({
           agentId={agentId}
           slot={slot}
           dispatch={dispatch}
+          discCandidates={discCandidates}
           onSourceToneChange={onSourceToneChange}
           openSelector={openSelector}
           setOpenSelector={setOpenSelector}

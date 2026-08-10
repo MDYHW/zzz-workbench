@@ -19,6 +19,12 @@ export interface EstablishedDiscHolder {
   fourPieceId: DiscId | null
 }
 
+export function hasRepeatedQuickAssistOpportunity(
+  agentIds: readonly AgentId[],
+): boolean {
+  return agentIds.includes('astraYao')
+}
+
 function withFocusedEngine(
   context: PreparationContext,
   focusAgentId: AgentId,
@@ -64,6 +70,17 @@ function withAstraAstralAllocation(
   }
 }
 
+function withCissiaAstralOpportunity(
+  context: PreparationContext,
+  partyAgentIds: readonly AgentId[],
+  selection: SetupSelection,
+): SetupSelection {
+  return context.agentId === 'cissia'
+    && hasRepeatedQuickAssistOpportunity(partyAgentIds)
+    ? { ...selection, fourPieceId: 'astralVoice' }
+    : selection
+}
+
 function representativeFor(context: PreparationContext): SetupSelection {
   return representativeSetupFor(context.agentId, context.pool, context.mindscape)
 }
@@ -75,7 +92,12 @@ export function prepareTargetSelection(
 ): SetupSelection {
   const focused = withFocusedEngine(context, focusAgentId, representativeFor(context))
   const allocated = withTriggerKingAllocation(context, establishedHolders, focused)
-  return withAstraAstralAllocation(context, establishedHolders, allocated)
+  const contextual = withCissiaAstralOpportunity(
+    context,
+    [context.agentId, ...establishedHolders.map(({ agentId }) => agentId)],
+    allocated,
+  )
+  return withAstraAstralAllocation(context, establishedHolders, contextual)
 }
 
 export function preparePartySelections(
@@ -95,11 +117,15 @@ export function preparePartySelections(
     })),
     selection,
   ))
+  const partyAgentIds = contexts.map(({ agentId }) => agentId)
+  const withCissiaAstral = withKingAllocation.map((selection, index) => (
+    withCissiaAstralOpportunity(contexts[index], partyAgentIds, selection)
+  ))
   const holders = contexts.map((context, index) => ({
     agentId: context.agentId,
-    fourPieceId: withKingAllocation[index].fourPieceId,
+    fourPieceId: withCissiaAstral[index].fourPieceId,
   }))
-  return withKingAllocation.map((selection, index) => withAstraAstralAllocation(
+  return withCissiaAstral.map((selection, index) => withAstraAstralAllocation(
     contexts[index],
     holders,
     selection,

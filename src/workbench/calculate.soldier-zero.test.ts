@@ -317,7 +317,7 @@ describe('soldier zero vertical', () => {
     const singleKingSlots = [...slots] as typeof slots
     singleKingSlots[1] = {
       ...singleKingSlots[1],
-      setup: { ...singleKingSlots[1].setup, fourPieceId: 'shadowHarmony' },
+      setup: { ...singleKingSlots[1].setup, fourPieceId: 'astralVoice' },
     }
     const singleKing = calculateParty({ ...state, slots: singleKingSlots })!
     expect(resultMetric(resultAgent(result, 'anbySoldier0'), 'critDmg').values.fully)
