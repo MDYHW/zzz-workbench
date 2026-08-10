@@ -19,8 +19,10 @@ describe('integrated party workbench: setup', () => {
     await user.click(screen.getByRole('button', { name: 'Apply party' }))
 
     expect(screen.getByRole('button', { name: 'Change W-Engine from Cordis Germina' })).toBeInTheDocument()
-    expect(screen.getByLabelText("Dawn's Bloom selected as 4-piece")).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Woodpecker Electro' })).toBeInTheDocument()
+    expect(screen.getByLabelText("Dawn's Bloom selected as 4-piece"))
+      .toHaveAccessibleDescription('Basic Attack DMG +40%. Basic Attack DMG +15%')
+    expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Woodpecker Electro' }))
+      .toHaveAccessibleDescription('CRIT Rate +8%')
     await user.click(screen.getByRole('button', { name: 'Change W-Engine from Cordis Germina' }))
     const seedEngines = screen.getByLabelText('W-Engine candidates')
     expect(within(seedEngines).getByText('The Brimstone')).toBeInTheDocument()
@@ -33,7 +35,8 @@ describe('integrated party workbench: setup', () => {
     await user.click(screen.getByRole('button', { name: 'Select Branch & Blade Song as twoPiece' }))
     await user.click(screen.getByRole('button', { name: "Change 4-piece Drive Disc from Dawn's Bloom" }))
     const seedFourPiece = screen.getByLabelText('fourPiece Drive Disc candidates')
-    expect(within(seedFourPiece).getByRole('button', { name: 'Select Woodpecker Electro as fourPiece' })).toBeInTheDocument()
+    expect(within(seedFourPiece).getByRole('button', { name: 'Select Woodpecker Electro as fourPiece' }))
+      .toHaveAccessibleDescription('ATK +27%. CRIT Rate +8%')
     expect(within(seedFourPiece).queryByRole('button', { name: /Puffer Electro as fourPiece/ })).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: "Change 4-piece Drive Disc from Dawn's Bloom" }))
 
@@ -254,8 +257,10 @@ describe('integrated party workbench: setup', () => {
     })
     expect(selected).toHaveFocus()
     expect(screen.queryByLabelText('twoPiece Drive Disc candidates')).not.toBeInTheDocument()
-    expect(within(selected.querySelector('.disc-effect-rows')!).getAllByText('2PC')).toHaveLength(1)
-    expect(within(selected).getAllByText('Energy Regen +20%')).toHaveLength(1)
+    const visibleEffects = within(selected.querySelector('.disc-effect-rows')!)
+    expect(visibleEffects.getAllByText('2PC')).toHaveLength(1)
+    expect(visibleEffects.getAllByText('Energy Regen +20%')).toHaveLength(1)
+    expect(selected).toHaveAccessibleDescription('Energy Regen +20%')
     expect(screen.getByRole('row', {
       name: /Energy Regen.*2\.16.*3\.66.*3\.66/,
     })).toBeInTheDocument()

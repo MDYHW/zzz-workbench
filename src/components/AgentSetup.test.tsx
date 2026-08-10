@@ -116,6 +116,9 @@ describe('AgentSetup compressed Disc effects', () => {
     const dawn = screen.getByRole('button', {
       name: "Change 4-piece Drive Disc from Dawn's Bloom",
     })
+    expect(dawn).toHaveAccessibleDescription(
+      'Basic Attack DMG +40%. Basic Attack DMG +15%',
+    )
     const dawnEffects = dawn.querySelector('.disc-effect-rows')
     expect(dawnEffects?.querySelectorAll(':scope > span')).toHaveLength(2)
     expect(within(dawn).getByText('Basic Attack DMG +40%')).toBeInTheDocument()
@@ -126,6 +129,7 @@ describe('AgentSetup compressed Disc effects', () => {
     const woodpecker = within(screen.getByLabelText('fourPiece Drive Disc candidates'))
       .getByRole('button', { name: 'Select Woodpecker Electro as fourPiece' })
     const woodpeckerEffects = woodpecker.querySelector('.disc-effect-rows')
+    expect(woodpecker).toHaveAccessibleDescription('ATK +27%. CRIT Rate +8%')
     expect(woodpeckerEffects?.querySelectorAll(':scope > span')).toHaveLength(2)
     expect(within(woodpecker).getByText('ATK +27%')).toBeInTheDocument()
     expect(within(woodpecker).getByText('CRIT Rate +8%')).toBeInTheDocument()
@@ -155,6 +159,9 @@ describe('AgentSetup compressed Disc effects', () => {
     }))
     const shockstar = within(screen.getByLabelText('fourPiece Drive Disc candidates'))
       .getByRole('button', { name: 'Select Shockstar Disco as fourPiece' })
+    expect(shockstar).toHaveAccessibleDescription(
+      'Basic Attack, Dash Attack & Dodge Counter Daze +20%. Impact +6%',
+    )
     expect(within(shockstar).getByText(
       'Basic Attack, Dash Attack & Dodge Counter Daze +20%',
     )).toBeInTheDocument()
@@ -249,12 +256,15 @@ describe('AgentSetup incomplete Disc recovery', () => {
     const soleCandidate = within(candidates).getByRole('button', {
       name: 'Select Woodpecker Electro as twoPiece',
     })
+    expect(soleCandidate).toHaveAccessibleDescription('CRIT Rate +8%')
     soleCandidate.focus()
     await user.keyboard('{Enter}')
 
     await waitFor(() => {
       expect(screen.getByLabelText('Woodpecker Electro selected as 2-piece')).toHaveFocus()
     })
+    expect(screen.getByLabelText('Woodpecker Electro selected as 2-piece'))
+      .toHaveAccessibleDescription('CRIT Rate +8%')
     expect(screen.getByRole('button', { name: 'Disc 5 main stat required' })).toBeInTheDocument()
     expect(screen.getByTestId('workbench-complete')).toHaveTextContent('false')
   })
@@ -265,14 +275,18 @@ describe('AgentSetup exact two-piece choices', () => {
     const user = userEvent.setup()
     render(<DialynDiscHarness />)
 
-    await user.click(screen.getByRole('button', {
+    const selected = screen.getByRole('button', {
       name: 'Change 2-piece Drive Disc from Woodpecker Electro',
-    }))
+    })
+    expect(selected).toHaveAccessibleDescription('CRIT Rate +8%')
+    await user.click(selected)
     const candidates = screen.getByLabelText('twoPiece Drive Disc candidates')
     expect(within(candidates).getAllByRole('button')).toHaveLength(2)
-    await user.click(within(candidates).getByRole('button', {
+    const swingJazz = within(candidates).getByRole('button', {
       name: 'Select Swing Jazz as twoPiece',
-    }))
+    })
+    expect(swingJazz).toHaveAccessibleDescription('Energy Regen +20%')
+    await user.click(swingJazz)
 
     expect(screen.getByRole('button', {
       name: 'Change 2-piece Drive Disc from Swing Jazz',

@@ -352,15 +352,20 @@ function DiscEffectRows({
 }
 
 function DiscCard({
+  descriptionId,
   discId,
   piece,
   showHead = false,
 }: {
+  descriptionId?: string
   discId: DiscId
   piece: 'fourPiece' | 'twoPiece'
   showHead?: boolean
 }) {
   const disc = DRIVE_DISCS[discId]
+  const accessibleDescription = piece === 'fourPiece'
+    ? [...(disc.fourPieceEffects ?? []), disc.twoPieceEffect].join('. ')
+    : disc.twoPieceEffect
   return (
     <>
       {showHead && (
@@ -372,6 +377,7 @@ function DiscCard({
       <span className="equipment-copy">
         <DiscEffectRows discId={discId} piece={piece} />
       </span>
+      {descriptionId && <span className="sr-only" id={descriptionId}>{accessibleDescription}</span>}
     </>
   )
 }
@@ -410,6 +416,7 @@ function DiscSelection({
     ))
   const isOpen = openSelector === selectorId
   const selectedName = selectedId ? DRIVE_DISCS[selectedId].name : null
+  const selectedDescriptionId = selectedId ? `${selectorId}-details` : undefined
   const pieceLabel = piece === 'fourPiece' ? '4-piece' : '2-piece'
   const focusTargetRef = useRef<HTMLElement | null>(null)
   const [shouldReturnFocus, setShouldReturnFocus] = useState(false)
@@ -436,6 +443,7 @@ function DiscSelection({
         }
         editable={selectedId === null || alternatives.length > 0}
         expanded={isOpen}
+        ariaDescribedBy={selectedDescriptionId}
         onClick={() => setOpenSelector(isOpen ? null : selectorId)}
         buttonRef={(node) => { focusTargetRef.current = node }}
         fixedRef={(node) => { focusTargetRef.current = node }}
@@ -443,6 +451,7 @@ function DiscSelection({
       >
         {selectedId ? (
           <DiscCard
+            descriptionId={selectedDescriptionId}
             discId={selectedId}
             piece={piece}
             showHead
@@ -462,12 +471,14 @@ function DiscSelection({
         >
           {alternatives.map((candidateId) => {
             const candidateName = DRIVE_DISCS[candidateId].name
+            const candidateDescriptionId = `${selectorId}-${candidateId}-candidate-details`
             return (
               <button
                 type="button"
                 className="selector-candidate selector-candidate--disc"
                 key={candidateId}
                 aria-label={`Select ${candidateName} as ${piece}`}
+                aria-describedby={candidateDescriptionId}
                 onClick={() => {
                   dispatch({ type: 'selectDisc', slot, piece, discId: candidateId })
                   setOpenSelector(null)
@@ -475,6 +486,7 @@ function DiscSelection({
                 }}
               >
                 <DiscCard
+                  descriptionId={candidateDescriptionId}
                   discId={candidateId}
                   piece={piece}
                 />
