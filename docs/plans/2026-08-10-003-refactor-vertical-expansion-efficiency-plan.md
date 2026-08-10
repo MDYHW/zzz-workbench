@@ -519,7 +519,7 @@ index, not a second rationale document.
 | W1 | Current versus lean post-contract implementation pair | Existing Result scale presentation | V1 | `8dcf7e039b79b0104cad8f0aeddcc622d0188e2d` | Both first-pass attempts failed; corrected reference result committed at `8513e80` |
 | M1-W | Current versus Lean V2 workflow calibration | Source-owned Evelyn equipment facts and summaries | V2, then the single permitted V3 recalibration | `ac068c2551359a9f20dcd1a470d48f42cbf6448b`; acceptance patch SHA-256 `ACAD6933579977CCC8112095F8B56C65C80F8B2FF91E7063E0372FAE7C554B36`; baseline-stability patch SHA-256 `2AE805DBE380D5B5023E052D3A372A5A30FC9FAD8099D1E986F01A865D691848` | V2 failed on a shared baseline timeout; after the one recalibration, both V3 arms passed 152/152, build, diff check, and blind review with equivalent quality |
 | M1-M | Lean V2 reference versus lower-worker calibration | The same source-owned Evelyn equipment facts and summaries | V3 | Same base and hashed patches; exact passing Lean-V2/sol artifact reused as reference | terra-low passed 5/5 focused checks but introduced a package-manager tooling deviation and failed the controller full gate at 149/152 on three 5-second integration-test timeouts; later inspection also found two Disc summaries duplicating retained numeric facts instead of deriving from them; Lean-V2/sol retained procedurally, without a model-superiority claim |
-| M1-R | Lower-model routing diagnostic repetition after harness calibration | The unchanged M1 source-owned equipment facts and summaries | V3-R | Protocol commit; acceptance SHA-256 `ACAD6933579977CCC8112095F8B56C65C80F8B2FF91E7063E0372FAE7C554B36`; applied test SHA-256 `C60961AAAB94F356A86A82032B4C6C086DFB5FD04E5243FDBFB3AF0E37BF41E5`; worker packet SHA-256 `6E5C1E61BC04CA7056987107D20E4C021D42B1A047F055EA14F1B9F806A721CC`; review packet SHA-256 `FB4DB6411886E64153AD93594F75204EA011DA1408244CF16A511F62CE4D6426` | Pending; run up to three independent Lean-V2/terra-low attempts, stopping on the first non-pass and never pooling M1-M |
+| M1-R | Lower-model routing diagnostic repetition after harness calibration | The unchanged M1 source-owned equipment facts and summaries | V3-R | `a4c39371dd271383575a26730e9340890efe0a13`; acceptance SHA-256 `ACAD6933579977CCC8112095F8B56C65C80F8B2FF91E7063E0372FAE7C554B36`; applied test SHA-256 `C60961AAAB94F356A86A82032B4C6C086DFB5FD04E5243FDBFB3AF0E37BF41E5`; worker packet SHA-256 `6E5C1E61BC04CA7056987107D20E4C021D42B1A047F055EA14F1B9F806A721CC`; review packet SHA-256 `FB4DB6411886E64153AD93594F75204EA011DA1408244CF16A511F62CE4D6426` | Attempt 1 ended `inconclusive - protocol invalid`: controller gates passed 5/5 focused, 152/152 full, strict build, and diff check, but the worker npm gate was sandbox-blocked and blind review exposed mutually incompatible source-retention and exact-object test requirements; attempts 2-3 not run; no model or routing claim |
 | C1 | Approved version-2.8-or-earlier confirmation vertical | Pending product approval | Pending | Pending | Not run |
 | C2 | Approved version-2.8-or-earlier confirmation vertical | Pending product approval | Pending | Pending | Not run |
 | C3 | Approved version-2.8-or-earlier confirmation vertical | Pending product approval | Pending | Pending | Not run |
@@ -680,6 +680,27 @@ guidance changes, prove cost efficiency, or change the Initial Routing
 Hypotheses. A later approved product unit uses the already-existing routing
 hypothesis and supplies the first independent work-class evidence.
 
+##### M1-R result
+
+| Field | Attempt 1 | Attempt 2 | Attempt 3 |
+|---|---|---|---|
+| Worker | `gpt-5.6-terra`, low; no inherited history | Not run | Not run |
+| Scope | Only the three owned content files changed; no out-of-allowlist read reported | Not run | Not run |
+| Worker gates | `git diff --check` passed; focused test blocked by sandbox denial of the frozen external `npm.cmd`, with no substitution attempted | Not run | Not run |
+| Controller gates | Focused 5/5, full 152/152, strict TypeScript/build, diff check, immutable test/lock/status integrity all passed | Not run | Not run |
+| Blind review | Failed one P1: Heartstring's two-stack maximum lived outside its owning fact record | Not run | Not run |
+| Outcome | `inconclusive - protocol invalid` | Stopped by attempt 1 | Stopped by attempt 1 |
+
+The P1 also exposed a fixed-input contradiction rather than a clean model
+failure. The worker/review packets require the two-stack maximum inside
+`W_ENGINE_FACTS.heartstringNocturne`, while the immutable test asserts exact
+equality against a facts object without that field. Adding the retained field
+fails the test; omitting it fails the source-retention review. M1-R therefore
+stops without correction or retry and supports no terra-low correctness,
+repeatability, cost, promotion, or escalation claim. M1-M, the selected
+Lean-V2/sol patch, the Initial Routing Hypotheses, Evelyn delivery, and C1-C4 are
+unchanged.
+
 ---
 
 ## Key Technical Decisions
@@ -743,10 +764,10 @@ hypothesis and supplies the first independent work-class evidence.
   remains environment-dependent and is recorded as unavailable when absent.
 - No skill, permanent routing policy, or new product abstraction is warranted
   before the bounded pairs and repeated product observations succeed.
-- **M1-R diagnostic:** The user authorized the separate V3-R repetition after
-  harness calibration. It is non-gating and cannot change the selected M1
-  artifact, delay an approved version-2.8 product unit by dependency, count as
-  C1-C4 confirmation, or establish permanent repository guidance.
+- **M1-R diagnostic:** The user-authorized V3-R repetition ended at attempt 1 as
+  `inconclusive - protocol invalid`; attempts 2-3 were not run. It remains
+  non-gating and changes neither the selected M1 artifact nor any model/routing,
+  version-2.8 delivery, C1-C4, or permanent-guidance decision.
 
 ---
 
@@ -910,7 +931,7 @@ production/test/UI files and update this experiment record.
 
 - U4a. **Run the optional M1-R routing diagnostic repetition**
 
-**Status:** Authorized; frozen-input review in progress
+**Status:** Completed - inconclusive because the frozen instruments conflicted
 
 **Goal:** Determine whether the exact settled M1 packet is repeatable in up to
 three fresh Lean-V2/terra-low first-pass attempts after package-manager and
