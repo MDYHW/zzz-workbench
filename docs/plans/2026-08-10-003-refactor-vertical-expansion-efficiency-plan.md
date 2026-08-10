@@ -87,6 +87,15 @@ result for three materially different conforming verticals.
   replacement confirmation attempt before ending with a negative or
   inconclusive result. Version any changed protocol or routing and never pool
   pre- and post-recalibration successes for the changed work-class claim.
+- R8a. M1-R is the single user-approved diagnostic exception to R4, M1's
+  same-level no-retry rule, and the ordinary recalibration count. It does not
+  revise, replace, or pool with M1-M. It repeats only the lower-model arm after
+  the controller has removed the recorded package-manager deviation and
+  calibrated the pre-existing timeout boundary. Its maximum three fresh
+  attempts form a separate denominator and may establish repeatability only for
+  the exact settled M1 packet. M1-R does not count toward C1-C4 or R10's
+  confirmation series and authorizes no workflow revision, artifact correction,
+  replacement attempt, or later model comparison.
 
 **Measurement and promotion**
 
@@ -510,6 +519,7 @@ index, not a second rationale document.
 | W1 | Current versus lean post-contract implementation pair | Existing Result scale presentation | V1 | `8dcf7e039b79b0104cad8f0aeddcc622d0188e2d` | Both first-pass attempts failed; corrected reference result committed at `8513e80` |
 | M1-W | Current versus Lean V2 workflow calibration | Source-owned Evelyn equipment facts and summaries | V2, then the single permitted V3 recalibration | `ac068c2551359a9f20dcd1a470d48f42cbf6448b`; acceptance patch SHA-256 `ACAD6933579977CCC8112095F8B56C65C80F8B2FF91E7063E0372FAE7C554B36`; baseline-stability patch SHA-256 `2AE805DBE380D5B5023E052D3A372A5A30FC9FAD8099D1E986F01A865D691848` | V2 failed on a shared baseline timeout; after the one recalibration, both V3 arms passed 152/152, build, diff check, and blind review with equivalent quality |
 | M1-M | Lean V2 reference versus lower-worker calibration | The same source-owned Evelyn equipment facts and summaries | V3 | Same base and hashed patches; exact passing Lean-V2/sol artifact reused as reference | terra-low passed 5/5 focused checks but introduced a package-manager tooling deviation and failed the controller full gate at 149/152 on three 5-second integration-test timeouts; later inspection also found two Disc summaries duplicating retained numeric facts instead of deriving from them; Lean-V2/sol retained procedurally, without a model-superiority claim |
+| M1-R | Lower-model routing diagnostic repetition after harness calibration | The unchanged M1 source-owned equipment facts and summaries | V3-R | Protocol commit; acceptance SHA-256 `ACAD6933579977CCC8112095F8B56C65C80F8B2FF91E7063E0372FAE7C554B36`; applied test SHA-256 `C60961AAAB94F356A86A82032B4C6C086DFB5FD04E5243FDBFB3AF0E37BF41E5`; worker packet SHA-256 `6E5C1E61BC04CA7056987107D20E4C021D42B1A047F055EA14F1B9F806A721CC`; review packet SHA-256 `FB4DB6411886E64153AD93594F75204EA011DA1408244CF16A511F62CE4D6426` | Pending; run up to three independent Lean-V2/terra-low attempts, stopping on the first non-pass and never pooling M1-M |
 | C1 | Approved version-2.8-or-earlier confirmation vertical | Pending product approval | Pending | Pending | Not run |
 | C2 | Approved version-2.8-or-earlier confirmation vertical | Pending product approval | Pending | Pending | Not run |
 | C3 | Approved version-2.8-or-earlier confirmation vertical | Pending product approval | Pending | Pending | Not run |
@@ -565,6 +575,110 @@ superior: exact comparable resource totals were unavailable, terra-low's full
 gate was confounded by the execution environment, and its otherwise correct
 visible output retained one source-derivation quality gap. M1 therefore supports
 neither a workflow-efficiency claim nor a lower-model default.
+
+#### M1-R routing diagnostic repetition
+
+M1-R answers only whether `gpt-5.6-terra`, low can repeatedly implement the
+already-settled M1 content seam under the stabilized Lean V2 workflow. It is not
+a replay that can turn M1-M into a pass, and it does not compare workflow cost.
+The selected Lean-V2/sol patch remains the deferred Evelyn production artifact
+regardless of M1-R's outcome. This diagnostic is the current user-approved
+experiment task, but it is not a product dependency: it cannot block or replace
+Evelyn U3/U4, any approved version-2.8 delivery, or the later C1-C4 series.
+
+The controller calibrated the harness before freezing V3-R. Three serial clean
+full-suite controls at commit `61334ce` passed 147/147. The longest integrated
+Setup journey took `4.949-6.515s`; its local `10s` timeout is therefore a measured
+guard for a valid long interaction, not a global timeout relaxation. The next
+slowest measured test peaked at `4.310s`; this calibration changed no other
+timeout setting. The causal boundary is: a correct multi-step App journey
+normally crosses its previous default limit, the runner can interrupt it before
+its assertions, and one test-local limit preserves both those assertions and a
+finite hang guard.
+
+Freeze the following V3-R protocol before dispatch:
+
+1. Create a maximum of three fresh isolated worktrees from the same clean
+   protocol commit and apply the immutable acceptance patch whose SHA-256 is
+   `ACAD6933579977CCC8112095F8B56C65C80F8B2FF91E7063E0372FAE7C554B36`.
+   Do not apply either prior M1 production artifact.
+2. Give each worker the input-only packet at
+   `C:\Users\mdy06\.codex\visualizations\2026\08\09\019fe6ab-6e74-7213-8dc4-947536edfd55\m1-r\artifacts\m1-r-worker-packet.md`,
+   SHA-256 `6E5C1E61BC04CA7056987107D20E4C021D42B1A047F055EA14F1B9F806A721CC`.
+   It fixes exact values, default paths, named exemplars, ownership, omissions,
+   and stop rules without exposing earlier results. Each fresh
+   `gpt-5.6-terra`, low context may read only that packet, repository instructions,
+   the three owned files, named exemplars, and immutable test. Reading the
+   experiment ledger, Git history, sibling worktrees, external prior patches, or
+   attempt reports fails the attempt; the controller audits reported/tool-visible
+   reads. Dispatch every worker with no inherited conversation/session history
+   (`fork_turns: "none"` or equivalent) and pass only the frozen packet and
+   assigned worktree. Share no prior result, patch, review, or reasoning between
+   attempts.
+3. Before dispatch, record one external runtime manifest with the protocol commit,
+   absolute `npm.cmd` path, Node/npm versions, package-lock SHA-256, immutable
+   patch and packet hashes, prepared `node_modules` source, and attempt paths.
+   Record the no-inherited-history dispatch mode for workers and reviewers.
+   Each worktree may junction to that one dependency runtime because execution is
+   serial; clear only its writable `.tmp` and `.vite` caches before every attempt
+   and control, then verify package-lock and dependency layout are unchanged.
+   Workers must not install dependencies, switch package managers, rearrange
+   `node_modules`, edit tests, or change the fixed timeout.
+4. The worker runs only the focused immutable equipment suite and
+   `git diff --check`, using the exact commands frozen in its packet. Before and
+   after every worker/controller gate, verify the untracked applied
+   `equipment.test.ts` SHA-256 remains
+   `C60961AAAB94F356A86A82032B4C6C086DFB5FD04E5243FDBFB3AF0E37BF41E5`
+   and status contains only that test plus the three owned production files. The
+   controller then runs, in order,
+   `& 'C:\Users\mdy06\AppData\Roaming\npm\npm.cmd' test`,
+   `& 'C:\Users\mdy06\AppData\Roaming\npm\npm.cmd' run build`, and
+   `git diff --check` for each unchanged first-pass artifact. The build command
+   remains separate even when the full suite enters the harness-control branch.
+5. Judge semantic/source-retention independently from the harness. Every exact
+   W1-W5 value, default path, identity, asset, compressed output, omission, and
+   preserved generic case must pass. Where a retained fact owns a displayed
+   number, the summary must derive from that fact; duplicating `25` or `10` as
+   separate display literals is a semantic/source-retention failure even when
+   visible text matches. Dispatch a fresh blind reviewer with no inherited
+   conversation/session history and give it only one anonymized diff, the
+   immutable acceptance-test diff, and the frozen packet at
+   `C:\Users\mdy06\.codex\visualizations\2026\08\09\019fe6ab-6e74-7213-8dc4-947536edfd55\m1-r\artifacts\m1-r-review-packet.md`,
+   SHA-256 `FB4DB6411886E64153AD93594F75204EA011DA1408244CF16A511F62CE4D6426`;
+   it must find no P0/P1/P2 defect.
+6. A failed immutable equipment assertion, build/type error in owned production,
+   prohibited read/edit, source-retention defect, or P0/P1/P2 blind-review
+   finding fails that attempt. Do not correct or retry its artifact.
+7. If the complete gate instead fails only in a pre-existing test, immediately
+   use a dedicated control worktree at the protocol commit with neither the
+   acceptance patch nor any M1 production patch applied. After the same runtime-
+   cache reset, run the frozen baseline full-suite command. Harness-inconclusive
+   requires the exact Vitest test ID, identical configured `5s` or `10s`
+   boundary, and matching timeout failure signature. Still complete every
+   buildable semantic, source-retention, diff, and blind-review gate; any artifact
+   defect takes precedence and fails the attempt. A passing control or any other
+   complete-gate failure leaves the attempt failed.
+8. Run sequentially and stop at the first failure or harness-inconclusive result;
+   every started slot remains in the denominator and later slots are recorded as
+   not run. Three independent first-pass passes record repeatability only for the
+   exact M1 packet. Any failure ends M1-R `not repeatable`; any harness-
+   inconclusive result ends it `inconclusive`. Neither outcome authorizes a retry,
+   harness repair inside M1-R, or another model comparison. A later model
+   experiment requires separate user approval and a separately frozen protocol.
+   If the harness cannot establish no-inherited-history worker and reviewer
+   contexts, end M1-R `inconclusive` before crediting the affected attempt.
+9. M1-R's full-suite results are regression and harness evidence only. Record
+   product-UI confirmation as `not applicable - not credited`: Evelyn's reachable
+   selected/candidate descriptions, Result, accessibility, desktop/narrow browser
+   route, keyboard/focus behavior, and incomplete repair flow remain mandatory
+   only after atomic Evelyn U3/U4 integration.
+
+Record each started attempt separately below this section after its first-pass
+outcome is known. Do not average, replace, or hide a failed or inconclusive
+attempt. Even three passes do not count as C1-C4 evidence, authorize repository
+guidance changes, prove cost efficiency, or change the Initial Routing
+Hypotheses. A later approved product unit uses the already-existing routing
+hypothesis and supplies the first independent work-class evidence.
 
 ---
 
@@ -629,6 +743,10 @@ neither a workflow-efficiency claim nor a lower-model default.
   remains environment-dependent and is recorded as unavailable when absent.
 - No skill, permanent routing policy, or new product abstraction is warranted
   before the bounded pairs and repeated product observations succeed.
+- **M1-R diagnostic:** The user authorized the separate V3-R repetition after
+  harness calibration. It is non-gating and cannot change the selected M1
+  artifact, delay an approved version-2.8 product unit by dependency, count as
+  C1-C4 confirmation, or establish permanent repository guidance.
 
 ---
 
@@ -789,6 +907,42 @@ production/test/UI files and update this experiment record.
 - Exact resource totals being unavailable does not cancel M1's correctness-
   capability observation, but it supports no efficiency claim, routing default,
   or workflow promotion. The product vertical remains independently acceptable.
+
+- U4a. **Run the optional M1-R routing diagnostic repetition**
+
+**Status:** Authorized; frozen-input review in progress
+
+**Goal:** Determine whether the exact settled M1 packet is repeatable in up to
+three fresh Lean-V2/terra-low first-pass attempts after package-manager and
+timeout calibration, without changing M1 selection or product delivery.
+
+**Requirements:** R3a, R5-R6, R8a, R9-R10
+
+**Dependencies:** Completed M1-M selection, the V3-R protocol commit, and the
+hashed immutable acceptance, worker, and blind-review packets
+
+**Files:** Modify only the three frozen content files in isolated worktrees;
+update this plan's ledger/result after the diagnostic. External manifests,
+anonymized patches, and gate records remain outside the product repository.
+
+**Approach:**
+- Execute the V3-R protocol exactly as frozen in the M1-R section. Run
+  sequentially and stop at the first non-pass.
+- Preserve M1-M and the selected Lean-V2/sol production patch unchanged.
+- Treat three passes as exact-packet repeatability only. The first later approved
+  matching product unit still supplies independent routing evidence.
+
+**Test scenarios:**
+- Each started attempt receives the same input-only packet and immutable test,
+  with no prior result or artifact disclosure.
+- Separate semantic/source-retention, harness, build, diff, and blind-review
+  outcomes; product-UI confirmation is not applicable and not credited.
+
+**Verification:**
+- Three passes complete the diagnostic as `repeatable`. Any failure ends it
+  `not repeatable`; any matched control timeout ends it `inconclusive`. Remaining
+  slots are recorded as not run, and no result blocks Evelyn U3/U4 or U5 or
+  changes the pre-existing Initial Routing Hypotheses.
 
 - U5. **Run three conforming confirmation verticals**
 
