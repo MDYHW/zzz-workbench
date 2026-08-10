@@ -35,6 +35,17 @@ function formatValue(value: number, unit: string, decimals: number): string {
   return `${formatNumber(value, decimals)}${unit}`
 }
 
+function formatOperationValue(
+  value: number,
+  unit: string,
+  decimals: number,
+  presentation?: 'scale',
+): string {
+  return presentation === 'scale'
+    ? `\u00D7${formatNumber(value, decimals)}`
+    : `+${formatNumber(value, decimals)}${unit}`
+}
+
 function hasCurrentConsumer(metric: ResultMetric, actions: ActionModifier[]): boolean {
   const hasValue = allSurfaces.some(
     (surface) => Math.abs(metric.values[surface]) > 0.000_001,
@@ -231,15 +242,24 @@ function Gauge({
   const currentDecimals = gauge.decimals?.current ?? 1
   const thresholdDecimals = gauge.decimals?.threshold ?? 1
   const capDecimals = gauge.decimals?.cap ?? 0
-  const outputDecimals = gauge.decimals?.output ?? 1
+  const outputDecimals = gauge.decimals?.output ?? (gauge.presentation === 'scale' ? 2 : 1)
   const outputCapDecimals = gauge.decimals?.outputCap ?? 0
+  const outputValue = formatOperationValue(
+    gauge.outputValue,
+    gauge.outputUnit,
+    outputDecimals,
+    gauge.presentation,
+  )
+  const isActiveScale = gauge.presentation === 'scale'
+    && gauge.threshold !== undefined
+    && gauge.current >= gauge.threshold
   const thresholdDescription = gauge.threshold === undefined
     ? ''
-    : `, threshold ${formatNumber(gauge.threshold, thresholdDecimals)}`
+    : `, threshold ${formatNumber(gauge.threshold, thresholdDecimals)}${isActiveScale ? ', Active' : ''}`
   const outputCapDescription = gauge.outputCap === undefined
     ? ''
     : `, cap ${formatNumber(gauge.outputCap, outputCapDecimals)}${gauge.outputUnit}`
-  const description = `${gauge.basisLabel}: current ${formatNumber(gauge.current, currentDecimals)}, cap ${formatNumber(gauge.cap, capDecimals)}${thresholdDescription}; ${gauge.outputLabel}: +${formatNumber(gauge.outputValue, outputDecimals)}${gauge.outputUnit}${outputCapDescription}`
+  const description = `${gauge.basisLabel}: current ${formatNumber(gauge.current, currentDecimals)}, cap ${formatNumber(gauge.cap, capDecimals)}${thresholdDescription}; ${gauge.outputLabel}: ${outputValue}${outputCapDescription}`
   const tone = sourceTone(gauge.source, agentId)
 
   return (
@@ -258,17 +278,19 @@ function Gauge({
         <span>{gauge.basisLabel}</span>
         <strong>{formatNumber(gauge.current, currentDecimals)} / {formatNumber(gauge.cap, capDecimals)}</strong>
       </div>
-      {gauge.threshold !== undefined && (
+      {gauge.threshold !== undefined && !isActiveScale && (
         <small className="gauge__threshold-copy">Threshold {formatNumber(gauge.threshold, thresholdDecimals)}</small>
       )}
       <div className="gauge__track" aria-hidden="true">
-        <span className="gauge__fill" style={{ width: `${progress}%` }} />
-        {threshold !== undefined && <i className="gauge__threshold" style={{ left: `${threshold}%` }} />}
+        <span className="gauge__fill" style={{ width: `${isActiveScale ? 100 : progress}%` }}>
+          {isActiveScale ? 'Active' : null}
+        </span>
+        {threshold !== undefined && !isActiveScale && <i className="gauge__threshold" style={{ left: `${threshold}%` }} />}
       </div>
       <div className="gauge__output">
         <span>{gauge.outputLabel}</span>
         <strong>
-          +{formatNumber(gauge.outputValue, outputDecimals)}{gauge.outputUnit}
+          {outputValue}
           {gauge.outputCap === undefined ? '' : ` / ${formatNumber(gauge.outputCap, outputCapDecimals)}${gauge.outputUnit}`}
         </strong>
       </div>
@@ -420,8 +442,21 @@ function Operations({
       <ul className="action-source-list">
         {operations.map((operation) => {
           const tone = sourceTone(operation.source, agentId)
+          const value = formatOperationValue(
+            operation.value,
+            operation.unit,
+            operation.presentation === 'scale' ? 2 : 1,
+            operation.presentation,
+          )
+          const operationName = [
+            surfaceLabels[operation.surface],
+            `${operation.label} \u00B7 ${sourceLabel(operation.source, agentId)}`,
+            operation.source.detail,
+            value,
+          ].filter(Boolean).join(' ')
           return (
             <li
+              aria-label={operationName}
               className={toneClass(tone, activeSourceTone)}
               data-source-tone={tone}
               key={operation.id}
@@ -433,7 +468,7 @@ function Operations({
                 {operation.label} {'\u00B7'} {sourceLabel(operation.source, agentId)}
                 {operation.source.detail && <em>{operation.source.detail}</em>}
               </span>
-              <b>+{formatNumber(operation.value, 1)}{operation.unit}</b>
+              <b>{value}</b>
             </li>
           )
         })}

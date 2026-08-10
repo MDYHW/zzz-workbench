@@ -22,6 +22,7 @@ export interface GaugeResult {
   outputValue: number
   outputCap?: number
   outputUnit: string
+  presentation?: 'scale'
   decimals?: {
     current?: number
     threshold?: number
@@ -55,9 +56,10 @@ export interface ResultOperation {
   id: string
   label: string
   source: ResultSource
-  surface: 'fully'
+  surface: 'combat' | 'fully'
   value: number
   unit: string
+  presentation?: 'scale'
 }
 
 export interface AgentResult {

@@ -392,12 +392,29 @@ index, not a second rationale document.
 
 | ID | Purpose | Target / unit | Protocol | Checkpoint | Outcome |
 |---|---|---|---|---|---|
-| W1 | Current versus lean post-contract implementation pair | Existing Result scale presentation | V1 | User-authorized U2 documentation commit; hash pending | Not run |
+| W1 | Current versus lean post-contract implementation pair | Existing Result scale presentation | V1 | `8dcf7e039b79b0104cad8f0aeddcc622d0188e2d` | Both first-pass attempts failed; corrected reference result integrated, checkpoint commit pending |
 | M1 | Reference versus lower worker pair | Source-owned Evelyn equipment facts and summaries | V1 | Verified accepted-W1 integration commit; hash pending | Not run |
 | C1 | Approved version-2.8-or-earlier confirmation vertical | Pending product approval | Pending | Pending | Not run |
 | C2 | Approved version-2.8-or-earlier confirmation vertical | Pending product approval | Pending | Pending | Not run |
 | C3 | Approved version-2.8-or-earlier confirmation vertical | Pending product approval | Pending | Pending | Not run |
 | C4 | Single permitted replacement | Only after one failed confirmation | Pending | Pending | Not run |
+
+#### W1 V1 result
+
+| Field | Current / reference | Lean |
+|---|---|---|
+| Scope | Result operation/gauge scale presentation; the same three owned files; zero new common semantics beyond the approved typed presentation | Same |
+| Routing | `gpt-5.6-sol`, xhigh; current workflow | `gpt-5.6-sol`, xhigh; lean post-contract workflow |
+| Resource | 38 worker tool calls reported; exact tokens, active elapsed time, turns, and controller/reviewer split unavailable | Exact tokens, active elapsed time, turns, tool calls, and controller/reviewer split unavailable |
+| Artifacts | Production/test `+223/-8`; no requirements change | Production/test `+223/-8`; no requirements change |
+| Quality | Focused 4/4 and full 147/147 passed before review; blind P1 found scale-gauge default rounding `×1.25` to `×1.3` | Focused 3/3 passed after one scale-format correction; repeated worker full gates and the controller full gate timed out in existing App Setup tests; blind P1 found active gauges retained visible threshold-scale copy |
+| Browser | Not applicable before an admitted production scale consumer exists | Same |
+| Outcome | First-pass failed; reference route corrected the precision default, then focused 4/4, full 147/147, build, and diff check passed | First-pass failed; not integrated |
+
+No workflow-efficiency claim is supported: both first-pass attempts failed the
+frozen review gate, and exact comparable resource totals were unavailable. The
+corrected reference result completes the product unit but remains part of the
+failed W1 experiment row.
 
 ---
 
