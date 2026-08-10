@@ -463,7 +463,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
 
 export const DRIVE_DISC_FACTS = {
   yunkui: { hpPct: 10, critRate: 12, sheerDmg: 10 },
-  woodpecker: { critRate: 8, atkPctPerCategory: 9, atkPctAtMax: 27 },
+  woodpecker: { critRate: 8, atkPctAtMax: 27 },
   branchAndBlade: { critDmg: 16 },
   king: { daze: 6, squadCritDmg: { base: 15, atCritThreshold: 15 } },
   swingJazz: { energyRegenPct: 20 },
@@ -493,7 +493,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     image: woodpeckerImage,
     twoPieceEffect: `CRIT Rate +${DRIVE_DISC_FACTS.woodpecker.critRate}%`,
     fourPieceEffects: [
-      `Basic, Dodge Counter & EX Special CRIT \u00B7 ATK +${DRIVE_DISC_FACTS.woodpecker.atkPctPerCategory}% each \u00B7 max +${DRIVE_DISC_FACTS.woodpecker.atkPctAtMax}%`,
+      `ATK +${DRIVE_DISC_FACTS.woodpecker.atkPctAtMax}%`,
     ],
   },
   branchAndBlade: {
@@ -532,8 +532,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     id: 'dawnsBloom', name: "Dawn's Bloom", image: dawnsBloomImage,
     twoPieceEffect: `Basic Attack DMG +${DRIVE_DISC_FACTS.dawnsBloom.basicDmg.initial}%`,
     fourPieceEffects: [
-      `Basic Attack DMG +${DRIVE_DISC_FACTS.dawnsBloom.basicDmg.combat}%`,
-      `EX Special or Ultimate \u00B7 Basic Attack DMG +${DRIVE_DISC_FACTS.dawnsBloom.basicDmg.fully}%`,
+      `Basic Attack DMG +${DRIVE_DISC_FACTS.dawnsBloom.basicDmg.combat + DRIVE_DISC_FACTS.dawnsBloom.basicDmg.fully}%`,
     ],
   },
   pufferElectro: {

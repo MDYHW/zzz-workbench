@@ -40,6 +40,12 @@ do not become product authorities.
   registries, or shared abstractions without a current consumer.
 - Among representations that preserve every current materially valuable
   distinction, use the least complex one.
+- For W-Engine and Drive Disc work, verify retained authoring/calculation facts,
+  the compressed Setup summary, and consumer-specific Result projection as
+  separate artifacts. Do not copy source-fact prose into Setup. Before changing
+  layout or typography, recheck the Setup copy against the semantic compression
+  rules and cover both selected and candidate equipment surfaces in behavior
+  tests, including their accessible descriptions.
 - Before implementation, explain the proposed user experience and identify
   any genuine product decision that cannot be derived from the authorities.
 - Preserve incomplete-selection behavior: Result remains empty until every

@@ -128,15 +128,22 @@ W-Engine's competitive passive package so unused clauses remain visible as
 whole-package opportunity cost. Result still projects only effects consumed by
 the current Agent and setup.
 
-Compress simultaneously reachable clauses with the same metric, recipient,
-and effect scope into their total value. Omit calculation surfaces, stack or
-maintenance steps, routine trigger actions, durations, and cooldowns from the
-Setup summary. Preserve the recipient and affected action, Attribute, or
-outcome scope when they define what the effect changes. A trigger action is not
-an affected-action scope. Preserve an external target-state threshold when it
-materially changes the package's available magnitude: for example, Precious
+W-Engine and Drive Disc Setup summaries use one common semantic compression
+rule. Compress simultaneously reachable clauses with the same metric,
+recipient, and effect scope into their total value. Omit calculation surfaces,
+stack or maintenance steps, routine trigger actions, durations, and cooldowns
+from the Setup summary. Preserve the recipient and affected action, Attribute,
+or outcome scope when they define what the effect changes. A trigger action is
+not an affected-action scope. Preserve an external target-state threshold when
+it materially changes the package's available magnitude: for example, Precious
 Fossilized Core shows its cumulative Daze outcomes at the target-HP thresholds
 instead of presenting its maximum as continuously available.
+
+When an equipment summary does not fit the admitted Setup geometry, recheck
+semantic compression before changing layout or type. Do not use item-specific
+smaller text to accommodate source trigger, stack-acquisition, maintenance,
+duration, or cooldown prose. Typography changes require a shared visual need
+that remains after the equipment package is correctly compressed.
 
 The Result table uses the width required for its exact aggregates and
 disclosure. It does not consume surplus width merely because it is available,
@@ -366,6 +373,11 @@ does initialize that Agent's complete prepared setup.
 Setup Inputs present only the compressed final effects
 needed to compare the current Disc choice.
 
+Apply the common W-Engine and Drive Disc semantic compression rule before
+assigning Disc effects to rows. A routine trigger or stack-acquisition step does
+not create another effect row; rows represent only materially distinct retained
+effect scopes.
+
 - The adjacent 4-piece and 2-piece fields divide their available row equally
   until the existing responsive breakpoint stacks them.
 - A 4-piece field gives each distinct compressed 4-piece effect its own row,
@@ -517,6 +529,11 @@ Disc identity even when another candidate has the same 2-piece effect. The
 current 4-piece identity is absent from the visible 2-piece alternatives because
 its 2-piece effect is already active; a legal role exchange is presented from
 the 4-piece selector instead.
+
+Selected and candidate W-Engine and Drive Disc controls expose the same
+compressed package as an accessible description. The accessible name identifies
+the equipment and selection action; it does not replace or suppress the effect
+description needed to compare candidates.
 
 Candidate panels must not use one fixed size for text-only main stats and image-
 led equipment. Each selector uses the smallest readable candidate footprint for

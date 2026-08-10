@@ -91,6 +91,76 @@ describe('AgentSetup Seed Additional Ability', () => {
   })
 })
 
+describe('AgentSetup compressed Disc effects', () => {
+  it('shows final Dawn and Woodpecker values without routine trigger or stack steps', async () => {
+    const user = userEvent.setup()
+    const state = createPreparedState({}, ['seed', 'dialyn', 'lucia'], 0)
+    state.slots[0] = {
+      ...state.slots[0],
+      setup: { ...state.slots[0].setup, twoPieceId: 'branchAndBlade' },
+    }
+
+    render(
+      <AgentSetup
+        activeSourceTone={null}
+        agentId="seed"
+        discCandidates={DISC_IDS_BY_AGENT_AND_PIECE.seed}
+        dispatch={vi.fn()}
+        mainStatCandidates={MAIN_STAT_IDS_BY_AGENT_AND_SLOT.seed}
+        onSourceToneChange={vi.fn()}
+        setup={state.slots[0].setup}
+        slot={0}
+      />,
+    )
+
+    const dawn = screen.getByRole('button', {
+      name: "Change 4-piece Drive Disc from Dawn's Bloom",
+    })
+    const dawnEffects = dawn.querySelector('.disc-effect-rows')
+    expect(dawnEffects?.querySelectorAll(':scope > span')).toHaveLength(2)
+    expect(within(dawn).getByText('Basic Attack DMG +40%')).toBeInTheDocument()
+    expect(within(dawn).getByText('Basic Attack DMG +15%')).toBeInTheDocument()
+    expect(within(dawn).queryByText(/EX Special or Ultimate/)).not.toBeInTheDocument()
+
+    await user.click(dawn)
+    const woodpecker = within(screen.getByLabelText('fourPiece Drive Disc candidates'))
+      .getByRole('button', { name: 'Select Woodpecker Electro as fourPiece' })
+    const woodpeckerEffects = woodpecker.querySelector('.disc-effect-rows')
+    expect(woodpeckerEffects?.querySelectorAll(':scope > span')).toHaveLength(2)
+    expect(within(woodpecker).getByText('ATK +27%')).toBeInTheDocument()
+    expect(within(woodpecker).getByText('CRIT Rate +8%')).toBeInTheDocument()
+    expect(within(woodpecker).queryByText(/Basic, Dodge Counter|each|max/))
+      .not.toBeInTheDocument()
+  })
+
+  it('keeps affected-action scope when it changes the Disc effect', async () => {
+    const user = userEvent.setup()
+    const state = createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
+
+    render(
+      <AgentSetup
+        activeSourceTone={null}
+        agentId="trigger"
+        discCandidates={DISC_IDS_BY_AGENT_AND_PIECE.trigger}
+        dispatch={vi.fn()}
+        mainStatCandidates={MAIN_STAT_IDS_BY_AGENT_AND_SLOT.trigger}
+        onSourceToneChange={vi.fn()}
+        setup={state.slots[1].setup}
+        slot={1}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from King of the Summit',
+    }))
+    const shockstar = within(screen.getByLabelText('fourPiece Drive Disc candidates'))
+      .getByRole('button', { name: 'Select Shockstar Disco as fourPiece' })
+    expect(within(shockstar).getByText(
+      'Basic Attack, Dash Attack & Dodge Counter Daze +20%',
+    )).toBeInTheDocument()
+  })
+})
+
 function DialynDiscHarness() {
   const [state, dispatch] = useReducer(workbenchReducer, undefined, createPreparedState)
   return (

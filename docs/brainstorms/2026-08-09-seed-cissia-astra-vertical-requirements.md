@@ -214,6 +214,12 @@ The prose requirements govern if this diagram and the text ever differ.
   | Dawn's Bloom 4-piece | Combat Basic Attack DMG +20%; after an Attack Agent uses an EX Special Attack or Ultimate, Fully Enabled Basic Attack DMG gains another +20%. A 4-piece holder also owns the 2-piece effect, so its current Basic action totals are +15% Initial, +35% Combat, and +55% Fully Enabled. |
   | Woodpecker Electro 4-piece | A CRIT from each distinct category of Basic Attack, Dodge Counter, and EX Special Attack grants ATK +9%; Fully Enabled reaches the three-category +27% ATK maximum. |
   | Puffer Electro 2-piece | Initial PEN Ratio +8%. Puffer Electro 4-piece is not retained because no approved current candidate role consumes it. |
+
+  These are retained authoring and calculation facts, not verbatim Setup copy.
+  Setup applies the common equipment compression rule: Dawn's Bloom 4-piece
+  shows `Basic Attack DMG +40%`, Woodpecker Electro 4-piece shows `ATK +27%`,
+  and their 2-piece rows show `Basic Attack DMG +15%` and `CRIT Rate +8%`.
+  Routine trigger and category-acquisition steps are absent from the summary.
 - R12. Entering combat with a Vanguard immediately establishes Seed's Core at
   Combat: Seed and the current Vanguard receive their respective +1,000 ATK and
   +30% CRIT DMG statuses and both receive +25% DMG while both statuses are
@@ -407,6 +413,10 @@ The prose requirements govern if this diagram and the text ever differ.
   Seeker, and Besiege, while Astra omits the region.
 - AE6. **Covers R11a-R11b, R15-R16b.** Given Cissia's full representative, the
   Initial Energy Regen gauge reads 3.744 and reaches the 25% DEF Ignore cap.
+  In selected and candidate Setup cards, Dawn's Bloom 4-piece is summarized as
+  `Basic Attack DMG +40%` and Woodpecker Electro 4-piece as `ATK +27%`; their
+  corresponding 2-piece rows remain `Basic Attack DMG +15%` and `CRIT Rate
+  +8%`, and routine trigger or category-acquisition prose is absent.
   Serpentine Seeker contributes Combat CRIT Rate +25% and its entry-established
   28% Electric DEF Ignore; W5 changes those sources to 40% and 42%. Switching
   only Cissia to the non-limited Drill Rig W5 representative reads 3.588 and
