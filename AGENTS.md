@@ -51,6 +51,11 @@ do not become product authorities.
 - In Codex desktop, use the available in-app Browser for local visual and
   interaction verification. Do not invoke an `agent-browser`-only workflow or
   ask to install `agent-browser` unless the user explicitly requests it.
+- Organize tests around product mechanisms and observable flows, not one suite
+  per Agent or vertical. New content extends shared invariant coverage only
+  when it introduces a new behavior; do not duplicate retained source values
+  in tests merely to freeze content. Keep a small set of representative
+  cross-vertical user journeys for integration confidence.
 - Preserve incomplete-selection behavior: Result remains empty until every
   required setup selection is complete.
 - Prepared setup initialization is explicit product behavior, not a hidden

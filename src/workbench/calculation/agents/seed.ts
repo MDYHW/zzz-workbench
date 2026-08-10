@@ -10,6 +10,7 @@ import {
   STATIC_SOURCES,
   active,
   additive,
+  additiveMetricBundle,
   discSource,
   discStatInput,
   effectiveSubstatInput,
@@ -26,11 +27,12 @@ import {
   type SourceBoundCurrentClause,
 } from '../../effects'
 import {
-  composeActionEffects,
+  composeActionHierarchy,
   composeMetricEffects,
   contribution,
   percentageContribution,
   surfaces,
+  type ActionScopeNode,
 } from '../composition'
 import type { AgentResult } from '../result'
 
@@ -39,6 +41,29 @@ export interface SeedCalculationContext {
   setup: CompleteSetup
   initialAtk: number
 }
+
+const SEED_ACTION_SCOPES = [{
+  id: 'seedActions',
+  actions: [
+    'Basic Attack: Falling Petals - Slaughter',
+    'Basic Attack: Falling Petals - Downfall',
+    'Ultimate',
+  ],
+  children: [
+    {
+      id: 'seedBasicActions',
+      actions: [
+        'Basic Attack: Falling Petals - Slaughter',
+        'Basic Attack: Falling Petals - Downfall',
+      ],
+      children: [
+        { id: 'seedSlaughter', actions: ['Basic Attack: Falling Petals - Slaughter'] },
+        { id: 'seedDownfall', actions: ['Basic Attack: Falling Petals - Downfall'] },
+      ],
+    },
+    { id: 'seedUltimate', actions: ['Ultimate'] },
+  ],
+}] satisfies readonly ActionScopeNode[]
 
 function presentInputs(inputs: Array<ResolvedSetupInput | undefined>): ResolvedSetupInput[] {
   return inputs.filter((input): input is ResolvedSetupInput => input !== undefined)
@@ -99,11 +124,17 @@ export function resolveSeedProviderClauses(
     clause,
     { attributes: ['Electric'], formulas: ['general_damage'] },
   )
+  const coreStatus = hasVanguard
+    ? additiveMetricBundle(
+        VERTICAL_VALUES.seed.coreStatus,
+        'combat',
+        STATIC_SOURCES.seed.core,
+        'all-party',
+        coreRecipients,
+      )
+    : []
   return active([
-    additive('atk', 'combat', STATIC_SOURCES.seed.core, hasVanguard ? 1000 : 0,
-      'all-party', undefined, undefined, coreRecipients),
-    additive('critDmg', 'combat', STATIC_SOURCES.seed.core, hasVanguard ? 30 : 0,
-      'all-party', undefined, undefined, coreRecipients),
+    ...coreStatus,
     generalDamage(additive('dmgBonus', 'combat', STATIC_SOURCES.seed.core,
       hasVanguard ? 25 : 0, 'all-party', undefined, undefined, coreRecipients)),
     additive('dmgBonus', 'combat', STATIC_SOURCES.seed.additional,
@@ -226,70 +257,30 @@ export function calculateSeed(
   )
   const broadDefIgnore = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'defIgnore')
   const broadResIgnore = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'resIgnore')
-  const actionModifiers: AgentResult['actionModifiers'] = []
-  const allActionLabels = [
-    'Basic Attack: Falling Petals - Slaughter',
-    'Basic Attack: Falling Petals - Downfall',
-    'Ultimate',
+  const actionModifiers: AgentResult['actionModifiers'] = [
+    ...composeActionHierarchy(regular.values, effects, 'dmgBonus', SEED_ACTION_SCOPES),
+    ...composeActionHierarchy(
+      broadDefIgnore.values,
+      effects,
+      'defIgnore',
+      SEED_ACTION_SCOPES,
+      'DefIgnore',
+    ),
+    ...composeActionHierarchy(
+      broadResIgnore.values,
+      effects,
+      'resIgnore',
+      SEED_ACTION_SCOPES,
+      'ResIgnore',
+    ),
+    ...composeActionHierarchy(
+      critDmg.values,
+      effects,
+      'critDmg',
+      SEED_ACTION_SCOPES,
+      'CritDmg',
+    ),
   ]
-  const basicActionLabels = allActionLabels.slice(0, 2)
-  const actionLabel = {
-    seedSlaughter: allActionLabels[0],
-    seedDownfall: allActionLabels[1],
-    seedUltimate: allActionLabels[2],
-  } as const
-  const differs = (left: typeof regular.values, right: typeof regular.values) => (
-    left.initial !== right.initial
-    || left.combat !== right.combat
-    || left.fully !== right.fully
-  )
-  const buildActionHierarchy = (
-    metricId: EffectMetric,
-    parentValues: typeof regular.values,
-    suffix: string,
-  ) => {
-    const shared = composeActionEffects(parentValues, effects, metricId, 'seedActions')
-    const sharedId = `seedActions${suffix}`
-    const hasShared = differs(shared.values, parentValues)
-    if (hasShared) actionModifiers.push({
-      id: sharedId,
-      actions: allActionLabels,
-      metricId,
-      ...shared,
-    })
-
-    const basic = composeActionEffects(shared.values, effects, metricId, 'seedBasicActions')
-    const basicId = `seedBasicActions${suffix}`
-    const hasBasic = differs(basic.values, shared.values)
-    if (hasBasic) actionModifiers.push({
-      id: basicId,
-      actions: basicActionLabels,
-      metricId,
-      ...(hasShared ? { baseActionId: sharedId } : {}),
-      ...basic,
-    })
-
-    const scopes = [
-      ['seedSlaughter', basic.values, hasBasic ? basicId : hasShared ? sharedId : undefined],
-      ['seedDownfall', basic.values, hasBasic ? basicId : hasShared ? sharedId : undefined],
-      ['seedUltimate', shared.values, hasShared ? sharedId : undefined],
-    ] as const
-    for (const [scopeId, baseValues, baseActionId] of scopes) {
-      const scoped = composeActionEffects(baseValues, effects, metricId, scopeId)
-      if (!differs(scoped.values, baseValues)) continue
-      actionModifiers.push({
-        id: `${scopeId}${suffix}`,
-        actions: [actionLabel[scopeId]],
-        metricId,
-        ...(baseActionId ? { baseActionId } : {}),
-        ...scoped,
-      })
-    }
-  }
-  buildActionHierarchy('dmgBonus', regular.values, '')
-  buildActionHierarchy('defIgnore', broadDefIgnore.values, 'DefIgnore')
-  buildActionHierarchy('resIgnore', broadResIgnore.values, 'ResIgnore')
-  buildActionHierarchy('critDmg', critDmg.values, 'CritDmg')
 
   return {
     agentId: 'seed',

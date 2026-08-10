@@ -229,3 +229,51 @@ export function composeActionEffects(
     metric,
   )
 }
+
+export interface ActionScopeNode {
+  id: ActionEffectId
+  actions: readonly string[]
+  children?: readonly ActionScopeNode[]
+}
+
+function surfaceValuesDiffer(
+  left: Record<SurfaceKey, number>,
+  right: Record<SurfaceKey, number>,
+): boolean {
+  return surfaceOrder.some((surface) => left[surface] !== right[surface])
+}
+
+export function composeActionHierarchy(
+  baseValues: Record<SurfaceKey, number>,
+  effects: ResolvedCurrentEffect[],
+  metric: EffectMetric,
+  roots: readonly ActionScopeNode[],
+  idSuffix = '',
+): ActionModifier[] {
+  const rows: ActionModifier[] = []
+
+  const visit = (
+    node: ActionScopeNode,
+    parentValues: Record<SurfaceKey, number>,
+    nearestVisibleParentId?: string,
+  ) => {
+    const composed = composeActionEffects(parentValues, effects, metric, node.id)
+    const id = `${node.id}${idSuffix}`
+    const changed = surfaceValuesDiffer(composed.values, parentValues)
+    if (changed) rows.push({
+      id,
+      actions: [...node.actions],
+      metricId: metric,
+      ...(nearestVisibleParentId ? { baseActionId: nearestVisibleParentId } : {}),
+      ...composed,
+    })
+
+    const visibleParentId = changed ? id : nearestVisibleParentId
+    for (const child of node.children ?? []) {
+      visit(child, composed.values, visibleParentId)
+    }
+  }
+
+  for (const root of roots) visit(root, baseValues)
+  return rows
+}

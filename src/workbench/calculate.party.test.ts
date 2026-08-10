@@ -15,6 +15,24 @@ import {
 
 
 describe('calculateParty: party', () => {
+  it('projects cross-party clauses only through compatible current Result regions', () => {
+    const result = calculateParty(
+      createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0),
+    )!
+    const seed = agent(result, 'seed')
+    const cissia = agent(result, 'cissia')
+    const astra = agent(result, 'astraYao')
+
+    expect(metric(seed, 'atk').values.fully).toBeCloseTo(4650.6, 10)
+    expect(metric(cissia, 'atk').values.fully).toBeCloseTo(4332.1, 10)
+    expect(metric(seed, 'critDmg').values.fully).toBeCloseTo(178.8, 10)
+    expect(metric(cissia, 'critDmg').values.fully).toBe(160)
+    expect(metric(seed, 'dmgBonus').values.fully).toBe(137)
+    expect(metric(cissia, 'dmgBonus').values.fully).toBe(137)
+    expect(astra.metrics.map(({ id }) => id)).toEqual(['atk', 'energyRegen'])
+    expect(astra.actionModifiers).toEqual([])
+  })
+
   it('preserves the authored full-pool baseline and surface meanings', () => {
     const result = calculateParty(createPreparedState())!
     const yixuan = agent(result, 'yixuan')

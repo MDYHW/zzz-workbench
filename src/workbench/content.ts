@@ -791,7 +791,15 @@ export const VERTICAL_VALUES = {
   anbySoldier0: { hp: 7673, atk: 929, critRate: 19.4, critDmg: 50, impact: 93 },
   trigger: { hp: 7923, atk: 750, critRate: 5, critDmg: 50, impact: 131, baseEnergyRegen: 1.2 },
   astraYao: { hp: 8609, atk: 715, baseEnergyRegen: 1.56 },
-  seed: { atk: 929, critRate: 5, critDmg: 78.8 },
+  seed: {
+    atk: 929,
+    critRate: 5,
+    critDmg: 78.8,
+    coreStatus: {
+      atk: 1000,
+      critDmg: 30,
+    } satisfies Record<'atk' | 'critDmg', number>,
+  },
   cissia: { atk: 938, critRate: 5, critDmg: 50, baseEnergyRegen: 1.56 },
 } as const
 

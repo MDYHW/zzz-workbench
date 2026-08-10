@@ -1,14 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { calculateParty } from './calculate'
-import { W_ENGINE_FACTS, W_ENGINES } from './content'
 import {
-  additive,
-  clauseAppliesToAgent,
-  source,
-  withApplicability,
-} from './effects'
-import {
-  activeCandidatePressures,
   resolveProviderEffects,
   resolveSeedVanguard,
 } from './provider-effects'
@@ -17,10 +9,7 @@ import {
   action,
   agent,
   metric,
-  selectDisc,
-  selectEngine,
   selectMain,
-  setRefinement,
   withMindscape,
   withSetup,
 } from './calculate.test-support'
@@ -144,52 +133,6 @@ describe('Seed Vanguard resolution', () => {
   })
 })
 
-describe('shared clause applicability', () => {
-  it('routes by recipient Attribute and formula without a named-Agent matrix', () => {
-    const electricGeneral = withApplicability(
-      additive(
-        'dmgBonus',
-        'fully',
-        source('Synthetic electric general clause', 'astraYao', 'core'),
-        1,
-        'all-party',
-      ),
-      { attributes: ['Electric'], formulas: ['general_damage'] },
-    )
-
-    expect(clauseAppliesToAgent(electricGeneral, 'seed')).toBe(true)
-    expect(clauseAppliesToAgent(electricGeneral, 'cissia')).toBe(true)
-    expect(clauseAppliesToAgent(electricGeneral, 'anbySoldier0')).toBe(true)
-    expect(clauseAppliesToAgent(electricGeneral, 'trigger')).toBe(true)
-    expect(clauseAppliesToAgent(electricGeneral, 'dialyn')).toBe(false)
-    expect(clauseAppliesToAgent(electricGeneral, 'yixuan')).toBe(false)
-    expect(clauseAppliesToAgent(electricGeneral, 'astraYao')).toBe(false)
-
-    const etherSheer = withApplicability(electricGeneral, {
-      attributes: ['Ether'],
-      formulas: ['sheer_damage'],
-    })
-    expect(clauseAppliesToAgent(etherSheer, 'yixuan')).toBe(true)
-    expect(clauseAppliesToAgent(etherSheer, 'lucia')).toBe(false)
-  })
-
-  it('delivers existing Astra damage clauses to compatible new projectors only', () => {
-    const result = calculateParty(createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0))!
-    const seed = agent(result, 'seed')
-    const cissia = agent(result, 'cissia')
-    const astra = agent(result, 'astraYao')
-
-    expect(metric(seed, 'atk').values.fully).toBeCloseTo(4650.6, 10)
-    expect(metric(cissia, 'atk').values.fully).toBeCloseTo(4332.1, 10)
-    expect(metric(seed, 'critDmg').values.fully).toBeCloseTo(178.8, 10)
-    expect(metric(cissia, 'critDmg').values.fully).toBe(160)
-    expect(metric(seed, 'dmgBonus').values.fully).toBe(137)
-    expect(metric(cissia, 'dmgBonus').values.fully).toBe(137)
-    expect(astra.metrics.map(({ id }) => id)).toEqual(['atk', 'energyRegen'])
-    expect(astra.actionModifiers).toEqual([])
-  })
-})
-
 describe('Seed and Cissia local calculation boundary', () => {
   it('projects the authored M0 cores and additional abilities through the resolved Vanguard', () => {
     const result = calculateParty(createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0))!
@@ -197,15 +140,6 @@ describe('Seed and Cissia local calculation boundary', () => {
     const cissia = agent(result, 'cissia')
     const astra = agent(result, 'astraYao')
 
-    for (const recipient of [seed, cissia]) {
-      expect(metric(recipient, 'atk').breakdown.combat).toContainEqual(expect.objectContaining({
-        ownerAgentId: 'seed', label: 'Core Passive', amount: 1000,
-      }))
-      expect(metric(recipient, 'critDmg').breakdown.combat)
-        .toContainEqual(expect.objectContaining({
-          ownerAgentId: 'seed', label: 'Core Passive', amount: 30,
-        }))
-    }
     expect(metric(seed, 'atk').values.combat).toBeCloseTo(3450.6, 10)
     expect(metric(cissia, 'critDmg').values.combat).toBe(130)
     expect(metric(seed, 'dmgBonus').values.combat).toBe(55)
@@ -382,89 +316,6 @@ describe('Seed and Cissia local calculation boundary', () => {
     expect(metric(agent(result, 'yixuan'), 'resIgnore').values.combat).toBe(0)
   })
 
-  it('keeps exact W1-W5 Serpentine and Drill result vectors', () => {
-    const fullBase = createPreparedState({}, ['cissia', 'dialyn', 'yixuan'], 2)
-    const serpentine = ([1, 2, 3, 4, 5] as const).map((refinement) => {
-      const cissia = agent(calculateParty(setRefinement(fullBase, 'cissia', refinement))!, 'cissia')
-      return [metric(cissia, 'critRate').values.combat, metric(cissia, 'defIgnore').values.combat]
-    })
-    expect(serpentine).toEqual([
-      [54, 53], [57.8, 56.5], [61.5, 60], [65.3, 63.5], [69, 67],
-    ])
-
-    const drillBase = selectEngine(fullBase, 'cissia', 'drillRigRedAxis')
-    expect(([1, 2, 3, 4, 5] as const).map((refinement) => {
-      const cissia = agent(calculateParty(setRefinement(drillBase, 'cissia', refinement))!, 'cissia')
-      return action(cissia, 'cissiaBasicActions').values.fully
-    })).toEqual([175, 182.5, 190, 197.5, 205])
-  })
-
-  it('keeps Cordis Basic scope on both Cissia actions without inventing an Ultimate row', () => {
-    const base = createPreparedState({}, ['cissia', 'yixuan', 'astraYao'], 1)
-    const state = selectEngine(
-      base,
-      'cissia',
-      'cordisGermina',
-    )
-    const cissia = agent(calculateParty(state)!, 'cissia')
-    expect(action(cissia, 'cissiaBasicActions').breakdown.fully)
-      .toContainEqual(expect.objectContaining({ label: 'Cordis Germina', amount: 25 }))
-    expect(action(cissia, 'cissiaBasicActionsDefIgnore').values.fully)
-      .toBe(metric(cissia, 'defIgnore').values.fully + 20)
-    expect(cissia.actionModifiers.map(({ id }) => id).some((id) => /ultimate/i.test(id)))
-      .toBe(false)
-    for (const slot of [0, 1, 2] as const) {
-      expect(activeCandidatePressures(state, slot))
-        .toEqual(activeCandidatePressures(base, slot))
-    }
-  })
-
-  it('keeps Cissia Astral and Astra Moonlight distinct and de-duplicates equal Astral holders', () => {
-    const prepared = createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0)
-    const normal = metric(agent(calculateParty(prepared)!, 'seed'), 'dmgBonus')
-      .breakdown.fully
-    expect(normal).toContainEqual(expect.objectContaining({
-      label: 'Astral Voice', ownerAgentId: 'cissia', amount: 24,
-    }))
-    expect(normal).toContainEqual(expect.objectContaining({
-      label: 'Moonlight Lullaby', ownerAgentId: 'astraYao', amount: 18,
-    }))
-
-    const duplicateState = withSetup(prepared, 'astraYao', (setup) => ({
-      ...setup,
-      fourPieceId: 'astralVoice',
-      twoPieceId: 'hormonePunk',
-    }))
-    const duplicateRows = metric(agent(calculateParty(duplicateState)!, 'seed'), 'dmgBonus')
-      .breakdown.fully.filter(({ label }) => label === 'Astral Voice')
-    expect(duplicateRows).toHaveLength(2)
-    expect(duplicateRows.reduce((total, row) => total + row.amount, 0)).toBe(24)
-    expect(duplicateRows.map(({ ownerAgentId }) => ownerAgentId).sort())
-      .toEqual(['astraYao', 'cissia'])
-  })
-
-  it('normalizes applied traversal while retaining canonical Seed-then-Cissia source order', () => {
-    const forwardState = selectEngine(
-      createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0),
-      'seed',
-      'severedInnocence',
-    )
-    const permutedState = selectEngine(
-      createPreparedState({}, ['astraYao', 'seed', 'cissia'], 1),
-      'seed',
-      'severedInnocence',
-    )
-    const forward = calculateParty(forwardState)!
-    const permuted = calculateParty(permutedState)!
-    const normalized = (result: typeof forward) => [...result.agents]
-      .sort((left, right) => left.agentId.localeCompare(right.agentId))
-    expect(normalized(permuted)).toEqual(normalized(forward))
-
-    const fullyOwners = metric(agent(forward, 'seed'), 'critDmg').breakdown.fully
-      .map(({ ownerAgentId }) => ownerAgentId)
-    expect(fullyOwners).toEqual(['astraYao', 'seed', 'cissia'])
-  })
-
   it('projects exact local full-pool Initial values and equipment-scoped actions', () => {
     const result = calculateParty(createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0))!
     const seed = agent(result, 'seed')
@@ -501,108 +352,4 @@ describe('Seed and Cissia local calculation boundary', () => {
     expect(cissia.operations).toEqual([])
   })
 
-  it('uses exact non-linear W1-W5 vectors and keeps Base ATK internal', () => {
-    expect(W_ENGINE_FACTS.brimstone.atkPerStack).toEqual([3.5, 4.4, 5.2, 6, 7])
-    expect(W_ENGINE_FACTS.brimstone.atkAtMax).toEqual([28, 35.2, 41.6, 48, 56])
-    expect(W_ENGINE_FACTS.serpentineSeeker.critRate).toEqual([25, 28.8, 32.5, 36.3, 40])
-    expect(W_ENGINE_FACTS.serpentineSeeker.electricDefIgnore).toEqual([28, 31.5, 35, 38.5, 42])
-    expect(W_ENGINE_FACTS.drillRigRedAxis.basicDashElectricDmg).toEqual([50, 57.5, 65, 72.5, 80])
-
-    expect([1, 2, 3, 4, 5].map((refinement) => (
-      W_ENGINES.brimstone.passiveLines(refinement as 1 | 2 | 3 | 4 | 5)[0]
-    ))).toEqual([
-      'ATK +28%',
-      'ATK +35.2%',
-      'ATK +41.6%',
-      'ATK +48%',
-      'ATK +56%',
-    ])
-    expect(([1, 2, 3, 4, 5] as const).map((refinement) => (
-      W_ENGINES.serpentineSeeker.passiveLines(refinement)
-    ))).toEqual([
-      ['CRIT Rate +25%', 'Electric DMG \u00B7 DEF Ignore +28%'],
-      ['CRIT Rate +28.8%', 'Electric DMG \u00B7 DEF Ignore +31.5%'],
-      ['CRIT Rate +32.5%', 'Electric DMG \u00B7 DEF Ignore +35%'],
-      ['CRIT Rate +36.3%', 'Electric DMG \u00B7 DEF Ignore +38.5%'],
-      ['CRIT Rate +40%', 'Electric DMG \u00B7 DEF Ignore +42%'],
-    ])
-    expect(([1, 2, 3, 4, 5] as const).map((refinement) => (
-      W_ENGINES.drillRigRedAxis.passiveLines(refinement)
-    ))).toEqual([
-      ['Basic & Dash Attack Electric DMG +50%'],
-      ['Basic & Dash Attack Electric DMG +57.5%'],
-      ['Basic & Dash Attack Electric DMG +65%'],
-      ['Basic & Dash Attack Electric DMG +72.5%'],
-      ['Basic & Dash Attack Electric DMG +80%'],
-    ])
-
-    let state = createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0)
-    state = selectEngine(state, 'seed', 'brimstone')
-    state = setRefinement(state, 'seed', 5)
-    state = setRefinement(state, 'cissia', 5)
-    const result = calculateParty(state)!
-    const seedAtk = metric(agent(result, 'seed'), 'atk')
-    expect(seedAtk.values.initial).toBeCloseTo(2896.8, 10)
-    expect(seedAtk.values.fully).toBeCloseTo(6719.008, 10)
-    expect(seedAtk.breakdown.initial.map(({ label }) => label)).toEqual([
-      'The Brimstone',
-      'Drive Disc · Slot 6',
-    ])
-    expect(seedAtk.breakdown.initial.some(({ detail }) => detail?.includes('Base ATK'))).toBe(false)
-    expect(metric(agent(result, 'cissia'), 'critRate').values.combat).toBe(69)
-    expect(metric(agent(result, 'cissia'), 'defIgnore').values.combat).toBe(67)
-  })
-
-  it('projects Drill Rig locally through the grouped retained Cissia outcomes', () => {
-    const state = createPreparedState(
-      { seed: 'nonLimited', cissia: 'nonLimited' },
-      ['seed', 'cissia', 'astraYao'],
-      0,
-    )
-    const result = calculateParty(state)!
-    const cissia = agent(result, 'cissia')
-    expect(metric(cissia, 'energyRegen').values.initial).toBeCloseTo(3.588, 10)
-    expect(action(cissia, 'cissiaBasicActions')).toMatchObject({
-      actions: ['Corrode Bone', "Basic Attack: Serpent's Kiss"],
-      values: { initial: 30, combat: 55, fully: 217 },
-    })
-  })
-
-  it('retains only Seed Additional rows when the selected equipment creates no action difference', () => {
-    let state = createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0)
-    state = selectEngine(state, 'seed', 'brimstone')
-    state = selectDisc(state, 'seed', 'twoPiece', 'branchAndBlade')
-    state = selectDisc(state, 'seed', 'fourPiece', 'woodpecker')
-    const seed = agent(calculateParty(state)!, 'seed')
-    expect(metric(seed, 'critRate').values.initial).toBe(37)
-    expect(seed.actionModifiers.map(({ id }) => id)).toEqual([
-      'seedActions',
-      'seedActionsResIgnore',
-    ])
-  })
-
-  it('projects no-pressure Seed Woodpecker and Puffer choices through their exact Result rows', () => {
-    const base = createPreparedState({}, ['seed', 'yixuan', 'astraYao'], 0)
-    const woodpeckerState = selectDisc(
-      selectDisc(base, 'seed', 'twoPiece', 'branchAndBlade'),
-      'seed',
-      'fourPiece',
-      'woodpecker',
-    )
-    const woodpeckerAtk = metric(agent(calculateParty(woodpeckerState)!, 'seed'), 'atk')
-    expect(woodpeckerAtk.breakdown.fully).toContainEqual(expect.objectContaining({
-      label: 'Woodpecker Electro',
-      detail: '4-piece',
-      display: { value: 27, unit: '%', decimals: 0 },
-    }))
-
-    const pufferState = selectDisc(base, 'seed', 'twoPiece', 'pufferElectro')
-    const pufferPen = metric(agent(calculateParty(pufferState)!, 'seed'), 'penRatio')
-    expect(pufferPen.values).toEqual({ initial: 8, combat: 8, fully: 8 })
-    expect(pufferPen.breakdown.initial).toContainEqual(expect.objectContaining({
-      label: 'Puffer Electro',
-      detail: '2-piece',
-      amount: 8,
-    }))
-  })
 })

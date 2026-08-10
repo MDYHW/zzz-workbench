@@ -24,12 +24,13 @@ import {
   type SourceBoundCurrentClause,
 } from '../../effects'
 import {
-  composeActionEffects,
+  composeActionHierarchy,
   composeMetricEffects,
   contribution,
   energyRegenProjection,
   percentageContribution,
   surfaces,
+  type ActionScopeNode,
 } from '../composition'
 import type { AgentResult } from '../result'
 
@@ -39,6 +40,15 @@ export interface CissiaCalculationContext {
   initialAtk: number
   initialEnergyRegen: number
 }
+
+const CISSIA_ACTION_SCOPES = [{
+  id: 'cissiaBasicActions',
+  actions: ['Corrode Bone', "Basic Attack: Serpent's Kiss"],
+  children: [
+    { id: 'cissiaCorrode', actions: ['Corrode Bone'] },
+    { id: 'cissiaSerpent', actions: ["Basic Attack: Serpent's Kiss"] },
+  ],
+}] satisfies readonly ActionScopeNode[]
 
 function presentInputs(inputs: Array<ResolvedSetupInput | undefined>): ResolvedSetupInput[] {
   return inputs.filter((input): input is ResolvedSetupInput => input !== undefined)
@@ -232,48 +242,30 @@ export function calculateCissia(
   const broadDefIgnore = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'defIgnore')
   const broadResIgnore = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'resIgnore')
   const dazeBonus = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus')
-  const actionModifiers: AgentResult['actionModifiers'] = []
-  const basicActionLabels = ['Corrode Bone', "Basic Attack: Serpent's Kiss"]
-  const actionLabel = {
-    cissiaCorrode: basicActionLabels[0],
-    cissiaSerpent: basicActionLabels[1],
-  } as const
-  const differs = (left: typeof regular.values, right: typeof regular.values) => (
-    left.initial !== right.initial
-    || left.combat !== right.combat
-    || left.fully !== right.fully
-  )
-  const buildActionHierarchy = (
-    metricId: EffectMetric,
-    parentValues: typeof regular.values,
-    suffix: string,
-  ) => {
-    const shared = composeActionEffects(parentValues, effects, metricId, 'cissiaBasicActions')
-    const sharedId = `cissiaBasicActions${suffix}`
-    const hasShared = differs(shared.values, parentValues)
-    if (hasShared) actionModifiers.push({
-      id: sharedId,
-      actions: basicActionLabels,
-      metricId,
-      ...shared,
-    })
-
-    for (const scopeId of ['cissiaCorrode', 'cissiaSerpent'] as const) {
-      const scoped = composeActionEffects(shared.values, effects, metricId, scopeId)
-      if (!differs(scoped.values, shared.values)) continue
-      actionModifiers.push({
-        id: `${scopeId}${suffix}`,
-        actions: [actionLabel[scopeId]],
-        metricId,
-        ...(hasShared ? { baseActionId: sharedId } : {}),
-        ...scoped,
-      })
-    }
-  }
-  buildActionHierarchy('dmgBonus', regular.values, '')
-  buildActionHierarchy('defIgnore', broadDefIgnore.values, 'DefIgnore')
-  buildActionHierarchy('resIgnore', broadResIgnore.values, 'ResIgnore')
-  buildActionHierarchy('dazeBonus', dazeBonus.values, 'Daze')
+  const actionModifiers: AgentResult['actionModifiers'] = [
+    ...composeActionHierarchy(regular.values, effects, 'dmgBonus', CISSIA_ACTION_SCOPES),
+    ...composeActionHierarchy(
+      broadDefIgnore.values,
+      effects,
+      'defIgnore',
+      CISSIA_ACTION_SCOPES,
+      'DefIgnore',
+    ),
+    ...composeActionHierarchy(
+      broadResIgnore.values,
+      effects,
+      'resIgnore',
+      CISSIA_ACTION_SCOPES,
+      'ResIgnore',
+    ),
+    ...composeActionHierarchy(
+      dazeBonus.values,
+      effects,
+      'dazeBonus',
+      CISSIA_ACTION_SCOPES,
+      'Daze',
+    ),
+  ]
 
   return {
     agentId: 'cissia',

@@ -68,6 +68,12 @@ export interface ClauseApplicability {
   formulas?: readonly SetupFormulaFamily[]
 }
 
+export interface ClauseRecipientContext {
+  agentId?: AgentId
+  attribute: EffectAttribute
+  formulas: readonly SetupFormulaFamily[]
+}
+
 export interface ResolvedCurrentEffect {
   metric: EffectMetric
   earliestSurface: SurfaceKey
@@ -118,19 +124,30 @@ function baseAttributeFor(agentId: AgentId): EffectAttribute {
   throw new Error(`Unsupported Attribute for effect applicability: ${String(attribute)}`)
 }
 
+export function clauseAppliesToContext(
+  clause: SourceBoundCurrentClause,
+  context: ClauseRecipientContext,
+): boolean {
+  if (
+    clause.eligibleAgentIds
+    && (!context.agentId || !clause.eligibleAgentIds.includes(context.agentId))
+  ) return false
+  if (clause.attributes && !clause.attributes.includes(context.attribute)) return false
+  const formulas = clause.formulas
+  if (formulas && !context.formulas.some((formula) => formulas.includes(formula))) return false
+  return true
+}
+
 export function clauseAppliesToAgent(
   clause: SourceBoundCurrentClause,
   agentId: AgentId,
 ): boolean {
-  if (clause.eligibleAgentIds && !clause.eligibleAgentIds.includes(agentId)) return false
-  if (clause.attributes && !clause.attributes.includes(baseAttributeFor(agentId))) return false
-  const formulas = clause.formulas
-  if (formulas) {
-    const participation = SETUP_FORMULA_PARTICIPATION_BY_AGENT[agentId]
-    if (![...participation.primary, ...participation.residual]
-      .some((formula) => formulas.includes(formula))) return false
-  }
-  return true
+  const participation = SETUP_FORMULA_PARTICIPATION_BY_AGENT[agentId]
+  return clauseAppliesToContext(clause, {
+    agentId,
+    attribute: baseAttributeFor(agentId),
+    formulas: [...participation.primary, ...participation.residual],
+  })
 }
 
 export const source = (
@@ -357,6 +374,27 @@ export const active = (
 ): SourceBoundCurrentClause[] => clauses.filter(({ value }) => Math.abs(
   value.kind === 'additive' ? value.amount : value.percentage,
 ) > 0.000_001)
+
+export function additiveMetricBundle<TMetric extends EffectMetric>(
+  metrics: Readonly<Record<TMetric, number>>,
+  earliestSurface: SurfaceKey,
+  sourceValue: ResultSource,
+  recipient: Recipient,
+  eligibleAgentIds?: readonly AgentId[],
+): SourceBoundCurrentClause[] {
+  return active((Object.entries(metrics) as [TMetric, number][]).map(
+    ([metric, amount]) => additive(
+      metric,
+      earliestSurface,
+      sourceValue,
+      amount,
+      recipient,
+      undefined,
+      undefined,
+      eligibleAgentIds ? [...eligibleAgentIds] : undefined,
+    ),
+  ))
+}
 
 export const perSecond = (
   sourceValue: ResultSource,

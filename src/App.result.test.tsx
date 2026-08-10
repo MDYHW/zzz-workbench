@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { App } from './App'
 
 describe('integrated party workbench: result', () => {
-  it('renders Cissia Core precision and grouped Seed/Cissia action scopes', async () => {
+  it('renders Cissia Core precision without rounding its calculation basis', async () => {
     const user = userEvent.setup()
     render(<App />)
     const replace = async (slot: number, agent: RegExp) => {
@@ -18,32 +18,12 @@ describe('integrated party workbench: result', () => {
     await replace(3, /Astra Yao, Ether, Support/)
     await user.click(screen.getByRole('button', { name: 'Apply party' }))
 
-    const seedResult = screen.getByRole('region', { name: 'Seed Result' })
-    await user.click(within(seedResult).getByRole('button', { name: 'DMG Bonus' }))
-    const seedOutcomes = within(seedResult).getByRole('table', {
-      name: 'DMG Bonus action outcome values',
-    })
-    expect(within(seedOutcomes).getByRole('button', {
-      name: /Show sources for Basic Attack: Falling Petals - Slaughter, Basic Attack: Falling Petals - Downfall, Ultimate/,
-    })).toBeInTheDocument()
-    expect(within(seedOutcomes).getByRole('button', {
-      name: /Show sources for Basic Attack: Falling Petals - Slaughter, Basic Attack: Falling Petals - Downfall$/,
-    })).toBeInTheDocument()
-
     await user.click(screen.getByRole('tab', { name: 'View Cissia setup and Result' }))
 
     const cissiaResult = screen.getByRole('region', { name: 'Cissia Result' })
     await user.click(within(cissiaResult).getByRole('button', { name: 'Energy Regen' }))
     expect(within(cissiaResult).getByRole('group', {
       name: /Initial Energy Regen: current 3[.]744, cap 3[.]68, threshold 1[.]4; Electric DEF Ignore: [+]25[.]000%, cap 25%/,
-    })).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Non-limited' }))
-    await user.click(within(cissiaResult).getByRole('button', { name: 'DMG Bonus' }))
-    const cissiaOutcomes = within(cissiaResult).getByRole('table', {
-      name: 'DMG Bonus action outcome values',
-    })
-    expect(within(cissiaOutcomes).getByRole('button', {
-      name: /Show sources for Corrode Bone, Basic Attack: Serpent's Kiss/,
     })).toBeInTheDocument()
   })
 
