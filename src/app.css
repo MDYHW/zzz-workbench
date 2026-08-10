@@ -2725,7 +2725,9 @@ button.main-stat-block:focus-visible {
 }
 
 .setup-chassis .equipment-effects {
+  container-type: inline-size;
   gap: 4px;
+  font-family: "Bahnschrift Condensed", "Arial Narrow", sans-serif;
   font-size: 10px;
   line-height: 1.27;
 }
@@ -2812,6 +2814,10 @@ button.main-stat-block:focus-visible {
 
 .setup-chassis .selector-candidate--engine .equipment-effects {
   font-size: 9px;
+}
+
+.setup-chassis .selector-candidate--engine .equipment-effects > span {
+  font-size: clamp(9px, 5cqi, 12px);
 }
 
 .setup-chassis .disc-grid {
@@ -3181,6 +3187,10 @@ button.main-stat-block:focus-visible {
 
   .setup-chassis .selector-candidate--engine .equipment-effects {
     font-size: 12px;
+  }
+
+  .setup-chassis .selector-candidate--engine .equipment-effects > span {
+    font-size: clamp(12px, 5cqi, 17px);
   }
 
   .setup-chassis .disc-selection .selection-surface,
