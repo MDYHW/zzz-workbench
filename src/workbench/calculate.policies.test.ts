@@ -7,6 +7,7 @@ import {
   agent,
   metric,
   selectEngine,
+  selectDisc,
   selectMain,
   setSubstat,
   withMindscape,
@@ -309,6 +310,88 @@ describe('authored calculation policies', () => {
       expect(metric(m6, 'critDmg').values.combat - metric(m4, 'critDmg').values.combat)
         .toBe(50)
       expect(m6.operations).toEqual([])
+    })
+
+    it('keeps Seed M4 and Puffer as separate atoms on the existing Ultimate outcome', () => {
+      let state = createPreparedState({}, ['seed', 'dialyn', 'astraYao'], 0)
+      state = selectDisc(state, 'seed', 'fourPiece', 'pufferElectro')
+      const seed = agent(calculateParty(withMindscape(state, 'seed', 4))!, 'seed')
+      const ultimate = action(seed, 'seedUltimate')
+      const atoms = Object.values(ultimate.breakdown).flat()
+
+      expect(atoms).toContainEqual(expect.objectContaining({
+        label: 'Puffer Electro',
+        detail: '4-piece',
+        ownerAgentId: 'seed',
+        amount: 20,
+      }))
+      expect(atoms).toContainEqual(expect.objectContaining({
+        label: 'Mindscape',
+        detail: 'M4 · Ultimate',
+        ownerAgentId: 'seed',
+        amount: 20,
+      }))
+    })
+
+    it('keeps Cissia Cordis and Puffer clauses separate on Ultimate only', () => {
+      let state = createPreparedState({}, ['cissia', 'dialyn', 'yixuan'], 0)
+      state = selectEngine(state, 'cissia', 'cordisGermina')
+      state = selectDisc(state, 'cissia', 'fourPiece', 'pufferElectro')
+      const cissia = agent(calculateParty(state)!, 'cissia')
+      const ultimate = action(cissia, 'cissiaUltimate')
+      const ultimateDefIgnore = action(cissia, 'cissiaUltimateDefIgnore')
+      const atoms = Object.values(ultimate.breakdown).flat()
+
+      expect(ultimate).not.toHaveProperty('baseActionId')
+      expect(ultimate.values.fully).toBe(metric(cissia, 'dmgBonus').values.fully + 45)
+      expect(atoms).toContainEqual(expect.objectContaining({
+        label: 'Cordis Germina',
+        ownerAgentId: 'cissia',
+        amount: 25,
+      }))
+      expect(atoms).toContainEqual(expect.objectContaining({
+        label: 'Puffer Electro',
+        detail: '4-piece',
+          ownerAgentId: 'cissia',
+          amount: 20,
+        }))
+      expect(ultimateDefIgnore).not.toHaveProperty('baseActionId')
+      expect(ultimateDefIgnore.values.fully).toBe(metric(cissia, 'defIgnore').values.fully + 20)
+      expect(ultimateDefIgnore.breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Cordis Germina',
+          ownerAgentId: 'cissia',
+          amount: 20,
+        }))
+      expect(Object.values(metric(cissia, 'dmgBonus').breakdown).flat())
+        .not.toContainEqual(expect.objectContaining({ label: 'Cordis Germina' }))
+      expect(Object.values(metric(cissia, 'dmgBonus').breakdown).flat())
+        .not.toContainEqual(expect.objectContaining({ label: 'Puffer Electro' }))
+    })
+
+    it('keeps Anby Ultimate nested under Aftershock without widening Puffer scope', () => {
+      let state = createPreparedState({}, ['anbySoldier0', 'dialyn', 'astraYao'], 0)
+      state = selectDisc(state, 'anbySoldier0', 'fourPiece', 'pufferElectro')
+      const anby = agent(calculateParty(state)!, 'anbySoldier0')
+      const aftershock = action(anby, 'anbyAftershock')
+      const ultimate = action(anby, 'anbyUltimate')
+
+      expect(aftershock).toMatchObject({ tag: 'aftershock', actions: [] })
+      expect(ultimate).toMatchObject({
+        actions: ['Ultimate'],
+        metricId: 'dmgBonus',
+        baseActionId: 'anbyAftershock',
+      })
+      expect(Object.values(aftershock.breakdown).flat())
+        .not.toContainEqual(expect.objectContaining({ label: 'Puffer Electro' }))
+      expect(Object.values(action(anby, 'anbyDash').breakdown).flat())
+        .not.toContainEqual(expect.objectContaining({ label: 'Puffer Electro' }))
+      expect(ultimate.breakdown.initial).toContainEqual(expect.objectContaining({
+        label: 'Puffer Electro',
+        detail: '4-piece',
+        ownerAgentId: 'anbySoldier0',
+        amount: 20,
+      }))
     })
 
     it('resolves Cissia Core from Initial Energy Regen, caps, then applies M1', () => {

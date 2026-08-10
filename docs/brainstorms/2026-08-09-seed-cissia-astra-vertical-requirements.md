@@ -213,7 +213,7 @@ The prose requirements govern if this diagram and the text ever differ.
   | Dawn's Bloom 2-piece | Initial Basic Attack DMG +15%. |
   | Dawn's Bloom 4-piece | Combat Basic Attack DMG +20%; after an Attack Agent uses an EX Special Attack or Ultimate, Fully Enabled Basic Attack DMG gains another +20%. A 4-piece holder also owns the 2-piece effect, so its current Basic action totals are +15% Initial, +35% Combat, and +55% Fully Enabled. |
   | Woodpecker Electro 4-piece | A CRIT from each distinct category of Basic Attack, Dodge Counter, and EX Special Attack grants ATK +9%; Fully Enabled reaches the three-category +27% ATK maximum. |
-  | Puffer Electro 2-piece | Initial PEN Ratio +8%. Puffer Electro 4-piece is not retained because no approved current candidate role consumes it. |
+  | Puffer Electro 2-piece | Initial PEN Ratio +8%. This vertical does not retain Puffer Electro 4-piece; the separately approved Dialyn Ultimate-opportunity consumer is owned by the [bounded follow-up requirements](2026-08-10-dialyn-puffer-electro-contextual-candidate-requirements.md). |
 
   These are retained authoring and calculation facts, not verbatim Setup copy.
   Setup applies the common equipment compression rule: Dawn's Bloom 4-piece
@@ -500,8 +500,9 @@ The prose requirements govern if this diagram and the text ever differ.
 - No automatic Astral Voice admission for every Quick Assist recipient and no
   focused Seed Astral case; Seed retains a stronger personal operation-fitting
   4-piece.
-- No Puffer Electro 4-piece fact, effect, candidate, or Result source without a
-  separately approved current consumer.
+- No Puffer Electro 4-piece fact, effect, candidate, or Result source within
+  this vertical. The separately approved Dialyn Ultimate-opportunity consumer
+  is owned by the [bounded follow-up requirements](2026-08-10-dialyn-puffer-electro-contextual-candidate-requirements.md).
 - No universal tie-policy abstraction, new Vanguard UI, or slot-based behavior
   outside Seed's exact-Initial-ATK tie fallback. Applied party slot may resolve
   only that tie; provider traversal and calculation order remain irrelevant.

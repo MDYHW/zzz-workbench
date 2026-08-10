@@ -166,6 +166,57 @@ describe('AgentSetup compressed Disc effects', () => {
       'Basic Attack, Dash Attack & Dodge Counter Daze +20%',
     )).toBeInTheDocument()
   })
+
+  it('uses the common selected and candidate descriptions for the complete Puffer package', async () => {
+    const user = userEvent.setup()
+    const state = createPreparedState({}, ['seed', 'dialyn', 'astraYao'], 0)
+    const discCandidates = {
+      fourPiece: ['dawnsBloom', 'pufferElectro'],
+      twoPiece: DISC_IDS_BY_AGENT_AND_PIECE.seed.twoPiece,
+    } as const
+
+    const { rerender } = render(
+      <AgentSetup
+        activeSourceTone={null}
+        agentId="seed"
+        discCandidates={discCandidates}
+        dispatch={vi.fn()}
+        mainStatCandidates={MAIN_STAT_IDS_BY_AGENT_AND_SLOT.seed}
+        onSourceToneChange={vi.fn()}
+        setup={state.slots[0].setup}
+        slot={0}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', {
+      name: "Change 4-piece Drive Disc from Dawn's Bloom",
+    }))
+    const candidate = within(screen.getByLabelText('fourPiece Drive Disc candidates'))
+      .getByRole('button', { name: 'Select Puffer Electro as fourPiece' })
+    expect(candidate).toHaveAccessibleDescription(
+      'Ultimate DMG +20%. ATK +15%. PEN Ratio +8%',
+    )
+    expect(within(candidate).getByText('Ultimate DMG +20%')).toBeInTheDocument()
+    expect(within(candidate).getByText('ATK +15%')).toBeInTheDocument()
+    expect(within(candidate).getByText('PEN Ratio +8%')).toBeInTheDocument()
+    expect(within(candidate).queryByText(/Ultimate activation|12s/)).not.toBeInTheDocument()
+
+    rerender(
+      <AgentSetup
+        activeSourceTone={null}
+        agentId="seed"
+        discCandidates={discCandidates}
+        dispatch={vi.fn()}
+        mainStatCandidates={MAIN_STAT_IDS_BY_AGENT_AND_SLOT.seed}
+        onSourceToneChange={vi.fn()}
+        setup={{ ...state.slots[0].setup, fourPieceId: 'pufferElectro', twoPieceId: 'woodpecker' }}
+        slot={0}
+      />,
+    )
+    expect(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Puffer Electro',
+    })).toHaveAccessibleDescription('Ultimate DMG +20%. ATK +15%. PEN Ratio +8%')
+  })
 })
 
 function DialynDiscHarness() {

@@ -278,10 +278,14 @@ large modifier likewise does not establish exclusion without that authored
 policy. A direction whose damage family omits the DEF region never admits PEN
 Ratio from this rule. The current broad Spectral Gaze pressure removes Slot 5
 PEN Ratio for applicable Anby, Dialyn, and Trigger setups. A broad party
-Electric DEF Ignore can remove both Slot 5 PEN Ratio and Puffer Electro for an
-applicable Electric general-damage setup. Cordis Germina's Basic/Ultimate-only
-DEF Ignore does not remove either by itself. This is authored candidate policy,
-not a numerical threshold or action-share calculation inferred at runtime.
+Electric DEF Ignore can remove both Slot 5 PEN Ratio and a Puffer Electro
+2-piece candidate for an applicable Electric general-damage setup. It does not
+by itself remove a separately authored competitive Puffer Electro 4-piece case;
+that complete package is evaluated through its inherent 2-piece and 4-piece
+effects under the whole-package rule. Cordis Germina's Basic/Ultimate-only DEF
+Ignore does not remove either PEN Ratio input by itself. This is authored
+candidate policy, not a numerical threshold or action-share calculation
+inferred at runtime.
 
 For example, under the legal main-stat and substat pools owned by
 `docs/zzz-game-vocabulary.md`, a Stun direction can exhaust its direct Daze

@@ -19,6 +19,7 @@ import {
   mainStatInput,
   mindscapeSource,
   percentage,
+  pufferElectroFourPieceClauses,
   resolveDeliveredClauses,
   withApplicability,
   type CompleteSetup,
@@ -175,6 +176,7 @@ export function resolveSeedProviderClauses(
     additive('dmgBonus', 'fully', engine, cordisDmg, 'self', 'seedActions'),
     additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', 'seedActions', undefined, ['seed']),
     ...dawnClauses(setup),
+    ...pufferElectroFourPieceClauses('seed', setup, 'seedUltimate'),
   ])
 }
 
@@ -246,8 +248,16 @@ export function calculateSeed(
     'dmgBonus',
   )
   const mainPen = mainStatInput(setup, 'seed', 'slot5', 'penRatio')
-  const pufferPen = discStatInput(setup, 'seed', 'twoPiece', 'pufferElectro', DRIVE_DISC_FACTS.pufferElectro.penRatio)
-  const penInputs = presentInputs([mainPen, pufferPen])
+  const pufferTwoPiecePen = discStatInput(setup, 'seed', 'twoPiece', 'pufferElectro', DRIVE_DISC_FACTS.pufferElectro.penRatio)
+  const pufferFourPiecePen = discStatInput(
+    setup,
+    'seed',
+    'fourPiece',
+    'pufferElectro',
+    DRIVE_DISC_FACTS.pufferElectro.penRatio,
+    'twoPiece',
+  )
+  const penInputs = presentInputs([mainPen, pufferTwoPiecePen, pufferFourPiecePen])
   const initialPen = penInputs.reduce((total, input) => total + input.rawValue, 0)
   const penRatio = composeMetricEffects(
     surfaces(initialPen, initialPen, initialPen),

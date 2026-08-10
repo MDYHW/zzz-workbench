@@ -66,6 +66,45 @@ describe('integrated party workbench: setup', () => {
     expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Swing Jazz' })).toBeInTheDocument()
   })
 
+  it('lets Seed select Dialyn-contextual Puffer without changing the prepared remainder', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Seed, Electric, Attack/)
+    await replace(2, /Dialyn, Physical, Stun/)
+    await replace(3, /Astra Yao, Ether, Support/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Cordis Germina' }))
+      .toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Woodpecker Electro' }))
+      .toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', {
+      name: "Change 4-piece Drive Disc from Dawn's Bloom",
+    }))
+    const candidates = screen.getByLabelText('fourPiece Drive Disc candidates')
+    const puffer = within(candidates).getByRole('button', {
+      name: 'Select Puffer Electro as fourPiece',
+    })
+    expect(puffer).toHaveAccessibleDescription('Ultimate DMG +20%. ATK +15%. PEN Ratio +8%')
+
+    await user.click(puffer)
+
+    expect(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Puffer Electro',
+    })).toHaveAccessibleDescription('Ultimate DMG +20%. ATK +15%. PEN Ratio +8%')
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Cordis Germina' }))
+      .toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Woodpecker Electro' }))
+      .toBeInTheDocument()
+  })
+
   it('shows image-led prepared equipment without Base ATK or false single-candidate controls', () => {
     render(<App />)
 

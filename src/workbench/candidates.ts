@@ -6,7 +6,10 @@ import {
   type MainSlot,
   type MainStatId,
 } from './content'
-import { activeCandidatePressures } from './provider-effects'
+import {
+  activeCandidatePressures,
+  hasDialynUltimateOpportunity,
+} from './provider-effects'
 import { hasRepeatedQuickAssistOpportunity } from './preparation'
 import type { AppliedSlot, WorkbenchState } from './state'
 
@@ -40,10 +43,14 @@ export function effectiveFourPieceIds(
 ): DiscId[] {
   const agentId = state.slots[slot].agentId
   const base = DISC_IDS_BY_AGENT_AND_PIECE[agentId].fourPiece
-  return agentId === 'cissia'
-    && hasRepeatedQuickAssistOpportunity(state.slots.map(({ agentId: id }) => id))
-    ? [...base, 'astralVoice']
-    : base
+  const contextual = [
+    ...(agentId === 'cissia'
+      && hasRepeatedQuickAssistOpportunity(state.slots.map(({ agentId: id }) => id))
+      ? ['astralVoice' as const]
+      : []),
+    ...(hasDialynUltimateOpportunity(state, slot) ? ['pufferElectro' as const] : []),
+  ]
+  return contextual.length ? [...base, ...contextual] : base
 }
 
 export function effectiveTwoPieceIds(

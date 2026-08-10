@@ -289,3 +289,14 @@ export function activeCandidatePressures(
     ? ['materialBroadPrePenDefBypass']
     : []
 }
+
+export function hasDialynUltimateOpportunity(
+  state: WorkbenchState,
+  recipientSlot: AppliedSlot,
+): boolean {
+  const recipientAgentId = state.slots[recipientSlot].agentId
+  return recipientAgentId !== 'dialyn'
+    && SETUP_FORMULA_PARTICIPATION_BY_AGENT[recipientAgentId].primary
+      .includes('general_damage')
+    && state.slots.some(({ agentId }) => agentId === 'dialyn')
+}

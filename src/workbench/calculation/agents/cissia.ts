@@ -16,6 +16,7 @@ import {
   engineSource,
   mainStatInput,
   mindscapeSource,
+  pufferElectroFourPieceClauses,
   resolveDeliveredClauses,
   withApplicability,
   type CompleteSetup,
@@ -48,6 +49,9 @@ const CISSIA_ACTION_SCOPES = [{
     { id: 'cissiaCorrode', actions: ['Corrode Bone'] },
     { id: 'cissiaSerpent', actions: ["Basic Attack: Serpent's Kiss"] },
   ],
+}, {
+  id: 'cissiaUltimate',
+  actions: ['Ultimate'],
 }] satisfies readonly ActionScopeNode[]
 
 function presentInputs(inputs: Array<ResolvedSetupInput | undefined>): ResolvedSetupInput[] {
@@ -167,10 +171,13 @@ export function resolveCissiaProviderClauses(
       : 0, 'enemy-context', undefined, undefined, ['cissia']),
     additive('dmgBonus', 'fully', engine, drillDmg + cordisDmg, 'self', 'cissiaBasicActions'),
     additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', 'cissiaBasicActions', undefined, ['cissia']),
+    additive('dmgBonus', 'fully', engine, cordisDmg, 'self', 'cissiaUltimate'),
+    additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', 'cissiaUltimate', undefined, ['cissia']),
     critRecipients(additive('dmgBonus', 'fully', discSource('cissia', 'astralVoice', '4-piece'),
       setup.fourPieceId === 'astralVoice' ? DRIVE_DISC_FACTS.astralVoice.entrantDmg : 0,
       'all-party', undefined, undefined, undefined, 'astralVoiceEntrant')),
     ...dawnClauses(setup),
+    ...pufferElectroFourPieceClauses('cissia', setup, 'cissiaUltimate'),
   ])
 }
 
@@ -239,6 +246,20 @@ export function calculateCissia(
     effects,
     'dmgBonus',
   )
+  const pufferPen = discStatInput(
+    setup,
+    'cissia',
+    'fourPiece',
+    'pufferElectro',
+    DRIVE_DISC_FACTS.pufferElectro.penRatio,
+    'twoPiece',
+  )
+  const penRatio = composeMetricEffects(
+    surfaces(pufferPen?.rawValue ?? 0, pufferPen?.rawValue ?? 0, pufferPen?.rawValue ?? 0),
+    surfaces(pufferPen ? [contribution(pufferPen.source, pufferPen.rawValue)] : [], [], []),
+    effects,
+    'penRatio',
+  )
   const broadDefIgnore = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'defIgnore')
   const broadResIgnore = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'resIgnore')
   const dazeBonus = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus')
@@ -293,6 +314,7 @@ export function calculateCissia(
         },
       },
       { id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...regular },
+      ...(penRatio.values.fully ? [{ id: 'penRatio', label: 'PEN Ratio', unit: '%', decimals: 1, ...penRatio }] : []),
       { id: 'dazeBonus', label: 'Daze Bonus', unit: '%', decimals: 1, ...dazeBonus },
       ...optionalMetric('defIgnore', 'defIgnore', 'DEF Ignore', effects, 3),
       ...optionalMetric('defReduction', 'defReduction', 'DEF Reduction', effects),

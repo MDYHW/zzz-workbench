@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { calculateParty } from './calculate'
-import type { AgentId } from './content'
+import { VERTICAL_VALUES, W_ENGINES, type AgentId } from './content'
 import { createPreparedState, isCompleteWorkbench } from './state'
 import {
   action,
@@ -208,6 +208,88 @@ describe('calculateParty mechanisms', () => {
     expect(metric(agent(calculateParty(changed)!, 'trigger'), 'impact').breakdown.initial
       .filter(({ label, detail }) => label === 'Shockstar Disco' && detail === '2-piece'))
       .toHaveLength(1)
+  })
+
+  it.each([
+    {
+      agentId: 'anbySoldier0',
+      party: ['anbySoldier0', 'dialyn', 'astraYao'],
+      ultimateId: 'anbyUltimate',
+    },
+    {
+      agentId: 'seed',
+      party: ['seed', 'dialyn', 'astraYao'],
+      ultimateId: 'seedUltimate',
+    },
+    {
+      agentId: 'cissia',
+      party: ['cissia', 'dialyn', 'yixuan'],
+      ultimateId: 'cissiaUltimate',
+    },
+  ] as const)('projects the complete selected Puffer package for $agentId', ({
+    agentId,
+    party,
+    ultimateId,
+  }) => {
+    const prepared = createPreparedState({}, [...party], 0)
+    const baseline = agent(calculateParty(prepared)!, agentId)
+    const selected = agent(calculateParty(
+      selectDisc(prepared, agentId, 'fourPiece', 'pufferElectro'),
+    )!, agentId)
+    const pufferSource = {
+      label: 'Puffer Electro',
+      ownerAgentId: agentId,
+      locus: 'disc-4pc',
+    }
+
+    const pen = metric(selected, 'penRatio')
+    expect(pen.values).toEqual({ initial: 8, combat: 8, fully: 8 })
+    expect(pen.breakdown.initial.filter(({ label }) => label === 'Puffer Electro'))
+      .toEqual([expect.objectContaining({
+        ...pufferSource,
+        detail: '2-piece',
+        amount: 8,
+      })])
+
+    const atk = metric(selected, 'atk')
+    expect(atk.breakdown.initial).not.toContainEqual(expect.objectContaining(pufferSource))
+    expect(atk.breakdown.combat).not.toContainEqual(expect.objectContaining(pufferSource))
+    const pufferAtk = atk.breakdown.fully.filter(
+      ({ label }) => label === 'Puffer Electro',
+    )
+    expect(pufferAtk).toEqual([expect.objectContaining({
+        ...pufferSource,
+        detail: '4-piece',
+        display: { value: 15, unit: '%', decimals: 0 },
+      })])
+    const selectedSetup = prepared.slots.find(({ agentId: id }) => id === agentId)?.setup
+    if (!selectedSetup?.engineId) throw new Error(`Missing selected ${agentId} engine`)
+    expect(pufferAtk[0].amount).toBeCloseTo(
+      (VERTICAL_VALUES[agentId].atk + W_ENGINES[selectedSetup.engineId].baseAtk) * 0.15,
+      10,
+    )
+    expect(pufferAtk[0].amount).not.toBeCloseTo(atk.values.initial * 0.15, 10)
+
+    expect(metric(selected, 'dmgBonus').values)
+      .toEqual(metric(baseline, 'dmgBonus').values)
+    const ultimate = action(selected, ultimateId)
+    const parentValues = ultimate.baseActionId
+      ? action(selected, ultimate.baseActionId).values
+      : metric(selected, 'dmgBonus').values
+    for (const surface of ['initial', 'combat', 'fully'] as const) {
+      expect(ultimate.values[surface] - parentValues[surface]).toBe(20)
+    }
+    expect(ultimate.breakdown.initial).toContainEqual(expect.objectContaining({
+      ...pufferSource,
+      detail: '4-piece',
+      amount: 20,
+    }))
+    for (const modifier of selected.actionModifiers) {
+      if (modifier.id !== ultimateId) {
+        expect(Object.values(modifier.breakdown).flat())
+          .not.toContainEqual(expect.objectContaining(pufferSource))
+      }
+    }
   })
 
   it('omits fixed base values from source disclosure', () => {

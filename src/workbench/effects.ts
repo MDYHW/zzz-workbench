@@ -1,10 +1,12 @@
 import {
   ADMITTED_AGENTS,
+  DRIVE_DISC_FACTS,
   DRIVE_DISCS,
   MAIN_STATS,
   SETUP_FORMULA_PARTICIPATION_BY_AGENT,
   SOURCE_LABELS,
   SUBSTAT_CHOICES_BY_AGENT,
+  VERTICAL_VALUES,
   W_ENGINES,
   type AgentId,
   type DiscId,
@@ -54,11 +56,11 @@ export type EffectMetric =
 export type ActionEffectId =
   | 'coreActions' | 'exSpecialStunned' | 'mindscapeCloudShaper'
   | 'engineSheerActions' | 'mindscapeEtherResIgnore'
-  | 'anbyAftershock' | 'anbyBasicUltimate'
+  | 'anbyAftershock' | 'anbyBasicUltimate' | 'anbyUltimate'
   | 'anbyDash' | 'triggerBasic' | 'triggerQuickAssist'
   | 'seedActions' | 'seedBasicActions'
   | 'seedSlaughter' | 'seedDownfall' | 'seedUltimate'
-  | 'cissiaBasicActions' | 'cissiaCorrode' | 'cissiaSerpent'
+  | 'cissiaBasicActions' | 'cissiaCorrode' | 'cissiaSerpent' | 'cissiaUltimate'
 export type Recipient = 'self' | 'focus' | 'all-party' | 'other-party' | 'enemy-context'
 export type CandidatePressure = 'materialBroadPrePenDefBypass'
 export type EffectAttribute = 'Physical' | 'Fire' | 'Ice' | 'Electric' | 'Ether'
@@ -374,6 +376,35 @@ export const active = (
 ): SourceBoundCurrentClause[] => clauses.filter(({ value }) => Math.abs(
   value.kind === 'additive' ? value.amount : value.percentage,
 ) > 0.000_001)
+
+export function pufferElectroFourPieceClauses(
+  agentId: 'anbySoldier0' | 'seed' | 'cissia',
+  setup: CompleteSetup,
+  ultimateAction: 'anbyUltimate' | 'seedUltimate' | 'cissiaUltimate',
+): SourceBoundCurrentClause[] {
+  if (setup.fourPieceId !== 'pufferElectro') return []
+  const fourPiece = discSource(agentId, 'pufferElectro', '4-piece')
+  const baseAtk = VERTICAL_VALUES[agentId].atk + W_ENGINES[setup.engineId].baseAtk
+  return [
+    additive(
+      'atk',
+      'fully',
+      fourPiece,
+      baseAtk * DRIVE_DISC_FACTS.pufferElectro.atkPct / 100,
+      'self',
+      undefined,
+      { value: DRIVE_DISC_FACTS.pufferElectro.atkPct, unit: '%', decimals: 0 },
+    ),
+    additive(
+      'dmgBonus',
+      'initial',
+      fourPiece,
+      DRIVE_DISC_FACTS.pufferElectro.ultimateDmg,
+      'self',
+      ultimateAction,
+    ),
+  ]
+}
 
 export function additiveMetricBundle<TMetric extends EffectMetric>(
   metrics: Readonly<Record<TMetric, number>>,

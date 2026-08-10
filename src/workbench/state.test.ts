@@ -859,4 +859,107 @@ describe('workbench state lifecycle', () => {
     })
     expect(local.slots[1].setup.fourPieceId).toBe('dawnsBloom')
   })
+
+  it('adds Dialyn-contextual Puffer 4-piece only to primary general-damage recipients', () => {
+    const seedDialynAstra = createPreparedState({}, ['seed', 'dialyn', 'astraYao'], 0)
+    expect(effectiveFourPieceIds(seedDialynAstra, 0)).toEqual([
+      'dawnsBloom', 'woodpecker', 'pufferElectro',
+    ])
+    expect(effectiveFourPieceIds(seedDialynAstra, 1)).toEqual(['king'])
+    expect(seedDialynAstra.slots[0].setup.fourPieceId).toBe('dawnsBloom')
+
+    const seedCissiaDialyn = createPreparedState({}, ['seed', 'cissia', 'dialyn'], 0)
+    expect(effectiveFourPieceIds(seedCissiaDialyn, 0)).toContain('pufferElectro')
+    expect(effectiveFourPieceIds(seedCissiaDialyn, 1)).toContain('pufferElectro')
+    expect(effectiveFourPieceIds(seedCissiaDialyn, 2)).not.toContain('pufferElectro')
+    expect(effectiveTwoPieceIds(seedCissiaDialyn, 0)).not.toContain('pufferElectro')
+    expect(effectiveMainStatIds(seedCissiaDialyn, 0, 'slot5')).not.toContain('penRatio')
+    expect(effectiveMainStatIds(seedCissiaDialyn, 2, 'slot5')).toContain('penRatio')
+
+    const anbySeedDialynOrders: Array<{
+      agentIds: ['anbySoldier0', 'seed', 'dialyn'] | ['dialyn', 'seed', 'anbySoldier0']
+      focusSlot: 0 | 2
+    }> = [
+      { agentIds: ['anbySoldier0', 'seed', 'dialyn'], focusSlot: 0 },
+      { agentIds: ['dialyn', 'seed', 'anbySoldier0'], focusSlot: 2 },
+    ]
+    for (const { agentIds, focusSlot } of anbySeedDialynOrders) {
+      const state = createPreparedState({}, agentIds, focusSlot)
+      for (const [slot, { agentId }] of state.slots.entries()) {
+        const candidates = effectiveFourPieceIds(state, slot as 0 | 1 | 2)
+        if (agentId === 'dialyn') expect(candidates).not.toContain('pufferElectro')
+        else expect(candidates).toContain('pufferElectro')
+      }
+    }
+
+    const noRecipient = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
+    expect(noRecipient.slots
+      .flatMap((_, slot) => effectiveFourPieceIds(noRecipient, slot as 0 | 1 | 2)))
+      .not.toContain('pufferElectro')
+    const cissiaOnly = createPreparedState({}, ['yixuan', 'dialyn', 'cissia'], 0)
+    expect(effectiveFourPieceIds(cissiaOnly, 0)).not.toContain('pufferElectro')
+    expect(effectiveFourPieceIds(cissiaOnly, 2)).toContain('pufferElectro')
+
+    const incomplete = {
+      ...seedDialynAstra,
+      slots: [...seedDialynAstra.slots] as typeof seedDialynAstra.slots,
+    }
+    incomplete.slots[0] = {
+      ...incomplete.slots[0],
+      setup: { ...incomplete.slots[0].setup, mains: { ...incomplete.slots[0].setup.mains, slot5: null } },
+    }
+    expect(effectiveFourPieceIds(incomplete, 0)).toContain('pufferElectro')
+    expect(calculateParty(incomplete)).toBeNull()
+  })
+
+  it('keeps Puffer selection local through same-set recovery and target preparation', () => {
+    let state = createPreparedState({}, ['seed', 'dialyn', 'astraYao'], 0)
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'pufferElectro',
+    })
+    const blocked = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'pufferElectro',
+    })
+    expect(blocked).toBe(state)
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'woodpecker',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'pufferElectro',
+    })
+    expect(state.slots[0].setup).toMatchObject({
+      fourPieceId: 'pufferElectro', twoPieceId: 'woodpecker',
+    })
+
+    const selectedSeed = state.slots[0]
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 1 })
+    expect(state.slots[0]).toBe(selectedSeed)
+
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 1 })
+    expect(state.slots[0].setup.fourPieceId).toBe('dawnsBloom')
+    expect(state.slots[1].setup.mindscape).toBe(1)
+  })
+
+  it('preserves multiple direct Puffer selections through Dialyn preparation', () => {
+    let state = createPreparedState({}, ['seed', 'cissia', 'dialyn'], 0)
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'pufferElectro',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'pufferElectro',
+    })
+    const seed = state.slots[0]
+    const cissia = state.slots[1]
+
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 2, mindscape: 1 })
+    state = workbenchReducer(state, { type: 'switchPool', slot: 2, pool: 'nonLimited' })
+    expect(state.slots[0]).toBe(seed)
+    expect(state.slots[1]).toBe(cissia)
+
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 1 })
+    expect(state.slots[0]).toBe(seed)
+    expect(state.slots[1].setup.fourPieceId).toBe('dawnsBloom')
+    expect(state.slots[2].setup).toMatchObject({ mindscape: 1, pool: 'nonLimited' })
+  })
 })

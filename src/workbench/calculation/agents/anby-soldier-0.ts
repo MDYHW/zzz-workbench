@@ -1,5 +1,5 @@
 import { DRIVE_DISC_FACTS, VERTICAL_VALUES, W_ENGINE_FACTS, W_ENGINES, scaledEngineValue } from '../../content'
-import { STATIC_SOURCES, active, additive, discSource, discStatInput, effectiveSubstatInput, engineAdvancedInput, engineSource, mainStatInput, mindscapeSource, percentage, resolveDeliveredClauses, type CompleteSetup, type EffectMetric, type ResolvedSetupInput, type SourceBoundCurrentClause } from '../../effects'
+import { STATIC_SOURCES, active, additive, discSource, discStatInput, effectiveSubstatInput, engineAdvancedInput, engineSource, mainStatInput, mindscapeSource, percentage, pufferElectroFourPieceClauses, resolveDeliveredClauses, type CompleteSetup, type EffectMetric, type ResolvedSetupInput, type SourceBoundCurrentClause } from '../../effects'
 import { composeActionEffects, composeMetricEffects, contribution, percentageContribution, surfaces } from '../composition'
 import type { AgentResult } from '../result'
 
@@ -47,6 +47,7 @@ export function resolveAnbyProviderClauses(context: AnbyCalculationContext): Sou
     additive('dmgBonus', 'fully', engine, setup.engineId === 'cordisGermina' ? scaledEngineValue(W_ENGINE_FACTS.cordisGermina.electricDmgPerStack, refinement) * 2 : 0, 'self'),
     additive('defIgnore', 'fully', engine, setup.engineId === 'cordisGermina' ? scaledEngineValue(W_ENGINE_FACTS.cordisGermina.defIgnore, refinement) : 0, 'enemy-context', 'anbyBasicUltimate', undefined, ['anbySoldier0']),
     additive('resIgnore', 'fully', mindscapeSource('anbySoldier0', 4, 'Electric RES Ignore'), setup.mindscape >= 4 ? 12 : 0, 'enemy-context', undefined, undefined, ['anbySoldier0']),
+    ...pufferElectroFourPieceClauses('anbySoldier0', setup, 'anbyUltimate'),
   ])
 }
 
@@ -86,7 +87,18 @@ export function calculateAnby(context: AnbyCalculationContext, inbox: SourceBoun
   const critDmgInputs = presentInputs([engineAdvancedInput(setup, 'anbySoldier0', 'critDmg'), mainStatInput(setup, 'anbySoldier0', 'slot4', 'critDmg'), discStatInput(setup, 'anbySoldier0', 'twoPiece', 'branchAndBlade', DRIVE_DISC_FACTS.branchAndBlade.critDmg), effectiveSubstatInput(setup, 'anbySoldier0', 'critDmg')])
   const critDmg = composeMetricEffects(surfaces(values.critDmg + critDmgInputs.reduce((n, x) => n + x.rawValue, 0), values.critDmg + critDmgInputs.reduce((n, x) => n + x.rawValue, 0), values.critDmg + critDmgInputs.reduce((n, x) => n + x.rawValue, 0)), surfaces(critDmgInputs.map((x) => contribution(x.source, x.rawValue)), [], []), effects, 'critDmg')
   const electricDmgInput = mainStatInput(setup, 'anbySoldier0', 'slot5', 'electricDmg')
-  const penRatioInput = mainStatInput(setup, 'anbySoldier0', 'slot5', 'penRatio')
+  const penInputs = presentInputs([
+    mainStatInput(setup, 'anbySoldier0', 'slot5', 'penRatio'),
+    discStatInput(
+      setup,
+      'anbySoldier0',
+      'fourPiece',
+      'pufferElectro',
+      DRIVE_DISC_FACTS.pufferElectro.penRatio,
+      'twoPiece',
+    ),
+  ])
+  const initialPen = penInputs.reduce((total, input) => total + input.rawValue, 0)
   const regular = composeMetricEffects(
     surfaces(electricDmgInput?.rawValue ?? 0, electricDmgInput?.rawValue ?? 0, electricDmgInput?.rawValue ?? 0),
     surfaces(electricDmgInput ? [contribution(electricDmgInput.source, electricDmgInput.rawValue)] : [], [], []),
@@ -94,12 +106,13 @@ export function calculateAnby(context: AnbyCalculationContext, inbox: SourceBoun
     'dmgBonus',
   )
   const pen = composeMetricEffects(
-    surfaces(penRatioInput?.rawValue ?? 0, penRatioInput?.rawValue ?? 0, penRatioInput?.rawValue ?? 0),
-    surfaces(penRatioInput ? [contribution(penRatioInput.source, penRatioInput.rawValue)] : [], [], []),
+    surfaces(initialPen, initialPen, initialPen),
+    surfaces(penInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
     effects,
     'penRatio',
   )
   const action = composeActionEffects(regular.values, effects, 'dmgBonus', 'anbyAftershock')
+  const ultimate = composeActionEffects(action.values, effects, 'dmgBonus', 'anbyUltimate')
   const dash = composeActionEffects(regular.values, effects, 'dmgBonus', 'anbyDash')
   const aftershockCrit = composeActionEffects(critDmg.values, effects, 'critDmg', 'anbyAftershock')
   const actionModifiers: AgentResult['actionModifiers'] = [
@@ -107,6 +120,15 @@ export function calculateAnby(context: AnbyCalculationContext, inbox: SourceBoun
     { id: 'anbyDash', actions: ['Dash Attack'], metricId: 'dmgBonus', ...dash },
     { id: 'anbyAftershockCritDmg', actions: [], tag: 'aftershock', metricId: 'critDmg', ...aftershockCrit },
   ]
+  if (effects.some((effect) => effect.action === 'anbyUltimate' && effect.metric === 'dmgBonus')) {
+    actionModifiers.push({
+      id: 'anbyUltimate',
+      actions: ['Ultimate'],
+      metricId: 'dmgBonus',
+      baseActionId: 'anbyAftershock',
+      ...ultimate,
+    })
+  }
   if (effects.some((effect) => effect.action === 'anbyBasicUltimate' && effect.metric === 'defIgnore')) {
     actionModifiers.push({ id: 'anbyBasicUltimate', actions: ['Basic Attack', 'Ultimate'], metricId: 'defIgnore', ...composeActionEffects(surfaces(0, 0, 0), effects, 'defIgnore', 'anbyBasicUltimate') })
   }

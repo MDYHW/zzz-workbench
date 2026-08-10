@@ -176,6 +176,62 @@ describe('integrated party workbench: result', () => {
     expect(branchSource).toHaveClass('is-source-active')
   })
 
+  it('links selected Puffer to Anby’s Disc and nests only Ultimate under Aftershock', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Anby: Soldier 0, Electric, Attack/)
+    await replace(2, /Dialyn, Physical, Stun/)
+    await replace(3, /Astra Yao, Ether, Support/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Shadow Harmony',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Puffer Electro as fourPiece',
+    }))
+
+    const anbyResult = screen.getByRole('region', { name: 'Anby: Soldier 0 Result' })
+    await user.click(within(anbyResult).getByRole('button', { name: 'PEN Ratio' }))
+    const penSources = within(anbyResult).getByRole('table', {
+      name: 'PEN Ratio source contributions',
+    })
+    const pufferSource = within(penSources).getByRole('row', {
+      name: /Puffer Electro.*2-piece/,
+    })
+    const discTarget = document.querySelector<HTMLElement>(
+      '.disc-selection[data-source-tone="disc-4pc"]',
+    )!
+    await user.hover(pufferSource)
+    expect(discTarget).toHaveClass('is-source-active')
+    await user.unhover(pufferSource)
+
+    await user.click(within(anbyResult).getByRole('button', { name: 'DMG Bonus' }))
+    const outcomes = within(anbyResult).getByRole('table', {
+      name: 'DMG Bonus action outcome values',
+    })
+    const aftershock = within(outcomes).getByRole('button', { name: 'Show sources for Aftershock' })
+    const ultimate = within(outcomes).getByRole('button', { name: 'Show sources for Ultimate' })
+    expect(aftershock.closest('tr')).not.toHaveClass('action-outcome--variant')
+    expect(ultimate.closest('tr')).toHaveClass('action-outcome--variant')
+
+    await user.click(aftershock)
+    expect(within(outcomes).queryByRole('row', { name: /Puffer Electro/ })).not.toBeInTheDocument()
+    await user.click(ultimate)
+    expect(within(outcomes).getByRole('row', { name: /Puffer Electro.*[+]20[.]0%/ }))
+      .toHaveAttribute('data-source-tone', 'disc-4pc')
+    expect(within(anbyResult).queryByRole('region', { name: 'Agent operations' }))
+      .not.toBeInTheDocument()
+    expect(within(anbyResult).queryByText(/Positive Reviews|Ultimate opportunity/i))
+      .not.toBeInTheDocument()
+  })
+
   it('links local Mindscape sources and discloses the M4 action outcome', async () => {
     const user = userEvent.setup()
     render(<App />)

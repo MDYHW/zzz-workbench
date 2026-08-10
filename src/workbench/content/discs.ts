@@ -24,7 +24,7 @@ export const DRIVE_DISC_FACTS = {
   astralVoice: { atkPct: 10, entrantDmg: 24 },
   hormonePunk: { atkPct: 10 },
   dawnsBloom: { basicDmg: { initial: 15, combat: 20, fully: 20 } },
-  pufferElectro: { penRatio: 8 },
+  pufferElectro: { penRatio: 8, ultimateDmg: 20, atkPct: 15 },
 } as const
 
 export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
@@ -90,6 +90,10 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   pufferElectro: {
     id: 'pufferElectro', name: 'Puffer Electro', image: pufferElectroImage,
     twoPieceEffect: `PEN Ratio +${DRIVE_DISC_FACTS.pufferElectro.penRatio}%`,
+    fourPieceEffects: [
+      `Ultimate DMG +${DRIVE_DISC_FACTS.pufferElectro.ultimateDmg}%`,
+      `ATK +${DRIVE_DISC_FACTS.pufferElectro.atkPct}%`,
+    ],
   },
 }
 
