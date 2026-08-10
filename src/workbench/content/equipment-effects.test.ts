@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
   DRIVE_DISC_FACTS,
   DRIVE_DISCS,
@@ -7,9 +7,24 @@ import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
   equipmentEffectProgressionValue,
+  type DriveDiscEffectField,
+  type DriveDiscPiece,
+  type WEngineEffectField,
 } from '../content'
 
 describe('bounded equipment effect facts', () => {
+  it('exposes exact item-local W-Engine and Drive Disc field contracts', () => {
+    expectTypeOf<WEngineEffectField<'cordisGermina'>>()
+      .toEqualTypeOf<'critRate' | 'damage' | 'defIgnore'>()
+    expectTypeOf<WEngineEffectField<'brimstone'>>().toEqualTypeOf<'atk'>()
+
+    expectTypeOf<DriveDiscPiece<'dawnsBloom'>>()
+      .toEqualTypeOf<'twoPiece' | 'fourPiece'>()
+    expectTypeOf<DriveDiscEffectField<'dawnsBloom', 'fourPiece'>>()
+      .toEqualTypeOf<'damage'>()
+    expectTypeOf<DriveDiscPiece<'branchAndBlade'>>().toEqualTypeOf<'twoPiece'>()
+  })
+
   it('keeps W-Engine qualifiers separate from modifier and refinement magnitude', () => {
     const damage = W_ENGINE_FACTS.cordisGermina.effects.damage
     const defIgnore = W_ENGINE_FACTS.cordisGermina.effects.defIgnore

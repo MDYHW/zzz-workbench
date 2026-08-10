@@ -112,6 +112,17 @@ export const DRIVE_DISC_FACTS = {
   },
 } as const satisfies Record<DiscId, DriveDiscFacts>
 
+/** Exact authored piece and effect fields for one admitted Drive Disc. */
+export type DriveDiscFactContract<Id extends DiscId> = (typeof DRIVE_DISC_FACTS)[Id]
+export type DriveDiscPiece<Id extends DiscId> = Extract<
+  keyof DriveDiscFactContract<Id>,
+  'twoPiece' | 'fourPiece'
+>
+export type DriveDiscEffectField<
+  Id extends DiscId,
+  Piece extends DriveDiscPiece<Id>,
+> = keyof DriveDiscFactContract<Id>[Piece]
+
 export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   yunkui: {
     id: 'yunkui', name: 'Yunkui Tales', image: yunkuiImage,

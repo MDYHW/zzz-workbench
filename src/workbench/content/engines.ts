@@ -222,6 +222,10 @@ export const W_ENGINE_FACTS = {
   },
 } as const satisfies Record<EngineId, WEngineFacts>
 
+/** Exact authored fields for one admitted W-Engine, derived from the fact source. */
+export type WEngineFactContract<Id extends EngineId> = (typeof W_ENGINE_FACTS)[Id]
+export type WEngineEffectField<Id extends EngineId> = keyof WEngineFactContract<Id>['effects']
+
 export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   qingming: {
     id: 'qingming', name: 'Qingming Birdcage', rank: 'S', limited: true, baseAtk: 743,
