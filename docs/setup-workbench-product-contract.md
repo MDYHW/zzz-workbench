@@ -277,7 +277,12 @@ product decision before the qualifier is expanded. A broad or numerically
 large modifier likewise does not establish exclusion without that authored
 policy. A direction whose damage family omits the DEF region never admits PEN
 Ratio from this rule. The current broad Spectral Gaze pressure removes Slot 5
-PEN Ratio for applicable Anby, Dialyn, and Trigger setups. A broad party
+PEN Ratio for every applicable setup whose authored primary or residual
+direction participates in `general_damage`; Agent identity, Specialty, and
+Attribute are not additional predicates. Its enemy DEF Reduction reaches the
+same formula-applicable Result consumers rather than a separately named Agent
+set. A representative that would otherwise start with invalid PEN requires its
+own authored pressure-safe prepared choice rather than a runtime fallback. A broad party
 Electric DEF Ignore can remove both Slot 5 PEN Ratio and a Puffer Electro
 2-piece candidate for an applicable Electric general-damage setup. It does not
 by itself remove a separately authored competitive Puffer Electro 4-piece case;

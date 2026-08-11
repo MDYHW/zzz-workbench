@@ -255,6 +255,10 @@ contribution changes.
   one output line even when the current contribution value is identical.
 - A progressing threshold or cap shows the current basis value and applicable
   boundary on its gauge; it does not repeat the calculated numeric remainder.
+- A threshold-only relationship uses its threshold as the gauge's maximum
+  boundary even when the basis stat has a different display cap. Do not make
+  an unrelated stat cap look like additional progress after the output is
+  already complete.
 - When a threshold-only relationship reaches its boundary, keep the basis
   stat and current value, replace only the progress track and scale with one
   compact `Active` strip, and keep the current output below it. `Enhanced` is

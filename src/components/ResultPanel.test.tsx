@@ -207,7 +207,7 @@ describe('ResultPanel operation presentation', () => {
         basisLabel: 'Initial CRIT Rate',
         current,
         threshold: 80,
-        cap: 100,
+        cap: 80,
         outputLabel: 'Basic Attack DMG Multiplier',
         outputValue,
         outputUnit: '',
@@ -221,7 +221,7 @@ describe('ResultPanel operation presentation', () => {
 
     await user.click(screen.getByRole('button', { name: 'CRIT Rate' }))
     const activeGauge = screen.getByRole('group', {
-      name: 'Initial CRIT Rate: current 80.0, cap 100, threshold 80.0, Active; Basic Attack DMG Multiplier: ×1.25',
+      name: 'Initial CRIT Rate: current 80.0, cap 80, threshold 80.0, Active; Basic Attack DMG Multiplier: ×1.25',
     })
     expect(within(activeGauge).getByText('Active')).toBeInTheDocument()
     expect(within(activeGauge).getByText('×1.25')).toBeInTheDocument()
@@ -235,7 +235,7 @@ describe('ResultPanel operation presentation', () => {
       />,
     )
     const inactiveGauge = screen.getByRole('group', {
-      name: 'Initial CRIT Rate: current 79.0, cap 100, threshold 80.0; Basic Attack DMG Multiplier: ×1.00',
+      name: 'Initial CRIT Rate: current 79.0, cap 80, threshold 80.0; Basic Attack DMG Multiplier: ×1.00',
     })
     expect(within(inactiveGauge).getByText('Threshold 80.0')).toBeInTheDocument()
     expect(within(inactiveGauge).getByText('×1.00')).toBeInTheDocument()

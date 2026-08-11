@@ -191,6 +191,31 @@ describe('calculateParty mechanisms', () => {
       .toEqual([undefined, 'equal-nonstack-origin'])
   })
 
+  it('routes broad enemy DEF pressure by formula participation instead of Agent identity', () => {
+    const generalDamage = agent(calculateParty(createPreparedState(
+      {},
+      ['evelyn', 'trigger', 'astraYao'],
+      0,
+    ))!, 'evelyn')
+    expect(metric(generalDamage, 'defReduction')).toMatchObject({
+      values: { initial: 0, combat: 0, fully: 25 },
+    })
+    expect(metric(generalDamage, 'defReduction').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Spectral Gaze',
+        ownerAgentId: 'trigger',
+        amount: 25,
+      }))
+
+    const sheerState = selectEngine(createPreparedState(
+      {},
+      ['yixuan', 'trigger', 'astraYao'],
+      0,
+    ), 'trigger', 'spectralGaze')
+    const sheer = agent(calculateParty(sheerState)!, 'yixuan')
+    expect(sheer.metrics.find(({ id }) => id === 'defReduction')).toBeUndefined()
+  })
+
   it('projects a selected four-piece set own two-piece effect exactly once', () => {
     const baseline = agent(calculateParty(
       createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0),
@@ -314,7 +339,7 @@ describe('calculateParty mechanisms', () => {
     expect(metric(result, 'atk').values.initial).toBeCloseTo(2614.8, 10)
     expect(critRate.values).toEqual({ initial: 67.4, combat: 92.4, fully: 92.4 })
     expect(critRate.gauge).toMatchObject({
-      basisLabel: 'Combat CRIT Rate', current: 92.4, threshold: 80,
+      basisLabel: 'Combat CRIT Rate', current: 92.4, threshold: 80, cap: 80,
       outputValue: 1.25, presentation: 'scale',
     })
     expect(result.operations).toEqual([expect.objectContaining({

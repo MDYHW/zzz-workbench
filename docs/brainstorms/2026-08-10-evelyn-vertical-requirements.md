@@ -152,14 +152,17 @@ The prose requirements govern if this diagram and the text ever differ.
   future combat recipient, or automatically changes Astra's current holder.
   Direct selection remains Evelyn-local and existing non-stacking Result rules
   resolve duplicate Astral holders.
-- R9. Seed M2's broad Besiege DEF Ignore removes Evelyn's Slot 5 PEN Ratio and
-  standalone Puffer Electro 2-piece only when Evelyn is the current Vanguard.
-  It does not remove the separately authored contextual Puffer 4-piece package.
-  Party/Focus Apply and target-only Evelyn preparation use Fire DMG as the
-  prepared Slot 5 adjustment while that pressure is active so preparation stays
-  complete. A target-only Seed change or direct edit never prepares Evelyn: it
-  clears a newly invalid Evelyn choice without fallback and leaves Result empty
-  until repair.
+- R9. Material broad pre-PEN pressure removes Evelyn's Slot 5 PEN Ratio and
+  standalone Puffer Electro 2-piece. Seed M2's broad Besiege DEF Ignore supplies
+  that pressure only when Evelyn is the current Vanguard. Spectral Gaze's broad
+  enemy DEF Reduction supplies it through Evelyn's current `general_damage`
+  participation; Evelyn identity, Fire Attribute, and Attack Specialty are not
+  exceptions. Neither source removes the separately authored contextual Puffer
+  4-piece package. Party/Focus Apply and target-only Evelyn preparation use Fire
+  DMG as the authored Slot 5 adjustment while either pressure is active so
+  preparation stays complete. A target-only provider change or direct edit never
+  prepares Evelyn: it clears a newly invalid Evelyn choice without fallback and
+  leaves Result empty until repair.
 
 **Agent effects and Mindscapes**
 
@@ -206,6 +209,9 @@ The prose requirements govern if this diagram and the text ever differ.
   keeps the operation absent.
 - R16. Astra's established general-damage ATK, DMG Bonus, CRIT DMG, and
   applicable enemy-context clauses project through Evelyn's current consumers.
+  Spectral Gaze's broad enemy DEF Reduction projects through Evelyn's DEF
+  Reduction row by the same `general_damage` applicability that creates its
+  candidate pressure; there is no separate named-recipient exception.
   Cissia's party CRIT DMG projects when active, while her Electric DEF Ignore
   and Electric RES Ignore neither project on Fire Evelyn nor remove Evelyn PEN
   candidates. Dialyn's established party and Focus clauses project through
@@ -273,11 +279,14 @@ The prose requirements govern if this diagram and the text ever differ.
   entrant DMG use existing non-stacking rules even if Astra still holds Astral.
 - AE6. **Covers R9, R17-R18.** Given Seed M2/Evelyn/Astra and Evelyn is the sole
   eligible Vanguard, Party Apply prepares Evelyn with Fire DMG rather than PEN
-  Ratio and remains complete. Changing only Seed from M1 to M2 does not prepare
-  Evelyn; an edited PEN selection clears without fallback and Result stays
-  empty until the user selects Fire DMG or ATK%. Throughout that incomplete
-  state the same exact Initial-ATK observation keeps Evelyn as Vanguard and the
-  invalid PEN candidates stay absent.
+  Ratio and remains complete. Given Evelyn/Trigger/Astra and Trigger prepares
+  Spectral Gaze, the same Fire adjustment keeps Party Apply complete because
+  Evelyn consumes the broad DEF region through `general_damage`. Changing only
+  Seed from M1 to M2 or directly changing Trigger from another W-Engine to
+  Spectral Gaze does not prepare Evelyn; an edited PEN selection clears without
+  fallback and Result stays empty until the user selects Fire DMG or ATK%.
+  Throughout the Seed-incomplete state the same exact Initial-ATK observation
+  keeps Evelyn as Vanguard and the invalid PEN candidates stay absent.
 - AE7. **Covers R2, R6-R7, R17.** Full representative Evelyn includes Hormone
   Punk's inherent 2-piece ATK +10%, so her exact Initial ATK is
   `(929 + 713) × 1.40 + 316 = 2,614.8`. If Evelyn directly selects the authored
@@ -295,7 +304,10 @@ The prose requirements govern if this diagram and the text ever differ.
   RES clauses do not project on Evelyn and do not remove PEN Ratio, while any
   active party CRIT DMG projects through Evelyn's CRIT DMG row. Given
   Evelyn/Seed/Astra, applicable Seed sources project only when Evelyn is the
-  resolved Vanguard. No new outgoing feedback phase appears.
+  resolved Vanguard. Given Evelyn/Trigger/Astra with Spectral Gaze, Evelyn's
+  Result shows the broad enemy DEF Reduction and removes PEN Ratio through the
+  same formula applicability. Yixuan's Sheer direction does neither. No new
+  outgoing feedback phase appears.
 - AE10. **Covers R18-R20.** Given a required Evelyn Disc or main stat becomes
   incomplete, the whole party Result is empty while the relevant candidate deck
   remains actionable. Keyboard selection repairs the input, returns focus to

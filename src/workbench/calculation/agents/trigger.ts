@@ -1,5 +1,5 @@
 import { DRIVE_DISC_FACTS, VERTICAL_VALUES, W_ENGINE_FACTS, equipmentEffectBaseValue, equipmentEffectMaximumValue } from '../../content'
-import { STATIC_SOURCES, active, additive, discSource, discStatInput, effectiveSubstatInput, engineAdvancedInput, engineSource, mainStatInput, mindscapeSource, percentage, presentSetupInputs, resolveDeliveredClauses, withCandidatePressure, type CompleteSetup, type SourceBoundCurrentClause } from '../../effects'
+import { STATIC_SOURCES, active, additive, discSource, discStatInput, effectiveSubstatInput, engineAdvancedInput, engineSource, mainStatInput, mindscapeSource, percentage, presentSetupInputs, resolveDeliveredClauses, withApplicability, withCandidatePressure, type CompleteSetup, type SourceBoundCurrentClause } from '../../effects'
 import { actionTarget, canonicalAction, sourceLocalAction } from '../../actions'
 import { composeActionEffects, composeMetricEffects, contribution, percentageContribution, surfaces } from '../composition'
 import type { AgentResult, ResultMetric } from '../result'
@@ -37,7 +37,10 @@ export function resolveTriggerProviderClauses(setup: CompleteSetup): SourceBound
     additive('critDmg', 'fully', discSource('trigger', 'king', '4-piece'), kingCrit, 'all-party', undefined, undefined, ['yixuan', 'anbySoldier0', 'trigger'], 'kingOfTheSummit'),
     additive('dmgBonus', 'fully', discSource('trigger', 'astralVoice', '4-piece'), setup.fourPieceId === 'astralVoice' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage) : 0, 'all-party', undefined, undefined, ['yixuan', 'anbySoldier0'], 'astralVoiceEntrant'),
     withCandidatePressure(
-      additive('defReduction', 'fully', engine, setup.engineId === 'spectralGaze' ? equipmentEffectBaseValue(W_ENGINE_FACTS.spectralGaze.effects.defReduction, refinement) : 0, 'enemy-context', undefined, undefined, ['anbySoldier0']),
+      withApplicability(
+        additive('defReduction', 'fully', engine, setup.engineId === 'spectralGaze' ? equipmentEffectBaseValue(W_ENGINE_FACTS.spectralGaze.effects.defReduction, refinement) : 0, 'enemy-context'),
+        { formulas: ['general_damage'] },
+      ),
       'materialBroadPrePenDefBypass',
     ),
     additive('dmgBonus', 'fully', engine, setup.engineId === 'iceJadeTeapot' ? equipmentEffectBaseValue(W_ENGINE_FACTS.iceJadeTeapot.effects.damage, refinement) : 0, 'all-party', undefined, undefined, ['yixuan', 'anbySoldier0', 'trigger']),

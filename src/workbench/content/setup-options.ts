@@ -91,6 +91,13 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   },
 }
 
+/** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
+export const PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE: Partial<
+  Record<AgentId, Exclude<MainStatId, 'penRatio'>>
+> = {
+  evelyn: 'fireDmg',
+}
+
 export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   yixuan: [
     { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },

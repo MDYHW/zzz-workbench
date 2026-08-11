@@ -67,16 +67,19 @@ catalogue, action simulator, or generic effect language.
   traversal and calculation order remain irrelevant (origin R17, AE7).
 - R5. Make Seed M2 pressure apply to its broad general-damage recipient rather
   than Electric recipients only, while leaving Cissia Core pressure Electric-
-  restricted. When Evelyn is Vanguard, invalidate only PEN inputs: Slot 5 PEN
+  restricted. Apply Spectral Gaze's broad pre-PEN pressure through the same
+  current `general_damage` participation rule rather than an Agent-name list.
+  When either source pressures Evelyn, invalidate only PEN inputs: Slot 5 PEN
   Ratio and standalone Puffer 2-piece, not contextual Puffer 4-piece (origin
   R9, R16-R18, AE6, AE9). Preparation, effective-candidate reconciliation, and
-  complete provider delivery use the same upstream exact Initial-ATK observation.
+  complete provider delivery use the same upstream observations.
   It remains defined when only a pressure-invalid non-ATK PEN input is absent,
   so incomplete repair cannot change or drop the resolved Vanguard.
 - R6. Party/Focus Apply and target-only Evelyn preparation use Fire DMG as the
-  Slot 5 prepared adjustment under Seed M2 pressure. Target-only Seed changes
-  and direct edits do not prepare Evelyn; they clear invalid choices without a
-  fallback and keep Result empty until repair (origin R9, R18-R19, AE6, AE10).
+  Slot 5 prepared adjustment under any current material broad pre-PEN pressure.
+  Target-only provider changes and direct edits do not prepare Evelyn; they
+  clear invalid choices without a fallback and keep Result empty until repair
+  (origin R9, R18-R19, AE6, AE10).
 
 **Calculation and Result**
 
@@ -97,10 +100,11 @@ catalogue, action simulator, or generic effect language.
   region (origin R11, R15, AE2).
 - R10. Show Evelyn's 80% CRIT Rate threshold and current scale in the existing
   gauge vocabulary. At the earliest qualifying surface it uses the existing
-  `Active` reached state and shows `×1.25`. If no surface reaches 80%, the gauge
-  uses Fully Enabled as its basis, shows `×1.00`, and omits the action-scale
-  operation. Calculation values remain unrounded before display (origin R11,
-  R15, AE2).
+  `Active` reached state and shows `×1.25`. The threshold-only gauge uses 80%
+  as its maximum boundary rather than Evelyn's separate 100% CRIT Rate display
+  cap. If no surface reaches 80%, the gauge uses Fully Enabled as its basis,
+  shows `×1.00`, and omits the action-scale operation. Calculation values remain
+  unrounded before display (origin R11, R15, AE2).
 - R11. Reuse established source recipient, Attribute, formula, action, and local
   projector applicability for Astra, Cissia, Dialyn, Seed, and selected equipment.
   Add no received-effect-dependent outgoing phase or Result-to-Setup feedback
@@ -187,9 +191,11 @@ threshold and action Result.
 - Full representative Initial CRIT Rate is `19.4 + 24 + 24 = 67.4%`; Binding
   Seal makes Combat CRIT Rate `92.4%`, so the 80% scale relationship is visible
   without authored substats.
-- Seed M2 invalidates only Evelyn PEN inputs. Neither Slot 5 PEN nor Puffer
-  2-piece contributes Initial ATK, so invalidation cannot change the recipient
-  that caused it. No iterative candidate/recipient calculation is warranted.
+- Material broad pre-PEN pressure invalidates only Evelyn PEN inputs. For Seed
+  M2, neither Slot 5 PEN nor Puffer 2-piece contributes Initial ATK, so
+  invalidation cannot change the recipient that caused it. Spectral Gaze uses
+  the same candidate-pressure meaning without an Initial-ATK recipient step.
+  No iterative candidate/recipient calculation is warranted.
 - Evelyn, Heartstring Nocturne, Steel Cushion, Hormone Punk, and Inferno Metal
   assets already exist locally. No acquisition or asset generation is required.
 
@@ -208,7 +214,7 @@ ephemeral rather than becoming implementation evidence or repository metadata.
 | Threshold | Existing `GaugeResult` with bounded inactive/`Active` scale presentation | New threshold engine or Result feedback |
 | Evelyn content | Extend closed unions and explicit owner maps | Agent registry or one universal metadata object |
 | Contextual Discs | Reuse existing Astra/Dialyn opportunity queries | Named compatibility tree or automatic choice |
-| Seed pressure | General-damage eligibility for Seed M2; keep Cissia's Electric filter | Party-global PEN removal or identity list |
+| Broad pre-PEN pressure | Formula applicability for Seed M2 and Spectral Gaze; keep Cissia's Electric filter | Party-global PEN removal or identity list |
 | Vanguard tie | Reuse exact Initial ATK plus applied-slot fallback | Provider-order fallback or universal tie framework |
 | Calculation | One Evelyn-local observation/projector in existing pass | New received-effect phase or fixed point |
 | Tests | Add cases to shared mechanism/policy/flow/UI families | Per-Agent regression suite |
@@ -473,9 +479,11 @@ worktree; Evelyn U3 applies both atomically
 - Context: Evelyn/Astra/Dialyn exposes both contextual candidates while Hormone
   stays prepared; removing providers reconciles only invalid direct choices.
 - Pressure/lifecycle: Seed M2 pressures a Vanguard Evelyn while Cissia alone does
-  not; Party/Focus and target-only Evelyn preparation choose Fire Slot 5;
-  target-only Seed M1-to-M2 clears PEN, leaves Result incomplete, and keeps the
-  same exact Vanguard while invalid PEN choices remain absent.
+  not; Spectral Gaze pressures every current `general_damage` recipient without
+  an Agent-name list. Party/Focus and target-only Evelyn preparation choose Fire
+  Slot 5; target-only provider changes clear PEN, leave Result incomplete, and
+  preserve any independently resolved Seed Vanguard while invalid PEN choices
+  remain absent.
 - Resolution: full Hormone Evelyn is exact `2614.8`; after direct Woodpecker
   selection Evelyn and Anby are exact `2450.6` and follow applied slot under
   reversed provider traversal; an Initial-ATK-changing edit re-resolves the
@@ -578,6 +586,9 @@ authorization.
   bounded presentation distinction.
 - **Does Seed pressure require an Evelyn exception?** No; correct the existing
   Seed branch to general damage while preserving Cissia's Electric condition.
+- **Does Spectral Gaze require an Evelyn exception?** No; its broad pre-PEN
+  pressure follows the recipient's `general_damage` participation. Only the
+  pressure-safe prepared replacement remains an authored per-direction choice.
 - **Can Seed/Evelyn pressure loop?** No; only PEN inputs are invalidated, and
   they do not affect the Initial ATK comparison.
 - **Should Astra or Dialyn automatically choose Evelyn's Disc?** No; they add

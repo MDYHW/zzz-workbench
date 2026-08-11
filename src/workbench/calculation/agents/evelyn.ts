@@ -245,7 +245,7 @@ function additionalScale(
     basisLabel,
     current: critRate[basisSurface],
     threshold,
-    cap: 100,
+    cap: threshold,
     outputLabel: label,
     outputValue: multiplier,
     outputUnit: '',

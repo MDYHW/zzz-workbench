@@ -623,7 +623,7 @@ describe('integrated party workbench: setup', () => {
     expect(document.querySelectorAll('.is-setup-incomplete')).toHaveLength(0)
   }, 10_000)
 
-  it('keeps Seed’s Puffer and PEN selections complete when Spectral pressure is not applicable', async () => {
+  it('applies semantic Spectral pressure to Evelyn without an Agent-name exception', async () => {
     const user = userEvent.setup()
     render(<App />)
     const replace = async (slot: number, agent: RegExp) => {
@@ -632,36 +632,22 @@ describe('integrated party workbench: setup', () => {
     }
 
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
-    await replace(1, /Seed, Electric, Attack/)
+    await replace(1, /Evelyn, Fire, Attack/)
     await replace(2, /Trigger, Electric, Stun/)
     await replace(3, /Astra Yao, Ether, Support/)
     await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    expect(screen.getByRole('button', {
+      name: 'Change Disc 5 main stat from Fire DMG',
+    })).toBeInTheDocument()
 
     await user.click(screen.getByRole('tab', { name: 'View Trigger setup and Result' }))
     await user.click(screen.getByRole('button', { name: 'Change W-Engine from Spectral Gaze' }))
     await user.click(screen.getByRole('button', { name: 'Select Ice-Jade Teapot W1' }))
 
-    await user.click(screen.getByRole('tab', { name: 'View Seed setup and Result' }))
+    await user.click(screen.getByRole('tab', { name: 'View Evelyn setup and Result' }))
     await user.click(screen.getByRole('button', {
-      name: 'Change 2-piece Drive Disc from Woodpecker Electro',
-    }))
-    await user.click(screen.getByRole('button', {
-      name: 'Select Branch & Blade Song as twoPiece',
-    }))
-    await user.click(screen.getByRole('button', {
-      name: "Change 4-piece Drive Disc from Dawn's Bloom",
-    }))
-    await user.click(screen.getByRole('button', {
-      name: 'Select Woodpecker Electro as fourPiece',
-    }))
-    await user.click(screen.getByRole('button', {
-      name: 'Change 2-piece Drive Disc from Branch & Blade Song',
-    }))
-    await user.click(screen.getByRole('button', {
-      name: 'Select Puffer Electro as twoPiece',
-    }))
-    await user.click(screen.getByRole('button', {
-      name: 'Change Disc 5 main stat from Electric DMG',
+      name: 'Change Disc 5 main stat from Fire DMG',
     }))
     await user.click(screen.getByRole('button', {
       name: 'Select PEN Ratio for Disc 5',
@@ -671,17 +657,25 @@ describe('integrated party workbench: setup', () => {
     await user.click(screen.getByRole('button', { name: 'Change W-Engine from Ice-Jade Teapot' }))
     await user.click(screen.getByRole('button', { name: 'Select Spectral Gaze W1' }))
 
-    expect(screen.getByRole('status')).toBeEmptyDOMElement()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '1 setup selections now require a choice: Evelyn Disc 5 main stat.',
+    )
     expect(screen.getByRole('tab', {
-      name: 'View Seed setup and Result',
-    })).not.toHaveClass('is-setup-incomplete')
-    await user.click(screen.getByRole('tab', { name: 'View Seed setup and Result' }))
-    expect(screen.getByRole('button', {
-      name: 'Change 2-piece Drive Disc from Puffer Electro',
-    })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Change Disc 5 main stat from PEN Ratio' }))
-      .toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Seed Result' })).toBeInTheDocument()
+      name: 'View Evelyn setup and Result, setup incomplete',
+    })).toHaveClass('is-setup-incomplete')
+
+    await user.click(screen.getByRole('tab', {
+      name: 'View Evelyn setup and Result, setup incomplete',
+    }))
+    await user.click(screen.getByRole('button', { name: 'Disc 5 main stat required' }))
+    const candidates = screen.getByLabelText('Disc 5 main-stat candidates')
+    expect(within(candidates).queryByRole('button', {
+      name: 'Select PEN Ratio for Disc 5',
+    })).not.toBeInTheDocument()
+    await user.click(within(candidates).getByRole('button', {
+      name: 'Select Fire DMG for Disc 5',
+    }))
+    expect(screen.getByRole('heading', { name: 'Evelyn Result' })).toBeInTheDocument()
     expect(screen.getByText('PREPARED')).toBeInTheDocument()
   }, 10_000)
 

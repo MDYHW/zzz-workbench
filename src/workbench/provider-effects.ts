@@ -303,11 +303,7 @@ export function activeCandidatePressures(
   const recipientAgentId = state.slots[recipientSlot].agentId
   const hasCissiaCore = isElectricGeneralDamageAgent(recipientAgentId)
     && state.slots.some(({ agentId }) => agentId === 'cissia')
-  const hasSpectralGaze = (
-    recipientAgentId === 'anbySoldier0'
-      || recipientAgentId === 'dialyn'
-      || recipientAgentId === 'trigger'
-  )
+  const hasSpectralGaze = isGeneralDamageAgent(recipientAgentId)
     && state.slots.some(({ agentId, setup }) => (
       agentId === 'trigger' && setup.engineId === 'spectralGaze'
     ))

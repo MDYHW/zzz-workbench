@@ -4,6 +4,7 @@ import {
   defaultRefinementFor,
   ENGINE_IDS_BY_AGENT_AND_POOL,
   representativeSetupFor,
+  PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE,
   SUBSTAT_CHOICES_BY_AGENT,
   W_ENGINES,
   type AgentId,
@@ -27,7 +28,7 @@ import {
   effectiveTwoPieceIds,
   invalidRequiredSelections,
 } from './candidates'
-import { hasSeedM2CandidatePressure } from './provider-effects'
+import { activeCandidatePressures } from './provider-effects'
 
 export type Mindscape = 0 | 1 | 2 | 3 | 4 | 5 | 6
 export type SubstatCounts = Partial<Record<SubstatId, number>>
@@ -153,26 +154,31 @@ function establishedDiscHolders(
     : [{ agentId, fourPieceId: setup.fourPieceId }])
 }
 
-function withPreparedEvelynPressureMain(
+function withPreparedBroadPrePenMain(
   state: WorkbenchState,
   slot: AppliedSlot,
   setup: AgentSetupState,
 ): AgentSetupState {
-  if (state.slots[slot].agentId !== 'evelyn' || setup.mains.slot5 !== 'penRatio') {
+  const replacement = PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE[
+    state.slots[slot].agentId
+  ]
+  if (!replacement || setup.mains.slot5 !== 'penRatio') {
     return setup
   }
   const slots = [...state.slots] as WorkbenchState['slots']
   slots[slot] = { ...slots[slot], setup }
   const provisional = { ...state, slots }
-  return hasSeedM2CandidatePressure(provisional, slot)
-    ? { ...setup, mains: { ...setup.mains, slot5: 'fireDmg' } }
+  const hasBroadPrePenPressure = activeCandidatePressures(provisional, slot)
+    .includes('materialBroadPrePenDefBypass')
+  return hasBroadPrePenPressure
+    ? { ...setup, mains: { ...setup.mains, slot5: replacement } }
     : setup
 }
 
 function withPreparedPartyPressureMains(state: WorkbenchState): WorkbenchState {
   const slots = state.slots.map((current, slotIndex) => ({
     ...current,
-    setup: withPreparedEvelynPressureMain(
+    setup: withPreparedBroadPrePenMain(
       state,
       slotIndex as AppliedSlot,
       current.setup,
@@ -193,7 +199,7 @@ function createTargetPreparedSetup(
     state.slots[state.focusSlot].agentId,
     establishedDiscHolders(state.slots, slot),
   )
-  return withPreparedEvelynPressureMain(
+  return withPreparedBroadPrePenMain(
     state,
     slot,
     setupStateFromSelection(agentId, pool, mindscape, selection),

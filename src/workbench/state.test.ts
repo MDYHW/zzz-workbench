@@ -12,7 +12,7 @@ import {
   incompleteRequiredSelections,
 } from './candidates'
 import { calculateParty } from './calculate'
-import { resolveSeedVanguardForState } from './provider-effects'
+import { activeCandidatePressures, resolveSeedVanguardForState } from './provider-effects'
 import {
   createPreparedAgentSetup,
   createPreparedState,
@@ -734,19 +734,40 @@ describe('workbench state lifecycle', () => {
     expect(isCompleteWorkbench(state)).toBe(true)
   })
 
-  it('keeps Spectral Gaze pressure inside its approved recipient set', () => {
+  it('derives Spectral Gaze pressure from broad pre-PEN meaning and formula participation', () => {
     const established = createPreparedState({}, ['anbySoldier0', 'trigger', 'dialyn'], 0)
     expect(effectiveMainStatIds(established, 0, 'slot5')).not.toContain('penRatio')
     expect(effectiveMainStatIds(established, 1, 'slot5')).not.toContain('penRatio')
     expect(effectiveMainStatIds(established, 2, 'slot5')).not.toContain('penRatio')
 
-    const unapproved = createPreparedState({}, ['seed', 'trigger', 'evelyn'], 2)
-    expect(unapproved.slots[1].setup.engineId).toBe('spectralGaze')
-    expect(effectiveMainStatIds(unapproved, 0, 'slot5')).toContain('penRatio')
-    expect(effectiveMainStatIds(unapproved, 1, 'slot5')).not.toContain('penRatio')
-    expect(effectiveMainStatIds(unapproved, 2, 'slot5')).toContain('penRatio')
-    expect(unapproved.slots[2].setup.mains.slot5).toBe('penRatio')
-    expect(isCompleteWorkbench(unapproved)).toBe(true)
+    const generalDamage = createPreparedState({}, ['seed', 'trigger', 'evelyn'], 2)
+    expect(generalDamage.slots[1].setup.engineId).toBe('spectralGaze')
+    expect(activeCandidatePressures(generalDamage, 0)).toContain('materialBroadPrePenDefBypass')
+    expect(activeCandidatePressures(generalDamage, 2)).toContain('materialBroadPrePenDefBypass')
+    expect(effectiveMainStatIds(generalDamage, 0, 'slot5')).not.toContain('penRatio')
+    expect(effectiveMainStatIds(generalDamage, 2, 'slot5')).not.toContain('penRatio')
+    expect(generalDamage.slots[2].setup.mains.slot5).toBe('fireDmg')
+    expect(isCompleteWorkbench(generalDamage)).toBe(true)
+
+    const sheer = workbenchReducer(
+      createPreparedState({}, ['yixuan', 'trigger', 'astraYao'], 0),
+      { type: 'selectEngine', slot: 1, engineId: 'spectralGaze' },
+    )
+    expect(sheer.slots[1].setup.engineId).toBe('spectralGaze')
+    expect(activeCandidatePressures(sheer, 0)).toEqual([])
+
+    let direct = createPreparedState({}, ['evelyn', 'trigger', 'astraYao'], 0)
+    direct = workbenchReducer(direct, {
+      type: 'selectEngine', slot: 1, engineId: 'iceJadeTeapot',
+    })
+    direct = workbenchReducer(direct, {
+      type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'penRatio',
+    })
+    direct = workbenchReducer(direct, {
+      type: 'selectEngine', slot: 1, engineId: 'spectralGaze',
+    })
+    expect(direct.slots[0].setup.mains.slot5).toBeNull()
+    expect(calculateParty(direct)).toBeNull()
   })
 
   it('re-prepares only the Mindscape target before reconciling its outgoing pressure', () => {

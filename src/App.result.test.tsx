@@ -21,7 +21,7 @@ describe('integrated party workbench: result', () => {
     const evelynResult = screen.getByRole('region', { name: 'Evelyn Result' })
     await user.click(within(evelynResult).getByRole('button', { name: 'CRIT Rate' }))
     expect(within(evelynResult).getByRole('group', {
-      name: /Combat CRIT Rate: current 92[.]4, cap 100, threshold 80, Active; Chain Attack & Ultimate DMG Multiplier: ×1[.]25/,
+      name: /Combat CRIT Rate: current 92[.]4, cap 80, threshold 80, Active; Chain Attack & Ultimate DMG Multiplier: ×1[.]25/,
     })).toBeInTheDocument()
     expect(within(evelynResult).getByRole('region', { name: 'Agent operations' }))
       .toHaveTextContent('×1.25')
@@ -33,7 +33,7 @@ describe('integrated party workbench: result', () => {
 
     await user.click(screen.getByRole('button', { name: 'Non-limited' }))
     expect(within(evelynResult).getByRole('group', {
-      name: /Fully Enabled CRIT Rate: current 68[.]4, cap 100, threshold 80; Chain Attack & Ultimate DMG Multiplier: ×1[.]00/,
+      name: /Fully Enabled CRIT Rate: current 68[.]4, cap 80, threshold 80; Chain Attack & Ultimate DMG Multiplier: ×1[.]00/,
     })).toBeInTheDocument()
     expect(within(evelynResult).queryByRole('region', { name: 'Agent operations' })).not.toBeInTheDocument()
   }, 10_000)
