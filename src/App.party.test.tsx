@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { App } from './App'
 import { PartyWorkbench } from './components/PartyWorkbench'
-import { createPreparedState } from './workbench/state'
+import { ADMITTED_AGENTS } from './workbench/content'
+import { createPreparedAgentSetup, createPreparedState, type AppliedAgentSlot } from './workbench/state'
 
 describe('integrated party workbench: party', () => {
   it('starts with one expanded prepared setup and one visible Result', () => {
@@ -26,30 +27,76 @@ describe('integrated party workbench: party', () => {
       .toHaveAttribute('tabindex', '-1')
   })
 
-  it('keeps the accepted portrait calibration and actual identity symbols', async () => {
+  it('uses complete source metadata with one shared portrait frame on every surface', async () => {
     const user = userEvent.setup()
     render(<App />)
 
-    const expectExpandedFrame = (expectedWidth: string) => {
+    const portraitStyle = (agentId: string) => {
+      const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
+      const portrait = screen.getByRole('tab', { name: new RegExp(agent.name) })
+        .querySelector<HTMLElement>('.agent-art')
+      expect(portrait).not.toBeNull()
+      return portrait!.style
+    }
+
+    const expectSource = (agentId: string, scale?: string) => {
+      const style = portraitStyle(agentId)
+      if (scale) expect(style.getPropertyValue('--portrait-source-scale')).toBe(scale)
+      else expect(style.getPropertyValue('--portrait-source-scale')).not.toBe('')
+      expect(style.getPropertyValue('--portrait-source-face-x')).not.toBe('')
+      expect(style.getPropertyValue('--portrait-source-head-top-y')).not.toBe('')
+      expect(style.getPropertyValue('--portrait-target-x')).toBe('')
+      expect(style.getPropertyValue('--portrait-width')).toBe('')
+    }
+
+    const expectExpandedSource = (agentId: string, scale: string) => {
       const portrait = document.querySelector<HTMLElement>(
         '.slot-identity--expanded .agent-art',
       )
       expect(portrait).not.toBeNull()
-      expect(portrait!.style.getPropertyValue('--portrait-target-x')).toBe('38%')
-      expect(portrait!.style.getPropertyValue('--portrait-target-y')).toBe('204.22px')
-      expect(portrait!.style.getPropertyValue('--portrait-width')).toBe(expectedWidth)
+      expect(portrait!.closest(`[data-agent="${agentId}"]`)).not.toBeNull()
+      expect(portrait!.style.getPropertyValue('--portrait-source-scale')).toBe(scale)
     }
 
-    expectExpandedFrame('295%')
+    expectExpandedSource('yixuan', '1')
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
-    expectExpandedFrame('288%')
-    await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
-    expectExpandedFrame('295%')
+    expectExpandedSource('dialyn', String(288 / 295))
 
     for (const label of ['Auric Ink, Rupture', 'Physical, Stun', 'Ether, Support']) {
       expect(screen.getByLabelText(label).querySelectorAll('img')).toHaveLength(2)
     }
     expect(document.querySelectorAll('.party-slot--compact .agent-art')).toHaveLength(2)
+
+    const additionalGroups: [AppliedAgentSlot, AppliedAgentSlot, AppliedAgentSlot][] = [
+      [
+        { agentId: 'anbySoldier0', setup: createPreparedAgentSetup('anbySoldier0') },
+        { agentId: 'trigger', setup: createPreparedAgentSetup('trigger') },
+        { agentId: 'astraYao', setup: createPreparedAgentSetup('astraYao') },
+      ],
+      [
+        { agentId: 'seed', setup: createPreparedAgentSetup('seed') },
+        { agentId: 'cissia', setup: createPreparedAgentSetup('cissia') },
+        { agentId: 'evelyn', setup: createPreparedAgentSetup('evelyn') },
+      ],
+    ]
+    for (const slots of additionalGroups) {
+      render(
+        <PartyWorkbench
+          activeSourceTone={null}
+          focusSlot={0}
+          onSourceToneChange={() => {}}
+          onViewSlot={() => {}}
+          slots={slots}
+          viewedSlot={0}
+        >
+          <div>Fixture workbench</div>
+        </PartyWorkbench>,
+      )
+    }
+
+    expect(document.querySelectorAll('.agent-art')).toHaveLength(9)
+    for (const agent of ADMITTED_AGENTS) expectSource(agent.id)
+    expectSource('trigger', String(330 / 295))
   })
 
   it('switches slots while preserving each Agent setup state', async () => {

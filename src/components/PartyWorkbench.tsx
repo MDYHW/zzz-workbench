@@ -47,137 +47,38 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   evelyn: { attribute: fireMark, specialty: attackMark },
 }
 
-type PortraitVariant = 'expanded' | 'compact'
-
-interface PortraitPoint {
-  x: number
-  y: number
-}
-
-interface PortraitAnchor {
-  x: number
-  y: number | string
-}
-
-interface PortraitFrame {
-  anchor: PortraitAnchor
-  width: number
-}
-
-interface PortraitTarget {
-  default: PortraitFrame
-  stacked?: PortraitFrame
-  mobile?: PortraitFrame
-}
-
-interface PortraitPresentation {
-  source: {
-    face: PortraitPoint
-  }
-  expanded: PortraitTarget
-  compact: PortraitTarget
+interface PortraitSource {
+  faceX: number
+  headTopY: number
+  scale: number
 }
 
 type PortraitStyle = CSSProperties & {
-  '--portrait-landmark-x': string
-  '--portrait-landmark-y': string
-  '--portrait-target-x': string
-  '--portrait-target-y': string
-  '--portrait-width': string
-  '--portrait-stacked-target-x': string
-  '--portrait-stacked-target-y': string
-  '--portrait-stacked-width': string
-  '--portrait-mobile-target-x': string
-  '--portrait-mobile-target-y': string
-  '--portrait-mobile-width': string
+  '--portrait-source-face-x': string
+  '--portrait-source-head-top-y': string
+  '--portrait-source-scale': string
 }
 
-// Each source owns only its face landmark. The desktop expanded slot owns one
-// shared destination and scale so Agent changes preserve the same visual frame.
-const DESKTOP_EXPANDED_PORTRAIT_FRAME: PortraitFrame = {
-  anchor: { x: 38, y: '204.22px' },
-  width: 295,
+// Source metadata is the only Agent-specific portrait input. Surface frames
+// remain shared CSS geometry so an asset cannot introduce a local placement rule.
+const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
+  yixuan: { faceX: 55.86, headTopY: 2.01, scale: 1 },
+  dialyn: { faceX: 50, headTopY: 3.7, scale: 288 / 295 },
+  lucia: { faceX: 44.3, headTopY: 7.99, scale: 1 },
+  anbySoldier0: { faceX: 50.6, headTopY: 3, scale: 1 },
+  trigger: { faceX: 49, headTopY: 5, scale: 330 / 295 },
+  astraYao: { faceX: 48.7, headTopY: 8, scale: 330 / 295 },
+  seed: { faceX: 52, headTopY: 6, scale: 325 / 295 },
+  cissia: { faceX: 55.5, headTopY: 7.99, scale: 1 },
+  evelyn: { faceX: 55.45, headTopY: 3.32, scale: 325 / 295 },
 }
 
-const DESKTOP_COMPACT_PORTRAIT_FRAME: PortraitFrame = {
-  anchor: { x: 50, y: '192px' },
-  width: 727,
-}
-
-// Compact desktop, stacked, and mobile destinations are calibrated separately.
-const PORTRAIT_PRESENTATION: Record<AgentId, PortraitPresentation> = {
-  yixuan: {
-    source: { face: { x: 55.8, y: 12 } },
-    expanded: {
-      default: DESKTOP_EXPANDED_PORTRAIT_FRAME,
-      mobile: { anchor: { x: 31.7, y: 46.1 }, width: 85 },
-    },
-    compact: {
-      default: {
-        ...DESKTOP_COMPACT_PORTRAIT_FRAME,
-        anchor: { x: 50, y: '198.06px' },
-      },
-      stacked: { anchor: { x: 55.7, y: 42.9 }, width: 102 },
-      mobile: { anchor: { x: 58.7, y: 40.6 }, width: 149 },
-    },
-  },
-  dialyn: {
-    source: { face: { x: 50, y: 15 } },
-    expanded: {
-      default: { ...DESKTOP_EXPANDED_PORTRAIT_FRAME, width: 288 },
-      mobile: { anchor: { x: 25, y: 49.8 }, width: 108 },
-    },
-    compact: {
-      default: {
-        ...DESKTOP_COMPACT_PORTRAIT_FRAME,
-        anchor: { x: 50, y: '191.56px' },
-      },
-      stacked: { anchor: { x: 50, y: 45.9 }, width: 104 },
-      mobile: { anchor: { x: 50, y: 45.1 }, width: 144 },
-    },
-  },
-  lucia: {
-    source: { face: { x: 44, y: 14 } },
-    expanded: {
-      default: DESKTOP_EXPANDED_PORTRAIT_FRAME,
-      mobile: { anchor: { x: 23.7, y: 52 }, width: 130 },
-    },
-    compact: {
-      default: {
-        ...DESKTOP_COMPACT_PORTRAIT_FRAME,
-        anchor: { x: 50, y: '187.89px' },
-      },
-      stacked: { anchor: { x: 49, y: 48 }, width: 100 },
-      mobile: { anchor: { x: 48, y: 48 }, width: 200 },
-    },
-  },
-  anbySoldier0: { source: { face: { x: 50, y: 13 } }, expanded: { default: DESKTOP_EXPANDED_PORTRAIT_FRAME, mobile: { anchor: { x: 30, y: 48 }, width: 105 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 52, y: 43 }, width: 106 }, mobile: { anchor: { x: 52, y: 43 }, width: 150 } } },
-  trigger: { source: { face: { x: 49, y: 14 } }, expanded: { default: { ...DESKTOP_EXPANDED_PORTRAIT_FRAME, width: 290 }, mobile: { anchor: { x: 28, y: 48 }, width: 112 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 50, y: 44 }, width: 104 }, mobile: { anchor: { x: 50, y: 44 }, width: 148 } } },
-  astraYao: { source: { face: { x: 48, y: 13 } }, expanded: { default: DESKTOP_EXPANDED_PORTRAIT_FRAME, mobile: { anchor: { x: 29, y: 47 }, width: 111 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 50, y: 43 }, width: 105 }, mobile: { anchor: { x: 50, y: 43 }, width: 150 } } },
-  seed: { source: { face: { x: 52, y: 14 } }, expanded: { default: DESKTOP_EXPANDED_PORTRAIT_FRAME, mobile: { anchor: { x: 29, y: 48 }, width: 112 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 51, y: 44 }, width: 105 }, mobile: { anchor: { x: 51, y: 44 }, width: 150 } } },
-  cissia: { source: { face: { x: 55, y: 14 } }, expanded: { default: DESKTOP_EXPANDED_PORTRAIT_FRAME, mobile: { anchor: { x: 30, y: 48 }, width: 112 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 52, y: 44 }, width: 105 }, mobile: { anchor: { x: 52, y: 44 }, width: 150 } } },
-  evelyn: { source: { face: { x: 50, y: 13 } }, expanded: { default: DESKTOP_EXPANDED_PORTRAIT_FRAME, mobile: { anchor: { x: 29, y: 48 }, width: 110 } }, compact: { default: DESKTOP_COMPACT_PORTRAIT_FRAME, stacked: { anchor: { x: 51, y: 44 }, width: 105 }, mobile: { anchor: { x: 51, y: 44 }, width: 150 } } },
-}
-
-function PortraitArt({ agentId, variant }: { agentId: AgentId; variant: PortraitVariant }) {
-  const presentation = PORTRAIT_PRESENTATION[agentId]
-  const target = presentation[variant]
-  const defaultFrame = target.default
-  const stackedFrame = target.stacked ?? defaultFrame
-  const mobileFrame = target.mobile ?? stackedFrame
-  const targetY = (value: PortraitAnchor['y']) => typeof value === 'number' ? `${value}%` : value
+function PortraitArt({ agentId }: { agentId: AgentId }) {
+  const source = PORTRAIT_SOURCES[agentId]
   const style: PortraitStyle = {
-    '--portrait-landmark-x': `-${presentation.source.face.x}%`,
-    '--portrait-landmark-y': `-${presentation.source.face.y}%`,
-    '--portrait-target-x': `${defaultFrame.anchor.x}%`,
-    '--portrait-target-y': targetY(defaultFrame.anchor.y),
-    '--portrait-width': `${defaultFrame.width}%`,
-    '--portrait-stacked-target-x': `${stackedFrame.anchor.x}%`,
-    '--portrait-stacked-target-y': targetY(stackedFrame.anchor.y),
-    '--portrait-stacked-width': `${stackedFrame.width}%`,
-    '--portrait-mobile-target-x': `${mobileFrame.anchor.x}%`,
-    '--portrait-mobile-target-y': targetY(mobileFrame.anchor.y),
-    '--portrait-mobile-width': `${mobileFrame.width}%`,
+    '--portrait-source-face-x': String(source.faceX),
+    '--portrait-source-head-top-y': String(source.headTopY),
+    '--portrait-source-scale': String(source.scale),
   }
 
   return (
@@ -251,7 +152,7 @@ function ExpandedIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = f
       onKeyDown={onKeyDown}
       {...sourceToneEvents(identityTone, onSourceToneChange)}
     >
-      <PortraitArt agentId={agent.id} variant="expanded" />
+      <PortraitArt agentId={agent.id} />
       <span className="identity-shade" aria-hidden="true" />
       <span className="source-tint" aria-hidden="true" />
       <span className="identity-copy">
@@ -289,7 +190,7 @@ function CompactSlot({ activeSourceTone, agentId, isFocus, isIncomplete = false,
       onKeyDown={isInactive ? undefined : onKeyDown}
       {...sourceToneEvents(tone, onSourceToneChange)}
     >
-      <PortraitArt agentId={agent.id} variant="compact" />
+      <PortraitArt agentId={agent.id} />
       <span className="identity-shade" aria-hidden="true" />
       <span className="source-tint" aria-hidden="true" />
       <span className="slot-identity">

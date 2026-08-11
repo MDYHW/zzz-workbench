@@ -306,37 +306,38 @@ color with it. The editable M0 through M6 value remains visible only at its
 owning Setup input.
 
 Compact and expanded states retain the same Agent artwork identity. Each source
-asset records the face position inside its own canvas. The desktop expanded
-slot then aligns that source landmark to one shared destination and renders all
-current Agents from one nominal canvas scale. Agent-specific source landmarks
-correct differences in composition. A source may receive a small optical scale
-correction only when its pose, head-to-body proportion, hair, clothing, or
-surrounding objects make it materially heavier or lighter than the other
-current portraits at the nominal scale. The correction balances perceived
-identity weight; it does not model the Agent's canonical height.
+asset records exactly three normalized portrait inputs: one structural
+horizontal face landmark, the readable top of the continuous head or hair mass,
+and one optical scale relative to the nominal source size. Detached strands,
+weapons, capes, transparent bounds, feet, and canonical Agent height do not
+define these inputs. The source inputs belong to the asset and are shared by
+every responsive portrait surface.
 
-For the current desktop geometry and current square source canvases, the shared
-face destination is `11.4%` of the full expanded-slot width and `25.2%` of the
-Identity height. The artwork surface currently spans `30%` of the full slot, so
-the implementation expresses the horizontal destination as `38%` of that
-surface. The nominal expanded canvas width is `295%` of the artwork surface.
-Dialyn currently uses `288%` as the admitted optical correction while keeping
-the shared face destination unchanged. These numbers are current visual
-calibration inputs, not game or product meaning.
+Each portrait surface owns one common destination frame. The frame aligns the
+source's horizontal landmark and readable head top, then multiplies its nominal
+image width by the source optical scale. Agent-specific source inputs correct
+differences in composition and perceived identity weight without repeating the
+same correction as per-Agent desktop, stacked, or mobile coordinates. Add a
+surface-specific Agent exception only after a concrete asset, surface, and
+viewport demonstrate that the shared contract cannot preserve the identity.
 
-Use the face landmark as the deterministic placement anchor. Do not derive
-placement from source-canvas center, transparent bounds, visible silhouette
-mass, or a synthetic body axis. Those measurements vary with pose, hair,
-clothing, and surrounding objects and did not preserve a stable identity frame.
-Body balance remains a visual acceptance check rather than a second placement
-input.
+The current shared frames are visual calibration inputs, not game or product
+meaning. Desktop expanded uses the midpoint from Identity start to Setup
+content start, a `100px` head-top line, and a `295%` nominal image width.
+Desktop compact uses `50%`, `78px`, and `727%`; stacked compact uses `50%`,
+`28px`, and `105%`; mobile expanded uses `30%`, `16px`, and `110%`; mobile
+compact uses `55%`, `16px`, and `150%`.
 
-The accepted desktop crop keeps each face in the corridor between the center
-of the `16%` Identity track and the Identity-to-Setup edge, places the face below
-the name without a hard collision, preserves a comparable perceived Agent
-scale, and keeps artwork out of Setup content. Compact, stacked, and mobile
-frames are separate responsive calibrations; this desktop frame does not
-silently replace them.
+Use the authored source metadata deterministically at runtime. Calibration may
+inspect the original canvas and full card context, but the application does not
+derive placement from source-canvas center, automatic face detection,
+transparent bounds, visible silhouette mass, or a synthetic body axis.
+
+The accepted desktop crop keeps each face within the corridor from Identity
+start to Setup content start, places the face below the name without a hard
+collision, preserves comparable perceived Agent scale, and keeps meaningful
+artwork clear of Setup controls. Compact, stacked, and mobile frames apply the
+same source metadata through their own shared responsive destinations.
 
 ### Expanded Slot Composition
 
