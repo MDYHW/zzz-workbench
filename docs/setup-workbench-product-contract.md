@@ -378,6 +378,14 @@ Result actually exposes. Formula participation alone is insufficient. Flat PEN
 is not current valid stat pressure, an effective substat, or a Result row; PEN
 Ratio is separate.
 
+Equal retained numeric effects do not collapse exact equipment identity. When
+two identities independently survive the whole-package candidate gate, they
+remain separate selections because identity determines selected artwork and
+source disclosure and, for Drive Discs, can change complete-package legality
+through the different-set rule. Numeric equality does not admit a second item;
+each identity must first pass the normal competitive-candidate policy for the
+current consumer.
+
 ### Prepared Starting Setup
 
 Preparation supplies one deterministic first choice from the current effective

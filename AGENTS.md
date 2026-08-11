@@ -29,6 +29,53 @@ learnings with searchable YAML frontmatter such as `module`, `tags`, and
 `problem_type`. These records are relevant when similar work recurs, but they
 do not become product authorities.
 
+## Controller Re-grounding And Authoring
+
+A controller refresh is accepted only when it demonstrates operational use of
+the repository authorities. Reading or summarizing the five permanent owners,
+reporting a clean checkpoint, or passing implementation gates does not by
+itself establish semantic readiness.
+
+- Before owning new requirements, a refreshed controller reads all five
+  permanent owners, relevant current requirements and completed plans,
+  applicable `docs/solutions/`, current behavior-bearing consumers, and their
+  visible boundaries. It then independently traces a small repository-only set
+  of sentinel cases from source or retained relationship through current
+  consumer, candidate or representative consequence, lifecycle, and visible
+  Setup or Result. The set must include the nearest similar current case and a
+  contrasting case; receiving their conclusions in the refresh prompt does not
+  prove re-grounding.
+- Sentinel coverage is chosen from the current change surface and must exercise
+  materially different meanings that are easy to conflate: an equipment-only
+  stat consumer versus an independent Agent relationship; equal-looking
+  equipment effects with exact-identity or same-set consequences; base versus
+  contextual or selected-input-derived candidates; pool-specific whole-package
+  representative authoring at zero supplied substats; and selected-pressure
+  on, off, and reselect lifecycle. Do not turn these checks into a named-Agent
+  decision tree or a permanent exhaustive matrix.
+- Before requirements close, every newly added or changed candidate membership
+  or prepared first choice receives a bounded authoring check: direction and
+  role, exact formula/action/threshold consumer, candidate origin, nearest
+  same-axis competitor in the same pool, usable and unused package clauses,
+  finite slot/substat opportunity cost, pool-specific first choice, contrary
+  condition, and selected-input lifecycle when applicable. Keep this analysis
+  ephemeral and persist only the settled requirement.
+- Secondary requirements cannot validate themselves. Review their new product
+  conclusions against the owning permanent authority and established current
+  consumers before writing an implementation plan. Tests, build, browser
+  checks, and reviewer agreement prove implementation fidelity only after that
+  authoring review succeeds.
+- Controller, worker, reviewer, and prior-task feedback is advisory rather than
+  authority. Before accepting a semantic recommendation, locate its permanent
+  owner, inspect the closest established consumer, actively seek a contrasting
+  consumer, and state why the recommendation survives or fails that comparison.
+  Reject unsupported feedback even when it comes from an earlier controller.
+- A selected-input dependency is not closed by one snapshot. Acceptance covers
+  the pressure present, absent, and reselected states, including candidate
+  membership, invalid-selection clearing without fallback, completeness, and
+  the preserved contrasting consumer. Keep this in shared mechanism and
+  representative-flow tests rather than creating a suite per Agent.
+
 ## Work
 
 - Begin from concrete user inputs and visible Result behavior.
