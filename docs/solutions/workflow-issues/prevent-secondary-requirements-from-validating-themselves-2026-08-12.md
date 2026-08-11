@@ -103,9 +103,10 @@ choice being added or changed:
 
 ```text
 - authored direction and role
+- exact holder eligibility and activation compatibility
 - exact current formula, action, threshold, or operation consumer
 - origin: base, contextual, or selected-input-derived
-- nearest same-axis competitor in the same availability pool
+- nearest usable same-axis competitor in the same availability pool
 - usable and unused clauses in each complete package
 - finite slot and substat opportunity costs at the authored zero-substat start
 - pool-specific prepared first choice
@@ -117,6 +118,11 @@ Persist only the resulting bounded policy. This check is not a source registry,
 evidence payload, runtime score, optimizer, candidate catalogue, or universal
 condition language. If exact evidence cannot resolve a representative, stop
 authoring that representative rather than guessing a replacement.
+
+Eligibility precedes package comparison. A package with stronger visible values
+cannot dominate for a holder that fails its exact Specialty or activation
+condition. Comparing retained numbers before compatibility can select a false
+same-axis competitor even when the later whole-package arithmetic is correct.
 
 ### Disconfirm feedback before accepting it
 
@@ -227,6 +233,17 @@ opportunity cost, finite main/substat supply, and the nearest same-axis
 competitor. If that comparison does not resolve the full-pool representative,
 leave it as an authoring stop. The non-limited choice cannot prove the full-pool
 choice.
+
+### Lycaon Disc comparison: eligibility before dominance
+
+Moonlight Lullaby can look stronger than Proto Punk from compressed values:
+Energy Regen +20% and squad DMG +18% versus an unused Shield Effect +15% and
+squad DMG +15%. That comparison is invalid for Lycaon because Moonlight's
+4-piece activation requires a Support holder and Lycaon is Stun. Astral Voice
+is the usable same-axis comparison for his retained Quick Assist and buffer
+direction. This candidate comparison does not establish a universal Focus
+recipient for Astral's entrant effect; recipient projection remains a separate
+consumer question.
 
 ## Related
 

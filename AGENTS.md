@@ -48,18 +48,20 @@ itself establish semantic readiness.
 - Sentinel coverage is chosen from the current change surface and must exercise
   materially different meanings that are easy to conflate: an equipment-only
   stat consumer versus an independent Agent relationship; equal-looking
-  equipment effects with exact-identity or same-set consequences; base versus
-  contextual or selected-input-derived candidates; pool-specific whole-package
-  representative authoring at zero supplied substats; and selected-pressure
-  on, off, and reselect lifecycle. Do not turn these checks into a named-Agent
-  decision tree or a permanent exhaustive matrix.
+  equipment effects with holder-eligibility, exact-identity, or same-set
+  consequences; base versus contextual or selected-input-derived candidates;
+  pool-specific whole-package representative authoring at zero supplied
+  substats; and selected-pressure on, off, and reselect lifecycle. Do not turn
+  these checks into a named-Agent decision tree or a permanent exhaustive
+  matrix.
 - Before requirements close, every newly added or changed candidate membership
   or prepared first choice receives a bounded authoring check: direction and
-  role, exact formula/action/threshold consumer, candidate origin, nearest
-  same-axis competitor in the same pool, usable and unused package clauses,
-  finite slot/substat opportunity cost, pool-specific first choice, contrary
-  condition, and selected-input lifecycle when applicable. Keep this analysis
-  ephemeral and persist only the settled requirement.
+  role, exact holder eligibility and activation compatibility, exact
+  formula/action/threshold consumer, candidate origin, nearest usable same-axis
+  competitor in the same pool, usable and unused package clauses, finite
+  slot/substat opportunity cost, pool-specific first choice, contrary condition,
+  and selected-input lifecycle when applicable. Keep this analysis ephemeral
+  and persist only the settled requirement.
 - Secondary requirements cannot validate themselves. Review their new product
   conclusions against the owning permanent authority and established current
   consumers before writing an implementation plan. Tests, build, browser
