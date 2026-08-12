@@ -8,6 +8,7 @@ import { calculateParty } from './workbench/calculate'
 import {
   effectiveFourPieceIds,
   effectiveMainStatIds,
+  effectiveSubstatChoicesForSlot,
   effectiveTwoPieceIds,
   incompleteRequiredSelections,
   type RequiredSetupSelection,
@@ -127,6 +128,7 @@ export function App() {
                 agentId={viewedSetup.agentId}
                 discCandidates={viewedDiscCandidates}
                 mainStatCandidates={viewedMainStatCandidates}
+                substatChoices={effectiveSubstatChoicesForSlot(state, viewedSlot)}
                 setup={viewedSetup.setup}
                 dispatch={dispatch}
                 onSourceToneChange={changeSourceTone}

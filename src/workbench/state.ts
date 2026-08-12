@@ -27,6 +27,7 @@ import {
   effectiveMainStatIds,
   effectiveTwoPieceIds,
   effectiveSubstatChoices,
+  effectiveSubstatChoicesForSlot,
   invalidRequiredSelections,
 } from './candidates'
 import { activeCandidatePressures } from './provider-effects'
@@ -191,6 +192,40 @@ function withPreparedPartyPressureMains(state: WorkbenchState): WorkbenchState {
   return { ...state, slots }
 }
 
+function zeroEffectiveSubstatsForSlot(
+  state: WorkbenchState,
+  slot: AppliedSlot,
+): SubstatCounts {
+  return Object.fromEntries(
+    effectiveSubstatChoicesForSlot(state, slot).map(({ id }) => [id, 0]),
+  )
+}
+
+function withPreparedEffectiveSubstats(state: WorkbenchState): WorkbenchState {
+  const slots = state.slots.map((current, slotIndex) => ({
+    ...current,
+    setup: {
+      ...current.setup,
+      substats: zeroEffectiveSubstatsForSlot(state, slotIndex as AppliedSlot),
+    },
+  })) as WorkbenchState['slots']
+  return { ...state, slots }
+}
+
+function withPreparedEffectiveSubstatsAtSlot(
+  state: WorkbenchState,
+  slot: AppliedSlot,
+  setup: AgentSetupState,
+): AgentSetupState {
+  const slots = [...state.slots] as WorkbenchState['slots']
+  slots[slot] = { ...slots[slot], setup }
+  const provisional = { ...state, slots }
+  return {
+    ...setup,
+    substats: zeroEffectiveSubstatsForSlot(provisional, slot),
+  }
+}
+
 function createTargetPreparedSetup(
   state: WorkbenchState,
   slot: AppliedSlot,
@@ -203,11 +238,12 @@ function createTargetPreparedSetup(
     state.slots[state.focusSlot].agentId,
     establishedDiscHolders(state.slots, slot),
   )
-  return withPreparedBroadPrePenMain(
+  const prepared = withPreparedBroadPrePenMain(
     state,
     slot,
     setupStateFromSelection(agentId, pool, mindscape, selection),
   )
+  return withPreparedEffectiveSubstatsAtSlot(state, slot, prepared)
 }
 
 export function createPreparedState(
@@ -221,7 +257,7 @@ export function createPreparedState(
     defaultMindscapeFor(agentId),
   )) as [PreparationContext, PreparationContext, PreparationContext]
   const selections = preparePartySelections(contexts, agentIds[focusSlot])
-  return withPreparedPartyPressureMains({
+  return withPreparedEffectiveSubstats(withPreparedPartyPressureMains({
     slots: agentIds.map((agentId, index) => ({
       agentId,
       setup: setupStateFromSelection(
@@ -232,7 +268,7 @@ export function createPreparedState(
       ),
     })) as WorkbenchState['slots'],
     focusSlot,
-  })
+  }))
 }
 
 function clampCount(value: number): number {
@@ -256,15 +292,19 @@ function updateSetup(
 }
 
 function withSelectedDerivedSubstats(
-  agentId: AgentId,
+  state: WorkbenchState,
+  slot: AppliedSlot,
   previous: AgentSetupState,
   next: AgentSetupState,
 ): AgentSetupState {
   const previousIds = new Set(
-    effectiveSubstatChoices(agentId, previous).map(({ id }) => id),
+    effectiveSubstatChoicesForSlot(state, slot).map(({ id }) => id),
   )
+  const slots = [...state.slots] as WorkbenchState['slots']
+  slots[slot] = { ...slots[slot], setup: next }
+  const provisional = { ...state, slots }
   const substats = Object.fromEntries(
-    effectiveSubstatChoices(agentId, next).flatMap(({ id }) => {
+    effectiveSubstatChoicesForSlot(provisional, slot).flatMap(({ id }) => {
       const current = previous.substats[id]
       if (Number.isFinite(current)) return [[id, current]]
       return previousIds.has(id) ? [] : [[id, 0]]
@@ -335,7 +375,10 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
           selections[index],
         ),
       })) as WorkbenchState['slots']
-      return withPreparedPartyPressureMains({ slots, focusSlot: draft.focusSlot })
+      return withPreparedEffectiveSubstats(withPreparedPartyPressureMains({
+        slots,
+        focusSlot: draft.focusSlot,
+      }))
     }
     case 'setMindscape': {
       const currentSlot = state.slots[action.slot]
@@ -389,7 +432,6 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
 
     case 'selectDisc':
       return updateSetup(state, action.slot, (setup) => {
-        const agentId = state.slots[action.slot].agentId
         const candidates = action.piece === 'fourPiece'
           ? effectiveFourPieceIds(state, action.slot)
           : effectiveTwoPieceIds(state, action.slot)
@@ -402,13 +444,13 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
           if (!setup.fourPieceId || !effectiveTwoPieceIds(state, action.slot).includes(setup.fourPieceId)) {
             return setup
           }
-          return withSelectedDerivedSubstats(agentId, setup, {
+          return withSelectedDerivedSubstats(state, action.slot, setup, {
             ...setup,
             fourPieceId: action.discId,
             twoPieceId: setup.fourPieceId,
           })
         }
-        return withSelectedDerivedSubstats(agentId, setup, {
+        return withSelectedDerivedSubstats(state, action.slot, setup, {
           ...setup,
           fourPieceId: action.discId,
         })
@@ -431,8 +473,8 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
 
     case 'adjustSubstat':
       return updateSetup(state, action.slot, (setup) => {
-        const agentId = state.slots[action.slot].agentId
-        if (!effectiveSubstatChoices(agentId, setup).some(({ id }) => id === action.key)) {
+        if (!effectiveSubstatChoicesForSlot(state, action.slot)
+          .some(({ id }) => id === action.key)) {
           return setup
         }
         return {
@@ -446,8 +488,8 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
 
     case 'setSubstat':
       return updateSetup(state, action.slot, (setup) => {
-        const agentId = state.slots[action.slot].agentId
-        if (!effectiveSubstatChoices(agentId, setup).some(({ id }) => id === action.key)) {
+        if (!effectiveSubstatChoicesForSlot(state, action.slot)
+          .some(({ id }) => id === action.key)) {
           return setup
         }
         return {
@@ -528,6 +570,16 @@ export function isCompleteAgentSetup(
   agentId: AgentId,
   setup: AgentSetupState,
 ): boolean {
+  return isCompleteAgentSetupForSubstats(
+    setup,
+    effectiveSubstatChoices(agentId, setup),
+  )
+}
+
+function isCompleteAgentSetupForSubstats(
+  setup: AgentSetupState,
+  substatChoices: readonly { id: SubstatId }[],
+): boolean {
   return Boolean(
     setup.engineId
       && setup.refinement
@@ -535,7 +587,7 @@ export function isCompleteAgentSetup(
       && setup.twoPieceId
       && setup.fourPieceId !== setup.twoPieceId
       && Object.values(setup.mains).every(Boolean)
-      && effectiveSubstatChoices(agentId, setup).every(
+      && substatChoices.every(
         ({ id }) => Number.isFinite(setup.substats[id]),
       ),
   )
@@ -543,5 +595,8 @@ export function isCompleteAgentSetup(
 
 export function isCompleteWorkbench(state: WorkbenchState): boolean {
   return !invalidRequiredSelections(state).length
-    && state.slots.every(({ agentId, setup }) => isCompleteAgentSetup(agentId, setup))
+    && state.slots.every(({ setup }, slotIndex) => isCompleteAgentSetupForSubstats(
+      setup,
+      effectiveSubstatChoicesForSlot(state, slotIndex as AppliedSlot),
+    ))
 }

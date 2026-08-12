@@ -15,6 +15,7 @@ import {
   type MainStatId,
   type PoolId,
   type Refinement,
+  type SubstatChoice,
 } from '../workbench/content'
 import { effectiveSubstatChoices } from '../workbench/candidates'
 import type { AgentSetupState, AppliedSlot, Mindscape, WorkbenchAction } from '../workbench/state'
@@ -30,6 +31,7 @@ interface AgentSetupProps extends SourceInteractionProps {
   setup: AgentSetupState
   discCandidates: Record<'fourPiece' | 'twoPiece', readonly DiscId[]>
   mainStatCandidates: Record<MainSlot, readonly MainStatId[]>
+  substatChoices?: readonly SubstatChoice[]
   dispatch: Dispatch<WorkbenchAction>
 }
 
@@ -801,11 +803,13 @@ function StatBank({
   setOpenSelector,
   setup,
   mainStatCandidates,
+  substatChoices,
 }: {
   agentId: AgentId
   slot: AppliedSlot
   setup: AgentSetupState
   mainStatCandidates: Record<MainSlot, readonly MainStatId[]>
+  substatChoices?: readonly SubstatChoice[]
   dispatch: Dispatch<WorkbenchAction>
   openSelector: string | null
   setOpenSelector: (value: string | null) => void
@@ -835,7 +839,7 @@ function StatBank({
       </div>
       <h4 className="stat-bank__group-heading">Sub stats</h4>
       <div className="substat-grid" aria-label={agent.name + ' prepared effective substats'}>
-        {effectiveSubstatChoices(agentId, setup).map((choice, index) => (
+        {(substatChoices ?? effectiveSubstatChoices(agentId, setup)).map((choice, index) => (
           <SubstatStepper
             activeSourceTone={activeSourceTone}
             count={setup.substats[choice.id]}
@@ -880,6 +884,7 @@ export function AgentSetup({
   mainStatCandidates,
   onSourceToneChange,
   setup,
+  substatChoices,
 }: AgentSetupProps) {
   const [openSelector, setOpenSelector] = useState<string | null>(null)
   const agent = ADMITTED_AGENTS.find(({ id }) => id === agentId)!
@@ -931,6 +936,7 @@ export function AgentSetup({
           openSelector={openSelector}
           setOpenSelector={setOpenSelector}
           setup={setup}
+          substatChoices={substatChoices}
         />
       </div>
     </section>

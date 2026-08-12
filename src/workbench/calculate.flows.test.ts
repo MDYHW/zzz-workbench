@@ -87,8 +87,8 @@ describe('representative calculation flows', () => {
     const cissia = agent(result, 'cissia')
     const astra = agent(result, 'astraYao')
 
-    expect(metric(seed, 'atk').values.fully).toBeCloseTo(4650.6, 10)
-    expect(metric(cissia, 'atk').values.fully).toBeCloseTo(4332.1, 10)
+    expect(metric(seed, 'atk').values.fully).toBeCloseTo(4560.8, 10)
+    expect(metric(cissia, 'atk').values.fully).toBeCloseTo(4242.3, 10)
     expect(metric(seed, 'dmgBonus').values.fully).toBe(137)
     expect(metric(cissia, 'defIgnore').values.combat).toBe(53)
     expect(action(cissia, 'cissiaCorrodeDaze').values.fully).toBe(60)

@@ -93,6 +93,18 @@ describe('party-directed preparation', () => {
     },
   )
 
+  it('preserves Trigger King priority over Lycaon when Trigger Additional is unqualified', () => {
+    const prepared = preparePartySelections([
+      context('yixuan'), context('trigger'), context('lycaon'),
+    ], 'yixuan')
+    expect(prepared[1]).toMatchObject({
+      fourPieceId: 'king', twoPieceId: 'shockstar',
+    })
+    expect(prepared[2]).toMatchObject({
+      fourPieceId: 'astralVoice', twoPieceId: 'king',
+    })
+  })
+
   it('keeps Lycaon on local King when no competing independent-CRIT holder exists', () => {
     const prepared = preparePartySelections([
       context('corin'), context('lycaon'), context('astraYao'),
@@ -128,10 +140,18 @@ describe('party-directed preparation', () => {
       [{ agentId: 'trigger', fourPieceId: 'astralVoice' }],
     )
     const local = prepareTargetSelection(context('astraYao'), 'anbySoldier0', [])
+    const localNonLimited = prepareTargetSelection(
+      context('astraYao', 'nonLimited'),
+      'anbySoldier0',
+      [],
+    )
 
     expect(full).toMatchObject({ fourPieceId: 'moonlight', twoPieceId: 'astralVoice' })
     expect(nonLimited).toMatchObject({ fourPieceId: 'moonlight', twoPieceId: 'hormonePunk' })
     expect(local).toMatchObject({ fourPieceId: 'astralVoice', twoPieceId: 'moonlight' })
+    expect(localNonLimited).toMatchObject({
+      fourPieceId: 'astralVoice', twoPieceId: 'moonlight',
+    })
   })
 
   it('keeps Cissia local on Dawn and adds Astral only for the bounded repeated Quick Assist opportunity', () => {
@@ -300,11 +320,11 @@ describe('party-directed preparation', () => {
     })
     expect(prepareTargetSelection(context('panYinhu'), 'yixuan', [])).toEqual({
       engineId: 'tusksOfFury', fourPieceId: 'astralVoice', twoPieceId: 'swingJazz',
-      mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'atkPct' },
+      mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'energyRegenPct' },
     })
     expect(prepareTargetSelection(context('panYinhu', 'nonLimited'), 'yixuan', [])).toEqual({
       engineId: 'tremorTrigramVessel', fourPieceId: 'astralVoice', twoPieceId: 'swingJazz',
-      mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'atkPct' },
+      mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'energyRegenPct' },
     })
 
     for (const pan of [context('panYinhu'), context('panYinhu', 'nonLimited')]) {
@@ -337,7 +357,7 @@ describe('party-directed preparation', () => {
       { agentId: 'cissia', fourPieceId: 'astralVoice' },
     ])).toEqual({
       engineId: 'tusksOfFury', fourPieceId: 'bunnyInWonderland', twoPieceId: 'astralVoice',
-      mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'atkPct' },
+      mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'energyRegenPct' },
     })
   })
 

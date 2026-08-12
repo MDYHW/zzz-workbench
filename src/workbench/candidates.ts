@@ -13,6 +13,7 @@ import {
   hasDialynUltimateOpportunity,
 } from './provider-effects'
 import { hasRepeatedQuickAssistOpportunity } from './preparation'
+import { triggerAdditionalIsActive } from './party-conditions'
 import type { AppliedSlot, WorkbenchState } from './state'
 
 export type RequiredSetupSelection =
@@ -40,6 +41,19 @@ function recipientHasMaterialBroadPrePenPressure(
 
 const MAIN_SLOTS: MainSlot[] = ['slot4', 'slot5', 'slot6']
 
+function triggerCritPressureIsActive(
+  state: WorkbenchState,
+  slot: AppliedSlot,
+): boolean {
+  const current = state.slots[slot]
+  return current.agentId === 'trigger'
+    && (current.setup.fourPieceId === 'king'
+      || triggerAdditionalIsActive(
+        state.slots.map(({ agentId }) => agentId),
+        slot,
+      ))
+}
+
 export function effectiveFourPieceIds(
   state: WorkbenchState,
   slot: AppliedSlot,
@@ -61,7 +75,10 @@ export function effectiveTwoPieceIds(
   slot: AppliedSlot,
 ): DiscId[] {
   const agentId = state.slots[slot].agentId
-  const base = DISC_IDS_BY_AGENT_AND_PIECE[agentId].twoPiece
+  const authored = DISC_IDS_BY_AGENT_AND_PIECE[agentId].twoPiece
+  const base = agentId === 'trigger' && !triggerCritPressureIsActive(state, slot)
+    ? authored.filter((candidateId) => candidateId !== 'woodpecker')
+    : authored
   const selectedDerived = (agentId === 'lycaon' || agentId === 'juFufu')
     && state.slots[slot].setup.fourPieceId === 'king'
     ? ['woodpecker' as const]
@@ -96,6 +113,9 @@ export function effectiveSubstatChoicesForSlot(
   slot: AppliedSlot,
 ): SubstatChoice[] {
   const current = state.slots[slot]
+  if (current.agentId === 'trigger' && !triggerCritPressureIsActive(state, slot)) {
+    return []
+  }
   return effectiveSubstatChoices(current.agentId, current.setup)
 }
 
@@ -143,7 +163,7 @@ export function invalidRequiredSelections(
         ? [{ kind: 'mainStat' as const, slot, agentId, mainSlot }]
         : []
     })
-    const effectiveSubstats = effectiveSubstatChoices(agentId, setup)
+    const effectiveSubstats = effectiveSubstatChoicesForSlot(state, slot)
     const invalidSubstats: RequiredSetupSelection[] = Object.keys(setup.substats)
       .filter((id) => !effectiveSubstats.some((choice) => choice.id === id))
       .map((id) => ({ kind: 'substat' as const, slot, agentId, substatId: id as SubstatChoice['id'] }))
@@ -169,7 +189,7 @@ export function incompleteRequiredSelections(
         ? [{ kind: 'mainStat' as const, slot, agentId, mainSlot }]
         : []
     ))
-    const missingSubstats: RequiredSetupSelection[] = effectiveSubstatChoices(agentId, setup)
+    const missingSubstats: RequiredSetupSelection[] = effectiveSubstatChoicesForSlot(state, slot)
       .filter(({ id }) => !Number.isFinite(setup.substats[id]))
       .map(({ id }) => ({ kind: 'substat' as const, slot, agentId, substatId: id }))
     return [...missingDiscs, ...missingMains, ...missingSubstats]

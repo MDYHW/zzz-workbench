@@ -454,6 +454,22 @@ describe('authored calculation policies', () => {
       expect(withoutAnby.metrics.find(({ id }) => id === 'critDmg')).toBeUndefined()
       expect(withoutAnby.metrics.find(({ id }) => id === 'dmgBonus')).toBeUndefined()
 
+      const unqualified = agent(calculateParty(
+        createPreparedState({}, ['yixuan', 'trigger', 'lucia'], 0),
+      )!, 'trigger')
+      expect(metric(unqualified, 'critRate').gauge).toBeUndefined()
+      expect(unqualified.actionModifiers.map(({ id }) => id)).not.toContain('triggerBasic')
+
+      let qualifiedWithoutAnby = createPreparedState({}, ['evelyn', 'trigger', 'lucia'], 0)
+      qualifiedWithoutAnby = workbenchReducer(qualifiedWithoutAnby, {
+        type: 'setSubstat', slot: 1, key: 'critRate', value: 8,
+      })
+      const qualifiedTrigger = agent(calculateParty(qualifiedWithoutAnby)!, 'trigger')
+      expect(metric(qualifiedTrigger, 'critRate').gauge).toMatchObject({
+        threshold: 40, cap: 90, outputLabel: 'Aftershock Daze bonus',
+      })
+      expect(qualifiedTrigger.actionModifiers.map(({ id }) => id)).toContain('triggerBasic')
+
       let state = createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
       state = workbenchReducer(state, { type: 'setMindscape', slot: 2, mindscape: 4 })
       const result = calculateParty(state)!
@@ -495,6 +511,49 @@ describe('authored calculation policies', () => {
       expect(metric(agent(result, 'anbySoldier0'), 'resReduction').values.fully).toBe(18)
       expect(agent(result, 'trigger').metrics.map(({ id }) => id))
         .not.toContain('resReduction')
+    })
+
+    it('authors Astra Slot 6 after reserving the finite ATK substat opportunity by pool', () => {
+      const full = createPreparedState({}, ['evelyn', 'dialyn', 'astraYao'], 0)
+      expect(full.slots[2].setup.mains.slot6).toBe('energyRegenPct')
+      let matureFull = setSubstat(full, 'astraYao', 'atkPct', 8)
+      matureFull = setSubstat(matureFull, 'astraYao', 'atkFlat', 8)
+      const fullAstra = agent(calculateParty(matureFull)!, 'astraYao')
+      expect(metric(fullAstra, 'atk').values.initial).toBeCloseTo(3666.72, 10)
+      expect(metric(fullAstra, 'atk').gauge).toMatchObject({
+        outputValue: 1200, outputCap: 1200,
+      })
+
+      const nonLimited = createPreparedState(
+        { astraYao: 'nonLimited' },
+        ['evelyn', 'dialyn', 'astraYao'],
+        0,
+      )
+      expect(nonLimited.slots[2].setup).toMatchObject({
+        fourPieceId: 'astralVoice', twoPieceId: 'moonlight',
+      })
+      expect(nonLimited.slots[2].setup.mains.slot6).toBe('atkPct')
+      let matureNonLimited = setSubstat(nonLimited, 'astraYao', 'atkPct', 8)
+      matureNonLimited = setSubstat(matureNonLimited, 'astraYao', 'atkFlat', 8)
+      expect(metric(agent(calculateParty(matureNonLimited)!, 'astraYao'), 'atk')
+        .values.initial).toBeCloseTo(3467.36, 10)
+      expect(metric(agent(calculateParty(nonLimited)!, 'astraYao'), 'energyRegen')
+        .breakdown.initial).toContainEqual(expect.objectContaining({
+          label: 'Moonlight Lullaby', locus: 'disc-2pc',
+          display: { value: 20, unit: '%', decimals: 0 },
+        }))
+
+      const m2 = workbenchReducer(nonLimited, {
+        type: 'setMindscape', slot: 2, mindscape: 2,
+      })
+      expect(m2.slots[2].setup.mains.slot6).toBe('energyRegenPct')
+      let matureM2 = setSubstat(m2, 'astraYao', 'atkPct', 8)
+      matureM2 = setSubstat(matureM2, 'astraYao', 'atkFlat', 8)
+      const matureM2Astra = agent(calculateParty(matureM2)!, 'astraYao')
+      expect(metric(matureM2Astra, 'atk').values.initial).toBeCloseTo(3065.66, 10)
+      expect(metric(matureM2Astra, 'atk').gauge).toMatchObject({
+        outputValue: 1600, outputCap: 1600,
+      })
     })
 
     it('projects Seed M0 through the resolved Vanguard and omits it without one', () => {
@@ -867,12 +926,19 @@ describe('authored calculation policies', () => {
       const full = agent(calculateParty(fullState)!, 'panYinhu')
       const yixuan = agent(calculateParty(fullState)!, 'yixuan')
       const juFufu = agent(calculateParty(fullState)!, 'juFufu')
-      expect(metric(full, 'atk').values.initial).toBeCloseTo(3064, 10)
+      expect(metric(full, 'atk').values.initial).toBeCloseTo(2651.8, 10)
       expect(metric(full, 'atk').gauge).toMatchObject({
-        cap: 3000, outputValue: 720, outputCap: 720,
+        cap: 3000, outputValue: 636.432, outputCap: 720,
+      })
+      let matureFullState = setSubstat(fullState, 'panYinhu', 'atkPct', 8)
+      matureFullState = setSubstat(matureFullState, 'panYinhu', 'atkFlat', 8)
+      const matureFull = agent(calculateParty(matureFullState)!, 'panYinhu')
+      expect(metric(matureFull, 'atk').values.initial).toBeCloseTo(3133.56, 10)
+      expect(metric(matureFull, 'atk').gauge).toMatchObject({
+        outputValue: 720, outputCap: 720,
       })
       expect(metric(yixuan, 'sheerForce').breakdown.fully)
-        .toContainEqual(expect.objectContaining({ ownerAgentId: 'panYinhu', amount: 720 }))
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'panYinhu', amount: 636.432 }))
       expect(metric(yixuan, 'dmgBonus').breakdown.fully)
         .toContainEqual(expect.objectContaining({ ownerAgentId: 'panYinhu', locus: 'w-engine', amount: 18 }))
       expect(metric(juFufu, 'dazeBonus').breakdown.fully)
@@ -881,15 +947,21 @@ describe('authored calculation policies', () => {
       const m0State = withMindscape(fullState, 'panYinhu', 0)
       const m0 = agent(calculateParty(m0State)!, 'panYinhu')
       const m0Focus = agent(calculateParty(m0State)!, 'yixuan')
-      expect(metric(m0, 'atk').gauge).toMatchObject({ outputValue: 540, outputCap: 540 })
-      expect(metric(m0Focus, 'sheerForce').breakdown.fully)
-        .toContainEqual(expect.objectContaining({ ownerAgentId: 'panYinhu', amount: 540 }))
+      expect(metric(m0, 'atk').gauge).toMatchObject({ outputCap: 540 })
+      expect(metric(m0, 'atk').gauge?.outputValue).toBeCloseTo(477.324, 10)
+      expect(metric(m0Focus, 'sheerForce').breakdown.fully
+        .find(({ ownerAgentId }) => ownerAgentId === 'panYinhu')?.amount)
+        .toBeCloseTo(477.324, 10)
 
       const nonLimitedState = createPreparedState(
         { panYinhu: 'nonLimited' }, ['yixuan', 'panYinhu', 'juFufu'], 0,
       )
       const nonLimited = agent(calculateParty(nonLimitedState)!, 'panYinhu')
-      expect(metric(nonLimited, 'atk').values.initial).toBeCloseTo(3207.25, 10)
+      expect(metric(nonLimited, 'atk').values.initial).toBeCloseTo(2821.75, 10)
+      let matureNonLimitedState = setSubstat(nonLimitedState, 'panYinhu', 'atkPct', 8)
+      matureNonLimitedState = setSubstat(matureNonLimitedState, 'panYinhu', 'atkFlat', 8)
+      expect(metric(agent(calculateParty(matureNonLimitedState)!, 'panYinhu'), 'atk')
+        .values.initial).toBeCloseTo(3282.15, 10)
       expect(action(nonLimited, 'panExUltimate').breakdown.fully)
         .toContainEqual(expect.objectContaining({
           ownerAgentId: 'panYinhu', locus: 'w-engine', amount: 40,
@@ -915,7 +987,7 @@ describe('authored calculation policies', () => {
           }))
       }
       expect(metric(agent(allocated, 'panYinhu'), 'atk').values.initial)
-        .toBeCloseTo(3064, 10)
+        .toBeCloseTo(2651.8, 10)
 
       let swingState = createPreparedState({}, ['yixuan', 'panYinhu', 'juFufu'], 0)
       swingState = selectDisc(swingState, 'panYinhu', 'fourPiece', 'swingJazz')
@@ -925,7 +997,7 @@ describe('authored calculation policies', () => {
         .toContainEqual(expect.objectContaining({
           ownerAgentId: 'panYinhu', locus: 'disc-4pc', amount: 15,
         }))
-      expect(metric(agent(swing, 'panYinhu'), 'energyRegen').values.initial).toBeCloseTo(1.872)
+      expect(metric(agent(swing, 'panYinhu'), 'energyRegen').values.initial).toBeCloseTo(2.808)
     })
 
     it('qualifies Pan Yinhu Additional by Rupture or typed faction and clears it otherwise', () => {

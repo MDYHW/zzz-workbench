@@ -55,8 +55,9 @@ A later advisory review repeated the pattern by overgeneralizing the Lycaon
 conclusion to Trigger and by treating Swing Jazz and Moonlight Lullaby as one
 candidate because their two-piece Energy Regen values match. Current repository
 behavior contradicts both claims: Trigger has an independent CRIT-derived
-Aftershock Daze relationship, and exact Disc identity still changes selected
-artwork, source disclosure, and same-set legality.
+Aftershock Daze relationship while her exact Additional Ability party condition
+is active, and exact Disc identity still changes selected artwork, source
+disclosure, and same-set legality.
 
 This was not primarily a missing Product Contract rule. The contract already
 required current-consumer routing, whole-package and opportunity-cost review,
@@ -211,8 +212,11 @@ nearest current consumers.
 
 Removing King from Lycaon removes his current CRIT threshold consumer, so a
 CRIT candidate authored only for that relationship must disappear. Removing
-King from Trigger removes one threshold consumer but leaves Trigger's
-CRIT-derived Aftershock Daze relationship. Trigger therefore retains CRIT.
+King from a party-qualified Trigger removes one threshold consumer but leaves
+Trigger's CRIT-derived Aftershock Daze relationship. She therefore retains
+CRIT. An unqualified Trigger instead loses that relationship with King and must
+clear the selected-input-derived CRIT investment; reselecting King restores the
+candidate at zero rather than restoring an edited count.
 
 The policy follows the current consumer, not Agent identity, Specialty, or the
 Disc name.

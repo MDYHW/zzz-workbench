@@ -5,8 +5,8 @@ import { composeActionEffects, composeMetricEffects, contribution, percentageCon
 import type { AgentResult, ResultMetric } from '../result'
 import { ANBY_AFTERSHOCK_TARGET } from './anby-soldier-0'
 
-export interface TriggerCalculationContext { agentId: 'trigger'; setup: CompleteSetup; hasAnby: boolean }
-export const observeTrigger = (setup: CompleteSetup, hasAnby: boolean): TriggerCalculationContext => ({ agentId: 'trigger', setup, hasAnby })
+export interface TriggerCalculationContext { agentId: 'trigger'; setup: CompleteSetup; additionalActive: boolean }
+export const observeTrigger = (setup: CompleteSetup, additionalActive: boolean): TriggerCalculationContext => ({ agentId: 'trigger', setup, additionalActive })
 
 const TRIGGER_BASIC_AFTERSHOCK_TARGET = actionTarget(
   [canonicalAction('Basic Attack')],
@@ -70,10 +70,10 @@ export function calculateTrigger(context: TriggerCalculationContext, inbox: Sour
   const critDmg = composeMetricEffects(surfaces(values.critDmg, values.critDmg, values.critDmg), surfaces([], [], []), effects, 'critDmg')
   const impact = composeMetricEffects(surfaces(impactBase, impactBase, impactBase), surfaces(impactInputs.map((x) => percentageContribution(x.source, values.impact * x.rawValue / 100, x.rawValue)), [], []), effects, 'impact')
   const daze = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus')
-  const dazeGauge = context.hasAnby ? Math.min(Math.max(crit.values.fully - 40, 0) * 1.5, 75) : 0
+  const dazeGauge = context.additionalActive ? Math.min(Math.max(crit.values.fully - 40, 0) * 1.5, 75) : 0
   const quickAssist = effects.find((effect) => effect.action === TRIGGER_QUICK_ASSIST_TARGET && effect.metric === 'dazeBonus')
   const critMetric: ResultMetric = { id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1, ...crit }
-  if (context.hasAnby) critMetric.gauge = { source: STATIC_SOURCES.trigger.additional, basisLabel: 'Fully Enabled CRIT Rate', current: crit.values.fully, threshold: 40, cap: 90, outputLabel: 'Aftershock Daze bonus', outputValue: dazeGauge, outputCap: 75, outputUnit: '%' }
+  if (context.additionalActive) critMetric.gauge = { source: STATIC_SOURCES.trigger.additional, basisLabel: 'Fully Enabled CRIT Rate', current: crit.values.fully, threshold: 40, cap: 90, outputLabel: 'Aftershock Daze bonus', outputValue: dazeGauge, outputCap: 75, outputUnit: '%' }
   const dazeMetric: ResultMetric = { id: 'dazeBonus', label: 'Daze Bonus', unit: '%', decimals: 1, ...daze }
   const aftershockDmg = composeActionEffects(surfaces(0, 0, 0), effects, 'dmgBonus', ANBY_AFTERSHOCK_TARGET)
   const aftershockCrit = composeActionEffects(critDmg.values, effects, 'critDmg', ANBY_AFTERSHOCK_TARGET)

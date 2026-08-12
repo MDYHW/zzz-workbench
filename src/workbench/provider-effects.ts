@@ -6,6 +6,7 @@ import {
   type EquipmentEffectCollection,
 } from './content'
 import type { AppliedSlot, WorkbenchState } from './state'
+import { triggerAdditionalIsActive } from './party-conditions'
 import {
   astralVoiceEntrantClause,
   clauseAppliesToAgent,
@@ -164,7 +165,7 @@ function observeProviderContext(
     && specialties.includes(ADMITTED_AGENTS.find(({ id }) => id === agentId)!.specialty)
   ))
   const hasStunOrSupport = anotherHasSpecialty(['Stun', 'Support'])
-  const hasAnby = state.slots.some(({ agentId }) => agentId === 'anbySoldier0')
+  const partyAgentIds = state.slots.map(({ agentId }) => agentId)
   const summary = ADMITTED_AGENTS.find(({ id }) => id === slot.agentId)!
   const anotherSharesAttribute = state.slots.some(({ agentId }, index) => (
     index !== providerIndex
@@ -219,7 +220,10 @@ function observeProviderContext(
     case 'anbySoldier0':
       return observeAnby(slot.setup, hasStunOrSupport, providerIndex === state.focusSlot)
     case 'trigger':
-      return observeTrigger(slot.setup, hasAnby)
+      return observeTrigger(
+        slot.setup,
+        triggerAdditionalIsActive(partyAgentIds, providerIndex),
+      )
     case 'astraYao':
       return observeAstra(slot.setup)
     case 'seed':

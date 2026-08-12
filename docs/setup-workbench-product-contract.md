@@ -405,6 +405,22 @@ the remaining setup can supply. This is an authoring comparison only: it does
 not initialize substats, cap the editable count, score equipment at runtime, or
 replace a pool-specific whole-package decision.
 
+When a capped provider direction has only one materially effective substat axis,
+reserve that conservative substat opportunity before authoring how much of the
+same axis fixed W-Engine, Disc, or main-stat slots must supply. Use fixed choices
+for the residual cap requirement and for valuable axes that substats cannot
+supply. This prevents the starting representative from consuming scarce fixed
+slots to pre-fill a cap that the Agent's few worthwhile substats are expected to
+cover. The prepared setup still initializes every offered count at zero and its
+Result may therefore begin below the cap.
+
+This ordering does not apply to an ordinary damage direction merely because one
+of its effective substats is stronger than another. When several materially
+valuable damage axes remain available, author the best complete W-Engine and
+Disc package in the pool first, then distribute main stats and effective
+substats around that package. In both cases the result is an authored starting
+representative, not a runtime optimizer or a promise of exact farmed counts.
+
 ### Prepared Starting Setup
 
 Preparation supplies one deterministic first choice from the current effective

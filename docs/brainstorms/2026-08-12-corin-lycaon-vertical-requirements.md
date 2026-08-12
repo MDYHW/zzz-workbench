@@ -103,8 +103,11 @@ and genuine multi-recipient effects keep their actual rules.
   - **Trigger:** Lycaon is applied beside Dialyn or Trigger.
   - **Actors:** A1, A2
   - **Steps:** Preparation preserves competitive non-overlap: the holder with
-    an independent CRIT consumer keeps King, while Lycaon prepares Astral.
-    Candidate membership does not change and direct edits remain local.
+    the established lower-opportunity-cost King fit keeps it, while Lycaon
+    prepares Astral. Trigger's exact Additional qualification independently
+    controls her current CRIT candidates; it does not rewrite the prepared
+    holder allocation. Candidate membership does not change and direct edits
+    remain local.
   - **Outcome:** The starting party uses King plus Astral without a runtime
     score, named-party lookup, null choice, or duplicate non-stacking holder.
   - **Covered by:** R18-R20
@@ -274,10 +277,14 @@ and genuine multi-recipient effects keep their actual rules.
   | Trigger and Lycaon | Trigger keeps King; Lycaon prepares Astral |
   | Dialyn and Trigger | preserve Dialyn King; Trigger Astral |
 
-  Dialyn and Trigger keep King because each has an independent CRIT consumer and
-  lower threshold opportunity cost. Lycaon has no independent CRIT consumer and
-  remains the flexible Astral holder. This is the current `King + Astral`
-  portfolio decision, not a universal Stun priority list.
+  Dialyn keeps King through her independent CRIT consumer and lower threshold
+  opportunity cost. Trigger keeps the established King priority over Lycaon;
+  when her exact Additional party condition is active it also remains an
+  independent CRIT consumer, while an unqualified Trigger retains only selected
+  King pressure. Lycaon has no independent CRIT consumer and remains the
+  flexible Astral holder. Exact qualification changes current candidate
+  pressure, not this authored `King + Astral` portfolio decision. This is not a
+  universal Stun priority list.
 - R19. When R18 prepares Lycaon with Astral, his complete package uses Astral
   4-piece plus King 2-piece, ATK% / Ice DMG / Impact mains, the pool-specific
   W-Engine from R17, and no effective-substat choices. Directly editing any
@@ -441,8 +448,10 @@ and genuine multi-recipient effects keep their actual rules.
   second King clause. Selecting Woodpecker 2-piece instead begins at 37% and six
   hits reach 51.4%. Directly selecting Astral clears a selected CRIT main or
   Woodpecker and removes the CRIT count; reselecting King restores those
-  candidates but none of their old selections. Trigger retains its independent
-  CRIT candidates throughout the same Disc edit contrast.
+  candidates but none of their old selections. A party-qualified Trigger
+  retains her independent CRIT candidates throughout the same Disc edit
+  contrast; an unqualified Trigger clears them with King and restores them at
+  zero only when King is reselected.
 - AE8. **Covers R14, R18-R20.** Applying Corin/Dialyn/Lycaon prepares Dialyn with
   King and Lycaon with Astral plus King 2-piece. Applying Corin/Trigger/Lycaon
   prepares Trigger with King and Lycaon with the same Astral package. Applying

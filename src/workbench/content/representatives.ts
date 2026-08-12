@@ -39,7 +39,7 @@ const panYinhuRepresentative = (pool: PoolId): SetupSelection => ({
   engineId: pool === 'full' ? 'tusksOfFury' : 'tremorTrigramVessel',
   fourPieceId: 'astralVoice',
   twoPieceId: 'swingJazz',
-  mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'atkPct' },
+  mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'energyRegenPct' },
 })
 
 const banyueRepresentative = (pool: PoolId): SetupSelection => ({
@@ -84,11 +84,11 @@ const triggerRepresentative = (pool: PoolId): SetupSelection => ({
 const astraRepresentative = (pool: PoolId, mindscape: number): SetupSelection => ({
   engineId: pool === 'full' ? 'elegantVanity' : 'kaboom',
   fourPieceId: 'astralVoice',
-  twoPieceId: pool === 'full' ? 'moonlight' : 'hormonePunk',
+  twoPieceId: 'moonlight',
   mains: {
     slot4: 'atkPct',
     slot5: 'atkPct',
-    slot6: mindscape >= 2 ? 'energyRegenPct' : 'atkPct',
+    slot6: pool === 'full' || mindscape >= 2 ? 'energyRegenPct' : 'atkPct',
   },
 })
 

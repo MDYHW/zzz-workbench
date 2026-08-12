@@ -51,22 +51,22 @@ function withCompetitiveKingAstralAllocation(
     .includes('king')
   const canPrepareAstral = DISC_IDS_BY_AGENT_AND_PIECE[context.agentId].fourPiece
     .includes('astralVoice')
-  const kingIsHeldByIndependentCritConsumer = establishedHolders.some((holder) => (
+  const kingIsHeldByPriorityCritHolder = establishedHolders.some((holder) => (
     holder.agentId !== context.agentId
     && holder.fourPieceId === 'king'
-    && hasIndependentCritConsumer(holder.agentId)
+    && hasPreparedKingPriority(holder.agentId)
   ))
-  const targetHasIndependentCritConsumer = hasIndependentCritConsumer(context.agentId)
-  return canPrepareKing && canPrepareAstral && kingIsHeldByIndependentCritConsumer
+  const targetHasPreparedKingPriority = hasPreparedKingPriority(context.agentId)
+  return canPrepareKing && canPrepareAstral && kingIsHeldByPriorityCritHolder
     ? {
       ...selection,
       fourPieceId: 'astralVoice',
-      twoPieceId: targetHasIndependentCritConsumer
+      twoPieceId: targetHasPreparedKingPriority
         ? selection.twoPieceId
         : selection.fourPieceId,
       mains: {
         ...selection.mains,
-        slot4: targetHasIndependentCritConsumer
+        slot4: targetHasPreparedKingPriority
           ? selection.mains.slot4
           : 'atkPct',
       },
@@ -74,7 +74,7 @@ function withCompetitiveKingAstralAllocation(
     : selection
 }
 
-function hasIndependentCritConsumer(agentId: AgentId): boolean {
+function hasPreparedKingPriority(agentId: AgentId): boolean {
   return MAIN_STAT_IDS_BY_AGENT_AND_SLOT[agentId].slot4.includes('critRate')
     && SUBSTAT_CHOICES_BY_AGENT[agentId].some(({ id }) => id === 'critRate')
 }

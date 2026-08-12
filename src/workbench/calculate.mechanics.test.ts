@@ -262,7 +262,7 @@ describe('calculateParty mechanisms', () => {
     const triggerImpact = metric(agent(result, 'trigger'), 'impact')
 
     expect(anbyAtk.values.initial).toBeCloseTo(2450.6)
-    expect(anbyAtk.values.fully - anbyAtk.values.initial).toBeCloseTo(1494.072)
+    expect(anbyAtk.values.fully - anbyAtk.values.initial).toBeCloseTo(1404.272)
     expect(triggerImpact.values.initial).toBeCloseTo(162.44)
     expect(triggerImpact.values.fully).toBeCloseTo(194.928)
   })
@@ -288,10 +288,10 @@ describe('calculateParty mechanisms', () => {
   })
 
   it('keeps equal non-stacking origins visible while applying one category value', () => {
-    let state = createPreparedState({}, ['yixuan', 'trigger', 'astraYao'], 0)
+    let state = createPreparedState({}, ['corin', 'trigger', 'astraYao'], 0)
     state = withSetup(state, 'trigger', (setup) => ({ ...setup, fourPieceId: 'astralVoice' }))
     state = withSetup(state, 'astraYao', (setup) => ({ ...setup, fourPieceId: 'astralVoice' }))
-    const rows = metric(agent(calculateParty(state)!, 'yixuan'), 'dmgBonus')
+    const rows = metric(agent(calculateParty(state)!, 'corin'), 'dmgBonus')
       .breakdown.fully.filter(({ label }) => label === 'Astral Voice')
 
     expect(rows).toHaveLength(2)

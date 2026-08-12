@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { DISC_IDS_BY_AGENT_AND_PIECE, MAIN_STAT_IDS_BY_AGENT_AND_SLOT, type AgentId, type MainSlot, type MainStatId } from '../workbench/content'
 import { createPreparedState, isCompleteWorkbench, workbenchReducer } from '../workbench/state'
 import { AgentSetup } from './AgentSetup'
-import { effectiveFourPieceIds, effectiveMainStatIds, effectiveTwoPieceIds } from '../workbench/candidates'
+import { effectiveFourPieceIds, effectiveMainStatIds, effectiveSubstatChoicesForSlot, effectiveTwoPieceIds } from '../workbench/candidates'
 
 const singleCandidateMains: Record<MainSlot, readonly MainStatId[]> = {
   slot4: ['critRate'],
@@ -537,6 +537,33 @@ function LycaonSelectedPressureHarness() {
   )
 }
 
+function UnqualifiedTriggerPressureHarness() {
+  const [state, dispatch] = useReducer(workbenchReducer, undefined, () => (
+    createPreparedState({}, ['yixuan', 'trigger', 'lucia'], 0)
+  ))
+  const slot = 1 as const
+  return (
+    <AgentSetup
+      activeSourceTone={null}
+      agentId="trigger"
+      discCandidates={{
+        fourPiece: effectiveFourPieceIds(state, slot),
+        twoPiece: effectiveTwoPieceIds(state, slot),
+      }}
+      dispatch={dispatch}
+      mainStatCandidates={{
+        slot4: effectiveMainStatIds(state, slot, 'slot4'),
+        slot5: effectiveMainStatIds(state, slot, 'slot5'),
+        slot6: effectiveMainStatIds(state, slot, 'slot6'),
+      }}
+      onSourceToneChange={vi.fn()}
+      setup={state.slots[slot].setup}
+      slot={slot}
+      substatChoices={effectiveSubstatChoicesForSlot(state, slot)}
+    />
+  )
+}
+
 describe('AgentSetup selected-pressure hit count', () => {
   it('reinitializes King CRIT Rate at zero while preserving selector focus', async () => {
     const user = userEvent.setup()
@@ -568,5 +595,29 @@ describe('AgentSetup selected-pressure hit count', () => {
     expect(input).not.toHaveAttribute('aria-describedby')
     expect(screen.queryByText('Hit count required')).not.toBeInTheDocument()
     expect(document.querySelector('[aria-live]')).toBeNull()
+  })
+
+  it('removes unqualified Trigger CRIT Rate with King and restores only a zero count', async () => {
+    const user = userEvent.setup()
+    render(<UnqualifiedTriggerPressureHarness />)
+
+    await user.click(screen.getByRole('button', { name: 'Increase CRIT Rate hits' }))
+    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveValue('1')
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from King of the Summit',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Astral Voice as fourPiece',
+    }))
+    expect(screen.queryByLabelText('CRIT Rate hit count')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Astral Voice',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select King of the Summit as fourPiece',
+    }))
+    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveValue('0')
   })
 })

@@ -9,6 +9,7 @@ import {
   effectiveFourPieceIds,
   effectiveMainStatIds,
   effectiveSubstatChoices,
+  effectiveSubstatChoicesForSlot,
   effectiveTwoPieceIds,
   incompleteRequiredSelections,
 } from './candidates'
@@ -863,14 +864,14 @@ describe('workbench state lifecycle', () => {
     }))).toEqual([
       { engineId: 'severedInnocence', fourPieceId: 'shadowHarmony', twoPieceId: 'woodpecker', mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'atkPct' }, substats: { critRate: 0, critDmg: 0, atkPct: 0 } },
       { engineId: 'spectralGaze', fourPieceId: 'king', twoPieceId: 'shockstar', mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'impact' }, substats: { critRate: 0 } },
-      { engineId: 'elegantVanity', fourPieceId: 'astralVoice', twoPieceId: 'moonlight', mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'atkPct' }, substats: { atkPct: 0, atkFlat: 0 } },
+      { engineId: 'elegantVanity', fourPieceId: 'astralVoice', twoPieceId: 'moonlight', mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'energyRegenPct' }, substats: { atkPct: 0, atkFlat: 0 } },
     ])
 
     const nonLimited = createPreparedState({ anbySoldier0: 'nonLimited', trigger: 'nonLimited', astraYao: 'nonLimited' }, ['anbySoldier0', 'trigger', 'astraYao'], 0)
     expect(nonLimited.slots.map(({ setup }) => [setup.engineId, setup.fourPieceId, setup.twoPieceId])).toEqual([
       ['marcatoDesire', 'shadowHarmony', 'branchAndBlade'],
       ['restrained', 'king', 'shockstar'],
-      ['kaboom', 'astralVoice', 'hormonePunk'],
+      ['kaboom', 'astralVoice', 'moonlight'],
     ])
     expect(nonLimited.slots[2].setup.mains.slot6).toBe('atkPct')
 
@@ -1169,20 +1170,50 @@ describe('workbench state lifecycle', () => {
     })
     expect(calculateParty(state)).not.toBeNull()
 
-    let trigger = createPreparedState({}, ['corin', 'trigger', 'astraYao'], 0)
-    trigger = workbenchReducer(trigger, {
+    let qualifiedTrigger = createPreparedState({}, ['corin', 'trigger', 'astraYao'], 0)
+    qualifiedTrigger = workbenchReducer(qualifiedTrigger, {
       type: 'setSubstat', slot: 1, key: 'critRate', value: 7,
     })
-    trigger = workbenchReducer(trigger, {
+    qualifiedTrigger = workbenchReducer(qualifiedTrigger, {
       type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
     })
-    expect(effectiveMainStatIds(trigger, 1, 'slot4')).toContain('critRate')
-    expect(effectiveSubstatChoices('trigger', trigger.slots[1].setup)
+    expect(effectiveMainStatIds(qualifiedTrigger, 1, 'slot4')).toContain('critRate')
+    expect(effectiveSubstatChoicesForSlot(qualifiedTrigger, 1)
       .map(({ id }) => id)).toEqual(['critRate'])
-    expect(trigger.slots[1].setup).toMatchObject({
+    expect(qualifiedTrigger.slots[1].setup).toMatchObject({
       mains: { slot4: 'critRate' },
       substats: { critRate: 7 },
     })
+  })
+
+  it('gates Trigger CRIT substats by exact Additional qualification or selected King pressure', () => {
+    let state = createPreparedState({}, ['yixuan', 'trigger', 'lucia'], 0)
+    expect(state.slots[1].setup.fourPieceId).toBe('king')
+    expect(effectiveSubstatChoicesForSlot(state, 1).map(({ id }) => id))
+      .toEqual(['critRate'])
+
+    state = workbenchReducer(state, {
+      type: 'setSubstat', slot: 1, key: 'critRate', value: 7,
+    })
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    expect(effectiveSubstatChoicesForSlot(state, 1)).toEqual([])
+    expect(state.slots[1].setup.substats).toEqual({})
+    expect(effectiveTwoPieceIds(state, 1)).not.toContain('woodpecker')
+
+    state = workbenchReducer(state, {
+      type: 'setSubstat', slot: 1, key: 'critRate', value: 5,
+    })
+    expect(state.slots[1].setup.substats).toEqual({})
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'king',
+    })
+    expect(effectiveSubstatChoicesForSlot(state, 1).map(({ id }) => id))
+      .toEqual(['critRate'])
+    expect(state.slots[1].setup.substats).toEqual({ critRate: 0 })
+    expect(effectiveTwoPieceIds(state, 1)).toContain('woodpecker')
   })
 
   it('extends contextual Puffer and broad pre-PEN policy to Corin with an Electric contrast', () => {
