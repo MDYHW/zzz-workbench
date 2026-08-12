@@ -435,6 +435,13 @@ describe('calculateParty mechanisms', () => {
       .not.toContainEqual(expect.objectContaining({
         label: 'Additional Ability', ownerAgentId: 'corin',
       }))
+    const differentFaction = agent(calculateParty(
+      createPreparedState({}, ['corin', 'evelyn', 'astraYao'], 0),
+    )!, 'corin')
+    expect(Object.values(metric(differentFaction, 'dmgBonus').breakdown).flat())
+      .not.toContainEqual(expect.objectContaining({
+        label: 'Additional Ability', ownerAgentId: 'corin',
+      }))
 
     expect(action(base, 'corinChainsaw').values.combat
       - metric(base, 'dmgBonus').values.combat).toBeCloseTo(37.5, 10)
@@ -521,6 +528,10 @@ describe('calculateParty mechanisms', () => {
       createPreparedState({}, ['seed', 'lycaon', 'astraYao'], 0),
     )!, 'lycaon')
     expect(unqualified.metrics.find(({ id }) => id === 'stunDmgMultiplier')).toBeUndefined()
+    const differentFaction = agent(calculateParty(
+      createPreparedState({}, ['evelyn', 'lycaon', 'astraYao'], 0),
+    )!, 'lycaon')
+    expect(differentFaction.metrics.find(({ id }) => id === 'stunDmgMultiplier')).toBeUndefined()
 
     expect(metric(base, 'critRate').gauge).toMatchObject({
       basisLabel: 'Initial CRIT Rate',

@@ -72,7 +72,6 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     specialty: 'Attack',
     focusEligible: true,
     rank: 'S',
-    faction: 'Victoria Housekeeping Co.',
   },
   {
     id: 'corin',
