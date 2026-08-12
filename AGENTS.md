@@ -116,9 +116,22 @@ itself establish semantic readiness.
 - Delegate bounded work whose behavior is settled to a worker using the lowest
   model and reasoning level that can complete it reliably. The controller owns
   product or semantic decisions, task boundaries, and final integration.
+- Route each bounded unit independently rather than assigning one model or
+  reasoning level to an entire vertical. A successful source-content or
+  mechanical unit does not establish a lower default for semantic, formula,
+  lifecycle, visual-calibration, or final-review work.
+- Before dispatch, the controller closes the unit's exact authority, current
+  consumer, visible consequence, preserved contrast, owned files, and
+  acceptance. Candidate membership, prepared representatives, recipient or
+  action scope, selected-input lifecycle, and permanent-authority changes remain
+  controller work until those meanings are settled.
 - Give every worker explicit file or responsibility ownership, mutation limits,
   and a completion contract covering changed files, tests, browser checks, and
   unresolved deviations.
+- A worker stops and returns to the controller when it finds a missing owner,
+  contradictory retained fact, new semantic or common mechanism, unsupported
+  representative, or visible consequence outside its closed acceptance. It does
+  not fill that gap by analogy or broaden its mutation scope.
 - Before delegating a visual experiment on an existing interactive surface,
   separate the preserved baseline, authority-required gaps, explicit experiment
   variables, and out-of-scope items. Name the current values, available actions,
@@ -135,6 +148,11 @@ itself establish semantic readiness.
 - A worker `FINAL_ANSWER` reports that its turn ended; it does not establish
   task completion. The controller must inspect the diff and verify applicable
   tests, build, and browser-visible behavior before marking work complete.
+- Once the user approves a bounded vertical and its execution scope, the
+  controller may continue autonomously through its settled units and gates.
+  Stop for review when completion needs a new product decision, unresolved
+  external fact, authority change, scope expansion, or additional permission
+  for staging, commit, deployment, or another external mutation.
 
 Use npm when a Node project is introduced. Preserve unrelated work and do not
 stage or commit unless the user asks.

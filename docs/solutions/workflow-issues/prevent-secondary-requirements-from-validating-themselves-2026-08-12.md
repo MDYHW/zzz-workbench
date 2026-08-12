@@ -250,6 +250,5 @@ consumer question.
 - [Setup Workbench Product Contract](../../setup-workbench-product-contract.md)
 - [Source-Fact Boundary](../../source-fact-boundary.md)
 - [First Vertical Completion Review Requirements](../../brainstorms/2026-08-06-first-vertical-completion-review-requirements.md)
-- [Vertical Expansion Efficiency Plan](../../plans/2026-08-10-003-refactor-vertical-expansion-efficiency-plan.md)
 - [Preserve Interaction Fidelity in UI Explorations](preserve-interaction-fidelity-in-ui-explorations-2026-08-05.md)
 - [Soldier Zero Vertical Requirements](../../brainstorms/2026-08-07-soldier-zero-vertical-requirements.md)

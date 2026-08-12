@@ -18,10 +18,6 @@ action-local Result operation and broad Seed M2 pressure on a non-Electric
 Vanguard. Preserve the current acyclic model, shared test families, and visible
 interaction grammar.
 
-This implementation also supplies the two small, pre-registered units used by
-the vertical-expansion efficiency experiment. The experiment changes execution
-posture, not Evelyn's product meaning or acceptance bar.
-
 ---
 
 ## Problem Frame
@@ -250,48 +246,11 @@ ephemeral rather than becoming implementation evidence or repository metadata.
 
 ---
 
-## Execution Strategy and Experiment Routing
-
-This plan is the product implementation authority for execution. The separate
-[vertical-expansion efficiency plan](2026-08-10-003-refactor-vertical-expansion-efficiency-plan.md)
-controls only how the first two settled units are compared.
-
-- **W1 workflow pair:** the same `gpt-5.6-sol` xhigh worker implemented U1 from
-  the same documentation-checkpoint commit in separate worktrees. One attempt
-  used the current workflow and one used Lean V1; both first passes failed and
-  the corrected reference result is committed at `8513e80`.
-- **M1 staged calibration:** after W1 and the stable Lean V2 documentation are
-  committed, the controller records the resolved external path and SHA-256 of
-  one immutable, uncommitted red equipment-summary patch and applies it
-  identically to each worktree.
-  Stage A compares current and Lean V2 workflows with `gpt-5.6-sol` xhigh. Only
-  if Lean V2 passes does Stage B reuse that artifact as the reference against
-  `gpt-5.6-terra` low. The final production patch and immutable acceptance patch
-  remain isolated until Evelyn U3 gives the source facts current identity/
-  candidate consumers.
-- A P0/P1/P2 finding, semantic correction, scope invention, or failed fixed gate
-  fails the attempt. Do not retry the lower model inside the pair; record the
-  failure and finish product work through the reference route.
-- The remaining compile-complete vertical core begins at `gpt-5.6-terra` high
-  because closed identity, state, provider, and calculation dispatch must land
-  atomically. Repetitive integrated UI assertions may use `gpt-5.6-terra`
-  medium.
-  Product decisions and final semantic review remain `gpt-5.6-sol` high/xhigh.
-  These are hypotheses until the paired evidence is recorded.
-- Use only one mutating worker in each worktree. The controller inspects every
-  accepted diff and owns integration, final tests, browser verification, and any
-  deviation from the closed requirements.
-
----
-
 ## Implementation Units
 
 ### U1. Present action-local scale operations
 
-**Experiment ID:** W1 workflow pair
-
-**Status:** Completed at `8513e80` after both V1 first passes failed and the
-reference route was corrected.
+**Status:** Completed at `8513e80`.
 
 **Goal:** Let the existing Result operation and gauge surface present an
 action-local multiplicative scale at its earliest qualifying current surface,
@@ -328,29 +287,24 @@ without changing existing additive operations.
   presentation, expose the same visible and accessible meaning, and leave
   additive gauges unchanged.
 
-**Verification:** Focused ResultPanel tests, full `npm run check`, and
-`git diff --check` for each attempt; frozen independent review before integration.
+**Verification:** Focused ResultPanel tests, full `npm run check`,
+`git diff --check`, and independent review before integration.
 
-### U2. Calibrate source-owned Evelyn equipment facts
+### U2. Add source-owned Evelyn equipment facts
 
-**Experiment ID:** M1 staged calibration
-
-**Goal:** Produce and verify a temporary complete Heartstring, Steel Cushion,
-Inferno, and Hormone content artifact without integrating those facts before
-Evelyn identity and current candidate consumers exist.
+**Goal:** Retain and verify the complete Heartstring, Steel Cushion, Inferno,
+and Hormone facts required by Evelyn's current candidate and Result consumers.
 
 **Requirements:** R2, R12-R13
 
-**Dependencies:** Evelyn U1 commit `8513e80`, stable Lean V2 documentation
-commit, and the recorded resolved external path/SHA-256 of the controller-
-authored uncommitted red acceptance patch
+**Dependencies:** U1 and the closed Evelyn requirements
 
 **Owned files:**
 
 - Modify: `src/workbench/content/types.ts`
 - Modify: `src/workbench/content/engines.ts`
 - Modify: `src/workbench/content/discs.ts`
-- Controller-authored immutable test: `src/workbench/content/equipment.test.ts`
+- Test: `src/workbench/content/equipment-effects.test.ts`
 
 **Approach:**
 
@@ -359,17 +313,12 @@ authored uncommitted red acceptance patch
   Inferno 2-piece and Hormone 4-piece clauses.
 - Use the existing semantic compression and external-threshold rules. Do not
   show Base ATK, acquisition, duration, refresh, or unrelated trigger prose.
-- Keep this unit independent of Evelyn's still-unadmitted closed Agent maps. It
-  tests source-owned vectors and summary output only. Do not apply, stage, or
-  commit its production or test artifact to the product branch alone. Evelyn U3
-  imports the final production patch and immutable acceptance patch atomically
-  with identity/current consumers and verifies them through reachable selected
-  and candidate controls.
+- Keep source-owned vectors and compressed summary output independent from
+  Evelyn's candidate membership and Result projection. U3 verifies the retained
+  facts through reachable selected and candidate controls.
 - Use one shared table-driven equipment-summary family; do not add an Evelyn-
   specific suite or premature Agent pool membership.
-- Use the experiment plan's Lean V2 contract-to-assertion matrix. The controller
-  owns the immutable expected-red suite; workers may edit only production files.
-  Exercise rank-derived W1 defaults and explicit W2-W5 summaries, pair required
+- Exercise rank-derived W1 defaults and explicit W2-W5 summaries, pair required
   fragments with forbidden fragments, and do not let optional fixture inputs
   carry production behavior.
 
@@ -384,9 +333,8 @@ authored uncommitted red acceptance patch
 - Inferno 2-piece and Hormone 4-piece expose their exact compressed content; the
   existing generic selected/candidate accessibility regressions stay green.
 
-**Verification:** Focused equipment-summary tests and diff check in each worker;
-controller-run serial `npm run check` gates and blind fixed-prompt review before
-artifact selection. No standalone product integration occurs in Evelyn U2.
+**Verification:** Focused equipment-summary tests, full `npm run check`,
+`git diff --check`, and independent review before integration.
 
 ### U3. Implement the compile-complete Evelyn vertical core
 
@@ -397,9 +345,7 @@ not accepted until the complete closed union compiles and all focused suites pas
 
 **Requirements:** R1-R13
 
-**Dependencies:** Evelyn U1 plus the final M1 production patch and immutable
-acceptance patch preserved by recorded external paths/SHA-256 values and source
-worktree; Evelyn U3 applies both atomically
+**Dependencies:** U1-U2
 
 **Files:**
 
@@ -410,8 +356,7 @@ worktree; Evelyn U3 applies both atomically
 - Modify: `src/workbench/content/setup-options.ts`
 - Modify: `src/workbench/content/representatives.ts`
 - Modify: `src/workbench/content/retained-values.ts`
-- Apply/Test: `src/workbench/content/equipment.test.ts` from the immutable M1
-  acceptance patch
+- Test: `src/workbench/content/equipment-effects.test.ts`
 - Modify as required by facade exports: `src/workbench/content.ts`
 - Modify: `src/workbench/preparation.ts`
 - Modify: `src/workbench/candidates.ts`
@@ -438,11 +383,8 @@ worktree; Evelyn U3 applies both atomically
   identity maps together. Do not leave temporary stubs or partial compatibility.
 - Reuse `src/assets/agents/portraits/evelyn.webp`; calibrate only current
   portrait landmark/frame variables and add one distinct source tone.
-- Verify the recorded path and SHA-256 of the final M1 production patch and
-  immutable acceptance patch. Apply both with Evelyn identity/current candidates
-  as one product diff, then verify their summaries through reachable Evelyn
-  selected and candidate controls with the same accessible full-package
-  descriptions.
+- Verify the retained equipment summaries through reachable Evelyn selected and
+  candidate controls with the same accessible full-package descriptions.
 
 **Approach — contextual policy and incomplete-safe Vanguard:**
 
@@ -473,9 +415,8 @@ worktree; Evelyn U3 applies both atomically
 **Behavior tests — shared families only:**
 
 - Party/Setup: Evelyn is admitted once; full/non-limited Apply creates exact
-  complete representatives; selected/candidate descriptions match the selected
-  M1 artifact. Any attributable fact, metadata, asset, or summary defect
-  retroactively fails that M1 arm.
+  complete representatives; selected/candidate descriptions match the retained
+  source-owned equipment content.
 - Context: Evelyn/Astra/Dialyn exposes both contextual candidates while Hormone
   stays prepared; removing providers reconciles only invalid direct choices.
 - Pressure/lifecycle: Seed M2 pressures a Vanguard Evelyn while Cissia alone does
@@ -518,15 +459,12 @@ affected existing vertical consumer.
   `src/App.party.test.tsx`, `src/App.setup.test.tsx`,
   `src/App.result.test.tsx`, `src/components/AgentSetup.test.tsx`, and
   `src/components/ResultPanel.test.tsx`
-- Modify the experiment ledger only after actual measurements:
-  `docs/plans/2026-08-10-003-refactor-vertical-expansion-efficiency-plan.md`
-
 **Approach:**
 
 - Add only integration assertions absent from lower-level units; do not restate
   every Agent fact in every UI suite.
-- Run the exact two-context desktop and narrow in-app-browser route frozen in the
-  experiment plan. Evelyn/Astra/Dialyn owns Puffer selection, parent/Ultimate
+- Run the required two-context desktop and narrow in-app-browser route.
+  Evelyn/Astra/Dialyn owns Puffer selection, parent/Ultimate
   child, active and non-limited inactive gauge/operation, equipment descriptions,
   and focus return. Seed/Evelyn/Anby owns explicit Evelyn Focus, exact-tie slot
   order after direct Woodpecker selection, M2 Fire preparation, M1 PEN edit
@@ -570,7 +508,6 @@ authorization.
 | Contextual Disc silently becomes prepared | Separate local representative tests from effective-candidate tests |
 | Action effects inflate parent metrics | Shared parent/child action hierarchy assertions |
 | Agent-specific tests grow per vertical | Extend mechanism/policy/flow and current UI families only |
-| Paired experiment changes product acceptance | Same closed requirements, files, gates, and frozen reviewer for both attempts |
 | Visual admission regresses narrow/focus behavior | Pre-registered desktop+narrow and keyboard browser flow |
 
 ---
@@ -607,7 +544,6 @@ authorization.
 ## Sources & References
 
 - [Evelyn Vertical Requirements](../brainstorms/2026-08-10-evelyn-vertical-requirements.md)
-- [Vertical Expansion Efficiency Plan](2026-08-10-003-refactor-vertical-expansion-efficiency-plan.md)
 - [Dialyn/Puffer Contextual Candidate Plan](2026-08-10-002-feat-dialyn-puffer-contextual-candidate-plan.md)
 - [Seed and Cissia Vertical Plan](2026-08-10-001-feat-seed-cissia-vertical-plan.md)
 - [Setup Workbench Product Contract](../setup-workbench-product-contract.md)
