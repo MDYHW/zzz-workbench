@@ -217,6 +217,12 @@ export const STATIC_SOURCES = {
     core: source(SOURCE_LABELS.panYinhuCore, 'panYinhu', 'core'),
     additional: source(SOURCE_LABELS.panYinhuAbility, 'panYinhu', 'additional'),
   },
+  banyue: {
+    ruptureConversion: source('Rupture specialty', 'banyue', 'identity', 'Current ATK × 0.3 + Current Max HP × 0.1'),
+    core: source(SOURCE_LABELS.banyueCore, 'banyue', 'core'),
+    additional: source(SOURCE_LABELS.banyueAbility, 'banyue', 'additional'),
+    critCap: source('Displayed CRIT Rate cap', 'banyue', 'calculation'),
+  },
   dialyn: {
     core: source(SOURCE_LABELS.dialynCore, 'dialyn', 'core'),
     additional: source(SOURCE_LABELS.dialynAbility, 'dialyn', 'additional'),

@@ -325,6 +325,21 @@ describe('party-directed preparation', () => {
     ])
   })
 
+  it('authors Banyue from distinct full and non-limited whole packages', () => {
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.banyue).toEqual({
+      full: ['wrathfulVajra', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere'],
+      nonLimited: ['cauldron', 'grillOWisp', 'puzzleSphere'],
+    })
+    expect(prepareTargetSelection(context('banyue'), 'banyue', [])).toEqual({
+      engineId: 'wrathfulVajra', fourPieceId: 'yunkui', twoPieceId: 'woodpecker',
+      mains: { slot4: 'critDmg', slot5: 'fireDmg', slot6: 'hpPct' },
+    })
+    expect(prepareTargetSelection(context('banyue', 'nonLimited'), 'banyue', [])).toEqual({
+      engineId: 'cauldron', fourPieceId: 'yunkui', twoPieceId: 'woodpecker',
+      mains: { slot4: 'critDmg', slot5: 'fireDmg', slot6: 'hpPct' },
+    })
+  })
+
   it('keeps every authored adjustment inside the target candidate pools', () => {
     const contexts = [
       context('yixuan'), context('trigger'), context('dialyn'),

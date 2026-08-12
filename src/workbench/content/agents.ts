@@ -134,6 +134,14 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     rank: 'A',
     faction: 'Yunkui Summit',
   },
+  {
+    id: 'banyue',
+    name: 'Banyue',
+    attribute: 'Fire',
+    specialty: 'Rupture',
+    focusEligible: true,
+    rank: 'S',
+  },
 ]
 
 export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>

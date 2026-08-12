@@ -35,6 +35,7 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   hugo: { attribute: iceMark, specialty: attackMark },
   juFufu: { attribute: fireMark, specialty: stunMark },
   panYinhu: { attribute: physicalMark, specialty: defenseMark },
+  banyue: { attribute: fireMark, specialty: ruptureMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {

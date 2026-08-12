@@ -88,6 +88,11 @@ import {
   resolvePanYinhuProviderClauses,
   type PanYinhuCalculationContext,
 } from './calculation/agents/pan-yinhu'
+import {
+  observeBanyue,
+  resolveBanyueProviderClauses,
+  type BanyueCalculationContext,
+} from './calculation/agents/banyue'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -106,6 +111,7 @@ export type ProviderContext =
   | HugoCalculationContext
   | JuFufuCalculationContext
   | PanYinhuCalculationContext
+  | BanyueCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -193,6 +199,8 @@ function observeProviderContext(
         slot.setup,
         anotherHasSpecialty(['Rupture']) || anotherSharesFaction,
       )
+    case 'banyue':
+      return observeBanyue(slot.setup, hasStunOrSupport)
     case 'dialyn':
       return observeDialyn(slot.setup)
     case 'lucia':
@@ -241,6 +249,8 @@ function providerClauses(
       return resolveJuFufuProviderClauses(context)
     case 'panYinhu':
       return resolvePanYinhuProviderClauses(context)
+    case 'banyue':
+      return resolveBanyueProviderClauses(context)
     case 'dialyn':
       return resolveDialynProviderClauses(context.setup, context.initialCrit.value)
     case 'lucia':

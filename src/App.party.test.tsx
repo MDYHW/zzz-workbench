@@ -93,6 +93,11 @@ describe('integrated party workbench: party', () => {
         { agentId: 'yixuan', setup: createPreparedAgentSetup('yixuan') },
         { agentId: 'dialyn', setup: createPreparedAgentSetup('dialyn') },
       ],
+      [
+        { agentId: 'banyue', setup: createPreparedAgentSetup('banyue') },
+        { agentId: 'panYinhu', setup: createPreparedAgentSetup('panYinhu') },
+        { agentId: 'juFufu', setup: createPreparedAgentSetup('juFufu') },
+      ],
     ]
     let latestContainer: HTMLElement | null = null
     for (const slots of additionalGroups) {
@@ -141,7 +146,7 @@ describe('integrated party workbench: party', () => {
         expect(candidateStyle.getPropertyValue(property)).toBe(appliedSources.get(agent.id)![index])
       }
     }
-  })
+  }, 10_000)
 
   it('switches slots while preserving each Agent setup state', async () => {
     const user = userEvent.setup()

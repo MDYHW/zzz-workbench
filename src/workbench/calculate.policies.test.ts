@@ -910,4 +910,60 @@ describe('authored calculation policies', () => {
       expect(metric(absent, 'dmgBonus').breakdown.fully)
         .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'panYinhu', locus: 'additional' }))
     })
+
+    it('projects Banyue through the shared Rupture formula and pool-specific packages', () => {
+      const full = agent(calculateParty(
+        createPreparedState({}, ['banyue', 'dialyn', 'lucia'], 0),
+      )!, 'banyue')
+      const nonLimited = agent(calculateParty(
+        createPreparedState({ banyue: 'nonLimited' }, ['banyue', 'dialyn', 'lucia'], 0),
+      )!, 'banyue')
+
+      expect(metric(full, 'maxHp').values.initial).toBeCloseTo(16644.9, 10)
+      expect(metric(full, 'atk').values.initial).toBeCloseTo(1888, 10)
+      expect(metric(full, 'sheerForce').values.initial).toBeCloseTo(2230.89, 10)
+      expect(metric(full, 'critRate').values).toMatchObject({ initial: 27.4, combat: 27.4 })
+      expect(metric(full, 'critRate').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'banyue', locus: 'w-engine', amount: 20 }))
+      expect(action(full, 'banyueExSpecialSheer').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'banyue', locus: 'w-engine', amount: 18 }))
+
+      expect(metric(nonLimited, 'maxHp').values.initial).toBeCloseTo(16220.05, 10)
+      expect(metric(nonLimited, 'atk').values.initial).toBeCloseTo(1769, 10)
+      expect(metric(nonLimited, 'sheerForce').values.initial).toBeCloseTo(2152.705, 10)
+      expect(metric(nonLimited, 'critRate').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'banyue', locus: 'w-engine', amount: 10.4 }))
+      expect(metric(nonLimited, 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'banyue', locus: 'w-engine', amount: 19.2 }))
+    })
+
+    it('keeps Banyue qualification and exact Mindscape action consumers local', () => {
+      const qualifiedState = createPreparedState({}, ['banyue', 'dialyn', 'yixuan'], 0)
+      const absent = agent(calculateParty(
+        createPreparedState({}, ['banyue', 'yixuan', 'manato'], 0),
+      )!, 'banyue')
+      const m0 = agent(calculateParty(qualifiedState)!, 'banyue')
+      const m1 = agent(calculateParty(withMindscape(qualifiedState, 'banyue', 1))!, 'banyue')
+      const m2 = agent(calculateParty(withMindscape(qualifiedState, 'banyue', 2))!, 'banyue')
+      const m4 = agent(calculateParty(withMindscape(qualifiedState, 'banyue', 4))!, 'banyue')
+      const m6 = agent(calculateParty(withMindscape(qualifiedState, 'banyue', 6))!, 'banyue')
+
+      expect(metric(m0, 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'banyue', locus: 'additional', amount: 15 }))
+      expect(metric(absent, 'dmgBonus').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'banyue', locus: 'additional' }))
+      expect(metric(m1, 'resReduction').values.fully).toBe(10)
+      expect(action(m1, 'banyueTremorActions').values.fully
+        - metric(m1, 'sheerDmgBonus').values.fully).toBe(10)
+      expect(action(m1, 'banyueCrushingPeaksStun').values.fully
+        - metric(m1, 'stunDuration').values.fully).toBe(2)
+      expect(metric(m2, 'critDmg').values.fully - metric(m1, 'critDmg').values.fully).toBe(15)
+      expect(metric(m2, 'dmgBonus').values.fully - metric(m1, 'dmgBonus').values.fully).toBe(15)
+      expect(action(m4, 'banyueM4Actions').values.fully
+        - metric(m4, 'dmgBonus').values.fully).toBe(30)
+      expect(metric(m6, 'dmgBonus').values.fully - metric(m4, 'dmgBonus').values.fully).toBe(24)
+      expect(m6.operations).toContainEqual(expect.objectContaining({
+        id: 'banyueCrushingPeaksMultiplier', value: 600, unit: '%',
+      }))
+    })
 })

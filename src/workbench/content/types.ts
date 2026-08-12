@@ -19,6 +19,7 @@ export type AgentId =
   | 'hugo'
   | 'juFufu'
   | 'panYinhu'
+  | 'banyue'
 
 export type AgentRank = 'S' | 'A'
 export type AgentFaction = 'Victoria Housekeeping Co.' | 'Yunkui Summit'
