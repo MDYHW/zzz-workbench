@@ -114,4 +114,40 @@ describe('representative calculation flows', () => {
         label: 'Puffer Electro', display: { value: 15, unit: '%', decimals: 0 },
       }))
   })
+
+  it('projects both Corin and Lycaon pool representatives at zero supplied substats', () => {
+    const full = calculateParty(
+      createPreparedState({}, ['corin', 'lycaon', 'astraYao'], 0),
+    )!
+    const corin = agent(full, 'corin')
+    const lycaon = agent(full, 'lycaon')
+
+    expect(metric(corin, 'atk').values.initial).toBeCloseTo(2444, 10)
+    expect(metric(corin, 'critRate').values).toMatchObject({ initial: 37, combat: 52 })
+    expect(metric(corin, 'critDmg').values.initial).toBeCloseTo(126.8, 10)
+    expect(metric(lycaon, 'impact').values).toMatchObject({
+      initial: expect.closeTo(194.54),
+      fully: expect.closeTo(228.79),
+    })
+    expect(action(lycaon, 'lycaonPotential').values.fully).toBeCloseTo(249.34, 10)
+    expect(lycaon.metrics.find(({ id }) => id === 'energyRegen')).toBeUndefined()
+
+    const nonLimited = calculateParty(createPreparedState(
+      { corin: 'nonLimited', lycaon: 'nonLimited' },
+      ['corin', 'lycaon', 'astraYao'],
+      0,
+    ))!
+    const nonLimitedCorin = agent(nonLimited, 'corin')
+    const nonLimitedLycaon = agent(nonLimited, 'lycaon')
+
+    expect(metric(nonLimitedCorin, 'atk').values.initial).toBeCloseTo(2403.4, 10)
+    expect(metric(nonLimitedCorin, 'critRate').values.initial).toBe(61)
+    expect(metric(nonLimitedLycaon, 'impact').values).toMatchObject({
+      initial: expect.closeTo(169.88),
+      fully: expect.closeTo(204.952),
+    })
+    expect(action(nonLimitedLycaon, 'lycaonPotential').values.fully)
+      .toBeCloseTo(225.502, 10)
+    expect(metric(nonLimitedLycaon, 'energyRegen').values.initial).toBeCloseTo(1.8, 10)
+  })
 })

@@ -118,10 +118,6 @@ export function resolveAstraProviderClauses(
       { formulas: damageFormulas },
     ),
     withApplicability(
-      additive('dmgBonus', 'fully', discSource('astraYao', 'astralVoice', '4-piece'), setup.fourPieceId === 'astralVoice' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage) : 0, 'all-party', undefined, undefined, undefined, 'astralVoiceEntrant'),
-      { formulas: damageFormulas },
-    ),
-    withApplicability(
       additive('dmgBonus', 'fully', discSource('astraYao', 'moonlight', '4-piece'), setup.fourPieceId === 'moonlight' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.fourPiece.damage) : 0, 'all-party', undefined, undefined, undefined, 'moonlightLullaby'),
       { formulas: damageFormulas },
     ),

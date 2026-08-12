@@ -22,7 +22,9 @@ const emptySourceTones: Record<SourceToneChannel, string | null> = {
 
 const requiredSelectionKey = (selection: RequiredSetupSelection) => selection.kind === 'disc'
   ? `${selection.slot}:disc:${selection.piece}`
-  : `${selection.slot}:main:${selection.mainSlot}`
+  : selection.kind === 'mainStat'
+    ? `${selection.slot}:main:${selection.mainSlot}`
+    : `${selection.slot}:substat:${selection.substatId}`
 
 export function App() {
   const [state, dispatch] = useReducer(workbenchReducer, undefined, () => createPreparedState())
@@ -87,7 +89,9 @@ export function App() {
       const agentName = ADMITTED_AGENTS.find(({ id }) => id === agentId)!.name
       return selection.kind === 'disc'
         ? `${agentName} ${selection.piece === 'fourPiece' ? '4-piece' : '2-piece'} Drive Disc`
-        : `${agentName} Disc ${selection.mainSlot.replace('slot', '')} main stat`
+        : selection.kind === 'mainStat'
+          ? `${agentName} Disc ${selection.mainSlot.replace('slot', '')} main stat`
+          : `${agentName} ${selection.substatId === 'critRate' ? 'CRIT Rate' : selection.substatId} hit count`
     })
     setCandidateAnnouncement(
       `${incompleteSelections.length} setup selections now require a choice: ${selections.join(' and ')}.`,

@@ -7,7 +7,6 @@ import {
   mainStatDisplay,
   ADMITTED_AGENTS,
   SEED_SETUP_PASSIVE_LINES,
-  SUBSTAT_CHOICES_BY_AGENT,
   W_ENGINES,
   type AgentId,
   type DiscId,
@@ -17,6 +16,7 @@ import {
   type PoolId,
   type Refinement,
 } from '../workbench/content'
+import { effectiveSubstatChoices } from '../workbench/candidates'
 import type { AgentSetupState, AppliedSlot, Mindscape, WorkbenchAction } from '../workbench/state'
 import {
   sourceToneEvents,
@@ -690,33 +690,34 @@ function SubstatStepper({
   onSetCount,
   onSourceToneChange,
   perHit,
+  requiredDescriptionId,
   tone,
   unit,
 }: {
-  count: number
+  count: number | undefined
   label: string
   onDecrease: () => void
   onIncrease: () => void
   onSetCount: (value: number) => void
   perHit: number
+  requiredDescriptionId: string
   tone: string
   unit: string
 } & SourceInteractionProps) {
-  const [draft, setDraft] = useState(String(count))
+  const [draft, setDraft] = useState(count === undefined ? '' : String(count))
 
   useEffect(() => {
-    setDraft(String(count))
+    setDraft(count === undefined ? '' : String(count))
   }, [count])
 
   const commitDraft = () => {
     if (draft === '') {
-      setDraft(String(count))
       return
     }
 
     const requested = Number(draft)
     if (!Number.isInteger(requested)) {
-      setDraft(String(count))
+      setDraft(count === undefined ? '' : String(count))
       return
     }
 
@@ -740,11 +741,13 @@ function SubstatStepper({
         <button
           type="button"
           aria-label={`Decrease ${label} hits`}
-          disabled={count === 0}
+          disabled={count === undefined || count === 0}
           onClick={onDecrease}
         >{'\u2212'}</button>
         <input
           aria-label={`${label} hit count`}
+          aria-invalid={count === undefined}
+          aria-describedby={count === undefined ? requiredDescriptionId : undefined}
           inputMode="numeric"
           max={36}
           min={0}
@@ -772,6 +775,7 @@ function SubstatStepper({
           onClick={onIncrease}
         >+</button>
       </div>
+      {count === undefined && <span id={requiredDescriptionId} className="substat-required">Hit count required</span>}
     </div>
   )
 }
@@ -820,10 +824,10 @@ function StatBank({
       </div>
       <h4 className="stat-bank__group-heading">Sub stats</h4>
       <div className="substat-grid" aria-label={agent.name + ' prepared effective substats'}>
-        {SUBSTAT_CHOICES_BY_AGENT[agentId].map((choice, index) => (
+        {effectiveSubstatChoices(agentId, setup).map((choice, index) => (
           <SubstatStepper
             activeSourceTone={activeSourceTone}
-            count={setup.substats[choice.id] ?? 0}
+            count={setup.substats[choice.id]}
             key={choice.id}
             label={choice.label}
             onDecrease={() => dispatch({
@@ -846,6 +850,7 @@ function StatBank({
             })}
             onSourceToneChange={onSourceToneChange}
             perHit={choice.perHit}
+            requiredDescriptionId={`${agentId}-${choice.id}-hit-count-required`}
             tone={`substat-${index + 1}`}
             unit={choice.unit}
           />

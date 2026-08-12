@@ -345,6 +345,19 @@ Voice case made usable only by an externally supplied Quick Assist is a
 candidate-membership addition. Persist these as separate authored policy
 outcomes even when both occur in the same party.
 
+When two applied holders can each prepare one of two non-stacking competitive
+effects, preparation prefers a legal non-overlapping package. Allocate the
+effect with the less flexible holder fit first, using only current independent
+role or Result consumers, threshold investment at the zero-substat start, and
+the material role or Result loss from giving up that effect. Allocate the other
+effect to the holder that remains competitively flexible. If those current
+consumers still do not distinguish the holders, author one bounded deterministic
+party representative. Do not return `null`, duplicate a non-stacking effect,
+use slot order or Agent identity as a hidden tiebreaker, or create a runtime
+holder score. This allocation changes only authorized prepared first choices;
+direct edits may create duplicate holders and Result still applies the ordinary
+non-stacking rule.
+
 New equipment normally enters as a competing W-Engine, 4-piece, or 2-piece
 candidate and may change the prepared main-stat choice through its stat package.
 Reconsider an effective-substat candidate only when the new equipment creates a
@@ -485,6 +498,18 @@ draft in party composition. The focused character is the fixed on-field damage-
 concentration observation point and recipient of controllable one-member setup
 effects. Other members may briefly act for supported triggers without changing
 focus.
+
+Recipient compression starts after exact source eligibility is known. When the
+game rule or a retained numerical relationship determines one or more recipients,
+use those actual recipients; Focus does not override them. When user operation
+can steer one effective recipient, Focus is legally eligible for that effect,
+and modeling the hidden action route would not change the visible setup choice
+or Result, project the effect exactly once to Focus. The holder may itself be
+Focus when the source permits self-receipt. If Focus is structurally ineligible,
+never force the effect onto Focus: use an exact retained recipient rule or stop
+that bounded projection for authoring. A genuine multi-recipient effect projects
+to every eligible current recipient. Provider identity, holder identity, and
+Focus identity alone do not decide which branch applies.
 
 Fully enabled composition proceeds in this order:
 

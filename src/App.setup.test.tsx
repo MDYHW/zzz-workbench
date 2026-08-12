@@ -623,6 +623,72 @@ describe('integrated party workbench: setup', () => {
     expect(document.querySelectorAll('.is-setup-incomplete')).toHaveLength(0)
   }, 10_000)
 
+  it('repairs Lycaon King-selected inputs without hidden zero or restored history', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Corin, Physical, Attack/)
+    await replace(2, /Lycaon, Ice, Stun/)
+    await replace(3, /Astra Yao, Ether, Support/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+    await user.click(screen.getByRole('tab', { name: 'View Lycaon setup and Result' }))
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Shockstar Disco',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Woodpecker Electro as twoPiece',
+    }))
+    await user.clear(screen.getByLabelText('CRIT Rate hit count'))
+    await user.type(screen.getByLabelText('CRIT Rate hit count'), '7')
+    await user.tab()
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from King of the Summit',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Astral Voice as fourPiece',
+    }))
+    expect(screen.getByRole('button', { name: '2-piece Drive Disc required' }))
+      .toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Disc 4 main stat required' }))
+      .toBeInTheDocument()
+    expect(screen.queryByLabelText('CRIT Rate hit count')).not.toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Empty Result' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Astral Voice',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select King of the Summit as fourPiece',
+    }))
+    const missingCount = screen.getByLabelText('CRIT Rate hit count')
+    expect(missingCount).toHaveValue('')
+    expect(missingCount).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByRole('status')).toHaveTextContent('Lycaon CRIT Rate hit count')
+    expect(screen.getByRole('region', { name: 'Empty Result' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: '2-piece Drive Disc required' }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Shockstar Disco as twoPiece',
+    }))
+    await user.click(screen.getByRole('button', { name: 'Disc 4 main stat required' }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select CRIT Rate for Disc 4',
+    }))
+    await user.type(screen.getByLabelText('CRIT Rate hit count'), '0')
+    await user.tab()
+
+    expect(screen.getByRole('heading', { name: 'Lycaon Result' })).toBeInTheDocument()
+    expect(screen.getByText('PREPARED')).toBeInTheDocument()
+    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveValue('0')
+  }, 20_000)
+
   it('applies semantic Spectral pressure to Evelyn without an Agent-name exception', async () => {
     const user = userEvent.setup()
     render(<App />)

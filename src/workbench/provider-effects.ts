@@ -5,6 +5,7 @@ import {
 } from './content'
 import type { AppliedSlot, WorkbenchState } from './state'
 import {
+  astralVoiceEntrantClause,
   clauseAppliesToAgent,
   type CompleteSetup,
   type SourceBoundCurrentClause,
@@ -58,6 +59,8 @@ import {
   initialAtkFor,
   type SeedVanguardAtkAgentId,
 } from './calculation/initial-atk'
+import { observeCorin, resolveCorinProviderClauses, type CorinCalculationContext } from './calculation/agents/corin'
+import { observeLycaon, resolveLycaonProviderClauses, type LycaonCalculationContext } from './calculation/agents/lycaon'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -69,6 +72,8 @@ export type ProviderContext =
   | SeedCalculationContext
   | CissiaCalculationContext
   | EvelynCalculationContext
+  | CorinCalculationContext
+  | LycaonCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -114,6 +119,14 @@ function observeProviderContext(
     return specialty === 'Stun' || specialty === 'Support'
   })
   const hasAnby = state.slots.some(({ agentId }) => agentId === 'anbySoldier0')
+  const summary = ADMITTED_AGENTS.find(({ id }) => id === slot.agentId)!
+  const additionalByParty = state.slots.some(({ agentId }, index) => {
+    if (index === providerIndex) return false
+    const other = ADMITTED_AGENTS.find(({ id }) => id === agentId)!
+    if (slot.agentId === 'corin') return other.attribute === 'Physical' || other.faction === summary.faction
+    if (slot.agentId === 'lycaon') return other.specialty === 'Anomaly' || other.attribute === 'Ice' || other.faction === summary.faction
+    return false
+  })
 
   switch (slot.agentId) {
     case 'yixuan':
@@ -134,6 +147,10 @@ function observeProviderContext(
       return observeCissia(slot.setup)
     case 'evelyn':
       return observeEvelyn(slot.setup, hasStunOrSupport)
+    case 'corin':
+      return observeCorin(slot.setup, additionalByParty)
+    case 'lycaon':
+      return observeLycaon(slot.setup, additionalByParty)
     default:
       return assertNever(slot.agentId)
   }
@@ -171,6 +188,10 @@ function providerClauses(
       })
     case 'evelyn':
       return resolveEvelynProviderClauses(context)
+    case 'corin':
+      return resolveCorinProviderClauses(context)
+    case 'lycaon':
+      return resolveLycaonProviderClauses(context)
     default:
       return assertNever(context)
   }
@@ -196,6 +217,7 @@ function isSeedVanguardAtkAgent(agentId: AgentId): agentId is SeedVanguardAtkAge
     || agentId === 'seed'
     || agentId === 'cissia'
     || agentId === 'evelyn'
+    || agentId === 'corin'
 }
 
 export function resolveSeedVanguard(
@@ -229,6 +251,7 @@ export function resolveSeedVanguardForState(state: WorkbenchState): AgentId | nu
     agentId !== 'seed' && isAttackAgent(agentId)
   ))
   if (eligible.length === 0) return null
+  if (eligible.length === 1) return eligible[0].agentId
 
   const observations: SeedVanguardObservation[] = []
   for (const slot of eligible) {
@@ -268,7 +291,11 @@ export function resolveProviderEffects(state: WorkbenchState): ProviderEffects {
   }
 
   for (const [providerIndex, context] of contexts.entries()) {
-    const clauses = providerClauses(context, seedVanguardAgentId, party)
+    const astralEntrant = astralVoiceEntrantClause(context.agentId, context.setup)
+    const clauses = [
+      ...providerClauses(context, seedVanguardAgentId, party),
+      ...(astralEntrant ? [astralEntrant] : []),
+    ]
 
     for (const clause of clauses) {
       if (clause.recipient === 'enemy-context') {

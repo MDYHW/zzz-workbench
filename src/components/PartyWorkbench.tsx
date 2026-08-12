@@ -8,17 +8,21 @@ import cissiaPortrait from '../assets/agents/portraits/cissia.webp'
 import triggerPortrait from '../assets/agents/portraits/trigger.webp'
 import seedPortrait from '../assets/agents/portraits/seed.webp'
 import yixuanPortrait from '../assets/agents/portraits/yixuan.webp'
+import corinPortrait from '../assets/agents/portraits/corin.webp'
+import lycaonPortrait from '../assets/agents/portraits/lycaon.webp'
 import auricInkMark from '../assets/game/attributes/auric-ink.webp'
 import etherMark from '../assets/game/attributes/ether.webp'
 import physicalMark from '../assets/game/attributes/physical.webp'
 import electricMark from '../assets/game/attributes/electric.webp'
 import fireMark from '../assets/game/attributes/fire.webp'
+import iceMark from '../assets/game/attributes/ice.webp'
 import rankSMark from '../assets/game/ranks/s.webp'
+import rankAMark from '../assets/game/ranks/a.webp'
 import ruptureMark from '../assets/game/specialties/rupture.webp'
 import attackMark from '../assets/game/specialties/attack.webp'
 import stunMark from '../assets/game/specialties/stun.webp'
 import supportMark from '../assets/game/specialties/support.webp'
-import { ADMITTED_AGENTS, type AgentId } from '../workbench/content'
+import { ADMITTED_AGENTS, type AgentId, type AgentRank } from '../workbench/content'
 import type { RequiredSetupSelection } from '../workbench/candidates'
 import type { AppliedAgentSlot, AppliedSlot } from '../workbench/state'
 import { sourceToneEvents, type SourceInteractionProps } from './sourceInteraction'
@@ -33,6 +37,8 @@ const PORTRAITS: Record<AgentId, string> = {
   seed: seedPortrait,
   cissia: cissiaPortrait,
   evelyn: evelynPortrait,
+  corin: corinPortrait,
+  lycaon: lycaonPortrait,
 }
 
 const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> = {
@@ -45,6 +51,8 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   seed: { attribute: electricMark, specialty: attackMark },
   cissia: { attribute: electricMark, specialty: attackMark },
   evelyn: { attribute: fireMark, specialty: attackMark },
+  corin: { attribute: physicalMark, specialty: attackMark },
+  lycaon: { attribute: iceMark, specialty: stunMark },
 }
 
 interface PortraitSource {
@@ -71,6 +79,8 @@ const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   seed: { faceX: 52, headTopY: 6, scale: 325 / 295 },
   cissia: { faceX: 55.5, headTopY: 7.99, scale: 1 },
   evelyn: { faceX: 55.45, headTopY: 3.32, scale: 325 / 295 },
+  corin: { faceX: 50, headTopY: 4, scale: 1 },
+  lycaon: { faceX: 50, headTopY: 3, scale: 1 },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {
@@ -104,8 +114,13 @@ interface PartyWorkbenchProps extends SourceInteractionProps {
   children: ReactNode
 }
 
-function RankMark() {
-  return <span className="rank-mark" aria-label="S Rank"><img src={rankSMark} alt="" /></span>
+const RANK_MARKS: Record<AgentRank, string> = {
+  S: rankSMark,
+  A: rankAMark,
+}
+
+function RankMark({ rank }: { rank: AgentRank }) {
+  return <span className="rank-mark" aria-label={`${rank} Rank`}><img src={RANK_MARKS[rank]} alt="" /></span>
 }
 
 function IdentityMarks({ agentId, attribute, specialty }: { agentId: AgentId; attribute: string; specialty: string }) {
@@ -160,7 +175,7 @@ function ExpandedIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = f
         <strong className={`focus-marker ${isFocus ? '' : 'focus-marker--reserved'}`} aria-hidden={!isFocus}>Focus</strong>
         <span className="slot-name-line"><strong className="identity-name">{agent.name}</strong></span>
         <span className="identity-band">
-          <RankMark />
+          <RankMark rank={agent.rank} />
           <IdentityMarks agentId={agent.id} attribute={agent.attribute} specialty={agent.specialty} />
         </span>
       </span>
@@ -196,7 +211,7 @@ function CompactSlot({ activeSourceTone, agentId, isFocus, isIncomplete = false,
       <span className="slot-identity">
         <span className="slot-name-line"><strong>{agent.name}</strong></span>
         <span className="identity-band">
-          <RankMark />
+          <RankMark rank={agent.rank} />
           <IdentityMarks agentId={agent.id} attribute={agent.attribute} specialty={agent.specialty} />
         </span>
       </span>

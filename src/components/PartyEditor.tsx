@@ -8,6 +8,8 @@ import luciaPortrait from '../assets/agents/portraits/lucia.webp'
 import triggerPortrait from '../assets/agents/portraits/trigger.webp'
 import seedPortrait from '../assets/agents/portraits/seed.webp'
 import yixuanPortrait from '../assets/agents/portraits/yixuan.webp'
+import corinPortrait from '../assets/agents/portraits/corin.webp'
+import lycaonPortrait from '../assets/agents/portraits/lycaon.webp'
 import { ADMITTED_AGENTS, type AgentId } from '../workbench/content'
 import type { AppliedSlot, PartyDraft, WorkbenchAction, WorkbenchState } from '../workbench/state'
 
@@ -21,6 +23,8 @@ const portraits: Record<AgentId, string> = {
   seed: seedPortrait,
   cissia: cissiaPortrait,
   evelyn: evelynPortrait,
+  corin: corinPortrait,
+  lycaon: lycaonPortrait,
 }
 
 interface PartyEditorProps {

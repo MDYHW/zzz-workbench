@@ -5,6 +5,8 @@ import {
   type DiscId,
   type MainSlot,
   type MainStatId,
+  effectiveSubstatChoices,
+  type SubstatChoice,
 } from './content'
 import {
   activeCandidatePressures,
@@ -26,6 +28,7 @@ export type RequiredSetupSelection =
     agentId: AgentId
     mainSlot: MainSlot
   }
+  | { kind: 'substat'; slot: AppliedSlot; agentId: AgentId; substatId: SubstatChoice['id'] }
 
 function recipientHasMaterialBroadPrePenPressure(
   state: WorkbenchState,
@@ -59,23 +62,43 @@ export function effectiveTwoPieceIds(
 ): DiscId[] {
   const agentId = state.slots[slot].agentId
   const base = DISC_IDS_BY_AGENT_AND_PIECE[agentId].twoPiece
+  const selectedDerived = agentId === 'lycaon' && state.slots[slot].setup.fourPieceId === 'king'
+    ? ['woodpecker' as const]
+    : []
+  const candidates = selectedDerived.length ? [...base, ...selectedDerived] : base
   return recipientHasMaterialBroadPrePenPressure(state, slot)
-    ? base.filter((candidateId) => candidateId !== 'pufferElectro')
-    : base
+    ? candidates.filter((candidateId) => candidateId !== 'pufferElectro')
+    : candidates
 }
 
 function effectiveMainStatIdsForPressure(
   agentId: AgentId,
   mainSlot: MainSlot,
   hasMaterialBroadPrePenPressure: boolean,
+  selectedFourPieceId: DiscId | null,
 ): MainStatId[] {
   const base = MAIN_STAT_IDS_BY_AGENT_AND_SLOT[agentId][mainSlot]
-  return mainSlot === 'slot5'
-    && base.includes('penRatio')
-    && hasMaterialBroadPrePenPressure
-    ? base.filter((candidateId) => candidateId !== 'penRatio')
+  const candidates = agentId === 'lycaon'
+    && mainSlot === 'slot4'
+    && selectedFourPieceId === 'king'
+    ? [...base, 'critRate' as const]
     : base
+  return mainSlot === 'slot5'
+    && candidates.includes('penRatio')
+    && hasMaterialBroadPrePenPressure
+    ? candidates.filter((candidateId) => candidateId !== 'penRatio')
+    : candidates
 }
+
+export function effectiveSubstatChoicesForSlot(
+  state: WorkbenchState,
+  slot: AppliedSlot,
+): SubstatChoice[] {
+  const current = state.slots[slot]
+  return effectiveSubstatChoices(current.agentId, current.setup)
+}
+
+export { effectiveSubstatChoices }
 
 export function effectiveMainStatIds(
   state: WorkbenchState,
@@ -87,6 +110,7 @@ export function effectiveMainStatIds(
     agentId,
     mainSlot,
     recipientHasMaterialBroadPrePenPressure(state, slot),
+    state.slots[slot].setup.fourPieceId,
   )
 }
 
@@ -112,12 +136,17 @@ export function invalidRequiredSelections(
         agentId,
         mainSlot,
         hasMaterialBroadPrePenPressure,
+        setup.fourPieceId,
       )
         .includes(selected)
         ? [{ kind: 'mainStat' as const, slot, agentId, mainSlot }]
         : []
     })
-    return [...invalidDiscs, ...invalidMains]
+    const effectiveSubstats = effectiveSubstatChoices(agentId, setup)
+    const invalidSubstats: RequiredSetupSelection[] = Object.keys(setup.substats)
+      .filter((id) => !effectiveSubstats.some((choice) => choice.id === id))
+      .map((id) => ({ kind: 'substat' as const, slot, agentId, substatId: id as SubstatChoice['id'] }))
+    return [...invalidDiscs, ...invalidMains, ...invalidSubstats]
   })
 }
 
@@ -139,6 +168,9 @@ export function incompleteRequiredSelections(
         ? [{ kind: 'mainStat' as const, slot, agentId, mainSlot }]
         : []
     ))
-    return [...missingDiscs, ...missingMains]
+    const missingSubstats: RequiredSetupSelection[] = effectiveSubstatChoices(agentId, setup)
+      .filter(({ id }) => !Number.isFinite(setup.substats[id]))
+      .map(({ id }) => ({ kind: 'substat' as const, slot, agentId, substatId: id }))
+    return [...missingDiscs, ...missingMains, ...missingSubstats]
   })
 }

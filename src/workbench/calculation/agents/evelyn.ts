@@ -196,14 +196,6 @@ export function resolveEvelynProviderClauses(
           decimals: 0,
         }
         : undefined),
-    withApplicability(
-      additive('dmgBonus', 'fully', discSource('evelyn', 'astralVoice', '4-piece'),
-        setup.fourPieceId === 'astralVoice'
-          ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage)
-          : 0,
-        'all-party', undefined, undefined, undefined, 'astralVoiceEntrant'),
-      { formulas: ['general_damage', 'sheer_damage'] },
-    ),
     ...pufferElectroFourPieceClauses('evelyn', setup, EVELYN_ULTIMATE),
   ])
 }

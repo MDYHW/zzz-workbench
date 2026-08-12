@@ -12,6 +12,11 @@ export type AgentId =
   | 'seed'
   | 'cissia'
   | 'evelyn'
+  | 'corin'
+  | 'lycaon'
+
+export type AgentRank = 'S' | 'A'
+export type AgentFaction = 'Victoria Housekeeping Co.'
 
 export type Refinement = 1 | 2 | 3 | 4 | 5
 export type EngineRank = 'S' | 'A'
@@ -44,6 +49,9 @@ export type EngineId =
   | 'drillRigRedAxis'
   | 'heartstringNocturne'
   | 'steelCushion'
+  | 'housekeeper'
+  | 'blazingLaurel'
+  | 'simmeringPot'
 
 export type DiscId =
   | 'yunkui'
@@ -59,6 +67,7 @@ export type DiscId =
   | 'dawnsBloom'
   | 'pufferElectro'
   | 'infernoMetal'
+  | 'fangedMetal'
 
 export type MainSlot = 'slot4' | 'slot5' | 'slot6'
 
@@ -74,6 +83,7 @@ export type MainStatId =
   | 'energyRegenPct'
   | 'electricDmg'
   | 'fireDmg'
+  | 'iceDmg'
 
 export type SubstatId =
   | 'critRate'
@@ -97,7 +107,7 @@ export type EquipmentEffectModifier =
   | 'dmgBonus' | 'sheerDmgBonus' | 'dazeBonus' | 'energy' | 'energyRegen'
   | 'penRatio' | 'defIgnore' | 'defReduction' | 'resIgnore'
 
-export type EquipmentEffectAttribute = 'Electric' | 'Ether' | 'Fire' | 'Physical'
+export type EquipmentEffectAttribute = 'Electric' | 'Ether' | 'Fire' | 'Ice' | 'Physical'
 
 export type EquipmentEffectAction =
   Extract<
@@ -108,6 +118,7 @@ export type EquipmentEffectAction =
   | 'EX Special Attack'
   | 'Chain Attack'
   | 'Ultimate'
+  | 'Assist Follow-Up'
   >
 
 export type EquipmentEffectTag = Extract<ActionTag, 'aftershock'>
@@ -213,6 +224,8 @@ export interface AgentSummary {
   attribute: string
   specialty: string
   focusEligible: boolean
+  rank: AgentRank
+  faction?: AgentFaction
 }
 
 export type SetupFormulaFamily =

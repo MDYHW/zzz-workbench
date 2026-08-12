@@ -70,6 +70,42 @@ describe('party-directed preparation', () => {
     }
   })
 
+  it.each([
+    ['dialyn', { fourPieceId: 'king', twoPieceId: 'woodpecker' }],
+    ['trigger', { fourPieceId: 'king', twoPieceId: 'shockstar' }],
+  ] as const)(
+    'keeps King on the independent-CRIT %s holder and prepares flexible Lycaon on Astral',
+    (kingHolderId, expectedKing) => {
+      const members = [context('corin'), context(kingHolderId), context('lycaon')] as const
+
+      for (const ordered of permutations(members)) {
+        const prepared = preparePartySelections(ordered, 'corin')
+        const kingHolder = prepared[ordered.findIndex(({ agentId }) => agentId === kingHolderId)]
+        const lycaon = prepared[ordered.findIndex(({ agentId }) => agentId === 'lycaon')]
+
+        expect(kingHolder).toMatchObject(expectedKing)
+        expect(lycaon).toMatchObject({
+          fourPieceId: 'astralVoice',
+          twoPieceId: 'king',
+          mains: { slot4: 'atkPct', slot5: 'iceDmg', slot6: 'impact' },
+        })
+      }
+    },
+  )
+
+  it('keeps Lycaon on local King when no competing independent-CRIT holder exists', () => {
+    const prepared = preparePartySelections([
+      context('corin'), context('lycaon'), context('astraYao'),
+    ], 'corin')
+
+    expect(prepared[1]).toMatchObject({
+      fourPieceId: 'king',
+      twoPieceId: 'shockstar',
+      mains: { slot4: 'critRate', slot5: 'iceDmg', slot6: 'impact' },
+    })
+    expect(prepared[2]).toMatchObject({ fourPieceId: 'astralVoice' })
+  })
+
   it('does not move Trigger from King when no established King holder is rigid', () => {
     const prepared = prepareTargetSelection(
       context('trigger'),

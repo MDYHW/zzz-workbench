@@ -25,6 +25,9 @@ import thoughtbopImage from '../../assets/equipment/w-engines/thoughtbop.webp'
 import unfetteredImage from '../../assets/equipment/w-engines/unfettered-game-ball.webp'
 import weepingCradleImage from '../../assets/equipment/w-engines/weeping-cradle.webp'
 import yesterdayCallsImage from '../../assets/equipment/w-engines/yesterday-calls.webp'
+import housekeeperImage from '../../assets/equipment/w-engines/housekeeper.webp'
+import blazingLaurelImage from '../../assets/equipment/w-engines/blazing-laurel.webp'
+import simmeringPotImage from '../../assets/equipment/w-engines/the-simmering-pot.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -236,6 +239,27 @@ export const W_ENGINE_FACTS = {
       damage: { modifier: 'dmgBonus', unit: '%', value: [25, 31.5, 38, 44, 50], scope: { condition: 'backAttack' } },
     },
   },
+  housekeeper: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
+    effects: {
+      energy: { modifier: 'energyRegen', unit: '/s', value: [0.45, 0.52, 0.58, 0.65, 0.72] },
+      damage: { modifier: 'dmgBonus', unit: '%', progression: { kind: 'stacks', perStack: [3, 3.5, 4, 4.4, 4.8], maxStacks: 15 }, scope: { actions: ['EX Special Attack'], attributes: ['Physical'] } },
+    },
+  },
+  blazingLaurel: {
+    advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' },
+    effects: {
+      impact: { modifier: 'impact', unit: '%', value: [25, 28.75, 32.5, 36.25, 40] },
+      critDamage: { modifier: 'critDmg', unit: '%', progression: { kind: 'stacks', perStack: [1.5, 1.72, 1.95, 2.17, 2.4], maxStacks: 20 }, scope: { recipient: 'squad', attributes: ['Fire', 'Ice'] } },
+    },
+  },
+  simmeringPot: {
+    advancedStat: { id: 'impactPct', label: 'Impact', value: 15, unit: '%' },
+    effects: {
+      daze: { modifier: 'dazeBonus', unit: '%', value: [7.2, 8.2, 9.2, 10.2, 11.5], scope: { actions: ['Assist Follow-Up'] } },
+      damage: { modifier: 'dmgBonus', unit: '%', value: [7.2, 8.2, 9.2, 10.2, 11.5], scope: { actions: ['Assist Follow-Up'] } },
+    },
+  },
 } as const satisfies Record<EngineId, WEngineFacts>
 
 /** Exact authored fields for one admitted W-Engine, derived from the fact source. */
@@ -381,6 +405,30 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `Back Attack DMG +${percent(W_ENGINE_FACTS.steelCushion.effects.damage, refinement)}`,
     ],
   },
+  housekeeper: {
+    id: 'housekeeper', name: 'Housekeeper', rank: 'A', limited: false, baseAtk: 624,
+    advancedStat: W_ENGINE_FACTS.housekeeper.advancedStat, image: housekeeperImage,
+    passiveLines: (refinement) => [
+      `Automatic Energy +${perSecond(W_ENGINE_FACTS.housekeeper.effects.energy, refinement)}`,
+      `EX Special Physical DMG +${percent(W_ENGINE_FACTS.housekeeper.effects.damage, refinement, true)}`,
+    ],
+  },
+  blazingLaurel: {
+    id: 'blazingLaurel', name: 'Blazing Laurel', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.blazingLaurel.advancedStat, image: blazingLaurelImage,
+    passiveLines: (refinement) => [
+      `Impact +${percent(W_ENGINE_FACTS.blazingLaurel.effects.impact, refinement)}`,
+      `Fire & Ice CRIT DMG +${percent(W_ENGINE_FACTS.blazingLaurel.effects.critDamage, refinement, true)}`,
+    ],
+  },
+  simmeringPot: {
+    id: 'simmeringPot', name: 'The Simmering Pot', rank: 'A', limited: false, baseAtk: 594,
+    advancedStat: W_ENGINE_FACTS.simmeringPot.advancedStat, image: simmeringPotImage,
+    passiveLines: (refinement) => [
+      `Assist Follow-Up Daze +${percent(W_ENGINE_FACTS.simmeringPot.effects.daze, refinement)}`,
+      `Assist Follow-Up DMG +${percent(W_ENGINE_FACTS.simmeringPot.effects.damage, refinement)}`,
+    ],
+  },
 }
 
 const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
@@ -398,4 +446,6 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   seed: enginePools(['cordisGermina', 'severedInnocence', 'brimstone', 'marcatoDesire']),
   cissia: enginePools(['serpentineSeeker', 'drillRigRedAxis', 'cordisGermina']),
   evelyn: enginePools(['heartstringNocturne', 'severedInnocence', 'cordisGermina', 'starlightEngine', 'steelCushion']),
+  corin: enginePools(['cordisGermina', 'heartstringNocturne', 'steelCushion', 'housekeeper']),
+  lycaon: enginePools(['blazingLaurel', 'steamOven', 'preciousFossilizedCore', 'simmeringPot']),
 }

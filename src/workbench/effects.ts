@@ -5,7 +5,7 @@ import {
   MAIN_STATS,
   SETUP_FORMULA_PARTICIPATION_BY_AGENT,
   SOURCE_LABELS,
-  SUBSTAT_CHOICES_BY_AGENT,
+  effectiveSubstatChoices,
   VERTICAL_VALUES,
   W_ENGINES,
   equipmentEffectBaseValue,
@@ -112,6 +112,32 @@ export const withApplicability = (
   applicability: ClauseApplicability,
 ): SourceBoundCurrentClause => ({ ...clause, ...applicability })
 
+/**
+ * Astral's entrant effect is equipment-delivered. Its controllable recipient
+ * is resolved by the party context, while formula applicability retains the
+ * current legal damage consumers without naming individual recipients.
+ */
+export function astralVoiceEntrantClause(
+  agentId: AgentId,
+  setup: CompleteSetup,
+): SourceBoundCurrentClause | null {
+  if (setup.fourPieceId !== 'astralVoice') return null
+  return withApplicability(
+    additive(
+      'dmgBonus',
+      'fully',
+      discSource(agentId, 'astralVoice', '4-piece'),
+      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage),
+      'focus',
+      undefined,
+      undefined,
+      undefined,
+      'astralVoiceEntrant',
+    ),
+    { formulas: ['general_damage', 'sheer_damage'] },
+  )
+}
+
 function baseAttributeFor(agentId: AgentId): EffectAttribute {
   const attribute = ADMITTED_AGENTS.find(({ id }) => id === agentId)?.attribute
   if (attribute === 'Auric Ink') return 'Ether'
@@ -207,6 +233,28 @@ export const STATIC_SOURCES = {
     additional: source(SOURCE_LABELS.evelynAbility, 'evelyn', 'additional'),
     critCap: source('Displayed CRIT Rate cap', 'evelyn', 'calculation'),
   },
+  corin: {
+    core: source(SOURCE_LABELS.corinCore, 'corin', 'core'),
+    additional: source(SOURCE_LABELS.corinAbility, 'corin', 'additional'),
+    critCap: source('Displayed CRIT Rate cap', 'corin', 'calculation'),
+  },
+  lycaon: {
+    core: source(SOURCE_LABELS.lycaonCore, 'lycaon', 'core'),
+    coreDebuff: source(
+      SOURCE_LABELS.lycaonCore,
+      'lycaon',
+      'core',
+      'After EX Special, Assist Follow-Up, or Glacial Waltz',
+    ),
+    additional: source(SOURCE_LABELS.lycaonAbility, 'lycaon', 'additional'),
+    potential: source(
+      SOURCE_LABELS.lycaonPotential,
+      'lycaon',
+      'identity',
+      'Non-active during Encircle Prey',
+    ),
+    critCap: source('Displayed CRIT Rate cap', 'lycaon', 'calculation'),
+  },
 } as const
 
 export const mindscapeSource = (
@@ -259,15 +307,18 @@ export const mainSource = (agentId: AgentId, slot: MainSlot): ResultSource =>
 
 export function substatSource(
   agentId: AgentId,
+  setup: Pick<CompleteSetup, 'fourPieceId'>,
   substatId: SubstatId,
 ): ResultSource {
-  const index = SUBSTAT_CHOICES_BY_AGENT[agentId]
-    .findIndex(({ id }) => id === substatId)
+  const choices = effectiveSubstatChoices(agentId, setup)
+  const index = choices.findIndex(({ id }) => id === substatId)
+  const choice = choices[index]
+  if (!choice) throw new Error(`Inactive substat input: ${agentId}:${substatId}`)
   return source(
     'Effective substat hits',
     agentId,
     `substat-${index + 1}` as SourceLocus,
-    SUBSTAT_CHOICES_BY_AGENT[agentId][index].label,
+    choice.label,
   )
 }
 
@@ -276,13 +327,14 @@ export function effectiveSubstatInput(
   agentId: AgentId,
   substatId: SubstatId,
 ): ResolvedSetupInput | undefined {
-  const choice = SUBSTAT_CHOICES_BY_AGENT[agentId]
+  const choice = effectiveSubstatChoices(agentId, setup)
     .find(({ id }) => id === substatId)
-  return choice && {
-    rawValue: (setup.substats[substatId] ?? 0) * choice.perHit,
+  const count = setup.substats[substatId]
+  return choice && Number.isFinite(count) ? {
+    rawValue: count! * choice.perHit,
     unit: choice.unit,
-    source: substatSource(agentId, substatId),
-  }
+    source: substatSource(agentId, setup, substatId),
+  } : undefined
 }
 
 export function mainStatInput(
@@ -366,12 +418,14 @@ export const percentage = (
   sourceValue: ResultSource,
   percentageValue: number,
   recipient: Recipient,
+  action?: ActionTarget,
   eligibleAgentIds?: AgentId[],
 ): SourceBoundCurrentClause => ({
   metric,
   earliestSurface,
   source: sourceValue,
   recipient,
+  ...(action ? { action } : {}),
   ...(eligibleAgentIds ? { eligibleAgentIds } : {}),
   value: { kind: 'basis-percentage', percentage: percentageValue },
 })
@@ -383,7 +437,7 @@ export const active = (
 ) > 0.000_001)
 
 export function pufferElectroFourPieceClauses(
-  agentId: 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn',
+  agentId: 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin',
   setup: CompleteSetup,
   ultimateAction: ActionTarget,
 ): SourceBoundCurrentClause[] {

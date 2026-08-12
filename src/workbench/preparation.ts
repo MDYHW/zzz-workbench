@@ -1,5 +1,7 @@
 import {
   DISC_IDS_BY_AGENT_AND_PIECE,
+  MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
+  SUBSTAT_CHOICES_BY_AGENT,
   representativeSetupFor,
   type AgentId,
   type DiscId,
@@ -40,18 +42,41 @@ function withFocusedEngine(
   return representative
 }
 
-function withTriggerKingAllocation(
+function withCompetitiveKingAstralAllocation(
   context: PreparationContext,
   establishedHolders: readonly EstablishedDiscHolder[],
   selection: SetupSelection,
 ): SetupSelection {
-  const kingIsAllocatedToRigidHolder = establishedHolders.some(({ agentId, fourPieceId }) => (
-    fourPieceId === 'king'
-    && DISC_IDS_BY_AGENT_AND_PIECE[agentId].fourPiece.length === 1
+  const canPrepareKing = DISC_IDS_BY_AGENT_AND_PIECE[context.agentId].fourPiece
+    .includes('king')
+  const canPrepareAstral = DISC_IDS_BY_AGENT_AND_PIECE[context.agentId].fourPiece
+    .includes('astralVoice')
+  const kingIsHeldByIndependentCritConsumer = establishedHolders.some((holder) => (
+    holder.agentId !== context.agentId
+    && holder.fourPieceId === 'king'
+    && hasIndependentCritConsumer(holder.agentId)
   ))
-  return context.agentId === 'trigger' && kingIsAllocatedToRigidHolder
-    ? { ...selection, fourPieceId: 'astralVoice', twoPieceId: 'shockstar' }
+  const targetHasIndependentCritConsumer = hasIndependentCritConsumer(context.agentId)
+  return canPrepareKing && canPrepareAstral && kingIsHeldByIndependentCritConsumer
+    ? {
+      ...selection,
+      fourPieceId: 'astralVoice',
+      twoPieceId: targetHasIndependentCritConsumer
+        ? selection.twoPieceId
+        : selection.fourPieceId,
+      mains: {
+        ...selection.mains,
+        slot4: targetHasIndependentCritConsumer
+          ? selection.mains.slot4
+          : 'atkPct',
+      },
+    }
     : selection
+}
+
+function hasIndependentCritConsumer(agentId: AgentId): boolean {
+  return MAIN_STAT_IDS_BY_AGENT_AND_SLOT[agentId].slot4.includes('critRate')
+    && SUBSTAT_CHOICES_BY_AGENT[agentId].some(({ id }) => id === 'critRate')
 }
 
 function withAstraAstralAllocation(
@@ -91,7 +116,7 @@ export function prepareTargetSelection(
   establishedHolders: readonly EstablishedDiscHolder[],
 ): SetupSelection {
   const focused = withFocusedEngine(context, focusAgentId, representativeFor(context))
-  const allocated = withTriggerKingAllocation(context, establishedHolders, focused)
+  const allocated = withCompetitiveKingAstralAllocation(context, establishedHolders, focused)
   const contextual = withCissiaAstralOpportunity(
     context,
     [context.agentId, ...establishedHolders.map(({ agentId }) => agentId)],
@@ -109,7 +134,7 @@ export function preparePartySelections(
     focusAgentId,
     representativeFor(context),
   ))
-  const withKingAllocation = focused.map((selection, index) => withTriggerKingAllocation(
+  const withKingAllocation = focused.map((selection, index) => withCompetitiveKingAstralAllocation(
     contexts[index],
     contexts.map((context, holderIndex) => ({
       agentId: context.agentId,

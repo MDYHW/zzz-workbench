@@ -34,8 +34,10 @@ export function resolveTriggerProviderClauses(setup: CompleteSetup): SourceBound
     additive('dazeBonus', 'initial', discSource('trigger', 'king', '2-piece', setup.fourPieceId === 'king' ? '4-piece' : '2-piece'), setup.fourPieceId === 'king' || setup.twoPieceId === 'king' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze) : 0, 'self'),
     additive('stunDmgMultiplier', 'fully', STATIC_SOURCES.trigger.core, setup.mindscape >= 1 ? 55 : 35, 'enemy-context', undefined, undefined, ['yixuan', 'anbySoldier0', 'trigger']),
     additive('critDmg', 'fully', mindscapeSource('trigger', 2, '4 stacks'), setup.mindscape >= 2 ? 24 : 0, 'all-party', undefined, undefined, ['yixuan', 'anbySoldier0', 'trigger']),
-    additive('critDmg', 'fully', discSource('trigger', 'king', '4-piece'), kingCrit, 'all-party', undefined, undefined, ['yixuan', 'anbySoldier0', 'trigger'], 'kingOfTheSummit'),
-    additive('dmgBonus', 'fully', discSource('trigger', 'astralVoice', '4-piece'), setup.fourPieceId === 'astralVoice' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage) : 0, 'all-party', undefined, undefined, ['yixuan', 'anbySoldier0'], 'astralVoiceEntrant'),
+    withApplicability(
+      additive('critDmg', 'fully', discSource('trigger', 'king', '4-piece'), kingCrit, 'all-party', undefined, undefined, undefined, 'kingOfTheSummit'),
+      { formulas: ['general_damage', 'sheer_damage'] },
+    ),
     withCandidatePressure(
       withApplicability(
         additive('defReduction', 'fully', engine, setup.engineId === 'spectralGaze' ? equipmentEffectBaseValue(W_ENGINE_FACTS.spectralGaze.effects.defReduction, refinement) : 0, 'enemy-context'),

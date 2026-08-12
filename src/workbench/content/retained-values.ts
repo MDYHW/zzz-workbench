@@ -84,6 +84,30 @@ export const VERTICAL_VALUES = {
     mindscapeAtk: 15,
     mindscapeCritDmg: 40,
   },
+  corin: {
+    atk: 807,
+    critRate: 5,
+    critDmg: 78.8,
+    baseEnergyRegen: 1.2,
+    coreChainsawDmg: 37.5,
+    additionalStunnedDmg: 35,
+    mindscapeDmg: 12,
+    mindscapePhysicalResReduction: 10,
+  },
+  lycaon: {
+    impact: 137,
+    critRate: 5,
+    baseEnergyRegen: 1.2,
+    coreChargedDaze: 80,
+    coreIceResReduction: 25,
+    coreOtherAttributeDmg: 30,
+    glacialWaltzDaze: 48,
+    potentialImpact: 15,
+    additionalStunMultiplier: 35,
+    mindscapeExDaze: 12,
+    mindscapeFullChargeDaze: 10,
+    kingCritThreshold: 50,
+  },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [
@@ -121,5 +145,10 @@ export const SOURCE_LABELS = {
   cissiaBasic: 'Basic Attack',
   evelynCore: SOURCE_CATEGORY_LABELS.corePassive,
   evelynAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  corinCore: SOURCE_CATEGORY_LABELS.corePassive,
+  corinAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  lycaonCore: SOURCE_CATEGORY_LABELS.corePassive,
+  lycaonAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  lycaonPotential: 'Potential Awakening',
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const

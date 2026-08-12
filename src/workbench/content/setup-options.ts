@@ -1,5 +1,6 @@
 import type {
   AgentId,
+  DiscId,
   MainSlot,
   MainStatChoice,
   MainStatId,
@@ -20,6 +21,8 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   seed: { primary: ['general_damage'], residual: [] },
   cissia: { primary: ['general_damage', 'daze_buildup'], residual: [] },
   evelyn: { primary: ['general_damage'], residual: [] },
+  corin: { primary: ['general_damage'], residual: [] },
+  lycaon: { primary: ['daze_buildup'], residual: [] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -38,6 +41,7 @@ export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
   },
   electricDmg: { id: 'electricDmg', label: 'Electric DMG', numericValue: 30 },
   fireDmg: { id: 'fireDmg', label: 'Fire DMG', numericValue: 30 },
+  iceDmg: { id: 'iceDmg', label: 'Ice DMG', numericValue: 30 },
 }
 
 export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
@@ -89,6 +93,16 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot5: ['penRatio', 'fireDmg', 'atkPct'],
     slot6: ['atkPct'],
   },
+  corin: {
+    slot4: ['critRate', 'critDmg'],
+    slot5: ['penRatio', 'physicalDmg', 'atkPct'],
+    slot6: ['atkPct'],
+  },
+  lycaon: {
+    slot4: ['atkPct'],
+    slot5: ['iceDmg', 'atkPct'],
+    slot6: ['impact', 'energyRegenPct'],
+  },
 }
 
 /** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
@@ -96,6 +110,7 @@ export const PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE: Partial<
   Record<AgentId, Exclude<MainStatId, 'penRatio'>>
 > = {
   evelyn: 'fireDmg',
+  corin: 'physicalDmg',
 }
 
 export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
@@ -134,4 +149,23 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
     { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
     { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
   ],
+  corin: [
+    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
+    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+  ],
+  lycaon: [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }],
+}
+
+/**
+ * Effective substat inputs are authored choices plus current selected-input
+ * pressure. Consumers pass only Agent identity and the already-selected setup;
+ * no Result value or preparation decision feeds this query.
+ */
+export function effectiveSubstatChoices(
+  agentId: AgentId,
+  setup: { fourPieceId: DiscId | null },
+): SubstatChoice[] {
+  if (agentId === 'lycaon' && setup.fourPieceId !== 'king') return []
+  return SUBSTAT_CHOICES_BY_AGENT[agentId]
 }

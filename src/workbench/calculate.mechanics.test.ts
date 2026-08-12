@@ -420,6 +420,143 @@ describe('calculateParty mechanisms', () => {
       }))
   })
 
+  it('projects Corin equipment and retained actions without excluded resource or raw outcomes', () => {
+    const prepared = createPreparedState({}, ['corin', 'lycaon', 'astraYao'], 0)
+    const base = agent(calculateParty(prepared)!, 'corin')
+
+    expect(metric(base, 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Additional Ability', ownerAgentId: 'corin',
+      }))
+    const unqualified = agent(calculateParty(
+      createPreparedState({}, ['corin', 'trigger', 'astraYao'], 0),
+    )!, 'corin')
+    expect(Object.values(metric(unqualified, 'dmgBonus').breakdown).flat())
+      .not.toContainEqual(expect.objectContaining({
+        label: 'Additional Ability', ownerAgentId: 'corin',
+      }))
+
+    expect(action(base, 'corinChainsaw').values.combat
+      - metric(base, 'dmgBonus').values.combat).toBeCloseTo(37.5, 10)
+    expect(action(base, 'corinBasicUltimateDefIgnore').values.fully).toBe(20)
+    expect(metric(base, 'resReduction').values.fully).toBe(10)
+    expect(base.operations).toEqual([])
+    expect(JSON.stringify(base)).not.toMatch(/M4|M6|raw damage|Charge coefficient/i)
+
+    const housekeeper = agent(calculateParty(setRefinement(
+      selectEngine(prepared, 'corin', 'housekeeper'),
+      'corin',
+      5,
+    ))!, 'corin')
+    expect(metric(housekeeper, 'energyRegen')).toMatchObject({
+      unit: '/s',
+      values: { initial: 0, combat: 0.72, fully: 0.72 },
+    })
+    expect(action(housekeeper, 'corinEx').values.fully
+      - metric(housekeeper, 'dmgBonus').values.fully).toBe(72)
+
+    const heartstring = agent(calculateParty(
+      selectEngine(prepared, 'corin', 'heartstringNocturne'),
+    )!, 'corin')
+    expect(metric(heartstring, 'critDmg').breakdown.combat)
+      .toContainEqual(expect.objectContaining({
+        label: 'Heartstring Nocturne',
+        amount: 50,
+      }))
+    expect(heartstring.metrics.find(({ id }) => id === 'resIgnore')).toBeUndefined()
+  })
+
+  it('projects Lycaon threshold, action, recipient, and multi-recipient mechanisms separately', () => {
+    const local = createPreparedState({}, ['corin', 'lycaon', 'astraYao'], 0)
+    const base = agent(calculateParty(local)!, 'lycaon')
+    expect(metric(base, 'stunDmgMultiplier').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Additional Ability', ownerAgentId: 'lycaon',
+      }))
+    const unqualified = agent(calculateParty(
+      createPreparedState({}, ['seed', 'lycaon', 'astraYao'], 0),
+    )!, 'lycaon')
+    expect(unqualified.metrics.find(({ id }) => id === 'stunDmgMultiplier')).toBeUndefined()
+
+    expect(metric(base, 'critRate').gauge).toMatchObject({
+      basisLabel: 'Initial CRIT Rate',
+      current: 29,
+      threshold: 50,
+      outputValue: 15,
+    })
+    expect(action(base, 'lycaonCharged').values)
+      .toEqual({ initial: 6, combat: 86, fully: 86 })
+    expect(action(base, 'lycaonGlacialWaltz').values.fully).toBe(54)
+    expect(action(base, 'lycaonPotential').values.fully).toBeCloseTo(249.34, 10)
+
+    const threshold = agent(calculateParty(
+      setSubstat(local, 'lycaon', 'critRate', 9),
+    )!, 'lycaon')
+    expect(metric(threshold, 'critRate').gauge).toEqual(
+      expect.objectContaining({
+        current: expect.closeTo(50.6),
+        outputValue: 30,
+      }),
+    )
+
+    let fullyOnlyBuffState = createPreparedState({}, ['corin', 'lycaon', 'lucia'], 0)
+    fullyOnlyBuffState = selectEngine(fullyOnlyBuffState, 'lucia', 'unfetteredGameBall')
+    fullyOnlyBuffState = setRefinement(fullyOnlyBuffState, 'lucia', 5)
+    fullyOnlyBuffState = setSubstat(fullyOnlyBuffState, 'lycaon', 'critRate', 1)
+    const fullyOnlyBuff = calculateParty(fullyOnlyBuffState)!
+    const buffedLycaonCrit = metric(agent(fullyOnlyBuff, 'lycaon'), 'critRate')
+    expect(buffedLycaonCrit.values).toMatchObject({
+      initial: expect.closeTo(31.4),
+      fully: expect.closeTo(51.4),
+    })
+    expect(buffedLycaonCrit.gauge).toMatchObject({
+      basisLabel: 'Initial CRIT Rate',
+      current: expect.closeTo(31.4),
+      outputValue: 15,
+    })
+    expect(metric(agent(fullyOnlyBuff, 'corin'), 'critDmg').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'King of the Summit', ownerAgentId: 'lycaon', amount: 15,
+      }))
+
+    const m1State = withSetup(local, 'lycaon', (setup) => ({ ...setup, mindscape: 1 }))
+    const m1 = agent(calculateParty(m1State)!, 'lycaon')
+    expect(action(m1, 'lycaonEx').values.fully).toBe(18)
+    expect(action(m1, 'lycaonFullChargeEx').values.fully).toBe(28)
+    expect(m1.operations).toEqual([])
+
+    const simmering = agent(calculateParty(
+      selectEngine(local, 'lycaon', 'simmeringPot'),
+    )!, 'lycaon')
+    expect(action(simmering, 'lycaonAssist').values.fully
+      - metric(simmering, 'dazeBonus').values.fully).toBe(11.5)
+    expect(simmering.metrics.find(({ id }) => id === 'dmgBonus')).toBeUndefined()
+
+    const allocated = calculateParty(
+      createPreparedState({}, ['corin', 'trigger', 'lycaon'], 0),
+    )!
+    const allocatedCorin = agent(allocated, 'corin')
+    const allocatedLycaon = agent(allocated, 'lycaon')
+    expect(allocatedLycaon.metrics.find(({ id }) => id === 'critRate')).toBeUndefined()
+    expect(metric(allocatedCorin, 'dmgBonus').breakdown.fully)
+      .toEqual(expect.arrayContaining([
+        expect.objectContaining({ label: 'Astral Voice', ownerAgentId: 'lycaon', amount: 24 }),
+        expect.objectContaining({ label: 'Core Passive', ownerAgentId: 'lycaon', amount: 30 }),
+      ]))
+
+    const attributeParty = calculateParty(
+      createPreparedState({}, ['evelyn', 'lycaon', 'corin'], 0),
+    )!
+    expect(metric(agent(attributeParty, 'evelyn'), 'critDmg').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Blazing Laurel',
+        ownerAgentId: 'lycaon',
+        amount: 30,
+      }))
+    expect(metric(agent(attributeParty, 'corin'), 'critDmg').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ label: 'Blazing Laurel' }))
+  })
+
   it('omits fixed base values from source disclosure', () => {
     const result = calculateParty(createPreparedState())!
     const serialized = JSON.stringify(result)

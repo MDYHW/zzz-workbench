@@ -60,6 +60,24 @@ const evelynRepresentative: Omit<SetupSelection, 'engineId'> = {
   mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
 }
 
+const corinRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'cordisGermina' : 'steelCushion',
+  fourPieceId: 'hormonePunk',
+  twoPieceId: 'woodpecker',
+  mains: {
+    slot4: pool === 'full' ? 'critDmg' : 'critRate',
+    slot5: 'penRatio',
+    slot6: 'atkPct',
+  },
+})
+
+const lycaonRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'blazingLaurel' : 'steamOven',
+  fourPieceId: 'king',
+  twoPieceId: 'shockstar',
+  mains: { slot4: 'critRate', slot5: 'iceDmg', slot6: 'impact' },
+})
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -103,6 +121,14 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   evelyn: {
     full: { ...evelynRepresentative, engineId: 'heartstringNocturne' },
     nonLimited: { ...evelynRepresentative, engineId: 'starlightEngine' },
+  },
+  corin: {
+    full: corinRepresentative('full'),
+    nonLimited: corinRepresentative('nonLimited'),
+  },
+  lycaon: {
+    full: lycaonRepresentative('full'),
+    nonLimited: lycaonRepresentative('nonLimited'),
   },
 }
 

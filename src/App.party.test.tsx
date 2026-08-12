@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { App } from './App'
@@ -33,7 +33,7 @@ describe('integrated party workbench: party', () => {
 
     const portraitStyle = (agentId: string) => {
       const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
-      const portrait = screen.getByRole('tab', { name: new RegExp(agent.name) })
+      const portrait = screen.getAllByRole('tab', { name: new RegExp(agent.name) })[0]
         .querySelector<HTMLElement>('.agent-art')
       expect(portrait).not.toBeNull()
       return portrait!.style
@@ -78,9 +78,15 @@ describe('integrated party workbench: party', () => {
         { agentId: 'cissia', setup: createPreparedAgentSetup('cissia') },
         { agentId: 'evelyn', setup: createPreparedAgentSetup('evelyn') },
       ],
+      [
+        { agentId: 'corin', setup: createPreparedAgentSetup('corin') },
+        { agentId: 'lycaon', setup: createPreparedAgentSetup('lycaon') },
+        { agentId: 'lucia', setup: createPreparedAgentSetup('lucia') },
+      ],
     ]
+    let latestContainer: HTMLElement | null = null
     for (const slots of additionalGroups) {
-      render(
+      latestContainer = render(
         <PartyWorkbench
           activeSourceTone={null}
           focusSlot={0}
@@ -91,12 +97,15 @@ describe('integrated party workbench: party', () => {
         >
           <div>Fixture workbench</div>
         </PartyWorkbench>,
-      )
+      ).container
     }
 
-    expect(document.querySelectorAll('.agent-art')).toHaveLength(9)
+    expect(document.querySelectorAll('.agent-art')).toHaveLength(12)
     for (const agent of ADMITTED_AGENTS) expectSource(agent.id)
     expectSource('trigger', String(330 / 295))
+    expect(within(latestContainer!).getByLabelText('A Rank').querySelector('img'))
+      .toHaveAttribute('src', expect.stringContaining('a'))
+    expect(within(latestContainer!).getAllByLabelText('S Rank')).toHaveLength(2)
   })
 
   it('switches slots while preserving each Agent setup state', async () => {
@@ -298,6 +307,35 @@ describe('integrated party workbench: party', () => {
     await user.hover(evelynTab)
     expect(evelynTab).toHaveClass('source-tone--agent-evelyn')
   })
+
+  it('applies Corin and Lycaon with generic Rank defaults and Focus behavior', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Corin, Physical, Attack/)
+    await replace(2, /Lycaon, Ice, Stun/)
+    await replace(3, /Astra Yao, Ether, Support/)
+    expect(screen.getAllByText('Corin is Focus automatically.')).toHaveLength(2)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    expect(screen.getByText(/Focus.*Corin/)).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Corin setup' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Corin Result' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'M6' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByLabelText('A Rank')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'View Lycaon setup and Result' }))
+    expect(screen.getByRole('region', { name: 'Lycaon setup' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Lycaon Result' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'M0' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getAllByLabelText('S Rank').length).toBeGreaterThan(0)
+    expect(screen.getByText(/Focus.*Corin/)).toBeInTheDocument()
+  }, 15_000)
 
   it('keeps keyboard focus on a present filter when no replacement is available', async () => {
     const user = userEvent.setup()

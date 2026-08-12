@@ -52,6 +52,16 @@ The gate is evaluated against the current consumer. A speculative later Agent
 or release is not a consumer. When later content is explicitly admitted, apply
 the same gate to that content then.
 
+The initial content-admission cohort contains game entities introduced through
+Version 2.8. This is an identity-admission boundary, not a historical Version
+2.8 ruleset or value snapshot. For an admitted entity, author from its current
+released identity, progression, kit, equipment facts, and values, including a
+later revision or progression extension to that same entity when it changes a
+current qualifying outcome. An entity first introduced after Version 2.8 does
+not enter the initial cohort merely because it is currently compatible with an
+admitted consumer. Admit later entities only through an explicit later content
+decision and reapply this gate then.
+
 ## Qualifying-Outcome-First Derivation
 
 Start from the user-visible setup choice or Result that may differ and work

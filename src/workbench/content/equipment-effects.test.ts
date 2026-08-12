@@ -23,6 +23,7 @@ describe('bounded equipment effect facts', () => {
       | 'Dash Attack'
       | 'Dodge Counter'
       | 'EX Special Attack'
+      | 'Assist Follow-Up'
       | 'Chain Attack'
       | 'Ultimate'
     >()
@@ -188,6 +189,42 @@ describe('bounded equipment effect facts', () => {
 
     for (const line of [...heartstringLines, ...steelLines].flat()) {
       expect(line).not.toMatch(/Base ATK|entry|entering|acquir|stack|refresh|duration|seconds?/i)
+    }
+  })
+
+  it('derives the new complete W-Engine packages from their exact refinement facts', () => {
+    const refinements = [1, 2, 3, 4, 5] as const
+
+    expect(refinements.map((refinement) =>
+      equipmentEffectBaseValue(W_ENGINE_FACTS.housekeeper.effects.energy, refinement),
+    )).toEqual([0.45, 0.52, 0.58, 0.65, 0.72])
+    expect(refinements.map((refinement) =>
+      equipmentEffectMaximumValue(W_ENGINE_FACTS.housekeeper.effects.damage, refinement),
+    )).toEqual([45, 52.5, 60, 66, 72])
+    expect(refinements.map((refinement) =>
+      equipmentEffectMaximumValue(W_ENGINE_FACTS.blazingLaurel.effects.critDamage, refinement),
+    )).toEqual([30, 34.4, 39, 43.4, 48])
+    expect(refinements.map((refinement) =>
+      equipmentEffectBaseValue(W_ENGINE_FACTS.simmeringPot.effects.daze, refinement),
+    )).toEqual([7.2, 8.2, 9.2, 10.2, 11.5])
+
+    expect(W_ENGINES.housekeeper.passiveLines(5)).toEqual([
+      'Automatic Energy +0.72/s',
+      'EX Special Physical DMG +72%',
+    ])
+    expect(W_ENGINES.blazingLaurel.passiveLines(1)).toEqual([
+      'Impact +25%',
+      'Fire & Ice CRIT DMG +30%',
+    ])
+    expect(W_ENGINES.simmeringPot.passiveLines(5)).toEqual([
+      'Assist Follow-Up Daze +11.5%',
+      'Assist Follow-Up DMG +11.5%',
+    ])
+
+    for (const engineId of ['housekeeper', 'blazingLaurel', 'simmeringPot'] as const) {
+      for (const line of W_ENGINES[engineId].passiveLines(5)) {
+        expect(line).not.toMatch(/Base ATK|acquir|stack|duration|seconds?/i)
+      }
     }
   })
 })

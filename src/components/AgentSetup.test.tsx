@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { DISC_IDS_BY_AGENT_AND_PIECE, MAIN_STAT_IDS_BY_AGENT_AND_SLOT, type MainSlot, type MainStatId } from '../workbench/content'
 import { createPreparedState, isCompleteWorkbench, workbenchReducer } from '../workbench/state'
 import { AgentSetup } from './AgentSetup'
+import { effectiveFourPieceIds, effectiveMainStatIds, effectiveTwoPieceIds } from '../workbench/candidates'
 
 const singleCandidateMains: Record<MainSlot, readonly MainStatId[]> = {
   slot4: ['critRate'],
@@ -411,5 +412,73 @@ describe('AgentSetup exact two-piece choices', () => {
     expect(within(screen.getByLabelText('fourPiece Drive Disc candidates')).queryByRole('button', {
       name: 'Select King of the Summit as fourPiece',
     })).not.toBeInTheDocument()
+  })
+})
+
+function LycaonSelectedPressureHarness() {
+  const [state, dispatch] = useReducer(workbenchReducer, undefined, () => (
+    createPreparedState({}, ['corin', 'lycaon', 'astraYao'], 0)
+  ))
+  const slot = 1 as const
+  return (
+    <AgentSetup
+      activeSourceTone={null}
+      agentId="lycaon"
+      discCandidates={{
+        fourPiece: effectiveFourPieceIds(state, slot),
+        twoPiece: effectiveTwoPieceIds(state, slot),
+      }}
+      dispatch={dispatch}
+      mainStatCandidates={{
+        slot4: effectiveMainStatIds(state, slot, 'slot4'),
+        slot5: effectiveMainStatIds(state, slot, 'slot5'),
+        slot6: effectiveMainStatIds(state, slot, 'slot6'),
+      }}
+      onSourceToneChange={vi.fn()}
+      setup={state.slots[slot].setup}
+      slot={slot}
+    />
+  )
+}
+
+describe('AgentSetup selected-pressure missing hit count', () => {
+  it('renders one described empty control after King reselection and accepts explicit zero', async () => {
+    const user = userEvent.setup()
+    render(<LycaonSelectedPressureHarness />)
+
+    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveValue('0')
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from King of the Summit',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Astral Voice as fourPiece',
+    }))
+    const astral = screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Astral Voice',
+    })
+    expect(astral).toHaveFocus()
+
+    await user.click(astral)
+    await user.click(screen.getByRole('button', {
+      name: 'Select King of the Summit as fourPiece',
+    }))
+    expect(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from King of the Summit',
+    })).toHaveFocus()
+
+    const input = screen.getByLabelText('CRIT Rate hit count')
+    const description = screen.getByText('Hit count required')
+    expect(input).toHaveValue('')
+    expect(input).toHaveAttribute('aria-invalid', 'true')
+    expect(input).toHaveAttribute('aria-describedby', 'lycaon-critRate-hit-count-required')
+    expect(description).toHaveAttribute('id', 'lycaon-critRate-hit-count-required')
+    expect(document.querySelectorAll('#lycaon-critRate-hit-count-required')).toHaveLength(1)
+    expect(document.querySelector('[aria-live]')).toBeNull()
+
+    await user.type(input, '0')
+    await user.tab()
+    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveValue('0')
+    expect(screen.getByLabelText('CRIT Rate hit count')).not.toHaveAttribute('aria-invalid', 'true')
+    expect(screen.queryByText('Hit count required')).not.toBeInTheDocument()
   })
 })

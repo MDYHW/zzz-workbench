@@ -382,7 +382,11 @@ function ActionRows({
                       <td key={surface}>
                         {Math.abs(action.values[surface] - parentValues[surface]) < 0.0001
                           ? <span className="action-result--empty">{'—'}</span>
-                          : <b className="action-result-value">{formatValue(action.values[surface], '%', 1)}</b>}
+                          : <b className="action-result-value">{formatValue(
+                            action.values[surface],
+                            metric.unit,
+                            metric.decimals,
+                          )}</b>}
                       </td>
                     ))}
                   </tr>

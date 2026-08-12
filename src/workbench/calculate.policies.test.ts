@@ -32,6 +32,20 @@ describe('authored calculation policies', () => {
       ])).toBe('cissia')
     })
 
+    it('resolves a sole eligible teammate before reading any Initial ATK', () => {
+      const state = createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0)
+      const incompleteAstra = {
+        ...state,
+        slots: state.slots.map((slot) => (
+          slot.agentId === 'astraYao'
+            ? { ...slot, setup: { ...slot.setup, engineId: null } }
+            : slot
+        )) as typeof state.slots,
+      }
+
+      expect(resolveSeedVanguardForState(incompleteAstra)).toBe('cissia')
+    })
+
     it('uses exact Initial ATK and applied slot only for an exact tie', () => {
       const tied = [
         { agentId: 'cissia', appliedSlot: 0, initialAtk: 2500 },
@@ -93,6 +107,22 @@ describe('authored calculation policies', () => {
       const reordered = createPreparedState({}, ['anbySoldier0', 'evelyn', 'seed'], 1)
       const tied = selectDisc(reordered, 'evelyn', 'fourPiece', 'woodpecker')
       expect(resolveSeedVanguardForState(tied)).toBe('anbySoldier0')
+    })
+
+    it('resolves Corin directly as sole Vanguard and compares only in an all-Attack party', () => {
+      const sole = createPreparedState({}, ['seed', 'corin', 'astraYao'], 1)
+      expect(resolveSeedVanguardForState(sole)).toBe('corin')
+
+      let compared = createPreparedState({}, ['seed', 'corin', 'anbySoldier0'], 1)
+      expect(resolveSeedVanguardForState(compared)).toBe('anbySoldier0')
+
+      compared = selectMain(compared, 'corin', 'slot5', 'atkPct')
+      expect(resolveSeedVanguardForState(compared)).toBe('corin')
+      const corin = resolveProviderEffects(compared).contexts.find(
+        ({ agentId }) => agentId === 'corin',
+      )
+      if (corin?.agentId !== 'corin') throw new Error('Missing Corin observation')
+      expect(corin.initialAtk).toBeCloseTo(2900, 10)
     })
 
     it('applies Yixuan cumulative Mindscapes only to their parent and action scopes', () => {
@@ -462,7 +492,7 @@ describe('authored calculation policies', () => {
       const m2 = agent(calculateParty(withMindscape(base, 'cissia', 2))!, 'cissia')
       expect(metric(m1, 'defIgnore').values.combat).toBe(63)
       expect(action(m1, 'cissiaCorrodeResIgnore').values.fully).toBe(15)
-      expect(action(m2, 'cissiaSerpent').values.fully).toBe(172)
+      expect(action(m2, 'cissiaSerpent').values.fully).toBe(148)
       expect(m1.actionModifiers.map(({ id }) => id)).not.toContain('cissiaSerpentResIgnore')
       expect(m2.actionModifiers.map(({ id }) => id)).not.toContain('cissiaCorrode')
 

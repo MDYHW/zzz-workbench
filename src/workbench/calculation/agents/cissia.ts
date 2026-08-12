@@ -191,9 +191,6 @@ export function resolveCissiaProviderClauses(
     additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', CISSIA_BASIC_ACTIONS, undefined, ['cissia']),
     additive('dmgBonus', 'fully', engine, cordisDmg, 'self', CISSIA_ULTIMATE),
     additive('defIgnore', 'fully', engine, cordisDefIgnore, 'enemy-context', CISSIA_ULTIMATE, undefined, ['cissia']),
-    critRecipients(additive('dmgBonus', 'fully', discSource('cissia', 'astralVoice', '4-piece'),
-      setup.fourPieceId === 'astralVoice' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage) : 0,
-      'all-party', undefined, undefined, undefined, 'astralVoiceEntrant')),
     ...dawnClauses(setup),
     ...pufferElectroFourPieceClauses('cissia', setup, CISSIA_ULTIMATE),
   ])

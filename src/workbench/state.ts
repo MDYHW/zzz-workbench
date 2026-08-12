@@ -1,11 +1,11 @@
 import {
   DEFAULT_APPLIED_AGENT_IDS,
+  defaultMindscapeFor,
   isFocusEligible,
   defaultRefinementFor,
   ENGINE_IDS_BY_AGENT_AND_POOL,
   representativeSetupFor,
   PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE,
-  SUBSTAT_CHOICES_BY_AGENT,
   W_ENGINES,
   type AgentId,
   type DiscId,
@@ -26,6 +26,7 @@ import {
   effectiveFourPieceIds,
   effectiveMainStatIds,
   effectiveTwoPieceIds,
+  effectiveSubstatChoices,
   invalidRequiredSelections,
 } from './candidates'
 import { activeCandidatePressures } from './provider-effects'
@@ -100,16 +101,19 @@ function sameEligibleAgents(
   return before.filter(isFocusEligible).join(',') === after.filter(isFocusEligible).join(',')
 }
 
-export function zeroSubstats(agentId: AgentId): SubstatCounts {
+export function zeroSubstats(
+  agentId: AgentId,
+  setup: Pick<AgentSetupState, 'fourPieceId'>,
+): SubstatCounts {
   return Object.fromEntries(
-    SUBSTAT_CHOICES_BY_AGENT[agentId].map((choice) => [choice.id, 0]),
+    effectiveSubstatChoices(agentId, setup).map((choice) => [choice.id, 0]),
   )
 }
 
 export function createPreparedAgentSetup(
   agentId: AgentId,
   pool: PoolId = 'full',
-  mindscape: Mindscape = 0,
+  mindscape: Mindscape = defaultMindscapeFor(agentId),
 ): AgentSetupState {
   return setupStateFromSelection(
     agentId,
@@ -133,7 +137,7 @@ function setupStateFromSelection(
     fourPieceId: selection.fourPieceId,
     twoPieceId: selection.twoPieceId,
     mains: { ...selection.mains },
-    substats: zeroSubstats(agentId),
+    substats: zeroSubstats(agentId, selection),
   }
 }
 
@@ -214,13 +218,18 @@ export function createPreparedState(
   const contexts = agentIds.map((agentId) => preparationContext(
     agentId,
     pools[agentId] ?? 'full',
-    0,
+    defaultMindscapeFor(agentId),
   )) as [PreparationContext, PreparationContext, PreparationContext]
   const selections = preparePartySelections(contexts, agentIds[focusSlot])
   return withPreparedPartyPressureMains({
     slots: agentIds.map((agentId, index) => ({
       agentId,
-      setup: setupStateFromSelection(agentId, contexts[index].pool, 0, selections[index]),
+      setup: setupStateFromSelection(
+        agentId,
+        contexts[index].pool,
+        contexts[index].mindscape as Mindscape,
+        selections[index],
+      ),
     })) as WorkbenchState['slots'],
     focusSlot,
   })
@@ -295,7 +304,7 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
         return preparationContext(
           agentId,
           existing?.setup.pool ?? 'full',
-          existing?.setup.mindscape ?? 0,
+          existing?.setup.mindscape ?? defaultMindscapeFor(agentId),
         )
       }) as [PreparationContext, PreparationContext, PreparationContext]
       const selections = preparePartySelections(contexts, draft.agentIds[draft.focusSlot])
@@ -397,7 +406,7 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
     case 'adjustSubstat':
       return updateSetup(state, action.slot, (setup) => {
         const agentId = state.slots[action.slot].agentId
-        if (!SUBSTAT_CHOICES_BY_AGENT[agentId].some(({ id }) => id === action.key)) {
+        if (!effectiveSubstatChoices(agentId, setup).some(({ id }) => id === action.key)) {
           return setup
         }
         return {
@@ -412,7 +421,7 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
     case 'setSubstat':
       return updateSetup(state, action.slot, (setup) => {
         const agentId = state.slots[action.slot].agentId
-        if (!SUBSTAT_CHOICES_BY_AGENT[agentId].some(({ id }) => id === action.key)) {
+        if (!effectiveSubstatChoices(agentId, setup).some(({ id }) => id === action.key)) {
           return setup
         }
         return {
@@ -454,6 +463,13 @@ function reconcileEffectiveSelections(state: WorkbenchState): WorkbenchState {
         ...Object.fromEntries(invalidMainSlots.map((mainSlot) => [mainSlot, null])),
       }
       : current.setup.mains
+    const invalidSubstats = slotInvalid.flatMap((selection) => (
+      selection.kind === 'substat' ? [selection.substatId] : []
+    ))
+    const substats = invalidSubstats.length
+      ? Object.fromEntries(Object.entries(current.setup.substats)
+        .filter(([id]) => !invalidSubstats.includes(id as SubstatId)))
+      : current.setup.substats
     slots[slot] = {
       ...current,
       setup: {
@@ -465,6 +481,7 @@ function reconcileEffectiveSelections(state: WorkbenchState): WorkbenchState {
           selection.kind === 'disc' && selection.piece === 'twoPiece'
         )) ? null : current.setup.twoPieceId,
         mains,
+        substats,
       },
     }
   }
@@ -492,7 +509,7 @@ export function isCompleteAgentSetup(
       && setup.twoPieceId
       && setup.fourPieceId !== setup.twoPieceId
       && Object.values(setup.mains).every(Boolean)
-      && SUBSTAT_CHOICES_BY_AGENT[agentId].every(
+      && effectiveSubstatChoices(agentId, setup).every(
         ({ id }) => Number.isFinite(setup.substats[id]),
       ),
   )

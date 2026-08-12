@@ -2,12 +2,16 @@ import { describe, expect, it } from 'vitest'
 import {
   additive,
   additiveMetricBundle,
+  astralVoiceEntrantClause,
   clauseAppliesToContext,
+  clauseAppliesToAgent,
+  completeSetup,
   presentSetupInputs,
   resolveDeliveredClauses,
   source,
   withApplicability,
 } from './effects'
+import { createPreparedState } from './state'
 
 describe('effect construction and applicability', () => {
   it('keeps only resolved setup inputs without changing their order or identity', () => {
@@ -68,5 +72,19 @@ describe('effect construction and applicability', () => {
       attribute: 'Electric',
       formulas: ['sheer_damage'],
     })).toBe(false)
+  })
+
+  it('delivers selected Astral through the Focus boundary and formula eligibility', () => {
+    const state = createPreparedState({}, ['yixuan', 'cissia', 'astraYao'], 0)
+    const cissiaSetup = { ...completeSetup(state.slots[1]), fourPieceId: 'astralVoice' as const }
+    const entrant = astralVoiceEntrantClause('cissia', cissiaSetup)
+
+    expect(entrant).toMatchObject({
+      recipient: 'focus',
+      nonstackKey: 'astralVoiceEntrant',
+    })
+    expect(entrant).not.toHaveProperty('eligibleAgentIds')
+    expect(entrant && clauseAppliesToAgent(entrant, 'yixuan')).toBe(true)
+    expect(entrant && clauseAppliesToAgent(entrant, 'astraYao')).toBe(false)
   })
 })

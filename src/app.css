@@ -623,6 +623,19 @@ main { margin-top: 18px; }
   text-transform: uppercase;
 }
 
+.substat-required {
+  grid-column: 1 / -1;
+  color: #f3a18f;
+  font: 800 9px/1.2 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.substat-control:has(input[aria-invalid="true"]) {
+  border-color: var(--danger);
+  background: rgba(201, 93, 72, 0.1);
+}
+
 @media (min-width: 1041px) {
   .party-rail--overview .party-slot--compact .agent-art {
     width: 170%;

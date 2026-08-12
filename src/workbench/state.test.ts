@@ -8,6 +8,7 @@ import {
 import {
   effectiveFourPieceIds,
   effectiveMainStatIds,
+  effectiveSubstatChoices,
   effectiveTwoPieceIds,
   incompleteRequiredSelections,
 } from './candidates'
@@ -873,6 +874,138 @@ describe('workbench state lifecycle', () => {
     })
     expect(calculateParty(evelynFull)).not.toBeNull()
     expect(calculateParty(evelynNonLimited)).not.toBeNull()
+  })
+
+  it('authors complete Corin and Lycaon representatives from generic Rank defaults', () => {
+    const full = createPreparedState({}, ['corin', 'lycaon', 'astraYao'], 0)
+    const nonLimited = createPreparedState(
+      { corin: 'nonLimited', lycaon: 'nonLimited' },
+      ['corin', 'lycaon', 'astraYao'],
+      0,
+    )
+
+    expect(full.slots[0].setup).toEqual({
+      mindscape: 6,
+      pool: 'full',
+      engineId: 'cordisGermina',
+      refinement: 1,
+      fourPieceId: 'hormonePunk',
+      twoPieceId: 'woodpecker',
+      mains: { slot4: 'critDmg', slot5: 'penRatio', slot6: 'atkPct' },
+      substats: { critRate: 0, critDmg: 0, atkPct: 0 },
+    })
+    expect(full.slots[1].setup).toEqual({
+      mindscape: 0,
+      pool: 'full',
+      engineId: 'blazingLaurel',
+      refinement: 1,
+      fourPieceId: 'king',
+      twoPieceId: 'shockstar',
+      mains: { slot4: 'critRate', slot5: 'iceDmg', slot6: 'impact' },
+      substats: { critRate: 0 },
+    })
+    expect(nonLimited.slots[0].setup).toMatchObject({
+      mindscape: 6,
+      pool: 'nonLimited',
+      engineId: 'steelCushion',
+      refinement: 1,
+      mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
+    })
+    expect(nonLimited.slots[1].setup).toMatchObject({
+      mindscape: 0,
+      pool: 'nonLimited',
+      engineId: 'steamOven',
+      refinement: 5,
+    })
+    expect(isCompleteWorkbench(full)).toBe(true)
+    expect(isCompleteWorkbench(nonLimited)).toBe(true)
+  })
+
+  it('clears and does not restore every King-selected Lycaon pressure input', () => {
+    let state = createPreparedState({}, ['corin', 'lycaon', 'astraYao'], 0)
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'twoPiece', discId: 'woodpecker',
+    })
+    state = workbenchReducer(state, {
+      type: 'setSubstat', slot: 1, key: 'critRate', value: 7,
+    })
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    expect(state.slots[1].setup).toMatchObject({
+      fourPieceId: 'astralVoice',
+      twoPieceId: null,
+      mains: { slot4: null },
+      substats: {},
+    })
+    expect(effectiveMainStatIds(state, 1, 'slot4')).toEqual(['atkPct'])
+    expect(effectiveTwoPieceIds(state, 1)).not.toContain('woodpecker')
+    expect(effectiveSubstatChoices('lycaon', state.slots[1].setup)).toEqual([])
+    expect(calculateParty(state)).toBeNull()
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'king',
+    })
+    expect(effectiveMainStatIds(state, 1, 'slot4')).toContain('critRate')
+    expect(effectiveTwoPieceIds(state, 1)).toContain('woodpecker')
+    expect(effectiveSubstatChoices('lycaon', state.slots[1].setup)
+      .map(({ id }) => id)).toEqual(['critRate'])
+    expect(state.slots[1].setup).toMatchObject({
+      fourPieceId: 'king',
+      twoPieceId: null,
+      mains: { slot4: null },
+      substats: {},
+    })
+    expect(incompleteRequiredSelections(state)).toEqual(expect.arrayContaining([
+      { kind: 'disc', slot: 1, agentId: 'lycaon', piece: 'twoPiece' },
+      { kind: 'mainStat', slot: 1, agentId: 'lycaon', mainSlot: 'slot4' },
+      { kind: 'substat', slot: 1, agentId: 'lycaon', substatId: 'critRate' },
+    ]))
+    expect(calculateParty(state)).toBeNull()
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'twoPiece', discId: 'shockstar',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 1, mainSlot: 'slot4', mainStatId: 'critRate',
+    })
+    state = workbenchReducer(state, {
+      type: 'setSubstat', slot: 1, key: 'critRate', value: 0,
+    })
+    expect(calculateParty(state)).not.toBeNull()
+
+    let trigger = createPreparedState({}, ['corin', 'trigger', 'astraYao'], 0)
+    trigger = workbenchReducer(trigger, {
+      type: 'setSubstat', slot: 1, key: 'critRate', value: 7,
+    })
+    trigger = workbenchReducer(trigger, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    expect(effectiveMainStatIds(trigger, 1, 'slot4')).toContain('critRate')
+    expect(effectiveSubstatChoices('trigger', trigger.slots[1].setup)
+      .map(({ id }) => id)).toEqual(['critRate'])
+    expect(trigger.slots[1].setup).toMatchObject({
+      mains: { slot4: 'critRate' },
+      substats: { critRate: 7 },
+    })
+  })
+
+  it('extends contextual Puffer and broad pre-PEN policy to Corin with an Electric contrast', () => {
+    const dialyn = createPreparedState({}, ['corin', 'dialyn', 'astraYao'], 0)
+    expect(dialyn.slots[0].setup.fourPieceId).toBe('hormonePunk')
+    expect(effectiveFourPieceIds(dialyn, 0)).toContain('pufferElectro')
+
+    const spectral = createPreparedState({}, ['corin', 'trigger', 'astraYao'], 0)
+    expect(spectral.slots[0].setup.mains.slot5).toBe('physicalDmg')
+    expect(effectiveMainStatIds(spectral, 0, 'slot5')).not.toContain('penRatio')
+    expect(activeCandidatePressures(spectral, 0))
+      .toContain('materialBroadPrePenDefBypass')
+
+    const electricOnly = createPreparedState({}, ['corin', 'cissia', 'astraYao'], 0)
+    expect(electricOnly.slots[0].setup.mains.slot5).toBe('penRatio')
+    expect(effectiveMainStatIds(electricOnly, 0, 'slot5')).toContain('penRatio')
+    expect(activeCandidatePressures(electricOnly, 0)).toEqual([])
   })
 
   it('authors exact Seed and Cissia local candidates and pool representatives', () => {
