@@ -28,6 +28,9 @@ import yesterdayCallsImage from '../../assets/equipment/w-engines/yesterday-call
 import housekeeperImage from '../../assets/equipment/w-engines/housekeeper.webp'
 import blazingLaurelImage from '../../assets/equipment/w-engines/blazing-laurel.webp'
 import simmeringPotImage from '../../assets/equipment/w-engines/the-simmering-pot.webp'
+import krakensCradleImage from '../../assets/equipment/w-engines/krakens-cradle.webp'
+import grillOWispImage from '../../assets/equipment/w-engines/grill-owisp.webp'
+import wrathfulVajraImage from '../../assets/equipment/w-engines/wrathful-vajra.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -55,6 +58,27 @@ const perSecond = (effect: EquipmentEffectFact, refinement: Refinement): string 
   `${equipmentEffectBaseValue(effect, refinement)}/s`
 
 export const W_ENGINE_FACTS = {
+  krakensCradle: {
+    advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
+    effects: {
+      iceSheerDamage: { modifier: 'sheerDmgBonus', unit: '%', progression: { kind: 'stacks', perStack: [6, 7.5, 9, 10.5, 12], maxStacks: 3 }, scope: { attributes: ['Ice'] } },
+      critRate: { modifier: 'critRate', unit: '%', value: [20, 23, 26, 29, 32] },
+    },
+  },
+  grillOWisp: {
+    advancedStat: { id: 'hpPct', label: 'HP', value: 25, unit: '%' },
+    effects: {
+      fireDamage: { modifier: 'dmgBonus', unit: '%', value: [12, 15, 18, 21, 24], scope: { attributes: ['Fire'] } },
+      critRate: { modifier: 'critRate', unit: '%', value: [12, 15, 18, 21, 24] },
+    },
+  },
+  wrathfulVajra: {
+    advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
+    effects: {
+      critRate: { modifier: 'critRate', unit: '%', value: [20, 23, 26, 29, 32] },
+      fireSheerDamage: { modifier: 'sheerDmgBonus', unit: '%', progression: { kind: 'stacks', perStack: [9, 10.5, 12, 13.5, 15], maxStacks: 2 }, scope: { actions: ['EX Special Attack'], attributes: ['Fire'] } },
+    },
+  },
   qingming: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
     effects: {
@@ -267,6 +291,30 @@ export type WEngineFactContract<Id extends EngineId> = (typeof W_ENGINE_FACTS)[I
 export type WEngineEffectField<Id extends EngineId> = keyof WEngineFactContract<Id>['effects']
 
 export const W_ENGINES: Record<EngineId, WEngineChoice> = {
+  krakensCradle: {
+    id: 'krakensCradle', name: "Kraken's Cradle", rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.krakensCradle.advancedStat, image: krakensCradleImage,
+    passiveLines: (refinement) => [
+      `Ice Sheer DMG +${percent(W_ENGINE_FACTS.krakensCradle.effects.iceSheerDamage, refinement, true)}`,
+      `≤50% Max HP · CRIT Rate +${percent(W_ENGINE_FACTS.krakensCradle.effects.critRate, refinement)}`,
+    ],
+  },
+  grillOWisp: {
+    id: 'grillOWisp', name: "Grill O'Wisp", rank: 'A', limited: false, baseAtk: 624,
+    advancedStat: W_ENGINE_FACTS.grillOWisp.advancedStat, image: grillOWispImage,
+    passiveLines: (refinement) => [
+      `Fire DMG +${percent(W_ENGINE_FACTS.grillOWisp.effects.fireDamage, refinement)}`,
+      `After HP decreases · CRIT Rate +${percent(W_ENGINE_FACTS.grillOWisp.effects.critRate, refinement)}`,
+    ],
+  },
+  wrathfulVajra: {
+    id: 'wrathfulVajra', name: 'Wrathful Vajra', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.wrathfulVajra.advancedStat, image: wrathfulVajraImage,
+    passiveLines: (refinement) => [
+      `CRIT Rate +${percent(W_ENGINE_FACTS.wrathfulVajra.effects.critRate, refinement)}`,
+      `EX Special Attack · Fire Sheer DMG +${percent(W_ENGINE_FACTS.wrathfulVajra.effects.fireSheerDamage, refinement, true)}`,
+    ],
+  },
   qingming: {
     id: 'qingming', name: 'Qingming Birdcage', rank: 'S', limited: true, baseAtk: 743,
     advancedStat: W_ENGINE_FACTS.qingming.advancedStat, image: qingmingImage,
@@ -438,6 +486,8 @@ const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
 
 export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, EngineId[]>> = {
   yixuan: enginePools(['qingming', 'cauldron', 'radiowave', 'puzzleSphere']),
+  yidhari: enginePools(['krakensCradle', 'grillOWisp', 'cauldron', 'qingming', 'radiowave', 'puzzleSphere']),
+  manato: enginePools(['grillOWisp', 'wrathfulVajra', 'qingming', 'cauldron', 'radiowave', 'puzzleSphere']),
   dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   lucia: enginePools(['dreamlitHearth', 'thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
   anbySoldier0: enginePools(['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'marcatoDesire', 'starlightEngine']),

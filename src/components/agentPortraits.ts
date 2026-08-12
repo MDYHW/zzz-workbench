@@ -7,9 +7,11 @@ import dialynPortrait from '../assets/agents/portraits/dialyn.webp'
 import evelynPortrait from '../assets/agents/portraits/evelyn.webp'
 import luciaPortrait from '../assets/agents/portraits/lucia.webp'
 import lycaonPortrait from '../assets/agents/portraits/lycaon.webp'
+import manatoPortrait from '../assets/agents/portraits/manato.webp'
 import seedPortrait from '../assets/agents/portraits/seed.webp'
 import triggerPortrait from '../assets/agents/portraits/trigger.webp'
 import yixuanPortrait from '../assets/agents/portraits/yixuan.webp'
+import yidhariPortrait from '../assets/agents/portraits/yidhari.webp'
 import type { AgentId } from '../workbench/content'
 
 export const AGENT_PORTRAITS: Record<AgentId, string> = {
@@ -24,6 +26,8 @@ export const AGENT_PORTRAITS: Record<AgentId, string> = {
   evelyn: evelynPortrait,
   corin: corinPortrait,
   lycaon: lycaonPortrait,
+  yidhari: yidhariPortrait,
+  manato: manatoPortrait,
 }
 
 interface PortraitSource {
@@ -52,6 +56,8 @@ const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   evelyn: { faceX: 55.45, headTopY: 3.32, scale: 325 / 295 },
   corin: { faceX: 57, headTopY: 13, scale: 1 },
   lycaon: { faceX: 50, headTopY: 3, scale: 1 },
+  yidhari: { faceX: 44.5, headTopY: 1.75, scale: 1 },
+  manato: { faceX: 50, headTopY: 1.9, scale: 1 },
 }
 
 export function portraitSourceStyle(agentId: AgentId): PortraitSourceStyle {

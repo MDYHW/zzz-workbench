@@ -7,6 +7,7 @@ import {
 } from './provider-effects'
 import { createPreparedState, workbenchReducer } from './state'
 import { canonicalAction } from './actions'
+import { VERTICAL_VALUES } from './content'
 import {
   action,
   agent,
@@ -145,6 +146,162 @@ describe('authored calculation policies', () => {
       })
       expect(action(m4, 'mindscapeCloudShaper').values.fully).toBeCloseTo(299)
       expect(metric(m6, 'sheerDmgBonus').values.fully).toBe(30)
+    })
+
+    it('applies Yidhari Mindscapes only to current stat, Sheer, and Basic/EX consumers', () => {
+      const base = createPreparedState({}, ['yidhari', 'dialyn', 'lucia'], 0)
+      const m0 = agent(calculateParty(base)!, 'yidhari')
+      const m1 = agent(calculateParty(withMindscape(base, 'yidhari', 1))!, 'yidhari')
+      const m2 = agent(calculateParty(withMindscape(base, 'yidhari', 2))!, 'yidhari')
+      const m3 = agent(calculateParty(withMindscape(base, 'yidhari', 3))!, 'yidhari')
+      const m4 = agent(calculateParty(withMindscape(base, 'yidhari', 4))!, 'yidhari')
+      const m5 = agent(calculateParty(withMindscape(base, 'yidhari', 5))!, 'yidhari')
+      const m6 = agent(calculateParty(withMindscape(base, 'yidhari', 6))!, 'yidhari')
+
+      expect(metric(m1, 'resIgnore').values.fully).toBe(0)
+      expect(action(m1, 'yidhariBasicExResIgnore')).toMatchObject({
+        outcomes: [
+          canonicalAction('Basic Attack'),
+          canonicalAction('EX Special Attack'),
+        ],
+        metricId: 'resIgnore',
+        values: { initial: 0, combat: 0, fully: 20 },
+      })
+      expect(metric(m2, 'critDmg').values.fully - metric(m1, 'critDmg').values.fully)
+        .toBeCloseTo(40)
+      expect(metric(m3, 'critDmg').values).toEqual(metric(m2, 'critDmg').values)
+      expect(metric(m4, 'maxHp').values.fully - metric(m3, 'maxHp').values.fully)
+        .toBeCloseTo(metric(m3, 'maxHp').values.initial * .05)
+      expect(metric(m5, 'maxHp').values).toEqual(metric(m4, 'maxHp').values)
+      expect(metric(m6, 'sheerDmgBonus').values.fully
+        - metric(m5, 'sheerDmgBonus').values.fully).toBeCloseTo(25)
+      expect(metric(m0, 'critDmg').breakdown.fully).toContainEqual(
+        expect.objectContaining({ ownerAgentId: 'yidhari', locus: 'additional', amount: 50 }),
+      )
+    })
+
+    it('projects Manato maximum-Core actions and cumulative Mindscapes exactly', () => {
+      const base = createPreparedState({}, ['manato', 'dialyn', 'lucia'], 0)
+      const m0 = agent(calculateParty(withMindscape(base, 'manato', 0))!, 'manato')
+      const m1 = agent(calculateParty(withMindscape(base, 'manato', 1))!, 'manato')
+      const m2 = agent(calculateParty(withMindscape(base, 'manato', 2))!, 'manato')
+      const m3 = agent(calculateParty(withMindscape(base, 'manato', 3))!, 'manato')
+      const m4 = agent(calculateParty(withMindscape(base, 'manato', 4))!, 'manato')
+      const m5 = agent(calculateParty(withMindscape(base, 'manato', 5))!, 'manato')
+      const m6 = agent(calculateParty(base)!, 'manato')
+
+      expect(action(m0, 'manatoBasicAssistCritDmg')).toMatchObject({
+        outcomes: [canonicalAction('Basic Attack'), canonicalAction('Assist Follow-Up')],
+        metricId: 'critDmg',
+      })
+      expect(action(m0, 'manatoBasicAssistCritDmg').values.fully
+        - metric(m0, 'critDmg').values.fully).toBeCloseTo(50)
+      expect(action(m1, 'manatoBasicAssistFireDmg').values.fully
+        - metric(m1, 'dmgBonus').values.fully).toBeCloseTo(20)
+      expect(metric(m2, 'resIgnore').values.fully).toBe(8)
+      expect(metric(m3, 'resIgnore').values).toEqual(metric(m2, 'resIgnore').values)
+      expect(metric(m4, 'maxHp').values.initial - metric(m3, 'maxHp').values.initial)
+        .toBeCloseTo(VERTICAL_VALUES.manato.hp * .08)
+      expect(metric(m5, 'maxHp').values).toEqual(metric(m4, 'maxHp').values)
+      expect(action(m6, 'manatoAssistFireDmg').values.fully
+        - action(m6, 'manatoBasicAssistFireDmg').values.fully).toBeCloseTo(15)
+    })
+
+    it('projects only usable Manato clauses from direct Rupture engine edits', () => {
+      const base = createPreparedState({}, ['manato', 'dialyn', 'lucia'], 0)
+      const wrathful = agent(calculateParty(selectEngine(base, 'manato', 'wrathfulVajra'))!, 'manato')
+      const qingming = agent(calculateParty(selectEngine(base, 'manato', 'qingming'))!, 'manato')
+
+      expect(metric(wrathful, 'maxHp').breakdown.initial)
+        .toContainEqual(expect.objectContaining({ label: 'Wrathful Vajra', display: { value: 30, unit: '%', decimals: 0 } }))
+      expect(metric(wrathful, 'critRate').breakdown.combat)
+        .toContainEqual(expect.objectContaining({ label: 'Wrathful Vajra', amount: 20 }))
+      expect(Object.values(metric(wrathful, 'sheerDmgBonus').breakdown).flat())
+        .not.toContainEqual(expect.objectContaining({ label: 'Wrathful Vajra' }))
+      const wrathfulEx = action(wrathful, 'manatoExSpecialSheer')
+      expect(wrathfulEx).toMatchObject({
+        outcomes: [canonicalAction('EX Special Attack')],
+        metricId: 'sheerDmgBonus',
+      })
+      expect(wrathfulEx.values.fully - metric(wrathful, 'sheerDmgBonus').values.fully)
+        .toBeCloseTo(18)
+      expect(wrathfulEx.breakdown.fully)
+        .toContainEqual(expect.objectContaining({ label: 'Wrathful Vajra', amount: 18 }))
+      expect(metric(qingming, 'maxHp').breakdown.initial)
+        .toContainEqual(expect.objectContaining({ label: 'Qingming Birdcage' }))
+      expect(metric(qingming, 'critRate').breakdown.combat)
+        .toContainEqual(expect.objectContaining({ label: 'Qingming Birdcage', amount: 20 }))
+      expect(Object.values(metric(qingming, 'dmgBonus').breakdown).flat())
+        .not.toContainEqual(expect.objectContaining({ label: 'Qingming Birdcage' }))
+      expect(Object.values(metric(qingming, 'sheerDmgBonus').breakdown).flat())
+        .not.toContainEqual(expect.objectContaining({ label: 'Qingming Birdcage' }))
+    })
+
+    it('keeps Yidhari alternate engines on their exact current Result axes', () => {
+      const base = createPreparedState({}, ['yidhari', 'dialyn', 'lucia'], 0)
+      const grill = agent(calculateParty(selectEngine(base, 'yidhari', 'grillOWisp'))!, 'yidhari')
+      const qingming = agent(calculateParty(selectEngine(base, 'yidhari', 'qingming'))!, 'yidhari')
+      const cauldron = agent(calculateParty(selectEngine(base, 'yidhari', 'cauldron'))!, 'yidhari')
+      const puzzle = agent(calculateParty(selectEngine(base, 'yidhari', 'puzzleSphere'))!, 'yidhari')
+      const radiowave = agent(calculateParty(selectEngine(base, 'yidhari', 'radiowave'))!, 'yidhari')
+
+      expect(metric(grill, 'critRate').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ label: "Grill O'Wisp", amount: 24 }))
+      expect(Object.values(metric(grill, 'dmgBonus').breakdown).flat())
+        .not.toContainEqual(expect.objectContaining({ label: "Grill O'Wisp" }))
+      expect(metric(qingming, 'maxHp').breakdown.initial)
+        .toContainEqual(expect.objectContaining({ label: 'Qingming Birdcage' }))
+      expect(metric(qingming, 'critRate').breakdown.combat)
+        .toContainEqual(expect.objectContaining({ label: 'Qingming Birdcage' }))
+      expect(Object.values(metric(qingming, 'dmgBonus').breakdown).flat())
+        .not.toContainEqual(expect.objectContaining({ label: 'Qingming Birdcage' }))
+      expect(metric(cauldron, 'critRate').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ label: 'Cauldron of Clarity' }))
+      expect(metric(cauldron, 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ label: 'Cauldron of Clarity' }))
+      expect(metric(puzzle, 'critDmg').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ label: 'Puzzle Sphere' }))
+      expect(action(puzzle, 'yidhariExSpecial').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ label: 'Puzzle Sphere' }))
+      expect(metric(radiowave, 'sheerForce').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ label: 'Radiowave Journey' }))
+    })
+
+    it('qualifies Yidhari and Lucia Additional through another applied Specialty', () => {
+      const yidhariQualified = agent(calculateParty(createPreparedState(
+        {}, ['yidhari', 'dialyn', 'seed'], 0,
+      ))!, 'yidhari')
+      const yidhariUnqualified = agent(calculateParty(createPreparedState(
+        {}, ['yidhari', 'seed', 'cissia'], 0,
+      ))!, 'yidhari')
+      expect(metric(yidhariQualified, 'critDmg').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'yidhari', locus: 'additional', amount: 50 }))
+      expect(metric(yidhariUnqualified, 'critDmg').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'yidhari', locus: 'additional' }))
+      expect(metric(yidhariQualified, 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'yidhari', locus: 'core', amount: 100 }))
+      expect(metric(yidhariUnqualified, 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'yidhari', locus: 'core', amount: 100 }))
+
+      const luciaQualified = agent(calculateParty(createPreparedState(
+        {}, ['lucia', 'corin', 'dialyn'], 1,
+      ))!, 'corin')
+      const luciaRuptureQualified = agent(calculateParty(createPreparedState(
+        {}, ['lucia', 'corin', 'manato'], 1,
+      ))!, 'corin')
+      const luciaCorinContrast = agent(calculateParty(createPreparedState(
+        {}, ['lucia', 'corin', 'astraYao'], 1,
+      ))!, 'corin')
+      expect(metric(luciaQualified, 'critDmg').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'lucia', locus: 'additional', amount: 30 }))
+      expect(metric(luciaRuptureQualified, 'critDmg').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'lucia', locus: 'additional', amount: 30 }))
+      expect(metric(luciaCorinContrast, 'critDmg').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'lucia', locus: 'additional' }))
+      expect(metric(luciaQualified, 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'lucia', locus: 'core', amount: 20 }))
+      expect(metric(luciaCorinContrast, 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'lucia', locus: 'core', amount: 20 }))
     })
 
     it('projects Yixuan M2 Stun duration as a recipient state operation', () => {

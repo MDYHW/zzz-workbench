@@ -96,7 +96,7 @@ export interface SourceBoundCurrentClause {
   eligibleAgentIds?: AgentId[]
   attributes?: readonly EffectAttribute[]
   formulas?: readonly SetupFormulaFamily[]
-  nonstackKey?: 'kingOfTheSummit' | 'astralVoiceEntrant' | 'moonlightLullaby'
+  nonstackKey?: 'kingOfTheSummit' | 'astralVoiceEntrant' | 'moonlightLullaby' | 'etherVeilWellspring'
   candidatePressure?: CandidatePressure
   value: { kind: 'additive'; amount: number; display?: ResolvedCurrentEffect['display'] }
     | { kind: 'basis-percentage'; percentage: number }
@@ -191,6 +191,18 @@ export const STATIC_SOURCES = {
     core: source(SOURCE_LABELS.yixuanCore, 'yixuan', 'core'),
     additional: source(SOURCE_LABELS.yixuanAbility, 'yixuan', 'additional'),
     critCap: source('Displayed CRIT Rate cap', 'yixuan', 'calculation'),
+  },
+  yidhari: {
+    ruptureConversion: source('Rupture specialty', 'yidhari', 'identity', 'Current ATK × 0.3 + Current Max HP × 0.1'),
+    core: source(SOURCE_LABELS.yidhariCore, 'yidhari', 'core'),
+    additional: source(SOURCE_LABELS.yidhariAbility, 'yidhari', 'additional'),
+    critCap: source('Displayed CRIT Rate cap', 'yidhari', 'calculation'),
+  },
+  manato: {
+    ruptureConversion: source('Rupture specialty', 'manato', 'identity', 'Current ATK × 0.3 + Current Max HP × 0.1'),
+    core: source(SOURCE_LABELS.manatoCore, 'manato', 'core'),
+    coreHp: source(SOURCE_LABELS.manatoCore, 'manato', 'core', 'Completed Core HP enhancements'),
+    critCap: source('Displayed CRIT Rate cap', 'manato', 'calculation'),
   },
   dialyn: {
     core: source(SOURCE_LABELS.dialynCore, 'dialyn', 'core'),
@@ -420,6 +432,7 @@ export const percentage = (
   recipient: Recipient,
   action?: ActionTarget,
   eligibleAgentIds?: AgentId[],
+  nonstackKey?: SourceBoundCurrentClause['nonstackKey'],
 ): SourceBoundCurrentClause => ({
   metric,
   earliestSurface,
@@ -427,6 +440,7 @@ export const percentage = (
   recipient,
   ...(action ? { action } : {}),
   ...(eligibleAgentIds ? { eligibleAgentIds } : {}),
+  ...(nonstackKey ? { nonstackKey } : {}),
   value: { kind: 'basis-percentage', percentage: percentageValue },
 })
 

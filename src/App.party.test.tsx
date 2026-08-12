@@ -83,6 +83,11 @@ describe('integrated party workbench: party', () => {
         { agentId: 'lycaon', setup: createPreparedAgentSetup('lycaon') },
         { agentId: 'lucia', setup: createPreparedAgentSetup('lucia') },
       ],
+      [
+        { agentId: 'yidhari', setup: createPreparedAgentSetup('yidhari') },
+        { agentId: 'manato', setup: createPreparedAgentSetup('manato') },
+        { agentId: 'lycaon', setup: createPreparedAgentSetup('lycaon') },
+      ],
     ]
     let latestContainer: HTMLElement | null = null
     for (const slots of additionalGroups) {
@@ -100,7 +105,7 @@ describe('integrated party workbench: party', () => {
       ).container
     }
 
-    expect(document.querySelectorAll('.agent-art')).toHaveLength(12)
+    expect(document.querySelectorAll('.agent-art')).toHaveLength(3 + additionalGroups.length * 3)
     for (const agent of ADMITTED_AGENTS) {
       expectSource(agent.id)
       const identity = screen.getAllByRole('tab', { name: new RegExp(agent.name) })[0]
@@ -360,6 +365,67 @@ describe('integrated party workbench: party', () => {
     expect(screen.getByRole('button', { name: 'M0' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getAllByLabelText('S Rank').length).toBeGreaterThan(0)
     expect(screen.getByText(/Focus.*Corin/)).toBeInTheDocument()
+  }, 15_000)
+
+  it('admits Yidhari and Manato through the shared Rupture identity and prepared-party flow', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Yidhari, Ice, Rupture/)
+    await replace(2, /Manato, Fire, Rupture/)
+    await replace(3, /Lycaon, Ice, Stun/)
+    await user.click(screen.getByRole('radio', { name: 'Yidhari' }))
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    const yidhariTab = screen.getByRole('tab', { name: 'Close Yidhari setup and Result' })
+    expect(screen.getByRole('region', { name: 'Yidhari setup' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Yidhari Result' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'M0' })).toHaveAttribute('aria-pressed', 'true')
+    expect(within(yidhariTab).getByLabelText('S Rank')).toBeInTheDocument()
+    expect(within(yidhariTab).getByLabelText('Ice, Rupture').querySelectorAll('img')).toHaveLength(2)
+    await user.hover(yidhariTab)
+    expect(yidhariTab).toHaveClass('source-tone--agent-yidhari')
+
+    const preparedKraken = screen.getByRole('button', {
+      name: "Change W-Engine from Kraken's Cradle",
+    })
+    expect(preparedKraken).toHaveAccessibleDescription(
+      'HP +30%. Ice Sheer DMG +18%. ≤50% Max HP · CRIT Rate +20%',
+    )
+    await user.click(preparedKraken)
+    const grillCandidate = within(screen.getByLabelText('W-Engine candidates'))
+      .getByRole('button', { name: "Select Grill O'Wisp W5" })
+    expect(grillCandidate).toHaveAccessibleDescription(
+      'HP +25%. Fire DMG +24%. After HP decreases · CRIT Rate +24%',
+    )
+    await user.click(grillCandidate)
+    await user.click(screen.getByRole('button', { name: 'M2' }))
+    expect(screen.getByRole('button', { name: 'M2' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', {
+      name: "Change W-Engine from Kraken's Cradle",
+    })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Non-limited' }))
+    expect(screen.getByRole('button', {
+      name: "Change W-Engine from Grill O'Wisp",
+    })).toHaveAccessibleDescription(
+      'HP +25%. Fire DMG +24%. After HP decreases · CRIT Rate +24%',
+    )
+    expect(screen.getByRole('heading', { name: 'Yidhari Result' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'View Manato setup and Result' }))
+    const manatoTab = screen.getByRole('tab', { name: 'Close Manato setup and Result' })
+    expect(screen.getByRole('region', { name: 'Manato setup' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Manato Result' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'M6' })).toHaveAttribute('aria-pressed', 'true')
+    expect(within(manatoTab).getByLabelText('A Rank')).toBeInTheDocument()
+    expect(within(manatoTab).getByLabelText('Fire, Rupture').querySelectorAll('img')).toHaveLength(2)
+    await user.hover(manatoTab)
+    expect(manatoTab).toHaveClass('source-tone--agent-manato')
   }, 15_000)
 
   it('keeps keyboard focus on a present filter when no replacement is available', async () => {

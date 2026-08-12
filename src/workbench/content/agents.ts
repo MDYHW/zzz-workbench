@@ -91,6 +91,22 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     rank: 'S',
     faction: 'Victoria Housekeeping Co.',
   },
+  {
+    id: 'yidhari',
+    name: 'Yidhari',
+    attribute: 'Ice',
+    specialty: 'Rupture',
+    focusEligible: true,
+    rank: 'S',
+  },
+  {
+    id: 'manato',
+    name: 'Manato',
+    attribute: 'Fire',
+    specialty: 'Rupture',
+    focusEligible: true,
+    rank: 'A',
+  },
 ]
 
 export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>

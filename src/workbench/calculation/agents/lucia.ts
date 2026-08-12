@@ -53,6 +53,7 @@ export interface LuciaCalculationContext {
   setup: CompleteSetup
   initialHp: LuciaInitialHpObservation
   squadSheer: LuciaSquadSheerObservation
+  additionalActive: boolean
 }
 
 function calculateLuciaInitialHp(
@@ -156,6 +157,7 @@ function calculateLuciaSquadSheer(
 
 export function observeLucia(
   setup: CompleteSetup,
+  additionalActive: boolean,
 ): LuciaCalculationContext {
   const initialHp = calculateLuciaInitialHp(setup)
   return {
@@ -163,13 +165,14 @@ export function observeLucia(
     setup,
     initialHp,
     squadSheer: calculateLuciaSquadSheer(initialHp.value, setup),
+    additionalActive,
   }
 }
 
 export function resolveLuciaProviderClauses(
-  setup: CompleteSetup,
-  squadSheer: LuciaSquadSheerObservation,
+  context: LuciaCalculationContext,
 ): SourceBoundCurrentClause[] {
+  const { setup, squadSheer } = context
   const engine = engineSource('lucia', setup)
   const fourPiece = discSource('lucia', setup.fourPieceId, '4-piece')
   const refinement = setup.refinement
@@ -197,11 +200,13 @@ export function resolveLuciaProviderClauses(
       : 0
 
   return active([
-    percentage('maxHp', 'fully', STATIC_SOURCES.lucia.core, values.party.luciaCoreHp, 'all-party'),
+    percentage('maxHp', 'fully', STATIC_SOURCES.lucia.core, values.party.wellspringHp,
+      'all-party', undefined, undefined, 'etherVeilWellspring'),
     percentage('maxHp', 'fully', engine, engineHp, 'all-party'),
     percentage('atk', 'fully', engine, engineAtk, 'all-party'),
     additive('critRate', 'fully', engine, critRate, 'all-party'),
-    additive('critDmg', 'fully', STATIC_SOURCES.lucia.additional, values.party.luciaCritDmg, 'all-party'),
+    additive('critDmg', 'fully', STATIC_SOURCES.lucia.additional,
+      context.additionalActive ? values.party.luciaCritDmg : 0, 'all-party'),
     additive('dmgBonus', 'fully', STATIC_SOURCES.lucia.core, values.party.luciaCoreDmg, 'all-party'),
     additive('dmgBonus', 'fully', fourPiece, setup.fourPieceId === 'moonlight' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.fourPiece.damage) : 0, 'all-party', undefined, undefined, undefined, 'moonlightLullaby'),
     additive('dmgBonus', 'fully', engine, engineDmg, 'all-party'),

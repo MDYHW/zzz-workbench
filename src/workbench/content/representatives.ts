@@ -6,6 +6,18 @@ const yixuanRepresentative: Omit<SetupSelection, 'engineId'> = {
   mains: { slot4: 'critRate', slot5: 'etherDmg', slot6: 'hpPct' },
 }
 
+const yidhariRepresentative: Omit<SetupSelection, 'engineId'> = {
+  fourPieceId: 'yunkui',
+  twoPieceId: 'woodpecker',
+  mains: { slot4: 'critDmg', slot5: 'iceDmg', slot6: 'hpPct' },
+}
+
+const manatoRepresentative: Omit<SetupSelection, 'engineId'> = {
+  fourPieceId: 'yunkui',
+  twoPieceId: 'woodpecker',
+  mains: { slot4: 'critDmg', slot5: 'fireDmg', slot6: 'hpPct' },
+}
+
 const dialynRepresentative: Omit<SetupSelection, 'engineId'> = {
   fourPieceId: 'king',
   twoPieceId: 'woodpecker',
@@ -85,6 +97,14 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   yixuan: {
     full: { ...yixuanRepresentative, engineId: 'qingming' },
     nonLimited: { ...yixuanRepresentative, engineId: 'cauldron' },
+  },
+  yidhari: {
+    full: { ...yidhariRepresentative, engineId: 'krakensCradle' },
+    nonLimited: { ...yidhariRepresentative, engineId: 'grillOWisp' },
+  },
+  manato: {
+    full: { ...manatoRepresentative, engineId: 'grillOWisp' },
+    nonLimited: { ...manatoRepresentative, engineId: 'grillOWisp' },
   },
   dialyn: {
     full: { ...dialynRepresentative, engineId: 'yesterdayCalls' },

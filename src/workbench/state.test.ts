@@ -13,6 +13,7 @@ import {
   incompleteRequiredSelections,
 } from './candidates'
 import { calculateParty } from './calculate'
+import { agent, metric } from './calculate.test-support'
 import { activeCandidatePressures, resolveSeedVanguardForState } from './provider-effects'
 import {
   createPreparedAgentSetup,
@@ -238,6 +239,27 @@ describe('workbench state lifecycle', () => {
     expect(state.slots[0].setup).toMatchObject({ mindscape: 0, pool: 'full', engineId: 'severedInnocence' })
     expect(state.slots[1].setup).toMatchObject({ mindscape: 0, pool: 'nonLimited', engineId: 'hellfireGears' })
     expect(state.draft).toBeUndefined()
+  })
+
+  it('rebuilds qualified, unqualified, and requalified Lucia parties without restoring edits', () => {
+    let state = createPreparedState({}, ['lucia', 'corin', 'dialyn'], 1)
+    state = workbenchReducer(state, { type: 'setRefinement', slot: 1, refinement: 3 })
+    expect(metric(agent(calculateParty(state)!, 'corin'), 'critDmg').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'lucia', locus: 'additional' }))
+
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    state = workbenchReducer(state, { type: 'replaceDraftAgent', slot: 2, agentId: 'astraYao' })
+    state = workbenchReducer(state, { type: 'applyPartyEdit' })
+    expect(metric(agent(calculateParty(state)!, 'corin'), 'critDmg').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'lucia', locus: 'additional' }))
+    expect(state.slots[1].setup.refinement).toBe(1)
+
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    state = workbenchReducer(state, { type: 'replaceDraftAgent', slot: 2, agentId: 'lycaon' })
+    state = workbenchReducer(state, { type: 'applyPartyEdit' })
+    expect(metric(agent(calculateParty(state)!, 'corin'), 'critDmg').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'lucia', locus: 'additional' }))
+    expect(state.slots[1].setup.refinement).toBe(1)
   })
 
   it('requires an explicit focus after the eligible draft set changes and rejects unresolved drafts', () => {
@@ -935,6 +957,36 @@ describe('workbench state lifecycle', () => {
       pool: 'nonLimited',
       engineId: 'steamOven',
       refinement: 5,
+    })
+    expect(isCompleteWorkbench(full)).toBe(true)
+    expect(isCompleteWorkbench(nonLimited)).toBe(true)
+  })
+
+  it('prepares Yidhari and Manato from generic Rank defaults with zero supplied hits', () => {
+    const full = createPreparedState({}, ['yidhari', 'manato', 'astraYao'], 0)
+    const nonLimited = createPreparedState(
+      { yidhari: 'nonLimited', manato: 'nonLimited' },
+      ['yidhari', 'manato', 'astraYao'],
+      0,
+    )
+
+    expect(full.slots[0].setup).toEqual({
+      mindscape: 0, pool: 'full', engineId: 'krakensCradle', refinement: 1,
+      fourPieceId: 'yunkui', twoPieceId: 'woodpecker',
+      mains: { slot4: 'critDmg', slot5: 'iceDmg', slot6: 'hpPct' },
+      substats: { critRate: 0, critDmg: 0, hpPct: 0 },
+    })
+    expect(full.slots[1].setup).toEqual({
+      mindscape: 6, pool: 'full', engineId: 'grillOWisp', refinement: 5,
+      fourPieceId: 'yunkui', twoPieceId: 'woodpecker',
+      mains: { slot4: 'critDmg', slot5: 'fireDmg', slot6: 'hpPct' },
+      substats: { critRate: 0, critDmg: 0, hpPct: 0 },
+    })
+    expect(nonLimited.slots[0].setup).toMatchObject({
+      pool: 'nonLimited', engineId: 'grillOWisp', refinement: 5,
+    })
+    expect(nonLimited.slots[1].setup).toMatchObject({
+      pool: 'nonLimited', engineId: 'grillOWisp', refinement: 5,
     })
     expect(isCompleteWorkbench(full)).toBe(true)
     expect(isCompleteWorkbench(nonLimited)).toBe(true)

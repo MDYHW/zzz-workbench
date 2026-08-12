@@ -220,6 +220,25 @@ describe('party-directed preparation', () => {
     ])
   })
 
+  it('keeps authored Yidhari and Manato pool candidates inside their prepared representatives', () => {
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.yidhari).toEqual({
+      full: ['krakensCradle', 'grillOWisp', 'cauldron', 'qingming', 'radiowave', 'puzzleSphere'],
+      nonLimited: ['grillOWisp', 'cauldron', 'radiowave', 'puzzleSphere'],
+    })
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.manato).toEqual({
+      full: ['grillOWisp', 'wrathfulVajra', 'qingming', 'cauldron', 'radiowave', 'puzzleSphere'],
+      nonLimited: ['grillOWisp', 'cauldron', 'radiowave', 'puzzleSphere'],
+    })
+
+    const selections = preparePartySelections([
+      context('yidhari'), context('manato'), context('astraYao'),
+    ], 'yidhari')
+    expect(selections.slice(0, 2)).toMatchObject([
+      { engineId: 'krakensCradle', fourPieceId: 'yunkui', twoPieceId: 'woodpecker' },
+      { engineId: 'grillOWisp', fourPieceId: 'yunkui', twoPieceId: 'woodpecker' },
+    ])
+  })
+
   it('keeps every authored adjustment inside the target candidate pools', () => {
     const contexts = [
       context('yixuan'), context('trigger'), context('dialyn'),

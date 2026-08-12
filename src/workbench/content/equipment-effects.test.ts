@@ -227,4 +227,28 @@ describe('bounded equipment effect facts', () => {
       }
     }
   })
+
+  it('retains the exact Yidhari and Manato signature W-Engine packages', () => {
+    expect(W_ENGINES.krakensCradle).toMatchObject({
+      rank: 'S', limited: true, baseAtk: 713,
+      advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
+    })
+    expect(W_ENGINES.grillOWisp).toMatchObject({
+      rank: 'A', limited: false, baseAtk: 624,
+      advancedStat: { id: 'hpPct', label: 'HP', value: 25, unit: '%' },
+    })
+    expect(W_ENGINES.wrathfulVajra).toMatchObject({
+      rank: 'S', limited: true, baseAtk: 713,
+      advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
+    })
+    expect(equipmentEffectMaximumValue(W_ENGINE_FACTS.krakensCradle.effects.iceSheerDamage, 1)).toBe(18)
+    expect(equipmentEffectBaseValue(W_ENGINE_FACTS.krakensCradle.effects.critRate, 1)).toBe(20)
+    expect(equipmentEffectBaseValue(W_ENGINE_FACTS.grillOWisp.effects.fireDamage, 5)).toBe(24)
+    expect(equipmentEffectBaseValue(W_ENGINE_FACTS.grillOWisp.effects.critRate, 5)).toBe(24)
+    expect(equipmentEffectMaximumValue(W_ENGINE_FACTS.wrathfulVajra.effects.fireSheerDamage, 1)).toBe(18)
+    expect(W_ENGINES.krakensCradle.passiveLines(1)).toEqual([
+      'Ice Sheer DMG +18%',
+      '≤50% Max HP · CRIT Rate +20%',
+    ])
+  })
 })

@@ -61,6 +61,16 @@ import {
 } from './calculation/initial-atk'
 import { observeCorin, resolveCorinProviderClauses, type CorinCalculationContext } from './calculation/agents/corin'
 import { observeLycaon, resolveLycaonProviderClauses, type LycaonCalculationContext } from './calculation/agents/lycaon'
+import {
+  observeYidhari,
+  resolveYidhariProviderClauses,
+  type YidhariCalculationContext,
+} from './calculation/agents/yidhari'
+import {
+  observeManato,
+  resolveManatoProviderClauses,
+  type ManatoCalculationContext,
+} from './calculation/agents/manato'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -74,6 +84,8 @@ export type ProviderContext =
   | EvelynCalculationContext
   | CorinCalculationContext
   | LycaonCalculationContext
+  | YidhariCalculationContext
+  | ManatoCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -113,11 +125,13 @@ function observeProviderContext(
   const slot = state.slots[providerIndex]
   if (!hasProviderInputs(slot.setup)) return null
 
-  const hasStunOrSupport = state.slots.some(({ agentId }, index) => {
-    if (index === providerIndex) return false
-    const specialty = ADMITTED_AGENTS.find(({ id }) => id === agentId)?.specialty
-    return specialty === 'Stun' || specialty === 'Support'
-  })
+  const anotherHasSpecialty = (
+    specialties: readonly (typeof ADMITTED_AGENTS)[number]['specialty'][],
+  ) => state.slots.some(({ agentId }, index) => (
+    index !== providerIndex
+    && specialties.includes(ADMITTED_AGENTS.find(({ id }) => id === agentId)!.specialty)
+  ))
+  const hasStunOrSupport = anotherHasSpecialty(['Stun', 'Support'])
   const hasAnby = state.slots.some(({ agentId }) => agentId === 'anbySoldier0')
   const summary = ADMITTED_AGENTS.find(({ id }) => id === slot.agentId)!
   const additionalByParty = state.slots.some(({ agentId }, index) => {
@@ -131,10 +145,14 @@ function observeProviderContext(
   switch (slot.agentId) {
     case 'yixuan':
       return observeYixuan(slot.setup)
+    case 'yidhari':
+      return observeYidhari(slot.setup, hasStunOrSupport)
+    case 'manato':
+      return observeManato(slot.setup)
     case 'dialyn':
       return observeDialyn(slot.setup)
     case 'lucia':
-      return observeLucia(slot.setup)
+      return observeLucia(slot.setup, anotherHasSpecialty(['Rupture', 'Stun']))
     case 'anbySoldier0':
       return observeAnby(slot.setup, hasStunOrSupport, providerIndex === state.focusSlot)
     case 'trigger':
@@ -169,10 +187,14 @@ function providerClauses(
   switch (context.agentId) {
     case 'yixuan':
       return resolveYixuanProviderClauses(context.setup)
+    case 'yidhari':
+      return resolveYidhariProviderClauses(context)
+    case 'manato':
+      return resolveManatoProviderClauses(context.setup)
     case 'dialyn':
       return resolveDialynProviderClauses(context.setup, context.initialCrit.value)
     case 'lucia':
-      return resolveLuciaProviderClauses(context.setup, context.squadSheer)
+      return resolveLuciaProviderClauses(context)
     case 'anbySoldier0':
       return resolveAnbyProviderClauses(context)
     case 'trigger':

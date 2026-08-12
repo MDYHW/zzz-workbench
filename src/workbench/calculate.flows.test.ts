@@ -177,4 +177,22 @@ describe('representative calculation flows', () => {
       .toBeCloseTo(225.502, 10)
     expect(metric(nonLimitedLycaon, 'energyRegen').values.initial).toBeCloseTo(1.8, 10)
   })
+
+  it('projects default-M6 Manato through the prepared Grill package', () => {
+    const state = createPreparedState({}, ['manato', 'lucia', 'astraYao'], 0)
+    const manato = agent(calculateParty(state)!, 'manato')
+
+    expect(state.slots[0].setup).toMatchObject({
+      mindscape: 6,
+      engineId: 'grillOWisp',
+      refinement: 5,
+      fourPieceId: 'yunkui',
+      twoPieceId: 'woodpecker',
+      mains: { slot4: 'critDmg', slot5: 'fireDmg', slot6: 'hpPct' },
+      substats: { critRate: 0, critDmg: 0, hpPct: 0 },
+    })
+    expect(metric(manato, 'sheerForce').breakdown.initial)
+      .toContainEqual(expect.objectContaining({ label: 'Rupture specialty', notation: 'surface-value' }))
+    expect(manato.operations).toEqual([])
+  })
 })

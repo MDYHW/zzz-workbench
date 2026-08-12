@@ -33,11 +33,11 @@ import {
   composeMetricEffects,
   contribution,
   percentageContribution,
-  surfaceValueContribution,
   surfaces,
   withoutZero,
 } from '../composition'
 import type { ActionModifier, AgentResult } from '../result'
+import { composeRuptureSheerForce } from '../rupture'
 
 export interface YixuanCalculationContext {
   agentId: 'yixuan'
@@ -346,23 +346,11 @@ export function calculateYixuan(
     effects,
     'atk',
   )
-  const convertRuptureStats = (atkValue: number, maxHpValue: number) =>
-    atkValue * values.rupture.currentAtkToSheer
-      + maxHpValue * values.rupture.currentHpToSheer
-  const ruptureSheer = surfaces(
-    convertRuptureStats(atk.values.initial, maxHp.values.initial),
-    convertRuptureStats(atk.values.combat, maxHp.values.combat),
-    convertRuptureStats(atk.values.fully, maxHp.values.fully),
-  )
-  const sheerForce = composeMetricEffects(
-    ruptureSheer,
-    surfaces(
-      [surfaceValueContribution(STATIC_SOURCES.yixuan.ruptureConversion, ruptureSheer.initial)],
-      [surfaceValueContribution(STATIC_SOURCES.yixuan.ruptureConversion, ruptureSheer.combat)],
-      [surfaceValueContribution(STATIC_SOURCES.yixuan.ruptureConversion, ruptureSheer.fully)],
-    ),
+  const sheerForce = composeRuptureSheerForce(
+    atk.values,
+    maxHp.values,
+    STATIC_SOURCES.yixuan.ruptureConversion,
     effects,
-    'sheerForce',
   )
   const critRate = composeMetricEffects(
     surfaces(initialCritRate, initialCritRate, initialCritRate),

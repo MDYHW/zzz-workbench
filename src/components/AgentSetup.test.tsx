@@ -2,7 +2,7 @@ import { useReducer } from 'react'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { DISC_IDS_BY_AGENT_AND_PIECE, MAIN_STAT_IDS_BY_AGENT_AND_SLOT, type MainSlot, type MainStatId } from '../workbench/content'
+import { DISC_IDS_BY_AGENT_AND_PIECE, MAIN_STAT_IDS_BY_AGENT_AND_SLOT, type AgentId, type MainSlot, type MainStatId } from '../workbench/content'
 import { createPreparedState, isCompleteWorkbench, workbenchReducer } from '../workbench/state'
 import { AgentSetup } from './AgentSetup'
 import { effectiveFourPieceIds, effectiveMainStatIds, effectiveTwoPieceIds } from '../workbench/candidates'
@@ -13,9 +13,9 @@ const singleCandidateMains: Record<MainSlot, readonly MainStatId[]> = {
   slot6: ['hpPct'],
 }
 
-function IncompleteSetupHarness() {
+function IncompleteSetupHarness({ agentId = 'yixuan' }: { agentId?: AgentId }) {
   const [state, dispatch] = useReducer(workbenchReducer, undefined, () => {
-    const prepared = createPreparedState()
+    const prepared = createPreparedState({}, [agentId, 'lycaon', 'lucia'], 0)
     prepared.slots[0] = {
       ...prepared.slots[0],
       setup: {
@@ -29,8 +29,8 @@ function IncompleteSetupHarness() {
   return (
     <AgentSetup
       activeSourceTone={null}
-      agentId="yixuan"
-      discCandidates={DISC_IDS_BY_AGENT_AND_PIECE.yixuan}
+      agentId={agentId}
+      discCandidates={DISC_IDS_BY_AGENT_AND_PIECE[agentId]}
       dispatch={dispatch}
       mainStatCandidates={singleCandidateMains}
       onSourceToneChange={vi.fn()}
@@ -66,6 +66,18 @@ describe('AgentSetup incomplete main-stat recovery', () => {
     expect(screen.queryByRole('button', { name: 'Disc 5 main stat required' }))
       .not.toBeInTheDocument()
   })
+})
+
+describe('AgentSetup new Rupture incomplete main-stat recovery', () => {
+  it.each(['yidhari', 'manato'] as const)(
+    'keeps %s incomplete without a hidden prepared selection',
+    (agentId) => {
+      render(<IncompleteSetupHarness agentId={agentId} />)
+
+      expect(screen.getByRole('button', { name: 'Disc 5 main stat required' })).toBeInTheDocument()
+      expect(screen.getByLabelText('HP% hit count')).toHaveValue('0')
+    },
+  )
 })
 
 describe('AgentSetup Seed Additional Ability', () => {

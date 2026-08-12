@@ -14,6 +14,8 @@ import { calculateCissia } from './calculation/agents/cissia'
 import { calculateEvelyn } from './calculation/agents/evelyn'
 import { calculateCorin } from './calculation/agents/corin'
 import { calculateLycaon } from './calculation/agents/lycaon'
+import { calculateYidhari } from './calculation/agents/yidhari'
+import { calculateManato } from './calculation/agents/manato'
 import type { PartyResult } from './calculation/result'
 import { resolveProviderEffects } from './provider-effects'
 
@@ -47,6 +49,8 @@ function orderedClauses(
     'evelyn',
     'corin',
     'lycaon',
+    'yidhari',
+    'manato',
   ] as const
   return [...clauses].sort((left, right) => (
     sourceOrder.indexOf(left.source.ownerAgentId)
@@ -78,6 +82,10 @@ export function calculateParty(state: WorkbenchState): PartyResult | null {
       switch (context.agentId) {
         case 'yixuan':
           return calculateYixuan(context.setup, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
+        case 'yidhari':
+          return calculateYidhari(context.setup, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
+        case 'manato':
+          return calculateManato(context.setup, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
         case 'dialyn':
           return calculateDialyn(
             context.setup,

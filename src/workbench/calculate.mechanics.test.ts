@@ -12,6 +12,7 @@ import {
   setRefinement,
   setSubstat,
   sourceLabels,
+  withMindscape,
   withSetup,
 } from './calculate.test-support'
 
@@ -31,6 +32,11 @@ describe('calculateParty mechanisms', () => {
         ...setup,
         substats: { ...setup.substats, hpFlat: Number.NaN },
       })),
+      withSetup(
+        createPreparedState({}, ['yidhari', 'dialyn', 'lucia'], 0),
+        'yidhari',
+        (setup) => ({ ...setup, engineId: null }),
+      ),
     ]
 
     for (const state of incomplete) expect(calculateParty(state)).toBeNull()
@@ -68,6 +74,109 @@ describe('calculateParty mechanisms', () => {
     expect(metric(dialyn, 'energyRegen').breakdown.combat).toContainEqual(
       expect.objectContaining({ label: 'Yesterday Calls', detail: 'W1', amount: 1.5 }),
     )
+  })
+
+  it('preserves Yixuan Rupture conversion across all three current-stat surfaces', () => {
+    const yixuan = agent(calculateParty(createPreparedState())!, 'yixuan')
+    const atk = metric(yixuan, 'atk')
+    const maxHp = metric(yixuan, 'maxHp')
+    const sheerForce = metric(yixuan, 'sheerForce')
+
+    for (const surface of ['initial', 'combat', 'fully'] as const) {
+      const conversion = atk.values[surface] * VERTICAL_VALUES.rupture.currentAtkToSheer
+        + maxHp.values[surface] * VERTICAL_VALUES.rupture.currentHpToSheer
+      expect(sheerForce.breakdown[surface]).toContainEqual(expect.objectContaining({
+        label: 'Rupture specialty',
+        notation: 'surface-value',
+        amount: expect.closeTo(conversion),
+      }))
+    }
+  })
+
+  it('recomposes all three Rupture consumers from each recipient current stats', () => {
+    const withoutProvider = calculateParty(createPreparedState(
+      {},
+      ['yixuan', 'yidhari', 'manato'],
+      0,
+    ))!
+    const withProvider = calculateParty(createPreparedState(
+      {},
+      ['yixuan', 'manato', 'lucia'],
+      0,
+    ))!
+
+    const compared = [
+      [agent(withoutProvider, 'yixuan'), agent(withProvider, 'yixuan')],
+      [
+        agent(calculateParty(createPreparedState({}, ['yidhari', 'manato', 'astraYao'], 0))!, 'yidhari'),
+        agent(calculateParty(createPreparedState({}, ['yidhari', 'manato', 'lucia'], 0))!, 'yidhari'),
+      ],
+      [agent(withoutProvider, 'manato'), agent(withProvider, 'manato')],
+    ] as const
+    for (const [before, after] of compared) {
+      const beforeHp = metric(before, 'maxHp').values.fully
+      const afterHp = metric(after, 'maxHp').values.fully
+      const beforeAtk = metric(before, 'atk').values.fully
+      const afterAtk = metric(after, 'atk').values.fully
+      const conversion = (result: typeof before) => metric(result, 'sheerForce')
+        .breakdown.fully.find(({ label }) => label === 'Rupture specialty')!.amount
+
+      expect(conversion(after) - conversion(before))
+        .toBeCloseTo(
+          (afterHp - beforeHp) * VERTICAL_VALUES.rupture.currentHpToSheer
+          + (afterAtk - beforeAtk) * VERTICAL_VALUES.rupture.currentAtkToSheer,
+        )
+    }
+  })
+
+  it('projects Manato Core, prepared equipment, and Sheer formula exclusions', () => {
+    const manato = agent(calculateParty(createPreparedState(
+      {}, ['manato', 'lucia', 'trigger'], 0,
+    ))!, 'manato')
+
+    expect(metric(manato, 'maxHp').breakdown.initial).toEqual(expect.arrayContaining([
+      expect.objectContaining({ label: 'Core Passive', detail: 'Completed Core HP enhancements', display: { value: 18, unit: '%', decimals: 0 } }),
+      expect.objectContaining({ label: "Grill O'Wisp", detail: 'W5', display: { value: 25, unit: '%', decimals: 0 } }),
+      expect.objectContaining({ label: 'Yunkui Tales', detail: '2-piece' }),
+    ]))
+    expect(metric(manato, 'critRate').breakdown.fully).toEqual(expect.arrayContaining([
+      expect.objectContaining({ label: 'Core Passive', amount: 10 }),
+      expect.objectContaining({ label: "Grill O'Wisp", amount: 24 }),
+      expect.objectContaining({ label: 'Yunkui Tales', amount: 12 }),
+    ]))
+    expect(metric(manato, 'dmgBonus').breakdown.fully).toEqual(expect.arrayContaining([
+      expect.objectContaining({ label: 'Core Passive', amount: 20 }),
+      expect.objectContaining({ label: "Grill O'Wisp", amount: 24 }),
+    ]))
+    expect(manato.metrics.find(({ id }) => id === 'defReduction')).toBeUndefined()
+    expect(manato.metrics.find(({ id }) => id === 'defIgnore')).toBeUndefined()
+    expect(manato.metrics.find(({ id }) => id === 'penRatio')).toBeUndefined()
+  })
+
+  it('projects Yidhari local and applicable provider clauses without DEF/PEN rows', () => {
+    const state = createPreparedState({}, ['yidhari', 'lucia', 'trigger'], 0)
+    const yidhari = agent(calculateParty(state)!, 'yidhari')
+
+    expect(metric(yidhari, 'maxHp').breakdown.initial).toEqual(expect.arrayContaining([
+      expect.objectContaining({ label: "Kraken's Cradle", detail: 'W1' }),
+      expect.objectContaining({ label: 'Yunkui Tales', detail: '2-piece' }),
+    ]))
+    expect(metric(yidhari, 'dmgBonus').breakdown.initial)
+      .toContainEqual(expect.objectContaining({ label: 'Drive Disc · Slot 5' }))
+    expect(metric(yidhari, 'dmgBonus').breakdown.fully).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ label: 'Core Passive', amount: 100 }),
+        expect.objectContaining({ ownerAgentId: 'lucia', amount: 20 }),
+      ]),
+    )
+    expect(metric(yidhari, 'sheerDmgBonus').breakdown.fully)
+      .toEqual(expect.arrayContaining([
+        expect.objectContaining({ label: "Kraken's Cradle", amount: 18 }),
+        expect.objectContaining({ label: 'Yunkui Tales', amount: 10 }),
+      ]))
+    expect(yidhari.metrics.find(({ id }) => id === 'defReduction')).toBeUndefined()
+    expect(yidhari.metrics.find(({ id }) => id === 'defIgnore')).toBeUndefined()
+    expect(yidhari.metrics.find(({ id }) => id === 'penRatio')).toBeUndefined()
   })
 
   it('replaces source identity after an engine and refinement edit', () => {
@@ -189,6 +298,44 @@ describe('calculateParty mechanisms', () => {
     expect(rows.map(({ amount }) => amount)).toEqual([24, 0])
     expect(rows.map(({ notation }) => notation))
       .toEqual([undefined, 'equal-nonstack-origin'])
+  })
+
+  it('composes Wellspring once while preserving equal legal origins and distinct HP effects', () => {
+    const yidhariOnly = agent(calculateParty(createPreparedState(
+      {}, ['yidhari', 'dialyn', 'astraYao'], 0,
+    ))!, 'yidhari')
+    const luciaOnly = agent(calculateParty(createPreparedState(
+      {}, ['manato', 'lucia', 'astraYao'], 0,
+    ))!, 'manato')
+    const together = agent(calculateParty(withMindscape(createPreparedState(
+      {}, ['yidhari', 'lucia', 'dialyn'], 0,
+    ), 'yidhari', 4))!, 'yidhari')
+
+    for (const single of [yidhariOnly, luciaOnly]) {
+      const rows = metric(single, 'maxHp').breakdown.fully.filter(
+        ({ ownerAgentId, locus }) => locus === 'core'
+          && (ownerAgentId === 'yidhari' || ownerAgentId === 'lucia'),
+      )
+      expect(rows).toHaveLength(1)
+      expect(rows[0]).toMatchObject({ display: { value: 5, unit: '%', decimals: 0 } })
+      expect(rows[0].notation).toBeUndefined()
+    }
+
+    const wellspring = metric(together, 'maxHp').breakdown.fully.filter(
+      ({ ownerAgentId, locus }) => locus === 'core'
+        && (ownerAgentId === 'yidhari' || ownerAgentId === 'lucia'),
+    )
+    expect(wellspring).toHaveLength(2)
+    expect(wellspring.map(({ amount }) => amount)).toEqual([expect.any(Number), 0])
+    expect(wellspring.map(({ notation }) => notation))
+      .toEqual([undefined, 'equal-nonstack-origin'])
+    expect(wellspring.map(({ ownerAgentId }) => ownerAgentId).sort())
+      .toEqual(['lucia', 'yidhari'])
+
+    expect(metric(together, 'maxHp').breakdown.fully).toEqual(expect.arrayContaining([
+      expect.objectContaining({ label: 'Mindscape', ownerAgentId: 'yidhari', display: { value: 5, unit: '%', decimals: 0 } }),
+      expect.objectContaining({ label: 'Dreamlit Hearth', ownerAgentId: 'lucia', display: { value: 15, unit: '%', decimals: 0 } }),
+    ]))
   })
 
   it('routes broad enemy DEF pressure by formula participation instead of Agent identity', () => {

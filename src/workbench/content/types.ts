@@ -14,6 +14,8 @@ export type AgentId =
   | 'evelyn'
   | 'corin'
   | 'lycaon'
+  | 'yidhari'
+  | 'manato'
 
 export type AgentRank = 'S' | 'A'
 export type AgentFaction = 'Victoria Housekeeping Co.'
@@ -52,6 +54,9 @@ export type EngineId =
   | 'housekeeper'
   | 'blazingLaurel'
   | 'simmeringPot'
+  | 'krakensCradle'
+  | 'grillOWisp'
+  | 'wrathfulVajra'
 
 export type DiscId =
   | 'yunkui'

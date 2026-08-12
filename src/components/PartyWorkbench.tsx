@@ -29,6 +29,8 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   evelyn: { attribute: fireMark, specialty: attackMark },
   corin: { attribute: physicalMark, specialty: attackMark },
   lycaon: { attribute: iceMark, specialty: stunMark },
+  yidhari: { attribute: iceMark, specialty: ruptureMark },
+  manato: { attribute: fireMark, specialty: ruptureMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {

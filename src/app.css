@@ -1946,6 +1946,10 @@ button.main-stat-block:focus-visible {
 .source-tone--agent-seed { --source-color: #0f7a76; }
 .source-tone--agent-cissia { --source-color: #a64a19; }
 .source-tone--agent-evelyn { --source-color: #b6482f; }
+.source-tone--agent-corin { --source-color: #8b3f69; }
+.source-tone--agent-lycaon { --source-color: #256f89; }
+.source-tone--agent-yidhari { --source-color: #3264a8; }
+.source-tone--agent-manato { --source-color: #a33b2c; }
 /* Calculation clamps stay neutral and are not a semantic source color. */
 .source-tone--calculation { --source-color: #596169; }
 
