@@ -32,6 +32,7 @@ import krakensCradleImage from '../../assets/equipment/w-engines/krakens-cradle.
 import grillOWispImage from '../../assets/equipment/w-engines/grill-owisp.webp'
 import wrathfulVajraImage from '../../assets/equipment/w-engines/wrathful-vajra.webp'
 import myriadEclipseImage from '../../assets/equipment/w-engines/myriad-eclipse.webp'
+import roaringFurnaceImage from '../../assets/equipment/w-engines/roaring-fur-nace.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -59,6 +60,20 @@ const perSecond = (effect: EquipmentEffectFact, refinement: Refinement): string 
   `${equipmentEffectBaseValue(effect, refinement)}/s`
 
 export const W_ENGINE_FACTS = {
+  roaringFurnace: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 30, unit: '%' },
+    effects: {
+      daze: {
+        modifier: 'dazeBonus', unit: '%', value: [28, 32.2, 36.4, 40.6, 44.8],
+        scope: { actions: ['EX Special Attack', 'Chain Attack', 'Ultimate'] },
+      },
+      damage: {
+        modifier: 'dmgBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: [10, 11.5, 13, 14.5, 16], maxStacks: 2 },
+        scope: { recipient: 'squad' },
+      },
+    },
+  },
   myriadEclipse: {
     advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
     effects: {
@@ -299,6 +314,14 @@ export type WEngineFactContract<Id extends EngineId> = (typeof W_ENGINE_FACTS)[I
 export type WEngineEffectField<Id extends EngineId> = keyof WEngineFactContract<Id>['effects']
 
 export const W_ENGINES: Record<EngineId, WEngineChoice> = {
+  roaringFurnace: {
+    id: 'roaringFurnace', name: 'Roaring Fur-nace', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.roaringFurnace.advancedStat, image: roaringFurnaceImage,
+    passiveLines: (refinement) => [
+      `EX Special, Chain Attack & Ultimate Daze +${percent(W_ENGINE_FACTS.roaringFurnace.effects.daze, refinement)}`,
+      `Squad DMG +${percent(W_ENGINE_FACTS.roaringFurnace.effects.damage, refinement, true)}`,
+    ],
+  },
   myriadEclipse: {
     id: 'myriadEclipse', name: 'Myriad Eclipse', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.myriadEclipse.advancedStat, image: myriadEclipseImage,
@@ -505,6 +528,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   yidhari: enginePools(['krakensCradle', 'grillOWisp', 'cauldron', 'qingming', 'radiowave', 'puzzleSphere']),
   manato: enginePools(['grillOWisp', 'wrathfulVajra', 'qingming', 'cauldron', 'radiowave', 'puzzleSphere']),
   hugo: enginePools(['myriadEclipse', 'cordisGermina', 'heartstringNocturne', 'steelCushion', 'marcatoDesire']),
+  juFufu: enginePools(['roaringFurnace', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   lucia: enginePools(['dreamlitHearth', 'thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
   anbySoldier0: enginePools(['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'marcatoDesire', 'starlightEngine']),

@@ -95,6 +95,25 @@ function withAstraAstralAllocation(
   }
 }
 
+function withJuFufuKingAlternative(
+  context: PreparationContext,
+  establishedHolders: readonly EstablishedDiscHolder[],
+  selection: SetupSelection,
+): SetupSelection {
+  const anotherKingHolder = establishedHolders.some(({ agentId, fourPieceId }) => (
+    agentId !== context.agentId && fourPieceId === 'king'
+  ))
+  if (context.agentId !== 'juFufu' || selection.fourPieceId !== 'king' || !anotherKingHolder) {
+    return selection
+  }
+  return {
+    ...selection,
+    fourPieceId: 'swingJazz',
+    twoPieceId: 'king',
+    mains: { ...selection.mains, slot4: 'atkPct' },
+  }
+}
+
 function withCissiaAstralOpportunity(
   context: PreparationContext,
   partyAgentIds: readonly AgentId[],
@@ -117,10 +136,11 @@ export function prepareTargetSelection(
 ): SetupSelection {
   const focused = withFocusedEngine(context, focusAgentId, representativeFor(context))
   const allocated = withCompetitiveKingAstralAllocation(context, establishedHolders, focused)
+  const nonoverlapping = withJuFufuKingAlternative(context, establishedHolders, allocated)
   const contextual = withCissiaAstralOpportunity(
     context,
     [context.agentId, ...establishedHolders.map(({ agentId }) => agentId)],
-    allocated,
+    nonoverlapping,
   )
   return withAstraAstralAllocation(context, establishedHolders, contextual)
 }
@@ -142,8 +162,15 @@ export function preparePartySelections(
     })),
     selection,
   ))
+  const kingHolders = contexts.map((context, index) => ({
+    agentId: context.agentId,
+    fourPieceId: withKingAllocation[index].fourPieceId,
+  }))
+  const withJuFufuAlternative = withKingAllocation.map((selection, index) => (
+    withJuFufuKingAlternative(contexts[index], kingHolders, selection)
+  ))
   const partyAgentIds = contexts.map(({ agentId }) => agentId)
-  const withCissiaAstral = withKingAllocation.map((selection, index) => (
+  const withCissiaAstral = withJuFufuAlternative.map((selection, index) => (
     withCissiaAstralOpportunity(contexts[index], partyAgentIds, selection)
   ))
   const holders = contexts.map((context, index) => ({

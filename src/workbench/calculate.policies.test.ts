@@ -773,4 +773,83 @@ describe('authored calculation policies', () => {
         id: 'hugoExNonStunnedTotalizeAddedMultiplier', value: 1000,
       }))
     })
+
+    it('projects Ju Fufu ATK and King thresholds through complete equipment packages', () => {
+      const full = agent(calculateParty(
+        createPreparedState({}, ['juFufu', 'yixuan', 'lucia'], 1),
+      )!, 'juFufu')
+      const nonLimited = agent(calculateParty(
+        createPreparedState({ juFufu: 'nonLimited' }, ['juFufu', 'yixuan', 'lucia'], 1),
+      )!, 'juFufu')
+
+      expect(metric(full, 'atk').values.initial).toBeCloseTo(3124.2, 10)
+      expect(metric(full, 'atk').gauge).toMatchObject({
+        threshold: 2800, cap: 3400, outputValue: 35, outputCap: 50,
+      })
+      expect(metric(full, 'critRate').values.initial).toBeCloseTo(51.4, 10)
+      expect(metric(full, 'critRate').gauge).toMatchObject({
+        threshold: 50, outputValue: 30,
+      })
+      expect(metric(full, 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'juFufu', locus: 'w-engine', amount: 20 }))
+      expect(action(full, 'juFufuExChainUltimateDaze').values.fully - metric(full, 'dazeBonus').values.fully)
+        .toBeCloseTo(28)
+      expect(action(full, 'juFufuChain').values.fully - metric(full, 'dmgBonus').values.fully)
+        .toBeCloseTo(20)
+      expect(action(full, 'juFufuUltimate').values.fully - metric(full, 'dmgBonus').values.fully)
+        .toBeCloseTo(40)
+
+      expect(metric(nonLimited, 'atk').values.initial).toBeCloseTo(2199.7, 10)
+      expect(metric(nonLimited, 'atk').gauge).toMatchObject({ outputValue: 20 })
+      expect(metric(nonLimited, 'impact').values.fully).toBeGreaterThan(
+        metric(nonLimited, 'impact').values.combat,
+      )
+      expect(metric(nonLimited, 'energyRegen').values.fully).toBeCloseTo(1.8)
+    })
+
+    it('applies Ju Fufu cumulative Mindscapes without inventing Decibel state', () => {
+      const base = createPreparedState({}, ['juFufu', 'yixuan', 'lucia'], 1)
+      const m0 = agent(calculateParty(base)!, 'juFufu')
+      const m1 = agent(calculateParty(withMindscape(base, 'juFufu', 1))!, 'juFufu')
+      const m2 = agent(calculateParty(withMindscape(base, 'juFufu', 2))!, 'juFufu')
+      const m4 = agent(calculateParty(withMindscape(base, 'juFufu', 4))!, 'juFufu')
+      const m6 = agent(calculateParty(withMindscape(base, 'juFufu', 6))!, 'juFufu')
+
+      expect(metric(m1, 'critRate').values.combat - metric(m0, 'critRate').values.combat).toBe(12)
+      expect(metric(m1, 'stunDmgMultiplier').values.fully).toBe(35)
+      expect(metric(m2, 'critDmg').values.fully - metric(m1, 'critDmg').values.fully).toBe(22)
+      expect(metric(m4, 'critDmg').values.fully - metric(m2, 'critDmg').values.fully).toBe(35)
+      expect(action(m6, 'juFufuChain').values.fully - action(m4, 'juFufuChain').values.fully)
+        .toBe(30)
+      expect(m6.operations).toContainEqual(expect.objectContaining({
+        id: 'juFufuPopcornMultiplier', value: 480, unit: '%',
+      }))
+      expect(JSON.stringify(m6)).not.toMatch(/decibel|momentum|might/i)
+    })
+
+    it('projects canonical squad action clauses through existing and absent recipient rows', () => {
+      const yixuan = agent(calculateParty(
+        createPreparedState({}, ['yixuan', 'juFufu', 'lucia'], 0),
+      )!, 'yixuan')
+      const manato = agent(calculateParty(
+        createPreparedState({}, ['manato', 'juFufu', 'lucia'], 0),
+      )!, 'manato')
+      const contrast = agent(calculateParty(
+        createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0),
+      )!, 'yixuan')
+
+      expect(action(yixuan, 'sharedChainAttackDmg')).toMatchObject({
+        baseActionId: 'coreActions', values: { fully: expect.any(Number) },
+      })
+      expect(action(yixuan, 'sharedChainAttackDmg').values.fully
+        - action(yixuan, 'coreActions').values.fully).toBe(20)
+      expect(action(yixuan, 'sharedUltimateDmg').values.fully
+        - action(yixuan, 'coreActions').values.fully).toBe(40)
+      expect(action(manato, 'sharedChainAttackDmg').values.fully
+        - metric(manato, 'dmgBonus').values.fully).toBe(20)
+      expect(action(manato, 'sharedUltimateDmg').values.fully
+        - metric(manato, 'dmgBonus').values.fully).toBe(40)
+      expect(contrast.actionModifiers.map(({ id }) => id)).not.toContain('sharedChainAttackDmg')
+      expect(contrast.actionModifiers.map(({ id }) => id)).not.toContain('sharedUltimateDmg')
+    })
 })

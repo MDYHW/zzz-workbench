@@ -260,6 +260,39 @@ describe('party-directed preparation', () => {
     })
   })
 
+  it('authors Ju Fufu pool packages and reuses non-overlapping King holder allocation', () => {
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.juFufu).toEqual({
+      full: ['roaringFurnace', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
+      nonLimited: ['hellfireGears', 'steamOven', 'preciousFossilizedCore'],
+    })
+    expect(preparePartySelections([
+      context('juFufu'), context('trigger'), context('yixuan'),
+    ], 'yixuan')).toMatchObject([
+      { fourPieceId: 'king', twoPieceId: 'woodpecker' },
+      { fourPieceId: 'astralVoice' },
+      {},
+    ])
+    expect(preparePartySelections([
+      context('juFufu'), context('dialyn'), context('yixuan'),
+    ], 'yixuan')).toMatchObject([
+      {
+        fourPieceId: 'swingJazz', twoPieceId: 'king',
+        mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'atkPct' },
+      },
+      { fourPieceId: 'king' },
+      {},
+    ])
+
+    expect(prepareTargetSelection(context('juFufu'), 'yixuan', [])).toEqual({
+      engineId: 'roaringFurnace', fourPieceId: 'king', twoPieceId: 'woodpecker',
+      mains: { slot4: 'critRate', slot5: 'atkPct', slot6: 'atkPct' },
+    })
+    expect(prepareTargetSelection(context('juFufu', 'nonLimited', 1), 'yixuan', [])).toEqual({
+      engineId: 'hellfireGears', fourPieceId: 'king', twoPieceId: 'shockstar',
+      mains: { slot4: 'critRate', slot5: 'atkPct', slot6: 'impact' },
+    })
+  })
+
   it('keeps every authored adjustment inside the target candidate pools', () => {
     const contexts = [
       context('yixuan'), context('trigger'), context('dialyn'),

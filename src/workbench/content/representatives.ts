@@ -24,6 +24,17 @@ const hugoRepresentative: Omit<SetupSelection, 'engineId'> = {
   mains: { slot4: 'critDmg', slot5: 'iceDmg', slot6: 'atkPct' },
 }
 
+const juFufuRepresentative = (pool: PoolId, mindscape: number): SetupSelection => ({
+  engineId: pool === 'full' ? 'roaringFurnace' : 'hellfireGears',
+  fourPieceId: 'king',
+  twoPieceId: mindscape >= 1 ? 'shockstar' : 'woodpecker',
+  mains: {
+    slot4: 'critRate',
+    slot5: 'atkPct',
+    slot6: pool === 'full' ? 'atkPct' : 'impact',
+  },
+})
+
 const dialynRepresentative: Omit<SetupSelection, 'engineId'> = {
   fourPieceId: 'king',
   twoPieceId: 'woodpecker',
@@ -116,6 +127,10 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
     full: { ...hugoRepresentative, engineId: 'myriadEclipse' },
     nonLimited: { ...hugoRepresentative, engineId: 'steelCushion' },
   },
+  juFufu: {
+    full: juFufuRepresentative('full', 0),
+    nonLimited: juFufuRepresentative('nonLimited', 0),
+  },
   dialyn: {
     full: { ...dialynRepresentative, engineId: 'yesterdayCalls' },
     nonLimited: { ...dialynRepresentative, engineId: 'hellfireGears' },
@@ -172,5 +187,6 @@ export function representativeSetupFor(
     return { ...representative, twoPieceId: 'branchAndBlade' }
   }
   if (agentId === 'astraYao') return astraRepresentative(pool, mindscape)
+  if (agentId === 'juFufu') return juFufuRepresentative(pool, mindscape)
   return representative
 }

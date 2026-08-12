@@ -78,6 +78,11 @@ import {
   resolveHugoProviderClauses,
   type HugoCalculationContext,
 } from './calculation/agents/hugo'
+import {
+  observeJuFufu,
+  resolveJuFufuProviderClauses,
+  type JuFufuCalculationContext,
+} from './calculation/agents/ju-fufu'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -94,6 +99,7 @@ export type ProviderContext =
   | YidhariCalculationContext
   | ManatoCalculationContext
   | HugoCalculationContext
+  | JuFufuCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -170,6 +176,8 @@ function observeProviderContext(
         anotherHasSpecialty(['Stun']) || anotherSharesAttribute,
         stunAgentCount,
       )
+    case 'juFufu':
+      return observeJuFufu(slot.setup)
     case 'dialyn':
       return observeDialyn(slot.setup)
     case 'lucia':
@@ -214,6 +222,8 @@ function providerClauses(
       return resolveManatoProviderClauses(context.setup)
     case 'hugo':
       return resolveHugoProviderClauses(context)
+    case 'juFufu':
+      return resolveJuFufuProviderClauses(context)
     case 'dialyn':
       return resolveDialynProviderClauses(context.setup, context.initialCrit.value)
     case 'lucia':

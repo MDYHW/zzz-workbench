@@ -96,7 +96,7 @@ export interface SourceBoundCurrentClause {
   eligibleAgentIds?: AgentId[]
   attributes?: readonly EffectAttribute[]
   formulas?: readonly SetupFormulaFamily[]
-  nonstackKey?: 'kingOfTheSummit' | 'astralVoiceEntrant' | 'moonlightLullaby' | 'etherVeilWellspring'
+  nonstackKey?: 'kingOfTheSummit' | 'astralVoiceEntrant' | 'moonlightLullaby' | 'etherVeilWellspring' | 'swingJazz'
   candidatePressure?: CandidatePressure
   value: { kind: 'additive'; amount: number; display?: ResolvedCurrentEffect['display'] }
     | { kind: 'basis-percentage'; percentage: number }
@@ -208,6 +208,10 @@ export const STATIC_SOURCES = {
     core: source(SOURCE_LABELS.hugoCore, 'hugo', 'core'),
     additional: source(SOURCE_LABELS.hugoAbility, 'hugo', 'additional'),
     critCap: source('Displayed CRIT Rate cap', 'hugo', 'calculation'),
+  },
+  juFufu: {
+    core: source(SOURCE_LABELS.juFufuCore, 'juFufu', 'core'),
+    critCap: source('Displayed CRIT Rate cap', 'juFufu', 'calculation'),
   },
   dialyn: {
     core: source(SOURCE_LABELS.dialynCore, 'dialyn', 'core'),

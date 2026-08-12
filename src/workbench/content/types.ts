@@ -17,6 +17,7 @@ export type AgentId =
   | 'yidhari'
   | 'manato'
   | 'hugo'
+  | 'juFufu'
 
 export type AgentRank = 'S' | 'A'
 export type AgentFaction = 'Victoria Housekeeping Co.'
@@ -59,6 +60,7 @@ export type EngineId =
   | 'grillOWisp'
   | 'wrathfulVajra'
   | 'myriadEclipse'
+  | 'roaringFurnace'
 
 export type DiscId =
   | 'yunkui'

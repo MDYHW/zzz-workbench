@@ -13,6 +13,7 @@ import triggerPortrait from '../assets/agents/portraits/trigger.webp'
 import yixuanPortrait from '../assets/agents/portraits/yixuan.webp'
 import yidhariPortrait from '../assets/agents/portraits/yidhari.webp'
 import hugoPortrait from '../assets/agents/portraits/hugo.webp'
+import juFufuPortrait from '../assets/agents/portraits/ju-fufu.webp'
 import type { AgentId } from '../workbench/content'
 
 export const AGENT_PORTRAITS: Record<AgentId, string> = {
@@ -30,6 +31,7 @@ export const AGENT_PORTRAITS: Record<AgentId, string> = {
   yidhari: yidhariPortrait,
   manato: manatoPortrait,
   hugo: hugoPortrait,
+  juFufu: juFufuPortrait,
 }
 
 interface PortraitSource {
@@ -61,6 +63,7 @@ const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   yidhari: { faceX: 44.5, headTopY: 1.75, scale: 1 },
   manato: { faceX: 50, headTopY: 1.9, scale: 1 },
   hugo: { faceX: 58, headTopY: 2.2, scale: 1 },
+  juFufu: { faceX: 41, headTopY: 18, scale: 1 },
 }
 
 export function portraitSourceStyle(agentId: AgentId): PortraitSourceStyle {

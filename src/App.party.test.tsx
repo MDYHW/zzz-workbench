@@ -81,7 +81,7 @@ describe('integrated party workbench: party', () => {
       [
         { agentId: 'corin', setup: createPreparedAgentSetup('corin') },
         { agentId: 'lycaon', setup: createPreparedAgentSetup('lycaon') },
-        { agentId: 'lucia', setup: createPreparedAgentSetup('lucia') },
+        { agentId: 'juFufu', setup: createPreparedAgentSetup('juFufu') },
       ],
       [
         { agentId: 'yidhari', setup: createPreparedAgentSetup('yidhari') },
@@ -458,6 +458,41 @@ describe('integrated party workbench: party', () => {
       .toHaveAccessibleDescription('Ice DMG +10%')
     expect(screen.getByRole('listitem', { name: /Totalize added DMG Multiplier/ }))
       .toBeInTheDocument()
+  }, 15_000)
+
+  it('admits Ju Fufu through shared Stun setup, threshold, and pool flows', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Yixuan, Auric Ink, Rupture/)
+    await replace(2, /Ju Fufu, Fire, Stun/)
+    await replace(3, /Lucia, Ether, Support/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+    await user.click(screen.getByRole('tab', { name: 'View Ju Fufu setup and Result' }))
+
+    const tab = screen.getByRole('tab', { name: 'Close Ju Fufu setup and Result' })
+    expect(screen.getByRole('region', { name: 'Ju Fufu setup' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Ju Fufu Result' })).toBeInTheDocument()
+    expect(within(tab).getByLabelText('S Rank')).toBeInTheDocument()
+    expect(within(tab).getByLabelText('Fire, Stun').querySelectorAll('img')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Roaring Fur-nace' }))
+      .toHaveAccessibleDescription(
+        'ATK +30%. EX Special, Chain Attack & Ultimate Daze +28%. Squad DMG +20%',
+      )
+    await user.click(screen.getByRole('button', { name: 'ATK' }))
+    expect(screen.getByText('Initial ATK')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'CRIT Rate' }))
+    expect(screen.getByText('Combat CRIT Rate')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Non-limited' }))
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Hellfire Gears' }))
+      .toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Ju Fufu Result' })).toBeInTheDocument()
   }, 15_000)
 
   it('keeps keyboard focus on a present filter when no replacement is available', async () => {

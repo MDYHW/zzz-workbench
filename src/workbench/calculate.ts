@@ -2,7 +2,14 @@ import {
   isCompleteWorkbench,
   type WorkbenchState,
 } from './state'
-import { additive, source, type SourceBoundCurrentClause } from './effects'
+import {
+  additive,
+  resolveDeliveredClauses,
+  source,
+  type ResultSource,
+  type SourceBoundCurrentClause,
+} from './effects'
+import { actionTarget, canonicalAction, type CanonicalActionKind } from './actions'
 import { calculateYixuan } from './calculation/agents/yixuan'
 import { calculateDialyn } from './calculation/agents/dialyn'
 import { calculateLucia } from './calculation/agents/lucia'
@@ -17,7 +24,9 @@ import { calculateLycaon } from './calculation/agents/lycaon'
 import { calculateYidhari } from './calculation/agents/yidhari'
 import { calculateManato } from './calculation/agents/manato'
 import { calculateHugo } from './calculation/agents/hugo'
-import type { PartyResult } from './calculation/result'
+import { calculateJuFufu } from './calculation/agents/ju-fufu'
+import { composeMetricEffects, surfaces } from './calculation/composition'
+import type { ActionModifier, AgentResult, Contribution, PartyResult } from './calculation/result'
 import { resolveProviderEffects } from './provider-effects'
 
 export type { ResultSource, SourceLocus, SurfaceKey } from './effects'
@@ -53,11 +62,100 @@ function orderedClauses(
     'yidhari',
     'manato',
     'hugo',
+    'juFufu',
   ] as const
   return [...clauses].sort((left, right) => (
     sourceOrder.indexOf(left.source.ownerAgentId)
     - sourceOrder.indexOf(right.source.ownerAgentId)
   ))
+}
+
+const SHARED_DAMAGE_ACTIONS = ['Chain Attack', 'Ultimate'] as const
+
+function isExactCanonicalAction(
+  action: SourceBoundCurrentClause['action'],
+  canonical: CanonicalActionKind,
+): boolean {
+  return Boolean(
+    action
+      && action.tags.length === 0
+      && action.outcomes.length === 1
+      && action.outcomes[0].kind === 'canonical'
+      && action.outcomes[0].action === canonical,
+  )
+}
+
+function actionRowIncludes(
+  row: ActionModifier,
+  canonical: CanonicalActionKind,
+): boolean {
+  return row.metricId === 'dmgBonus' && row.outcomes.some((outcome) => (
+    outcome.kind === 'canonical' && outcome.action === canonical
+  ))
+}
+
+function sameSource(
+  sourceValue: ResultSource,
+  contribution: Contribution,
+): boolean {
+  return sourceValue.ownerAgentId === contribution.ownerAgentId
+    && sourceValue.locus === contribution.locus
+    && sourceValue.label === contribution.label
+    && sourceValue.detail === contribution.detail
+}
+
+/**
+ * Canonical squad action clauses are authored once at the provider. A recipient
+ * reuses its closest current action row, or receives a bounded child row when
+ * the current module only has a broader action family.
+ */
+function withSharedCanonicalDamageActions(
+  result: AgentResult,
+  inbox: SourceBoundCurrentClause[],
+): AgentResult {
+  const common = result.metrics.find(({ id }) => id === 'dmgBonus')
+  if (!common) return result
+
+  let actionModifiers = [...result.actionModifiers]
+  for (const canonical of SHARED_DAMAGE_ACTIONS) {
+    const clauses = inbox.filter((clause) => (
+      clause.metric === 'dmgBonus' && isExactCanonicalAction(clause.action, canonical)
+    ))
+    if (clauses.length === 0) continue
+
+    const exactIndex = actionModifiers.findIndex((row) => (
+      row.outcomes.length === 1 && actionRowIncludes(row, canonical)
+    ))
+    const exact = exactIndex >= 0 ? actionModifiers[exactIndex] : undefined
+    const parent = exact ?? actionModifiers.find((row) => actionRowIncludes(row, canonical))
+    const missing = clauses.filter((clause) => !parent || !Object.values(parent.breakdown)
+      .flat()
+      .some((item) => sameSource(clause.source, item)))
+    if (missing.length === 0) continue
+
+    const effects = resolveDeliveredClauses(missing, {}).map(({ action: _action, ...effect }) => effect)
+    const composed = composeMetricEffects(
+      parent?.values ?? common.values,
+      exact?.breakdown ?? surfaces([], [], []),
+      effects,
+      'dmgBonus',
+    )
+    if (exact) {
+      actionModifiers[exactIndex] = { ...exact, ...composed }
+      continue
+    }
+
+    const target = actionTarget([canonicalAction(canonical)])
+    actionModifiers.push({
+      id: `shared${canonical.replaceAll(' ', '')}Dmg`,
+      outcomes: [...target.outcomes],
+      tags: [...target.tags],
+      metricId: 'dmgBonus',
+      ...(parent ? { baseActionId: parent.id } : {}),
+      ...composed,
+    })
+  }
+  return { ...result, actionModifiers }
 }
 
 export function calculateParty(state: WorkbenchState): PartyResult | null {
@@ -81,48 +179,69 @@ export function calculateParty(state: WorkbenchState): PartyResult | null {
   return {
     agents: contexts.map((context, index) => {
       const enemyFor = enemyContext.filter((clause) => !clause.eligibleAgentIds || clause.eligibleAgentIds.includes(context.agentId))
+      const inbox = orderedClauses(inboxes[index])
+      const enemy = orderedClauses(enemyFor)
+      let result: AgentResult
       switch (context.agentId) {
         case 'yixuan':
-          return calculateYixuan(context.setup, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
+          result = calculateYixuan(context.setup, inbox, enemy)
+          break
         case 'yidhari':
-          return calculateYidhari(context.setup, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
+          result = calculateYidhari(context.setup, inbox, enemy)
+          break
         case 'manato':
-          return calculateManato(context.setup, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
+          result = calculateManato(context.setup, inbox, enemy)
+          break
         case 'hugo':
-          return calculateHugo(context, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
+          result = calculateHugo(context, inbox, enemy)
+          break
+        case 'juFufu':
+          result = calculateJuFufu(context, inbox, enemy)
+          break
         case 'dialyn':
-          return calculateDialyn(
+          result = calculateDialyn(
             context.setup,
             context.initialCrit,
-            orderedClauses(inboxes[index]),
-            orderedClauses(enemyFor),
+            inbox,
+            enemy,
           )
+          break
         case 'lucia':
-          return calculateLucia(
+          result = calculateLucia(
             context.setup,
             context.initialHp,
             context.squadSheer,
-            orderedClauses(inboxes[index]),
+            inbox,
           )
+          break
         case 'anbySoldier0':
-          return calculateAnby(context, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
+          result = calculateAnby(context, inbox, enemy)
+          break
         case 'trigger':
-          return calculateTrigger(context, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
+          result = calculateTrigger(context, inbox, enemy)
+          break
         case 'astraYao':
-          return calculateAstra(context, orderedClauses(inboxes[index]))
+          result = calculateAstra(context, inbox)
+          break
         case 'seed':
-          return calculateSeed(context, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
+          result = calculateSeed(context, inbox, enemy)
+          break
         case 'cissia':
-          return calculateCissia(context, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
+          result = calculateCissia(context, inbox, enemy)
+          break
         case 'evelyn':
-          return calculateEvelyn(context, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
+          result = calculateEvelyn(context, inbox, enemy)
+          break
         case 'corin':
-          return calculateCorin(context, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
+          result = calculateCorin(context, inbox, enemy)
+          break
         case 'lycaon':
-          return calculateLycaon(context, orderedClauses(inboxes[index]), orderedClauses(enemyFor))
+          result = calculateLycaon(context, inbox, enemy)
+          break
         default:
           return assertNever(context)
       }
+      return withSharedCanonicalDamageActions(result, inbox)
     }),
   }
 }

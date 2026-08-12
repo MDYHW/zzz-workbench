@@ -57,6 +57,9 @@ export const DRIVE_DISC_FACTS = {
     twoPiece: {
       energyRegen: { modifier: 'energyRegen', unit: '%', value: 20 },
     },
+    fourPiece: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: 15, scope: { recipient: 'squad' } },
+    },
   },
   moonlight: {
     twoPiece: {
@@ -172,6 +175,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   swingJazz: {
     id: 'swingJazz', name: 'Swing Jazz', image: swingJazzImage,
     twoPieceEffect: `Energy Regen +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)}%`,
+    fourPieceEffects: [`Squad DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage)}%`],
   },
   moonlight: {
     id: 'moonlight', name: 'Moonlight Lullaby', image: moonlightImage,
@@ -240,6 +244,10 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
   hugo: {
     fourPiece: ['hormonePunk'],
     twoPiece: ['polarMetal', 'woodpecker', 'branchAndBlade', 'pufferElectro', 'astralVoice', 'hormonePunk'],
+  },
+  juFufu: {
+    fourPiece: ['king', 'swingJazz', 'shockstar'],
+    twoPiece: ['woodpecker', 'shockstar', 'king', 'hormonePunk', 'astralVoice', 'swingJazz'],
   },
   dialyn: { fourPiece: ['king'], twoPiece: ['woodpecker', 'swingJazz', 'moonlight'] },
   lucia: { fourPiece: ['moonlight'], twoPiece: ['yunkui', 'swingJazz'] },

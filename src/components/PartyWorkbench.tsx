@@ -32,6 +32,7 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   yidhari: { attribute: iceMark, specialty: ruptureMark },
   manato: { attribute: fireMark, specialty: ruptureMark },
   hugo: { attribute: iceMark, specialty: attackMark },
+  juFufu: { attribute: fireMark, specialty: stunMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {

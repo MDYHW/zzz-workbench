@@ -13,6 +13,7 @@ import {
 } from '../content'
 
 export type SeedVanguardAtkAgentId = 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo'
+export type InitialAtkAgentId = SeedVanguardAtkAgentId | 'juFufu'
 
 export interface InitialAtkSetup {
   engineId: EngineId | null
@@ -37,7 +38,7 @@ function selectedAtkTwoPiece(
 
 /** Exact Initial ATK used only by Seed's current Vanguard comparison and ATK projectors. */
 export function initialAtkFor(
-  agentId: SeedVanguardAtkAgentId,
+  agentId: InitialAtkAgentId,
   setup: InitialAtkSetup,
 ): number | null {
   if (!setup.engineId) return null
@@ -45,10 +46,14 @@ export function initialAtkFor(
   const engine = W_ENGINES[setup.engineId]
   const atkSubstat = SUBSTAT_CHOICES_BY_AGENT[agentId]
     .find(({ id }) => id === 'atkPct')
+  const flatAtkSubstat = SUBSTAT_CHOICES_BY_AGENT[agentId]
+    .find(({ id }) => id === 'atkFlat')
   const atkSubstatHits = setup.substats.atkPct ?? 0
-  if (!Number.isFinite(atkSubstatHits)) return null
+  const flatAtkSubstatHits = setup.substats.atkFlat ?? 0
+  if (!Number.isFinite(atkSubstatHits) || !Number.isFinite(flatAtkSubstatHits)) return null
   const atkPct = (
     (engine.advancedStat.id === 'atkPct' ? engine.advancedStat.value : 0)
+    + (setup.mains.slot4 === 'atkPct' ? MAIN_STATS.atkPct.numericValue : 0)
     + (setup.mains.slot5 === 'atkPct' ? MAIN_STATS.atkPct.numericValue : 0)
     + (setup.mains.slot6 === 'atkPct' ? MAIN_STATS.atkPct.numericValue : 0)
     + selectedAtkTwoPiece(setup, 'astralVoice')
@@ -56,5 +61,7 @@ export function initialAtkFor(
     + atkSubstatHits * (atkSubstat?.perHit ?? 0)
   )
   const baseAtk = VERTICAL_VALUES[agentId].atk + engine.baseAtk
-  return baseAtk * (1 + atkPct / 100) + VERTICAL_VALUES.fixedDisc.atk
+  return baseAtk * (1 + atkPct / 100)
+    + VERTICAL_VALUES.fixedDisc.atk
+    + flatAtkSubstatHits * (flatAtkSubstat?.perHit ?? 0)
 }

@@ -1038,6 +1038,29 @@ describe('workbench state lifecycle', () => {
     expect(effectiveTwoPieceIds(m2, 0)).toContain('pufferElectro')
   })
 
+  it('rebuilds only Ju Fufu when Mindscape changes her zero-substat King package', () => {
+    let state = createPreparedState({}, ['juFufu', 'yixuan', 'lucia'], 1)
+    const beforeYixuan = state.slots[1].setup
+    const beforeLucia = state.slots[2].setup
+    expect(state.slots[0].setup).toEqual({
+      mindscape: 0, pool: 'full', engineId: 'roaringFurnace', refinement: 1,
+      fourPieceId: 'king', twoPieceId: 'woodpecker',
+      mains: { slot4: 'critRate', slot5: 'atkPct', slot6: 'atkPct' },
+      substats: { critRate: 0, critDmg: 0, atkPct: 0, atkFlat: 0 },
+    })
+
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 1 })
+    expect(state.slots[0].setup).toMatchObject({
+      mindscape: 1, fourPieceId: 'king', twoPieceId: 'shockstar',
+    })
+    expect(state.slots[0].setup.substats).toEqual({
+      critRate: 0, critDmg: 0, atkPct: 0, atkFlat: 0,
+    })
+    expect(state.slots[1].setup).toBe(beforeYixuan)
+    expect(state.slots[2].setup).toBe(beforeLucia)
+    expect(isCompleteWorkbench(state)).toBe(true)
+  })
+
   it('clears and does not restore every King-selected Lycaon pressure input', () => {
     let state = createPreparedState({}, ['corin', 'lycaon', 'astraYao'], 0)
     state = workbenchReducer(state, {
