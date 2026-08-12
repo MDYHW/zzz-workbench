@@ -14,6 +14,7 @@ import yixuanPortrait from '../assets/agents/portraits/yixuan.webp'
 import yidhariPortrait from '../assets/agents/portraits/yidhari.webp'
 import hugoPortrait from '../assets/agents/portraits/hugo.webp'
 import juFufuPortrait from '../assets/agents/portraits/ju-fufu.webp'
+import panYinhuPortrait from '../assets/agents/portraits/pan-yinhu.webp'
 import type { AgentId } from '../workbench/content'
 
 export const AGENT_PORTRAITS: Record<AgentId, string> = {
@@ -32,6 +33,7 @@ export const AGENT_PORTRAITS: Record<AgentId, string> = {
   manato: manatoPortrait,
   hugo: hugoPortrait,
   juFufu: juFufuPortrait,
+  panYinhu: panYinhuPortrait,
 }
 
 interface PortraitSource {
@@ -64,6 +66,7 @@ const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   manato: { faceX: 50, headTopY: 1.9, scale: 1 },
   hugo: { faceX: 58, headTopY: 2.2, scale: 1 },
   juFufu: { faceX: 41, headTopY: 18, scale: 1 },
+  panYinhu: { faceX: 50, headTopY: 2, scale: 1 },
 }
 
 export function portraitSourceStyle(agentId: AgentId): PortraitSourceStyle {

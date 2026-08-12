@@ -36,6 +36,10 @@ describe('bounded equipment effect facts', () => {
       .toEqualTypeOf<'critDamage' | 'fireResIgnore'>()
     expectTypeOf<WEngineEffectField<'myriadEclipse'>>()
       .toEqualTypeOf<'critDamage' | 'defIgnore'>()
+    expectTypeOf<WEngineEffectField<'tusksOfFury'>>()
+      .toEqualTypeOf<'shield' | 'damage' | 'daze'>()
+    expectTypeOf<WEngineEffectField<'tremorTrigramVessel'>>()
+      .toEqualTypeOf<'damage' | 'energy'>()
 
     expectTypeOf<DriveDiscPiece<'dawnsBloom'>>()
       .toEqualTypeOf<'twoPiece' | 'fourPiece'>()
@@ -134,6 +138,13 @@ describe('bounded equipment effect facts', () => {
       twoPieceEffect: 'PEN Ratio +8%',
       fourPieceEffects: ['Ultimate DMG +20%', 'ATK +15%'],
     })
+    expect(W_ENGINES.tusksOfFury.passiveLines(1)).toEqual([
+      'Shield provided +30%', 'Squad DMG +18%', 'Squad Daze +12%',
+    ])
+    expect(W_ENGINES.tremorTrigramVessel.passiveLines(5)).toEqual([
+      'EX Special & Ultimate DMG +40%',
+      'Squad takes DMG or heals · Energy +3.2',
+    ])
   })
 
   it('retains Evelyn equipment facts as scoped effects and concise packages', () => {

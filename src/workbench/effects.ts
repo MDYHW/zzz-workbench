@@ -213,6 +213,10 @@ export const STATIC_SOURCES = {
     core: source(SOURCE_LABELS.juFufuCore, 'juFufu', 'core'),
     critCap: source('Displayed CRIT Rate cap', 'juFufu', 'calculation'),
   },
+  panYinhu: {
+    core: source(SOURCE_LABELS.panYinhuCore, 'panYinhu', 'core'),
+    additional: source(SOURCE_LABELS.panYinhuAbility, 'panYinhu', 'additional'),
+  },
   dialyn: {
     core: source(SOURCE_LABELS.dialynCore, 'dialyn', 'core'),
     additional: source(SOURCE_LABELS.dialynAbility, 'dialyn', 'additional'),

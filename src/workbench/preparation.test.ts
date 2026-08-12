@@ -293,6 +293,38 @@ describe('party-directed preparation', () => {
     })
   })
 
+  it('authors Pan Yinhu by pool and keeps a non-yielding Astral holder unique', () => {
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.panYinhu).toEqual({
+      full: ['tusksOfFury', 'tremorTrigramVessel'],
+      nonLimited: ['tremorTrigramVessel'],
+    })
+    expect(prepareTargetSelection(context('panYinhu'), 'yixuan', [])).toEqual({
+      engineId: 'tusksOfFury', fourPieceId: 'astralVoice', twoPieceId: 'swingJazz',
+      mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'atkPct' },
+    })
+    expect(prepareTargetSelection(context('panYinhu', 'nonLimited'), 'yixuan', [])).toEqual({
+      engineId: 'tremorTrigramVessel', fourPieceId: 'astralVoice', twoPieceId: 'swingJazz',
+      mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'atkPct' },
+    })
+
+    const withPan = preparePartySelections([
+      context('cissia'), context('panYinhu'), context('yixuan'),
+    ], 'yixuan')
+    expect(withPan).toMatchObject([
+      { fourPieceId: 'dawnsBloom' },
+      { fourPieceId: 'astralVoice' },
+      {},
+    ])
+    const existingYield = preparePartySelections([
+      context('cissia'), context('astraYao'), context('yixuan'),
+    ], 'yixuan')
+    expect(existingYield).toMatchObject([
+      { fourPieceId: 'astralVoice' },
+      { fourPieceId: 'moonlight' },
+      {},
+    ])
+  })
+
   it('keeps every authored adjustment inside the target candidate pools', () => {
     const contexts = [
       context('yixuan'), context('trigger'), context('dialyn'),

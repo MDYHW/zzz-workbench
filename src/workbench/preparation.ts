@@ -24,7 +24,7 @@ export interface EstablishedDiscHolder {
 export function hasRepeatedQuickAssistOpportunity(
   agentIds: readonly AgentId[],
 ): boolean {
-  return agentIds.includes('astraYao')
+  return agentIds.includes('astraYao') || agentIds.includes('panYinhu')
 }
 
 function withFocusedEngine(
@@ -117,10 +117,17 @@ function withJuFufuKingAlternative(
 function withCissiaAstralOpportunity(
   context: PreparationContext,
   partyAgentIds: readonly AgentId[],
+  establishedHolders: readonly EstablishedDiscHolder[],
   selection: SetupSelection,
 ): SetupSelection {
+  const heldByNonYieldingAgent = establishedHolders.some(({ agentId, fourPieceId }) => (
+    agentId !== context.agentId
+    && agentId !== 'astraYao'
+    && fourPieceId === 'astralVoice'
+  ))
   return context.agentId === 'cissia'
     && hasRepeatedQuickAssistOpportunity(partyAgentIds)
+    && !heldByNonYieldingAgent
     ? { ...selection, fourPieceId: 'astralVoice' }
     : selection
 }
@@ -140,6 +147,7 @@ export function prepareTargetSelection(
   const contextual = withCissiaAstralOpportunity(
     context,
     [context.agentId, ...establishedHolders.map(({ agentId }) => agentId)],
+    establishedHolders,
     nonoverlapping,
   )
   return withAstraAstralAllocation(context, establishedHolders, contextual)
@@ -171,7 +179,7 @@ export function preparePartySelections(
   ))
   const partyAgentIds = contexts.map(({ agentId }) => agentId)
   const withCissiaAstral = withJuFufuAlternative.map((selection, index) => (
-    withCissiaAstralOpportunity(contexts[index], partyAgentIds, selection)
+    withCissiaAstralOpportunity(contexts[index], partyAgentIds, kingHolders, selection)
   ))
   const holders = contexts.map((context, index) => ({
     agentId: context.agentId,

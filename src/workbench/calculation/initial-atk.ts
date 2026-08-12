@@ -13,7 +13,7 @@ import {
 } from '../content'
 
 export type SeedVanguardAtkAgentId = 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo'
-export type InitialAtkAgentId = SeedVanguardAtkAgentId | 'juFufu'
+export type InitialAtkAgentId = SeedVanguardAtkAgentId | 'juFufu' | 'panYinhu'
 
 export interface InitialAtkSetup {
   engineId: EngineId | null

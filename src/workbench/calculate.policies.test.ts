@@ -852,4 +852,62 @@ describe('authored calculation policies', () => {
       expect(contrast.actionModifiers.map(({ id }) => id)).not.toContain('sharedChainAttackDmg')
       expect(contrast.actionModifiers.map(({ id }) => id)).not.toContain('sharedUltimateDmg')
     })
+
+    it('projects Pan Yinhu pool packages, focus Sheer Force, and exact Mindscape consumers', () => {
+      const fullState = createPreparedState({}, ['yixuan', 'panYinhu', 'juFufu'], 0)
+      const full = agent(calculateParty(fullState)!, 'panYinhu')
+      const yixuan = agent(calculateParty(fullState)!, 'yixuan')
+      const juFufu = agent(calculateParty(fullState)!, 'juFufu')
+      expect(metric(full, 'atk').values.initial).toBeCloseTo(3064, 10)
+      expect(metric(full, 'atk').gauge).toMatchObject({
+        cap: 3000, outputValue: 720, outputCap: 720,
+      })
+      expect(metric(yixuan, 'sheerForce').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'panYinhu', amount: 720 }))
+      expect(metric(yixuan, 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'panYinhu', locus: 'w-engine', amount: 18 }))
+      expect(metric(juFufu, 'dazeBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'panYinhu', locus: 'w-engine', amount: 12 }))
+
+      const m0State = withMindscape(fullState, 'panYinhu', 0)
+      const m0 = agent(calculateParty(m0State)!, 'panYinhu')
+      const m0Focus = agent(calculateParty(m0State)!, 'yixuan')
+      expect(metric(m0, 'atk').gauge).toMatchObject({ outputValue: 540, outputCap: 540 })
+      expect(metric(m0Focus, 'sheerForce').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'panYinhu', amount: 540 }))
+
+      const nonLimitedState = createPreparedState(
+        { panYinhu: 'nonLimited' }, ['yixuan', 'panYinhu', 'juFufu'], 0,
+      )
+      const nonLimited = agent(calculateParty(nonLimitedState)!, 'panYinhu')
+      expect(metric(nonLimited, 'atk').values.initial).toBeCloseTo(3207.25, 10)
+      expect(action(nonLimited, 'panExUltimate').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'panYinhu', locus: 'w-engine', amount: 40,
+        }))
+      expect(nonLimited.operations).toContainEqual(expect.objectContaining({
+        id: 'tremorEnergyRestore', value: 3.2,
+      }))
+      expect(nonLimited.operations).toContainEqual(expect.objectContaining({
+        id: 'panBreakForceEnergy', value: 4,
+      }))
+    })
+
+    it('qualifies Pan Yinhu Additional by Rupture or typed faction and clears it otherwise', () => {
+      const rupture = agent(calculateParty(
+        createPreparedState({}, ['hugo', 'panYinhu', 'yixuan'], 0),
+      )!, 'hugo')
+      const faction = agent(calculateParty(
+        createPreparedState({}, ['hugo', 'panYinhu', 'juFufu'], 0),
+      )!, 'hugo')
+      const absent = agent(calculateParty(
+        createPreparedState({}, ['hugo', 'panYinhu', 'corin'], 0),
+      )!, 'hugo')
+      expect(metric(rupture, 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'panYinhu', locus: 'additional', amount: 30 }))
+      expect(metric(faction, 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'panYinhu', locus: 'additional', amount: 30 }))
+      expect(metric(absent, 'dmgBonus').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'panYinhu', locus: 'additional' }))
+    })
 })

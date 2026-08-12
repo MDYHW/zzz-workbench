@@ -33,6 +33,8 @@ import grillOWispImage from '../../assets/equipment/w-engines/grill-owisp.webp'
 import wrathfulVajraImage from '../../assets/equipment/w-engines/wrathful-vajra.webp'
 import myriadEclipseImage from '../../assets/equipment/w-engines/myriad-eclipse.webp'
 import roaringFurnaceImage from '../../assets/equipment/w-engines/roaring-fur-nace.webp'
+import tusksOfFuryImage from '../../assets/equipment/w-engines/tusks-of-fury.webp'
+import tremorTrigramVesselImage from '../../assets/equipment/w-engines/tremor-trigram-vessel.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -60,6 +62,21 @@ const perSecond = (effect: EquipmentEffectFact, refinement: Refinement): string 
   `${equipmentEffectBaseValue(effect, refinement)}/s`
 
 export const W_ENGINE_FACTS = {
+  tusksOfFury: {
+    advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' },
+    effects: {
+      shield: { modifier: 'shieldEffect', unit: '%', value: [30, 37.5, 45, 52.5, 60] },
+      damage: { modifier: 'dmgBonus', unit: '%', value: [18, 22.5, 27, 31.5, 36], scope: { recipient: 'squad' } },
+      daze: { modifier: 'dazeBonus', unit: '%', value: [12, 15, 18, 21, 24], scope: { recipient: 'squad' } },
+    },
+  },
+  tremorTrigramVessel: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
+    effects: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: [25, 28.7, 32.5, 36.2, 40], scope: { actions: ['EX Special Attack', 'Ultimate'] } },
+      energy: { modifier: 'energy', unit: '', value: [2, 2.3, 2.6, 2.9, 3.2] },
+    },
+  },
   roaringFurnace: {
     advancedStat: { id: 'atkPct', label: 'ATK', value: 30, unit: '%' },
     effects: {
@@ -314,6 +331,23 @@ export type WEngineFactContract<Id extends EngineId> = (typeof W_ENGINE_FACTS)[I
 export type WEngineEffectField<Id extends EngineId> = keyof WEngineFactContract<Id>['effects']
 
 export const W_ENGINES: Record<EngineId, WEngineChoice> = {
+  tusksOfFury: {
+    id: 'tusksOfFury', name: 'Tusks of Fury', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.tusksOfFury.advancedStat, image: tusksOfFuryImage,
+    passiveLines: (refinement) => [
+      `Shield provided +${percent(W_ENGINE_FACTS.tusksOfFury.effects.shield, refinement)}`,
+      `Squad DMG +${percent(W_ENGINE_FACTS.tusksOfFury.effects.damage, refinement)}`,
+      `Squad Daze +${percent(W_ENGINE_FACTS.tusksOfFury.effects.daze, refinement)}`,
+    ],
+  },
+  tremorTrigramVessel: {
+    id: 'tremorTrigramVessel', name: 'Tremor Trigram Vessel', rank: 'A', limited: false, baseAtk: 624,
+    advancedStat: W_ENGINE_FACTS.tremorTrigramVessel.advancedStat, image: tremorTrigramVesselImage,
+    passiveLines: (refinement) => [
+      `EX Special & Ultimate DMG +${percent(W_ENGINE_FACTS.tremorTrigramVessel.effects.damage, refinement)}`,
+      `Squad takes DMG or heals · Energy +${equipmentEffectBaseValue(W_ENGINE_FACTS.tremorTrigramVessel.effects.energy, refinement)}`,
+    ],
+  },
   roaringFurnace: {
     id: 'roaringFurnace', name: 'Roaring Fur-nace', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.roaringFurnace.advancedStat, image: roaringFurnaceImage,
@@ -529,6 +563,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   manato: enginePools(['grillOWisp', 'wrathfulVajra', 'qingming', 'cauldron', 'radiowave', 'puzzleSphere']),
   hugo: enginePools(['myriadEclipse', 'cordisGermina', 'heartstringNocturne', 'steelCushion', 'marcatoDesire']),
   juFufu: enginePools(['roaringFurnace', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
+  panYinhu: enginePools(['tusksOfFury', 'tremorTrigramVessel']),
   dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   lucia: enginePools(['dreamlitHearth', 'thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
   anbySoldier0: enginePools(['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'marcatoDesire', 'starlightEngine']),

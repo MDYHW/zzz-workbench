@@ -18,9 +18,10 @@ export type AgentId =
   | 'manato'
   | 'hugo'
   | 'juFufu'
+  | 'panYinhu'
 
 export type AgentRank = 'S' | 'A'
-export type AgentFaction = 'Victoria Housekeeping Co.'
+export type AgentFaction = 'Victoria Housekeeping Co.' | 'Yunkui Summit'
 
 export type Refinement = 1 | 2 | 3 | 4 | 5
 export type EngineRank = 'S' | 'A'
@@ -61,6 +62,8 @@ export type EngineId =
   | 'wrathfulVajra'
   | 'myriadEclipse'
   | 'roaringFurnace'
+  | 'tusksOfFury'
+  | 'tremorTrigramVessel'
 
 export type DiscId =
   | 'yunkui'
@@ -115,7 +118,7 @@ export type RefinementValues = readonly [number, number, number, number, number]
 export type EquipmentEffectModifier =
   | 'maxHp' | 'atk' | 'sheerForce' | 'impact' | 'critRate' | 'critDmg'
   | 'dmgBonus' | 'sheerDmgBonus' | 'dazeBonus' | 'energy' | 'energyRegen'
-  | 'penRatio' | 'defIgnore' | 'defReduction' | 'resIgnore'
+  | 'penRatio' | 'defIgnore' | 'defReduction' | 'resIgnore' | 'shieldEffect'
 
 export type EquipmentEffectAttribute = 'Electric' | 'Ether' | 'Fire' | 'Ice' | 'Physical'
 

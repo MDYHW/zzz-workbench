@@ -35,6 +35,13 @@ const juFufuRepresentative = (pool: PoolId, mindscape: number): SetupSelection =
   },
 })
 
+const panYinhuRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'tusksOfFury' : 'tremorTrigramVessel',
+  fourPieceId: 'astralVoice',
+  twoPieceId: 'swingJazz',
+  mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'atkPct' },
+})
+
 const dialynRepresentative: Omit<SetupSelection, 'engineId'> = {
   fourPieceId: 'king',
   twoPieceId: 'woodpecker',
@@ -130,6 +137,10 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   juFufu: {
     full: juFufuRepresentative('full', 0),
     nonLimited: juFufuRepresentative('nonLimited', 0),
+  },
+  panYinhu: {
+    full: panYinhuRepresentative('full'),
+    nonLimited: panYinhuRepresentative('nonLimited'),
   },
   dialyn: {
     full: { ...dialynRepresentative, engineId: 'yesterdayCalls' },

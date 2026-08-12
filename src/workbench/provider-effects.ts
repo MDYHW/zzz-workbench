@@ -83,6 +83,11 @@ import {
   resolveJuFufuProviderClauses,
   type JuFufuCalculationContext,
 } from './calculation/agents/ju-fufu'
+import {
+  observePanYinhu,
+  resolvePanYinhuProviderClauses,
+  type PanYinhuCalculationContext,
+} from './calculation/agents/pan-yinhu'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -100,6 +105,7 @@ export type ProviderContext =
   | ManatoCalculationContext
   | HugoCalculationContext
   | JuFufuCalculationContext
+  | PanYinhuCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -152,6 +158,10 @@ function observeProviderContext(
     index !== providerIndex
     && ADMITTED_AGENTS.find(({ id }) => id === agentId)!.attribute === summary.attribute
   ))
+  const anotherSharesFaction = Boolean(summary.faction) && state.slots.some(({ agentId }, index) => (
+    index !== providerIndex
+    && ADMITTED_AGENTS.find(({ id }) => id === agentId)!.faction === summary.faction
+  ))
   const stunAgentCount = state.slots.filter(({ agentId }) => (
     ADMITTED_AGENTS.find(({ id }) => id === agentId)!.specialty === 'Stun'
   )).length
@@ -178,6 +188,11 @@ function observeProviderContext(
       )
     case 'juFufu':
       return observeJuFufu(slot.setup)
+    case 'panYinhu':
+      return observePanYinhu(
+        slot.setup,
+        anotherHasSpecialty(['Rupture']) || anotherSharesFaction,
+      )
     case 'dialyn':
       return observeDialyn(slot.setup)
     case 'lucia':
@@ -224,6 +239,8 @@ function providerClauses(
       return resolveHugoProviderClauses(context)
     case 'juFufu':
       return resolveJuFufuProviderClauses(context)
+    case 'panYinhu':
+      return resolvePanYinhuProviderClauses(context)
     case 'dialyn':
       return resolveDialynProviderClauses(context.setup, context.initialCrit.value)
     case 'lucia':

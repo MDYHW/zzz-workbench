@@ -249,6 +249,10 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     fourPiece: ['king', 'swingJazz', 'shockstar'],
     twoPiece: ['woodpecker', 'shockstar', 'king', 'hormonePunk', 'astralVoice', 'swingJazz'],
   },
+  panYinhu: {
+    fourPiece: ['astralVoice'],
+    twoPiece: ['swingJazz', 'hormonePunk'],
+  },
   dialyn: { fourPiece: ['king'], twoPiece: ['woodpecker', 'swingJazz', 'moonlight'] },
   lucia: { fourPiece: ['moonlight'], twoPiece: ['yunkui', 'swingJazz'] },
   anbySoldier0: { fourPiece: ['shadowHarmony'], twoPiece: ['woodpecker', 'branchAndBlade'] },

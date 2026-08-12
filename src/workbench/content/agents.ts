@@ -8,6 +8,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     specialty: 'Rupture',
     focusEligible: true,
     rank: 'S',
+    faction: 'Yunkui Summit',
   },
   {
     id: 'dialyn',
@@ -122,6 +123,16 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     specialty: 'Stun',
     focusEligible: false,
     rank: 'S',
+    faction: 'Yunkui Summit',
+  },
+  {
+    id: 'panYinhu',
+    name: 'Pan Yinhu',
+    attribute: 'Physical',
+    specialty: 'Defense',
+    focusEligible: false,
+    rank: 'A',
+    faction: 'Yunkui Summit',
   },
 ]
 

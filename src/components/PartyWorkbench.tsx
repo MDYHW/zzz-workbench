@@ -11,6 +11,7 @@ import ruptureMark from '../assets/game/specialties/rupture.webp'
 import attackMark from '../assets/game/specialties/attack.webp'
 import stunMark from '../assets/game/specialties/stun.webp'
 import supportMark from '../assets/game/specialties/support.webp'
+import defenseMark from '../assets/game/specialties/defense.webp'
 import { ADMITTED_AGENTS, type AgentId, type AgentRank } from '../workbench/content'
 import type { RequiredSetupSelection } from '../workbench/candidates'
 import type { AppliedAgentSlot, AppliedSlot } from '../workbench/state'
@@ -33,6 +34,7 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   manato: { attribute: fireMark, specialty: ruptureMark },
   hugo: { attribute: iceMark, specialty: attackMark },
   juFufu: { attribute: fireMark, specialty: stunMark },
+  panYinhu: { attribute: physicalMark, specialty: defenseMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {

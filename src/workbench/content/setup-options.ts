@@ -17,6 +17,7 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   manato: { primary: ['sheer_damage'], residual: [] },
   hugo: { primary: ['general_damage'], residual: [] },
   juFufu: { primary: ['daze_buildup'], residual: ['general_damage'] },
+  panYinhu: { primary: [], residual: ['daze_buildup'] },
   dialyn: { primary: ['daze_buildup'], residual: ['general_damage'] },
   lucia: { primary: [], residual: [] },
   anbySoldier0: { primary: ['general_damage'], residual: [] },
@@ -76,6 +77,11 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['critRate', 'atkPct'],
     slot5: ['atkPct', 'fireDmg'],
     slot6: ['atkPct', 'impact'],
+  },
+  panYinhu: {
+    slot4: ['atkPct'],
+    slot5: ['atkPct'],
+    slot6: ['atkPct', 'energyRegenPct'],
   },
   dialyn: {
     slot4: ['critRate'],
@@ -162,6 +168,10 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   juFufu: [
     { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
     { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+    { id: 'atkFlat', label: 'ATK', perHit: 19, unit: '' },
+  ],
+  panYinhu: [
     { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
     { id: 'atkFlat', label: 'ATK', perHit: 19, unit: '' },
   ],
