@@ -101,11 +101,36 @@ describe('integrated party workbench: party', () => {
     }
 
     expect(document.querySelectorAll('.agent-art')).toHaveLength(12)
-    for (const agent of ADMITTED_AGENTS) expectSource(agent.id)
+    for (const agent of ADMITTED_AGENTS) {
+      expectSource(agent.id)
+      const identity = screen.getAllByRole('tab', { name: new RegExp(agent.name) })[0]
+      expect(within(identity).getByLabelText(`${agent.rank} Rank`)).toBeInTheDocument()
+    }
     expectSource('trigger', String(330 / 295))
     expect(within(latestContainer!).getByLabelText('A Rank').querySelector('img'))
       .toHaveAttribute('src', expect.stringContaining('a'))
     expect(within(latestContainer!).getAllByLabelText('S Rank')).toHaveLength(2)
+
+    const sourceProperties = [
+      '--portrait-source-face-x',
+      '--portrait-source-head-top-y',
+      '--portrait-source-scale',
+    ]
+    const appliedSources = new Map(ADMITTED_AGENTS.map((agent) => {
+      const style = portraitStyle(agent.id)
+      return [agent.id, sourceProperties.map((property) => style.getPropertyValue(property))]
+    }))
+    await user.click(screen.getAllByRole('button', { name: 'Edit party' })[0])
+    await user.click(screen.getByRole('button', { name: 'Replace slot 1, Yixuan' }))
+    for (const agent of ADMITTED_AGENTS) {
+      const candidate = screen.getByRole('button', {
+        name: new RegExp(`${agent.name}, ${agent.attribute}, ${agent.specialty}`),
+      })
+      const candidateStyle = candidate.querySelector<HTMLElement>('.party-editor__portrait img')!.style
+      for (const [index, property] of sourceProperties.entries()) {
+        expect(candidateStyle.getPropertyValue(property)).toBe(appliedSources.get(agent.id)![index])
+      }
+    }
   })
 
   it('switches slots while preserving each Agent setup state', async () => {

@@ -1,30 +1,14 @@
 import { useEffect, useRef, useState, type Dispatch } from 'react'
-import anbyPortrait from '../assets/agents/portraits/soldier-0-anby.webp'
-import astraPortrait from '../assets/agents/portraits/astra-yao.webp'
-import cissiaPortrait from '../assets/agents/portraits/cissia.webp'
-import dialynPortrait from '../assets/agents/portraits/dialyn.webp'
-import evelynPortrait from '../assets/agents/portraits/evelyn.webp'
-import luciaPortrait from '../assets/agents/portraits/lucia.webp'
-import triggerPortrait from '../assets/agents/portraits/trigger.webp'
-import seedPortrait from '../assets/agents/portraits/seed.webp'
-import yixuanPortrait from '../assets/agents/portraits/yixuan.webp'
-import corinPortrait from '../assets/agents/portraits/corin.webp'
-import lycaonPortrait from '../assets/agents/portraits/lycaon.webp'
 import { ADMITTED_AGENTS, type AgentId } from '../workbench/content'
 import type { AppliedSlot, PartyDraft, WorkbenchAction, WorkbenchState } from '../workbench/state'
+import { AGENT_PORTRAITS, portraitSourceStyle } from './agentPortraits'
 
-const portraits: Record<AgentId, string> = {
-  yixuan: yixuanPortrait,
-  dialyn: dialynPortrait,
-  lucia: luciaPortrait,
-  anbySoldier0: anbyPortrait,
-  trigger: triggerPortrait,
-  astraYao: astraPortrait,
-  seed: seedPortrait,
-  cissia: cissiaPortrait,
-  evelyn: evelynPortrait,
-  corin: corinPortrait,
-  lycaon: lycaonPortrait,
+function PartyPortrait({ agentId }: { agentId: AgentId }) {
+  return (
+    <span className="party-editor__portrait" aria-hidden="true">
+      <img src={AGENT_PORTRAITS[agentId]} alt="" style={portraitSourceStyle(agentId)} />
+    </span>
+  )
 }
 
 interface PartyEditorProps {
@@ -91,7 +75,7 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
               aria-label={`Replace slot ${slot + 1}, ${agent.name}`}
               onClick={() => setTarget(slot as AppliedSlot)}
             >
-              <img src={portraits[agentId]} alt="" />
+              <PartyPortrait agentId={agentId} />
               <span><small>Slot {slot + 1}</small><strong>{agent.name}</strong><em>{agent.attribute} · {agent.specialty}</em></span>
             </button>
           )
@@ -120,7 +104,7 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
                 setAttribute('all')
                 setSpecialty('all')
                 draftSlots.current[target]?.focus()
-              }}><img src={portraits[agent.id]} alt="" /><span>{agent.name}<small>{occupied ? 'Occupied' : `${agent.attribute} · ${agent.specialty}`}</small></span></button>
+              }}><PartyPortrait agentId={agent.id} /><span>{agent.name}<small>{occupied ? 'Occupied' : `${agent.attribute} · ${agent.specialty}`}</small></span></button>
             })}</div>
           </div>
         </>
