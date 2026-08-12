@@ -4,6 +4,16 @@ function summaryFor(agentId: AgentId) {
   return ADMITTED_AGENTS.find(({ id }) => id === agentId)!
 }
 
+export function anotherAgentHasSpecialty(
+  agentIds: readonly AgentId[],
+  providerIndex: number,
+  specialties: readonly string[],
+): boolean {
+  return agentIds.some((agentId, index) => (
+    index !== providerIndex && specialties.includes(summaryFor(agentId).specialty)
+  ))
+}
+
 /** Exact current party condition for Trigger's Additional Ability. */
 export function triggerAdditionalIsActive(
   agentIds: readonly AgentId[],

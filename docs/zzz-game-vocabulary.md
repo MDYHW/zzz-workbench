@@ -103,15 +103,12 @@ On an S-Rank Drive Disc, a substat's initial appearance and each later
 enhancement to that substat contribute the same fixed amount. These are game
 values, not setup priorities or recommended investment amounts.
 
-A Drive Disc cannot carry a substat identical to its main stat. An S-Rank
-Drive Disc receives five enhancement events by level 15. When it begins with
-four substats, one eligible substat can therefore contribute at most six fixed
-amounts on that Disc: one initial appearance and five enhancements. Across six
-Discs on which the substat remains eligible, the absolute theoretical maximum
-is 36. Selected main stats can reduce the physically eligible-Disc count. The
-workbench deliberately does not derive a preview-specific input maximum from
-that relation; its fixed input boundary belongs to
-`docs/setup-workbench-product-contract.md`.
+The workbench consumes only the fixed contribution from one aggregate hit. It
+does not model individual Disc inventory, initial substat lines, enhancement
+allocation, main-stat exclusion, farming probability, or whether a particular
+set of edited counts is attainable on six exact Discs. Those details do not
+change a current candidate, prepared first choice, editable aggregate, or
+Result. The product contract owns the editor's fixed input boundary.
 
 | Substat | Fixed amount from initial appearance or one enhancement |
 | --- | ---: |
@@ -130,12 +127,9 @@ Drive Disc Rank remains part of the meaning: lower-rank Discs use different
 amounts. Whether and how the workbench uses these values belongs to
 `docs/setup-workbench-product-contract.md`.
 
-The official English Version 3.0 update calls the displayed total the number of
-effective `Sub-Stat hits`. Community guides also use `roll` for enhancement
-events and sometimes for initial substat appearances. The game mechanic here
-establishes the fixed contribution from an initial appearance or enhancement;
-`docs/setup-workbench-product-contract.md` owns the qualified workbench term
-that states whether such a contribution is effective for a setup direction.
+`docs/setup-workbench-product-contract.md` owns whether one of these fixed
+contributions is an effective editable input for a setup direction. The
+workbench term does not retain source-era naming or create a farming model.
 
 ## Agent Identity
 

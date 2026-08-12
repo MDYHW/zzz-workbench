@@ -91,6 +91,7 @@ describe('authored calculation policies', () => {
 
     it('uses the same exact Initial-ATK observation for Evelyn Vanguard ties', () => {
       let state = createPreparedState({}, ['seed', 'evelyn', 'anbySoldier0'], 1)
+      state = selectDisc(state, 'evelyn', 'twoPiece', 'branchAndBlade')
       state = selectDisc(state, 'evelyn', 'fourPiece', 'woodpecker')
       const effects = resolveProviderEffects(state)
       const evelyn = effects.contexts.find(({ agentId }) => agentId === 'evelyn')
@@ -106,7 +107,12 @@ describe('authored calculation policies', () => {
         .toContainEqual(expect.objectContaining({ ownerAgentId: 'seed', amount: 30 }))
 
       const reordered = createPreparedState({}, ['anbySoldier0', 'evelyn', 'seed'], 1)
-      const tied = selectDisc(reordered, 'evelyn', 'fourPiece', 'woodpecker')
+      const tied = selectDisc(
+        selectDisc(reordered, 'evelyn', 'twoPiece', 'branchAndBlade'),
+        'evelyn',
+        'fourPiece',
+        'woodpecker',
+      )
       expect(resolveSeedVanguardForState(tied)).toBe('anbySoldier0')
     })
 
@@ -744,7 +750,7 @@ describe('authored calculation policies', () => {
         .toBe(40)
       expect(m6.metrics).toEqual(m4.metrics)
       expect(m6.actionModifiers).toEqual(m4.actionModifiers)
-      expect(m0.operations).toHaveLength(1)
+      expect(m0.operations).toHaveLength(0)
       expect(m6.operations).toEqual(m4.operations)
       expect(JSON.stringify(m6)).not.toMatch(/shield|decibel|burning|tether|coefficient/i)
     })
@@ -1029,7 +1035,7 @@ describe('authored calculation policies', () => {
       expect(metric(full, 'maxHp').values.initial).toBeCloseTo(16644.9, 10)
       expect(metric(full, 'atk').values.initial).toBeCloseTo(1888, 10)
       expect(metric(full, 'sheerForce').values.initial).toBeCloseTo(2230.89, 10)
-      expect(metric(full, 'critRate').values).toMatchObject({ initial: 27.4, combat: 27.4 })
+      expect(metric(full, 'critRate').values).toMatchObject({ initial: 43.4, combat: 43.4 })
       expect(metric(full, 'critRate').breakdown.fully)
         .toContainEqual(expect.objectContaining({ ownerAgentId: 'banyue', locus: 'w-engine', amount: 20 }))
       expect(action(full, 'banyueExSpecialSheer').breakdown.fully)
@@ -1038,6 +1044,7 @@ describe('authored calculation policies', () => {
       expect(metric(nonLimited, 'maxHp').values.initial).toBeCloseTo(16220.05, 10)
       expect(metric(nonLimited, 'atk').values.initial).toBeCloseTo(1769, 10)
       expect(metric(nonLimited, 'sheerForce').values.initial).toBeCloseTo(2152.705, 10)
+      expect(metric(nonLimited, 'critRate').values.initial).toBeCloseTo(51.4, 10)
       expect(metric(nonLimited, 'critRate').breakdown.fully)
         .toContainEqual(expect.objectContaining({ ownerAgentId: 'banyue', locus: 'w-engine', amount: 10.4 }))
       expect(metric(nonLimited, 'dmgBonus').breakdown.fully)
@@ -1087,7 +1094,7 @@ describe('authored calculation policies', () => {
       expect(metric(full, 'maxHp').values.initial).toBeCloseTo(16644.9, 10)
       expect(metric(full, 'atk').values.initial).toBeCloseTo(1888, 10)
       expect(metric(full, 'sheerForce').values.initial).toBeCloseTo(2230.89, 10)
-      expect(metric(full, 'critRate').values.initial).toBeCloseTo(51.4, 10)
+      expect(metric(full, 'critRate').values.initial).toBeCloseTo(43.4, 10)
       expect(metric(full, 'critRate').breakdown.fully)
         .toContainEqual(expect.objectContaining({ ownerAgentId: 'starlightBilly', locus: 'w-engine', amount: 20 }))
       expect(metric(full, 'sheerDmgBonus').breakdown.fully)
@@ -1096,6 +1103,7 @@ describe('authored calculation policies', () => {
       expect(metric(nonLimited, 'maxHp').values.initial).toBeCloseTo(16220.05, 10)
       expect(metric(nonLimited, 'atk').values.initial).toBeCloseTo(1769, 10)
       expect(metric(nonLimited, 'sheerForce').values.initial).toBeCloseTo(2152.705, 10)
+      expect(metric(nonLimited, 'critRate').values.initial).toBeCloseTo(51.4, 10)
       expect(metric(nonLimited, 'critRate').breakdown.fully)
         .toContainEqual(expect.objectContaining({ ownerAgentId: 'starlightBilly', locus: 'w-engine', amount: 10.4 }))
       expect(metric(nonLimited, 'dmgBonus').breakdown.fully)

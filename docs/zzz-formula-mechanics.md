@@ -211,7 +211,7 @@ displayed modifier regions remain unchanged.
 | Component | Meaning for setting decisions |
 | --- | --- |
 | `dmg_bonus_multiplier` | `1 +` the sum of applicable regular DMG bonuses, including all-type, attribute, action, and other source scopes that apply to the selected output |
-| `crit_multiplier` | non-critical value `1`; critical value `1 + CRIT DMG`; expected crit-capable value `1 + CRIT Rate * CRIT DMG` |
+| `crit_multiplier` | non-critical value `1`; critical value `1 + CRIT DMG`; expected crit-capable value `1 + min(CRIT Rate, 100%) * CRIT DMG` |
 | `def_multiplier` | target DEF region after applicable DEF Reduction, DEF Ignore, PEN Ratio, and flat PEN |
 | `res_multiplier` | target resistance region after applicable RES Reduction and RES Ignore |
 | `stun_dmg_multiplier` | target damage multiplier used in the Stunned damage window and changed by source effects that explicitly modify it |

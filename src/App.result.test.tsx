@@ -21,7 +21,15 @@ describe('integrated party workbench: result', () => {
     const evelynResult = screen.getByRole('region', { name: 'Evelyn Result' })
     await user.click(within(evelynResult).getByRole('button', { name: 'CRIT Rate' }))
     expect(within(evelynResult).getByRole('group', {
-      name: /Combat CRIT Rate: current 92[.]4, cap 80, threshold 80, Active; Chain Attack & Ultimate DMG Multiplier: ×1[.]25/,
+      name: /Fully Enabled CRIT Rate: current 76[.]4, cap 80, threshold 80/,
+    })).toBeInTheDocument()
+    expect(within(evelynResult).queryByRole('region', { name: 'Agent operations' }))
+      .not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Increase CRIT Rate hits' }))
+    await user.click(screen.getByRole('button', { name: 'Increase CRIT Rate hits' }))
+    expect(within(evelynResult).getByRole('group', {
+      name: /Combat CRIT Rate: current 81[.]2, cap 80, threshold 80, Active/,
     })).toBeInTheDocument()
     expect(within(evelynResult).getByRole('region', { name: 'Agent operations' }))
       .toHaveTextContent('×1.25')
@@ -186,28 +194,28 @@ describe('integrated party workbench: result', () => {
     render(<App />)
 
     await user.click(screen.getByRole('button', {
-      name: 'Change 2-piece Drive Disc from Woodpecker Electro',
+      name: 'Change 2-piece Drive Disc from Branch & Blade Song',
     }))
     await user.click(screen.getByRole('button', {
-      name: 'Select Branch & Blade Song as twoPiece',
+      name: 'Select Woodpecker Electro as twoPiece',
     }))
-    await user.click(screen.getByRole('button', { name: 'CRIT DMG' }))
+    await user.click(screen.getByRole('button', { name: 'CRIT Rate' }))
 
     const sources = screen.getByRole('table', {
-      name: 'CRIT DMG source contributions',
+      name: 'CRIT Rate source contributions',
     })
-    const branchSource = within(sources).getByRole('row', {
-      name: /Branch & Blade Song/,
+    const woodpeckerSource = within(sources).getByRole('row', {
+      name: /Woodpecker Electro/,
     })
     const setupTarget = document.querySelector<HTMLElement>(
       '.disc-selection[data-source-tone="disc-2pc"]',
     )!
 
-    await user.hover(branchSource)
+    await user.hover(woodpeckerSource)
     expect(setupTarget).toHaveClass('is-source-active')
-    await user.unhover(branchSource)
+    await user.unhover(woodpeckerSource)
     await user.hover(setupTarget)
-    expect(branchSource).toHaveClass('is-source-active')
+    expect(woodpeckerSource).toHaveClass('is-source-active')
   })
 
   it('links selected Puffer to Anby’s Disc and nests only Ultimate under Aftershock', async () => {
@@ -384,6 +392,7 @@ describe('integrated party workbench: result', () => {
 
     await user.click(screen.getByRole('button', { name: 'Max HP' }))
     await user.click(screen.getByRole('button', { name: /^CRIT Rate$/ }))
+    await user.click(screen.getByRole('button', { name: 'CRIT DMG' }))
     await user.click(screen.getByRole('button', { name: 'DMG Bonus' }))
 
     const maxHpSources = screen.getByRole('table', {
@@ -391,6 +400,9 @@ describe('integrated party workbench: result', () => {
     })
     const critRateSources = screen.getByRole('table', {
       name: 'CRIT Rate source contributions',
+    })
+    const critDmgSources = screen.getByRole('table', {
+      name: 'CRIT DMG source contributions',
     })
     const dmgBonusSources = screen.getByRole('table', {
       name: 'DMG Bonus source contributions',
@@ -401,7 +413,7 @@ describe('integrated party workbench: result', () => {
         target: '.disc-selection[data-source-tone="disc-4pc"]',
       },
       {
-        source: within(critRateSources).getByRole('row', { name: /Woodpecker Electro.*2-piece/ }),
+        source: within(critDmgSources).getByRole('row', { name: /Branch & Blade Song.*2-piece/ }),
         target: '.disc-selection[data-source-tone="disc-2pc"]',
       },
       {

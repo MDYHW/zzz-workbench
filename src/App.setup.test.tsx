@@ -22,8 +22,8 @@ describe('integrated party workbench: setup', () => {
     expect(engine).toHaveAccessibleDescription('CRIT Rate +24%. CRIT DMG +50%. Chain Attack & Ultimate Fire RES Ignore +25%')
     expect(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from Hormone Punk' }))
       .toHaveAccessibleDescription('ATK +25%. ATK +10%')
-    expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Branch & Blade Song' }))
-      .toHaveAccessibleDescription('CRIT DMG +16%')
+    expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Woodpecker Electro' }))
+      .toHaveAccessibleDescription('CRIT Rate +8%')
 
     await user.click(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from Hormone Punk' }))
     const candidates = screen.getByLabelText('fourPiece Drive Disc candidates')
@@ -268,7 +268,7 @@ describe('integrated party workbench: setup', () => {
     expect(screen.getByLabelText('HP% hit count')).toHaveValue('0')
     expect(screen.getByText('Qingming Birdcage')).toBeInTheDocument()
     expect(screen.getByRole('button', {
-      name: 'Change 2-piece Drive Disc from Branch & Blade Song',
+      name: 'Change 2-piece Drive Disc from Woodpecker Electro',
     })).toBeInTheDocument()
     expect(document.querySelector('.workbench-footer')).not.toHaveTextContent('M0')
 
@@ -442,13 +442,13 @@ describe('integrated party workbench: setup', () => {
     render(<App />)
 
     await user.click(screen.getByRole('button', {
-      name: 'Change 2-piece Drive Disc from Woodpecker Electro',
+      name: 'Change 2-piece Drive Disc from Branch & Blade Song',
     }))
     await user.click(screen.getByRole('button', {
-      name: 'Select Branch & Blade Song as twoPiece',
+      name: 'Select Woodpecker Electro as twoPiece',
     }))
     expect(screen.getByRole('button', {
-      name: 'Change 2-piece Drive Disc from Branch & Blade Song',
+      name: 'Change 2-piece Drive Disc from Woodpecker Electro',
     })).toHaveFocus()
     await user.click(screen.getByRole('button', {
       name: 'Change Disc 4 main stat from CRIT Rate',
@@ -470,10 +470,10 @@ describe('integrated party workbench: setup', () => {
     })).toHaveFocus()
 
     expect(screen.getByRole('row', {
-      name: /CRIT Rate.*19.4%.*39.4%.*51.4%/,
+      name: /CRIT Rate.*27.4%.*47.4%.*59.4%/,
     })).toBeInTheDocument()
     expect(screen.getByRole('row', {
-      name: /CRIT DMG.*114.0%.*114.0%.*244.0%/,
+      name: /CRIT DMG.*98.0%.*98.0%.*228.0%/,
     })).toBeInTheDocument()
     expect(screen.getByRole('row', {
       name: /DMG Bonus.*0.0%.*16.0%.*119.0%/,
@@ -483,8 +483,6 @@ describe('integrated party workbench: setup', () => {
     const sources = screen.getByRole('table', {
       name: 'CRIT DMG source contributions',
     })
-    expect(within(sources).getByRole('row', { name: /Branch & Blade Song/ }))
-      .toHaveAttribute('data-source-tone', 'disc-2pc')
     expect(within(sources).getByRole('row', { name: /Drive Disc \u00B7 Slot 4/ }))
       .toHaveAttribute('data-source-tone', 'disc-slot-4')
   })

@@ -9,6 +9,7 @@ import {
   type SetupSelection,
 } from './content'
 import { primaryFormulaUsesDefRegion } from './formula-policy'
+import { anotherAgentHasSpecialty } from './party-conditions'
 
 export interface PreparationContext {
   agentId: AgentId
@@ -157,17 +158,49 @@ function representativeFor(context: PreparationContext): SetupSelection {
   return representativeSetupFor(context.agentId, context.pool, context.mindscape)
 }
 
+function withQualifiedAnbyCritBalance(
+  context: PreparationContext,
+  partyAgentIds: readonly AgentId[],
+  providerIndex: number,
+  selection: SetupSelection,
+): SetupSelection {
+  if (
+    context.agentId !== 'anbySoldier0'
+    || context.mindscape < 2
+    || !anotherAgentHasSpecialty(partyAgentIds, providerIndex, ['Stun', 'Support'])
+  ) return selection
+
+  return {
+    ...selection,
+    twoPieceId: 'branchAndBlade',
+    mains: {
+      ...selection.mains,
+      slot4: context.pool === 'full' ? 'critRate' : 'critDmg',
+    },
+  }
+}
+
 export function prepareTargetSelection(
   context: PreparationContext,
   focusAgentId: AgentId,
   establishedHolders: readonly EstablishedDiscHolder[],
 ): SetupSelection {
-  const focused = withFocusedEngine(context, focusAgentId, representativeFor(context))
+  const partyAgentIds = [
+    context.agentId,
+    ...establishedHolders.map(({ agentId }) => agentId),
+  ]
+  const balanced = withQualifiedAnbyCritBalance(
+    context,
+    partyAgentIds,
+    0,
+    representativeFor(context),
+  )
+  const focused = withFocusedEngine(context, focusAgentId, balanced)
   const allocated = withCompetitiveKingAstralAllocation(context, establishedHolders, focused)
   const nonoverlapping = withJuFufuKingAlternative(context, establishedHolders, allocated)
   const contextual = withCissiaAstralOpportunity(
     context,
-    [context.agentId, ...establishedHolders.map(({ agentId }) => agentId)],
+    partyAgentIds,
     establishedHolders,
     nonoverlapping,
   )
@@ -187,10 +220,17 @@ export function preparePartySelections(
   contexts: readonly PreparationContext[],
   focusAgentId: AgentId,
 ): SetupSelection[] {
-  const focused = contexts.map((context) => withFocusedEngine(
+  const partyAgentIds = contexts.map(({ agentId }) => agentId)
+  const balanced = contexts.map((context, index) => withQualifiedAnbyCritBalance(
+    context,
+    partyAgentIds,
+    index,
+    representativeFor(context),
+  ))
+  const focused = contexts.map((context, index) => withFocusedEngine(
     context,
     focusAgentId,
-    representativeFor(context),
+    balanced[index],
   ))
   const withKingAllocation = focused.map((selection, index) => withCompetitiveKingAstralAllocation(
     contexts[index],
@@ -207,7 +247,6 @@ export function preparePartySelections(
   const withJuFufuAlternative = withKingAllocation.map((selection, index) => (
     withJuFufuKingAlternative(contexts[index], kingHolders, selection)
   ))
-  const partyAgentIds = contexts.map(({ agentId }) => agentId)
   const withCissiaAstral = withJuFufuAlternative.map((selection, index) => (
     withCissiaAstralOpportunity(contexts[index], partyAgentIds, kingHolders, selection)
   ))

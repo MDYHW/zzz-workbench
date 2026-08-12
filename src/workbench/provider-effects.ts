@@ -6,7 +6,7 @@ import {
   type EquipmentEffectCollection,
 } from './content'
 import type { AppliedSlot, WorkbenchState } from './state'
-import { triggerAdditionalIsActive } from './party-conditions'
+import { anotherAgentHasSpecialty, triggerAdditionalIsActive } from './party-conditions'
 import {
   astralVoiceEntrantClause,
   clauseAppliesToAgent,
@@ -160,10 +160,11 @@ function observeProviderContext(
 
   const anotherHasSpecialty = (
     specialties: readonly (typeof ADMITTED_AGENTS)[number]['specialty'][],
-  ) => state.slots.some(({ agentId }, index) => (
-    index !== providerIndex
-    && specialties.includes(ADMITTED_AGENTS.find(({ id }) => id === agentId)!.specialty)
-  ))
+  ) => anotherAgentHasSpecialty(
+    state.slots.map(({ agentId }) => agentId),
+    providerIndex,
+    specialties,
+  )
   const hasStunOrSupport = anotherHasSpecialty(['Stun', 'Support'])
   const partyAgentIds = state.slots.map(({ agentId }) => agentId)
   const summary = ADMITTED_AGENTS.find(({ id }) => id === slot.agentId)!

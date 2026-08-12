@@ -219,17 +219,17 @@ describe('calculateParty mechanisms', () => {
   })
 
   it('caps a displayed stat once and reconciles its phase breakdown', () => {
-    const state = setSubstat(createPreparedState(), 'yixuan', 'critRate', 10)
+    const state = setSubstat(createPreparedState(), 'yixuan', 'critRate', 11)
     const critRate = metric(agent(calculateParty(state)!, 'yixuan'), 'critRate')
 
-    expect(critRate.values).toEqual({ initial: 75.4, combat: 95.4, fully: 100 })
+    expect(critRate.values).toEqual({ initial: 69.8, combat: 89.8, fully: 100 })
     expect(critRate.breakdown.fully).not.toContainEqual(
       expect.objectContaining({ label: 'Qingming Birdcage' }),
     )
     const adjustment = critRate.breakdown.fully.find(
       ({ label }) => label === 'Displayed CRIT Rate cap',
     )!
-    expect(adjustment).toMatchObject({ locus: 'calculation', amount: expect.closeTo(-7.4) })
+    expect(adjustment).toMatchObject({ locus: 'calculation', amount: expect.closeTo(-1.8) })
     expect(critRate.breakdown.fully.reduce((total, item) => total + item.amount, 0))
       .toBeCloseTo(critRate.values.fully - critRate.values.combat)
   })
@@ -477,16 +477,25 @@ describe('calculateParty mechanisms', () => {
   })
 
   it('projects Evelyn equipment through the shared surfaces and action hierarchy', () => {
-    const prepared = createPreparedState({}, ['evelyn', 'dialyn', 'astraYao'], 0)
+    const prepared = setSubstat(
+      createPreparedState({}, ['evelyn', 'dialyn', 'astraYao'], 0),
+      'evelyn',
+      'critRate',
+      2,
+    )
     const result = agent(calculateParty(prepared)!, 'evelyn')
     const critRate = metric(result, 'critRate')
     const parent = action(result, 'evelynChainUltimate')
     const resIgnore = action(result, 'evelynChainUltimateResIgnore')
 
     expect(metric(result, 'atk').values.initial).toBeCloseTo(2614.8, 10)
-    expect(critRate.values).toEqual({ initial: 67.4, combat: 92.4, fully: 92.4 })
+    expect(critRate.values).toEqual({
+      initial: expect.closeTo(56.2),
+      combat: expect.closeTo(81.2),
+      fully: expect.closeTo(81.2),
+    })
     expect(critRate.gauge).toMatchObject({
-      basisLabel: 'Combat CRIT Rate', current: 92.4, threshold: 80, cap: 80,
+      basisLabel: 'Combat CRIT Rate', current: expect.closeTo(81.2), threshold: 80, cap: 80,
       outputValue: 1.25, presentation: 'scale',
     })
     expect(result.operations).toEqual([expect.objectContaining({
@@ -495,14 +504,14 @@ describe('calculateParty mechanisms', () => {
     })])
     expect(parent.values.combat - metric(result, 'dmgBonus').values.combat).toBe(30)
     expect(resIgnore.values).toEqual({ initial: 0, combat: 12.5, fully: 25 })
-    expect(metric(result, 'critDmg').values).toMatchObject({ initial: 66, combat: 116 })
+    expect(metric(result, 'critDmg').values).toMatchObject({ initial: 98, combat: 148 })
     expect(metric(result, 'critDmg').breakdown.combat)
       .toContainEqual(expect.objectContaining({
         label: 'Heartstring Nocturne', ownerAgentId: 'evelyn', amount: 50,
       }))
 
     const w5 = agent(calculateParty(setRefinement(prepared, 'evelyn', 5))!, 'evelyn')
-    expect(metric(w5, 'critDmg').values.combat).toBe(146)
+    expect(metric(w5, 'critDmg').values.combat).toBe(178)
     expect(action(w5, 'evelynChainUltimateResIgnore').values)
       .toEqual({ initial: 0, combat: 20, fully: 40 })
 

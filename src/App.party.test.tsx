@@ -471,8 +471,8 @@ describe('integrated party workbench: party', () => {
       .toHaveAccessibleDescription(
         'CRIT Rate +24%. CRIT DMG +45%. After Ice DMG from EX Special, Chain Attack, or Ultimate · DEF Ignore +25%',
       )
-    expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Polar Metal' }))
-      .toHaveAccessibleDescription('Ice DMG +10%')
+    expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Branch & Blade Song' }))
+      .toHaveAccessibleDescription('CRIT DMG +16%')
     expect(screen.getByRole('listitem', { name: /Totalize added DMG Multiplier/ }))
       .toBeInTheDocument()
   }, 15_000)

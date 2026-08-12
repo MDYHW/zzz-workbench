@@ -70,10 +70,10 @@ The repository currently contains product authorities but no runtime. A contentl
 ### Retained Vertical Facts
 
 - All three selected S-Rank Agents use M0, level 60, maximum Core Skill, and have no current Potential Awakening.
-- Yixuan prepares 4-piece Yunkui Tales + 2-piece Woodpecker Electro, Slot 4 CRIT Rate, Slot 5 Ether DMG, and Slot 6 HP. Her four editable effective-substat hit values are CRIT Rate 2.4%, CRIT DMG 4.8%, HP 3%, and ATK 3%.
+- Yixuan prepares 4-piece Yunkui Tales + 2-piece Branch & Blade Song, Slot 4 CRIT Rate, Slot 5 Ether DMG, and Slot 6 HP. Her retained effective-substat hit values are CRIT Rate 2.4%, CRIT DMG 4.8%, and HP 3%; the later same-axis authoring correction removed materially weaker ATK%.
 - Dialyn prepares Yesterday Calls W1, 4-piece King of the Summit + 2-piece Woodpecker Electro, Slot 4 CRIT Rate, Slot 5 ATK, and Slot 6 Energy Regen. Her zero-substat prepared CRIT Rate is 75.4%, so the King threshold is active and her max-Core combat Impact conversion is visible.
 - Lucia prepares Dreamlit Hearth W1, 4-piece Moonlight Lullaby + 2-piece Yunkui Tales, and HP on Slots 4, 5, and 6. Her initial Max HP is 21,697.1, making the resulting Darkbreaker Sheer Force contribution approximately 814.8 of its 900 cap.
-- With zero substat counts, full-pool Yixuan has 16,434.1 Initial Max HP, 1,931 Initial ATK, 2,222.71 Initial Sheer Force, 83.4% Fully Enabled CRIT Rate, and approximately 3,366.18 Fully Enabled Sheer Force.
+- With zero substat counts, full-pool Yixuan has 16,434.1 Initial Max HP, 1,931 Initial ATK, 2,222.71 Initial Sheer Force, 75.4% Fully Enabled CRIT Rate, and approximately 3,366.18 Fully Enabled Sheer Force.
 - With zero substat counts, non-limited-pool Yixuan has 16,015.45 Initial Max HP, 1,782 Initial ATK, 2,136.145 Initial Sheer Force, 73.8% Fully Enabled CRIT Rate, and approximately 3,271.25 Fully Enabled Sheer Force.
 - Fully enabled party-general DMG contribution is 103% from Dialyn's Additional Ability, Lucia's Core contribution, Moonlight Lullaby, and Dreamlit Hearth. Qingming Birdcage and Yunkui Tales then create distinct Yixuan action-level modifier rows without requiring final-damage simulation.
 
@@ -264,7 +264,7 @@ flowchart TB
 **Execution note:** Implement state transitions test-first because preservation and reset semantics are product behavior.
 
 **Test scenarios:**
-- Happy path: initial state is full pool, Qingming W1, prepared Yunkui/Woodpecker mains, and four zero counts.
+- Happy path: initial state is full pool, Qingming W1, prepared Yunkui/Branch & Blade mains, and three zero counts.
 - Happy path: after nonzero counts are entered, directly selecting Cauldron applies W5 while preserving every Disc, main-stat, offering, and count selection.
 - Happy path: switching to non-limited pool selects Cauldron W5 and resets all counts to zero without changing Dialyn or Lucia.
 - Happy path: switching back to full pool selects Qingming W1 and resets all counts to zero.

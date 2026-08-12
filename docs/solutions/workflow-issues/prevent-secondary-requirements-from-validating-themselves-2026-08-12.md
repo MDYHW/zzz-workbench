@@ -90,8 +90,9 @@ boundaries include:
 - numerically equal equipment effects whose exact identities still change a
   current choice or legal complete package;
 - authored base, contextual, and selected-input-derived candidates;
-- full and non-limited representatives whose whole-package and zero-substat
-  opportunity costs may differ; and
+- full and non-limited representatives whose visible prepared-zero start and
+  finite future tuning opportunity may produce different whole-package choices;
+  and
 - selected-pressure present, absent, and reselected states.
 
 A product-thesis summary, clean Git status, test count, browser pass, or reviewer
@@ -109,7 +110,8 @@ choice being added or changed:
 - origin: base, contextual, or selected-input-derived
 - nearest usable same-axis competitor in the same availability pool
 - usable and unused clauses in each complete package
-- finite slot and substat opportunity costs at the authored zero-substat start
+- the visible prepared-zero state kept separate from finite future slot and
+  substat opportunity costs
 - pool-specific prepared first choice
 - contrary condition where the candidate or pressure disappears
 - on -> off -> reselect lifecycle when a selected input supplies the pressure

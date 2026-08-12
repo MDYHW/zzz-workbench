@@ -6,6 +6,7 @@ import {
   agent,
   metric,
   selectDisc,
+  setSubstat,
   sourceLabels,
 } from './calculate.test-support'
 
@@ -113,7 +114,12 @@ describe('representative calculation flows', () => {
   })
 
   it('projects Evelyn through established party recipients and contextual equipment', () => {
-    const base = createPreparedState({}, ['evelyn', 'cissia', 'dialyn'], 0)
+    const base = setSubstat(
+      createPreparedState({}, ['evelyn', 'cissia', 'dialyn'], 0),
+      'evelyn',
+      'critRate',
+      2,
+    )
     const evelyn = agent(calculateParty(base)!, 'evelyn')
 
     expect(metric(evelyn, 'critDmg').breakdown.combat)
@@ -150,8 +156,8 @@ describe('representative calculation flows', () => {
     const lycaon = agent(full, 'lycaon')
 
     expect(metric(corin, 'atk').values.initial).toBeCloseTo(2444, 10)
-    expect(metric(corin, 'critRate').values).toMatchObject({ initial: 37, combat: 52 })
-    expect(metric(corin, 'critDmg').values.initial).toBeCloseTo(126.8, 10)
+    expect(metric(corin, 'critRate').values).toMatchObject({ initial: 53, combat: 68 })
+    expect(metric(corin, 'critDmg').values.initial).toBeCloseTo(94.8, 10)
     expect(metric(lycaon, 'impact').values).toMatchObject({
       initial: expect.closeTo(194.54),
       fully: expect.closeTo(228.79),

@@ -229,12 +229,12 @@ describe('party-directed preparation', () => {
     ])
   })
 
-  it('leaves first-vertical representative packages unchanged when no adjustment applies', () => {
+  it('keeps first-vertical representatives complete when no party adjustment applies', () => {
     const prepared = preparePartySelections([
       context('yixuan'), context('dialyn'), context('lucia'),
     ], 'yixuan')
     expect(prepared).toMatchObject([
-      { engineId: 'qingming', fourPieceId: 'yunkui', twoPieceId: 'woodpecker' },
+      { engineId: 'qingming', fourPieceId: 'yunkui', twoPieceId: 'branchAndBlade' },
       { engineId: 'yesterdayCalls', fourPieceId: 'king', twoPieceId: 'woodpecker' },
       { engineId: 'dreamlitHearth', fourPieceId: 'moonlight', twoPieceId: 'yunkui' },
     ])
@@ -254,7 +254,7 @@ describe('party-directed preparation', () => {
       context('yidhari'), context('manato'), context('astraYao'),
     ], 'yidhari')
     expect(selections.slice(0, 2)).toMatchObject([
-      { engineId: 'krakensCradle', fourPieceId: 'yunkui', twoPieceId: 'woodpecker' },
+      { engineId: 'krakensCradle', fourPieceId: 'yunkui', twoPieceId: 'branchAndBlade' },
       { engineId: 'grillOWisp', fourPieceId: 'yunkui', twoPieceId: 'woodpecker' },
     ])
   })
@@ -271,11 +271,11 @@ describe('party-directed preparation', () => {
       context('hugo', 'nonLimited'), context('lycaon'), context('astraYao'),
     ], 'hugo')[0]
     expect(full).toEqual({
-      engineId: 'myriadEclipse', fourPieceId: 'hormonePunk', twoPieceId: 'polarMetal',
-      mains: { slot4: 'critDmg', slot5: 'iceDmg', slot6: 'atkPct' },
+      engineId: 'myriadEclipse', fourPieceId: 'hormonePunk', twoPieceId: 'branchAndBlade',
+      mains: { slot4: 'critRate', slot5: 'iceDmg', slot6: 'atkPct' },
     })
     expect(nonLimited).toEqual({
-      engineId: 'steelCushion', fourPieceId: 'hormonePunk', twoPieceId: 'polarMetal',
+      engineId: 'steelCushion', fourPieceId: 'hormonePunk', twoPieceId: 'woodpecker',
       mains: { slot4: 'critDmg', slot5: 'iceDmg', slot6: 'atkPct' },
     })
   })
@@ -367,12 +367,12 @@ describe('party-directed preparation', () => {
       nonLimited: ['cauldron', 'grillOWisp', 'puzzleSphere'],
     })
     expect(prepareTargetSelection(context('banyue'), 'banyue', [])).toEqual({
-      engineId: 'wrathfulVajra', fourPieceId: 'yunkui', twoPieceId: 'woodpecker',
-      mains: { slot4: 'critDmg', slot5: 'fireDmg', slot6: 'hpPct' },
+      engineId: 'wrathfulVajra', fourPieceId: 'yunkui', twoPieceId: 'branchAndBlade',
+      mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'hpPct' },
     })
     expect(prepareTargetSelection(context('banyue', 'nonLimited'), 'banyue', [])).toEqual({
       engineId: 'cauldron', fourPieceId: 'yunkui', twoPieceId: 'woodpecker',
-      mains: { slot4: 'critDmg', slot5: 'fireDmg', slot6: 'hpPct' },
+      mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'hpPct' },
     })
   })
 
@@ -382,7 +382,7 @@ describe('party-directed preparation', () => {
       nonLimited: ['cauldron', 'steelCushion', 'grillOWisp', 'puzzleSphere'],
     })
     expect(prepareTargetSelection(context('starlightBilly'), 'starlightBilly', [])).toEqual({
-      engineId: 'starlightRiderFaceplate', fourPieceId: 'yunkui', twoPieceId: 'woodpecker',
+      engineId: 'starlightRiderFaceplate', fourPieceId: 'yunkui', twoPieceId: 'branchAndBlade',
       mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'hpPct' },
     })
     expect(prepareTargetSelection(
@@ -391,6 +391,26 @@ describe('party-directed preparation', () => {
       engineId: 'cauldron', fourPieceId: 'yunkui', twoPieceId: 'woodpecker',
       mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'hpPct' },
     })
+  })
+
+  it('balances Anby M2+ only when her Additional Ability is party-qualified', () => {
+    const qualifiedHolders = [
+      { agentId: 'trigger', fourPieceId: 'king' },
+      { agentId: 'astraYao', fourPieceId: 'astralVoice' },
+    ] as const
+    const unqualifiedHolders = [
+      { agentId: 'seed', fourPieceId: 'woodpecker' },
+      { agentId: 'corin', fourPieceId: 'hormonePunk' },
+    ] as const
+
+    expect(prepareTargetSelection(context('anbySoldier0', 'full', 0), 'anbySoldier0', qualifiedHolders))
+      .toMatchObject({ twoPieceId: 'woodpecker', mains: { slot4: 'critRate' } })
+    expect(prepareTargetSelection(context('anbySoldier0', 'full', 2), 'anbySoldier0', unqualifiedHolders))
+      .toMatchObject({ twoPieceId: 'woodpecker', mains: { slot4: 'critRate' } })
+    expect(prepareTargetSelection(context('anbySoldier0', 'full', 2), 'anbySoldier0', qualifiedHolders))
+      .toMatchObject({ twoPieceId: 'branchAndBlade', mains: { slot4: 'critRate' } })
+    expect(prepareTargetSelection(context('anbySoldier0', 'nonLimited', 2), 'anbySoldier0', qualifiedHolders))
+      .toMatchObject({ twoPieceId: 'branchAndBlade', mains: { slot4: 'critDmg' } })
   })
 
   it('keeps every authored adjustment inside the target candidate pools', () => {

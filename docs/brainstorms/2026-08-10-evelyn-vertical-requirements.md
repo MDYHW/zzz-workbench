@@ -142,9 +142,12 @@ The prose requirements govern if this diagram and the text ever differ.
 - R7. Evelyn's main-stat candidates are Slot 4 CRIT Rate and CRIT DMG; Slot 5
   PEN Ratio, Fire DMG, and ATK%; and Slot 6 ATK%. Her effective-substat choices
   are CRIT Rate, CRIT DMG, and ATK%, using the existing per-hit values. Her local
-  full representative is Heartstring W1, Hormone Punk 4-piece, Branch & Blade
-  2-piece, CRIT Rate / PEN Ratio / ATK% mains, and zero substats. The
-  non-limited representative changes only the W-Engine to Starlight Engine W5.
+  full representative is Heartstring W1, Hormone Punk 4-piece, Woodpecker
+  2-piece, CRIT DMG / PEN Ratio / ATK% mains, and zero substats. Its bounded
+  future CRIT Rate opportunity reaches the defining 80% relationship without
+  overfilling the 100% cap. The non-limited representative is Starlight Engine
+  W5, Hormone Punk 4-piece, Branch & Blade 2-piece, CRIT Rate / PEN Ratio /
+  ATK% mains, and zero substats so the same future opportunity reaches 80%.
 - R8. Applied Astra's repeated Quick Assist opportunity adds Astral Voice
   4-piece to Evelyn's effective candidates; applied Dialyn's Ultimate
   opportunity adds Puffer Electro 4-piece. Neither opportunity changes her
@@ -251,16 +254,20 @@ The prose requirements govern if this diagram and the text ever differ.
 ## Acceptance Examples
 
 - AE1. **Covers R1-R7.** Given Evelyn is applied at M0/full, she prepares
-  Heartstring W1, Hormone 4-piece, Branch & Blade 2-piece, CRIT Rate / PEN
-  Ratio / ATK% mains, and zero substats. Non-limited changes only Heartstring to
-  Starlight W5. Both preparations are complete and immediately produce Result.
-- AE2. **Covers R2, R4-R7, R10-R11, R15.** Given the full representative, Initial CRIT
-  Rate is 67.4% from Evelyn 19.4%, Heartstring 24%, and Slot 4 24%; Binding Seal
-  raises Combat CRIT Rate to 92.4%. The 80% gauge qualifies and the Additional
-  Ability gauge and operation read `Active` and ×1.25 for Chain Attack and
-  Ultimate when another Stun or Support Agent is applied. It is not +25% DMG
-  Bonus. The zero-substat non-limited representative reaches only 68.4% at Fully
-  Enabled; its gauge shows Fully Enabled and ×1.00, and no scale operation.
+  Heartstring W1, Hormone 4-piece, Woodpecker 2-piece, CRIT DMG / PEN Ratio /
+  ATK% mains, and zero substats. Non-limited prepares Starlight W5, Hormone
+  4-piece, Branch & Blade 2-piece, CRIT Rate / PEN Ratio / ATK% mains, and zero
+  substats. Both preparations are complete and immediately produce Result.
+- AE2. **Covers R2, R4-R7, R10-R11, R15.** Given the full representative, Initial
+  CRIT Rate is 51.4% from Evelyn 19.4%, Heartstring 24%, and Woodpecker 8%;
+  Binding Seal raises Combat CRIT Rate to 76.4%. The zero-substat gauge is not
+  active. Two CRIT Rate hits raise it to 81.2%, and the Additional Ability gauge
+  and operation then read `Active` and ×1.25 for Chain Attack and Ultimate when
+  another Stun or Support Agent is applied. It is not +25% DMG Bonus. The
+  zero-substat non-limited representative reaches 68.4% at Fully Enabled; its
+  gauge shows Fully Enabled and ×1.00, and no scale operation. Eight retained
+  CRIT Rate hits take each pool's authored package above the 80% threshold
+  without exceeding the 100% formula cap.
 - AE3. **Covers R3-R5, R14-R15.** Given Heartstring W1, Combat adds CRIT DMG
   +50% and one 12.5% Chain/Ultimate Fire RES Ignore stack; Fully Enabled reaches
   25% Fire RES Ignore. W5 uses 80%, 20%, and 40% respectively. Setup omits Base
@@ -289,10 +296,12 @@ The prose requirements govern if this diagram and the text ever differ.
   keeps Evelyn as Vanguard and the invalid PEN candidates stay absent.
 - AE7. **Covers R2, R6-R7, R17.** Full representative Evelyn includes Hormone
   Punk's inherent 2-piece ATK +10%, so her exact Initial ATK is
-  `(929 + 713) × 1.40 + 316 = 2,614.8`. If Evelyn directly selects the authored
-  Woodpecker 4-piece while keeping the other full representative inputs, its
-  inherent 2-piece supplies CRIT Rate rather than ATK and her exact Initial ATK
-  becomes 2,450.6, equal to full representative Anby. In Seed/Evelyn/Anby, the
+  `(929 + 713) × 1.40 + 316 = 2,614.8`. To make the authored Woodpecker
+  4-piece choice legal, Evelyn first selects Branch & Blade as her 2-piece and
+  then selects Woodpecker 4-piece. With the other full representative inputs,
+  Woodpecker supplies CRIT Rate rather than Hormone's inherent ATK and her
+  exact Initial ATK becomes 2,450.6, equal to full representative Anby. In
+  Seed/Evelyn/Anby, the
   earlier applied tied slot becomes Vanguard. Reversing provider traversal
   changes nothing; directly selecting Slot 5 ATK on one candidate changes exact
   Initial ATK and re-resolves Vanguard.
@@ -348,9 +357,11 @@ The prose requirements govern if this diagram and the text ever differ.
 
 ## Key Decisions
 
-- Use CRIT Rate rather than CRIT DMG as the zero-substat representative Slot 4
-  so the prepared full setup demonstrates Evelyn's authored 80% relationship
-  without assuming substat rolls.
+- Balance Slot 4 and the 2-piece per pool against the bounded future CRIT
+  opportunity. Full uses Woodpecker plus CRIT DMG because two CRIT Rate hits
+  activate the 80% relationship and eight remain below 100%; non-limited uses
+  Branch & Blade plus CRIT Rate because its lower engine supply needs that
+  stable CRIT Rate base. Prepared counts remain visibly zero.
 - Keep PEN Ratio as the local Slot 5 first choice and author Fire DMG as the
   Seed-M2-pressure prepared adjustment, rather than weakening broad pressure or
   allowing an authorized preparation to start incomplete.

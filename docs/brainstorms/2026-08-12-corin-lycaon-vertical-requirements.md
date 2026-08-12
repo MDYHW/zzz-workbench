@@ -183,12 +183,15 @@ and genuine multi-recipient effects keep their actual rules.
   are CRIT Rate, CRIT DMG, and ATK%. Cordis's Basic/Ultimate-only DEF Ignore
   does not remove PEN Ratio or any Disc candidate by itself.
 - R9. Corin's full representative is Cordis W1, Hormone Punk 4-piece,
-  Woodpecker 2-piece, CRIT DMG / PEN Ratio / ATK% mains, and zero effective
-  substats. Her non-limited representative is Steel Cushion W1 with the same
-  Disc identities, CRIT Rate / PEN Ratio / ATK% mains, and zero effective
+  Branch & Blade 2-piece, CRIT Rate / PEN Ratio / ATK% mains, and zero effective
+  substats. Her non-limited representative is Steel Cushion W1 with Woodpecker
+  2-piece, CRIT Rate / PEN Ratio / ATK% mains, and zero effective
   substats. The full first choice uses Cordis's 713 Base ATK, 24% advanced CRIT
   Rate, 15% passive CRIT Rate, and reachable 20% Basic/Ultimate DEF Ignore even
-  though its Electric DMG clause is unused. The non-limited first choice uses
+  though its Electric DMG clause is unused. Reserving eight CRIT Rate and CRIT
+  DMG hits makes full-pool Woodpecker plus a CRIT Rate main exceed the 100%
+  CRIT Rate cap; Branch preserves the higher stable CRIT Rate supplied by the
+  main without wasting the 2-piece on further CRIT Rate. The non-limited first choice uses
   Steel's higher-base, broad Physical, and back-attack package rather than
   defaulting to an A-Rank fallback.
 - R10. Material broad pre-PEN pressure applies to Corin through her
@@ -406,7 +409,7 @@ and genuine multi-recipient effects keep their actual rules.
   teammate removes Corin's qualification unless the remaining teammate supplies
   it; roster admission alone changes nothing.
 - AE2. **Covers R5-R9.** Corin's full representative has Initial CRIT Rate
-  `5 + 24 + 15 + 8 = 52%`, CRIT DMG `78.8 + 48 = 126.8%`, and Initial ATK
+  `5 + 24 + 15 + 24 = 68%`, CRIT DMG `78.8 + 16 = 94.8%`, and Initial ATK
   `(807 + 713) × 1.40 + 316 = 2,444`. Her non-limited Steel representative has
   CRIT Rate `5 + 24 + 8 + 24 = 61%`, CRIT DMG 78.8%, and Initial ATK
   `(807 + 684) × 1.40 + 316 = 2,403.4`. All effective-substat counts are zero.

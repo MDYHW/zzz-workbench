@@ -35,10 +35,11 @@ every clause in the three kits or establish a reusable Mindscape system.
   whose minimum level is at or below x, and lowering the selection removes every
   retained effect above the new level.
 - R2. Keep candidate membership unchanged for all three Agents. Keep the current
-  effective-substat offerings unchanged. Yixuan's full-pool prepared 2-piece is
-  Woodpecker Electro at M0 and Branch & Blade Song at M1-M6; her non-limited
-  prepared 2-piece remains Woodpecker Electro at every Mindscape. No other
-  prepared first choice changes.
+  effective-substat offerings unchanged. Under the later finite-opportunity
+  correction, Yixuan's full-pool prepared balance is Branch & Blade plus CRIT
+  Rate at M0 and Woodpecker plus CRIT DMG at M1-M6. Her non-limited balance is
+  Woodpecker plus CRIT Rate at M0 and Branch & Blade plus CRIT Rate at M1-M6.
+  No other prepared first choice changes.
 - R3. Changing one Agent's Mindscape re-prepares only that Agent using the
   current pool, resets that Agent's equipment, main stats, refinement, and
   offered effective-substat counts to the authored prepared setup, preserves the
@@ -71,8 +72,8 @@ every clause in the three kits or establish a reusable Mindscape system.
 
 | Selected Agent | Mindscape | Prepared setup difference | Retained Result difference |
 |---|---:|---|---|
-| Yixuan | M0 | Full and non-limited use Woodpecker Electro 2-piece | Current M0 Result |
-| Yixuan | M1 | Full uses Branch & Blade Song; non-limited keeps Woodpecker | Combat Baseline and Fully Enabled CRIT Rate gain 10%; Initial is unchanged by the Mindscape source |
+| Yixuan | M0 | Full uses Branch & Blade + CRIT Rate; non-limited uses Woodpecker + CRIT Rate | Current M0 Result |
+| Yixuan | M1 | Full uses Woodpecker + CRIT DMG; non-limited uses Branch & Blade + CRIT Rate | Combat Baseline and Fully Enabled CRIT Rate gain 10%; Initial is unchanged by the Mindscape source |
 | Yixuan | M2 | Same as M1 | The existing enemy Stun-duration operation resolves to the non-stacking highest value, +3s from Yixuan Mindscape, instead of Dialyn Core Passive's +2s |
 | Yixuan | M3 | Same as M1 | Same retained Result as M2 |
 | Yixuan | M4 | Same as M1 | Fully Enabled DMG Bonus for `EX Special Attack: Cloud-Shaper` and `EX Special Attack: Ashen Ink Becomes Shadows` gains 30% per stack at 2 stacks, for +60% |
@@ -140,11 +141,11 @@ every clause in the three kits or establish a reusable Mindscape system.
   settle the values and competitive preparation above. In accordance with the
   source-fact boundary, this plan retains the settled current meaning and no
   external research trail.
-- Yixuan M1 changes current full-pool zero-substat stat pressure: Branch & Blade
-  keeps the prepared Fully Enabled CRIT Rate in the competitive target region
-  while adding the competitive CRIT DMG complement. Non-limited Cauldron still
-  needs Woodpecker's CRIT Rate. Both sets remain visible candidates in their
-  currently admitted contexts.
+- Yixuan M1 changes the complete CRIT balance in both pools. Full moves to
+  Woodpecker plus a CRIT DMG main because M1 supplies another 10% CRIT Rate;
+  non-limited moves to Branch & Blade while keeping the CRIT Rate main. Both
+  packages reserve the bounded future CRIT opportunity without exceeding the
+  100% cap, and both sets remain visible candidates.
 - Dialyn and Lucia retain their daze/buffer directions at every Mindscape.
   Their personal-damage clauses do not admit personal-damage candidates or new
   personal Result rows.
@@ -171,9 +172,9 @@ every clause in the three kits or establish a reusable Mindscape system.
   Mindscape is already the highest unlocked level, so direct cumulative
   `at least Mx` decisions are sufficient and easier to audit than an effect
   interpreter.
-- Keep the existing Agent/pool prepared table as the baseline and add only the
-  bounded Yixuan full-pool M1+ 2-piece override. Candidate collections remain
-  independent of Mindscape because research admitted no membership change.
+- Keep the existing Agent/pool prepared table as the baseline and apply only
+  the bounded Yixuan pool/Mindscape 2-piece and Slot-4 balances. Candidate
+  collections remain independent of Mindscape because no membership changes.
 - Keep the existing `setMindscape` event boundary. Make its preparation lookup
   Mindscape-aware rather than adding a second reset event or continuously
   correcting direct edits.
@@ -273,8 +274,8 @@ flowchart LR
     F --> G["Current viewed Setup and Result"]
 ```
 
-The preparation branch is intentionally narrow: only Yixuan/full/M1+ changes
-the baseline package. The calculation branch is also Agent-local: each retained
+The preparation branch is intentionally narrow: only Yixuan's authored
+pool/Mindscape CRIT balance changes the baseline package. The calculation branch is also Agent-local: each retained
 effect has one minimum Mindscape, recipient, earliest surface, and existing
 metric, action, or operation destination.
 
@@ -298,8 +299,9 @@ Mindscape-dependent prepared choice without changing candidate membership.
 
 **Approach:**
 - Keep the existing Agent/pool prepared selections as the baseline content.
-- Add one bounded Yixuan full-pool override: M0 resolves Woodpecker Electro;
-  M1-M6 resolve Branch & Blade Song. Do not create a three-Agent by seven-level
+- Add one bounded Yixuan pool/Mindscape resolver: full M0 resolves Branch/CRIT
+  Rate and M1-M6 Woodpecker/CRIT DMG; non-limited M0 resolves Woodpecker/CRIT
+  Rate and M1-M6 Branch/CRIT Rate. Do not create a three-Agent by seven-level
   prepared matrix.
 - Pass the selected Mindscape through the existing preparation lookup. Preserve
   the reducer's target-only replacement, current-pool preservation, zeroed
@@ -313,12 +315,12 @@ Mindscape-dependent prepared choice without changing candidate membership.
   `switchPool` separation.
 
 **Test scenarios:**
-- Happy path: prepared Yixuan M0/full uses Woodpecker; M1/full uses Branch &
-  Blade; M6/full still uses Branch & Blade.
-- Happy path: Yixuan M1/non-limited uses Woodpecker; switching that setup to
-  full prepares Branch & Blade; switching back prepares Woodpecker.
+- Happy path: prepared Yixuan M0/full uses Branch/CRIT Rate; M1/full uses
+  Woodpecker/CRIT DMG; M6/full keeps that balance.
+- Happy path: Yixuan M1/non-limited uses Branch/CRIT Rate; switching that setup
+  to full prepares Woodpecker/CRIT DMG; switching back restores Branch/CRIT Rate.
 - Happy path: lowering Yixuan from M1 to M0 in the full pool restores
-  Woodpecker.
+  Branch/CRIT Rate.
 - Integration: after direct Disc, refinement, main-stat, and substat edits,
   changing Mindscape re-prepares every required target field and zeros every
   offered target substat.

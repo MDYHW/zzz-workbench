@@ -144,9 +144,10 @@ behavioral acceptance boundary.
 
 - Manato's Core HP enhancements are an Initial HP +18% contribution, not flat
   HP and not folded into the 7,725 base.
-- Manato prepares Woodpecker 2-piece because maximum-Core action CRIT DMG and
-  the conservative eight-hit future opportunity make CRIT Rate the balancing
-  first choice. Branch and Inferno remain direct competitive edits.
+- After Manato's pool-specific W-Engine is fixed, maximum-Core action CRIT DMG
+  and the bounded future-hit comparison across Disc, main-stat, and retained
+  substat supply make Woodpecker the balanced 2-piece first choice. Branch and
+  Inferno remain direct competitive edits.
 - Low-HP, Molten Edge, repeated action stacks, and maximum Core clauses use the
   established Fully Enabled window. No editable combat-state control is added.
 - Existing equipment fact records stay authoritative for reused packages. A
@@ -527,8 +528,9 @@ flowchart TB
 - **Should Manato full prepare Wrathful Vajra?** No. Full exposes it, while the
   independently compared Grill W5 whole package remains first.
 - **Should Manato prepare Branch or Woodpecker?** Woodpecker. Maximum-Core
-  action CRIT DMG and eight-hit future opportunity make CRIT Rate the balanced
-  first choice; Branch remains an edit.
+  action CRIT DMG and the bounded future-hit comparison after the W-Engine
+  choice make Woodpecker the balanced 2-piece first choice; Branch remains an
+  edit.
 - **Does Manato have flat Core HP +1,800?** No. The encoded source value is
   three HP +6% enhancements, retained as +18% Initial HP.
 

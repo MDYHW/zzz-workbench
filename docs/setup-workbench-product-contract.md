@@ -102,8 +102,11 @@ supported; B-Rank is outside the product.
 
 Effective substat hit counts begin at zero after their inputs are available.
 Zero means no user-supplied substat investment, not a recommendation. Each count
-is an integer from 0 through 36; the service derives neither a smaller dynamic
-maximum nor a hard sum limit.
+is an integer from 0 through 36 as a fixed editor boundary. This range does not
+claim that every independent combination is attainable on six exact Discs. The
+service derives neither preview-specific maxima nor a hard sum limit and does
+not model individual Disc lines, enhancement allocation, main-stat exclusion,
+or farming probability.
 
 ### Setup Direction And Roles
 
@@ -232,16 +235,34 @@ supply the stat. A threshold alone does not admit every supplier: main-stat
 slot cost, substat competition, set-piece opportunity cost, and whole-package
 equipment value still apply.
 
-Same-axis dominance may exclude an effective substat only when current research
-establishes a materially stronger competing contribution and the weaker choice
-adds no distinct threshold, cap, operation, or formula relationship. This is an
-authored candidate decision, not an automatic comparison across every pair of
-positive stats. For example, Yixuan's HP% and ATK% each feed the same current
-Sheer Force direction, but the current base-stat magnitudes and Rupture
-conversion make an HP% hit materially stronger, so only HP% is retained. This
-does not compare choices from distinct axes such as Dialyn's Slot 6 Energy Regen
-and Impact, which remain separately comparable as resource-operation and direct
-Daze investments.
+Formula participation or a positive numeric contribution does not by itself
+make an effective substat competitive. One additional hit must remain a
+material use of the same finite tuning opportunity after the current package's
+fixed stat supply, thresholds, caps, conversions, and stronger alternatives are
+considered. A materially weaker supplier may therefore be excluded even though
+it still increases a formula, unless it keeps a distinct threshold, cap,
+operation, or relationship that matters to the direction. This is an authored
+candidate decision, not a runtime score or an automatic comparison of every
+positive stat.
+
+For example, Yixuan's HP% and ATK% each feed the same current Sheer Force
+direction, but the current base-stat magnitudes and Rupture conversion make an
+HP% hit materially stronger, so only HP% is retained. By contrast, percentage
+and flat supply may both remain competitive for a capped provider whose few
+material substats serve one scarce scaling axis. Distinct axes such as Dialyn's
+Slot 6 Energy Regen and Impact remain separately comparable as resource-
+operation and direct-Daze investments. A generic personal-damage increase or
+ordinary Attribute buildup likewise does not admit CRIT or Anomaly Proficiency
+for a direction that lacks a materially competitive current use for that
+investment.
+
+Judge this membership against the authored direction, representative package
+alternatives, and bounded selected-input pressure, not against the user's
+current edited hit counts or a Result value. Approaching a cap through direct
+editing does not continuously remove a retained substat. If an authored
+starting representative leaves only trivial useful room on its scarce tuning
+axis, reconsider that representative's fixed supply instead of shrinking the
+candidate set around the mistake.
 
 Competitive candidates are choices still worth comparing in the current setup
 context, not every stat whose numerical contribution remains positive. An
@@ -399,27 +420,41 @@ through the different-set rule. Numeric equality does not admit a second item;
 each identity must first pass the normal competitive-candidate policy for the
 current consumer.
 
-For zero-substat W-Engine and complete-package authoring, treat eight effective-
-substat hits in each offered stat as the conservative finite opportunity that
-the remaining setup can supply. This is an authoring comparison only: it does
-not initialize substats, cap the editable count, score equipment at runtime, or
-replace a pool-specific whole-package decision.
+Prepared substat counts and representative authoring use two different
+observations. The visible prepared setup always begins at zero supplied hits.
+When a capped provider direction has only one materially effective tuning axis
+and few competitive substat suppliers, authoring also reserves a conservative
+future opportunity of eight hits in each retained supplier of that axis. The
+eight-hit value is not a universal distribution, a candidate-count target, an
+exact farming promise, or a value applied to the current Result.
 
-When a capped provider direction has only one materially effective substat axis,
-reserve that conservative substat opportunity before authoring how much of the
-same axis fixed W-Engine, Disc, or main-stat slots must supply. Use fixed choices
-for the residual cap requirement and for valuable axes that substats cannot
-supply. This prevents the starting representative from consuming scarce fixed
-slots to pre-fill a cap that the Agent's few worthwhile substats are expected to
-cover. The prepared setup still initializes every offered count at zero and its
+Reserve that bounded future opportunity before deciding how much of the same
+axis fixed W-Engine, Disc, or main-stat slots must supply. Use fixed choices for
+the residual cap requirement and for valuable axes that substats cannot supply.
+This prevents the starting representative from spending scarce fixed choices
+to pre-fill a cap while leaving its few worthwhile substats with little useful
+room. The prepared setup still initializes every offered count at zero and its
 Result may therefore begin below the cap.
+
+For a crit-capable damage direction, apply the same bounded future opportunity
+before authoring its complete Disc package and Slot 4 balance. Compare the raw
+sum of fixed and future CRIT Rate supply with the 100% formula cap: supply above
+the cap has no formula value and is an opportunity cost, even though the visible
+Result clamps it away. Rebalance the 2-piece and main stat before reducing an
+effective-substat candidate, while preserving a lower defining threshold and a
+material CRIT-stability advantage. This is a bounded authoring check, not an
+uncapped Result row or preparation feedback from the user's current counts.
 
 This ordering does not apply to an ordinary damage direction merely because one
 of its effective substats is stronger than another. When several materially
-valuable damage axes remain available, author the best complete W-Engine and
-Disc package in the pool first, then distribute main stats and effective
-substats around that package. In both cases the result is an authored starting
-representative, not a runtime optimizer or a promise of exact farmed counts.
+valuable damage axes remain available, first author the best complete W-Engine
+package in the pool. Then compare legal complete Disc packages, main stats, and
+retained effective substats as one bounded balance around that W-Engine. The
+finite opportunity may distinguish remaining Disc or substat suppliers in this
+second comparison, but it does not admit a low-value stat or reopen the authored
+W-Engine choice as a runtime score. In both cases the result is an authored
+starting representative, not a runtime optimizer or a promise of exact farmed
+counts.
 
 ### Prepared Starting Setup
 
@@ -429,12 +464,14 @@ chooses a W-Engine and Rank-default refinement, a 4-piece set, a different
 2-piece set, legal Slot 4/5/6 main stats, and zero for every offered effective-
 substat hit count.
 
-The first choice is authored competitive policy, not a runtime score. Resolve
-the W-Engine and Disc package before choosing main stats so their fixed stat
-supply, usable effects, thresholds, caps, and slot opportunity costs can change
-the prepared choice. Do not assume undisclosed substat investment. Zero counts
-mean no user-supplied substat investment, not a recommendation to avoid those
-stats.
+The first choice is authored competitive policy, not a runtime score. Use the
+direction-specific ordering above: an ordinary damage direction resolves its
+pool-specific W-Engine package before jointly balancing the complete Disc
+package and later stat inputs, while a capped provider with one scarce tuning
+axis reserves the bounded future substat opportunity before committing fixed
+package and main-stat supply on that same axis. In either case, do not insert
+undisclosed substat investment into the prepared current setup. Zero counts mean
+no user-supplied investment, not a recommendation to avoid those stats.
 
 Authorized preparation resolves these dependencies in two acyclic layers.
 First derive context-effective W-Engine and complete-Disc candidate sets from
@@ -468,6 +505,14 @@ keeps all unrelated current inputs. It chooses no fallback and restores no
 previous selection automatically. Result remains empty until every invalidated
 required selection is repaired or a later authorized preparation supplies an
 authored first choice.
+
+Effective-substat pressure has one narrower lifecycle because zero is a valid
+current count. When a selected input first admits an effective-substat input,
+create that count at zero. When the pressure removes the input, discard its
+count and history; reselecting the pressure creates a new zero rather than
+restoring the previous count. This does not authorize repairing an already-
+required but missing count to zero. Such a missing required input remains
+incomplete until the user repairs it or authorized preparation rebuilds it.
 
 ### W-Engine Availability Pools
 
@@ -637,7 +682,10 @@ part of the action's damage or Daze is excluded even when another source adds it
 Retained modifier operations remain separate from regular DMG Bonus and Daze
 Bonus.
 Attribute scope stays internal. CRIT Rate alone displays
-`min(calculated CRIT Rate, 100%)`; uncapped detail never feeds preparation.
+`min(calculated CRIT Rate, 100%)`; Result never exposes the uncapped amount.
+Authored representative policy may inspect the raw fixed-plus-future sum only
+for the bounded cap opportunity check above. It does not read a user's current
+Result or continuously reprepare an edited setup.
 Calculations use decimal precision and presentation rounding never feeds back.
 
 ## Fully Enabled Party Window

@@ -493,6 +493,10 @@ without taking visual priority from equipment and main stats.
   the count.
 - Every offered count displays zero after prepared initialization until the
   user supplies a value.
+- When the current effective set offers no substat input, keep the compact Sub
+  stats heading and empty grid as a stable setup scaffold. The setup remains
+  complete; do not add a disabled control, farming explanation, optimization
+  rationale, or placeholder count.
 - Within the compact Effective Substat control only, `Anomaly Proficiency` is
   presented as `AP`. Canonical stat labels and accessible control names keep
   the full term.
@@ -641,7 +645,11 @@ At minimum, select the applicable cases:
 - each supported party slot expanded while the other two remain compact;
 - an expanded slot that is not the focused character;
 - W-Engine, Drive Disc 4-piece, Drive Disc 2-piece, and each main-stat selector;
-- two and three offered effective substat hit counts;
+- zero, one, two, and three currently offered effective-substat hit counts,
+  including the complete zero-input empty scaffold, selected-pressure removal
+  and reappearance that restores the input at zero without restoring its prior
+  count, plus a separately missing required count that remains visibly
+  incomplete;
 - longest current Agent, W-Engine, Drive Disc, and stat labels;
 - the supported browser zoom and viewport range;
 - the preparation-default Mindscape and a changed Mindscape that visibly

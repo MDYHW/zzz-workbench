@@ -196,9 +196,11 @@ because future substats are finite and other modifiers can become saturated.
   rule. Her main-stat candidates are CRIT Rate or CRIT DMG in Slot 4, Ice DMG
   or HP% in Slot 5, and HP% in Slot 6. Her effective substats are CRIT Rate,
   CRIT DMG, and HP%.
-- R17. Yidhari prepares Yunkui 4-piece, Woodpecker 2-piece, CRIT DMG / Ice DMG
-  / HP% mains, and zero supplied substat hits in both pools. Woodpecker balances
-  the large qualified low-HP CRIT DMG supply. Polar Metal is not competitive
+- R17. Yidhari prepares Yunkui 4-piece, Branch & Blade 2-piece, CRIT Rate /
+  Ice DMG / HP% mains, and zero supplied substat hits in both pools. After the
+  bounded eight-hit CRIT Rate and CRIT DMG opportunity is included, Branch and
+  the CRIT Rate main keep the complete package below the 100% CRIT Rate cap
+  while balancing the large qualified low-HP CRIT DMG supply. Polar Metal is not competitive
   because Ice DMG shares Yidhari's already large regular-DMG axis; ATK sets
   supply a materially weaker Rupture-conversion increase than the retained
   HP/CRIT alternatives.
@@ -208,18 +210,22 @@ because future substats are finite and other modifiers can become saturated.
   and HP% in Slot 6. His effective substats are CRIT Rate, CRIT DMG, and HP%.
   He prepares Yunkui 4-piece, Woodpecker 2-piece, CRIT DMG / Fire DMG / HP%
   mains, and zero supplied hits in both pools. Woodpecker balances the large
-  action-scoped CRIT DMG supplied by his maximum Core and remains stronger for
-  his defining HP-consuming Basic and Assist output after the conservative
-  eight-hit future opportunity is considered. Branch remains a direct CRIT-axis
-  edit and Inferno remains a distinct regular-DMG edit. ATK 2-piece sets are
-  excluded because their 10% ATK contribution through the 0.30 conversion is
-  dominated by the retained CRIT and Fire alternatives.
-- R19. Candidate and representative authoring may conservatively compare up to
-  eight effective hits in each offered substat, but prepared counts remain
-  zero. For each Agent, one HP% hit contributes materially more Sheer Force
-  than one ATK% hit in the prepared package. HP% is therefore retained and ATK%
-  is not retained as an effective substat merely because ATK participates in
-  the shared conversion.
+  action-scoped CRIT DMG supplied by his maximum Core. After the W-Engine is
+  authored, the conservative finite-hit opportunity distinguishes Woodpecker as
+  the balanced 2-piece first choice for his defining HP-consuming Basic and
+  Assist output. Branch remains a direct CRIT-axis edit and Inferno remains a
+  distinct regular-DMG edit. ATK 2-piece sets are excluded because their 10%
+  ATK contribution through the 0.30 conversion is dominated by the retained
+  CRIT and Fire alternatives.
+- R19. After each damage direction's pool-specific W-Engine package is fixed, a
+  conservative eight-hit future opportunity in each retained substat may help
+  balance the legal complete Disc package, main stats, and retained CRIT and HP
+  inputs; prepared counts remain zero. For each Agent, one HP% hit contributes
+  materially more Sheer Force than one ATK% hit in that bounded comparison.
+  HP% is therefore retained and ATK% is not retained merely because ATK still
+  participates positively in the shared conversion. This comparison does not
+  define a universal eight-hit distribution, admit a low-value stat, or reopen
+  the authored W-Engine choice as a runtime score.
 
 ### Party qualification and non-stacking provider relationships
 
@@ -270,7 +276,7 @@ because future substats are finite and other modifiers can become saturated.
 ## Acceptance Examples
 
 - AE1. Applying Yidhari/Lycaon/Lucia prepares Yidhari at M0 with Kraken W1,
-  Yunkui/Woodpecker, CRIT DMG / Ice DMG / HP%, and zero effective hits. Her
+  Yunkui/Branch & Blade, CRIT Rate / Ice DMG / HP%, and zero effective hits. Her
   Additional Ability is qualified, Lucia's Additional Ability is qualified,
   and the two Wellspring providers contribute Max HP +5% exactly once while
   both equal legal origins remain visible in the expanded breakdown. Removing

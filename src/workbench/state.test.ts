@@ -65,7 +65,7 @@ describe('workbench state lifecycle', () => {
     expect(state.slots.map(({ agentId }) => agentId)).toEqual(['yixuan', 'dialyn', 'lucia'])
     expect(state.slots[0].setup).toMatchObject({
       mindscape: 0, pool: 'full', engineId: 'qingming', refinement: 1,
-      fourPieceId: 'yunkui', twoPieceId: 'woodpecker',
+      fourPieceId: 'yunkui', twoPieceId: 'branchAndBlade',
       mains: { slot4: 'critRate', slot5: 'etherDmg', slot6: 'hpPct' },
       substats: { critRate: 0, critDmg: 0, hpPct: 0 },
     })
@@ -102,7 +102,7 @@ describe('workbench state lifecycle', () => {
       engineId: 'cauldron',
       refinement: 5,
       fourPieceId: 'yunkui',
-      twoPieceId: 'woodpecker',
+      twoPieceId: 'branchAndBlade',
       mains: { slot4: 'critRate', slot5: 'etherDmg', slot6: 'hpPct' },
       substats: { critRate: 0, critDmg: 0, hpPct: 0 },
     })
@@ -116,8 +116,8 @@ describe('workbench state lifecycle', () => {
       engineId: 'qingming',
       refinement: 1,
       fourPieceId: 'yunkui',
-      twoPieceId: 'branchAndBlade',
-      mains: { slot4: 'critRate', slot5: 'etherDmg', slot6: 'hpPct' },
+      twoPieceId: 'woodpecker',
+      mains: { slot4: 'critDmg', slot5: 'etherDmg', slot6: 'hpPct' },
       substats: { critRate: 0, critDmg: 0, hpPct: 0 },
     })
   })
@@ -163,19 +163,27 @@ describe('workbench state lifecycle', () => {
     expect(state.slots[2].setup).toEqual({ ...before, twoPieceId: 'swingJazz' })
   })
 
-  it('re-prepares authored Yixuan M1+ with Branch & Blade and returns to Woodpecker at M0', () => {
+  it('rebalances Yixuan across pool and Mindscape preparation boundaries', () => {
     let state = createPreparedState()
     const m0 = state.slots[0].setup
 
     state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 1 })
-    expect(m0.twoPieceId).toBe('woodpecker')
-    expect(state.slots[0].setup.twoPieceId).toBe('branchAndBlade')
+    expect(m0).toMatchObject({
+      twoPieceId: 'branchAndBlade', mains: { slot4: 'critRate' },
+    })
+    expect(state.slots[0].setup).toMatchObject({
+      twoPieceId: 'woodpecker', mains: { slot4: 'critDmg' },
+    })
 
     state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 6 })
-    expect(state.slots[0].setup.twoPieceId).toBe('branchAndBlade')
+    expect(state.slots[0].setup).toMatchObject({
+      twoPieceId: 'woodpecker', mains: { slot4: 'critDmg' },
+    })
 
     state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 0 })
-    expect(state.slots[0].setup.twoPieceId).toBe('woodpecker')
+    expect(state.slots[0].setup).toMatchObject({
+      twoPieceId: 'branchAndBlade', mains: { slot4: 'critRate' },
+    })
     expect(workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 0 })).toBe(state)
   })
 
@@ -623,6 +631,9 @@ describe('workbench state lifecycle', () => {
 
     let earlierAnby = createPreparedState({}, ['anbySoldier0', 'seed', 'evelyn'], 0)
     earlierAnby = workbenchReducer(earlierAnby, {
+      type: 'selectDisc', slot: 2, piece: 'twoPiece', discId: 'branchAndBlade',
+    })
+    earlierAnby = workbenchReducer(earlierAnby, {
       type: 'selectDisc', slot: 2, piece: 'fourPiece', discId: 'woodpecker',
     })
     expect(resolveSeedVanguardForState(earlierAnby)).toBe('anbySoldier0')
@@ -838,8 +849,31 @@ describe('workbench state lifecycle', () => {
     state = workbenchReducer(state, {
       type: 'setMindscape', slot: 0, mindscape: 2,
     })
-    expect(state.slots[0].setup.mains.slot5).toBe('electricDmg')
+    expect(state.slots[0].setup).toMatchObject({
+      mindscape: 2,
+      pool: 'full',
+      twoPieceId: 'branchAndBlade',
+      mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'atkPct' },
+      substats: { critDmg: 0 },
+    })
     expect(state.slots[2].setup.mains.slot5).toBeNull()
+    expect(state.slots[2].setup.substats.critRate).toBe(5)
+    expect(isCompleteWorkbench(state)).toBe(false)
+
+    const triggerAtAnbyM2 = state.slots[1]
+    const dialynAtAnbyM2 = state.slots[2]
+    state = workbenchReducer(state, {
+      type: 'switchPool', slot: 0, pool: 'nonLimited',
+    })
+    expect(state.slots[0].setup).toMatchObject({
+      mindscape: 2,
+      pool: 'nonLimited',
+      twoPieceId: 'branchAndBlade',
+      mains: { slot4: 'critDmg', slot5: 'electricDmg', slot6: 'atkPct' },
+      substats: { critDmg: 0 },
+    })
+    expect(state.slots[1]).toBe(triggerAtAnbyM2)
+    expect(state.slots[2]).toBe(dialynAtAnbyM2)
     expect(isCompleteWorkbench(state)).toBe(false)
 
     state = workbenchReducer(state, {
@@ -869,7 +903,7 @@ describe('workbench state lifecycle', () => {
 
     const nonLimited = createPreparedState({ anbySoldier0: 'nonLimited', trigger: 'nonLimited', astraYao: 'nonLimited' }, ['anbySoldier0', 'trigger', 'astraYao'], 0)
     expect(nonLimited.slots.map(({ setup }) => [setup.engineId, setup.fourPieceId, setup.twoPieceId])).toEqual([
-      ['marcatoDesire', 'shadowHarmony', 'branchAndBlade'],
+      ['marcatoDesire', 'shadowHarmony', 'woodpecker'],
       ['restrained', 'king', 'shockstar'],
       ['kaboom', 'astralVoice', 'moonlight'],
     ])
@@ -900,8 +934,8 @@ describe('workbench state lifecycle', () => {
       engineId: 'heartstringNocturne',
       refinement: 1,
       fourPieceId: 'hormonePunk',
-      twoPieceId: 'branchAndBlade',
-      mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
+      twoPieceId: 'woodpecker',
+      mains: { slot4: 'critDmg', slot5: 'penRatio', slot6: 'atkPct' },
       substats: { critRate: 0, critDmg: 0, atkPct: 0 },
     })
     expect(evelynNonLimited.slots[0].setup).toEqual({
@@ -909,6 +943,8 @@ describe('workbench state lifecycle', () => {
       pool: 'nonLimited',
       engineId: 'starlightEngine',
       refinement: 5,
+      twoPieceId: 'branchAndBlade',
+      mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
     })
     expect(calculateParty(evelynFull)).not.toBeNull()
     expect(calculateParty(evelynNonLimited)).not.toBeNull()
@@ -932,8 +968,8 @@ describe('workbench state lifecycle', () => {
       engineId: 'cordisGermina',
       refinement: 1,
       fourPieceId: 'hormonePunk',
-      twoPieceId: 'woodpecker',
-      mains: { slot4: 'critDmg', slot5: 'penRatio', slot6: 'atkPct' },
+      twoPieceId: 'branchAndBlade',
+      mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
       substats: { critRate: 0, critDmg: 0, atkPct: 0 },
     })
     expect(full.slots[1].setup).toEqual({
@@ -973,8 +1009,8 @@ describe('workbench state lifecycle', () => {
 
     expect(full.slots[0].setup).toEqual({
       mindscape: 0, pool: 'full', engineId: 'krakensCradle', refinement: 1,
-      fourPieceId: 'yunkui', twoPieceId: 'woodpecker',
-      mains: { slot4: 'critDmg', slot5: 'iceDmg', slot6: 'hpPct' },
+      fourPieceId: 'yunkui', twoPieceId: 'branchAndBlade',
+      mains: { slot4: 'critRate', slot5: 'iceDmg', slot6: 'hpPct' },
       substats: { critRate: 0, critDmg: 0, hpPct: 0 },
     })
     expect(full.slots[1].setup).toEqual({
@@ -997,8 +1033,8 @@ describe('workbench state lifecycle', () => {
     let state = createPreparedState({}, ['hugo', 'lycaon', 'astraYao'], 0)
     expect(state.slots[0].setup).toMatchObject({
       mindscape: 0, engineId: 'myriadEclipse', refinement: 1,
-      fourPieceId: 'hormonePunk', twoPieceId: 'polarMetal',
-      mains: { slot4: 'critDmg', slot5: 'iceDmg', slot6: 'atkPct' },
+      fourPieceId: 'hormonePunk', twoPieceId: 'branchAndBlade',
+      mains: { slot4: 'critRate', slot5: 'iceDmg', slot6: 'atkPct' },
       substats: { critRate: 0, critDmg: 0, atkPct: 0 },
     })
     state = workbenchReducer(state, {

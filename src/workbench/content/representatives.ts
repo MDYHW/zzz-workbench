@@ -1,15 +1,22 @@
 import type { AgentId, PoolId, SetupSelection } from './types'
 
-const yixuanRepresentative: Omit<SetupSelection, 'engineId'> = {
+const yixuanRepresentative = (pool: PoolId, mindscape: number): SetupSelection => ({
+  engineId: pool === 'full' ? 'qingming' : 'cauldron',
   fourPieceId: 'yunkui',
-  twoPieceId: 'woodpecker',
-  mains: { slot4: 'critRate', slot5: 'etherDmg', slot6: 'hpPct' },
-}
+  twoPieceId: mindscape >= 1
+    ? pool === 'full' ? 'woodpecker' : 'branchAndBlade'
+    : pool === 'full' ? 'branchAndBlade' : 'woodpecker',
+  mains: {
+    slot4: mindscape >= 1 && pool === 'full' ? 'critDmg' : 'critRate',
+    slot5: 'etherDmg',
+    slot6: 'hpPct',
+  },
+})
 
 const yidhariRepresentative: Omit<SetupSelection, 'engineId'> = {
   fourPieceId: 'yunkui',
-  twoPieceId: 'woodpecker',
-  mains: { slot4: 'critDmg', slot5: 'iceDmg', slot6: 'hpPct' },
+  twoPieceId: 'branchAndBlade',
+  mains: { slot4: 'critRate', slot5: 'iceDmg', slot6: 'hpPct' },
 }
 
 const manatoRepresentative: Omit<SetupSelection, 'engineId'> = {
@@ -18,11 +25,18 @@ const manatoRepresentative: Omit<SetupSelection, 'engineId'> = {
   mains: { slot4: 'critDmg', slot5: 'fireDmg', slot6: 'hpPct' },
 }
 
-const hugoRepresentative: Omit<SetupSelection, 'engineId'> = {
+const hugoRepresentative = (pool: PoolId, mindscape: number): SetupSelection => ({
+  engineId: pool === 'full' ? 'myriadEclipse' : 'steelCushion',
   fourPieceId: 'hormonePunk',
-  twoPieceId: 'polarMetal',
-  mains: { slot4: 'critDmg', slot5: 'iceDmg', slot6: 'atkPct' },
-}
+  twoPieceId: pool === 'full' && mindscape === 0
+    ? 'branchAndBlade'
+    : 'woodpecker',
+  mains: {
+    slot4: pool === 'full' && mindscape === 0 ? 'critRate' : 'critDmg',
+    slot5: 'iceDmg',
+    slot6: 'atkPct',
+  },
+})
 
 const juFufuRepresentative = (pool: PoolId, mindscape: number): SetupSelection => ({
   engineId: pool === 'full' ? 'roaringFurnace' : 'hellfireGears',
@@ -45,14 +59,14 @@ const panYinhuRepresentative = (pool: PoolId): SetupSelection => ({
 const banyueRepresentative = (pool: PoolId): SetupSelection => ({
   engineId: pool === 'full' ? 'wrathfulVajra' : 'cauldron',
   fourPieceId: 'yunkui',
-  twoPieceId: 'woodpecker',
-  mains: { slot4: 'critDmg', slot5: 'fireDmg', slot6: 'hpPct' },
+  twoPieceId: pool === 'full' ? 'branchAndBlade' : 'woodpecker',
+  mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'hpPct' },
 })
 
 const starlightBillyRepresentative = (pool: PoolId): SetupSelection => ({
   engineId: pool === 'full' ? 'starlightRiderFaceplate' : 'cauldron',
   fourPieceId: 'yunkui',
-  twoPieceId: 'woodpecker',
+  twoPieceId: pool === 'full' ? 'branchAndBlade' : 'woodpecker',
   mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'hpPct' },
 })
 
@@ -104,18 +118,23 @@ const cissiaRepresentative: Omit<SetupSelection, 'engineId'> = {
   mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'energyRegenPct' },
 }
 
-const evelynRepresentative: Omit<SetupSelection, 'engineId'> = {
+const evelynRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'heartstringNocturne' : 'starlightEngine',
   fourPieceId: 'hormonePunk',
-  twoPieceId: 'branchAndBlade',
-  mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
-}
+  twoPieceId: pool === 'full' ? 'woodpecker' : 'branchAndBlade',
+  mains: {
+    slot4: pool === 'full' ? 'critDmg' : 'critRate',
+    slot5: 'penRatio',
+    slot6: 'atkPct',
+  },
+})
 
 const corinRepresentative = (pool: PoolId): SetupSelection => ({
   engineId: pool === 'full' ? 'cordisGermina' : 'steelCushion',
   fourPieceId: 'hormonePunk',
-  twoPieceId: 'woodpecker',
+  twoPieceId: pool === 'full' ? 'branchAndBlade' : 'woodpecker',
   mains: {
-    slot4: pool === 'full' ? 'critDmg' : 'critRate',
+    slot4: 'critRate',
     slot5: 'penRatio',
     slot6: 'atkPct',
   },
@@ -133,8 +152,8 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   Record<PoolId, SetupSelection>
 > = {
   yixuan: {
-    full: { ...yixuanRepresentative, engineId: 'qingming' },
-    nonLimited: { ...yixuanRepresentative, engineId: 'cauldron' },
+    full: yixuanRepresentative('full', 0),
+    nonLimited: yixuanRepresentative('nonLimited', 0),
   },
   yidhari: {
     full: { ...yidhariRepresentative, engineId: 'krakensCradle' },
@@ -145,8 +164,8 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
     nonLimited: { ...manatoRepresentative, engineId: 'grillOWisp' },
   },
   hugo: {
-    full: { ...hugoRepresentative, engineId: 'myriadEclipse' },
-    nonLimited: { ...hugoRepresentative, engineId: 'steelCushion' },
+    full: hugoRepresentative('full', 0),
+    nonLimited: hugoRepresentative('nonLimited', 0),
   },
   juFufu: {
     full: juFufuRepresentative('full', 0),
@@ -177,7 +196,7 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
     nonLimited: {
       ...anbyRepresentative,
       engineId: 'marcatoDesire',
-      twoPieceId: 'branchAndBlade',
+      mains: { ...anbyRepresentative.mains, slot4: 'critDmg' },
     },
   },
   trigger: {
@@ -197,8 +216,8 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
     nonLimited: { ...cissiaRepresentative, engineId: 'drillRigRedAxis' },
   },
   evelyn: {
-    full: { ...evelynRepresentative, engineId: 'heartstringNocturne' },
-    nonLimited: { ...evelynRepresentative, engineId: 'starlightEngine' },
+    full: evelynRepresentative('full'),
+    nonLimited: evelynRepresentative('nonLimited'),
   },
   corin: {
     full: corinRepresentative('full'),
@@ -216,9 +235,8 @@ export function representativeSetupFor(
   mindscape: number,
 ): SetupSelection {
   const representative = REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL[agentId][pool]
-  if (agentId === 'yixuan' && pool === 'full' && mindscape >= 1) {
-    return { ...representative, twoPieceId: 'branchAndBlade' }
-  }
+  if (agentId === 'yixuan') return yixuanRepresentative(pool, mindscape)
+  if (agentId === 'hugo') return hugoRepresentative(pool, mindscape)
   if (agentId === 'astraYao') return astraRepresentative(pool, mindscape)
   if (agentId === 'juFufu') return juFufuRepresentative(pool, mindscape)
   return representative
