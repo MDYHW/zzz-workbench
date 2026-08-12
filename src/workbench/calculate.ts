@@ -27,6 +27,7 @@ import { calculateHugo } from './calculation/agents/hugo'
 import { calculateJuFufu } from './calculation/agents/ju-fufu'
 import { calculatePanYinhu } from './calculation/agents/pan-yinhu'
 import { calculateBanyue } from './calculation/agents/banyue'
+import { calculateStarlightBilly } from './calculation/agents/starlight-billy'
 import { composeMetricEffects, surfaces } from './calculation/composition'
 import type { ActionModifier, AgentResult, Contribution, PartyResult } from './calculation/result'
 import { resolveProviderEffects } from './provider-effects'
@@ -67,6 +68,7 @@ function orderedClauses(
     'juFufu',
     'panYinhu',
     'banyue',
+    'starlightBilly',
   ] as const
   return [...clauses].sort((left, right) => (
     sourceOrder.indexOf(left.source.ownerAgentId)
@@ -207,6 +209,9 @@ export function calculateParty(state: WorkbenchState): PartyResult | null {
           break
         case 'banyue':
           result = calculateBanyue(context.setup, inbox, enemy)
+          break
+        case 'starlightBilly':
+          result = calculateStarlightBilly(context.setup, inbox, enemy)
           break
         case 'dialyn':
           result = calculateDialyn(

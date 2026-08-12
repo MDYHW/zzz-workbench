@@ -223,6 +223,12 @@ export const STATIC_SOURCES = {
     additional: source(SOURCE_LABELS.banyueAbility, 'banyue', 'additional'),
     critCap: source('Displayed CRIT Rate cap', 'banyue', 'calculation'),
   },
+  starlightBilly: {
+    ruptureConversion: source('Rupture specialty', 'starlightBilly', 'identity', 'Current ATK × 0.3 + Current Max HP × 0.1'),
+    core: source(SOURCE_LABELS.starlightBillyCore, 'starlightBilly', 'core'),
+    additional: source(SOURCE_LABELS.starlightBillyAbility, 'starlightBilly', 'additional'),
+    critCap: source('Displayed CRIT Rate cap', 'starlightBilly', 'calculation'),
+  },
   dialyn: {
     core: source(SOURCE_LABELS.dialynCore, 'dialyn', 'core'),
     additional: source(SOURCE_LABELS.dialynAbility, 'dialyn', 'additional'),

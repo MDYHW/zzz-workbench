@@ -288,4 +288,22 @@ describe('bounded equipment effect facts', () => {
     })
     expect(DRIVE_DISCS.polarMetal).not.toHaveProperty('fourPieceEffects')
   })
+
+  it('retains Starlight Rider Faceplate and the Steel Cushion holder gate separately', () => {
+    expect(W_ENGINES.starlightRiderFaceplate).toMatchObject({
+      rank: 'S', limited: true, baseAtk: 713,
+      advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
+    })
+    expect(equipmentEffectBaseValue(
+      W_ENGINE_FACTS.starlightRiderFaceplate.effects.critRate, 1,
+    )).toBe(20)
+    expect(equipmentEffectMaximumValue(
+      W_ENGINE_FACTS.starlightRiderFaceplate.effects.physicalSheerDamage, 1,
+    )).toBe(20)
+    expect(W_ENGINES.starlightRiderFaceplate.passiveLines(1)).toEqual([
+      'CRIT Rate +20%',
+      'Physical Sheer DMG +20%',
+    ])
+    expect(W_ENGINES.steelCushion.passiveSpecialty).toBe('Attack')
+  })
 })

@@ -159,12 +159,14 @@ function SelectionSurface({
 }
 
 function EngineCard({
+  agentId,
   descriptionId,
   engineId,
   refinement,
   compact = false,
   candidate = false,
 }: {
+  agentId: AgentId
   descriptionId?: string
   engineId: EngineId
   refinement: Refinement
@@ -172,7 +174,14 @@ function EngineCard({
   candidate?: boolean
 }) {
   const engine = W_ENGINES[engineId]
-  const passiveLines = engine.passiveLines(refinement)
+  const holderSpecialty = ADMITTED_AGENTS.find(({ id }) => id === agentId)!.specialty
+  const authoredPassiveLines = engine.passiveLines(refinement)
+  const passiveLines = engine.passiveSpecialty && engine.passiveSpecialty !== holderSpecialty
+    ? [
+      `${engine.passiveSpecialty} Specialty passive inactive`,
+      ...authoredPassiveLines.map((line) => `Inactive · ${line}`),
+    ]
+    : authoredPassiveLines
   const accessibleDescription = [
     `${engine.advancedStat.label} +${engine.advancedStat.value}${engine.advancedStat.unit}`,
     ...passiveLines,
@@ -254,6 +263,7 @@ function EngineSelection({
           buttonRef={openerRef}
         >
           <EngineCard
+            agentId={agentId}
             descriptionId={selectedDescriptionId}
             engineId={engineId}
             refinement={refinement}
@@ -278,6 +288,7 @@ function EngineSelection({
                   }}
                 >
                   <EngineCard
+                    agentId={agentId}
                     candidate
                     descriptionId={candidateDescriptionId}
                     engineId={candidateId}

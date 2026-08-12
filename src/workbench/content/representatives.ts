@@ -49,6 +49,13 @@ const banyueRepresentative = (pool: PoolId): SetupSelection => ({
   mains: { slot4: 'critDmg', slot5: 'fireDmg', slot6: 'hpPct' },
 })
 
+const starlightBillyRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'starlightRiderFaceplate' : 'cauldron',
+  fourPieceId: 'yunkui',
+  twoPieceId: 'woodpecker',
+  mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'hpPct' },
+})
+
 const dialynRepresentative: Omit<SetupSelection, 'engineId'> = {
   fourPieceId: 'king',
   twoPieceId: 'woodpecker',
@@ -152,6 +159,10 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   banyue: {
     full: banyueRepresentative('full'),
     nonLimited: banyueRepresentative('nonLimited'),
+  },
+  starlightBilly: {
+    full: starlightBillyRepresentative('full'),
+    nonLimited: starlightBillyRepresentative('nonLimited'),
   },
   dialyn: {
     full: { ...dialynRepresentative, engineId: 'yesterdayCalls' },

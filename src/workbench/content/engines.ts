@@ -35,6 +35,7 @@ import myriadEclipseImage from '../../assets/equipment/w-engines/myriad-eclipse.
 import roaringFurnaceImage from '../../assets/equipment/w-engines/roaring-fur-nace.webp'
 import tusksOfFuryImage from '../../assets/equipment/w-engines/tusks-of-fury.webp'
 import tremorTrigramVesselImage from '../../assets/equipment/w-engines/tremor-trigram-vessel.webp'
+import starlightRiderFaceplateImage from '../../assets/equipment/w-engines/starlight-rider-faceplate.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -117,6 +118,17 @@ export const W_ENGINE_FACTS = {
     effects: {
       critRate: { modifier: 'critRate', unit: '%', value: [20, 23, 26, 29, 32] },
       fireSheerDamage: { modifier: 'sheerDmgBonus', unit: '%', progression: { kind: 'stacks', perStack: [9, 10.5, 12, 13.5, 15], maxStacks: 2 }, scope: { actions: ['EX Special Attack'], attributes: ['Fire'] } },
+    },
+  },
+  starlightRiderFaceplate: {
+    advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
+    effects: {
+      critRate: { modifier: 'critRate', unit: '%', value: [20, 23, 26, 29, 32] },
+      physicalSheerDamage: {
+        modifier: 'sheerDmgBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: [10, 11.5, 13, 14.5, 16], maxStacks: 2 },
+        scope: { attributes: ['Physical'] },
+      },
     },
   },
   qingming: {
@@ -388,6 +400,15 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `EX Special Attack · Fire Sheer DMG +${percent(W_ENGINE_FACTS.wrathfulVajra.effects.fireSheerDamage, refinement, true)}`,
     ],
   },
+  starlightRiderFaceplate: {
+    id: 'starlightRiderFaceplate', name: 'Starlight Rider Faceplate', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.starlightRiderFaceplate.advancedStat,
+    image: starlightRiderFaceplateImage,
+    passiveLines: (refinement) => [
+      `CRIT Rate +${percent(W_ENGINE_FACTS.starlightRiderFaceplate.effects.critRate, refinement)}`,
+      `Physical Sheer DMG +${percent(W_ENGINE_FACTS.starlightRiderFaceplate.effects.physicalSheerDamage, refinement, true)}`,
+    ],
+  },
   qingming: {
     id: 'qingming', name: 'Qingming Birdcage', rank: 'S', limited: true, baseAtk: 743,
     advancedStat: W_ENGINE_FACTS.qingming.advancedStat, image: qingmingImage,
@@ -521,6 +542,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   steelCushion: {
     id: 'steelCushion', name: 'Steel Cushion', rank: 'S', limited: false, baseAtk: 684,
     advancedStat: W_ENGINE_FACTS.steelCushion.advancedStat, image: steelCushionImage,
+    passiveSpecialty: 'Attack',
     passiveLines: (refinement) => [
       `Physical DMG +${percent(W_ENGINE_FACTS.steelCushion.effects.physicalDamage, refinement)}`,
       `Back Attack DMG +${percent(W_ENGINE_FACTS.steelCushion.effects.damage, refinement)}`,
@@ -565,6 +587,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   juFufu: enginePools(['roaringFurnace', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   panYinhu: enginePools(['tusksOfFury', 'tremorTrigramVessel']),
   banyue: enginePools(['wrathfulVajra', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere']),
+  starlightBilly: enginePools(['starlightRiderFaceplate', 'qingming', 'cauldron', 'steelCushion', 'grillOWisp', 'puzzleSphere']),
   dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   lucia: enginePools(['dreamlitHearth', 'thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
   anbySoldier0: enginePools(['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'marcatoDesire', 'starlightEngine']),

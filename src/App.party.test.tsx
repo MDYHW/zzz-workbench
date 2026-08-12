@@ -94,6 +94,11 @@ describe('integrated party workbench: party', () => {
         { agentId: 'dialyn', setup: createPreparedAgentSetup('dialyn') },
       ],
       [
+        { agentId: 'starlightBilly', setup: createPreparedAgentSetup('starlightBilly') },
+        { agentId: 'yidhari', setup: createPreparedAgentSetup('yidhari') },
+        { agentId: 'manato', setup: createPreparedAgentSetup('manato') },
+      ],
+      [
         { agentId: 'banyue', setup: createPreparedAgentSetup('banyue') },
         { agentId: 'panYinhu', setup: createPreparedAgentSetup('panYinhu') },
         { agentId: 'juFufu', setup: createPreparedAgentSetup('juFufu') },

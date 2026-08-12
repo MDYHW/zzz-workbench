@@ -485,8 +485,8 @@ main { margin-top: 18px; }
 }
 
 @media (min-width: 761px) {
-  .slot-identity--expanded[data-agent="anbySoldier0"] .identity-name {
-    font-size: clamp(28px, 2.5vw, 38px);
+  .slot-identity--expanded .identity-name--long {
+    font-size: clamp(24px, 2vw, 30px);
     white-space: nowrap;
   }
 }

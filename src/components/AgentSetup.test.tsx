@@ -89,6 +89,33 @@ describe('AgentSetup Hugo incomplete main-stat recovery', () => {
   })
 })
 
+describe('AgentSetup partial W-Engine package', () => {
+  it('marks Steel Cushion passive clauses inactive for a Rupture holder', () => {
+    const state = createPreparedState({}, ['starlightBilly', 'dialyn', 'lucia'], 0)
+    state.slots[0] = {
+      ...state.slots[0],
+      setup: { ...state.slots[0].setup, engineId: 'steelCushion', refinement: 1 },
+    }
+
+    render(
+      <AgentSetup
+        activeSourceTone={null}
+        agentId="starlightBilly"
+        discCandidates={DISC_IDS_BY_AGENT_AND_PIECE.starlightBilly}
+        dispatch={vi.fn()}
+        mainStatCandidates={MAIN_STAT_IDS_BY_AGENT_AND_SLOT.starlightBilly}
+        onSourceToneChange={vi.fn()}
+        setup={state.slots[0].setup}
+        slot={0}
+      />,
+    )
+
+    expect(screen.getByText('Attack Specialty passive inactive')).toBeInTheDocument()
+    expect(screen.getByText('Inactive · Physical DMG +20%')).toBeInTheDocument()
+    expect(screen.getByText('Inactive · Back Attack DMG +25%')).toBeInTheDocument()
+  })
+})
+
 describe('AgentSetup Seed Additional Ability', () => {
   it('keeps Seed\'s event Energy fact as compact Setup content only', () => {
     const state = createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0)

@@ -36,6 +36,7 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   juFufu: { attribute: fireMark, specialty: stunMark },
   panYinhu: { attribute: physicalMark, specialty: defenseMark },
   banyue: { attribute: fireMark, specialty: ruptureMark },
+  starlightBilly: { attribute: physicalMark, specialty: ruptureMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {
@@ -121,7 +122,7 @@ function ExpandedIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = f
       <span className="identity-copy">
         {isIncomplete && <span className="slot-incomplete-marker">Setup incomplete</span>}
         <strong className={`focus-marker ${isFocus ? '' : 'focus-marker--reserved'}`} aria-hidden={!isFocus}>Focus</strong>
-        <span className="slot-name-line"><strong className="identity-name">{agent.name}</strong></span>
+        <span className="slot-name-line"><strong className={`identity-name${agent.name.length > 12 ? ' identity-name--long' : ''}`}>{agent.name}</strong></span>
         <span className="identity-band">
           <RankMark rank={agent.rank} />
           <IdentityMarks agentId={agent.id} attribute={agent.attribute} specialty={agent.specialty} />

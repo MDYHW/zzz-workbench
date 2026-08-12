@@ -20,6 +20,7 @@ export type AgentId =
   | 'juFufu'
   | 'panYinhu'
   | 'banyue'
+  | 'starlightBilly'
 
 export type AgentRank = 'S' | 'A'
 export type AgentFaction = 'Victoria Housekeeping Co.' | 'Yunkui Summit'
@@ -65,6 +66,7 @@ export type EngineId =
   | 'roaringFurnace'
   | 'tusksOfFury'
   | 'tremorTrigramVessel'
+  | 'starlightRiderFaceplate'
 
 export type DiscId =
   | 'yunkui'
@@ -202,6 +204,7 @@ export interface WEngineChoice {
   advancedStat: AdvancedStat
   image: string
   passiveLines: (refinement: Refinement) => string[]
+  passiveSpecialty?: string
 }
 
 export interface DriveDiscChoice {

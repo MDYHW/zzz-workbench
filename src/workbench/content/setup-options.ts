@@ -19,6 +19,7 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   juFufu: { primary: ['daze_buildup'], residual: ['general_damage'] },
   panYinhu: { primary: [], residual: ['daze_buildup'] },
   banyue: { primary: ['sheer_damage'], residual: [] },
+  starlightBilly: { primary: ['sheer_damage'], residual: [] },
   dialyn: { primary: ['daze_buildup'], residual: ['general_damage'] },
   lucia: { primary: [], residual: [] },
   anbySoldier0: { primary: ['general_damage'], residual: [] },
@@ -87,6 +88,11 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   banyue: {
     slot4: ['critRate', 'critDmg'],
     slot5: ['fireDmg', 'hpPct'],
+    slot6: ['hpPct'],
+  },
+  starlightBilly: {
+    slot4: ['critRate', 'critDmg', 'hpPct'],
+    slot5: ['physicalDmg', 'hpPct'],
     slot6: ['hpPct'],
   },
   dialyn: {
@@ -182,6 +188,11 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
     { id: 'atkFlat', label: 'ATK', perHit: 19, unit: '' },
   ],
   banyue: [
+    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
+    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
+    { id: 'hpPct', label: 'HP%', perHit: 3, unit: '%' },
+  ],
+  starlightBilly: [
     { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
     { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
     { id: 'hpPct', label: 'HP%', perHit: 3, unit: '%' },

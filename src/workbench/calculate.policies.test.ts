@@ -966,4 +966,105 @@ describe('authored calculation policies', () => {
         id: 'banyueCrushingPeaksMultiplier', value: 600, unit: '%',
       }))
     })
+
+    it('projects Starlight Billy through shared Rupture and exact pool packages', () => {
+      const full = agent(calculateParty(
+        createPreparedState({}, ['starlightBilly', 'dialyn', 'lucia'], 0),
+      )!, 'starlightBilly')
+      const nonLimited = agent(calculateParty(
+        createPreparedState(
+          { starlightBilly: 'nonLimited' }, ['starlightBilly', 'dialyn', 'lucia'], 0,
+        ),
+      )!, 'starlightBilly')
+
+      expect(metric(full, 'maxHp').values.initial).toBeCloseTo(16644.9, 10)
+      expect(metric(full, 'atk').values.initial).toBeCloseTo(1888, 10)
+      expect(metric(full, 'sheerForce').values.initial).toBeCloseTo(2230.89, 10)
+      expect(metric(full, 'critRate').values.initial).toBeCloseTo(51.4, 10)
+      expect(metric(full, 'critRate').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'starlightBilly', locus: 'w-engine', amount: 20 }))
+      expect(metric(full, 'sheerDmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'starlightBilly', locus: 'w-engine', amount: 20 }))
+
+      expect(metric(nonLimited, 'maxHp').values.initial).toBeCloseTo(16220.05, 10)
+      expect(metric(nonLimited, 'atk').values.initial).toBeCloseTo(1769, 10)
+      expect(metric(nonLimited, 'sheerForce').values.initial).toBeCloseTo(2152.705, 10)
+      expect(metric(nonLimited, 'critRate').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'starlightBilly', locus: 'w-engine', amount: 10.4 }))
+      expect(metric(nonLimited, 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'starlightBilly', locus: 'w-engine', amount: 19.2 }))
+
+      const steel = agent(calculateParty(selectEngine(
+        createPreparedState({}, ['starlightBilly', 'dialyn', 'lucia'], 0),
+        'starlightBilly',
+        'steelCushion',
+      ))!, 'starlightBilly')
+      expect(metric(steel, 'critRate').breakdown.initial)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'starlightBilly', locus: 'w-engine', amount: 24,
+        }))
+      expect(metric(steel, 'dmgBonus').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({
+          ownerAgentId: 'starlightBilly', locus: 'w-engine',
+        }))
+    })
+
+    it('keeps Starlight Billy specialty qualification and Mindscape actions local', () => {
+      const qualifiedState = createPreparedState({}, ['starlightBilly', 'dialyn', 'yidhari'], 0)
+      const defenseQualified = agent(calculateParty(
+        createPreparedState({}, ['starlightBilly', 'panYinhu', 'yidhari'], 0),
+      )!, 'starlightBilly')
+      const absent = agent(calculateParty(
+        createPreparedState({}, ['starlightBilly', 'yixuan', 'manato'], 0),
+      )!, 'starlightBilly')
+      const m0 = agent(calculateParty(qualifiedState)!, 'starlightBilly')
+      const m1 = agent(calculateParty(
+        withMindscape(qualifiedState, 'starlightBilly', 1),
+      )!, 'starlightBilly')
+      const m2 = agent(calculateParty(
+        withMindscape(qualifiedState, 'starlightBilly', 2),
+      )!, 'starlightBilly')
+      const m4 = agent(calculateParty(
+        withMindscape(qualifiedState, 'starlightBilly', 4),
+      )!, 'starlightBilly')
+      const m6 = agent(calculateParty(
+        withMindscape(qualifiedState, 'starlightBilly', 6),
+      )!, 'starlightBilly')
+
+      expect(action(m0, 'starlightBillyAdditionalActions').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'starlightBilly', locus: 'additional', amount: 40 }))
+      expect(action(defenseQualified, 'starlightBillyAdditionalActions').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'starlightBilly', locus: 'additional', amount: 40 }))
+      expect(absent.actionModifiers.find(({ id }) => id === 'starlightBillyAdditionalActions'))
+        .toBeUndefined()
+      expect(metric(m1, 'resIgnore').values.fully).toBe(18)
+      expect(action(m2, 'starlightBillyM2CoolWheelie').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'starlightBilly', locus: 'mindscape', amount: 50,
+        }))
+      expect(action(m2, 'starlightBillyM2CoolWheelie').values.fully
+        - metric(m2, 'dmgBonus').values.fully).toBe(90)
+      expect(action(m2, 'starlightBillyM2CoolWheelie').baseActionId)
+        .toBe('starlightBillyAdditionalActions')
+      expect(action(m2, 'starlightBillyM2CoolWheelieCrit').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'starlightBilly', locus: 'mindscape', amount: 50,
+        }))
+
+      const puzzle = agent(calculateParty(withMindscape(selectEngine(
+        qualifiedState, 'starlightBilly', 'puzzleSphere',
+      ), 'starlightBilly', 2))!, 'starlightBilly')
+      expect(action(puzzle, 'starlightBillyExSpecial').values.fully
+        - metric(puzzle, 'dmgBonus').values.fully).toBe(72)
+      expect(action(puzzle, 'starlightBillyM2CoolWheelie').values.fully
+        - metric(puzzle, 'dmgBonus').values.fully).toBe(122)
+      expect(action(puzzle, 'starlightBillyM2CoolWheelie').baseActionId)
+        .toBe('starlightBillyExSpecial')
+      expect(metric(m4, 'critDmg').values.fully - metric(m2, 'critDmg').values.fully).toBe(16)
+      expect(action(m6, 'starlightBillyM6SheerActions').values.fully
+        - metric(m6, 'sheerDmgBonus').values.fully).toBe(18)
+      expect(m6.operations).toContainEqual(expect.objectContaining({
+        id: 'starlightBillyFinalHitMultiplier', value: 200, unit: '% Sheer Force',
+      }))
+    })
 })

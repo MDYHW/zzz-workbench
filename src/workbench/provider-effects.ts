@@ -93,6 +93,11 @@ import {
   resolveBanyueProviderClauses,
   type BanyueCalculationContext,
 } from './calculation/agents/banyue'
+import {
+  observeStarlightBilly,
+  resolveStarlightBillyProviderClauses,
+  type StarlightBillyCalculationContext,
+} from './calculation/agents/starlight-billy'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -112,6 +117,7 @@ export type ProviderContext =
   | JuFufuCalculationContext
   | PanYinhuCalculationContext
   | BanyueCalculationContext
+  | StarlightBillyCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -201,6 +207,11 @@ function observeProviderContext(
       )
     case 'banyue':
       return observeBanyue(slot.setup, hasStunOrSupport)
+    case 'starlightBilly':
+      return observeStarlightBilly(
+        slot.setup,
+        anotherHasSpecialty(['Stun', 'Defense', 'Support']),
+      )
     case 'dialyn':
       return observeDialyn(slot.setup)
     case 'lucia':
@@ -251,6 +262,8 @@ function providerClauses(
       return resolvePanYinhuProviderClauses(context)
     case 'banyue':
       return resolveBanyueProviderClauses(context)
+    case 'starlightBilly':
+      return resolveStarlightBillyProviderClauses(context)
     case 'dialyn':
       return resolveDialynProviderClauses(context.setup, context.initialCrit.value)
     case 'lucia':

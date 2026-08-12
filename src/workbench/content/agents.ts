@@ -142,6 +142,14 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     focusEligible: true,
     rank: 'S',
   },
+  {
+    id: 'starlightBilly',
+    name: 'Starlight Billy',
+    attribute: 'Physical',
+    specialty: 'Rupture',
+    focusEligible: true,
+    rank: 'S',
+  },
 ]
 
 export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>

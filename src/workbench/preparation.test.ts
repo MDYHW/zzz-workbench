@@ -340,6 +340,23 @@ describe('party-directed preparation', () => {
     })
   })
 
+  it('authors Starlight Billy from whole packages including a partial-passive full-pool entrant', () => {
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.starlightBilly).toEqual({
+      full: ['starlightRiderFaceplate', 'qingming', 'cauldron', 'steelCushion', 'grillOWisp', 'puzzleSphere'],
+      nonLimited: ['cauldron', 'steelCushion', 'grillOWisp', 'puzzleSphere'],
+    })
+    expect(prepareTargetSelection(context('starlightBilly'), 'starlightBilly', [])).toEqual({
+      engineId: 'starlightRiderFaceplate', fourPieceId: 'yunkui', twoPieceId: 'woodpecker',
+      mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'hpPct' },
+    })
+    expect(prepareTargetSelection(
+      context('starlightBilly', 'nonLimited'), 'starlightBilly', [],
+    )).toEqual({
+      engineId: 'cauldron', fourPieceId: 'yunkui', twoPieceId: 'woodpecker',
+      mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'hpPct' },
+    })
+  })
+
   it('keeps every authored adjustment inside the target candidate pools', () => {
     const contexts = [
       context('yixuan'), context('trigger'), context('dialyn'),
