@@ -4,11 +4,13 @@ import {
   W_ENGINE_FACTS,
   W_ENGINES,
   equipmentEffectBaseValue,
+  equipmentEffectMaximumValue,
 } from '../../content'
 import {
   STATIC_SOURCES,
   active,
   additive,
+  discSource,
   discStatInput,
   effectiveSubstatInput,
   engineAdvancedInput,
@@ -113,6 +115,22 @@ export function resolvePanYinhuProviderClauses(
         ? equipmentEffectBaseValue(W_ENGINE_FACTS.tremorTrigramVessel.effects.damage, refinement)
         : 0,
       'self', PAN_EX_ULTIMATE),
+    withApplicability(
+      additive('dmgBonus', 'fully', discSource('panYinhu', 'bunnyInWonderland', '4-piece'),
+        setup.fourPieceId === 'bunnyInWonderland'
+          ? equipmentEffectMaximumValue(DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage)
+          : 0,
+        'all-party', undefined, undefined, undefined, 'bunnyInWonderland'),
+      { formulas: ['general_damage', 'sheer_damage'] },
+    ),
+    withApplicability(
+      additive('dmgBonus', 'fully', discSource('panYinhu', 'swingJazz', '4-piece'),
+        setup.fourPieceId === 'swingJazz'
+          ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage)
+          : 0,
+        'all-party', undefined, undefined, undefined, 'swingJazz'),
+      { formulas: ['general_damage', 'sheer_damage'] },
+    ),
   ])
 }
 
@@ -128,6 +146,8 @@ function atkInputs(setup: CompleteSetup): {
       mainStatInput(setup, 'panYinhu', 'slot6', 'atkPct'),
       discStatInput(setup, 'panYinhu', 'fourPiece', 'astralVoice',
         equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
+      discStatInput(setup, 'panYinhu', 'twoPiece', 'astralVoice',
+        equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
       discStatInput(setup, 'panYinhu', 'twoPiece', 'hormonePunk',
         equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
       effectiveSubstatInput(setup, 'panYinhu', 'atkPct'),
@@ -180,6 +200,8 @@ export function calculatePanYinhu(
 
   const energyInputs = presentSetupInputs([
     mainStatInput(setup, 'panYinhu', 'slot6', 'energyRegenPct'),
+    discStatInput(setup, 'panYinhu', 'fourPiece', 'swingJazz',
+      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen), 'twoPiece'),
     discStatInput(setup, 'panYinhu', 'twoPiece', 'swingJazz',
       equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
   ])

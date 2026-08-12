@@ -1046,7 +1046,7 @@ describe('workbench state lifecycle', () => {
       mindscape: 0, pool: 'full', engineId: 'roaringFurnace', refinement: 1,
       fourPieceId: 'king', twoPieceId: 'woodpecker',
       mains: { slot4: 'critRate', slot5: 'atkPct', slot6: 'atkPct' },
-      substats: { critRate: 0, critDmg: 0, atkPct: 0, atkFlat: 0 },
+      substats: { critRate: 0, atkPct: 0, atkFlat: 0 },
     })
 
     state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 1 })
@@ -1054,14 +1054,69 @@ describe('workbench state lifecycle', () => {
       mindscape: 1, fourPieceId: 'king', twoPieceId: 'shockstar',
     })
     expect(state.slots[0].setup.substats).toEqual({
-      critRate: 0, critDmg: 0, atkPct: 0, atkFlat: 0,
+      critRate: 0, atkPct: 0, atkFlat: 0,
     })
     expect(state.slots[1].setup).toBe(beforeYixuan)
     expect(state.slots[2].setup).toBe(beforeLucia)
     expect(isCompleteWorkbench(state)).toBe(true)
   })
 
-  it('clears and does not restore every King-selected Lycaon pressure input', () => {
+  it('clears Ju Fufu King CRIT inputs and reinitializes the substat first at zero', () => {
+    let state = createPreparedState({}, ['juFufu', 'yixuan', 'lucia'], 1)
+    expect(effectiveSubstatChoices('juFufu', state.slots[0].setup)
+      .map(({ id }) => id)).toEqual(['critRate', 'atkPct', 'atkFlat'])
+    expect(effectiveMainStatIds(state, 0, 'slot4')).toContain('critRate')
+    expect(effectiveTwoPieceIds(state, 0)).toContain('woodpecker')
+
+    state = workbenchReducer(state, {
+      type: 'setSubstat', slot: 0, key: 'critRate', value: 7,
+    })
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'swingJazz',
+    })
+    expect(state.slots[0].setup).toMatchObject({
+      fourPieceId: 'swingJazz',
+      twoPieceId: null,
+      mains: { slot4: null },
+      substats: { atkPct: 0, atkFlat: 0 },
+    })
+    expect(effectiveSubstatChoices('juFufu', state.slots[0].setup)
+      .map(({ id }) => id)).toEqual(['atkPct', 'atkFlat'])
+    expect(effectiveMainStatIds(state, 0, 'slot4')).toEqual(['atkPct'])
+    expect(effectiveTwoPieceIds(state, 0)).not.toContain('woodpecker')
+    expect(calculateParty(state)).toBeNull()
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'king',
+    })
+    expect(effectiveSubstatChoices('juFufu', state.slots[0].setup)
+      .map(({ id }) => id)).toEqual(['critRate', 'atkPct', 'atkFlat'])
+    expect(state.slots[0].setup).toMatchObject({
+      fourPieceId: 'king', twoPieceId: null, mains: { slot4: null },
+      substats: { critRate: 0, atkPct: 0, atkFlat: 0 },
+    })
+    expect(Object.keys(state.slots[0].setup.substats))
+      .toEqual(['critRate', 'atkPct', 'atkFlat'])
+    expect(incompleteRequiredSelections(state)).toEqual(expect.arrayContaining([
+      { kind: 'disc', slot: 0, agentId: 'juFufu', piece: 'twoPiece' },
+      { kind: 'mainStat', slot: 0, agentId: 'juFufu', mainSlot: 'slot4' },
+    ]))
+    expect(incompleteRequiredSelections(state)).not.toContainEqual(
+      { kind: 'substat', slot: 0, agentId: 'juFufu', substatId: 'critRate' },
+    )
+    expect(calculateParty(state)).toBeNull()
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'shockstar',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 0, mainSlot: 'slot4', mainStatId: 'critRate',
+    })
+    expect(isCompleteWorkbench(state)).toBe(true)
+    expect(calculateParty(state)).not.toBeNull()
+  })
+
+  it('clears Lycaon King inputs and reinitializes the substat at zero', () => {
     let state = createPreparedState({}, ['corin', 'lycaon', 'astraYao'], 0)
     state = workbenchReducer(state, {
       type: 'selectDisc', slot: 1, piece: 'twoPiece', discId: 'woodpecker',
@@ -1095,13 +1150,15 @@ describe('workbench state lifecycle', () => {
       fourPieceId: 'king',
       twoPieceId: null,
       mains: { slot4: null },
-      substats: {},
+      substats: { critRate: 0 },
     })
     expect(incompleteRequiredSelections(state)).toEqual(expect.arrayContaining([
       { kind: 'disc', slot: 1, agentId: 'lycaon', piece: 'twoPiece' },
       { kind: 'mainStat', slot: 1, agentId: 'lycaon', mainSlot: 'slot4' },
-      { kind: 'substat', slot: 1, agentId: 'lycaon', substatId: 'critRate' },
     ]))
+    expect(incompleteRequiredSelections(state)).not.toContainEqual(
+      { kind: 'substat', slot: 1, agentId: 'lycaon', substatId: 'critRate' },
+    )
     expect(calculateParty(state)).toBeNull()
 
     state = workbenchReducer(state, {
@@ -1109,9 +1166,6 @@ describe('workbench state lifecycle', () => {
     })
     state = workbenchReducer(state, {
       type: 'selectMainStat', slot: 1, mainSlot: 'slot4', mainStatId: 'critRate',
-    })
-    state = workbenchReducer(state, {
-      type: 'setSubstat', slot: 1, key: 'critRate', value: 0,
     })
     expect(calculateParty(state)).not.toBeNull()
 

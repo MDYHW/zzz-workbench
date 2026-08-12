@@ -255,6 +255,24 @@ function updateSetup(
   }
 }
 
+function withSelectedDerivedSubstats(
+  agentId: AgentId,
+  previous: AgentSetupState,
+  next: AgentSetupState,
+): AgentSetupState {
+  const previousIds = new Set(
+    effectiveSubstatChoices(agentId, previous).map(({ id }) => id),
+  )
+  const substats = Object.fromEntries(
+    effectiveSubstatChoices(agentId, next).flatMap(({ id }) => {
+      const current = previous.substats[id]
+      if (Number.isFinite(current)) return [[id, current]]
+      return previousIds.has(id) ? [] : [[id, 0]]
+    }),
+  )
+  return { ...next, substats }
+}
+
 function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): WorkbenchState {
   switch (action.type) {
     case 'openPartyEdit':
@@ -371,6 +389,7 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
 
     case 'selectDisc':
       return updateSetup(state, action.slot, (setup) => {
+        const agentId = state.slots[action.slot].agentId
         const candidates = action.piece === 'fourPiece'
           ? effectiveFourPieceIds(state, action.slot)
           : effectiveTwoPieceIds(state, action.slot)
@@ -383,9 +402,16 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
           if (!setup.fourPieceId || !effectiveTwoPieceIds(state, action.slot).includes(setup.fourPieceId)) {
             return setup
           }
-          return { ...setup, fourPieceId: action.discId, twoPieceId: setup.fourPieceId }
+          return withSelectedDerivedSubstats(agentId, setup, {
+            ...setup,
+            fourPieceId: action.discId,
+            twoPieceId: setup.fourPieceId,
+          })
         }
-        return { ...setup, fourPieceId: action.discId }
+        return withSelectedDerivedSubstats(agentId, setup, {
+          ...setup,
+          fourPieceId: action.discId,
+        })
       })
 
     case 'selectMainStat':

@@ -48,6 +48,8 @@ describe('bounded equipment effect facts', () => {
     expectTypeOf<DriveDiscPiece<'branchAndBlade'>>().toEqualTypeOf<'twoPiece'>()
     expectTypeOf<DriveDiscEffectField<'polarMetal', 'twoPiece'>>()
       .toEqualTypeOf<'damage'>()
+    expectTypeOf<DriveDiscEffectField<'bunnyInWonderland', 'fourPiece'>>()
+      .toEqualTypeOf<'damage'>()
   })
 
   it('keeps W-Engine qualifiers separate from modifier and refinement magnitude', () => {
@@ -121,6 +123,19 @@ describe('bounded equipment effect facts', () => {
         tags: ['aftershock'],
       },
     })
+    expect(DRIVE_DISC_FACTS.bunnyInWonderland).toMatchObject({
+      twoPiece: { maxHp: { modifier: 'maxHp', value: 10 } },
+      fourPiece: {
+        damage: {
+          modifier: 'dmgBonus',
+          progression: { kind: 'stacks', perStack: 6, maxStacks: 3 },
+          scope: { recipient: 'squad' },
+        },
+      },
+    })
+    expect(equipmentEffectMaximumValue(
+      DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage,
+    )).toBe(18)
   })
 
   it('derives the existing compressed Setup packages from structured facts', () => {
@@ -137,6 +152,10 @@ describe('bounded equipment effect facts', () => {
     expect(DRIVE_DISCS.pufferElectro).toMatchObject({
       twoPieceEffect: 'PEN Ratio +8%',
       fourPieceEffects: ['Ultimate DMG +20%', 'ATK +15%'],
+    })
+    expect(DRIVE_DISCS.bunnyInWonderland).toMatchObject({
+      twoPieceEffect: 'HP +10%',
+      fourPieceEffects: ['Squad DMG +18%'],
     })
     expect(W_ENGINES.tusksOfFury.passiveLines(1)).toEqual([
       'Shield provided +30%', 'Squad DMG +18%', 'Squad Daze +12%',

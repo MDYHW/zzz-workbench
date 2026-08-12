@@ -76,7 +76,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot6: ['atkPct'],
   },
   juFufu: {
-    slot4: ['critRate', 'atkPct'],
+    slot4: ['atkPct'],
     slot5: ['atkPct', 'fireDmg'],
     slot6: ['atkPct', 'impact'],
   },
@@ -178,8 +178,6 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
     { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
   ],
   juFufu: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
     { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
     { id: 'atkFlat', label: 'ATK', perHit: 19, unit: '' },
   ],
@@ -245,5 +243,11 @@ export function effectiveSubstatChoices(
   setup: { fourPieceId: DiscId | null },
 ): SubstatChoice[] {
   if (agentId === 'lycaon' && setup.fourPieceId !== 'king') return []
+  if (agentId === 'juFufu' && setup.fourPieceId === 'king') {
+    return [
+      { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
+      ...SUBSTAT_CHOICES_BY_AGENT.juFufu,
+    ]
+  }
   return SUBSTAT_CHOICES_BY_AGENT[agentId]
 }

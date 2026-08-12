@@ -62,7 +62,8 @@ export function effectiveTwoPieceIds(
 ): DiscId[] {
   const agentId = state.slots[slot].agentId
   const base = DISC_IDS_BY_AGENT_AND_PIECE[agentId].twoPiece
-  const selectedDerived = agentId === 'lycaon' && state.slots[slot].setup.fourPieceId === 'king'
+  const selectedDerived = (agentId === 'lycaon' || agentId === 'juFufu')
+    && state.slots[slot].setup.fourPieceId === 'king'
     ? ['woodpecker' as const]
     : []
   const candidates = selectedDerived.length ? [...base, ...selectedDerived] : base
@@ -78,7 +79,7 @@ function effectiveMainStatIdsForPressure(
   selectedFourPieceId: DiscId | null,
 ): MainStatId[] {
   const base = MAIN_STAT_IDS_BY_AGENT_AND_SLOT[agentId][mainSlot]
-  const candidates = agentId === 'lycaon'
+  const candidates = (agentId === 'lycaon' || agentId === 'juFufu')
     && mainSlot === 'slot4'
     && selectedFourPieceId === 'king'
     ? [...base, 'critRate' as const]

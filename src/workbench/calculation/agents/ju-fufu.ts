@@ -172,11 +172,14 @@ export function resolveJuFufuProviderClauses(
         kingCritDmg, 'all-party', undefined, undefined, undefined, 'kingOfTheSummit'),
       { formulas: ['general_damage', 'sheer_damage'] },
     ),
-    additive('dmgBonus', 'fully', discSource('juFufu', 'swingJazz', '4-piece'),
-      setup.fourPieceId === 'swingJazz'
-        ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage)
-        : 0,
-      'all-party', undefined, undefined, undefined, 'swingJazz'),
+    withApplicability(
+      additive('dmgBonus', 'fully', discSource('juFufu', 'swingJazz', '4-piece'),
+        setup.fourPieceId === 'swingJazz'
+          ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage)
+          : 0,
+        'all-party', undefined, undefined, undefined, 'swingJazz'),
+      { formulas: ['general_damage', 'sheer_damage'] },
+    ),
     additive('dazeBonus', 'fully', discSource('juFufu', 'shockstar', '4-piece'),
       setup.fourPieceId === 'shockstar'
         ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze)
@@ -245,14 +248,9 @@ export function calculateJuFufu(
     'critRate',
     { value: 100, source: STATIC_SOURCES.juFufu.critCap },
   )
-  const critDmgInputs = presentSetupInputs([
-    effectiveSubstatInput(setup, 'juFufu', 'critDmg'),
-  ])
-  const initialCritDmg = values.critDmg
-    + critDmgInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const critDmg = composeMetricEffects(
-    surfaces(initialCritDmg, initialCritDmg, initialCritDmg),
-    surfaces(critDmgInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
+    surfaces(values.critDmg, values.critDmg, values.critDmg),
+    surfaces([], [], []),
     effects,
     'critDmg',
   )
@@ -279,6 +277,8 @@ export function calculateJuFufu(
 
   const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'juFufu', 'energyRegenPct'),
+    discStatInput(setup, 'juFufu', 'fourPiece', 'swingJazz',
+      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen), 'twoPiece'),
     discStatInput(setup, 'juFufu', 'twoPiece', 'swingJazz',
       equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
   ])

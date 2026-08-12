@@ -89,6 +89,54 @@ describe('AgentSetup Hugo incomplete main-stat recovery', () => {
   })
 })
 
+describe('AgentSetup Pan Yinhu Drive Disc candidates', () => {
+  it('compresses the selected Bunny package on the setup surface', () => {
+    const state = createPreparedState({}, ['cissia', 'panYinhu', 'yixuan'], 2)
+
+    render(
+      <AgentSetup
+        activeSourceTone={null}
+        agentId="panYinhu"
+        discCandidates={DISC_IDS_BY_AGENT_AND_PIECE.panYinhu}
+        dispatch={vi.fn()}
+        mainStatCandidates={MAIN_STAT_IDS_BY_AGENT_AND_SLOT.panYinhu}
+        onSourceToneChange={vi.fn()}
+        setup={state.slots[1].setup}
+        slot={1}
+      />,
+    )
+
+    expect(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Bunny in Wonderland',
+    })).toHaveAccessibleDescription('Squad DMG +18%. HP +10%')
+  })
+
+  it('shows Bunny in Wonderland as a complete candidate package', async () => {
+    const user = userEvent.setup()
+    const state = createPreparedState({}, ['yixuan', 'panYinhu', 'juFufu'], 0)
+
+    render(
+      <AgentSetup
+        activeSourceTone={null}
+        agentId="panYinhu"
+        discCandidates={DISC_IDS_BY_AGENT_AND_PIECE.panYinhu}
+        dispatch={vi.fn()}
+        mainStatCandidates={MAIN_STAT_IDS_BY_AGENT_AND_SLOT.panYinhu}
+        onSourceToneChange={vi.fn()}
+        setup={state.slots[1].setup}
+        slot={1}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Astral Voice',
+    }))
+    expect(within(screen.getByLabelText('fourPiece Drive Disc candidates')).getByRole('button', {
+      name: 'Select Bunny in Wonderland as fourPiece',
+    })).toHaveAccessibleDescription('Squad DMG +18%. HP +10%')
+  })
+})
+
 describe('AgentSetup partial W-Engine package', () => {
   it('marks Steel Cushion passive clauses inactive for a Rupture holder', () => {
     const state = createPreparedState({}, ['starlightBilly', 'dialyn', 'lucia'], 0)
@@ -489,8 +537,8 @@ function LycaonSelectedPressureHarness() {
   )
 }
 
-describe('AgentSetup selected-pressure missing hit count', () => {
-  it('renders one described empty control after King reselection and accepts explicit zero', async () => {
+describe('AgentSetup selected-pressure hit count', () => {
+  it('reinitializes King CRIT Rate at zero while preserving selector focus', async () => {
     const user = userEvent.setup()
     render(<LycaonSelectedPressureHarness />)
 
@@ -515,18 +563,10 @@ describe('AgentSetup selected-pressure missing hit count', () => {
     })).toHaveFocus()
 
     const input = screen.getByLabelText('CRIT Rate hit count')
-    const description = screen.getByText('Hit count required')
-    expect(input).toHaveValue('')
-    expect(input).toHaveAttribute('aria-invalid', 'true')
-    expect(input).toHaveAttribute('aria-describedby', 'lycaon-critRate-hit-count-required')
-    expect(description).toHaveAttribute('id', 'lycaon-critRate-hit-count-required')
-    expect(document.querySelectorAll('#lycaon-critRate-hit-count-required')).toHaveLength(1)
-    expect(document.querySelector('[aria-live]')).toBeNull()
-
-    await user.type(input, '0')
-    await user.tab()
-    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveValue('0')
-    expect(screen.getByLabelText('CRIT Rate hit count')).not.toHaveAttribute('aria-invalid', 'true')
+    expect(input).toHaveValue('0')
+    expect(input).not.toHaveAttribute('aria-invalid', 'true')
+    expect(input).not.toHaveAttribute('aria-describedby')
     expect(screen.queryByText('Hit count required')).not.toBeInTheDocument()
+    expect(document.querySelector('[aria-live]')).toBeNull()
   })
 })

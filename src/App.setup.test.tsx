@@ -623,7 +623,7 @@ describe('integrated party workbench: setup', () => {
     expect(document.querySelectorAll('.is-setup-incomplete')).toHaveLength(0)
   }, 10_000)
 
-  it('repairs Lycaon King-selected inputs without hidden zero or restored history', async () => {
+  it('repairs Lycaon King selections with a visible neutral substat and no restored history', async () => {
     const user = userEvent.setup()
     render(<App />)
     const replace = async (slot: number, agent: RegExp) => {
@@ -667,10 +667,10 @@ describe('integrated party workbench: setup', () => {
     await user.click(screen.getByRole('button', {
       name: 'Select King of the Summit as fourPiece',
     }))
-    const missingCount = screen.getByLabelText('CRIT Rate hit count')
-    expect(missingCount).toHaveValue('')
-    expect(missingCount).toHaveAttribute('aria-invalid', 'true')
-    expect(screen.getByRole('status')).toHaveTextContent('Lycaon CRIT Rate hit count')
+    const neutralCount = screen.getByLabelText('CRIT Rate hit count')
+    expect(neutralCount).toHaveValue('0')
+    expect(neutralCount).not.toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByRole('status')).not.toHaveTextContent('Lycaon CRIT Rate hit count')
     expect(screen.getByRole('region', { name: 'Empty Result' })).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: '2-piece Drive Disc required' }))
@@ -681,9 +681,6 @@ describe('integrated party workbench: setup', () => {
     await user.click(screen.getByRole('button', {
       name: 'Select CRIT Rate for Disc 4',
     }))
-    await user.type(screen.getByLabelText('CRIT Rate hit count'), '0')
-    await user.tab()
-
     expect(screen.getByRole('heading', { name: 'Lycaon Result' })).toBeInTheDocument()
     expect(screen.getByText('PREPARED')).toBeInTheDocument()
     expect(screen.getByLabelText('CRIT Rate hit count')).toHaveValue('0')

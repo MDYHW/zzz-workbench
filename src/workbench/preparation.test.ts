@@ -268,8 +268,8 @@ describe('party-directed preparation', () => {
     expect(preparePartySelections([
       context('juFufu'), context('trigger'), context('yixuan'),
     ], 'yixuan')).toMatchObject([
-      { fourPieceId: 'king', twoPieceId: 'woodpecker' },
-      { fourPieceId: 'astralVoice' },
+      { fourPieceId: 'swingJazz', twoPieceId: 'king' },
+      { fourPieceId: 'king' },
       {},
     ])
     expect(preparePartySelections([
@@ -293,7 +293,7 @@ describe('party-directed preparation', () => {
     })
   })
 
-  it('authors Pan Yinhu by pool and keeps a non-yielding Astral holder unique', () => {
+  it('authors Pan Yinhu by pool and uses Bunny when Cissia can hold Astral', () => {
     expect(ENGINE_IDS_BY_AGENT_AND_POOL.panYinhu).toEqual({
       full: ['tusksOfFury', 'tremorTrigramVessel'],
       nonLimited: ['tremorTrigramVessel'],
@@ -307,14 +307,23 @@ describe('party-directed preparation', () => {
       mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'atkPct' },
     })
 
-    const withPan = preparePartySelections([
-      context('cissia'), context('panYinhu'), context('yixuan'),
-    ], 'yixuan')
-    expect(withPan).toMatchObject([
-      { fourPieceId: 'dawnsBloom' },
-      { fourPieceId: 'astralVoice' },
-      {},
-    ])
+    for (const pan of [context('panYinhu'), context('panYinhu', 'nonLimited')]) {
+      const cissiaFirst = preparePartySelections([
+        context('cissia'), pan, context('yixuan'),
+      ], 'yixuan')
+      expect(cissiaFirst[0]).toMatchObject({ fourPieceId: 'astralVoice' })
+      expect(cissiaFirst[1]).toMatchObject({
+        fourPieceId: 'bunnyInWonderland', twoPieceId: 'astralVoice',
+      })
+
+      const panFirst = preparePartySelections([
+        pan, context('cissia'), context('yixuan'),
+      ], 'yixuan')
+      expect(panFirst[0]).toMatchObject({
+        fourPieceId: 'bunnyInWonderland', twoPieceId: 'astralVoice',
+      })
+      expect(panFirst[1]).toMatchObject({ fourPieceId: 'astralVoice' })
+    }
     const existingYield = preparePartySelections([
       context('cissia'), context('astraYao'), context('yixuan'),
     ], 'yixuan')
@@ -323,6 +332,13 @@ describe('party-directed preparation', () => {
       { fourPieceId: 'moonlight' },
       {},
     ])
+
+    expect(prepareTargetSelection(context('panYinhu'), 'yixuan', [
+      { agentId: 'cissia', fourPieceId: 'astralVoice' },
+    ])).toEqual({
+      engineId: 'tusksOfFury', fourPieceId: 'bunnyInWonderland', twoPieceId: 'astralVoice',
+      mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'atkPct' },
+    })
   })
 
   it('authors Banyue from distinct full and non-limited whole packages', () => {

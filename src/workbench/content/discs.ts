@@ -1,5 +1,6 @@
 import astralVoiceImage from '../../assets/equipment/drive-discs/astral-voice.webp'
 import branchAndBladeImage from '../../assets/equipment/drive-discs/branch-and-blade-song.webp'
+import bunnyInWonderlandImage from '../../assets/equipment/drive-discs/bunny-in-wonderland.webp'
 import dawnsBloomImage from '../../assets/equipment/drive-discs/dawns-bloom.webp'
 import hormonePunkImage from '../../assets/equipment/drive-discs/hormone-punk.webp'
 import infernoMetalImage from '../../assets/equipment/drive-discs/inferno-metal.webp'
@@ -134,6 +135,19 @@ export const DRIVE_DISC_FACTS = {
       atk: { modifier: 'atk', unit: '%', value: 15 },
     },
   },
+  bunnyInWonderland: {
+    twoPiece: {
+      maxHp: { modifier: 'maxHp', unit: '%', value: 10 },
+    },
+    fourPiece: {
+      damage: {
+        modifier: 'dmgBonus',
+        unit: '%',
+        progression: { kind: 'stacks', perStack: 6, maxStacks: 3 },
+        scope: { recipient: 'squad' },
+      },
+    },
+  },
 } as const satisfies Record<DiscId, DriveDiscFacts>
 
 /** Exact authored piece and effect fields for one admitted Drive Disc. */
@@ -232,6 +246,13 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
       `ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.atk)}%`,
     ],
   },
+  bunnyInWonderland: {
+    id: 'bunnyInWonderland', name: 'Bunny in Wonderland', image: bunnyInWonderlandImage,
+    twoPieceEffect: `HP +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.bunnyInWonderland.twoPiece.maxHp)}%`,
+    fourPieceEffects: [
+      `Squad DMG +${equipmentEffectMaximumValue(DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage)}%`,
+    ],
+  },
 }
 
 export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
@@ -247,11 +268,11 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
   },
   juFufu: {
     fourPiece: ['king', 'swingJazz', 'shockstar'],
-    twoPiece: ['woodpecker', 'shockstar', 'king', 'hormonePunk', 'astralVoice', 'swingJazz'],
+    twoPiece: ['shockstar', 'king', 'hormonePunk', 'astralVoice', 'swingJazz'],
   },
   panYinhu: {
-    fourPiece: ['astralVoice'],
-    twoPiece: ['swingJazz', 'hormonePunk'],
+    fourPiece: ['astralVoice', 'bunnyInWonderland', 'swingJazz'],
+    twoPiece: ['swingJazz', 'astralVoice', 'hormonePunk'],
   },
   banyue: {
     fourPiece: ['yunkui'],

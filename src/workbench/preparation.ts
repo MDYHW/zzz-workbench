@@ -95,6 +95,26 @@ function withAstraAstralAllocation(
   }
 }
 
+function withPanYinhuAstralAlternative(
+  context: PreparationContext,
+  establishedHolders: readonly EstablishedDiscHolder[],
+  selection: SetupSelection,
+): SetupSelection {
+  const anotherAstralHolder = establishedHolders.some(({ agentId, fourPieceId }) => (
+    agentId !== context.agentId && fourPieceId === 'astralVoice'
+  ))
+  if (
+    context.agentId !== 'panYinhu'
+    || selection.fourPieceId !== 'astralVoice'
+    || !anotherAstralHolder
+  ) return selection
+  return {
+    ...selection,
+    fourPieceId: 'bunnyInWonderland',
+    twoPieceId: 'astralVoice',
+  }
+}
+
 function withJuFufuKingAlternative(
   context: PreparationContext,
   establishedHolders: readonly EstablishedDiscHolder[],
@@ -123,6 +143,7 @@ function withCissiaAstralOpportunity(
   const heldByNonYieldingAgent = establishedHolders.some(({ agentId, fourPieceId }) => (
     agentId !== context.agentId
     && agentId !== 'astraYao'
+    && agentId !== 'panYinhu'
     && fourPieceId === 'astralVoice'
   ))
   return context.agentId === 'cissia'
@@ -150,7 +171,16 @@ export function prepareTargetSelection(
     establishedHolders,
     nonoverlapping,
   )
-  return withAstraAstralAllocation(context, establishedHolders, contextual)
+  const withAstraAllocation = withAstraAstralAllocation(
+    context,
+    establishedHolders,
+    contextual,
+  )
+  return withPanYinhuAstralAlternative(
+    context,
+    establishedHolders,
+    withAstraAllocation,
+  )
 }
 
 export function preparePartySelections(
@@ -185,9 +215,18 @@ export function preparePartySelections(
     agentId: context.agentId,
     fourPieceId: withCissiaAstral[index].fourPieceId,
   }))
-  return withCissiaAstral.map((selection, index) => withAstraAstralAllocation(
+  const withAstraAllocation = withCissiaAstral.map((selection, index) => withAstraAstralAllocation(
     contexts[index],
     holders,
+    selection,
+  ))
+  const astralHolders = contexts.map((context, index) => ({
+    agentId: context.agentId,
+    fourPieceId: withAstraAllocation[index].fourPieceId,
+  }))
+  return withAstraAllocation.map((selection, index) => withPanYinhuAstralAlternative(
+    contexts[index],
+    astralHolders,
     selection,
   ))
 }

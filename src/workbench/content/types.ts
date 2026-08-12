@@ -81,6 +81,7 @@ export type DiscId =
   | 'hormonePunk'
   | 'dawnsBloom'
   | 'pufferElectro'
+  | 'bunnyInWonderland'
   | 'infernoMetal'
   | 'fangedMetal'
   | 'polarMetal'

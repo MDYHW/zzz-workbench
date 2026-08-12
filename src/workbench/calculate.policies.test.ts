@@ -805,6 +805,15 @@ describe('authored calculation policies', () => {
         metric(nonLimited, 'impact').values.combat,
       )
       expect(metric(nonLimited, 'energyRegen').values.fully).toBeCloseTo(1.8)
+
+      const allocated = agent(calculateParty(
+        createPreparedState({}, ['juFufu', 'trigger', 'yixuan'], 2),
+      )!, 'juFufu')
+      expect(metric(allocated, 'energyRegen').values.initial).toBeCloseTo(1.44)
+      expect(metric(allocated, 'energyRegen').breakdown.initial)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'juFufu', locus: 'disc-4pc', amount: 0.24,
+        }))
     })
 
     it('applies Ju Fufu cumulative Mindscapes without inventing Decibel state', () => {
@@ -891,6 +900,32 @@ describe('authored calculation policies', () => {
       expect(nonLimited.operations).toContainEqual(expect.objectContaining({
         id: 'panBreakForceEnergy', value: 4,
       }))
+
+      const allocatedState = createPreparedState(
+        {}, ['cissia', 'panYinhu', 'yixuan'], 2,
+      )
+      expect(allocatedState.slots[1].setup).toMatchObject({
+        fourPieceId: 'bunnyInWonderland', twoPieceId: 'astralVoice',
+      })
+      const allocated = calculateParty(allocatedState)!
+      for (const recipient of ['cissia', 'yixuan'] as const) {
+        expect(metric(agent(allocated, recipient), 'dmgBonus').breakdown.fully)
+          .toContainEqual(expect.objectContaining({
+            ownerAgentId: 'panYinhu', locus: 'disc-4pc', amount: 18,
+          }))
+      }
+      expect(metric(agent(allocated, 'panYinhu'), 'atk').values.initial)
+        .toBeCloseTo(3064, 10)
+
+      let swingState = createPreparedState({}, ['yixuan', 'panYinhu', 'juFufu'], 0)
+      swingState = selectDisc(swingState, 'panYinhu', 'fourPiece', 'swingJazz')
+      swingState = selectDisc(swingState, 'panYinhu', 'twoPiece', 'astralVoice')
+      const swing = calculateParty(swingState)!
+      expect(metric(agent(swing, 'yixuan'), 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'panYinhu', locus: 'disc-4pc', amount: 15,
+        }))
+      expect(metric(agent(swing, 'panYinhu'), 'energyRegen').values.initial).toBeCloseTo(1.872)
     })
 
     it('qualifies Pan Yinhu Additional by Rupture or typed faction and clears it otherwise', () => {
