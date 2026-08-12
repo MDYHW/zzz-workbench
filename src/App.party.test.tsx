@@ -86,7 +86,7 @@ describe('integrated party workbench: party', () => {
       [
         { agentId: 'yidhari', setup: createPreparedAgentSetup('yidhari') },
         { agentId: 'manato', setup: createPreparedAgentSetup('manato') },
-        { agentId: 'lycaon', setup: createPreparedAgentSetup('lycaon') },
+        { agentId: 'hugo', setup: createPreparedAgentSetup('hugo') },
       ],
     ]
     let latestContainer: HTMLElement | null = null
@@ -426,6 +426,38 @@ describe('integrated party workbench: party', () => {
     expect(within(manatoTab).getByLabelText('Fire, Rupture').querySelectorAll('img')).toHaveLength(2)
     await user.hover(manatoTab)
     expect(manatoTab).toHaveClass('source-tone--agent-manato')
+  }, 15_000)
+
+  it('admits Hugo through the shared Attack setup and scoped Result flow', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Hugo, Ice, Attack/)
+    await replace(2, /Lycaon, Ice, Stun/)
+    await replace(3, /Astra Yao, Ether, Support/)
+    expect(screen.getAllByText('Hugo is Focus automatically.')).toHaveLength(2)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    const hugoTab = screen.getByRole('tab', { name: 'Close Hugo setup and Result' })
+    expect(screen.getByRole('region', { name: 'Hugo setup' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Hugo Result' })).toBeInTheDocument()
+    expect(within(hugoTab).getByLabelText('S Rank')).toBeInTheDocument()
+    expect(within(hugoTab).getByLabelText('Ice, Attack').querySelectorAll('img')).toHaveLength(2)
+    await user.hover(hugoTab)
+    expect(hugoTab).toHaveClass('source-tone--agent-hugo')
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Myriad Eclipse' }))
+      .toHaveAccessibleDescription(
+        'CRIT Rate +24%. CRIT DMG +45%. After Ice DMG from EX Special, Chain Attack, or Ultimate · DEF Ignore +25%',
+      )
+    expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Polar Metal' }))
+      .toHaveAccessibleDescription('Ice DMG +10%')
+    expect(screen.getByRole('listitem', { name: /Totalize added DMG Multiplier/ }))
+      .toBeInTheDocument()
   }, 15_000)
 
   it('keeps keyboard focus on a present filter when no replacement is available', async () => {

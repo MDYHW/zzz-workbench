@@ -1,7 +1,9 @@
 import {
   ADMITTED_AGENTS,
   SETUP_FORMULA_PARTICIPATION_BY_AGENT,
+  W_ENGINE_FACTS,
   type AgentId,
+  type EquipmentEffectCollection,
 } from './content'
 import type { AppliedSlot, WorkbenchState } from './state'
 import {
@@ -71,6 +73,11 @@ import {
   resolveManatoProviderClauses,
   type ManatoCalculationContext,
 } from './calculation/agents/manato'
+import {
+  observeHugo,
+  resolveHugoProviderClauses,
+  type HugoCalculationContext,
+} from './calculation/agents/hugo'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -86,6 +93,7 @@ export type ProviderContext =
   | LycaonCalculationContext
   | YidhariCalculationContext
   | ManatoCalculationContext
+  | HugoCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -134,6 +142,13 @@ function observeProviderContext(
   const hasStunOrSupport = anotherHasSpecialty(['Stun', 'Support'])
   const hasAnby = state.slots.some(({ agentId }) => agentId === 'anbySoldier0')
   const summary = ADMITTED_AGENTS.find(({ id }) => id === slot.agentId)!
+  const anotherSharesAttribute = state.slots.some(({ agentId }, index) => (
+    index !== providerIndex
+    && ADMITTED_AGENTS.find(({ id }) => id === agentId)!.attribute === summary.attribute
+  ))
+  const stunAgentCount = state.slots.filter(({ agentId }) => (
+    ADMITTED_AGENTS.find(({ id }) => id === agentId)!.specialty === 'Stun'
+  )).length
   const additionalByParty = state.slots.some(({ agentId }, index) => {
     if (index === providerIndex) return false
     const other = ADMITTED_AGENTS.find(({ id }) => id === agentId)!
@@ -149,6 +164,12 @@ function observeProviderContext(
       return observeYidhari(slot.setup, hasStunOrSupport)
     case 'manato':
       return observeManato(slot.setup)
+    case 'hugo':
+      return observeHugo(
+        slot.setup,
+        anotherHasSpecialty(['Stun']) || anotherSharesAttribute,
+        stunAgentCount,
+      )
     case 'dialyn':
       return observeDialyn(slot.setup)
     case 'lucia':
@@ -191,6 +212,8 @@ function providerClauses(
       return resolveYidhariProviderClauses(context)
     case 'manato':
       return resolveManatoProviderClauses(context.setup)
+    case 'hugo':
+      return resolveHugoProviderClauses(context)
     case 'dialyn':
       return resolveDialynProviderClauses(context.setup, context.initialCrit.value)
     case 'lucia':
@@ -240,6 +263,7 @@ function isSeedVanguardAtkAgent(agentId: AgentId): agentId is SeedVanguardAtkAge
     || agentId === 'cissia'
     || agentId === 'evelyn'
     || agentId === 'corin'
+    || agentId === 'hugo'
 }
 
 export function resolveSeedVanguard(
@@ -357,10 +381,31 @@ export function activeCandidatePressures(
       agentId === 'trigger' && setup.engineId === 'spectralGaze'
     ))
   const hasSeedM2Besiege = hasSeedM2CandidatePressure(state, recipientSlot)
+  const hasSelectedEnginePressure = selectedEngineHasBroadPrePenPressure(
+    state,
+    recipientSlot,
+  )
 
-  return hasCissiaCore || hasSpectralGaze || hasSeedM2Besiege
+  return hasCissiaCore || hasSpectralGaze || hasSeedM2Besiege || hasSelectedEnginePressure
     ? ['materialBroadPrePenDefBypass']
     : []
+}
+
+function selectedEngineHasBroadPrePenPressure(
+  state: WorkbenchState,
+  recipientSlot: AppliedSlot,
+): boolean {
+  const { agentId, setup } = state.slots[recipientSlot]
+  if (!isGeneralDamageAgent(agentId) || !setup.engineId) return false
+  const effects = W_ENGINE_FACTS[setup.engineId].effects as EquipmentEffectCollection
+  const attribute = ADMITTED_AGENTS.find(({ id }) => id === agentId)!.attribute
+  return Object.values(effects).some((effect) => (
+    (effect.modifier === 'defIgnore' || effect.modifier === 'defReduction')
+    && !effect.scope?.actions?.length
+    && (!effect.scope?.attributes?.length || effect.scope.attributes.includes(
+      attribute === 'Auric Ink' ? 'Ether' : attribute as 'Physical' | 'Fire' | 'Ice' | 'Electric' | 'Ether',
+    ))
+  ))
 }
 
 export function hasSeedM2CandidatePressure(

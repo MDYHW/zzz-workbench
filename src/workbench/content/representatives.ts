@@ -18,6 +18,12 @@ const manatoRepresentative: Omit<SetupSelection, 'engineId'> = {
   mains: { slot4: 'critDmg', slot5: 'fireDmg', slot6: 'hpPct' },
 }
 
+const hugoRepresentative: Omit<SetupSelection, 'engineId'> = {
+  fourPieceId: 'hormonePunk',
+  twoPieceId: 'polarMetal',
+  mains: { slot4: 'critDmg', slot5: 'iceDmg', slot6: 'atkPct' },
+}
+
 const dialynRepresentative: Omit<SetupSelection, 'engineId'> = {
   fourPieceId: 'king',
   twoPieceId: 'woodpecker',
@@ -105,6 +111,10 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   manato: {
     full: { ...manatoRepresentative, engineId: 'grillOWisp' },
     nonLimited: { ...manatoRepresentative, engineId: 'grillOWisp' },
+  },
+  hugo: {
+    full: { ...hugoRepresentative, engineId: 'myriadEclipse' },
+    nonLimited: { ...hugoRepresentative, engineId: 'steelCushion' },
   },
   dialyn: {
     full: { ...dialynRepresentative, engineId: 'yesterdayCalls' },

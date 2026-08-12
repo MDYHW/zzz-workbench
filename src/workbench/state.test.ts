@@ -992,6 +992,52 @@ describe('workbench state lifecycle', () => {
     expect(isCompleteWorkbench(nonLimited)).toBe(true)
   })
 
+  it('clears Myriad-derived PEN inputs without restoring them after direct reselection', () => {
+    let state = createPreparedState({}, ['hugo', 'lycaon', 'astraYao'], 0)
+    expect(state.slots[0].setup).toMatchObject({
+      mindscape: 0, engineId: 'myriadEclipse', refinement: 1,
+      fourPieceId: 'hormonePunk', twoPieceId: 'polarMetal',
+      mains: { slot4: 'critDmg', slot5: 'iceDmg', slot6: 'atkPct' },
+      substats: { critRate: 0, critDmg: 0, atkPct: 0 },
+    })
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 0, engineId: 'steelCushion',
+    })
+    expect(effectiveMainStatIds(state, 0, 'slot5')).toContain('penRatio')
+    expect(effectiveTwoPieceIds(state, 0)).toContain('pufferElectro')
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'pufferElectro',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'penRatio',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 0, engineId: 'myriadEclipse',
+    })
+    expect(activeCandidatePressures(state, 0)).toEqual(['materialBroadPrePenDefBypass'])
+    expect(effectiveMainStatIds(state, 0, 'slot5')).not.toContain('penRatio')
+    expect(effectiveTwoPieceIds(state, 0)).not.toContain('pufferElectro')
+    expect(state.slots[0].setup.twoPieceId).toBeNull()
+    expect(state.slots[0].setup.mains.slot5).toBeNull()
+    expect(calculateParty(state)).toBeNull()
+
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 0, engineId: 'steelCushion',
+    })
+    expect(effectiveMainStatIds(state, 0, 'slot5')).toContain('penRatio')
+    expect(effectiveTwoPieceIds(state, 0)).toContain('pufferElectro')
+    expect(state.slots[0].setup.twoPieceId).toBeNull()
+    expect(state.slots[0].setup.mains.slot5).toBeNull()
+
+    const m2 = workbenchReducer(
+      createPreparedState({ hugo: 'nonLimited' }, ['hugo', 'lycaon', 'astraYao'], 0),
+      { type: 'setMindscape', slot: 0, mindscape: 2 },
+    )
+    expect(activeCandidatePressures(m2, 0)).toEqual([])
+    expect(effectiveMainStatIds(m2, 0, 'slot5')).toContain('penRatio')
+    expect(effectiveTwoPieceIds(m2, 0)).toContain('pufferElectro')
+  })
+
   it('clears and does not restore every King-selected Lycaon pressure input', () => {
     let state = createPreparedState({}, ['corin', 'lycaon', 'astraYao'], 0)
     state = workbenchReducer(state, {

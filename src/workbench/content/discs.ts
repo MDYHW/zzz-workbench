@@ -4,6 +4,7 @@ import dawnsBloomImage from '../../assets/equipment/drive-discs/dawns-bloom.webp
 import hormonePunkImage from '../../assets/equipment/drive-discs/hormone-punk.webp'
 import infernoMetalImage from '../../assets/equipment/drive-discs/inferno-metal.webp'
 import fangedMetalImage from '../../assets/equipment/drive-discs/fanged-metal.webp'
+import polarMetalImage from '../../assets/equipment/drive-discs/polar-metal.webp'
 import kingImage from '../../assets/equipment/drive-discs/king-of-the-summit.webp'
 import moonlightImage from '../../assets/equipment/drive-discs/moonlight-lullaby.webp'
 import pufferElectroImage from '../../assets/equipment/drive-discs/puffer-electro.webp'
@@ -108,6 +109,11 @@ export const DRIVE_DISC_FACTS = {
       damage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Physical'] } },
     },
   },
+  polarMetal: {
+    twoPiece: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Ice'] } },
+    },
+  },
   dawnsBloom: {
     twoPiece: {
       damage: { modifier: 'dmgBonus', unit: '%', value: 15, scope: { actions: ['Basic Attack'] } },
@@ -203,6 +209,10 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     id: 'fangedMetal', name: 'Fanged Metal', image: fangedMetalImage,
     twoPieceEffect: `Physical DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.twoPiece.damage)}%`,
   },
+  polarMetal: {
+    id: 'polarMetal', name: 'Polar Metal', image: polarMetalImage,
+    twoPieceEffect: `Ice DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.polarMetal.twoPiece.damage)}%`,
+  },
   dawnsBloom: {
     id: 'dawnsBloom', name: "Dawn's Bloom", image: dawnsBloomImage,
     twoPieceEffect: `Basic Attack DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.dawnsBloom.twoPiece.damage)}%`,
@@ -227,6 +237,10 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
   yixuan: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade'] },
   yidhari: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade'] },
   manato: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade', 'infernoMetal'] },
+  hugo: {
+    fourPiece: ['hormonePunk'],
+    twoPiece: ['polarMetal', 'woodpecker', 'branchAndBlade', 'pufferElectro', 'astralVoice', 'hormonePunk'],
+  },
   dialyn: { fourPiece: ['king'], twoPiece: ['woodpecker', 'swingJazz', 'moonlight'] },
   lucia: { fourPiece: ['moonlight'], twoPiece: ['yunkui', 'swingJazz'] },
   anbySoldier0: { fourPiece: ['shadowHarmony'], twoPiece: ['woodpecker', 'branchAndBlade'] },

@@ -689,4 +689,88 @@ describe('authored calculation policies', () => {
       expect(m6.operations).toEqual(m4.operations)
       expect(JSON.stringify(m6)).not.toMatch(/shield|decibel|burning|tether|coefficient/i)
     })
+
+    it('projects Hugo party qualification, Stun count, equipment scopes, and Totalize operations', () => {
+      const qualified = agent(calculateParty(
+        createPreparedState({}, ['hugo', 'lycaon', 'astraYao'], 0),
+      )!, 'hugo')
+      const sameAttribute = agent(calculateParty(
+        createPreparedState({}, ['hugo', 'yidhari', 'astraYao'], 0),
+      )!, 'hugo')
+      const unqualified = agent(calculateParty(
+        createPreparedState({}, ['hugo', 'cissia', 'astraYao'], 0),
+      )!, 'hugo')
+      const twoStun = agent(calculateParty(
+        createPreparedState({}, ['hugo', 'lycaon', 'dialyn'], 0),
+      )!, 'hugo')
+
+      expect(action(qualified, 'hugoChain').values.fully - metric(qualified, 'dmgBonus').values.fully)
+        .toBe(15)
+      expect(action(qualified, 'hugoTotalize').values.fully - metric(qualified, 'dmgBonus').values.fully)
+        .toBe(40)
+      expect(action(sameAttribute, 'hugoTotalize').values.fully - metric(sameAttribute, 'dmgBonus').values.fully)
+        .toBe(40)
+      expect(unqualified.actionModifiers.map(({ id }) => id)).not.toContain('hugoChain')
+      expect(metric(qualified, 'atk').values.fully - metric(unqualified, 'atk').values.fully)
+        .toBe(300)
+      expect(metric(qualified, 'atk').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'hugo', locus: 'core', amount: 300 }))
+      expect(metric(twoStun, 'atk').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'hugo', locus: 'core', amount: 900 }))
+      expect(metric(qualified, 'defIgnore').values.combat).toBe(25)
+      expect(metric(qualified, 'critDmg').values.combat - metric(qualified, 'critDmg').values.initial)
+        .toBe(70)
+      expect(qualified.operations).toEqual(expect.arrayContaining([
+        expect.objectContaining({ id: 'hugoTotalizeAddedDmgMultiplier', value: 3400, unit: '%' }),
+        expect.objectContaining({ id: 'hugoTotalizeDazeReturn', value: 25, unit: '%' }),
+        expect.objectContaining({ id: 'hugoExNonStunnedDaze', value: 1.2, presentation: 'scale' }),
+      ]))
+
+      const steel = agent(calculateParty(selectEngine(
+        createPreparedState({ hugo: 'nonLimited' }, ['hugo', 'lycaon', 'astraYao'], 0),
+        'hugo',
+        'steelCushion',
+      ))!, 'hugo')
+      expect(steel.metrics.find(({ id }) => id === 'defIgnore')).toBeUndefined()
+      expect(action(steel, 'hugoBackAttack').values.fully - metric(steel, 'dmgBonus').values.fully)
+        .toBe(25)
+
+      const cordis = agent(calculateParty(selectEngine(
+        createPreparedState({}, ['hugo', 'lycaon', 'astraYao'], 0),
+        'hugo',
+        'cordisGermina',
+      ))!, 'hugo')
+      expect(metric(cordis, 'defIgnore').values).toEqual({ initial: 0, combat: 0, fully: 0 })
+      expect(action(cordis, 'hugoUltimateDefIgnore').values.fully).toBe(20)
+
+      const puffer = agent(calculateParty(selectDisc(
+        createPreparedState({}, ['hugo', 'dialyn', 'astraYao'], 0),
+        'hugo',
+        'fourPiece',
+        'pufferElectro',
+      ))!, 'hugo')
+      expect(metric(puffer, 'penRatio').values.initial).toBe(8)
+      expect(action(puffer, 'hugoUltimate').values.initial - metric(puffer, 'dmgBonus').values.initial)
+        .toBe(20)
+    })
+
+    it('keeps Hugo scoped Mindscape DEF Ignore separate from broad candidate pressure', () => {
+      const base = createPreparedState({ hugo: 'nonLimited' }, ['hugo', 'lycaon', 'astraYao'], 0)
+      const m0 = agent(calculateParty(base)!, 'hugo')
+      const m1 = agent(calculateParty(withMindscape(base, 'hugo', 1))!, 'hugo')
+      const m2 = agent(calculateParty(withMindscape(base, 'hugo', 2))!, 'hugo')
+      const m4 = agent(calculateParty(withMindscape(base, 'hugo', 4))!, 'hugo')
+      const m6 = agent(calculateParty(withMindscape(base, 'hugo', 6))!, 'hugo')
+
+      expect(metric(m1, 'critRate').values.combat - metric(m0, 'critRate').values.combat).toBeCloseTo(12)
+      expect(metric(m1, 'critDmg').values.combat - metric(m0, 'critDmg').values.combat).toBe(30)
+      expect(metric(m2, 'defIgnore').values).toEqual({ initial: 0, combat: 0, fully: 0 })
+      expect(action(m2, 'hugoTotalizeDefIgnore').values.fully).toBe(15)
+      expect(metric(m4, 'resIgnore').values.fully).toBe(12)
+      expect(action(m6, 'hugoTotalize').values.fully - action(m4, 'hugoTotalize').values.fully)
+        .toBe(60)
+      expect(m6.operations).toContainEqual(expect.objectContaining({
+        id: 'hugoExNonStunnedTotalizeAddedMultiplier', value: 1000,
+      }))
+    })
 })

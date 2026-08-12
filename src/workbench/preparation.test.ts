@@ -239,6 +239,27 @@ describe('party-directed preparation', () => {
     ])
   })
 
+  it('authors Hugo from a complete usable package for each pool', () => {
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.hugo).toEqual({
+      full: ['myriadEclipse', 'cordisGermina', 'heartstringNocturne', 'steelCushion', 'marcatoDesire'],
+      nonLimited: ['steelCushion', 'marcatoDesire'],
+    })
+    const full = preparePartySelections([
+      context('hugo'), context('lycaon'), context('astraYao'),
+    ], 'hugo')[0]
+    const nonLimited = preparePartySelections([
+      context('hugo', 'nonLimited'), context('lycaon'), context('astraYao'),
+    ], 'hugo')[0]
+    expect(full).toEqual({
+      engineId: 'myriadEclipse', fourPieceId: 'hormonePunk', twoPieceId: 'polarMetal',
+      mains: { slot4: 'critDmg', slot5: 'iceDmg', slot6: 'atkPct' },
+    })
+    expect(nonLimited).toEqual({
+      engineId: 'steelCushion', fourPieceId: 'hormonePunk', twoPieceId: 'polarMetal',
+      mains: { slot4: 'critDmg', slot5: 'iceDmg', slot6: 'atkPct' },
+    })
+  })
+
   it('keeps every authored adjustment inside the target candidate pools', () => {
     const contexts = [
       context('yixuan'), context('trigger'), context('dialyn'),

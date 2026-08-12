@@ -16,6 +16,7 @@ export type AgentId =
   | 'lycaon'
   | 'yidhari'
   | 'manato'
+  | 'hugo'
 
 export type AgentRank = 'S' | 'A'
 export type AgentFaction = 'Victoria Housekeeping Co.'
@@ -57,6 +58,7 @@ export type EngineId =
   | 'krakensCradle'
   | 'grillOWisp'
   | 'wrathfulVajra'
+  | 'myriadEclipse'
 
 export type DiscId =
   | 'yunkui'
@@ -73,6 +75,7 @@ export type DiscId =
   | 'pufferElectro'
   | 'infernoMetal'
   | 'fangedMetal'
+  | 'polarMetal'
 
 export type MainSlot = 'slot4' | 'slot5' | 'slot6'
 

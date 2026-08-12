@@ -204,6 +204,11 @@ export const STATIC_SOURCES = {
     coreHp: source(SOURCE_LABELS.manatoCore, 'manato', 'core', 'Completed Core HP enhancements'),
     critCap: source('Displayed CRIT Rate cap', 'manato', 'calculation'),
   },
+  hugo: {
+    core: source(SOURCE_LABELS.hugoCore, 'hugo', 'core'),
+    additional: source(SOURCE_LABELS.hugoAbility, 'hugo', 'additional'),
+    critCap: source('Displayed CRIT Rate cap', 'hugo', 'calculation'),
+  },
   dialyn: {
     core: source(SOURCE_LABELS.dialynCore, 'dialyn', 'core'),
     additional: source(SOURCE_LABELS.dialynAbility, 'dialyn', 'additional'),
@@ -451,7 +456,7 @@ export const active = (
 ) > 0.000_001)
 
 export function pufferElectroFourPieceClauses(
-  agentId: 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin',
+  agentId: 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo',
   setup: CompleteSetup,
   ultimateAction: ActionTarget,
 ): SourceBoundCurrentClause[] {

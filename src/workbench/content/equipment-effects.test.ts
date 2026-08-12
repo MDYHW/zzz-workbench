@@ -34,12 +34,16 @@ describe('bounded equipment effect facts', () => {
     expectTypeOf<WEngineEffectField<'brimstone'>>().toEqualTypeOf<'atk'>()
     expectTypeOf<WEngineEffectField<'heartstringNocturne'>>()
       .toEqualTypeOf<'critDamage' | 'fireResIgnore'>()
+    expectTypeOf<WEngineEffectField<'myriadEclipse'>>()
+      .toEqualTypeOf<'critDamage' | 'defIgnore'>()
 
     expectTypeOf<DriveDiscPiece<'dawnsBloom'>>()
       .toEqualTypeOf<'twoPiece' | 'fourPiece'>()
     expectTypeOf<DriveDiscEffectField<'dawnsBloom', 'fourPiece'>>()
       .toEqualTypeOf<'damage'>()
     expectTypeOf<DriveDiscPiece<'branchAndBlade'>>().toEqualTypeOf<'twoPiece'>()
+    expectTypeOf<DriveDiscEffectField<'polarMetal', 'twoPiece'>>()
+      .toEqualTypeOf<'damage'>()
   })
 
   it('keeps W-Engine qualifiers separate from modifier and refinement magnitude', () => {
@@ -250,5 +254,27 @@ describe('bounded equipment effect facts', () => {
       'Ice Sheer DMG +18%',
       '≤50% Max HP · CRIT Rate +20%',
     ])
+  })
+
+  it('retains Myriad Eclipse broad holder DEF Ignore separately from scoped alternatives', () => {
+    expect(W_ENGINES.myriadEclipse).toMatchObject({
+      rank: 'S', limited: true, baseAtk: 713,
+      advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
+    })
+    expect(W_ENGINE_FACTS.myriadEclipse.effects.defIgnore).toMatchObject({
+      modifier: 'defIgnore',
+      scope: { recipient: 'enemy' },
+    })
+    expect(W_ENGINE_FACTS.myriadEclipse.effects.defIgnore.scope).not.toHaveProperty('actions')
+    expect(equipmentEffectBaseValue(W_ENGINE_FACTS.myriadEclipse.effects.critDamage, 1)).toBe(45)
+    expect(equipmentEffectBaseValue(W_ENGINE_FACTS.myriadEclipse.effects.defIgnore, 1)).toBe(25)
+    expect(W_ENGINES.myriadEclipse.passiveLines(1)).toEqual([
+      'CRIT DMG +45%',
+      'After Ice DMG from EX Special, Chain Attack, or Ultimate · DEF Ignore +25%',
+    ])
+    expect(DRIVE_DISCS.polarMetal).toMatchObject({
+      twoPieceEffect: 'Ice DMG +10%',
+    })
+    expect(DRIVE_DISCS.polarMetal).not.toHaveProperty('fourPieceEffects')
   })
 })

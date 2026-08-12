@@ -15,6 +15,7 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   yixuan: { primary: ['sheer_damage'], residual: [] },
   yidhari: { primary: ['sheer_damage'], residual: [] },
   manato: { primary: ['sheer_damage'], residual: [] },
+  hugo: { primary: ['general_damage'], residual: [] },
   dialyn: { primary: ['daze_buildup'], residual: ['general_damage'] },
   lucia: { primary: [], residual: [] },
   anbySoldier0: { primary: ['general_damage'], residual: [] },
@@ -64,6 +65,11 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['critRate', 'critDmg'],
     slot5: ['fireDmg', 'hpPct'],
     slot6: ['hpPct'],
+  },
+  hugo: {
+    slot4: ['critRate', 'critDmg'],
+    slot5: ['iceDmg', 'atkPct', 'penRatio'],
+    slot6: ['atkPct'],
   },
   dialyn: {
     slot4: ['critRate'],
@@ -123,6 +129,7 @@ export const PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE: Partial<
 > = {
   evelyn: 'fireDmg',
   corin: 'physicalDmg',
+  hugo: 'iceDmg',
 }
 
 export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
@@ -140,6 +147,11 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
     { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
     { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
     { id: 'hpPct', label: 'HP%', perHit: 3, unit: '%' },
+  ],
+  hugo: [
+    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
+    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
   ],
   dialyn: [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }],
   lucia: [

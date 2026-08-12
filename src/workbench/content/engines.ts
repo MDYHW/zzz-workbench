@@ -31,6 +31,7 @@ import simmeringPotImage from '../../assets/equipment/w-engines/the-simmering-po
 import krakensCradleImage from '../../assets/equipment/w-engines/krakens-cradle.webp'
 import grillOWispImage from '../../assets/equipment/w-engines/grill-owisp.webp'
 import wrathfulVajraImage from '../../assets/equipment/w-engines/wrathful-vajra.webp'
+import myriadEclipseImage from '../../assets/equipment/w-engines/myriad-eclipse.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -58,6 +59,13 @@ const perSecond = (effect: EquipmentEffectFact, refinement: Refinement): string 
   `${equipmentEffectBaseValue(effect, refinement)}/s`
 
 export const W_ENGINE_FACTS = {
+  myriadEclipse: {
+    advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
+    effects: {
+      critDamage: { modifier: 'critDmg', unit: '%', value: [45, 51.75, 58.5, 65.25, 72] },
+      defIgnore: { modifier: 'defIgnore', unit: '%', value: [25, 28.75, 32.5, 36.25, 40], scope: { recipient: 'enemy' } },
+    },
+  },
   krakensCradle: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
     effects: {
@@ -291,6 +299,14 @@ export type WEngineFactContract<Id extends EngineId> = (typeof W_ENGINE_FACTS)[I
 export type WEngineEffectField<Id extends EngineId> = keyof WEngineFactContract<Id>['effects']
 
 export const W_ENGINES: Record<EngineId, WEngineChoice> = {
+  myriadEclipse: {
+    id: 'myriadEclipse', name: 'Myriad Eclipse', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.myriadEclipse.advancedStat, image: myriadEclipseImage,
+    passiveLines: (refinement) => [
+      `CRIT DMG +${percent(W_ENGINE_FACTS.myriadEclipse.effects.critDamage, refinement)}`,
+      `After Ice DMG from EX Special, Chain Attack, or Ultimate · DEF Ignore +${percent(W_ENGINE_FACTS.myriadEclipse.effects.defIgnore, refinement)}`,
+    ],
+  },
   krakensCradle: {
     id: 'krakensCradle', name: "Kraken's Cradle", rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.krakensCradle.advancedStat, image: krakensCradleImage,
@@ -488,6 +504,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   yixuan: enginePools(['qingming', 'cauldron', 'radiowave', 'puzzleSphere']),
   yidhari: enginePools(['krakensCradle', 'grillOWisp', 'cauldron', 'qingming', 'radiowave', 'puzzleSphere']),
   manato: enginePools(['grillOWisp', 'wrathfulVajra', 'qingming', 'cauldron', 'radiowave', 'puzzleSphere']),
+  hugo: enginePools(['myriadEclipse', 'cordisGermina', 'heartstringNocturne', 'steelCushion', 'marcatoDesire']),
   dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   lucia: enginePools(['dreamlitHearth', 'thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
   anbySoldier0: enginePools(['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'marcatoDesire', 'starlightEngine']),

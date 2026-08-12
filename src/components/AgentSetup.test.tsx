@@ -80,6 +80,15 @@ describe('AgentSetup new Rupture incomplete main-stat recovery', () => {
   )
 })
 
+describe('AgentSetup Hugo incomplete main-stat recovery', () => {
+  it('keeps Hugo incomplete without a hidden prepared selection', () => {
+    render(<IncompleteSetupHarness agentId="hugo" />)
+
+    expect(screen.getByRole('button', { name: 'Disc 5 main stat required' })).toBeInTheDocument()
+    expect(screen.getByLabelText('ATK% hit count')).toHaveValue('0')
+  })
+})
+
 describe('AgentSetup Seed Additional Ability', () => {
   it('keeps Seed\'s event Energy fact as compact Setup content only', () => {
     const state = createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0)

@@ -1950,6 +1950,7 @@ button.main-stat-block:focus-visible {
 .source-tone--agent-lycaon { --source-color: #256f89; }
 .source-tone--agent-yidhari { --source-color: #3264a8; }
 .source-tone--agent-manato { --source-color: #a33b2c; }
+.source-tone--agent-hugo { --source-color: #5968a6; }
 /* Calculation clamps stay neutral and are not a semantic source color. */
 .source-tone--calculation { --source-color: #596169; }
 

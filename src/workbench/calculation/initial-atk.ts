@@ -12,7 +12,7 @@ import {
   type SubstatId,
 } from '../content'
 
-export type SeedVanguardAtkAgentId = 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin'
+export type SeedVanguardAtkAgentId = 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo'
 
 export interface InitialAtkSetup {
   engineId: EngineId | null

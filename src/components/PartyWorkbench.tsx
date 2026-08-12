@@ -31,6 +31,7 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   lycaon: { attribute: iceMark, specialty: stunMark },
   yidhari: { attribute: iceMark, specialty: ruptureMark },
   manato: { attribute: fireMark, specialty: ruptureMark },
+  hugo: { attribute: iceMark, specialty: attackMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {
