@@ -69,8 +69,8 @@ const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   yidhari: { faceX: 44.5, headTopY: 1.75, scale: 1 },
   manato: { faceX: 50, headTopY: 1.9, scale: 1 },
   hugo: { faceX: 58, headTopY: 2.2, scale: 1 },
-  juFufu: { faceX: 41, headTopY: 18, scale: 1 },
-  panYinhu: { faceX: 50, headTopY: 2, scale: 1 },
+  juFufu: { faceX: 41, headTopY: 18, scale: 1.05 },
+  panYinhu: { faceX: 50, headTopY: 2, scale: 0.94 },
   banyue: { faceX: 50, headTopY: 10.5, scale: 1 },
   starlightBilly: { faceX: 50, headTopY: 7, scale: 1 },
 }

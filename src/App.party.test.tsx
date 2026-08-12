@@ -127,6 +127,8 @@ describe('integrated party workbench: party', () => {
       expect(within(identity).getByLabelText(`${agent.rank} Rank`)).toBeInTheDocument()
     }
     expectSource('trigger', String(330 / 295))
+    expectSource('juFufu', '1.05')
+    expectSource('panYinhu', '0.94')
     expect(within(latestContainer!).getByLabelText('A Rank').querySelector('img'))
       .toHaveAttribute('src', expect.stringContaining('a'))
     expect(within(latestContainer!).getAllByLabelText('S Rank')).toHaveLength(2)
