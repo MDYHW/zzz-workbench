@@ -173,7 +173,9 @@ export function resolveSeedProviderClauses(
       setup.mindscape >= 6 ? 50 : 0, 'self'),
     additive('critDmg', 'combat', engine, setup.engineId === 'severedInnocence'
       ? equipmentEffectBaseValue(W_ENGINE_FACTS.severedInnocence.effects.critDamage, refinement)
-      : 0, 'self'),
+      : setup.engineId === 'heartstringNocturne'
+        ? equipmentEffectBaseValue(W_ENGINE_FACTS.heartstringNocturne.effects.critDamage, refinement)
+        : 0, 'self'),
     additive('critDmg', 'fully', engine, setup.engineId === 'severedInnocence'
       ? equipmentEffectProgressionValue(W_ENGINE_FACTS.severedInnocence.effects.critDamage, refinement)
       : 0, 'self'),

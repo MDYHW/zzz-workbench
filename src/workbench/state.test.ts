@@ -827,6 +827,10 @@ describe('workbench state lifecycle', () => {
   })
 
   it('authors complete full and non-limited second-vertical packages', () => {
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.anbySoldier0).toEqual({
+      full: ['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'marcatoDesire', 'starlightEngine'],
+      nonLimited: ['marcatoDesire', 'starlightEngine'],
+    })
     const full = createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
     expect(full.slots.map(({ setup }) => ({
       engineId: setup.engineId,
@@ -844,10 +848,21 @@ describe('workbench state lifecycle', () => {
     expect(nonLimited.slots.map(({ setup }) => [setup.engineId, setup.fourPieceId, setup.twoPieceId])).toEqual([
       ['marcatoDesire', 'shadowHarmony', 'branchAndBlade'],
       ['restrained', 'king', 'shockstar'],
-      ['bashfulDemon', 'astralVoice', 'hormonePunk'],
+      ['kaboom', 'astralVoice', 'hormonePunk'],
     ])
+    expect(nonLimited.slots[2].setup.mains.slot6).toBe('atkPct')
 
-    const astraM2 = workbenchReducer(full, { type: 'setMindscape', slot: 2, mindscape: 2 })
+    const astraM1 = workbenchReducer(nonLimited, {
+      type: 'setMindscape', slot: 2, mindscape: 1,
+    })
+    expect(astraM1.slots[2].setup).toMatchObject({
+      engineId: 'kaboom',
+      mains: { slot6: 'atkPct' },
+    })
+    const astraM2 = workbenchReducer(astraM1, {
+      type: 'setMindscape', slot: 2, mindscape: 2,
+    })
+    expect(astraM2.slots[2].setup.engineId).toBe('kaboom')
     expect(astraM2.slots[2].setup.mains.slot6).toBe('energyRegenPct')
 
     const evelynFull = createPreparedState({}, ['evelyn', 'seed', 'astraYao'], 0)
@@ -877,6 +892,10 @@ describe('workbench state lifecycle', () => {
   })
 
   it('authors complete Corin and Lycaon representatives from generic Rank defaults', () => {
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.lycaon).toEqual({
+      full: ['blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore', 'simmeringPot'],
+      nonLimited: ['hellfireGears', 'steamOven', 'preciousFossilizedCore', 'simmeringPot'],
+    })
     const full = createPreparedState({}, ['corin', 'lycaon', 'astraYao'], 0)
     const nonLimited = createPreparedState(
       { corin: 'nonLimited', lycaon: 'nonLimited' },
@@ -1010,7 +1029,7 @@ describe('workbench state lifecycle', () => {
 
   it('authors exact Seed and Cissia local candidates and pool representatives', () => {
     expect(ENGINE_IDS_BY_AGENT_AND_POOL.seed).toEqual({
-      full: ['cordisGermina', 'severedInnocence', 'brimstone', 'marcatoDesire'],
+      full: ['cordisGermina', 'heartstringNocturne', 'severedInnocence', 'brimstone', 'marcatoDesire'],
       nonLimited: ['brimstone', 'marcatoDesire'],
     })
     expect(ENGINE_IDS_BY_AGENT_AND_POOL.cissia).toEqual({

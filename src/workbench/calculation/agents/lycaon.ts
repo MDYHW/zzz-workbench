@@ -173,9 +173,11 @@ export function resolveLycaonProviderClauses(
       engine,
       setup.engineId === 'blazingLaurel'
         ? equipmentEffectBaseValue(W_ENGINE_FACTS.blazingLaurel.effects.impact, refinement)
-        : setup.engineId === 'steamOven'
-          ? equipmentEffectMaximumValue(W_ENGINE_FACTS.steamOven.effects.impact, refinement)
-          : 0,
+        : setup.engineId === 'hellfireGears'
+          ? equipmentEffectBaseValue(W_ENGINE_FACTS.hellfireGears.effects.impact, refinement)
+          : setup.engineId === 'steamOven'
+            ? equipmentEffectMaximumValue(W_ENGINE_FACTS.steamOven.effects.impact, refinement)
+            : 0,
       'self',
     ),
     withApplicability(

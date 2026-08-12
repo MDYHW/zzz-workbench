@@ -32,7 +32,7 @@ const triggerRepresentative = (pool: PoolId): SetupSelection => ({
 })
 
 const astraRepresentative = (pool: PoolId, mindscape: number): SetupSelection => ({
-  engineId: pool === 'full' ? 'elegantVanity' : 'bashfulDemon',
+  engineId: pool === 'full' ? 'elegantVanity' : 'kaboom',
   fourPieceId: 'astralVoice',
   twoPieceId: pool === 'full' ? 'moonlight' : 'hormonePunk',
   mains: {

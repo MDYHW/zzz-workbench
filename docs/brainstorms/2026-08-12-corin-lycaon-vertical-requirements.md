@@ -199,14 +199,16 @@ and genuine multi-recipient effects keep their actual rules.
 
 ### Lycaon candidate sets and representatives
 
-- R11. Lycaon's authored W-Engine candidates are Blazing Laurel, Steam Oven,
-  Precious Fossilized Core, and The Simmering Pot. Full pool contains all four;
-  non-limited contains the three A-Rank candidates. Full prepares Blazing Laurel
-  W1 and non-limited prepares Steam Oven W5. Hellfire Gears is excluded because
-  completed Encircle Prey treats Lycaon as on-field, materially weakening its
-  off-field Energy clause, while current Steam supplies the stronger combined
-  Energy/Impact operation. The Restrained is excluded because its Basic-only
-  Daze package misses Lycaon's direction-defining Assist and EX Daze.
+- R11. Lycaon's authored W-Engine candidates are Blazing Laurel, Hellfire Gears,
+  Steam Oven, Precious Fossilized Core, and The Simmering Pot. Full pool contains
+  all five; non-limited contains Hellfire and the three A-Rank candidates. Full
+  prepares Blazing Laurel W1 and non-limited prepares Steam Oven W5. Hellfire's
+  off-field Energy clause is unused by completed on-field Encircle Prey, but its
+  Base ATK 684, advanced Impact +18%, and Fully Enabled Impact +20% remain a
+  distinct usable Impact package beside Steam's Energy Regen +50% and maximum
+  Impact +25.6%. Steam's prepared priority therefore does not exclude Hellfire
+  from either pool. The Restrained is excluded because its Basic-only Daze
+  package misses Lycaon's direction-defining Assist and EX Daze.
 - R12. Retain Blazing Laurel as Base ATK 713 and advanced Impact +18%. W1-W5
   Quick Assist or Perfect Assist grants Impact
   `25 / 28.75 / 32.5 / 36.25 / 40%`. Basic Attack hits apply up to 20 Wilt
@@ -216,8 +218,11 @@ and genuine multi-recipient effects keep their actual rules.
   The Impact clause is holder-local; the Fire/Ice CRIT DMG clause is a genuine
   multi-recipient effect and projects to every eligible current Fire or Ice
   crit-capable damage consumer.
-- R13. Reuse the existing exact Steam Oven and Precious Fossilized Core facts.
-  Steam W5 supplies Energy Regen +50% and reaches Impact +25.6% at eight
+- R13. Reuse the existing exact Hellfire Gears, Steam Oven, and Precious
+  Fossilized Core facts. Hellfire W1 supplies advanced Impact +18% and reaches
+  Impact +20% at Fully Enabled; its off-field Energy clause remains disclosed
+  in Setup but creates no current Lycaon Energy Result operation. Steam W5
+  supplies Energy Regen +50% and reaches Impact +25.6% at eight
   10-Energy stacks. Precious Fossilized Core W5 supplies advanced Impact +15%
   and Daze +16% at target HP at least 50%, with another +16% at target HP at
   least 75%. Retain The Simmering Pot as Base ATK 594 and advanced Impact +15%;
@@ -428,6 +433,9 @@ and genuine multi-recipient effects keep their actual rules.
   `137 × (1 + 0.06 + 0.18 + 0.256) = 204.952`, and the completed-Potential
   action outcome reaches
   `137 × (1 + 0.06 + 0.18 + 0.256 + 0.15) = 225.502`.
+  Directly selecting Hellfire keeps its full package visible, adds its +18%
+  advanced and +20% Fully Enabled Impact to Result, and creates no off-field
+  Energy operation; it does not change the authored Blazing/Steam first choices.
 - AE7. **Covers R15-R17, R29-R31.** Local prepared King plus CRIT Rate Slot 4
   begins at 29% CRIT Rate. Nine CRIT substat hits reach 50.6% and activate the
   second King clause. Selecting Woodpecker 2-piece instead begins at 37% and six
@@ -534,7 +542,7 @@ and genuine multi-recipient effects keep their actual rules.
 
 - The five permanent Markdown authorities continue to own product behavior,
   source retention, formula meaning, game vocabulary, and visual behavior.
-- Existing exact Cordis, Heartstring, Steel, Steam, Precious Fossilized Core,
+- Existing exact Cordis, Heartstring, Steel, Hellfire, Steam, Precious Fossilized Core,
   King, Astral, Shockstar, Puffer, Hormone, Woodpecker, Branch & Blade, Fanged,
   Swing, and Moonlight facts remain the reusable equipment meanings referenced
   here.

@@ -52,6 +52,33 @@ describe('representative calculation flows', () => {
     expect(astra.operations).toEqual([])
   })
 
+  it('projects Astra non-limited Kaboom while preserving her M0 ATK main', () => {
+    const state = createPreparedState(
+      { astraYao: 'nonLimited' },
+      ['anbySoldier0', 'trigger', 'astraYao'],
+      0,
+    )
+    const result = calculateParty(state)!
+    const anby = agent(result, 'anbySoldier0')
+    const astra = agent(result, 'astraYao')
+
+    expect(state.slots[2].setup).toMatchObject({
+      engineId: 'kaboom',
+      refinement: 5,
+      mains: { slot6: 'atkPct' },
+    })
+    expect(metric(astra, 'energyRegen').breakdown.initial)
+      .toContainEqual(expect.objectContaining({
+        label: 'Kaboom the Cannon',
+        display: { value: 50, unit: '%', decimals: 0 },
+      }))
+    expect(metric(anby, 'atk').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Kaboom the Cannon', ownerAgentId: 'astraYao',
+        display: { value: 16, unit: '%', decimals: 0 },
+      }))
+  })
+
   it('projects the third prepared party through semantic recipients', () => {
     const result = calculateParty(
       createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0),

@@ -36,14 +36,16 @@ export function resolveAnbyProviderClauses(context: AnbyCalculationContext): Sou
   const engine = engineSource('anbySoldier0', setup)
   const shadow = setup.fourPieceId === 'shadowHarmony'
   const refinement = setup.refinement
-  const severedCombatCrit = setup.engineId === 'severedInnocence'
+  const engineCombatCrit = setup.engineId === 'severedInnocence'
     ? equipmentEffectBaseValue(W_ENGINE_FACTS.severedInnocence.effects.critDamage, refinement)
-    : 0
+    : setup.engineId === 'heartstringNocturne'
+      ? equipmentEffectBaseValue(W_ENGINE_FACTS.heartstringNocturne.effects.critDamage, refinement)
+      : 0
   const severedStackCrit = setup.engineId === 'severedInnocence'
     ? equipmentEffectProgressionValue(W_ENGINE_FACTS.severedInnocence.effects.critDamage, refinement)
     : 0
   return active([
-    additive('critDmg', 'combat', engine, severedCombatCrit, 'self'),
+    additive('critDmg', 'combat', engine, engineCombatCrit, 'self'),
     additive('critDmg', 'fully', engine, severedStackCrit, 'self'),
     additive('critRate', 'combat', engine, setup.engineId === 'cordisGermina' ? equipmentEffectBaseValue(W_ENGINE_FACTS.cordisGermina.effects.critRate, refinement) : 0, 'self'),
     additive('critRate', 'fully', STATIC_SOURCES.anbySoldier0.additional, hasStunOrSupport ? 10 : 0, 'self'),

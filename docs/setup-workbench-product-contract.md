@@ -399,6 +399,12 @@ through the different-set rule. Numeric equality does not admit a second item;
 each identity must first pass the normal competitive-candidate policy for the
 current consumer.
 
+For zero-substat W-Engine and complete-package authoring, treat eight effective-
+substat hits in each offered stat as the conservative finite opportunity that
+the remaining setup can supply. This is an authoring comparison only: it does
+not initialize substats, cap the editable count, score equipment at runtime, or
+replace a pool-specific whole-package decision.
+
 ### Prepared Starting Setup
 
 Preparation supplies one deterministic first choice from the current effective
@@ -452,6 +458,14 @@ authored first choice.
 - **full pool** includes every admitted W-Engine, including limited S-Rank;
 - **non-limited pool** excludes limited S-Rank while retaining admitted non-
   limited S-Rank and A-Rank engines.
+
+Author candidate membership in both availability contexts before deriving the
+non-limited subset. Full-pool authoring compares limited alternatives with each
+other while preserving materially distinct accessibility paths; non-limited
+authoring re-compares the remaining standard S-Rank and A-Rank packages without
+using a limited first choice as their benchmark. A non-limited candidate that
+survives that second comparison also appears in full, but its accessibility-
+path meaning need not beat the limited representative head to head.
 
 Pool defaults to full. Initial preparation selects the authored first choice
 from that pool. Switching pools initializes that Agent with the complete

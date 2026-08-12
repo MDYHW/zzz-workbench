@@ -138,11 +138,16 @@ The prose requirements govern if this diagram and the text ever differ.
 
 **Candidate sets and representative preparation**
 
-- R4. Seed's full W-Engine candidates are Cordis Germina, Severed Innocence,
-  The Brimstone, and Marcato Desire; non-limited candidates are The Brimstone
-  and Marcato Desire. Full prepares Cordis Germina W1 and non-limited prepares
-  Marcato Desire W5. Do not admit generic stat sticks whose usable package adds
-  no distinct current role, formula, action, operation, threshold, or cap axis.
+- R4. Seed's full W-Engine candidates are Cordis Germina, Heartstring Nocturne,
+  Severed Innocence, The Brimstone, and Marcato Desire; non-limited candidates
+  are The Brimstone and Marcato Desire. Full prepares Cordis Germina W1 and
+  non-limited prepares Marcato Desire W5. Heartstring's Base ATK 713, advanced
+  CRIT Rate +24%, and Combat CRIT DMG +50% form a distinct mixed-CRIT package at
+  zero supplied substats even though its Fire RES Ignore is unusable by
+  Electric Seed. Cordis remains the full first choice after the finite
+  stat-supply comparison; candidate admission does not imply representative
+  priority. Do not admit generic stat sticks whose usable package adds no
+  distinct current role, formula, action, operation, threshold, or cap axis.
 - R5. Seed's retained 4-piece candidates are Dawn's Bloom and Woodpecker
   Electro. Her base 2-piece candidates are Woodpecker Electro, Branch & Blade
   Song, and Puffer Electro. Slot 4 offers CRIT Rate and CRIT DMG; Slot 5 offers
@@ -197,8 +202,8 @@ The prose requirements govern if this diagram and the text ever differ.
 - R11a. Retain the following new W-Engine facts. Refinement remains editable,
   so every Result-changing W1-W5 passive value is retained even though the
   prepared defaults remain S-Rank W1 and A-Rank W5. Existing Cordis Germina,
-  Severed Innocence, and Marcato Desire facts remain owned by current content
-  and are not duplicated here.
+  Heartstring Nocturne, Severed Innocence, and Marcato Desire facts remain
+  owned by current content and are not duplicated here.
 
   | W-Engine | Rank / prepared default | Base ATK | Advanced stat | Exact retained passive and surface |
   | --- | --- | ---: | --- | --- |
@@ -347,6 +352,11 @@ The prose requirements govern if this diagram and the text ever differ.
   Cissia output depends on a received clause before emitting another outgoing
   clause, so the existing Anby-only extra calculation phase remains the sole
   received-effect-dependent outgoing phase.
+- R18d. When Seed selects Heartstring Nocturne, its advanced CRIT Rate appears
+  at Initial and its +50% CRIT DMG appears at Combat and Fully Enabled. Seed
+  receives no Fire RES Ignore row. This retained partial-package projection
+  neither replaces Cordis as the full prepared representative nor infers any
+  Result effect merely from Heartstring's candidate priority.
 
 **Review and planning boundary**
 
@@ -382,8 +392,8 @@ The prose requirements govern if this diagram and the text ever differ.
 - AE2. **Covers R4-R10.** Given M0/full Party Apply, Seed prepares Cordis/Dawn/
   Woodpecker, Cissia prepares Serpentine/Astral/Swing, and Astra prepares
   Elegant Vanity/Moonlight/Astral with the authored mains and zero substats.
-  The equivalent non-limited preparation uses Marcato, Drill Rig, and Bashful
-  Demon with the corresponding complete Disc packages.
+  The equivalent non-limited preparation uses Marcato, Drill Rig, and Kaboom
+  the Cannon with the corresponding complete Disc packages.
 - AE3. **Covers R8-R10.** Given Cissia without the authored repeated Quick Assist
   opportunity, her full local representative is Serpentine/Dawn/Swing with
   CRIT Rate / Electric DMG / Energy Regen and zero substats; non-limited changes
@@ -403,7 +413,7 @@ The prose requirements govern if this diagram and the text ever differ.
   non-Electric recipient's input or create a DEF Result row for a direction
   that intentionally has no projector. Without Cissia, Seed M2 supplies the
   bounded pressure only to Seed and the current Vanguard.
-- AE5. **Covers R11a-R14a.** Given Seed M2 Fully Enabled, Slaughter shows one
+- AE5. **Covers R11a-R14a, R18d.** Given Seed M2 Fully Enabled, Slaughter shows one
   +120% action outcome from the maximum 120-Energy source relationship. It does
   not create a generic DMG row, Energy gauge, average rotation value, or a
   feedback calculation phase. At Combat, both Seed and the resolved Vanguard
@@ -422,6 +432,10 @@ The prose requirements govern if this diagram and the text ever differ.
   outcomes;
   Vanguard Cissia has 73% broad Combat DEF Ignore from her Core, Serpentine
   Seeker, and Besiege, while Astra omits the region.
+  Selecting Heartstring instead supplies Seed +24% Initial CRIT Rate and +50%
+  Combat CRIT DMG without a Fire RES Ignore row; preparing the full pool again
+  restores Cordis rather than treating candidate admission as first-choice
+  priority.
 - AE6. **Covers R11a-R11b, R15-R16b.** Given Cissia's full representative, the
   Initial Energy Regen gauge reads 3.744 and reaches the 25% DEF Ignore cap.
   In selected and candidate Setup cards, Dawn's Bloom 4-piece is summarized as

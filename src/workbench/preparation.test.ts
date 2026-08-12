@@ -203,7 +203,7 @@ describe('party-directed preparation', () => {
       selection.fourPieceId,
       selection.twoPieceId,
     ])).toEqual([
-      ['bashfulDemon', 'moonlight', 'hormonePunk'],
+      ['kaboom', 'moonlight', 'hormonePunk'],
       ['marcatoDesire', 'dawnsBloom', 'woodpecker'],
       ['drillRigRedAxis', 'astralVoice', 'swingJazz'],
     ])

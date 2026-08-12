@@ -466,6 +466,50 @@ describe('calculateParty mechanisms', () => {
     expect(heartstring.metrics.find(({ id }) => id === 'resIgnore')).toBeUndefined()
   })
 
+  it('projects Heartstring only through each compatible current CRIT consumer', () => {
+    const anbyParty = createPreparedState(
+      {}, ['anbySoldier0', 'lycaon', 'astraYao'], 0,
+    )
+    const anbyBaselineState = selectEngine(anbyParty, 'anbySoldier0', 'cordisGermina')
+    const anbyBaseline = agent(calculateParty(anbyBaselineState)!, 'anbySoldier0')
+    const anbyState = selectEngine(
+      anbyParty,
+      'anbySoldier0',
+      'heartstringNocturne',
+    )
+    const anby = agent(calculateParty(anbyState)!, 'anbySoldier0')
+    expect(metric(anby, 'critRate').breakdown.initial)
+      .toContainEqual(expect.objectContaining({
+        label: 'Heartstring Nocturne', amount: 24,
+      }))
+    expect(metric(anby, 'critDmg').breakdown.combat)
+      .toContainEqual(expect.objectContaining({
+        label: 'Heartstring Nocturne', amount: 50,
+      }))
+    const derivedAmount = (result: typeof anby) => (
+      action(result, 'anbyAftershockCritDmg').breakdown.fully
+        .find(({ detail }) => detail === '35% of Fully Enabled CRIT DMG')?.amount
+    )
+    expect(derivedAmount(anby)! - derivedAmount(anbyBaseline)!).toBeCloseTo(17.5, 10)
+    expect(anby.metrics.find(({ id }) => id === 'resIgnore')).toBeUndefined()
+
+    const seedState = selectEngine(
+      createPreparedState({}, ['seed', 'lycaon', 'astraYao'], 0),
+      'seed',
+      'heartstringNocturne',
+    )
+    const seed = agent(calculateParty(seedState)!, 'seed')
+    expect(metric(seed, 'critRate').breakdown.initial)
+      .toContainEqual(expect.objectContaining({
+        label: 'Heartstring Nocturne', amount: 24,
+      }))
+    expect(metric(seed, 'critDmg').breakdown.combat)
+      .toContainEqual(expect.objectContaining({
+        label: 'Heartstring Nocturne', amount: 50,
+      }))
+    expect(seed.metrics.find(({ id }) => id === 'resIgnore')).toBeUndefined()
+  })
+
   it('projects Lycaon threshold, action, recipient, and multi-recipient mechanisms separately', () => {
     const local = createPreparedState({}, ['corin', 'lycaon', 'astraYao'], 0)
     const base = agent(calculateParty(local)!, 'lycaon')
@@ -531,6 +575,29 @@ describe('calculateParty mechanisms', () => {
     expect(action(simmering, 'lycaonAssist').values.fully
       - metric(simmering, 'dazeBonus').values.fully).toBe(11.5)
     expect(simmering.metrics.find(({ id }) => id === 'dmgBonus')).toBeUndefined()
+
+    const hellfire = agent(calculateParty(
+      selectEngine(local, 'lycaon', 'hellfireGears'),
+    )!, 'lycaon')
+    expect(metric(hellfire, 'impact').values).toMatchObject({
+      initial: expect.closeTo(194.54),
+      fully: expect.closeTo(221.94),
+    })
+    expect(metric(hellfire, 'impact').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Hellfire Gears', detail: 'W1',
+        display: { value: 20, unit: '%', decimals: 0 },
+      }))
+    expect(hellfire.metrics.find(({ id }) => id === 'energyRegen')).toBeUndefined()
+
+    const steam = agent(calculateParty(
+      selectEngine(local, 'lycaon', 'steamOven'),
+    )!, 'lycaon')
+    expect(metric(steam, 'impact').values).toMatchObject({
+      initial: expect.closeTo(169.88),
+      fully: expect.closeTo(204.952),
+    })
+    expect(metric(steam, 'energyRegen').values.initial).toBeCloseTo(1.8, 10)
 
     const allocated = calculateParty(
       createPreparedState({}, ['corin', 'trigger', 'lycaon'], 0),
