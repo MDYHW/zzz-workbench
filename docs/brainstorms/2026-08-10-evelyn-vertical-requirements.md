@@ -136,9 +136,13 @@ The prose requirements govern if this diagram and the text ever differ.
 
 - R6. Evelyn's authored base 4-piece candidates are Hormone Punk and Woodpecker
   Electro. Her authored 2-piece candidates are Branch & Blade Song, Inferno
-  Metal, Woodpecker Electro, Puffer Electro, and Hormone Punk, subject to the
-  existing different-set rule. Retain Inferno Metal 2-piece as Fire DMG +10%
-  and Hormone Punk 4-piece as ATK +25%; reuse existing Disc facts elsewhere.
+  Metal, Woodpecker Electro, Puffer Electro, and one member of the authored
+  Hormone Punk/Astral Voice ATK% relationship, subject to the existing
+  different-set rule. Selecting Hormone Punk 4-piece exposes Astral Voice as
+  the legal ATK% complement; selecting Woodpecker 4-piece exposes Hormone Punk
+  so its 4-piece swap remains available. Retain Inferno Metal 2-piece as Fire
+  DMG +10% and Hormone Punk 4-piece as ATK +25%; reuse existing Disc facts
+  elsewhere.
 - R7. Evelyn's main-stat candidates are Slot 4 CRIT Rate and CRIT DMG; Slot 5
   PEN Ratio, Fire DMG, and ATK%; and Slot 6 ATK%. Her effective-substat choices
   are CRIT Rate, CRIT DMG, and ATK%, using the existing per-hit values. Her local

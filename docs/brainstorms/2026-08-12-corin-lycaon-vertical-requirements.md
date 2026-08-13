@@ -174,10 +174,13 @@ and genuine multi-recipient effects keep their actual rules.
   to Corin's current effective candidates under the common contextual rule. It
   remains candidate-only and does not replace Hormone during preparation.
   Corin's 2-piece candidates are Woodpecker Electro, Branch & Blade Song,
-  Fanged Metal, Astral Voice, and Hormone Punk, subject to the different-set
-  rule. Astral Voice and Hormone Punk each independently retain ATK +10%; exact
-  identity remains material because selected artwork, source disclosure, and
-  complete-package legality differ.
+  Fanged Metal, and one member of the authored Hormone Punk/Astral Voice ATK%
+  relationship, subject to the different-set rule. Selecting Hormone Punk
+  4-piece exposes Astral Voice as the legal ATK% complement; selecting
+  contextual Puffer Electro exposes Hormone Punk so its 4-piece swap remains
+  available. The displayed exact identity keeps its selected artwork, source
+  disclosure, and complete-package legality without presenting a duplicate
+  ATK +10% decision.
 - R8. Corin's Slot 4 candidates are CRIT Rate and CRIT DMG; Slot 5 candidates
   are PEN Ratio, Physical DMG, and ATK%; Slot 6 offers ATK%. Effective substats
   are CRIT Rate, CRIT DMG, and ATK%. Cordis's Basic/Ultimate-only DEF Ignore
@@ -249,10 +252,13 @@ and genuine multi-recipient effects keep their actual rules.
   its Energy Regen +20% and squad DMG +18% therefore do not form a legal Lycaon
   4-piece package.
 - R15. Lycaon's base 2-piece candidates are Shockstar Disco, King of the Summit,
-  Swing Jazz, and Moonlight Lullaby, subject to the different-set rule. Selecting
-  King 4-piece adds Woodpecker Electro 2-piece as selected-input-derived CRIT
-  threshold pressure. Equal-looking Daze, Impact, or Energy values do not merge
-  the exact set identities or bypass holder eligibility and package legality.
+  and Swing Jazz, subject to the different-set rule. Swing Jazz is the authored
+  Energy Regen identity because neither Swing Jazz nor Moonlight Lullaby has a
+  legal 4-piece role for Lycaon; Moonlight remains Support-holder-only and its
+  exact source fact does not create a duplicate Lycaon 2-piece decision.
+  Selecting King 4-piece adds Woodpecker Electro 2-piece as selected-input-
+  derived CRIT threshold pressure. Equal-looking Daze, Impact, or Energy values
+  do not bypass holder eligibility and complete-package legality.
 - R16. Without selected King, Lycaon's Slot 4 offers ATK% as the bounded residual
   choice and has no effective-substat candidates. Selecting King adds CRIT Rate
   to Slot 4 and CRIT Rate effective-substat hits because its 50% holder threshold

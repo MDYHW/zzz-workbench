@@ -192,18 +192,19 @@ because future substats are finite and other modifiers can become saturated.
 ### Drive Discs, main stats, and finite opportunity
 
 - R16. Yidhari's only 4-piece candidate is Yunkui Tales. Her 2-piece candidates
-  are Woodpecker Electro and Branch & Blade Song, subject to the different-set
-  rule. Her main-stat candidates are CRIT Rate or CRIT DMG in Slot 4, Ice DMG
-  or HP% in Slot 5, and HP% in Slot 6. Her effective substats are CRIT Rate,
-  CRIT DMG, and HP%.
+  are Woodpecker Electro, Branch & Blade Song, and Polar Metal, subject to the
+  different-set rule. Her main-stat candidates are CRIT Rate or CRIT DMG in
+  Slot 4, Ice DMG or HP% in Slot 5, and HP% in Slot 6. Her effective substats
+  are CRIT Rate, CRIT DMG, and HP%.
 - R17. Yidhari prepares Yunkui 4-piece, Branch & Blade 2-piece, CRIT Rate /
   Ice DMG / HP% mains, and zero supplied substat hits in both pools. After the
   bounded eight-hit CRIT Rate and CRIT DMG opportunity is included, Branch and
   the CRIT Rate main keep the complete package below the 100% CRIT Rate cap
-  while balancing the large qualified low-HP CRIT DMG supply. Polar Metal is not competitive
-  because Ice DMG shares Yidhari's already large regular-DMG axis; ATK sets
-  supply a materially weaker Rupture-conversion increase than the retained
-  HP/CRIT alternatives.
+  while balancing the large qualified low-HP CRIT DMG supply. Polar Metal
+  remains a distinct Ice-DMG complement: a completed setup with greater
+  effective-substat investment can favor its fixed modifier even though it is
+  not the zero-substat representative. ATK sets supply a materially weaker
+  Rupture-conversion increase than the retained CRIT and Ice alternatives.
 - R18. Manato's only 4-piece candidate is Yunkui Tales. His 2-piece candidates
   are Woodpecker Electro, Branch & Blade Song, and Inferno Metal. His main-stat
   candidates are CRIT Rate or CRIT DMG in Slot 4, Fire DMG or HP% in Slot 5,

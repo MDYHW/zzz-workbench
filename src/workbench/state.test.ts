@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  DISC_IDS_BY_AGENT_AND_PIECE,
-  ENGINE_IDS_BY_AGENT_AND_POOL,
-  MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
-  W_ENGINES,
-} from './content'
+import { MAIN_STAT_IDS_BY_AGENT_AND_SLOT } from './content'
 import {
   effectiveFourPieceIds,
   effectiveMainStatIds,
@@ -30,36 +25,7 @@ describe('workbench state lifecycle', () => {
     })
   })
 
-  it('keeps the admitted candidates distinct from the exact three prepared slots', () => {
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.yixuan.full).toEqual([
-      'qingming', 'cauldron', 'radiowave', 'puzzleSphere',
-    ])
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.yixuan).toEqual({
-      fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade'],
-    })
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.trigger).toEqual({
-      fourPiece: ['king', 'astralVoice', 'shockstar'], twoPiece: ['shockstar', 'king', 'woodpecker', 'swingJazz', 'moonlight'],
-    })
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.dialyn).toEqual({
-      full: ['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
-      nonLimited: ['hellfireGears', 'steamOven', 'preciousFossilizedCore'],
-    })
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.dialyn).toEqual({
-      fourPiece: ['king'], twoPiece: ['woodpecker', 'swingJazz', 'moonlight'],
-    })
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.lucia).toEqual({
-      fourPiece: ['moonlight'], twoPiece: ['yunkui', 'swingJazz'],
-    })
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.trigger).toEqual({
-      full: ['spectralGaze', 'iceJadeTeapot', 'restrained', 'preciousFossilizedCore', 'steamOven'],
-      nonLimited: ['restrained', 'preciousFossilizedCore', 'steamOven'],
-    })
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.astraYao).toEqual({
-      fourPiece: ['astralVoice', 'moonlight'],
-      twoPiece: ['moonlight', 'swingJazz', 'hormonePunk', 'astralVoice'],
-    })
-    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.yixuan.slot5).toEqual(['etherDmg', 'hpPct'])
-
+  it('prepares the exact three initial slots as a complete workbench', () => {
     const state = createPreparedState()
     expect(state.focusSlot).toBe(0)
     expect(state.slots.map(({ agentId }) => agentId)).toEqual(['yixuan', 'dialyn', 'lucia'])
@@ -884,10 +850,6 @@ describe('workbench state lifecycle', () => {
   })
 
   it('authors complete full and non-limited second-vertical packages', () => {
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.anbySoldier0).toEqual({
-      full: ['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'marcatoDesire', 'starlightEngine'],
-      nonLimited: ['marcatoDesire', 'starlightEngine'],
-    })
     const full = createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0)
     expect(full.slots.map(({ setup }) => ({
       engineId: setup.engineId,
@@ -951,10 +913,6 @@ describe('workbench state lifecycle', () => {
   })
 
   it('authors complete Corin and Lycaon representatives from generic Rank defaults', () => {
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.lycaon).toEqual({
-      full: ['blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore', 'simmeringPot'],
-      nonLimited: ['hellfireGears', 'steamOven', 'preciousFossilizedCore', 'simmeringPot'],
-    })
     const full = createPreparedState({}, ['corin', 'lycaon', 'astraYao'], 0)
     const nonLimited = createPreparedState(
       { corin: 'nonLimited', lycaon: 'nonLimited' },
@@ -1269,34 +1227,7 @@ describe('workbench state lifecycle', () => {
     expect(activeCandidatePressures(electricOnly, 0)).toEqual([])
   })
 
-  it('authors exact Seed and Cissia local candidates and pool representatives', () => {
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.seed).toEqual({
-      full: ['cordisGermina', 'heartstringNocturne', 'severedInnocence', 'brimstone', 'marcatoDesire'],
-      nonLimited: ['brimstone', 'marcatoDesire'],
-    })
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.cissia).toEqual({
-      full: ['serpentineSeeker', 'drillRigRedAxis', 'cordisGermina'],
-      nonLimited: ['drillRigRedAxis'],
-    })
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.seed).toEqual({
-      fourPiece: ['dawnsBloom', 'woodpecker'],
-      twoPiece: ['woodpecker', 'branchAndBlade', 'pufferElectro'],
-    })
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.cissia).toEqual({
-      fourPiece: ['dawnsBloom'],
-      twoPiece: ['swingJazz', 'woodpecker', 'branchAndBlade'],
-    })
-    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.seed).toEqual({
-      slot4: ['critRate', 'critDmg'],
-      slot5: ['electricDmg', 'atkPct', 'penRatio'],
-      slot6: ['atkPct'],
-    })
-    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.cissia).toEqual({
-      slot4: ['critRate', 'critDmg'],
-      slot5: ['electricDmg', 'atkPct'],
-      slot6: ['energyRegenPct', 'atkPct'],
-    })
-
+  it('prepares exact Seed and Cissia pool representatives', () => {
     const full = createPreparedState({}, ['seed', 'cissia', 'anbySoldier0'], 0)
     expect(full.slots.slice(0, 2).map(({ setup }) => ({
       engineId: setup.engineId,
@@ -1325,9 +1256,6 @@ describe('workbench state lifecycle', () => {
       ['marcatoDesire', 5, 'dawnsBloom', 'woodpecker', { slot4: 'critRate', slot5: 'electricDmg', slot6: 'atkPct' }],
       ['drillRigRedAxis', 5, 'dawnsBloom', 'swingJazz', { slot4: 'critRate', slot5: 'electricDmg', slot6: 'energyRegenPct' }],
     ])
-    expect(W_ENGINES.brimstone.baseAtk).toBe(684)
-    expect(W_ENGINES.serpentineSeeker.baseAtk).toBe(713)
-    expect(W_ENGINES.drillRigRedAxis.baseAtk).toBe(624)
   })
 
   it('owns contextual Cissia and Astra allocation by all-party versus target-only preparation', () => {

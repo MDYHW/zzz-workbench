@@ -114,31 +114,7 @@ indirection.
 
 **Status:** Unexplored
 
-### 5. Keep same-effect 2-piece candidates exact
-
-**Description:** Keep each selected 2-piece Disc as an exact identity in setup,
-candidate presentation, calculation, and Result source disclosure. Do not
-collapse same-effect Discs into an OR projection.
-
-**Warrant:** `direct:` exact identity owns the visible candidate, selected
-artwork, source label, and source-locus interaction even when another Disc has
-the same numeric 2-piece effect.
-
-**Rationale:** The selected 4-piece already supplies its own 2-piece effect, so
-that identity is hidden only from current 2-piece alternatives. A legal role
-exchange is initiated from the 4-piece selector instead of by substituting an
-equivalent Disc identity.
-
-**Downsides:** Same-effect candidates occupy separate cards, but the authored
-candidate gate still bounds their count and preserves exact source meaning.
-
-**Confidence:** 100%
-
-**Complexity:** Low
-
-**Status:** Implemented
-
-### 6. Let the next vertical pay for test compression
+### 5. Let the next vertical pay for test compression
 
 **Description:** Add behavior for the new consumer first and combine an old
 test only when the replacement catches the same failure consequence.

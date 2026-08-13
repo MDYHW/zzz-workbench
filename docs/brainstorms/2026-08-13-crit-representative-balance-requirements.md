@@ -21,9 +21,9 @@ It is not a runtime optimizer and does not react to the user's current counts.
 
 ## Requirements
 
-- R1. Candidate W-Engine, Drive Disc, main-stat, and effective-substat
-  memberships do not change. Direct edits remain local and Result never feeds
-  preparation.
+- R1. Direct edits remain local and Result never feeds preparation. This
+  representative balance is authored from the applicable current candidate
+  memberships rather than owning or freezing them.
 - R2. Author the current representatives as follows:
 
   | Agent / boundary | Full pool | Non-limited pool |

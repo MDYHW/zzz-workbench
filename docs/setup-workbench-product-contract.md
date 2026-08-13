@@ -209,12 +209,16 @@ Patterns order inspection but cannot inherit another Agent's result. New items
 are routed first to roles, formulas, actions, stat pressures, and Specialties
 that can consume them; unrelated Agents do not require full re-derivation.
 
+#### W-Engine Package Inspection
+
 For W-Engines, inspect matching-Specialty packages first and compare Base ATK,
 advanced stat, and usable passive together at S-Rank W1 or A-Rank W5. No one
 package component is an automatic gate. An unused advanced stat or passive
 clause is an opportunity cost in the whole-package comparison, not an automatic
 rejection. An off-Specialty package remains Agent-local and survives only when
 its usable whole package is competitive for the current direction.
+
+#### Drive Disc Inspection Routing
 
 A 4-piece Disc needs a material core effect; a 2-piece needs a competitive
 complement beside a different 4-piece; a main stat must be legal and survive
@@ -225,6 +229,58 @@ complete legal package: the selected 4-piece set's inherent 2-piece effect and
 4-piece effect together with the different selected 2-piece complement. A Disc
 candidate survives in one piece role only when it participates in at least one
 materially competitive complete package.
+
+Drive Disc authoring uses a two-level effect-clause inspection map before it
+compares complete packages. The first level identifies the effect family; the
+second identifies the exact current axis or scope. Current families include
+scaling-stat supply such as ATK% or Max HP%, CRIT supply, Attribute DMG,
+action-scoped DMG, formula-specific modifiers, DEF-region supply, Daze supply,
+resource supply, and party-facing modifiers. Keep only current leaves: do not
+prepopulate unused Attributes, actions, or effects to form a catalogue.
+
+Classify each retained 2-piece or 4-piece clause independently, then recombine
+every clause belonging to one exact Disc identity for the whole-package
+comparison. A multi-clause Disc does not belong to only one family. Piece
+threshold, holder and Specialty eligibility, activation, recipient, canonical
+action, Attribute, source-local qualifier, stack behavior, non-stacking, and
+exact identity remain orthogonal applicability facts rather than deeper
+classification levels.
+
+For one Agent direction, inspect in this order: establish exact Result and
+setup consumers; select formula-valid effect families and exact leaves; apply
+role priority; reject incompatible holders or activations; match defining
+actions and Attributes; compare complete 4-piece packages; compare legal
+2-piece complements; apply threshold, cap, and bounded future-substat
+opportunity costs; resolve explicitly authored same-effect identity compression;
+then apply contextual candidate and non-stacking holder policy. Candidate
+membership and the zero-substat prepared first choice remain separate outcomes.
+
+For a current general-damage Attack contributor, the ordinary 2-piece
+inspection includes both ATK% and the matching Attribute DMG modifier, together
+with applicable CRIT, DEF-region, and defining-action alternatives. ATK is the
+direct scaling stat in `base_damage`; Attribute DMG occupies a separate regular-
+DMG modifier scope. Neither axis is the automatic prepared first choice.
+
+For a current Rupture damage contributor, the ordinary 2-piece inspection
+includes the matching Attribute DMG modifier and applicable CRIT alternatives.
+Do not admit a standalone Max HP% 2-piece: its increase reaches Sheer Force only
+after the `0.10 * current Max HP` conversion and is not competitive with the
+retained 2-piece alternatives. This does not invalidate Max HP inside a
+competitive 4-piece package such as Yunkui Tales. PEN Ratio is formula-invalid
+because `sheer_damage` omits the DEF region.
+
+Stun and provider directions reuse the same routing rather than inheriting a
+named-Agent list. A Stun direction inspects King of the Summit when its Daze
+package and CRIT threshold materially strengthen the current daze-contributor
+and buffer roles, then other compatible party-facing packages, and only then
+Shockstar Disco unless sufficient authored field time makes its Basic, Dash,
+and Dodge Counter scope competitive. A capped provider reserves its scarce
+future substat opportunity before committing fixed supply, then inspects
+resource and party-facing packages for the remaining axes. Contextual Puffer
+Electro and Astral Voice admission and non-stacking holder allocation remain
+the separate operation-aware passes defined below.
+
+#### Effective Substat Candidate Gate
 
 Main-stat and effective-substat candidates begin from the Agent's direction,
 roles, formulas, and current Agent sources. Do not re-derive the whole candidate
@@ -412,13 +468,14 @@ Result actually exposes. Formula participation alone is insufficient. Flat PEN
 is not current valid stat pressure, an effective substat, or a Result row; PEN
 Ratio is separate.
 
-Equal retained numeric effects do not collapse exact equipment identity. When
-two identities independently survive the whole-package candidate gate, they
-remain separate selections because identity determines selected artwork and
-source disclosure and, for Drive Discs, can change complete-package legality
-through the different-set rule. Numeric equality does not admit a second item;
-each identity must first pass the normal competitive-candidate policy for the
-current consumer.
+Equal retained numeric effects do not by themselves collapse or admit exact
+equipment identity. Each identity first passes the normal competitive-candidate
+policy, and exact identity still determines selected artwork, source disclosure,
+and complete-package legality. When two 2-piece identities supply the same
+retained decision and an authored same-effect relationship says their separate
+display has no additional current value, expose one current identity through
+the canonical/substitute policy under Complete Setup Selection. This compresses
+the candidate surface rather than merging the identities or their source facts.
 
 Prepared substat counts and representative authoring use two different
 observations. The visible prepared setup always begins at zero supplied hits.
@@ -551,6 +608,19 @@ Only a 4-piece selection can initiate an atomic role swap: selecting the current
 2-piece set as 4-piece swaps the two current identities when the prior 4-piece
 set is admitted as a 2-piece candidate. Otherwise that conflicting 4-piece
 alternative is not offered. The workbench never chooses a third set.
+
+An explicitly authored pair of same-effect 2-piece identities exposes at most
+one member at a time. When the current 4-piece is one member, expose the other.
+When neither is selected as 4-piece and exactly one member is an authored
+4-piece candidate, expose that member so the existing atomic role-swap path
+remains available. When neither member has that 4-piece role, use one authored
+canonical identity; release order or lexical order may settle an otherwise
+immaterial authoring tie without becoming runtime equipment data. If both
+members have a material 4-piece role, author the current consumer's canonical
+choice rather than inventing a runtime tiebreaker. Selection keeps the exact
+displayed identity, source disclosure, and different-set legality. A direct
+4-piece edit reevaluates this candidate surface under the ordinary invalidation
+lifecycle and does not select a substitute or restore a previous choice.
 
 Changing one Agent's Mindscape or pool initializes only that Agent with the
 corresponding prepared setup. Changing party composition or focus initializes

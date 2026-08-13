@@ -240,16 +240,7 @@ describe('party-directed preparation', () => {
     ])
   })
 
-  it('keeps authored Yidhari and Manato pool candidates inside their prepared representatives', () => {
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.yidhari).toEqual({
-      full: ['krakensCradle', 'grillOWisp', 'cauldron', 'qingming', 'radiowave', 'puzzleSphere'],
-      nonLimited: ['grillOWisp', 'cauldron', 'radiowave', 'puzzleSphere'],
-    })
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.manato).toEqual({
-      full: ['grillOWisp', 'wrathfulVajra', 'qingming', 'cauldron', 'radiowave', 'puzzleSphere'],
-      nonLimited: ['grillOWisp', 'cauldron', 'radiowave', 'puzzleSphere'],
-    })
-
+  it('prepares Yidhari and Manato from their authored pool representatives', () => {
     const selections = preparePartySelections([
       context('yidhari'), context('manato'), context('astraYao'),
     ], 'yidhari')
@@ -260,10 +251,6 @@ describe('party-directed preparation', () => {
   })
 
   it('authors Hugo from a complete usable package for each pool', () => {
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.hugo).toEqual({
-      full: ['myriadEclipse', 'cordisGermina', 'heartstringNocturne', 'steelCushion', 'marcatoDesire'],
-      nonLimited: ['steelCushion', 'marcatoDesire'],
-    })
     const full = preparePartySelections([
       context('hugo'), context('lycaon'), context('astraYao'),
     ], 'hugo')[0]
@@ -281,10 +268,6 @@ describe('party-directed preparation', () => {
   })
 
   it('authors Ju Fufu pool packages and reuses non-overlapping King holder allocation', () => {
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.juFufu).toEqual({
-      full: ['roaringFurnace', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
-      nonLimited: ['hellfireGears', 'steamOven', 'preciousFossilizedCore'],
-    })
     expect(preparePartySelections([
       context('juFufu'), context('trigger'), context('yixuan'),
     ], 'yixuan')).toMatchObject([
@@ -314,10 +297,6 @@ describe('party-directed preparation', () => {
   })
 
   it('authors Pan Yinhu by pool and uses Bunny when Cissia can hold Astral', () => {
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.panYinhu).toEqual({
-      full: ['tusksOfFury', 'tremorTrigramVessel'],
-      nonLimited: ['tremorTrigramVessel'],
-    })
     expect(prepareTargetSelection(context('panYinhu'), 'yixuan', [])).toEqual({
       engineId: 'tusksOfFury', fourPieceId: 'astralVoice', twoPieceId: 'swingJazz',
       mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'energyRegenPct' },
@@ -362,10 +341,6 @@ describe('party-directed preparation', () => {
   })
 
   it('authors Banyue from distinct full and non-limited whole packages', () => {
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.banyue).toEqual({
-      full: ['wrathfulVajra', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere'],
-      nonLimited: ['cauldron', 'grillOWisp', 'puzzleSphere'],
-    })
     expect(prepareTargetSelection(context('banyue'), 'banyue', [])).toEqual({
       engineId: 'wrathfulVajra', fourPieceId: 'yunkui', twoPieceId: 'branchAndBlade',
       mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'hpPct' },
@@ -377,10 +352,6 @@ describe('party-directed preparation', () => {
   })
 
   it('authors Starlight Billy from whole packages including a partial-passive full-pool entrant', () => {
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.starlightBilly).toEqual({
-      full: ['starlightRiderFaceplate', 'qingming', 'cauldron', 'steelCushion', 'grillOWisp', 'puzzleSphere'],
-      nonLimited: ['cauldron', 'steelCushion', 'grillOWisp', 'puzzleSphere'],
-    })
     expect(prepareTargetSelection(context('starlightBilly'), 'starlightBilly', [])).toEqual({
       engineId: 'starlightRiderFaceplate', fourPieceId: 'yunkui', twoPieceId: 'branchAndBlade',
       mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'hpPct' },

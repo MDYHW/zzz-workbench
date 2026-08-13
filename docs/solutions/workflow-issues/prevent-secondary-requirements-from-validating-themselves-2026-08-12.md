@@ -1,6 +1,7 @@
 ---
 title: Prevent secondary requirements from validating themselves
 date: 2026-08-12
+last_refreshed: 2026-08-13
 category: workflow-issues
 module: controller-refresh-and-requirements-authoring
 problem_type: workflow_issue
@@ -10,10 +11,12 @@ applies_when:
   - "A refreshed controller will author or review a new vertical"
   - "Secondary requirements add or change candidates, prepared representatives, or selected-input pressure"
   - "Reviewers validate an implementation against requirements written in the same change"
+  - "A completed implementation plan is being consulted or closed"
 symptoms:
   - "The controller can narrate the permanent contract but cannot apply it to contrasting current consumers"
   - "A secondary requirement becomes the oracle that plans, code, tests, and browser checks merely confirm"
   - "A clean build and passing review stack create confidence in incorrect candidate or representative authoring"
+  - "Completed plans are copied forward or retained as competing current policy"
 root_cause: missing_workflow_step
 resolution_type: workflow_improvement
 related_components:
@@ -27,6 +30,7 @@ tags:
   - representative-setup
   - counterexample-review
   - semantic-drift
+  - plan-lifecycle
 ---
 
 # Prevent secondary requirements from validating themselves
@@ -52,12 +56,15 @@ to disprove the requirements against permanent authority and established
 consumers. The secondary document became its own oracle.
 
 A later advisory review repeated the pattern by overgeneralizing the Lycaon
-conclusion to Trigger and by treating Swing Jazz and Moonlight Lullaby as one
-candidate because their two-piece Energy Regen values match. Current repository
-behavior contradicts both claims: Trigger has an independent CRIT-derived
-Aftershock Daze relationship while her exact Additional Ability party condition
-is active, and exact Disc identity still changes selected artwork, source
-disclosure, and same-set legality.
+conclusion to Trigger and by collapsing Swing Jazz and Moonlight Lullaby's exact
+identities solely because their two-piece Energy Regen values match. Both moves
+were unsupported: Trigger has an independent CRIT-derived Aftershock Daze
+relationship while her exact Additional Ability party condition is active, and
+numeric equality does not erase selected artwork, source disclosure, holder
+eligibility, or same-set legality. A later accepted display policy may expose
+only one authored member of such a pair for the current 4-piece role, but that
+is candidate compression after those facts are preserved, not identity
+equivalence.
 
 This was not primarily a missing Product Contract rule. The contract already
 required current-consumer routing, whole-package and opportunity-cost review,
@@ -150,6 +157,24 @@ A useful adversarial question is:
 > Which existing correct case would disprove this conclusion if it were
 > generalized too broadly?
 
+### Keep implementation plans downstream and disposable
+
+A completed plan is execution history, not a reusable product-policy source.
+Copying its requirements, file list, test matrix, model routing, or old
+assumptions into the next vertical recreates the same self-validation loop one
+step later. A supersession chain is also insufficient: it leaves several
+searchable documents claiming different versions of the current rule.
+
+The corrective principle is to settle product meaning before planning and keep
+the resulting plan disposable. The canonical creation and close sequence lives
+in [`docs/plans/README.md`](../../plans/README.md); do not duplicate that
+procedure in requirements or later learning records.
+
+Do not close a plan while a genuinely unique migration, rollback, or
+operational procedure still lacks a durable owner. Move that procedure first;
+do not retain the plan merely because it records effort or because a future
+vertical might look similar.
+
 ### Test mechanisms together with their contrast
 
 Selected-input pressure needs a shared mechanism test covering all three
@@ -223,13 +248,20 @@ candidate at zero rather than restoring an edited count.
 The policy follows the current consumer, not Agent identity, Specialty, or the
 Disc name.
 
-### Swing Jazz and Moonlight Lullaby: equal value, distinct identity
+### Swing Jazz and Moonlight Lullaby: equal value, distinct facts
 
 Their two-piece Energy Regen values match, but exact identity remains material
-after both independently pass candidate authoring. Selecting Moonlight Lullaby
-as four-piece makes its own two-piece identity illegal while Swing Jazz remains
-a legal complement. Numeric equality does not erase current selection, source,
-artwork, or complete-package legality.
+while authoring the complete package. Selecting Moonlight Lullaby as four-piece
+makes its own two-piece identity illegal while Swing Jazz remains a legal
+complement; holder eligibility can also differ at four pieces. Numeric equality
+therefore does not merge source, artwork, selection, or complete-package facts.
+
+After both identities pass that check, the current 4-piece candidates and
+selected role may determine which one is worth exposing as the single authored
+two-piece choice. Showing one member is valid semantic compression when it
+preserves every legal 4-piece/2-piece role exchange. Showing both is not an
+automatic requirement, and choosing one does not establish a numeric-
+equivalence registry.
 
 ### Corin representative authoring
 
@@ -258,3 +290,4 @@ consumer question.
 - [First Vertical Completion Review Requirements](../../brainstorms/2026-08-06-first-vertical-completion-review-requirements.md)
 - [Preserve Interaction Fidelity in UI Explorations](preserve-interaction-fidelity-in-ui-explorations-2026-08-05.md)
 - [Soldier Zero Vertical Requirements](../../brainstorms/2026-08-07-soldier-zero-vertical-requirements.md)
+- [Implementation Plan Lifecycle](../../plans/README.md)

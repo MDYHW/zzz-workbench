@@ -20,6 +20,15 @@ The five Markdown files under `docs/` are the only initial permanent
 authorities. Read the applicable owner before making a product or semantic
 decision. Definitions have one owner.
 
+Applicable supporting requirements under `docs/brainstorms/` record accepted
+bounded product outcomes once approved. Active plans describe only the
+implementation work still in progress, and `docs/plans/README.md` owns their
+lifecycle plus a compressed completed-milestone index. None is a permanent
+authority: when a later accepted requirement changes an outcome, correct the
+current owning requirement in place and do not use an older plan, milestone
+summary, or supersession note as the current rule. Git history, not a searchable
+archive directory, preserves removed completed-plan detail.
+
 The archived predecessor repository, its Git history, tasks, implementation,
 tests, plans, and assets are not authorities and must not be consulted or
 imported unless the user explicitly authorizes a specific reuse later.
@@ -37,9 +46,10 @@ reporting a clean checkpoint, or passing implementation gates does not by
 itself establish semantic readiness.
 
 - Before owning new requirements, a refreshed controller reads all five
-  permanent owners, relevant current requirements and completed plans,
-  applicable `docs/solutions/`, current behavior-bearing consumers, and their
-  visible boundaries. It then independently traces a small repository-only set
+  permanent owners, relevant current requirements, the completed-milestone
+  index and any active applicable plan, applicable `docs/solutions/`, current
+  behavior-bearing consumers, and their visible boundaries. It then
+  independently traces a small repository-only set
   of sentinel cases from source or retained relationship through current
   consumer, candidate or representative consequence, lifecycle, and visible
   Setup or Result. The set must include the nearest similar current case and a
@@ -55,13 +65,14 @@ itself establish semantic readiness.
   these checks into a named-Agent decision tree or a permanent exhaustive
   matrix.
 - Before requirements close, every newly added or changed candidate membership
-  or prepared first choice receives a bounded authoring check: direction and
-  role, exact holder eligibility and activation compatibility, exact
-  formula/action/threshold consumer, candidate origin, nearest usable same-axis
-  competitor in the same pool, usable and unused package clauses, finite
-  slot/substat opportunity cost, pool-specific first choice, contrary condition,
-  and selected-input lifecycle when applicable. Keep this analysis ephemeral
-  and persist only the settled requirement.
+  or prepared first choice applies the permanent product contract's Candidate
+  Preparation Dependency and applicable W-Engine or Drive Disc inspection
+  section. The bounded authoring proof records the exact consumer, eligibility,
+  nearest usable same-axis comparator, contrasting current case, complete
+  package, finite opportunity cost, pool-specific representative consequence,
+  contrary condition, and selected-input lifecycle when applicable. Keep this
+  analysis ephemeral and persist only the settled local outcome; do not restate
+  the common policy in the requirement.
 - Secondary requirements cannot validate themselves. Review their new product
   conclusions against the owning permanent authority and established current
   consumers before writing an implementation plan. Tests, build, browser

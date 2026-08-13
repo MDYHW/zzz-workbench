@@ -8,14 +8,19 @@ game facts, setup policy, or user-visible behavior.
 - `AGENTS.md` gives repository-wide working constraints.
 - The five Markdown files directly under `docs/` are the permanent product
   authorities. Each definition stays with its stated owner.
-- `docs/plans/` contains bounded checkpoint decision artifacts. A plan explains
-  one approved outcome and its non-goals; it is not another permanent authority.
-- `src/workbench/content.ts` holds the retained facts for the currently implemented
-  vertical. Those facts serve current consumers and do not form a catalogue.
+- Applicable approved records under `docs/brainstorms/` hold bounded supporting
+  requirements; they remain subordinate to the permanent owners.
+- `docs/plans/` contains active bounded execution artifacts plus a compressed
+  completed-milestone index. A plan explains how to implement one already
+  approved outcome; it is not another permanent authority or a durable product
+  rule.
+- `src/workbench/content/` and its `content.ts` facade hold retained facts for
+  currently admitted Agents. Those facts serve current consumers and do not
+  form a catalogue.
 - Behavior tests are the executable contract for calculation, state transitions,
   preservation and reset rules, and user-visible interactions.
 - Components and browser verification own the concrete presentation of the
-  behavior already settled by the authorities and checkpoint plan.
+  behavior already settled by the authorities, requirements, and active plan.
 - Git commits record reviewed history. A commit does not replace any owner above.
 
 ## Change flow
@@ -26,9 +31,9 @@ game facts, setup policy, or user-visible behavior.
 2. Read the applicable permanent authority. Change an authority only when
    product meaning or policy changes; do not use implementation details to fill
    an authority gap.
-3. For a non-trivial user-visible checkpoint, create one bounded plan under
-   `docs/plans/`. Keep explicit non-goals and mark the plan `completed` only when
-   its behavior and verification are complete.
+3. After requirements are accepted, follow the active-plan contract in
+   [`docs/plans/README.md`](docs/plans/README.md) for a non-trivial
+   user-visible checkpoint.
 4. Implement from the visible outcome backward with the smallest representation
    that serves the current checkpoint.
 5. Add behavior-bearing tests at the narrowest useful layer. Prefer assertions
@@ -38,9 +43,11 @@ game facts, setup policy, or user-visible behavior.
 7. If presentation or interaction changed, verify the affected flow in a real
    browser at desktop and narrow widths. Check interactions, horizontal
    overflow, and console errors.
-8. Review the complete diff against the applicable authority and plan. Resolve
-   actionable findings before declaring the checkpoint complete.
-9. Commit logical, reviewed units with messages that describe user or
+8. Review the complete diff against the applicable authority and active plan.
+   Resolve actionable findings before declaring the checkpoint complete.
+9. After verification, close the active plan through the lifecycle defined in
+   [`docs/plans/README.md`](docs/plans/README.md).
+10. Commit logical, reviewed units with messages that describe user or
    maintainer value. Agents stage or commit only when the user explicitly asks.
 
 ## Canonical local gate
@@ -65,7 +72,8 @@ A checkpoint is done when all of the following apply:
 - affected UI flows have browser-visible verification at desktop and narrow
   widths;
 - review has no unresolved actionable finding; and
-- the checkpoint plan, when one exists, is marked `completed`.
+- the active checkpoint plan, when one exists, has been closed into its current
+  owners and removed from the active plan set.
 
 ## Add process only when it has a current consumer
 
@@ -80,5 +88,5 @@ system, or an external issue tracker. Reconsider them only at these triggers:
 - add content tooling when repeated authoring errors justify automation; and
 - add an issue tracker when parallel contributors need ownership and scheduling.
 
-Until then, plans, behavior tests, browser verification, review, and focused Git
-history are the management system.
+Until then, active plans, behavior tests, browser verification, review, and
+focused Git history are the management system.

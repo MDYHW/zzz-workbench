@@ -150,7 +150,10 @@ The prose requirements govern if this diagram and the text ever differ.
   distinct current role, formula, action, operation, threshold, or cap axis.
 - R5. Seed's retained 4-piece candidates are Dawn's Bloom and Woodpecker
   Electro. Her base 2-piece candidates are Woodpecker Electro, Branch & Blade
-  Song, and Puffer Electro. Slot 4 offers CRIT Rate and CRIT DMG; Slot 5 offers
+  Song, Puffer Electro, Thunder Metal, and Hormone Punk. Thunder Metal preserves
+  the matching Electric DMG axis, while Hormone Punk is the authored ATK%
+  identity because neither member of the Hormone Punk/Astral Voice pair has a
+  4-piece role for Seed. Slot 4 offers CRIT Rate and CRIT DMG; Slot 5 offers
   Electric DMG, ATK%, and PEN Ratio before active pressure; Slot 6 offers ATK%;
   effective substats are CRIT Rate, CRIT DMG, and ATK% with independent zero to
   36 counts.
@@ -170,10 +173,15 @@ The prose requirements govern if this diagram and the text ever differ.
   entrant effect. Astra is not represented as the only legal Quick Assist
   source, and operation activation alone does not admit Astral Voice for every
   damage contributor.
-- R9. Cissia's 2-piece candidates are Swing Jazz, Woodpecker Electro, and Branch
-  & Blade Song. Slot 4 offers CRIT Rate and CRIT DMG; Slot 5 offers Electric
-  DMG and ATK%; Slot 6 offers Energy Regen and ATK%; effective substats are CRIT
-  Rate, CRIT DMG, and ATK% with independent zero to 36 counts. Outside the Astra
+- R9. Cissia's 2-piece candidates are Swing Jazz, Woodpecker Electro, Branch &
+  Blade Song, Thunder Metal, and one authored ATK% identity. Outside the Astra
+  context, Hormone Punk is the canonical ATK% identity. In the authored Astra
+  context, Dawn's Bloom 4-piece exposes Astral Voice so its 4-piece swap remains
+  available; selecting contextual Astral Voice 4-piece exposes Hormone Punk as
+  the legal ATK% complement. Thunder Metal preserves the matching Electric DMG
+  axis. Slot 4 offers CRIT Rate and CRIT DMG; Slot 5 offers Electric DMG and
+  ATK%; Slot 6 offers Energy Regen and ATK%; effective substats are CRIT Rate,
+  CRIT DMG, and ATK% with independent zero to 36 counts. Outside the Astra
   context, her complete local full representative is Serpentine Seeker W1,
   Dawn's Bloom 4-piece, Swing Jazz 2-piece, CRIT Rate / Electric DMG / Energy
   Regen, and zero effective-substat counts. Her local non-limited representative
