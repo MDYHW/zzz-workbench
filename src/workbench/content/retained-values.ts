@@ -235,6 +235,24 @@ export const VERTICAL_VALUES = {
     coreAtkRatio: 40, coreAtkCap: 2500, coreOutputCap: 1000,
     additionalIceDmg: 20, mindscapeIceResReduction: 10,
   },
+  soldier11: {
+    atk: 888, critRate: 19.4, critDmg: 50, baseEnergyRegen: 1.2,
+    coreActionFireDmg: 70, additionalFireDmg: 10, additionalStunnedFireDmg: 22.5,
+    potentialCritDmg: 48, mindscapeActionDmg: 36, mindscapeFireResIgnore: 25,
+  },
+  lighter: {
+    atk: 797, critRate: 5, critDmg: 50, impact: 137, baseEnergyRegen: 1.2,
+    coreCombatImpact: 20, coreFireIceResReduction: 15, coreStunExtension: 3,
+    elationBaseImpact: 170, elationStepImpact: 10, elationFireIceDmgPerStep: 5,
+    elationFireIceDmgAtTwentyStacks: 25, elationFireIceDmgCap: 75,
+    kingCritThreshold: 50, mindscapeStunExtension: 5, mindscapeFireIceResReduction: 10,
+    mindscapeStunMultiplier: 25, mindscapeElationMultiplier: 1.2,
+  },
+  lucy: {
+    atk: 658, critRate: 5, critDmg: 50, baseEnergyRegen: 1.56,
+    coreAtkRatioByMindscapeTier: [22.6, 24.2, 25.8], coreAtkBaseByMindscapeTier: [88, 96, 104],
+    coreAtkOutputCap: 600, mindscapeSquadCritDmg: 10,
+  },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [
@@ -294,5 +312,12 @@ export const SOURCE_LABELS = {
   ellenPotential: 'Potential Awakening',
   soukakuCore: SOURCE_CATEGORY_LABELS.corePassive,
   soukakuAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  soldier11Core: SOURCE_CATEGORY_LABELS.corePassive,
+  soldier11Ability: SOURCE_CATEGORY_LABELS.additionalAbility,
+  soldier11Potential: 'Potential Awakening',
+  lighterCore: SOURCE_CATEGORY_LABELS.corePassive,
+  lighterAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  lucyCore: SOURCE_CATEGORY_LABELS.corePassive,
+  lucyAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const

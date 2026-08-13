@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { calculateParty } from './calculate'
-import { resolveProviderEffects } from './provider-effects'
+import { resolveProviderEffects, resolveSeedVanguardForState } from './provider-effects'
 import { VERTICAL_VALUES, type AgentId } from './content'
 import { createPreparedState, isCompleteWorkbench } from './state'
 import {
@@ -46,6 +46,41 @@ describe('calculateParty mechanisms', () => {
       createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0), 'ellen', 1,
     ))!
     expect(metric(agent(mindscapeOne, 'ellen'), 'critRate').values.combat).toBe(100)
+  })
+
+  it('delivers Lucy’s capped Core once to every recipient and preserves Kaboom origins without a personal CRIT direction', () => {
+    const state = createPreparedState({}, ['soldier11', 'soukaku', 'lucy'], 0)
+    const result = calculateParty(state)!
+    const lucy = agent(result, 'lucy')
+
+    expect(metric(lucy, 'atk').gauge).toMatchObject({
+      basisLabel: 'Initial ATK', current: 2495.4, outputValue: 600, outputCap: 600,
+    })
+    for (const agentId of ['soldier11', 'soukaku', 'lucy'] as const) {
+      expect(metric(agent(result, agentId), 'atk').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'lucy', locus: 'core', amount: 600 }))
+    }
+    expect(lucy.metrics.map(({ id }) => id)).not.toContain('critDmg')
+
+    const kaboom = metric(agent(result, 'soldier11'), 'atk').breakdown.fully
+      .filter(({ label }) => label === 'Kaboom the Cannon')
+    expect(kaboom).toHaveLength(2)
+    expect(kaboom.filter(({ notation }) => notation === 'equal-nonstack-origin')).toHaveLength(1)
+    expect(kaboom.reduce((total, { amount }) => total + amount, 0))
+      .toBeCloseTo(metric(agent(result, 'soldier11'), 'atk').values.initial * .16)
+  })
+
+  it('keeps Lucy’s Initial-ATK Core capped across every Mindscape tier and adds M4 CRIT DMG only to current recipients', () => {
+    const base = createPreparedState({}, ['soldier11', 'lighter', 'lucy'], 0)
+    for (const mindscape of [0, 1, 2, 3, 4, 5, 6] as const) {
+      const result = calculateParty(withMindscape(base, 'lucy', mindscape))!
+      expect(metric(agent(result, 'lucy'), 'atk').gauge).toMatchObject({ outputValue: 600, outputCap: 600 })
+    }
+    const m0 = agent(calculateParty(withMindscape(base, 'lucy', 0))!, 'soldier11')
+    const m4 = agent(calculateParty(withMindscape(base, 'lucy', 4))!, 'soldier11')
+    expect(metric(m4, 'critDmg').values.fully - metric(m0, 'critDmg').values.fully).toBe(10)
+    expect(agent(calculateParty(withMindscape(base, 'lucy', 4))!, 'lucy').metrics.map(({ id }) => id))
+      .not.toContain('critDmg')
   })
 
   it('composes Ellen’s combat ATK percentages from current Initial ATK', () => {
@@ -1094,5 +1129,136 @@ describe('calculateParty mechanisms', () => {
 
     expect(metric(agent(result, 'yixuan'), 'atk').breakdown.initial).toEqual([])
     expect(serialized).not.toMatch(/Agent base|Drive Disc · Slot [123]|Base ATK/i)
+  })
+
+  it('keeps Soldier 11 relationship, action, and partial-engine consumers exact', () => {
+    const fire = agent(calculateParty(
+      createPreparedState({}, ['soldier11', 'evelyn', 'corin'], 0),
+    )!, 'soldier11')
+    const nedf = agent(calculateParty(
+      createPreparedState({}, ['soldier11', 'anbySoldier0', 'corin'], 0),
+    )!, 'soldier11')
+    const absent = agent(calculateParty(
+      createPreparedState({}, ['soldier11', 'corin', 'lycaon'], 0),
+    )!, 'soldier11')
+
+    expect(metric(fire, 'critDmg').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'soldier11', locus: 'special', amount: 48 }))
+    expect(metric(nedf, 'critDmg').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'soldier11', locus: 'special', amount: 48 }))
+    expect(metric(absent, 'critDmg').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'soldier11', locus: 'special' }))
+    expect(metric(fire, 'dmgBonus').breakdown.fully)
+      .toEqual(expect.arrayContaining([
+        expect.objectContaining({ ownerAgentId: 'soldier11', locus: 'additional', amount: 10 }),
+      ]))
+    expect(metric(fire, 'dmgBonus').values.fully).toBe(10)
+    expect(action(fire, 'soldier11AgainstStunnedEnemies').values.fully).toBe(32.5)
+    expect(metric(absent, 'dmgBonus').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'soldier11', locus: 'additional' }))
+    expect(absent.actionModifiers.find(({ id }) => id === 'soldier11AgainstStunnedEnemies'))
+      .toBeUndefined()
+    expect(action(fire, 'soldier11FireSuppressionBasic').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'soldier11', locus: 'core', amount: 70 }))
+    expect(action(fire, 'soldier11ChainUltimateResIgnore').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Heartstring Nocturne', amount: 25 }))
+
+    const m2 = agent(calculateParty(withMindscape(
+      createPreparedState({}, ['soldier11', 'evelyn', 'corin'], 0), 'soldier11', 2,
+    ))!, 'soldier11')
+    expect(action(m2, 'soldier11Basic').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'soldier11', locus: 'mindscape', amount: 36 }))
+    expect(action(m2, 'soldier11FireSuppressionBasic').values.fully).toBe(116)
+    expect(action(m2, 'soldier11FireSuppressionBasic').baseActionId).toBe('soldier11Basic')
+    expect(action(m2, 'soldier11FireSuppressionBasic').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'soldier11', locus: 'core', amount: 70 }))
+
+    const myriad = agent(calculateParty(selectEngine(
+      createPreparedState({}, ['soldier11', 'evelyn', 'corin'], 0), 'soldier11', 'myriadEclipse',
+    ))!, 'soldier11')
+    expect(metric(myriad, 'critDmg').breakdown.combat)
+      .toContainEqual(expect.objectContaining({ label: 'Myriad Eclipse', amount: 45 }))
+    expect(myriad.metrics.find(({ id }) => id === 'defIgnore')).toBeUndefined()
+
+    const cordis = agent(calculateParty(selectEngine(
+      createPreparedState({}, ['soldier11', 'evelyn', 'corin'], 0), 'soldier11', 'cordisGermina',
+    ))!, 'soldier11')
+    expect(metric(cordis, 'critRate').breakdown.combat)
+      .toContainEqual(expect.objectContaining({ label: 'Cordis Germina', amount: 15 }))
+    expect(action(cordis, 'soldier11BasicUltimateDefIgnore').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Cordis Germina', amount: 20 }))
+
+    const seedParty = createPreparedState({}, ['seed', 'soldier11', 'trigger'], 0)
+    expect(resolveSeedVanguardForState(seedParty)).toBe('soldier11')
+    expect(resolveProviderEffects(seedParty).contexts.find(({ agentId }) => agentId === 'seed'))
+      .toBeDefined()
+
+    const nonLimitedState = createPreparedState(
+      { soldier11: 'nonLimited' }, ['soldier11', 'evelyn', 'corin'], 0,
+    )
+    expect(nonLimitedState.slots[0].setup).toMatchObject({ engineId: 'brimstone', refinement: 1 })
+    expect(metric(agent(calculateParty(nonLimitedState)!, 'soldier11'), 'atk').breakdown.combat)
+      .toContainEqual(expect.objectContaining({ label: 'The Brimstone', ownerAgentId: 'soldier11' }))
+    expect(calculateParty(withSetup(nonLimitedState, 'soldier11', (setup) => ({
+      ...setup,
+      engineId: null,
+      refinement: null,
+    })))).toBeNull()
+  })
+
+  it('projects Lighter through Impact, Elation, and exact Fire/Ice party consumers', () => {
+    const prepared = createPreparedState({}, ['soldier11', 'lighter', 'soukaku'], 0)
+    const lighter = agent(calculateParty(prepared)!, 'lighter')
+    const soldier11 = agent(calculateParty(prepared)!, 'soldier11')
+    expect(prepared.slots[1].setup).toMatchObject({
+      engineId: 'blazingLaurel', fourPieceId: 'astralVoice', twoPieceId: 'shockstar',
+    })
+    expect(metric(lighter, 'impact').values).toMatchObject({
+      initial: expect.closeTo(194.54), fully: expect.closeTo(256.19),
+    })
+    expect(metric(lighter, 'impact').gauge).toMatchObject({
+      basisLabel: 'Fully Enabled Impact', outputValue: 65, outputCap: 75,
+    })
+    expect(lighter.operations).toContainEqual(expect.objectContaining({
+      id: 'lighterQuickAssist', value: 1,
+    }))
+    expect(metric(lighter, 'stunDuration').values.fully).toBe(3)
+    expect(metric(soldier11, 'critDmg').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Blazing Laurel', ownerAgentId: 'lighter', amount: 30 }))
+    expect(metric(soldier11, 'resReduction').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'lighter', amount: 15 }))
+
+    const m1 = agent(calculateParty(withMindscape(prepared, 'lighter', 1))!, 'lighter')
+    const m2 = agent(calculateParty(withMindscape(prepared, 'lighter', 2))!, 'lighter')
+    expect(metric(m1, 'stunDuration').values.fully).toBe(5)
+    expect(metric(m1, 'resReduction').values.fully).toBe(25)
+    expect(metric(m2, 'stunDmgMultiplier').values.fully).toBe(25)
+    expect(metric(m2, 'impact').gauge).toMatchObject({ outputValue: 78, outputCap: 90 })
+
+    const nonLimited = agent(calculateParty(createPreparedState(
+      { lighter: 'nonLimited' }, ['soldier11', 'lighter', 'soukaku'], 0,
+    ))!, 'lighter')
+    expect(metric(nonLimited, 'impact').values.fully).toBeCloseTo(249.34, 3)
+    expect(metric(nonLimited, 'impact').gauge?.outputValue).toBe(60)
+
+    const inactive = agent(calculateParty(
+      createPreparedState({}, ['lighter', 'lycaon', 'astraYao'], 1),
+    )!, 'lighter')
+    expect(metric(inactive, 'impact').gauge?.outputValue).toBe(0)
+    expect(metric(inactive, 'stunDuration').values.fully).toBe(3)
+    expect(metric(inactive, 'resReduction').values.fully).toBe(15)
+
+    const mixed = calculateParty(createPreparedState(
+      {}, ['lighter', 'evelyn', 'corin'], 1,
+    ))!
+    const fireRecipient = agent(mixed, 'evelyn')
+    const physicalContrast = agent(mixed, 'corin')
+    expect(metric(fireRecipient, 'critDmg').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Blazing Laurel', ownerAgentId: 'lighter', amount: 30 }))
+    expect(metric(fireRecipient, 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'lighter', locus: 'additional', amount: 65 }))
+    expect(metric(fireRecipient, 'resReduction').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'lighter', amount: 15 }))
+    expect(JSON.stringify(physicalContrast)).not.toContain('"ownerAgentId":"lighter"')
   })
 })

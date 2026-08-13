@@ -108,6 +108,11 @@ describe('integrated party workbench: party', () => {
         { agentId: 'soukaku', setup: createPreparedAgentSetup('soukaku') },
         { agentId: 'lycaon', setup: createPreparedAgentSetup('lycaon') },
       ],
+      [
+        { agentId: 'soldier11', setup: createPreparedAgentSetup('soldier11') },
+        { agentId: 'lighter', setup: createPreparedAgentSetup('lighter') },
+        { agentId: 'lucy', setup: createPreparedAgentSetup('lucy') },
+      ],
     ]
     let latestContainer: HTMLElement | null = null
     for (const slots of additionalGroups) {
@@ -388,6 +393,66 @@ describe('integrated party workbench: party', () => {
     expect(screen.getAllByLabelText('S Rank').length).toBeGreaterThan(0)
     expect(screen.getByText(/Focus.*Corin/)).toBeInTheDocument()
   }, 15_000)
+
+  it('applies Soldier 11, Lighter, and Lucy through the shared prepared setup and repair journey', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Soldier 11, Fire, Attack/)
+    await replace(2, /Lighter, Fire, Stun/)
+    await replace(3, /Lucy, Fire, Support/)
+    expect(screen.getAllByText('Soldier 11 is Focus automatically.')).toHaveLength(2)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    const soldier11Tab = screen.getByRole('tab', { name: 'Close Soldier 11 setup and Result' })
+    expect(within(soldier11Tab).getByLabelText('S Rank')).toBeInTheDocument()
+    expect(within(soldier11Tab).getByLabelText('Fire, Attack').querySelectorAll('img')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'M0' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Heartstring Nocturne' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Soldier 11 Result' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'View Lighter setup and Result' }))
+    const lighterTab = screen.getByRole('tab', { name: 'Close Lighter setup and Result' })
+    expect(within(lighterTab).getByLabelText('S Rank')).toBeInTheDocument()
+    expect(within(lighterTab).getByLabelText('Fire, Stun').querySelectorAll('img')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'M0' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Blazing Laurel' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from Astral Voice' }))
+    const candidates = screen.getByLabelText('fourPiece Drive Disc candidates')
+    expect(within(candidates).getByRole('button', { name: 'Select King of the Summit as fourPiece' }))
+      .toBeInTheDocument()
+    await user.click(within(candidates).getByRole('button', { name: 'Select King of the Summit as fourPiece' }))
+    await user.click(screen.getByRole('button', { name: 'Change Disc 4 main stat from ATK%' }))
+    await user.click(screen.getByRole('button', { name: 'Select CRIT Rate for Disc 4' }))
+    expect(screen.getByRole('heading', { name: 'Lighter Result' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from King of the Summit' }))
+    await user.click(screen.getByRole('button', { name: 'Select Astral Voice as fourPiece' }))
+    expect(screen.queryByRole('heading', { name: 'Lighter Result' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Disc 4 main stat required' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Disc 4 main stat required' }))
+    await user.click(screen.getByRole('button', { name: 'Select ATK% for Disc 4' }))
+    expect(screen.getByRole('heading', { name: 'Lighter Result' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Non-limited' }))
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Hellfire Gears' })).toBeInTheDocument()
+    await user.click(screen.getByRole('tab', { name: 'View Soldier 11 setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Non-limited' }))
+    expect(screen.getByRole('button', { name: 'Change W-Engine from The Brimstone' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'View Lucy setup and Result' }))
+    const lucyTab = screen.getByRole('tab', { name: 'Close Lucy setup and Result' })
+    expect(within(lucyTab).getByLabelText('A Rank')).toBeInTheDocument()
+    expect(within(lucyTab).getByLabelText('Fire, Support').querySelectorAll('img')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'M6' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Kaboom the Cannon' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Lucy Result' })).toBeInTheDocument()
+  }, 20_000)
 
   it('admits Yidhari and Manato through the shared Rupture identity and prepared-party flow', async () => {
     const user = userEvent.setup()

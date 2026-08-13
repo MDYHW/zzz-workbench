@@ -30,6 +30,9 @@ import { calculateBanyue } from './calculation/agents/banyue'
 import { calculateStarlightBilly } from './calculation/agents/starlight-billy'
 import { calculateEllen } from './calculation/agents/ellen'
 import { calculateSoukaku } from './calculation/agents/soukaku'
+import { calculateSoldier11 } from './calculation/agents/soldier11'
+import { calculateLighter } from './calculation/agents/lighter'
+import { calculateLucy } from './calculation/agents/lucy'
 import { composeMetricEffects, surfaces } from './calculation/composition'
 import type { ActionModifier, AgentResult, Contribution, PartyResult } from './calculation/result'
 import { resolveProviderEffects } from './provider-effects'
@@ -242,6 +245,15 @@ export function calculateParty(state: WorkbenchState): PartyResult | null {
           break
         case 'soukaku':
           result = calculateSoukaku(context, inbox)
+          break
+        case 'soldier11':
+          result = calculateSoldier11(context, inbox, enemy)
+          break
+        case 'lighter':
+          result = calculateLighter(context, inbox, enemy)
+          break
+        case 'lucy':
+          result = calculateLucy(context, inbox)
           break
         default:
           return assertNever(context)

@@ -19,6 +19,9 @@ import banyuePortrait from '../assets/agents/portraits/banyue.webp'
 import starlightBillyPortrait from '../assets/agents/portraits/starlight-billy-kid.webp'
 import ellenPortrait from '../assets/agents/portraits/ellen.webp'
 import soukakuPortrait from '../assets/agents/portraits/soukaku.webp'
+import soldier11Portrait from '../assets/agents/portraits/soldier-11.webp'
+import lighterPortrait from '../assets/agents/portraits/lighter.webp'
+import lucyPortrait from '../assets/agents/portraits/lucy.webp'
 import type { AgentId } from '../workbench/content'
 
 export const AGENT_PORTRAITS: Record<AgentId, string> = {
@@ -42,6 +45,9 @@ export const AGENT_PORTRAITS: Record<AgentId, string> = {
   starlightBilly: starlightBillyPortrait,
   ellen: ellenPortrait,
   soukaku: soukakuPortrait,
+  soldier11: soldier11Portrait,
+  lighter: lighterPortrait,
+  lucy: lucyPortrait,
 }
 
 interface PortraitSource {
@@ -79,6 +85,9 @@ const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   starlightBilly: { faceX: 50, headTopY: 7, scale: 1 },
   ellen: { faceX: 62.5, headTopY: 4.5, scale: 1 },
   soukaku: { faceX: 59, headTopY: 8, scale: 1 },
+  soldier11: { faceX: 49, headTopY: 4, scale: 1 },
+  lighter: { faceX: 52, headTopY: 2, scale: 1 },
+  lucy: { faceX: 55, headTopY: 35, scale: 1 },
 }
 
 export function portraitSourceStyle(agentId: AgentId): PortraitSourceStyle {

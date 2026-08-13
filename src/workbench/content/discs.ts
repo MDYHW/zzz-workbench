@@ -322,4 +322,14 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
   lycaon: { fourPiece: ['king', 'astralVoice', 'shockstar'], twoPiece: ['shockstar', 'king', 'swingJazz'] },
   ellen: { fourPiece: ['woodpecker'], twoPiece: ['pufferElectro', 'polarMetal', 'woodpecker', 'branchAndBlade', 'astralVoice', 'hormonePunk'] },
   soukaku: { fourPiece: ['moonlight', 'astralVoice'], twoPiece: ['swingJazz', 'moonlight', 'hormonePunk', 'astralVoice'] },
+  soldier11: {
+    fourPiece: ['woodpecker', 'dawnsBloom'],
+    twoPiece: ['infernoMetal', 'woodpecker', 'branchAndBlade', 'dawnsBloom', 'pufferElectro', 'hormonePunk', 'astralVoice'],
+  },
+  lighter: {
+    fourPiece: ['king', 'astralVoice', 'shockstar'], twoPiece: ['shockstar', 'king', 'swingJazz'],
+  },
+  lucy: {
+    fourPiece: ['moonlight', 'astralVoice'], twoPiece: ['swingJazz', 'moonlight', 'hormonePunk', 'astralVoice'],
+  },
 }

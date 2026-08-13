@@ -33,6 +33,8 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     specialty: 'Attack',
     focusEligible: true,
     rank: 'S',
+    faction: 'Defense Force - Silver Squad',
+    partyQualificationGroup: 'New Eridu Defense Force',
   },
   {
     id: 'trigger',
@@ -41,6 +43,8 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     specialty: 'Stun',
     focusEligible: false,
     rank: 'S',
+    faction: 'Obol Squad',
+    partyQualificationGroup: 'New Eridu Defense Force',
   },
   {
     id: 'astraYao',
@@ -57,6 +61,8 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     specialty: 'Attack',
     focusEligible: true,
     rank: 'S',
+    faction: 'Obol Squad',
+    partyQualificationGroup: 'New Eridu Defense Force',
   },
   {
     id: 'cissia',
@@ -157,6 +163,19 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
   {
     id: 'soukaku', name: 'Soukaku', attribute: 'Ice', specialty: 'Support',
     focusEligible: false, rank: 'A', faction: 'Section 6',
+  },
+  {
+    id: 'soldier11', name: 'Soldier 11', attribute: 'Fire', specialty: 'Attack',
+    focusEligible: true, rank: 'S', faction: 'Obol Squad',
+    partyQualificationGroup: 'New Eridu Defense Force',
+  },
+  {
+    id: 'lighter', name: 'Lighter', attribute: 'Fire', specialty: 'Stun',
+    focusEligible: false, rank: 'S', faction: 'Sons of Calydon',
+  },
+  {
+    id: 'lucy', name: 'Lucy', attribute: 'Fire', specialty: 'Support',
+    focusEligible: false, rank: 'A', faction: 'Sons of Calydon',
   },
 ]
 

@@ -32,6 +32,9 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   lycaon: { primary: ['daze_buildup'], residual: [] },
   ellen: { primary: ['general_damage'], residual: [] },
   soukaku: { primary: [], residual: [] },
+  soldier11: { primary: ['general_damage'], residual: [] },
+  lighter: { primary: ['daze_buildup'], residual: [] },
+  lucy: { primary: [], residual: [] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -153,6 +156,15 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   soukaku: {
     slot4: ['atkPct'], slot5: ['atkPct'], slot6: ['atkPct', 'energyRegenPct'],
   },
+  soldier11: {
+    slot4: ['critRate', 'critDmg'], slot5: ['fireDmg', 'penRatio'], slot6: ['atkPct'],
+  },
+  lighter: {
+    slot4: ['atkPct'], slot5: ['fireDmg'], slot6: ['impact'],
+  },
+  lucy: {
+    slot4: ['atkPct'], slot5: ['atkPct'], slot6: ['energyRegenPct'],
+  },
 }
 
 /** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
@@ -248,6 +260,13 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
     { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
     { id: 'atkFlat', label: 'ATK', perHit: 19, unit: '' },
   ],
+  soldier11: [
+    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
+    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+  ],
+  lighter: [],
+  lucy: [],
 }
 
 /**
@@ -259,7 +278,10 @@ export function effectiveSubstatChoices(
   agentId: AgentId,
   setup: { fourPieceId: DiscId | null },
 ): SubstatChoice[] {
-  if (agentId === 'lycaon' && setup.fourPieceId !== 'king') return []
+  if ((agentId === 'lycaon' || agentId === 'lighter') && setup.fourPieceId !== 'king') return []
+  if (agentId === 'lighter' && setup.fourPieceId === 'king') {
+    return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
+  }
   if (agentId === 'juFufu' && setup.fourPieceId === 'king') {
     return [
       { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },

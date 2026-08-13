@@ -158,6 +158,23 @@ const soukakuRepresentative: SetupSelection = {
   mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'energyRegenPct' },
 }
 
+const soldier11Representative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'heartstringNocturne' : 'brimstone',
+  fourPieceId: 'woodpecker', twoPieceId: 'pufferElectro',
+  mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
+})
+
+const lighterRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'blazingLaurel' : 'hellfireGears',
+  fourPieceId: 'astralVoice', twoPieceId: 'shockstar',
+  mains: { slot4: 'atkPct', slot5: 'fireDmg', slot6: 'impact' },
+})
+
+const lucyRepresentative: SetupSelection = {
+  engineId: 'kaboom', fourPieceId: 'moonlight', twoPieceId: 'astralVoice',
+  mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'energyRegenPct' },
+}
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -240,6 +257,9 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   },
   ellen: { full: ellenRepresentative('full'), nonLimited: ellenRepresentative('nonLimited') },
   soukaku: { full: soukakuRepresentative, nonLimited: soukakuRepresentative },
+  soldier11: { full: soldier11Representative('full'), nonLimited: soldier11Representative('nonLimited') },
+  lighter: { full: lighterRepresentative('full'), nonLimited: lighterRepresentative('nonLimited') },
+  lucy: { full: lucyRepresentative, nonLimited: lucyRepresentative },
 }
 
 export function representativeSetupFor(

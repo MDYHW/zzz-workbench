@@ -6,7 +6,11 @@ import {
   type EquipmentEffectCollection,
 } from './content'
 import type { AppliedSlot, WorkbenchState } from './state'
-import { anotherAgentHasSpecialty, triggerAdditionalIsActive } from './party-conditions'
+import {
+  anotherAgentHasSpecialty,
+  soldier11AdditionalIsActive,
+  triggerAdditionalIsActive,
+} from './party-conditions'
 import {
   astralVoiceEntrantClause,
   clauseAppliesToAgent,
@@ -101,6 +105,21 @@ import {
 } from './calculation/agents/starlight-billy'
 import { observeEllen, resolveEllenProviderClauses, type EllenCalculationContext } from './calculation/agents/ellen'
 import { observeSoukaku, resolveSoukakuProviderClauses, type SoukakuCalculationContext } from './calculation/agents/soukaku'
+import {
+  observeSoldier11,
+  resolveSoldier11ProviderClauses,
+  type Soldier11CalculationContext,
+} from './calculation/agents/soldier11'
+import {
+  observeLighter,
+  resolveLighterProviderClauses,
+  type LighterCalculationContext,
+} from './calculation/agents/lighter'
+import {
+  observeLucy,
+  resolveLucyProviderClauses,
+  type LucyCalculationContext,
+} from './calculation/agents/lucy'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -123,6 +142,9 @@ export type ProviderContext =
   | StarlightBillyCalculationContext
   | EllenCalculationContext
   | SoukakuCalculationContext
+  | Soldier11CalculationContext
+  | LighterCalculationContext
+  | LucyCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -243,6 +265,15 @@ function observeProviderContext(
       )
     case 'soukaku':
       return observeSoukaku(slot.setup, anotherSharesAttribute || anotherSharesFaction)
+    case 'soldier11':
+      return observeSoldier11(
+        slot.setup,
+        soldier11AdditionalIsActive(partyAgentIds, providerIndex),
+      )
+    case 'lighter':
+      return observeLighter(slot.setup, anotherHasSpecialty(['Attack']) || anotherSharesFaction)
+    case 'lucy':
+      return observeLucy(slot.setup)
     default:
       return assertNever(slot.agentId)
   }
@@ -302,6 +333,12 @@ function providerClauses(
       return resolveEllenProviderClauses(context)
     case 'soukaku':
       return resolveSoukakuProviderClauses(context)
+    case 'soldier11':
+      return resolveSoldier11ProviderClauses(context)
+    case 'lighter':
+      return resolveLighterProviderClauses(context)
+    case 'lucy':
+      return resolveLucyProviderClauses(context)
     default:
       return assertNever(context)
   }
@@ -455,6 +492,8 @@ function selectedEngineHasBroadPrePenPressure(
   if (!isGeneralDamageAgent(agentId) || !setup.engineId) return false
   const effects = W_ENGINE_FACTS[setup.engineId].effects as EquipmentEffectCollection
   const attribute = ADMITTED_AGENTS.find(({ id }) => id === agentId)!.attribute
+  // Myriad's DEF Ignore requires Ice damage, independent of the holder identity.
+  if (setup.engineId === 'myriadEclipse' && attribute !== 'Ice') return false
   return Object.values(effects).some((effect) => (
     (effect.modifier === 'defIgnore' || effect.modifier === 'defReduction')
     && !effect.scope?.actions?.length

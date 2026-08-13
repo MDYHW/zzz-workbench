@@ -301,6 +301,10 @@ export const STATIC_SOURCES = {
     core: source(SOURCE_LABELS.soukakuCore, 'soukaku', 'core'),
     additional: source(SOURCE_LABELS.soukakuAbility, 'soukaku', 'additional'),
   },
+  lucy: {
+    core: source(SOURCE_LABELS.lucyCore, 'lucy', 'core'),
+    additional: source(SOURCE_LABELS.lucyAbility, 'lucy', 'additional'),
+  },
 } as const
 
 export const mindscapeSource = (
@@ -485,7 +489,7 @@ export const active = (
 ) > 0.000_001)
 
 export function pufferElectroFourPieceClauses(
-  agentId: 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen',
+  agentId: AgentId,
   setup: CompleteSetup,
   ultimateAction: ActionTarget,
 ): SourceBoundCurrentClause[] {

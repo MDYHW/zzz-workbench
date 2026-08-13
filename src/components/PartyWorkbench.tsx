@@ -39,6 +39,9 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   starlightBilly: { attribute: physicalMark, specialty: ruptureMark },
   ellen: { attribute: iceMark, specialty: attackMark },
   soukaku: { attribute: iceMark, specialty: supportMark },
+  soldier11: { attribute: fireMark, specialty: attackMark },
+  lighter: { attribute: fireMark, specialty: stunMark },
+  lucy: { attribute: fireMark, specialty: supportMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {

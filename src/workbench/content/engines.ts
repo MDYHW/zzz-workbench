@@ -639,4 +639,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   lycaon: enginePools(['blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore', 'simmeringPot']),
   ellen: enginePools(['deepSeaVisitor', 'myriadEclipse', 'cordisGermina', 'heartstringNocturne', 'steelCushion', 'brimstone', 'starlightEngine']),
   soukaku: enginePools(['weepingCradle', 'kaboom']),
+  soldier11: enginePools(['heartstringNocturne', 'cordisGermina', 'myriadEclipse', 'severedInnocence', 'brimstone', 'starlightEngine']),
+  lighter: enginePools(['blazingLaurel', 'iceJadeTeapot', 'hellfireGears', 'steamOven', 'restrained', 'preciousFossilizedCore']),
+  lucy: enginePools(['elegantVanity', 'weepingCradle', 'kaboom']),
 }

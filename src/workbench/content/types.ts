@@ -23,9 +23,21 @@ export type AgentId =
   | 'starlightBilly'
   | 'ellen'
   | 'soukaku'
+  | 'soldier11'
+  | 'lighter'
+  | 'lucy'
 
 export type AgentRank = 'S' | 'A'
-export type AgentFaction = 'Victoria Housekeeping Co.' | 'Yunkui Summit' | 'Section 6'
+export type AgentFaction =
+  | 'Victoria Housekeeping Co.'
+  | 'Yunkui Summit'
+  | 'Section 6'
+  | 'Defense Force - Silver Squad'
+  | 'Obol Squad'
+  | 'Sons of Calydon'
+
+/** Game-recognized teammate qualification that does not replace display faction. */
+export type PartyQualificationGroup = 'New Eridu Defense Force'
 
 export type Refinement = 1 | 2 | 3 | 4 | 5
 export type EngineRank = 'S' | 'A'
@@ -250,6 +262,7 @@ export interface AgentSummary {
   focusEligible: boolean
   rank: AgentRank
   faction?: AgentFaction
+  partyQualificationGroup?: PartyQualificationGroup
 }
 
 export type SetupFormulaFamily =
