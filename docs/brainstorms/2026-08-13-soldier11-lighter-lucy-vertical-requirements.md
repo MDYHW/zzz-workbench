@@ -172,8 +172,8 @@ faction graph, or guide-backed evidence payload.
 - R17. Soldier 11's completed Core adds Basic/Dash Fire Suppression DMG +70%.
   Her Additional activates with another Fire Agent or a game-recognized NEDF
   relationship, adds Fire DMG +10%, and adds another +22.5% against Stunned
-  enemies. Completed Potential adds CRIT DMG +48%. Expanded Basic coefficients
-  remain outside the normalized Result.
+  enemies. Completed Potential adds CRIT DMG +48% while that Additional is
+  active. Expanded Basic coefficients remain outside the normalized Result.
 - R18. Soldier 11 Mindscapes apply cumulatively: M2 supplies Basic, Dash, and
   Dodge Counter DMG +36% at full stacks; M6 supplies Fire RES Ignore +25% to
   Fire Suppression after Charge. M1 event Energy, M4 survival, and M3/M5 skill
