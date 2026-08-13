@@ -5,6 +5,7 @@ import {
   VERTICAL_VALUES,
   W_ENGINES,
   equipmentEffectBaseValue,
+  type AgentId,
   type DiscId,
   type EngineId,
   type MainSlot,
@@ -12,8 +13,16 @@ import {
   type SubstatId,
 } from '../content'
 
-export type SeedVanguardAtkAgentId = 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo'
-export type InitialAtkAgentId = SeedVanguardAtkAgentId | 'juFufu' | 'panYinhu'
+export const SEED_VANGUARD_ATK_AGENT_IDS = [
+  'anbySoldier0', 'seed', 'cissia', 'evelyn', 'corin', 'hugo', 'ellen',
+] as const
+
+export type SeedVanguardAtkAgentId = (typeof SEED_VANGUARD_ATK_AGENT_IDS)[number]
+export type InitialAtkAgentId = SeedVanguardAtkAgentId | 'juFufu' | 'panYinhu' | 'soukaku'
+
+export function isSeedVanguardAtkAgent(agentId: AgentId): agentId is SeedVanguardAtkAgentId {
+  return SEED_VANGUARD_ATK_AGENT_IDS.some((candidate) => candidate === agentId)
+}
 
 export interface InitialAtkSetup {
   engineId: EngineId | null

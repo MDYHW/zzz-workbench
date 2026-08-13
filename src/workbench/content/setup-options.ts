@@ -30,6 +30,8 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   evelyn: { primary: ['general_damage'], residual: [] },
   corin: { primary: ['general_damage'], residual: [] },
   lycaon: { primary: ['daze_buildup'], residual: [] },
+  ellen: { primary: ['general_damage'], residual: [] },
+  soukaku: { primary: [], residual: [] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -145,6 +147,12 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot5: ['iceDmg', 'atkPct'],
     slot6: ['impact', 'energyRegenPct'],
   },
+  ellen: {
+    slot4: ['critRate', 'critDmg'], slot5: ['iceDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
+  },
+  soukaku: {
+    slot4: ['atkPct'], slot5: ['atkPct'], slot6: ['atkPct', 'energyRegenPct'],
+  },
 }
 
 /** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
@@ -231,6 +239,15 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
     { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
   ],
   lycaon: [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }],
+  ellen: [
+    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
+    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+  ],
+  soukaku: [
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+    { id: 'atkFlat', label: 'ATK', perHit: 19, unit: '' },
+  ],
 }
 
 /**

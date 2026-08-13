@@ -28,9 +28,12 @@ import { calculateJuFufu } from './calculation/agents/ju-fufu'
 import { calculatePanYinhu } from './calculation/agents/pan-yinhu'
 import { calculateBanyue } from './calculation/agents/banyue'
 import { calculateStarlightBilly } from './calculation/agents/starlight-billy'
+import { calculateEllen } from './calculation/agents/ellen'
+import { calculateSoukaku } from './calculation/agents/soukaku'
 import { composeMetricEffects, surfaces } from './calculation/composition'
 import type { ActionModifier, AgentResult, Contribution, PartyResult } from './calculation/result'
 import { resolveProviderEffects } from './provider-effects'
+import { ADMITTED_AGENTS } from './content'
 
 export type { ResultSource, SourceLocus, SurfaceKey } from './effects'
 export type {
@@ -50,26 +53,7 @@ function assertNever(value: never): never {
 function orderedClauses(
   clauses: SourceBoundCurrentClause[],
 ): SourceBoundCurrentClause[] {
-  const sourceOrder = [
-    'yixuan',
-    'dialyn',
-    'lucia',
-    'anbySoldier0',
-    'trigger',
-    'astraYao',
-    'seed',
-    'cissia',
-    'evelyn',
-    'corin',
-    'lycaon',
-    'yidhari',
-    'manato',
-    'hugo',
-    'juFufu',
-    'panYinhu',
-    'banyue',
-    'starlightBilly',
-  ] as const
+  const sourceOrder = ADMITTED_AGENTS.map(({ id }) => id)
   return [...clauses].sort((left, right) => (
     sourceOrder.indexOf(left.source.ownerAgentId)
     - sourceOrder.indexOf(right.source.ownerAgentId)
@@ -252,6 +236,12 @@ export function calculateParty(state: WorkbenchState): PartyResult | null {
           break
         case 'lycaon':
           result = calculateLycaon(context, inbox, enemy)
+          break
+        case 'ellen':
+          result = calculateEllen(context, inbox, enemy)
+          break
+        case 'soukaku':
+          result = calculateSoukaku(context, inbox)
           break
         default:
           return assertNever(context)

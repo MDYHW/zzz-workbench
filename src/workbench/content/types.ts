@@ -21,9 +21,11 @@ export type AgentId =
   | 'panYinhu'
   | 'banyue'
   | 'starlightBilly'
+  | 'ellen'
+  | 'soukaku'
 
 export type AgentRank = 'S' | 'A'
-export type AgentFaction = 'Victoria Housekeeping Co.' | 'Yunkui Summit'
+export type AgentFaction = 'Victoria Housekeeping Co.' | 'Yunkui Summit' | 'Section 6'
 
 export type Refinement = 1 | 2 | 3 | 4 | 5
 export type EngineRank = 'S' | 'A'
@@ -68,6 +70,7 @@ export type EngineId =
   | 'tusksOfFury'
   | 'tremorTrigramVessel'
   | 'starlightRiderFaceplate'
+  | 'deepSeaVisitor'
 
 export type DiscId =
   | 'yunkui'

@@ -132,6 +132,13 @@ describe('authored calculation policies', () => {
       expect(corin.initialAtk).toBeCloseTo(2900, 10)
     })
 
+    it('includes Ellen in the exact Seed Vanguard comparison', () => {
+      let state = createPreparedState({}, ['seed', 'ellen', 'anbySoldier0'], 1)
+      expect(resolveSeedVanguardForState(state)).toBe('ellen')
+      state = selectEngine(state, 'ellen', 'steelCushion')
+      expect(resolveSeedVanguardForState(state)).toBe('anbySoldier0')
+    })
+
     it('applies Yixuan cumulative Mindscapes only to their parent and action scopes', () => {
       const base = createPreparedState()
       const m0 = agent(calculateParty(base)!, 'yixuan')

@@ -115,7 +115,7 @@ version switch, named-party table, or guide-backed evidence payload.
   but does not become a squad effect.
   Her 2-piece candidates are Swing Jazz, Moonlight Lullaby, Hormone Punk, and
   Astral Voice, subject to the established same-effect identity lifecycle.
-- R10. Both Soukaku pools prepare Moonlight 4-piece plus Hormone Punk 2-piece,
+- R10. Both Soukaku pools prepare Moonlight 4-piece plus Astral Voice 2-piece,
   ATK% / ATK% / Energy Regen mains, and zero substats. With Kaboom W5 the
   Initial ATK is 2,507.3, already above the 2,500 needed for her completed-Core
   1,000 output. The package therefore spends Slot 6 on Energy Regen rather than
@@ -174,7 +174,7 @@ version switch, named-party table, or guide-backed evidence payload.
 ## Acceptance examples
 
 - AE1. Applying Ellen + Soukaku initializes Ellen M0 and Soukaku M6, prepares
-  Deep Sea/Woodpecker/Puffer and Kaboom/Moonlight/Hormone in full pool, uses
+  Deep Sea/Woodpecker/Puffer and Kaboom/Moonlight/Astral in full pool, uses
   the stated mains, and initializes every effective substat to zero.
 - AE2. Switching only Ellen to non-limited prepares Brimstone W1 and leaves
   Soukaku unchanged. Switching Soukaku pools preserves the same Kaboom W5
@@ -191,9 +191,11 @@ version switch, named-party table, or guide-backed evidence payload.
   and Focus alone receives +1,000 flat ATK. Soukaku does not receive a second
   copy. Her M4 Ice RES Reduction affects Ellen's Ice output; M6 creates no
   personal-damage row for the buffer-only direction.
-- AE6. Adding Dialyn to Ellen's party exposes Puffer Electro 4-piece without
-  selecting it. Removing Dialyn clears an already-selected contextual Puffer
-  without fallback; re-adding Dialyn restores membership only.
+- AE6. Applying a party with Dialyn exposes Puffer Electro 4-piece without
+  selecting it. Replacing Dialyn reprepares every party slot, removes the
+  contextual membership, and leaves Ellen on her authored Woodpecker local
+  representative. Re-adding Dialyn again exposes membership without selecting
+  Puffer or restoring prior edit history.
 - AE7. Selecting Moonlight or Astral preserves exact recipients. Selecting a
   same-effect 2-piece member exposes the legal complementary identity when its
   4-piece is selected, without showing duplicate equal-effect choices.

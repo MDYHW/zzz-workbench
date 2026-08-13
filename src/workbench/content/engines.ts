@@ -37,6 +37,7 @@ import roaringFurnaceImage from '../../assets/equipment/w-engines/roaring-fur-na
 import tusksOfFuryImage from '../../assets/equipment/w-engines/tusks-of-fury.webp'
 import tremorTrigramVesselImage from '../../assets/equipment/w-engines/tremor-trigram-vessel.webp'
 import starlightRiderFaceplateImage from '../../assets/equipment/w-engines/starlight-rider-faceplate.webp'
+import deepSeaVisitorImage from '../../assets/equipment/w-engines/deep-sea-visitor.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -349,6 +350,14 @@ export const W_ENGINE_FACTS = {
       damage: { modifier: 'dmgBonus', unit: '%', value: [7.2, 8.2, 9.2, 10.2, 11.5], scope: { actions: ['Assist Follow-Up'] } },
     },
   },
+  deepSeaVisitor: {
+    advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
+    effects: {
+      iceDamage: { modifier: 'dmgBonus', unit: '%', value: [25, 31.25, 37.5, 43.75, 50], scope: { attributes: ['Ice'] } },
+      basicCritRate: { modifier: 'critRate', unit: '%', value: [10, 12.5, 15, 17.5, 20] },
+      dashCritRate: { modifier: 'critRate', unit: '%', value: [10, 12.5, 15, 17.5, 20] },
+    },
+  },
 } as const satisfies Record<EngineId, WEngineFacts>
 
 /** Exact authored fields for one admitted W-Engine, derived from the fact source. */
@@ -593,6 +602,15 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `Assist Follow-Up DMG +${percent(W_ENGINE_FACTS.simmeringPot.effects.damage, refinement)}`,
     ],
   },
+  deepSeaVisitor: {
+    id: 'deepSeaVisitor', name: 'Deep Sea Visitor', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.deepSeaVisitor.advancedStat, image: deepSeaVisitorImage,
+    passiveLines: (refinement) => [
+      `Ice DMG +${percent(W_ENGINE_FACTS.deepSeaVisitor.effects.iceDamage, refinement)}`,
+      `After Basic Attack hit · CRIT Rate +${percent(W_ENGINE_FACTS.deepSeaVisitor.effects.basicCritRate, refinement)}`,
+      `After Ice Dash Attack hit · CRIT Rate +${percent(W_ENGINE_FACTS.deepSeaVisitor.effects.dashCritRate, refinement)}`,
+    ],
+  },
 }
 
 const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
@@ -619,4 +637,6 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   evelyn: enginePools(['heartstringNocturne', 'severedInnocence', 'cordisGermina', 'starlightEngine', 'steelCushion']),
   corin: enginePools(['cordisGermina', 'heartstringNocturne', 'steelCushion', 'housekeeper']),
   lycaon: enginePools(['blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore', 'simmeringPot']),
+  ellen: enginePools(['deepSeaVisitor', 'myriadEclipse', 'cordisGermina', 'heartstringNocturne', 'steelCushion', 'brimstone', 'starlightEngine']),
+  soukaku: enginePools(['weepingCradle', 'kaboom']),
 }

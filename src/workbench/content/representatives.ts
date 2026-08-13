@@ -147,6 +147,17 @@ const lycaonRepresentative = (pool: PoolId): SetupSelection => ({
   mains: { slot4: 'critRate', slot5: 'iceDmg', slot6: 'impact' },
 })
 
+const ellenRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'deepSeaVisitor' : 'brimstone',
+  fourPieceId: 'woodpecker', twoPieceId: 'pufferElectro',
+  mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
+})
+
+const soukakuRepresentative: SetupSelection = {
+  engineId: 'kaboom', fourPieceId: 'moonlight', twoPieceId: 'astralVoice',
+  mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'energyRegenPct' },
+}
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -227,6 +238,8 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
     full: lycaonRepresentative('full'),
     nonLimited: lycaonRepresentative('nonLimited'),
   },
+  ellen: { full: ellenRepresentative('full'), nonLimited: ellenRepresentative('nonLimited') },
+  soukaku: { full: soukakuRepresentative, nonLimited: soukakuRepresentative },
 }
 
 export function representativeSetupFor(
@@ -239,5 +252,6 @@ export function representativeSetupFor(
   if (agentId === 'hugo') return hugoRepresentative(pool, mindscape)
   if (agentId === 'astraYao') return astraRepresentative(pool, mindscape)
   if (agentId === 'juFufu') return juFufuRepresentative(pool, mindscape)
+  if (agentId === 'ellen') return ellenRepresentative(pool)
   return representative
 }

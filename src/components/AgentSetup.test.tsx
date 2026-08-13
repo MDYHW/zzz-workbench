@@ -215,6 +215,34 @@ describe('AgentSetup partial W-Engine package', () => {
       })).toHaveAccessibleDescription(description)
     },
   )
+
+  it('preserves Deep Sea Visitor’s complete selected and candidate descriptions', async () => {
+    const user = userEvent.setup()
+    const state = createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0)
+    const props = {
+      activeSourceTone: null,
+      agentId: 'ellen' as const,
+      discCandidates: DISC_IDS_BY_AGENT_AND_PIECE.ellen,
+      dispatch: vi.fn(),
+      mainStatCandidates: MAIN_STAT_IDS_BY_AGENT_AND_SLOT.ellen,
+      onSourceToneChange: vi.fn(),
+      slot: 0 as const,
+    }
+    const deepSeaDescription = 'Ice DMG +25%. After Basic Attack hit · CRIT Rate +10%. After Ice Dash Attack hit · CRIT Rate +10%'
+    const { rerender } = render(<AgentSetup {...props} setup={state.slots[0].setup} />)
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Deep Sea Visitor' }))
+      .toHaveAccessibleDescription(`CRIT Rate +24%. ${deepSeaDescription}`)
+
+    rerender(<AgentSetup {...props} setup={{
+      ...state.slots[0].setup,
+      engineId: 'myriadEclipse',
+      refinement: 1,
+    }} />)
+    await user.click(screen.getByRole('button', { name: 'Change W-Engine from Myriad Eclipse' }))
+    expect(within(screen.getByLabelText('W-Engine candidates'))
+      .getByRole('button', { name: 'Select Deep Sea Visitor W1' }))
+      .toHaveAccessibleDescription(`CRIT Rate +24%. ${deepSeaDescription}`)
+  })
 })
 
 describe('AgentSetup Seed Additional Ability', () => {

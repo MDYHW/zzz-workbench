@@ -224,6 +224,17 @@ export const VERTICAL_VALUES = {
     mindscapeFullChargeDaze: 10,
     kingCritThreshold: 50,
   },
+  ellen: {
+    atk: 938, critRate: 19.4, critDmg: 50, baseEnergyRegen: 1.2,
+    coreCritDmg: 100, additionalIceDmg: 30, potentialCritDmg: 48,
+    potentialIceResIgnore: 10, mindscapeCritRate: 12, mindscapeExCritDmg: 60,
+    mindscapePenRatio: 20, mindscapeChargedDmg: 250,
+  },
+  soukaku: {
+    atk: 665, critRate: 5, critDmg: 50, baseEnergyRegen: 1.56,
+    coreAtkRatio: 40, coreAtkCap: 2500, coreOutputCap: 1000,
+    additionalIceDmg: 20, mindscapeIceResReduction: 10,
+  },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [
@@ -278,5 +289,10 @@ export const SOURCE_LABELS = {
   lycaonCore: SOURCE_CATEGORY_LABELS.corePassive,
   lycaonAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   lycaonPotential: 'Potential Awakening',
+  ellenCore: SOURCE_CATEGORY_LABELS.corePassive,
+  ellenAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  ellenPotential: 'Potential Awakening',
+  soukakuCore: SOURCE_CATEGORY_LABELS.corePassive,
+  soukakuAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const

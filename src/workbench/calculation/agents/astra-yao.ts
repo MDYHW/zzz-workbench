@@ -126,7 +126,8 @@ export function resolveAstraProviderClauses(
         ? equipmentEffectMaximumValue(W_ENGINE_FACTS.bashfulDemon.effects.atk, refinement)
         : setup.engineId === 'kaboom'
           ? equipmentEffectBaseValue(W_ENGINE_FACTS.kaboom.effects.atk, refinement)
-          : 0, 'all-party'),
+          : 0, 'all-party', undefined, undefined,
+      setup.engineId === 'kaboom' ? 'kaboomTheCannon' : undefined),
       { formulas: damageFormulas },
     ),
   ])

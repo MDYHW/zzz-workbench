@@ -60,7 +60,7 @@ import {
 } from './calculation/agents/evelyn'
 import {
   initialAtkFor,
-  type SeedVanguardAtkAgentId,
+  isSeedVanguardAtkAgent,
 } from './calculation/initial-atk'
 import { observeCorin, resolveCorinProviderClauses, type CorinCalculationContext } from './calculation/agents/corin'
 import { observeLycaon, resolveLycaonProviderClauses, type LycaonCalculationContext } from './calculation/agents/lycaon'
@@ -99,6 +99,8 @@ import {
   resolveStarlightBillyProviderClauses,
   type StarlightBillyCalculationContext,
 } from './calculation/agents/starlight-billy'
+import { observeEllen, resolveEllenProviderClauses, type EllenCalculationContext } from './calculation/agents/ellen'
+import { observeSoukaku, resolveSoukakuProviderClauses, type SoukakuCalculationContext } from './calculation/agents/soukaku'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -119,6 +121,8 @@ export type ProviderContext =
   | PanYinhuCalculationContext
   | BanyueCalculationContext
   | StarlightBillyCalculationContext
+  | EllenCalculationContext
+  | SoukakuCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -179,14 +183,6 @@ function observeProviderContext(
   const stunAgentCount = state.slots.filter(({ agentId }) => (
     ADMITTED_AGENTS.find(({ id }) => id === agentId)!.specialty === 'Stun'
   )).length
-  const additionalByParty = state.slots.some(({ agentId }, index) => {
-    if (index === providerIndex) return false
-    const other = ADMITTED_AGENTS.find(({ id }) => id === agentId)!
-    if (slot.agentId === 'corin') return other.attribute === 'Physical' || other.faction === summary.faction
-    if (slot.agentId === 'lycaon') return other.specialty === 'Anomaly' || other.attribute === 'Ice' || other.faction === summary.faction
-    return false
-  })
-
   switch (slot.agentId) {
     case 'yixuan':
       return observeYixuan(slot.setup)
@@ -234,9 +230,19 @@ function observeProviderContext(
     case 'evelyn':
       return observeEvelyn(slot.setup, hasStunOrSupport)
     case 'corin':
-      return observeCorin(slot.setup, additionalByParty)
+      return observeCorin(slot.setup, anotherSharesAttribute || anotherSharesFaction)
     case 'lycaon':
-      return observeLycaon(slot.setup, additionalByParty)
+      return observeLycaon(
+        slot.setup,
+        anotherHasSpecialty(['Anomaly']) || anotherSharesAttribute || anotherSharesFaction,
+      )
+    case 'ellen':
+      return observeEllen(
+        slot.setup,
+        anotherHasSpecialty(['Stun']) || anotherSharesAttribute || anotherSharesFaction,
+      )
+    case 'soukaku':
+      return observeSoukaku(slot.setup, anotherSharesAttribute || anotherSharesFaction)
     default:
       return assertNever(slot.agentId)
   }
@@ -292,6 +298,10 @@ function providerClauses(
       return resolveCorinProviderClauses(context)
     case 'lycaon':
       return resolveLycaonProviderClauses(context)
+    case 'ellen':
+      return resolveEllenProviderClauses(context)
+    case 'soukaku':
+      return resolveSoukakuProviderClauses(context)
     default:
       return assertNever(context)
   }
@@ -310,15 +320,6 @@ function isGeneralDamageAgent(agentId: AgentId): boolean {
 function isElectricGeneralDamageAgent(agentId: AgentId): boolean {
   const agent = ADMITTED_AGENTS.find(({ id }) => id === agentId)
   return agent?.attribute === 'Electric' && isGeneralDamageAgent(agentId)
-}
-
-function isSeedVanguardAtkAgent(agentId: AgentId): agentId is SeedVanguardAtkAgentId {
-  return agentId === 'anbySoldier0'
-    || agentId === 'seed'
-    || agentId === 'cissia'
-    || agentId === 'evelyn'
-    || agentId === 'corin'
-    || agentId === 'hugo'
 }
 
 export function resolveSeedVanguard(

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { calculateParty } from './calculate'
-import { VERTICAL_VALUES, W_ENGINES, type AgentId } from './content'
+import { resolveProviderEffects } from './provider-effects'
+import { VERTICAL_VALUES, type AgentId } from './content'
 import { createPreparedState, isCompleteWorkbench } from './state'
 import {
   action,
@@ -17,6 +18,130 @@ import {
 } from './calculate.test-support'
 
 describe('calculateParty mechanisms', () => {
+  it('projects Soukaku’s capped Core ATK once to Focus and retains exact Ice party consumers', () => {
+    const prepared = createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0)
+    expect(isCompleteWorkbench(prepared)).toBe(true)
+    const party = calculateParty(prepared)!
+    const ellen = agent(party, 'ellen')
+    const soukaku = agent(party, 'soukaku')
+    expect(metric(ellen, 'atk').breakdown.fully).toContainEqual(expect.objectContaining({
+      ownerAgentId: 'soukaku', locus: 'core', amount: 1000,
+    }))
+    expect(metric(soukaku, 'atk').breakdown.fully).not.toContainEqual(expect.objectContaining({
+      ownerAgentId: 'soukaku', locus: 'core', amount: 1000,
+    }))
+    expect(metric(soukaku, 'atk').gauge).toMatchObject({ outputValue: 1000, outputCap: 1000 })
+    expect(metric(soukaku, 'atk').gauge?.current).toBeCloseTo(2507.3)
+    expect(metric(ellen, 'dmgBonus').values.fully).toBeGreaterThanOrEqual(50)
+    expect(metric(ellen, 'resReduction').values.fully).toBe(35)
+    expect(agent(party, 'lycaon').metrics.find(({ id }) => id === 'resIgnore')).toBeUndefined()
+  })
+
+  it('keeps Ellen’s Deep Sea initial and Combat CRIT surfaces capped at M1', () => {
+    const party = calculateParty(createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0))!
+    const ellen = metric(agent(party, 'ellen'), 'critRate')
+    expect(ellen.values.initial).toBe(75.4)
+    expect(ellen.values.combat).toBe(95.4)
+    const mindscapeOne = calculateParty(withMindscape(
+      createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0), 'ellen', 1,
+    ))!
+    expect(metric(agent(mindscapeOne, 'ellen'), 'critRate').values.combat).toBe(100)
+  })
+
+  it('composes Ellen’s combat ATK percentages from current Initial ATK', () => {
+    const full = agent(calculateParty(createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0))!, 'ellen')
+    const fullAtk = metric(full, 'atk')
+    expect(fullAtk.values.combat - fullAtk.values.initial).toBeCloseTo(fullAtk.values.initial * .27)
+
+    const nonLimited = createPreparedState({ ellen: 'nonLimited' }, ['ellen', 'soukaku', 'lycaon'], 0)
+    const nonLimitedAtk = metric(agent(calculateParty(nonLimited)!, 'ellen'), 'atk')
+    const brimstone = nonLimitedAtk.breakdown.combat.find(({ locus }) => locus === 'w-engine')
+    const woodpecker = nonLimitedAtk.breakdown.combat.find(({ locus }) => locus === 'disc-4pc')
+    expect(brimstone?.amount).toBeCloseTo(nonLimitedAtk.values.initial * .28)
+    expect(woodpecker?.amount).toBeCloseTo(nonLimitedAtk.values.initial * .27)
+
+    let contextual = createPreparedState({}, ['ellen', 'dialyn', 'soukaku'], 0)
+    contextual = selectDisc(contextual, 'ellen', 'fourPiece', 'pufferElectro')
+    const contextualAtk = metric(agent(calculateParty(contextual)!, 'ellen'), 'atk')
+    expect(contextualAtk.breakdown.fully).toContainEqual(expect.objectContaining({
+      ownerAgentId: 'ellen', locus: 'disc-4pc', amount: contextualAtk.values.initial * .15,
+    }))
+  })
+
+  it('qualifies Ellen through a Stun and keeps Deep Sea and Myriad scopes broad after their triggers', () => {
+    const withStun = calculateParty(createPreparedState({}, ['ellen', 'dialyn', 'panYinhu'], 0))!
+    expect(metric(agent(withStun, 'ellen'), 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'ellen', locus: 'additional', amount: 30 }))
+    const unqualified = calculateParty(createPreparedState({}, ['ellen', 'panYinhu', 'astraYao'], 0))!
+    expect(metric(agent(unqualified, 'ellen'), 'dmgBonus').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'ellen', locus: 'additional' }))
+    let myriad = selectEngine(createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0), 'ellen', 'myriadEclipse')
+    myriad = selectMain(myriad, 'ellen', 'slot5', 'iceDmg')
+    myriad = selectDisc(myriad, 'ellen', 'twoPiece', 'polarMetal')
+    expect(metric(agent(calculateParty(myriad)!, 'ellen'), 'defIgnore').values.fully).toBe(25)
+  })
+
+  it('projects Ellen’s action CRIT DMG and Steel back-attack scope without widening common values', () => {
+    const base = createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0)
+    const m0 = agent(calculateParty(base)!, 'ellen')
+    expect(action(m0, 'ellenCoreCritDmg').values.fully - metric(m0, 'critDmg').values.fully)
+      .toBe(148)
+    const m2 = agent(calculateParty(withMindscape(base, 'ellen', 2))!, 'ellen')
+    expect(action(m2, 'ellenExCritDmg').values.fully - metric(m2, 'critDmg').values.fully)
+      .toBe(60)
+    const steel = agent(calculateParty(selectEngine(base, 'ellen', 'steelCushion'))!, 'ellen')
+    expect(action(steel, 'ellenBackAttack').values.fully
+      - metric(steel, 'dmgBonus').values.fully).toBe(25)
+    const cordis = agent(calculateParty(selectEngine(base, 'ellen', 'cordisGermina'))!, 'ellen')
+    expect(metric(cordis, 'defIgnore').values.fully).toBe(0)
+    expect(action(cordis, 'ellenBasicUltimateDef Ignore').values.fully).toBe(20)
+  })
+
+  it('projects Weeping’s automatic Energy only to Soukaku and attributes her M4 RES reduction to Mindscape', () => {
+    let state = createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0)
+    state = selectEngine(state, 'soukaku', 'weepingCradle')
+    const weeping = calculateParty(state)!
+    expect(metric(agent(weeping, 'soukaku'), 'energyRegen').values.combat).toBeCloseTo(1.56 * 1.8 + .6)
+    const mindscape = calculateParty(withMindscape(state, 'soukaku', 4))!
+    expect(metric(agent(mindscape, 'ellen'), 'resReduction').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'soukaku', locus: 'mindscape', amount: 10 }))
+  })
+
+  it('scales Soukaku’s Core below cap and keeps party qualification routes exact', () => {
+    let belowCap = createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0)
+    belowCap = selectDisc(belowCap, 'soukaku', 'twoPiece', 'swingJazz')
+    const belowCapResult = calculateParty(belowCap)!
+    const soukaku = agent(belowCapResult, 'soukaku')
+    const expected = metric(soukaku, 'atk').gauge!.current * .4
+    expect(metric(soukaku, 'atk').gauge!.outputValue).toBeCloseTo(expected)
+    const delivered = metric(agent(belowCapResult, 'ellen'), 'atk').breakdown.fully
+      .find(({ ownerAgentId, locus }) => ownerAgentId === 'soukaku' && locus === 'core')
+    expect(delivered?.amount).toBeCloseTo(expected)
+
+    const additional = (party: Parameters<typeof createPreparedState>[1], id: 'ellen' | 'soukaku') => {
+      const context = resolveProviderEffects(createPreparedState({}, party, 0)).contexts
+        .find(({ agentId }) => agentId === id)
+      if (context?.agentId !== id) throw new Error(`Missing ${id} context`)
+      return context.additionalActive
+    }
+    expect(additional(['ellen', 'dialyn', 'panYinhu'], 'ellen')).toBe(true)
+    expect(additional(['ellen', 'soukaku', 'panYinhu'], 'ellen')).toBe(true)
+    expect(additional(['ellen', 'corin', 'panYinhu'], 'ellen')).toBe(true)
+    expect(additional(['ellen', 'astraYao', 'panYinhu'], 'ellen')).toBe(false)
+    expect(additional(['ellen', 'soukaku', 'panYinhu'], 'soukaku')).toBe(true)
+    expect(additional(['manato', 'soukaku', 'panYinhu'], 'soukaku')).toBe(false)
+  })
+
+  it('keeps duplicate Kaboom squad ATK at one exact-identity contribution', () => {
+    let state = createPreparedState({}, ['ellen', 'astraYao', 'soukaku'], 0)
+    state = selectEngine(state, 'astraYao', 'kaboom')
+    state = setRefinement(state, 'astraYao', 5)
+    const atk = metric(agent(calculateParty(state)!, 'ellen'), 'atk')
+    const kaboom = atk.breakdown.fully.filter(({ label }) => label === 'Kaboom the Cannon')
+    expect(kaboom.reduce((total, { amount }) => total + amount, 0))
+      .toBeCloseTo(atk.values.initial * .16)
+  })
+
   it('gates Result on every required setup selection', () => {
     const prepared = createPreparedState()
     const incomplete = [
@@ -624,13 +749,7 @@ describe('calculateParty mechanisms', () => {
         detail: '4-piece',
         display: { value: 15, unit: '%', decimals: 0 },
       })])
-    const selectedSetup = prepared.slots.find(({ agentId: id }) => id === agentId)?.setup
-    if (!selectedSetup?.engineId) throw new Error(`Missing selected ${agentId} engine`)
-    expect(pufferAtk[0].amount).toBeCloseTo(
-      (VERTICAL_VALUES[agentId].atk + W_ENGINES[selectedSetup.engineId].baseAtk) * 0.15,
-      10,
-    )
-    expect(pufferAtk[0].amount).not.toBeCloseTo(atk.values.initial * 0.15, 10)
+    expect(pufferAtk[0].amount).toBeCloseTo(atk.values.initial * 0.15, 10)
 
     expect(metric(selected, 'dmgBonus').values)
       .toEqual(metric(baseline, 'dmgBonus').values)

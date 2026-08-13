@@ -6,7 +6,6 @@ import {
   SETUP_FORMULA_PARTICIPATION_BY_AGENT,
   SOURCE_LABELS,
   effectiveSubstatChoices,
-  VERTICAL_VALUES,
   W_ENGINES,
   equipmentEffectBaseValue,
   type AgentId,
@@ -96,7 +95,7 @@ export interface SourceBoundCurrentClause {
   eligibleAgentIds?: AgentId[]
   attributes?: readonly EffectAttribute[]
   formulas?: readonly SetupFormulaFamily[]
-  nonstackKey?: 'kingOfTheSummit' | 'astralVoiceEntrant' | 'moonlightLullaby' | 'etherVeilWellspring' | 'swingJazz' | 'bunnyInWonderland'
+  nonstackKey?: 'kingOfTheSummit' | 'astralVoiceEntrant' | 'moonlightLullaby' | 'etherVeilWellspring' | 'swingJazz' | 'bunnyInWonderland' | 'kaboomTheCannon'
   candidatePressure?: CandidatePressure
   value: { kind: 'additive'; amount: number; display?: ResolvedCurrentEffect['display'] }
     | { kind: 'basis-percentage'; percentage: number }
@@ -292,6 +291,16 @@ export const STATIC_SOURCES = {
     ),
     critCap: source('Displayed CRIT Rate cap', 'lycaon', 'calculation'),
   },
+  ellen: {
+    core: source(SOURCE_LABELS.ellenCore, 'ellen', 'core'),
+    additional: source(SOURCE_LABELS.ellenAbility, 'ellen', 'additional'),
+    potential: source(SOURCE_LABELS.ellenPotential, 'ellen', 'identity'),
+    critCap: source('Displayed CRIT Rate cap', 'ellen', 'calculation'),
+  },
+  soukaku: {
+    core: source(SOURCE_LABELS.soukakuCore, 'soukaku', 'core'),
+    additional: source(SOURCE_LABELS.soukakuAbility, 'soukaku', 'additional'),
+  },
 } as const
 
 export const mindscapeSource = (
@@ -476,22 +485,19 @@ export const active = (
 ) > 0.000_001)
 
 export function pufferElectroFourPieceClauses(
-  agentId: 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo',
+  agentId: 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen',
   setup: CompleteSetup,
   ultimateAction: ActionTarget,
 ): SourceBoundCurrentClause[] {
   if (setup.fourPieceId !== 'pufferElectro') return []
   const fourPiece = discSource(agentId, 'pufferElectro', '4-piece')
-  const baseAtk = VERTICAL_VALUES[agentId].atk + W_ENGINES[setup.engineId].baseAtk
   return [
-    additive(
+    percentage(
       'atk',
       'fully',
       fourPiece,
-      baseAtk * equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.atk) / 100,
+      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.atk),
       'self',
-      undefined,
-      { value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.atk), unit: '%', decimals: 0 },
     ),
     additive(
       'dmgBonus',

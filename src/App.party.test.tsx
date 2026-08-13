@@ -103,6 +103,11 @@ describe('integrated party workbench: party', () => {
         { agentId: 'panYinhu', setup: createPreparedAgentSetup('panYinhu') },
         { agentId: 'juFufu', setup: createPreparedAgentSetup('juFufu') },
       ],
+      [
+        { agentId: 'ellen', setup: createPreparedAgentSetup('ellen') },
+        { agentId: 'soukaku', setup: createPreparedAgentSetup('soukaku') },
+        { agentId: 'lycaon', setup: createPreparedAgentSetup('lycaon') },
+      ],
     ]
     let latestContainer: HTMLElement | null = null
     for (const slots of additionalGroups) {

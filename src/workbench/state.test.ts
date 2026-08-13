@@ -7,6 +7,7 @@ import {
   effectiveSubstatChoicesForSlot,
   effectiveTwoPieceIds,
   incompleteRequiredSelections,
+  invalidRequiredSelections,
 } from './candidates'
 import { calculateParty } from './calculate'
 import { agent, metric } from './calculate.test-support'
@@ -19,6 +20,29 @@ import {
 } from './state'
 
 describe('workbench state lifecycle', () => {
+  it('adds Ellen’s Puffer candidate only with Dialyn and reprepares after party replacement', () => {
+    let state = createPreparedState({}, ['ellen', 'dialyn', 'soukaku'], 0)
+    expect(effectiveFourPieceIds(state, 0)).toContain('pufferElectro')
+    state = workbenchReducer(state, { type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'pufferElectro' })
+    expect(state.slots[0].setup.fourPieceId).toBe('pufferElectro')
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    state = workbenchReducer(state, { type: 'replaceDraftAgent', slot: 1, agentId: 'lycaon' })
+    state = workbenchReducer(state, { type: 'applyPartyEdit' })
+    expect(effectiveFourPieceIds(state, 0)).not.toContain('pufferElectro')
+    expect(state.slots[0].setup.fourPieceId).toBe('woodpecker')
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    state = workbenchReducer(state, { type: 'replaceDraftAgent', slot: 1, agentId: 'dialyn' })
+    state = workbenchReducer(state, { type: 'applyPartyEdit' })
+    expect(effectiveFourPieceIds(state, 0)).toContain('pufferElectro')
+    expect(state.slots[0].setup.fourPieceId).toBe('woodpecker')
+  })
+
+  it('keeps the prepared Ellen and Soukaku party complete', () => {
+    const state = createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0)
+    expect(incompleteRequiredSelections(state)).toEqual([])
+    expect(invalidRequiredSelections(state)).toEqual([])
+  })
+
   it('keeps the exported Trigger helper at the local representative baseline', () => {
     expect(createPreparedAgentSetup('trigger')).toMatchObject({
       engineId: 'spectralGaze', fourPieceId: 'king', twoPieceId: 'shockstar',

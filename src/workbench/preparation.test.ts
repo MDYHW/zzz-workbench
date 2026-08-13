@@ -27,6 +27,25 @@ const permutations = <T,>(items: readonly [T, T, T]): [T, T, T][] => [
 ]
 
 describe('party-directed preparation', () => {
+  it('prepares Ellen and Soukaku with their authored pool representatives and zero supplied substats', () => {
+    const full = createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0)
+    expect(full.slots[0].setup).toMatchObject({
+      mindscape: 0, engineId: 'deepSeaVisitor', fourPieceId: 'woodpecker', twoPieceId: 'pufferElectro',
+      mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
+      substats: { critRate: 0, critDmg: 0, atkPct: 0 },
+    })
+    expect(full.slots[1].setup).toMatchObject({
+      mindscape: 6, engineId: 'kaboom', refinement: 5, fourPieceId: 'moonlight', twoPieceId: 'astralVoice',
+      mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'energyRegenPct' },
+      substats: { atkPct: 0, atkFlat: 0 },
+    })
+    const nonLimited = createPreparedState({ ellen: 'nonLimited', soukaku: 'nonLimited' }, ['ellen', 'soukaku', 'lycaon'], 0)
+    expect(nonLimited.slots[0].setup.engineId).toBe('brimstone')
+    expect(nonLimited.slots[1].setup).toMatchObject({
+      ...full.slots[1].setup, pool: 'nonLimited',
+    })
+  })
+
   it('chooses the Trigger full-pool engine from the focused formula without changing her representative Disc package', () => {
     const yixuanFocus = preparePartySelections([
       context('yixuan'), context('trigger'), context('astraYao'),
