@@ -211,12 +211,33 @@ that can consume them; unrelated Agents do not require full re-derivation.
 
 #### W-Engine Package Inspection
 
-For W-Engines, inspect matching-Specialty packages first and compare Base ATK,
-advanced stat, and usable passive together at S-Rank W1 or A-Rank W5. No one
-package component is an automatic gate. An unused advanced stat or passive
-clause is an opportunity cost in the whole-package comparison, not an automatic
-rejection. An off-Specialty package remains Agent-local and survives only when
-its usable whole package is competitive for the current direction.
+For W-Engines, begin with current competitive-practice shortlists as discovery
+input rather than a final answer. Inspect matching-Specialty packages first,
+then perform a bounded omission pass through other current-cohort packages that
+could strengthen the exact authored direction. A guide appearance, signature
+association, rarity, Specialty match, or isolated high value neither admits nor
+rejects a package by itself.
+
+For every inspected package, settle the holder's role and formula, action,
+operation, threshold, or cap consumer; exact Specialty eligibility and
+activation compatibility; availability and ownership origin; and the nearest
+usable same-axis competitor in the same pool. Then compare Base ATK, advanced
+stat, and every passive clause together at S-Rank W1 or A-Rank W5. Charge an
+unused advanced stat or passive clause as finite slot or stat-supply opportunity
+cost rather than treating it as an automatic rejection. An off-Specialty
+package remains Agent-local and survives only when its usable whole package is
+competitive for the current direction.
+
+Apply that comparison independently to full and non-limited availability, at
+zero currently supplied substats and with only the bounded future opportunity
+owned by [Competitive Candidate Set](#competitive-candidate-set). Set candidate
+membership before authoring one deterministic pool representative. Candidate
+dominance or representative priority does not establish Result projection;
+each retained clause still needs its exact recipient, formula, Attribute,
+action, or operation consumer. Contextual or selected-input-derived changes
+also keep their established contrary and invalid-selection lifecycle. Do not
+turn this authoring order into runtime scoring, a package registry, or a
+named-Agent decision table.
 
 #### Drive Disc Inspection Routing
 

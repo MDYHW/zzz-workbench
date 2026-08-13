@@ -398,4 +398,22 @@ describe('party-directed preparation', () => {
       expect(selection.fourPieceId).not.toBe(selection.twoPieceId)
     }
   })
+
+  it('admits bounded limited alternatives without changing prepared first choices', () => {
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.trigger.full).toContain('blazingLaurel')
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.trigger.nonLimited).not.toContain('blazingLaurel')
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.cissia.full).toContain('bellicoseBlaze')
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.cissia.nonLimited).not.toContain('bellicoseBlaze')
+
+    expect(createPreparedState(
+      {}, ['anbySoldier0', 'trigger', 'astraYao'], 0,
+    ).slots[1].setup).toMatchObject({
+      engineId: 'spectralGaze',
+    })
+    expect(createPreparedState(
+      {}, ['seed', 'cissia', 'astraYao'], 0,
+    ).slots[1].setup).toMatchObject({
+      engineId: 'serpentineSeeker',
+    })
+  })
 })

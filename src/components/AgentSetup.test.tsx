@@ -2,8 +2,8 @@ import { useReducer } from 'react'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { DISC_IDS_BY_AGENT_AND_PIECE, MAIN_STAT_IDS_BY_AGENT_AND_SLOT, type AgentId, type MainSlot, type MainStatId } from '../workbench/content'
-import { createPreparedState, isCompleteWorkbench, workbenchReducer } from '../workbench/state'
+import { DISC_IDS_BY_AGENT_AND_PIECE, MAIN_STAT_IDS_BY_AGENT_AND_SLOT, type AgentId, type EngineId, type MainSlot, type MainStatId } from '../workbench/content'
+import { createPreparedState, isCompleteWorkbench, workbenchReducer, type AppliedSlot } from '../workbench/state'
 import { AgentSetup } from './AgentSetup'
 import { effectiveFourPieceIds, effectiveFourPieceRoleSwapIds, effectiveMainStatIds, effectiveSubstatChoicesForSlot, effectiveTwoPieceIds } from '../workbench/candidates'
 
@@ -162,6 +162,59 @@ describe('AgentSetup partial W-Engine package', () => {
     expect(screen.getByText('Inactive · Physical DMG +20%')).toBeInTheDocument()
     expect(screen.getByText('Inactive · Back Attack DMG +25%')).toBeInTheDocument()
   })
+
+  it.each([
+    {
+      agentId: 'trigger',
+      party: ['anbySoldier0', 'trigger', 'astraYao'] as [AgentId, AgentId, AgentId],
+      slot: 1 as AppliedSlot,
+      selectedName: 'Spectral Gaze',
+      candidateId: 'blazingLaurel',
+      candidateName: 'Blazing Laurel',
+      description: 'Impact +18%. Impact +25%. Fire & Ice CRIT DMG +30%',
+    },
+    {
+      agentId: 'cissia',
+      party: ['seed', 'cissia', 'astraYao'] as [AgentId, AgentId, AgentId],
+      slot: 1 as AppliedSlot,
+      selectedName: 'Serpentine Seeker',
+      candidateId: 'bellicoseBlaze',
+      candidateName: 'Bellicose Blaze',
+      description: 'Energy Regen +60%. CRIT Rate +20%. Fire Aftershock DEF Ignore +30%',
+    },
+  ] as const)(
+    'keeps the complete $candidateName package accessible as candidate and selection',
+    async ({ agentId, party, slot, selectedName, candidateId, candidateName, description }) => {
+      const user = userEvent.setup()
+      const state = createPreparedState({}, party, 0)
+      const setup = state.slots[slot].setup
+      const props = {
+        activeSourceTone: null,
+        agentId,
+        discCandidates: DISC_IDS_BY_AGENT_AND_PIECE[agentId],
+        dispatch: vi.fn(),
+        mainStatCandidates: MAIN_STAT_IDS_BY_AGENT_AND_SLOT[agentId],
+        onSourceToneChange: vi.fn(),
+        slot,
+      } as const
+      const { rerender } = render(<AgentSetup {...props} setup={setup} />)
+
+      await user.click(screen.getByRole('button', {
+        name: `Change W-Engine from ${selectedName}`,
+      }))
+      const candidate = within(screen.getByLabelText('W-Engine candidates'))
+        .getByRole('button', { name: `Select ${candidateName} W1` })
+      expect(candidate).toHaveAccessibleDescription(description)
+
+      rerender(<AgentSetup
+        {...props}
+        setup={{ ...setup, engineId: candidateId as EngineId, refinement: 1 }}
+      />)
+      expect(screen.getByRole('button', {
+        name: `Change W-Engine from ${candidateName}`,
+      })).toHaveAccessibleDescription(description)
+    },
+  )
 })
 
 describe('AgentSetup Seed Additional Ability', () => {

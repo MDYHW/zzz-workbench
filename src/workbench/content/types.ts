@@ -53,6 +53,7 @@ export type EngineId =
   | 'bashfulDemon'
   | 'brimstone'
   | 'serpentineSeeker'
+  | 'bellicoseBlaze'
   | 'drillRigRedAxis'
   | 'heartstringNocturne'
   | 'steelCushion'

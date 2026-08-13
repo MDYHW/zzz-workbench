@@ -126,9 +126,17 @@ The prose requirements govern if this diagram and the text ever differ.
   All effective-substat counts start at zero, and direct party/equipment edits
   do not dynamically reprepare the selection.
 - R17. Dialyn retains Precious Fossilized Core W5 alongside Yesterday Calls, Hellfire Gears, and Steam Oven. Its retained advanced Impact is +15%; its fully enabled two-threshold Daze package is one +32% W5 contribution. Dialyn's representative remains Yesterday Calls/full and Hellfire/non-limited with King plus Woodpecker, CRIT Rate/ATK%/Energy Regen.
-- R18. Trigger W-Engine candidates remain Spectral Gaze, Ice-Jade Teapot, The
-  Restrained, Precious Fossilized Core, and Steam Oven. Her retained 4-piece
-  candidates are King of the Summit, Astral Voice, and Shockstar Disco. Her
+- R18. Trigger's full W-Engine candidates are Spectral Gaze, Blazing Laurel,
+  Ice-Jade Teapot, The Restrained, Precious Fossilized Core, and Steam Oven;
+  non-limited retains The Restrained, Precious Fossilized Core, and Steam Oven.
+  Blazing Laurel is a full-pool alternate rather than a new representative:
+  Trigger can activate and consume its Impact package, and her Basic-category
+  Aftershocks can establish the Fire/Ice squad CRIT DMG package. That recipient
+  clause projects only to current Fire or Ice damage consumers. Spectral Gaze
+  remains the general-damage representative and Ice-Jade Teapot remains the
+  Sheer-focus adjustment because candidate admission does not imply prepared
+  priority. Her retained 4-piece candidates are King of the Summit, Astral
+  Voice, and Shockstar Disco. Her
   retained 2-piece candidates are Shockstar Disco, King of the Summit,
   Woodpecker Electro, and Swing Jazz, subject to the existing same-set
   piece-role conflict rule. Swing Jazz is the authored Energy Regen identity
@@ -223,6 +231,7 @@ relationship one hierarchy.
 | W-Engine | Rank/default | Base ATK | Advanced stat | Exact retained passive clauses |
 |---|---|---:|---|---|
 | Spectral Gaze | S / W1 | 713 | CRIT Rate +24% | Electric Aftershock DEF Reduction +25%; while off-field Impact +4% per stack, 3 stacks, plus +8% at maximum, total +20% |
+| Blazing Laurel | S / W1 | 713 | Impact +18% | Quick Assist or Perfect Assist grants Impact +25%; holder Basic-category hits establish up to 20 Wilt stacks, supplying Fire/Ice squad CRIT DMG +30% at maximum; the current Trigger Aftershock category can establish the stack package |
 | Ice-Jade Teapot | S / W1 | 713 | Impact +18% | Basic Attack hits grant Impact +0.7% per stack, 30 stacks, total +21%; at 15 stacks party DMG +20% |
 | The Restrained | S / W1 | 684 | Impact +18% | attacks grant Basic Attack DMG +6% and Daze +6% per stack, 5 stacks, total +30% each; Trigger's retained Harmonizing Aftershock belongs to the applicable Basic Attack category |
 | Precious Fossilized Core | A / W5 | 594 | Impact +15% | Daze +16% while target HP is at least 50%, plus another +16% while at least 75%, total +32% |
@@ -387,6 +396,7 @@ branches in candidate policy. Provider order does not change the outcome.
   Astra with Moonlight Lullaby 4-piece + Astral Voice 2-piece in either pool,
   without preparing Trigger.
 - AE26. **Covers R10-R12, R23a-R23g.** Given full-pool Trigger and Dialyn, an all-party Yixuan-Focus preparation resolves Ice-Jade Teapot and Astral Voice + Shockstar before candidate reconciliation, so Spectral's broad pre-PEN pressure is absent and applicable Slot 5 effective candidates retain PEN Ratio. The corresponding Anby-Focus preparation resolves Spectral Gaze and the same Disc allocation before the same one-pass reconciliation, so PEN Ratio is absent from those effective candidates while the authored prepared mains remain complete. A later target-only Trigger preparation that newly activates Spectral clears any still-selected invalid recipient PEN mains through the existing completeness boundary.
+- AE27. **Covers R18-R19, R36, R43.** Given full-pool Trigger, Blazing Laurel is selectable without changing her Spectral Gaze or Ice-Jade Teapot prepared first choice. Selecting it supplies Trigger's retained Impact and delivers its exact CRIT DMG only to applicable Fire/Ice damage consumers; a Physical, Electric, or Ether consumer receives no contribution. The limited candidate is absent from Trigger's non-limited pool.
 
 ---
 

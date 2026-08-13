@@ -46,10 +46,14 @@ export function resolveTriggerProviderClauses(setup: CompleteSetup): SourceBound
       'materialBroadPrePenDefBypass',
     ),
     additive('dmgBonus', 'fully', engine, setup.engineId === 'iceJadeTeapot' ? equipmentEffectBaseValue(W_ENGINE_FACTS.iceJadeTeapot.effects.damage, refinement) : 0, 'all-party', undefined, undefined, ['yixuan', 'anbySoldier0', 'trigger']),
+    withApplicability(
+      additive('critDmg', 'fully', engine, setup.engineId === 'blazingLaurel' ? equipmentEffectMaximumValue(W_ENGINE_FACTS.blazingLaurel.effects.critDamage, refinement) : 0, 'all-party'),
+      { formulas: ['general_damage', 'sheer_damage'], attributes: ['Fire', 'Ice'] },
+    ),
     additive('dazeBonus', 'fully', engine, setup.engineId === 'restrained' ? equipmentEffectMaximumValue(W_ENGINE_FACTS.restrained.effects.daze, refinement) : 0, 'self', TRIGGER_BASIC_AFTERSHOCK_TARGET),
     additive('dazeBonus', 'fully', engine, setup.engineId === 'preciousFossilizedCore' ? equipmentEffectMaximumValue(W_ENGINE_FACTS.preciousFossilizedCore.effects.daze, refinement) : 0, 'self'),
     additive('dazeBonus', 'fully', discStatInput(setup, 'trigger', 'fourPiece', 'shockstar', equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze))?.source ?? engine, setup.fourPieceId === 'shockstar' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze) : 0, 'self', TRIGGER_BASIC_AFTERSHOCK_TARGET),
-    percentage('impact', 'fully', engine, setup.engineId === 'spectralGaze' ? equipmentEffectMaximumValue(W_ENGINE_FACTS.spectralGaze.effects.impact, refinement) : setup.engineId === 'iceJadeTeapot' ? equipmentEffectMaximumValue(W_ENGINE_FACTS.iceJadeTeapot.effects.impact, refinement) : setup.engineId === 'steamOven' ? equipmentEffectBaseValue(W_ENGINE_FACTS.steamOven.effects.impact, refinement) : 0, 'self'),
+    percentage('impact', 'fully', engine, setup.engineId === 'spectralGaze' ? equipmentEffectMaximumValue(W_ENGINE_FACTS.spectralGaze.effects.impact, refinement) : setup.engineId === 'blazingLaurel' ? equipmentEffectBaseValue(W_ENGINE_FACTS.blazingLaurel.effects.impact, refinement) : setup.engineId === 'iceJadeTeapot' ? equipmentEffectMaximumValue(W_ENGINE_FACTS.iceJadeTeapot.effects.impact, refinement) : setup.engineId === 'steamOven' ? equipmentEffectBaseValue(W_ENGINE_FACTS.steamOven.effects.impact, refinement) : 0, 'self'),
   ])
 }
 

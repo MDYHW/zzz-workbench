@@ -161,11 +161,17 @@ The prose requirements govern if this diagram and the text ever differ.
   4-piece, Woodpecker Electro 2-piece, and CRIT Rate / Electric DMG / ATK%.
   Her non-limited representative changes only the W-Engine to Marcato Desire
   W5. Every effective-substat count starts at zero.
-- R7. Cissia's full W-Engine candidates are Serpentine Seeker, Drill Rig - Red
-  Axis, and Cordis Germina; non-limited retains Drill Rig - Red Axis. Full
-  prepares Serpentine Seeker W1 and non-limited prepares Drill Rig - Red Axis
-  W5. Bellicose Blaze and general stat sticks remain excluded because their
-  usable whole packages do not create a distinct current choice.
+- R7. Cissia's full W-Engine candidates are Serpentine Seeker, Bellicose Blaze,
+  Drill Rig - Red Axis, and Cordis Germina; non-limited retains Drill Rig - Red
+  Axis. Full prepares Serpentine Seeker W1 and non-limited prepares Drill Rig -
+  Red Axis W5. Bellicose Blaze is a partial but material limited-ownership
+  alternate: its Energy Regen +60% and CRIT Rate +20% both strengthen Cissia's
+  current Core threshold and damage direction, while its Fire Aftershock DEF
+  Ignore is unusable by her Electric Aftershocks and is charged as package
+  opportunity cost. Serpentine remains the stronger full representative because
+  its comparable Energy Regen package supplies more CRIT Rate and a usable
+  Electric DEF Ignore clause. General stat sticks remain excluded when their
+  usable whole packages create no distinct current choice.
 - R8. Cissia locally retains Dawn's Bloom as her operation-fitting 4-piece.
   Astra's repeated Quick Assist opportunity adds Astral Voice as a contextual
   competitive 4-piece adjustment from that complete local package because
@@ -217,6 +223,7 @@ The prose requirements govern if this diagram and the text ever differ.
   | --- | --- | ---: | --- | --- |
   | The Brimstone | S / W1 | 684 | ATK +30% | Fully Enabled: a Basic Attack, Dash Attack, or Dodge Counter hit grants one ATK stack. Per-stack W1-W5 values are 3.5% / 4.4% / 5.2% / 6% / 7%; the eight-stack reachable maxima are 28% / 35.2% / 41.6% / 48% / 56%. |
   | Serpentine Seeker | S / W1 | 713 | Energy Regen +60% | Combat and Fully Enabled CRIT Rate W1-W5 values are 25% / 28.8% / 32.5% / 36.3% / 40%. Entering combat establishes that the equipper's Electric DMG ignores target DEF at Combat and Fully Enabled; W1-W5 values are 28% / 31.5% / 35% / 38.5% / 42%. |
+  | Bellicose Blaze | S / W1 | 713 | Energy Regen +60% | Combat and Fully Enabled CRIT Rate W1-W5 values are 20% / 23% / 26% / 29% / 32%. A Fire Aftershock grants one DEF Ignore stack; per-stack W1-W5 values are 15% / 17.2% / 19.5% / 21.7% / 24%, with two stacks. Cissia cannot activate that Fire-only clause. |
   | Drill Rig - Red Axis | A / W5 | 624 | Energy Regen +50% | Fully Enabled: after an EX Special Attack or Chain Attack, Basic Attack and Dash Attack Electric DMG W1-W5 values are 50% / 57.5% / 65% / 72.5% / 80%. |
 - R11b. Retain only these newly required Drive Disc facts. Woodpecker Electro's
   existing 2-piece CRIT Rate +8% fact remains reused rather than restated.
@@ -488,6 +495,7 @@ The prose requirements govern if this diagram and the text ever differ.
 - AE10. **Covers R19-R20.** Given this document has passed user review, planning
   may choose the smallest implementation shape that preserves the requirements.
   Before that review, no plan or implementation is authorized by this capture.
+- AE11. **Covers R7, R11a, R16-R16b.** Given full-pool Cissia, Bellicose Blaze is selectable and supplies Initial Energy Regen +60% plus Combat CRIT Rate +20%, while no Fire Aftershock DEF Ignore source or Result row appears. Serpentine Seeker remains the prepared full first choice and continues to supply its usable Electric DEF Ignore. Bellicose Blaze is absent from the non-limited pool.
 
 ---
 

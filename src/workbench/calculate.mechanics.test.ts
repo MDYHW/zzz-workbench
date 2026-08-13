@@ -379,6 +379,59 @@ describe('calculateParty mechanisms', () => {
     }))
   })
 
+  it('projects only the usable clauses of bounded partial W-Engine packages', () => {
+    const triggerState = selectEngine(
+      createPreparedState({}, ['evelyn', 'trigger', 'corin'], 0),
+      'trigger',
+      'blazingLaurel',
+    )
+    const triggerParty = calculateParty(triggerState)!
+    const trigger = agent(triggerParty, 'trigger')
+    const evelyn = agent(triggerParty, 'evelyn')
+    const corin = agent(triggerParty, 'corin')
+
+    expect(metric(trigger, 'impact').breakdown.fully).toContainEqual(
+      expect.objectContaining({
+        label: 'Blazing Laurel',
+        display: { value: 25, unit: '%', decimals: 0 },
+      }),
+    )
+    expect(metric(evelyn, 'critDmg').breakdown.fully).toContainEqual(
+      expect.objectContaining({ label: 'Blazing Laurel', amount: 30 }),
+    )
+    expect(metric(corin, 'critDmg').breakdown.fully).not.toContainEqual(
+      expect.objectContaining({ label: 'Blazing Laurel' }),
+    )
+
+    const cissiaState = selectEngine(
+      createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0),
+      'cissia',
+      'bellicoseBlaze',
+    )
+    const cissia = agent(calculateParty(cissiaState)!, 'cissia')
+    expect(metric(cissia, 'energyRegen').breakdown.initial).toContainEqual(
+      expect.objectContaining({
+        label: 'Bellicose Blaze',
+        display: { value: 60, unit: '%', decimals: 0 },
+      }),
+    )
+    expect(metric(cissia, 'critRate').breakdown.combat).toContainEqual(
+      expect.objectContaining({ label: 'Bellicose Blaze', amount: 20 }),
+    )
+    expect(metric(cissia, 'defIgnore').breakdown.combat).not.toContainEqual(
+      expect.objectContaining({ label: 'Bellicose Blaze' }),
+    )
+
+    const serpentine = agent(calculateParty(selectEngine(
+      cissiaState,
+      'cissia',
+      'serpentineSeeker',
+    ))!, 'cissia')
+    expect(metric(serpentine, 'defIgnore').breakdown.combat).toContainEqual(
+      expect.objectContaining({ label: 'Serpentine Seeker', amount: 28 }),
+    )
+  })
+
   it('resolves Fully percentage clauses from authoritative Initial values', () => {
     const result = calculateParty(
       createPreparedState({}, ['anbySoldier0', 'trigger', 'astraYao'], 0),

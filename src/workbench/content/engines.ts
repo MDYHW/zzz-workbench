@@ -15,6 +15,7 @@ import puzzleSphereImage from '../../assets/equipment/w-engines/puzzle-sphere.we
 import qingmingImage from '../../assets/equipment/w-engines/qingming-birdcage.webp'
 import radiowaveImage from '../../assets/equipment/w-engines/radiowave-journey.webp'
 import serpentineSeekerImage from '../../assets/equipment/w-engines/serpentine-seeker.webp'
+import bellicoseBlazeImage from '../../assets/equipment/w-engines/bellicose-blaze.webp'
 import restrainedImage from '../../assets/equipment/w-engines/the-restrained.webp'
 import severedInnocenceImage from '../../assets/equipment/w-engines/severed-innocence.webp'
 import spectralGazeImage from '../../assets/equipment/w-engines/spectral-gaze.webp'
@@ -295,6 +296,18 @@ export const W_ENGINE_FACTS = {
       defIgnore: { modifier: 'defIgnore', unit: '%', value: [28, 31.5, 35, 38.5, 42], scope: { recipient: 'enemy', attributes: ['Electric'] } },
     },
   },
+  bellicoseBlaze: {
+    advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 60, unit: '%' },
+    effects: {
+      critRate: { modifier: 'critRate', unit: '%', value: [20, 23, 26, 29, 32] },
+      fireAftershockDefIgnore: {
+        modifier: 'defIgnore',
+        unit: '%',
+        progression: { kind: 'stacks', perStack: [15, 17.2, 19.5, 21.7, 24], maxStacks: 2 },
+        scope: { recipient: 'enemy', tags: ['aftershock'], attributes: ['Fire'] },
+      },
+    },
+  },
   drillRigRedAxis: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
     effects: {
@@ -524,6 +537,14 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `Electric DMG \u00B7 DEF Ignore +${percent(W_ENGINE_FACTS.serpentineSeeker.effects.defIgnore, refinement)}`,
     ],
   },
+  bellicoseBlaze: {
+    id: 'bellicoseBlaze', name: 'Bellicose Blaze', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.bellicoseBlaze.advancedStat, image: bellicoseBlazeImage,
+    passiveLines: (refinement) => [
+      `CRIT Rate +${percent(W_ENGINE_FACTS.bellicoseBlaze.effects.critRate, refinement)}`,
+      `Fire Aftershock DEF Ignore +${percent(W_ENGINE_FACTS.bellicoseBlaze.effects.fireAftershockDefIgnore, refinement, true)}`,
+    ],
+  },
   drillRigRedAxis: {
     id: 'drillRigRedAxis', name: 'Drill Rig - Red Axis', rank: 'A', limited: false, baseAtk: 624,
     advancedStat: W_ENGINE_FACTS.drillRigRedAxis.advancedStat, image: drillRigImage,
@@ -591,10 +612,10 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   lucia: enginePools(['dreamlitHearth', 'thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
   anbySoldier0: enginePools(['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'marcatoDesire', 'starlightEngine']),
-  trigger: enginePools(['spectralGaze', 'iceJadeTeapot', 'restrained', 'preciousFossilizedCore', 'steamOven']),
+  trigger: enginePools(['spectralGaze', 'blazingLaurel', 'iceJadeTeapot', 'restrained', 'preciousFossilizedCore', 'steamOven']),
   astraYao: enginePools(['elegantVanity', 'bashfulDemon', 'kaboom']),
   seed: enginePools(['cordisGermina', 'heartstringNocturne', 'severedInnocence', 'brimstone', 'marcatoDesire']),
-  cissia: enginePools(['serpentineSeeker', 'drillRigRedAxis', 'cordisGermina']),
+  cissia: enginePools(['serpentineSeeker', 'bellicoseBlaze', 'drillRigRedAxis', 'cordisGermina']),
   evelyn: enginePools(['heartstringNocturne', 'severedInnocence', 'cordisGermina', 'starlightEngine', 'steelCushion']),
   corin: enginePools(['cordisGermina', 'heartstringNocturne', 'steelCushion', 'housekeeper']),
   lycaon: enginePools(['blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore', 'simmeringPot']),

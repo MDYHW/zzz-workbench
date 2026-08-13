@@ -182,6 +182,8 @@ export function resolveCissiaProviderClauses(
       setup.mindscape >= 2 ? 35 : 0, 'self', CISSIA_SERPENT),
     additive('critRate', 'combat', engine, setup.engineId === 'serpentineSeeker'
       ? equipmentEffectBaseValue(W_ENGINE_FACTS.serpentineSeeker.effects.critRate, refinement)
+      : setup.engineId === 'bellicoseBlaze'
+        ? equipmentEffectBaseValue(W_ENGINE_FACTS.bellicoseBlaze.effects.critRate, refinement)
       : setup.engineId === 'cordisGermina'
         ? equipmentEffectBaseValue(W_ENGINE_FACTS.cordisGermina.effects.critRate, refinement)
         : 0, 'self'),
