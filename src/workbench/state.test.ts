@@ -347,8 +347,115 @@ describe('workbench state lifecycle', () => {
     expect(state.slots[0]).toBe(anby)
     expect(state.slots[1]).toBe(editedTrigger)
     expect(state.slots[2].setup).toMatchObject({
-      pool: 'nonLimited', fourPieceId: 'moonlight', twoPieceId: 'hormonePunk',
+      pool: 'nonLimited', fourPieceId: 'moonlight', twoPieceId: 'astralVoice',
     })
+  })
+
+  it('compresses same-effect identities from current four-piece roles without manufacturing partners', () => {
+    const dialyn = createPreparedState({}, ['dialyn', 'yixuan', 'lucia'], 1)
+    expect(effectiveTwoPieceIds(dialyn, 0)).toEqual(['woodpecker', 'swingJazz'])
+
+    let pan = createPreparedState({}, ['yixuan', 'panYinhu', 'juFufu'], 0)
+    expect(effectiveTwoPieceIds(pan, 1)).toEqual(['swingJazz', 'hormonePunk'])
+    pan = workbenchReducer(pan, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'swingJazz',
+    })
+    expect(pan.slots[1].setup).toMatchObject({
+      fourPieceId: 'swingJazz', twoPieceId: 'astralVoice',
+    })
+    expect(effectiveTwoPieceIds(pan, 1)).toEqual(['moonlight', 'astralVoice'])
+
+    let juFufu = createPreparedState({}, ['juFufu', 'yixuan', 'lucia'], 1)
+    expect(effectiveTwoPieceIds(juFufu, 0)).toEqual(expect.arrayContaining([
+      'hormonePunk', 'swingJazz',
+    ]))
+    expect(effectiveTwoPieceIds(juFufu, 0)).not.toEqual(expect.arrayContaining([
+      'astralVoice', 'moonlight',
+    ]))
+    juFufu = workbenchReducer(juFufu, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'swingJazz',
+    })
+    expect(effectiveTwoPieceIds(juFufu, 0)).toEqual(expect.arrayContaining([
+      'hormonePunk', 'moonlight',
+    ]))
+
+    const anby = createPreparedState({}, ['anbySoldier0', 'yixuan', 'lucia'], 1)
+    expect(effectiveTwoPieceIds(anby, 0)).toContain('hormonePunk')
+    expect(effectiveTwoPieceIds(anby, 0)).not.toContain('astralVoice')
+  })
+
+  it('routes matching Attribute and canonical ATK candidates through current formulas', () => {
+    const rupture = createPreparedState({}, ['yixuan', 'yidhari', 'manato'], 0)
+    expect(effectiveTwoPieceIds(rupture, 0)).toEqual([
+      'woodpecker', 'branchAndBlade', 'chaoticMetal',
+    ])
+    expect(effectiveTwoPieceIds(rupture, 0)).not.toContain('yunkui')
+    expect(effectiveTwoPieceIds(rupture, 0)).not.toContain('pufferElectro')
+    expect(effectiveTwoPieceIds(rupture, 1)).toEqual([
+      'woodpecker', 'branchAndBlade', 'polarMetal',
+    ])
+    expect(effectiveTwoPieceIds(rupture, 2)).toEqual([
+      'woodpecker', 'branchAndBlade', 'infernoMetal',
+    ])
+
+    const attack = createPreparedState({}, ['anbySoldier0', 'seed', 'cissia'], 0)
+    expect(effectiveTwoPieceIds(attack, 0)).toEqual([
+      'woodpecker', 'branchAndBlade', 'thunderMetal', 'hormonePunk',
+    ])
+    expect(effectiveTwoPieceIds(attack, 1)).toEqual(expect.arrayContaining([
+      'woodpecker', 'branchAndBlade', 'thunderMetal', 'hormonePunk',
+    ]))
+    expect(effectiveTwoPieceIds(attack, 2)).toEqual(expect.arrayContaining([
+      'swingJazz', 'woodpecker', 'branchAndBlade', 'thunderMetal', 'hormonePunk',
+    ]))
+    expect(effectiveTwoPieceIds(attack, 2)).not.toContain('astralVoice')
+  })
+
+  it('derives Cissia same-effect exposure from contextual four-piece reachability', () => {
+    const local = createPreparedState({}, ['seed', 'cissia', 'anbySoldier0'], 0)
+    expect(effectiveTwoPieceIds(local, 1)).toContain('hormonePunk')
+    expect(effectiveTwoPieceIds(local, 1)).not.toContain('astralVoice')
+
+    let contextual = createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0)
+    contextual = workbenchReducer(contextual, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'dawnsBloom',
+    })
+    expect(effectiveTwoPieceIds(contextual, 1)).toContain('astralVoice')
+    expect(effectiveTwoPieceIds(contextual, 1)).not.toContain('hormonePunk')
+
+    contextual = workbenchReducer(contextual, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    expect(effectiveTwoPieceIds(contextual, 1)).toContain('hormonePunk')
+    expect(effectiveTwoPieceIds(contextual, 1)).not.toContain('astralVoice')
+  })
+
+  it('clears a same-effect selection after direct invalidation without fallback or restoration', () => {
+    let state = createPreparedState({}, ['yixuan', 'panYinhu', 'juFufu'], 0)
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'twoPiece', discId: 'hormonePunk',
+    })
+    expect(state.slots[1].setup.twoPieceId).toBe('hormonePunk')
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'bunnyInWonderland',
+    })
+    expect(state.slots[1].setup.twoPieceId).toBeNull()
+    expect(calculateParty(state)).toBeNull()
+    expect(effectiveTwoPieceIds(state, 1)).toEqual(['swingJazz', 'astralVoice'])
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    expect(effectiveTwoPieceIds(state, 1)).toEqual(['swingJazz', 'hormonePunk'])
+    expect(state.slots[1].setup.twoPieceId).toBeNull()
+    expect(calculateParty(state)).toBeNull()
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'twoPiece', discId: 'hormonePunk',
+    })
+    expect(isCompleteWorkbench(state)).toBe(true)
+    expect(calculateParty(state)).not.toBeNull()
   })
 
   it('re-prepares only Trigger for a pool transition while a rigid King holder remains established', () => {

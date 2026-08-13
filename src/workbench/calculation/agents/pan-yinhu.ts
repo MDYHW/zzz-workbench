@@ -204,6 +204,8 @@ export function calculatePanYinhu(
       equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen), 'twoPiece'),
     discStatInput(setup, 'panYinhu', 'twoPiece', 'swingJazz',
       equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
+    discStatInput(setup, 'panYinhu', 'twoPiece', 'moonlight',
+      equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen)),
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
   const dmg = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dmgBonus')

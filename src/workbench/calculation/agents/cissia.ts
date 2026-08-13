@@ -86,6 +86,7 @@ function cissiaAtkInputs(setup: CompleteSetup): ResolvedSetupInput[] {
     mainStatInput(setup, 'cissia', 'slot6', 'atkPct'),
     discStatInput(setup, 'cissia', 'fourPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
     discStatInput(setup, 'cissia', 'twoPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
+    discStatInput(setup, 'cissia', 'twoPiece', 'hormonePunk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
     effectiveSubstatInput(setup, 'cissia', 'atkPct'),
   ])
 }
@@ -254,10 +255,14 @@ export function calculateCissia(
     'critDmg',
   )
   const energy = energyRegenProjection(VERTICAL_VALUES.cissia.baseEnergyRegen, cissiaEnergyInputs(setup), effects)
-  const electricDmg = mainStatInput(setup, 'cissia', 'slot5', 'electricDmg')
+  const electricDmgInputs = presentSetupInputs([
+    mainStatInput(setup, 'cissia', 'slot5', 'electricDmg'),
+    discStatInput(setup, 'cissia', 'twoPiece', 'thunderMetal', equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.twoPiece.damage)),
+  ])
+  const initialElectricDmg = electricDmgInputs.reduce((total, input) => total + input.rawValue, 0)
   const regular = composeMetricEffects(
-    surfaces(electricDmg?.rawValue ?? 0, electricDmg?.rawValue ?? 0, electricDmg?.rawValue ?? 0),
-    surfaces(electricDmg ? [contribution(electricDmg.source, electricDmg.rawValue)] : [], [], []),
+    surfaces(initialElectricDmg, initialElectricDmg, initialElectricDmg),
+    surfaces(electricDmgInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
     effects,
     'dmgBonus',
   )

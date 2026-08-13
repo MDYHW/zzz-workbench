@@ -1,6 +1,7 @@
 import {
   DISC_IDS_BY_AGENT_AND_PIECE,
   MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
+  SAME_EFFECT_TWO_PIECE_RELATIONSHIPS,
   type AgentId,
   type DiscId,
   type MainSlot,
@@ -54,6 +55,34 @@ function triggerCritPressureIsActive(
       ))
 }
 
+function compressSameEffectTwoPieceIds(
+  authored: readonly DiscId[],
+  baseFourPieceIds: readonly DiscId[],
+  effectiveFourPieceIds: readonly DiscId[],
+  selectedFourPieceId: DiscId | null,
+): DiscId[] {
+  return SAME_EFFECT_TWO_PIECE_RELATIONSHIPS.reduce<DiscId[]>((current, relationship) => {
+    const [first, second] = relationship.members
+    if (!authored.includes(first) || !authored.includes(second)) return current
+
+    const selectedComplement = selectedFourPieceId === first
+      ? second
+      : selectedFourPieceId === second
+        ? first
+        : null
+    const baseRoles = relationship.members.filter((id) => baseFourPieceIds.includes(id))
+    const contextualRoles = relationship.members.filter((id) => effectiveFourPieceIds.includes(id))
+    const exposed = selectedComplement
+      ?? (baseRoles.length === 1 ? baseRoles[0] : null)
+      ?? (contextualRoles.length === 1 ? contextualRoles[0] : null)
+      ?? relationship.canonical
+
+    return current.filter((id) => (
+      !relationship.members.some((member) => member === id) || id === exposed
+    ))
+  }, [...authored])
+}
+
 export function effectiveFourPieceIds(
   state: WorkbenchState,
   slot: AppliedSlot,
@@ -84,9 +113,37 @@ export function effectiveTwoPieceIds(
     ? ['woodpecker' as const]
     : []
   const candidates = selectedDerived.length ? [...base, ...selectedDerived] : base
-  return recipientHasMaterialBroadPrePenPressure(state, slot)
+  const pressureFiltered = recipientHasMaterialBroadPrePenPressure(state, slot)
     ? candidates.filter((candidateId) => candidateId !== 'pufferElectro')
     : candidates
+  return compressSameEffectTwoPieceIds(
+    pressureFiltered,
+    DISC_IDS_BY_AGENT_AND_PIECE[agentId].fourPiece,
+    effectiveFourPieceIds(state, slot),
+    state.slots[slot].setup.fourPieceId,
+  )
+}
+
+export function effectiveFourPieceRoleSwapIds(
+  state: WorkbenchState,
+  slot: AppliedSlot,
+): DiscId[] {
+  const setup = state.slots[slot].setup
+  if (!setup.fourPieceId || !setup.twoPieceId) return []
+  if (!effectiveFourPieceIds(state, slot).includes(setup.twoPieceId)) return []
+
+  const slots = [...state.slots] as WorkbenchState['slots']
+  slots[slot] = {
+    ...slots[slot],
+    setup: {
+      ...setup,
+      fourPieceId: setup.twoPieceId,
+      twoPieceId: setup.fourPieceId,
+    },
+  }
+  return effectiveTwoPieceIds({ ...state, slots }, slot).includes(setup.fourPieceId)
+    ? [setup.twoPieceId]
+    : []
 }
 
 function effectiveMainStatIdsForPressure(

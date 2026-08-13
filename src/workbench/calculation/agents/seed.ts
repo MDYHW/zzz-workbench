@@ -93,6 +93,7 @@ function seedAtkInputs(setup: CompleteSetup): ResolvedSetupInput[] {
     engineAdvancedInput(setup, 'seed', 'atkPct'),
     mainStatInput(setup, 'seed', 'slot5', 'atkPct'),
     mainStatInput(setup, 'seed', 'slot6', 'atkPct'),
+    discStatInput(setup, 'seed', 'twoPiece', 'hormonePunk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
     effectiveSubstatInput(setup, 'seed', 'atkPct'),
   ])
 }
@@ -260,10 +261,14 @@ export function calculateSeed(
     effects,
     'critDmg',
   )
-  const electricDmg = mainStatInput(setup, 'seed', 'slot5', 'electricDmg')
+  const electricDmgInputs = presentSetupInputs([
+    mainStatInput(setup, 'seed', 'slot5', 'electricDmg'),
+    discStatInput(setup, 'seed', 'twoPiece', 'thunderMetal', equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.twoPiece.damage)),
+  ])
+  const initialElectricDmg = electricDmgInputs.reduce((total, input) => total + input.rawValue, 0)
   const regular = composeMetricEffects(
-    surfaces(electricDmg?.rawValue ?? 0, electricDmg?.rawValue ?? 0, electricDmg?.rawValue ?? 0),
-    surfaces(electricDmg ? [contribution(electricDmg.source, electricDmg.rawValue)] : [], [], []),
+    surfaces(initialElectricDmg, initialElectricDmg, initialElectricDmg),
+    surfaces(electricDmgInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
     effects,
     'dmgBonus',
   )

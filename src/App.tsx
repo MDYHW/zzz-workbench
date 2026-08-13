@@ -7,6 +7,7 @@ import type { SourceToneChannel } from './components/sourceInteraction'
 import { calculateParty } from './workbench/calculate'
 import {
   effectiveFourPieceIds,
+  effectiveFourPieceRoleSwapIds,
   effectiveMainStatIds,
   effectiveSubstatChoicesForSlot,
   effectiveTwoPieceIds,
@@ -127,6 +128,7 @@ export function App() {
                 slot={viewedSlot}
                 agentId={viewedSetup.agentId}
                 discCandidates={viewedDiscCandidates}
+                fourPieceRoleSwapIds={effectiveFourPieceRoleSwapIds(state, viewedSlot)}
                 mainStatCandidates={viewedMainStatCandidates}
                 substatChoices={effectiveSubstatChoicesForSlot(state, viewedSlot)}
                 setup={viewedSetup.setup}

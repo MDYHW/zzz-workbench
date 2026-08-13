@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { DISC_IDS_BY_AGENT_AND_PIECE, MAIN_STAT_IDS_BY_AGENT_AND_SLOT, type AgentId, type MainSlot, type MainStatId } from '../workbench/content'
 import { createPreparedState, isCompleteWorkbench, workbenchReducer } from '../workbench/state'
 import { AgentSetup } from './AgentSetup'
-import { effectiveFourPieceIds, effectiveMainStatIds, effectiveSubstatChoicesForSlot, effectiveTwoPieceIds } from '../workbench/candidates'
+import { effectiveFourPieceIds, effectiveFourPieceRoleSwapIds, effectiveMainStatIds, effectiveSubstatChoicesForSlot, effectiveTwoPieceIds } from '../workbench/candidates'
 
 const singleCandidateMains: Record<MainSlot, readonly MainStatId[]> = {
   slot4: ['critRate'],
@@ -357,6 +357,34 @@ function TriggerDiscHarness() {
   )
 }
 
+function PanSameEffectDiscHarness() {
+  const [state, dispatch] = useReducer(workbenchReducer, undefined, () => (
+    createPreparedState({}, ['yixuan', 'panYinhu', 'juFufu'], 0)
+  ))
+  const slot = 1 as const
+  return (
+    <>
+      <AgentSetup
+        activeSourceTone={null}
+        agentId="panYinhu"
+        discCandidates={{
+          fourPiece: effectiveFourPieceIds(state, slot),
+          twoPiece: effectiveTwoPieceIds(state, slot),
+        }}
+        fourPieceRoleSwapIds={effectiveFourPieceRoleSwapIds(state, slot)}
+        dispatch={dispatch}
+        mainStatCandidates={MAIN_STAT_IDS_BY_AGENT_AND_SLOT.panYinhu}
+        onSourceToneChange={vi.fn()}
+        setup={state.slots[slot].setup}
+        slot={slot}
+      />
+      <output data-testid="actual-four-piece">{state.slots[slot].setup.fourPieceId}</output>
+      <output data-testid="actual-two-piece">{state.slots[slot].setup.twoPieceId}</output>
+      <output data-testid="workbench-complete">{String(isCompleteWorkbench(state))}</output>
+    </>
+  )
+}
+
 function IncompleteDiscHarness() {
   const [state, dispatch] = useReducer(workbenchReducer, undefined, () => {
     const prepared = createPreparedState()
@@ -419,7 +447,7 @@ describe('AgentSetup incomplete Disc recovery', () => {
 })
 
 describe('AgentSetup exact two-piece choices', () => {
-  it('lists same-effect Disc identities separately', async () => {
+  it('shows one canonical identity for an equal-effect Disc relationship', async () => {
     const user = userEvent.setup()
     render(<DialynDiscHarness />)
 
@@ -429,11 +457,14 @@ describe('AgentSetup exact two-piece choices', () => {
     expect(selected).toHaveAccessibleDescription('CRIT Rate +8%')
     await user.click(selected)
     const candidates = screen.getByLabelText('twoPiece Drive Disc candidates')
-    expect(within(candidates).getAllByRole('button')).toHaveLength(2)
+    expect(within(candidates).getAllByRole('button')).toHaveLength(1)
     const swingJazz = within(candidates).getByRole('button', {
       name: 'Select Swing Jazz as twoPiece',
     })
     expect(swingJazz).toHaveAccessibleDescription('Energy Regen +20%')
+    expect(within(candidates).queryByRole('button', {
+      name: 'Select Moonlight Lullaby as twoPiece',
+    })).not.toBeInTheDocument()
     await user.click(swingJazz)
 
     expect(screen.getByRole('button', {
@@ -481,6 +512,80 @@ describe('AgentSetup exact two-piece choices', () => {
 
     expect(screen.getByTestId('actual-four-piece')).toHaveTextContent('king')
     expect(screen.getByTestId('actual-two-piece')).toHaveTextContent('shockstar')
+  })
+
+  it('exchanges same-effect roles with exact identity and clears only indirect invalidation', async () => {
+    const user = userEvent.setup()
+    render(<PanSameEffectDiscHarness />)
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Astral Voice',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Swing Jazz as fourPiece',
+    }))
+    expect(screen.getByTestId('actual-four-piece')).toHaveTextContent('swingJazz')
+    expect(screen.getByTestId('actual-two-piece')).toHaveTextContent('astralVoice')
+    expect(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Swing Jazz',
+    })).toHaveAccessibleDescription('Squad DMG +15%. Energy Regen +20%')
+    expect(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Astral Voice',
+    })).toHaveAccessibleDescription('ATK +10%')
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Astral Voice',
+    }))
+    const moonlight = screen.getByRole('button', {
+      name: 'Select Moonlight Lullaby as twoPiece',
+    })
+    expect(moonlight).toHaveAccessibleDescription('Energy Regen +20%')
+    await user.click(moonlight)
+    expect(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Moonlight Lullaby',
+    })).toHaveFocus()
+    expect(screen.getByTestId('workbench-complete')).toHaveTextContent('true')
+  })
+
+  it('exposes manual repair after a four-piece edit invalidates the same-effect member', async () => {
+    const user = userEvent.setup()
+    render(<PanSameEffectDiscHarness />)
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Swing Jazz',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Hormone Punk as twoPiece',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Astral Voice',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Bunny in Wonderland as fourPiece',
+    }))
+
+    expect(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Bunny in Wonderland',
+    })).toHaveFocus()
+    expect(screen.getByTestId('actual-two-piece')).toBeEmptyDOMElement()
+    expect(screen.getByTestId('workbench-complete')).toHaveTextContent('false')
+
+    await user.click(screen.getByRole('button', { name: '2-piece Drive Disc required' }))
+    const candidates = screen.getByLabelText('twoPiece Drive Disc candidates')
+    expect(within(candidates).getByRole('button', {
+      name: 'Select Swing Jazz as twoPiece',
+    })).toBeInTheDocument()
+    const astral = within(candidates).getByRole('button', {
+      name: 'Select Astral Voice as twoPiece',
+    })
+    expect(within(candidates).queryByRole('button', {
+      name: 'Select Hormone Punk as twoPiece',
+    })).not.toBeInTheDocument()
+    await user.click(astral)
+    expect(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Astral Voice',
+    })).toHaveFocus()
+    expect(screen.getByTestId('workbench-complete')).toHaveTextContent('true')
   })
 
   it('omits an impossible four-piece swap and keeps ordinary two-piece changes local', async () => {

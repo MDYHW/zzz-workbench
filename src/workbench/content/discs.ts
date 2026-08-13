@@ -1,6 +1,7 @@
 import astralVoiceImage from '../../assets/equipment/drive-discs/astral-voice.webp'
 import branchAndBladeImage from '../../assets/equipment/drive-discs/branch-and-blade-song.webp'
 import bunnyInWonderlandImage from '../../assets/equipment/drive-discs/bunny-in-wonderland.webp'
+import chaoticMetalImage from '../../assets/equipment/drive-discs/chaotic-metal.webp'
 import dawnsBloomImage from '../../assets/equipment/drive-discs/dawns-bloom.webp'
 import hormonePunkImage from '../../assets/equipment/drive-discs/hormone-punk.webp'
 import infernoMetalImage from '../../assets/equipment/drive-discs/inferno-metal.webp'
@@ -12,6 +13,7 @@ import pufferElectroImage from '../../assets/equipment/drive-discs/puffer-electr
 import shadowHarmonyImage from '../../assets/equipment/drive-discs/shadow-harmony.webp'
 import shockstarImage from '../../assets/equipment/drive-discs/shockstar-disco.webp'
 import swingJazzImage from '../../assets/equipment/drive-discs/swing-jazz.webp'
+import thunderMetalImage from '../../assets/equipment/drive-discs/thunder-metal.webp'
 import woodpeckerImage from '../../assets/equipment/drive-discs/woodpecker-electro.webp'
 import yunkuiImage from '../../assets/equipment/drive-discs/yunkui-tales.webp'
 import {
@@ -116,6 +118,16 @@ export const DRIVE_DISC_FACTS = {
   polarMetal: {
     twoPiece: {
       damage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Ice'] } },
+    },
+  },
+  thunderMetal: {
+    twoPiece: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Electric'] } },
+    },
+  },
+  chaoticMetal: {
+    twoPiece: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Ether'] } },
     },
   },
   dawnsBloom: {
@@ -231,6 +243,14 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     id: 'polarMetal', name: 'Polar Metal', image: polarMetalImage,
     twoPieceEffect: `Ice DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.polarMetal.twoPiece.damage)}%`,
   },
+  thunderMetal: {
+    id: 'thunderMetal', name: 'Thunder Metal', image: thunderMetalImage,
+    twoPieceEffect: `Electric DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.twoPiece.damage)}%`,
+  },
+  chaoticMetal: {
+    id: 'chaoticMetal', name: 'Chaotic Metal', image: chaoticMetalImage,
+    twoPieceEffect: `Ether DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaoticMetal.twoPiece.damage)}%`,
+  },
   dawnsBloom: {
     id: 'dawnsBloom', name: "Dawn's Bloom", image: dawnsBloomImage,
     twoPieceEffect: `Basic Attack DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.dawnsBloom.twoPiece.damage)}%`,
@@ -255,12 +275,20 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   },
 }
 
+export const SAME_EFFECT_TWO_PIECE_RELATIONSHIPS = [
+  { members: ['hormonePunk', 'astralVoice'], canonical: 'hormonePunk' },
+  { members: ['swingJazz', 'moonlight'], canonical: 'swingJazz' },
+] as const satisfies readonly {
+  members: readonly [DiscId, DiscId]
+  canonical: DiscId
+}[]
+
 export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
   AgentId,
   { fourPiece: DiscId[]; twoPiece: DiscId[] }
 > = {
-  yixuan: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade'] },
-  yidhari: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade'] },
+  yixuan: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade', 'chaoticMetal'] },
+  yidhari: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade', 'polarMetal'] },
   manato: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade', 'infernoMetal'] },
   hugo: {
     fourPiece: ['hormonePunk'],
@@ -268,11 +296,11 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
   },
   juFufu: {
     fourPiece: ['king', 'swingJazz', 'shockstar'],
-    twoPiece: ['shockstar', 'king', 'hormonePunk', 'astralVoice', 'swingJazz'],
+    twoPiece: ['shockstar', 'king', 'hormonePunk', 'astralVoice', 'swingJazz', 'moonlight'],
   },
   panYinhu: {
     fourPiece: ['astralVoice', 'bunnyInWonderland', 'swingJazz'],
-    twoPiece: ['swingJazz', 'astralVoice', 'hormonePunk'],
+    twoPiece: ['swingJazz', 'moonlight', 'astralVoice', 'hormonePunk'],
   },
   banyue: {
     fourPiece: ['yunkui'],
@@ -282,14 +310,14 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     fourPiece: ['yunkui'],
     twoPiece: ['woodpecker', 'branchAndBlade', 'fangedMetal'],
   },
-  dialyn: { fourPiece: ['king'], twoPiece: ['woodpecker', 'swingJazz', 'moonlight'] },
+  dialyn: { fourPiece: ['king'], twoPiece: ['woodpecker', 'swingJazz'] },
   lucia: { fourPiece: ['moonlight'], twoPiece: ['yunkui', 'swingJazz'] },
-  anbySoldier0: { fourPiece: ['shadowHarmony'], twoPiece: ['woodpecker', 'branchAndBlade'] },
-  trigger: { fourPiece: ['king', 'astralVoice', 'shockstar'], twoPiece: ['shockstar', 'king', 'woodpecker', 'swingJazz', 'moonlight'] },
+  anbySoldier0: { fourPiece: ['shadowHarmony'], twoPiece: ['woodpecker', 'branchAndBlade', 'thunderMetal', 'hormonePunk'] },
+  trigger: { fourPiece: ['king', 'astralVoice', 'shockstar'], twoPiece: ['shockstar', 'king', 'woodpecker', 'swingJazz'] },
   astraYao: { fourPiece: ['astralVoice', 'moonlight'], twoPiece: ['moonlight', 'swingJazz', 'hormonePunk', 'astralVoice'] },
-  seed: { fourPiece: ['dawnsBloom', 'woodpecker'], twoPiece: ['woodpecker', 'branchAndBlade', 'pufferElectro'] },
-  cissia: { fourPiece: ['dawnsBloom'], twoPiece: ['swingJazz', 'woodpecker', 'branchAndBlade'] },
-  evelyn: { fourPiece: ['hormonePunk', 'woodpecker'], twoPiece: ['branchAndBlade', 'infernoMetal', 'woodpecker', 'pufferElectro', 'hormonePunk'] },
+  seed: { fourPiece: ['dawnsBloom', 'woodpecker'], twoPiece: ['woodpecker', 'branchAndBlade', 'pufferElectro', 'thunderMetal', 'hormonePunk'] },
+  cissia: { fourPiece: ['dawnsBloom'], twoPiece: ['swingJazz', 'woodpecker', 'branchAndBlade', 'thunderMetal', 'hormonePunk', 'astralVoice'] },
+  evelyn: { fourPiece: ['hormonePunk', 'woodpecker'], twoPiece: ['branchAndBlade', 'infernoMetal', 'woodpecker', 'pufferElectro', 'hormonePunk', 'astralVoice'] },
   corin: { fourPiece: ['hormonePunk'], twoPiece: ['woodpecker', 'branchAndBlade', 'fangedMetal', 'astralVoice', 'hormonePunk'] },
-  lycaon: { fourPiece: ['king', 'astralVoice', 'shockstar'], twoPiece: ['shockstar', 'king', 'swingJazz', 'moonlight'] },
+  lycaon: { fourPiece: ['king', 'astralVoice', 'shockstar'], twoPiece: ['shockstar', 'king', 'swingJazz'] },
 }

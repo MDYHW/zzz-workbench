@@ -81,6 +81,8 @@ function evelynAtkInputs(setup: CompleteSetup): ResolvedSetupInput[] {
       equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
     discStatInput(setup, 'evelyn', 'fourPiece', 'astralVoice',
       equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
+    discStatInput(setup, 'evelyn', 'twoPiece', 'astralVoice',
+      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
     effectiveSubstatInput(setup, 'evelyn', 'atkPct'),
   ])
 }

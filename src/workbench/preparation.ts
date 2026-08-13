@@ -92,7 +92,7 @@ function withAstraAstralAllocation(
   return {
     ...selection,
     fourPieceId: 'moonlight',
-    twoPieceId: context.pool === 'full' ? 'astralVoice' : 'hormonePunk',
+    twoPieceId: 'astralVoice',
   }
 }
 

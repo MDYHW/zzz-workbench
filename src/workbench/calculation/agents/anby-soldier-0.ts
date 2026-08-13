@@ -22,7 +22,7 @@ const ANBY_BASIC_ULTIMATE_TARGET = actionTarget([
 ])
 
 function anbyAtkInputs(setup: CompleteSetup): ResolvedSetupInput[] {
-  return presentSetupInputs([engineAdvancedInput(setup, 'anbySoldier0', 'atkPct'), mainStatInput(setup, 'anbySoldier0', 'slot5', 'atkPct'), mainStatInput(setup, 'anbySoldier0', 'slot6', 'atkPct'), effectiveSubstatInput(setup, 'anbySoldier0', 'atkPct')])
+  return presentSetupInputs([engineAdvancedInput(setup, 'anbySoldier0', 'atkPct'), mainStatInput(setup, 'anbySoldier0', 'slot5', 'atkPct'), mainStatInput(setup, 'anbySoldier0', 'slot6', 'atkPct'), discStatInput(setup, 'anbySoldier0', 'twoPiece', 'hormonePunk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)), effectiveSubstatInput(setup, 'anbySoldier0', 'atkPct')])
 }
 
 export const observeAnby = (setup: CompleteSetup, hasStunOrSupport: boolean, isFocus: boolean): AnbyCalculationContext => {
@@ -100,7 +100,11 @@ export function calculateAnby(context: AnbyCalculationContext, inbox: SourceBoun
   const critRate = composeMetricEffects(surfaces(Math.min(values.critRate + critRateInputs.reduce((n, x) => n + x.rawValue, 0), 100), Math.min(values.critRate + critRateInputs.reduce((n, x) => n + x.rawValue, 0), 100), Math.min(values.critRate + critRateInputs.reduce((n, x) => n + x.rawValue, 0), 100)), surfaces(critRateInputs.map((x) => contribution(x.source, x.rawValue)), [], []), effects, 'critRate', { value: 100, source: STATIC_SOURCES.anbySoldier0.critCap })
   const critDmgInputs = presentSetupInputs([engineAdvancedInput(setup, 'anbySoldier0', 'critDmg'), mainStatInput(setup, 'anbySoldier0', 'slot4', 'critDmg'), discStatInput(setup, 'anbySoldier0', 'twoPiece', 'branchAndBlade', equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)), effectiveSubstatInput(setup, 'anbySoldier0', 'critDmg')])
   const critDmg = composeMetricEffects(surfaces(values.critDmg + critDmgInputs.reduce((n, x) => n + x.rawValue, 0), values.critDmg + critDmgInputs.reduce((n, x) => n + x.rawValue, 0), values.critDmg + critDmgInputs.reduce((n, x) => n + x.rawValue, 0)), surfaces(critDmgInputs.map((x) => contribution(x.source, x.rawValue)), [], []), effects, 'critDmg')
-  const electricDmgInput = mainStatInput(setup, 'anbySoldier0', 'slot5', 'electricDmg')
+  const electricDmgInputs = presentSetupInputs([
+    mainStatInput(setup, 'anbySoldier0', 'slot5', 'electricDmg'),
+    discStatInput(setup, 'anbySoldier0', 'twoPiece', 'thunderMetal', equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.twoPiece.damage)),
+  ])
+  const initialElectricDmg = electricDmgInputs.reduce((total, input) => total + input.rawValue, 0)
   const penInputs = presentSetupInputs([
     mainStatInput(setup, 'anbySoldier0', 'slot5', 'penRatio'),
     discStatInput(
@@ -114,8 +118,8 @@ export function calculateAnby(context: AnbyCalculationContext, inbox: SourceBoun
   ])
   const initialPen = penInputs.reduce((total, input) => total + input.rawValue, 0)
   const regular = composeMetricEffects(
-    surfaces(electricDmgInput?.rawValue ?? 0, electricDmgInput?.rawValue ?? 0, electricDmgInput?.rawValue ?? 0),
-    surfaces(electricDmgInput ? [contribution(electricDmgInput.source, electricDmgInput.rawValue)] : [], [], []),
+    surfaces(initialElectricDmg, initialElectricDmg, initialElectricDmg),
+    surfaces(electricDmgInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
     effects,
     'dmgBonus',
   )

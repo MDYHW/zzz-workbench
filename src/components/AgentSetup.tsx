@@ -30,6 +30,7 @@ interface AgentSetupProps extends SourceInteractionProps {
   agentId: AgentId
   setup: AgentSetupState
   discCandidates: Record<'fourPiece' | 'twoPiece', readonly DiscId[]>
+  fourPieceRoleSwapIds?: readonly DiscId[]
   mainStatCandidates: Record<MainSlot, readonly MainStatId[]>
   substatChoices?: readonly SubstatChoice[]
   dispatch: Dispatch<WorkbenchAction>
@@ -404,6 +405,7 @@ function DiscSelection({
   openSelector,
   piece,
   candidates,
+  fourPieceRoleSwapIds,
   twoPieceCandidates,
   selectedId,
   otherPieceId,
@@ -415,6 +417,7 @@ function DiscSelection({
   openSelector: string | null
   piece: 'fourPiece' | 'twoPiece'
   candidates: readonly DiscId[]
+  fourPieceRoleSwapIds: readonly DiscId[]
   twoPieceCandidates: readonly DiscId[]
   selectedId: DiscId | null
   otherPieceId: DiscId | null
@@ -425,7 +428,9 @@ function DiscSelection({
   const alternatives = piece === 'twoPiece'
     ? candidates.filter((id) => id !== selectedId && id !== otherPieceId)
     : candidates.filter((id) => id !== selectedId && (
-      id !== otherPieceId || Boolean(selectedId && twoPieceCandidates.includes(selectedId))
+      id !== otherPieceId
+      || fourPieceRoleSwapIds.includes(id)
+      || Boolean(selectedId && twoPieceCandidates.includes(selectedId))
     ))
   const isOpen = openSelector === selectorId
   const selectedName = selectedId ? DRIVE_DISCS[selectedId].name : null
@@ -644,11 +649,13 @@ function EquipmentSelection({
   setOpenSelector,
   setup,
   discCandidates,
+  fourPieceRoleSwapIds,
 }: {
   agentId: AgentId
   slot: AppliedSlot
   setup: AgentSetupState
   discCandidates: Record<'fourPiece' | 'twoPiece', readonly DiscId[]>
+  fourPieceRoleSwapIds: readonly DiscId[]
   dispatch: Dispatch<WorkbenchAction>
   openSelector: string | null
   setOpenSelector: (value: string | null) => void
@@ -669,6 +676,7 @@ function EquipmentSelection({
           openSelector={openSelector}
           piece="fourPiece"
           candidates={discCandidates.fourPiece}
+          fourPieceRoleSwapIds={fourPieceRoleSwapIds}
           twoPieceCandidates={discCandidates.twoPiece}
           selectedId={setup.fourPieceId}
           otherPieceId={setup.twoPieceId}
@@ -683,6 +691,7 @@ function EquipmentSelection({
           openSelector={openSelector}
           piece="twoPiece"
           candidates={discCandidates.twoPiece}
+          fourPieceRoleSwapIds={[]}
           twoPieceCandidates={discCandidates.twoPiece}
           selectedId={setup.twoPieceId}
           otherPieceId={setup.fourPieceId}
@@ -881,6 +890,7 @@ export function AgentSetup({
   slot,
   dispatch,
   discCandidates,
+  fourPieceRoleSwapIds = [],
   mainStatCandidates,
   onSourceToneChange,
   setup,
@@ -921,6 +931,7 @@ export function AgentSetup({
           slot={slot}
           dispatch={dispatch}
           discCandidates={discCandidates}
+          fourPieceRoleSwapIds={fourPieceRoleSwapIds}
           onSourceToneChange={onSourceToneChange}
           openSelector={openSelector}
           setOpenSelector={setOpenSelector}

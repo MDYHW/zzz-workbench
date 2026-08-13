@@ -147,7 +147,7 @@ describe('party-directed preparation', () => {
     )
 
     expect(full).toMatchObject({ fourPieceId: 'moonlight', twoPieceId: 'astralVoice' })
-    expect(nonLimited).toMatchObject({ fourPieceId: 'moonlight', twoPieceId: 'hormonePunk' })
+    expect(nonLimited).toMatchObject({ fourPieceId: 'moonlight', twoPieceId: 'astralVoice' })
     expect(local).toMatchObject({ fourPieceId: 'astralVoice', twoPieceId: 'moonlight' })
     expect(localNonLimited).toMatchObject({
       fourPieceId: 'astralVoice', twoPieceId: 'moonlight',
@@ -223,7 +223,7 @@ describe('party-directed preparation', () => {
       selection.fourPieceId,
       selection.twoPieceId,
     ])).toEqual([
-      ['kaboom', 'moonlight', 'hormonePunk'],
+      ['kaboom', 'moonlight', 'astralVoice'],
       ['marcatoDesire', 'dawnsBloom', 'woodpecker'],
       ['drillRigRedAxis', 'astralVoice', 'swingJazz'],
     ])

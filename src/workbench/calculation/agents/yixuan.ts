@@ -281,7 +281,14 @@ export function calculateYixuan(
     + (critDmgSubstat?.rawValue ?? 0)
 
   const initialDmg = mainStatInput(setup, 'yixuan', 'slot5', 'etherDmg')
-  const initialDmgBonus = initialDmg?.rawValue ?? 0
+  const twoPieceEtherDmg = discStatInput(
+    setup,
+    'yixuan',
+    'twoPiece',
+    'chaoticMetal',
+    equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaoticMetal.twoPiece.damage),
+  )
+  const initialDmgBonus = (initialDmg?.rawValue ?? 0) + (twoPieceEtherDmg?.rawValue ?? 0)
   const hpInitialBreakdown = withoutZero([
     ...(engineHp ? [percentageContribution(
       engineHp.source,
@@ -376,7 +383,12 @@ export function calculateYixuan(
   const dmgBonus = composeMetricEffects(
     surfaces(initialDmgBonus, initialDmgBonus, initialDmgBonus),
     surfaces(
-      withoutZero(initialDmg ? [contribution(initialDmg.source, initialDmg.rawValue)] : []),
+      withoutZero([
+        ...(initialDmg ? [contribution(initialDmg.source, initialDmg.rawValue)] : []),
+        ...(twoPieceEtherDmg
+          ? [contribution(twoPieceEtherDmg.source, twoPieceEtherDmg.rawValue)]
+          : []),
+      ]),
       [],
       [],
     ),

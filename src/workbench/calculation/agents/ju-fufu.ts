@@ -281,6 +281,8 @@ export function calculateJuFufu(
       equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen), 'twoPiece'),
     discStatInput(setup, 'juFufu', 'twoPiece', 'swingJazz',
       equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
+    discStatInput(setup, 'juFufu', 'twoPiece', 'moonlight',
+      equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen)),
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
   const daze = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus')

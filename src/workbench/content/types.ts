@@ -85,6 +85,8 @@ export type DiscId =
   | 'infernoMetal'
   | 'fangedMetal'
   | 'polarMetal'
+  | 'thunderMetal'
+  | 'chaoticMetal'
 
 export type MainSlot = 'slot4' | 'slot5' | 'slot6'
 

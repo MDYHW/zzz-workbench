@@ -33,6 +33,7 @@ import {
   contribution,
   percentageContribution,
   surfaces,
+  withoutZero,
   type ActionScopeNode,
 } from '../composition'
 import type { AgentResult } from '../result'
@@ -252,10 +253,15 @@ export function calculateYidhari(
   )
 
   const iceDmg = mainStatInput(setup, 'yidhari', 'slot5', 'iceDmg')
-  const initialDmg = iceDmg?.rawValue ?? 0
+  const polarDmg = discStatInput(setup, 'yidhari', 'twoPiece', 'polarMetal',
+    equipmentEffectBaseValue(DRIVE_DISC_FACTS.polarMetal.twoPiece.damage))
+  const initialDmg = (iceDmg?.rawValue ?? 0) + (polarDmg?.rawValue ?? 0)
   const dmgBonus = composeMetricEffects(
     surfaces(initialDmg, initialDmg, initialDmg),
-    surfaces(iceDmg ? [contribution(iceDmg.source, iceDmg.rawValue)] : [], [], []),
+    surfaces(withoutZero([
+      ...(iceDmg ? [contribution(iceDmg.source, iceDmg.rawValue)] : []),
+      ...(polarDmg ? [contribution(polarDmg.source, polarDmg.rawValue)] : []),
+    ]), [], []),
     effects,
     'dmgBonus',
   )

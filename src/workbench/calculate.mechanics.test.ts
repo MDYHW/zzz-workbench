@@ -42,6 +42,131 @@ describe('calculateParty mechanisms', () => {
     for (const state of incomplete) expect(calculateParty(state)).toBeNull()
   })
 
+  it('projects matching Attribute 2-piece sources through Attack and Rupture formulas', () => {
+    const anbyState = selectDisc(
+      createPreparedState({}, ['anbySoldier0', 'dialyn', 'lucia'], 0),
+      'anbySoldier0',
+      'twoPiece',
+      'thunderMetal',
+    )
+    expect(metric(agent(calculateParty(anbyState)!, 'anbySoldier0'), 'dmgBonus')
+      .breakdown.initial).toContainEqual(expect.objectContaining({
+        label: 'Thunder Metal', locus: 'disc-2pc', amount: 10,
+      }))
+
+    const seedState = selectDisc(
+      createPreparedState({}, ['seed', 'dialyn', 'lucia'], 0),
+      'seed',
+      'twoPiece',
+      'thunderMetal',
+    )
+    expect(metric(agent(calculateParty(seedState)!, 'seed'), 'dmgBonus')
+      .breakdown.initial).toContainEqual(expect.objectContaining({
+        label: 'Thunder Metal', locus: 'disc-2pc', amount: 10,
+      }))
+
+    const cissiaState = selectDisc(
+      createPreparedState({}, ['seed', 'cissia', 'anbySoldier0'], 0),
+      'cissia',
+      'twoPiece',
+      'thunderMetal',
+    )
+    expect(metric(agent(calculateParty(cissiaState)!, 'cissia'), 'dmgBonus')
+      .breakdown.initial).toContainEqual(expect.objectContaining({
+        label: 'Thunder Metal', locus: 'disc-2pc', amount: 10,
+      }))
+
+    const yixuanState = selectDisc(
+      createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0),
+      'yixuan',
+      'twoPiece',
+      'chaoticMetal',
+    )
+    expect(metric(agent(calculateParty(yixuanState)!, 'yixuan'), 'dmgBonus')
+      .breakdown.initial).toContainEqual(expect.objectContaining({
+        label: 'Chaotic Metal', locus: 'disc-2pc', amount: 10,
+      }))
+
+    const yidhariState = selectDisc(
+      createPreparedState({}, ['yidhari', 'dialyn', 'lucia'], 0),
+      'yidhari',
+      'twoPiece',
+      'polarMetal',
+    )
+    expect(metric(agent(calculateParty(yidhariState)!, 'yidhari'), 'dmgBonus')
+      .breakdown.initial).toContainEqual(expect.objectContaining({
+        label: 'Polar Metal', locus: 'disc-2pc', amount: 10,
+      }))
+  })
+
+  it('projects the exact selected member of each same-effect relationship', () => {
+    const anbyState = selectDisc(
+      createPreparedState({}, ['anbySoldier0', 'dialyn', 'lucia'], 0),
+      'anbySoldier0',
+      'twoPiece',
+      'hormonePunk',
+    )
+    expect(metric(agent(calculateParty(anbyState)!, 'anbySoldier0'), 'atk')
+      .breakdown.initial).toContainEqual(expect.objectContaining({
+        label: 'Hormone Punk', locus: 'disc-2pc',
+        display: { value: 10, unit: '%', decimals: 0 },
+      }))
+
+    const seedState = selectDisc(
+      createPreparedState({}, ['seed', 'dialyn', 'lucia'], 0),
+      'seed',
+      'twoPiece',
+      'hormonePunk',
+    )
+    expect(metric(agent(calculateParty(seedState)!, 'seed'), 'atk')
+      .breakdown.initial).toContainEqual(expect.objectContaining({
+        label: 'Hormone Punk', locus: 'disc-2pc',
+        display: { value: 10, unit: '%', decimals: 0 },
+      }))
+
+    const cissiaState = selectDisc(
+      createPreparedState({}, ['seed', 'cissia', 'anbySoldier0'], 0),
+      'cissia',
+      'twoPiece',
+      'hormonePunk',
+    )
+    expect(metric(agent(calculateParty(cissiaState)!, 'cissia'), 'atk')
+      .breakdown.initial).toContainEqual(expect.objectContaining({
+        label: 'Hormone Punk', locus: 'disc-2pc',
+        display: { value: 10, unit: '%', decimals: 0 },
+      }))
+
+    const evelynState = selectDisc(
+      createPreparedState({}, ['evelyn', 'dialyn', 'lucia'], 0),
+      'evelyn',
+      'twoPiece',
+      'astralVoice',
+    )
+    expect(metric(agent(calculateParty(evelynState)!, 'evelyn'), 'atk')
+      .breakdown.initial).toContainEqual(expect.objectContaining({
+        label: 'Astral Voice', locus: 'disc-2pc', display: { value: 10, unit: '%', decimals: 0 },
+      }))
+
+    let panState = createPreparedState({}, ['yixuan', 'panYinhu', 'juFufu'], 0)
+    panState = selectDisc(panState, 'panYinhu', 'fourPiece', 'swingJazz')
+    panState = selectDisc(panState, 'panYinhu', 'twoPiece', 'moonlight')
+    expect(metric(agent(calculateParty(panState)!, 'panYinhu'), 'energyRegen')
+      .breakdown.initial).toContainEqual(expect.objectContaining({
+        label: 'Moonlight Lullaby', locus: 'disc-2pc',
+        display: { value: 20, unit: '%', decimals: 0 },
+      }))
+
+    let juFufuState = createPreparedState({}, ['yixuan', 'panYinhu', 'juFufu'], 0)
+    juFufuState = selectDisc(juFufuState, 'juFufu', 'fourPiece', 'swingJazz')
+    juFufuState = selectDisc(juFufuState, 'juFufu', 'twoPiece', 'moonlight')
+    juFufuState = selectMain(juFufuState, 'juFufu', 'slot4', 'atkPct')
+    expect(metric(agent(calculateParty(juFufuState)!, 'juFufu'), 'energyRegen')
+      .breakdown.initial).toContainEqual(expect.objectContaining({
+        label: 'Moonlight Lullaby', locus: 'disc-2pc',
+        display: { value: 20, unit: '%', decimals: 0 },
+      }))
+  })
+
   it('uses applied slot order only for output and keeps provider composition order-independent', () => {
     const baseline = calculateParty(createPreparedState())!
     const reordered = calculateParty(

@@ -48,6 +48,10 @@ describe('bounded equipment effect facts', () => {
     expectTypeOf<DriveDiscPiece<'branchAndBlade'>>().toEqualTypeOf<'twoPiece'>()
     expectTypeOf<DriveDiscEffectField<'polarMetal', 'twoPiece'>>()
       .toEqualTypeOf<'damage'>()
+    expectTypeOf<DriveDiscEffectField<'thunderMetal', 'twoPiece'>>()
+      .toEqualTypeOf<'damage'>()
+    expectTypeOf<DriveDiscEffectField<'chaoticMetal', 'twoPiece'>>()
+      .toEqualTypeOf<'damage'>()
     expectTypeOf<DriveDiscEffectField<'bunnyInWonderland', 'fourPiece'>>()
       .toEqualTypeOf<'damage'>()
   })
@@ -136,6 +140,27 @@ describe('bounded equipment effect facts', () => {
     expect(equipmentEffectMaximumValue(
       DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage,
     )).toBe(18)
+  })
+
+  it('retains matching Electric and Ether 2-piece facts without unused 4-piece payloads', () => {
+    expect(DRIVE_DISC_FACTS.thunderMetal).toEqual({
+      twoPiece: {
+        damage: {
+          modifier: 'dmgBonus', unit: '%', value: 10,
+          scope: { attributes: ['Electric'] },
+        },
+      },
+    })
+    expect(DRIVE_DISC_FACTS.chaoticMetal).toEqual({
+      twoPiece: {
+        damage: {
+          modifier: 'dmgBonus', unit: '%', value: 10,
+          scope: { attributes: ['Ether'] },
+        },
+      },
+    })
+    expect(DRIVE_DISCS.thunderMetal.twoPieceEffect).toBe('Electric DMG +10%')
+    expect(DRIVE_DISCS.chaoticMetal.twoPieceEffect).toBe('Ether DMG +10%')
   })
 
   it('derives the existing compressed Setup packages from structured facts', () => {

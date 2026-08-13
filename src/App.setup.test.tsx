@@ -295,7 +295,7 @@ describe('integrated party workbench: setup', () => {
     expect(screen.getByRole('button', { name: 'Increase CRIT Rate hits' })).toBeDisabled()
   })
 
-  it('presents Dialyn Energy Regen Discs as separate exact choices', async () => {
+  it('presents Dialyn one canonical Energy Regen Disc identity', async () => {
     const user = userEvent.setup()
     render(<App />)
 
@@ -317,9 +317,9 @@ describe('integrated party workbench: setup', () => {
     const energyRegenChoice = within(candidates).getByRole('button', {
       name: 'Select Swing Jazz as twoPiece',
     })
-    expect(within(candidates).getByRole('button', {
+    expect(within(candidates).queryByRole('button', {
       name: 'Select Moonlight Lullaby as twoPiece',
-    })).toBeInTheDocument()
+    })).not.toBeInTheDocument()
 
     await user.click(energyRegenChoice)
     const selected = screen.getByRole('button', {
