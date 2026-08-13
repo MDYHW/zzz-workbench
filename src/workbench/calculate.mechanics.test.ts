@@ -83,16 +83,18 @@ describe('calculateParty mechanisms', () => {
       .not.toContain('critDmg')
   })
 
-  it('composes Ellen’s combat ATK percentages from current Initial ATK', () => {
+  it('composes Ellen’s combat and fully enabled ATK percentages from current Initial ATK', () => {
     const full = agent(calculateParty(createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0))!, 'ellen')
     const fullAtk = metric(full, 'atk')
     expect(fullAtk.values.combat - fullAtk.values.initial).toBeCloseTo(fullAtk.values.initial * .27)
 
     const nonLimited = createPreparedState({ ellen: 'nonLimited' }, ['ellen', 'soukaku', 'lycaon'], 0)
     const nonLimitedAtk = metric(agent(calculateParty(nonLimited)!, 'ellen'), 'atk')
-    const brimstone = nonLimitedAtk.breakdown.combat.find(({ locus }) => locus === 'w-engine')
+    const brimstone = nonLimitedAtk.breakdown.fully.find(({ locus }) => locus === 'w-engine')
     const woodpecker = nonLimitedAtk.breakdown.combat.find(({ locus }) => locus === 'disc-4pc')
     expect(brimstone?.amount).toBeCloseTo(nonLimitedAtk.values.initial * .28)
+    expect(nonLimitedAtk.breakdown.combat)
+      .not.toContainEqual(expect.objectContaining({ label: 'The Brimstone' }))
     expect(woodpecker?.amount).toBeCloseTo(nonLimitedAtk.values.initial * .27)
 
     let contextual = createPreparedState({}, ['ellen', 'dialyn', 'soukaku'], 0)
@@ -636,6 +638,25 @@ describe('calculateParty mechanisms', () => {
     expect(rows.map(({ amount }) => amount)).toEqual([24, 0])
     expect(rows.map(({ notation }) => notation))
       .toEqual([undefined, 'equal-nonstack-origin'])
+  })
+
+  it('projects one Moonlight and one Astral after stable Support allocation', () => {
+    const state = createPreparedState({}, ['ellen', 'soukaku', 'lucy'], 0)
+    expect(state.slots[1].setup).toMatchObject({
+      fourPieceId: 'astralVoice', twoPieceId: 'moonlight',
+    })
+    expect(state.slots[2].setup).toMatchObject({
+      fourPieceId: 'moonlight', twoPieceId: 'astralVoice',
+    })
+
+    const ellen = agent(calculateParty(state)!, 'ellen')
+    const rows = metric(ellen, 'dmgBonus').breakdown.fully
+    expect(rows).toContainEqual(expect.objectContaining({
+      label: 'Moonlight Lullaby', ownerAgentId: 'lucy', amount: 18,
+    }))
+    expect(rows).toContainEqual(expect.objectContaining({
+      label: 'Astral Voice', ownerAgentId: 'soukaku', amount: 24,
+    }))
   })
 
   it('composes Wellspring once while preserving equal legal origins and distinct HP effects', () => {
@@ -1197,7 +1218,10 @@ describe('calculateParty mechanisms', () => {
       { soldier11: 'nonLimited' }, ['soldier11', 'evelyn', 'corin'], 0,
     )
     expect(nonLimitedState.slots[0].setup).toMatchObject({ engineId: 'brimstone', refinement: 1 })
-    expect(metric(agent(calculateParty(nonLimitedState)!, 'soldier11'), 'atk').breakdown.combat)
+    const nonLimitedAtk = metric(agent(calculateParty(nonLimitedState)!, 'soldier11'), 'atk')
+    expect(nonLimitedAtk.breakdown.combat)
+      .not.toContainEqual(expect.objectContaining({ label: 'The Brimstone' }))
+    expect(nonLimitedAtk.breakdown.fully)
       .toContainEqual(expect.objectContaining({ label: 'The Brimstone', ownerAgentId: 'soldier11' }))
     expect(calculateParty(withSetup(nonLimitedState, 'soldier11', (setup) => ({
       ...setup,
@@ -1260,5 +1284,127 @@ describe('calculateParty mechanisms', () => {
     expect(metric(fireRecipient, 'resReduction').breakdown.fully)
       .toContainEqual(expect.objectContaining({ ownerAgentId: 'lighter', amount: 15 }))
     expect(JSON.stringify(physicalContrast)).not.toContain('"ownerAgentId":"lighter"')
+  })
+
+  it('composes Zhu Yuan Core, Mindscape, and equipment on exact Basic and Dash descendants', () => {
+    let state = createPreparedState({}, ['zhuYuan', 'lycaon', 'dialyn'], 0)
+    state = selectEngine(state, 'zhuYuan', 'riotSuppressorMarkVI')
+    const m0 = agent(calculateParty(state)!, 'zhuYuan')
+    const basic = action(m0, 'zhuYuanBasic')
+    const enhancedBasic = action(m0, 'zhuYuanEnhancedBasic')
+    const stunnedEnhancedBasic = action(m0, 'zhuYuanStunnedEnhancedBasic')
+    const dash = action(m0, 'zhuYuanDash')
+    const enhancedDash = action(m0, 'zhuYuanEnhancedDash')
+    const stunnedEnhancedDash = action(m0, 'zhuYuanStunnedEnhancedDash')
+
+    expect(basic.breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Riot Suppressor Mark VI', amount: 35 }))
+    expect(dash.breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Riot Suppressor Mark VI', amount: 35 }))
+    expect(enhancedBasic.baseActionId).toBe('zhuYuanBasic')
+    expect(enhancedBasic.values.fully - basic.values.fully).toBe(40)
+    expect(stunnedEnhancedBasic.baseActionId).toBe('zhuYuanEnhancedBasic')
+    expect(stunnedEnhancedBasic.values.fully - enhancedBasic.values.fully).toBe(40)
+    expect(enhancedDash.baseActionId).toBe('zhuYuanDash')
+    expect(enhancedDash.values.fully - dash.values.fully).toBe(40)
+    expect(stunnedEnhancedDash.baseActionId).toBe('zhuYuanEnhancedDash')
+    expect(stunnedEnhancedDash.values.fully - enhancedDash.values.fully).toBe(40)
+
+    const m4 = agent(calculateParty(withMindscape(state, 'zhuYuan', 4))!, 'zhuYuan')
+    expect(action(m4, 'zhuYuanEnhancedBasic').values.fully
+      - action(m4, 'zhuYuanBasic').values.fully).toBe(90)
+    expect(action(m4, 'zhuYuanStunnedEnhancedBasic').values.fully
+      - action(m4, 'zhuYuanEnhancedBasic').values.fully).toBe(40)
+    expect(action(m4, 'zhuYuanEnhancedDashResIgnore').values.fully).toBe(25)
+
+    const cordis = agent(calculateParty(selectEngine(state, 'zhuYuan', 'cordisGermina'))!, 'zhuYuan')
+    expect(action(cordis, 'zhuYuanBasicUltimateDefIgnore').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Cordis Germina', amount: 20 }))
+    expect(metric(cordis, 'critRate').breakdown.combat)
+      .toContainEqual(expect.objectContaining({ label: 'Cordis Germina', amount: 15 }))
+
+    const nonLimited = agent(calculateParty(createPreparedState(
+      { zhuYuan: 'nonLimited' }, ['zhuYuan', 'lycaon', 'dialyn'], 0,
+    ))!, 'zhuYuan')
+    const nonLimitedAtk = metric(nonLimited, 'atk')
+    expect(nonLimitedAtk.breakdown.combat)
+      .not.toContainEqual(expect.objectContaining({ label: 'The Brimstone' }))
+    expect(nonLimitedAtk.breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'The Brimstone', ownerAgentId: 'zhuYuan' }))
+  })
+
+  it('projects Nicole through formula, Attribute, Energy, operation, and pressure boundaries', () => {
+    const mixed = calculateParty(createPreparedState(
+      {}, ['zhuYuan', 'nicole', 'soldier11'], 0,
+    ))!
+    const zhuYuan = agent(mixed, 'zhuYuan')
+    const soldier11 = agent(mixed, 'soldier11')
+    const nicole = agent(mixed, 'nicole')
+
+    expect(metric(zhuYuan, 'defReduction').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'nicole', locus: 'core', amount: 40 }))
+    expect(metric(zhuYuan, 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'nicole', locus: 'additional', amount: 25 }))
+    expect(metric(zhuYuan, 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'nicole', locus: 'w-engine', amount: 24 }))
+    expect(metric(zhuYuan, 'critRate').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'nicole', locus: 'mindscape', amount: 15 }))
+    expect(metric(zhuYuan, 'critRate').breakdown.combat)
+      .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'zhuYuan', locus: 'additional' }))
+    expect(metric(zhuYuan, 'critRate').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'zhuYuan', locus: 'additional', amount: 30 }))
+    expect(metric(soldier11, 'defReduction').values.fully).toBe(40)
+    expect(metric(soldier11, 'critRate').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'nicole', locus: 'mindscape', amount: 15 }))
+    expect(metric(soldier11, 'dmgBonus').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'nicole', locus: 'additional' }))
+    expect(nicole.metrics.map(({ id }) => id)).toEqual(['energyRegen'])
+    expect(metric(nicole, 'energyRegen').values.combat - metric(nicole, 'energyRegen').values.initial)
+      .toBe(0)
+    expect(nicole.operations).toHaveLength(3)
+    expect(nicole.operations.map(({ value }) => value)).toEqual([1, 1, 1])
+
+    const elegant = agent(calculateParty(selectEngine(
+      createPreparedState({}, ['zhuYuan', 'nicole', 'soldier11'], 0),
+      'nicole',
+      'elegantVanity',
+    ))!, 'nicole')
+    expect(elegant.metrics.map(({ id }) => id)).toEqual(['energyRegen'])
+
+    const nicoleM0 = agent(calculateParty(withMindscape(
+      createPreparedState({}, ['zhuYuan', 'nicole', 'soldier11'], 0), 'nicole', 0,
+    ))!, 'zhuYuan')
+    expect(metric(nicoleM0, 'critRate').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'nicole', locus: 'mindscape' }))
+
+    const establishedGeneralConsumers = calculateParty(createPreparedState(
+      {}, ['ellen', 'nicole', 'trigger'], 0,
+    ))!
+    for (const agentId of ['ellen', 'trigger'] as const) {
+      expect(metric(agent(establishedGeneralConsumers, agentId), 'defReduction').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'nicole', locus: 'core', amount: 40 }))
+    }
+
+    const rupture = calculateParty(createPreparedState(
+      {}, ['yixuan', 'nicole', 'zhuYuan'], 0,
+    ))!
+    const yixuan = agent(rupture, 'yixuan')
+    expect(metric(yixuan, 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'nicole', locus: 'additional', amount: 25 }))
+    expect(metric(yixuan, 'critRate').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'nicole', locus: 'mindscape', amount: 15 }))
+    expect(yixuan.metrics.find(({ id }) => id === 'defReduction')).toBeUndefined()
+
+    const kingRecipient = agent(calculateParty(createPreparedState(
+      {}, ['lycaon', 'nicole', 'zhuYuan'], 0,
+    ))!, 'lycaon')
+    expect(metric(kingRecipient, 'critRate').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'nicole', locus: 'mindscape', amount: 15 }))
+
+    const unqualified = agent(calculateParty(createPreparedState(
+      {}, ['nicole', 'soldier11', 'lycaon'], 1,
+    ))!, 'soldier11')
+    expect(metric(unqualified, 'dmgBonus').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'nicole', locus: 'additional' }))
   })
 })

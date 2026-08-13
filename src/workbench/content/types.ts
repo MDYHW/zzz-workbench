@@ -26,6 +26,8 @@ export type AgentId =
   | 'soldier11'
   | 'lighter'
   | 'lucy'
+  | 'zhuYuan'
+  | 'nicole'
 
 export type AgentRank = 'S' | 'A'
 export type AgentFaction =
@@ -35,6 +37,8 @@ export type AgentFaction =
   | 'Defense Force - Silver Squad'
   | 'Obol Squad'
   | 'Sons of Calydon'
+  | 'Criminal Investigation Special Response Team'
+  | 'Cunning Hares'
 
 /** Game-recognized teammate qualification that does not replace display faction. */
 export type PartyQualificationGroup = 'New Eridu Defense Force'
@@ -83,6 +87,8 @@ export type EngineId =
   | 'tremorTrigramVessel'
   | 'starlightRiderFaceplate'
   | 'deepSeaVisitor'
+  | 'riotSuppressorMarkVI'
+  | 'theVault'
 
 export type DiscId =
   | 'yunkui'

@@ -403,6 +403,127 @@ describe('party-directed preparation', () => {
       .toMatchObject({ twoPieceId: 'branchAndBlade', mains: { slot4: 'critDmg' } })
   })
 
+  it('prepares Zhu Yuan and existing general-damage recipients from applied Nicole context', () => {
+    const zhuNicoleDialyn = preparePartySelections([
+      context('zhuYuan'), context('nicole', 'full', 6), context('dialyn'),
+    ], 'zhuYuan')
+    expect(zhuNicoleDialyn[0]).toEqual({
+      engineId: 'cordisGermina', fourPieceId: 'chaoticMetal', twoPieceId: 'branchAndBlade',
+      mains: { slot4: 'critDmg', slot5: 'atkPct', slot6: 'atkPct' },
+    })
+    expect(zhuNicoleDialyn[1]).toEqual({
+      engineId: 'theVault', fourPieceId: 'moonlight', twoPieceId: 'swingJazz',
+      mains: { slot4: 'atkPct', slot5: 'etherDmg', slot6: 'energyRegenPct' },
+    })
+
+    const zhuWithoutAdditional = preparePartySelections([
+      context('zhuYuan'), context('lycaon'), context('dialyn'),
+    ], 'zhuYuan')
+    expect(zhuWithoutAdditional[0].mains.slot4).toBe('critRate')
+
+    const zhuNonLimited = preparePartySelections([
+      context('zhuYuan', 'nonLimited'), context('nicole', 'full', 6), context('dialyn'),
+    ], 'zhuYuan')
+    expect(zhuNonLimited[0]).toMatchObject({
+      engineId: 'brimstone', twoPieceId: 'woodpecker',
+      mains: { slot4: 'critDmg', slot5: 'atkPct' },
+    })
+
+    const prepared = preparePartySelections([
+      context('ellen'), context('nicole', 'full', 6), context('soldier11'),
+    ], 'ellen')
+    expect(prepared[0]).toMatchObject({
+      twoPieceId: 'branchAndBlade', mains: { slot4: 'critDmg', slot5: 'iceDmg' },
+    })
+    expect(prepared[2]).toMatchObject({
+      twoPieceId: 'infernoMetal', mains: { slot4: 'critDmg', slot5: 'fireDmg' },
+    })
+
+    const nonLimited = preparePartySelections([
+      context('ellen', 'nonLimited'), context('nicole', 'full', 6), context('soldier11', 'nonLimited'),
+    ], 'ellen')
+    expect(nonLimited[0]).toMatchObject({ mains: { slot4: 'critRate', slot5: 'iceDmg' } })
+    expect(nonLimited[2]).toMatchObject({ mains: { slot4: 'critRate', slot5: 'fireDmg' } })
+  })
+
+  it('allocates Moonlight to the least-flexible Support and preserves a distinct Astral package', () => {
+    const cases = [
+      {
+        contexts: [context('zhuYuan'), context('nicole', 'full', 6), context('lucia')] as const,
+        focus: 'zhuYuan' as const,
+        moonlight: 'lucia' as const,
+        astral: 'nicole' as const,
+      },
+      {
+        contexts: [context('zhuYuan'), context('nicole', 'full', 6), context('lucy', 'full', 6)] as const,
+        focus: 'zhuYuan' as const,
+        moonlight: 'nicole' as const,
+        astral: 'lucy' as const,
+      },
+      {
+        contexts: [context('ellen'), context('soukaku'), context('lucy', 'full', 6)] as const,
+        focus: 'ellen' as const,
+        moonlight: 'lucy' as const,
+        astral: 'soukaku' as const,
+      },
+    ]
+
+    for (const current of cases) {
+      for (const ordered of permutations(current.contexts)) {
+        const prepared = preparePartySelections(ordered, current.focus)
+        const moonlightIndex = ordered.findIndex(({ agentId }) => agentId === current.moonlight)
+        const astralIndex = ordered.findIndex(({ agentId }) => agentId === current.astral)
+        expect(prepared[moonlightIndex].fourPieceId).toBe('moonlight')
+        expect(prepared[astralIndex]).toMatchObject({
+          fourPieceId: 'astralVoice', twoPieceId: 'moonlight',
+        })
+      }
+    }
+
+    expect(prepareTargetSelection(
+      context('soukaku'),
+      'ellen',
+      [{ agentId: 'lucy', fourPieceId: 'moonlight' }],
+    )).toMatchObject({ fourPieceId: 'astralVoice', twoPieceId: 'moonlight' })
+    expect(prepareTargetSelection(
+      context('lucia'),
+      'yixuan',
+      [{ agentId: 'nicole', fourPieceId: 'moonlight' }],
+    )).toMatchObject({ fourPieceId: 'moonlight', twoPieceId: 'yunkui' })
+
+    const cissiaAstraNicole = [
+      context('cissia'), context('astraYao'), context('nicole', 'full', 6),
+    ] as const
+    for (const ordered of permutations(cissiaAstraNicole)) {
+      const prepared = preparePartySelections(ordered, 'cissia')
+      const cissiaIndex = ordered.findIndex(({ agentId }) => agentId === 'cissia')
+      const astraIndex = ordered.findIndex(({ agentId }) => agentId === 'astraYao')
+      const nicoleIndex = ordered.findIndex(({ agentId }) => agentId === 'nicole')
+      expect(prepared[cissiaIndex]).toMatchObject({
+        fourPieceId: 'dawnsBloom', twoPieceId: 'swingJazz',
+      })
+      expect(prepared[astraIndex]).toMatchObject({
+        fourPieceId: 'astralVoice', twoPieceId: 'moonlight',
+      })
+      expect(prepared[nicoleIndex]).toMatchObject({
+        fourPieceId: 'moonlight', twoPieceId: 'swingJazz',
+      })
+
+      const rebuiltCissia = prepareTargetSelection(
+        { ...ordered[cissiaIndex], pool: 'nonLimited' },
+        'cissia',
+        ordered.flatMap((current, index) => index === cissiaIndex ? [] : [{
+          agentId: current.agentId,
+          fourPieceId: prepared[index].fourPieceId,
+          mindscape: current.mindscape,
+        }]),
+      )
+      expect(rebuiltCissia).toMatchObject({
+        engineId: 'drillRigRedAxis', fourPieceId: 'dawnsBloom', twoPieceId: 'swingJazz',
+      })
+    }
+  })
+
   it('keeps every authored adjustment inside the target candidate pools', () => {
     const contexts = [
       context('yixuan'), context('trigger'), context('dialyn'),

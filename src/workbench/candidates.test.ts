@@ -57,4 +57,14 @@ describe('contextual Disc candidates', () => {
     expect(effectiveFourPieceIds(withDialyn, 0)).toContain('pufferElectro')
     expect(effectiveFourPieceIds(withoutDialyn, 0)).not.toContain('pufferElectro')
   })
+
+  it('applies Nicole broad pressure only to general-damage inputs while preserving Puffer 4-piece', () => {
+    const withNicole = createPreparedState({}, ['zhuYuan', 'nicole', 'dialyn'], 0)
+    const ruptureContrast = createPreparedState({}, ['yixuan', 'nicole', 'dialyn'], 0)
+
+    expect(effectiveFourPieceIds(withNicole, 0)).toContain('pufferElectro')
+    expect(effectiveTwoPieceIds(withNicole, 0)).not.toContain('pufferElectro')
+    expect(effectiveMainStatIds(withNicole, 0, 'slot5')).toEqual(['etherDmg', 'atkPct'])
+    expect(effectiveMainStatIds(ruptureContrast, 0, 'slot5')).toEqual(['etherDmg', 'hpPct'])
+  })
 })

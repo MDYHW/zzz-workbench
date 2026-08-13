@@ -129,6 +129,12 @@ export const DRIVE_DISC_FACTS = {
     twoPiece: {
       damage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Ether'] } },
     },
+    fourPiece: {
+      critDamage: {
+        modifier: 'critDmg', unit: '%', value: 20,
+        progression: { kind: 'stacks', perStack: 5.5, maxStacks: 6 },
+      },
+    },
   },
   dawnsBloom: {
     twoPiece: {
@@ -250,6 +256,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   chaoticMetal: {
     id: 'chaoticMetal', name: 'Chaotic Metal', image: chaoticMetalImage,
     twoPieceEffect: `Ether DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaoticMetal.twoPiece.damage)}%`,
+    fourPieceEffects: [`CRIT DMG +${equipmentEffectMaximumValue(DRIVE_DISC_FACTS.chaoticMetal.fourPiece.critDamage)}%`],
   },
   dawnsBloom: {
     id: 'dawnsBloom', name: "Dawn's Bloom", image: dawnsBloomImage,
@@ -331,5 +338,13 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
   },
   lucy: {
     fourPiece: ['moonlight', 'astralVoice'], twoPiece: ['swingJazz', 'moonlight', 'hormonePunk', 'astralVoice'],
+  },
+  zhuYuan: {
+    fourPiece: ['chaoticMetal', 'woodpecker'],
+    twoPiece: ['chaoticMetal', 'woodpecker', 'branchAndBlade', 'dawnsBloom', 'pufferElectro', 'hormonePunk', 'astralVoice'],
+  },
+  nicole: {
+    fourPiece: ['moonlight', 'astralVoice'],
+    twoPiece: ['swingJazz', 'moonlight'],
   },
 }

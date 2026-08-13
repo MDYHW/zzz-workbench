@@ -10,6 +10,7 @@ import {
   anotherAgentHasSpecialty,
   soldier11AdditionalIsActive,
   triggerAdditionalIsActive,
+  zhuYuanAdditionalIsActive,
 } from './party-conditions'
 import {
   astralVoiceEntrantClause,
@@ -120,6 +121,16 @@ import {
   resolveLucyProviderClauses,
   type LucyCalculationContext,
 } from './calculation/agents/lucy'
+import {
+  observeZhuYuan,
+  resolveZhuYuanProviderClauses,
+  type ZhuYuanCalculationContext,
+} from './calculation/agents/zhu-yuan'
+import {
+  observeNicole,
+  resolveNicoleProviderClauses,
+  type NicoleCalculationContext,
+} from './calculation/agents/nicole'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -145,6 +156,8 @@ export type ProviderContext =
   | Soldier11CalculationContext
   | LighterCalculationContext
   | LucyCalculationContext
+  | ZhuYuanCalculationContext
+  | NicoleCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -274,6 +287,13 @@ function observeProviderContext(
       return observeLighter(slot.setup, anotherHasSpecialty(['Attack']) || anotherSharesFaction)
     case 'lucy':
       return observeLucy(slot.setup)
+    case 'zhuYuan':
+      return observeZhuYuan(
+        slot.setup,
+        zhuYuanAdditionalIsActive(partyAgentIds, providerIndex),
+      )
+    case 'nicole':
+      return observeNicole(slot.setup, anotherSharesAttribute || anotherSharesFaction)
     default:
       return assertNever(slot.agentId)
   }
@@ -339,6 +359,10 @@ function providerClauses(
       return resolveLighterProviderClauses(context)
     case 'lucy':
       return resolveLucyProviderClauses(context)
+    case 'zhuYuan':
+      return resolveZhuYuanProviderClauses(context)
+    case 'nicole':
+      return resolveNicoleProviderClauses(context)
     default:
       return assertNever(context)
   }
@@ -469,6 +493,8 @@ export function activeCandidatePressures(
   const recipientAgentId = state.slots[recipientSlot].agentId
   const hasCissiaCore = isElectricGeneralDamageAgent(recipientAgentId)
     && state.slots.some(({ agentId }) => agentId === 'cissia')
+  const hasNicoleCore = isGeneralDamageAgent(recipientAgentId)
+    && state.slots.some(({ agentId }) => agentId === 'nicole')
   const hasSpectralGaze = isGeneralDamageAgent(recipientAgentId)
     && state.slots.some(({ agentId, setup }) => (
       agentId === 'trigger' && setup.engineId === 'spectralGaze'
@@ -479,7 +505,7 @@ export function activeCandidatePressures(
     recipientSlot,
   )
 
-  return hasCissiaCore || hasSpectralGaze || hasSeedM2Besiege || hasSelectedEnginePressure
+  return hasCissiaCore || hasNicoleCore || hasSpectralGaze || hasSeedM2Besiege || hasSelectedEnginePressure
     ? ['materialBroadPrePenDefBypass']
     : []
 }

@@ -446,8 +446,10 @@ outcomes even when both occur in the same party.
 When two applied holders can each prepare one of two non-stacking competitive
 effects, preparation prefers a legal non-overlapping package. Allocate the
 effect with the less flexible holder fit first, using only current independent
-role or Result consumers, threshold investment at the zero-substat start, and
-the material role or Result loss from giving up that effect. Allocate the other
+role or Result consumers, complete 4-piece/2-piece package preservation,
+current authored main-stat and effective-substat directions, threshold
+investment at the zero-substat start, and the material role or Result loss
+from giving up that effect. Allocate the other
 effect to the holder that remains competitively flexible. If those current
 consumers still do not distinguish the holders, author one bounded deterministic
 party representative. Do not return `null`, duplicate a non-stacking effect,

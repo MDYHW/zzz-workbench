@@ -43,6 +43,35 @@ describe('workbench state lifecycle', () => {
     expect(invalidRequiredSelections(state)).toEqual([])
   })
 
+  it('rebuilds pressure-safe packages on Nicole party changes without repairing direct edits', () => {
+    let state = createPreparedState({}, ['zhuYuan', 'nicole', 'dialyn'], 0)
+    expect(state.slots[0].setup).toMatchObject({
+      mains: { slot4: 'critDmg', slot5: 'atkPct' },
+    })
+    expect(effectiveTwoPieceIds(state, 0)).not.toContain('pufferElectro')
+    const zhuBeforeNicoleMindscape = state.slots[0]
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 0 })
+    expect(state.slots[0]).toBe(zhuBeforeNicoleMindscape)
+
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    state = workbenchReducer(state, { type: 'replaceDraftAgent', slot: 1, agentId: 'lucy' })
+    state = workbenchReducer(state, { type: 'applyPartyEdit' })
+    expect(state.slots[0].setup.mains.slot5).toBe('atkPct')
+    expect(effectiveMainStatIds(state, 0, 'slot5')).toContain('penRatio')
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'penRatio',
+    })
+
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    state = workbenchReducer(state, { type: 'replaceDraftAgent', slot: 1, agentId: 'nicole' })
+    state = workbenchReducer(state, { type: 'applyPartyEdit' })
+    expect(state.slots[0].setup).toMatchObject({
+      mindscape: 0, mains: { slot5: 'atkPct' },
+      twoPieceId: 'branchAndBlade',
+    })
+    expect(isCompleteWorkbench(state)).toBe(true)
+  })
+
   it('keeps the exported Trigger helper at the local representative baseline', () => {
     expect(createPreparedAgentSetup('trigger')).toMatchObject({
       engineId: 'spectralGaze', fourPieceId: 'king', twoPieceId: 'shockstar',

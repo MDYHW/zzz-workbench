@@ -40,6 +40,10 @@ describe('bounded equipment effect facts', () => {
       .toEqualTypeOf<'shield' | 'damage' | 'daze'>()
     expectTypeOf<WEngineEffectField<'tremorTrigramVessel'>>()
       .toEqualTypeOf<'damage' | 'energy'>()
+    expectTypeOf<WEngineEffectField<'riotSuppressorMarkVI'>>()
+      .toEqualTypeOf<'critRate' | 'chargedEtherDamage'>()
+    expectTypeOf<WEngineEffectField<'theVault'>>()
+      .toEqualTypeOf<'targetDamage' | 'holderEnergy'>()
 
     expectTypeOf<DriveDiscPiece<'dawnsBloom'>>()
       .toEqualTypeOf<'twoPiece' | 'fourPiece'>()
@@ -77,6 +81,32 @@ describe('bounded equipment effect facts', () => {
     })
     expect(equipmentEffectBaseValue(defIgnore, 1)).toBe(20)
     expect(equipmentEffectBaseValue(defIgnore, 5)).toBe(32)
+  })
+
+  it('retains Zhu Yuan and Nicole equipment facts without treating triggers as recipient scope', () => {
+    expect(W_ENGINES.riotSuppressorMarkVI).toMatchObject({
+      rank: 'S', limited: true, baseAtk: 713,
+      advancedStat: { id: 'critDmg', value: 48 },
+    })
+    expect(equipmentEffectBaseValue(W_ENGINE_FACTS.riotSuppressorMarkVI.effects.critRate, 1)).toBe(15)
+    expect(equipmentEffectBaseValue(W_ENGINE_FACTS.riotSuppressorMarkVI.effects.critRate, 5)).toBe(30)
+    expect(equipmentEffectBaseValue(W_ENGINE_FACTS.riotSuppressorMarkVI.effects.chargedEtherDamage, 5)).toBe(70)
+    expect(W_ENGINES.riotSuppressorMarkVI.passiveLines(1)).toEqual([
+      'CRIT Rate +15%',
+      'Ether Basic & Dash Attack DMG +35%',
+    ])
+    expect(W_ENGINES.theVault).toMatchObject({
+      rank: 'A', limited: false, baseAtk: 624,
+      advancedStat: { id: 'energyRegenPct', value: 50 },
+    })
+    expect(equipmentEffectBaseValue(W_ENGINE_FACTS.theVault.effects.targetDamage, 5)).toBe(24)
+    expect(equipmentEffectBaseValue(W_ENGINE_FACTS.theVault.effects.holderEnergy, 5)).toBe(0.8)
+    expect(W_ENGINE_FACTS.theVault.effects.targetDamage.scope).toEqual({ recipient: 'squad' })
+    expect(W_ENGINES.theVault.passiveLines(5)).toEqual([
+      'Target squad DMG +24%',
+      'Holder Energy +0.8/s',
+    ])
+    expect(DRIVE_DISCS.chaoticMetal.fourPieceEffects).toEqual(['CRIT DMG +53%'])
   })
 
   it('resolves retained stack and threshold maxima without composite value fields', () => {
@@ -156,6 +186,12 @@ describe('bounded equipment effect facts', () => {
         damage: {
           modifier: 'dmgBonus', unit: '%', value: 10,
           scope: { attributes: ['Ether'] },
+        },
+      },
+      fourPiece: {
+        critDamage: {
+          modifier: 'critDmg', unit: '%', value: 20,
+          progression: { kind: 'stacks', perStack: 5.5, maxStacks: 6 },
         },
       },
     })

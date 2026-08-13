@@ -63,3 +63,18 @@ export function triggerAdditionalIsActive(
     return other.specialty === 'Attack' || other.attribute === trigger.attribute
   })
 }
+
+/** Exact current party condition for Zhu Yuan's Additional Ability. */
+export function zhuYuanAdditionalIsActive(
+  agentIds: readonly AgentId[],
+  zhuYuanIndex: number,
+): boolean {
+  const zhuYuanId = agentIds[zhuYuanIndex]
+  if (zhuYuanId !== 'zhuYuan') return false
+  const zhuYuan = summaryFor(zhuYuanId)
+  return agentIds.some((agentId, index) => {
+    if (index === zhuYuanIndex) return false
+    const other = summaryFor(agentId)
+    return other.specialty === 'Support' || other.faction === zhuYuan.faction
+  })
+}

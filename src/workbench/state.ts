@@ -157,7 +157,7 @@ function establishedDiscHolders(
 ): EstablishedDiscHolder[] {
   return slots.flatMap(({ agentId, setup }, index) => index === targetSlot
     ? []
-    : [{ agentId, fourPieceId: setup.fourPieceId }])
+    : [{ agentId, fourPieceId: setup.fourPieceId, mindscape: setup.mindscape }])
 }
 
 function withPreparedBroadPrePenMain(

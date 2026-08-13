@@ -175,6 +175,18 @@ const lucyRepresentative: SetupSelection = {
   mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'energyRegenPct' },
 }
 
+const zhuYuanRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'cordisGermina' : 'brimstone',
+  fourPieceId: 'chaoticMetal',
+  twoPieceId: pool === 'full' ? 'branchAndBlade' : 'woodpecker',
+  mains: { slot4: 'critRate', slot5: 'atkPct', slot6: 'atkPct' },
+})
+
+const nicoleRepresentative: SetupSelection = {
+  engineId: 'theVault', fourPieceId: 'moonlight', twoPieceId: 'swingJazz',
+  mains: { slot4: 'atkPct', slot5: 'etherDmg', slot6: 'energyRegenPct' },
+}
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -260,6 +272,8 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   soldier11: { full: soldier11Representative('full'), nonLimited: soldier11Representative('nonLimited') },
   lighter: { full: lighterRepresentative('full'), nonLimited: lighterRepresentative('nonLimited') },
   lucy: { full: lucyRepresentative, nonLimited: lucyRepresentative },
+  zhuYuan: { full: zhuYuanRepresentative('full'), nonLimited: zhuYuanRepresentative('nonLimited') },
+  nicole: { full: nicoleRepresentative, nonLimited: nicoleRepresentative },
 }
 
 export function representativeSetupFor(
@@ -273,5 +287,6 @@ export function representativeSetupFor(
   if (agentId === 'astraYao') return astraRepresentative(pool, mindscape)
   if (agentId === 'juFufu') return juFufuRepresentative(pool, mindscape)
   if (agentId === 'ellen') return ellenRepresentative(pool)
+  if (agentId === 'zhuYuan') return zhuYuanRepresentative(pool)
   return representative
 }

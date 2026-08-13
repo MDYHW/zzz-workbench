@@ -35,6 +35,8 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   soldier11: { primary: ['general_damage'], residual: [] },
   lighter: { primary: ['daze_buildup'], residual: [] },
   lucy: { primary: [], residual: [] },
+  zhuYuan: { primary: ['general_damage'], residual: [] },
+  nicole: { primary: [], residual: [] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -165,6 +167,12 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   lucy: {
     slot4: ['atkPct'], slot5: ['atkPct'], slot6: ['energyRegenPct'],
   },
+  zhuYuan: {
+    slot4: ['critRate', 'critDmg'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
+  },
+  nicole: {
+    slot4: ['atkPct'], slot5: ['etherDmg'], slot6: ['energyRegenPct'],
+  },
 }
 
 /** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
@@ -174,6 +182,7 @@ export const PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE: Partial<
   evelyn: 'fireDmg',
   corin: 'physicalDmg',
   hugo: 'iceDmg',
+  zhuYuan: 'atkPct',
 }
 
 export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
@@ -267,6 +276,12 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   ],
   lighter: [],
   lucy: [],
+  zhuYuan: [
+    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
+    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+  ],
+  nicole: [],
 }
 
 /**

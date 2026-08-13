@@ -185,12 +185,15 @@ export function resolveSoldier11ProviderClauses(
         ? equipmentEffectBaseValue(W_ENGINE_FACTS.cordisGermina.effects.defIgnore, refinement)
         : 0,
       'enemy-context', SOLDIER11_BASIC_ULTIMATE, undefined, ['soldier11']),
-    percentage('atk', 'combat', engine,
+    percentage('atk', 'fully', engine,
       setup.engineId === 'brimstone'
         ? equipmentEffectMaximumValue(W_ENGINE_FACTS.brimstone.effects.atk, refinement)
-        : setup.engineId === 'starlightEngine'
-          ? equipmentEffectBaseValue(W_ENGINE_FACTS.starlightEngine.effects.atk, refinement)
-          : 0,
+        : 0,
+      'self'),
+    percentage('atk', 'combat', engine,
+      setup.engineId === 'starlightEngine'
+        ? equipmentEffectBaseValue(W_ENGINE_FACTS.starlightEngine.effects.atk, refinement)
+        : 0,
       'self'),
     percentage('atk', 'combat', discSource('soldier11', 'woodpecker', '4-piece'),
       setup.fourPieceId === 'woodpecker'

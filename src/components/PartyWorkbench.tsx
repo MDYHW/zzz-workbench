@@ -42,6 +42,8 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   soldier11: { attribute: fireMark, specialty: attackMark },
   lighter: { attribute: fireMark, specialty: stunMark },
   lucy: { attribute: fireMark, specialty: supportMark },
+  zhuYuan: { attribute: etherMark, specialty: attackMark },
+  nicole: { attribute: etherMark, specialty: supportMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {

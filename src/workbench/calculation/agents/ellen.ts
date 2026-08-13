@@ -131,7 +131,7 @@ export function resolveEllenProviderClauses(context: EllenCalculationContext): S
     additive('dmgBonus', 'fully', engine,
       setup.engineId === 'steelCushion' ? equipmentEffectBaseValue(W_ENGINE_FACTS.steelCushion.effects.damage, refinement) : 0,
       'self', ELLEN_BACK_ATTACK),
-    percentage('atk', 'combat', engine,
+    percentage('atk', 'fully', engine,
       setup.engineId === 'brimstone'
         ? equipmentEffectMaximumValue(W_ENGINE_FACTS.brimstone.effects.atk, refinement) : 0,
       'self'),

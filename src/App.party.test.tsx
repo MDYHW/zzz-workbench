@@ -113,6 +113,11 @@ describe('integrated party workbench: party', () => {
         { agentId: 'lighter', setup: createPreparedAgentSetup('lighter') },
         { agentId: 'lucy', setup: createPreparedAgentSetup('lucy') },
       ],
+      [
+        { agentId: 'zhuYuan', setup: createPreparedAgentSetup('zhuYuan') },
+        { agentId: 'nicole', setup: createPreparedAgentSetup('nicole') },
+        { agentId: 'corin', setup: createPreparedAgentSetup('corin') },
+      ],
     ]
     let latestContainer: HTMLElement | null = null
     for (const slots of additionalGroups) {
@@ -139,9 +144,9 @@ describe('integrated party workbench: party', () => {
     expectSource('trigger', String(330 / 295))
     expectSource('juFufu', '1.05')
     expectSource('panYinhu', '0.94')
-    expect(within(latestContainer!).getByLabelText('A Rank').querySelector('img'))
+    expect(within(latestContainer!).getAllByLabelText('A Rank')[0].querySelector('img'))
       .toHaveAttribute('src', expect.stringContaining('a'))
-    expect(within(latestContainer!).getAllByLabelText('S Rank')).toHaveLength(2)
+    expect(within(latestContainer!).getAllByLabelText('S Rank')).toHaveLength(1)
 
     const sourceProperties = [
       '--portrait-source-face-x',
@@ -580,6 +585,64 @@ describe('integrated party workbench: party', () => {
     expect(screen.getByRole('button', { name: 'Change W-Engine from Hellfire Gears' }))
       .toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Ju Fufu Result' })).toBeInTheDocument()
+  }, 15_000)
+
+  it('admits Zhu Yuan and Nicole through prepared ranks and rebuilds a general-damage setup for Nicole pressure', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Zhu Yuan, Ether, Attack/)
+    await replace(2, /Corin, Physical, Attack/)
+    await replace(3, /Lycaon, Ice, Stun/)
+    await user.click(screen.getByRole('radio', { name: 'Zhu Yuan' }))
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    const zhuYuanTab = screen.getByRole('tab', { name: 'Close Zhu Yuan setup and Result' })
+    expect(within(zhuYuanTab).getByLabelText('S Rank')).toBeInTheDocument()
+    expect(within(zhuYuanTab).getByLabelText('Ether, Attack').querySelectorAll('img')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'M0' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Cordis Germina' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Zhu Yuan Result' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Change W-Engine from Cordis Germina' }))
+    const riot = within(screen.getByLabelText('W-Engine candidates'))
+      .getByRole('button', { name: 'Select Riot Suppressor Mark VI W1' })
+    expect(riot).toHaveAccessibleDescription(
+      'CRIT DMG +48%. CRIT Rate +15%. Ether Basic & Dash Attack DMG +35%',
+    )
+    await user.click(riot)
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Riot Suppressor Mark VI' }))
+      .toHaveAccessibleDescription(
+        'CRIT DMG +48%. CRIT Rate +15%. Ether Basic & Dash Attack DMG +35%',
+      )
+
+    await user.click(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Branch & Blade Song' }))
+    await user.click(within(screen.getByLabelText('twoPiece Drive Disc candidates'))
+      .getByRole('button', { name: 'Select Puffer Electro as twoPiece' }))
+    await user.click(screen.getByRole('button', { name: 'Change Disc 5 main stat from ATK%' }))
+    await user.click(screen.getByRole('button', { name: 'Select PEN Ratio for Disc 5' }))
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(2, /Nicole, Ether, Support/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Branch & Blade Song' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Change Disc 5 main stat from ATK%' })).toBeInTheDocument()
+    await user.click(screen.getByRole('tab', { name: 'View Nicole setup and Result' }))
+    const nicoleTab = screen.getByRole('tab', { name: 'Close Nicole setup and Result' })
+    expect(within(nicoleTab).getByLabelText('A Rank')).toBeInTheDocument()
+    expect(within(nicoleTab).getByLabelText('Ether, Support').querySelectorAll('img')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'M6' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Change W-Engine from The Vault' }))
+      .toHaveAccessibleDescription(
+        'Energy Regen +50%. Target squad DMG +24%. Holder Energy +0.8/s',
+      )
+    expect(screen.getByRole('heading', { name: 'Nicole Result' })).toBeInTheDocument()
   }, 15_000)
 
   it('keeps keyboard focus on a present filter when no replacement is available', async () => {

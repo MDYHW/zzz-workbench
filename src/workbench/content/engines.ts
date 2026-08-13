@@ -38,6 +38,8 @@ import tusksOfFuryImage from '../../assets/equipment/w-engines/tusks-of-fury.web
 import tremorTrigramVesselImage from '../../assets/equipment/w-engines/tremor-trigram-vessel.webp'
 import starlightRiderFaceplateImage from '../../assets/equipment/w-engines/starlight-rider-faceplate.webp'
 import deepSeaVisitorImage from '../../assets/equipment/w-engines/deep-sea-visitor.webp'
+import riotSuppressorMarkVIImage from '../../assets/equipment/w-engines/riot-suppressor-mark-vi.webp'
+import theVaultImage from '../../assets/equipment/w-engines/the-vault.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -358,6 +360,23 @@ export const W_ENGINE_FACTS = {
       dashCritRate: { modifier: 'critRate', unit: '%', value: [10, 12.5, 15, 17.5, 20] },
     },
   },
+  riotSuppressorMarkVI: {
+    advancedStat: { id: 'critDmg', label: 'CRIT DMG', value: 48, unit: '%' },
+    effects: {
+      critRate: { modifier: 'critRate', unit: '%', value: [15, 18.75, 22.5, 26.25, 30] },
+      chargedEtherDamage: {
+        modifier: 'dmgBonus', unit: '%', value: [35, 43.75, 52.5, 61.25, 70],
+        scope: { actions: ['Basic Attack', 'Dash Attack'], attributes: ['Ether'] },
+      },
+    },
+  },
+  theVault: {
+    advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
+    effects: {
+      targetDamage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(15), scope: { recipient: 'squad' } },
+      holderEnergy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.5) },
+    },
+  },
 } as const satisfies Record<EngineId, WEngineFacts>
 
 /** Exact authored fields for one admitted W-Engine, derived from the fact source. */
@@ -611,6 +630,24 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `After Ice Dash Attack hit · CRIT Rate +${percent(W_ENGINE_FACTS.deepSeaVisitor.effects.dashCritRate, refinement)}`,
     ],
   },
+  riotSuppressorMarkVI: {
+    id: 'riotSuppressorMarkVI', name: 'Riot Suppressor Mark VI', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.riotSuppressorMarkVI.advancedStat, image: riotSuppressorMarkVIImage,
+    passiveSpecialty: 'Attack',
+    passiveLines: (refinement) => [
+      `CRIT Rate +${percent(W_ENGINE_FACTS.riotSuppressorMarkVI.effects.critRate, refinement)}`,
+      `Ether Basic & Dash Attack DMG +${percent(W_ENGINE_FACTS.riotSuppressorMarkVI.effects.chargedEtherDamage, refinement)}`,
+    ],
+  },
+  theVault: {
+    id: 'theVault', name: 'The Vault', rank: 'A', limited: false, baseAtk: 624,
+    advancedStat: W_ENGINE_FACTS.theVault.advancedStat, image: theVaultImage,
+    passiveSpecialty: 'Support',
+    passiveLines: (refinement) => [
+      `Target squad DMG +${percent(W_ENGINE_FACTS.theVault.effects.targetDamage, refinement)}`,
+      `Holder Energy +${perSecond(W_ENGINE_FACTS.theVault.effects.holderEnergy, refinement)}`,
+    ],
+  },
 }
 
 const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
@@ -642,4 +679,6 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   soldier11: enginePools(['heartstringNocturne', 'cordisGermina', 'myriadEclipse', 'severedInnocence', 'brimstone', 'starlightEngine']),
   lighter: enginePools(['blazingLaurel', 'iceJadeTeapot', 'hellfireGears', 'steamOven', 'restrained', 'preciousFossilizedCore']),
   lucy: enginePools(['elegantVanity', 'weepingCradle', 'kaboom']),
+  zhuYuan: enginePools(['cordisGermina', 'heartstringNocturne', 'severedInnocence', 'brimstone', 'riotSuppressorMarkVI', 'marcatoDesire', 'starlightEngine']),
+  nicole: enginePools(['elegantVanity', 'theVault', 'weepingCradle', 'kaboom']),
 }

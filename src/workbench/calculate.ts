@@ -33,6 +33,8 @@ import { calculateSoukaku } from './calculation/agents/soukaku'
 import { calculateSoldier11 } from './calculation/agents/soldier11'
 import { calculateLighter } from './calculation/agents/lighter'
 import { calculateLucy } from './calculation/agents/lucy'
+import { calculateZhuYuan } from './calculation/agents/zhu-yuan'
+import { calculateNicole } from './calculation/agents/nicole'
 import { composeMetricEffects, surfaces } from './calculation/composition'
 import type { ActionModifier, AgentResult, Contribution, PartyResult } from './calculation/result'
 import { resolveProviderEffects } from './provider-effects'
@@ -151,6 +153,33 @@ function withSharedCanonicalDamageActions(
   return { ...result, actionModifiers }
 }
 
+/**
+ * Broad enemy-context modifiers are filtered by formula and Agent eligibility
+ * before calculation. Project the resulting shared value for any current
+ * general-damage consumer whose local module has no independent DEF row.
+ */
+function withSharedEnemyContextMetrics(
+  result: AgentResult,
+  enemy: SourceBoundCurrentClause[],
+): AgentResult {
+  if (result.metrics.some(({ id }) => id === 'defReduction')) return result
+  const defReduction = composeMetricEffects(
+    surfaces(0, 0, 0),
+    surfaces([], [], []),
+    resolveDeliveredClauses(enemy, {}),
+    'defReduction',
+  )
+  return defReduction.values.fully
+    ? {
+        ...result,
+        metrics: [
+          ...result.metrics,
+          { id: 'defReduction', label: 'DEF Reduction', unit: '%', decimals: 1, ...defReduction },
+        ],
+      }
+    : result
+}
+
 export function calculateParty(state: WorkbenchState): PartyResult | null {
   if (!isCompleteWorkbench(state)) return null
 
@@ -255,10 +284,19 @@ export function calculateParty(state: WorkbenchState): PartyResult | null {
         case 'lucy':
           result = calculateLucy(context, inbox)
           break
+        case 'zhuYuan':
+          result = calculateZhuYuan(context, inbox, enemy)
+          break
+        case 'nicole':
+          result = calculateNicole(context, inbox)
+          break
         default:
           return assertNever(context)
       }
-      return withSharedCanonicalDamageActions(result, inbox)
+      return withSharedCanonicalDamageActions(
+        withSharedEnemyContextMetrics(result, enemy),
+        inbox,
+      )
     }),
   }
 }

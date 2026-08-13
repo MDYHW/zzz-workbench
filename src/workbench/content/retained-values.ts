@@ -253,6 +253,15 @@ export const VERTICAL_VALUES = {
     coreAtkRatioByMindscapeTier: [22.6, 24.2, 25.8], coreAtkBaseByMindscapeTier: [88, 96, 104],
     coreAtkOutputCap: 600, mindscapeSquadCritDmg: 10,
   },
+  zhuYuan: {
+    atk: 919, critRate: 5, critDmg: 78.8,
+    coreEnhancedDmg: 40, coreStunnedDmg: 40, additionalCritRate: 30,
+    mindscapeEnhancedDmg: 50, mindscapeEtherResIgnore: 25,
+  },
+  nicole: {
+    atk: 649, baseEnergyRegen: 1.56,
+    coreDefReduction: 40, additionalEtherDmg: 25, mindscapeSquadCritRate: 15,
+  },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [
@@ -319,5 +328,9 @@ export const SOURCE_LABELS = {
   lighterAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   lucyCore: SOURCE_CATEGORY_LABELS.corePassive,
   lucyAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  zhuYuanCore: SOURCE_CATEGORY_LABELS.corePassive,
+  zhuYuanAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  nicoleCore: SOURCE_CATEGORY_LABELS.corePassive,
+  nicoleAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const
