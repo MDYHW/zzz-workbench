@@ -188,8 +188,9 @@ faction graph, or guide-backed evidence payload.
   points per completed 10 Impact above 170, and cap at 75% at 270 Impact.
   The gauge reads Fully Enabled Impact because both Core and selected-engine
   Combat Impact change the current output.
-- R20. Lighter M1 adds another 5 seconds to Collapse Stun duration and another
-  10% Fire/Ice RES reduction. M2 supplies Stun DMG Multiplier +25% and multiplies
+- R20. Lighter M1 changes Collapse's Stun-duration extension from 3 seconds to
+  5 seconds and adds another 10% Fire/Ice RES reduction. M2 supplies Stun DMG
+  Multiplier +25% and multiplies
   Elation output by 1.2. M4 event Energy and M6 personal damage create no
   normalized Result. Blazing's Fire/Ice CRIT DMG, Ice-Jade's squad DMG,
   engine/Disc Daze, Astral's one-recipient entry effect, and King's threshold
@@ -232,7 +233,8 @@ faction graph, or guide-backed evidence payload.
   to force qualification.
 - AE3. Lighter's full representative shows its exact Fully Enabled Impact and
   the corresponding Elation step, plus Fire/Ice RES reduction, one Quick Assist,
-  and Stun duration. M1 and M2 add only their stated RES, duration, multiplier,
+  and Stun duration. M1 changes the extension from 3 to 5 seconds; M1/M2 add
+  only their stated RES, duration, multiplier,
   and Elation consequences.
 - AE4. Selecting King for Lighter adds Slot 4 CRIT, Woodpecker 2-piece, and a
   first CRIT Rate substat at zero. Removing King clears invalid selections and
