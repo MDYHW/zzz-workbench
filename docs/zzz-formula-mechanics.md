@@ -236,6 +236,39 @@ Ultimate-scoped contribution therefore remain separate atomic inputs even
 though both occupy the same modifier region. Their applicable total is a
 derived result for that output, not a stored source fact.
 
+### Stun DMG Multiplier And Veil Replacement
+
+Ordinary Stun DMG Multiplier contributions add to the target's bonus above its
+neutral `100%` total. They remain one target-side formula region and do not
+become regular DMG Bonus, Daze, or a setup stat.
+
+Ye Shunguang supplies the current bounded replacement consumer. While Ether
+Veil: Verdict is active, her skill damage against an enemy inside the Veil
+ignores that enemy's ordinary Stun DMG Multiplier and instead uses Veil
+Vulnerability. For the workbench's editable target total and currently
+applicable party contributions:
+
+```text
+target_stun_bonus = target_stun_dmg_multiplier - 100%
+
+raw_veil_vulnerability_bonus =
+  target_stun_bonus
+  + applicable_party_stun_dmg_multiplier_additions
+
+veil_vulnerability_bonus =
+  min(raw_veil_vulnerability_bonus, veil_vulnerability_cap)
+```
+
+The base cap is `+110%`; Ye Shunguang M4 raises that cap to `+200%`. The raw
+bonus remains visible as the cap basis so oversupply is inspectable, while the
+clamped bonus is the replacement used by Ye's applicable Fully Enabled damage.
+For example, a `200%` target supplies `+100%`; adding Trigger's `+35%` produces
+the raw `+135%` basis and the M0 replacement remains `+110%`.
+
+This relationship is evaluated only for Ye's Fully Enabled Ether Veil window.
+It does not cap, replace, or reinterpret another Agent's ordinary Stun DMG
+Multiplier Result.
+
 A source-stated DMG Multiplier modifier operation changes the action's skill
 multiplier inside its base component; it is not regular DMG Bonus. A
 source-stated Daze Multiplier modifier operation changes the action's

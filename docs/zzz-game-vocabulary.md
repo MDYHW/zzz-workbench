@@ -199,6 +199,7 @@ applicability or calculation; otherwise use the base relationship.
 | --- | --- |
 | Frost | damage and buff effects calculate from Ice |
 | Auric Ink | damage and buff effects calculate from Ether |
+| Honed Edge | damage and buff effects calculate from Physical |
 
 This relationship does not make the two attribute names synonyms. The special
 Attribute can keep its own anomaly buildup and source-local behavior while
@@ -300,6 +301,13 @@ owns the product's non-sequential value choice.
 A source-stated Stun-duration extension does not by itself establish a universal
 base duration, additive stacking with other extensions, or priority among
 non-stacking effects.
+
+A target's Stun DMG Multiplier is a total percentage. `100%` carries no bonus,
+`125%` carries a `+25%` bonus, and `200%` carries a `+100%` bonus. A source that
+adds Stun DMG Multiplier adds percentage points to that bonus unless it
+explicitly replaces the target multiplier with another named value. A named
+replacement such as Veil Vulnerability remains a source-local target value; it
+does not rename Stun DMG Multiplier for every Agent.
 
 A source may explicitly increase Stun DMG Multiplier before the target is
 Stunned. The recipient and source-stated duration remain valid even though the

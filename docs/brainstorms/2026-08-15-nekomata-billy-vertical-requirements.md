@@ -71,11 +71,12 @@ runtime optimizer, or equipment catalogue.
 
 - R5. Add Cloudcleave Radiance as limited S-Rank Attack, Base ATK 743,
   advanced CRIT DMG +48%. At W1-W5 it supplies Physical RES Ignore +20% / 22%
-  / 24% / 26% / 28%. Its Ether Veil-only DMG and CRIT DMG clauses are +25% /
-  28.7% / 32.5% / 36.2% / 40%. Billy and Nekomata are holder-eligible and
-  consume the broad Physical RES Ignore, but neither activates Ether Veil; the
-  inactive clauses remain part of Setup's complete compressed package and do
-  not project into their Result.
+  / 24% / 26% / 28%. Activating an Ether Veil supplies broad DMG and CRIT DMG
+  +25% / 28.7% / 32.5% / 36.2% / 40%; Ether Veil is the activation condition,
+  not the affected Attribute. Billy and Nekomata are holder-eligible and
+  consume the broad Physical RES Ignore, but neither holder activates Ether
+  Veil; the inactive clauses remain part of Setup's complete compressed package
+  and do not project into their Result.
 - R6. Add Starlight Engine Replica as non-limited A-Rank Attack, Base ATK 624,
   advanced ATK +25%. A Basic or Dash hit at least six meters away supplies
   Physical DMG +36% / 41% / 46.5% / 52% / 57.5% at W1-W5. Billy's ranged
@@ -258,4 +259,3 @@ runtime optimizer, or equipment catalogue.
 - Do not add a generic resource, back-attack, distance, or named-party registry.
   Existing typed action/applicability clauses and one local pressure-safe
   prepared-package adjustment are sufficient for current consumers.
-

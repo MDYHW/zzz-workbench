@@ -835,6 +835,29 @@ pressure with current setup candidates, and resolve the authored prepared
 setup. It cannot invent candidates, assign runtime equipment scores, optimize a
 package from Result output, or feed Result back into preparation.
 
+### Bounded Target Result Context
+
+The current session owns one editable `Target Stun DMG Multiplier` total for Ye
+Shunguang's Veil Vulnerability Result. It defaults to `150%`, accepts whole
+percentage values at or above `100%`, and persists across party Apply,
+Mindscape changes, pool preparation, and direct setup edits until the session
+ends or the user changes it. It is not an Agent setup selection and does not
+change focus, candidate membership, prepared first choices, allocation,
+selection completeness, or any non-Ye Result.
+
+Editing this target value recalculates the complete current party immediately.
+The value remains session context when Ye leaves the applied party and becomes
+visible again if Ye returns. This is one current Result consumer, not a generic
+enemy panel, enemy catalogue, stage preset, or authorization for additional
+target inputs.
+
+The editor may hold an incomplete text draft while the canonical session value
+remains valid. A whole integer at or above `100` commits and recalculates
+immediately. An empty, fractional, non-finite, or below-minimum draft keeps the
+last committed Result, reports the constraint accessibly, and restores the
+committed value on blur or Enter. Result recalculation does not move focus or
+replace the user's valid selection inside the control.
+
 ## User Flow Contract
 
 Party editing creates a draft without changing the applied party, focus,
@@ -864,7 +887,10 @@ initial draft.
 9. Every edit to an applied setup or party context discards derived output and
    either recalculates the complete party or returns to the empty-Result state
    if a required selection is incomplete.
-10. Expanded rows show numeric breakdown, action differences, and gauges without
+10. When Ye Shunguang is applied, editing the target Stun DMG Multiplier inside
+    her expanded Result recalculates Result without preparing or invalidating a
+    setup.
+11. Expanded rows show numeric breakdown, action differences, and gauges without
     a narrative explanation surface.
 
 ## Current Non-Goals

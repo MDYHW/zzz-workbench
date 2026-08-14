@@ -255,6 +255,22 @@ contribution changes.
   one output line even when the current contribution value is identical.
 - A progressing threshold or cap shows the current basis value and applicable
   boundary on its gauge; it does not repeat the calculated numeric remainder.
+- Ye Shunguang's Stun DMG Multiplier row is the one current bounded exception
+  that also edits an external Result basis. Its expanded detail places the
+  `Target Stun DMG Multiplier` whole-percent number input directly with the
+  gauge. The parent row and breakdown show the raw bonus above `100%` plus
+  applicable party additions; the gauge keeps that raw current value even when
+  it exceeds the cap, and its `Veil Vulnerability` output shows the clamped
+  value. Do not add a separate Veil row, headroom sentence, target panel, or
+  setup control.
+- That editor keeps a local text draft while the Result retains the last valid
+  whole value. Empty, fractional, non-finite, and below-`100` drafts expose the
+  constraint without changing Result, then restore the committed value on blur
+  or Enter. A valid edit recalculates without moving focus or selection.
+- The external basis contribution is named `Target Stun DMG Multiplier` with
+  detail `Above 100%`. Its source row, gauge, and editor share one neutral local
+  target tone; they do not highlight Ye's Agent slot or any Setup locus. Party
+  additions keep their existing independent provider-source interactions.
 - A threshold-only relationship uses its threshold as the gauge's maximum
   boundary even when the basis stat has a different display cap. Do not make
   an unrelated stat cap look like additional progress after the output is
