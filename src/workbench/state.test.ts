@@ -20,6 +20,40 @@ import {
 } from './state'
 
 describe('workbench state lifecycle', () => {
+  it('cycles Qingyi M1 broad pressure without selection history and preserves Sheer', () => {
+    let state = createPreparedState({}, ['harumasa', 'qingyi', 'yixuan'], 0)
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'pufferElectro',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'penRatio',
+    })
+    expect(activeCandidatePressures(state, 0)).toEqual([])
+    expect(activeCandidatePressures(state, 2)).toEqual([])
+
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 1 })
+    expect(activeCandidatePressures(state, 0)).toEqual(['materialBroadPrePenDefBypass'])
+    expect(activeCandidatePressures(state, 2)).toEqual([])
+    expect(state.slots[0].setup).toMatchObject({
+      twoPieceId: null, mains: { slot5: null },
+    })
+    expect(isCompleteWorkbench(state)).toBe(false)
+
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 0 })
+    expect(activeCandidatePressures(state, 0)).toEqual([])
+    expect(effectiveTwoPieceIds(state, 0)).toContain('pufferElectro')
+    expect(effectiveMainStatIds(state, 0, 'slot5')).toContain('penRatio')
+    expect(state.slots[0].setup).toMatchObject({
+      twoPieceId: null, mains: { slot5: null },
+    })
+
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 1 })
+    expect(activeCandidatePressures(state, 0)).toEqual(['materialBroadPrePenDefBypass'])
+    expect(state.slots[0].setup).toMatchObject({
+      twoPieceId: null, mains: { slot5: null },
+    })
+  })
+
   it('rebuilds Qingyi contextual Astral membership without restoring selection history', () => {
     let state = createPreparedState({}, ['harumasa', 'qingyi', 'nicole'], 0)
     expect(effectiveFourPieceIds(state, 1)).toContain('astralVoice')

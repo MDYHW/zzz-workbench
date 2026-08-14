@@ -276,8 +276,25 @@ export const VERTICAL_VALUES = {
     coreDaze: 30, additionalDmg: 30,
     mindscapeCritRate: 10, mindscapeAtk: 10, kingCritThreshold: 50,
   },
-  harumasa: { atk: 915, critRate: 19.4, critDmg: 50, baseEnergyRegen: 1.2 },
-  qingyi: { atk: 758, critRate: 5, critDmg: 50, impact: 136, baseEnergyRegen: 1.2 },
+  harumasa: {
+    atk: 915, critRate: 19.4, critDmg: 50, baseEnergyRegen: 1.2,
+    coreCritRate: 25, coreCritDmg: 72,
+    potentialAtk: 12, potentialElectricResIgnore: 15,
+    additionalDmg: 40,
+    mindscapeDashDmg: 50, mindscapeElectricResIgnore: 15,
+  },
+  qingyi: {
+    atk: 758, critRate: 5, critDmg: 50, impact: 136, baseEnergyRegen: 1.2,
+    flashDmg: 25, flashDaze: 12.5,
+    coreStunMultiplier: 80, coreChainDmg: 60,
+    additionalBasicDaze: 20,
+    additionalImpactThreshold: 120, additionalImpactCap: 220,
+    additionalAtkPerImpact: 6, additionalAtkCap: 600,
+    mindscapeDefReduction: 15, mindscapeCritRate: 20,
+    mindscapeStunMultiplier: 108, mindscapeDaze: 15,
+    mindscapeEnchantedCritDmg: 100, mindscapeResReduction: 20,
+    kingCritThreshold: 50,
+  },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [
@@ -352,5 +369,10 @@ export const SOURCE_LABELS = {
   orphieAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   pulchraCore: SOURCE_CATEGORY_LABELS.corePassive,
   pulchraAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  harumasaCore: SOURCE_CATEGORY_LABELS.corePassive,
+  harumasaAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  harumasaPotential: 'Potential Awakening',
+  qingyiCore: SOURCE_CATEGORY_LABELS.corePassive,
+  qingyiAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const

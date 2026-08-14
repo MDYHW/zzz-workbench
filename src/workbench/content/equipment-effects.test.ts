@@ -54,6 +54,8 @@ describe('bounded equipment effect facts', () => {
       .toEqualTypeOf<'damage'>()
     expectTypeOf<DriveDiscEffectField<'thunderMetal', 'twoPiece'>>()
       .toEqualTypeOf<'damage'>()
+    expectTypeOf<DriveDiscEffectField<'thunderMetal', 'fourPiece'>>()
+      .toEqualTypeOf<'atk'>()
     expectTypeOf<DriveDiscEffectField<'chaoticMetal', 'twoPiece'>>()
       .toEqualTypeOf<'damage'>()
     expectTypeOf<DriveDiscEffectField<'bunnyInWonderland', 'fourPiece'>>()
@@ -113,6 +115,7 @@ describe('bounded equipment effect facts', () => {
     expect(equipmentEffectMaximumValue(W_ENGINE_FACTS.brimstone.effects.atk, 1)).toBe(28)
     expect(equipmentEffectMaximumValue(W_ENGINE_FACTS.brimstone.effects.atk, 5)).toBe(56)
     expect(equipmentEffectMaximumValue(W_ENGINE_FACTS.preciousFossilizedCore.effects.daze, 5)).toBe(32)
+    expect(equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.fourPiece.atk)).toBe(28)
   })
 
   it('preserves aggregate refinement rounding instead of summing rounded increments', () => {
@@ -125,6 +128,18 @@ describe('bounded equipment effect facts', () => {
     expect(([1, 2, 3, 4, 5] as const).map((refinement) =>
       equipmentEffectMaximumValue(W_ENGINE_FACTS.iceJadeTeapot.effects.impact, refinement),
     )).toEqual([21, 24.15, 27.3, 30.45, 33.6])
+    expect(W_ENGINES.zanshinHerbCase.passiveLines(1)).toEqual([
+      'CRIT Rate +20%',
+      'Electric Dash Attack DMG +40%',
+    ])
+    expect(([1, 2, 3, 4, 5] as const).map((refinement) => [
+      equipmentEffectBaseValue(W_ENGINE_FACTS.zanshinHerbCase.effects.critRate, refinement),
+      equipmentEffectBaseValue(W_ENGINE_FACTS.zanshinHerbCase.effects.dashDamage, refinement),
+      equipmentEffectBaseValue(W_ENGINE_FACTS.zanshinHerbCase.effects.anomalyStunCritRate, refinement),
+    ])).toEqual([
+      [10, 40, 10], [11.5, 46, 11.5], [13, 52, 13],
+      [14.5, 58, 14.5], [16, 64, 16],
+    ])
   })
 
   it('keeps Drive Disc piece ownership, action scope, and progression distinct', () => {
@@ -172,13 +187,16 @@ describe('bounded equipment effect facts', () => {
     )).toBe(18)
   })
 
-  it('retains matching Electric and Ether 2-piece facts without unused 4-piece payloads', () => {
+  it('retains matching Electric and Ether Disc facts at their current piece consumers', () => {
     expect(DRIVE_DISC_FACTS.thunderMetal).toEqual({
       twoPiece: {
         damage: {
           modifier: 'dmgBonus', unit: '%', value: 10,
           scope: { attributes: ['Electric'] },
         },
+      },
+      fourPiece: {
+        atk: { modifier: 'atk', unit: '%', value: 28 },
       },
     })
     expect(DRIVE_DISC_FACTS.chaoticMetal).toEqual({

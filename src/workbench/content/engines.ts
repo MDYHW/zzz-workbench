@@ -701,9 +701,9 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     id: 'zanshinHerbCase', name: 'Zanshin Herb Case', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.zanshinHerbCase.advancedStat, image: zanshinHerbCaseImage,
     passiveLines: (refinement) => [
-      `CRIT Rate +${percent(W_ENGINE_FACTS.zanshinHerbCase.effects.critRate, refinement)}`,
+      `CRIT Rate +${equipmentEffectBaseValue(W_ENGINE_FACTS.zanshinHerbCase.effects.critRate, refinement)
+        + equipmentEffectBaseValue(W_ENGINE_FACTS.zanshinHerbCase.effects.anomalyStunCritRate, refinement)}%`,
       `Electric Dash Attack DMG +${percent(W_ENGINE_FACTS.zanshinHerbCase.effects.dashDamage, refinement)}`,
-      `After squad Anomaly or Stun · CRIT Rate +${percent(W_ENGINE_FACTS.zanshinHerbCase.effects.anomalyStunCritRate, refinement)}`,
     ],
   },
 }

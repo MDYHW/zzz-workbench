@@ -174,7 +174,8 @@ export function resolveLighterProviderClauses(context: LighterCalculationContext
       setup.engineId === 'iceJadeTeapot'
         ? equipmentEffectBaseValue(W_ENGINE_FACTS.iceJadeTeapot.effects.damage, refinement)
         : 0,
-      'all-party'), { formulas: ['general_damage', 'sheer_damage'] }),
+      'all-party', undefined, undefined, undefined, 'iceJadeTeapot'),
+    { formulas: ['general_damage', 'sheer_damage'] }),
     additive('dazeBonus', 'fully', engine,
       setup.engineId === 'restrained'
         ? equipmentEffectMaximumValue(W_ENGINE_FACTS.restrained.effects.daze, refinement)

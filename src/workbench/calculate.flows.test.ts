@@ -359,4 +359,49 @@ describe('representative calculation flows', () => {
     expect(metric(agent(protoResult, 'corin'), 'dmgBonus').breakdown.fully)
       .toContainEqual(expect.objectContaining({ label: 'Proto Punk', ownerAgentId: 'pulchra', amount: 15 }))
   })
+
+  it('projects prepared Harumasa and Qingyi through their authored zero-hit representatives', () => {
+    const state = createPreparedState({}, ['harumasa', 'qingyi', 'lucia'], 0)
+    expect(state.slots[0].setup).toMatchObject({
+      engineId: 'zanshinHerbCase', refinement: 1,
+      fourPieceId: 'shadowHarmony', twoPieceId: 'branchAndBlade',
+      mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'atkPct' },
+      substats: { critRate: 0, critDmg: 0, atkPct: 0 },
+    })
+    expect(state.slots[1].setup).toMatchObject({
+      engineId: 'iceJadeTeapot', refinement: 1,
+      fourPieceId: 'king', twoPieceId: 'shockstar',
+      mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'impact' },
+      substats: { critRate: 0, critDmg: 0, atkPct: 0 },
+    })
+
+    const result = calculateParty(state)!
+    const harumasa = agent(result, 'harumasa')
+    const qingyi = agent(result, 'qingyi')
+    expect(metric(harumasa, 'critRate').values).toEqual({
+      initial: 19.4, combat: 29.4, fully: 51.4,
+    })
+    expect(action(harumasa, 'harumasaCoreCritRate').values.fully).toBe(76.4)
+    expect(action(harumasa, 'harumasaCoreCritDmg').values.fully
+      - metric(harumasa, 'critDmg').values.fully).toBe(72)
+    expect(action(harumasa, 'harumasaDashDmg').values.fully
+      - metric(harumasa, 'dmgBonus').values.fully).toBe(55)
+
+    expect(metric(qingyi, 'impact').values).toEqual({
+      initial: 193.12, combat: 193.12, fully: 221.68,
+    })
+    expect(metric(qingyi, 'impact').gauge).toMatchObject({
+      threshold: 120, cap: 220, outputValue: 600, outputCap: 600,
+    })
+    expect(metric(qingyi, 'atk').values.initial).toBeCloseTo(2225.72)
+    expect(metric(qingyi, 'atk').values.fully).toBeCloseTo(2387)
+    expect(metric(qingyi, 'critRate').gauge).toMatchObject({
+      basisLabel: 'Initial CRIT Rate', current: 29, threshold: 50, outputValue: 15,
+    })
+    expect(metric(qingyi, 'stunDmgMultiplier').values.fully).toBe(80)
+    expect(action(qingyi, 'qingyiChainDmg').values.fully
+      - metric(qingyi, 'dmgBonus').values.fully).toBe(60)
+    expect(action(qingyi, 'qingyiEnchantedBasicDaze').values.fully
+      - metric(qingyi, 'dazeBonus').values.fully).toBe(32.5)
+  })
 })

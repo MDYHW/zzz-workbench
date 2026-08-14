@@ -1193,4 +1193,169 @@ describe('authored calculation policies', () => {
         id: 'starlightBillyFinalHitMultiplier', value: 200, unit: '% Sheer Force',
       }))
     })
+
+    it('keeps Harumasa Core, Potential, Zanshin, Cordis, and Mindscapes on exact actions', () => {
+      const base = createPreparedState({}, ['harumasa', 'qingyi', 'lucia'], 0)
+      const m0 = agent(calculateParty(base)!, 'harumasa')
+      const m2 = agent(calculateParty(withMindscape(base, 'harumasa', 2))!, 'harumasa')
+      const m6 = agent(calculateParty(withMindscape(base, 'harumasa', 6))!, 'harumasa')
+
+      expect(metric(m0, 'atk').breakdown.fully).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'harumasa', locus: 'identity',
+        display: { value: 12, unit: '%', decimals: 0 },
+      }))
+      expect(action(m2, 'harumasaDashSlashDmg').values.fully
+        - action(m2, 'harumasaDashDmg').values.fully).toBe(50)
+      expect(m0.actionModifiers.find(({ id }) => id === 'harumasaDashSlashDmg'))
+        .toBeUndefined()
+      expect(metric(m6, 'resIgnore').values.fully).toBe(15)
+      expect(action(m6, 'harumasaDashChasingResIgnore').values.fully).toBe(30)
+      expect(action(m6, 'harumasaDashChasingResIgnore').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'harumasa', locus: 'identity', amount: 15,
+        }))
+      expect(metric(m6, 'resIgnore').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'harumasa', locus: 'mindscape', amount: 15,
+        }))
+
+      const cordis = agent(calculateParty(selectEngine(base, 'harumasa', 'cordisGermina'))!, 'harumasa')
+      expect(metric(cordis, 'defIgnore').values.fully).toBe(0)
+      expect(action(cordis, 'harumasaBasicUltimateDefIgnore').values.fully).toBe(20)
+      expect(action(cordis, 'harumasaDashDmg').values.fully
+        - metric(cordis, 'dmgBonus').values.fully).toBe(15)
+
+      const heartstring = agent(calculateParty(
+        selectEngine(base, 'harumasa', 'heartstringNocturne'),
+      )!, 'harumasa')
+      expect(metric(heartstring, 'resIgnore').values.fully).toBe(0)
+      expect(action(heartstring, 'harumasaDashChasingResIgnore').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({ locus: 'w-engine' }))
+    })
+
+    it('projects Qingyi current Impact conversion, exact actions, and cumulative Mindscapes', () => {
+      const qualified = createPreparedState({}, ['harumasa', 'qingyi', 'lucia'], 0)
+      const unqualified = createPreparedState({}, ['yixuan', 'qingyi', 'lucia'], 0)
+      const q0 = agent(calculateParty(qualified)!, 'qingyi')
+      const absent = agent(calculateParty(unqualified)!, 'qingyi')
+      expect(metric(q0, 'atk').breakdown.initial).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'qingyi', locus: 'additional', amount: 438.72,
+      }))
+      expect(metric(absent, 'atk').breakdown.initial)
+        .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'qingyi', locus: 'additional' }))
+
+      const m1Party = calculateParty(withMindscape(qualified, 'qingyi', 1))!
+      const m1 = agent(m1Party, 'qingyi')
+      expect(metric(m1, 'critRate').values.fully - metric(q0, 'critRate').values.fully).toBe(20)
+      expect(metric(agent(m1Party, 'harumasa'), 'defReduction').values.fully).toBe(15)
+
+      const m2 = agent(calculateParty(withMindscape(qualified, 'qingyi', 2))!, 'qingyi')
+      expect(metric(m2, 'stunDmgMultiplier').values.fully).toBe(108)
+      expect(metric(m2, 'dazeBonus').values.fully - metric(q0, 'dazeBonus').values.fully).toBe(15)
+
+      const m6Party = calculateParty(withMindscape(qualified, 'qingyi', 6))!
+      const m6 = agent(m6Party, 'qingyi')
+      expect(action(m6, 'qingyiEnchantedBasicCritDmg').values.fully
+        - metric(m6, 'critDmg').values.fully).toBe(100)
+      expect(metric(agent(m6Party, 'harumasa'), 'resReduction').values.fully).toBe(20)
+    })
+
+    it('keeps Qingyi M1 broad DEF pressure off Sheer recipients', () => {
+      const state = withMindscape(
+        createPreparedState({}, ['harumasa', 'qingyi', 'yixuan'], 0),
+        'qingyi',
+        1,
+      )
+      const result = calculateParty(state)!
+      expect(metric(agent(result, 'harumasa'), 'defReduction').values.fully).toBe(15)
+      expect(agent(result, 'yixuan').metrics.find(({ id }) => id === 'defReduction'))
+        .toBeUndefined()
+    })
+
+    it('projects Harumasa broad-engine and selected Disc packages independently', () => {
+      const base = createPreparedState({}, ['harumasa', 'qingyi', 'lucia'], 0)
+      for (const engineId of ['brimstone', 'starlightEngine'] as const) {
+        const result = agent(calculateParty(selectEngine(base, 'harumasa', engineId))!, 'harumasa')
+        expect(metric(result, 'atk').breakdown[engineId === 'brimstone' ? 'fully' : 'combat'])
+          .toContainEqual(expect.objectContaining({
+            ownerAgentId: 'harumasa', locus: 'w-engine',
+          }))
+      }
+
+      const thunder = agent(calculateParty(selectDisc(
+        base, 'harumasa', 'fourPiece', 'thunderMetal',
+      ))!, 'harumasa')
+      expect(metric(thunder, 'atk').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'harumasa', locus: 'disc-4pc',
+          display: { value: 28, unit: '%', decimals: 0 },
+        }))
+      expect(metric(thunder, 'dmgBonus').breakdown.initial)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'harumasa', locus: 'disc-4pc', detail: '2-piece', amount: 10,
+        }))
+    })
+
+    it('projects Qingyi alternate W-Engines through their complete usable clauses', () => {
+      const base = createPreparedState({}, ['harumasa', 'qingyi', 'lucia'], 0)
+      const restrained = agent(calculateParty(
+        selectEngine(base, 'qingyi', 'restrained'),
+      )!, 'qingyi')
+      expect(action(restrained, 'qingyiBasicDmg').values.fully
+        - metric(restrained, 'dmgBonus').values.fully).toBe(30)
+      expect(action(restrained, 'qingyiBasicDaze').values.fully
+        - metric(restrained, 'dazeBonus').values.fully).toBe(50)
+
+      const hellfire = agent(calculateParty(
+        selectEngine(base, 'qingyi', 'hellfireGears'),
+      )!, 'qingyi')
+      expect(metric(hellfire, 'impact').values.fully)
+        .toBeGreaterThan(metric(hellfire, 'impact').values.initial)
+      expect(hellfire.metrics.find(({ id }) => id === 'energyRegen')).toBeUndefined()
+
+      const steam = agent(calculateParty(
+        selectEngine(base, 'qingyi', 'steamOven'),
+      )!, 'qingyi')
+      expect(metric(steam, 'energyRegen').values.initial).toBeCloseTo(1.8)
+      expect(metric(steam, 'impact').values.fully
+        - metric(steam, 'impact').values.initial).toBeCloseTo(34.816)
+      expect(metric(steam, 'impact').gauge).toMatchObject({
+        current: 203.456, outputCap: 600,
+      })
+      expect(metric(steam, 'impact').gauge?.outputValue).toBeCloseTo(500.736)
+
+      const precious = agent(calculateParty(
+        selectEngine(base, 'qingyi', 'preciousFossilizedCore'),
+      )!, 'qingyi')
+      expect(metric(precious, 'dazeBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'qingyi', locus: 'w-engine', amount: 32,
+        }))
+
+      const blazingState = selectEngine(
+        createPreparedState({}, ['harumasa', 'qingyi', 'hugo'], 0),
+        'qingyi',
+        'blazingLaurel',
+      )
+      const blazing = calculateParty(blazingState)!
+      expect(metric(agent(blazing, 'hugo'), 'critDmg').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'qingyi', locus: 'w-engine', amount: 30,
+        }))
+      expect(metric(agent(blazing, 'harumasa'), 'critDmg').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({
+          ownerAgentId: 'qingyi', locus: 'w-engine',
+        }))
+    })
+
+    it('applies duplicate Ice-Jade squad DMG once while retaining equal origins', () => {
+      let state = createPreparedState({}, ['harumasa', 'qingyi', 'lighter'], 0)
+      state = selectEngine(state, 'lighter', 'iceJadeTeapot')
+      const result = metric(agent(calculateParty(state)!, 'harumasa'), 'dmgBonus')
+      const iceJade = result.breakdown.fully.filter(({ label }) => label === 'Ice-Jade Teapot')
+      expect(iceJade).toHaveLength(2)
+      expect(iceJade.filter(({ notation }) => notation === 'equal-nonstack-origin'))
+        .toHaveLength(1)
+      expect(iceJade.reduce((sum, item) => sum + item.amount, 0)).toBe(20)
+    })
 })

@@ -125,6 +125,9 @@ export const DRIVE_DISC_FACTS = {
     twoPiece: {
       damage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Electric'] } },
     },
+    fourPiece: {
+      atk: { modifier: 'atk', unit: '%', value: 28 },
+    },
   },
   chaoticMetal: {
     twoPiece: {
@@ -261,6 +264,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   thunderMetal: {
     id: 'thunderMetal', name: 'Thunder Metal', image: thunderMetalImage,
     twoPieceEffect: `Electric DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.twoPiece.damage)}%`,
+    fourPieceEffects: [`ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.fourPiece.atk)}%`],
   },
   chaoticMetal: {
     id: 'chaoticMetal', name: 'Chaotic Metal', image: chaoticMetalImage,

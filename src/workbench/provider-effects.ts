@@ -8,6 +8,8 @@ import {
 import type { AppliedSlot, WorkbenchState } from './state'
 import {
   anotherAgentHasSpecialty,
+  harumasaAdditionalIsActive,
+  qingyiAdditionalIsActive,
   soldier11AdditionalIsActive,
   triggerAdditionalIsActive,
   zhuYuanAdditionalIsActive,
@@ -141,6 +143,16 @@ import {
   resolvePulchraProviderClauses,
   type PulchraCalculationContext,
 } from './calculation/agents/pulchra'
+import {
+  observeHarumasa,
+  resolveHarumasaProviderClauses,
+  type HarumasaCalculationContext,
+} from './calculation/agents/harumasa'
+import {
+  observeQingyi,
+  resolveQingyiProviderClauses,
+  type QingyiCalculationContext,
+} from './calculation/agents/qingyi'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -170,6 +182,8 @@ export type ProviderContext =
   | NicoleCalculationContext
   | OrphieCalculationContext
   | PulchraCalculationContext
+  | HarumasaCalculationContext
+  | QingyiCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -313,6 +327,16 @@ function observeProviderContext(
         slot.setup,
         anotherHasSpecialty(['Attack', 'Rupture']) || anotherSharesFaction,
       )
+    case 'harumasa':
+      return observeHarumasa(
+        slot.setup,
+        harumasaAdditionalIsActive(partyAgentIds, providerIndex),
+      )
+    case 'qingyi':
+      return observeQingyi(
+        slot.setup,
+        qingyiAdditionalIsActive(partyAgentIds, providerIndex),
+      )
     default:
       return assertNever(slot.agentId)
   }
@@ -386,6 +410,10 @@ function providerClauses(
       return resolveOrphieProviderClauses(context)
     case 'pulchra':
       return resolvePulchraProviderClauses(context)
+    case 'harumasa':
+      return resolveHarumasaProviderClauses(context)
+    case 'qingyi':
+      return resolveQingyiProviderClauses(context)
     default:
       return assertNever(context)
   }
@@ -527,8 +555,13 @@ export function activeCandidatePressures(
     state,
     recipientSlot,
   )
+  const hasQingyiM1 = isGeneralDamageAgent(recipientAgentId)
+    && state.slots.some(({ agentId, setup }) => (
+      agentId === 'qingyi' && setup.mindscape >= 1
+    ))
 
-  return hasCissiaCore || hasNicoleCore || hasSpectralGaze || hasSeedM2Besiege || hasSelectedEnginePressure
+  return hasCissiaCore || hasNicoleCore || hasSpectralGaze || hasSeedM2Besiege
+    || hasSelectedEnginePressure || hasQingyiM1
     ? ['materialBroadPrePenDefBypass']
     : []
 }
