@@ -295,6 +295,12 @@ export const VERTICAL_VALUES = {
     mindscapeEnchantedCritDmg: 100, mindscapeResReduction: 20,
     kingCritThreshold: 50,
   },
+  nekomata: {
+    atk: 910, critRate: 19.4, critDmg: 50, baseEnergyRegen: 1.2,
+  },
+  billy: {
+    atk: 787, critRate: 19.4, critDmg: 50, baseEnergyRegen: 1.2,
+  },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [
@@ -374,5 +380,10 @@ export const SOURCE_LABELS = {
   harumasaPotential: 'Potential Awakening',
   qingyiCore: SOURCE_CATEGORY_LABELS.corePassive,
   qingyiAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  nekomataCore: SOURCE_CATEGORY_LABELS.corePassive,
+  nekomataAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  nekomataPotential: 'Potential Awakening',
+  billyCore: SOURCE_CATEGORY_LABELS.corePassive,
+  billyAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const

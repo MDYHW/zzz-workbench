@@ -383,4 +383,12 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     fourPiece: ['king', 'protoPunk', 'shockstar', 'swingJazz'],
     twoPiece: ['shockstar', 'king', 'swingJazz'],
   },
+  nekomata: {
+    fourPiece: ['woodpecker', 'pufferElectro'],
+    twoPiece: ['woodpecker', 'branchAndBlade', 'fangedMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
+  },
+  billy: {
+    fourPiece: ['woodpecker', 'shadowHarmony', 'pufferElectro'],
+    twoPiece: ['woodpecker', 'branchAndBlade', 'fangedMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
+  },
 }

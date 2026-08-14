@@ -43,6 +43,8 @@ import theVaultImage from '../../assets/equipment/w-engines/the-vault.webp'
 import gildedBlossomImage from '../../assets/equipment/w-engines/gilded-blossom.webp'
 import boxCutterImage from '../../assets/equipment/w-engines/box-cutter.webp'
 import zanshinHerbCaseImage from '../../assets/equipment/w-engines/zanshin-herb-case.webp'
+import cloudcleaveRadianceImage from '../../assets/equipment/w-engines/cloudcleave-radiance.webp'
+import starlightEngineReplicaImage from '../../assets/equipment/w-engines/starlight-engine-replica.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -408,6 +410,20 @@ export const W_ENGINE_FACTS = {
       anomalyStunCritRate: { modifier: 'critRate', unit: '%', value: [10, 11.5, 13, 14.5, 16] },
     },
   },
+  cloudcleaveRadiance: {
+    advancedStat: { id: 'critDmg', label: 'CRIT DMG', value: 48, unit: '%' },
+    effects: {
+      physicalResIgnore: { modifier: 'resIgnore', unit: '%', value: [20, 22, 24, 26, 28], scope: { attributes: ['Physical'] } },
+      etherVeilDamage: { modifier: 'dmgBonus', unit: '%', value: [25, 28.7, 32.5, 36.2, 40], scope: { attributes: ['Ether'] } },
+      etherVeilCritDamage: { modifier: 'critDmg', unit: '%', value: [25, 28.7, 32.5, 36.2, 40], scope: { attributes: ['Ether'] } },
+    },
+  },
+  starlightEngineReplica: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
+    effects: {
+      physicalDamage: { modifier: 'dmgBonus', unit: '%', value: [36, 41, 46.5, 52, 57.5], scope: { attributes: ['Physical'], actions: ['Basic Attack', 'Dash Attack'] } },
+    },
+  },
 } as const satisfies Record<EngineId, WEngineFacts>
 
 /** Exact authored fields for one admitted W-Engine, derived from the fact source. */
@@ -706,6 +722,20 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `Electric Dash Attack DMG +${percent(W_ENGINE_FACTS.zanshinHerbCase.effects.dashDamage, refinement)}`,
     ],
   },
+  cloudcleaveRadiance: {
+    id: 'cloudcleaveRadiance', name: 'Cloudcleave Radiance', rank: 'S', limited: true, baseAtk: 743,
+    advancedStat: W_ENGINE_FACTS.cloudcleaveRadiance.advancedStat, image: cloudcleaveRadianceImage,
+    passiveLines: (refinement) => [
+      `Physical RES Ignore +${percent(W_ENGINE_FACTS.cloudcleaveRadiance.effects.physicalResIgnore, refinement)}`,
+      `Ether Veil · Ether DMG +${percent(W_ENGINE_FACTS.cloudcleaveRadiance.effects.etherVeilDamage, refinement)}`,
+      `Ether Veil · Ether CRIT DMG +${percent(W_ENGINE_FACTS.cloudcleaveRadiance.effects.etherVeilCritDamage, refinement)}`,
+    ],
+  },
+  starlightEngineReplica: {
+    id: 'starlightEngineReplica', name: 'Starlight Engine Replica', rank: 'A', limited: false, baseAtk: 624,
+    advancedStat: W_ENGINE_FACTS.starlightEngineReplica.advancedStat, image: starlightEngineReplicaImage,
+    passiveLines: (refinement) => [`Physical DMG +${percent(W_ENGINE_FACTS.starlightEngineReplica.effects.physicalDamage, refinement)}`],
+  },
 }
 
 const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
@@ -743,4 +773,6 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   pulchra: enginePools(['blazingLaurel', 'boxCutter', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   harumasa: enginePools(['zanshinHerbCase', 'cordisGermina', 'brimstone', 'heartstringNocturne', 'starlightEngine']),
   qingyi: enginePools(['iceJadeTeapot', 'blazingLaurel', 'restrained', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
+  nekomata: enginePools(['steelCushion', 'heartstringNocturne', 'cordisGermina', 'cloudcleaveRadiance', 'severedInnocence', 'brimstone']),
+  billy: enginePools(['cloudcleaveRadiance', 'heartstringNocturne', 'cordisGermina', 'brimstone', 'steelCushion', 'starlightEngineReplica']),
 }

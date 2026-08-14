@@ -202,6 +202,14 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     id: 'qingyi', name: 'Qingyi', attribute: 'Electric', specialty: 'Stun',
     focusEligible: false, rank: 'S', faction: 'Criminal Investigation Special Response Team',
   },
+  {
+    id: 'nekomata', name: 'Nekomata', attribute: 'Physical', specialty: 'Attack',
+    focusEligible: true, rank: 'S', faction: 'Cunning Hares',
+  },
+  {
+    id: 'billy', name: 'Billy Kid', attribute: 'Physical', specialty: 'Attack',
+    focusEligible: true, rank: 'A', faction: 'Cunning Hares',
+  },
 ]
 
 export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>

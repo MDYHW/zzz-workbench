@@ -558,6 +558,31 @@ describe('party-directed preparation', () => {
     })
   })
 
+  it('authors Nekomata and Billy independently for full and non-limited pools', () => {
+    expect(prepareTargetSelection(context('nekomata'), 'nekomata', [])).toEqual({
+      engineId: 'steelCushion', fourPieceId: 'woodpecker', twoPieceId: 'pufferElectro',
+      mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
+    })
+    expect(prepareTargetSelection(context('nekomata', 'nonLimited'), 'nekomata', []))
+      .toEqual({
+        engineId: 'steelCushion', fourPieceId: 'woodpecker', twoPieceId: 'pufferElectro',
+        mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
+      })
+    expect(prepareTargetSelection(context('billy'), 'billy', [])).toEqual({
+      engineId: 'cloudcleaveRadiance', fourPieceId: 'woodpecker', twoPieceId: 'branchAndBlade',
+      mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
+    })
+    expect(prepareTargetSelection(context('billy', 'nonLimited'), 'billy', []))
+      .toEqual({
+        engineId: 'brimstone', fourPieceId: 'woodpecker', twoPieceId: 'branchAndBlade',
+        mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
+      })
+
+    const prepared = createPreparedState({}, ['nekomata', 'billy', 'lycaon'], 0)
+    expect(prepared.slots[0].setup.substats).toEqual({ critRate: 0, critDmg: 0, atkPct: 0 })
+    expect(prepared.slots[1].setup.substats).toEqual({ critRate: 0, critDmg: 0, atkPct: 0 })
+  })
+
   it('balances Anby M2+ only when her Additional Ability is party-qualified', () => {
     const qualifiedHolders = [
       { agentId: 'trigger', fourPieceId: 'king' },

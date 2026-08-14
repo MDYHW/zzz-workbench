@@ -32,6 +32,8 @@ export type AgentId =
   | 'pulchra'
   | 'harumasa'
   | 'qingyi'
+  | 'nekomata'
+  | 'billy'
 
 export type AgentRank = 'S' | 'A'
 export type AgentFaction =
@@ -96,6 +98,8 @@ export type EngineId =
   | 'gildedBlossom'
   | 'boxCutter'
   | 'zanshinHerbCase'
+  | 'cloudcleaveRadiance'
+  | 'starlightEngineReplica'
 
 export type DiscId =
   | 'yunkui'

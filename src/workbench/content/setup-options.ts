@@ -41,6 +41,8 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   pulchra: { primary: ['daze_buildup'], residual: ['general_damage'] },
   harumasa: { primary: ['general_damage'], residual: [] },
   qingyi: { primary: ['daze_buildup'], residual: ['general_damage'] },
+  nekomata: { primary: ['general_damage'], residual: [] },
+  billy: { primary: ['general_damage'], residual: [] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -191,6 +193,12 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   qingyi: {
     slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['electricDmg', 'atkPct', 'penRatio'], slot6: ['impact', 'atkPct'],
   },
+  nekomata: {
+    slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['physicalDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
+  },
+  billy: {
+    slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['physicalDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
+  },
 }
 
 /** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
@@ -201,6 +209,8 @@ export const PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE: Partial<
   corin: 'physicalDmg',
   hugo: 'iceDmg',
   zhuYuan: 'atkPct',
+  nekomata: 'atkPct',
+  billy: 'atkPct',
 }
 
 export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
@@ -312,6 +322,16 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
     { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
   ],
   qingyi: [
+    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
+    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+  ],
+  nekomata: [
+    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
+    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+  ],
+  billy: [
     { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
     { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
     { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },

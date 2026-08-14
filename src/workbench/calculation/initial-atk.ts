@@ -14,7 +14,7 @@ import {
 } from '../content'
 
 export const SEED_VANGUARD_ATK_AGENT_IDS = [
-  'anbySoldier0', 'seed', 'cissia', 'evelyn', 'corin', 'hugo', 'ellen', 'soldier11', 'zhuYuan', 'orphie',
+  'anbySoldier0', 'seed', 'cissia', 'evelyn', 'corin', 'hugo', 'ellen', 'soldier11', 'zhuYuan', 'orphie', 'nekomata', 'billy',
 ] as const
 
 export type SeedVanguardAtkAgentId = (typeof SEED_VANGUARD_ATK_AGENT_IDS)[number]

@@ -433,4 +433,27 @@ describe('bounded equipment effect facts', () => {
     expect(DRIVE_DISC_FACTS.protoPunk.fourPiece.damage.scope)
       .toEqual({ recipient: 'squad' })
   })
+
+  it('retains Cloudcleave and Replica as complete packages without hiding inactive clauses', () => {
+    expect(W_ENGINES.cloudcleaveRadiance).toMatchObject({
+      rank: 'S', limited: true, baseAtk: 743,
+      advancedStat: { id: 'critDmg', value: 48 },
+    })
+    expect(W_ENGINE_FACTS.cloudcleaveRadiance.effects.physicalResIgnore.scope)
+      .toEqual({ attributes: ['Physical'] })
+    expect(W_ENGINES.cloudcleaveRadiance.passiveLines(1)).toEqual([
+      'Physical RES Ignore +20%',
+      'Ether Veil · Ether DMG +25%',
+      'Ether Veil · Ether CRIT DMG +25%',
+    ])
+
+    expect(W_ENGINES.starlightEngineReplica).toMatchObject({
+      rank: 'A', limited: false, baseAtk: 624,
+      advancedStat: { id: 'atkPct', value: 25 },
+    })
+    expect(W_ENGINE_FACTS.starlightEngineReplica.effects.physicalDamage.scope)
+      .toEqual({ attributes: ['Physical'], actions: ['Basic Attack', 'Dash Attack'] })
+    expect(W_ENGINES.starlightEngineReplica.passiveLines(5))
+      .toEqual(['Physical DMG +57.5%'])
+  })
 })
