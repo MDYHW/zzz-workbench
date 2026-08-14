@@ -116,11 +116,11 @@ or an Energy Regen contribution. Their exact compressed facts may still pass
 through a current candidate or prepared-choice consumer.
 
 Do not proactively retain shield, healing, or survival amounts as generic
-Result operations; no current setup direction supplies that consumer. A later
-direction whose candidate or prepared policy materially strengthens a
-deterministic per-activation survival output must justify one dedicated current
-Result relationship at that time; it does not justify a survival schema in
-advance.
+Result operations. Ben Bigger's Core shield and Caesar King's Radiant Aegis
+are the current dedicated exceptions because their candidate or prepared
+policies materially strengthen one deterministic per-activation output. Each
+remains an Agent-local relationship and does not justify a generic survival
+schema, incoming-damage model, or shared shield state.
 
 Keep a value, threshold, cap, count, trigger, action scope, Attribute scope,
 recipient, duration, stack rule, or compatibility rule only when it changes a

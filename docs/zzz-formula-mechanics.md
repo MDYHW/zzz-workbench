@@ -309,10 +309,12 @@ that time.
 | `anomaly_buildup` | skill buildup, Anomaly Mastery, Buildup Bonus, target buildup resistance | Anomaly Proficiency increases anomaly damage rather than buildup unless a source states another relationship |
 
 General `dmg_taken_multiplier` remains in each applicable damage frame because
-enemy, stage, or other target mechanics can change it. It is absent from direct
-setting pressures because the current setup-source boundary admits no Agent,
-W-Engine, or Drive Disc contribution to that region. Source-fact treatment owns
-that exclusion and the wording distinctions used to preserve it.
+enemy, stage, or other target mechanics can change it. It is not a direct
+setting pressure: the current setup-source boundary admits only Caesar King's
+qualified enemy-context DMG Taken contribution, projected after the party
+condition is established rather than used to author a recipient's equipment or
+stat candidates. Source-fact treatment owns that bounded admission and the
+wording distinctions used to preserve it.
 
 A current mechanics relationship states that current Rupture Agents convert
 30% of current ATK and 10% of current Max HP into Sheer Force. The Max HP
