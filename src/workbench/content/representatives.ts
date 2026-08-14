@@ -216,7 +216,7 @@ const qingyiRepresentative = (pool: PoolId): SetupSelection => ({
   mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'impact' },
 })
 
-const nekomataRepresentative = (pool: PoolId): SetupSelection => ({
+const nekomataRepresentative = (): SetupSelection => ({
   engineId: 'steelCushion',
   fourPieceId: 'woodpecker', twoPieceId: 'pufferElectro',
   mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
@@ -319,7 +319,7 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   pulchra: { full: pulchraRepresentative('full'), nonLimited: pulchraRepresentative('nonLimited') },
   harumasa: { full: harumasaRepresentative('full'), nonLimited: harumasaRepresentative('nonLimited') },
   qingyi: { full: qingyiRepresentative('full'), nonLimited: qingyiRepresentative('nonLimited') },
-  nekomata: { full: nekomataRepresentative('full'), nonLimited: nekomataRepresentative('nonLimited') },
+  nekomata: { full: nekomataRepresentative(), nonLimited: nekomataRepresentative() },
   billy: { full: billyRepresentative('full'), nonLimited: billyRepresentative('nonLimited') },
 }
 

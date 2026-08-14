@@ -47,7 +47,6 @@ export interface NekomataCalculationContext {
   initialAtk: number
 }
 
-const BASIC = actionTarget([canonicalAction('Basic Attack')])
 const DODGE_COUNTER = actionTarget([canonicalAction('Dodge Counter')])
 const EX_SPECIAL = actionTarget([canonicalAction('EX Special Attack')])
 const ULTIMATE = actionTarget([canonicalAction('Ultimate')])
