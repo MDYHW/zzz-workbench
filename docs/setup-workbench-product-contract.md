@@ -741,6 +741,13 @@ retained non-stat examples are Dialyn's enemy Stun-duration extension and Astra
 M4's next-Quick-Assist Daze modifier. A numeric resource or survival clause does
 not enter Result merely because the source states an amount.
 
+Ben's Core shield is the bounded current survival relationship admitted by the
+source-fact gate: selected Initial DEF and Shield Effect inputs determine one
+complete shield amount per EX Special Attack follow-up. Result exposes that
+amount as a source-local operation beside its Initial DEF and optional Shield
+Effect inputs. This does not admit shield uptime, incoming damage, replacement,
+healing, or another holder's shield clause without its own current consumer.
+
 Expanded numeric breakdown is the explanation surface. Guide URLs, source
 wording, candidate rationale, activation prose, historical deltas, and narrative
 explanations are not stored or displayed.

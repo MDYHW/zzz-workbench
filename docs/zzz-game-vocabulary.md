@@ -219,6 +219,7 @@ stat itself a formula component.
 | HP | health stat; Max HP can also be a source scaling basis | Sheer Force or damage output |
 | ATK | attack stat and common damage or buff scaling input | Base ATK, DMG Bonus, or damage output |
 | DEF | defense stat | target DEF multiplier or DEF Reduction |
+| Shield Effect | percentage stat that increases shields created by the holder | DEF, shield amount, damage reduction, or shield duration |
 | Impact | stat used to increase Daze dealt | Daze output or Stun state |
 | CRIT Rate | probability that crit-capable damage critically hits | CRIT DMG or expected-damage policy |
 | CRIT DMG | bonus applied when crit-capable damage critically hits | DMG Bonus or Stun DMG Multiplier |

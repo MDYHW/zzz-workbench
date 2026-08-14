@@ -42,8 +42,8 @@ modify them differently.
 | initial stat | base stat after applicable pre-combat W-Engine advanced stats, Drive Disc stats, and 2-piece stat effects | a source that reads initial ATK must use this surface, not a combat buffed value |
 | combat stat | initial stat after applicable in-combat stat modifiers such as W-Engine passives, Drive Disc 4-piece effects, and Agent buffs | party and equipment combat buffs change the combat baseline or fully enabled window without rewriting the initial surface |
 
-Percentage-scaled stats such as ATK, Max HP, Impact, Anomaly Mastery, and Energy
-Regen compose initial and combat percentages in different regions:
+Percentage-scaled stats such as ATK, Max HP, DEF, Impact, Anomaly Mastery, and
+Energy Regen compose initial and combat percentages in different regions:
 
 ```text
 Initial Stat = Base Stat * (1 + sum of initial Stat percentages) + flat initial Stat
@@ -408,6 +408,21 @@ A relationship without a source threshold uses zero eligible-basis offset.
 Source facts own the threshold, increments, base output, and cap. Formula
 mechanics owns their calculation relationship, and the product contract owns
 which current basis and linked output the result exposes.
+
+The current bounded Ben relationship reads Initial DEF twice without turning
+DEF or shields into a new formula family:
+
+```text
+Ben Combat ATK addition = 0.8 * Ben Initial DEF
+Ben Core shield per EX follow-up =
+  (0.3 * Ben Initial DEF + 550) * (1 + sum of applicable Shield Effect)
+```
+
+Shield Effect percentages add in one modifier region before they scale the
+source-stated shield basis. Initial DEF changes both retained outputs; Shield
+Effect changes only the shield output. This relationship does not define
+incoming damage, shield uptime, replacement, duration optimization, or a
+generic survival formula.
 
 When initial ATK is a scaling basis, ATK% and flat ATK remain separate inputs.
 An ATK% contribution reads the current base ATK, which includes
