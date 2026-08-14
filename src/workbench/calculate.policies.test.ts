@@ -1362,6 +1362,134 @@ describe('authored calculation policies', () => {
         }))
     })
 
+    it('projects Nekomata Potential, qualification, Mindscapes, and exact engine clauses', () => {
+      const qualifiedState = createPreparedState({}, ['nekomata', 'qingyi', 'lucia'], 0)
+      const unqualifiedState = createPreparedState({}, ['nekomata', 'qingyi', 'lycaon'], 0)
+      const m0 = agent(calculateParty(qualifiedState)!, 'nekomata')
+      const absent = agent(calculateParty(unqualifiedState)!, 'nekomata')
+
+      expect(metric(m0, 'dmgBonus').breakdown.fully).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'nekomata', locus: 'core', amount: 60,
+      }))
+      expect(metric(m0, 'critDmg').breakdown.fully).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'nekomata', locus: 'identity', amount: 60,
+      }))
+      expect(action(m0, 'nekomataAdditionalActions').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'nekomata', locus: 'additional', amount: 70,
+        }))
+      expect(absent.actionModifiers.find(({ id }) => id === 'nekomataAdditionalActions'))
+        .toBeUndefined()
+
+      const m1 = agent(calculateParty(withMindscape(qualifiedState, 'nekomata', 1))!, 'nekomata')
+      const m2 = agent(calculateParty(withMindscape(qualifiedState, 'nekomata', 2))!, 'nekomata')
+      const m4 = agent(calculateParty(withMindscape(qualifiedState, 'nekomata', 4))!, 'nekomata')
+      const m6 = agent(calculateParty(withMindscape(qualifiedState, 'nekomata', 6))!, 'nekomata')
+      expect(metric(m1, 'resIgnore').values.fully).toBe(16)
+      expect(metric(m2, 'energyRegen').values).toEqual({
+        initial: 1.2, combat: 1.2, fully: 1.5,
+      })
+      expect(metric(m4, 'critRate').values.fully - metric(m2, 'critRate').values.fully).toBe(14)
+      expect(metric(m6, 'critDmg').values.fully - metric(m4, 'critDmg').values.fully).toBe(54)
+
+      const cordis = agent(calculateParty(selectEngine(
+        qualifiedState, 'nekomata', 'cordisGermina',
+      ))!, 'nekomata')
+      expect(metric(cordis, 'defIgnore').values.fully).toBe(0)
+      expect(action(cordis, 'nekomataBasicUltimateDefIgnore').values.fully).toBe(20)
+
+      const cloud = agent(calculateParty(selectEngine(
+        qualifiedState, 'nekomata', 'cloudcleaveRadiance',
+      ))!, 'nekomata')
+      expect(metric(cloud, 'resIgnore').values.fully).toBe(20)
+      expect(metric(cloud, 'critDmg').breakdown.initial).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'nekomata', locus: 'w-engine', amount: 48,
+      }))
+      expect(metric(cloud, 'dmgBonus').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'nekomata', locus: 'w-engine' }))
+    })
+
+    it('projects Billy Crouching, qualification, Mindscapes, and engine activation separately', () => {
+      const qualified = withMindscape(
+        createPreparedState({}, ['billy', 'nekomata', 'qingyi'], 0),
+        'billy',
+        0,
+      )
+      const unqualified = withMindscape(
+        createPreparedState({}, ['billy', 'qingyi', 'lycaon'], 0),
+        'billy',
+        0,
+      )
+      const m0 = agent(calculateParty(qualified)!, 'billy')
+      const absent = agent(calculateParty(unqualified)!, 'billy')
+      const crouching = action(m0, 'billyCrouchingActions')
+      expect(crouching.breakdown.fully).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'billy', locus: 'core', amount: 50,
+      }))
+      expect(crouching.outcomes).not.toContainEqual(canonicalAction('Chain Attack'))
+      expect(crouching.outcomes).not.toContainEqual(canonicalAction('Assist'))
+      expect(action(m0, 'billyUltimate').values.fully - crouching.values.fully).toBe(100)
+      expect(absent.actionModifiers.find(({ id }) => id === 'billyUltimate')).toBeUndefined()
+
+      const m2 = agent(calculateParty(withMindscape(qualified, 'billy', 2))!, 'billy')
+      const m4 = agent(calculateParty(withMindscape(qualified, 'billy', 4))!, 'billy')
+      const m6 = agent(calculateParty(withMindscape(qualified, 'billy', 6))!, 'billy')
+      expect(action(m2, 'billyDodgeCounter').values.fully
+        - action(m2, 'billyCrouchingActions').values.fully).toBe(25)
+      expect(action(m4, 'billyExSpecialCritRate').values.fully
+        - metric(m4, 'critRate').values.fully).toBeCloseTo(32)
+      expect(metric(m6, 'dmgBonus').values.fully - metric(m4, 'dmgBonus').values.fully).toBe(30)
+
+      expect(metric(m0, 'resIgnore').values.fully).toBe(20)
+      expect(metric(m0, 'dmgBonus').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'billy', locus: 'w-engine' }))
+      const replica = agent(calculateParty(selectEngine(
+        qualified, 'billy', 'starlightEngineReplica',
+      ))!, 'billy')
+      expect(action(replica, 'billyBasic').values.fully
+        - action(replica, 'billyCrouchingActions').values.fully).toBe(57.5)
+      expect(action(replica, 'billyDash').values.fully
+        - action(replica, 'billyCrouchingActions').values.fully).toBe(57.5)
+      expect(replica.metrics.find(({ id }) => id === 'resIgnore')).toBeUndefined()
+
+      const cordis = agent(calculateParty(selectEngine(
+        qualified, 'billy', 'cordisGermina',
+      ))!, 'billy')
+      expect(metric(cordis, 'defIgnore').values.fully).toBe(0)
+      expect(action(cordis, 'billyBasicUltimateDefIgnore').values.fully).toBe(20)
+    })
+
+    it('keeps Billy selected Disc projection independent from candidate ordering', () => {
+      const base = withMindscape(
+        createPreparedState({}, ['billy', 'nekomata', 'qingyi'], 0),
+        'billy',
+        0,
+      )
+      const shadow = agent(calculateParty(selectDisc(
+        base, 'billy', 'fourPiece', 'shadowHarmony',
+      ))!, 'billy')
+      expect(action(shadow, 'billyDash').values.initial
+        - action(shadow, 'billyCrouchingActions').values.initial).toBe(15)
+      expect(metric(shadow, 'atk').breakdown.fully).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'billy', locus: 'disc-4pc',
+      }))
+      expect(metric(shadow, 'critRate').breakdown.fully).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'billy', locus: 'disc-4pc',
+      }))
+
+      const pufferState = selectDisc(
+        selectDisc(base, 'billy', 'twoPiece', 'woodpecker'),
+        'billy', 'fourPiece', 'pufferElectro',
+      )
+      const puffer = agent(calculateParty(pufferState)!, 'billy')
+      expect(action(puffer, 'billyUltimate').breakdown.initial)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'billy', locus: 'disc-4pc', amount: 20,
+        }))
+      expect(metric(puffer, 'atk').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'billy', locus: 'disc-4pc' }))
+    })
+
     it('applies duplicate Ice-Jade squad DMG once while retaining equal origins', () => {
       let state = createPreparedState({}, ['harumasa', 'qingyi', 'lighter'], 0)
       state = selectEngine(state, 'lighter', 'iceJadeTeapot')

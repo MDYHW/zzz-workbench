@@ -8,7 +8,9 @@ import {
 import type { AppliedSlot, WorkbenchState } from './state'
 import {
   anotherAgentHasSpecialty,
+  billyAdditionalIsActive,
   harumasaAdditionalIsActive,
+  nekomataAdditionalIsActive,
   qingyiAdditionalIsActive,
   soldier11AdditionalIsActive,
   triggerAdditionalIsActive,
@@ -153,6 +155,16 @@ import {
   resolveQingyiProviderClauses,
   type QingyiCalculationContext,
 } from './calculation/agents/qingyi'
+import {
+  observeNekomata,
+  resolveNekomataProviderClauses,
+  type NekomataCalculationContext,
+} from './calculation/agents/nekomata'
+import {
+  observeBilly,
+  resolveBillyProviderClauses,
+  type BillyCalculationContext,
+} from './calculation/agents/billy'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -184,6 +196,8 @@ export type ProviderContext =
   | PulchraCalculationContext
   | HarumasaCalculationContext
   | QingyiCalculationContext
+  | NekomataCalculationContext
+  | BillyCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -337,6 +351,16 @@ function observeProviderContext(
         slot.setup,
         qingyiAdditionalIsActive(partyAgentIds, providerIndex),
       )
+    case 'nekomata':
+      return observeNekomata(
+        slot.setup,
+        nekomataAdditionalIsActive(partyAgentIds, providerIndex),
+      )
+    case 'billy':
+      return observeBilly(
+        slot.setup,
+        billyAdditionalIsActive(partyAgentIds, providerIndex),
+      )
     default:
       return assertNever(slot.agentId)
   }
@@ -414,6 +438,10 @@ function providerClauses(
       return resolveHarumasaProviderClauses(context)
     case 'qingyi':
       return resolveQingyiProviderClauses(context)
+    case 'nekomata':
+      return resolveNekomataProviderClauses(context)
+    case 'billy':
+      return resolveBillyProviderClauses(context)
     default:
       return assertNever(context)
   }

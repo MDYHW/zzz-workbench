@@ -297,9 +297,15 @@ export const VERTICAL_VALUES = {
   },
   nekomata: {
     atk: 910, critRate: 19.4, critDmg: 50, baseEnergyRegen: 1.2,
+    coreDmg: 60, potentialCritDmg: 60, additionalActionDmg: 70,
+    mindscapePhysicalResIgnore: 16, mindscapeEnergyRegen: 0.3,
+    mindscapeCritRate: 14, mindscapeCritDmg: 54,
   },
   billy: {
     atk: 787, critRate: 19.4, critDmg: 50, baseEnergyRegen: 1.2,
+    coreActionDmg: 50, additionalUltimateDmg: 100,
+    mindscapeDodgeDmg: 25, mindscapeExCritRate: 32,
+    mindscapeDmg: 30,
   },
 } as const
 

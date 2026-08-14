@@ -39,6 +39,8 @@ import { calculateOrphie } from './calculation/agents/orphie'
 import { calculatePulchra } from './calculation/agents/pulchra'
 import { calculateHarumasa } from './calculation/agents/harumasa'
 import { calculateQingyi } from './calculation/agents/qingyi'
+import { calculateNekomata } from './calculation/agents/nekomata'
+import { calculateBilly } from './calculation/agents/billy'
 import { composeMetricEffects, surfaces } from './calculation/composition'
 import type { ActionModifier, AgentResult, Contribution, PartyResult } from './calculation/result'
 import { resolveProviderEffects } from './provider-effects'
@@ -305,6 +307,12 @@ export function calculateParty(state: WorkbenchState): PartyResult | null {
           break
         case 'qingyi':
           result = calculateQingyi(context, inbox, enemy)
+          break
+        case 'nekomata':
+          result = calculateNekomata(context, inbox, enemy)
+          break
+        case 'billy':
+          result = calculateBilly(context, inbox, enemy)
           break
         default:
           return assertNever(context)

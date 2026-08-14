@@ -29,6 +29,8 @@ describe('workbench state lifecycle', () => {
     }
 
     expect(resolveSeedVanguardForState(state)).toBe('nekomata')
+    expect(metric(agent(calculateParty(state)!, 'nekomata'), 'atk').breakdown.combat)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'seed', locus: 'core' }))
     expect(state.slots[0].setup).toMatchObject({
       fourPieceId: 'woodpecker', twoPieceId: 'pufferElectro',
       mains: { slot5: 'penRatio' },
@@ -51,6 +53,7 @@ describe('workbench state lifecycle', () => {
       twoPieceId: null, mains: { slot5: null },
     })
     expect(isCompleteWorkbench(state)).toBe(false)
+    expect(calculateParty(state)).toBeNull()
 
     state = workbenchReducer(state, { type: 'setMindscape', slot: 2, mindscape: 0 })
     expect(effectiveTwoPieceIds(state, 0)).toContain('pufferElectro')
@@ -80,6 +83,7 @@ describe('workbench state lifecycle', () => {
     expect(state.slots[1].setup.fourPieceId).toBe('king')
     expect(state.slots[2].setup.fourPieceId).toBe('shockstar')
     expect(isCompleteWorkbench(state)).toBe(true)
+    expect(calculateParty(state)).not.toBeNull()
 
     let sheer = createPreparedState({}, ['yixuan', 'qingyi', 'dialyn'], 0)
     const sheerSlot5 = effectiveMainStatIds(sheer, 0, 'slot5')
