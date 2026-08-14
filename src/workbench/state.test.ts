@@ -75,7 +75,9 @@ describe('workbench state lifecycle', () => {
     expect(isCompleteWorkbench(state)).toBe(true)
 
     replaceSecond('lucy')
+    expect(effectiveFourPieceIds(state, 0)).not.toContain('pufferElectro')
     replaceSecond('dialyn')
+    expect(effectiveFourPieceIds(state, 0)).toContain('pufferElectro')
     expect(state.slots[0].setup).toMatchObject({
       fourPieceId: 'woodpecker', twoPieceId: 'branchAndBlade',
       mains: { slot5: 'atkPct' },

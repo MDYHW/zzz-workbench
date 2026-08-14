@@ -583,6 +583,45 @@ describe('party-directed preparation', () => {
     expect(prepared.slots[1].setup.substats).toEqual({ critRate: 0, critDmg: 0, atkPct: 0 })
   })
 
+  it('keeps Nekomata and Billy candidate packages exact and Puffer contextual', () => {
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.nekomata).toEqual({
+      full: [
+        'steelCushion', 'heartstringNocturne', 'cordisGermina',
+        'cloudcleaveRadiance', 'severedInnocence', 'brimstone',
+      ],
+      nonLimited: ['steelCushion', 'brimstone'],
+    })
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.billy).toEqual({
+      full: [
+        'cloudcleaveRadiance', 'heartstringNocturne', 'cordisGermina',
+        'brimstone', 'steelCushion', 'starlightEngineReplica',
+      ],
+      nonLimited: ['brimstone', 'steelCushion', 'starlightEngineReplica'],
+    })
+    expect(DISC_IDS_BY_AGENT_AND_PIECE.nekomata).toEqual({
+      fourPiece: ['woodpecker'],
+      twoPiece: [
+        'woodpecker', 'branchAndBlade', 'fangedMetal',
+        'pufferElectro', 'hormonePunk', 'astralVoice',
+      ],
+    })
+    expect(DISC_IDS_BY_AGENT_AND_PIECE.billy).toEqual({
+      fourPiece: ['woodpecker', 'shadowHarmony'],
+      twoPiece: [
+        'woodpecker', 'branchAndBlade', 'fangedMetal',
+        'pufferElectro', 'hormonePunk', 'astralVoice',
+      ],
+    })
+
+    const withoutDialyn = createPreparedState({}, ['nekomata', 'billy', 'qingyi'], 0)
+    expect(effectiveFourPieceIds(withoutDialyn, 0)).toEqual(['woodpecker'])
+    expect(effectiveFourPieceIds(withoutDialyn, 1)).toEqual(['woodpecker', 'shadowHarmony'])
+    const withDialyn = createPreparedState({}, ['nekomata', 'billy', 'dialyn'], 0)
+    expect(effectiveFourPieceIds(withDialyn, 0)).toEqual(['woodpecker', 'pufferElectro'])
+    expect(effectiveFourPieceIds(withDialyn, 1))
+      .toEqual(['woodpecker', 'shadowHarmony', 'pufferElectro'])
+  })
+
   it('balances Anby M2+ only when her Additional Ability is party-qualified', () => {
     const qualifiedHolders = [
       { agentId: 'trigger', fourPieceId: 'king' },

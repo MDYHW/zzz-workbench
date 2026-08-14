@@ -452,7 +452,7 @@ describe('bounded equipment effect facts', () => {
       advancedStat: { id: 'atkPct', value: 25 },
     })
     expect(W_ENGINE_FACTS.starlightEngineReplica.effects.physicalDamage.scope)
-      .toEqual({ attributes: ['Physical'], actions: ['Basic Attack', 'Dash Attack'] })
+      .toEqual({ attributes: ['Physical'] })
     expect(W_ENGINES.starlightEngineReplica.passiveLines(5))
       .toEqual(['Physical DMG +57.5%'])
   })

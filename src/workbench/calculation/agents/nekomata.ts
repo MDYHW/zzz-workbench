@@ -172,7 +172,7 @@ export function resolveNekomataProviderClauses(
     ),
     withApplicability(
       additive(
-        'resIgnore', 'fully', engine,
+        'resIgnore', 'combat', engine,
         setup.engineId === 'cloudcleaveRadiance'
           ? equipmentEffectBaseValue(
             W_ENGINE_FACTS.cloudcleaveRadiance.effects.physicalResIgnore,

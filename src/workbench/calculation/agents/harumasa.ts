@@ -370,7 +370,14 @@ export function calculateHarumasa(
   const defIgnore = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'defIgnore')
   const resIgnore = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'resIgnore')
   const actionModifiers = [
-    ...composeActionHierarchy(critRate.values, effects, 'critRate', HARUMASA_CRIT_RATE_SCOPES),
+    ...composeActionHierarchy(
+      critRate.values,
+      effects,
+      'critRate',
+      HARUMASA_CRIT_RATE_SCOPES,
+      '',
+      { value: 100, source: source('Displayed CRIT Rate cap', 'harumasa', 'calculation') },
+    ),
     ...composeActionHierarchy(critDmg.values, effects, 'critDmg', HARUMASA_CRIT_DMG_SCOPES),
     ...composeActionHierarchy(dmg.values, effects, 'dmgBonus', HARUMASA_DAMAGE_SCOPES),
     ...composeActionHierarchy(defIgnore.values, effects, 'defIgnore', HARUMASA_DEF_SCOPES, 'DefIgnore'),

@@ -1310,6 +1310,30 @@ describe('authored calculation policies', () => {
         }))
     })
 
+    it('keeps action-scoped CRIT Rate capped for both current hierarchy consumers', () => {
+      let harumasaState = createPreparedState({}, ['harumasa', 'nekomata', 'billy'], 0)
+      harumasaState = selectEngine(harumasaState, 'harumasa', 'cordisGermina')
+      harumasaState = selectDisc(harumasaState, 'harumasa', 'fourPiece', 'thunderMetal')
+      harumasaState = selectDisc(harumasaState, 'harumasa', 'twoPiece', 'woodpecker')
+      harumasaState = selectMain(harumasaState, 'harumasa', 'slot4', 'critRate')
+      const harumasa = agent(calculateParty(harumasaState)!, 'harumasa')
+      expect(metric(harumasa, 'critRate').values.fully).toBe(90.4)
+      expect(action(harumasa, 'harumasaCoreCritRate').values.fully).toBe(100)
+
+      const billyState = selectEngine(
+        withMindscape(
+          createPreparedState({}, ['billy', 'nekomata', 'qingyi'], 0),
+          'billy',
+          4,
+        ),
+        'billy',
+        'cordisGermina',
+      )
+      const billy = agent(calculateParty(billyState)!, 'billy')
+      expect(metric(billy, 'critRate').values.fully).toBe(90.4)
+      expect(action(billy, 'billyExSpecialCritRate').values.fully).toBe(100)
+    })
+
     it('projects Qingyi alternate W-Engines through their complete usable clauses', () => {
       const base = createPreparedState({}, ['harumasa', 'qingyi', 'lucia'], 0)
       const restrained = agent(calculateParty(
@@ -1371,6 +1395,18 @@ describe('authored calculation policies', () => {
       expect(metric(m0, 'dmgBonus').breakdown.fully).toContainEqual(expect.objectContaining({
         ownerAgentId: 'nekomata', locus: 'core', amount: 60,
       }))
+      expect(metric(m0, 'dmgBonus').breakdown.combat).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'nekomata', locus: 'w-engine', amount: 20,
+      }))
+      expect(metric(m0, 'dmgBonus').breakdown.fully).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'nekomata', locus: 'w-engine', amount: 25,
+      }))
+      expect(metric(m0, 'atk').breakdown.fully).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'nekomata', locus: 'disc-4pc',
+      }))
+      expect(metric(m0, 'penRatio').breakdown.initial).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'nekomata', locus: 'disc-2pc', amount: 8,
+      }))
       expect(metric(m0, 'critDmg').breakdown.fully).toContainEqual(expect.objectContaining({
         ownerAgentId: 'nekomata', locus: 'identity', amount: 60,
       }))
@@ -1378,6 +1414,11 @@ describe('authored calculation policies', () => {
         .toContainEqual(expect.objectContaining({
           ownerAgentId: 'nekomata', locus: 'additional', amount: 70,
         }))
+      expect(action(m0, 'nekomataAdditionalActions').outcomes).toHaveLength(2)
+      expect(action(m0, 'nekomataAdditionalActions').outcomes)
+        .toContainEqual(canonicalAction('Dodge Counter'))
+      expect(action(m0, 'nekomataAdditionalActions').outcomes)
+        .toContainEqual(canonicalAction('EX Special Attack'))
       expect(absent.actionModifiers.find(({ id }) => id === 'nekomataAdditionalActions'))
         .toBeUndefined()
 
@@ -1401,10 +1442,14 @@ describe('authored calculation policies', () => {
       const cloud = agent(calculateParty(selectEngine(
         qualifiedState, 'nekomata', 'cloudcleaveRadiance',
       ))!, 'nekomata')
-      expect(metric(cloud, 'resIgnore').values.fully).toBe(20)
+      expect(metric(cloud, 'resIgnore').values).toEqual({
+        initial: 0, combat: 20, fully: 20,
+      })
       expect(metric(cloud, 'critDmg').breakdown.initial).toContainEqual(expect.objectContaining({
         ownerAgentId: 'nekomata', locus: 'w-engine', amount: 48,
       }))
+      expect(metric(cloud, 'critDmg').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({ locus: 'w-engine' }))
       expect(metric(cloud, 'dmgBonus').breakdown.fully)
         .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'nekomata', locus: 'w-engine' }))
     })
@@ -1428,6 +1473,14 @@ describe('authored calculation policies', () => {
       }))
       expect(crouching.outcomes).not.toContainEqual(canonicalAction('Chain Attack'))
       expect(crouching.outcomes).not.toContainEqual(canonicalAction('Assist'))
+      expect(crouching.outcomes).not.toContainEqual(canonicalAction('Assist Follow-Up'))
+      expect(crouching.outcomes).toHaveLength(6)
+      for (const outcome of [
+        'Basic Attack', 'Dash Attack', 'Dodge Counter',
+        'Special Attack', 'EX Special Attack', 'Ultimate',
+      ] as const) {
+        expect(crouching.outcomes).toContainEqual(canonicalAction(outcome))
+      }
       expect(action(m0, 'billyUltimate').values.fully - crouching.values.fully).toBe(100)
       expect(absent.actionModifiers.find(({ id }) => id === 'billyUltimate')).toBeUndefined()
 
@@ -1440,16 +1493,26 @@ describe('authored calculation policies', () => {
         - metric(m4, 'critRate').values.fully).toBeCloseTo(32)
       expect(metric(m6, 'dmgBonus').values.fully - metric(m4, 'dmgBonus').values.fully).toBe(30)
 
-      expect(metric(m0, 'resIgnore').values.fully).toBe(20)
+      expect(metric(m0, 'resIgnore').values).toEqual({
+        initial: 0, combat: 20, fully: 20,
+      })
       expect(metric(m0, 'dmgBonus').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'billy', locus: 'w-engine' }))
+      expect(metric(m0, 'critDmg').breakdown.initial).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'billy', locus: 'w-engine', amount: 48,
+      }))
+      expect(metric(m0, 'critDmg').breakdown.fully)
         .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'billy', locus: 'w-engine' }))
       const replica = agent(calculateParty(selectEngine(
         qualified, 'billy', 'starlightEngineReplica',
       ))!, 'billy')
-      expect(action(replica, 'billyBasic').values.fully
-        - action(replica, 'billyCrouchingActions').values.fully).toBe(57.5)
-      expect(action(replica, 'billyDash').values.fully
-        - action(replica, 'billyCrouchingActions').values.fully).toBe(57.5)
+      expect(metric(replica, 'dmgBonus').values.fully - metric(m0, 'dmgBonus').values.fully)
+        .toBe(57.5)
+      expect(action(replica, 'billyCrouchingActions').values.fully
+        - metric(replica, 'dmgBonus').values.fully).toBe(50)
+      expect(action(replica, 'billyUltimate').values.fully
+        - action(replica, 'billyCrouchingActions').values.fully).toBe(100)
+      expect(replica.actionModifiers.find(({ id }) => id === 'billyBasic')).toBeUndefined()
       expect(replica.metrics.find(({ id }) => id === 'resIgnore')).toBeUndefined()
 
       const cordis = agent(calculateParty(selectEngine(
@@ -1457,6 +1520,71 @@ describe('authored calculation policies', () => {
       ))!, 'billy')
       expect(metric(cordis, 'defIgnore').values.fully).toBe(0)
       expect(action(cordis, 'billyBasicUltimateDefIgnore').values.fully).toBe(20)
+
+    })
+
+    it('projects Nekomata and Billy alternate whole packages through usable clauses only', () => {
+      const nekomataBase = createPreparedState({}, ['nekomata', 'qingyi', 'lucia'], 0)
+      const nekomataHeartstring = agent(calculateParty(selectEngine(
+        nekomataBase, 'nekomata', 'heartstringNocturne',
+      ))!, 'nekomata')
+      expect(metric(nekomataHeartstring, 'critDmg').breakdown.combat)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'nekomata', locus: 'w-engine', amount: 50,
+        }))
+      expect(nekomataHeartstring.metrics.find(({ id }) => id === 'resIgnore')).toBeUndefined()
+
+      const nekomataSevered = agent(calculateParty(selectEngine(
+        nekomataBase, 'nekomata', 'severedInnocence',
+      ))!, 'nekomata')
+      expect(metric(nekomataSevered, 'critDmg').breakdown.combat)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'nekomata', locus: 'w-engine', amount: 30,
+        }))
+      expect(metric(nekomataSevered, 'critDmg').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'nekomata', locus: 'w-engine', amount: 30,
+        }))
+
+      const nekomataBrimstone = agent(calculateParty(selectEngine(
+        nekomataBase, 'nekomata', 'brimstone',
+      ))!, 'nekomata')
+      expect(metric(nekomataBrimstone, 'atk').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'nekomata', locus: 'w-engine' }))
+
+      const billyBase = withMindscape(
+        createPreparedState({}, ['billy', 'nekomata', 'qingyi'], 0),
+        'billy',
+        0,
+      )
+      const billyHeartstring = agent(calculateParty(selectEngine(
+        billyBase, 'billy', 'heartstringNocturne',
+      ))!, 'billy')
+      expect(metric(billyHeartstring, 'critDmg').breakdown.combat)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'billy', locus: 'w-engine', amount: 50,
+        }))
+      expect(billyHeartstring.metrics.find(({ id }) => id === 'resIgnore')).toBeUndefined()
+
+      const billySteel = agent(calculateParty(selectEngine(
+        billyBase, 'billy', 'steelCushion',
+      ))!, 'billy')
+      expect(metric(billySteel, 'dmgBonus').breakdown.combat)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'billy', locus: 'w-engine', amount: 20,
+        }))
+      expect(metric(billySteel, 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'billy', locus: 'w-engine', amount: 25,
+        }))
+
+      const billyBrimstone = agent(calculateParty(selectEngine(
+        billyBase, 'billy', 'brimstone',
+      ))!, 'billy')
+      expect(metric(billyBrimstone, 'atk').breakdown.fully)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'billy', locus: 'w-engine' }))
+      expect(metric(billyBrimstone, 'critDmg').breakdown.initial)
+        .toContainEqual(expect.objectContaining({ ownerAgentId: 'billy', locus: 'disc-2pc' }))
     })
 
     it('keeps Billy selected Disc projection independent from candidate ordering', () => {
@@ -1477,8 +1605,13 @@ describe('authored calculation policies', () => {
         ownerAgentId: 'billy', locus: 'disc-4pc',
       }))
 
+      const pufferBase = withMindscape(
+        createPreparedState({}, ['billy', 'nekomata', 'dialyn'], 0),
+        'billy',
+        0,
+      )
       const pufferState = selectDisc(
-        selectDisc(base, 'billy', 'twoPiece', 'woodpecker'),
+        selectDisc(pufferBase, 'billy', 'twoPiece', 'woodpecker'),
         'billy', 'fourPiece', 'pufferElectro',
       )
       const puffer = agent(calculateParty(pufferState)!, 'billy')

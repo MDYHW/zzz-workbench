@@ -421,7 +421,7 @@ export const W_ENGINE_FACTS = {
   starlightEngineReplica: {
     advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
     effects: {
-      physicalDamage: { modifier: 'dmgBonus', unit: '%', value: [36, 41, 46.5, 52, 57.5], scope: { attributes: ['Physical'], actions: ['Basic Attack', 'Dash Attack'] } },
+      physicalDamage: { modifier: 'dmgBonus', unit: '%', value: [36, 41, 46.5, 52, 57.5], scope: { attributes: ['Physical'] } },
     },
   },
 } as const satisfies Record<EngineId, WEngineFacts>

@@ -220,6 +220,7 @@ export function composeActionEffects(
   effects: ResolvedCurrentEffect[],
   metric: EffectMetric,
   action: ActionTarget,
+  cap?: { value: number; source: ResultSource },
 ): Pick<ActionModifier, 'values' | 'breakdown'> {
   const scopedEffects = effectsForMetric(effects, metric, action)
   return composeMetricEffects(
@@ -227,6 +228,7 @@ export function composeActionEffects(
     surfaces([], [], []),
     scopedEffects.map(({ action: _action, ...effect }) => effect),
     metric,
+    cap,
   )
 }
 
@@ -249,6 +251,7 @@ export function composeActionHierarchy(
   metric: EffectMetric,
   roots: readonly ActionScopeNode[],
   idSuffix = '',
+  cap?: { value: number; source: ResultSource },
 ): ActionModifier[] {
   const rows: ActionModifier[] = []
 
@@ -257,7 +260,7 @@ export function composeActionHierarchy(
     parentValues: Record<SurfaceKey, number>,
     nearestVisibleParentId?: string,
   ) => {
-    const composed = composeActionEffects(parentValues, effects, metric, node.target)
+    const composed = composeActionEffects(parentValues, effects, metric, node.target, cap)
     const id = `${node.id}${idSuffix}`
     const changed = surfaceValuesDiffer(composed.values, parentValues)
     if (changed) rows.push({

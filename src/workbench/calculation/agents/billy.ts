@@ -162,7 +162,7 @@ export function resolveBillyProviderClauses(
     ),
     withApplicability(
       additive(
-        'resIgnore', 'fully', engine,
+        'resIgnore', 'combat', engine,
         setup.engineId === 'cloudcleaveRadiance'
           ? equipmentEffectBaseValue(
             W_ENGINE_FACTS.cloudcleaveRadiance.effects.physicalResIgnore,
@@ -180,7 +180,7 @@ export function resolveBillyProviderClauses(
         : 0,
       'self',
     ),
-    ...[BASIC, DASH].map((target) => additive(
+    additive(
       'dmgBonus', 'fully', engine,
       setup.engineId === 'starlightEngineReplica'
         ? equipmentEffectBaseValue(
@@ -188,8 +188,8 @@ export function resolveBillyProviderClauses(
           refinement,
         )
         : 0,
-      'self', target,
-    )),
+      'self',
+    ),
 
     percentage(
       'atk', 'fully', discSource('billy', 'woodpecker', '4-piece'),
@@ -335,7 +335,14 @@ export function calculateBilly(
   const defIgnore = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'defIgnore')
   const actionModifiers = [
     ...composeActionHierarchy(dmg.values, effects, 'dmgBonus', DAMAGE_SCOPES),
-    ...composeActionHierarchy(critRate.values, effects, 'critRate', CRIT_SCOPES, 'CritRate'),
+    ...composeActionHierarchy(
+      critRate.values,
+      effects,
+      'critRate',
+      CRIT_SCOPES,
+      'CritRate',
+      { value: 100, source: source('Displayed CRIT Rate cap', 'billy', 'calculation') },
+    ),
     ...composeActionHierarchy(defIgnore.values, effects, 'defIgnore', DEF_SCOPES, 'DefIgnore'),
   ]
 
