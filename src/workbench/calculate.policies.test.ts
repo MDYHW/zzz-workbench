@@ -6,7 +6,7 @@ import {
   resolveSeedVanguardForState,
 } from './provider-effects'
 import { createPreparedState, workbenchReducer } from './state'
-import { canonicalAction } from './actions'
+import { actionForm, canonicalAction } from './actions'
 import { VERTICAL_VALUES } from './content'
 import {
   action,
@@ -1812,5 +1812,131 @@ describe('authored calculation policies', () => {
       expect(blazingContrast.breakdown.fully).not.toContainEqual(expect.objectContaining({
         label: 'Blazing Laurel', ownerAgentId: 'trigger',
       }))
+    })
+
+    it('projects Caesar through shield, Focus, enemy-context, action, and equipment consumers', () => {
+      const base = createPreparedState({}, ['corin', 'caesar', 'astraYao'], 0)
+      const baseResult = calculateParty(base)!
+      const caesar = agent(baseResult, 'caesar')
+      const corin = agent(baseResult, 'corin')
+      const astra = agent(baseResult, 'astraYao')
+
+      expect(metric(caesar, 'impact').values).toMatchObject({
+        initial: expect.closeTo(174.66),
+        combat: expect.closeTo(174.66),
+        fully: expect.closeTo(209.592),
+      })
+      expect(metric(caesar, 'shieldEffect').values).toEqual({
+        initial: 15, combat: 45, fully: 45,
+      })
+      expect(caesar.operations).toContainEqual(expect.objectContaining({
+        id: 'caesarRadiantAegis', value: expect.closeTo(5575.598),
+      }))
+      expect(metric(corin, 'atk').breakdown.fully).toContainEqual(expect.objectContaining({
+        label: 'Core Passive', ownerAgentId: 'caesar', amount: 1000,
+      }))
+      expect(metric(corin, 'dmgTaken').values).toEqual({
+        initial: 0, combat: 0, fully: 25,
+      })
+      expect(metric(corin, 'dmgBonus').breakdown.fully).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Tusks of Fury', ownerAgentId: 'caesar', amount: 18,
+        }),
+        expect.objectContaining({
+          label: 'Proto Punk', ownerAgentId: 'caesar', amount: 15,
+        }),
+      ]))
+      expect(astra.metrics.find(({ id }) => id === 'dmgTaken')).toBeUndefined()
+      expect(action(caesar, 'caesarShieldedUltimate').values.fully).toBe(112)
+
+      const sheerParty = calculateParty(createPreparedState(
+        {}, ['yixuan', 'caesar', 'lycaon'], 0,
+      ))!
+      expect(metric(agent(sheerParty, 'yixuan'), 'dmgTaken').values.fully).toBe(25)
+      expect(agent(sheerParty, 'lycaon').metrics.find(({ id }) => id === 'dmgTaken'))
+        .toBeUndefined()
+
+      const m1 = calculateParty(withMindscape(base, 'caesar', 1))!
+      expect(metric(agent(m1, 'corin'), 'resReduction').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Mindscape', detail: 'M1 · While Radiant Aegis is active',
+          ownerAgentId: 'caesar', amount: 15,
+        }))
+
+      const m2 = calculateParty(withMindscape(base, 'caesar', 2))!
+      const m2AtkSources = metric(agent(m2, 'corin'), 'atk').breakdown.fully
+        .filter(({ ownerAgentId }) => ownerAgentId === 'caesar')
+      expect(m2AtkSources).toContainEqual(expect.objectContaining({ amount: 1500 }))
+      expect(m2AtkSources).not.toContainEqual(expect.objectContaining({ amount: 1000 }))
+
+      const m3 = agent(calculateParty(withMindscape(base, 'caesar', 3))!, 'caesar')
+      expect(metric(m3, 'impact').values.fully).toBeCloseTo(213.0852)
+      expect(action(m3, 'caesarShieldedUltimate').values.fully).toBe(122)
+      const m5 = agent(calculateParty(withMindscape(base, 'caesar', 5))!, 'caesar')
+      expect(metric(m5, 'impact').values.fully).toBeCloseTo(216.5784)
+      expect(action(m5, 'caesarShieldedUltimate').values.fully).toBe(132)
+
+      const m6 = agent(calculateParty(withMindscape(base, 'caesar', 6))!, 'caesar')
+      expect(action(m6, 'caesarM6ActionsCritRate').values.fully).toBe(100)
+      expect(action(m6, 'caesarM6Actions').outcomes).toContainEqual(
+        actionForm('EX Special Attack', 'Overpowered Shield Bash'),
+      )
+      expect(action(m6, 'caesarM6Actions').values.fully
+        - metric(m6, 'dmgBonus').values.fully).toBe(50)
+      expect(m6.operations).toContainEqual(expect.objectContaining({
+        id: 'caesarPrimaryTargetFollowup', value: 50,
+        unit: '% original action DMG',
+      }))
+
+      const inactive = calculateParty(createPreparedState(
+        {}, ['zhuYuan', 'caesar', 'billy'], 0,
+      ))!
+      expect(agent(inactive, 'zhuYuan').metrics.find(({ id }) => id === 'dmgTaken'))
+        .toBeUndefined()
+      expect(agent(inactive, 'caesar').metrics.find(({ id }) => id === 'dmgTaken'))
+        .toBeUndefined()
+      const defensiveAssist = calculateParty(createPreparedState(
+        {}, ['zhuYuan', 'caesar', 'anby'], 0,
+      ))!
+      expect(metric(agent(defensiveAssist, 'zhuYuan'), 'dmgTaken').values.fully).toBe(25)
+      const sameFaction = calculateParty(createPreparedState(
+        {}, ['corin', 'caesar', 'pulchra'], 0,
+      ))!
+      expect(metric(agent(sameFaction, 'corin'), 'dmgTaken').values.fully).toBe(25)
+
+      const originalW1 = agent(calculateParty(setRefinement(
+        selectEngine(base, 'caesar', 'originalTransmorpher'),
+        'caesar',
+        1,
+      ))!, 'caesar')
+      expect(metric(originalW1, 'impact').values).toMatchObject({
+        initial: expect.closeTo(152.52),
+        combat: expect.closeTo(152.52),
+        fully: expect.closeTo(198.276),
+      })
+      expect(originalW1.metrics.find(({ id }) => id === 'maxHp')).toBeUndefined()
+      const originalW5 = agent(calculateParty(setRefinement(
+        selectEngine(base, 'caesar', 'originalTransmorpher'),
+        'caesar',
+        5,
+      ))!, 'caesar')
+      expect(metric(originalW5, 'impact').values.fully).toBeCloseTo(207.4272)
+
+      const hellfire = agent(calculateParty(selectEngine(
+        base, 'caesar', 'hellfireGears',
+      ))!, 'caesar')
+      expect(hellfire.metrics.find(({ id }) => id === 'energyRegen')).toBeUndefined()
+      expect(metric(hellfire, 'impact').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({
+          label: 'Hellfire Gears', detail: 'W1', amount: expect.closeTo(17.466),
+        }))
+      const demara = agent(calculateParty(selectEngine(
+        base, 'caesar', 'demaraBatteryMarkII',
+      ))!, 'caesar')
+      expect(demara.metrics.find(({ id }) => id === 'energyRegen')).toBeUndefined()
+      expect(metric(demara, 'dmgBonus').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({
+          label: 'Demara Battery Mark II', ownerAgentId: 'caesar',
+        }))
     })
 })

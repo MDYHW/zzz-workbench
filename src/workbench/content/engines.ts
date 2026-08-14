@@ -49,6 +49,7 @@ import hailstormShrineImage from '../../assets/equipment/w-engines/hailstorm-shr
 import bigCylinderImage from '../../assets/equipment/w-engines/big-cylinder.webp'
 import springEmbraceImage from '../../assets/equipment/w-engines/spring-embrace.webp'
 import demaraBatteryMarkIIImage from '../../assets/equipment/w-engines/demara-battery-mark-ii.webp'
+import originalTransmorpherImage from '../../assets/equipment/w-engines/original-transmorpher.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -466,6 +467,13 @@ export const W_ENGINE_FACTS = {
       },
     },
   },
+  originalTransmorpher: {
+    advancedStat: { id: 'hpPct', label: 'HP', value: 25, unit: '%' },
+    effects: {
+      maxHp: { modifier: 'maxHp', unit: '%', value: [8, 9, 10, 11, 12.5] },
+      impact: { modifier: 'impact', unit: '%', value: [10, 11.5, 13, 14.5, 16] },
+    },
+  },
 } as const satisfies Record<EngineId, WEngineFacts>
 
 /** Exact authored fields for one admitted W-Engine, derived from the fact source. */
@@ -476,6 +484,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   tusksOfFury: {
     id: 'tusksOfFury', name: 'Tusks of Fury', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.tusksOfFury.advancedStat, image: tusksOfFuryImage,
+    passiveSpecialty: 'Defense',
     passiveLines: (refinement) => [
       `Shield provided +${percent(W_ENGINE_FACTS.tusksOfFury.effects.shield, refinement)}`,
       `Squad DMG +${percent(W_ENGINE_FACTS.tusksOfFury.effects.damage, refinement)}`,
@@ -583,6 +592,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   hellfireGears: {
     id: 'hellfireGears', name: 'Hellfire Gears', rank: 'S', limited: false, baseAtk: 684,
     advancedStat: W_ENGINE_FACTS.hellfireGears.advancedStat, image: hellfireImage,
+    passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [
       `Energy +${perSecond(W_ENGINE_FACTS.hellfireGears.effects.energy, refinement)}`,
       `Impact +${percent(W_ENGINE_FACTS.hellfireGears.effects.impact, refinement)}`,
@@ -809,9 +819,19 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   demaraBatteryMarkII: {
     id: 'demaraBatteryMarkII', name: 'Demara Battery Mark II', rank: 'A', limited: false, baseAtk: 624,
     advancedStat: W_ENGINE_FACTS.demaraBatteryMarkII.advancedStat, image: demaraBatteryMarkIIImage,
+    passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [
       `Electric DMG +${percent(W_ENGINE_FACTS.demaraBatteryMarkII.effects.electricDamage, refinement)}`,
       `After Dodge Counter or Assist Attack · Energy Generation Rate +${percent(W_ENGINE_FACTS.demaraBatteryMarkII.effects.energyGeneration, refinement)}`,
+    ],
+  },
+  originalTransmorpher: {
+    id: 'originalTransmorpher', name: 'Original Transmorpher', rank: 'A', limited: false, baseAtk: 594,
+    advancedStat: W_ENGINE_FACTS.originalTransmorpher.advancedStat, image: originalTransmorpherImage,
+    passiveSpecialty: 'Defense',
+    passiveLines: (refinement) => [
+      `Max HP +${percent(W_ENGINE_FACTS.originalTransmorpher.effects.maxHp, refinement)}`,
+      `After attacked · Impact +${percent(W_ENGINE_FACTS.originalTransmorpher.effects.impact, refinement)}`,
     ],
   },
 }
@@ -856,4 +876,5 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   ben: enginePools(['tremorTrigramVessel', 'tusksOfFury', 'cloudcleaveRadiance', 'hailstormShrine', 'bigCylinder', 'springEmbrace']),
   koleda: enginePools(['hellfireGears', 'blazingLaurel', 'iceJadeTeapot', 'restrained', 'steamOven', 'preciousFossilizedCore']),
   anby: enginePools(['hellfireGears', 'iceJadeTeapot', 'blazingLaurel', 'restrained', 'steamOven', 'preciousFossilizedCore', 'demaraBatteryMarkII']),
+  caesar: enginePools(['tusksOfFury', 'hellfireGears', 'demaraBatteryMarkII', 'originalTransmorpher']),
 }

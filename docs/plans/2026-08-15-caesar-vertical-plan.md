@@ -100,9 +100,8 @@ recipient clause, and direct edits never rerun allocation.
   shield formula and Shield Effect, Focus ATK replacement, Additional
   qualification contrasts, DMG Taken separation, M1/M2/M3/M5/M6 outcomes, and
   exact selected equipment projection.
-- Shared flow tests cover invalid contextual selection clearing without
-  fallback, incomplete Result, Party Apply, target-only pool/Mindscape rebuild,
-  and direct-edit locality.
+- Shared flow tests cover Party Apply rebuilding contextual membership and all
+  three setups, target-only pool/Mindscape rebuild, and direct-edit locality.
 - UI tests cover accessible selected/candidate packages, inactive Specialty
   clauses, Caesar setup selectors, incomplete Result, and absence of generic
   survival, Assist, Energy, or anomaly surfaces.

@@ -37,6 +37,7 @@ export type AgentId =
   | 'ben'
   | 'koleda'
   | 'anby'
+  | 'caesar'
 
 export type AgentRank = 'S' | 'A'
 export type AgentFaction =
@@ -108,6 +109,7 @@ export type EngineId =
   | 'bigCylinder'
   | 'springEmbrace'
   | 'demaraBatteryMarkII'
+  | 'originalTransmorpher'
 
 export type DiscId =
   | 'yunkui'

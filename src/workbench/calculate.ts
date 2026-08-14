@@ -44,6 +44,7 @@ import { calculateBilly } from './calculation/agents/billy'
 import { calculateBen } from './calculation/agents/ben'
 import { calculateKoleda } from './calculation/agents/koleda'
 import { calculateAnbyDemara } from './calculation/agents/anby'
+import { calculateCaesar } from './calculation/agents/caesar'
 import { composeMetricEffects, surfaces } from './calculation/composition'
 import type { ActionModifier, AgentResult, Contribution, PartyResult } from './calculation/result'
 import { resolveProviderEffects } from './provider-effects'
@@ -164,29 +165,34 @@ function withSharedCanonicalDamageActions(
 
 /**
  * Broad enemy-context modifiers are filtered by formula and Agent eligibility
- * before calculation. Project the resulting shared value for any current
- * general-damage consumer whose local module has no independent DEF row.
+ * before calculation. Project the resulting shared value for any eligible
+ * current damage consumer whose local module has no independent row.
  */
 function withSharedEnemyContextMetrics(
   result: AgentResult,
   enemy: SourceBoundCurrentClause[],
 ): AgentResult {
-  if (result.metrics.some(({ id }) => id === 'defReduction')) return result
-  const defReduction = composeMetricEffects(
-    surfaces(0, 0, 0),
-    surfaces([], [], []),
-    resolveDeliveredClauses(enemy, {}),
-    'defReduction',
-  )
-  return defReduction.values.fully
-    ? {
-        ...result,
-        metrics: [
-          ...result.metrics,
-          { id: 'defReduction', label: 'DEF Reduction', unit: '%', decimals: 1, ...defReduction },
-        ],
-      }
-    : result
+  const resolved = resolveDeliveredClauses(enemy, {})
+  const shared = [
+    { id: 'defReduction' as const, label: 'DEF Reduction' },
+    { id: 'dmgTaken' as const, label: 'DMG Taken' },
+  ]
+  const metrics = [...result.metrics]
+  for (const metric of shared) {
+    if (metrics.some(({ id }) => id === metric.id)) continue
+    const composed = composeMetricEffects(
+      surfaces(0, 0, 0),
+      surfaces([], [], []),
+      resolved,
+      metric.id,
+    )
+    if (composed.values.fully) {
+      metrics.push({
+        id: metric.id, label: metric.label, unit: '%', decimals: 1, ...composed,
+      })
+    }
+  }
+  return metrics.length === result.metrics.length ? result : { ...result, metrics }
 }
 
 export function calculateParty(state: WorkbenchState): PartyResult | null {
@@ -325,6 +331,9 @@ export function calculateParty(state: WorkbenchState): PartyResult | null {
           break
         case 'anby':
           result = calculateAnbyDemara(context, inbox, enemy)
+          break
+        case 'caesar':
+          result = calculateCaesar(context, inbox, enemy)
           break
         default:
           return assertNever(context)

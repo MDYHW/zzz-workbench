@@ -246,6 +246,12 @@ const anbyRepresentative: SetupSelection = {
   mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'impact' },
 }
 
+const caesarRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'tusksOfFury' : 'hellfireGears',
+  fourPieceId: 'protoPunk', twoPieceId: 'shockstar',
+  mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
+})
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -342,6 +348,7 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   ben: { full: benRepresentative, nonLimited: benRepresentative },
   koleda: { full: koledaRepresentative, nonLimited: koledaRepresentative },
   anby: { full: anbyRepresentative, nonLimited: anbyRepresentative },
+  caesar: { full: caesarRepresentative('full'), nonLimited: caesarRepresentative('nonLimited') },
 }
 
 export function representativeSetupFor(

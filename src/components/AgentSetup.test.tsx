@@ -194,6 +194,16 @@ describe('AgentSetup partial W-Engine package', () => {
       candidateRefinement: 5,
       description: 'Impact +15%. Electric DMG +24%. After Dodge Counter or Assist Attack · Energy Generation Rate +27.5%',
     },
+    {
+      agentId: 'caesar',
+      party: ['corin', 'caesar', 'astraYao'] as [AgentId, AgentId, AgentId],
+      slot: 1 as AppliedSlot,
+      selectedName: 'Tusks of Fury',
+      candidateId: 'originalTransmorpher',
+      candidateName: 'Original Transmorpher',
+      candidateRefinement: 5,
+      description: 'HP +25%. Max HP +12.5%. After attacked · Impact +16%',
+    },
   ] as const)(
     'keeps the complete $candidateName package accessible as candidate and selection',
     async ({
@@ -230,6 +240,41 @@ describe('AgentSetup partial W-Engine package', () => {
       })).toHaveAccessibleDescription(description)
     },
   )
+
+  it('marks Stun W-Engine passives inactive on Caesar while retaining their chassis', async () => {
+    const user = userEvent.setup()
+    const state = createPreparedState(
+      { caesar: 'nonLimited' },
+      ['corin', 'caesar', 'astraYao'],
+      0,
+    )
+    render(
+      <AgentSetup
+        activeSourceTone={null}
+        agentId="caesar"
+        discCandidates={DISC_IDS_BY_AGENT_AND_PIECE.caesar}
+        dispatch={vi.fn()}
+        mainStatCandidates={MAIN_STAT_IDS_BY_AGENT_AND_SLOT.caesar}
+        onSourceToneChange={vi.fn()}
+        setup={state.slots[1].setup}
+        slot={1}
+      />,
+    )
+
+    expect(screen.getByRole('button', {
+      name: 'Change W-Engine from Hellfire Gears',
+    })).toHaveAccessibleDescription(
+      'Impact +18%. Stun Specialty passive inactive. Inactive · Energy +0.6/s. Inactive · Impact +20%',
+    )
+    await user.click(screen.getByRole('button', {
+      name: 'Change W-Engine from Hellfire Gears',
+    }))
+    expect(within(screen.getByLabelText('W-Engine candidates')).getByRole('button', {
+      name: 'Select Demara Battery Mark II W5',
+    })).toHaveAccessibleDescription(
+      'Impact +15%. Stun Specialty passive inactive. Inactive · Electric DMG +24%. Inactive · After Dodge Counter or Assist Attack · Energy Generation Rate +27.5%',
+    )
+  })
 
   it('preserves Deep Sea Visitor’s complete selected and candidate descriptions', async () => {
     const user = userEvent.setup()

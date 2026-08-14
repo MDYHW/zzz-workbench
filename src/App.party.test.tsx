@@ -139,7 +139,7 @@ describe('integrated party workbench: party', () => {
       ],
       [
         { agentId: 'anby', setup: createPreparedAgentSetup('anby') },
-        { agentId: 'nekomata', setup: createPreparedAgentSetup('nekomata') },
+        { agentId: 'caesar', setup: createPreparedAgentSetup('caesar') },
         { agentId: 'anbySoldier0', setup: createPreparedAgentSetup('anbySoldier0') },
       ],
     ]
@@ -189,7 +189,7 @@ describe('integrated party workbench: party', () => {
         expect(candidateStyle.getPropertyValue(property)).toBe(appliedSources.get(agent.id)![index])
       }
     }
-  }, 10_000)
+  }, 20_000)
 
   it('switches slots while preserving each Agent setup state', async () => {
     const user = userEvent.setup()

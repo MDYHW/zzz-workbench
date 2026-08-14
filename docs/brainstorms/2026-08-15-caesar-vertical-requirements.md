@@ -21,7 +21,7 @@ direction, raw damage, raw Daze, or runtime optimizer.
 
 ## Product Flows
 
-1. Applying Caesar prepares a complete M6 setup with zero supplied substats.
+1. Applying Caesar prepares a complete M0 setup with zero supplied substats.
    The full pool starts on Tusks of Fury; the non-limited pool starts on the
    higher-Initial-Impact Hellfire Gears chassis even though its Stun passive is
    inactive for Caesar.
@@ -34,9 +34,10 @@ direction, raw damage, raw Daze, or runtime optimizer.
    Additional Ability exposes a separate enemy DMG Taken metric on current
    general- and sheer-damage consumers.
 4. Astral Voice becomes a contextual 4-piece candidate only when the applied
-   party supplies the established repeated Quick Assist opportunity. Removing
-   that opportunity clears an invalid selected Astral without fallback;
-   restoring it restores membership but not the prior selection.
+   party supplies the established repeated Quick Assist opportunity. Party
+   Apply that removes the opportunity rebuilds all three setups and prepares
+   Caesar back on Proto Punk; restoring the opportunity restores membership
+   but not the prior selection.
 5. Party Apply rebuilds all three setups. Pool or Mindscape changes rebuild
    only Caesar. Direct edits stay local and never rerun contextual preparation
    or holder allocation.
@@ -78,13 +79,13 @@ direction, raw damage, raw Daze, or runtime optimizer.
 
 ### Identity, direction, and retained facts
 
-- R1. Admit Caesar King as S-Rank Physical Defense, Sons of Calydon, M6 by
+- R1. Admit Caesar King as S-Rank Physical Defense, Sons of Calydon, M0 by
   default, and not Focus-eligible. Her primary formula participation is
   `daze_buildup`; `general_damage` is residual only for variable main-stat and
   retained M6/action equipment projection. Her shield and squad benefits do
   not make her a damage Focus.
-- R2. Retain completed ATK 711, CRIT Rate 5%, CRIT DMG 50%, Impact 123, and
-  base Energy Regen 1.2/s. ATK supplies the residual variable-main and M6
+- R2. Retain completed ATK 711, CRIT Rate 5%, CRIT DMG 50%, and Impact 123.
+  ATK supplies the residual variable-main and M6
   action consumer; Impact supplies both Daze and the Initial-Impact shield
   basis. HP and DEF remain absent because neither changes a current candidate,
   prepared choice, threshold, formula, operation, or Result.
@@ -145,8 +146,9 @@ direction, raw damage, raw Daze, or runtime optimizer.
   accessibility is the material distinction from Hellfire's stronger same-axis
   S-Rank chassis; absent that accessibility consumer, Hellfire would dominate
   it. Add Original Transmorpher
-  as A-Rank non-limited, Base ATK 594, advanced HP +25%, holder Max HP +8% to
-  +12.5%, and after being attacked Fully Enabled Impact +10% to +16% from W1-W5.
+  as A-Rank non-limited, Base ATK 594, advanced HP +25%, holder Max HP
+  +8% / 9% / 10% / 11% / 12.5%, and after being attacked Fully Enabled Impact
+  +10% / 11.5% / 13% / 14.5% / 16% from W1-W5.
   Original's HP is unused and its active Impact misses the shield basis, but
   the stronger W5 Fully Enabled Daze route remains a distinct competitive tradeoff
   against Demara's dual-axis Initial Impact.
@@ -199,9 +201,11 @@ direction, raw damage, raw Daze, or runtime optimizer.
   King/Astral/Shockstar allocation remains unchanged in a Focus + Caesar +
   one-Stun party.
 - R18. Selecting contextual Astral and then removing its party opportunity
-  clears the invalid 4-piece without fallback and makes Result incomplete.
-  Reapplying the opportunity restores candidate membership but not the prior
-  selection. Bunny, Proto, and all 2-piece choices are the unaffected contrast.
+  through Party Apply rebuilds all three setups and prepares Caesar back on
+  Proto Punk. Reapplying the opportunity restores candidate membership but not
+  the prior selection. This follows Party Apply initialization rather than the
+  direct selected-pressure invalidation lifecycle. Bunny, Proto, and all
+  2-piece choices are the unaffected contrast.
 - R19. Result exposes Impact, Daze Bonus, selected residual ATK/CRIT/DMG inputs,
   Shield Effect when supplied, the Caesar-owned shield operation, exact Core/
   Mindscape action rows, delivered Focus ATK, and applicable shared/enemy
@@ -220,8 +224,8 @@ direction, raw damage, raw Daze, or runtime optimizer.
   versus contextual Disc membership, zero-substat representatives, and one
   unaffected party.
 - AE2. Composed lifecycle tests cover contextual Astral present, absent, and
-  reselected; invalid-selection clearing without fallback; incomplete Result;
-  Party Apply; targeted pool/Mindscape rebuild; and preservation of the
+  reselected; Party Apply rebuilding all three setups; targeted pool/Mindscape
+  rebuilding only Caesar; direct-edit locality; and preservation of the
   existing Stun King allocation in a Focus/Caesar/Stun flow.
 - AE3. Calculation tests prove Initial/Combat versus Fully Enabled Impact,
   shield basis and

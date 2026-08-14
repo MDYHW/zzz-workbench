@@ -1254,6 +1254,61 @@ describe('workbench state lifecycle', () => {
     expect(effectiveMainStatIds(pressured, 1, 'slot5')).not.toContain('penRatio')
   })
 
+  it('rebuilds Caesar contextual Astral through Party Apply and keeps targeted rebuilds local', () => {
+    let state = createPreparedState({}, ['corin', 'caesar', 'astraYao'], 0)
+    expect(effectiveFourPieceIds(state, 1)).toContain('astralVoice')
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    expect(state.slots[1].setup.fourPieceId).toBe('astralVoice')
+
+    const corinBeforePool = state.slots[0]
+    const astraBeforePool = state.slots[2]
+    state = workbenchReducer(state, { type: 'switchPool', slot: 1, pool: 'nonLimited' })
+    expect(state.slots[0]).toBe(corinBeforePool)
+    expect(state.slots[2]).toBe(astraBeforePool)
+    expect(state.slots[1].setup).toMatchObject({
+      pool: 'nonLimited', engineId: 'hellfireGears', fourPieceId: 'protoPunk',
+      substats: {},
+    })
+
+    const caesarBeforeMindscape = state.slots[1]
+    const corinBeforeMindscape = state.slots[0]
+    const astraBeforeMindscape = state.slots[2]
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 2 })
+    expect(state.slots[0]).toBe(corinBeforeMindscape)
+    expect(state.slots[2]).toBe(astraBeforeMindscape)
+    expect(state.slots[1]).not.toBe(caesarBeforeMindscape)
+    expect(state.slots[1].setup).toMatchObject({
+      mindscape: 2, pool: 'nonLimited', engineId: 'hellfireGears',
+      fourPieceId: 'protoPunk', substats: {},
+    })
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    state = workbenchReducer(state, {
+      type: 'replaceDraftAgent', slot: 2, agentId: 'lucia',
+    })
+    state = workbenchReducer(state, { type: 'applyPartyEdit' })
+    expect(effectiveFourPieceIds(state, 1)).not.toContain('astralVoice')
+    expect(state.slots[1].setup.fourPieceId).toBe('protoPunk')
+    expect(calculateParty(state)).not.toBeNull()
+
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    state = workbenchReducer(state, {
+      type: 'replaceDraftAgent', slot: 2, agentId: 'panYinhu',
+    })
+    state = workbenchReducer(state, { type: 'applyPartyEdit' })
+    expect(effectiveFourPieceIds(state, 1)).toContain('astralVoice')
+    expect(state.slots[1].setup.fourPieceId).toBe('protoPunk')
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    expect(state.slots[1].setup.fourPieceId).toBe('astralVoice')
+  })
+
   it('clears Puffer and Slot 5 PEN atomically while pressure remains stable under incompleteness', () => {
     let state = createPreparedState({}, ['evelyn', 'seed', 'astraYao'], 0)
     state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 1 })

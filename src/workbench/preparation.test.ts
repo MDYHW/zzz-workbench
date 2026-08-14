@@ -534,6 +534,34 @@ describe('party-directed preparation', () => {
     })
   })
 
+  it('authors Caesar by pool without disturbing the established Focus/Stun allocation', () => {
+    expect(prepareTargetSelection(context('caesar'), 'corin', [])).toEqual({
+      engineId: 'tusksOfFury', fourPieceId: 'protoPunk', twoPieceId: 'shockstar',
+      mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
+    })
+    expect(prepareTargetSelection(context('caesar', 'nonLimited'), 'corin', []))
+      .toEqual({
+        engineId: 'hellfireGears', fourPieceId: 'protoPunk', twoPieceId: 'shockstar',
+        mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
+      })
+
+    expect(preparePartySelections([
+      context('corin'), context('caesar'), context('anby'),
+    ], 'corin')).toMatchObject([
+      {},
+      { fourPieceId: 'protoPunk', twoPieceId: 'shockstar' },
+      { fourPieceId: 'king', twoPieceId: 'shockstar' },
+    ])
+
+    const contextual = createPreparedState({}, ['corin', 'caesar', 'astraYao'], 0)
+    expect(effectiveFourPieceIds(contextual, 1)).toEqual([
+      'protoPunk', 'bunnyInWonderland', 'astralVoice',
+    ])
+    expect(contextual.slots[1].setup).toMatchObject({
+      fourPieceId: 'protoPunk', substats: {},
+    })
+  })
+
   it('authors Banyue from distinct full and non-limited whole packages', () => {
     expect(prepareTargetSelection(context('banyue'), 'banyue', [])).toEqual({
       engineId: 'wrathfulVajra', fourPieceId: 'yunkui', twoPieceId: 'branchAndBlade',

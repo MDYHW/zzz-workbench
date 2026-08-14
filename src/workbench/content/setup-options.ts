@@ -46,6 +46,7 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   ben: { primary: ['general_damage'], residual: ['daze_buildup'] },
   koleda: { primary: ['daze_buildup'], residual: ['general_damage'] },
   anby: { primary: ['daze_buildup'], residual: ['general_damage'] },
+  caesar: { primary: ['daze_buildup'], residual: ['general_damage'] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -215,6 +216,11 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['atkPct'], slot5: ['electricDmg', 'atkPct'],
     slot6: ['impact', 'energyRegenPct'],
   },
+  caesar: {
+    slot4: ['critRate', 'critDmg', 'atkPct'],
+    slot5: ['physicalDmg', 'atkPct', 'penRatio'],
+    slot6: ['impact'],
+  },
 }
 
 /** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
@@ -367,6 +373,7 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   ],
   koleda: [],
   anby: [],
+  caesar: [],
 }
 
 /**

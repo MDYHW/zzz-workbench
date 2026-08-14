@@ -59,6 +59,7 @@ export type EffectMetric =
   | 'dmgBonus' | 'sheerDmgBonus' | 'resIgnore' | 'dazeBonus'
   | 'stunDmgMultiplier' | 'energyRegen' | 'stunDuration'
   | 'penRatio' | 'defIgnore' | 'resReduction' | 'defReduction' | 'shieldEffect'
+  | 'dmgTaken'
 
 export type Recipient = 'self' | 'focus' | 'all-party' | 'other-party' | 'enemy-context'
 export type CandidatePressure = 'materialBroadPrePenDefBypass'
@@ -318,6 +319,11 @@ export const STATIC_SOURCES = {
   anby: {
     core: source(SOURCE_LABELS.anbyCore, 'anby', 'core', 'After Basic Attack hit 3'),
     critCap: source('Displayed CRIT Rate cap', 'anby', 'calculation'),
+  },
+  caesar: {
+    core: source(SOURCE_LABELS.caesarCore, 'caesar', 'core'),
+    additional: source(SOURCE_LABELS.caesarAbility, 'caesar', 'additional'),
+    critCap: source('Displayed CRIT Rate cap', 'caesar', 'calculation'),
   },
 } as const
 

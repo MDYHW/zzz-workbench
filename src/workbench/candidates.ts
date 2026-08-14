@@ -90,7 +90,7 @@ export function effectiveFourPieceIds(
   const agentId = state.slots[slot].agentId
   const base = DISC_IDS_BY_AGENT_AND_PIECE[agentId].fourPiece
   const contextual = [
-    ...((agentId === 'cissia' || agentId === 'evelyn')
+    ...((agentId === 'cissia' || agentId === 'evelyn' || agentId === 'caesar')
       && hasRepeatedQuickAssistOpportunity(state.slots.map(({ agentId: id }) => id))
       ? ['astralVoice' as const]
       : []),

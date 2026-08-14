@@ -329,6 +329,18 @@ export const VERTICAL_VALUES = {
     mindscapeBasicDashDmg: 45,
     kingCritThreshold: 50,
   },
+  caesar: {
+    atk: 711, critRate: 5, critDmg: 50, impact: 123,
+    additionalDmgTaken: 25,
+    coreShieldImpactRatio: 1400, coreShieldBase: 1400,
+    coreFocusAtk: 1000, mindscapeFocusAtk: 1500,
+    coreImpactByTier: [20, 22, 24],
+    ultimateDazeByTier: [100, 110, 120],
+    mindscapeResReduction: 15,
+    mindscapeCritRate: 30, mindscapeCritDmg: 60,
+    mindscapeActionCritRate: 100, mindscapeActionDmg: 50,
+    mindscapePrimaryTargetFollowup: 50,
+  },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [
@@ -418,5 +430,7 @@ export const SOURCE_LABELS = {
   koledaCore: SOURCE_CATEGORY_LABELS.corePassive,
   koledaAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   anbyCore: SOURCE_CATEGORY_LABELS.corePassive,
+  caesarCore: SOURCE_CATEGORY_LABELS.corePassive,
+  caesarAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const

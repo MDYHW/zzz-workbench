@@ -1,9 +1,19 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
+  ADMITTED_AGENTS,
+  DISC_IDS_BY_AGENT_AND_PIECE,
   DRIVE_DISC_FACTS,
   DRIVE_DISCS,
+  ENGINE_IDS_BY_AGENT_AND_POOL,
+  MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
+  REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL,
+  SETUP_FORMULA_PARTICIPATION_BY_AGENT,
+  SOURCE_LABELS,
+  SUBSTAT_CHOICES_BY_AGENT,
+  VERTICAL_VALUES,
   W_ENGINE_FACTS,
   W_ENGINES,
+  defaultMindscapeFor,
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
   equipmentEffectProgressionValue,
@@ -46,6 +56,8 @@ describe('bounded equipment effect facts', () => {
       .toEqualTypeOf<'targetDamage' | 'holderEnergy'>()
     expectTypeOf<WEngineEffectField<'demaraBatteryMarkII'>>()
       .toEqualTypeOf<'electricDamage' | 'energyGeneration'>()
+    expectTypeOf<WEngineEffectField<'originalTransmorpher'>>()
+      .toEqualTypeOf<'maxHp' | 'impact'>()
 
     expectTypeOf<DriveDiscPiece<'dawnsBloom'>>()
       .toEqualTypeOf<'twoPiece' | 'fourPiece'>()
@@ -492,5 +504,70 @@ describe('bounded equipment effect facts', () => {
     for (const line of W_ENGINES.demaraBatteryMarkII.passiveLines(5)) {
       expect(line).not.toMatch(/Base ATK|stack|duration|seconds?/i)
     }
+  })
+
+  it('authors Caesar as a complete content path without activating off-Specialty packages', () => {
+    expect(ADMITTED_AGENTS.find(({ id }) => id === 'caesar')).toEqual({
+      id: 'caesar', name: 'Caesar King', attribute: 'Physical', specialty: 'Defense',
+      focusEligible: false, rank: 'S', faction: 'Sons of Calydon',
+    })
+    expect(defaultMindscapeFor('caesar')).toBe(0)
+    expect(VERTICAL_VALUES.caesar).toMatchObject({
+      atk: 711, critRate: 5, critDmg: 50, impact: 123,
+      additionalDmgTaken: 25,
+      coreShieldImpactRatio: 1400, coreShieldBase: 1400,
+      coreFocusAtk: 1000, mindscapeFocusAtk: 1500,
+      coreImpactByTier: [20, 22, 24], ultimateDazeByTier: [100, 110, 120],
+    })
+    expect(SOURCE_LABELS).toMatchObject({
+      caesarCore: 'Core Passive', caesarAbility: 'Additional Ability',
+    })
+    expect(SETUP_FORMULA_PARTICIPATION_BY_AGENT.caesar).toEqual({
+      primary: ['daze_buildup'], residual: ['general_damage'],
+    })
+
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.caesar).toEqual({
+      full: ['tusksOfFury', 'hellfireGears', 'demaraBatteryMarkII', 'originalTransmorpher'],
+      nonLimited: ['hellfireGears', 'demaraBatteryMarkII', 'originalTransmorpher'],
+    })
+    expect(W_ENGINES.tusksOfFury.passiveSpecialty).toBe('Defense')
+    expect(W_ENGINES.hellfireGears.passiveSpecialty).toBe('Stun')
+    expect(W_ENGINES.demaraBatteryMarkII.passiveSpecialty).toBe('Stun')
+    expect(W_ENGINES.originalTransmorpher).toMatchObject({
+      rank: 'A', limited: false, baseAtk: 594,
+      advancedStat: { id: 'hpPct', label: 'HP', value: 25, unit: '%' },
+      passiveSpecialty: 'Defense',
+    })
+    expect(W_ENGINES.originalTransmorpher.passiveLines(5)).toEqual([
+      'Max HP +12.5%',
+      'After attacked · Impact +16%',
+    ])
+    expect(([1, 2, 3, 4, 5] as const).map((refinement) =>
+      equipmentEffectBaseValue(W_ENGINE_FACTS.originalTransmorpher.effects.maxHp, refinement),
+    )).toEqual([8, 9, 10, 11, 12.5])
+    expect(([1, 2, 3, 4, 5] as const).map((refinement) =>
+      equipmentEffectBaseValue(W_ENGINE_FACTS.originalTransmorpher.effects.impact, refinement),
+    )).toEqual([10, 11.5, 13, 14.5, 16])
+
+    expect(DISC_IDS_BY_AGENT_AND_PIECE.caesar).toEqual({
+      fourPiece: ['protoPunk', 'bunnyInWonderland'],
+      twoPiece: ['shockstar', 'protoPunk', 'king'],
+    })
+    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.caesar).toEqual({
+      slot4: ['critRate', 'critDmg', 'atkPct'],
+      slot5: ['physicalDmg', 'atkPct', 'penRatio'],
+      slot6: ['impact'],
+    })
+    expect(SUBSTAT_CHOICES_BY_AGENT.caesar).toEqual([])
+    expect(REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL.caesar).toEqual({
+      full: {
+        engineId: 'tusksOfFury', fourPieceId: 'protoPunk', twoPieceId: 'shockstar',
+        mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
+      },
+      nonLimited: {
+        engineId: 'hellfireGears', fourPieceId: 'protoPunk', twoPieceId: 'shockstar',
+        mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
+      },
+    })
   })
 })

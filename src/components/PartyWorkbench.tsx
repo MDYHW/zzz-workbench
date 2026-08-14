@@ -53,6 +53,7 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   ben: { attribute: fireMark, specialty: defenseMark },
   koleda: { attribute: fireMark, specialty: stunMark },
   anby: { attribute: electricMark, specialty: stunMark },
+  caesar: { attribute: physicalMark, specialty: defenseMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {

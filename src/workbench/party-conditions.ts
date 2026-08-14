@@ -132,6 +132,26 @@ export function billyAdditionalIsActive(
   })
 }
 
+const CAESAR_EVASIVE_ASSIST_AGENTS: readonly AgentId[] = [
+  'astraYao', 'billy', 'pulchra', 'zhuYuan',
+]
+
+/** Caesar's current Additional Ability: another Defensive Assist or matching faction. */
+export function caesarAdditionalIsActive(
+  agentIds: readonly AgentId[],
+  caesarIndex: number,
+): boolean {
+  if (agentIds[caesarIndex] !== 'caesar') return false
+  const caesar = summaryFor('caesar')
+  return agentIds.some((agentId, index) => (
+    index !== caesarIndex
+      && (
+        summaryFor(agentId).faction === caesar.faction
+          || !CAESAR_EVASIVE_ASSIST_AGENTS.includes(agentId)
+      )
+  ))
+}
+
 /** Local Qingyi buffer-role opportunity; this does not broaden focused-damage helpers. */
 export function qingyiAstralOpportunity(
   agentIds: readonly AgentId[],

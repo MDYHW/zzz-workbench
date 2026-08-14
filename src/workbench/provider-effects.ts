@@ -9,6 +9,7 @@ import type { AppliedSlot, WorkbenchState } from './state'
 import {
   anotherAgentHasSpecialty,
   billyAdditionalIsActive,
+  caesarAdditionalIsActive,
   harumasaAdditionalIsActive,
   nekomataAdditionalIsActive,
   qingyiAdditionalIsActive,
@@ -180,6 +181,11 @@ import {
   resolveAnbyDemaraProviderClauses,
   type AnbyDemaraCalculationContext,
 } from './calculation/agents/anby'
+import {
+  observeCaesar,
+  resolveCaesarProviderClauses,
+  type CaesarCalculationContext,
+} from './calculation/agents/caesar'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -216,6 +222,7 @@ export type ProviderContext =
   | BenCalculationContext
   | KoledaCalculationContext
   | AnbyDemaraCalculationContext
+  | CaesarCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -388,6 +395,11 @@ function observeProviderContext(
       )
     case 'anby':
       return observeAnbyDemara(slot.setup)
+    case 'caesar':
+      return observeCaesar(
+        slot.setup,
+        caesarAdditionalIsActive(partyAgentIds, providerIndex),
+      )
     default:
       return assertNever(slot.agentId)
   }
@@ -475,6 +487,8 @@ function providerClauses(
       return resolveKoledaProviderClauses(context)
     case 'anby':
       return resolveAnbyDemaraProviderClauses(context)
+    case 'caesar':
+      return resolveCaesarProviderClauses(context)
     default:
       return assertNever(context)
   }
