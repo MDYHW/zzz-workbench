@@ -30,6 +30,8 @@ export type AgentId =
   | 'nicole'
   | 'orphie'
   | 'pulchra'
+  | 'harumasa'
+  | 'qingyi'
 
 export type AgentRank = 'S' | 'A'
 export type AgentFaction =
@@ -93,6 +95,7 @@ export type EngineId =
   | 'theVault'
   | 'gildedBlossom'
   | 'boxCutter'
+  | 'zanshinHerbCase'
 
 export type DiscId =
   | 'yunkui'

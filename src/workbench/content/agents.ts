@@ -194,6 +194,14 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     id: 'pulchra', name: 'Pulchra', attribute: 'Physical', specialty: 'Stun',
     focusEligible: false, rank: 'A', faction: 'Sons of Calydon',
   },
+  {
+    id: 'harumasa', name: 'Asaba Harumasa', attribute: 'Electric', specialty: 'Attack',
+    focusEligible: true, rank: 'S', faction: 'Section 6',
+  },
+  {
+    id: 'qingyi', name: 'Qingyi', attribute: 'Electric', specialty: 'Stun',
+    focusEligible: false, rank: 'S', faction: 'Criminal Investigation Special Response Team',
+  },
 ]
 
 export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>

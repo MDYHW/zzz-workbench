@@ -371,4 +371,12 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     fourPiece: ['king', 'astralVoice', 'protoPunk', 'shockstar', 'swingJazz'],
     twoPiece: ['shockstar', 'king', 'swingJazz'],
   },
+  harumasa: {
+    fourPiece: ['shadowHarmony', 'thunderMetal', 'woodpecker', 'hormonePunk'],
+    twoPiece: ['shadowHarmony', 'thunderMetal', 'woodpecker', 'branchAndBlade', 'hormonePunk', 'astralVoice', 'pufferElectro'],
+  },
+  qingyi: {
+    fourPiece: ['king', 'protoPunk', 'shockstar', 'swingJazz'],
+    twoPiece: ['shockstar', 'king', 'swingJazz'],
+  },
 }

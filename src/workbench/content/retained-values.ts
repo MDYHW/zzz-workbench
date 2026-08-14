@@ -276,6 +276,8 @@ export const VERTICAL_VALUES = {
     coreDaze: 30, additionalDmg: 30,
     mindscapeCritRate: 10, mindscapeAtk: 10, kingCritThreshold: 50,
   },
+  harumasa: { atk: 915, critRate: 19.4, critDmg: 50, baseEnergyRegen: 1.2 },
+  qingyi: { atk: 758, critRate: 5, critDmg: 50, impact: 136, baseEnergyRegen: 1.2 },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [

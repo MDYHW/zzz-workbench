@@ -42,6 +42,7 @@ import riotSuppressorMarkVIImage from '../../assets/equipment/w-engines/riot-sup
 import theVaultImage from '../../assets/equipment/w-engines/the-vault.webp'
 import gildedBlossomImage from '../../assets/equipment/w-engines/gilded-blossom.webp'
 import boxCutterImage from '../../assets/equipment/w-engines/box-cutter.webp'
+import zanshinHerbCaseImage from '../../assets/equipment/w-engines/zanshin-herb-case.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -399,6 +400,14 @@ export const W_ENGINE_FACTS = {
       daze: { modifier: 'dazeBonus', unit: '%', value: [10, 11.5, 13, 14.5, 16] },
     },
   },
+  zanshinHerbCase: {
+    advancedStat: { id: 'critDmg', label: 'CRIT DMG', value: 48, unit: '%' },
+    effects: {
+      critRate: { modifier: 'critRate', unit: '%', value: [10, 11.5, 13, 14.5, 16] },
+      dashDamage: { modifier: 'dmgBonus', unit: '%', value: [40, 46, 52, 58, 64], scope: { actions: ['Dash Attack'], attributes: ['Electric'] } },
+      anomalyStunCritRate: { modifier: 'critRate', unit: '%', value: [10, 11.5, 13, 14.5, 16] },
+    },
+  },
 } as const satisfies Record<EngineId, WEngineFacts>
 
 /** Exact authored fields for one admitted W-Engine, derived from the fact source. */
@@ -688,6 +697,15 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `After Aftershock · Daze +${percent(W_ENGINE_FACTS.boxCutter.effects.daze, refinement)}`,
     ],
   },
+  zanshinHerbCase: {
+    id: 'zanshinHerbCase', name: 'Zanshin Herb Case', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.zanshinHerbCase.advancedStat, image: zanshinHerbCaseImage,
+    passiveLines: (refinement) => [
+      `CRIT Rate +${percent(W_ENGINE_FACTS.zanshinHerbCase.effects.critRate, refinement)}`,
+      `Electric Dash Attack DMG +${percent(W_ENGINE_FACTS.zanshinHerbCase.effects.dashDamage, refinement)}`,
+      `After squad Anomaly or Stun · CRIT Rate +${percent(W_ENGINE_FACTS.zanshinHerbCase.effects.anomalyStunCritRate, refinement)}`,
+    ],
+  },
 }
 
 const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
@@ -723,4 +741,6 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   nicole: enginePools(['elegantVanity', 'theVault', 'weepingCradle', 'kaboom']),
   orphie: enginePools(['bellicoseBlaze', 'heartstringNocturne', 'severedInnocence', 'cordisGermina', 'gildedBlossom', 'marcatoDesire']),
   pulchra: enginePools(['blazingLaurel', 'boxCutter', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
+  harumasa: enginePools(['zanshinHerbCase', 'cordisGermina', 'brimstone', 'heartstringNocturne', 'starlightEngine']),
+  qingyi: enginePools(['iceJadeTeapot', 'blazingLaurel', 'restrained', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
 }
