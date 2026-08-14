@@ -285,11 +285,12 @@ output, runtime package score, or catalogue.
 - AE7. A retained Quick Assist provider adds Qingyi Astral contextually; removing
   it clears an invalid selected Astral and reapplying it restores only
   membership. A no-provider contrast keeps the authored base set.
-- AE8. One composed party flow traverses Focus King assignment, two-Stun
-  King/Astral or King/Shockstar allocation, contextual Astral, preparation,
-  selected pressure, and Result non-stacking in permanent-authority order. A
-  target-only pool/Mindscape rebuild changes only its target and preserves any
-  legal direct duplicate elsewhere.
+- AE8. One reducer journey across party re-application traverses Focus King
+  assignment, a two-Stun King/Astral or King/Shockstar allocation, a separate
+  contextual-Astral party, preparation, selected pressure, and Result
+  non-stacking in permanent-authority order. A target-only pool/Mindscape
+  rebuild changes only its target and preserves any legal direct duplicate
+  elsewhere.
 - AE9. Existing Trigger/Lycaon/Pulchra/Ju Fufu King and Astral outcomes,
   Nicole/Astra/Pan Quick Assist cases, Spectral broad pressure, and current
   non-stacking Result behavior remain unchanged in representative tests.
