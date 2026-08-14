@@ -63,12 +63,16 @@ output, runtime package score, or catalogue.
 - R1. Admit Asaba Harumasa as S-Rank Electric Attack, Section 6, Focus-eligible,
   rank-default M0. Retain `general_damage` as his primary formula, with ATK,
   Electric/general DMG, CRIT, DEF/RES-region, and Stun DMG Multiplier consumers.
+  His retained level-60 inputs are ATK 915, CRIT Rate 19.4%, CRIT DMG 50%, and
+  Energy Regen 1.2/s.
 - R2. Admit Qingyi as S-Rank Electric Stun, Criminal Investigation Special
   Response Team, not Focus-eligible, rank-default M0. Her direction prioritizes
   Basic-centered `daze_buildup` and all-party Stun-window amplification while
   retaining the bounded personal-damage contribution needed by her
   Impact-to-ATK relationship, Basic/Chain modifiers, current W-Engine tradeoffs,
-  variable damage mains, and effective CRIT/ATK tuning.
+  variable damage mains, and effective CRIT/ATK tuning. Her retained level-60
+  inputs are ATK 758, CRIT Rate 5%, CRIT DMG 50%, Impact 136, and Energy Regen
+  1.2/s.
 - R3. Harumasa's Additional Ability is active when another applied Agent is
   Stun or Anomaly. Qingyi's Additional Ability is active when another applied
   Agent is Attack or shares her faction. The Harumasa/Qingyi pair activates
@@ -82,13 +86,15 @@ output, runtime package score, or catalogue.
   Non-limited retains The Brimstone and Starlight Engine. Full prepares Zanshin
   Herb Case W1; non-limited prepares The Brimstone W1.
 - R5. Add Zanshin Herb Case as limited S-Rank Attack, Base ATK 713, advanced
-  CRIT DMG +48%. At W1 it supplies CRIT Rate +10%, Electric Dash Attack DMG
-  +40%, and another CRIT Rate +10% for 15 seconds after any squad member applies
-  an Attribute Anomaly or Stuns an enemy. Harumasa is holder-eligible, his
-  defining Dash action consumes the action/Attribute clause, and the repeated
-  party route reaches the conditional CRIT clause. Setup compresses this to
-  `CRIT Rate +20%` and `Electric Dash Attack DMG +40%`; Result preserves the
-  unconditional and enabled timing surfaces without displaying trigger prose.
+  CRIT DMG +48%. At W1-W5 it supplies CRIT Rate +10% / 11.5% / 13% / 14.5% /
+  16%, Electric Dash Attack DMG +40% / 46% / 52% / 58% / 64%, and another CRIT
+  Rate +10% / 11.5% / 13% / 14.5% / 16% for 15 seconds after any squad member
+  applies an Attribute Anomaly or Stuns an enemy. Harumasa is holder-eligible,
+  his defining Dash action consumes the action/Attribute clause, and the
+  repeated party route reaches the conditional CRIT clause. At W1 Setup
+  compresses this to `CRIT Rate +20%` and `Electric Dash Attack DMG +40%`;
+  Result preserves the unconditional and enabled timing surfaces without
+  displaying trigger prose.
 - R6. The retained Harumasa W-Engine comparisons remain whole packages:
   Cordis supplies its complete CRIT package, Electric DMG, and Basic/Ultimate
   DEF Ignore while its action scope omits defining Dash; Brimstone supplies
@@ -149,9 +155,10 @@ output, runtime package score, or catalogue.
   Agent's policy.
 - R13. A retained external Quick Assist opportunity from Nicole, Astra Yao, or
   Pan Yinhu adds Astral Voice to Qingyi's current effective 4-piece candidates.
-  It does not change the authored base set or prepared King first choice.
-  Removing the provider clears an invalid selected Astral without fallback;
-  restoring a provider restores membership without selection/history. This
+  It does not change the authored base set or prepared King first choice. Party
+  Apply after removing the provider rebuilds Qingyi to authored King with
+  Astral absent; applying a provider again rebuilds Qingyi to King with Astral
+  membership available and never restores the earlier Astral selection. This
   Qingyi buffer-role outcome does not broaden the stronger repeated-Quick-
   Assist rule already authored for focused damage contributors.
 - R14. Qingyi's base 2-piece candidates are Shockstar Disco, King of the
@@ -174,9 +181,14 @@ output, runtime package score, or catalogue.
   King holder keeps King. With another Stun, a holder that cannot prepare
   Astral keeps King while an Astral-compatible holder takes Astral; if neither
   can prepare Astral, one bounded holder keeps King and the other uses its
-  authored Shockstar fallback. Existing independent CRIT consumers and the
-  current Pulchra/Lycaon tie outcomes remain intact. This requirement adds no
-  global Stun score, slot-order rule, or named-party matrix.
+  authored Shockstar fallback. With Dialyn, Dialyn keeps King because Qingyi is
+  the only holder with a legal Shockstar fallback; all-party preparation assigns
+  Qingyi Shockstar in every slot order. Rebuilding Qingyi beside established
+  Dialyn King also prepares Qingyi Shockstar, while rebuilding Dialyn preserves
+  an untouched directly edited Qingyi King duplicate because Dialyn has no
+  fallback. Existing independent CRIT consumers, the Qingyi/Ju Fufu outcome,
+  and current Pulchra/Lycaon ties remain intact. This requirement adds no global
+  Stun score, slot-order rule, or general named-party matrix.
 
 ### Agent facts and Result projection
 
@@ -282,14 +294,17 @@ output, runtime package score, or catalogue.
   removed, and reintroduced. An edited Harumasa/general-damage PEN choice clears
   without fallback at M1, membership returns at M0 without history, and a Sheer
   contrast remains unaffected.
-- AE7. A retained Quick Assist provider adds Qingyi Astral contextually; removing
-  it clears an invalid selected Astral and reapplying it restores only
-  membership. A no-provider contrast keeps the authored base set.
+- AE7. A retained Quick Assist provider adds Qingyi Astral contextually. Party
+  Apply without the provider rebuilds Qingyi to authored King with Astral
+  absent; reapplying a provider rebuilds King and restores Astral membership
+  without restoring the earlier selection. A no-provider contrast keeps the
+  authored base set.
 - AE8. One reducer journey across party re-application traverses Focus King
-  assignment, a two-Stun King/Astral or King/Shockstar allocation, a separate
-  contextual-Astral party, preparation, selected pressure, and Result
-  non-stacking in permanent-authority order. A target-only pool/Mindscape
-  rebuild changes only its target and preserves any legal direct duplicate
+  assignment, flexible King/Astral allocation, Qingyi/Ju Fufu and Qingyi/Dialyn
+  no-Astral King/Shockstar allocations, a separate contextual-Astral party,
+  preparation, selected pressure, and Result non-stacking in permanent-
+  authority order. Target-only rebuilds cover both directions of each rigid
+  pairing, change only their target, and preserve any legal direct duplicate
   elsewhere.
 - AE9. Existing Trigger/Lycaon/Pulchra/Ju Fufu King and Astral outcomes,
   Nicole/Astra/Pan Quick Assist cases, Spectral broad pressure, and current
