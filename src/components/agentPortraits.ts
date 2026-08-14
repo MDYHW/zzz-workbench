@@ -29,6 +29,8 @@ import orphiePortrait from '../assets/agents/portraits/orphie-and-magus.webp'
 import pulchraPortrait from '../assets/agents/portraits/pulchra.webp'
 import harumasaPortrait from '../assets/agents/portraits/harumasa.webp'
 import qingyiPortrait from '../assets/agents/portraits/qingyi.webp'
+import nekomataPortrait from '../assets/agents/portraits/nekomata.webp'
+import billyPortrait from '../assets/agents/portraits/billy.webp'
 
 export const AGENT_PORTRAITS: Record<AgentId, string> = {
   yixuan: yixuanPortrait,
@@ -60,6 +62,8 @@ export const AGENT_PORTRAITS: Record<AgentId, string> = {
   pulchra: pulchraPortrait,
   harumasa: harumasaPortrait,
   qingyi: qingyiPortrait,
+  nekomata: nekomataPortrait,
+  billy: billyPortrait,
 }
 
 interface PortraitSource {
@@ -108,6 +112,8 @@ const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   pulchra: { faceX: 53, headTopY: 4, scale: 1.1 },
   harumasa: { faceX: 55, headTopY: 7, scale: 1.1 },
   qingyi: { faceX: 53, headTopY: 18, scale: 1.25 },
+  nekomata: { faceX: 54, headTopY: 34, scale: 1.3 },
+  billy: { faceX: 50, headTopY: 8, scale: 1.1 },
 }
 
 export function portraitSourceStyle(agentId: AgentId): PortraitSourceStyle {

@@ -127,6 +127,11 @@ describe('integrated party workbench: party', () => {
         { agentId: 'pulchra', setup: createPreparedAgentSetup('pulchra') },
         { agentId: 'anbySoldier0', setup: createPreparedAgentSetup('anbySoldier0') },
       ],
+      [
+        { agentId: 'nekomata', setup: createPreparedAgentSetup('nekomata') },
+        { agentId: 'billy', setup: createPreparedAgentSetup('billy') },
+        { agentId: 'lycaon', setup: createPreparedAgentSetup('lycaon') },
+      ],
     ]
     let latestContainer: HTMLElement | null = null
     for (const slots of additionalGroups) {
@@ -694,6 +699,90 @@ describe('integrated party workbench: party', () => {
     expect(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
       .not.toHaveClass('is-setup-incomplete')
   }, 20_000)
+
+  it('admits Nekomata and Billy with complete packages, exact Result, and pressure recovery', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Nekomata, Physical, Attack/)
+    await replace(2, /Billy Kid, Physical, Attack/)
+    await replace(3, /Qingyi, Electric, Stun/)
+    await user.click(screen.getByRole('radio', { name: 'Nekomata' }))
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    const nekomataTab = screen.getByRole('tab', {
+      name: 'Close Nekomata setup and Result',
+    })
+    expect(within(nekomataTab).getByLabelText('S Rank')).toBeInTheDocument()
+    expect(within(nekomataTab).getByLabelText('Physical, Attack').querySelectorAll('img'))
+      .toHaveLength(2)
+    const steel = screen.getByRole('button', { name: 'Change W-Engine from Steel Cushion' })
+    expect(steel).toHaveAccessibleDescription(
+      'CRIT Rate +24%. Physical DMG +20%. Back Attack DMG +25%',
+    )
+    await user.click(steel)
+    expect(within(screen.getByLabelText('W-Engine candidates')).getByRole('button', {
+      name: 'Select Cloudcleave Radiance W1',
+    })).toHaveAccessibleDescription(
+      'CRIT DMG +48%. Physical RES Ignore +20%. Ether Veil · Ether DMG +25%. Ether Veil · Ether CRIT DMG +25%',
+    )
+    await user.click(steel)
+    expect(screen.getByRole('heading', { name: 'Nekomata Result' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'View Billy Kid setup and Result' }))
+    const billyTab = screen.getByRole('tab', { name: 'Close Billy Kid setup and Result' })
+    expect(within(billyTab).getByLabelText('A Rank')).toBeInTheDocument()
+    expect(within(billyTab).getByLabelText('Physical, Attack').querySelectorAll('img'))
+      .toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Cloudcleave Radiance' }))
+      .toHaveAccessibleDescription(
+        'CRIT DMG +48%. Physical RES Ignore +20%. Ether Veil · Ether DMG +25%. Ether Veil · Ether CRIT DMG +25%',
+      )
+    expect(screen.getByRole('heading', { name: 'Billy Kid Result' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Non-limited' }))
+    const brimstone = screen.getByRole('button', { name: 'Change W-Engine from The Brimstone' })
+    expect(brimstone).toHaveAccessibleDescription('ATK +30%. ATK +28%')
+    await user.click(brimstone)
+    expect(within(screen.getByLabelText('W-Engine candidates')).getByRole('button', {
+      name: 'Select Starlight Engine Replica W5',
+    })).toHaveAccessibleDescription('ATK +25%. Physical DMG +57.5%')
+    await user.click(brimstone)
+    expect(screen.getByRole('heading', { name: 'Billy Kid Result' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'View Qingyi setup and Result' }))
+    const mindscape = screen.getByRole('group', { name: 'Mindscape' })
+    await user.click(within(mindscape).getByRole('button', { name: 'M1' }))
+    expect(screen.getByRole('tab', {
+      name: 'View Nekomata setup and Result, setup incomplete',
+    })).toHaveClass('is-setup-incomplete')
+    expect(screen.queryByRole('heading', { name: 'Qingyi Result' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', {
+      name: 'View Nekomata setup and Result, setup incomplete',
+    }))
+    await user.click(screen.getByRole('button', { name: '2-piece Drive Disc required' }))
+    await user.click(within(screen.getByLabelText('twoPiece Drive Disc candidates'))
+      .getByRole('button', { name: 'Select Branch & Blade Song as twoPiece' }))
+    await user.click(screen.getByRole('button', { name: 'Disc 5 main stat required' }))
+    await user.click(screen.getByRole('button', { name: 'Select ATK% for Disc 5' }))
+    expect(screen.getByRole('tab', { name: 'Close Nekomata setup and Result' }))
+      .not.toHaveClass('is-setup-incomplete')
+    expect(screen.queryByRole('heading', { name: 'Nekomata Result' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', {
+      name: 'View Billy Kid setup and Result, setup incomplete',
+    }))
+    await user.click(screen.getByRole('button', { name: 'Disc 5 main stat required' }))
+    await user.click(screen.getByRole('button', { name: 'Select ATK% for Disc 5' }))
+    expect(screen.getByRole('heading', { name: 'Billy Kid Result' })).toBeInTheDocument()
+    await user.click(screen.getByRole('tab', { name: 'View Nekomata setup and Result' }))
+    expect(screen.getByRole('heading', { name: 'Nekomata Result' })).toBeInTheDocument()
+  }, 25_000)
 
   it('admits Ju Fufu through shared Stun setup, threshold, and pool flows', async () => {
     const user = userEvent.setup()
