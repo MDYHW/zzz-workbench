@@ -76,6 +76,33 @@ describe('selected King pressure', () => {
     expect(effectiveSubstatChoicesForSlot(state, 1).map(({ id }) => id)).toEqual(['critRate'])
     expect(state.slots[1].setup.substats.critRate).toBe(0)
   })
+
+  it('adds, clears, and re-adds Koleda King pressure without restoring selections', () => {
+    let state = createPreparedState({}, ['ben', 'koleda', 'panYinhu'], 0)
+    expect(effectiveTwoPieceIds(state, 1)).not.toContain('woodpecker')
+    expect(effectiveMainStatIds(state, 1, 'slot4')).toContain('critRate')
+    expect(effectiveSubstatChoicesForSlot(state, 1).map(({ id }) => id)).toEqual(['critRate'])
+
+    state = workbenchReducer(state, { type: 'setSubstat', slot: 1, key: 'critRate', value: 4 })
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    expect(state.slots[1].setup).toMatchObject({
+      fourPieceId: 'astralVoice', twoPieceId: 'shockstar',
+      mains: { slot4: null }, substats: {},
+    })
+    expect(effectiveTwoPieceIds(state, 1)).not.toContain('woodpecker')
+    expect(effectiveMainStatIds(state, 1, 'slot4')).toEqual(['atkPct'])
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'king',
+    })
+    expect(state.slots[1].setup).toMatchObject({
+      fourPieceId: 'king', twoPieceId: 'shockstar',
+      mains: { slot4: null }, substats: { critRate: 0 },
+    })
+    expect(isCompleteWorkbench(state)).toBe(false)
+  })
 })
 
 describe('contextual Disc candidates', () => {

@@ -671,4 +671,44 @@ describe('integrated party workbench: result', () => {
     )
     expect(m4Operation).toHaveAttribute('data-source-tone', 'agent-astraYao')
   })
+
+  it('renders Ben’s bounded shield operation and Koleda’s exact prepared Result', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Ben Bigger, Fire, Defense/)
+    await replace(2, /Koleda Belobog, Fire, Stun/)
+    await replace(3, /Pan Yinhu, Physical, Defense/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    const benResult = screen.getByRole('region', { name: 'Ben Bigger Result' })
+    expect(within(benResult).getByRole('row', {
+      name: /DEF.*908.*908.*908/,
+    })).toBeInTheDocument()
+    const operations = within(benResult).getByRole('region', { name: 'Agent operations' })
+    expect(within(operations).getByRole('listitem', {
+      name: /Fully enabled Core shield per EX follow-up.*Core Passive.*[+]822[.]4/,
+    })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'View Koleda Belobog setup and Result' }))
+    const koledaResult = screen.getByRole('region', { name: 'Koleda Belobog Result' })
+    expect(within(koledaResult).getByRole('row', {
+      name: /Impact.*190[.]28.*190[.]28.*217[.]08/,
+    })).toBeInTheDocument()
+    await user.click(within(koledaResult).getByRole('button', { name: 'Daze Bonus' }))
+    const dazeOutcomes = within(koledaResult).getByRole('table', {
+      name: 'Daze Bonus action outcome values',
+    })
+    expect(within(dazeOutcomes).getByRole('button', {
+      name: 'Show sources for Basic Attack: Enhanced Furnace Fire',
+    })).toBeInTheDocument()
+    expect(within(dazeOutcomes).getByRole('button', {
+      name: 'Show sources for EX Special Attack',
+    })).toBeInTheDocument()
+  }, 10_000)
 })

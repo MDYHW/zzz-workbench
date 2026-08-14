@@ -372,11 +372,14 @@ export function effectiveSubstatChoices(
   agentId: AgentId,
   setup: { fourPieceId: DiscId | null },
 ): SubstatChoice[] {
-  if ((agentId === 'lycaon' || agentId === 'lighter' || agentId === 'pulchra') && setup.fourPieceId !== 'king') return []
+  if ((agentId === 'lycaon' || agentId === 'lighter' || agentId === 'pulchra' || agentId === 'koleda') && setup.fourPieceId !== 'king') return []
   if (agentId === 'pulchra' && setup.fourPieceId === 'king') {
     return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
   }
   if (agentId === 'lighter' && setup.fourPieceId === 'king') {
+    return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
+  }
+  if (agentId === 'koleda' && setup.fourPieceId === 'king') {
     return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
   }
   if (agentId === 'juFufu' && setup.fourPieceId === 'king') {

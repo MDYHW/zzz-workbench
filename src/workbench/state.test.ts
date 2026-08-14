@@ -221,6 +221,62 @@ describe('workbench state lifecycle', () => {
     expect(state.slots[0].setup.fourPieceId).toBe('woodpecker')
   })
 
+  it('composes Ben contextual Puffer with broad pre-PEN pressure lifecycle', () => {
+    let state = createPreparedState({}, ['ben', 'trigger', 'dialyn'], 0)
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 1, engineId: 'iceJadeTeapot',
+    })
+    expect(effectiveFourPieceIds(state, 0)).toContain('pufferElectro')
+    expect(effectiveTwoPieceIds(state, 0)).toContain('pufferElectro')
+    expect(effectiveMainStatIds(state, 0, 'slot5')).toContain('penRatio')
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'pufferElectro',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'penRatio',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 1, engineId: 'spectralGaze',
+    })
+    expect(effectiveFourPieceIds(state, 0)).toContain('pufferElectro')
+    expect(effectiveTwoPieceIds(state, 0)).not.toContain('pufferElectro')
+    expect(effectiveMainStatIds(state, 0, 'slot5')).not.toContain('penRatio')
+    expect(state.slots[0].setup).toMatchObject({
+      fourPieceId: 'woodpecker', twoPieceId: null,
+      mains: { slot5: null },
+    })
+    expect(calculateParty(state)).toBeNull()
+
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 1, engineId: 'iceJadeTeapot',
+    })
+    expect(effectiveTwoPieceIds(state, 0)).toContain('pufferElectro')
+    expect(effectiveMainStatIds(state, 0, 'slot5')).toContain('penRatio')
+    expect(state.slots[0].setup.twoPieceId).toBeNull()
+    expect(state.slots[0].setup.mains.slot5).toBeNull()
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'branchAndBlade',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'fireDmg',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 1, engineId: 'spectralGaze',
+    })
+    expect(isCompleteWorkbench(state)).toBe(true)
+    expect(state.slots[0].setup).toMatchObject({
+      twoPieceId: 'branchAndBlade', mains: { slot5: 'fireDmg' },
+    })
+
+    let actionScoped = createPreparedState({}, ['corin', 'lycaon', 'astraYao'], 0)
+    actionScoped = workbenchReducer(actionScoped, {
+      type: 'selectEngine', slot: 0, engineId: 'cordisGermina',
+    })
+    expect(effectiveMainStatIds(actionScoped, 0, 'slot5')).toContain('penRatio')
+  })
+
   it('keeps the prepared Ellen and Soukaku party complete', () => {
     const state = createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0)
     expect(incompleteRequiredSelections(state)).toEqual([])

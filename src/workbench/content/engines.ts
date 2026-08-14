@@ -767,7 +767,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Anomaly',
     passiveLines: (refinement) => [
       `CRIT DMG +${percent(W_ENGINE_FACTS.hailstormShrine.effects.critDamage, refinement)}`,
-      `After EX Special or squad Attribute Anomaly · Ice DMG +${percent(W_ENGINE_FACTS.hailstormShrine.effects.iceDamage, refinement, true)}`,
+      `Ice DMG +${percent(W_ENGINE_FACTS.hailstormShrine.effects.iceDamage, refinement, true)}`,
     ],
   },
   bigCylinder: {
@@ -776,7 +776,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Defense',
     passiveLines: (refinement) => [
       `DMG taken -${percent(W_ENGINE_FACTS.bigCylinder.effects.damageTaken, refinement)}`,
-      `After attacked · Next hit guaranteed CRIT with added ${percent(W_ENGINE_FACTS.bigCylinder.effects.addedDefDamage, refinement)} DEF DMG · 7.5s cooldown`,
+      `After attacked · Next hit guaranteed CRIT with added ${percent(W_ENGINE_FACTS.bigCylinder.effects.addedDefDamage, refinement)} DEF DMG`,
     ],
   },
   springEmbrace: {
@@ -785,7 +785,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Defense',
     passiveLines: (refinement) => [
       `DMG taken -${percent(W_ENGINE_FACTS.springEmbrace.effects.damageTaken, refinement)}`,
-      `After attacked · Energy Generation Rate +${percent(W_ENGINE_FACTS.springEmbrace.effects.energyGeneration, refinement)} for 12s · Transfer refreshes on next on-field Agent`,
+      `After attacked · Energy Generation Rate +${percent(W_ENGINE_FACTS.springEmbrace.effects.energyGeneration, refinement)} · Transfers to next on-field Agent`,
     ],
   },
   starlightEngineReplica: {

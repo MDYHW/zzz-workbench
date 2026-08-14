@@ -31,6 +31,8 @@ import harumasaPortrait from '../assets/agents/portraits/harumasa.webp'
 import qingyiPortrait from '../assets/agents/portraits/qingyi.webp'
 import nekomataPortrait from '../assets/agents/portraits/nekomata.webp'
 import billyPortrait from '../assets/agents/portraits/billy.webp'
+import benPortrait from '../assets/agents/portraits/ben.webp'
+import koledaPortrait from '../assets/agents/portraits/koleda.webp'
 
 export const AGENT_PORTRAITS: Record<AgentId, string> = {
   yixuan: yixuanPortrait,
@@ -64,6 +66,8 @@ export const AGENT_PORTRAITS: Record<AgentId, string> = {
   qingyi: qingyiPortrait,
   nekomata: nekomataPortrait,
   billy: billyPortrait,
+  ben: benPortrait,
+  koleda: koledaPortrait,
 }
 
 interface PortraitSource {
@@ -114,6 +118,8 @@ const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   qingyi: { faceX: 53, headTopY: 18, scale: 1.25 },
   nekomata: { faceX: 54, headTopY: 34, scale: 1.3 },
   billy: { faceX: 50, headTopY: 8, scale: 1.1 },
+  ben: { faceX: 40, headTopY: 15, scale: 0.8 },
+  koleda: { faceX: 55, headTopY: 26, scale: 1.1 },
 }
 
 export function portraitSourceStyle(agentId: AgentId): PortraitSourceStyle {

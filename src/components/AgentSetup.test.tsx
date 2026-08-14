@@ -346,6 +346,91 @@ describe('AgentSetup Orphie and Pulchra equipment packages', () => {
   })
 })
 
+describe('AgentSetup Ben and Koleda equipment packages', () => {
+  it('keeps Ben selected, inactive, and event-only W-Engine packages complete', async () => {
+    const user = userEvent.setup()
+    const state = createPreparedState({}, ['ben', 'koleda', 'panYinhu'], 0)
+    const setup = state.slots[0].setup
+    const props = {
+      activeSourceTone: null,
+      agentId: 'ben' as const,
+      discCandidates: DISC_IDS_BY_AGENT_AND_PIECE.ben,
+      dispatch: vi.fn(),
+      mainStatCandidates: MAIN_STAT_IDS_BY_AGENT_AND_SLOT.ben,
+      onSourceToneChange: vi.fn(),
+      slot: 0 as const,
+    }
+    const { rerender } = render(<AgentSetup {...props} setup={setup} />)
+
+    expect(screen.getByRole('button', {
+      name: 'Change W-Engine from Tremor Trigram Vessel',
+    })).toHaveAccessibleDescription(
+      'ATK +25%. EX Special & Ultimate DMG +40%. Squad takes DMG or heals · Energy +3.2',
+    )
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change W-Engine from Tremor Trigram Vessel',
+    }))
+    const candidates = screen.getByLabelText('W-Engine candidates')
+    expect(within(candidates).getByRole('button', {
+      name: 'Select Hailstorm Shrine W1',
+    })).toHaveAccessibleDescription(
+      'CRIT Rate +24%. Anomaly Specialty passive inactive. Inactive · CRIT DMG +50%. Inactive · Ice DMG +40%',
+    )
+    expect(within(candidates).getByRole('button', {
+      name: 'Select Big Cylinder W5',
+    })).toHaveAccessibleDescription(
+      'DEF +40%. DMG taken -12%. After attacked · Next hit guaranteed CRIT with added 960% DEF DMG',
+    )
+    expect(within(candidates).getByRole('button', {
+      name: 'Select Spring Embrace W5',
+    })).toHaveAccessibleDescription(
+      'ATK +25%. DMG taken -12%. After attacked · Energy Generation Rate +16% · Transfers to next on-field Agent',
+    )
+
+    rerender(<AgentSetup {...props} setup={{
+      ...setup, engineId: 'bigCylinder', refinement: 5,
+    }} />)
+    expect(screen.getByRole('button', {
+      name: 'Change W-Engine from Big Cylinder',
+    })).toHaveAccessibleDescription(
+      'DEF +40%. DMG taken -12%. After attacked · Next hit guaranteed CRIT with added 960% DEF DMG',
+    )
+  })
+
+  it('keeps Koleda Hellfire and Stun Disc package accessible', async () => {
+    const user = userEvent.setup()
+    const state = createPreparedState({}, ['ben', 'koleda', 'panYinhu'], 0)
+    render(
+      <AgentSetup
+        activeSourceTone={null}
+        agentId="koleda"
+        discCandidates={DISC_IDS_BY_AGENT_AND_PIECE.koleda}
+        dispatch={vi.fn()}
+        mainStatCandidates={MAIN_STAT_IDS_BY_AGENT_AND_SLOT.koleda}
+        onSourceToneChange={vi.fn()}
+        setup={state.slots[1].setup}
+        slot={1}
+      />,
+    )
+
+    expect(screen.getByRole('button', {
+      name: 'Change W-Engine from Hellfire Gears',
+    })).toHaveAccessibleDescription('Impact +18%. Energy +0.6/s. Impact +20%')
+    expect(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from King of the Summit',
+    })).toHaveAccessibleDescription('Squad CRIT DMG +30%. Daze +6%')
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from King of the Summit',
+    }))
+    expect(within(screen.getByLabelText('fourPiece Drive Disc candidates')).getByRole('button', {
+      name: 'Select Proto Punk as fourPiece',
+    })).toHaveAccessibleDescription(
+      'After Defensive or Evasive Assist · Squad DMG +15%. Shield provided +15%',
+    )
+  })
+})
+
 describe('AgentSetup compressed Disc effects', () => {
   it('shows final Dawn and Woodpecker values without routine trigger or stack steps', async () => {
     const user = userEvent.setup()

@@ -55,10 +55,10 @@ export function presentSetupInputs(
 }
 
 export type EffectMetric =
-  | 'maxHp' | 'atk' | 'sheerForce' | 'impact' | 'critRate' | 'critDmg'
+  | 'maxHp' | 'atk' | 'def' | 'sheerForce' | 'impact' | 'critRate' | 'critDmg'
   | 'dmgBonus' | 'sheerDmgBonus' | 'resIgnore' | 'dazeBonus'
   | 'stunDmgMultiplier' | 'energyRegen' | 'stunDuration'
-  | 'penRatio' | 'defIgnore' | 'resReduction' | 'defReduction'
+  | 'penRatio' | 'defIgnore' | 'resReduction' | 'defReduction' | 'shieldEffect'
 
 export type Recipient = 'self' | 'focus' | 'all-party' | 'other-party' | 'enemy-context'
 export type CandidatePressure = 'materialBroadPrePenDefBypass'
@@ -304,6 +304,16 @@ export const STATIC_SOURCES = {
   lucy: {
     core: source(SOURCE_LABELS.lucyCore, 'lucy', 'core'),
     additional: source(SOURCE_LABELS.lucyAbility, 'lucy', 'additional'),
+  },
+  ben: {
+    core: source(SOURCE_LABELS.benCore, 'ben', 'core'),
+    additional: source(SOURCE_LABELS.benAbility, 'ben', 'additional'),
+    critCap: source('Displayed CRIT Rate cap', 'ben', 'calculation'),
+  },
+  koleda: {
+    core: source(SOURCE_LABELS.koledaCore, 'koleda', 'core'),
+    additional: source(SOURCE_LABELS.koledaAbility, 'koleda', 'additional'),
+    critCap: source('Displayed CRIT Rate cap', 'koleda', 'calculation'),
   },
 } as const
 

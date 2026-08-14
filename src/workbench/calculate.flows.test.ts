@@ -404,4 +404,120 @@ describe('representative calculation flows', () => {
     expect(action(qingyi, 'qingyiEnchantedBasicDaze').values.fully
       - metric(qingyi, 'dazeBonus').values.fully).toBe(32.5)
   })
+
+  it('projects prepared Ben through Initial DEF, Core ATK, shield, and exact actions', () => {
+    const state = createPreparedState({}, ['ben', 'koleda', 'panYinhu'], 0)
+    const result = calculateParty(state)!
+    const ben = agent(result, 'ben')
+
+    expect(metric(ben, 'def').values).toEqual({ initial: 908, combat: 908, fully: 908 })
+    expect(metric(ben, 'atk').values).toEqual({
+      initial: expect.closeTo(2627.05),
+      combat: expect.closeTo(3353.45),
+      fully: expect.closeTo(4062.7535),
+    })
+    expect(metric(ben, 'critRate').values).toEqual({ initial: 37, combat: 37, fully: 53 })
+    expect(action(ben, 'benExUltimate').values.fully - metric(ben, 'dmgBonus').values.fully)
+      .toBe(40)
+    expect(action(ben, 'benBlockCounter').values.fully - metric(ben, 'dmgBonus').values.fully)
+      .toBe(30)
+    expect(action(ben, 'benBasicDashDodge').values.fully - metric(ben, 'dazeBonus').values.fully)
+      .toBe(20)
+    expect(ben.operations).toContainEqual(expect.objectContaining({
+      id: 'benCoreShield', value: expect.closeTo(822.4), surface: 'fully',
+    }))
+    expect(ben.operations).toContainEqual(expect.objectContaining({
+      id: 'benBlockCounterDefDamage', value: 300, unit: '% DEF',
+    }))
+
+    const unqualified = agent(
+      calculateParty(createPreparedState({}, ['ben', 'dialyn', 'lucia'], 0))!,
+      'ben',
+    )
+    expect(metric(unqualified, 'critRate').values.fully).toBe(37)
+    expect(unqualified.operations).toContainEqual(expect.objectContaining({
+      id: 'benCoreShield', value: expect.closeTo(822.4),
+    }))
+  })
+
+  it('keeps Ben DEF and Shield Effect inputs separate from Setup-only event packages', () => {
+    let tusksProto = createPreparedState({}, ['ben', 'koleda', 'panYinhu'], 0)
+    tusksProto = selectEngine(tusksProto, 'ben', 'tusksOfFury')
+    tusksProto = selectDisc(tusksProto, 'ben', 'fourPiece', 'protoPunk')
+    const amplified = agent(calculateParty(tusksProto)!, 'ben')
+    expect(metric(amplified, 'def').values.initial).toBe(908)
+    expect(metric(amplified, 'shieldEffect').values).toEqual({
+      initial: 15, combat: 45, fully: 45,
+    })
+    expect(amplified.operations).toContainEqual(expect.objectContaining({
+      id: 'benCoreShield', value: expect.closeTo(1192.48),
+    }))
+
+    const big = agent(calculateParty(selectEngine(
+      createPreparedState({}, ['ben', 'koleda', 'panYinhu'], 0),
+      'ben',
+      'bigCylinder',
+    ))!, 'ben')
+    expect(metric(big, 'def').values.initial).toBeCloseTo(1197.6)
+    expect(big.operations.map(({ id }) => id)).toEqual([
+      'benCoreShield', 'benBlockCounterDefDamage',
+    ])
+
+    const lycaonM4 = agent(calculateParty(withMindscape(
+      createPreparedState({}, ['corin', 'lycaon', 'astraYao'], 0),
+      'lycaon',
+      4,
+    ))!, 'lycaon')
+    expect(lycaonM4.metrics.map(({ label }) => label).some((label) => /shield/i.test(label)))
+      .toBe(false)
+  })
+
+  it('projects Koleda Core, Additional, Hellfire, and Mindscapes on exact consumers', () => {
+    const state = createPreparedState({}, ['ben', 'koleda', 'panYinhu'], 0)
+    const baseline = agent(calculateParty(state)!, 'koleda')
+    expect(metric(baseline, 'critRate').gauge).toMatchObject({
+      basisLabel: 'Initial CRIT Rate', current: 29, threshold: 50,
+      outputLabel: 'Squad CRIT DMG', outputValue: 15,
+    })
+    expect(metric(baseline, 'critDmg').values.fully).toBe(65)
+    expect(metric(baseline, 'impact').values).toEqual({
+      initial: expect.closeTo(190.28),
+      combat: expect.closeTo(190.28),
+      fully: expect.closeTo(217.08),
+    })
+    expect(metric(baseline, 'energyRegen').values).toEqual({
+      initial: 1.2, combat: expect.closeTo(1.8), fully: expect.closeTo(1.8),
+    })
+    expect(action(baseline, 'koledaEnhancedBasic').values.fully
+      - metric(baseline, 'dazeBonus').values.fully).toBe(60)
+    expect(action(baseline, 'koledaExSpecial').values.fully
+      - metric(baseline, 'dazeBonus').values.fully).toBe(60)
+    expect(action(baseline, 'koledaChain').values.fully
+      - metric(baseline, 'dmgBonus').values.fully).toBe(70)
+
+    const progressed = agent(calculateParty(withMindscape(state, 'koleda', 6))!, 'koleda')
+    expect(action(progressed, 'koledaSpecial').values.fully
+      - metric(progressed, 'dazeBonus').values.fully).toBe(15)
+    expect(action(progressed, 'koledaExSpecial').values.fully
+      - metric(progressed, 'dazeBonus').values.fully).toBe(75)
+    expect(action(progressed, 'koledaChain').values.fully
+      - metric(progressed, 'dmgBonus').values.fully).toBe(106)
+    expect(action(progressed, 'koledaChainUltimate').values.fully
+      - metric(progressed, 'dmgBonus').values.fully).toBe(36)
+    expect(progressed.operations).toContainEqual(expect.objectContaining({
+      id: 'koledaExplosionAtkDamage', value: 360, unit: '% ATK',
+    }))
+
+    const threshold = agent(calculateParty(setSubstat(state, 'koleda', 'critRate', 9))!, 'koleda')
+    expect(metric(threshold, 'critRate').gauge).toMatchObject({
+      current: expect.closeTo(50.6), outputValue: 30,
+    })
+    expect(metric(threshold, 'critDmg').values.fully).toBe(80)
+
+    const inactive = agent(
+      calculateParty(createPreparedState({}, ['corin', 'koleda', 'astraYao'], 0))!,
+      'koleda',
+    )
+    expect(inactive.actionModifiers.find(({ id }) => id === 'koledaChain')).toBeUndefined()
+  })
 })

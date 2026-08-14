@@ -165,6 +165,16 @@ import {
   resolveBillyProviderClauses,
   type BillyCalculationContext,
 } from './calculation/agents/billy'
+import {
+  observeBen,
+  resolveBenProviderClauses,
+  type BenCalculationContext,
+} from './calculation/agents/ben'
+import {
+  observeKoleda,
+  resolveKoledaProviderClauses,
+  type KoledaCalculationContext,
+} from './calculation/agents/koleda'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -198,6 +208,8 @@ export type ProviderContext =
   | QingyiCalculationContext
   | NekomataCalculationContext
   | BillyCalculationContext
+  | BenCalculationContext
+  | KoledaCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -361,6 +373,13 @@ function observeProviderContext(
         slot.setup,
         billyAdditionalIsActive(partyAgentIds, providerIndex),
       )
+    case 'ben':
+      return observeBen(slot.setup, anotherSharesAttribute || anotherSharesFaction)
+    case 'koleda':
+      return observeKoleda(
+        slot.setup,
+        anotherSharesAttribute || anotherSharesFaction || anotherHasSpecialty(['Rupture']),
+      )
     default:
       return assertNever(slot.agentId)
   }
@@ -442,6 +461,10 @@ function providerClauses(
       return resolveNekomataProviderClauses(context)
     case 'billy':
       return resolveBillyProviderClauses(context)
+    case 'ben':
+      return resolveBenProviderClauses(context)
+    case 'koleda':
+      return resolveKoledaProviderClauses(context)
     default:
       return assertNever(context)
   }

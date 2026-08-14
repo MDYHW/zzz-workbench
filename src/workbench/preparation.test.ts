@@ -583,6 +583,76 @@ describe('party-directed preparation', () => {
     expect(prepared.slots[1].setup.substats).toEqual({ critRate: 0, critDmg: 0, atkPct: 0 })
   })
 
+  it('prepares Ben and Koleda independently for both pools at zero supplied substats', () => {
+    const full = createPreparedState({}, ['ben', 'koleda', 'panYinhu'], 0)
+    expect(full.slots[0].setup).toMatchObject({
+      mindscape: 6, engineId: 'tremorTrigramVessel', refinement: 5,
+      fourPieceId: 'woodpecker', twoPieceId: 'branchAndBlade',
+      mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'atkPct' },
+      substats: { critRate: 0, critDmg: 0, atkPct: 0, defPct: 0 },
+    })
+    expect(full.slots[1].setup).toMatchObject({
+      mindscape: 0, engineId: 'hellfireGears', refinement: 1,
+      fourPieceId: 'king', twoPieceId: 'shockstar',
+      mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'impact' },
+      substats: { critRate: 0 },
+    })
+
+    const nonLimited = createPreparedState(
+      { ben: 'nonLimited', koleda: 'nonLimited' },
+      ['ben', 'koleda', 'panYinhu'],
+      0,
+    )
+    expect(nonLimited.slots[0].setup).toMatchObject({
+      engineId: 'tremorTrigramVessel', refinement: 5,
+      fourPieceId: 'woodpecker', twoPieceId: 'branchAndBlade',
+      substats: { critRate: 0, critDmg: 0, atkPct: 0, defPct: 0 },
+    })
+    expect(nonLimited.slots[1].setup).toMatchObject({
+      engineId: 'hellfireGears', refinement: 1,
+      fourPieceId: 'king', twoPieceId: 'shockstar', substats: { critRate: 0 },
+    })
+  })
+
+  it('allocates Koleda through the bounded flexible and rigid two-Stun order', () => {
+    const cases = [
+      {
+        members: [context('ben'), context('koleda'), context('pulchra', 'full', 6)] as const,
+        focus: 'ben' as const,
+        king: 'pulchra' as const,
+        astral: 'koleda' as const,
+      },
+      {
+        members: [context('corin'), context('koleda'), context('lycaon')] as const,
+        focus: 'corin' as const,
+        king: 'koleda' as const,
+        astral: 'lycaon' as const,
+      },
+      {
+        members: [context('ben'), context('koleda'), context('trigger')] as const,
+        focus: 'ben' as const,
+        king: 'trigger' as const,
+        astral: 'koleda' as const,
+      },
+      {
+        members: [context('hugo'), context('koleda'), context('juFufu')] as const,
+        focus: 'hugo' as const,
+        king: 'juFufu' as const,
+        astral: 'koleda' as const,
+      },
+    ]
+
+    for (const current of cases) {
+      for (const ordered of permutations(current.members)) {
+        const prepared = preparePartySelections(ordered, current.focus)
+        expect(prepared[ordered.findIndex(({ agentId }) => agentId === current.king)])
+          .toMatchObject({ fourPieceId: 'king' })
+        expect(prepared[ordered.findIndex(({ agentId }) => agentId === current.astral)])
+          .toMatchObject({ fourPieceId: 'astralVoice', twoPieceId: 'king' })
+      }
+    }
+  })
+
   it('keeps Nekomata and Billy candidate packages exact and Puffer contextual', () => {
     expect(ENGINE_IDS_BY_AGENT_AND_POOL.nekomata).toEqual({
       full: [
