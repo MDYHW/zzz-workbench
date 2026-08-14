@@ -525,6 +525,67 @@ describe('workbench state lifecycle', () => {
     })
   })
 
+  it('keeps Focus-directed King when only Lighter is re-prepared', () => {
+    let state = createPreparedState({}, ['soldier11', 'lighter', 'lucy'], 0)
+    const soldier11 = state.slots[0]
+    const lucy = state.slots[2]
+
+    state = workbenchReducer(state, { type: 'switchPool', slot: 1, pool: 'nonLimited' })
+
+    expect(state.slots[0]).toBe(soldier11)
+    expect(state.slots[2]).toBe(lucy)
+    expect(state.slots[1].setup).toMatchObject({
+      pool: 'nonLimited', engineId: 'hellfireGears',
+      fourPieceId: 'king', twoPieceId: 'shockstar',
+      mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'impact' },
+      substats: { critRate: 0 },
+    })
+    expect(state.slots[2].setup).toMatchObject({
+      fourPieceId: 'moonlight', twoPieceId: 'astralVoice',
+    })
+
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 1 })
+
+    expect(state.slots[0]).toBe(soldier11)
+    expect(state.slots[2]).toBe(lucy)
+    expect(state.slots[1].setup).toMatchObject({
+      mindscape: 1, fourPieceId: 'king', mains: { slot4: 'critRate' },
+      substats: { critRate: 0 },
+    })
+  })
+
+  it('preserves another local King holder when only flexible Lighter is re-prepared', () => {
+    let state = createPreparedState({}, ['soldier11', 'lycaon', 'lighter'], 0)
+    const soldier11 = state.slots[0]
+    const lycaon = state.slots[1]
+
+    expect(lycaon.setup.fourPieceId).toBe('king')
+    expect(state.slots[2].setup).toMatchObject({
+      fourPieceId: 'astralVoice', mains: { slot4: 'atkPct' }, substats: {},
+    })
+
+    state = workbenchReducer(state, { type: 'switchPool', slot: 2, pool: 'nonLimited' })
+
+    expect(state.slots[0]).toBe(soldier11)
+    expect(state.slots[1]).toBe(lycaon)
+    expect(state.slots[2].setup).toMatchObject({
+      pool: 'nonLimited', engineId: 'hellfireGears',
+      fourPieceId: 'astralVoice', twoPieceId: 'shockstar',
+      mains: { slot4: 'atkPct', slot5: 'fireDmg', slot6: 'impact' },
+      substats: {},
+    })
+    expect(state.slots.filter(({ setup }) => setup.fourPieceId === 'king')).toHaveLength(1)
+
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 2, mindscape: 1 })
+
+    expect(state.slots[0]).toBe(soldier11)
+    expect(state.slots[1]).toBe(lycaon)
+    expect(state.slots[2].setup).toMatchObject({
+      mindscape: 1, fourPieceId: 'astralVoice', mains: { slot4: 'atkPct' }, substats: {},
+    })
+    expect(state.slots.filter(({ setup }) => setup.fourPieceId === 'king')).toHaveLength(1)
+  })
+
   it('invalidates every selected DEF-region PEN main atomically when broad pre-PEN pressure activates', () => {
     let state = createPreparedState({}, ['anbySoldier0', 'trigger', 'dialyn'], 0)
     state = workbenchReducer(state, {

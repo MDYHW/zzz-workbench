@@ -291,11 +291,18 @@ competitive 4-piece package such as Yunkui Tales. PEN Ratio is formula-invalid
 because `sheer_damage` omits the DEF region.
 
 Stun and provider directions reuse the same routing rather than inheriting a
-named-Agent list. A Stun direction inspects King of the Summit when its Daze
-package and CRIT threshold materially strengthen the current daze-contributor
-and buffer roles, then other compatible party-facing packages, and only then
-Shockstar Disco unless sufficient authored field time makes its Basic, Dash,
-and Dodge Counter scope competitive. A capped provider reserves its scarce
+named-Agent list. When the current Focus's primary damage direction is
+crit-capable, preparation first assigns one legal competitive King of the
+Summit package to a Stun holder whose Daze and buffer roles consume it. The
+zero-substat start may remain below King's CRIT threshold: Slot 4 and effective
+substat positions are finite future investment opportunity, not absent supply.
+If one legal competitive prepared representative already holds King, preserve
+that holder unless a current independent consumer establishes another holder's
+priority; do not duplicate the non-stacking package merely because another Stun
+holder also becomes eligible. Only after this pass does preparation
+allocate other compatible party-facing packages, and only then Shockstar Disco
+unless sufficient authored field time makes its Basic, Dash, and Dodge Counter
+scope competitive. A capped provider reserves its scarce
 future substat opportunity before committing fixed supply, then inspects
 resource and party-facing packages for the remaining axes. Contextual Puffer
 Electro and Astral Voice admission and non-stacking holder allocation remain
@@ -457,6 +464,13 @@ use slot order or Agent identity as a hidden tiebreaker, or create a runtime
 holder score. This allocation changes only authorized prepared first choices;
 direct edits may create duplicate holders and Result still applies the ordinary
 non-stacking rule.
+
+These allocation rules compose in dependency order. A later Support-holder
+tie-break must consume the already-resolved Focus/formula and Stun/King package;
+it cannot treat an earlier flexible Astral representative as final and thereby
+displace the Stun package. Acceptance for a changed allocation pass includes one
+party that traverses the adjacent passes together, not only isolated examples
+for each pass.
 
 New equipment normally enters as a competing W-Engine, 4-piece, or 2-piece
 candidate and may change the prepared main-stat choice through its stat package.

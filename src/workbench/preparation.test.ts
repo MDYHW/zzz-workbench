@@ -137,6 +137,55 @@ describe('party-directed preparation', () => {
     expect(prepared[2]).toMatchObject({ fourPieceId: 'astralVoice' })
   })
 
+  it('prepares King on the Stun holder before Support allocation for a CRIT-capable Focus', () => {
+    const members = [context('soldier11'), context('lighter'), context('lucy', 'full', 6)] as const
+
+    for (const ordered of permutations(members)) {
+      const prepared = preparePartySelections(ordered, 'soldier11')
+      const lighter = prepared[ordered.findIndex(({ agentId }) => agentId === 'lighter')]
+      const lucy = prepared[ordered.findIndex(({ agentId }) => agentId === 'lucy')]
+
+      expect(lighter).toMatchObject({
+        fourPieceId: 'king', twoPieceId: 'shockstar',
+        mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'impact' },
+      })
+      expect(lucy).toMatchObject({
+        fourPieceId: 'moonlight', twoPieceId: 'astralVoice',
+      })
+    }
+  })
+
+  it('preserves the established independent-CRIT King holder over flexible Lighter', () => {
+    const prepared = preparePartySelections([
+      context('soldier11'), context('trigger'), context('lighter'),
+    ], 'soldier11')
+
+    expect(prepared[1]).toMatchObject({ fourPieceId: 'king' })
+    expect(prepared[2]).toMatchObject({
+      fourPieceId: 'astralVoice', twoPieceId: 'shockstar', mains: { slot4: 'atkPct' },
+    })
+  })
+
+  it.each(['juFufu', 'lycaon'] as const)(
+    'preserves the authored local King on %s instead of displacing it with flexible Lighter',
+    (localKingHolderId) => {
+      const members = [context('soldier11'), context(localKingHolderId), context('lighter')] as const
+
+      for (const ordered of permutations(members)) {
+        const prepared = preparePartySelections(ordered, 'soldier11')
+        const localKingHolder = prepared[ordered.findIndex(({ agentId }) => (
+          agentId === localKingHolderId
+        ))]
+        const lighter = prepared[ordered.findIndex(({ agentId }) => agentId === 'lighter')]
+
+        expect(localKingHolder).toMatchObject({ fourPieceId: 'king' })
+        expect(lighter).toMatchObject({
+          fourPieceId: 'astralVoice', twoPieceId: 'shockstar', mains: { slot4: 'atkPct' },
+        })
+      }
+    },
+  )
+
   it('does not move Trigger from King when no established King holder is rigid', () => {
     const prepared = prepareTargetSelection(
       context('trigger'),

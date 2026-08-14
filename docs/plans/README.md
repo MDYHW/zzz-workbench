@@ -16,10 +16,15 @@ Use this sequence:
    consumers. Complete the candidate or representative authoring gate before
    planning.
 3. Write one active plan with bounded units, ownership, dependencies,
-   non-goals, behavior tests, and proportionate browser verification.
+   non-goals, behavior tests, and proportionate browser verification. A plan
+   cannot turn a zero-substat snapshot into an authoring conclusion or replace
+   the preceding permanent-authority/consumer review.
 4. Implement from the visible outcome backward. A worker completion report,
    passing test, or plan requirement cannot validate the product conclusion
-   that created it.
+   that created it. When adjacent preparation passes compose, verify their
+   precedence in one shared flow. When portrait metadata changes, an explicit
+   `No server/browser` report blocks closure until the controller completes the
+   fixed-port visual check.
 5. After verification, keep current product outcomes in their requirement or
    permanent owner, reusable workflow lessons in `docs/solutions/`, and
    implementation truth in code and behavior tests. Move any still-needed

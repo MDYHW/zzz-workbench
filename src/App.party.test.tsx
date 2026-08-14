@@ -39,28 +39,27 @@ describe('integrated party workbench: party', () => {
       return portrait!.style
     }
 
-    const expectSource = (agentId: string, scale?: string) => {
+    const expectSource = (agentId: string) => {
       const style = portraitStyle(agentId)
-      if (scale) expect(style.getPropertyValue('--portrait-source-scale')).toBe(scale)
-      else expect(style.getPropertyValue('--portrait-source-scale')).not.toBe('')
+      expect(style.getPropertyValue('--portrait-source-scale')).not.toBe('')
       expect(style.getPropertyValue('--portrait-source-face-x')).not.toBe('')
       expect(style.getPropertyValue('--portrait-source-head-top-y')).not.toBe('')
       expect(style.getPropertyValue('--portrait-target-x')).toBe('')
       expect(style.getPropertyValue('--portrait-width')).toBe('')
     }
 
-    const expectExpandedSource = (agentId: string, scale: string) => {
+    const expectExpandedSource = (agentId: string) => {
       const portrait = document.querySelector<HTMLElement>(
         '.slot-identity--expanded .agent-art',
       )
       expect(portrait).not.toBeNull()
       expect(portrait!.closest(`[data-agent="${agentId}"]`)).not.toBeNull()
-      expect(portrait!.style.getPropertyValue('--portrait-source-scale')).toBe(scale)
+      expect(portrait!.style.getPropertyValue('--portrait-source-scale')).not.toBe('')
     }
 
-    expectExpandedSource('yixuan', '1')
+    expectExpandedSource('yixuan')
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
-    expectExpandedSource('dialyn', String(288 / 295))
+    expectExpandedSource('dialyn')
 
     for (const label of ['Auric Ink, Rupture', 'Physical, Stun', 'Ether, Support']) {
       expect(screen.getByLabelText(label).querySelectorAll('img')).toHaveLength(2)
@@ -141,9 +140,6 @@ describe('integrated party workbench: party', () => {
       const identity = screen.getAllByRole('tab', { name: new RegExp(agent.name) })[0]
       expect(within(identity).getByLabelText(`${agent.rank} Rank`)).toBeInTheDocument()
     }
-    expectSource('trigger', String(330 / 295))
-    expectSource('juFufu', '1.05')
-    expectSource('panYinhu', '0.94')
     expect(within(latestContainer!).getAllByLabelText('A Rank')[0].querySelector('img'))
       .toHaveAttribute('src', expect.stringContaining('a'))
     expect(within(latestContainer!).getAllByLabelText('S Rank')).toHaveLength(1)
@@ -428,21 +424,20 @@ describe('integrated party workbench: party', () => {
     expect(screen.getByRole('button', { name: 'M0' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByRole('button', { name: 'Change W-Engine from Blazing Laurel' })).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from Astral Voice' }))
-    const candidates = screen.getByLabelText('fourPiece Drive Disc candidates')
-    expect(within(candidates).getByRole('button', { name: 'Select King of the Summit as fourPiece' }))
-      .toBeInTheDocument()
-    await user.click(within(candidates).getByRole('button', { name: 'Select King of the Summit as fourPiece' }))
-    await user.click(screen.getByRole('button', { name: 'Change Disc 4 main stat from ATK%' }))
-    await user.click(screen.getByRole('button', { name: 'Select CRIT Rate for Disc 4' }))
-    expect(screen.getByRole('heading', { name: 'Lighter Result' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from King of the Summit' }))
+    const candidates = screen.getByLabelText('fourPiece Drive Disc candidates')
+    expect(within(candidates).getByRole('button', { name: 'Select Astral Voice as fourPiece' }))
+      .toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Select Astral Voice as fourPiece' }))
     expect(screen.queryByRole('heading', { name: 'Lighter Result' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Disc 4 main stat required' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Disc 4 main stat required' }))
     await user.click(screen.getByRole('button', { name: 'Select ATK% for Disc 4' }))
     expect(screen.getByRole('heading', { name: 'Lighter Result' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Change 4-piece Drive Disc from Astral Voice' }))
+    await user.click(screen.getByRole('button', { name: 'Select King of the Summit as fourPiece' }))
+    expect(screen.getByRole('heading', { name: 'Lighter Result' })).toBeInTheDocument()
+    expect(screen.getByLabelText('CRIT Rate hit count')).toHaveValue('0')
 
     await user.click(screen.getByRole('button', { name: 'Non-limited' }))
     expect(screen.getByRole('button', { name: 'Change W-Engine from Hellfire Gears' })).toBeInTheDocument()

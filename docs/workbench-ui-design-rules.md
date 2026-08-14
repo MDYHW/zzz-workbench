@@ -306,20 +306,22 @@ color with it. The editable M0 through M6 value remains visible only at its
 owning Setup input.
 
 Compact and expanded states retain the same Agent artwork identity. Each source
-asset records exactly three normalized portrait inputs: one structural
-horizontal face landmark, the readable top of the continuous head or hair mass,
-and one optical scale relative to the nominal source size. Detached strands,
-weapons, capes, transparent bounds, feet, and canonical Agent height do not
-define these inputs. The source inputs belong to the asset and are shared by
-every responsive portrait surface.
+asset records exactly three normalized portrait inputs: optical scale,
+`headTopY`, and `faceX`. Their implementation names do not make a literal head
+top or face center the visual target. Scale controls perceived identity size,
+`headTopY` registers the readable continuous figure composition vertically, and
+`faceX` registers the optical center of the face and connected upper-body mass
+horizontally. The source inputs belong to the asset and are shared by every
+responsive portrait surface.
 
-Each portrait surface owns one common destination frame. The frame aligns the
-source's horizontal landmark and readable head top, then multiplies its nominal
-image width by the source optical scale. Agent-specific source inputs correct
-differences in composition and perceived identity weight without repeating the
-same correction as per-Agent desktop, stacked, or mobile coordinates. Add a
-surface-specific Agent exception only after a concrete asset, surface, and
-viewport demonstrate that the shared contract cannot preserve the identity.
+Each portrait surface owns one common destination frame. The frame applies the
+source's horizontal and vertical optical registration, then multiplies its
+nominal image width by the source optical scale. Agent-specific source inputs
+correct differences in composition and perceived identity weight without
+repeating the same correction as per-Agent desktop, stacked, or mobile
+coordinates. Add a surface-specific Agent exception only after a concrete
+asset, surface, and viewport demonstrate that the shared contract cannot
+preserve the identity.
 
 The current shared frames are visual calibration inputs, not game or product
 meaning. Desktop expanded uses the midpoint from Identity start to Setup
@@ -328,16 +330,69 @@ Desktop compact uses `50%`, `78px`, and `727%`; stacked compact uses `50%`,
 `28px`, and `105%`; mobile expanded uses `30%`, `16px`, and `110%`; mobile
 compact uses `55%`, `16px`, and `150%`.
 
-Use the authored source metadata deterministically at runtime. Calibration may
-inspect the original canvas and full card context, but the application does not
-derive placement from source-canvas center, automatic face detection,
-transparent bounds, visible silhouette mass, or a synthetic body axis.
+Use the authored source metadata deterministically at runtime. Original-canvas
+measurements, transparent bounds, automatic face detection, visible silhouette
+mass, and synthetic body axes may suggest comparison candidates, but none is an
+accepted coordinate. Detached strands, weapons, capes, tails, companions,
+floating ornaments, feet, and canonical Agent height constrain clipping or
+dominance; they do not vote as identity anchors.
+
+Author the three inputs in this fixed sequence because each has a separate
+visual responsibility:
+
+1. Inspect the original asset and the actual Identity-start to
+   Setup-content-start destination. Choose a useful nearby portrait for optical
+   comparison and identify detached or extended forms that are constraints
+   rather than anchors.
+2. Establish optical scale while holding provisional horizontal and vertical
+   registration constant. Compare a small local scale envelope in both expanded
+   and compact rendering. Scale makes the readable identity cluster--head,
+   face, and connected shoulders or upper body--comparable with its peer. Its
+   lower bound is compact face readability; its upper bound is reached when
+   connected body mass or props dominate the frame, or when name and Setup
+   clearance fail. A face-only crop, full silhouette, alpha bounds, and body
+   height are not scale anchors.
+3. Freeze scale, then author `headTopY` from small local vertical deltas in the
+   rendered destination. Position the continuous readable figure composition,
+   using immediate face readability as a guardrail and connected torso or body
+   mass as a counterweight. Do not align literal hair tops or Agent coordinates
+   numerically. If a large correction appears necessary, recheck scale and the
+   assumed composition instead of hiding the error in a vertical offset.
+4. Freeze scale and `headTopY`, then author `faceX`. A midpoint between temporary
+   face and connected-upper-body measurements is a useful candidate, not the
+   answer. Compare current, midpoint, and when needed a bounded partial move in
+   the rendered corridor. Choose the optical center that balances face and
+   connected upper body without allowing a detached prop, extended limb, or
+   lower-body pose to pull the frame.
+5. Keep the current value when a candidate improves only one surface or merely
+   changes the crop without improving identity balance. Accept a partial move
+   when the full candidate over-corrects. Accept the metadata only when the same
+   three inputs survive desktop and narrow rendering, expanded and compact,
+   without a surface-specific correction.
+
+Temporary head, face, shoulder, or body measurements are calibration evidence.
+They do not add runtime metadata, define cross-Agent numeric alignment, or
+replace rendered comparison. Permanent authority records the method and
+acceptance boundary, not an Agent-by-Agent coordinate catalogue.
 
 The accepted desktop crop keeps each face within the corridor from Identity
 start to Setup content start, places the face below the name without a hard
 collision, preserves comparable perceived Agent scale, and keeps meaningful
 artwork clear of Setup controls. Compact, stacked, and mobile frames apply the
 same source metadata through their own shared responsive destinations.
+
+Source-variable presence proves only structural wiring. A portrait calibration
+is not accepted until the original asset has been inspected and all three
+authored inputs have been compared in the actual workbench at one desktop and
+one narrow viewport, with the Agent shown once expanded and once compact. A
+worker report that omits browser verification leaves the portrait unit
+incomplete; passing DOM tests cannot substitute for this visual check. Final
+acceptance compares the Agent with nearby admitted portraits on the same
+destination surface for immediate face readability, continuous composition,
+optical identity weight, and name or control clearance. Source inspection alone
+cannot mark a portrait sound, and a controller does not accept a worker's
+metadata change without repeating that rendered comparison for every changed
+Agent.
 
 ### Expanded Slot Composition
 

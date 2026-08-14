@@ -1,4 +1,5 @@
 import {
+  ADMITTED_AGENTS,
   DISC_IDS_BY_AGENT_AND_PIECE,
   MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
   SUBSTAT_CHOICES_BY_AGENT,
@@ -8,7 +9,7 @@ import {
   type PoolId,
   type SetupSelection,
 } from './content'
-import { primaryFormulaUsesDefRegion } from './formula-policy'
+import { primaryFormulaUsesCrit, primaryFormulaUsesDefRegion } from './formula-policy'
 import { anotherAgentHasSpecialty, zhuYuanAdditionalIsActive } from './party-conditions'
 
 export interface PreparationContext {
@@ -59,7 +60,8 @@ function withCompetitiveKingAstralAllocation(
     && hasPreparedKingPriority(holder.agentId)
   ))
   const targetHasPreparedKingPriority = hasPreparedKingPriority(context.agentId)
-  return canPrepareKing && canPrepareAstral && kingIsHeldByPriorityCritHolder
+  return selection.fourPieceId === 'king'
+    && canPrepareKing && canPrepareAstral && kingIsHeldByPriorityCritHolder
     ? {
       ...selection,
       fourPieceId: 'astralVoice',
@@ -74,6 +76,64 @@ function withCompetitiveKingAstralAllocation(
       },
     }
     : selection
+}
+
+function canPrepareFocusCritKing(
+  context: PreparationContext,
+  selection: SetupSelection,
+): boolean {
+  return ADMITTED_AGENTS.find(({ id }) => id === context.agentId)?.specialty === 'Stun'
+    && DISC_IDS_BY_AGENT_AND_PIECE[context.agentId].fourPiece.includes('king')
+    && selection.fourPieceId !== 'king'
+    && selection.twoPieceId !== 'king'
+}
+
+function prepareFocusCritKing(
+  selection: SetupSelection,
+): SetupSelection {
+  return {
+    ...selection,
+    fourPieceId: 'king',
+    mains: { ...selection.mains, slot4: 'critRate' },
+  }
+}
+
+/**
+ * A CRIT-capable Focus makes one legal King package the first party-facing
+ * Stun choice. An already-prepared legal King representative is preserved
+ * before flexible Support allocation; preparation does not displace it with a
+ * newly eligible holder that has no stronger current consumer.
+ */
+function withFocusCritKingPriority(
+  contexts: readonly PreparationContext[],
+  focusAgentId: AgentId,
+  selections: readonly SetupSelection[],
+): SetupSelection[] {
+  if (!primaryFormulaUsesCrit(focusAgentId)
+    || selections.some(({ fourPieceId }) => fourPieceId === 'king')) {
+    return [...selections]
+  }
+  const eligible = contexts.flatMap((context, index) => (
+    canPrepareFocusCritKing(context, selections[index]) ? [index] : []
+  ))
+  if (eligible.length !== 1) return [...selections]
+
+  return selections.map((selection, index) => (
+    index === eligible[0] ? prepareFocusCritKing(selection) : selection
+  ))
+}
+
+function withEstablishedFocusCritKingPriority(
+  context: PreparationContext,
+  focusAgentId: AgentId,
+  establishedHolders: readonly EstablishedDiscHolder[],
+  selection: SetupSelection,
+): SetupSelection {
+  return primaryFormulaUsesCrit(focusAgentId)
+    && !establishedHolders.some(({ fourPieceId }) => fourPieceId === 'king')
+    && canPrepareFocusCritKing(context, selection)
+      ? prepareFocusCritKing(selection)
+      : selection
 }
 
 function hasPreparedKingPriority(agentId: AgentId): boolean {
@@ -362,7 +422,13 @@ export function prepareTargetSelection(
   const zhuBalanced = withZhuYuanCritBalance(context, partyAgentIds, partyMindscapes, 0, balanced)
   const pressureSafe = withNicolePressureSafePackage(context, partyAgentIds, partyMindscapes, zhuBalanced)
   const focused = withFocusedEngine(context, focusAgentId, pressureSafe)
-  const allocated = withCompetitiveKingAstralAllocation(context, establishedHolders, focused)
+  const kingDirected = withEstablishedFocusCritKingPriority(
+    context,
+    focusAgentId,
+    establishedHolders,
+    focused,
+  )
+  const allocated = withCompetitiveKingAstralAllocation(context, establishedHolders, kingDirected)
   const nonoverlapping = withJuFufuKingAlternative(context, establishedHolders, allocated)
   const contextual = withCissiaAstralOpportunity(
     context,
@@ -411,11 +477,12 @@ export function preparePartySelections(
     focusAgentId,
     balanced[index],
   ))
-  const withKingAllocation = focused.map((selection, index) => withCompetitiveKingAstralAllocation(
+  const focusKingDirected = withFocusCritKingPriority(contexts, focusAgentId, focused)
+  const withKingAllocation = focusKingDirected.map((selection, index) => withCompetitiveKingAstralAllocation(
     contexts[index],
     contexts.map((context, holderIndex) => ({
       agentId: context.agentId,
-      fourPieceId: focused[holderIndex].fourPieceId,
+      fourPieceId: focusKingDirected[holderIndex].fourPieceId,
       mindscape: context.mindscape,
     })),
     selection,

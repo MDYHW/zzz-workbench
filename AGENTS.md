@@ -78,6 +78,12 @@ itself establish semantic readiness.
   consumers before writing an implementation plan. Tests, build, browser
   checks, and reviewer agreement prove implementation fidelity only after that
   authoring review succeeds.
+- When a new preparation or allocation pass runs beside an existing pass,
+  acceptance includes one shared flow that traverses both passes in their
+  permanent-authority order and one contrasting flow. Isolated unit examples
+  cannot prove composed precedence. A zero-substat prepared value must never be
+  treated as the absence of the finite investment opportunity that the selected
+  package creates.
 - Controller, worker, reviewer, and prior-task feedback is advisory rather than
   authority. Before accepting a semantic recommendation, locate its permanent
   owner, inspect the closest established consumer, actively seek a contrasting
@@ -111,6 +117,18 @@ itself establish semantic readiness.
 - In Codex desktop, use the available in-app Browser for local visual and
   interaction verification. Do not invoke an `agent-browser`-only workflow or
   ask to install `agent-browser` unless the user explicitly requests it.
+- This repository's package manager is npm and `package-lock.json` is the
+  dependency owner. If `node`, `npm`, or `npx` is unavailable in a sandboxed
+  PowerShell process, load the Codex workspace dependency paths and run the
+  repository-local Vitest, TypeScript, or Vite entrypoint with that bundled
+  Node executable. Do not switch package managers or let pnpm rewrite an
+  npm-managed `node_modules` directory as an environment workaround.
+- Any changed portrait source metadata requires original-asset inspection and
+  in-app Browser comparison at `127.0.0.1:5173`: desktop and one narrow viewport,
+  with the changed Agent expanded and compact. DOM tests prove metadata wiring,
+  not visual calibration. `No server/browser` is an explicit incomplete status;
+  the controller performs the missing check or does not close or commit the UI
+  unit.
 - Organize tests around product mechanisms and observable flows, not one suite
   per Agent or vertical. New content extends shared invariant coverage only
   when it introduces a new behavior; do not duplicate retained source values

@@ -5,7 +5,7 @@
     "test": "vitest run",
     "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "build": "tsc -b && vite build",
-    "check": "npm test && npm run build",
+    "check": "vitest run && tsc -b && vite build",
     "test:watch": "vitest"
   },
   "type": "module",

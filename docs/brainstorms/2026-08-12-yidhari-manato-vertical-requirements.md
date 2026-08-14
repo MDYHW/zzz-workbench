@@ -309,10 +309,10 @@ because future substats are finite and other modifiers can become saturated.
   new Agent makes Result empty. Repairing the input recalculates through the
   ordinary flow without hidden fallback.
 - AE8. Rank and portrait surfaces show Yidhari as S and Manato as A in compact
-  and expanded states. Portrait calibration is performed from each source
-  image through face position, head-top position, optical scale, and browser
-  verification rather than copied from another Agent. The shared party editor
-  can draft either Agent and apply that Agent as Focus.
+  and expanded states. Portrait calibration follows the shared source-metadata
+  sequence and rendered acceptance owned by the UI design rules rather than
+  copying another Agent's coordinates. The shared party editor can draft either
+  Agent and apply that Agent as Focus.
 - AE9. One shared mechanism test changes a recipient's Current Max HP through a
   legal all-party provider and proves the same `Current ATK × 0.30 + Current Max
   HP × 0.10` recomposition for existing Yixuan and a new Rupture Agent. A new

@@ -12,14 +12,12 @@ describe('selected King pressure', () => {
     let state = createPreparedState({}, ['soldier11', 'lighter', 'lucy'], 0)
     expect(state.slots.map(({ setup }) => setup)).toMatchObject([
       { engineId: 'heartstringNocturne', fourPieceId: 'woodpecker', twoPieceId: 'pufferElectro' },
-      { engineId: 'blazingLaurel', fourPieceId: 'astralVoice', twoPieceId: 'shockstar' },
+      {
+        engineId: 'blazingLaurel', fourPieceId: 'king', twoPieceId: 'shockstar',
+        mains: { slot4: 'critRate' }, substats: { critRate: 0 },
+      },
       { engineId: 'kaboom', refinement: 5, fourPieceId: 'moonlight', twoPieceId: 'astralVoice' },
     ])
-    expect(effectiveSubstatChoicesForSlot(state, 1)).toEqual([])
-
-    state = workbenchReducer(state, {
-      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'king',
-    })
     expect(effectiveTwoPieceIds(state, 1)).toContain('woodpecker')
     expect(effectiveMainStatIds(state, 1, 'slot4')).toContain('critRate')
     expect(effectiveSubstatChoicesForSlot(state, 1).map(({ id }) => id)).toEqual(['critRate'])

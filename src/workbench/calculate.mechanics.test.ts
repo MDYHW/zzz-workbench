@@ -1235,7 +1235,8 @@ describe('calculateParty mechanisms', () => {
     const lighter = agent(calculateParty(prepared)!, 'lighter')
     const soldier11 = agent(calculateParty(prepared)!, 'soldier11')
     expect(prepared.slots[1].setup).toMatchObject({
-      engineId: 'blazingLaurel', fourPieceId: 'astralVoice', twoPieceId: 'shockstar',
+      engineId: 'blazingLaurel', fourPieceId: 'king', twoPieceId: 'shockstar',
+      mains: { slot4: 'critRate' }, substats: { critRate: 0 },
     })
     expect(metric(lighter, 'impact').values).toMatchObject({
       initial: expect.closeTo(194.54), fully: expect.closeTo(256.19),
@@ -1283,7 +1284,14 @@ describe('calculateParty mechanisms', () => {
       .toContainEqual(expect.objectContaining({ ownerAgentId: 'lighter', locus: 'additional', amount: 65 }))
     expect(metric(fireRecipient, 'resReduction').breakdown.fully)
       .toContainEqual(expect.objectContaining({ ownerAgentId: 'lighter', amount: 15 }))
-    expect(JSON.stringify(physicalContrast)).not.toContain('"ownerAgentId":"lighter"')
+    expect(metric(physicalContrast, 'critDmg').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ label: 'Blazing Laurel', ownerAgentId: 'lighter' }))
+    expect(metric(physicalContrast, 'dmgBonus').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'lighter', locus: 'additional' }))
+    expect(metric(physicalContrast, 'resReduction').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'lighter' }))
+    expect(metric(physicalContrast, 'critDmg').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'King of the Summit', ownerAgentId: 'lighter', amount: 15 }))
   })
 
   it('composes Zhu Yuan Core, Mindscape, and equipment on exact Basic and Dash descendants', () => {

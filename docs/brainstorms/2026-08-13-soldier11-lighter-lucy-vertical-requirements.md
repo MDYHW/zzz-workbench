@@ -34,7 +34,7 @@ faction graph, or guide-backed evidence payload.
 - Soldier 11 receives Fire and Stun support through current formula, attribute,
   action, enemy-context, and all-party consumers. No party clause is copied
   into her local calculation solely because this is the authored trio.
-- Lighter's selected King candidate adds CRIT Rate investment pressure. Removing
+- Lighter's prepared or selected King candidate adds CRIT Rate investment pressure. Removing
   King removes the otherwise-unused CRIT substat and clears invalid selection;
   reselecting King exposes CRIT Rate again at count zero without restoring old
   history.
@@ -122,19 +122,20 @@ faction graph, or guide-backed evidence payload.
   Steam's lower-rank Energy/Impact package. Restrained and Precious retain
   direct Basic-Daze and accessible threshold-Daze contrasts.
 - R11. Lighter's 4-piece candidates are King of the Summit, Astral Voice, and
-  Shockstar Disco. Astral is a usable Quick-Assist party package and is the
-  local first choice when King has no independent CRIT investment support.
+  Shockstar Disco. In the authored Soldier 11 + Lighter + Lucy party, Lighter
+  prepares King. Astral remains the usable Quick-Assist party alternative when
+  the Focus does not use CRIT or another current holder keeps King.
   Shockstar remains the direct Basic/Dash/Dodge-Counter Daze alternative and
   becomes the fallback only after the other party packages are unsuitable or
-  the holder has sufficient field time. King remains a selected candidate, not
-  a prepared first choice: base 5% + Slot 4 CRIT 24% + Woodpecker 2-piece 8%
-  reaches only 37% at zero substats, below its 50% threshold.
+  the holder has sufficient field time.
 - R12. Lighter's base 2-piece candidates are Shockstar Disco, King of the Summit,
-  and Swing Jazz. Both pools prepare Astral 4-piece plus Shockstar 2-piece with
-  ATK% / Fire DMG / Impact mains and no substats. Residual ATK/Fire mains do not
-  create a personal general-damage Result; they complete the finite package
-  after the Impact and party-value choices are settled.
-- R13. If another prepared priority holder already uses King, Lighter remains
+  and Swing Jazz. In the authored trio, both pools prepare King 4-piece plus
+  Shockstar 2-piece with CRIT Rate / Fire DMG / Impact mains and the
+  King-derived CRIT Rate substat at zero. Astral prepares ATK% / Fire DMG /
+  Impact when its contrary party condition applies. Residual ATK/Fire mains do
+  not create a personal general-damage Result; they complete that alternate
+  finite package after the Impact and party-value choices are settled.
+- R13. If another legal prepared representative retains King, Lighter remains
   on Astral. If a user directly selects King, candidate pressure adds CRIT Rate
   first at count zero and exposes the Slot 4 CRIT path and Woodpecker 2-piece.
   Removing King clears those invalid selections without fallback. Reselecting
@@ -226,7 +227,7 @@ faction graph, or guide-backed evidence payload.
 ## Acceptance examples
 
 - AE1. Applying Soldier 11 + Lighter + Lucy initializes M0/M0/M6 and prepares
-  Heartstring/Woodpecker/Puffer, Blazing/Astral/Shockstar, and
+  Heartstring/Woodpecker/Puffer, Blazing/King/Shockstar, and
   Kaboom/Moonlight/Astral in full pool, with every effective substat at zero.
 - AE2. Soldier 11's Additional is active with Fire Lighter, Obol Trigger, and
   Silver Squad Soldier 0 through their correct relationships, and inactive
@@ -237,8 +238,9 @@ faction graph, or guide-backed evidence payload.
   and Stun duration. M1 changes the extension from 3 to 5 seconds; M1/M2 add
   only their stated RES, duration, multiplier,
   and Elation consequences.
-- AE4. Selecting King for Lighter adds Slot 4 CRIT, Woodpecker 2-piece, and a
-  first CRIT Rate substat at zero. Removing King clears invalid selections and
+- AE4. Prepared King for Lighter includes Slot 4 CRIT and a first CRIT Rate
+  substat at zero; selecting King directly also exposes Woodpecker 2-piece.
+  Removing King clears invalid selections and
   leaves Result incomplete; repairing them completes Result. Reselecting King
   does not restore the old CRIT count.
 - AE5. Lucy's prepared Initial ATK produces a capped 600 output at every

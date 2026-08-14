@@ -1,7 +1,7 @@
 ---
 title: Prevent secondary requirements from validating themselves
 date: 2026-08-12
-last_refreshed: 2026-08-13
+last_updated: 2026-08-14
 category: workflow-issues
 module: controller-refresh-and-requirements-authoring
 problem_type: workflow_issue
@@ -12,11 +12,13 @@ applies_when:
   - "Secondary requirements add or change candidates, prepared representatives, or selected-input pressure"
   - "Reviewers validate an implementation against requirements written in the same change"
   - "A completed implementation plan is being consulted or closed"
+  - "A zero-substat prepared Result is used to author a candidate or first choice"
 symptoms:
   - "The controller can narrate the permanent contract but cannot apply it to contrasting current consumers"
   - "A secondary requirement becomes the oracle that plans, code, tests, and browser checks merely confirm"
   - "A clean build and passing review stack create confidence in incorrect candidate or representative authoring"
   - "Completed plans are copied forward or retained as competing current policy"
+  - "Visible zero counts are mistaken for the absence of finite future tuning opportunity"
 root_cause: missing_workflow_step
 resolution_type: workflow_improvement
 related_components:
@@ -31,6 +33,7 @@ tags:
   - counterexample-review
   - semantic-drift
   - plan-lifecycle
+  - prepared-zero
 ---
 
 # Prevent secondary requirements from validating themselves
@@ -134,6 +137,59 @@ cannot dominate for a holder that fails its exact Specialty or activation
 condition. Comparing retained numbers before compatibility can select a false
 same-axis competitor even when the later whole-package arithmetic is correct.
 
+### Separate prepared zero from finite future opportunity
+
+Prepared projection and representative authoring answer different questions:
+
+```text
+prepared Setup and Result
+= selected fixed package + selected main stats + current supplied counts (zero)
+
+representative authoring
+= complete legal package at zero supplied counts
++ bounded future opportunity on retained effective axes
+- unused clauses and foreclosed slot or substat opportunities
+```
+
+The first expression keeps the current Result honest. Never insert reserved
+future hits into Setup or Result. The second expression keeps the starting
+direction competitive. Never erase that opportunity merely because every
+visible count initializes to zero.
+
+For a capped provider with one materially effective tuning axis and few
+competitive substat suppliers, reserve the contract's conservative eight-hit
+future opportunity in each retained supplier before committing fixed W-Engine,
+Disc, or main-stat supply to the same axis. The value is an authoring allowance,
+not an exact distribution, farming promise, candidate-count target, or runtime
+input. If the fixed package nearly fills the cap and leaves those few useful
+inputs with trivial room, reconsider the fixed package instead of removing the
+effective substat or declaring the cap solved.
+
+Do not universalize that ordering. An ordinary damage direction with several
+material axes first chooses the strongest complete W-Engine package in the
+current pool, then balances legal Disc packages, main stats, and retained
+substats around it. Finite opportunity may prevent CRIT overcap or distinguish
+the remaining choices; it does not reopen the W-Engine choice as a runtime
+score. Full and non-limited pools still require separate whole-package
+comparisons.
+
+A guide ranking proposes packages worth inspecting. It does not establish
+candidate membership or a representative. At zero supplied counts, check the
+exact consumer, holder and activation compatibility, candidate origin, nearest
+usable same-axis competitor, complete usable and unused clauses, finite future
+opportunity, contrary condition, and selected-input lifecycle. Persist only
+the settled outcome; do not add exact Disc farming, count-distribution, or
+optimizer behavior to the service.
+
+Treat these statements as review warnings:
+
+- “The count is zero, so this stat or package does nothing.”
+- “The zero-count Result misses the threshold, so the representative is
+  invalid.”
+- “This guide ranks it first, so it is the prepared first choice.”
+- “Both allocation unit tests pass,” without one flow traversing their composed
+  authority order.
+
 ### Disconfirm feedback before accepting it
 
 Controller and reviewer feedback is advisory. The receiving controller checks
@@ -218,6 +274,14 @@ controller can use the contract. Bounded authoring checks catch unsupported
 equipment policy before code. Contrasting consumers prevent a local correction
 from breaking a nearby correct case.
 
+The same gate applies to prepared-zero interpretation and composed allocation
+passes. Zero supplied substats describe the visible starting value; they do not
+erase a selected package's future Slot 4 or effective-substat investment
+opportunity. When Focus/formula policy chooses a Stun package before a later
+Support non-stacking allocation, tests must traverse both passes in one party.
+Testing each pass only against its own secondary requirement can preserve two
+locally passing rules in the wrong global order.
+
 ## When to Apply
 
 - A new controller assumes responsibility after a refresh.
@@ -247,6 +311,26 @@ candidate at zero rather than restoring an edited count.
 
 The policy follows the current consumer, not Agent identity, Specialty, or the
 Disc name.
+
+### King pressure: zero, removal, and reselect
+
+For a CRIT-capable Focus with an eligible Stun holder, King of the Summit may
+prepare Slot 4 CRIT Rate and a CRIT Rate effective-substat input whose visible
+count is zero. The current Result may remain below King's threshold. That does
+not remove the consumer: Slot 4 and the retained effective input are the finite
+future investment path that makes the complete Daze and buffer package
+competitive.
+
+Directly replacing King removes its selected pressure, clears every now-invalid
+dependent choice without fallback, and discards the old count. Reselecting King
+recreates the input at zero rather than restoring its edited history. This
+three-state lifecycle proves current setup behavior; it does not inject the
+reserved authoring allowance into Result.
+
+The composed preparation test must also run the earlier Focus/formula-to-King
+assignment before later flexible Support package allocation. Separate passing
+tests for those passes cannot prove that a later allocation preserved the
+threshold-defining Stun package.
 
 ### Swing Jazz and Moonlight Lullaby: equal value, distinct facts
 
