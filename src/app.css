@@ -1953,6 +1953,8 @@ button.main-stat-block:focus-visible {
 .source-tone--agent-hugo { --source-color: #5968a6; }
 .source-tone--agent-ellen { --source-color: #8d2738; }
 .source-tone--agent-soukaku { --source-color: #167a96; }
+.source-tone--agent-orphie { --source-color: #a04424; }
+.source-tone--agent-pulchra { --source-color: #98701e; }
 /* Calculation clamps stay neutral and are not a semantic source color. */
 .source-tone--calculation { --source-color: #596169; }
 

@@ -28,6 +28,8 @@ export type AgentId =
   | 'lucy'
   | 'zhuYuan'
   | 'nicole'
+  | 'orphie'
+  | 'pulchra'
 
 export type AgentRank = 'S' | 'A'
 export type AgentFaction =
@@ -89,6 +91,8 @@ export type EngineId =
   | 'deepSeaVisitor'
   | 'riotSuppressorMarkVI'
   | 'theVault'
+  | 'gildedBlossom'
+  | 'boxCutter'
 
 export type DiscId =
   | 'yunkui'
@@ -109,6 +113,7 @@ export type DiscId =
   | 'polarMetal'
   | 'thunderMetal'
   | 'chaoticMetal'
+  | 'protoPunk'
 
 export type MainSlot = 'slot4' | 'slot5' | 'slot6'
 

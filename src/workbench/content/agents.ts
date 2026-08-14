@@ -185,6 +185,15 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     id: 'nicole', name: 'Nicole', attribute: 'Ether', specialty: 'Support',
     focusEligible: false, rank: 'A', faction: 'Cunning Hares',
   },
+  {
+    id: 'orphie', name: 'Orphie & Magus', attribute: 'Fire', specialty: 'Attack',
+    focusEligible: false, rank: 'S', faction: 'Obol Squad',
+    partyQualificationGroup: 'New Eridu Defense Force',
+  },
+  {
+    id: 'pulchra', name: 'Pulchra', attribute: 'Physical', specialty: 'Stun',
+    focusEligible: false, rank: 'A', faction: 'Sons of Calydon',
+  },
 ]
 
 export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>

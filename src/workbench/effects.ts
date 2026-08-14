@@ -95,7 +95,7 @@ export interface SourceBoundCurrentClause {
   eligibleAgentIds?: AgentId[]
   attributes?: readonly EffectAttribute[]
   formulas?: readonly SetupFormulaFamily[]
-  nonstackKey?: 'kingOfTheSummit' | 'astralVoiceEntrant' | 'moonlightLullaby' | 'etherVeilWellspring' | 'swingJazz' | 'bunnyInWonderland' | 'kaboomTheCannon'
+  nonstackKey?: 'kingOfTheSummit' | 'astralVoiceEntrant' | 'moonlightLullaby' | 'etherVeilWellspring' | 'swingJazz' | 'bunnyInWonderland' | 'kaboomTheCannon' | 'protoPunk'
   candidatePressure?: CandidatePressure
   value: { kind: 'additive'; amount: number; display?: ResolvedCurrentEffect['display'] }
     | { kind: 'basis-percentage'; percentage: number }

@@ -33,6 +33,10 @@ export const actionTarget = (
   tags: readonly ActionTag[] = [],
 ): ActionTarget => ({ outcomes, tags } as ActionTarget)
 
+// One semantic tag target is shared across providers and recipients so
+// cross-Agent Aftershock clauses compose with the same current action row.
+export const AFTERSHOCK_TARGET = actionTarget([], ['aftershock'])
+
 export const canonicalAction = (
   action: CanonicalActionKind,
 ): ActionOutcome => ({ kind: 'canonical', action })

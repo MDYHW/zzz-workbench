@@ -116,7 +116,7 @@ Aftershock catalogue.
 
 - R9. Pulchra's full W-Engine candidates are Blazing Laurel, Box Cutter,
   Hellfire Gears, Steam Oven, and Precious Fossilized Core. Non-limited
-  candidates are Box Cutter, Steam Oven, and Precious Fossilized Core. Full
+  candidates are Box Cutter, Hellfire Gears, Steam Oven, and Precious Fossilized Core. Full
   prepares Blazing Laurel W1; non-limited prepares Box Cutter W5.
 - R10. Blazing establishes the full first choice through high Base ATK,
   advanced and Fully Enabled Impact, and an activatable Fire/Ice squad CRIT-DMG
@@ -142,7 +142,8 @@ Aftershock catalogue.
   members deal +15% DMG for 10 seconds; the effect does not stack. Pulchra's
   four-piece candidates are King of the Summit, Astral Voice, Proto Punk,
   Shockstar Disco, and Swing Jazz. Her two-piece candidates are Shockstar,
-  King, and Swing. King is a squad CRIT threshold package; Astral is the
+  King, and Swing; selected King additionally exposes Woodpecker as the current
+  CRIT-threshold pressure choice. King is a squad CRIT threshold package; Astral is the
   controllable entrant package; Proto is a broad all-party package whose shield
   2-piece is unused; Shockstar is action-limited Daze; Swing is a reachable
   Chain/Ultimate squad-DMG package. Moonlight Lullaby is not a Pulchra candidate
@@ -207,17 +208,19 @@ Aftershock catalogue.
   without fallback. Reselecting King restores candidate membership with ATK
   retained only when still legal and CRIT count initialized to zero; it does not
   restore earlier selections. Lycaon and Lighter are the same selected-pressure
-  mechanism; Trigger is the contrast whose independent CRIT consumer remains
-  present away from King. Pulchra M1 alone does not create a damage-dealer CRIT
-  direction, matching Ju Fufu's local buff relationship rather than Trigger.
-- R21. In party preparation, Dialyn or a party-qualified Trigger keeps King
-  because its independent CRIT consumer makes the threshold a prepared
-  priority; Pulchra takes Astral plus King 2-piece. With no such established
-  King-priority holder, Pulchra keeps local King. Slot order does not change
-  the result. This reuses the existing competitive King/Astral allocation and
-  does not decide every pairing of two local non-priority King holders. A newly
-  exposed duplicate Astral or local-allocation collision outside the settled
-  composition is a semantic stop, not permission to invent a priority table.
+  mechanism; a party-qualified Trigger is the contrast whose independent CRIT
+  consumer remains present away from King. Pulchra M1 alone does not create a
+  damage-dealer CRIT direction, matching Ju Fufu's local buff relationship
+  rather than qualified Trigger.
+- R21. Party preparation applies the permanent non-stacking holder order rather
+  than duplicating King. Dialyn or Trigger keeps King and Pulchra prepares
+  Astral plus King 2-piece. Against Lycaon, Pulchra keeps King because her fixed
+  39% basis reaches the threshold with five future hits while Lycaon's 29%
+  basis needs nine; Lycaon prepares Astral plus King 2-piece. Lighter already
+  retains his authored Astral alternative beside Pulchra's King. Ju Fufu cannot
+  prepare Astral 4-piece, so he keeps King and Pulchra takes Astral. These are
+  bounded deterministic first choices, not a universal Stun priority table;
+  slot order does not change them.
 - R22. Orphie's Swing/Moonlight and Hormone/Astral 2-piece identities follow
   current same-effect compression and direct-edit lifecycle: exact identity is
   exposed when the paired set occupies 4-piece, otherwise the canonical member
@@ -257,10 +260,12 @@ Aftershock catalogue.
   Box Cutter Daze and Physical DMG Fully Enabled; and default-M6 Additional as
   broad all-party DMG. Setting M5 changes the Additional to Aftershock-only
   without changing another Agent's prepared setup.
-- AE7. Applying Orphie + Dialyn + Pulchra or qualified Trigger + Orphie +
-  Pulchra is permutation-independent: the independent-CRIT Stun holder keeps
-  King and Pulchra prepares Astral/King with ATK/Physical/Impact. Applying
-  Anby + Orphie + Pulchra keeps Pulchra's local King. Astral entrant DMG projects
+- AE7. Applying Corin + Dialyn + Pulchra or Anby: Soldier 0 + Trigger +
+  Pulchra is permutation-independent: the retained Stun holder keeps King and
+  Pulchra prepares Astral/King with ATK/Physical/Impact. Hugo + Lycaon + Pulchra
+  keeps Pulchra on King and moves Lycaon to Astral/King; Hugo + Ju Fufu +
+  Pulchra keeps Ju Fufu on King and moves Pulchra to Astral/King. Applying Anby
+  + Orphie + Pulchra keeps Pulchra's local King. Astral entrant DMG projects
   once to Focus and King squad CRIT projects once.
 - AE8. If any required equipment or main selection is absent, all three Result
   surfaces are empty while the relevant candidate deck remains actionable.

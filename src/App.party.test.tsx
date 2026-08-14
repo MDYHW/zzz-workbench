@@ -117,6 +117,11 @@ describe('integrated party workbench: party', () => {
         { agentId: 'nicole', setup: createPreparedAgentSetup('nicole') },
         { agentId: 'corin', setup: createPreparedAgentSetup('corin') },
       ],
+      [
+        { agentId: 'orphie', setup: createPreparedAgentSetup('orphie') },
+        { agentId: 'pulchra', setup: createPreparedAgentSetup('pulchra') },
+        { agentId: 'anbySoldier0', setup: createPreparedAgentSetup('anbySoldier0') },
+      ],
     ]
     let latestContainer: HTMLElement | null = null
     for (const slots of additionalGroups) {
@@ -142,7 +147,7 @@ describe('integrated party workbench: party', () => {
     }
     expect(within(latestContainer!).getAllByLabelText('A Rank')[0].querySelector('img'))
       .toHaveAttribute('src', expect.stringContaining('a'))
-    expect(within(latestContainer!).getAllByLabelText('S Rank')).toHaveLength(1)
+    expect(within(latestContainer!).getAllByLabelText('S Rank')).toHaveLength(2)
 
     const sourceProperties = [
       '--portrait-source-face-x',
@@ -545,6 +550,44 @@ describe('integrated party workbench: party', () => {
       .toHaveAccessibleDescription('CRIT DMG +16%')
     expect(screen.getByRole('listitem', { name: /Totalize added DMG Multiplier/ }))
       .toBeInTheDocument()
+  }, 15_000)
+
+  it('admits Orphie and Pulchra through one prepared party and independent pool rebuilds', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Anby: Soldier 0, Electric, Attack/)
+    await replace(2, /Orphie & Magus, Fire, Attack/)
+    await replace(3, /Pulchra, Physical, Stun/)
+    expect(screen.getAllByText('Anby: Soldier 0 is Focus automatically.')).toHaveLength(2)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    await user.click(screen.getByRole('tab', { name: 'View Orphie & Magus setup and Result' }))
+    const orphieTab = screen.getByRole('tab', { name: 'Close Orphie & Magus setup and Result' })
+    expect(within(orphieTab).getByLabelText('S Rank')).toBeInTheDocument()
+    expect(within(orphieTab).getByLabelText('Fire, Attack').querySelectorAll('img')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Bellicose Blaze' }))
+      .toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Orphie & Magus Result' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Non-limited' }))
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Gilded Blossom' }))
+      .toHaveAccessibleDescription('ATK +25%. ATK +9.6%. EX Special Attack DMG +24%')
+
+    await user.click(screen.getByRole('tab', { name: 'View Pulchra setup and Result' }))
+    const pulchraTab = screen.getByRole('tab', { name: 'Close Pulchra setup and Result' })
+    expect(within(pulchraTab).getByLabelText('A Rank')).toBeInTheDocument()
+    expect(within(pulchraTab).getByLabelText('Physical, Stun').querySelectorAll('img')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Blazing Laurel' }))
+      .toBeInTheDocument()
+    expect(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from King of the Summit',
+    })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Pulchra Result' })).toBeInTheDocument()
   }, 15_000)
 
   it('admits Ju Fufu through shared Stun setup, threshold, and pool flows', async () => {

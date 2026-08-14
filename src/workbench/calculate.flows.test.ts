@@ -6,8 +6,11 @@ import {
   agent,
   metric,
   selectDisc,
+  selectEngine,
+  selectMain,
   setSubstat,
   sourceLabels,
+  withMindscape,
 } from './calculate.test-support'
 
 describe('representative calculation flows', () => {
@@ -200,5 +203,160 @@ describe('representative calculation flows', () => {
     expect(metric(manato, 'sheerForce').breakdown.initial)
       .toContainEqual(expect.objectContaining({ label: 'Rupture specialty', notation: 'surface-value' }))
     expect(manato.operations).toEqual([])
+  })
+
+  it('projects Orphie and Pulchra through capped Energy, Aftershock, Daze, and King meanings', () => {
+    const state = createPreparedState({}, ['anbySoldier0', 'orphie', 'pulchra'], 0)
+    const result = calculateParty(state)!
+    const anby = agent(result, 'anbySoldier0')
+    const orphie = agent(result, 'orphie')
+    const pulchra = agent(result, 'pulchra')
+
+    expect(metric(orphie, 'energyRegen')).toMatchObject({
+      values: { initial: expect.closeTo(3.744), combat: expect.closeTo(3.744), fully: expect.closeTo(3.744) },
+      gauge: { basisLabel: 'Initial Energy Regen', outputValue: 700, outputCap: 700 },
+    })
+    expect(metric(orphie, 'critRate').values).toEqual({ initial: 5, combat: 50, fully: 62 })
+    expect(metric(orphie, 'critDmg').values.fully).toBe(143)
+    expect(metric(orphie, 'dmgBonus').values.fully).toBe(60)
+    expect(action(orphie, 'orphieAftershock').values.fully).toBe(160)
+    expect(action(orphie, 'orphieAftershockDefIgnore').values.fully).toBe(55)
+    expect(action(anby, 'anbyAftershockDefIgnore').values.fully).toBe(25)
+
+    expect(metric(pulchra, 'impact').values).toEqual({
+      initial: expect.closeTo(193.12), combat: expect.closeTo(193.12), fully: expect.closeTo(227.12),
+    })
+    expect(metric(pulchra, 'critRate')).toMatchObject({
+      values: { initial: 29, combat: 29, fully: 39 },
+      gauge: { basisLabel: 'Local CRIT Rate', current: 39, threshold: 50, outputValue: 15 },
+    })
+    expect(metric(pulchra, 'dmgBonus').values.fully).toBe(60)
+    expect(action(pulchra, 'pulchraAftershockDefIgnore').values.fully).toBe(25)
+    expect(action(pulchra, 'pulchraExAssistChainUltimate').values.fully).toBe(36)
+  })
+
+  it('projects the non-limited Gilded and Box packages and Pulchra M5 action contrast', () => {
+    const prepared = createPreparedState(
+      { orphie: 'nonLimited', pulchra: 'nonLimited' },
+      ['anbySoldier0', 'orphie', 'pulchra'],
+      0,
+    )
+    const defaultResult = calculateParty(prepared)!
+    const orphie = agent(defaultResult, 'orphie')
+    const pulchra = agent(defaultResult, 'pulchra')
+
+    expect(metric(orphie, 'energyRegen')).toMatchObject({
+      values: { initial: expect.closeTo(2.808) },
+      gauge: { outputValue: 520 },
+    })
+    expect(action(orphie, 'orphieExSpecial').values.fully).toBe(84)
+    expect(metric(pulchra, 'impact').values.fully).toBeCloseTo(189.04, 10)
+    expect(metric(pulchra, 'dmgBonus').values.fully).toBe(84)
+    expect(action(pulchra, 'pulchraExAssistChainUltimate').values.fully).toBe(52)
+
+    const m5Result = calculateParty(withMindscape(prepared, 'pulchra', 5))!
+    const m5Orphie = agent(m5Result, 'orphie')
+    expect(metric(m5Orphie, 'dmgBonus').values.fully).toBe(30)
+    expect(action(m5Orphie, 'orphieAftershock').values.fully).toBe(160)
+  })
+
+  it('projects Orphie Aftershock DEF Ignore on Trigger and mindscape deltas on exact consumers', () => {
+    const baseline = createPreparedState({}, ['anbySoldier0', 'orphie', 'trigger'], 0)
+    const trigger = agent(calculateParty(baseline)!, 'trigger')
+    expect(action(trigger, 'triggerAftershockDefIgnore').values.fully).toBe(25)
+
+    const m1 = agent(calculateParty(withMindscape(baseline, 'orphie', 1))!, 'orphie')
+    const m1ResIgnore = action(m1, 'orphieSpecialExChainUltimateResIgnore')
+    expect(m1ResIgnore.outcomes).toEqual([
+      { kind: 'canonical', action: 'Special Attack' },
+      { kind: 'canonical', action: 'EX Special Attack' },
+      { kind: 'canonical', action: 'Chain Attack' },
+      { kind: 'canonical', action: 'Ultimate' },
+    ])
+    expect(m1ResIgnore.values.fully).toBe(15)
+    expect(metric(m1, 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'orphie', locus: 'mindscape', amount: 20 }))
+
+    const m2 = agent(calculateParty(withMindscape(baseline, 'orphie', 2))!, 'orphie')
+    expect(metric(m2, 'atk').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        ownerAgentId: 'orphie', locus: 'mindscape',
+        display: { value: 20, unit: '%', decimals: 0 },
+      }))
+
+    const m4 = agent(calculateParty(withMindscape(baseline, 'orphie', 4))!, 'orphie')
+    expect(
+      action(m4, 'orphieHeatChargeUltimate').values.fully
+        - metric(m4, 'dmgBonus').values.fully,
+    ).toBe(40)
+  })
+
+  it('keeps selected four-piece own two-piece inputs visible on the new agents', () => {
+    const pulchraAllocated = createPreparedState({}, ['corin', 'trigger', 'pulchra'], 0)
+    const allocatedPulchra = agent(calculateParty(pulchraAllocated)!, 'pulchra')
+    expect(metric(allocatedPulchra, 'atk').breakdown.initial
+      .filter(({ label, detail }) => label === 'Astral Voice' && detail === '2-piece'))
+      .toHaveLength(1)
+
+    const orphieAstral = selectDisc(
+      createPreparedState({}, ['anbySoldier0', 'orphie', 'pulchra'], 0),
+      'orphie',
+      'fourPiece',
+      'astralVoice',
+    )
+    const directOrphie = agent(calculateParty(orphieAstral)!, 'orphie')
+    expect(metric(directOrphie, 'atk').breakdown.initial
+      .filter(({ label, detail }) => label === 'Astral Voice' && detail === '2-piece'))
+      .toHaveLength(1)
+
+    const swing = selectMain(
+      selectDisc(
+        createPreparedState({}, ['anbySoldier0', 'orphie', 'pulchra'], 0),
+        'pulchra',
+        'fourPiece',
+        'swingJazz',
+      ),
+      'pulchra',
+      'slot4',
+      'atkPct',
+    )
+    const swingPulchra = agent(calculateParty(swing)!, 'pulchra')
+    expect(metric(swingPulchra, 'energyRegen').values.initial).toBeCloseTo(1.44, 10)
+    expect(metric(swingPulchra, 'energyRegen').breakdown.initial
+      .filter(({ label, detail }) => label === 'Swing Jazz' && detail === '2-piece'))
+      .toHaveLength(1)
+  })
+
+  it('keeps Pulchra King local while Proto projects broad DMG once without a shield row', () => {
+    const kingState = selectEngine(
+      createPreparedState({}, ['pulchra', 'lucia', 'corin'], 0),
+      'lucia',
+      'unfetteredGameBall',
+    )
+    const kingPulchra = agent(calculateParty(kingState)!, 'pulchra')
+    expect(metric(kingPulchra, 'critRate').values.fully).toBeGreaterThan(
+      metric(kingPulchra, 'critRate').gauge!.current,
+    )
+    expect(metric(kingPulchra, 'critRate').gauge).toMatchObject({
+      basisLabel: 'Local CRIT Rate',
+      current: 39,
+      outputValue: 15,
+    })
+
+    const protoState = selectMain(
+      selectDisc(kingState, 'pulchra', 'fourPiece', 'protoPunk'),
+      'pulchra',
+      'slot4',
+      'atkPct',
+    )
+    const protoResult = calculateParty(protoState)!
+    const protoPulchra = agent(protoResult, 'pulchra')
+    expect(protoPulchra.metrics.find(({ id }) => id === 'critRate')).toBeUndefined()
+    expect(protoPulchra.metrics.map(({ label }) => label)).not.toContain('Shield Effect')
+    expect(metric(protoPulchra, 'dmgBonus').breakdown.fully
+      .filter(({ label, ownerAgentId }) => label === 'Proto Punk' && ownerAgentId === 'pulchra'))
+      .toHaveLength(1)
+    expect(metric(agent(protoResult, 'corin'), 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Proto Punk', ownerAgentId: 'pulchra', amount: 15 }))
   })
 })

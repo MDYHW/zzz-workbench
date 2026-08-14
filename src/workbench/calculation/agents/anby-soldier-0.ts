@@ -1,16 +1,13 @@
 import { DRIVE_DISC_FACTS, VERTICAL_VALUES, W_ENGINE_FACTS, W_ENGINES, equipmentEffectBaseValue, equipmentEffectMaximumValue, equipmentEffectProgressionValue } from '../../content'
 import { STATIC_SOURCES, active, additive, discSource, discStatInput, effectiveSubstatInput, engineAdvancedInput, engineSource, mainStatInput, mindscapeSource, percentage, presentSetupInputs, pufferElectroFourPieceClauses, resolveDeliveredClauses, type CompleteSetup, type EffectMetric, type ResolvedSetupInput, type SourceBoundCurrentClause } from '../../effects'
-import { actionTarget, canonicalAction } from '../../actions'
+import { AFTERSHOCK_TARGET, actionTarget, canonicalAction } from '../../actions'
 import { composeActionEffects, composeMetricEffects, contribution, percentageContribution, surfaces } from '../composition'
 import { initialAtkFor } from '../initial-atk'
 import type { AgentResult } from '../result'
 
 export interface AnbyCalculationContext { agentId: 'anbySoldier0'; setup: CompleteSetup; hasStunOrSupport: boolean; isFocus: boolean; initialAtk: number }
 
-export const ANBY_AFTERSHOCK_TARGET = actionTarget(
-  [],
-  ['aftershock'],
-)
+export const ANBY_AFTERSHOCK_TARGET = AFTERSHOCK_TARGET
 
 const ANBY_DASH_TARGET = actionTarget([canonicalAction('Dash Attack')])
 
@@ -133,10 +130,17 @@ export function calculateAnby(context: AnbyCalculationContext, inbox: SourceBoun
   const ultimate = composeActionEffects(action.values, effects, 'dmgBonus', ANBY_ULTIMATE_TARGET)
   const dash = composeActionEffects(regular.values, effects, 'dmgBonus', ANBY_DASH_TARGET)
   const aftershockCrit = composeActionEffects(critDmg.values, effects, 'critDmg', ANBY_AFTERSHOCK_TARGET)
+  const defIgnore = composeMetricEffects(
+    surfaces(0, 0, 0), surfaces([], [], []), effects, 'defIgnore',
+  )
+  const aftershockDefIgnore = composeActionEffects(
+    defIgnore.values, effects, 'defIgnore', ANBY_AFTERSHOCK_TARGET,
+  )
   const actionModifiers: AgentResult['actionModifiers'] = [
     { id: 'anbyAftershock', outcomes: [...ANBY_AFTERSHOCK_TARGET.outcomes], tags: [...ANBY_AFTERSHOCK_TARGET.tags], metricId: 'dmgBonus', ...action },
     { id: 'anbyDash', outcomes: [...ANBY_DASH_TARGET.outcomes], tags: [...ANBY_DASH_TARGET.tags], metricId: 'dmgBonus', ...dash },
     { id: 'anbyAftershockCritDmg', outcomes: [...ANBY_AFTERSHOCK_TARGET.outcomes], tags: [...ANBY_AFTERSHOCK_TARGET.tags], metricId: 'critDmg', ...aftershockCrit },
+    ...(aftershockDefIgnore.breakdown.fully.length ? [{ id: 'anbyAftershockDefIgnore', outcomes: [...ANBY_AFTERSHOCK_TARGET.outcomes], tags: [...ANBY_AFTERSHOCK_TARGET.tags], metricId: 'defIgnore' as const, ...aftershockDefIgnore }] : []),
   ]
   if (effects.some((effect) => effect.action === ANBY_ULTIMATE_TARGET && effect.metric === 'dmgBonus')) {
     actionModifiers.push({
@@ -151,5 +155,5 @@ export function calculateAnby(context: AnbyCalculationContext, inbox: SourceBoun
   if (effects.some((effect) => effect.action === ANBY_BASIC_ULTIMATE_TARGET && effect.metric === 'defIgnore')) {
     actionModifiers.push({ id: 'anbyBasicUltimate', outcomes: [...ANBY_BASIC_ULTIMATE_TARGET.outcomes], tags: [...ANBY_BASIC_ULTIMATE_TARGET.tags], metricId: 'defIgnore', ...composeActionEffects(surfaces(0, 0, 0), effects, 'defIgnore', ANBY_BASIC_ULTIMATE_TARGET) })
   }
-  return { agentId: 'anbySoldier0', metrics: [{ id: 'atk', label: 'ATK', unit: '', decimals: 0, ...atk }, { id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1, ...critRate }, { id: 'critDmg', label: 'CRIT DMG', unit: '%', decimals: 1, ...critDmg }, { id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...regular }, ...(pen.values.fully ? [{ id: 'penRatio' as const, label: 'PEN Ratio', unit: '%', decimals: 1, ...pen }] : []), ...optionalMetric('defIgnore', 'defIgnore', 'DEF Ignore', effects), ...optionalMetric('resIgnore', 'resIgnore', 'RES Ignore', effects), ...optionalMetric('resReduction', 'resReduction', 'RES Reduction', effects), ...optionalMetric('defReduction', 'defReduction', 'DEF Reduction', effects), ...optionalMetric('stunDmgMultiplier', 'stunDmgMultiplier', 'Stun DMG Multiplier', effects)], actionModifiers, operations: [] }
+  return { agentId: 'anbySoldier0', metrics: [{ id: 'atk', label: 'ATK', unit: '', decimals: 0, ...atk }, { id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1, ...critRate }, { id: 'critDmg', label: 'CRIT DMG', unit: '%', decimals: 1, ...critDmg }, { id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...regular }, ...(pen.values.fully ? [{ id: 'penRatio' as const, label: 'PEN Ratio', unit: '%', decimals: 1, ...pen }] : []), ...(defIgnore.values.fully || aftershockDefIgnore.breakdown.fully.length ? [{ id: 'defIgnore' as const, label: 'DEF Ignore', unit: '%', decimals: 1, ...defIgnore }] : []), ...optionalMetric('resIgnore', 'resIgnore', 'RES Ignore', effects), ...optionalMetric('resReduction', 'resReduction', 'RES Reduction', effects), ...optionalMetric('defReduction', 'defReduction', 'DEF Reduction', effects), ...optionalMetric('stunDmgMultiplier', 'stunDmgMultiplier', 'Stun DMG Multiplier', effects)], actionModifiers, operations: [] }
 }

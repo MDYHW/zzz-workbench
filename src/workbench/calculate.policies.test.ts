@@ -886,11 +886,10 @@ describe('authored calculation policies', () => {
       const allocated = agent(calculateParty(
         createPreparedState({}, ['juFufu', 'trigger', 'yixuan'], 2),
       )!, 'juFufu')
-      expect(metric(allocated, 'energyRegen').values.initial).toBeCloseTo(1.44)
-      expect(metric(allocated, 'energyRegen').breakdown.initial)
-        .toContainEqual(expect.objectContaining({
-          ownerAgentId: 'juFufu', locus: 'disc-4pc', amount: 0.24,
-        }))
+      expect(metric(allocated, 'critRate').gauge).toMatchObject({
+        threshold: 50, outputValue: 30,
+      })
+      expect(allocated.metrics.find(({ id }) => id === 'energyRegen')).toBeUndefined()
     })
 
     it('applies Ju Fufu cumulative Mindscapes without inventing Decibel state', () => {

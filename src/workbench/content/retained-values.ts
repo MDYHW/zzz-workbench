@@ -262,6 +262,20 @@ export const VERTICAL_VALUES = {
     atk: 649, baseEnergyRegen: 1.56,
     coreDefReduction: 40, additionalEtherDmg: 25, mindscapeSquadCritRate: 15,
   },
+  orphie: {
+    atk: 929, critRate: 5, critDmg: 50, baseEnergyRegen: 1.56,
+    coreCritRate: 25, coreAftershockDmg: 85,
+    coreSquadAtkBase: 280, coreSquadAtkStep: 20,
+    coreEnergyThreshold: 1.6, coreEnergyStep: 0.1, coreSquadAtkCap: 700,
+    additionalAftershockDefIgnore: 25,
+    mindscapeFireResIgnore: 15, mindscapeSquadDmg: 20,
+    mindscapeAtk: 20, mindscapeActionDmg: 40,
+  },
+  pulchra: {
+    atk: 665, critRate: 5, critDmg: 50, impact: 136, baseEnergyRegen: 1.2,
+    coreDaze: 30, additionalDmg: 30,
+    mindscapeCritRate: 10, mindscapeAtk: 10, kingCritThreshold: 50,
+  },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [
@@ -332,5 +346,9 @@ export const SOURCE_LABELS = {
   zhuYuanAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   nicoleCore: SOURCE_CATEGORY_LABELS.corePassive,
   nicoleAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  orphieCore: SOURCE_CATEGORY_LABELS.corePassive,
+  orphieAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  pulchraCore: SOURCE_CATEGORY_LABELS.corePassive,
+  pulchraAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const

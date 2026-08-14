@@ -586,6 +586,73 @@ describe('workbench state lifecycle', () => {
     expect(state.slots.filter(({ setup }) => setup.fourPieceId === 'king')).toHaveLength(1)
   })
 
+  it('preserves Hugo two-Stun allocation when either target pool rebuilds', () => {
+    let state = createPreparedState({}, ['hugo', 'juFufu', 'pulchra'], 0)
+    const hugo = state.slots[0]
+
+    expect(state.slots[1].setup).toMatchObject({ fourPieceId: 'king' })
+    expect(state.slots[2].setup).toMatchObject({
+      fourPieceId: 'astralVoice', twoPieceId: 'king',
+      mains: { slot4: 'atkPct', slot5: 'physicalDmg', slot6: 'impact' },
+    })
+
+    state = workbenchReducer(state, {
+      type: 'switchPool', slot: 2, pool: 'nonLimited',
+    })
+    expect(state.slots[0]).toBe(hugo)
+    expect(state.slots[1].setup).toMatchObject({ fourPieceId: 'king' })
+    expect(state.slots[2].setup).toMatchObject({
+      pool: 'nonLimited', engineId: 'boxCutter',
+      fourPieceId: 'astralVoice', twoPieceId: 'king',
+    })
+
+    const pulchra = state.slots[2]
+    state = workbenchReducer(state, {
+      type: 'switchPool', slot: 1, pool: 'nonLimited',
+    })
+    expect(state.slots[0]).toBe(hugo)
+    expect(state.slots[2]).toBe(pulchra)
+    expect(state.slots[1].setup).toMatchObject({
+      pool: 'nonLimited', engineId: 'hellfireGears', fourPieceId: 'king',
+    })
+    expect(state.slots.filter(({ setup }) => setup.fourPieceId === 'king'))
+      .toHaveLength(1)
+  })
+
+  it('leaves a direct flexible King duplicate local when only Ju Fufu is rebuilt', () => {
+    let state = createPreparedState({}, ['hugo', 'juFufu', 'pulchra'], 0)
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 2, piece: 'twoPiece', discId: 'shockstar',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 2, piece: 'fourPiece', discId: 'king',
+    })
+    expect(state.slots[2].setup.fourPieceId).toBe('king')
+    const directPulchra = state.slots[2]
+
+    state = workbenchReducer(state, {
+      type: 'switchPool', slot: 1, pool: 'nonLimited',
+    })
+    expect(state.slots[2]).toBe(directPulchra)
+    expect(state.slots[1].setup).toMatchObject({
+      pool: 'nonLimited', engineId: 'hellfireGears', fourPieceId: 'king',
+    })
+    expect(state.slots[1].setup.fourPieceId).not.toBe('shockstar')
+    expect(state.slots.filter(({ setup }) => setup.fourPieceId === 'king'))
+      .toHaveLength(2)
+
+    state = workbenchReducer(state, {
+      type: 'switchPool', slot: 1, pool: 'full',
+    })
+    expect(state.slots[2]).toBe(directPulchra)
+    expect(state.slots[1].setup).toMatchObject({
+      pool: 'full', engineId: 'roaringFurnace', fourPieceId: 'king',
+    })
+    expect(state.slots[1].setup.fourPieceId).not.toBe('shockstar')
+    expect(state.slots.filter(({ setup }) => setup.fourPieceId === 'king'))
+      .toHaveLength(2)
+  })
+
   it('invalidates every selected DEF-region PEN main atomically when broad pre-PEN pressure activates', () => {
     let state = createPreparedState({}, ['anbySoldier0', 'trigger', 'dialyn'], 0)
     state = workbenchReducer(state, {

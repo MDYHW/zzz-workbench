@@ -269,6 +269,83 @@ describe('AgentSetup Seed Additional Ability', () => {
   })
 })
 
+describe('AgentSetup Orphie and Pulchra equipment packages', () => {
+  it('keeps Gilded Blossom complete on Orphie candidate and selected surfaces', async () => {
+    const user = userEvent.setup()
+    const state = createPreparedState({}, ['anbySoldier0', 'orphie', 'pulchra'], 0)
+    const setup = state.slots[1].setup
+    const props = {
+      activeSourceTone: null,
+      agentId: 'orphie' as const,
+      discCandidates: DISC_IDS_BY_AGENT_AND_PIECE.orphie,
+      dispatch: vi.fn(),
+      mainStatCandidates: MAIN_STAT_IDS_BY_AGENT_AND_SLOT.orphie,
+      onSourceToneChange: vi.fn(),
+      slot: 1 as const,
+    }
+    const description = 'ATK +25%. ATK +9.6%. EX Special Attack DMG +24%'
+    const { rerender } = render(<AgentSetup {...props} setup={setup} />)
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change W-Engine from Bellicose Blaze',
+    }))
+    expect(within(screen.getByLabelText('W-Engine candidates')).getByRole('button', {
+      name: 'Select Gilded Blossom W5',
+    })).toHaveAccessibleDescription(description)
+
+    rerender(<AgentSetup {...props} setup={{
+      ...setup,
+      engineId: 'gildedBlossom',
+      refinement: 5,
+    }} />)
+    expect(screen.getByRole('button', {
+      name: 'Change W-Engine from Gilded Blossom',
+    })).toHaveAccessibleDescription(description)
+  })
+
+  it('keeps Box Cutter and Proto Punk complete on Pulchra surfaces', async () => {
+    const user = userEvent.setup()
+    const state = createPreparedState({}, ['anbySoldier0', 'orphie', 'pulchra'], 0)
+    const setup = state.slots[2].setup
+    const props = {
+      activeSourceTone: null,
+      agentId: 'pulchra' as const,
+      discCandidates: DISC_IDS_BY_AGENT_AND_PIECE.pulchra,
+      dispatch: vi.fn(),
+      mainStatCandidates: MAIN_STAT_IDS_BY_AGENT_AND_SLOT.pulchra,
+      onSourceToneChange: vi.fn(),
+      slot: 2 as const,
+    }
+    const boxDescription = 'Impact +15%. After Aftershock · Physical DMG +24%. After Aftershock · Daze +16%'
+    const { rerender } = render(<AgentSetup {...props} setup={setup} />)
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change W-Engine from Blazing Laurel',
+    }))
+    expect(within(screen.getByLabelText('W-Engine candidates')).getByRole('button', {
+      name: 'Select Box Cutter W5',
+    })).toHaveAccessibleDescription(boxDescription)
+
+    rerender(<AgentSetup {...props} setup={{
+      ...setup,
+      engineId: 'boxCutter',
+      refinement: 5,
+    }} />)
+    expect(screen.getByRole('button', {
+      name: 'Change W-Engine from Box Cutter',
+    })).toHaveAccessibleDescription(boxDescription)
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from King of the Summit',
+    }))
+    expect(within(screen.getByLabelText('fourPiece Drive Disc candidates')).getByRole('button', {
+      name: 'Select Proto Punk as fourPiece',
+    })).toHaveAccessibleDescription(
+      'After Defensive or Evasive Assist · Squad DMG +15%. Shield provided +15%',
+    )
+  })
+})
+
 describe('AgentSetup compressed Disc effects', () => {
   it('shows final Dawn and Woodpecker values without routine trigger or stack steps', async () => {
     const user = userEvent.setup()

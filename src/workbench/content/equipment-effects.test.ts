@@ -386,4 +386,33 @@ describe('bounded equipment effect facts', () => {
     ])
     expect(W_ENGINES.steelCushion.passiveSpecialty).toBe('Attack')
   })
+
+  it('retains the Orphie and Pulchra equipment packages and holder gates', () => {
+    expect(W_ENGINES.gildedBlossom).toMatchObject({
+      rank: 'A', limited: false, baseAtk: 594,
+      advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
+      passiveSpecialty: 'Attack',
+    })
+    expect(W_ENGINES.boxCutter).toMatchObject({
+      rank: 'A', limited: false, baseAtk: 624,
+      advancedStat: { id: 'impactPct', label: 'Impact', value: 15, unit: '%' },
+      passiveSpecialty: 'Stun',
+    })
+    expect(W_ENGINES.gildedBlossom.passiveLines(5)).toEqual([
+      'ATK +9.6%',
+      'EX Special Attack DMG +24%',
+    ])
+    expect(W_ENGINES.boxCutter.passiveLines(5)).toEqual([
+      'After Aftershock · Physical DMG +24%',
+      'After Aftershock · Daze +16%',
+    ])
+    expect(DRIVE_DISCS.protoPunk).toMatchObject({
+      twoPieceEffect: 'Shield provided +15%',
+      fourPieceEffects: ['After Defensive or Evasive Assist · Squad DMG +15%'],
+    })
+    expect(W_ENGINE_FACTS.boxCutter.effects.physicalDamage.scope)
+      .toEqual({ attributes: ['Physical'] })
+    expect(DRIVE_DISC_FACTS.protoPunk.fourPiece.damage.scope)
+      .toEqual({ recipient: 'squad' })
+  })
 })

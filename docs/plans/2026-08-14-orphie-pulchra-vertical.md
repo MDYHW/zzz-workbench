@@ -46,7 +46,8 @@ No new screen or runtime scoring surface is needed.
   King CRIT pressure, and existing allocation participation.
 - Cover candidate completeness, exact-identity descriptions, zero-substat
   representatives, full/non-limited differences, King off/on/reselected state,
-  and a composed Trigger/Dialyn allocation contrast in shared behavior tests.
+  and composed Hugo two-Stun King/Astral/Shockstar allocation contrasts in
+  shared behavior tests.
 
 ### 2. Provider, party qualification, and Result projection
 

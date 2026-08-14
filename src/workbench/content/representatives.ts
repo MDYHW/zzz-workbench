@@ -187,6 +187,21 @@ const nicoleRepresentative: SetupSelection = {
   mains: { slot4: 'atkPct', slot5: 'etherDmg', slot6: 'energyRegenPct' },
 }
 
+const orphieRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'bellicoseBlaze' : 'gildedBlossom',
+  fourPieceId: 'shadowHarmony', twoPieceId: 'swingJazz',
+  mains: {
+    slot4: pool === 'full' ? 'critDmg' : 'critRate',
+    slot5: 'fireDmg', slot6: 'energyRegenPct',
+  },
+})
+
+const pulchraRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'blazingLaurel' : 'boxCutter',
+  fourPieceId: 'king', twoPieceId: 'shockstar',
+  mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
+})
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -274,6 +289,8 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   lucy: { full: lucyRepresentative, nonLimited: lucyRepresentative },
   zhuYuan: { full: zhuYuanRepresentative('full'), nonLimited: zhuYuanRepresentative('nonLimited') },
   nicole: { full: nicoleRepresentative, nonLimited: nicoleRepresentative },
+  orphie: { full: orphieRepresentative('full'), nonLimited: orphieRepresentative('nonLimited') },
+  pulchra: { full: pulchraRepresentative('full'), nonLimited: pulchraRepresentative('nonLimited') },
 }
 
 export function representativeSetupFor(

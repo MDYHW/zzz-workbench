@@ -27,6 +27,94 @@ const permutations = <T,>(items: readonly [T, T, T]): [T, T, T][] => [
 ]
 
 describe('party-directed preparation', () => {
+  it('prepares Orphie and Pulchra with independent pool representatives at zero supplied substats', () => {
+    const full = createPreparedState({}, ['anbySoldier0', 'orphie', 'pulchra'], 0)
+    expect(full.slots[1].setup).toMatchObject({
+      mindscape: 0, engineId: 'bellicoseBlaze', refinement: 1,
+      fourPieceId: 'shadowHarmony', twoPieceId: 'swingJazz',
+      mains: { slot4: 'critDmg', slot5: 'fireDmg', slot6: 'energyRegenPct' },
+      substats: { critRate: 0, critDmg: 0, atkPct: 0 },
+    })
+    expect(full.slots[2].setup).toMatchObject({
+      mindscape: 6, engineId: 'blazingLaurel', refinement: 1,
+      fourPieceId: 'king', twoPieceId: 'shockstar',
+      mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
+      substats: { critRate: 0 },
+    })
+
+    const nonLimited = createPreparedState(
+      { orphie: 'nonLimited', pulchra: 'nonLimited' },
+      ['anbySoldier0', 'orphie', 'pulchra'],
+      0,
+    )
+    expect(nonLimited.slots[1].setup).toMatchObject({
+      engineId: 'gildedBlossom', refinement: 5,
+      mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'energyRegenPct' },
+    })
+    expect(nonLimited.slots[2].setup).toMatchObject({
+      engineId: 'boxCutter', refinement: 5,
+      fourPieceId: 'king', twoPieceId: 'shockstar',
+    })
+  })
+
+  it.each(['dialyn', 'trigger'] as const)(
+    'keeps King on established holder %s and prepares Pulchra on Astral regardless of slot order',
+    (kingHolderId) => {
+      const focus = kingHolderId === 'dialyn' ? context('corin') : context('anbySoldier0')
+      const members = [focus, context(kingHolderId), context('pulchra', 'full', 6)] as const
+
+      for (const ordered of permutations(members)) {
+        const prepared = preparePartySelections(ordered, focus.agentId)
+        const kingHolder = prepared[ordered.findIndex(({ agentId }) => agentId === kingHolderId)]
+        const pulchra = prepared[ordered.findIndex(({ agentId }) => agentId === 'pulchra')]
+
+        expect(kingHolder).toMatchObject({ fourPieceId: 'king' })
+        expect(pulchra).toMatchObject({
+          fourPieceId: 'astralVoice', twoPieceId: 'king',
+          mains: { slot4: 'atkPct', slot5: 'physicalDmg', slot6: 'impact' },
+        })
+      }
+    },
+  )
+
+  it('allocates current Hugo two-Stun packages by Astral flexibility and bounded King ties', () => {
+    const pulchraKeepsKing = [context('hugo'), context('lycaon'), context('pulchra')] as const
+    for (const ordered of permutations(pulchraKeepsKing)) {
+      const prepared = preparePartySelections(ordered, 'hugo')
+      expect(prepared[ordered.findIndex(({ agentId }) => agentId === 'pulchra')])
+        .toMatchObject({ fourPieceId: 'king', twoPieceId: 'shockstar' })
+      expect(prepared[ordered.findIndex(({ agentId }) => agentId === 'lycaon')])
+        .toMatchObject({
+          fourPieceId: 'astralVoice', twoPieceId: 'king',
+          mains: { slot4: 'atkPct', slot5: 'iceDmg', slot6: 'impact' },
+        })
+    }
+
+    const rigidJuKeepsKing = [context('hugo'), context('juFufu'), context('pulchra')] as const
+    for (const ordered of permutations(rigidJuKeepsKing)) {
+      const prepared = preparePartySelections(ordered, 'hugo')
+      expect(prepared[ordered.findIndex(({ agentId }) => agentId === 'juFufu')])
+        .toMatchObject({ fourPieceId: 'king' })
+      expect(prepared[ordered.findIndex(({ agentId }) => agentId === 'pulchra')])
+        .toMatchObject({
+          fourPieceId: 'astralVoice', twoPieceId: 'king',
+          mains: { slot4: 'atkPct', slot5: 'physicalDmg', slot6: 'impact' },
+        })
+    }
+
+    const neitherCanUseAstral = [context('hugo'), context('dialyn'), context('juFufu')] as const
+    for (const ordered of permutations(neitherCanUseAstral)) {
+      const prepared = preparePartySelections(ordered, 'hugo')
+      expect(prepared[ordered.findIndex(({ agentId }) => agentId === 'dialyn')])
+        .toMatchObject({ fourPieceId: 'king' })
+      expect(prepared[ordered.findIndex(({ agentId }) => agentId === 'juFufu')])
+        .toMatchObject({
+          fourPieceId: 'shockstar', twoPieceId: 'king',
+          mains: { slot4: 'atkPct' },
+        })
+    }
+  })
+
   it('prepares Ellen and Soukaku with their authored pool representatives and zero supplied substats', () => {
     const full = createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0)
     expect(full.slots[0].setup).toMatchObject({
@@ -335,19 +423,19 @@ describe('party-directed preparation', () => {
     })
   })
 
-  it('authors Ju Fufu pool packages and reuses non-overlapping King holder allocation', () => {
+  it('authors Ju Fufu pool packages and reuses non-overlapping two-Stun allocation', () => {
     expect(preparePartySelections([
       context('juFufu'), context('trigger'), context('yixuan'),
     ], 'yixuan')).toMatchObject([
-      { fourPieceId: 'swingJazz', twoPieceId: 'king' },
       { fourPieceId: 'king' },
+      { fourPieceId: 'astralVoice', twoPieceId: 'shockstar' },
       {},
     ])
     expect(preparePartySelections([
       context('juFufu'), context('dialyn'), context('yixuan'),
     ], 'yixuan')).toMatchObject([
       {
-        fourPieceId: 'swingJazz', twoPieceId: 'king',
+        fourPieceId: 'shockstar', twoPieceId: 'king',
         mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'atkPct' },
       },
       { fourPieceId: 'king' },

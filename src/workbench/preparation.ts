@@ -10,7 +10,11 @@ import {
   type SetupSelection,
 } from './content'
 import { primaryFormulaUsesCrit, primaryFormulaUsesDefRegion } from './formula-policy'
-import { anotherAgentHasSpecialty, zhuYuanAdditionalIsActive } from './party-conditions'
+import {
+  anotherAgentHasSpecialty,
+  triggerAdditionalIsActive,
+  zhuYuanAdditionalIsActive,
+} from './party-conditions'
 
 export interface PreparationContext {
   agentId: AgentId
@@ -47,6 +51,7 @@ function withFocusedEngine(
 
 function withCompetitiveKingAstralAllocation(
   context: PreparationContext,
+  partyAgentIds: readonly AgentId[],
   establishedHolders: readonly EstablishedDiscHolder[],
   selection: SetupSelection,
 ): SetupSelection {
@@ -54,23 +59,25 @@ function withCompetitiveKingAstralAllocation(
     .includes('king')
   const canPrepareAstral = DISC_IDS_BY_AGENT_AND_PIECE[context.agentId].fourPiece
     .includes('astralVoice')
-  const kingIsHeldByPriorityCritHolder = establishedHolders.some((holder) => (
+  const anotherHolderKeepsKing = establishedHolders.some((holder) => (
     holder.agentId !== context.agentId
     && holder.fourPieceId === 'king'
-    && hasPreparedKingPriority(holder.agentId)
+    && kingHolderPrecedes(context.agentId, holder.agentId, partyAgentIds)
   ))
-  const targetHasPreparedKingPriority = hasPreparedKingPriority(context.agentId)
+  const targetRetainsAuthoredCrit = retainsAuthoredCritAfterKingAllocation(
+    context.agentId,
+  )
   return selection.fourPieceId === 'king'
-    && canPrepareKing && canPrepareAstral && kingIsHeldByPriorityCritHolder
+    && canPrepareKing && canPrepareAstral && anotherHolderKeepsKing
     ? {
       ...selection,
       fourPieceId: 'astralVoice',
-      twoPieceId: targetHasPreparedKingPriority
+      twoPieceId: targetRetainsAuthoredCrit
         ? selection.twoPieceId
         : selection.fourPieceId,
       mains: {
         ...selection.mains,
-        slot4: targetHasPreparedKingPriority
+        slot4: targetRetainsAuthoredCrit
           ? selection.mains.slot4
           : 'atkPct',
       },
@@ -136,9 +143,47 @@ function withEstablishedFocusCritKingPriority(
       : selection
 }
 
-function hasPreparedKingPriority(agentId: AgentId): boolean {
+function hasIndependentKingCrit(
+  agentId: AgentId,
+  partyAgentIds: readonly AgentId[],
+): boolean {
+  if (agentId === 'trigger') {
+    return triggerAdditionalIsActive(partyAgentIds, partyAgentIds.indexOf(agentId))
+  }
+  return retainsAuthoredCritAfterKingAllocation(agentId)
+}
+
+function retainsAuthoredCritAfterKingAllocation(agentId: AgentId): boolean {
   return MAIN_STAT_IDS_BY_AGENT_AND_SLOT[agentId].slot4.includes('critRate')
     && SUBSTAT_CHOICES_BY_AGENT[agentId].some(({ id }) => id === 'critRate')
+}
+
+function canPrepareAstral(agentId: AgentId): boolean {
+  return DISC_IDS_BY_AGENT_AND_PIECE[agentId].fourPiece.includes('astralVoice')
+}
+
+function winsCurrentKingTie(holderId: AgentId, targetId: AgentId): boolean {
+  return (holderId === 'trigger' && (targetId === 'lycaon' || targetId === 'pulchra'))
+    || (holderId === 'pulchra' && targetId === 'lycaon')
+}
+
+/**
+ * Preserve the less-flexible King holder first. When both holders can take
+ * Astral, an independent CRIT consumer wins; the remaining current ties use
+ * their bounded authored representative rather than a runtime holder score.
+ */
+function kingHolderPrecedes(
+  targetId: AgentId,
+  holderId: AgentId,
+  partyAgentIds: readonly AgentId[],
+): boolean {
+  if (!canPrepareAstral(holderId)) return true
+  const holderHasIndependentCrit = hasIndependentKingCrit(holderId, partyAgentIds)
+  const targetHasIndependentCrit = hasIndependentKingCrit(targetId, partyAgentIds)
+  if (holderHasIndependentCrit !== targetHasIndependentCrit) {
+    return holderHasIndependentCrit
+  }
+  return winsCurrentKingTie(holderId, targetId)
 }
 
 function withAstraAstralAllocation(
@@ -288,20 +333,22 @@ function withEstablishedMoonlightAllocation(
     : selection
 }
 
-function withJuFufuKingAlternative(
+function withJuFufuShockstarFallback(
   context: PreparationContext,
   establishedHolders: readonly EstablishedDiscHolder[],
   selection: SetupSelection,
 ): SetupSelection {
-  const anotherKingHolder = establishedHolders.some(({ agentId, fourPieceId }) => (
-    agentId !== context.agentId && fourPieceId === 'king'
+  const rigidKingHolder = establishedHolders.some(({ agentId, fourPieceId }) => (
+    agentId !== context.agentId
+    && fourPieceId === 'king'
+    && !canPrepareAstral(agentId)
   ))
-  if (context.agentId !== 'juFufu' || selection.fourPieceId !== 'king' || !anotherKingHolder) {
+  if (context.agentId !== 'juFufu' || selection.fourPieceId !== 'king' || !rigidKingHolder) {
     return selection
   }
   return {
     ...selection,
-    fourPieceId: 'swingJazz',
+    fourPieceId: 'shockstar',
     twoPieceId: 'king',
     mains: { ...selection.mains, slot4: 'atkPct' },
   }
@@ -428,8 +475,17 @@ export function prepareTargetSelection(
     establishedHolders,
     focused,
   )
-  const allocated = withCompetitiveKingAstralAllocation(context, establishedHolders, kingDirected)
-  const nonoverlapping = withJuFufuKingAlternative(context, establishedHolders, allocated)
+  const allocated = withCompetitiveKingAstralAllocation(
+    context,
+    partyAgentIds,
+    establishedHolders,
+    kingDirected,
+  )
+  const nonoverlapping = withJuFufuShockstarFallback(
+    context,
+    establishedHolders,
+    allocated,
+  )
   const contextual = withCissiaAstralOpportunity(
     context,
     partyAgentIds,
@@ -480,6 +536,7 @@ export function preparePartySelections(
   const focusKingDirected = withFocusCritKingPriority(contexts, focusAgentId, focused)
   const withKingAllocation = focusKingDirected.map((selection, index) => withCompetitiveKingAstralAllocation(
     contexts[index],
+    partyAgentIds,
     contexts.map((context, holderIndex) => ({
       agentId: context.agentId,
       fourPieceId: focusKingDirected[holderIndex].fourPieceId,
@@ -492,10 +549,10 @@ export function preparePartySelections(
     fourPieceId: withKingAllocation[index].fourPieceId,
     mindscape: context.mindscape,
   }))
-  const withJuFufuAlternative = withKingAllocation.map((selection, index) => (
-    withJuFufuKingAlternative(contexts[index], kingHolders, selection)
+  const withJuFufuFallback = withKingAllocation.map((selection, index) => (
+    withJuFufuShockstarFallback(contexts[index], kingHolders, selection)
   ))
-  const withCissiaAstral = withJuFufuAlternative.map((selection, index) => (
+  const withCissiaAstral = withJuFufuFallback.map((selection, index) => (
     withCissiaAstralOpportunity(contexts[index], partyAgentIds, kingHolders, selection)
   ))
   const holders = contexts.map((context, index) => ({

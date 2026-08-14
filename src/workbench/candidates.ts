@@ -108,7 +108,7 @@ export function effectiveTwoPieceIds(
   const base = agentId === 'trigger' && !triggerCritPressureIsActive(state, slot)
     ? authored.filter((candidateId) => candidateId !== 'woodpecker')
     : authored
-  const selectedDerived = (agentId === 'lycaon' || agentId === 'juFufu' || agentId === 'lighter')
+  const selectedDerived = (agentId === 'lycaon' || agentId === 'juFufu' || agentId === 'lighter' || agentId === 'pulchra')
     && state.slots[slot].setup.fourPieceId === 'king'
     ? ['woodpecker' as const]
     : []
@@ -153,7 +153,7 @@ function effectiveMainStatIdsForPressure(
   selectedFourPieceId: DiscId | null,
 ): MainStatId[] {
   const base = MAIN_STAT_IDS_BY_AGENT_AND_SLOT[agentId][mainSlot]
-  const candidates = (agentId === 'lycaon' || agentId === 'juFufu' || agentId === 'lighter')
+  const candidates = (agentId === 'lycaon' || agentId === 'juFufu' || agentId === 'lighter' || agentId === 'pulchra')
     && mainSlot === 'slot4'
     && selectedFourPieceId === 'king'
     ? [...base, 'critRate' as const]

@@ -37,6 +37,8 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   lucy: { primary: [], residual: [] },
   zhuYuan: { primary: ['general_damage'], residual: [] },
   nicole: { primary: [], residual: [] },
+  orphie: { primary: [], residual: ['general_damage'] },
+  pulchra: { primary: ['daze_buildup'], residual: ['general_damage'] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -173,6 +175,14 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   nicole: {
     slot4: ['atkPct'], slot5: ['etherDmg'], slot6: ['energyRegenPct'],
   },
+  orphie: {
+    slot4: ['critRate', 'critDmg'], slot5: ['fireDmg', 'atkPct'],
+    slot6: ['energyRegenPct', 'atkPct'],
+  },
+  pulchra: {
+    slot4: ['atkPct'], slot5: ['physicalDmg', 'atkPct'],
+    slot6: ['impact', 'energyRegenPct'],
+  },
 }
 
 /** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
@@ -282,6 +292,12 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
     { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
   ],
   nicole: [],
+  orphie: [
+    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
+    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+  ],
+  pulchra: [],
 }
 
 /**
@@ -293,7 +309,10 @@ export function effectiveSubstatChoices(
   agentId: AgentId,
   setup: { fourPieceId: DiscId | null },
 ): SubstatChoice[] {
-  if ((agentId === 'lycaon' || agentId === 'lighter') && setup.fourPieceId !== 'king') return []
+  if ((agentId === 'lycaon' || agentId === 'lighter' || agentId === 'pulchra') && setup.fourPieceId !== 'king') return []
+  if (agentId === 'pulchra' && setup.fourPieceId === 'king') {
+    return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
+  }
   if (agentId === 'lighter' && setup.fourPieceId === 'king') {
     return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
   }

@@ -131,6 +131,16 @@ import {
   resolveNicoleProviderClauses,
   type NicoleCalculationContext,
 } from './calculation/agents/nicole'
+import {
+  observeOrphie,
+  resolveOrphieProviderClauses,
+  type OrphieCalculationContext,
+} from './calculation/agents/orphie'
+import {
+  observePulchra,
+  resolvePulchraProviderClauses,
+  type PulchraCalculationContext,
+} from './calculation/agents/pulchra'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -158,6 +168,8 @@ export type ProviderContext =
   | LucyCalculationContext
   | ZhuYuanCalculationContext
   | NicoleCalculationContext
+  | OrphieCalculationContext
+  | PulchraCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -294,6 +306,13 @@ function observeProviderContext(
       )
     case 'nicole':
       return observeNicole(slot.setup, anotherSharesAttribute || anotherSharesFaction)
+    case 'orphie':
+      return observeOrphie(slot.setup, hasStunOrSupport)
+    case 'pulchra':
+      return observePulchra(
+        slot.setup,
+        anotherHasSpecialty(['Attack', 'Rupture']) || anotherSharesFaction,
+      )
     default:
       return assertNever(slot.agentId)
   }
@@ -363,6 +382,10 @@ function providerClauses(
       return resolveZhuYuanProviderClauses(context)
     case 'nicole':
       return resolveNicoleProviderClauses(context)
+    case 'orphie':
+      return resolveOrphieProviderClauses(context)
+    case 'pulchra':
+      return resolvePulchraProviderClauses(context)
     default:
       return assertNever(context)
   }

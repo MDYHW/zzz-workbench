@@ -16,6 +16,7 @@ import swingJazzImage from '../../assets/equipment/drive-discs/swing-jazz.webp'
 import thunderMetalImage from '../../assets/equipment/drive-discs/thunder-metal.webp'
 import woodpeckerImage from '../../assets/equipment/drive-discs/woodpecker-electro.webp'
 import yunkuiImage from '../../assets/equipment/drive-discs/yunkui-tales.webp'
+import protoPunkImage from '../../assets/equipment/drive-discs/proto-punk.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -166,6 +167,14 @@ export const DRIVE_DISC_FACTS = {
       },
     },
   },
+  protoPunk: {
+    twoPiece: {
+      shield: { modifier: 'shieldEffect', unit: '%', value: 15 },
+    },
+    fourPiece: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: 15, scope: { recipient: 'squad' } },
+    },
+  },
 } as const satisfies Record<DiscId, DriveDiscFacts>
 
 /** Exact authored piece and effect fields for one admitted Drive Disc. */
@@ -280,6 +289,13 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
       `Squad DMG +${equipmentEffectMaximumValue(DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage)}%`,
     ],
   },
+  protoPunk: {
+    id: 'protoPunk', name: 'Proto Punk', image: protoPunkImage,
+    twoPieceEffect: `Shield provided +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.protoPunk.twoPiece.shield)}%`,
+    fourPieceEffects: [
+      `After Defensive or Evasive Assist · Squad DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.protoPunk.fourPiece.damage)}%`,
+    ],
+  },
 }
 
 export const SAME_EFFECT_TWO_PIECE_RELATIONSHIPS = [
@@ -346,5 +362,13 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
   nicole: {
     fourPiece: ['moonlight', 'astralVoice'],
     twoPiece: ['swingJazz', 'moonlight'],
+  },
+  orphie: {
+    fourPiece: ['shadowHarmony', 'astralVoice'],
+    twoPiece: ['shadowHarmony', 'infernoMetal', 'woodpecker', 'branchAndBlade', 'hormonePunk', 'astralVoice', 'swingJazz', 'moonlight'],
+  },
+  pulchra: {
+    fourPiece: ['king', 'astralVoice', 'protoPunk', 'shockstar', 'swingJazz'],
+    twoPiece: ['shockstar', 'king', 'swingJazz'],
   },
 }

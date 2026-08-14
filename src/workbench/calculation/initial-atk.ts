@@ -14,12 +14,12 @@ import {
 } from '../content'
 
 export const SEED_VANGUARD_ATK_AGENT_IDS = [
-  'anbySoldier0', 'seed', 'cissia', 'evelyn', 'corin', 'hugo', 'ellen', 'soldier11', 'zhuYuan',
+  'anbySoldier0', 'seed', 'cissia', 'evelyn', 'corin', 'hugo', 'ellen', 'soldier11', 'zhuYuan', 'orphie',
 ] as const
 
 export type SeedVanguardAtkAgentId = (typeof SEED_VANGUARD_ATK_AGENT_IDS)[number]
 export type InitialAtkAgentId = SeedVanguardAtkAgentId
-  | 'juFufu' | 'panYinhu' | 'soukaku' | 'lucy'
+  | 'juFufu' | 'panYinhu' | 'soukaku' | 'lucy' | 'pulchra'
 
 export function isSeedVanguardAtkAgent(agentId: AgentId): agentId is SeedVanguardAtkAgentId {
   return SEED_VANGUARD_ATK_AGENT_IDS.some((candidate) => candidate === agentId)

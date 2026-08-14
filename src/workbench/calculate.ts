@@ -35,6 +35,8 @@ import { calculateLighter } from './calculation/agents/lighter'
 import { calculateLucy } from './calculation/agents/lucy'
 import { calculateZhuYuan } from './calculation/agents/zhu-yuan'
 import { calculateNicole } from './calculation/agents/nicole'
+import { calculateOrphie } from './calculation/agents/orphie'
+import { calculatePulchra } from './calculation/agents/pulchra'
 import { composeMetricEffects, surfaces } from './calculation/composition'
 import type { ActionModifier, AgentResult, Contribution, PartyResult } from './calculation/result'
 import { resolveProviderEffects } from './provider-effects'
@@ -289,6 +291,12 @@ export function calculateParty(state: WorkbenchState): PartyResult | null {
           break
         case 'nicole':
           result = calculateNicole(context, inbox)
+          break
+        case 'orphie':
+          result = calculateOrphie(context, inbox, enemy)
+          break
+        case 'pulchra':
+          result = calculatePulchra(context, inbox, enemy)
           break
         default:
           return assertNever(context)

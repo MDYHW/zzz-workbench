@@ -123,9 +123,12 @@ and equipment consequences, so no shared named-Agent rule is warranted.
 - R15. When Pan is the only competitive Astral holder, he keeps Astral. If an
   already established other holder has Astral in the same preparation flow,
   Pan prepares Bunny 4 plus Astral 2; this is a bounded current allocation, not
-  a universal Support/Defense priority. Ju Fufu similarly yields King to the
-  established higher-priority holder and prepares Swing 4 plus King 2 and ATK
-  Slot 4. Allocation changes representatives, never candidate membership.
+  a universal Support/Defense priority. In two-Stun preparation, Ju Fufu keeps
+  King when the other holder can prepare Astral 4-piece; that holder takes its
+  authored Astral alternative. When neither Ju nor the competing holder can
+  prepare Astral, the current Dialyn contrast keeps King through its independent
+  CRIT consumer and Ju prepares Shockstar 4 plus King 2 with ATK Slot 4.
+  Allocation changes representatives, never candidate membership.
 - R16. Preparation order remains permanent: authored base candidates,
   contextual candidates, selected-input pressure, party allocation, prepared
   first choice. A shared party flow must traverse Ju's King pressure and holder
