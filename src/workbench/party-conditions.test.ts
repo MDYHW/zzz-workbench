@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   anotherAgentHasQualificationGroup,
+  harumasaAdditionalIsActive,
+  qingyiAdditionalIsActive,
+  qingyiAstralOpportunity,
   soldier11AdditionalIsActive,
 } from './party-conditions'
 
@@ -31,5 +34,22 @@ describe('opt-in party qualifications', () => {
       0,
       'New Eridu Defense Force',
     )).toBe(false)
+  })
+})
+
+describe('Harumasa and Qingyi local party conditions', () => {
+  it('keeps Additional qualification order-independent and exact', () => {
+    expect(harumasaAdditionalIsActive(['harumasa', 'qingyi', 'lucia'], 0)).toBe(true)
+    expect(harumasaAdditionalIsActive(['lucia', 'harumasa', 'nicole'], 1)).toBe(false)
+    expect(qingyiAdditionalIsActive(['qingyi', 'harumasa', 'lucia'], 0)).toBe(true)
+    expect(qingyiAdditionalIsActive(['zhuYuan', 'qingyi', 'lucia'], 1)).toBe(true)
+    expect(qingyiAdditionalIsActive(['lucia', 'qingyi', 'lycaon'], 1)).toBe(false)
+  })
+
+  it('limits Qingyi Astral opportunity to Nicole, Astra, and Pan', () => {
+    expect(qingyiAstralOpportunity(['qingyi', 'nicole', 'lucia'], 0)).toBe(true)
+    expect(qingyiAstralOpportunity(['astraYao', 'qingyi', 'lucia'], 1)).toBe(true)
+    expect(qingyiAstralOpportunity(['qingyi', 'panYinhu', 'lucia'], 0)).toBe(true)
+    expect(qingyiAstralOpportunity(['qingyi', 'cissia', 'lucia'], 0)).toBe(false)
   })
 })

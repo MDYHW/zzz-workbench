@@ -14,7 +14,7 @@ import {
   hasDialynUltimateOpportunity,
 } from './provider-effects'
 import { hasRepeatedQuickAssistOpportunity } from './preparation'
-import { triggerAdditionalIsActive } from './party-conditions'
+import { qingyiAstralOpportunity, triggerAdditionalIsActive } from './party-conditions'
 import type { AppliedSlot, WorkbenchState } from './state'
 
 export type RequiredSetupSelection =
@@ -94,6 +94,10 @@ export function effectiveFourPieceIds(
       && hasRepeatedQuickAssistOpportunity(state.slots.map(({ agentId: id }) => id))
       ? ['astralVoice' as const]
       : []),
+    ...(agentId === 'qingyi'
+      && qingyiAstralOpportunity(state.slots.map(({ agentId: id }) => id), slot)
+      ? ['astralVoice' as const]
+      : []),
     ...(hasDialynUltimateOpportunity(state, slot) ? ['pufferElectro' as const] : []),
   ]
   return contextual.length ? [...base, ...contextual] : base
@@ -108,7 +112,7 @@ export function effectiveTwoPieceIds(
   const base = agentId === 'trigger' && !triggerCritPressureIsActive(state, slot)
     ? authored.filter((candidateId) => candidateId !== 'woodpecker')
     : authored
-  const selectedDerived = (agentId === 'lycaon' || agentId === 'juFufu' || agentId === 'lighter' || agentId === 'pulchra')
+  const selectedDerived = (agentId === 'lycaon' || agentId === 'juFufu' || agentId === 'lighter' || agentId === 'pulchra' || agentId === 'qingyi')
     && state.slots[slot].setup.fourPieceId === 'king'
     ? ['woodpecker' as const]
     : []

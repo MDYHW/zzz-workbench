@@ -78,3 +78,37 @@ export function zhuYuanAdditionalIsActive(
     return other.specialty === 'Support' || other.faction === zhuYuan.faction
   })
 }
+
+/** Harumasa's Additional Ability: another applied Stun or Anomaly Agent. */
+export function harumasaAdditionalIsActive(
+  agentIds: readonly AgentId[],
+  harumasaIndex: number,
+): boolean {
+  if (agentIds[harumasaIndex] !== 'harumasa') return false
+  return anotherAgentHasSpecialty(agentIds, harumasaIndex, ['Stun', 'Anomaly'])
+}
+
+/** Qingyi's Additional Ability: another Attack Agent or matching faction. */
+export function qingyiAdditionalIsActive(
+  agentIds: readonly AgentId[],
+  qingyiIndex: number,
+): boolean {
+  if (agentIds[qingyiIndex] !== 'qingyi') return false
+  const qingyi = summaryFor('qingyi')
+  return agentIds.some((agentId, index) => {
+    if (index === qingyiIndex) return false
+    const other = summaryFor(agentId)
+    return other.specialty === 'Attack' || other.faction === qingyi.faction
+  })
+}
+
+/** Local Qingyi buffer-role opportunity; this does not broaden focused-damage helpers. */
+export function qingyiAstralOpportunity(
+  agentIds: readonly AgentId[],
+  qingyiIndex: number,
+): boolean {
+  if (agentIds[qingyiIndex] !== 'qingyi') return false
+  return agentIds.some((agentId, index) => (
+    index !== qingyiIndex && ['nicole', 'astraYao', 'panYinhu'].includes(agentId)
+  ))
+}

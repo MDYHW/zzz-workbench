@@ -79,6 +79,46 @@ describe('selected King pressure', () => {
 })
 
 describe('contextual Disc candidates', () => {
+  it('adds Qingyi Astral only for the local buffer-provider set', () => {
+    for (const provider of ['nicole', 'astraYao', 'panYinhu'] as const) {
+      expect(effectiveFourPieceIds(
+        createPreparedState({}, ['qingyi', provider, 'lucia'], 0),
+        0,
+      )).toContain('astralVoice')
+    }
+    expect(effectiveFourPieceIds(createPreparedState({}, ['qingyi', 'cissia', 'lucia'], 0), 0)).not.toContain('astralVoice')
+  })
+
+  it('adds and clears Qingyi selected-King pressure without restoring edits', () => {
+    let state = createPreparedState({}, ['qingyi', 'harumasa', 'lucia'], 0)
+    expect(effectiveTwoPieceIds(state, 0)).toContain('woodpecker')
+    expect(effectiveSubstatChoicesForSlot(state, 0).map(({ id }) => id)).toEqual(['critRate', 'critDmg', 'atkPct'])
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'woodpecker',
+    })
+    state = workbenchReducer(state, {
+      type: 'setSubstat', slot: 0, key: 'critRate', value: 5,
+    })
+    state = workbenchReducer(state, { type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'protoPunk' })
+    expect(effectiveTwoPieceIds(state, 0)).not.toContain('woodpecker')
+    expect(effectiveSubstatChoicesForSlot(state, 0)).toEqual([])
+    expect(state.slots[0].setup).toMatchObject({
+      fourPieceId: 'protoPunk', twoPieceId: null, substats: {},
+    })
+    expect(isCompleteWorkbench(state)).toBe(false)
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'king',
+    })
+    expect(effectiveTwoPieceIds(state, 0)).toContain('woodpecker')
+    expect(effectiveSubstatChoicesForSlot(state, 0).map(({ id }) => id))
+      .toEqual(['critRate', 'critDmg', 'atkPct'])
+    expect(state.slots[0].setup).toMatchObject({
+      fourPieceId: 'king', twoPieceId: null,
+      substats: { critRate: 0, critDmg: 0, atkPct: 0 },
+    })
+  })
+
   it('admits Soldier 11 Puffer only with Dialyn Ultimate opportunity', () => {
     const withDialyn = createPreparedState({}, ['soldier11', 'dialyn', 'lucy'], 0)
     const withoutDialyn = createPreparedState({}, ['soldier11', 'lighter', 'lucy'], 0)

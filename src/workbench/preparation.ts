@@ -354,6 +354,25 @@ function withJuFufuShockstarFallback(
   }
 }
 
+/** Qingyi's bounded no-Astral fallback beside Dialyn's rigid King package. */
+function withQingyiDialynShockstarFallback(
+  context: PreparationContext,
+  establishedHolders: readonly EstablishedDiscHolder[],
+  selection: SetupSelection,
+): SetupSelection {
+  const dialynKeepsKing = establishedHolders.some(({ agentId, fourPieceId }) => (
+    agentId === 'dialyn' && fourPieceId === 'king'
+  ))
+  if (context.agentId !== 'qingyi' || selection.fourPieceId !== 'king' || !dialynKeepsKing) {
+    return selection
+  }
+  return {
+    ...selection,
+    fourPieceId: 'shockstar',
+    twoPieceId: 'king',
+  }
+}
+
 function withCissiaAstralOpportunity(
   context: PreparationContext,
   partyAgentIds: readonly AgentId[],
@@ -486,11 +505,16 @@ export function prepareTargetSelection(
     establishedHolders,
     allocated,
   )
+  const qingyiFallback = withQingyiDialynShockstarFallback(
+    context,
+    establishedHolders,
+    nonoverlapping,
+  )
   const contextual = withCissiaAstralOpportunity(
     context,
     partyAgentIds,
     establishedHolders,
-    nonoverlapping,
+    qingyiFallback,
   )
   const withoutContextualCollision = withEstablishedContextualCissiaCollisionResolved(
     context,
@@ -552,7 +576,10 @@ export function preparePartySelections(
   const withJuFufuFallback = withKingAllocation.map((selection, index) => (
     withJuFufuShockstarFallback(contexts[index], kingHolders, selection)
   ))
-  const withCissiaAstral = withJuFufuFallback.map((selection, index) => (
+  const withQingyiFallback = withJuFufuFallback.map((selection, index) => (
+    withQingyiDialynShockstarFallback(contexts[index], kingHolders, selection)
+  ))
+  const withCissiaAstral = withQingyiFallback.map((selection, index) => (
     withCissiaAstralOpportunity(contexts[index], partyAgentIds, kingHolders, selection)
   ))
   const holders = contexts.map((context, index) => ({

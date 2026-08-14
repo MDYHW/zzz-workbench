@@ -20,6 +20,31 @@ import {
 } from './state'
 
 describe('workbench state lifecycle', () => {
+  it('rebuilds Qingyi contextual Astral membership without restoring selection history', () => {
+    let state = createPreparedState({}, ['harumasa', 'qingyi', 'nicole'], 0)
+    expect(effectiveFourPieceIds(state, 1)).toContain('astralVoice')
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    expect(state.slots[1].setup.fourPieceId).toBe('astralVoice')
+
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    state = workbenchReducer(state, {
+      type: 'replaceDraftAgent', slot: 2, agentId: 'lucia',
+    })
+    state = workbenchReducer(state, { type: 'applyPartyEdit' })
+    expect(effectiveFourPieceIds(state, 1)).not.toContain('astralVoice')
+    expect(state.slots[1].setup.fourPieceId).toBe('king')
+
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    state = workbenchReducer(state, {
+      type: 'replaceDraftAgent', slot: 2, agentId: 'panYinhu',
+    })
+    state = workbenchReducer(state, { type: 'applyPartyEdit' })
+    expect(effectiveFourPieceIds(state, 1)).toContain('astralVoice')
+    expect(state.slots[1].setup.fourPieceId).toBe('king')
+  })
+
   it('adds Ellen’s Puffer candidate only with Dialyn and reprepares after party replacement', () => {
     let state = createPreparedState({}, ['ellen', 'dialyn', 'soukaku'], 0)
     expect(effectiveFourPieceIds(state, 0)).toContain('pufferElectro')

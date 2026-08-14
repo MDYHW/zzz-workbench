@@ -27,6 +27,44 @@ const permutations = <T,>(items: readonly [T, T, T]): [T, T, T][] => [
 ]
 
 describe('party-directed preparation', () => {
+  it('keeps Qingyi King against flexible Astral Stuns and allocates Dialyn/Qingyi locally', () => {
+    for (const ordered of permutations([context('harumasa'), context('qingyi'), context('lycaon')])) {
+      const prepared = preparePartySelections(ordered, 'harumasa')
+      expect(prepared[ordered.findIndex(({ agentId }) => agentId === 'qingyi')].fourPieceId).toBe('king')
+      expect(prepared[ordered.findIndex(({ agentId }) => agentId === 'lycaon')].fourPieceId).toBe('astralVoice')
+    }
+    for (const ordered of permutations([context('harumasa'), context('qingyi'), context('dialyn')])) {
+      const prepared = preparePartySelections(ordered, 'harumasa')
+      expect(prepared[ordered.findIndex(({ agentId }) => agentId === 'dialyn')].fourPieceId).toBe('king')
+      expect(prepared[ordered.findIndex(({ agentId }) => agentId === 'qingyi')]).toMatchObject({ fourPieceId: 'shockstar', twoPieceId: 'king' })
+    }
+  })
+
+  it('keeps Qingyi King against Ju Fufu and uses Ju Shockstar fallback', () => {
+    for (const ordered of permutations([context('harumasa'), context('qingyi'), context('juFufu')])) {
+      const prepared = preparePartySelections(ordered, 'harumasa')
+      expect(prepared[ordered.findIndex(({ agentId }) => agentId === 'qingyi')])
+        .toMatchObject({
+          fourPieceId: 'king', mains: { slot4: 'critRate' },
+        })
+      expect(prepared[ordered.findIndex(({ agentId }) => agentId === 'juFufu')])
+        .toMatchObject({ fourPieceId: 'shockstar', twoPieceId: 'king' })
+    }
+  })
+
+  it('preserves target-only direct King duplicates while rebuilding the legal target', () => {
+    const dialyn = context('dialyn')
+    const qingyi = context('qingyi')
+    expect(prepareTargetSelection(qingyi, 'harumasa', [{ agentId: 'dialyn', fourPieceId: 'king' }]))
+      .toMatchObject({ fourPieceId: 'shockstar', twoPieceId: 'king' })
+    expect(prepareTargetSelection(dialyn, 'harumasa', [{ agentId: 'qingyi', fourPieceId: 'king' }]))
+      .toMatchObject({ fourPieceId: 'king' })
+    expect(prepareTargetSelection(qingyi, 'harumasa', [{ agentId: 'juFufu', fourPieceId: 'king' }]))
+      .toMatchObject({ fourPieceId: 'king' })
+    expect(prepareTargetSelection(context('juFufu'), 'harumasa', [{ agentId: 'qingyi', fourPieceId: 'king' }]))
+      .toMatchObject({ fourPieceId: 'shockstar', twoPieceId: 'king' })
+  })
+
   it('prepares Orphie and Pulchra with independent pool representatives at zero supplied substats', () => {
     const full = createPreparedState({}, ['anbySoldier0', 'orphie', 'pulchra'], 0)
     expect(full.slots[1].setup).toMatchObject({
