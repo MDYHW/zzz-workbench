@@ -31,17 +31,16 @@ It is not a runtime optimizer and does not react to the user's current counts.
   | Yixuan M0 | Branch & Blade + CRIT Rate | Woodpecker + CRIT Rate |
   | Yixuan M1+ | Woodpecker + CRIT DMG | Branch & Blade + CRIT Rate |
   | Yidhari | Branch & Blade + CRIT Rate | Branch & Blade + CRIT Rate |
-  | Hugo M0 | Branch & Blade + CRIT Rate | Woodpecker + CRIT DMG |
-  | Hugo M1+ | Woodpecker + CRIT DMG | Woodpecker + CRIT DMG |
-  | Banyue | Branch & Blade + CRIT Rate | Woodpecker + CRIT Rate |
-  | Starlight Billy | Branch & Blade + CRIT Rate | Woodpecker + CRIT Rate |
   | Evelyn | Woodpecker + CRIT DMG | Branch & Blade + CRIT Rate |
   | Corin | Branch & Blade + CRIT Rate | Woodpecker + CRIT Rate |
 
+  Hugo's corresponding outcome is now owned by the
+  [Hugo recovery vertical](2026-08-14-hugo-authority-recovery-requirements.md).
+  Banyue and Starlight Billy are owned by their
+  [Rupture recovery vertical](2026-08-14-banyue-starlight-billy-authority-recovery-requirements.md).
   Manato, Seed, and Cissia keep their existing representatives because their
   complete packages retain a distinct current balance or operation. Polar
-  Metal remains a Hugo candidate; losing representative status does not remove
-  its exact Ice-DMG comparison.
+  Metal's distinct Hugo comparison is owned by the Hugo vertical.
 - R3. Anby's base M0-M6 representative is Woodpecker in both pools, with CRIT
   Rate Slot 4 in full and CRIT DMG Slot 4 in non-limited. At M2+, and only when
   another applied Stun or Support Agent qualifies her Additional Ability,
@@ -54,9 +53,10 @@ It is not a runtime optimizer and does not react to the user's current counts.
   remains below 100%. Non-limited also begins below 80% and reaches it inside
   the same bounded opportunity. A defining threshold must remain reasonably
   reachable; it need not be pre-filled by fixed slots at zero.
-- R5. Yixuan and Hugo Mindscape transitions rebuild only their changed setup
-  and resolve the corresponding row above. Returning to an earlier Mindscape
-  authors that earlier representative anew with zero substat counts.
+- R5. Yixuan Mindscape transitions rebuild only the changed setup and resolve
+  the corresponding row above. Returning to an earlier Mindscape authors that
+  earlier representative anew with zero substat counts. Hugo's equivalent
+  boundary is owned by his recovery vertical.
 - R6. When no effective substats are currently offered, Setup keeps the compact
   Sub stats heading and empty grid. This is a complete zero-input scaffold, not
   an incomplete selection or a recommendation.

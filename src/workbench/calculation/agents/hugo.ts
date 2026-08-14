@@ -49,6 +49,10 @@ export interface HugoCalculationContext {
 export const HUGO_TOTALIZE = actionTarget([sourceLocalAction('Totalize')])
 const HUGO_CHAIN = actionTarget([canonicalAction('Chain Attack')])
 const HUGO_ULTIMATE = actionTarget([canonicalAction('Ultimate')])
+const HUGO_BASIC_ULTIMATE = actionTarget([
+  canonicalAction('Basic Attack'),
+  canonicalAction('Ultimate'),
+])
 const HUGO_BACK_ATTACK = actionTarget([sourceLocalAction('Back attacks')])
 const HUGO_DAMAGE_SCOPES = [
   { id: 'hugoChain', target: HUGO_CHAIN },
@@ -57,7 +61,7 @@ const HUGO_DAMAGE_SCOPES = [
   { id: 'hugoBackAttack', target: HUGO_BACK_ATTACK },
 ] satisfies readonly ActionScopeNode[]
 const HUGO_DEF_SCOPES = [
-  { id: 'hugoUltimate', target: HUGO_ULTIMATE },
+  { id: 'hugoBasicUltimate', target: HUGO_BASIC_ULTIMATE },
   { id: 'hugoTotalize', target: HUGO_TOTALIZE },
 ] satisfies readonly ActionScopeNode[]
 
@@ -150,7 +154,7 @@ export function resolveHugoProviderClauses(
       setup.engineId === 'cordisGermina'
         ? equipmentEffectBaseValue(W_ENGINE_FACTS.cordisGermina.effects.defIgnore, refinement)
         : 0,
-      'enemy-context', HUGO_ULTIMATE, undefined, ['hugo'],
+      'enemy-context', HUGO_BASIC_ULTIMATE, undefined, ['hugo'],
     ),
     additive(
       'dmgBonus', 'fully', engine,

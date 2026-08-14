@@ -813,7 +813,12 @@ describe('authored calculation policies', () => {
         'cordisGermina',
       ))!, 'hugo')
       expect(metric(cordis, 'defIgnore').values).toEqual({ initial: 0, combat: 0, fully: 0 })
-      expect(action(cordis, 'hugoUltimateDefIgnore').values.fully).toBe(20)
+      expect(action(cordis, 'hugoBasicUltimateDefIgnore').values.fully).toBe(20)
+      expect(action(cordis, 'hugoBasicUltimateDefIgnore').outcomes)
+        .toEqual([
+          { kind: 'canonical', action: 'Basic Attack' },
+          { kind: 'canonical', action: 'Ultimate' },
+        ])
 
       const puffer = agent(calculateParty(selectDisc(
         createPreparedState({}, ['hugo', 'dialyn', 'astraYao'], 0),
