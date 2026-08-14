@@ -1955,6 +1955,7 @@ button.main-stat-block:focus-visible {
 .source-tone--agent-soukaku { --source-color: #167a96; }
 .source-tone--agent-orphie { --source-color: #a04424; }
 .source-tone--agent-pulchra { --source-color: #98701e; }
+.source-tone--agent-anby { --source-color: #6d7419; }
 /* Calculation clamps stay neutral and are not a semantic source color. */
 .source-tone--calculation { --source-color: #596169; }
 

@@ -45,6 +45,7 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   billy: { primary: ['general_damage'], residual: [] },
   ben: { primary: ['general_damage'], residual: ['daze_buildup'] },
   koleda: { primary: ['daze_buildup'], residual: ['general_damage'] },
+  anby: { primary: ['daze_buildup'], residual: ['general_damage'] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -210,6 +211,10 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   koleda: {
     slot4: ['atkPct'], slot5: ['fireDmg', 'atkPct'], slot6: ['impact'],
   },
+  anby: {
+    slot4: ['atkPct'], slot5: ['electricDmg', 'atkPct'],
+    slot6: ['impact', 'energyRegenPct'],
+  },
 }
 
 /** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
@@ -361,6 +366,7 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
     { id: 'defPct', label: 'DEF%', perHit: 4.8, unit: '%' },
   ],
   koleda: [],
+  anby: [],
 }
 
 /**
@@ -372,7 +378,7 @@ export function effectiveSubstatChoices(
   agentId: AgentId,
   setup: { fourPieceId: DiscId | null },
 ): SubstatChoice[] {
-  if ((agentId === 'lycaon' || agentId === 'lighter' || agentId === 'pulchra' || agentId === 'koleda') && setup.fourPieceId !== 'king') return []
+  if ((agentId === 'lycaon' || agentId === 'lighter' || agentId === 'pulchra' || agentId === 'koleda' || agentId === 'anby') && setup.fourPieceId !== 'king') return []
   if (agentId === 'pulchra' && setup.fourPieceId === 'king') {
     return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
   }
@@ -380,6 +386,9 @@ export function effectiveSubstatChoices(
     return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
   }
   if (agentId === 'koleda' && setup.fourPieceId === 'king') {
+    return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
+  }
+  if (agentId === 'anby' && setup.fourPieceId === 'king') {
     return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
   }
   if (agentId === 'juFufu' && setup.fourPieceId === 'king') {

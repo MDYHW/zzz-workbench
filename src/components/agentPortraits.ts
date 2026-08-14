@@ -33,6 +33,7 @@ import nekomataPortrait from '../assets/agents/portraits/nekomata.webp'
 import billyPortrait from '../assets/agents/portraits/billy.webp'
 import benPortrait from '../assets/agents/portraits/ben.webp'
 import koledaPortrait from '../assets/agents/portraits/koleda.webp'
+import anbyPortrait from '../assets/agents/portraits/anby.webp'
 
 export const AGENT_PORTRAITS: Record<AgentId, string> = {
   yixuan: yixuanPortrait,
@@ -68,6 +69,7 @@ export const AGENT_PORTRAITS: Record<AgentId, string> = {
   billy: billyPortrait,
   ben: benPortrait,
   koleda: koledaPortrait,
+  anby: anbyPortrait,
 }
 
 interface PortraitSource {
@@ -120,6 +122,7 @@ const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   billy: { faceX: 50, headTopY: 8, scale: 1.1 },
   ben: { faceX: 40, headTopY: 15, scale: 0.8 },
   koleda: { faceX: 55, headTopY: 26, scale: 1.1 },
+  anby: { faceX: 61, headTopY: 14, scale: 1.15 },
 }
 
 export function portraitSourceStyle(agentId: AgentId): PortraitSourceStyle {

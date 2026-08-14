@@ -239,8 +239,8 @@ export const STATIC_SOURCES = {
     exSpecial: source(SOURCE_LABELS.luciaSheer, 'lucia', 'ex-special'),
   },
   anbySoldier0: {
-    core: source(SOURCE_LABELS.anbyCore, 'anbySoldier0', 'core'),
-    additional: source(SOURCE_LABELS.anbyAbility, 'anbySoldier0', 'additional'),
+    core: source(SOURCE_LABELS.anbySoldier0Core, 'anbySoldier0', 'core'),
+    additional: source(SOURCE_LABELS.anbySoldier0Ability, 'anbySoldier0', 'additional'),
     critCap: source('Displayed CRIT Rate cap', 'anbySoldier0', 'calculation'),
   },
   trigger: {
@@ -314,6 +314,10 @@ export const STATIC_SOURCES = {
     core: source(SOURCE_LABELS.koledaCore, 'koleda', 'core'),
     additional: source(SOURCE_LABELS.koledaAbility, 'koleda', 'additional'),
     critCap: source('Displayed CRIT Rate cap', 'koleda', 'calculation'),
+  },
+  anby: {
+    core: source(SOURCE_LABELS.anbyCore, 'anby', 'core', 'After Basic Attack hit 3'),
+    critCap: source('Displayed CRIT Rate cap', 'anby', 'calculation'),
   },
 } as const
 

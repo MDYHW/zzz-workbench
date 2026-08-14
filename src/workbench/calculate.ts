@@ -43,6 +43,7 @@ import { calculateNekomata } from './calculation/agents/nekomata'
 import { calculateBilly } from './calculation/agents/billy'
 import { calculateBen } from './calculation/agents/ben'
 import { calculateKoleda } from './calculation/agents/koleda'
+import { calculateAnbyDemara } from './calculation/agents/anby'
 import { composeMetricEffects, surfaces } from './calculation/composition'
 import type { ActionModifier, AgentResult, Contribution, PartyResult } from './calculation/result'
 import { resolveProviderEffects } from './provider-effects'
@@ -321,6 +322,9 @@ export function calculateParty(state: WorkbenchState): PartyResult | null {
           break
         case 'koleda':
           result = calculateKoleda(context, inbox, enemy)
+          break
+        case 'anby':
+          result = calculateAnbyDemara(context, inbox, enemy)
           break
         default:
           return assertNever(context)

@@ -137,6 +137,11 @@ describe('integrated party workbench: party', () => {
         { agentId: 'billy', setup: createPreparedAgentSetup('billy') },
         { agentId: 'lycaon', setup: createPreparedAgentSetup('lycaon') },
       ],
+      [
+        { agentId: 'anby', setup: createPreparedAgentSetup('anby') },
+        { agentId: 'nekomata', setup: createPreparedAgentSetup('nekomata') },
+        { agentId: 'anbySoldier0', setup: createPreparedAgentSetup('anbySoldier0') },
+      ],
     ]
     let latestContainer: HTMLElement | null = null
     for (const slots of additionalGroups) {
@@ -328,6 +333,35 @@ describe('integrated party workbench: party', () => {
     expect(screen.getByRole('button', { name: 'Apply party' })).toBeDisabled()
     await user.click(screen.getByRole('radio', { name: 'Anby: Soldier 0' }))
     expect(screen.getByRole('button', { name: 'Apply party' })).toBeEnabled()
+  })
+
+  it('keeps an Anby-containing three-Stun draft invalid without a Focus Agent', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', {
+        name: new RegExp(`Replace slot ${slot},`),
+      }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await user.click(screen.getByRole('button', { name: 'Replace slot 1, Yixuan' }))
+    expect(screen.getByRole('button', {
+      name: /Anby Demara, Electric, Stun/,
+    })).toBeInTheDocument()
+    expect(screen.getByRole('button', {
+      name: /Anby: Soldier 0, Electric, Attack/,
+    })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', {
+      name: /Anby Demara, Electric, Stun/,
+    }))
+    await replace(3, /Lycaon, Ice, Stun/)
+
+    expect(screen.getAllByText(
+      'No eligible Focus Agent. Choose a different party.',
+    ).length).toBeGreaterThan(0)
+    expect(screen.getByRole('button', { name: 'Apply party' })).toBeDisabled()
   })
 
   it('applies Seed, Cissia, and Astra with Seed as sole Focus and preserves it on Cancel', async () => {

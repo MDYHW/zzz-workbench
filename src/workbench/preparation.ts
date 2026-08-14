@@ -163,9 +163,10 @@ function canPrepareAstral(agentId: AgentId): boolean {
 }
 
 function winsCurrentKingTie(holderId: AgentId, targetId: AgentId): boolean {
-  return (holderId === 'trigger' && (targetId === 'pulchra' || targetId === 'koleda' || targetId === 'lycaon'))
-    || (holderId === 'pulchra' && (targetId === 'koleda' || targetId === 'lycaon'))
-    || (holderId === 'koleda' && targetId === 'lycaon')
+  return (holderId === 'trigger' && (targetId === 'pulchra' || targetId === 'koleda' || targetId === 'lycaon' || targetId === 'anby'))
+    || (holderId === 'pulchra' && (targetId === 'koleda' || targetId === 'lycaon' || targetId === 'anby'))
+    || (holderId === 'koleda' && (targetId === 'lycaon' || targetId === 'anby'))
+    || (holderId === 'lycaon' && targetId === 'anby')
 }
 
 /**

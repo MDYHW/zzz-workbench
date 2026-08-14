@@ -711,4 +711,55 @@ describe('integrated party workbench: result', () => {
       name: 'Show sources for EX Special Attack',
     })).toBeInTheDocument()
   }, 10_000)
+
+  it('renders Anby threshold and exact Core/Mindscape action differences', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', {
+        name: new RegExp(`Replace slot ${slot},`),
+      }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Billy Kid, Physical, Attack/)
+    await replace(2, /Anby Demara, Electric, Stun/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+    await user.click(screen.getByRole('tab', {
+      name: 'View Anby Demara setup and Result',
+    }))
+
+    const result = screen.getByRole('region', { name: 'Anby Demara Result' })
+    expect(within(result).getByRole('row', {
+      name: /Impact.*193[.]12.*193[.]12.*220[.]32/,
+    })).toBeInTheDocument()
+    await user.click(within(result).getByRole('button', { name: 'CRIT Rate' }))
+    expect(within(result).getByRole('group', {
+      name: /Initial CRIT Rate: current 29[.]0, cap 50, threshold 50/,
+    })).toBeInTheDocument()
+
+    await user.click(within(result).getByRole('button', { name: 'Daze Bonus' }))
+    const daze = within(result).getByRole('table', {
+      name: 'Daze Bonus action outcome values',
+    })
+    for (const name of [
+      'Show sources for Basic Attack: Thunderbolt',
+      'Show sources for Special Attack',
+      'Show sources for EX Special Attack',
+    ]) expect(within(daze).getByRole('button', { name })).toBeInTheDocument()
+
+    await user.click(within(result).getByRole('button', { name: 'DMG Bonus' }))
+    const damage = within(result).getByRole('table', {
+      name: 'DMG Bonus action outcome values',
+    })
+    expect(within(damage).getByRole('button', {
+      name: 'Show sources for Basic Attack: Thunderbolt',
+    })).toBeInTheDocument()
+    expect(within(damage).getByRole('button', {
+      name: 'Show sources for Dash Attack',
+    })).toBeInTheDocument()
+    expect(within(result).queryByRole('region', { name: 'Agent operations' }))
+      .not.toBeInTheDocument()
+  }, 10_000)
 })

@@ -399,4 +399,8 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     fourPiece: ['king', 'astralVoice', 'protoPunk', 'shockstar', 'swingJazz'],
     twoPiece: ['shockstar', 'king', 'swingJazz'],
   },
+  anby: {
+    fourPiece: ['king', 'astralVoice', 'protoPunk', 'shockstar', 'swingJazz'],
+    twoPiece: ['shockstar', 'king', 'swingJazz'],
+  },
 }

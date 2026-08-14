@@ -171,6 +171,7 @@ describe('AgentSetup partial W-Engine package', () => {
       selectedName: 'Spectral Gaze',
       candidateId: 'blazingLaurel',
       candidateName: 'Blazing Laurel',
+      candidateRefinement: 1,
       description: 'Impact +18%. Impact +25%. Fire & Ice CRIT DMG +30%',
     },
     {
@@ -180,11 +181,25 @@ describe('AgentSetup partial W-Engine package', () => {
       selectedName: 'Serpentine Seeker',
       candidateId: 'bellicoseBlaze',
       candidateName: 'Bellicose Blaze',
+      candidateRefinement: 1,
       description: 'Energy Regen +60%. CRIT Rate +20%. Fire Aftershock DEF Ignore +30%',
+    },
+    {
+      agentId: 'anby',
+      party: ['billy', 'anby', 'nekomata'] as [AgentId, AgentId, AgentId],
+      slot: 1 as AppliedSlot,
+      selectedName: 'Hellfire Gears',
+      candidateId: 'demaraBatteryMarkII',
+      candidateName: 'Demara Battery Mark II',
+      candidateRefinement: 5,
+      description: 'Impact +15%. Electric DMG +24%. After Dodge Counter or Assist Attack · Energy Generation Rate +27.5%',
     },
   ] as const)(
     'keeps the complete $candidateName package accessible as candidate and selection',
-    async ({ agentId, party, slot, selectedName, candidateId, candidateName, description }) => {
+    async ({
+      agentId, party, slot, selectedName, candidateId, candidateName,
+      candidateRefinement = 1, description,
+    }) => {
       const user = userEvent.setup()
       const state = createPreparedState({}, party, 0)
       const setup = state.slots[slot].setup
@@ -203,12 +218,12 @@ describe('AgentSetup partial W-Engine package', () => {
         name: `Change W-Engine from ${selectedName}`,
       }))
       const candidate = within(screen.getByLabelText('W-Engine candidates'))
-        .getByRole('button', { name: `Select ${candidateName} W1` })
+        .getByRole('button', { name: `Select ${candidateName} W${candidateRefinement}` })
       expect(candidate).toHaveAccessibleDescription(description)
 
       rerender(<AgentSetup
         {...props}
-        setup={{ ...setup, engineId: candidateId as EngineId, refinement: 1 }}
+        setup={{ ...setup, engineId: candidateId as EngineId, refinement: candidateRefinement }}
       />)
       expect(screen.getByRole('button', {
         name: `Change W-Engine from ${candidateName}`,

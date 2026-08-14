@@ -20,6 +20,61 @@ import {
 } from './state'
 
 describe('workbench state lifecycle', () => {
+  it('composes Anby direct edits, King pressure clearing, and target rebuilding', () => {
+    let state = createPreparedState({}, ['ben', 'pulchra', 'anby'], 0)
+    expect(state.slots[1].setup.fourPieceId).toBe('king')
+    expect(state.slots[2].setup).toMatchObject({
+      fourPieceId: 'astralVoice', twoPieceId: 'king',
+      mains: { slot4: 'atkPct' }, substats: {},
+    })
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 2, piece: 'twoPiece', discId: 'shockstar',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 2, piece: 'fourPiece', discId: 'king',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 2, mainSlot: 'slot4', mainStatId: 'critRate',
+    })
+    state = workbenchReducer(state, {
+      type: 'setSubstat', slot: 2, key: 'critRate', value: 4,
+    })
+    expect(state.slots[1].setup.fourPieceId).toBe('king')
+    expect(state.slots[2].setup).toMatchObject({
+      fourPieceId: 'king', mains: { slot4: 'critRate' },
+      substats: { critRate: 4 },
+    })
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 2, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    expect(state.slots[2].setup).toMatchObject({
+      fourPieceId: 'astralVoice', mains: { slot4: null }, substats: {},
+    })
+    expect(isCompleteWorkbench(state)).toBe(false)
+    expect(calculateParty(state)).toBeNull()
+
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 2, mainSlot: 'slot4', mainStatId: 'atkPct',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 1, mainSlot: 'slot5', mainStatId: 'atkPct',
+    })
+    const editedPulchra = state.slots[1]
+    state = workbenchReducer(state, { type: 'switchPool', slot: 2, pool: 'nonLimited' })
+
+    expect(state.slots[1]).toBe(editedPulchra)
+    expect(state.slots[1].setup.mains.slot5).toBe('atkPct')
+    expect(state.slots[2].setup).toMatchObject({
+      pool: 'nonLimited', engineId: 'hellfireGears',
+      fourPieceId: 'astralVoice', twoPieceId: 'king',
+      mains: { slot4: 'atkPct', slot5: 'electricDmg', slot6: 'impact' },
+      substats: {},
+    })
+    expect(isCompleteWorkbench(state)).toBe(true)
+  })
+
   it('composes Nekomata preparation through Vanguard, Dialyn, King, and broad pressure', () => {
     let state = createPreparedState({}, ['nekomata', 'seed', 'qingyi'], 0)
     const replaceSecond = (agentId: AgentId) => {

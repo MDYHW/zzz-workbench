@@ -48,6 +48,7 @@ import starlightEngineReplicaImage from '../../assets/equipment/w-engines/starli
 import hailstormShrineImage from '../../assets/equipment/w-engines/hailstorm-shrine.webp'
 import bigCylinderImage from '../../assets/equipment/w-engines/big-cylinder.webp'
 import springEmbraceImage from '../../assets/equipment/w-engines/spring-embrace.webp'
+import demaraBatteryMarkIIImage from '../../assets/equipment/w-engines/demara-battery-mark-ii.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -453,6 +454,18 @@ export const W_ENGINE_FACTS = {
       physicalDamage: { modifier: 'dmgBonus', unit: '%', value: [36, 41, 46.5, 52, 57.5], scope: { attributes: ['Physical'] } },
     },
   },
+  demaraBatteryMarkII: {
+    advancedStat: { id: 'impactPct', label: 'Impact', value: 15, unit: '%' },
+    effects: {
+      electricDamage: {
+        modifier: 'dmgBonus', unit: '%', value: [15, 17.5, 20, 22, 24],
+        scope: { attributes: ['Electric'] },
+      },
+      energyGeneration: {
+        modifier: 'energyGenerationRate', unit: '%', value: [18, 20.5, 23, 25, 27.5],
+      },
+    },
+  },
 } as const satisfies Record<EngineId, WEngineFacts>
 
 /** Exact authored fields for one admitted W-Engine, derived from the fact source. */
@@ -793,6 +806,14 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.starlightEngineReplica.advancedStat, image: starlightEngineReplicaImage,
     passiveLines: (refinement) => [`Physical DMG +${percent(W_ENGINE_FACTS.starlightEngineReplica.effects.physicalDamage, refinement)}`],
   },
+  demaraBatteryMarkII: {
+    id: 'demaraBatteryMarkII', name: 'Demara Battery Mark II', rank: 'A', limited: false, baseAtk: 624,
+    advancedStat: W_ENGINE_FACTS.demaraBatteryMarkII.advancedStat, image: demaraBatteryMarkIIImage,
+    passiveLines: (refinement) => [
+      `Electric DMG +${percent(W_ENGINE_FACTS.demaraBatteryMarkII.effects.electricDamage, refinement)}`,
+      `After Dodge Counter or Assist Attack · Energy Generation Rate +${percent(W_ENGINE_FACTS.demaraBatteryMarkII.effects.energyGeneration, refinement)}`,
+    ],
+  },
 }
 
 const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
@@ -834,4 +855,5 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   billy: enginePools(['cloudcleaveRadiance', 'heartstringNocturne', 'cordisGermina', 'brimstone', 'steelCushion', 'starlightEngineReplica']),
   ben: enginePools(['tremorTrigramVessel', 'tusksOfFury', 'cloudcleaveRadiance', 'hailstormShrine', 'bigCylinder', 'springEmbrace']),
   koleda: enginePools(['hellfireGears', 'blazingLaurel', 'iceJadeTeapot', 'restrained', 'steamOven', 'preciousFossilizedCore']),
+  anby: enginePools(['hellfireGears', 'iceJadeTeapot', 'blazingLaurel', 'restrained', 'steamOven', 'preciousFossilizedCore', 'demaraBatteryMarkII']),
 }

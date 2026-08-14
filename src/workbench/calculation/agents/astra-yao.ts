@@ -36,7 +36,7 @@ import {
 import type { AgentResult } from '../result'
 import { TRIGGER_QUICK_ASSIST_TARGET } from './trigger'
 
-const stunRecipients = ['dialyn', 'trigger'] as const
+const stunRecipients = ['dialyn', 'trigger', 'anby'] as const
 const damageFormulas: readonly SetupFormulaFamily[] = [
   'general_damage',
   'sheer_damage',

@@ -44,6 +44,8 @@ describe('bounded equipment effect facts', () => {
       .toEqualTypeOf<'critRate' | 'chargedEtherDamage'>()
     expectTypeOf<WEngineEffectField<'theVault'>>()
       .toEqualTypeOf<'targetDamage' | 'holderEnergy'>()
+    expectTypeOf<WEngineEffectField<'demaraBatteryMarkII'>>()
+      .toEqualTypeOf<'electricDamage' | 'energyGeneration'>()
 
     expectTypeOf<DriveDiscPiece<'dawnsBloom'>>()
       .toEqualTypeOf<'twoPiece' | 'fourPiece'>()
@@ -455,5 +457,40 @@ describe('bounded equipment effect facts', () => {
       .toEqual({ attributes: ['Physical'] })
     expect(W_ENGINES.starlightEngineReplica.passiveLines(5))
       .toEqual(['Physical DMG +57.5%'])
+  })
+
+  it('retains Demara Battery Mark II as an Electric and event-resource package', () => {
+    const refinements = [1, 2, 3, 4, 5] as const
+
+    expect(W_ENGINES.demaraBatteryMarkII).toMatchObject({
+      rank: 'A', limited: false, baseAtk: 624,
+      advancedStat: { id: 'impactPct', label: 'Impact', value: 15, unit: '%' },
+    })
+    expect(W_ENGINE_FACTS.demaraBatteryMarkII.effects.electricDamage.scope)
+      .toEqual({ attributes: ['Electric'] })
+    expect(refinements.map((refinement) =>
+      equipmentEffectBaseValue(
+        W_ENGINE_FACTS.demaraBatteryMarkII.effects.electricDamage,
+        refinement,
+      ),
+    )).toEqual([15, 17.5, 20, 22, 24])
+    expect(refinements.map((refinement) =>
+      equipmentEffectBaseValue(
+        W_ENGINE_FACTS.demaraBatteryMarkII.effects.energyGeneration,
+        refinement,
+      ),
+    )).toEqual([18, 20.5, 23, 25, 27.5])
+    expect(W_ENGINE_FACTS.demaraBatteryMarkII.effects.energyGeneration).toMatchObject({
+      modifier: 'energyGenerationRate', unit: '%',
+    })
+    expect(W_ENGINES.demaraBatteryMarkII.passiveLines(5)).toEqual([
+      'Electric DMG +24%',
+      'After Dodge Counter or Assist Attack · Energy Generation Rate +27.5%',
+    ])
+    expect(W_ENGINES.demaraBatteryMarkII.image).toContain('demara-battery-mark-ii.webp')
+
+    for (const line of W_ENGINES.demaraBatteryMarkII.passiveLines(5)) {
+      expect(line).not.toMatch(/Base ATK|stack|duration|seconds?/i)
+    }
   })
 })

@@ -15,6 +15,7 @@ import {
   selectEngine,
   selectDisc,
   selectMain,
+  setRefinement,
   setSubstat,
   withMindscape,
 } from './calculate.test-support'
@@ -1621,6 +1622,167 @@ describe('authored calculation policies', () => {
         }))
       expect(metric(puffer, 'atk').breakdown.fully)
         .toContainEqual(expect.objectContaining({ ownerAgentId: 'billy', locus: 'disc-4pc' }))
+    })
+
+    it('projects Anby Core, Mindscapes, King, and W-Engines without resource proxies', () => {
+      const base = createPreparedState({}, ['billy', 'anby', 'nekomata'], 0)
+      const prepared = agent(calculateParty(base)!, 'anby')
+
+      expect(metric(prepared, 'impact').values).toEqual({
+        initial: 193.12, combat: 193.12, fully: 220.32,
+      })
+      expect(metric(prepared, 'energyRegen').values.initial).toBe(1.2)
+      expect(metric(prepared, 'energyRegen').values.combat).toBeCloseTo(1.8)
+      expect(metric(prepared, 'energyRegen').values.fully).toBeCloseTo(1.8)
+      expect(metric(prepared, 'critRate').gauge).toMatchObject({
+        current: 29, threshold: 50, outputValue: 15,
+      })
+      expect(action(prepared, 'anbyThunderboltDaze').values.fully).toBe(70)
+      expect(action(prepared, 'anbySpecialDaze').values.fully).toBe(70)
+      expect(action(prepared, 'anbyExSpecialDaze').values.fully).toBe(80)
+      expect(action(prepared, 'anbyBasicDmg').values.fully).toBe(75)
+      expect(action(prepared, 'anbyThunderboltDmg').values.fully).toBe(105)
+      expect(action(prepared, 'anbyDashDmg').values.fully).toBe(75)
+      expect(prepared.operations).toEqual([])
+
+      const shockstar = agent(calculateParty(
+        selectMain(
+          selectDisc(
+            selectDisc(base, 'anby', 'twoPiece', 'swingJazz'),
+            'anby', 'fourPiece', 'shockstar',
+          ),
+          'anby', 'slot4', 'atkPct',
+        ),
+      )!, 'anby')
+      expect(action(shockstar, 'anbyBasicDaze').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Shockstar Disco', ownerAgentId: 'anby', amount: 20,
+        }))
+      expect(action(shockstar, 'anbyThunderboltDaze').values.fully
+        - metric(shockstar, 'dazeBonus').values.fully).toBe(84)
+      expect(action(shockstar, 'anbyThunderboltDaze')).toMatchObject({
+        baseActionId: 'anbyBasicDaze',
+      })
+      expect(action(shockstar, 'anbyDashDodgeDaze').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Shockstar Disco', ownerAgentId: 'anby', amount: 20,
+        }))
+
+      const invested = agent(calculateParty(
+        setSubstat(base, 'anby', 'critRate', 9),
+      )!, 'anby')
+      expect(metric(invested, 'critRate').gauge).toMatchObject({
+        threshold: 50, outputValue: 30,
+      })
+      expect(metric(invested, 'critRate').gauge?.current).toBeCloseTo(50.6)
+
+      const demaraState = setRefinement(
+        selectEngine(base, 'anby', 'demaraBatteryMarkII'),
+        'anby',
+        1,
+      )
+      const demara = agent(calculateParty(demaraState)!, 'anby')
+      expect(metric(demara, 'dmgBonus').values).toEqual({
+        initial: 30, combat: 45, fully: 45,
+      })
+      expect(metric(demara, 'dmgBonus').breakdown.combat)
+        .toContainEqual(expect.objectContaining({
+          label: 'Demara Battery Mark II', ownerAgentId: 'anby', amount: 15,
+        }))
+      expect(demara.metrics.find(({ id }) => id === 'energyRegen')).toBeUndefined()
+      expect(demara.operations).toEqual([])
+
+      const restrained = agent(calculateParty(
+        selectEngine(base, 'anby', 'restrained'),
+      )!, 'anby')
+      expect(action(restrained, 'anbyBasicDmg').values.fully
+        - metric(restrained, 'dmgBonus').values.fully).toBe(75)
+      expect(action(restrained, 'anbyThunderboltDaze').values.fully
+        - metric(restrained, 'dazeBonus').values.fully).toBe(94)
+
+      const m2 = agent(calculateParty(withMindscape(base, 'anby', 2))!, 'anby')
+      expect(action(m2, 'anbyThunderboltDmg').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Mindscape', detail: 'M2 · Against Stunned target', amount: 30,
+        }))
+      expect(action(m2, 'anbyExSpecialDaze').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Mindscape', detail: 'M2 · Against non-Stunned target', amount: 10,
+        }))
+      expect(m2.actionModifiers.map(({ id }) => id)).not.toContain('anbyBasicDmg')
+      expect(m2.actionModifiers.map(({ id }) => id)).not.toContain('anbyDashDmg')
+
+      const steam = agent(calculateParty(
+        selectEngine(base, 'anby', 'steamOven'),
+      )!, 'anby')
+      expect(metric(steam, 'energyRegen').breakdown.initial)
+        .toContainEqual(expect.objectContaining({
+          label: 'Steam Oven', ownerAgentId: 'anby', locus: 'w-engine',
+          display: { value: 50, unit: '%', decimals: 0 },
+        }))
+      expect(metric(steam, 'impact').values.fully)
+        .toBeGreaterThan(metric(steam, 'impact').values.combat)
+
+      const precious = agent(calculateParty(
+        selectEngine(base, 'anby', 'preciousFossilizedCore'),
+      )!, 'anby')
+      expect(metric(precious, 'dazeBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Precious Fossilized Core', ownerAgentId: 'anby', amount: 32,
+        }))
+
+      const m0 = agent(calculateParty(withMindscape(base, 'anby', 0))!, 'anby')
+      expect(m0.actionModifiers.find(({ id }) => id === 'anbyBasicDmg')).toBeUndefined()
+      expect(action(m0, 'anbyThunderboltDaze').values.fully).toBe(70)
+      expect(m0.operations).toEqual([])
+    })
+
+    it('delivers Trigger Core/M2 and Astra M4 only through Anby compatible consumers', () => {
+      const noTrigger = agent(calculateParty(
+        createPreparedState({}, ['billy', 'anby', 'nekomata'], 0),
+      )!, 'anby')
+      expect(noTrigger.metrics.find(({ id }) => id === 'stunDmgMultiplier')).toBeUndefined()
+
+      const triggerM0State = withMindscape(
+        createPreparedState({}, ['billy', 'anby', 'trigger'], 0),
+        'trigger',
+        0,
+      )
+      const triggerM0 = agent(calculateParty(triggerM0State)!, 'anby')
+      expect(metric(triggerM0, 'stunDmgMultiplier').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Core Passive', ownerAgentId: 'trigger', amount: 35,
+        }))
+      expect(metric(triggerM0, 'critDmg').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({
+          label: 'Mindscape', ownerAgentId: 'trigger',
+        }))
+
+      const triggerM2 = agent(calculateParty(
+        withMindscape(triggerM0State, 'trigger', 2),
+      )!, 'anby')
+      expect(metric(triggerM2, 'stunDmgMultiplier').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Core Passive', ownerAgentId: 'trigger', amount: 55,
+        }))
+      expect(metric(triggerM2, 'critDmg').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Mindscape', detail: 'M2 · 4 stacks', ownerAgentId: 'trigger', amount: 24,
+        }))
+
+      const astraM0State = withMindscape(
+        createPreparedState({}, ['billy', 'anby', 'astraYao'], 0),
+        'astraYao',
+        0,
+      )
+      expect(agent(calculateParty(astraM0State)!, 'anby').operations).toEqual([])
+      const astraM4 = agent(calculateParty(
+        withMindscape(astraM0State, 'astraYao', 4),
+      )!, 'anby')
+      expect(astraM4.operations).toContainEqual(expect.objectContaining({
+        id: 'nextQuickAssistDaze', value: 50,
+        source: expect.objectContaining({ ownerAgentId: 'astraYao' }),
+      }))
     })
 
     it('applies duplicate Ice-Jade squad DMG once while retaining equal origins', () => {

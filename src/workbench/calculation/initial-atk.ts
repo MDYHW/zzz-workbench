@@ -20,7 +20,7 @@ export const SEED_VANGUARD_ATK_AGENT_IDS = [
 export type SeedVanguardAtkAgentId = (typeof SEED_VANGUARD_ATK_AGENT_IDS)[number]
 export type InitialAtkAgentId = SeedVanguardAtkAgentId
   | 'juFufu' | 'panYinhu' | 'soukaku' | 'lucy' | 'pulchra' | 'harumasa' | 'qingyi'
-  | 'ben' | 'koleda'
+  | 'ben' | 'koleda' | 'anby'
 
 export function isSeedVanguardAtkAgent(agentId: AgentId): agentId is SeedVanguardAtkAgentId {
   return SEED_VANGUARD_ATK_AGENT_IDS.some((candidate) => candidate === agentId)

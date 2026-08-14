@@ -321,6 +321,14 @@ export const VERTICAL_VALUES = {
     mindscapeDmgMax: 36, mindscapeExplosionAtk: 360,
     kingCritThreshold: 50,
   },
+  anby: {
+    atk: 658, critRate: 5, critDmg: 50, impact: 136, baseEnergyRegen: 1.2,
+    coreActionDaze: 64,
+    mindscapeThunderboltStunnedDmg: 30,
+    mindscapeExNonStunnedDaze: 10,
+    mindscapeBasicDashDmg: 45,
+    kingCritThreshold: 50,
+  },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [
@@ -357,8 +365,8 @@ export const SOURCE_LABELS = {
   luciaCore: SOURCE_CATEGORY_LABELS.corePassive,
   luciaAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   luciaSheer: SOURCE_CATEGORY_LABELS.exSpecialAttack,
-  anbyCore: SOURCE_CATEGORY_LABELS.corePassive,
-  anbyAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  anbySoldier0Core: SOURCE_CATEGORY_LABELS.corePassive,
+  anbySoldier0Ability: SOURCE_CATEGORY_LABELS.additionalAbility,
   triggerCore: SOURCE_CATEGORY_LABELS.corePassive,
   triggerAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   astraCore: SOURCE_CATEGORY_LABELS.corePassive,
@@ -409,5 +417,6 @@ export const SOURCE_LABELS = {
   benAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   koledaCore: SOURCE_CATEGORY_LABELS.corePassive,
   koledaAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  anbyCore: SOURCE_CATEGORY_LABELS.corePassive,
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const

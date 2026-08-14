@@ -614,6 +614,43 @@ describe('party-directed preparation', () => {
     })
   })
 
+  it('prepares Anby independently for both pools at zero supplied substats', () => {
+    for (const pool of ['full', 'nonLimited'] as const) {
+      expect(prepareTargetSelection(
+        context('anby', pool, 6),
+        'billy',
+        [],
+      )).toEqual({
+        engineId: 'hellfireGears', fourPieceId: 'king', twoPieceId: 'shockstar',
+        mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'impact' },
+      })
+      const prepared = createPreparedState(
+        { anby: pool }, ['billy', 'anby', 'nekomata'], 0,
+      )
+      expect(prepared.slots[1].setup).toMatchObject({
+        mindscape: 6, pool, engineId: 'hellfireGears', refinement: 1,
+        fourPieceId: 'king', twoPieceId: 'shockstar',
+        mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'impact' },
+        substats: { critRate: 0 },
+      })
+    }
+
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.anby).toEqual({
+      full: [
+        'hellfireGears', 'iceJadeTeapot', 'blazingLaurel', 'restrained',
+        'steamOven', 'preciousFossilizedCore', 'demaraBatteryMarkII',
+      ],
+      nonLimited: [
+        'hellfireGears', 'restrained', 'steamOven',
+        'preciousFossilizedCore', 'demaraBatteryMarkII',
+      ],
+    })
+    expect(DISC_IDS_BY_AGENT_AND_PIECE.anby).toEqual({
+      fourPiece: ['king', 'astralVoice', 'protoPunk', 'shockstar', 'swingJazz'],
+      twoPiece: ['shockstar', 'king', 'swingJazz'],
+    })
+  })
+
   it('allocates Koleda through the bounded flexible and rigid two-Stun order', () => {
     const cases = [
       {
@@ -649,6 +686,44 @@ describe('party-directed preparation', () => {
           .toMatchObject({ fourPieceId: 'king' })
         expect(prepared[ordered.findIndex(({ agentId }) => agentId === current.astral)])
           .toMatchObject({ fourPieceId: 'astralVoice', twoPieceId: 'king' })
+      }
+    }
+  })
+
+  it('allocates Anby through the bounded flexible and rigid two-Stun order', () => {
+    const cases = [
+      {
+        members: [context('ben', 'full', 6), context('anby', 'full', 6), context('pulchra', 'full', 6)] as const,
+        focus: 'ben' as const, king: 'pulchra' as const, astral: 'anby' as const,
+      },
+      {
+        members: [context('corin', 'full', 6), context('anby', 'full', 6), context('lycaon')] as const,
+        focus: 'corin' as const, king: 'lycaon' as const, astral: 'anby' as const,
+      },
+      {
+        members: [context('corin', 'full', 6), context('anby', 'full', 6), context('koleda')] as const,
+        focus: 'corin' as const, king: 'koleda' as const, astral: 'anby' as const,
+      },
+      {
+        members: [context('ben', 'full', 6), context('anby', 'full', 6), context('trigger')] as const,
+        focus: 'ben' as const, king: 'trigger' as const, astral: 'anby' as const,
+      },
+      {
+        members: [context('hugo'), context('anby', 'full', 6), context('juFufu')] as const,
+        focus: 'hugo' as const, king: 'juFufu' as const, astral: 'anby' as const,
+      },
+    ]
+
+    for (const current of cases) {
+      for (const ordered of permutations(current.members)) {
+        const prepared = preparePartySelections(ordered, current.focus)
+        expect(prepared[ordered.findIndex(({ agentId }) => agentId === current.king)])
+          .toMatchObject({ fourPieceId: 'king' })
+        expect(prepared[ordered.findIndex(({ agentId }) => agentId === current.astral)])
+          .toMatchObject({
+            fourPieceId: 'astralVoice', twoPieceId: 'king',
+            mains: { slot4: 'atkPct' },
+          })
       }
     }
   })

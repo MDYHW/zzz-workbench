@@ -175,6 +175,11 @@ import {
   resolveKoledaProviderClauses,
   type KoledaCalculationContext,
 } from './calculation/agents/koleda'
+import {
+  observeAnbyDemara,
+  resolveAnbyDemaraProviderClauses,
+  type AnbyDemaraCalculationContext,
+} from './calculation/agents/anby'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -210,6 +215,7 @@ export type ProviderContext =
   | BillyCalculationContext
   | BenCalculationContext
   | KoledaCalculationContext
+  | AnbyDemaraCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -380,6 +386,8 @@ function observeProviderContext(
         slot.setup,
         anotherSharesAttribute || anotherSharesFaction || anotherHasSpecialty(['Rupture']),
       )
+    case 'anby':
+      return observeAnbyDemara(slot.setup)
     default:
       return assertNever(slot.agentId)
   }
@@ -465,6 +473,8 @@ function providerClauses(
       return resolveBenProviderClauses(context)
     case 'koleda':
       return resolveKoledaProviderClauses(context)
+    case 'anby':
+      return resolveAnbyDemaraProviderClauses(context)
     default:
       return assertNever(context)
   }

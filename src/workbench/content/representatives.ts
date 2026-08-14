@@ -82,7 +82,7 @@ const luciaRepresentative: Omit<SetupSelection, 'engineId'> = {
   mains: { slot4: 'hpPct', slot5: 'hpPct', slot6: 'hpPct' },
 }
 
-const anbyRepresentative: Omit<SetupSelection, 'engineId'> = {
+const anbySoldier0Representative: Omit<SetupSelection, 'engineId'> = {
   fourPieceId: 'shadowHarmony',
   twoPieceId: 'woodpecker',
   mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'atkPct' },
@@ -240,6 +240,12 @@ const koledaRepresentative: SetupSelection = {
   mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'impact' },
 }
 
+const anbyRepresentative: SetupSelection = {
+  engineId: 'hellfireGears',
+  fourPieceId: 'king', twoPieceId: 'shockstar',
+  mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'impact' },
+}
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -285,11 +291,11 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
     nonLimited: { ...luciaRepresentative, engineId: 'weepingCradle' },
   },
   anbySoldier0: {
-    full: { ...anbyRepresentative, engineId: 'severedInnocence' },
+    full: { ...anbySoldier0Representative, engineId: 'severedInnocence' },
     nonLimited: {
-      ...anbyRepresentative,
+      ...anbySoldier0Representative,
       engineId: 'marcatoDesire',
-      mains: { ...anbyRepresentative.mains, slot4: 'critDmg' },
+      mains: { ...anbySoldier0Representative.mains, slot4: 'critDmg' },
     },
   },
   trigger: {
@@ -335,6 +341,7 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   billy: { full: billyRepresentative('full'), nonLimited: billyRepresentative('nonLimited') },
   ben: { full: benRepresentative, nonLimited: benRepresentative },
   koleda: { full: koledaRepresentative, nonLimited: koledaRepresentative },
+  anby: { full: anbyRepresentative, nonLimited: anbyRepresentative },
 }
 
 export function representativeSetupFor(
