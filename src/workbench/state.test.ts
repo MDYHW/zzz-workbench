@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MAIN_STAT_IDS_BY_AGENT_AND_SLOT } from './content'
+import { MAIN_STAT_IDS_BY_AGENT_AND_SLOT, type AgentId } from './content'
 import {
   effectiveFourPieceIds,
   effectiveMainStatIds,
@@ -20,6 +20,57 @@ import {
 } from './state'
 
 describe('workbench state lifecycle', () => {
+  it('composes Qingyi allocation, context, and M1 pressure through party reapplications', () => {
+    let state = createPreparedState({}, ['harumasa', 'qingyi', 'lycaon'], 0)
+    const replaceThird = (agentId: AgentId) => {
+      state = workbenchReducer(state, { type: 'openPartyEdit' })
+      state = workbenchReducer(state, { type: 'replaceDraftAgent', slot: 2, agentId })
+      state = workbenchReducer(state, { type: 'applyPartyEdit' })
+    }
+
+    expect(state.slots[1].setup.fourPieceId).toBe('king')
+    expect(state.slots[2].setup.fourPieceId).toBe('astralVoice')
+    const initialHarumasa = agent(calculateParty(state)!, 'harumasa')
+    expect(metric(initialHarumasa, 'critDmg').breakdown.fully
+      .filter(({ label }) => label === 'King of the Summit')).toHaveLength(1)
+    expect(metric(initialHarumasa, 'dmgBonus').breakdown.fully
+      .filter(({ label }) => label === 'Astral Voice')).toHaveLength(1)
+
+    replaceThird('juFufu')
+    expect(state.slots[1].setup.fourPieceId).toBe('king')
+    expect(state.slots[2].setup.fourPieceId).toBe('shockstar')
+
+    replaceThird('dialyn')
+    expect(state.slots[1].setup.fourPieceId).toBe('shockstar')
+    expect(state.slots[2].setup.fourPieceId).toBe('king')
+
+    replaceThird('astraYao')
+    expect(effectiveFourPieceIds(state, 1)).toContain('astralVoice')
+    expect(state.slots[1].setup.fourPieceId).toBe('king')
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    expect(state.slots[1].setup.fourPieceId).toBe('astralVoice')
+
+    replaceThird('lucia')
+    expect(effectiveFourPieceIds(state, 1)).not.toContain('astralVoice')
+    expect(state.slots[1].setup.fourPieceId).toBe('king')
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'pufferElectro',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'penRatio',
+    })
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 1 })
+    expect(state.slots[0].setup).toMatchObject({
+      twoPieceId: null, mains: { slot5: null },
+    })
+    expect(state.slots[1].setup.fourPieceId).toBe('king')
+    expect(isCompleteWorkbench(state)).toBe(false)
+    expect(calculateParty(state)).toBeNull()
+  })
+
   it('cycles Qingyi M1 broad pressure without selection history and preserves Sheer', () => {
     let state = createPreparedState({}, ['harumasa', 'qingyi', 'yixuan'], 0)
     state = workbenchReducer(state, {

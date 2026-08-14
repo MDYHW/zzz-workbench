@@ -45,7 +45,16 @@ export function resolveTriggerProviderClauses(setup: CompleteSetup): SourceBound
       ),
       'materialBroadPrePenDefBypass',
     ),
-    additive('dmgBonus', 'fully', engine, setup.engineId === 'iceJadeTeapot' ? equipmentEffectBaseValue(W_ENGINE_FACTS.iceJadeTeapot.effects.damage, refinement) : 0, 'all-party', undefined, undefined, ['yixuan', 'anbySoldier0', 'trigger'], 'iceJadeTeapot'),
+    withApplicability(
+      additive(
+        'dmgBonus', 'fully', engine,
+        setup.engineId === 'iceJadeTeapot'
+          ? equipmentEffectBaseValue(W_ENGINE_FACTS.iceJadeTeapot.effects.damage, refinement)
+          : 0,
+        'all-party', undefined, undefined, undefined, 'iceJadeTeapot',
+      ),
+      { formulas: ['general_damage', 'sheer_damage'] },
+    ),
     withApplicability(
       additive('critDmg', 'fully', engine, setup.engineId === 'blazingLaurel' ? equipmentEffectMaximumValue(W_ENGINE_FACTS.blazingLaurel.effects.critDamage, refinement) : 0, 'all-party'),
       { formulas: ['general_damage', 'sheer_damage'], attributes: ['Fire', 'Ice'] },

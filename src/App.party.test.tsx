@@ -118,6 +118,11 @@ describe('integrated party workbench: party', () => {
         { agentId: 'corin', setup: createPreparedAgentSetup('corin') },
       ],
       [
+        { agentId: 'harumasa', setup: createPreparedAgentSetup('harumasa') },
+        { agentId: 'qingyi', setup: createPreparedAgentSetup('qingyi') },
+        { agentId: 'lucia', setup: createPreparedAgentSetup('lucia') },
+      ],
+      [
         { agentId: 'orphie', setup: createPreparedAgentSetup('orphie') },
         { agentId: 'pulchra', setup: createPreparedAgentSetup('pulchra') },
         { agentId: 'anbySoldier0', setup: createPreparedAgentSetup('anbySoldier0') },
@@ -289,7 +294,7 @@ describe('integrated party workbench: party', () => {
 
     await user.selectOptions(screen.getByLabelText('Attribute'), 'Electric')
     await user.selectOptions(screen.getByLabelText('Specialty'), 'Attack')
-    expect(screen.getByText('3 available candidates')).toBeInTheDocument()
+    expect(screen.getByText('4 available candidates')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ }))
     expect(screen.getByText('Focus · Yixuan')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Dialyn Result' })).not.toBeInTheDocument()
@@ -589,6 +594,106 @@ describe('integrated party workbench: party', () => {
     })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Pulchra Result' })).toBeInTheDocument()
   }, 15_000)
+
+  it('admits Harumasa and Qingyi with complete equipment copy and visible M1 pressure recovery', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Asaba Harumasa, Electric, Attack/)
+    await replace(2, /Qingyi, Electric, Stun/)
+    await replace(3, /Lucia, Ether, Support/)
+    expect(screen.getByText('Asaba Harumasa is Focus automatically.')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    const harumasaTab = screen.getByRole('tab', {
+      name: 'Close Asaba Harumasa setup and Result',
+    })
+    expect(within(harumasaTab).getByLabelText('S Rank')).toBeInTheDocument()
+    expect(within(harumasaTab).getByLabelText('Electric, Attack').querySelectorAll('img'))
+      .toHaveLength(2)
+    const zanshin = screen.getByRole('button', { name: 'Change W-Engine from Zanshin Herb Case' })
+    expect(zanshin).toHaveAccessibleDescription(
+      'CRIT DMG +48%. CRIT Rate +20%. Electric Dash Attack DMG +40%',
+    )
+    await user.click(zanshin)
+    const cordis = within(screen.getByLabelText('W-Engine candidates'))
+      .getByRole('button', { name: 'Select Cordis Germina W1' })
+    expect(cordis).toHaveAccessibleDescription(
+      'CRIT Rate +24%. CRIT Rate +15%. Electric DMG +25%. Basic Attack & Ultimate DEF Ignore +20%',
+    )
+    await user.click(zanshin)
+    expect(screen.getByRole('heading', { name: 'Asaba Harumasa Result' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Non-limited' }))
+    expect(screen.getByRole('button', { name: 'Change W-Engine from The Brimstone' }))
+      .toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Asaba Harumasa Result' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Full pool' }))
+
+    const twoPiece = screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Branch & Blade Song',
+    })
+    twoPiece.focus()
+    await user.keyboard('{Enter}')
+    const puffer = within(screen.getByLabelText('twoPiece Drive Disc candidates'))
+      .getByRole('button', { name: 'Select Puffer Electro as twoPiece' })
+    puffer.focus()
+    await user.keyboard('{Enter}')
+    expect(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Puffer Electro',
+    })).toHaveFocus()
+    await user.click(screen.getByRole('button', { name: 'Change Disc 5 main stat from ATK%' }))
+    await user.click(screen.getByRole('button', { name: 'Select PEN Ratio for Disc 5' }))
+
+    await user.click(screen.getByRole('tab', { name: 'View Qingyi setup and Result' }))
+    const qingyiTab = screen.getByRole('tab', { name: 'Close Qingyi setup and Result' })
+    expect(within(qingyiTab).getByLabelText('S Rank')).toBeInTheDocument()
+    expect(within(qingyiTab).getByLabelText('Electric, Stun').querySelectorAll('img'))
+      .toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Ice-Jade Teapot' }))
+      .toHaveAccessibleDescription('Impact +18%. Impact +21%. Squad DMG +20%')
+    expect(screen.getByRole('heading', { name: 'Qingyi Result' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Impact' }))
+    expect(screen.getByText('Fully Enabled Impact')).toBeInTheDocument()
+    expect(screen.getByText('Self ATK')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Non-limited' }))
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Steam Oven' }))
+      .toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Qingyi Result' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Full pool' }))
+
+    const mindscape = screen.getByRole('group', { name: 'Mindscape' })
+    await user.click(within(mindscape).getByRole('button', { name: 'M1' }))
+    expect(screen.getByRole('tab', {
+      name: 'View Asaba Harumasa setup and Result, setup incomplete',
+    })).toHaveClass('is-setup-incomplete')
+    expect(screen.getByRole('tab', { name: 'Close Qingyi setup and Result' }))
+      .not.toHaveClass('is-setup-incomplete')
+    expect(screen.queryByRole('heading', { name: 'Qingyi Result' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', {
+      name: 'View Asaba Harumasa setup and Result, setup incomplete',
+    }))
+    expect(screen.getByRole('tab', {
+      name: 'Close Asaba Harumasa setup and Result, setup incomplete',
+    })).toHaveClass('is-setup-incomplete')
+    const requiredTwoPiece = screen.getByRole('button', { name: '2-piece Drive Disc required' })
+    await user.click(requiredTwoPiece)
+    await user.click(within(screen.getByLabelText('twoPiece Drive Disc candidates'))
+      .getByRole('button', { name: 'Select Branch & Blade Song as twoPiece' }))
+    await user.click(screen.getByRole('button', { name: 'Disc 5 main stat required' }))
+    await user.click(screen.getByRole('button', { name: 'Select ATK% for Disc 5' }))
+
+    expect(screen.getByRole('heading', { name: 'Asaba Harumasa Result' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Close Asaba Harumasa setup and Result' }))
+      .not.toHaveClass('is-setup-incomplete')
+    expect(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
+      .not.toHaveClass('is-setup-incomplete')
+  }, 20_000)
 
   it('admits Ju Fufu through shared Stun setup, threshold, and pool flows', async () => {
     const user = userEvent.setup()

@@ -206,7 +206,7 @@ export function resolveHarumasaProviderClauses(
       'self',
     ),
     percentage(
-      'atk', 'combat', engine,
+      'atk', 'fully', engine,
       setup.engineId === 'starlightEngine'
         ? equipmentEffectBaseValue(W_ENGINE_FACTS.starlightEngine.effects.atk, refinement)
         : 0,

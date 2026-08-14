@@ -313,6 +313,7 @@ export function calculateStarlightBilly(
       { id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...dmgBonus },
       { id: 'sheerDmgBonus', label: 'Sheer DMG Bonus', unit: '%', decimals: 1, ...sheerDmgBonus },
       ...optionalMetric('resIgnore', 'RES Ignore', effects),
+      ...optionalMetric('resReduction', 'RES Reduction', effects),
       ...optionalMetric('stunDmgMultiplier', 'Stun DMG Multiplier', effects),
     ],
     actionModifiers,

@@ -270,6 +270,9 @@ export function calculatePulchra(
   const daze = composeMetricEffects(
     surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus',
   )
+  const resReduction = composeMetricEffects(
+    surfaces(0, 0, 0), surfaces([], [], []), effects, 'resReduction',
+  )
   const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'pulchra', 'energyRegenPct'),
     mainStatInput(setup, 'pulchra', 'slot6', 'energyRegenPct'),
@@ -316,6 +319,9 @@ export function calculatePulchra(
       { id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...dmg },
       ...(defIgnore.values.fully || actions.some(({ metricId }) => metricId === 'defIgnore')
         ? [{ id: 'defIgnore' as const, label: 'DEF Ignore', unit: '%', decimals: 1, ...defIgnore }]
+        : []),
+      ...(resReduction.values.fully
+        ? [{ id: 'resReduction' as const, label: 'RES Reduction', unit: '%', decimals: 1, ...resReduction }]
         : []),
       { id: 'dazeBonus', label: 'Daze Bonus', unit: '%', decimals: 1, ...daze },
     ],

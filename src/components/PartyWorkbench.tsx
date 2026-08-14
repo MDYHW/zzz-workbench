@@ -46,6 +46,8 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   nicole: { attribute: etherMark, specialty: supportMark },
   orphie: { attribute: fireMark, specialty: attackMark },
   pulchra: { attribute: physicalMark, specialty: stunMark },
+  harumasa: { attribute: electricMark, specialty: attackMark },
+  qingyi: { attribute: electricMark, specialty: stunMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {

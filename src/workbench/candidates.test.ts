@@ -89,7 +89,7 @@ describe('contextual Disc candidates', () => {
     expect(effectiveFourPieceIds(createPreparedState({}, ['qingyi', 'cissia', 'lucia'], 0), 0)).not.toContain('astralVoice')
   })
 
-  it('adds and clears Qingyi selected-King pressure without restoring edits', () => {
+  it('clears Qingyi selected-King Woodpecker without deleting independent substats', () => {
     let state = createPreparedState({}, ['qingyi', 'harumasa', 'lucia'], 0)
     expect(effectiveTwoPieceIds(state, 0)).toContain('woodpecker')
     expect(effectiveSubstatChoicesForSlot(state, 0).map(({ id }) => id)).toEqual(['critRate', 'critDmg', 'atkPct'])
@@ -99,11 +99,19 @@ describe('contextual Disc candidates', () => {
     state = workbenchReducer(state, {
       type: 'setSubstat', slot: 0, key: 'critRate', value: 5,
     })
+    state = workbenchReducer(state, {
+      type: 'setSubstat', slot: 0, key: 'critDmg', value: 2,
+    })
+    state = workbenchReducer(state, {
+      type: 'setSubstat', slot: 0, key: 'atkPct', value: 3,
+    })
     state = workbenchReducer(state, { type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'protoPunk' })
     expect(effectiveTwoPieceIds(state, 0)).not.toContain('woodpecker')
-    expect(effectiveSubstatChoicesForSlot(state, 0)).toEqual([])
+    expect(effectiveSubstatChoicesForSlot(state, 0).map(({ id }) => id))
+      .toEqual(['critRate', 'critDmg', 'atkPct'])
     expect(state.slots[0].setup).toMatchObject({
-      fourPieceId: 'protoPunk', twoPieceId: null, substats: {},
+      fourPieceId: 'protoPunk', twoPieceId: null,
+      substats: { critRate: 5, critDmg: 2, atkPct: 3 },
     })
     expect(isCompleteWorkbench(state)).toBe(false)
 
@@ -115,7 +123,7 @@ describe('contextual Disc candidates', () => {
       .toEqual(['critRate', 'critDmg', 'atkPct'])
     expect(state.slots[0].setup).toMatchObject({
       fourPieceId: 'king', twoPieceId: null,
-      substats: { critRate: 0, critDmg: 0, atkPct: 0 },
+      substats: { critRate: 5, critDmg: 2, atkPct: 3 },
     })
   })
 

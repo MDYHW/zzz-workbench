@@ -191,10 +191,13 @@ export function resolveQingyiProviderClauses(
       setup.mindscape >= 6 ? values.mindscapeEnchantedCritDmg : 0,
       'self', QINGYI_ENCHANTED_BASIC,
     ),
-    additive(
-      'resReduction', 'fully', mindscapeSource('qingyi', 6),
-      setup.mindscape >= 6 ? values.mindscapeResReduction : 0,
-      'enemy-context',
+    withApplicability(
+      additive(
+        'resReduction', 'fully', mindscapeSource('qingyi', 6),
+        setup.mindscape >= 6 ? values.mindscapeResReduction : 0,
+        'enemy-context',
+      ),
+      { formulas: ['general_damage', 'sheer_damage'] },
     ),
 
     percentage('impact', 'fully', engine, engineImpact(setup), 'self'),
