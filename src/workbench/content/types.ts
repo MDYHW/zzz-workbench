@@ -34,6 +34,8 @@ export type AgentId =
   | 'qingyi'
   | 'nekomata'
   | 'billy'
+  | 'ben'
+  | 'koleda'
 
 export type AgentRank = 'S' | 'A'
 export type AgentFaction =
@@ -45,6 +47,7 @@ export type AgentFaction =
   | 'Sons of Calydon'
   | 'Criminal Investigation Special Response Team'
   | 'Cunning Hares'
+  | 'Belobog Heavy Industries'
 
 /** Game-recognized teammate qualification that does not replace display faction. */
 export type PartyQualificationGroup = 'New Eridu Defense Force'
@@ -100,6 +103,9 @@ export type EngineId =
   | 'zanshinHerbCase'
   | 'cloudcleaveRadiance'
   | 'starlightEngineReplica'
+  | 'hailstormShrine'
+  | 'bigCylinder'
+  | 'springEmbrace'
 
 export type DiscId =
   | 'yunkui'
@@ -137,6 +143,7 @@ export type MainStatId =
   | 'electricDmg'
   | 'fireDmg'
   | 'iceDmg'
+  | 'defPct'
 
 export type SubstatId =
   | 'critRate'
@@ -145,9 +152,10 @@ export type SubstatId =
   | 'hpFlat'
   | 'atkPct'
   | 'atkFlat'
+  | 'defPct'
 
 export interface AdvancedStat {
-  id: 'hpPct' | 'atkPct' | 'critRate' | 'critDmg' | 'impactPct' | 'energyRegenPct' | 'penRatio'
+  id: 'hpPct' | 'atkPct' | 'defPct' | 'critRate' | 'critDmg' | 'impactPct' | 'energyRegenPct' | 'penRatio'
   label: string
   value: number
   unit: '%'
@@ -159,6 +167,7 @@ export type EquipmentEffectModifier =
   | 'maxHp' | 'atk' | 'sheerForce' | 'impact' | 'critRate' | 'critDmg'
   | 'dmgBonus' | 'sheerDmgBonus' | 'dazeBonus' | 'energy' | 'energyRegen'
   | 'penRatio' | 'defIgnore' | 'defReduction' | 'resIgnore' | 'shieldEffect'
+  | 'damageTakenReduction' | 'energyGenerationRate' | 'guaranteedCrit' | 'defDamage'
 
 export type EquipmentEffectAttribute = 'Electric' | 'Ether' | 'Fire' | 'Ice' | 'Physical'
 

@@ -45,6 +45,9 @@ import boxCutterImage from '../../assets/equipment/w-engines/box-cutter.webp'
 import zanshinHerbCaseImage from '../../assets/equipment/w-engines/zanshin-herb-case.webp'
 import cloudcleaveRadianceImage from '../../assets/equipment/w-engines/cloudcleave-radiance.webp'
 import starlightEngineReplicaImage from '../../assets/equipment/w-engines/starlight-engine-replica.webp'
+import hailstormShrineImage from '../../assets/equipment/w-engines/hailstorm-shrine.webp'
+import bigCylinderImage from '../../assets/equipment/w-engines/big-cylinder.webp'
+import springEmbraceImage from '../../assets/equipment/w-engines/spring-embrace.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -418,6 +421,32 @@ export const W_ENGINE_FACTS = {
       etherVeilCritDamage: { modifier: 'critDmg', unit: '%', value: [25, 28.7, 32.5, 36.2, 40], scope: { attributes: ['Ether'] } },
     },
   },
+  hailstormShrine: {
+    advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
+    effects: {
+      critDamage: { modifier: 'critDmg', unit: '%', value: [50, 57, 65, 72, 80] },
+      iceDamage: {
+        modifier: 'dmgBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: scaledRefinementValues(20), maxStacks: 2 },
+        scope: { attributes: ['Ice'] },
+      },
+    },
+  },
+  bigCylinder: {
+    advancedStat: { id: 'defPct', label: 'DEF', value: 40, unit: '%' },
+    effects: {
+      damageTaken: { modifier: 'damageTakenReduction', unit: '%', value: [7.5, 8.5, 9.5, 10.5, 12] },
+      guaranteedCrit: { modifier: 'guaranteedCrit', unit: '%', value: fixedRefinementValues(100) },
+      addedDefDamage: { modifier: 'defDamage', unit: '%', value: scaledRefinementValues(600) },
+    },
+  },
+  springEmbrace: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
+    effects: {
+      damageTaken: { modifier: 'damageTakenReduction', unit: '%', value: [7.5, 8.5, 9.5, 10.5, 12] },
+      energyGeneration: { modifier: 'energyGenerationRate', unit: '%', value: scaledRefinementValues(10) },
+    },
+  },
   starlightEngineReplica: {
     advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
     effects: {
@@ -725,10 +754,38 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   cloudcleaveRadiance: {
     id: 'cloudcleaveRadiance', name: 'Cloudcleave Radiance', rank: 'S', limited: true, baseAtk: 743,
     advancedStat: W_ENGINE_FACTS.cloudcleaveRadiance.advancedStat, image: cloudcleaveRadianceImage,
+    passiveSpecialty: 'Attack',
     passiveLines: (refinement) => [
       `Physical RES Ignore +${percent(W_ENGINE_FACTS.cloudcleaveRadiance.effects.physicalResIgnore, refinement)}`,
       `Ether Veil · Ether DMG +${percent(W_ENGINE_FACTS.cloudcleaveRadiance.effects.etherVeilDamage, refinement)}`,
       `Ether Veil · Ether CRIT DMG +${percent(W_ENGINE_FACTS.cloudcleaveRadiance.effects.etherVeilCritDamage, refinement)}`,
+    ],
+  },
+  hailstormShrine: {
+    id: 'hailstormShrine', name: 'Hailstorm Shrine', rank: 'S', limited: true, baseAtk: 743,
+    advancedStat: W_ENGINE_FACTS.hailstormShrine.advancedStat, image: hailstormShrineImage,
+    passiveSpecialty: 'Anomaly',
+    passiveLines: (refinement) => [
+      `CRIT DMG +${percent(W_ENGINE_FACTS.hailstormShrine.effects.critDamage, refinement)}`,
+      `After EX Special or squad Attribute Anomaly · Ice DMG +${percent(W_ENGINE_FACTS.hailstormShrine.effects.iceDamage, refinement, true)}`,
+    ],
+  },
+  bigCylinder: {
+    id: 'bigCylinder', name: 'Big Cylinder', rank: 'A', limited: false, baseAtk: 624,
+    advancedStat: W_ENGINE_FACTS.bigCylinder.advancedStat, image: bigCylinderImage,
+    passiveSpecialty: 'Defense',
+    passiveLines: (refinement) => [
+      `DMG taken -${percent(W_ENGINE_FACTS.bigCylinder.effects.damageTaken, refinement)}`,
+      `After attacked · Next hit guaranteed CRIT with added ${percent(W_ENGINE_FACTS.bigCylinder.effects.addedDefDamage, refinement)} DEF DMG · 7.5s cooldown`,
+    ],
+  },
+  springEmbrace: {
+    id: 'springEmbrace', name: 'Spring Embrace', rank: 'A', limited: false, baseAtk: 594,
+    advancedStat: W_ENGINE_FACTS.springEmbrace.advancedStat, image: springEmbraceImage,
+    passiveSpecialty: 'Defense',
+    passiveLines: (refinement) => [
+      `DMG taken -${percent(W_ENGINE_FACTS.springEmbrace.effects.damageTaken, refinement)}`,
+      `After attacked · Energy Generation Rate +${percent(W_ENGINE_FACTS.springEmbrace.effects.energyGeneration, refinement)} for 12s · Transfer refreshes on next on-field Agent`,
     ],
   },
   starlightEngineReplica: {
@@ -775,4 +832,6 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   qingyi: enginePools(['iceJadeTeapot', 'blazingLaurel', 'restrained', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   nekomata: enginePools(['steelCushion', 'heartstringNocturne', 'cordisGermina', 'cloudcleaveRadiance', 'severedInnocence', 'brimstone']),
   billy: enginePools(['cloudcleaveRadiance', 'heartstringNocturne', 'cordisGermina', 'brimstone', 'steelCushion', 'starlightEngineReplica']),
+  ben: enginePools(['tremorTrigramVessel', 'tusksOfFury', 'cloudcleaveRadiance', 'hailstormShrine', 'bigCylinder', 'springEmbrace']),
+  koleda: enginePools(['hellfireGears', 'blazingLaurel', 'iceJadeTeapot', 'restrained', 'steamOven', 'preciousFossilizedCore']),
 }

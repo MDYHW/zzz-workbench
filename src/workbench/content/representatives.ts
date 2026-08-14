@@ -228,6 +228,18 @@ const billyRepresentative = (pool: PoolId): SetupSelection => ({
   mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
 })
 
+const benRepresentative: SetupSelection = {
+  engineId: 'tremorTrigramVessel',
+  fourPieceId: 'woodpecker', twoPieceId: 'branchAndBlade',
+  mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'atkPct' },
+}
+
+const koledaRepresentative: SetupSelection = {
+  engineId: 'hellfireGears',
+  fourPieceId: 'king', twoPieceId: 'shockstar',
+  mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'impact' },
+}
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -321,6 +333,8 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   qingyi: { full: qingyiRepresentative('full'), nonLimited: qingyiRepresentative('nonLimited') },
   nekomata: { full: nekomataRepresentative(), nonLimited: nekomataRepresentative() },
   billy: { full: billyRepresentative('full'), nonLimited: billyRepresentative('nonLimited') },
+  ben: { full: benRepresentative, nonLimited: benRepresentative },
+  koleda: { full: koledaRepresentative, nonLimited: koledaRepresentative },
 }
 
 export function representativeSetupFor(

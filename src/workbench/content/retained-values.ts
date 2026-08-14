@@ -2,6 +2,7 @@ export const VERTICAL_VALUES = {
   fixedDisc: {
     hp: 2200,
     atk: 316,
+    def: 184,
   },
   rupture: {
     currentAtkToSheer: 0.3,
@@ -307,6 +308,19 @@ export const VERTICAL_VALUES = {
     mindscapeDodgeDmg: 25, mindscapeExCritRate: 32,
     mindscapeDmg: 30,
   },
+  ben: {
+    atk: 867, def: 724, critRate: 5, critDmg: 50, impact: 95, baseEnergyRegen: 1.56,
+    coreDefToAtk: 80, coreShieldDefRatio: 30, coreShieldBase: 550,
+    additionalCritRate: 16,
+    mindscapeCounterDefDamage: 300, mindscapeCounterDmg: 30, mindscapeDaze: 20,
+  },
+  koleda: {
+    atk: 735, critRate: 5, critDmg: 50, impact: 134, baseEnergyRegen: 1.2,
+    coreDaze: 60, additionalChainDmg: 70,
+    mindscapeDaze: 15, mindscapeDmgPerCharge: 18,
+    mindscapeDmgMax: 36, mindscapeExplosionAtk: 360,
+    kingCritThreshold: 50,
+  },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [
@@ -391,5 +405,9 @@ export const SOURCE_LABELS = {
   nekomataPotential: 'Potential Awakening',
   billyCore: SOURCE_CATEGORY_LABELS.corePassive,
   billyAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  benCore: SOURCE_CATEGORY_LABELS.corePassive,
+  benAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  koledaCore: SOURCE_CATEGORY_LABELS.corePassive,
+  koledaAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const

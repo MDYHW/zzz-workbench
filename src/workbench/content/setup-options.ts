@@ -43,6 +43,8 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   qingyi: { primary: ['daze_buildup'], residual: ['general_damage'] },
   nekomata: { primary: ['general_damage'], residual: [] },
   billy: { primary: ['general_damage'], residual: [] },
+  ben: { primary: ['general_damage'], residual: ['daze_buildup'] },
+  koleda: { primary: ['daze_buildup'], residual: ['general_damage'] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -62,6 +64,7 @@ export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
   electricDmg: { id: 'electricDmg', label: 'Electric DMG', numericValue: 30 },
   fireDmg: { id: 'fireDmg', label: 'Fire DMG', numericValue: 30 },
   iceDmg: { id: 'iceDmg', label: 'Ice DMG', numericValue: 30 },
+  defPct: { id: 'defPct', label: 'DEF%', numericValue: 48 },
 }
 
 export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
@@ -198,6 +201,14 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   },
   billy: {
     slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['physicalDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
+  },
+  ben: {
+    slot4: ['critRate', 'critDmg', 'defPct'],
+    slot5: ['fireDmg', 'penRatio', 'atkPct', 'defPct'],
+    slot6: ['atkPct', 'defPct'],
+  },
+  koleda: {
+    slot4: ['atkPct'], slot5: ['fireDmg', 'atkPct'], slot6: ['impact'],
   },
 }
 
@@ -343,6 +354,13 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
     { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
     { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
   ],
+  ben: [
+    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
+    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+    { id: 'defPct', label: 'DEF%', perHit: 4.8, unit: '%' },
+  ],
+  koleda: [],
 }
 
 /**

@@ -391,4 +391,12 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     fourPiece: ['woodpecker', 'shadowHarmony'],
     twoPiece: ['woodpecker', 'branchAndBlade', 'fangedMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
   },
+  ben: {
+    fourPiece: ['woodpecker', 'astralVoice', 'bunnyInWonderland', 'protoPunk', 'swingJazz'],
+    twoPiece: ['woodpecker', 'branchAndBlade', 'infernoMetal', 'pufferElectro', 'hormonePunk', 'astralVoice', 'swingJazz', 'moonlight', 'protoPunk'],
+  },
+  koleda: {
+    fourPiece: ['king', 'astralVoice', 'protoPunk', 'shockstar', 'swingJazz'],
+    twoPiece: ['shockstar', 'king', 'swingJazz'],
+  },
 }
