@@ -20,6 +20,74 @@ import {
 } from './state'
 
 describe('workbench state lifecycle', () => {
+  it('composes Nekomata preparation through Vanguard, Dialyn, King, and broad pressure', () => {
+    let state = createPreparedState({}, ['nekomata', 'seed', 'qingyi'], 0)
+    const replaceSecond = (agentId: AgentId) => {
+      state = workbenchReducer(state, { type: 'openPartyEdit' })
+      state = workbenchReducer(state, { type: 'replaceDraftAgent', slot: 1, agentId })
+      state = workbenchReducer(state, { type: 'applyPartyEdit' })
+    }
+
+    expect(resolveSeedVanguardForState(state)).toBe('nekomata')
+    expect(state.slots[0].setup).toMatchObject({
+      fourPieceId: 'woodpecker', twoPieceId: 'pufferElectro',
+      mains: { slot5: 'penRatio' },
+    })
+    expect(state.slots[2].setup.fourPieceId).toBe('king')
+
+    replaceSecond('dialyn')
+    expect(effectiveFourPieceIds(state, 0)).toContain('pufferElectro')
+    expect(state.slots[0].setup).toMatchObject({
+      twoPieceId: 'pufferElectro', mains: { slot5: 'penRatio' },
+    })
+    expect(state.slots[1].setup.fourPieceId).toBe('king')
+    expect(state.slots[2].setup).toMatchObject({
+      fourPieceId: 'shockstar', twoPieceId: 'king',
+    })
+
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 2, mindscape: 1 })
+    expect(activeCandidatePressures(state, 0)).toEqual(['materialBroadPrePenDefBypass'])
+    expect(state.slots[0].setup).toMatchObject({
+      twoPieceId: null, mains: { slot5: null },
+    })
+    expect(isCompleteWorkbench(state)).toBe(false)
+
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 2, mindscape: 0 })
+    expect(effectiveTwoPieceIds(state, 0)).toContain('pufferElectro')
+    expect(effectiveMainStatIds(state, 0, 'slot5')).toContain('penRatio')
+    expect(state.slots[0].setup).toMatchObject({
+      twoPieceId: null, mains: { slot5: null },
+    })
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 2, mindscape: 1 })
+    expect(state.slots[0].setup).toMatchObject({
+      twoPieceId: null, mains: { slot5: null },
+    })
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'branchAndBlade',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'atkPct',
+    })
+    expect(isCompleteWorkbench(state)).toBe(true)
+
+    replaceSecond('lucy')
+    replaceSecond('dialyn')
+    expect(state.slots[0].setup).toMatchObject({
+      fourPieceId: 'woodpecker', twoPieceId: 'branchAndBlade',
+      mains: { slot5: 'atkPct' },
+    })
+    expect(state.slots[1].setup.fourPieceId).toBe('king')
+    expect(state.slots[2].setup.fourPieceId).toBe('shockstar')
+    expect(isCompleteWorkbench(state)).toBe(true)
+
+    let sheer = createPreparedState({}, ['yixuan', 'qingyi', 'dialyn'], 0)
+    const sheerSlot5 = effectiveMainStatIds(sheer, 0, 'slot5')
+    sheer = workbenchReducer(sheer, { type: 'setMindscape', slot: 1, mindscape: 1 })
+    expect(activeCandidatePressures(sheer, 0)).toEqual([])
+    expect(effectiveMainStatIds(sheer, 0, 'slot5')).toEqual(sheerSlot5)
+  })
+
   it('composes Qingyi allocation, context, and M1 pressure through party reapplications', () => {
     let state = createPreparedState({}, ['harumasa', 'qingyi', 'lycaon'], 0)
     const replaceThird = (agentId: AgentId) => {

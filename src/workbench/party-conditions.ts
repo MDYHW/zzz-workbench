@@ -102,6 +102,36 @@ export function qingyiAdditionalIsActive(
   })
 }
 
+/** Nekomata's Additional Ability: another Support or matching Attribute/faction. */
+export function nekomataAdditionalIsActive(
+  agentIds: readonly AgentId[],
+  nekomataIndex: number,
+): boolean {
+  if (agentIds[nekomataIndex] !== 'nekomata') return false
+  const nekomata = summaryFor('nekomata')
+  return agentIds.some((agentId, index) => {
+    if (index === nekomataIndex) return false
+    const other = summaryFor(agentId)
+    return other.specialty === 'Support'
+      || other.attribute === nekomata.attribute
+      || other.faction === nekomata.faction
+  })
+}
+
+/** Billy's Additional Ability: another matching Attribute or faction. */
+export function billyAdditionalIsActive(
+  agentIds: readonly AgentId[],
+  billyIndex: number,
+): boolean {
+  if (agentIds[billyIndex] !== 'billy') return false
+  const billy = summaryFor('billy')
+  return agentIds.some((agentId, index) => {
+    if (index === billyIndex) return false
+    const other = summaryFor(agentId)
+    return other.attribute === billy.attribute || other.faction === billy.faction
+  })
+}
+
 /** Local Qingyi buffer-role opportunity; this does not broaden focused-damage helpers. */
 export function qingyiAstralOpportunity(
   agentIds: readonly AgentId[],

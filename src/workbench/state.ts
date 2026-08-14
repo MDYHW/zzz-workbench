@@ -6,6 +6,7 @@ import {
   ENGINE_IDS_BY_AGENT_AND_POOL,
   representativeSetupFor,
   PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE,
+  PREPARED_TWO_PIECE_BY_BROAD_PRE_PEN_PRESSURE,
   W_ENGINES,
   type AgentId,
   type DiscId,
@@ -160,7 +161,7 @@ function establishedDiscHolders(
     : [{ agentId, fourPieceId: setup.fourPieceId, mindscape: setup.mindscape }])
 }
 
-function withPreparedBroadPrePenMain(
+function withPreparedBroadPrePenPackage(
   state: WorkbenchState,
   slot: AppliedSlot,
   setup: AgentSetupState,
@@ -168,7 +169,13 @@ function withPreparedBroadPrePenMain(
   const replacement = PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE[
     state.slots[slot].agentId
   ]
-  if (!replacement || setup.mains.slot5 !== 'penRatio') {
+  const twoPieceReplacement = PREPARED_TWO_PIECE_BY_BROAD_PRE_PEN_PRESSURE[
+    state.slots[slot].agentId
+  ]
+  const replacesMain = replacement !== undefined && setup.mains.slot5 === 'penRatio'
+  const replacesTwoPiece = twoPieceReplacement !== undefined
+    && setup.twoPieceId === 'pufferElectro'
+  if (!replacesMain && !replacesTwoPiece) {
     return setup
   }
   const slots = [...state.slots] as WorkbenchState['slots']
@@ -177,14 +184,20 @@ function withPreparedBroadPrePenMain(
   const hasBroadPrePenPressure = activeCandidatePressures(provisional, slot)
     .includes('materialBroadPrePenDefBypass')
   return hasBroadPrePenPressure
-    ? { ...setup, mains: { ...setup.mains, slot5: replacement } }
+    ? {
+      ...setup,
+      ...(replacesTwoPiece ? { twoPieceId: twoPieceReplacement } : {}),
+      ...(replacesMain
+        ? { mains: { ...setup.mains, slot5: replacement } }
+        : {}),
+    }
     : setup
 }
 
-function withPreparedPartyPressureMains(state: WorkbenchState): WorkbenchState {
+function withPreparedPartyPressurePackages(state: WorkbenchState): WorkbenchState {
   const slots = state.slots.map((current, slotIndex) => ({
     ...current,
-    setup: withPreparedBroadPrePenMain(
+    setup: withPreparedBroadPrePenPackage(
       state,
       slotIndex as AppliedSlot,
       current.setup,
@@ -239,7 +252,7 @@ function createTargetPreparedSetup(
     state.slots[state.focusSlot].agentId,
     establishedDiscHolders(state.slots, slot),
   )
-  const prepared = withPreparedBroadPrePenMain(
+  const prepared = withPreparedBroadPrePenPackage(
     state,
     slot,
     setupStateFromSelection(agentId, pool, mindscape, selection),
@@ -258,7 +271,7 @@ export function createPreparedState(
     defaultMindscapeFor(agentId),
   )) as [PreparationContext, PreparationContext, PreparationContext]
   const selections = preparePartySelections(contexts, agentIds[focusSlot])
-  return withPreparedEffectiveSubstats(withPreparedPartyPressureMains({
+  return withPreparedEffectiveSubstats(withPreparedPartyPressurePackages({
     slots: agentIds.map((agentId, index) => ({
       agentId,
       setup: setupStateFromSelection(
@@ -376,7 +389,7 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
           selections[index],
         ),
       })) as WorkbenchState['slots']
-      return withPreparedEffectiveSubstats(withPreparedPartyPressureMains({
+      return withPreparedEffectiveSubstats(withPreparedPartyPressurePackages({
         slots,
         focusSlot: draft.focusSlot,
       }))

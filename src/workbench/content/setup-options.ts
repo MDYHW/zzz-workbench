@@ -213,6 +213,13 @@ export const PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE: Partial<
   billy: 'atkPct',
 }
 
+/** Authored whole-package replacement when the selected 2-piece loses its distinct axis. */
+export const PREPARED_TWO_PIECE_BY_BROAD_PRE_PEN_PRESSURE: Partial<
+  Record<AgentId, DiscId>
+> = {
+  nekomata: 'branchAndBlade',
+}
+
 export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   yixuan: [
     { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },

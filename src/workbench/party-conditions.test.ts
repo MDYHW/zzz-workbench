@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   anotherAgentHasQualificationGroup,
+  billyAdditionalIsActive,
   harumasaAdditionalIsActive,
+  nekomataAdditionalIsActive,
   qingyiAdditionalIsActive,
   qingyiAstralOpportunity,
   soldier11AdditionalIsActive,
@@ -34,6 +36,21 @@ describe('opt-in party qualifications', () => {
       0,
       'New Eridu Defense Force',
     )).toBe(false)
+  })
+})
+
+describe('Nekomata and Billy local party conditions', () => {
+  it('keeps Support reach local to Nekomata while sharing Attribute and faction routes', () => {
+    expect(nekomataAdditionalIsActive(['nekomata', 'astraYao', 'lycaon'], 0)).toBe(true)
+    expect(nekomataAdditionalIsActive(['lucia', 'nekomata', 'lycaon'], 1)).toBe(true)
+    expect(nekomataAdditionalIsActive(['nekomata', 'billy', 'lycaon'], 0)).toBe(true)
+    expect(nekomataAdditionalIsActive(['nekomata', 'corin', 'lycaon'], 0)).toBe(true)
+    expect(nekomataAdditionalIsActive(['nekomata', 'qingyi', 'lycaon'], 0)).toBe(false)
+
+    expect(billyAdditionalIsActive(['billy', 'nekomata', 'lycaon'], 0)).toBe(true)
+    expect(billyAdditionalIsActive(['corin', 'billy', 'lycaon'], 1)).toBe(true)
+    expect(billyAdditionalIsActive(['billy', 'nicole', 'lycaon'], 0)).toBe(true)
+    expect(billyAdditionalIsActive(['billy', 'astraYao', 'lycaon'], 0)).toBe(false)
   })
 })
 
