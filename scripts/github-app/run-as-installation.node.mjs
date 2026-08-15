@@ -59,7 +59,9 @@ function runtimeOptions(overrides = {}) {
     readFile: async () => PEM,
     makeTempDirectory: async () => '/tmp/gh-config',
     removeDirectory: async () => {},
-    currentStatePreflight: async () => true,
+    currentStatePreflight: async ({ number, headSha, trustedBaseSha }) => ({
+      prNumber: Number(number), baseSha: trustedBaseSha, headSha,
+    }),
     trustedSourceProof: async () => ({ headSha: 'b'.repeat(40) }),
     operationCheckoutProof: async ({ operation }) => ({
       branch: operation.branch ?? operation.head ?? 'codex/launcher-test', headSha: 'a'.repeat(40), config: '',
@@ -67,6 +69,25 @@ function runtimeOptions(overrides = {}) {
     now: 1_700_000_000_000,
     ...overrides,
   };
+}
+
+function successfulRollup() {
+  return [
+    {
+      context: 'Trusted Governance',
+      state: 'SUCCESS',
+      targetUrl: `https://github.com/${REPOSITORY}/actions/runs/99?pr=42&base=${'b'.repeat(40)}&run1=10&run2=11`,
+    },
+    { context: 'Protected Approval', state: 'SUCCESS' },
+    ...['Behavior Tests', 'Type Check', 'Production Build', 'Visual Baseline']
+      .map((name, index) => ({
+        name,
+        status: 'COMPLETED',
+        conclusion: 'SUCCESS',
+        startedAt: '2026-08-16T02:00:00.000Z',
+        detailsUrl: `https://github.com/${REPOSITORY}/actions/runs/${index === 3 ? 11 : 10}/job/${100 + index}`,
+      })),
+  ];
 }
 
 test('creates a signed GitHub App JWT without exposing the private key', () => {
@@ -155,14 +176,21 @@ test('checks PR target and exact head before immediate squash merge', async () =
   const runChild = async (executable, args, options) => {
     childCalls.push({ executable, args, options });
     if (args[0] === 'pr' && args[1] === 'view') {
-      return { stdout: JSON.stringify({ number: 42, url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42', baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40), state: 'OPEN', mergeStateStatus: 'CLEAN' }) };
+      return { stdout: JSON.stringify({
+        number: 42, url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42',
+        baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
+        state: 'OPEN', mergeStateStatus: 'CLEAN', statusCheckRollup: successfulRollup(),
+      }) };
     }
     return { stdout: '' };
   };
   await runAsInstallation({ kind: 'pr-merge', number: '42', headSha: 'a'.repeat(40) }, runtimeOptions({
     runChild,
     sourceRoot: '/trusted/recovery',
-    currentStatePreflight: async (value) => { preflightInput = value; return true; },
+    currentStatePreflight: async (value) => {
+      preflightInput = value;
+      return { prNumber: 42, baseSha: value.trustedBaseSha, headSha: value.headSha };
+    },
   }));
   assert.ok(childCalls.some(({ args }) => JSON.stringify(args) === JSON.stringify(['pr', 'merge', '42', '--repo', REPOSITORY, '--squash', '--match-head-commit', 'a'.repeat(40)])));
   assert.equal(preflightInput.sourceRoot, '/trusted/recovery');
@@ -188,7 +216,13 @@ test('blocks immediate merge before key reads, token minting, or child execution
 });
 
 test('revokes the token and never spawns gh when the current GitHub-state preflight is absent or fails', async () => {
-  for (const currentStatePreflight of [async () => false, async () => { throw new Error('stale state'); }]) {
+  for (const currentStatePreflight of [
+    async () => false,
+    async () => { throw new Error('stale state'); },
+    async ({ headSha, trustedBaseSha }) => ({ prNumber: 43, baseSha: trustedBaseSha, headSha }),
+    async ({ number, headSha }) => ({ prNumber: Number(number), baseSha: 'c'.repeat(40), headSha }),
+    async ({ number, trustedBaseSha }) => ({ prNumber: Number(number), baseSha: trustedBaseSha, headSha: 'c'.repeat(40) }),
+  ]) {
     const { calls, fetchImpl } = appFetch();
     let childCount = 0;
     await assert.rejects(
@@ -285,6 +319,8 @@ test('evidence upsert rejects a foreign target and reconciles an ambiguous mutat
 });
 
 test('merge reports pending checks and reconciles an ambiguous successful mutation', async () => {
+  const pendingRollup = successfulRollup();
+  pendingRollup[2] = { ...pendingRollup[2], status: 'IN_PROGRESS', conclusion: null };
   await assert.rejects(
     () => runAsInstallation({ kind: 'pr-merge', number: '42', headSha: 'a'.repeat(40) }, runtimeOptions({
       runChild: async (_executable, args) => {
@@ -292,7 +328,7 @@ test('merge reports pending checks and reconciles an ambiguous successful mutati
           number: 42, url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42',
           baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
           state: 'OPEN', isDraft: false, mergeStateStatus: 'BLOCKED',
-          statusCheckRollup: [{ status: 'IN_PROGRESS', conclusion: null }],
+          statusCheckRollup: pendingRollup,
         }) };
         return { stdout: '' };
       },
@@ -308,7 +344,8 @@ test('merge reports pending checks and reconciles an ambiguous successful mutati
         return { stdout: JSON.stringify({
           number: 42, url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42',
           baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
-          state: views === 1 ? 'OPEN' : 'MERGED', isDraft: false, mergeStateStatus: 'CLEAN', statusCheckRollup: [],
+          state: views === 1 ? 'OPEN' : 'MERGED', isDraft: false, mergeStateStatus: 'CLEAN',
+          statusCheckRollup: successfulRollup(),
         }) };
       }
       if (args[0] === 'pr' && args[1] === 'merge') throw new LauncherError('ambiguous', { mutationCompleted: null });
@@ -317,6 +354,84 @@ test('merge reports pending checks and reconciles an ambiguous successful mutati
   }));
   assert.equal(result.reconciled, true);
   assert.equal(result.pullRequest.state, 'MERGED');
+});
+
+test('merge requires one exact success for every required context and ignores unrelated checks', async () => {
+  const skipped = successfulRollup();
+  skipped[2] = { ...skipped[2], conclusion: 'SKIPPED' };
+  const duplicated = [...successfulRollup(), { context: 'Trusted Governance', state: 'SUCCESS' }];
+  const duplicatedSelectedJob = successfulRollup();
+  duplicatedSelectedJob.push({
+    ...duplicatedSelectedJob[2], detailsUrl: `https://github.com/${REPOSITORY}/actions/runs/10/job/999`,
+  });
+  const queuedRerun = successfulRollup();
+  queuedRerun.push({
+    ...queuedRerun[2], status: 'QUEUED', conclusion: null, startedAt: null,
+    detailsUrl: `https://github.com/${REPOSITORY}/actions/runs/10/job/998`,
+  });
+  const missing = successfulRollup().filter((check) => (check.name ?? check.context) !== 'Visual Baseline');
+  const staleBinding = successfulRollup();
+  staleBinding[0] = {
+    ...staleBinding[0],
+    targetUrl: `https://github.com/${REPOSITORY}/actions/runs/99?pr=42&base=${'c'.repeat(40)}&run1=10&run2=11`,
+  };
+  const statusAsCheckRun = successfulRollup();
+  statusAsCheckRun[0] = {
+    name: 'Trusted Governance', status: 'COMPLETED', conclusion: 'SUCCESS', targetUrl: statusAsCheckRun[0].targetUrl,
+  };
+  const jobAsCommitStatus = successfulRollup();
+  jobAsCommitStatus[2] = {
+    context: 'Behavior Tests', state: 'SUCCESS', detailsUrl: jobAsCommitStatus[2].detailsUrl,
+  };
+  for (const [rollup, code] of [
+    [skipped, 'merge_checks_failed'],
+    [duplicated, 'merge_checks_failed'],
+    [duplicatedSelectedJob, 'merge_checks_failed'],
+    [queuedRerun, 'merge_checks_pending'],
+    [missing, 'merge_checks_pending'],
+    [staleBinding, 'merge_checks_failed'],
+    [statusAsCheckRun, 'merge_checks_failed'],
+    [jobAsCommitStatus, 'merge_checks_failed'],
+  ]) {
+    await assert.rejects(
+      () => runAsInstallation({ kind: 'pr-merge', number: '42', headSha: 'a'.repeat(40) }, runtimeOptions({
+        runChild: async (_executable, args) => {
+          if (args[0] === 'pr' && args[1] === 'view') return { stdout: JSON.stringify({
+            number: 42, baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
+            state: 'OPEN', isDraft: false, mergeStateStatus: 'BLOCKED', statusCheckRollup: rollup,
+          }) };
+          return { stdout: '' };
+        },
+      })),
+      (error) => error instanceof LauncherError && error.code === code,
+    );
+  }
+
+  let views = 0;
+  const accepted = await runAsInstallation(
+    { kind: 'pr-merge', number: '42', headSha: 'a'.repeat(40) },
+    runtimeOptions({
+      runChild: async (_executable, args) => {
+        if (args[0] === 'pr' && args[1] === 'view') {
+          views += 1;
+          return { stdout: JSON.stringify({
+            number: 42, url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42',
+            baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
+            state: views === 1 ? 'OPEN' : 'MERGED', isDraft: false, mergeStateStatus: 'CLEAN',
+            statusCheckRollup: [...successfulRollup(), {
+              name: 'Optional Dispatcher', status: 'COMPLETED', conclusion: 'CANCELLED',
+            }, {
+              name: 'Behavior Tests', status: 'COMPLETED', conclusion: 'CANCELLED',
+              startedAt: '2026-08-16T01:00:00.000Z',
+              detailsUrl: `https://github.com/${REPOSITORY}/actions/runs/10/job/90`,
+            }],
+          }) };
+        }
+        return { stdout: '' };
+      },
+    }),
+  );
+  assert.equal(accepted.pullRequest.state, 'MERGED');
 });
 
 test('PR edit reconciles exact title and body after an ambiguous mutation', async () => {
