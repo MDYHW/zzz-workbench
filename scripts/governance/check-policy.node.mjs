@@ -29,6 +29,7 @@ import {
   validateProtectedApproval,
   validateReviewEvidence,
   validateRepository,
+  validateTrustedWorkflowConcurrency,
 } from './check-policy.mjs'
 
 const BASE = '1'.repeat(40)
@@ -478,4 +479,17 @@ test('current repository satisfies static governance shape independent of recove
   assert.equal(typeof current.auditComplete, 'boolean')
   if (current.auditComplete) await validateRepository(process.cwd(), { requireCompleteAudit: true })
   else await assert.rejects(() => validateRepository(process.cwd(), { requireCompleteAudit: true }), /incomplete/)
+})
+
+test('trusted governance serializes event runs without cancelling PR-attached checks', () => {
+  const queued = `concurrency:
+  group: trusted-governance-dispatcher
+  queue: max
+`
+  assert.equal(validateTrustedWorkflowConcurrency(queued), true)
+  assert.throws(() => validateTrustedWorkflowConcurrency(queued.replace('queue: max', 'cancel-in-progress: true')), /queued without cancellation/)
+  assert.throws(() => validateTrustedWorkflowConcurrency(queued.replace('  queue: max\n', '')), /queued without cancellation/)
+  assert.throws(() => validateTrustedWorkflowConcurrency(queued.replace('trusted-governance-dispatcher', 'trusted-governance-${{ github.run_id }}')), /globally queued/)
+  assert.throws(() => validateTrustedWorkflowConcurrency(`${queued}\n${queued}`), /globally queued/)
+  assert.throws(() => validateTrustedWorkflowConcurrency(queued.replace('  queue: max', '  queue: max\n  unexpected: true')), /globally queued/)
 })

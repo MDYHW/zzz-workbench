@@ -171,6 +171,12 @@ for it.
 The trusted evaluator also binds its checked-out `recovery` revision to the
 PR's current base SHA before any status write; a stale evaluator publishes
 nothing.
+Event-triggered evaluations share one repository-wide queue and never cancel an
+earlier PR-attached dispatcher run. Some events revalidate every open recovery
+PR, so a per-event or per-PR fallback does not prevent overlapping state writes.
+Cancellation also leaves a failed CheckRun on the PR rollup even when every
+required context later succeeds. Trusted evaluation must therefore serialize
+all current-state reads and writes without cancellation.
 
 Routine non-protected work does not require the product owner to submit a
 review on every PR. Protected work requires a fresh exact-head owner approval
