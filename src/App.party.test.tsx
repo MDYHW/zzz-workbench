@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { App } from './App'
@@ -962,7 +962,7 @@ describe('integrated party workbench: party', () => {
     const apply = screen.getByRole('button', { name: 'Apply party' })
     expect(apply).toHaveFocus()
     await user.keyboard('{Enter}')
-    expect(edit).toHaveFocus()
+    await waitFor(() => expect(edit).toHaveFocus())
   })
 
   it('applies the second trio atomically and can restore the first-vertical preparation', async () => {
