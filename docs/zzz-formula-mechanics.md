@@ -17,6 +17,21 @@ Game terms belong to `docs/zzz-game-vocabulary.md`. Setup and display behavior
 belong to `docs/setup-workbench-product-contract.md`. The single Result retention gate
 belongs to `docs/source-fact-boundary.md`.
 
+## Stable Rule Identifiers
+
+High-risk cross-cutting rules in this owner use the `FM-###` namespace. The
+prefix is reserved to this file, and the number is an immutable reference label
+rather than another rule or an expansion of the labeled section. Do not assign
+these identifiers to Agent-local facts, examples, or ordinary explanatory
+paragraphs.
+
+Within the `FM-###` namespace, allocate numbers monotonically and never reuse
+one. A heading move or wording clarification that preserves the same meaning
+keeps its identifier. If an `FM-###` rule's meaning boundary splits, merges,
+moves to another owner, or retires, reserve the old identifier under a local
+`Retired Rule IDs` heading as `FM-### -> <successor IDs or none>: <reason>` and
+allocate new owner-prefixed identifiers to every resulting current rule.
+
 ## Terms
 
 | Term | Meaning |
@@ -32,6 +47,8 @@ specialty, stat, and formula family, but that association does not make them
 equivalent or place them on one hierarchy.
 
 ## Stat Composition Surfaces
+
+**Rule ID:** `FM-001`
 
 The setting workbench must keep three stat surfaces because sources can read or
 modify them differently.
@@ -92,6 +109,8 @@ This section identifies composition order and source basis. It does not define
 storage fields or calculate a final character sheet.
 
 ## Formula Families And Frames
+
+**Rule ID:** `FM-002`
 
 The current foundation needs five formula families:
 
@@ -158,6 +177,8 @@ does not make CRIT Rate generally valid for every Anomaly setup.
 
 ## Base Components
 
+**Rule ID:** `FM-003`
+
 The three damage families use deliberately different base components because
 they read different scaling relationships.
 
@@ -208,6 +229,8 @@ displayed modifier regions remain unchanged.
 
 ## Component Meanings
 
+**Rule ID:** `FM-004`
+
 | Component | Meaning for setting decisions |
 | --- | --- |
 | `dmg_bonus_multiplier` | `1 +` the sum of applicable regular DMG bonuses, including all-type, attribute, action, and other source scopes that apply to the selected output |
@@ -237,6 +260,8 @@ though both occupy the same modifier region. Their applicable total is a
 derived result for that output, not a stored source fact.
 
 ### Stun DMG Multiplier And Veil Replacement
+
+**Rule ID:** `FM-005`
 
 Ordinary Stun DMG Multiplier contributions add to the target's bonus above its
 neutral `100%` total. They remain one target-side formula region and do not
@@ -279,6 +304,8 @@ output. A value that is itself an additional skill-table action coefficient is
 part of the excluded base component, not a retained modifier operation.
 
 ### DEF Composition Order
+
+**Rule ID:** `FM-006`
 
 The DEF region keeps its internal buckets distinct. At the setting-mechanics
 abstraction used by the workbench:
@@ -333,6 +360,8 @@ that time.
 
 ## Formula-Family Stat Consequences
 
+**Rule ID:** `FM-007`
+
 | Formula family | Direct setting pressures | Formula exclusions relevant to setting |
 | --- | --- | --- |
 | `general_damage` | ATK, applicable DMG Bonus, CRIT Rate and CRIT DMG for crit-capable output, DEF-region effects, RES-region effects, Stun DMG Multiplier | Anomaly Proficiency, Anomaly Mastery, and Sheer Force do not strengthen this frame without a separate source conversion |
@@ -381,6 +410,8 @@ any of those axes.
 
 ## Modifier Balance And Party Pressure
 
+**Rule ID:** `FM-008`
+
 Applicable bonuses inside one modifier region add before that region multiplies
 with other regions. This produces the setting pressure the workbench must expose
 without turning the formula authority into a ranking engine or automatic setup selector.
@@ -426,6 +457,8 @@ user makes the final setup selection.
 
 ## Stat-Derived Scaling Relationships
 
+**Rule ID:** `FM-009`
+
 A linear stat scaling relationship connects a basis stat at one display surface
 to a derived output. The relationship does not make the basis and output the
 same stat, formula component, or setup role.
@@ -467,6 +500,8 @@ hit count without choosing an investment path and current equipment context.
 
 ## Thresholds, Caps, And Active Values
 
+**Rule ID:** `FM-010`
+
 A source threshold or cap can change which stat target is useful, but it is not
 an internal formula component. Current examples include Astra Yao's initial-ATK output cap, Timeweaver's
 Anomaly Proficiency threshold, Yuzuha's party-scaling caps, and Lucia's direct
@@ -477,6 +512,8 @@ facts preserve the threshold, cap, condition, and timing. Setup policy decides
 whether the value changes a candidate or Result relationship.
 
 ## Excluded Calculation Detail
+
+**Rule ID:** `FM-011`
 
 The current foundation does not keep editable ordinary-skill levels, unused
 skill-table values, base action DMG or Daze Multipliers, calculated

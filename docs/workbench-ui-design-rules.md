@@ -10,6 +10,21 @@ Status: presentation authority for the bounded setup-workbench consumer.
 
 This document decides how the bounded consumer presents meanings owned elsewhere. It links to those owners instead of redefining them.
 
+## Stable Rule Identifiers
+
+High-risk cross-cutting rules in this owner use the `UI-###` namespace. The
+prefix is reserved to this file, and the number is an immutable reference label
+rather than another rule or an expansion of the labeled section. Do not assign
+these identifiers to Agent-local facts, examples, or ordinary explanatory
+paragraphs.
+
+Within the `UI-###` namespace, allocate numbers monotonically and never reuse
+one. A heading move or wording clarification that preserves the same meaning
+keeps its identifier. If a `UI-###` rule's meaning boundary splits, merges,
+moves to another owner, or retires, reserve the old identifier under a local
+`Retired Rule IDs` heading as `UI-### -> <successor IDs or none>: <reason>` and
+allocate new owner-prefixed identifiers to every resulting current rule.
+
 
 ## Decision Priority
 
@@ -113,6 +128,8 @@ then size and place the component around that content.
 
 ### Information Density
 
+**Rule ID:** `UI-001`
+
 Setup Inputs are concise and direct. Result disclosure shows the current
 numeric contribution breakdown and mapped source identity, while Setup Inputs
 show the current choice and only the compressed effect needed to compare
@@ -153,6 +170,8 @@ expanded-slot width belongs to Result. Setup type and internal structure must be
 reconsidered when its readable footprint cannot be preserved.
 
 ### Result Source Presentation
+
+**Rule ID:** `UI-002`
 
 In Result disclosure, a source label answers where a contribution
 comes from. The Result row, detail qualifier, and gauge output answer what the
@@ -320,6 +339,10 @@ Expanded Agent artwork uses one consistent full-color treatment for every
 current Mindscape. Identity does not display the current Mindscape or change
 color with it. The editable M0 through M6 value remains visible only at its
 owning Setup input.
+
+#### Portrait Source Calibration And Acceptance
+
+**Rule ID:** `UI-003`
 
 Compact and expanded states retain the same Agent artwork identity. Each source
 asset records exactly three normalized portrait inputs: optical scale,
@@ -601,6 +624,8 @@ The downward-chevron glyph is not required. The component's shape, response,
 and hover or focus state must communicate editability.
 
 ### Candidate Information
+
+**Rule ID:** `UI-004`
 
 A candidate exposes the information needed for that choice. Drive Disc current
 and candidate blocks omit visible names while their accessible names retain
