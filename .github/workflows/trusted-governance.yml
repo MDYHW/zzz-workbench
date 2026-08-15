@@ -25,8 +25,8 @@ permissions:
   statuses: write
 
 concurrency:
-  group: trusted-governance-${{ github.event.pull_request.number || github.event.issue.number || github.event.workflow_run.pull_requests[0].number || github.run_id }}
-  cancel-in-progress: true
+  group: trusted-governance-dispatcher
+  queue: max
 
 jobs:
   evaluate-current-state:

@@ -893,6 +893,18 @@ function auditIsComplete(audit) {
     && !/\|\s*—\s*\|/.test(operative)
 }
 
+export function validateTrustedWorkflowConcurrency(source) {
+  const blocks = typeof source === 'string'
+    ? source.match(/^concurrency:\s*\r?\n(?:^[ \t]+[^\r\n]*(?:\r?\n|$))*/gm) ?? []
+    : []
+  if (blocks.length !== 1
+    || !/^concurrency:\s*\r?\n  group:\s+trusted-governance-dispatcher\s*\r?\n  queue:\s+max\s*(?:\r?\n)?$/.test(blocks[0])
+    || /^\s*cancel-in-progress:/m.test(source)) {
+    fail('Trusted workflow evaluations are not globally queued without cancellation.')
+  }
+  return true
+}
+
 async function walkFiles(root, relative = '') {
   const directory = path.join(root, relative)
   const entries = await fs.readdir(directory, { withFileTypes: true })
@@ -947,6 +959,7 @@ export async function validateRepository(root = process.cwd(), { requireComplete
   if (new Set(jobNames).size !== jobNames.length) fail('Workflow job names are duplicated.')
   if (jobNames.some((name) => ['Trusted Governance', 'Protected Approval'].includes(name))) fail('A workflow job collides with a trusted status name.')
   const trustedWorkflow = workflowSources.get('.github/workflows/trusted-governance.yml') ?? ''
+  validateTrustedWorkflowConcurrency(trustedWorkflow)
   if (!/^\s*pull_request_target:/m.test(trustedWorkflow)
     || !/^\s+statuses:\s+write\s*$/m.test(trustedWorkflow)
     || !/ref:\s+recovery/.test(trustedWorkflow)
