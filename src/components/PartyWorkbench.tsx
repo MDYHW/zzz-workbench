@@ -54,6 +54,8 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   koleda: { attribute: fireMark, specialty: stunMark },
   anby: { attribute: electricMark, specialty: stunMark },
   caesar: { attribute: physicalMark, specialty: defenseMark },
+  yeShunguang: { attribute: physicalMark, specialty: attackMark },
+  zhao: { attribute: iceMark, specialty: defenseMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {

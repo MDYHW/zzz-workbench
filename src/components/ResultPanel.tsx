@@ -15,6 +15,8 @@ import { sourceToneEvents, type SourceInteractionProps } from './sourceInteracti
 
 interface ResultPanelProps extends SourceInteractionProps {
   agentResult: AgentResult | null
+  onTargetStunDmgMultiplierChange?: (value: number) => void
+  targetStunDmgMultiplier?: number
 }
 
 const surfaceLabels: Record<SurfaceKey, string> = {
@@ -94,6 +96,7 @@ function sourceLabel(
 }
 
 function sourceTone(source: ResultSource, currentAgentId: AgentResult['agentId']): string {
+  if (source.locus === 'target') return 'target'
   if (source.locus === 'identity' || source.ownerAgentId !== currentAgentId) {
     return `agent-${source.ownerAgentId}`
   }
@@ -299,6 +302,83 @@ function Gauge({
   )
 }
 
+function TargetStunDmgEditor({
+  activeSourceTone,
+  agentId,
+  gauge,
+  onSourceToneChange,
+  onTargetStunDmgMultiplierChange,
+  targetStunDmgMultiplier,
+}: {
+  agentId: AgentResult['agentId']
+  gauge: GaugeResult
+  onTargetStunDmgMultiplierChange: (value: number) => void
+  targetStunDmgMultiplier: number
+} & SourceInteractionProps) {
+  const [draft, setDraft] = useState(String(targetStunDmgMultiplier))
+  const constraintId = 'target-stun-dmg-multiplier-constraint'
+  const validDraft = /^\d+$/.test(draft)
+    && Number.isSafeInteger(Number(draft))
+    && Number(draft) >= 100
+
+  useEffect(() => {
+    setDraft(String(targetStunDmgMultiplier))
+  }, [targetStunDmgMultiplier])
+
+  const restoreCommittedValue = () => setDraft(String(targetStunDmgMultiplier))
+
+  return (
+    <section className="target-stun-context" aria-label="Target Stun DMG Multiplier context">
+      <div
+        className={`target-stun-editor ${toneClass('target', activeSourceTone)}`}
+        data-source-tone="target"
+        {...sourceToneEvents('target', onSourceToneChange)}
+      >
+        <label htmlFor="target-stun-dmg-multiplier">
+          <span>Target Stun DMG Multiplier</span>
+          <small>Result context</small>
+        </label>
+        <span className="target-stun-editor__control">
+          <input
+            aria-label="Target Stun DMG Multiplier"
+            aria-describedby={constraintId}
+            aria-invalid={validDraft ? undefined : true}
+            id="target-stun-dmg-multiplier"
+            inputMode="numeric"
+            onBlur={restoreCommittedValue}
+            onChange={(event) => {
+              const nextDraft = event.currentTarget.value
+              setDraft(nextDraft)
+              if (/^\d+$/.test(nextDraft)) {
+                const nextValue = Number(nextDraft)
+                if (Number.isSafeInteger(nextValue) && nextValue >= 100) {
+                  onTargetStunDmgMultiplierChange(nextValue)
+                }
+              }
+            }}
+            onKeyDown={(event) => {
+              if (event.key !== 'Enter') return
+              event.preventDefault()
+              restoreCommittedValue()
+            }}
+            pattern="[0-9]*"
+            type="text"
+            value={draft}
+          />
+          <span aria-hidden="true">%</span>
+        </span>
+        <small id={constraintId}>Whole percentage, 100 or higher</small>
+      </div>
+      <Gauge
+        activeSourceTone={activeSourceTone}
+        agentId={agentId}
+        gauge={gauge}
+        onSourceToneChange={onSourceToneChange}
+      />
+    </section>
+  )
+}
+
 function ActionRows({
   actions,
   activeSourceTone,
@@ -489,11 +569,21 @@ function MetricDetail({
   agentId,
   metric,
   onSourceToneChange,
+  onTargetStunDmgMultiplierChange,
+  targetStunDmgMultiplier,
 }: {
   actions: ActionModifier[]
   agentId: AgentResult['agentId']
   metric: ResultMetric
+  onTargetStunDmgMultiplierChange?: (value: number) => void
+  targetStunDmgMultiplier?: number
 } & SourceInteractionProps) {
+  const editsTargetStun = agentId === 'yeShunguang'
+    && metric.id === 'stunDmgMultiplier'
+    && metric.gauge
+    && targetStunDmgMultiplier !== undefined
+    && onTargetStunDmgMultiplierChange
+
   return (
     <div className="breakdown-grid">
       <SourceMatrix
@@ -505,7 +595,16 @@ function MetricDetail({
         sourceHeading={actions.length > 0 ? 'Common source' : 'Source'}
         unit={metric.unit}
       />
-      {metric.gauge && (
+      {editsTargetStun ? (
+        <TargetStunDmgEditor
+          activeSourceTone={activeSourceTone}
+          agentId={agentId}
+          gauge={metric.gauge!}
+          onSourceToneChange={onSourceToneChange}
+          onTargetStunDmgMultiplierChange={onTargetStunDmgMultiplierChange}
+          targetStunDmgMultiplier={targetStunDmgMultiplier}
+        />
+      ) : metric.gauge && (
         <Gauge
           activeSourceTone={activeSourceTone}
           agentId={agentId}
@@ -528,6 +627,8 @@ export function ResultPanel({
   activeSourceTone,
   agentResult,
   onSourceToneChange,
+  onTargetStunDmgMultiplierChange,
+  targetStunDmgMultiplier,
 }: ResultPanelProps) {
   const [expanded, setExpanded] = useState<Set<ResultMetric['id']>>(new Set())
   const metricRows = useMemo(
@@ -619,6 +720,8 @@ export function ResultPanel({
                             agentId={agentResult.agentId}
                             metric={metric}
                             onSourceToneChange={onSourceToneChange}
+                            onTargetStunDmgMultiplierChange={onTargetStunDmgMultiplierChange}
+                            targetStunDmgMultiplier={targetStunDmgMultiplier}
                           />
                         </td>
                       </tr>

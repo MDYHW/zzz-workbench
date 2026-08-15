@@ -252,6 +252,18 @@ const caesarRepresentative = (pool: PoolId): SetupSelection => ({
   mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
 })
 
+const yeShunguangRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'cloudcleaveRadiance' : 'brimstone',
+  fourPieceId: 'whiteWaterBallad', twoPieceId: 'branchAndBlade',
+  mains: { slot4: 'critDmg', slot5: 'physicalDmg', slot6: 'atkPct' },
+})
+
+const zhaoRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'halfSugarBunny' : 'originalTransmorpher',
+  fourPieceId: 'bunnyInWonderland', twoPieceId: 'yunkui',
+  mains: { slot4: 'hpPct', slot5: 'hpPct', slot6: 'hpPct' },
+})
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -349,6 +361,11 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   koleda: { full: koledaRepresentative, nonLimited: koledaRepresentative },
   anby: { full: anbyRepresentative, nonLimited: anbyRepresentative },
   caesar: { full: caesarRepresentative('full'), nonLimited: caesarRepresentative('nonLimited') },
+  yeShunguang: {
+    full: yeShunguangRepresentative('full'),
+    nonLimited: yeShunguangRepresentative('nonLimited'),
+  },
+  zhao: { full: zhaoRepresentative('full'), nonLimited: zhaoRepresentative('nonLimited') },
 }
 
 export function representativeSetupFor(

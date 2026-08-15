@@ -31,7 +31,9 @@ export interface EstablishedDiscHolder {
 export function hasRepeatedQuickAssistOpportunity(
   agentIds: readonly AgentId[],
 ): boolean {
-  return agentIds.includes('astraYao') || agentIds.includes('panYinhu')
+  return agentIds.includes('astraYao')
+    || agentIds.includes('panYinhu')
+    || agentIds.includes('zhao')
 }
 
 function withFocusedEngine(

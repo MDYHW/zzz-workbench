@@ -520,4 +520,114 @@ describe('representative calculation flows', () => {
     )
     expect(inactive.actionModifiers.find(({ id }) => id === 'koledaChain')).toBeUndefined()
   })
+
+  it('projects Zhao representatives from Initial HP and keeps later HP out of derived outputs', () => {
+    const fullState = createPreparedState({}, ['zhao', 'yeShunguang', 'caesar'], 1)
+    const full = agent(calculateParty(fullState)!, 'zhao')
+    const fullHp = metric(full, 'maxHp')
+
+    expect(fullState.slots[0].setup).toMatchObject({
+      engineId: 'halfSugarBunny', refinement: 1,
+      fourPieceId: 'bunnyInWonderland', twoPieceId: 'yunkui',
+      mains: { slot4: 'hpPct', slot5: 'hpPct', slot6: 'hpPct' },
+      substats: { hpPct: 0, hpFlat: 0 },
+    })
+    expect(fullHp.values.initial).toBeCloseTo(25721.86)
+    expect(fullHp.values.fully).toBeCloseTo(fullHp.values.initial * 1.15)
+    expect(fullHp.gauge).toMatchObject({
+      basisLabel: 'Initial Max HP', current: expect.closeTo(25721.86),
+      threshold: 15000, cap: 27000, outputValue: 36, outputCap: 40,
+    })
+    expect(metric(full, 'critRate').values).toEqual({ initial: 40, combat: 40, fully: 40 })
+    expect(metric(full, 'energyRegen').values.combat).toBeCloseTo(1.66)
+
+    const nonLimitedState = createPreparedState(
+      { zhao: 'nonLimited' }, ['zhao', 'yeShunguang', 'caesar'], 1,
+    )
+    const nonLimited = agent(calculateParty(nonLimitedState)!, 'zhao')
+    const nonLimitedHp = metric(nonLimited, 'maxHp')
+    expect(nonLimitedState.slots[0].setup).toMatchObject({
+      engineId: 'originalTransmorpher', refinement: 5,
+      substats: { hpPct: 0, hpFlat: 0 },
+    })
+    expect(nonLimitedHp.values.combat - nonLimitedHp.values.initial)
+      .toBeCloseTo(nonLimitedHp.values.initial * .125)
+    expect(nonLimitedHp.gauge?.current).toBe(nonLimitedHp.values.initial)
+    expect(metric(nonLimited, 'critRate').values.initial)
+      .toBe(metric(nonLimited, 'critRate').values.fully)
+
+    let invested = setSubstat(fullState, 'zhao', 'hpPct', 8)
+    invested = setSubstat(invested, 'zhao', 'hpFlat', 8)
+    const investedHp = metric(agent(calculateParty(invested)!, 'zhao'), 'maxHp')
+    expect(investedHp.gauge).toMatchObject({
+      current: expect.any(Number), outputValue: 40, outputCap: 40,
+    })
+    expect(investedHp.gauge!.current).toBeGreaterThanOrEqual(27000)
+
+    let investedNonLimited = setSubstat(nonLimitedState, 'zhao', 'hpPct', 8)
+    investedNonLimited = setSubstat(investedNonLimited, 'zhao', 'hpFlat', 8)
+    expect(metric(agent(calculateParty(investedNonLimited)!, 'zhao'), 'maxHp').gauge)
+      .toMatchObject({ outputValue: 40, outputCap: 40 })
+
+    const m6 = agent(calculateParty(withMindscape(fullState, 'zhao', 6))!, 'zhao')
+    expect(metric(m6, 'critRate').values.initial).toBe(48.75)
+    expect(m6.operations).toContainEqual(expect.objectContaining({
+      id: 'zhaoFinalVerdictMaxHp', value: 168, unit: '%',
+    }))
+  })
+
+  it('routes Zhao qualification, Wellspring origins, Half-Sugar, and Mindscapes exactly', () => {
+    const qualifiedState = createPreparedState({}, ['zhao', 'yeShunguang', 'caesar'], 1)
+    const qualified = calculateParty(qualifiedState)!
+    expect(metric(agent(qualified, 'yeShunguang'), 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        ownerAgentId: 'zhao', locus: 'additional', amount: 36,
+      }))
+    expect(metric(agent(qualified, 'yeShunguang'), 'critDmg').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        ownerAgentId: 'zhao', label: 'Half-Sugar Bunny', amount: 30,
+      }))
+
+    const inactive = calculateParty(
+      createPreparedState({}, ['zhao', 'caesar', 'yixuan'], 2),
+    )!
+    expect(metric(agent(inactive, 'zhao'), 'maxHp').gauge).toBeUndefined()
+    expect(metric(agent(inactive, 'yixuan'), 'dmgBonus').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({
+        ownerAgentId: 'zhao', locus: 'additional',
+      }))
+
+    const m4 = calculateParty(withMindscape(qualifiedState, 'zhao', 4))!
+    const m4Zhao = agent(m4, 'zhao')
+    expect(metric(agent(m4, 'yeShunguang'), 'resIgnore').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        ownerAgentId: 'zhao', locus: 'mindscape', amount: 15,
+      }))
+    expect(metric(m4Zhao, 'atk').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        ownerAgentId: 'zhao', locus: 'mindscape',
+        amount: expect.closeTo(metric(m4Zhao, 'atk').values.initial * .2),
+      }))
+    expect(metric(agent(m4, 'yeShunguang'), 'atk').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        ownerAgentId: 'zhao', locus: 'mindscape',
+        amount: expect.closeTo(metric(agent(m4, 'yeShunguang'), 'atk').values.initial * .15),
+      }))
+    expect(action(m4Zhao, 'zhaoM4CritDmg').values.fully
+      - metric(m4Zhao, 'critDmg').values.fully).toBe(40)
+    expect(m4Zhao.operations).toContainEqual(expect.objectContaining({
+      id: 'zhaoFinalVerdictMaxHp', value: 120,
+    }))
+
+    const wells = calculateParty(
+      createPreparedState({}, ['zhao', 'yidhari', 'lucia'], 1),
+    )!
+    const wellspringOrigins = metric(agent(wells, 'zhao'), 'maxHp').breakdown.fully
+      .filter(({ ownerAgentId, locus }) => (
+        locus === 'core' && ['zhao', 'yidhari', 'lucia'].includes(ownerAgentId)
+      ))
+    expect(wellspringOrigins).toHaveLength(3)
+    expect(wellspringOrigins.filter(({ notation }) => notation === 'equal-nonstack-origin'))
+      .toHaveLength(2)
+  })
 })

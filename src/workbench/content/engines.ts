@@ -50,6 +50,8 @@ import bigCylinderImage from '../../assets/equipment/w-engines/big-cylinder.webp
 import springEmbraceImage from '../../assets/equipment/w-engines/spring-embrace.webp'
 import demaraBatteryMarkIIImage from '../../assets/equipment/w-engines/demara-battery-mark-ii.webp'
 import originalTransmorpherImage from '../../assets/equipment/w-engines/original-transmorpher.webp'
+import streetSuperstarImage from '../../assets/equipment/w-engines/street-superstar.webp'
+import halfSugarBunnyImage from '../../assets/equipment/w-engines/half-sugar-bunny.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -419,8 +421,8 @@ export const W_ENGINE_FACTS = {
     advancedStat: { id: 'critDmg', label: 'CRIT DMG', value: 48, unit: '%' },
     effects: {
       physicalResIgnore: { modifier: 'resIgnore', unit: '%', value: [20, 22, 24, 26, 28], scope: { attributes: ['Physical'] } },
-      etherVeilDamage: { modifier: 'dmgBonus', unit: '%', value: [25, 28.7, 32.5, 36.2, 40], scope: { attributes: ['Ether'] } },
-      etherVeilCritDamage: { modifier: 'critDmg', unit: '%', value: [25, 28.7, 32.5, 36.2, 40], scope: { attributes: ['Ether'] } },
+      etherVeilDamage: { modifier: 'dmgBonus', unit: '%', value: [25, 28.7, 32.5, 36.2, 40] },
+      etherVeilCritDamage: { modifier: 'critDmg', unit: '%', value: [25, 28.7, 32.5, 36.2, 40] },
     },
   },
   hailstormShrine: {
@@ -472,6 +474,30 @@ export const W_ENGINE_FACTS = {
     effects: {
       maxHp: { modifier: 'maxHp', unit: '%', value: [8, 9, 10, 11, 12.5] },
       impact: { modifier: 'impact', unit: '%', value: [10, 11.5, 13, 14.5, 16] },
+    },
+  },
+  streetSuperstar: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
+    effects: {
+      ultimateDamage: {
+        modifier: 'dmgBonus', unit: '%',
+        progression: {
+          kind: 'stacks',
+          perStack: [15, 17.2, 19.5, 21.7, 24],
+          maxStacks: 3,
+          maximum: [45, 51.6, 58.5, 65.1, 72],
+        },
+        scope: { actions: ['Ultimate'] },
+      },
+    },
+  },
+  halfSugarBunny: {
+    advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
+    effects: {
+      automaticEnergy: { modifier: 'energyRegen', unit: '/s', value: [0.46, 0.53, 0.6, 0.67, 0.74] },
+      squadAtk: { modifier: 'atk', unit: '%', value: [10, 11.5, 13, 14.5, 16], scope: { recipient: 'squad' } },
+      squadMaxHp: { modifier: 'maxHp', unit: '%', value: [10, 11.5, 13, 14.5, 16], scope: { recipient: 'squad' } },
+      veilCritDamage: { modifier: 'critDmg', unit: '%', value: [30, 34.5, 39, 43.5, 48], scope: { recipient: 'squad' } },
     },
   },
 } as const satisfies Record<EngineId, WEngineFacts>
@@ -780,8 +806,8 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Attack',
     passiveLines: (refinement) => [
       `Physical RES Ignore +${percent(W_ENGINE_FACTS.cloudcleaveRadiance.effects.physicalResIgnore, refinement)}`,
-      `Ether Veil · Ether DMG +${percent(W_ENGINE_FACTS.cloudcleaveRadiance.effects.etherVeilDamage, refinement)}`,
-      `Ether Veil · Ether CRIT DMG +${percent(W_ENGINE_FACTS.cloudcleaveRadiance.effects.etherVeilCritDamage, refinement)}`,
+      `Holder activates Ether Veil · DMG +${percent(W_ENGINE_FACTS.cloudcleaveRadiance.effects.etherVeilDamage, refinement)}`,
+      `Holder activates Ether Veil · CRIT DMG +${percent(W_ENGINE_FACTS.cloudcleaveRadiance.effects.etherVeilCritDamage, refinement)}`,
     ],
   },
   hailstormShrine: {
@@ -834,6 +860,25 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `After attacked · Impact +${percent(W_ENGINE_FACTS.originalTransmorpher.effects.impact, refinement)}`,
     ],
   },
+  streetSuperstar: {
+    id: 'streetSuperstar', name: 'Street Superstar', rank: 'A', limited: false, baseAtk: 594,
+    advancedStat: W_ENGINE_FACTS.streetSuperstar.advancedStat, image: streetSuperstarImage,
+    passiveSpecialty: 'Attack',
+    passiveLines: (refinement) => [
+      `Squad Chain Attack · Charge (max 3) · Ultimate DMG +${equipmentEffectProgressionIncrementValue(W_ENGINE_FACTS.streetSuperstar.effects.ultimateDamage, refinement)}% each`,
+      `Holder Ultimate · Consumes Charges · Maximum DMG +${percent(W_ENGINE_FACTS.streetSuperstar.effects.ultimateDamage, refinement, true)}`,
+    ],
+  },
+  halfSugarBunny: {
+    id: 'halfSugarBunny', name: 'Half-Sugar Bunny', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.halfSugarBunny.advancedStat, image: halfSugarBunnyImage,
+    passiveSpecialty: 'Defense',
+    passiveLines: (refinement) => [
+      `Automatic Energy Regen +${perSecond(W_ENGINE_FACTS.halfSugarBunny.effects.automaticEnergy, refinement)}`,
+      `Squad ATK & Max HP +${percent(W_ENGINE_FACTS.halfSugarBunny.effects.squadAtk, refinement)} · Non-stacking`,
+      `Activate or extend Ether Veil · Squad CRIT DMG +${percent(W_ENGINE_FACTS.halfSugarBunny.effects.veilCritDamage, refinement)}`,
+    ],
+  },
 }
 
 const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
@@ -877,4 +922,9 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   koleda: enginePools(['hellfireGears', 'blazingLaurel', 'iceJadeTeapot', 'restrained', 'steamOven', 'preciousFossilizedCore']),
   anby: enginePools(['hellfireGears', 'iceJadeTeapot', 'blazingLaurel', 'restrained', 'steamOven', 'preciousFossilizedCore', 'demaraBatteryMarkII']),
   caesar: enginePools(['tusksOfFury', 'hellfireGears', 'demaraBatteryMarkII', 'originalTransmorpher']),
+  yeShunguang: enginePools([
+    'cloudcleaveRadiance', 'brimstone', 'steelCushion', 'gildedBlossom',
+    'marcatoDesire', 'starlightEngine', 'streetSuperstar',
+  ]),
+  zhao: enginePools(['halfSugarBunny', 'originalTransmorpher']),
 }

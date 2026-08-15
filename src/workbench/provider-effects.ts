@@ -186,6 +186,16 @@ import {
   resolveCaesarProviderClauses,
   type CaesarCalculationContext,
 } from './calculation/agents/caesar'
+import {
+  observeYeShunguang,
+  resolveYeShunguangProviderClauses,
+  type YeShunguangCalculationContext,
+} from './calculation/agents/ye-shunguang'
+import {
+  observeZhao,
+  resolveZhaoProviderClauses,
+  type ZhaoCalculationContext,
+} from './calculation/agents/zhao'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -223,6 +233,8 @@ export type ProviderContext =
   | KoledaCalculationContext
   | AnbyDemaraCalculationContext
   | CaesarCalculationContext
+  | YeShunguangCalculationContext
+  | ZhaoCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -400,6 +412,13 @@ function observeProviderContext(
         slot.setup,
         caesarAdditionalIsActive(partyAgentIds, providerIndex),
       )
+    case 'yeShunguang':
+      return observeYeShunguang(slot.setup)
+    case 'zhao':
+      return observeZhao(
+        slot.setup,
+        anotherHasSpecialty(['Attack', 'Anomaly', 'Support']),
+      )
     default:
       return assertNever(slot.agentId)
   }
@@ -489,6 +508,10 @@ function providerClauses(
       return resolveAnbyDemaraProviderClauses(context)
     case 'caesar':
       return resolveCaesarProviderClauses(context)
+    case 'yeShunguang':
+      return resolveYeShunguangProviderClauses(context)
+    case 'zhao':
+      return resolveZhaoProviderClauses(context)
     default:
       return assertNever(context)
   }

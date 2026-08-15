@@ -47,6 +47,8 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   koleda: { primary: ['daze_buildup'], residual: ['general_damage'] },
   anby: { primary: ['daze_buildup'], residual: ['general_damage'] },
   caesar: { primary: ['daze_buildup'], residual: ['general_damage'] },
+  yeShunguang: { primary: ['general_damage'], residual: [] },
+  zhao: { primary: [], residual: ['general_damage'] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -221,6 +223,16 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot5: ['physicalDmg', 'atkPct', 'penRatio'],
     slot6: ['impact'],
   },
+  yeShunguang: {
+    slot4: ['critRate', 'critDmg'],
+    slot5: ['physicalDmg', 'atkPct', 'penRatio'],
+    slot6: ['atkPct'],
+  },
+  zhao: {
+    slot4: ['hpPct'],
+    slot5: ['hpPct'],
+    slot6: ['hpPct', 'energyRegenPct'],
+  },
 }
 
 /** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
@@ -374,6 +386,15 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   koleda: [],
   anby: [],
   caesar: [],
+  yeShunguang: [
+    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
+    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+  ],
+  zhao: [
+    { id: 'hpPct', label: 'HP%', perHit: 3, unit: '%' },
+    { id: 'hpFlat', label: 'HP', perHit: 112, unit: '' },
+  ],
 }
 
 /**

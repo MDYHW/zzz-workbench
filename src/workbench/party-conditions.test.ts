@@ -63,10 +63,11 @@ describe('Harumasa and Qingyi local party conditions', () => {
     expect(qingyiAdditionalIsActive(['lucia', 'qingyi', 'lycaon'], 1)).toBe(false)
   })
 
-  it('limits Qingyi Astral opportunity to Nicole, Astra, and Pan', () => {
+  it('limits Qingyi Astral opportunity to the retained external Quick Assist providers', () => {
     expect(qingyiAstralOpportunity(['qingyi', 'nicole', 'lucia'], 0)).toBe(true)
     expect(qingyiAstralOpportunity(['astraYao', 'qingyi', 'lucia'], 1)).toBe(true)
     expect(qingyiAstralOpportunity(['qingyi', 'panYinhu', 'lucia'], 0)).toBe(true)
+    expect(qingyiAstralOpportunity(['qingyi', 'zhao', 'lucia'], 0)).toBe(true)
     expect(qingyiAstralOpportunity(['qingyi', 'cissia', 'lucia'], 0)).toBe(false)
   })
 })

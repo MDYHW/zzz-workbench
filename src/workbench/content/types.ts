@@ -38,6 +38,8 @@ export type AgentId =
   | 'koleda'
   | 'anby'
   | 'caesar'
+  | 'yeShunguang'
+  | 'zhao'
 
 export type AgentRank = 'S' | 'A'
 export type AgentFaction =
@@ -50,6 +52,7 @@ export type AgentFaction =
   | 'Criminal Investigation Special Response Team'
   | 'Cunning Hares'
   | 'Belobog Heavy Industries'
+  | 'Krampus Compliance Authority'
 
 /** Game-recognized teammate qualification that does not replace display faction. */
 export type PartyQualificationGroup = 'New Eridu Defense Force'
@@ -110,6 +113,8 @@ export type EngineId =
   | 'springEmbrace'
   | 'demaraBatteryMarkII'
   | 'originalTransmorpher'
+  | 'streetSuperstar'
+  | 'halfSugarBunny'
 
 export type DiscId =
   | 'yunkui'
@@ -131,6 +136,7 @@ export type DiscId =
   | 'thunderMetal'
   | 'chaoticMetal'
   | 'protoPunk'
+  | 'whiteWaterBallad'
 
 export type MainSlot = 'slot4' | 'slot5' | 'slot6'
 

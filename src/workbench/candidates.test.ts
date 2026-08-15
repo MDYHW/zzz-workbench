@@ -137,13 +137,33 @@ describe('selected King pressure', () => {
 
 describe('contextual Disc candidates', () => {
   it('adds Qingyi Astral only for the local buffer-provider set', () => {
-    for (const provider of ['nicole', 'astraYao', 'panYinhu'] as const) {
+    for (const provider of ['nicole', 'astraYao', 'panYinhu', 'zhao'] as const) {
       expect(effectiveFourPieceIds(
         createPreparedState({}, ['qingyi', provider, 'lucia'], 0),
         0,
       )).toContain('astralVoice')
     }
     expect(effectiveFourPieceIds(createPreparedState({}, ['qingyi', 'cissia', 'lucia'], 0), 0)).not.toContain('astralVoice')
+  })
+
+  it('routes the new exact 2-piece identities from the selected 4-piece role', () => {
+    let ye = createPreparedState({}, ['yeShunguang', 'zhao', 'anby'], 0)
+    expect(effectiveTwoPieceIds(ye, 0)).toContain('fangedMetal')
+    expect(effectiveTwoPieceIds(ye, 0)).not.toContain('whiteWaterBallad')
+    ye = workbenchReducer(ye, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'woodpecker',
+    })
+    expect(effectiveTwoPieceIds(ye, 0)).toContain('whiteWaterBallad')
+    expect(effectiveTwoPieceIds(ye, 0)).not.toContain('fangedMetal')
+
+    let zhao = createPreparedState({}, ['yeShunguang', 'zhao', 'anby'], 0)
+    expect(effectiveTwoPieceIds(zhao, 1)).toContain('yunkui')
+    expect(effectiveTwoPieceIds(zhao, 1)).not.toContain('bunnyInWonderland')
+    zhao = workbenchReducer(zhao, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    expect(effectiveTwoPieceIds(zhao, 1)).toContain('bunnyInWonderland')
+    expect(effectiveTwoPieceIds(zhao, 1)).not.toContain('yunkui')
   })
 
   it('clears Qingyi selected-King Woodpecker without deleting independent substats', () => {

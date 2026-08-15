@@ -24,7 +24,7 @@ export type SourceLocus =
   | 'identity' | 'w-engine' | 'disc-4pc' | 'disc-2pc'
   | 'disc-slot-4' | 'disc-slot-5' | 'disc-slot-6'
   | 'substat-1' | 'substat-2' | 'substat-3'
-  | 'core' | 'additional' | 'special' | 'ex-special' | 'mindscape' | 'calculation'
+  | 'core' | 'additional' | 'special' | 'ex-special' | 'mindscape' | 'calculation' | 'target'
 
 export interface ResultSource {
   label: string
@@ -96,7 +96,7 @@ export interface SourceBoundCurrentClause {
   eligibleAgentIds?: AgentId[]
   attributes?: readonly EffectAttribute[]
   formulas?: readonly SetupFormulaFamily[]
-  nonstackKey?: 'kingOfTheSummit' | 'astralVoiceEntrant' | 'moonlightLullaby' | 'etherVeilWellspring' | 'swingJazz' | 'bunnyInWonderland' | 'kaboomTheCannon' | 'protoPunk' | 'iceJadeTeapot'
+  nonstackKey?: 'kingOfTheSummit' | 'astralVoiceEntrant' | 'moonlightLullaby' | 'etherVeilWellspring' | 'swingJazz' | 'bunnyInWonderland' | 'kaboomTheCannon' | 'protoPunk' | 'iceJadeTeapot' | 'halfSugarBunny'
   candidatePressure?: CandidatePressure
   value: { kind: 'additive'; amount: number; display?: ResolvedCurrentEffect['display'] }
     | { kind: 'basis-percentage'; percentage: number }
@@ -142,6 +142,7 @@ function baseAttributeFor(agentId: AgentId): EffectAttribute {
   const attribute = ADMITTED_AGENTS.find(({ id }) => id === agentId)?.attribute
   if (attribute === 'Auric Ink') return 'Ether'
   if (attribute === 'Frost') return 'Ice'
+  if (attribute === 'Honed Edge') return 'Physical'
   if (
     attribute === 'Physical'
     || attribute === 'Fire'
@@ -324,6 +325,22 @@ export const STATIC_SOURCES = {
     core: source(SOURCE_LABELS.caesarCore, 'caesar', 'core'),
     additional: source(SOURCE_LABELS.caesarAbility, 'caesar', 'additional'),
     critCap: source('Displayed CRIT Rate cap', 'caesar', 'calculation'),
+  },
+  yeShunguang: {
+    core: source(SOURCE_LABELS.yeShunguangCore, 'yeShunguang', 'core'),
+    critCap: source('Displayed CRIT Rate cap', 'yeShunguang', 'calculation'),
+    targetStun: source(
+      'Target Stun DMG Multiplier',
+      'yeShunguang',
+      'target',
+      'Above 100%',
+    ),
+  },
+  zhao: {
+    core: source(SOURCE_LABELS.zhaoCore, 'zhao', 'core'),
+    additional: source(SOURCE_LABELS.zhaoAbility, 'zhao', 'additional'),
+    finalVerdict: source(SOURCE_LABELS.zhaoBasic, 'zhao', 'special', 'Final Verdict · Maximum charge'),
+    critCap: source('Displayed CRIT Rate cap', 'zhao', 'calculation'),
   },
 } as const
 

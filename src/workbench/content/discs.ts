@@ -17,6 +17,7 @@ import thunderMetalImage from '../../assets/equipment/drive-discs/thunder-metal.
 import woodpeckerImage from '../../assets/equipment/drive-discs/woodpecker-electro.webp'
 import yunkuiImage from '../../assets/equipment/drive-discs/yunkui-tales.webp'
 import protoPunkImage from '../../assets/equipment/drive-discs/proto-punk.webp'
+import whiteWaterBalladImage from '../../assets/equipment/drive-discs/white-water-ballad.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -178,6 +179,16 @@ export const DRIVE_DISC_FACTS = {
       damage: { modifier: 'dmgBonus', unit: '%', value: 15, scope: { recipient: 'squad' } },
     },
   },
+  whiteWaterBallad: {
+    twoPiece: {
+      physicalDamage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Physical'] } },
+    },
+    fourPiece: {
+      veilCritRate: { modifier: 'critRate', unit: '%', value: 10 },
+      attackVeilCritRate: { modifier: 'critRate', unit: '%', value: 10 },
+      attackVeilAtk: { modifier: 'atk', unit: '%', value: 10 },
+    },
+  },
 } as const satisfies Record<DiscId, DriveDiscFacts>
 
 /** Exact authored piece and effect fields for one admitted Drive Disc. */
@@ -300,11 +311,22 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
       `After Defensive or Evasive Assist · Squad DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.protoPunk.fourPiece.damage)}%`,
     ],
   },
+  whiteWaterBallad: {
+    id: 'whiteWaterBallad', name: 'White Water Ballad', image: whiteWaterBalladImage,
+    twoPieceEffect: `Physical DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.twoPiece.physicalDamage)}%`,
+    fourPieceEffects: [
+      `Within Ether Veil · CRIT Rate +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.veilCritRate)}%`,
+      `Attack holder activates or extends Ether Veil · CRIT Rate +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.attackVeilCritRate)}%`,
+      `Attack holder activates or extends Ether Veil · ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.attackVeilAtk)}%`,
+    ],
+  },
 }
 
 export const SAME_EFFECT_TWO_PIECE_RELATIONSHIPS = [
   { members: ['hormonePunk', 'astralVoice'], canonical: 'hormonePunk' },
   { members: ['swingJazz', 'moonlight'], canonical: 'swingJazz' },
+  { members: ['whiteWaterBallad', 'fangedMetal'], canonical: 'whiteWaterBallad' },
+  { members: ['bunnyInWonderland', 'yunkui'], canonical: 'bunnyInWonderland' },
 ] as const satisfies readonly {
   members: readonly [DiscId, DiscId]
   canonical: DiscId
@@ -406,5 +428,16 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
   caesar: {
     fourPiece: ['protoPunk', 'bunnyInWonderland'],
     twoPiece: ['shockstar', 'protoPunk', 'king'],
+  },
+  yeShunguang: {
+    fourPiece: ['whiteWaterBallad', 'woodpecker', 'hormonePunk'],
+    twoPiece: [
+      'whiteWaterBallad', 'fangedMetal', 'woodpecker', 'branchAndBlade',
+      'pufferElectro', 'hormonePunk', 'astralVoice',
+    ],
+  },
+  zhao: {
+    fourPiece: ['bunnyInWonderland', 'astralVoice', 'swingJazz'],
+    twoPiece: ['bunnyInWonderland', 'yunkui', 'swingJazz', 'moonlight', 'astralVoice', 'hormonePunk'],
   },
 }

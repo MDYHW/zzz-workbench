@@ -226,6 +226,14 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     id: 'caesar', name: 'Caesar King', attribute: 'Physical', specialty: 'Defense',
     focusEligible: false, rank: 'S', faction: 'Sons of Calydon',
   },
+  {
+    id: 'yeShunguang', name: 'Ye Shunguang', attribute: 'Honed Edge', specialty: 'Attack',
+    focusEligible: true, rank: 'S', faction: 'Yunkui Summit',
+  },
+  {
+    id: 'zhao', name: 'Zhao', attribute: 'Ice', specialty: 'Defense',
+    focusEligible: false, rank: 'S', faction: 'Krampus Compliance Authority',
+  },
 ]
 
 export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>

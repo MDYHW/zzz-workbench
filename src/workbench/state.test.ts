@@ -730,6 +730,69 @@ describe('workbench state lifecycle', () => {
     const anby = createPreparedState({}, ['anbySoldier0', 'yixuan', 'lucia'], 1)
     expect(effectiveTwoPieceIds(anby, 0)).toContain('hormonePunk')
     expect(effectiveTwoPieceIds(anby, 0)).not.toContain('astralVoice')
+
+    let ye = createPreparedState({}, ['yeShunguang', 'zhao', 'anby'], 0)
+    expect(effectiveTwoPieceIds(ye, 0)).toContain('fangedMetal')
+    ye = workbenchReducer(ye, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'fangedMetal',
+    })
+    ye = workbenchReducer(ye, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'woodpecker',
+    })
+    expect(ye.slots[0].setup.twoPieceId).toBeNull()
+    expect(effectiveTwoPieceIds(ye, 0)).toContain('whiteWaterBallad')
+    expect(effectiveTwoPieceIds(ye, 0)).not.toContain('fangedMetal')
+    ye = workbenchReducer(ye, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'whiteWaterBallad',
+    })
+    expect(ye.slots[0].setup.twoPieceId).toBeNull()
+    expect(effectiveTwoPieceIds(ye, 0)).toContain('fangedMetal')
+    expect(effectiveTwoPieceIds(ye, 0)).not.toContain('whiteWaterBallad')
+  })
+
+  it('rebuilds Zhao Quick Assist opportunities without restoring direct Astral choices', () => {
+    let shared = createPreparedState({}, ['corin', 'caesar', 'zhao'], 0)
+    expect(effectiveFourPieceIds(shared, 1)).toContain('astralVoice')
+    shared = workbenchReducer(shared, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    shared = workbenchReducer(shared, { type: 'openPartyEdit' })
+    shared = workbenchReducer(shared, {
+      type: 'replaceDraftAgent', slot: 2, agentId: 'lucia',
+    })
+    shared = workbenchReducer(shared, { type: 'applyPartyEdit' })
+    expect(effectiveFourPieceIds(shared, 1)).not.toContain('astralVoice')
+    expect(shared.slots[1].setup.fourPieceId).toBe('protoPunk')
+
+    shared = workbenchReducer(shared, { type: 'openPartyEdit' })
+    shared = workbenchReducer(shared, {
+      type: 'replaceDraftAgent', slot: 2, agentId: 'zhao',
+    })
+    shared = workbenchReducer(shared, { type: 'applyPartyEdit' })
+    expect(effectiveFourPieceIds(shared, 1)).toContain('astralVoice')
+    expect(shared.slots[1].setup.fourPieceId).toBe('protoPunk')
+
+    let local = createPreparedState({}, ['harumasa', 'qingyi', 'zhao'], 0)
+    expect(effectiveFourPieceIds(local, 1)).toContain('astralVoice')
+    local = workbenchReducer(local, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    expect(local.slots[1].setup.fourPieceId).toBe('astralVoice')
+    local = workbenchReducer(local, { type: 'openPartyEdit' })
+    local = workbenchReducer(local, {
+      type: 'replaceDraftAgent', slot: 2, agentId: 'lucia',
+    })
+    local = workbenchReducer(local, { type: 'applyPartyEdit' })
+    expect(effectiveFourPieceIds(local, 1)).not.toContain('astralVoice')
+    expect(local.slots[1].setup.fourPieceId).toBe('king')
+
+    local = workbenchReducer(local, { type: 'openPartyEdit' })
+    local = workbenchReducer(local, {
+      type: 'replaceDraftAgent', slot: 2, agentId: 'zhao',
+    })
+    local = workbenchReducer(local, { type: 'applyPartyEdit' })
+    expect(effectiveFourPieceIds(local, 1)).toContain('astralVoice')
+    expect(local.slots[1].setup.fourPieceId).toBe('king')
   })
 
   it('routes matching Attribute and canonical ATK candidates through current formulas', () => {

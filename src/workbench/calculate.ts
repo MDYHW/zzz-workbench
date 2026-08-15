@@ -45,6 +45,8 @@ import { calculateBen } from './calculation/agents/ben'
 import { calculateKoleda } from './calculation/agents/koleda'
 import { calculateAnbyDemara } from './calculation/agents/anby'
 import { calculateCaesar } from './calculation/agents/caesar'
+import { calculateYeShunguang } from './calculation/agents/ye-shunguang'
+import { calculateZhao } from './calculation/agents/zhao'
 import { composeMetricEffects, surfaces } from './calculation/composition'
 import type { ActionModifier, AgentResult, Contribution, PartyResult } from './calculation/result'
 import { resolveProviderEffects } from './provider-effects'
@@ -60,6 +62,14 @@ export type {
   ResultMetric,
   ResultOperation,
 } from './calculation/result'
+
+export interface PartyCalculationContext {
+  targetStunDmgMultiplier: number
+}
+
+const DEFAULT_CALCULATION_CONTEXT: PartyCalculationContext = {
+  targetStunDmgMultiplier: 150,
+}
 
 function assertNever(value: never): never {
   throw new Error(`Unhandled Agent context: ${String(value)}`)
@@ -195,7 +205,10 @@ function withSharedEnemyContextMetrics(
   return metrics.length === result.metrics.length ? result : { ...result, metrics }
 }
 
-export function calculateParty(state: WorkbenchState): PartyResult | null {
+export function calculateParty(
+  state: WorkbenchState,
+  calculationContext: PartyCalculationContext = DEFAULT_CALCULATION_CONTEXT,
+): PartyResult | null {
   if (!isCompleteWorkbench(state)) return null
 
   const { contexts, inboxes, enemyContext } = resolveProviderEffects(state)
@@ -334,6 +347,17 @@ export function calculateParty(state: WorkbenchState): PartyResult | null {
           break
         case 'caesar':
           result = calculateCaesar(context, inbox, enemy)
+          break
+        case 'yeShunguang':
+          result = calculateYeShunguang(
+            context,
+            inbox,
+            enemy,
+            calculationContext.targetStunDmgMultiplier,
+          )
+          break
+        case 'zhao':
+          result = calculateZhao(context, inbox, enemy)
           break
         default:
           return assertNever(context)

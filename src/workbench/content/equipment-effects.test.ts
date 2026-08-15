@@ -7,6 +7,7 @@ import {
   ENGINE_IDS_BY_AGENT_AND_POOL,
   MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
   REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL,
+  SAME_EFFECT_TWO_PIECE_RELATIONSHIPS,
   SETUP_FORMULA_PARTICIPATION_BY_AGENT,
   SOURCE_LABELS,
   SUBSTAT_CHOICES_BY_AGENT,
@@ -16,6 +17,7 @@ import {
   defaultMindscapeFor,
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
+  equipmentEffectProgressionIncrementValue,
   equipmentEffectProgressionValue,
   defaultRefinementFor,
   type DriveDiscEffectField,
@@ -58,6 +60,10 @@ describe('bounded equipment effect facts', () => {
       .toEqualTypeOf<'electricDamage' | 'energyGeneration'>()
     expectTypeOf<WEngineEffectField<'originalTransmorpher'>>()
       .toEqualTypeOf<'maxHp' | 'impact'>()
+    expectTypeOf<WEngineEffectField<'streetSuperstar'>>()
+      .toEqualTypeOf<'ultimateDamage'>()
+    expectTypeOf<WEngineEffectField<'halfSugarBunny'>>()
+      .toEqualTypeOf<'automaticEnergy' | 'squadAtk' | 'squadMaxHp' | 'veilCritDamage'>()
 
     expectTypeOf<DriveDiscPiece<'dawnsBloom'>>()
       .toEqualTypeOf<'twoPiece' | 'fourPiece'>()
@@ -74,6 +80,8 @@ describe('bounded equipment effect facts', () => {
       .toEqualTypeOf<'damage'>()
     expectTypeOf<DriveDiscEffectField<'bunnyInWonderland', 'fourPiece'>>()
       .toEqualTypeOf<'damage'>()
+    expectTypeOf<DriveDiscEffectField<'whiteWaterBallad', 'fourPiece'>>()
+      .toEqualTypeOf<'veilCritRate' | 'attackVeilCritRate' | 'attackVeilAtk'>()
   })
 
   it('keeps W-Engine qualifiers separate from modifier and refinement magnitude', () => {
@@ -455,10 +463,14 @@ describe('bounded equipment effect facts', () => {
     })
     expect(W_ENGINE_FACTS.cloudcleaveRadiance.effects.physicalResIgnore.scope)
       .toEqual({ attributes: ['Physical'] })
+    expect('scope' in W_ENGINE_FACTS.cloudcleaveRadiance.effects.etherVeilDamage)
+      .toBe(false)
+    expect('scope' in W_ENGINE_FACTS.cloudcleaveRadiance.effects.etherVeilCritDamage)
+      .toBe(false)
     expect(W_ENGINES.cloudcleaveRadiance.passiveLines(1)).toEqual([
       'Physical RES Ignore +20%',
-      'Ether Veil · Ether DMG +25%',
-      'Ether Veil · Ether CRIT DMG +25%',
+      'Holder activates Ether Veil · DMG +25%',
+      'Holder activates Ether Veil · CRIT DMG +25%',
     ])
 
     expect(W_ENGINES.starlightEngineReplica).toMatchObject({
@@ -567,6 +579,145 @@ describe('bounded equipment effect facts', () => {
       nonLimited: {
         engineId: 'hellfireGears', fourPieceId: 'protoPunk', twoPieceId: 'shockstar',
         mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
+      },
+    })
+  })
+
+  it('authors Ye Shunguang and Zhao as complete typed content paths', () => {
+    expect(ADMITTED_AGENTS.find(({ id }) => id === 'yeShunguang')).toEqual({
+      id: 'yeShunguang', name: 'Ye Shunguang', attribute: 'Honed Edge', specialty: 'Attack',
+      focusEligible: true, rank: 'S', faction: 'Yunkui Summit',
+    })
+    expect(ADMITTED_AGENTS.find(({ id }) => id === 'zhao')).toEqual({
+      id: 'zhao', name: 'Zhao', attribute: 'Ice', specialty: 'Defense',
+      focusEligible: false, rank: 'S', faction: 'Krampus Compliance Authority',
+    })
+    expect(VERTICAL_VALUES.yeShunguang).toMatchObject({
+      atk: 938, critRate: 19.4, critDmg: 50,
+      unityCritRate: 30, unityDmg: 25, veilVulnerabilityCap: 110,
+      mindscapeActionDefIgnore: 40, mindscapeVeilVulnerabilityCap: 200,
+    })
+    expect(VERTICAL_VALUES.zhao).toMatchObject({
+      hp: 9117, atk: 765, critRate: 5, critDmg: 50, baseEnergyRegen: 1.2,
+      coreHp: 18, coreCritRatePer1000Hp: 1.4,
+      additionalHpThreshold: 15000, additionalHpCap: 27000, additionalDmgCap: 40,
+      finalVerdictMaxHp: 120, mindscapeFinalVerdictMaxHp: 168,
+    })
+    expect(SOURCE_LABELS).toMatchObject({
+      yeShunguangCore: 'Core Passive', zhaoCore: 'Core Passive',
+      zhaoAbility: 'Additional Ability', zhaoBasic: 'Basic Attack',
+    })
+    expect(SETUP_FORMULA_PARTICIPATION_BY_AGENT.yeShunguang).toEqual({
+      primary: ['general_damage'], residual: [],
+    })
+    expect(SETUP_FORMULA_PARTICIPATION_BY_AGENT.zhao).toEqual({
+      primary: [], residual: ['general_damage'],
+    })
+
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.yeShunguang).toEqual({
+      full: [
+        'cloudcleaveRadiance', 'brimstone', 'steelCushion', 'gildedBlossom',
+        'marcatoDesire', 'starlightEngine', 'streetSuperstar',
+      ],
+      nonLimited: [
+        'brimstone', 'steelCushion', 'gildedBlossom',
+        'marcatoDesire', 'starlightEngine', 'streetSuperstar',
+      ],
+    })
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.zhao).toEqual({
+      full: ['halfSugarBunny', 'originalTransmorpher'],
+      nonLimited: ['originalTransmorpher'],
+    })
+
+    const refinements = [1, 2, 3, 4, 5] as const
+    const streetDamage = W_ENGINE_FACTS.streetSuperstar.effects.ultimateDamage
+    expect(refinements.map((refinement) =>
+      equipmentEffectProgressionIncrementValue(streetDamage, refinement),
+    )).toEqual([15, 17.2, 19.5, 21.7, 24])
+    expect(refinements.map((refinement) =>
+      equipmentEffectMaximumValue(streetDamage, refinement),
+    )).toEqual([45, 51.6, 58.5, 65.1, 72])
+    expect(W_ENGINES.streetSuperstar).toMatchObject({
+      rank: 'A', limited: false, baseAtk: 594,
+      advancedStat: { id: 'atkPct', value: 25 }, passiveSpecialty: 'Attack',
+    })
+    expect(W_ENGINES.streetSuperstar.passiveLines(5)).toEqual([
+      'Squad Chain Attack · Charge (max 3) · Ultimate DMG +24% each',
+      'Holder Ultimate · Consumes Charges · Maximum DMG +72%',
+    ])
+
+    expect(W_ENGINES.halfSugarBunny).toMatchObject({
+      rank: 'S', limited: true, baseAtk: 713,
+      advancedStat: { id: 'hpPct', value: 30 }, passiveSpecialty: 'Defense',
+    })
+    expect(refinements.map((refinement) => equipmentEffectBaseValue(
+      W_ENGINE_FACTS.halfSugarBunny.effects.automaticEnergy, refinement,
+    ))).toEqual([0.46, 0.53, 0.6, 0.67, 0.74])
+    expect(W_ENGINES.halfSugarBunny.passiveLines(1)).toEqual([
+      'Automatic Energy Regen +0.46/s',
+      'Squad ATK & Max HP +10% · Non-stacking',
+      'Activate or extend Ether Veil · Squad CRIT DMG +30%',
+    ])
+
+    expect(DRIVE_DISCS.whiteWaterBallad).toMatchObject({
+      twoPieceEffect: 'Physical DMG +10%',
+      fourPieceEffects: [
+        'Within Ether Veil · CRIT Rate +10%',
+        'Attack holder activates or extends Ether Veil · CRIT Rate +10%',
+        'Attack holder activates or extends Ether Veil · ATK +10%',
+      ],
+    })
+    expect(SAME_EFFECT_TWO_PIECE_RELATIONSHIPS).toContainEqual({
+      members: ['whiteWaterBallad', 'fangedMetal'], canonical: 'whiteWaterBallad',
+    })
+    expect(SAME_EFFECT_TWO_PIECE_RELATIONSHIPS).toContainEqual({
+      members: ['bunnyInWonderland', 'yunkui'], canonical: 'bunnyInWonderland',
+    })
+
+    expect(DISC_IDS_BY_AGENT_AND_PIECE.yeShunguang).toEqual({
+      fourPiece: ['whiteWaterBallad', 'woodpecker', 'hormonePunk'],
+      twoPiece: [
+        'whiteWaterBallad', 'fangedMetal', 'woodpecker', 'branchAndBlade',
+        'pufferElectro', 'hormonePunk', 'astralVoice',
+      ],
+    })
+    expect(DISC_IDS_BY_AGENT_AND_PIECE.zhao).toEqual({
+      fourPiece: ['bunnyInWonderland', 'astralVoice', 'swingJazz'],
+      twoPiece: ['bunnyInWonderland', 'yunkui', 'swingJazz', 'moonlight', 'astralVoice', 'hormonePunk'],
+    })
+    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.yeShunguang).toEqual({
+      slot4: ['critRate', 'critDmg'], slot5: ['physicalDmg', 'atkPct', 'penRatio'],
+      slot6: ['atkPct'],
+    })
+    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.zhao).toEqual({
+      slot4: ['hpPct'], slot5: ['hpPct'], slot6: ['hpPct', 'energyRegenPct'],
+    })
+    expect(SUBSTAT_CHOICES_BY_AGENT.yeShunguang.map(({ id }) => id))
+      .toEqual(['critRate', 'critDmg', 'atkPct'])
+    expect(SUBSTAT_CHOICES_BY_AGENT.zhao.map(({ id }) => id))
+      .toEqual(['hpPct', 'hpFlat'])
+    expect(REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL.yeShunguang).toEqual({
+      full: {
+        engineId: 'cloudcleaveRadiance', fourPieceId: 'whiteWaterBallad',
+        twoPieceId: 'branchAndBlade',
+        mains: { slot4: 'critDmg', slot5: 'physicalDmg', slot6: 'atkPct' },
+      },
+      nonLimited: {
+        engineId: 'brimstone', fourPieceId: 'whiteWaterBallad',
+        twoPieceId: 'branchAndBlade',
+        mains: { slot4: 'critDmg', slot5: 'physicalDmg', slot6: 'atkPct' },
+      },
+    })
+    expect(REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL.zhao).toEqual({
+      full: {
+        engineId: 'halfSugarBunny', fourPieceId: 'bunnyInWonderland',
+        twoPieceId: 'yunkui',
+        mains: { slot4: 'hpPct', slot5: 'hpPct', slot6: 'hpPct' },
+      },
+      nonLimited: {
+        engineId: 'originalTransmorpher', fourPieceId: 'bunnyInWonderland',
+        twoPieceId: 'yunkui',
+        mains: { slot4: 'hpPct', slot5: 'hpPct', slot6: 'hpPct' },
       },
     })
   })

@@ -138,6 +138,11 @@ describe('integrated party workbench: party', () => {
         { agentId: 'lycaon', setup: createPreparedAgentSetup('lycaon') },
       ],
       [
+        { agentId: 'yeShunguang', setup: createPreparedAgentSetup('yeShunguang') },
+        { agentId: 'zhao', setup: createPreparedAgentSetup('zhao') },
+        { agentId: 'trigger', setup: createPreparedAgentSetup('trigger') },
+      ],
+      [
         { agentId: 'anby', setup: createPreparedAgentSetup('anby') },
         { agentId: 'caesar', setup: createPreparedAgentSetup('caesar') },
         { agentId: 'anbySoldier0', setup: createPreparedAgentSetup('anbySoldier0') },
@@ -768,7 +773,7 @@ describe('integrated party workbench: party', () => {
     expect(within(screen.getByLabelText('W-Engine candidates')).getByRole('button', {
       name: 'Select Cloudcleave Radiance W1',
     })).toHaveAccessibleDescription(
-      'CRIT DMG +48%. Physical RES Ignore +20%. Ether Veil · Ether DMG +25%. Ether Veil · Ether CRIT DMG +25%',
+      'CRIT DMG +48%. Physical RES Ignore +20%. Holder activates Ether Veil · DMG +25%. Holder activates Ether Veil · CRIT DMG +25%',
     )
     await user.click(steel)
     expect(screen.getByRole('heading', { name: 'Nekomata Result' })).toBeInTheDocument()
@@ -780,7 +785,7 @@ describe('integrated party workbench: party', () => {
       .toHaveLength(2)
     expect(screen.getByRole('button', { name: 'Change W-Engine from Cloudcleave Radiance' }))
       .toHaveAccessibleDescription(
-        'CRIT DMG +48%. Physical RES Ignore +20%. Ether Veil · Ether DMG +25%. Ether Veil · Ether CRIT DMG +25%',
+        'CRIT DMG +48%. Physical RES Ignore +20%. Holder activates Ether Veil · DMG +25%. Holder activates Ether Veil · CRIT DMG +25%',
       )
     expect(screen.getByRole('heading', { name: 'Billy Kid Result' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Non-limited' }))

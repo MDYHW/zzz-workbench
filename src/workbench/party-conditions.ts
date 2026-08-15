@@ -159,6 +159,6 @@ export function qingyiAstralOpportunity(
 ): boolean {
   if (agentIds[qingyiIndex] !== 'qingyi') return false
   return agentIds.some((agentId, index) => (
-    index !== qingyiIndex && ['nicole', 'astraYao', 'panYinhu'].includes(agentId)
+    index !== qingyiIndex && ['nicole', 'astraYao', 'panYinhu', 'zhao'].includes(agentId)
   ))
 }

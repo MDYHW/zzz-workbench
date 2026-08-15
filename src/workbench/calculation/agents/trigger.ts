@@ -32,8 +32,20 @@ export function resolveTriggerProviderClauses(setup: CompleteSetup): SourceBound
       : 0
   return active([
     additive('dazeBonus', 'initial', discSource('trigger', 'king', '2-piece', setup.fourPieceId === 'king' ? '4-piece' : '2-piece'), setup.fourPieceId === 'king' || setup.twoPieceId === 'king' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze) : 0, 'self'),
-    additive('stunDmgMultiplier', 'fully', STATIC_SOURCES.trigger.core, setup.mindscape >= 1 ? 55 : 35, 'enemy-context', undefined, undefined, ['yixuan', 'anbySoldier0', 'trigger', 'anby']),
-    additive('critDmg', 'fully', mindscapeSource('trigger', 2, '4 stacks'), setup.mindscape >= 2 ? 24 : 0, 'all-party', undefined, undefined, ['yixuan', 'anbySoldier0', 'trigger', 'anby']),
+    withApplicability(
+      additive(
+        'stunDmgMultiplier', 'fully', STATIC_SOURCES.trigger.core,
+        setup.mindscape >= 1 ? 55 : 35, 'enemy-context',
+      ),
+      { formulas: ['general_damage', 'sheer_damage'] },
+    ),
+    withApplicability(
+      additive(
+        'critDmg', 'fully', mindscapeSource('trigger', 2, '4 stacks'),
+        setup.mindscape >= 2 ? 24 : 0, 'all-party',
+      ),
+      { formulas: ['general_damage', 'sheer_damage'] },
+    ),
     withApplicability(
       additive('critDmg', 'fully', discSource('trigger', 'king', '4-piece'), kingCrit, 'all-party', undefined, undefined, undefined, 'kingOfTheSummit'),
       { formulas: ['general_damage', 'sheer_damage'] },

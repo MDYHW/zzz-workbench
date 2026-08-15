@@ -1956,6 +1956,8 @@ button.main-stat-block:focus-visible {
 .source-tone--agent-orphie { --source-color: #a04424; }
 .source-tone--agent-pulchra { --source-color: #98701e; }
 .source-tone--agent-anby { --source-color: #6d7419; }
+.source-tone--agent-zhao { --source-color: #526f83; }
+.source-tone--target { --source-color: #626b72; }
 /* Calculation clamps stay neutral and are not a semantic source color. */
 .source-tone--calculation { --source-color: #596169; }
 
@@ -2158,6 +2160,85 @@ button.main-stat-block:focus-visible {
 
 .gauge.source-link .gauge__fill {
   background: var(--source-color);
+}
+
+.target-stun-context {
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid #aaa397;
+  background: #c9c2b6;
+}
+
+.target-stun-context .gauge.source-link {
+  margin-top: 8px;
+}
+
+.target-stun-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px 14px;
+  padding: 9px 10px;
+  border-left: 4px solid var(--source-color);
+  background: #eee8dc;
+  transition: background 120ms ease, box-shadow 120ms ease;
+}
+
+.target-stun-editor:is(:hover, .is-source-active, :focus-within) {
+  background: #f7f1e6;
+  box-shadow: inset 0 0 0 2px var(--source-color);
+}
+
+.target-stun-editor label {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+  color: var(--source-color);
+  font: 800 clamp(10px, 2.45cqw, 12px)/1.15 var(--mono);
+  text-transform: uppercase;
+}
+
+.target-stun-editor label small,
+.target-stun-editor > small {
+  color: #746d62;
+  font: 700 clamp(9px, 2.15cqw, 10px)/1.25 var(--mono);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.target-stun-editor > small {
+  grid-column: 1 / -1;
+}
+
+.target-stun-editor__control {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--source-color);
+  font: 900 14px/1 var(--mono);
+}
+
+.target-stun-editor input {
+  width: 92px;
+  min-height: 44px;
+  box-sizing: border-box;
+  border: 1px solid #898277;
+  border-radius: 0;
+  color: #1d1c19;
+  background: #fffaf0;
+  font: 900 14px/1 var(--mono);
+  text-align: right;
+}
+
+.target-stun-editor input:focus-visible {
+  outline: 2px solid var(--source-color);
+  outline-offset: 2px;
+}
+
+.target-stun-editor input[aria-invalid="true"] {
+  border-color: var(--danger);
+  background: #fff1ec;
 }
 
 .action-differences {
@@ -2398,6 +2479,20 @@ button.main-stat-block:focus-visible {
   .party-editor__pool > div { grid-template-columns: 1fr; }
   .party-editor__focus { align-items: flex-start; flex-direction: column; }
   .party-editor__actions { display: grid; grid-template-columns: 1fr 1fr; }
+
+  .target-stun-editor {
+    grid-template-columns: 1fr;
+  }
+
+  .target-stun-editor__control {
+    width: 100%;
+  }
+
+  .target-stun-editor input {
+    width: auto;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
 }
 
 

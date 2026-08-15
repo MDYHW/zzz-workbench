@@ -762,4 +762,91 @@ describe('integrated party workbench: result', () => {
     expect(within(result).queryByRole('region', { name: 'Agent operations' }))
       .not.toBeInTheDocument()
   }, 10_000)
+
+  it('edits Ye target Stun context while preserving the last valid Result', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', {
+        name: new RegExp(`Replace slot ${slot},`),
+      }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Ye Shunguang,/)
+    await replace(2, /Trigger, Electric, Stun/)
+    await replace(3, /Zhao, Ice, Defense/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    const yeResult = screen.getByRole('region', { name: 'Ye Shunguang Result' })
+    await user.click(within(yeResult).getByRole('button', {
+      name: 'Stun DMG Multiplier',
+    }))
+    const sourceMatrix = within(yeResult).getByRole('table', {
+      name: 'Stun DMG Multiplier source contributions',
+    })
+    expect(within(sourceMatrix).getByRole('row', {
+      name: /Target Stun DMG Multiplier.*Above 100%.*[+]50[.]0%/,
+    })).toHaveAttribute('data-source-tone', 'target')
+    expect(within(sourceMatrix).getByRole('row', {
+      name: /Trigger.*Core Passive.*[+]35[.]0%/,
+    })).toHaveAttribute('data-source-tone', 'agent-trigger')
+
+    const input = within(yeResult).getByRole('textbox', {
+      name: 'Target Stun DMG Multiplier',
+    })
+    expect(input).toHaveValue('150')
+    expect(within(yeResult).getByRole('group', {
+      name: /Raw Stun DMG Multiplier bonus: current 85[.]0, cap 110; Veil Vulnerability: [+]85[.]0%, cap 110%/,
+    })).toBeInTheDocument()
+
+    fireEvent.change(input, { target: { value: '125' } })
+    expect(within(yeResult).getByRole('group', {
+      name: /Raw Stun DMG Multiplier bonus: current 60[.]0, cap 110; Veil Vulnerability: [+]60[.]0%, cap 110%/,
+    })).toBeInTheDocument()
+
+    fireEvent.change(input, { target: { value: '200' } })
+    expect(within(yeResult).getByRole('group', {
+      name: /Raw Stun DMG Multiplier bonus: current 135[.]0, cap 110; Veil Vulnerability: [+]110[.]0%, cap 110%/,
+    })).toBeInTheDocument()
+    expect(within(yeResult).queryByText(/cap room/i)).not.toBeInTheDocument()
+
+    await user.click(input)
+    for (const invalid of ['', '125.5', 'Infinity', '99']) {
+      fireEvent.change(input, { target: { value: invalid } })
+      expect(input).toHaveAttribute('aria-invalid', 'true')
+      expect(within(yeResult).getByRole('group', {
+        name: /Raw Stun DMG Multiplier bonus: current 135[.]0, cap 110; Veil Vulnerability: [+]110[.]0%, cap 110%/,
+      })).toBeInTheDocument()
+    }
+    await user.keyboard('{Enter}')
+    expect(input).toHaveValue('200')
+    expect(input).not.toHaveAttribute('aria-invalid')
+    expect(input).toHaveFocus()
+
+    fireEvent.change(input, { target: { value: '99' } })
+    expect(input).toHaveAttribute('aria-invalid', 'true')
+    expect(within(yeResult).getByRole('group', {
+      name: /Raw Stun DMG Multiplier bonus: current 135[.]0, cap 110; Veil Vulnerability: [+]110[.]0%, cap 110%/,
+    })).toBeInTheDocument()
+    fireEvent.blur(input)
+    expect(input).toHaveValue('200')
+    expect(input).not.toHaveAttribute('aria-invalid')
+    expect(within(yeResult).getByRole('group', {
+      name: /Raw Stun DMG Multiplier bonus: current 135[.]0, cap 110; Veil Vulnerability: [+]110[.]0%, cap 110%/,
+    })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'View Zhao setup and Result' }))
+    expect(screen.queryByRole('textbox', {
+      name: 'Target Stun DMG Multiplier',
+    })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('tab', {
+      name: 'View Ye Shunguang setup and Result',
+    }))
+    await user.click(screen.getByRole('button', { name: 'Stun DMG Multiplier' }))
+    expect(screen.getByRole('textbox', {
+      name: 'Target Stun DMG Multiplier',
+    })).toHaveValue('200')
+  }, 10_000)
 })

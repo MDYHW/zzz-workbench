@@ -32,6 +32,7 @@ export function App() {
   const [state, dispatch] = useReducer(workbenchReducer, undefined, () => createPreparedState())
   const [viewedSlot, setViewedSlot] = useState<AppliedSlot | null>(0)
   const [sourceTones, setSourceTones] = useState(emptySourceTones)
+  const [targetStunDmgMultiplier, setTargetStunDmgMultiplier] = useState(150)
   const incompleteSelections = incompleteRequiredSelections(state)
   const incompleteKey = incompleteSelections
     .map(requiredSelectionKey)
@@ -39,7 +40,7 @@ export function App() {
   const previousIncompleteKeys = useRef(new Set(incompleteKey ? incompleteKey.split('|') : []))
   const [candidateAnnouncement, setCandidateAnnouncement] = useState('')
   const activeSourceTone = sourceTones.pointer ?? sourceTones.focus
-  const result = calculateParty(state)
+  const result = calculateParty(state, { targetStunDmgMultiplier })
   const viewedSetup = viewedSlot === null ? null : state.slots[viewedSlot]
   const focusedAgent = state.slots[state.focusSlot].agentId
   const appliedParty = state.slots.map(({ agentId }) => agentId).join(',')
@@ -139,6 +140,8 @@ export function App() {
                 activeSourceTone={activeSourceTone}
                 agentResult={agentResult}
                 onSourceToneChange={changeSourceTone}
+                onTargetStunDmgMultiplierChange={setTargetStunDmgMultiplier}
+                targetStunDmgMultiplier={targetStunDmgMultiplier}
               />
             </>
           )}

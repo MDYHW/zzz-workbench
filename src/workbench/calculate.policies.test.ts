@@ -6,7 +6,7 @@ import {
   resolveSeedVanguardForState,
 } from './provider-effects'
 import { createPreparedState, workbenchReducer } from './state'
-import { actionForm, canonicalAction } from './actions'
+import { actionForm, canonicalAction, sourceLocalAction } from './actions'
 import { VERTICAL_VALUES } from './content'
 import {
   action,
@@ -1938,5 +1938,145 @@ describe('authored calculation policies', () => {
         .not.toContainEqual(expect.objectContaining({
           label: 'Demara Battery Mark II', ownerAgentId: 'caesar',
         }))
+    })
+
+    it('keeps Ye target replacement raw, local, and separately clamped', () => {
+      const base = createPreparedState({}, ['yeShunguang', 'billy', 'anby'], 0)
+      const defaultYe = metric(agent(calculateParty(base)!, 'yeShunguang'), 'stunDmgMultiplier')
+      expect(defaultYe.values).toEqual({ initial: 0, combat: 0, fully: 50 })
+      expect(defaultYe.breakdown.fully).toContainEqual(expect.objectContaining({
+        label: 'Target Stun DMG Multiplier', detail: 'Above 100%',
+        locus: 'target', amount: 50,
+      }))
+      expect(defaultYe.gauge).toMatchObject({
+        current: 50, cap: 110, outputLabel: 'Veil Vulnerability', outputValue: 50,
+      })
+
+      expect(metric(agent(calculateParty(
+        base, { targetStunDmgMultiplier: 125 },
+      )!, 'yeShunguang'), 'stunDmgMultiplier').gauge).toMatchObject({
+        current: 25, outputValue: 25,
+      })
+      expect(metric(agent(calculateParty(
+        base, { targetStunDmgMultiplier: 200 },
+      )!, 'yeShunguang'), 'stunDmgMultiplier').gauge).toMatchObject({
+        current: 100, outputValue: 100,
+      })
+
+      const triggerState = createPreparedState(
+        {}, ['yeShunguang', 'trigger', 'anby'], 0,
+      )
+      const triggerResult = calculateParty(
+        triggerState, { targetStunDmgMultiplier: 200 },
+      )!
+      expect(metric(agent(triggerResult, 'yeShunguang'), 'stunDmgMultiplier'))
+        .toMatchObject({
+          values: { initial: 0, combat: 0, fully: 135 },
+          gauge: { current: 135, cap: 110, outputValue: 110 },
+        })
+      expect(metric(agent(triggerResult, 'trigger'), 'stunDmgMultiplier').values.fully)
+        .toBe(35)
+      expect(metric(agent(triggerResult, 'anby'), 'stunDmgMultiplier').values.fully)
+        .toBe(35)
+
+      const m4 = calculateParty(
+        withMindscape(triggerState, 'yeShunguang', 4),
+        { targetStunDmgMultiplier: 200 },
+      )!
+      expect(metric(agent(m4, 'yeShunguang'), 'stunDmgMultiplier').gauge)
+        .toMatchObject({ current: 135, cap: 200, outputValue: 135 })
+
+      const formulaScoped = calculateParty(withMindscape(
+        createPreparedState({}, ['yeShunguang', 'trigger', 'astraYao'], 0),
+        'trigger',
+        2,
+      ))!
+      expect(metric(agent(formulaScoped, 'yeShunguang'), 'critDmg').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'trigger', detail: 'M2 · 4 stacks', amount: 24,
+        }))
+      expect(agent(formulaScoped, 'astraYao').metrics.map(({ id }) => id))
+        .not.toEqual(expect.arrayContaining(['critDmg', 'stunDmgMultiplier']))
+    })
+
+    it('projects Ye Unity, exact Mindscapes, and complete selected equipment clauses', () => {
+      const base = createPreparedState({}, ['yeShunguang', 'billy', 'anby'], 0)
+      const m0 = agent(calculateParty(base)!, 'yeShunguang')
+      expect(metric(m0, 'critRate').values).toEqual({
+        initial: 19.4, combat: 49.4, fully: 69.4,
+      })
+      expect(metric(m0, 'dmgBonus').breakdown.combat).toContainEqual(
+        expect.objectContaining({ ownerAgentId: 'yeShunguang', locus: 'core', amount: 25 }),
+      )
+      expect(metric(m0, 'resIgnore').values).toEqual({
+        initial: 0, combat: 20, fully: 20,
+      })
+      expect(metric(m0, 'dmgBonus').breakdown.fully).toContainEqual(
+        expect.objectContaining({ label: 'Cloudcleave Radiance', amount: 25 }),
+      )
+      expect(metric(m0, 'critDmg').breakdown.fully).toContainEqual(
+        expect.objectContaining({ label: 'Cloudcleave Radiance', amount: 25 }),
+      )
+      expect(metric(m0, 'critRate').breakdown.fully).toContainEqual(
+        expect.objectContaining({ label: 'White Water Ballad', amount: 20 }),
+      )
+
+      const astralTwoState = selectDisc(selectDisc(
+        base, 'yeShunguang', 'fourPiece', 'hormonePunk',
+      ), 'yeShunguang', 'twoPiece', 'astralVoice')
+      const astralTwoAtk = metric(
+        agent(calculateParty(astralTwoState)!, 'yeShunguang'), 'atk',
+      )
+      expect(astralTwoAtk.values.initial).toBeCloseTo(2837.5)
+      expect(astralTwoAtk.breakdown.initial.filter(
+        ({ label, detail }) => label === 'Astral Voice' && detail === '2-piece',
+      )).toEqual([expect.objectContaining({ amount: expect.closeTo(168.1) })])
+
+      const pufferFourState = selectDisc(
+        createPreparedState({}, ['yeShunguang', 'dialyn', 'anby'], 0),
+        'yeShunguang', 'fourPiece', 'pufferElectro',
+      )
+      const pufferFourPen = metric(
+        agent(calculateParty(pufferFourState)!, 'yeShunguang'), 'penRatio',
+      )
+      expect(pufferFourPen.values).toEqual({ initial: 8, combat: 8, fully: 8 })
+      expect(pufferFourPen.breakdown.initial.filter(
+        ({ label, detail }) => label === 'Puffer Electro' && detail === '2-piece',
+      )).toEqual([expect.objectContaining({ amount: 8 })])
+
+      const pufferTwoState = selectDisc(selectDisc(
+        base, 'yeShunguang', 'fourPiece', 'woodpecker',
+      ), 'yeShunguang', 'twoPiece', 'pufferElectro')
+      expect(metric(
+        agent(calculateParty(pufferTwoState)!, 'yeShunguang'), 'penRatio',
+      ).values).toEqual({ initial: 8, combat: 8, fully: 8 })
+
+      const m1 = agent(calculateParty(withMindscape(base, 'yeShunguang', 1))!, 'yeShunguang')
+      expect(metric(m1, 'dmgBonus').values.combat - metric(m0, 'dmgBonus').values.combat)
+        .toBe(10)
+      expect(metric(m1, 'defIgnore').values).toEqual({
+        initial: 0, combat: 20, fully: 20,
+      })
+
+      const m2 = agent(calculateParty(withMindscape(base, 'yeShunguang', 2))!, 'yeShunguang')
+      const enlightened = action(m2, 'yeEnlightenedActionsDefIgnore')
+      expect(enlightened.values.fully - metric(m2, 'defIgnore').values.fully).toBe(40)
+      expect(enlightened.outcomes).toEqual([
+        sourceLocalAction(
+          'EX Special Attack: Enlightened Mind - Soaring Light',
+          'EX Special Attack',
+        ),
+        sourceLocalAction('Ultimate: Cleaving Heavens', 'Ultimate'),
+      ])
+
+      const street = agent(calculateParty(selectEngine(
+        base, 'yeShunguang', 'streetSuperstar',
+      ))!, 'yeShunguang')
+      expect(action(street, 'yeUltimateDmg').values.fully
+        - metric(street, 'dmgBonus').values.fully).toBe(72)
+      expect(street.operations).toEqual([])
+      expect(agent(calculateParty(
+        withMindscape(base, 'yeShunguang', 6),
+      )!, 'yeShunguang').operations).toEqual([])
     })
 })
