@@ -163,11 +163,12 @@ evidence stale withdraws the green decision. The local App launcher repeats
 the metadata/evidence portion of that current-state preflight before an
 immediate exact-head squash merge, then requires exactly one `SUCCESS` rollup
 entry for each of the six required contexts. It does not broaden the App with
-Actions or Checks read permission; the unique-head lifecycle and trusted
-governance status bind that rollup to the current PR. The four job entries are
-selected by the run IDs sealed in that status and the latest visible attempt,
-so superseded rerun entries do not block a current result and cannot substitute
-for it.
+Actions permission. It grants read-only Checks and Commit statuses access only
+because GitHub protects the combined PR rollup behind those two permissions;
+the unique-head lifecycle and trusted governance status bind that rollup to the
+current PR. The four job entries are selected by the run IDs sealed in that
+status and the latest visible attempt, so superseded rerun entries do not block
+a current result and cannot substitute for it.
 The trusted evaluator also binds its checked-out `recovery` revision to the
 PR's current base SHA before any status write; a stale evaluator publishes
 nothing.
@@ -201,8 +202,10 @@ an absolute external path
 named by `ZZZ_WORKBENCH_GITHUB_APP_PEM_PATH`. It accepts only the fixed App,
 installation, repository, branch, and `git`/`gh` operation schemas; it places a
 narrow installation token only in the child environment and revokes it in
-guaranteed cleanup. The App has no administration, workflow, status, check,
-secret, or protection-bypass permission.
+guaranteed cleanup. The App has no administration, workflow, secret, or
+protection-bypass permission and no status/check write permission. Its only
+status/check access is the read-only pair required for the exact six-context
+merge preflight.
 
 If protection or its required evaluator is defective, freeze `recovery`,
 disable App mutation and immediate merge, invalidate outstanding evidence, and

@@ -221,8 +221,10 @@ single marked App comment and reconciles the marker after an ambiguous write
 before allowing a retry. `pr-merge` performs an
 immediate exact-head squash only after its trusted metadata/evidence preflight
 and an exact-success rollup check for all six required contexts. This preserves
-the App's no-Actions/no-Checks permission boundary; head uniqueness and the
-trusted governance context prevent another PR lifecycle from lending results.
+the App's no-Actions and no-status/check-write permission boundary: Checks and
+Commit statuses are read-only because GitHub requires both to expose the
+combined PR rollup. Head uniqueness and the trusted governance context prevent
+another PR lifecycle from lending results.
 Job rollup entries are selected by the sealed workflow-run IDs and latest
 visible attempt, so older cancelled reruns are ignored while duplicate current
 entries fail.
