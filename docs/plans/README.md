@@ -8,6 +8,23 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
+### Recovery states
+
+The authority-governance recovery temporarily uses two explicit non-completion
+states:
+
+- `frozen-by-recovery` preserves an interrupted plan as audit evidence. It is
+  not active work, does not satisfy its acceptance criteria, and cannot produce
+  a completed milestone.
+- `promotion-ready` keeps the recovery plan open while the exact accepted
+  recovery revision is finalized as trusted `main`. It is not completion and
+  the plan remains visible until protected post-promotion housekeeping closes
+  it.
+
+While recovery is active, the authority-governance recovery plan is the sole
+active plan. Frozen plans do not resume and new vertical plans do not begin
+until recovery has been promoted and closed.
+
 Use this sequence:
 
 1. Identify the visible input, Setup choice, Result consequence, and preserved

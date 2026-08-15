@@ -1,7 +1,7 @@
 ---
 title: "feat: Add Grace and the first Anomaly Result"
 type: feat
-status: active
+status: frozen-by-recovery
 date: 2026-08-15
 origin: docs/brainstorms/2026-08-15-grace-anomaly-vertical-requirements.md
 ---
