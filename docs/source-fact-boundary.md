@@ -12,7 +12,24 @@ outcomes belong to `docs/setup-workbench-product-contract.md`, game terms to
 It does not define a source archive, evidence record, explanation payload,
 audit trail, or universal game schema.
 
+## Stable Rule Identifiers
+
+High-risk cross-cutting rules in this owner use the `SF-###` namespace. The
+prefix is reserved to this file, and the number is an immutable reference label
+rather than another rule or an expansion of the labeled section. Do not assign
+these identifiers to Agent-local facts, examples, or ordinary explanatory
+paragraphs.
+
+Within the `SF-###` namespace, allocate numbers monotonically and never reuse
+one. A heading move or wording clarification that preserves the same meaning
+keeps its identifier. If an `SF-###` rule's meaning boundary splits, merges,
+moves to another owner, or retires, reserve the old identifier under a local
+`Retired Rule IDs` heading as `SF-### -> <successor IDs or none>: <reason>` and
+allocate new owner-prefixed identifiers to every resulting current rule.
+
 ## The Single Retention Gate
+
+**Rule ID:** `SF-001`
 
 For every proposed term, value, condition, field, hierarchy, relation, or
 payload, ask one counterfactual question:
@@ -64,6 +81,8 @@ decision and reapply this gate then.
 
 ## Qualifying-Outcome-First Derivation
 
+**Rule ID:** `SF-002`
+
 Start from the user-visible setup choice or Result that may differ and work
 backward only as far as needed to select, calculate, or apply it.
 
@@ -88,6 +107,8 @@ exception does not establish a default fallback, universal policy, runtime
 registry, or general uncertainty schema.
 
 ## Minimal Current Meaning
+
+**Rule ID:** `SF-003`
 
 Keep identity and eligibility only when they change candidate membership, a
 prepared first choice, another admitted choice, a party condition, or a
@@ -177,6 +198,8 @@ Multiplier and changes the expanded numeric Result. Keep the operation's source
 and action scope, but do not merge it with regular DMG Bonus or Daze Bonus.
 
 ## Fully Enabled Reachability
+
+**Rule ID:** `SF-004`
 
 The product contract owns the fully enabled surface. Persist only the condition,
 stack progression, cap, and compatibility needed to compute that surface.

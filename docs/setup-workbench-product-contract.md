@@ -27,7 +27,24 @@ Game terms belong to `docs/zzz-game-vocabulary.md`. Formula mechanics belong to
 `docs/zzz-formula-mechanics.md`. Source-fact retention belongs only to
 `docs/source-fact-boundary.md`.
 
+## Stable Rule Identifiers
+
+High-risk cross-cutting rules in this owner use the `SW-###` namespace. The
+prefix is reserved to this file, and the number is an immutable reference label
+rather than another rule or an expansion of the labeled section. Do not assign
+these identifiers to Agent-local facts, examples, or ordinary explanatory
+paragraphs.
+
+Within the `SW-###` namespace, allocate numbers monotonically and never reuse
+one. A heading move or wording clarification that preserves the same meaning
+keeps its identifier. If an `SW-###` rule's meaning boundary splits, merges,
+moves to another owner, or retires, reserve the old identifier under a local
+`Retired Rule IDs` heading as `SW-### -> <successor IDs or none>: <reason>` and
+allocate new owner-prefixed identifiers to every resulting current rule.
+
 ## Workbench Dependency
+
+**Rule ID:** `SW-001`
 
 Meaning flows in one direction:
 
@@ -49,6 +66,8 @@ does not rank arbitrary equipment or optimize a package from Result output.
 ## Setup Policy
 
 ### Service Investment Boundary
+
+**Rule ID:** `SW-002`
 
 - Agent level, Core Passive, and available Potential Awakening use completed
   values. Partial ordinary progression and farming state are not inputs.
@@ -99,6 +118,10 @@ coefficients, raw damage or Daze, or values for unused skill levels.
 Choosing a W-Engine applies its Rank default refinement. Refinement changes
 current values but not candidate membership. S-Rank and A-Rank W-Engines are
 supported; B-Rank is outside the product.
+
+#### Finite Effective-Substat Input Boundary
+
+**Rule ID:** `SW-003`
 
 Effective substat hit counts begin at zero after their inputs are available.
 Zero means no user-supplied substat investment, not a recommendation. Each count
@@ -156,6 +179,8 @@ contributor role.
 
 ### Candidate Preparation Dependency
 
+**Rule ID:** `SW-004`
+
 Candidate authoring follows this order:
 
 1. establish completed Agent facts and Rank-default Mindscape;
@@ -211,6 +236,8 @@ that can consume them; unrelated Agents do not require full re-derivation.
 
 #### W-Engine Package Inspection
 
+**Rule ID:** `SW-005`
+
 For W-Engines, begin with current competitive-practice shortlists as discovery
 input rather than a final answer. Inspect matching-Specialty packages first,
 then perform a bounded omission pass through other current-cohort packages that
@@ -240,6 +267,8 @@ turn this authoring order into runtime scoring, a package registry, or a
 named-Agent decision table.
 
 #### Drive Disc Inspection Routing
+
+**Rule ID:** `SW-006`
 
 A 4-piece Disc needs a material core effect; a 2-piece needs a competitive
 complement beside a different 4-piece; a main stat must be legal and survive
@@ -309,6 +338,8 @@ Electro and Astral Voice admission and non-stacking holder allocation remain
 the separate operation-aware passes defined below.
 
 #### Effective Substat Candidate Gate
+
+**Rule ID:** `SW-007`
 
 Main-stat and effective-substat candidates begin from the Agent's direction,
 roles, formulas, and current Agent sources. Do not re-derive the whole candidate
@@ -480,6 +511,8 @@ choices and opportunity costs are applied.
 
 ### Competitive Candidate Set
 
+**Rule ID:** `SW-008`
+
 Candidate membership is product policy, not runtime ranking. A candidate remains
 only when its whole usable package creates a material choice. Limited ownership,
 accessibility, stat or modifier balance, thresholds, caps, operation, or a
@@ -552,6 +585,8 @@ counts.
 
 ### Prepared Starting Setup
 
+**Rule ID:** `SW-009`
+
 Preparation supplies one deterministic first choice from the current effective
 candidates for the Agent, Mindscape, party, focus, and availability pool. It
 chooses a W-Engine and Rank-default refinement, a 4-piece set, a different
@@ -610,6 +645,8 @@ incomplete until the user repairs it or authorized preparation rebuilds it.
 
 ### W-Engine Availability Pools
 
+**Rule ID:** `SW-010`
+
 - **full pool** includes every admitted W-Engine, including limited S-Rank;
 - **non-limited pool** excludes limited S-Rank while retaining admitted non-
   limited S-Rank and A-Rank engines.
@@ -628,6 +665,8 @@ prepared setup for the target pool, including zero effective-substat counts.
 The initial product keeps no separate edited setup for each pool.
 
 ### Complete Setup Selection
+
+**Rule ID:** `SW-011`
 
 A setup is complete only when it has selected Mindscape and pool, one W-Engine
 and refinement, different Drive Disc 4-piece and 2-piece sets, legal Slot 4/5/6
@@ -673,6 +712,8 @@ cleared together. Preparing or repairing only one affected Agent does not
 restore Result while another required selection remains incomplete.
 
 ## Party Context And Recipient Distribution
+
+**Rule ID:** `SW-012`
 
 The user selects three distinct admitted Agents. Exactly one focus-eligible
 member is selected automatically; multiple require user choice; none leaves the
@@ -724,6 +765,8 @@ enabled rather than combat baseline. One source may contribute different clauses
 to different surfaces.
 
 ### Observable Result Information
+
+**Rule ID:** `SW-013`
 
 For each complete setup, Result visually exposes current inputs and candidates;
 setting-relevant stats and modifier regions; atomic amounts with concise source
@@ -804,6 +847,8 @@ Calculations use decimal precision and presentation rounding never feeds back.
 
 ## Fully Enabled Party Window
 
+**Rule ID:** `SW-014`
+
 This is a setting-tuning surface, not a rotation or damage simulator. Include a
 condition only when compatible, intentionally activatable, reachable, and
 Result-changing. Difficulty, duration, maintenance, frequency, and rotation
@@ -823,6 +868,8 @@ highest reachable value per recipient, preserving equal applied origins for
 numeric breakdown. Do not model sequential replacement.
 
 ## Static Preparation And Dynamic Session
+
+**Rule ID:** `SW-015`
 
 Static preparation owns completed facts, direction, roles, focus eligibility,
 candidate policy, authored first choices, bounded predicates, and availability.
@@ -859,6 +906,8 @@ committed value on blur or Enter. Result recalculation does not move focus or
 replace the user's valid selection inside the control.
 
 ## User Flow Contract
+
+**Rule ID:** `SW-016`
 
 Party editing creates a draft without changing the applied party, focus,
 setups, or Result. The applied Result remains visible while the user changes
