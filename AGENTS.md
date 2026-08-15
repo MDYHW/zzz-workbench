@@ -38,6 +38,67 @@ learnings with searchable YAML frontmatter such as `module`, `tags`, and
 `problem_type`. These records are relevant when similar work recurs, but they
 do not become product authorities.
 
+## Authority-Change And Trace Governance
+
+The rule in this section governs repository transactions. It is not a sixth
+permanent product or game authority and cannot supply a product conclusion.
+
+**Governance Rule ID:** `GOV-001`
+
+The `GOV-###` namespace belongs to repository governance in this file. Allocate
+its numbers monotonically and never reuse one. A wording clarification that
+preserves the transaction keeps its identifier. A split, merge, replacement,
+or retirement reserves the old identifier under a local `Retired Governance
+Rule IDs` heading and allocates new identifiers to the resulting current
+transactions.
+
+When current permanent authority cannot decide a required product meaning:
+
+1. Stop dependent requirement, plan, production, test, and audit-completion
+   work. A current implementation, test, review, or user approval of dependent
+   code cannot fill the missing owner.
+2. Open one Authority Change Record for one decision using
+   `docs/authority-changes/README.md`. Its protected PR contains ACR files only;
+   it does not amend a permanent owner or dependent artifact.
+3. Independently reconstruct the existing owner rule, exact current consumer,
+   nearest similar case, contrast, impact, and proposed change. The ACR remains
+   subordinate decision history and does not become current meaning.
+4. Record the product owner's accepted or rejected outcome on the latest ACR
+   revision and obtain fresh owner approval before merging that record. A
+   proposed, rejected, or stale record authorizes no authority amendment.
+5. After an accepted ACR is merged, amend only the affected permanent owner in
+   a separate protected PR. That PR cites the immutable accepted record and
+   contains no requirements, plans, production code, tests, or audit completion.
+6. Only after the owner amendment merges may later bounded changes correct
+   subordinate requirements, implementation, and tests. Their verification
+   proves fidelity to the already-current owner rather than validating the
+   owner change.
+
+The ACR state machine and post-merge mutation boundary have one owner:
+`docs/authority-changes/README.md`. This rule owns the transaction ordering but
+does not duplicate or redefine those record transitions.
+
+Every new or re-audited high-risk conclusion carries this structured trace in
+the PR description rather than in a repository answer catalogue:
+
+- change classification and any protected reason;
+- owning stable Rule ID or IDs;
+- exact current consumer paths and symbols;
+- nearest similar current case and contrasting current case;
+- bounded candidate or prepared consequence;
+- pressure, allocation, or direct-edit lifecycle when applicable, or why it is
+  not applicable;
+- visible Setup or Result consequence; and
+- behavior verification plus any prerequisite accepted ACR and owner-amendment
+  references.
+
+Independent semantic-review evidence stays outside the proposed diff and binds
+the PR number, reviewed base SHA, head SHA, diff digest, traced Rule IDs, and
+consumer paths. CI may validate that evidence's provenance, shape, and
+freshness; it cannot establish that the semantic conclusion is correct. The
+compact recovery index stores only cohort scope, status, mechanism manifest
+digest, accepted merged PR/SHA references, and its own PR number.
+
 ## Controller Re-grounding And Authoring
 
 A controller refresh is accepted only when it demonstrates operational use of
