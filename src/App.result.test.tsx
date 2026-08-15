@@ -849,4 +849,56 @@ describe('integrated party workbench: result', () => {
       name: 'Target Stun DMG Multiplier',
     })).toHaveValue('200')
   }, 10_000)
+
+  it('renders Grace stats, exact anomaly outcomes, and the conditional Timeweaver gauge', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', {
+        name: new RegExp(`Replace slot ${slot},`),
+      }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Grace Howard, Electric, Anomaly/)
+    await replace(2, /Ben Bigger, Fire, Defense/)
+    await replace(3, /Billy Kid, Physical, Attack/)
+    await user.click(screen.getByRole('radio', { name: 'Grace Howard' }))
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    const result = screen.getByRole('region', { name: 'Grace Howard Result' })
+    for (const metricName of [
+      'ATK', 'Anomaly Proficiency', 'Anomaly Mastery',
+      'DMG Bonus', 'Anomaly DMG Bonus', 'Anomaly Buildup Bonus', 'PEN Ratio',
+    ]) expect(within(result).getByRole('button', { name: metricName })).toBeInTheDocument()
+    expect(within(result).getByRole('rowheader', { name: 'Energy Regen' }))
+      .toBeInTheDocument()
+
+    await user.click(within(result).getByRole('button', {
+      name: 'Anomaly Proficiency',
+    }))
+    expect(within(result).getByRole('group', {
+      name: /Fully Enabled Anomaly Proficiency: current 283, cap 375, threshold 375; Disorder DMG Bonus: [+]0[.]0%/,
+    })).toBeInTheDocument()
+
+    await user.click(within(result).getByRole('button', {
+      name: 'Anomaly DMG Bonus',
+    }))
+    const anomalyDamage = within(result).getByRole('table', {
+      name: 'Anomaly DMG Bonus action outcome values',
+    })
+    expect(within(anomalyDamage).getByText('Shock')).toBeInTheDocument()
+    expect(within(anomalyDamage).queryByText('Disorder')).not.toBeInTheDocument()
+
+    await user.click(within(result).getByRole('button', {
+      name: 'Anomaly Buildup Bonus',
+    }))
+    const buildup = within(result).getByRole('table', {
+      name: 'Anomaly Buildup Bonus action outcome values',
+    })
+    expect(within(buildup).getByText('Special Attack')).toBeInTheDocument()
+    expect(within(buildup).getByText('EX Special Attack')).toBeInTheDocument()
+    expect(within(result).queryByText(/Abloom|final anomaly damage/i)).not.toBeInTheDocument()
+  }, 10_000)
 })

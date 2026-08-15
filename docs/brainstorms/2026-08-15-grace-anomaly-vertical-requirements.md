@@ -182,10 +182,14 @@ preserving the current three-surface Result grammar.
 
 - R23. Preparation remains authored candidates, contextual candidates, holder
   allocation, selected-input pressure, mains/effective substats, then zero
-  initialization. Grace adds no contextual candidate or selected-pressure pass.
-  Her same-effect AP pair follows the existing selected-four-piece
-  present/absent/reselected lifecycle, clearing invalid direct selections
-  without fallback and never restoring prior history.
+  initialization. Grace adds no new pressure kind, but the established broad
+  pre-PEN DEF-bypass pressure applies because `anomaly_damage` consumes the same
+  DEF/PEN region: it removes Puffer and Slot 5 PEN, and a newly prepared Grace
+  uses Freedom Blues plus Electric DMG. Pressure removal restores candidate
+  membership, not a prior direct selection; reapplication clears a newly
+  invalid selection without fallback. Her Freedom/Chaos AP pair independently
+  follows the selected-four-piece present/absent/reselected lifecycle and never
+  restores prior history.
 - R24. Grace's Additional Ability and Timeweaver Disorder opportunity observe
   the applied party only after Party Apply. Party changes rebuild all three
   setups; Grace Mindscape or pool changes rebuild only Grace. Result-only
@@ -223,8 +227,9 @@ preserving the current three-surface Result grammar.
   Practiced's partial package, Fusion's full package, and an inactive-specialty
   contrast remain visible without broadening Result.
 - AE4. Shared flow tests traverse prepared full/non-limited setups, direct Disc
-  identity selection, selection clearing, party Apply, changed-Agent-only
-  rebuild, and one unaffected current general-damage consumer.
+  identity selection, broad pre-PEN pressure present/absent/reselected,
+  selection clearing, party Apply, changed-Agent-only rebuild, and one
+  unaffected current general-damage consumer.
 - AE5. UI tests prove new metric labels, action outcomes, gauge accessibility,
   selected/candidate package parity, incomplete Result, and no final-damage or
   anomaly-history surface.

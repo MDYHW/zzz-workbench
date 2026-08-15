@@ -968,4 +968,37 @@ describe('party-directed preparation', () => {
       engineId: 'serpentineSeeker',
     })
   })
+
+  it('prepares Grace independently by pool and composes existing broad pre-PEN pressure', () => {
+    const full = createPreparedState({}, ['grace', 'astraYao', 'anby'], 0)
+    expect(full.slots[0].setup).toEqual({
+      mindscape: 0,
+      pool: 'full',
+      engineId: 'timeweaver',
+      refinement: 1,
+      fourPieceId: 'thunderMetal',
+      twoPieceId: 'pufferElectro',
+      mains: {
+        slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'anomalyMastery',
+      },
+      substats: { anomalyProficiency: 0, atkPct: 0 },
+    })
+
+    const nonLimited = createPreparedState(
+      { grace: 'nonLimited' }, ['grace', 'astraYao', 'anby'], 0,
+    )
+    expect(nonLimited.slots[0].setup).toMatchObject({
+      pool: 'nonLimited', engineId: 'fusionCompiler', refinement: 1,
+      fourPieceId: 'thunderMetal', twoPieceId: 'pufferElectro',
+    })
+
+    const pressured = createPreparedState({}, ['grace', 'nicole', 'anby'], 0)
+    expect(pressured.slots[0].setup).toMatchObject({
+      fourPieceId: 'thunderMetal', twoPieceId: 'freedomBlues',
+      mains: {
+        slot4: 'anomalyProficiency', slot5: 'electricDmg', slot6: 'anomalyMastery',
+      },
+      substats: { anomalyProficiency: 0, atkPct: 0 },
+    })
+  })
 })

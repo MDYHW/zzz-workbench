@@ -264,6 +264,14 @@ const zhaoRepresentative = (pool: PoolId): SetupSelection => ({
   mains: { slot4: 'hpPct', slot5: 'hpPct', slot6: 'hpPct' },
 })
 
+const graceRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'timeweaver' : 'fusionCompiler',
+  fourPieceId: 'thunderMetal', twoPieceId: 'pufferElectro',
+  mains: {
+    slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'anomalyMastery',
+  },
+})
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -366,6 +374,7 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
     nonLimited: yeShunguangRepresentative('nonLimited'),
   },
   zhao: { full: zhaoRepresentative('full'), nonLimited: zhaoRepresentative('nonLimited') },
+  grace: { full: graceRepresentative('full'), nonLimited: graceRepresentative('nonLimited') },
 }
 
 export function representativeSetupFor(

@@ -60,6 +60,8 @@ export type EffectMetric =
   | 'stunDmgMultiplier' | 'energyRegen' | 'stunDuration'
   | 'penRatio' | 'defIgnore' | 'resReduction' | 'defReduction' | 'shieldEffect'
   | 'dmgTaken'
+  | 'anomalyProficiency' | 'anomalyMastery' | 'anomalyDmgBonus'
+  | 'anomalyBuildupBonus' | 'anomalyBuildupResReduction'
 
 export type Recipient = 'self' | 'focus' | 'all-party' | 'other-party' | 'enemy-context'
 export type CandidatePressure = 'materialBroadPrePenDefBypass'
@@ -163,7 +165,17 @@ export function clauseAppliesToContext(
   ) return false
   if (clause.attributes && !clause.attributes.includes(context.attribute)) return false
   const formulas = clause.formulas
-  if (formulas && !context.formulas.some((formula) => formulas.includes(formula))) return false
+  const anomalyDamageConsumesMetric = context.formulas.includes('anomaly_damage')
+    && formulas?.includes('general_damage')
+    && [
+      'atk', 'dmgBonus', 'penRatio', 'defIgnore', 'defReduction',
+      'resIgnore', 'resReduction', 'stunDmgMultiplier', 'dmgTaken',
+    ].includes(clause.metric)
+  if (
+    formulas
+    && !context.formulas.some((formula) => formulas.includes(formula))
+    && !anomalyDamageConsumesMetric
+  ) return false
   return true
 }
 
@@ -342,6 +354,11 @@ export const STATIC_SOURCES = {
     finalVerdict: source(SOURCE_LABELS.zhaoBasic, 'zhao', 'special', 'Final Verdict · Maximum charge'),
     critCap: source('Displayed CRIT Rate cap', 'zhao', 'calculation'),
   },
+  grace: {
+    core: source(SOURCE_LABELS.graceCore, 'grace', 'core'),
+    additional: source(SOURCE_LABELS.graceAbility, 'grace', 'additional'),
+    potential: source(SOURCE_LABELS.gracePotential, 'grace', 'identity'),
+  },
 } as const
 
 export const mindscapeSource = (
@@ -434,7 +451,7 @@ export function mainStatInput(
   return selectedStatId === statId
     ? {
       rawValue: MAIN_STATS[selectedStatId].numericValue,
-      unit: '%',
+      unit: MAIN_STATS[selectedStatId].unit ?? '%',
       source: mainSource(agentId, slot),
     }
     : undefined

@@ -221,4 +221,36 @@ describe('contextual Disc candidates', () => {
     expect(effectiveMainStatIds(withNicole, 0, 'slot5')).toEqual(['etherDmg', 'atkPct'])
     expect(effectiveMainStatIds(ruptureContrast, 0, 'slot5')).toEqual(['etherDmg', 'hpPct'])
   })
+
+  it('keeps Grace same-effect AP identity and broad pressure lifecycles independent', () => {
+    let state = createPreparedState({}, ['grace', 'astraYao', 'anby'], 0)
+    expect(effectiveTwoPieceIds(state, 0)).toContain('freedomBlues')
+    expect(effectiveTwoPieceIds(state, 0)).not.toContain('chaosJazz')
+    expect(effectiveTwoPieceIds(state, 0)).not.toContain('thunderMetal')
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'freedomBlues',
+    })
+    expect(effectiveTwoPieceIds(state, 0)).toContain('chaosJazz')
+    expect(effectiveTwoPieceIds(state, 0)).not.toContain('freedomBlues')
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'chaosJazz',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'thunderMetal',
+    })
+    expect(state.slots[0].setup.twoPieceId).toBeNull()
+    expect(effectiveTwoPieceIds(state, 0)).toContain('freedomBlues')
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'freedomBlues',
+    })
+    expect(effectiveTwoPieceIds(state, 0)).toContain('chaosJazz')
+    expect(state.slots[0].setup.twoPieceId).toBeNull()
+
+    const pressured = createPreparedState({}, ['grace', 'nicole', 'anby'], 0)
+    expect(effectiveTwoPieceIds(pressured, 0)).not.toContain('pufferElectro')
+    expect(effectiveMainStatIds(pressured, 0, 'slot5')).toEqual(['electricDmg', 'atkPct'])
+    expect(effectiveSubstatChoicesForSlot(pressured, 0).map(({ id }) => id))
+      .toEqual(['anomalyProficiency', 'atkPct'])
+  })
 })

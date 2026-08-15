@@ -18,6 +18,9 @@ import woodpeckerImage from '../../assets/equipment/drive-discs/woodpecker-elect
 import yunkuiImage from '../../assets/equipment/drive-discs/yunkui-tales.webp'
 import protoPunkImage from '../../assets/equipment/drive-discs/proto-punk.webp'
 import whiteWaterBalladImage from '../../assets/equipment/drive-discs/white-water-ballad.webp'
+import chaosJazzImage from '../../assets/equipment/drive-discs/chaos-jazz.webp'
+import freedomBluesImage from '../../assets/equipment/drive-discs/freedom-blues.webp'
+import phaethonsMelodyImage from '../../assets/equipment/drive-discs/phaethons-melody.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -189,6 +192,43 @@ export const DRIVE_DISC_FACTS = {
       attackVeilAtk: { modifier: 'atk', unit: '%', value: 10 },
     },
   },
+  chaosJazz: {
+    twoPiece: {
+      anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: 30 },
+    },
+    fourPiece: {
+      electricFireDamage: {
+        modifier: 'dmgBonus', unit: '%', value: 15,
+        scope: { attributes: ['Electric', 'Fire'] },
+      },
+      offFieldActionDamage: {
+        modifier: 'dmgBonus', unit: '%', value: 20,
+        scope: { actions: ['EX Special Attack', 'Assist'] },
+      },
+    },
+  },
+  freedomBlues: {
+    twoPiece: {
+      anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: 30 },
+    },
+    fourPiece: {
+      buildupResReduction: {
+        modifier: 'anomalyBuildupResReduction', unit: '%', value: 20,
+      },
+    },
+  },
+  phaethonsMelody: {
+    twoPiece: {
+      anomalyMastery: { modifier: 'anomalyMastery', unit: '%', value: 8 },
+    },
+    fourPiece: {
+      anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: 45 },
+      otherHolderEtherDamage: {
+        modifier: 'dmgBonus', unit: '%', value: 25,
+        scope: { attributes: ['Ether'] },
+      },
+    },
+  },
 } as const satisfies Record<DiscId, DriveDiscFacts>
 
 /** Exact authored piece and effect fields for one admitted Drive Disc. */
@@ -320,6 +360,29 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
       `Attack holder activates or extends Ether Veil · ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.attackVeilAtk)}%`,
     ],
   },
+  chaosJazz: {
+    id: 'chaosJazz', name: 'Chaos Jazz', image: chaosJazzImage,
+    twoPieceEffect: `Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.twoPiece.anomalyProficiency)}`,
+    fourPieceEffects: [
+      `Fire & Electric DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.electricFireDamage)}%`,
+      `Off-field EX Special & Assist DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage)}% · Continues 5s on-field`,
+    ],
+  },
+  freedomBlues: {
+    id: 'freedomBlues', name: 'Freedom Blues', image: freedomBluesImage,
+    twoPieceEffect: `Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.twoPiece.anomalyProficiency)}`,
+    fourPieceEffects: [
+      `EX Special hit · Matching-Attribute Anomaly Buildup RES -${equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction)}% · Non-stacking by Attribute`,
+    ],
+  },
+  phaethonsMelody: {
+    id: 'phaethonsMelody', name: "Phaethon's Melody", image: phaethonsMelodyImage,
+    twoPieceEffect: `Anomaly Mastery +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.twoPiece.anomalyMastery)}%`,
+    fourPieceEffects: [
+      `Any squad EX Special · Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.anomalyProficiency)}`,
+      `Other holder EX Special · Ether DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.otherHolderEtherDamage)}%`,
+    ],
+  },
 }
 
 export const SAME_EFFECT_TWO_PIECE_RELATIONSHIPS = [
@@ -327,6 +390,7 @@ export const SAME_EFFECT_TWO_PIECE_RELATIONSHIPS = [
   { members: ['swingJazz', 'moonlight'], canonical: 'swingJazz' },
   { members: ['whiteWaterBallad', 'fangedMetal'], canonical: 'whiteWaterBallad' },
   { members: ['bunnyInWonderland', 'yunkui'], canonical: 'bunnyInWonderland' },
+  { members: ['freedomBlues', 'chaosJazz'], canonical: 'freedomBlues' },
 ] as const satisfies readonly {
   members: readonly [DiscId, DiscId]
   canonical: DiscId
@@ -439,5 +503,12 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
   zhao: {
     fourPiece: ['bunnyInWonderland', 'astralVoice', 'swingJazz'],
     twoPiece: ['bunnyInWonderland', 'yunkui', 'swingJazz', 'moonlight', 'astralVoice', 'hormonePunk'],
+  },
+  grace: {
+    fourPiece: ['thunderMetal', 'chaosJazz', 'freedomBlues'],
+    twoPiece: [
+      'pufferElectro', 'phaethonsMelody', 'freedomBlues', 'chaosJazz',
+      'hormonePunk', 'astralVoice',
+    ],
   },
 }

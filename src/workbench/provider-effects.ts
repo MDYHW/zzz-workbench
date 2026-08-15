@@ -196,6 +196,11 @@ import {
   resolveZhaoProviderClauses,
   type ZhaoCalculationContext,
 } from './calculation/agents/zhao'
+import {
+  observeGrace,
+  resolveGraceProviderClauses,
+  type GraceCalculationContext,
+} from './calculation/agents/grace'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -235,6 +240,7 @@ export type ProviderContext =
   | CaesarCalculationContext
   | YeShunguangCalculationContext
   | ZhaoCalculationContext
+  | GraceCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -419,6 +425,15 @@ function observeProviderContext(
         slot.setup,
         anotherHasSpecialty(['Attack', 'Anomaly', 'Support']),
       )
+    case 'grace':
+      return observeGrace(
+        slot.setup,
+        anotherSharesAttribute || anotherSharesFaction || anotherHasSpecialty(['Anomaly']),
+        state.slots.some(({ agentId }, index) => (
+          index !== providerIndex
+          && ADMITTED_AGENTS.find(({ id }) => id === agentId)!.attribute !== 'Electric'
+        )),
+      )
     default:
       return assertNever(slot.agentId)
   }
@@ -512,6 +527,8 @@ function providerClauses(
       return resolveYeShunguangProviderClauses(context)
     case 'zhao':
       return resolveZhaoProviderClauses(context)
+    case 'grace':
+      return resolveGraceProviderClauses(context)
     default:
       return assertNever(context)
   }
@@ -521,15 +538,15 @@ function isAttackAgent(agentId: AgentId): boolean {
   return ADMITTED_AGENTS.find(({ id }) => id === agentId)?.specialty === 'Attack'
 }
 
-function isGeneralDamageAgent(agentId: AgentId): boolean {
+function isPrePenDamageAgent(agentId: AgentId): boolean {
   const participation = SETUP_FORMULA_PARTICIPATION_BY_AGENT[agentId]
   return [...participation.primary, ...participation.residual]
-    .includes('general_damage')
+    .some((formula) => formula === 'general_damage' || formula === 'anomaly_damage')
 }
 
-function isElectricGeneralDamageAgent(agentId: AgentId): boolean {
+function isElectricPrePenDamageAgent(agentId: AgentId): boolean {
   const agent = ADMITTED_AGENTS.find(({ id }) => id === agentId)
-  return agent?.attribute === 'Electric' && isGeneralDamageAgent(agentId)
+  return agent?.attribute === 'Electric' && isPrePenDamageAgent(agentId)
 }
 
 export function resolveSeedVanguard(
@@ -640,11 +657,11 @@ export function activeCandidatePressures(
   recipientSlot: AppliedSlot,
 ): NonNullable<SourceBoundCurrentClause['candidatePressure']>[] {
   const recipientAgentId = state.slots[recipientSlot].agentId
-  const hasCissiaCore = isElectricGeneralDamageAgent(recipientAgentId)
+  const hasCissiaCore = isElectricPrePenDamageAgent(recipientAgentId)
     && state.slots.some(({ agentId }) => agentId === 'cissia')
-  const hasNicoleCore = isGeneralDamageAgent(recipientAgentId)
+  const hasNicoleCore = isPrePenDamageAgent(recipientAgentId)
     && state.slots.some(({ agentId }) => agentId === 'nicole')
-  const hasSpectralGaze = isGeneralDamageAgent(recipientAgentId)
+  const hasSpectralGaze = isPrePenDamageAgent(recipientAgentId)
     && state.slots.some(({ agentId, setup }) => (
       agentId === 'trigger' && setup.engineId === 'spectralGaze'
     ))
@@ -653,7 +670,7 @@ export function activeCandidatePressures(
     state,
     recipientSlot,
   )
-  const hasQingyiM1 = isGeneralDamageAgent(recipientAgentId)
+  const hasQingyiM1 = isPrePenDamageAgent(recipientAgentId)
     && state.slots.some(({ agentId, setup }) => (
       agentId === 'qingyi' && setup.mindscape >= 1
     ))
@@ -669,7 +686,7 @@ function selectedEngineHasBroadPrePenPressure(
   recipientSlot: AppliedSlot,
 ): boolean {
   const { agentId, setup } = state.slots[recipientSlot]
-  if (!isGeneralDamageAgent(agentId) || !setup.engineId) return false
+  if (!isPrePenDamageAgent(agentId) || !setup.engineId) return false
   const effects = W_ENGINE_FACTS[setup.engineId].effects as EquipmentEffectCollection
   const attribute = ADMITTED_AGENTS.find(({ id }) => id === agentId)!.attribute
   // Myriad's DEF Ignore requires Ice damage, independent of the holder identity.
@@ -690,7 +707,7 @@ export function hasSeedM2CandidatePressure(
   const recipientAgentId = state.slots[recipientSlot].agentId
   const seed = state.slots.find(({ agentId }) => agentId === 'seed')
   const seedVanguard = resolveSeedVanguardForState(state)
-  return isGeneralDamageAgent(recipientAgentId) && Boolean(
+  return isPrePenDamageAgent(recipientAgentId) && Boolean(
     seed
       && seed.setup.mindscape >= 2
       && seedVanguard

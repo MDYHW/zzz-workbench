@@ -377,6 +377,19 @@ export const VERTICAL_VALUES = {
     finalVerdictMaxHp: 120,
     mindscapeFinalVerdictMaxHp: 168,
   },
+  grace: {
+    atk: 825,
+    anomalyProficiency: 116,
+    anomalyMastery: 151,
+    baseEnergyRegen: 1.2,
+    coreAnomalyBuildup: 130,
+    additionalShockDmgPerStack: 18,
+    additionalShockDmgStacks: 2,
+    potentialElectricDmg: 30,
+    mindscapeElectricResReduction: 8.5,
+    mindscapeElectricBuildupResReduction: 8.5,
+    mindscapeGrenadeDmgMultiplier: 2,
+  },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [
@@ -472,5 +485,8 @@ export const SOURCE_LABELS = {
   zhaoCore: SOURCE_CATEGORY_LABELS.corePassive,
   zhaoAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   zhaoBasic: 'Basic Attack',
+  graceCore: SOURCE_CATEGORY_LABELS.corePassive,
+  graceAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  gracePotential: 'Potential Awakening',
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const

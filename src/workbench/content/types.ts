@@ -40,6 +40,7 @@ export type AgentId =
   | 'caesar'
   | 'yeShunguang'
   | 'zhao'
+  | 'grace'
 
 export type AgentRank = 'S' | 'A'
 export type AgentFaction =
@@ -115,6 +116,11 @@ export type EngineId =
   | 'originalTransmorpher'
   | 'streetSuperstar'
   | 'halfSugarBunny'
+  | 'timeweaver'
+  | 'practicedPerfection'
+  | 'fusionCompiler'
+  | 'electroLipGloss'
+  | 'weepingGemini'
 
 export type DiscId =
   | 'yunkui'
@@ -137,6 +143,9 @@ export type DiscId =
   | 'chaoticMetal'
   | 'protoPunk'
   | 'whiteWaterBallad'
+  | 'chaosJazz'
+  | 'freedomBlues'
+  | 'phaethonsMelody'
 
 export type MainSlot = 'slot4' | 'slot5' | 'slot6'
 
@@ -154,6 +163,8 @@ export type MainStatId =
   | 'fireDmg'
   | 'iceDmg'
   | 'defPct'
+  | 'anomalyProficiency'
+  | 'anomalyMastery'
 
 export type SubstatId =
   | 'critRate'
@@ -163,12 +174,13 @@ export type SubstatId =
   | 'atkPct'
   | 'atkFlat'
   | 'defPct'
+  | 'anomalyProficiency'
 
 export interface AdvancedStat {
-  id: 'hpPct' | 'atkPct' | 'defPct' | 'critRate' | 'critDmg' | 'impactPct' | 'energyRegenPct' | 'penRatio'
+  id: 'hpPct' | 'atkPct' | 'defPct' | 'critRate' | 'critDmg' | 'impactPct' | 'energyRegenPct' | 'penRatio' | 'anomalyProficiency'
   label: string
   value: number
-  unit: '%'
+  unit: '%' | ''
 }
 
 export type RefinementValues = readonly [number, number, number, number, number]
@@ -178,6 +190,8 @@ export type EquipmentEffectModifier =
   | 'dmgBonus' | 'sheerDmgBonus' | 'dazeBonus' | 'energy' | 'energyRegen'
   | 'penRatio' | 'defIgnore' | 'defReduction' | 'resIgnore' | 'shieldEffect'
   | 'damageTakenReduction' | 'energyGenerationRate' | 'guaranteedCrit' | 'defDamage'
+  | 'anomalyProficiency' | 'anomalyMastery' | 'anomalyDmgBonus'
+  | 'anomalyBuildupBonus' | 'anomalyBuildupResReduction'
 
 export type EquipmentEffectAttribute = 'Electric' | 'Ether' | 'Fire' | 'Ice' | 'Physical'
 
@@ -187,7 +201,9 @@ export type EquipmentEffectAction =
   | 'Basic Attack'
   | 'Dash Attack'
   | 'Dodge Counter'
+  | 'Special Attack'
   | 'EX Special Attack'
+  | 'Assist'
   | 'Chain Attack'
   | 'Ultimate'
   | 'Assist Follow-Up'
@@ -275,6 +291,7 @@ export interface MainStatChoice {
   id: MainStatId
   label: string
   numericValue: number
+  unit?: '%' | ''
 }
 
 export interface SubstatChoice {
@@ -392,4 +409,5 @@ export const equipmentEffectMaximumValue = (
 
 export const defaultRefinementFor = (rank: EngineRank): Refinement => rank === 'S' ? 1 : 5
 
-export const mainStatDisplay = (numericValue: number): string => `+${numericValue}%`
+export const mainStatDisplay = (numericValue: number, unit: '%' | '' = '%'): string =>
+  `+${numericValue}${unit}`

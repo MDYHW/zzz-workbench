@@ -49,6 +49,7 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   caesar: { primary: ['daze_buildup'], residual: ['general_damage'] },
   yeShunguang: { primary: ['general_damage'], residual: [] },
   zhao: { primary: [], residual: ['general_damage'] },
+  grace: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: [] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -69,6 +70,12 @@ export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
   fireDmg: { id: 'fireDmg', label: 'Fire DMG', numericValue: 30 },
   iceDmg: { id: 'iceDmg', label: 'Ice DMG', numericValue: 30 },
   defPct: { id: 'defPct', label: 'DEF%', numericValue: 48 },
+  anomalyProficiency: {
+    id: 'anomalyProficiency', label: 'Anomaly Proficiency', numericValue: 92, unit: '',
+  },
+  anomalyMastery: {
+    id: 'anomalyMastery', label: 'Anomaly Mastery', numericValue: 30,
+  },
 }
 
 export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
@@ -233,6 +240,11 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot5: ['hpPct'],
     slot6: ['hpPct', 'energyRegenPct'],
   },
+  grace: {
+    slot4: ['anomalyProficiency', 'atkPct'],
+    slot5: ['penRatio', 'electricDmg', 'atkPct'],
+    slot6: ['anomalyMastery'],
+  },
 }
 
 /** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
@@ -245,6 +257,7 @@ export const PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE: Partial<
   zhuYuan: 'atkPct',
   nekomata: 'atkPct',
   billy: 'atkPct',
+  grace: 'electricDmg',
 }
 
 /** Authored whole-package replacement when the selected 2-piece loses its distinct axis. */
@@ -252,6 +265,7 @@ export const PREPARED_TWO_PIECE_BY_BROAD_PRE_PEN_PRESSURE: Partial<
   Record<AgentId, DiscId>
 > = {
   nekomata: 'branchAndBlade',
+  grace: 'freedomBlues',
 }
 
 export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
@@ -394,6 +408,10 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   zhao: [
     { id: 'hpPct', label: 'HP%', perHit: 3, unit: '%' },
     { id: 'hpFlat', label: 'HP', perHit: 112, unit: '' },
+  ],
+  grace: [
+    { id: 'anomalyProficiency', label: 'Anomaly Proficiency', perHit: 9, unit: '' },
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
   ],
 }
 

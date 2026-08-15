@@ -117,8 +117,9 @@ candidates, same-effect identity, and pool-local prepared starts.
   complete accessible copy, including unused clauses.
 - Add Freedom/Chaos to the current same-effect identity mechanism and prepare
   Thunder/Puffer with AP/PEN/AM and zero AP/ATK counts in both pools.
-- Keep candidate membership static; no new contextual or selected-pressure pass
-  is introduced.
+- Reuse the existing broad pre-PEN pressure for Grace's anomaly-damage DEF/PEN
+  consumer, with Freedom/Electric DMG as the prepared replacement package; do
+  not introduce a new pressure kind.
 
 **Test scenarios:**
 - Happy path: full and non-limited pools expose exact candidates and prepare
@@ -127,6 +128,9 @@ candidates, same-effect identity, and pool-local prepared starts.
   usable/unused W-Engine and Disc clauses.
 - Edge: Freedom/Chaos selected-four-piece lifecycle exposes only the legal
   complement and clears an invalid direct selection without fallback.
+- Integration: broad pre-PEN pressure prepares Freedom/Electric DMG, removal
+  restores Puffer/PEN membership without history, and reapplication clears an
+  invalid direct selection without fallback.
 - Contrast: Thunder 2-piece remains absent for Grace while current Electric
   general-damage candidates remain unchanged.
 
@@ -196,9 +200,9 @@ without adding new generic interaction structure.
 - Modify: `src/components/agentPortraits.ts`
 
 **Approach:**
-- Traverse pool changes, direct exact-identity edits, invalid clearing, party
-  Apply qualification, changed-Agent-only preparation, and incomplete Result in
-  current shared flows.
+- Traverse pool changes, direct exact-identity edits, broad pre-PEN pressure
+  present/absent/reselected, invalid clearing, party Apply qualification,
+  changed-Agent-only preparation, and incomplete Result in current shared flows.
 - Assert AP/AM and anomaly modifier labels, Shock/Disorder action disclosure,
   accessible Timeweaver gauge, and absence of final-damage/history surfaces.
 - Inspect the original Grace portrait and calibrate scale, then head-top, then

@@ -37,6 +37,7 @@ import anbyPortrait from '../assets/agents/portraits/anby.webp'
 import caesarPortrait from '../assets/agents/portraits/caesar.webp'
 import yeShunguangPortrait from '../assets/agents/portraits/ye-shunguang.webp'
 import zhaoPortrait from '../assets/agents/portraits/zhao.webp'
+import gracePortrait from '../assets/agents/portraits/grace.webp'
 
 export const AGENT_PORTRAITS: Record<AgentId, string> = {
   yixuan: yixuanPortrait,
@@ -76,6 +77,7 @@ export const AGENT_PORTRAITS: Record<AgentId, string> = {
   caesar: caesarPortrait,
   yeShunguang: yeShunguangPortrait,
   zhao: zhaoPortrait,
+  grace: gracePortrait,
 }
 
 interface PortraitSource {
@@ -132,6 +134,7 @@ const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   caesar: { faceX: 56, headTopY: 6, scale: 1.1 },
   yeShunguang: { faceX: 51, headTopY: 5, scale: 1.1 },
   zhao: { faceX: 40, headTopY: 22, scale: 1.1 },
+  grace: { faceX: 51, headTopY: 7, scale: 1 },
 }
 
 export function portraitSourceStyle(agentId: AgentId): PortraitSourceStyle {

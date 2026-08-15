@@ -559,7 +559,7 @@ function MainStatSelection({
       <small className="main-stat-block__slot">DISC {mainSlot.replace('slot', '')}</small>
       <span className="main-stat-block__details">
         <span>{selected.label}</span>
-        <strong>{mainStatDisplay(selected.numericValue)}</strong>
+        <strong>{mainStatDisplay(selected.numericValue, selected.unit)}</strong>
       </span>
     </>
   )
@@ -629,7 +629,7 @@ function MainStatSelection({
                 }}
               >
                 <span>{candidate.label}</span>
-                <strong>{mainStatDisplay(candidate.numericValue)}</strong>
+                <strong>{mainStatDisplay(candidate.numericValue, candidate.unit)}</strong>
               </button>
             )
           })}
@@ -727,6 +727,7 @@ function SubstatStepper({
   unit: string
 } & SourceInteractionProps) {
   const [draft, setDraft] = useState(count === undefined ? '' : String(count))
+  const displayLabel = label === 'Anomaly Proficiency' ? 'AP' : label
 
   useEffect(() => {
     setDraft(count === undefined ? '' : String(count))
@@ -756,7 +757,7 @@ function SubstatStepper({
       {...sourceToneEvents(tone, onSourceToneChange)}
     >
       <div className="substat-copy">
-        <strong>{label}</strong>
+        <strong>{displayLabel}</strong>
         <span>+{perHit}{unit} / hit</span>
       </div>
       <div className="stepper">

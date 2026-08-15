@@ -1029,3 +1029,76 @@ describe('AgentSetup selected-pressure hit count', () => {
     expect(screen.getByLabelText('CRIT Rate hit count')).toHaveValue('0')
   })
 })
+
+describe('AgentSetup Grace Anomaly packages', () => {
+  it('keeps flat AP units and complete selected/candidate equipment copy', async () => {
+    const user = userEvent.setup()
+    const state = createPreparedState({}, ['grace', 'billy', 'nekomata'], 0)
+    const setup = state.slots[0].setup
+    render(
+      <AgentSetup
+        activeSourceTone={null}
+        agentId="grace"
+        discCandidates={DISC_IDS_BY_AGENT_AND_PIECE.grace}
+        dispatch={vi.fn()}
+        mainStatCandidates={MAIN_STAT_IDS_BY_AGENT_AND_SLOT.grace}
+        onSourceToneChange={vi.fn()}
+        setup={setup}
+        slot={0}
+      />,
+    )
+
+    expect(screen.getByRole('button', {
+      name: 'Change Disc 4 main stat from Anomaly Proficiency',
+    })).toHaveTextContent('+92')
+    expect(screen.getByRole('button', {
+      name: 'Change Disc 4 main stat from Anomaly Proficiency',
+    })).not.toHaveTextContent('+92%')
+    expect(screen.getByLabelText('Disc 6 Anomaly Mastery selected'))
+      .toHaveTextContent('+30%')
+    expect(screen.getByLabelText('Grace Howard prepared effective substats'))
+      .toHaveTextContent('AP')
+    expect(screen.getByLabelText('Anomaly Proficiency hit count'))
+      .toBeInTheDocument()
+
+    const timeweaverDescription = [
+      'ATK +30%',
+      'Electric Anomaly Buildup +30%',
+      'Special/EX against anomalied enemy · Anomaly Proficiency +75',
+      'At 375 Anomaly Proficiency · Disorder DMG +25%',
+    ].join('. ')
+    expect(screen.getByRole('button', {
+      name: 'Change W-Engine from Timeweaver',
+    })).toHaveAccessibleDescription(timeweaverDescription)
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change W-Engine from Timeweaver',
+    }))
+    const engineCandidates = screen.getByLabelText('W-Engine candidates')
+    expect(within(engineCandidates).getByRole('button', {
+      name: 'Select Practiced Perfection W1',
+    })).toHaveAccessibleDescription(
+      'ATK +30%. Anomaly Mastery +60. Inflict Assault · Physical DMG +20% per stack · 2 stacks on entry',
+    )
+    expect(within(engineCandidates).getByRole('button', {
+      name: 'Select Fusion Compiler W1',
+    })).toHaveAccessibleDescription(
+      'PEN Ratio +24%. ATK +12%. Special/EX · Anomaly Proficiency +25 per stack · Maximum +75',
+    )
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Thunder Metal',
+    }))
+    const discCandidates = screen.getByLabelText('fourPiece Drive Disc candidates')
+    expect(within(discCandidates).getByRole('button', {
+      name: 'Select Chaos Jazz as fourPiece',
+    })).toHaveAccessibleDescription(
+      'Fire & Electric DMG +15%. Off-field EX Special & Assist DMG +20% · Continues 5s on-field. Anomaly Proficiency +30',
+    )
+    expect(within(discCandidates).getByRole('button', {
+      name: 'Select Freedom Blues as fourPiece',
+    })).toHaveAccessibleDescription(
+      'EX Special hit · Matching-Attribute Anomaly Buildup RES -20% · Non-stacking by Attribute. Anomaly Proficiency +30',
+    )
+  })
+})

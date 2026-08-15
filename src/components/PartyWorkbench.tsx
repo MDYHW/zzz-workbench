@@ -12,6 +12,7 @@ import attackMark from '../assets/game/specialties/attack.webp'
 import stunMark from '../assets/game/specialties/stun.webp'
 import supportMark from '../assets/game/specialties/support.webp'
 import defenseMark from '../assets/game/specialties/defense.webp'
+import anomalyMark from '../assets/game/specialties/anomaly.webp'
 import { ADMITTED_AGENTS, type AgentId, type AgentRank } from '../workbench/content'
 import type { RequiredSetupSelection } from '../workbench/candidates'
 import type { AppliedAgentSlot, AppliedSlot } from '../workbench/state'
@@ -56,6 +57,7 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   caesar: { attribute: physicalMark, specialty: defenseMark },
   yeShunguang: { attribute: physicalMark, specialty: attackMark },
   zhao: { attribute: iceMark, specialty: defenseMark },
+  grace: { attribute: electricMark, specialty: anomalyMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {

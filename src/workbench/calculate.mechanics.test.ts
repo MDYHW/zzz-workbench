@@ -1415,4 +1415,49 @@ describe('calculateParty mechanisms', () => {
     expect(metric(unqualified, 'dmgBonus').breakdown.fully)
       .not.toContainEqual(expect.objectContaining({ ownerAgentId: 'nicole', locus: 'additional' }))
   })
+
+  it('routes broad pre-PEN damage clauses to Anomaly without admitting CRIT-only effects', () => {
+    const state = withMindscape(
+      createPreparedState({}, ['grace', 'trigger', 'anbySoldier0'], 2),
+      'trigger',
+      2,
+    )
+    const effects = resolveProviderEffects(state)
+    const graceInbox = effects.inboxes[0]
+    const anbyInbox = effects.inboxes[2]
+
+    expect(effects.enemyContext).toContainEqual(expect.objectContaining({
+      metric: 'stunDmgMultiplier',
+      source: expect.objectContaining({ ownerAgentId: 'trigger' }),
+      eligibleAgentIds: expect.arrayContaining(['grace', 'anbySoldier0']),
+    }))
+    expect(graceInbox).not.toContainEqual(expect.objectContaining({
+      metric: 'critDmg',
+      source: expect.objectContaining({ ownerAgentId: 'trigger' }),
+    }))
+    expect(anbyInbox).toContainEqual(expect.objectContaining({
+      metric: 'critDmg',
+      source: expect.objectContaining({ ownerAgentId: 'trigger' }),
+    }))
+
+    const result = calculateParty(state)!
+    expect(metric(agent(result, 'grace'), 'stunDmgMultiplier').values.fully)
+      .toBeGreaterThan(0)
+    expect(agent(result, 'grace').metrics.find(({ id }) => id === 'critDmg'))
+      .toBeUndefined()
+    expect(metric(agent(result, 'anbySoldier0'), 'critDmg').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ ownerAgentId: 'trigger' }))
+
+    const anomalyOnly = agent(calculateParty(createPreparedState(
+      {}, ['grace', 'juFufu', 'billy'], 0,
+    ))!, 'grace')
+    expect(anomalyOnly.actionModifiers.flatMap(({ outcomes }) => outcomes))
+      .not.toContainEqual(expect.objectContaining({
+        kind: 'canonical', action: 'Chain Attack',
+      }))
+    expect(anomalyOnly.actionModifiers.flatMap(({ outcomes }) => outcomes))
+      .not.toContainEqual(expect.objectContaining({
+        kind: 'canonical', action: 'Ultimate',
+      }))
+  })
 })

@@ -11,6 +11,7 @@ import {
   setSubstat,
   sourceLabels,
   withMindscape,
+  withSetup,
 } from './calculate.test-support'
 
 describe('representative calculation flows', () => {
@@ -629,5 +630,148 @@ describe('representative calculation flows', () => {
     expect(wellspringOrigins).toHaveLength(3)
     expect(wellspringOrigins.filter(({ notation }) => notation === 'equal-nonstack-origin'))
       .toHaveLength(2)
+  })
+
+  it('projects Grace pool representatives through flat AP and percentage-scaled AM', () => {
+    const fullState = createPreparedState({}, ['grace', 'billy', 'nekomata'], 0)
+    const full = agent(calculateParty(fullState)!, 'grace')
+    expect(fullState.slots[0].setup).toMatchObject({
+      engineId: 'timeweaver', refinement: 1,
+      fourPieceId: 'thunderMetal', twoPieceId: 'pufferElectro',
+      mains: {
+        slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'anomalyMastery',
+      },
+      substats: { anomalyProficiency: 0, atkPct: 0 },
+    })
+    expect(metric(full, 'anomalyProficiency').values)
+      .toEqual({ initial: 208, combat: 208, fully: 283 })
+    expect(metric(full, 'anomalyMastery').values)
+      .toEqual({ initial: 196.3, combat: 196.3, fully: 196.3 })
+    expect(metric(full, 'dmgBonus').values)
+      .toEqual({ initial: 10, combat: 10, fully: 40 })
+    expect(metric(full, 'penRatio').values)
+      .toEqual({ initial: 32, combat: 32, fully: 32 })
+    expect(action(full, 'graceSpecialExBuildup').values)
+      .toEqual({ initial: 0, combat: 30, fully: 160 })
+    expect(full.actionModifiers.find(({ id }) => id === 'graceShock')).toBeUndefined()
+    expect(metric(full, 'anomalyProficiency').gauge).toMatchObject({
+      current: 283, threshold: 375, cap: 375,
+      outputLabel: 'Disorder DMG Bonus', outputValue: 0,
+    })
+
+    const nonLimitedState = createPreparedState(
+      { grace: 'nonLimited' }, ['grace', 'billy', 'nekomata'], 0,
+    )
+    const nonLimited = agent(calculateParty(nonLimitedState)!, 'grace')
+    expect(nonLimitedState.slots[0].setup).toMatchObject({
+      engineId: 'fusionCompiler', refinement: 1,
+    })
+    expect(metric(nonLimited, 'anomalyProficiency').values.fully).toBe(283)
+    expect(metric(nonLimited, 'penRatio').values.initial).toBe(56)
+    expect(metric(nonLimited, 'atk').breakdown.combat)
+      .toContainEqual(expect.objectContaining({
+        label: 'Fusion Compiler', detail: 'W1',
+        amount: expect.closeTo(metric(nonLimited, 'atk').values.initial * .12),
+      }))
+    expect(metric(nonLimited, 'anomalyProficiency').gauge).toBeUndefined()
+  })
+
+  it('routes Grace qualification, exact Mindscapes, and the Timeweaver threshold boundary', () => {
+    const qualifiedState = createPreparedState({}, ['grace', 'ben', 'billy'], 0)
+    const qualified = agent(calculateParty(qualifiedState)!, 'grace')
+    expect(action(qualified, 'graceShock').values.fully).toBe(36)
+    expect(qualified.actionModifiers.find(({ id }) => id === 'graceDisorder'))
+      .toBeUndefined()
+
+    const exactThresholdState = withSetup(
+      selectDisc(qualifiedState, 'grace', 'twoPiece', 'freedomBlues'),
+      'grace',
+      (setup) => ({
+        ...setup,
+        substats: { ...setup.substats, anomalyProficiency: 62 / 9 },
+      }),
+    )
+    const exactThreshold = agent(calculateParty(exactThresholdState)!, 'grace')
+    expect(metric(exactThreshold, 'anomalyProficiency').gauge).toMatchObject({
+      current: 375, threshold: 375, outputValue: 25,
+    })
+    expect(action(exactThreshold, 'graceDisorder').values.fully).toBe(25)
+
+    const aboveThreshold = agent(calculateParty(setSubstat(
+      selectDisc(qualifiedState, 'grace', 'twoPiece', 'freedomBlues'),
+      'grace', 'anomalyProficiency', 7,
+    ))!, 'grace')
+    expect(metric(aboveThreshold, 'anomalyProficiency').gauge)
+      .toMatchObject({ current: 376, outputValue: 25 })
+
+    const allElectric = agent(calculateParty(createPreparedState(
+      {}, ['grace', 'anby', 'qingyi'], 0,
+    ))!, 'grace')
+    expect(action(allElectric, 'graceShock').values.fully).toBe(36)
+    expect(metric(allElectric, 'anomalyProficiency').gauge).toBeUndefined()
+    expect(allElectric.actionModifiers.find(({ id }) => id === 'graceDisorder'))
+      .toBeUndefined()
+
+    const m2 = agent(calculateParty(withMindscape(qualifiedState, 'grace', 2))!, 'grace')
+    expect(metric(m2, 'resReduction').values.fully).toBe(8.5)
+    expect(metric(m2, 'anomalyBuildupResReduction').values.fully).toBe(8.5)
+    const m6 = agent(calculateParty(withMindscape(qualifiedState, 'grace', 6))!, 'grace')
+    expect(m6.operations).toContainEqual(expect.objectContaining({
+      id: 'graceGrenadeDmgMultiplier', label: 'Special/EX grenade DMG',
+      value: 2, unit: '', presentation: 'scale', surface: 'fully',
+    }))
+    expect(JSON.stringify(m6)).not.toContain('Abloom')
+  })
+
+  it('keeps Grace alternative Anomaly W-Engine packages exact and independently useful', () => {
+    const base = createPreparedState({}, ['grace', 'billy', 'nekomata'], 0)
+
+    const practiced = agent(calculateParty(selectEngine(
+      base, 'grace', 'practicedPerfection',
+    ))!, 'grace')
+    expect(metric(practiced, 'anomalyMastery').values)
+      .toEqual({ initial: 196.3, combat: 256.3, fully: 256.3 })
+    expect(metric(practiced, 'dmgBonus').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ label: 'Practiced Perfection' }))
+
+    const electro = agent(calculateParty(selectEngine(
+      base, 'grace', 'electroLipGloss',
+    ))!, 'grace')
+    expect(metric(electro, 'anomalyProficiency').values.initial).toBe(283)
+    expect(metric(electro, 'atk').breakdown.combat)
+      .not.toContainEqual(expect.objectContaining({ label: 'Electro-Lip Gloss' }))
+    expect(metric(electro, 'atk').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Electro-Lip Gloss', detail: 'W5',
+        display: { value: 16, unit: '%', decimals: 0 },
+      }))
+    expect(metric(electro, 'dmgBonus').values.fully).toBe(65)
+
+    const weeping = agent(calculateParty(selectEngine(
+      base, 'grace', 'weepingGemini',
+    ))!, 'grace')
+    expect(metric(weeping, 'anomalyProficiency').values.fully).toBe(392)
+    expect(metric(weeping, 'anomalyProficiency').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Weeping Gemini', detail: 'W5', amount: 184,
+      }))
+
+    const chaos = agent(calculateParty(selectDisc(
+      base, 'grace', 'fourPiece', 'chaosJazz',
+    ))!, 'grace')
+    expect(metric(chaos, 'dmgBonus').values)
+      .toEqual({ initial: 0, combat: 15, fully: 45 })
+    expect(chaos.actionModifiers.filter(({ metricId }) => metricId === 'dmgBonus'))
+      .toEqual([])
+
+    const freedom = agent(calculateParty(selectDisc(
+      base, 'grace', 'fourPiece', 'freedomBlues',
+    ))!, 'grace')
+    expect(metric(freedom, 'anomalyBuildupResReduction').values.fully).toBe(20)
+
+    const phaethon = agent(calculateParty(selectDisc(
+      base, 'grace', 'twoPiece', 'phaethonsMelody',
+    ))!, 'grace')
+    expect(metric(phaethon, 'anomalyMastery').values.initial).toBeCloseTo(208.38)
   })
 })

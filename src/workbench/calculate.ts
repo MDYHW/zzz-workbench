@@ -47,10 +47,11 @@ import { calculateAnbyDemara } from './calculation/agents/anby'
 import { calculateCaesar } from './calculation/agents/caesar'
 import { calculateYeShunguang } from './calculation/agents/ye-shunguang'
 import { calculateZhao } from './calculation/agents/zhao'
+import { calculateGrace } from './calculation/agents/grace'
 import { composeMetricEffects, surfaces } from './calculation/composition'
 import type { ActionModifier, AgentResult, Contribution, PartyResult } from './calculation/result'
 import { resolveProviderEffects } from './provider-effects'
-import { ADMITTED_AGENTS } from './content'
+import { ADMITTED_AGENTS, SETUP_FORMULA_PARTICIPATION_BY_AGENT } from './content'
 
 export type { ResultSource, SourceLocus, SurfaceKey } from './effects'
 export type {
@@ -128,6 +129,11 @@ function withSharedCanonicalDamageActions(
   result: AgentResult,
   inbox: SourceBoundCurrentClause[],
 ): AgentResult {
+  const participation = SETUP_FORMULA_PARTICIPATION_BY_AGENT[result.agentId]
+  if (![...participation.primary, ...participation.residual].some((formula) => (
+    formula === 'general_damage' || formula === 'sheer_damage'
+  ))) return result
+
   const common = result.metrics.find(({ id }) => id === 'dmgBonus')
   if (!common) return result
 
@@ -358,6 +364,9 @@ export function calculateParty(
           break
         case 'zhao':
           result = calculateZhao(context, inbox, enemy)
+          break
+        case 'grace':
+          result = calculateGrace(context, inbox, enemy)
           break
         default:
           return assertNever(context)

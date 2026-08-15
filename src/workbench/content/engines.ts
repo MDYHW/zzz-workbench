@@ -52,6 +52,11 @@ import demaraBatteryMarkIIImage from '../../assets/equipment/w-engines/demara-ba
 import originalTransmorpherImage from '../../assets/equipment/w-engines/original-transmorpher.webp'
 import streetSuperstarImage from '../../assets/equipment/w-engines/street-superstar.webp'
 import halfSugarBunnyImage from '../../assets/equipment/w-engines/half-sugar-bunny.webp'
+import timeweaverImage from '../../assets/equipment/w-engines/timeweaver.webp'
+import practicedPerfectionImage from '../../assets/equipment/w-engines/practiced-perfection.webp'
+import fusionCompilerImage from '../../assets/equipment/w-engines/fusion-compiler.webp'
+import electroLipGlossImage from '../../assets/equipment/w-engines/electro-lip-gloss.webp'
+import weepingGeminiImage from '../../assets/equipment/w-engines/weeping-gemini.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -500,6 +505,62 @@ export const W_ENGINE_FACTS = {
       veilCritDamage: { modifier: 'critDmg', unit: '%', value: [30, 34.5, 39, 43.5, 48], scope: { recipient: 'squad' } },
     },
   },
+  timeweaver: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 30, unit: '%' },
+    effects: {
+      electricBuildup: {
+        modifier: 'anomalyBuildupBonus', unit: '%', value: [30, 35, 40, 45, 50],
+        scope: { attributes: ['Electric'] },
+      },
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '', value: [75, 85, 95, 105, 115],
+        scope: { actions: ['Special Attack', 'EX Special Attack'] },
+      },
+      disorderDamage: {
+        modifier: 'anomalyDmgBonus', unit: '%', value: [25, 27.5, 30, 32.5, 35],
+      },
+    },
+  },
+  practicedPerfection: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 30, unit: '%' },
+    effects: {
+      anomalyMastery: {
+        modifier: 'anomalyMastery', unit: '', value: [60, 69, 78, 87, 96],
+      },
+      physicalDamage: {
+        modifier: 'dmgBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: [20, 23, 26, 29, 32], maxStacks: 2 },
+        scope: { attributes: ['Physical'] },
+      },
+    },
+  },
+  fusionCompiler: {
+    advancedStat: { id: 'penRatio', label: 'PEN Ratio', value: 24, unit: '%' },
+    effects: {
+      atk: { modifier: 'atk', unit: '%', value: [12, 15, 18, 21, 24] },
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '',
+        progression: { kind: 'stacks', perStack: [25, 31, 37, 43, 50], maxStacks: 3 },
+        scope: { actions: ['Special Attack', 'EX Special Attack'] },
+      },
+    },
+  },
+  electroLipGloss: {
+    advancedStat: { id: 'anomalyProficiency', label: 'Anomaly Proficiency', value: 75, unit: '' },
+    effects: {
+      atk: { modifier: 'atk', unit: '%', value: [10, 11.5, 13, 14.5, 16] },
+      damage: { modifier: 'dmgBonus', unit: '%', value: [15, 17.5, 20, 22.5, 25] },
+    },
+  },
+  weepingGemini: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
+    effects: {
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '',
+        progression: { kind: 'stacks', perStack: [30, 34, 38, 42, 46], maxStacks: 4 },
+      },
+    },
+  },
 } as const satisfies Record<EngineId, WEngineFacts>
 
 /** Exact authored fields for one admitted W-Engine, derived from the fact source. */
@@ -879,6 +940,51 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `Activate or extend Ether Veil · Squad CRIT DMG +${percent(W_ENGINE_FACTS.halfSugarBunny.effects.veilCritDamage, refinement)}`,
     ],
   },
+  timeweaver: {
+    id: 'timeweaver', name: 'Timeweaver', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.timeweaver.advancedStat, image: timeweaverImage,
+    passiveSpecialty: 'Anomaly',
+    passiveLines: (refinement) => [
+      `Electric Anomaly Buildup +${percent(W_ENGINE_FACTS.timeweaver.effects.electricBuildup, refinement)}`,
+      `Special/EX against anomalied enemy · Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.timeweaver.effects.anomalyProficiency, refinement)}`,
+      `At 375 Anomaly Proficiency · Disorder DMG +${percent(W_ENGINE_FACTS.timeweaver.effects.disorderDamage, refinement)}`,
+    ],
+  },
+  practicedPerfection: {
+    id: 'practicedPerfection', name: 'Practiced Perfection', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.practicedPerfection.advancedStat, image: practicedPerfectionImage,
+    passiveSpecialty: 'Anomaly',
+    passiveLines: (refinement) => [
+      `Anomaly Mastery +${equipmentEffectBaseValue(W_ENGINE_FACTS.practicedPerfection.effects.anomalyMastery, refinement)}`,
+      `Inflict Assault · Physical DMG +${equipmentEffectProgressionIncrementValue(W_ENGINE_FACTS.practicedPerfection.effects.physicalDamage, refinement)}% per stack · 2 stacks on entry`,
+    ],
+  },
+  fusionCompiler: {
+    id: 'fusionCompiler', name: 'Fusion Compiler', rank: 'S', limited: false, baseAtk: 684,
+    advancedStat: W_ENGINE_FACTS.fusionCompiler.advancedStat, image: fusionCompilerImage,
+    passiveSpecialty: 'Anomaly',
+    passiveLines: (refinement) => [
+      `ATK +${percent(W_ENGINE_FACTS.fusionCompiler.effects.atk, refinement)}`,
+      `Special/EX · Anomaly Proficiency +${equipmentEffectProgressionIncrementValue(W_ENGINE_FACTS.fusionCompiler.effects.anomalyProficiency, refinement)} per stack · Maximum +${equipmentEffectMaximumValue(W_ENGINE_FACTS.fusionCompiler.effects.anomalyProficiency, refinement)}`,
+    ],
+  },
+  electroLipGloss: {
+    id: 'electroLipGloss', name: 'Electro-Lip Gloss', rank: 'A', limited: false, baseAtk: 594,
+    advancedStat: W_ENGINE_FACTS.electroLipGloss.advancedStat, image: electroLipGlossImage,
+    passiveSpecialty: 'Anomaly',
+    passiveLines: (refinement) => [
+      `Anomalied enemy present · ATK +${percent(W_ENGINE_FACTS.electroLipGloss.effects.atk, refinement)}`,
+      `Anomalied enemy present · DMG +${percent(W_ENGINE_FACTS.electroLipGloss.effects.damage, refinement)}`,
+    ],
+  },
+  weepingGemini: {
+    id: 'weepingGemini', name: 'Weeping Gemini', rank: 'A', limited: false, baseAtk: 594,
+    advancedStat: W_ENGINE_FACTS.weepingGemini.advancedStat, image: weepingGeminiImage,
+    passiveSpecialty: 'Anomaly',
+    passiveLines: (refinement) => [
+      `Squad inflicts Attribute Anomaly · Anomaly Proficiency +${equipmentEffectProgressionIncrementValue(W_ENGINE_FACTS.weepingGemini.effects.anomalyProficiency, refinement)} per stack · Maximum +${equipmentEffectMaximumValue(W_ENGINE_FACTS.weepingGemini.effects.anomalyProficiency, refinement)}`,
+    ],
+  },
 }
 
 const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
@@ -927,4 +1033,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
     'marcatoDesire', 'starlightEngine', 'streetSuperstar',
   ]),
   zhao: enginePools(['halfSugarBunny', 'originalTransmorpher']),
+  grace: enginePools([
+    'timeweaver', 'practicedPerfection', 'fusionCompiler', 'electroLipGloss', 'weepingGemini',
+  ]),
 }

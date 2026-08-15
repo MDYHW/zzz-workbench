@@ -1436,6 +1436,47 @@ describe('workbench state lifecycle', () => {
     expect(isCompleteWorkbench(state)).toBe(true)
   })
 
+  it('cycles Grace broad pre-PEN pressure without restoring prior direct selections', () => {
+    let state = createPreparedState({}, ['grace', 'trigger', 'anbySoldier0'], 0)
+    expect(activeCandidatePressures(state, 0)).toEqual(['materialBroadPrePenDefBypass'])
+    expect(state.slots[0].setup).toMatchObject({
+      twoPieceId: 'freedomBlues', mains: { slot5: 'electricDmg' },
+    })
+
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 1, engineId: 'restrained',
+    })
+    expect(activeCandidatePressures(state, 0)).toEqual([])
+    expect(effectiveTwoPieceIds(state, 0)).toContain('pufferElectro')
+    expect(effectiveMainStatIds(state, 0, 'slot5')).toContain('penRatio')
+    expect(state.slots[0].setup).toMatchObject({
+      twoPieceId: 'freedomBlues', mains: { slot5: 'electricDmg' },
+    })
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'pufferElectro',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'penRatio',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 1, engineId: 'spectralGaze',
+    })
+    expect(state.slots[0].setup).toMatchObject({
+      twoPieceId: null, mains: { slot5: null },
+    })
+    expect(calculateParty(state)).toBeNull()
+
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 1, engineId: 'restrained',
+    })
+    expect(effectiveTwoPieceIds(state, 0)).toContain('pufferElectro')
+    expect(effectiveMainStatIds(state, 0, 'slot5')).toContain('penRatio')
+    expect(state.slots[0].setup).toMatchObject({
+      twoPieceId: null, mains: { slot5: null },
+    })
+  })
+
   it('derives Spectral Gaze pressure from broad pre-PEN meaning and formula participation', () => {
     const established = createPreparedState({}, ['anbySoldier0', 'trigger', 'dialyn'], 0)
     expect(effectiveMainStatIds(established, 0, 'slot5')).not.toContain('penRatio')

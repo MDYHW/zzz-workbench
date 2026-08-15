@@ -34,7 +34,9 @@ describe('bounded equipment effect facts', () => {
       | 'Basic Attack'
       | 'Dash Attack'
       | 'Dodge Counter'
+      | 'Special Attack'
       | 'EX Special Attack'
+      | 'Assist'
       | 'Assist Follow-Up'
       | 'Chain Attack'
       | 'Ultimate'
@@ -64,6 +66,12 @@ describe('bounded equipment effect facts', () => {
       .toEqualTypeOf<'ultimateDamage'>()
     expectTypeOf<WEngineEffectField<'halfSugarBunny'>>()
       .toEqualTypeOf<'automaticEnergy' | 'squadAtk' | 'squadMaxHp' | 'veilCritDamage'>()
+    expectTypeOf<WEngineEffectField<'timeweaver'>>()
+      .toEqualTypeOf<'electricBuildup' | 'anomalyProficiency' | 'disorderDamage'>()
+    expectTypeOf<WEngineEffectField<'practicedPerfection'>>()
+      .toEqualTypeOf<'anomalyMastery' | 'physicalDamage'>()
+    expectTypeOf<WEngineEffectField<'fusionCompiler'>>()
+      .toEqualTypeOf<'atk' | 'anomalyProficiency'>()
 
     expectTypeOf<DriveDiscPiece<'dawnsBloom'>>()
       .toEqualTypeOf<'twoPiece' | 'fourPiece'>()
@@ -82,6 +90,10 @@ describe('bounded equipment effect facts', () => {
       .toEqualTypeOf<'damage'>()
     expectTypeOf<DriveDiscEffectField<'whiteWaterBallad', 'fourPiece'>>()
       .toEqualTypeOf<'veilCritRate' | 'attackVeilCritRate' | 'attackVeilAtk'>()
+    expectTypeOf<DriveDiscEffectField<'chaosJazz', 'fourPiece'>>()
+      .toEqualTypeOf<'electricFireDamage' | 'offFieldActionDamage'>()
+    expectTypeOf<DriveDiscEffectField<'freedomBlues', 'fourPiece'>>()
+      .toEqualTypeOf<'buildupResReduction'>()
   })
 
   it('keeps W-Engine qualifiers separate from modifier and refinement magnitude', () => {
@@ -718,6 +730,84 @@ describe('bounded equipment effect facts', () => {
         engineId: 'originalTransmorpher', fourPieceId: 'bunnyInWonderland',
         twoPieceId: 'yunkui',
         mains: { slot4: 'hpPct', slot5: 'hpPct', slot6: 'hpPct' },
+      },
+    })
+  })
+
+  it('authors Grace as a complete Anomaly content path', () => {
+    expect(ADMITTED_AGENTS.find(({ id }) => id === 'grace')).toEqual({
+      id: 'grace', name: 'Grace Howard', attribute: 'Electric', specialty: 'Anomaly',
+      focusEligible: true, rank: 'S', faction: 'Belobog Heavy Industries',
+    })
+    expect(SETUP_FORMULA_PARTICIPATION_BY_AGENT.grace).toEqual({
+      primary: ['anomaly_damage', 'anomaly_buildup'], residual: [],
+    })
+    expect(VERTICAL_VALUES.grace).toMatchObject({
+      atk: 825, anomalyProficiency: 116, anomalyMastery: 151, baseEnergyRegen: 1.2,
+      coreAnomalyBuildup: 130, additionalShockDmgPerStack: 18,
+      additionalShockDmgStacks: 2, potentialElectricDmg: 30,
+      mindscapeElectricResReduction: 8.5,
+      mindscapeElectricBuildupResReduction: 8.5,
+      mindscapeGrenadeDmgMultiplier: 2,
+    })
+
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.grace).toEqual({
+      full: [
+        'timeweaver', 'practicedPerfection', 'fusionCompiler',
+        'electroLipGloss', 'weepingGemini',
+      ],
+      nonLimited: ['fusionCompiler', 'electroLipGloss', 'weepingGemini'],
+    })
+    expect(W_ENGINES.timeweaver).toMatchObject({
+      rank: 'S', limited: true, baseAtk: 713,
+      advancedStat: { id: 'atkPct', value: 30 }, passiveSpecialty: 'Anomaly',
+    })
+    expect(([1, 2, 3, 4, 5] as const).map((refinement) =>
+      equipmentEffectBaseValue(W_ENGINE_FACTS.timeweaver.effects.anomalyProficiency, refinement),
+    )).toEqual([75, 85, 95, 105, 115])
+    expect(W_ENGINES.practicedPerfection.passiveLines(1)).toEqual([
+      'Anomaly Mastery +60',
+      'Inflict Assault · Physical DMG +20% per stack · 2 stacks on entry',
+    ])
+    expect(equipmentEffectMaximumValue(
+      W_ENGINE_FACTS.fusionCompiler.effects.anomalyProficiency, 1,
+    )).toBe(75)
+
+    expect(DISC_IDS_BY_AGENT_AND_PIECE.grace).toEqual({
+      fourPiece: ['thunderMetal', 'chaosJazz', 'freedomBlues'],
+      twoPiece: [
+        'pufferElectro', 'phaethonsMelody', 'freedomBlues', 'chaosJazz',
+        'hormonePunk', 'astralVoice',
+      ],
+    })
+    expect(SAME_EFFECT_TWO_PIECE_RELATIONSHIPS).toContainEqual({
+      members: ['freedomBlues', 'chaosJazz'], canonical: 'freedomBlues',
+    })
+    expect(DRIVE_DISCS.chaosJazz.fourPieceEffects).toEqual([
+      'Fire & Electric DMG +15%',
+      'Off-field EX Special & Assist DMG +20% · Continues 5s on-field',
+    ])
+    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.grace).toEqual({
+      slot4: ['anomalyProficiency', 'atkPct'],
+      slot5: ['penRatio', 'electricDmg', 'atkPct'],
+      slot6: ['anomalyMastery'],
+    })
+    expect(SUBSTAT_CHOICES_BY_AGENT.grace).toEqual([
+      { id: 'anomalyProficiency', label: 'Anomaly Proficiency', perHit: 9, unit: '' },
+      { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+    ])
+    expect(REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL.grace).toEqual({
+      full: {
+        engineId: 'timeweaver', fourPieceId: 'thunderMetal', twoPieceId: 'pufferElectro',
+        mains: {
+          slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'anomalyMastery',
+        },
+      },
+      nonLimited: {
+        engineId: 'fusionCompiler', fourPieceId: 'thunderMetal', twoPieceId: 'pufferElectro',
+        mains: {
+          slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'anomalyMastery',
+        },
       },
     })
   })
