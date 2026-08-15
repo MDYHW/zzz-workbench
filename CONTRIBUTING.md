@@ -14,6 +14,12 @@ game facts, setup policy, or user-visible behavior.
   completed-milestone index. A plan explains how to implement one already
   approved outcome; it is not another permanent authority or a durable product
   rule.
+- `docs/authority-changes/` preserves one-decision change history governed by
+  `GOV-001`; it records why authority changed but never supplies current
+  meaning.
+- `docs/audits/` stores compact recovery scope, status, mechanism manifest
+  digests, and merged references. It contains no Agent answers or Version
+  scope.
 - `src/workbench/content/` and its `content.ts` facade hold retained facts for
   currently admitted Agents. Those facts serve current consumers and do not
   form a catalogue.
@@ -49,6 +55,34 @@ game facts, setup policy, or user-visible behavior.
    [`docs/plans/README.md`](docs/plans/README.md).
 10. Commit logical, reviewed units with messages that describe user or
    maintainer value. Agents stage or commit only when the user explicitly asks.
+
+## Authority traces and change records
+
+Repository-governance rule
+[`GOV-001`](AGENTS.md#authority-change-and-trace-governance) owns the required
+transaction when permanent authority cannot decide a product meaning. An
+Authority Change Record follows the schema and lifecycle in
+[`docs/authority-changes/README.md`](docs/authority-changes/README.md); it is
+decision history, not current product authority.
+
+- Put the structured authority trace in the PR description. Do not add a
+  permanent trace matrix or Agent answer file to the repository.
+- Keep an ACR-only PR separate from the later permanent-owner-only amendment
+  and from every dependent requirement, plan, production, or test change.
+- Cite stable owner Rule IDs rather than copying their rule text. Missing owner
+  support stops the change; code and tests cannot supply it.
+- Publish independent semantic-review evidence outside the proposed diff and
+  bind it to the current PR, base SHA, head SHA, diff digest, Rule IDs, and
+  consumer paths. A later reviewable revision makes prior evidence stale.
+- Update the compact recovery audit index only after the referenced change has
+  merged. Store cohort scope, status, mechanism manifest digest, accepted
+  merged PR/SHA references, and the index PR number, never per-Agent
+  conclusions.
+
+Protected authority, governance, shared-semantic, CI, and visual-baseline
+changes require fresh product-owner approval of their latest revision. A
+settled Agent-local change may later auto-merge only after the repository's
+independent-review evidence and required checks prove their objective gates.
 
 ## Canonical local gate
 
