@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { REQUIRED_CONTEXTS, parseGovernanceTargetBinding } from '../governance/check-policy.mjs';
 
 export const APP_ID = 4603661;
 export const INSTALLATION_ID = 153925488;
@@ -21,6 +22,7 @@ const REPOSITORY_NAME = 'zzz-workbench';
 const CODEx_BRANCH = /^codex\/[A-Za-z0-9][A-Za-z0-9._/-]*$/;
 const SHA = /^[0-9a-f]{40}$/;
 const POSITIVE_INTEGER = /^[1-9][0-9]*$/;
+const CHECK_RUN_TARGET = new RegExp(`^https://github\\.com/${REPOSITORY}/actions/runs/([1-9][0-9]*)/job/[1-9][0-9]*$`);
 const ALLOWED_TOKEN_PERMISSIONS = new Map([
   ['contents', 'write'],
   ['pull_requests', 'write'],
@@ -534,7 +536,7 @@ async function verifyOperationCheckout({ runChild, gitExecutable, operation, cwd
   return proof;
 }
 
-async function verifyPullRequest({ runChild, ghExecutable, ghEnvironment, operation }) {
+async function verifyPullRequest({ runChild, ghExecutable, ghEnvironment, operation, governanceBinding }) {
   if (operation.kind === 'pr-create') return;
   const fields = operation.kind === 'pr-merge'
     ? 'baseRefName,headRefName,headRefOid,state,isDraft,mergeStateStatus,statusCheckRollup'
@@ -549,29 +551,82 @@ async function verifyPullRequest({ runChild, ghExecutable, ghEnvironment, operat
     fail('Pull request verification failed.');
   }
   assertPullRequestTarget(details, operation.kind === 'pr-merge' ? operation.headSha : undefined);
-  if (operation.kind === 'pr-merge') assertMergeReady(details);
+  if (operation.kind === 'pr-merge') assertMergeReady(details, governanceBinding);
   return details;
 }
 
-function assertMergeReady(details) {
+function assertMergeReady(details, governanceBinding) {
   if (details?.state !== 'OPEN' || details?.isDraft === true) {
     throw new LauncherError('Pull request is not open and ready for merge.', { code: 'merge_not_open' });
   }
   const checks = Array.isArray(details.statusCheckRollup) ? details.statusCheckRollup : [];
-  const pending = checks.some((check) => (
-    (check?.status && check.status !== 'COMPLETED')
-    || ['PENDING', 'EXPECTED'].includes(check?.state)
-  ));
-  if (pending || details.mergeStateStatus === 'UNKNOWN') {
+  if (details.mergeStateStatus === 'UNKNOWN') {
     throw new LauncherError('Required merge checks are still pending.', {
       code: 'merge_checks_pending', retryable: true, mutationCompleted: false,
     });
   }
-  const failed = checks.some((check) => (
-    (check?.status === 'COMPLETED' && !['SUCCESS', 'NEUTRAL', 'SKIPPED'].includes(check?.conclusion))
-    || (check?.state && check.state !== 'SUCCESS')
-  ));
-  if (failed) throw new LauncherError('A required merge check failed.', { code: 'merge_checks_failed' });
+  let selectedRuns;
+  const orderedContexts = ['status', 'check'].flatMap((kind) => REQUIRED_CONTEXTS.filter((required) => required.kind === kind));
+  for (const required of orderedContexts) {
+    const { name } = required;
+    let matches = checks.filter((check) => (check?.name ?? check?.context) === name);
+    if (required.kind === 'check') {
+      if (!selectedRuns) {
+        throw new LauncherError('Trusted governance status binding is unavailable.', { code: 'merge_checks_failed' });
+      }
+      const expectedRunId = selectedRuns[required.run];
+      if (!Number.isInteger(expectedRunId)) {
+        throw new LauncherError('Required merge check has no sealed workflow owner.', { code: 'merge_checks_failed' });
+      }
+      matches = matches.filter((check) => Number(CHECK_RUN_TARGET.exec(check?.detailsUrl ?? '')?.[1]) === expectedRunId);
+      if (matches.length > 1) {
+        if (matches.some((check) => check?.status !== 'COMPLETED'
+          && !Number.isFinite(Date.parse(check?.startedAt ?? '')))) {
+          throw new LauncherError('Required merge checks are still pending.', {
+            code: 'merge_checks_pending', retryable: true, mutationCompleted: false,
+          });
+        }
+        const started = matches.map((check) => Date.parse(check?.startedAt ?? ''));
+        if (started.some((value) => !Number.isFinite(value))) {
+          throw new LauncherError('Required merge check attempt identity is invalid.', { code: 'merge_checks_failed' });
+        }
+        const latestStartedAt = Math.max(...started);
+        matches = matches.filter((check) => Date.parse(check.startedAt) === latestStartedAt);
+      }
+    }
+    if (matches.length === 0) {
+      throw new LauncherError('Required merge checks are still pending.', {
+        code: 'merge_checks_pending', retryable: true, mutationCompleted: false,
+      });
+    }
+    if (matches.length !== 1) {
+      throw new LauncherError('A required merge check is duplicated.', { code: 'merge_checks_failed' });
+    }
+    const [check] = matches;
+    const expectsCommitStatus = required.kind === 'status';
+    const pending = expectsCommitStatus
+      ? ['PENDING', 'EXPECTED'].includes(check?.state)
+      : check?.status && check.status !== 'COMPLETED';
+    if (pending) {
+      throw new LauncherError('Required merge checks are still pending.', {
+        code: 'merge_checks_pending', retryable: true, mutationCompleted: false,
+      });
+    }
+    const successful = expectsCommitStatus
+      ? check?.context === name && !check?.name && check?.state === 'SUCCESS'
+      : check?.name === name && !check?.context && check?.status === 'COMPLETED' && check?.conclusion === 'SUCCESS';
+    if (!successful) {
+      throw new LauncherError('A required merge check has the wrong type or result.', { code: 'merge_checks_failed' });
+    }
+    if (name === 'Trusted Governance') {
+      const binding = parseGovernanceTargetBinding(check?.targetUrl);
+      if (!binding || binding.prNumber !== governanceBinding?.prNumber
+        || binding.baseSha !== governanceBinding?.baseSha) {
+        throw new LauncherError('Trusted governance status binding is stale or invalid.', { code: 'merge_checks_failed' });
+      }
+      selectedRuns = binding.runs;
+    }
+  }
 }
 
 async function pullRequestResource({ runChild, ghExecutable, ghEnvironment, operation }) {
@@ -733,6 +788,7 @@ export async function runAsInstallation(operationInput, options = {}) {
   let token;
   let operationError;
   let mutationResult;
+  let mergeGovernanceBinding;
 
   try {
     const sourceProof = options.trustedSourceProof
@@ -775,7 +831,11 @@ export async function runAsInstallation(operationInput, options = {}) {
       } catch {
         fail('Immediate merge current-state preflight failed.')
       }
-      if (currentApproved !== true) fail('Immediate merge current GitHub state is not approved.')
+      if (!currentApproved || currentApproved.prNumber !== Number(operation.number)
+        || currentApproved.baseSha !== sourceProof.headSha || currentApproved.headSha !== operation.headSha) {
+        fail('Immediate merge current GitHub state is not approved.')
+      }
+      mergeGovernanceBinding = currentApproved
     }
 
     if (operation.kind === 'git-push') {
@@ -823,7 +883,9 @@ export async function runAsInstallation(operationInput, options = {}) {
           return mutationResult;
         }
       }
-      await verifyPullRequest({ runChild, ghExecutable, ghEnvironment, operation });
+      await verifyPullRequest({
+        runChild, ghExecutable, ghEnvironment, operation, governanceBinding: mergeGovernanceBinding,
+      });
       try {
         await runChild(ghExecutable, buildChildCommand(operation), { env: ghEnvironment, cwd: operationCwd });
         const resource = await pullRequestResource({ runChild, ghExecutable, ghEnvironment, operation });
@@ -919,7 +981,8 @@ async function main() {
         const { snapshot } = await evaluateMergePreflight({
           prNumber: Number(number), token, root: sourceRoot, trustedBaseSha,
         })
-        return snapshot.baseSha === trustedBaseSha && snapshot.headSha === headSha
+        if (snapshot.baseSha !== trustedBaseSha || snapshot.headSha !== headSha) return false
+        return { prNumber: snapshot.prNumber, baseSha: snapshot.baseSha, headSha: snapshot.headSha }
       },
     } : {}
     const result = await runAsInstallation(operation, options)

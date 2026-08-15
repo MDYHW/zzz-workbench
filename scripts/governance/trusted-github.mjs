@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url'
 import { parseAst } from 'rolldown/parseAst'
 import {
   PolicyError,
+  REQUIRED_CONTEXTS,
   REQUIRED_CONTEXT_NAMES,
+  REQUIRED_WORKFLOWS,
   authorityTraceDigest,
   canonicalTreeDiff,
   categoryForPath,
@@ -22,6 +24,9 @@ import {
   validateReviewEvidence,
   validateAcrTransaction,
   validateAcrStates,
+  createGovernanceStatusBinding,
+  isActionRunTargetUrl,
+  parseGovernanceStatusBinding,
 } from './check-policy.mjs'
 
 export const REPOSITORY = 'Min-DongYoung/zzz-workbench'
@@ -42,11 +47,6 @@ const OWNER_FILES = [
   'docs/zzz-formula-mechanics.md',
   'docs/zzz-game-vocabulary.md',
   'AGENTS.md',
-]
-
-const WORKFLOWS = [
-  { path: '.github/workflows/pr-validation.yml', idField: 'prValidationWorkflowId' },
-  { path: '.github/workflows/visual-baseline.yml', idField: 'visualWorkflowId' },
 ]
 
 export class TrustedGitHubError extends Error {
@@ -161,8 +161,17 @@ function assertPullRequest(pr, number) {
     || pr?.base?.repo?.full_name !== REPOSITORY || pr?.head?.repo?.full_name !== REPOSITORY) {
     fail('Pull request is outside the trusted recovery flow.')
   }
-  for (const [label, value] of [['base', pr.base.sha], ['head', pr.head.sha], ['merge', pr.merge_commit_sha]]) {
+  for (const [label, value] of [['base', pr.base.sha], ['head', pr.head.sha]]) {
     if (!SHA.test(value ?? '')) fail(`Current ${label} SHA is unavailable.`)
+  }
+}
+
+async function assertUniqueRecoveryHeadLifecycle(api, pr) {
+  const pulls = await api.paginate(`/repos/${REPOSITORY}/pulls?state=all&sort=created&direction=desc`)
+  const exact = pulls.filter((candidate) => candidate?.head?.repo?.full_name === REPOSITORY
+    && candidate?.head?.sha === pr.head.sha)
+  if (exact.length !== 1 || exact[0]?.number !== pr.number) {
+    fail('Current PR head is not unique to one recovery pull-request lifecycle.')
   }
 }
 
@@ -210,12 +219,12 @@ function normalizeReview(review) {
 
 async function fetchWorkflowRuns(api, pr) {
   const result = { runs: [] }
-  for (const workflow of WORKFLOWS) {
+  for (const workflow of REQUIRED_WORKFLOWS) {
     const definition = await api.json(`/repos/${REPOSITORY}/actions/workflows/${encodeURIComponent(path.basename(workflow.path))}`)
     if (!Number.isInteger(definition?.id)) fail('Required workflow definition is unavailable.')
     result[workflow.idField] = definition.id
     const runs = await api.paginate(
-      `/repos/${REPOSITORY}/actions/workflows/${definition.id}/runs?event=pull_request&head_sha=${pr.merge_commit_sha}`,
+      `/repos/${REPOSITORY}/actions/workflows/${definition.id}/runs?event=pull_request&head_sha=${pr.head.sha}`,
       { select: (payload) => payload?.workflow_runs },
     )
     for (const run of runs) {
@@ -229,7 +238,7 @@ async function fetchWorkflowRuns(api, pr) {
         prNumber: binding?.number,
         baseSha: binding?.base?.sha,
         headSha: binding?.head?.sha,
-        mergeSha: run.head_sha,
+        statusSha: run.head_sha,
         status: run.status,
         conclusion: run.conclusion,
         jobs: jobs.map((job) => ({ id: job.id, name: job.name, conclusion: job.conclusion })),
@@ -239,29 +248,29 @@ async function fetchWorkflowRuns(api, pr) {
   return result
 }
 
-async function fetchFinalizationWorkflowRuns(api, pr) {
+async function fetchFinalizationWorkflowRuns(api, pr, expectedRunIds) {
+  const expected = new Set(expectedRunIds)
   const result = { runs: [] }
-  for (const workflow of WORKFLOWS) {
+  for (const workflow of REQUIRED_WORKFLOWS) {
     const definition = await api.json(`/repos/${REPOSITORY}/actions/workflows/${encodeURIComponent(path.basename(workflow.path))}`)
     if (!Number.isInteger(definition?.id)) fail('Required workflow definition is unavailable.')
     result[workflow.idField] = definition.id
     const runs = await api.paginate(
-      `/repos/${REPOSITORY}/actions/workflows/${definition.id}/runs?event=pull_request&branch=${encodeURIComponent(pr.head.ref)}`,
+      `/repos/${REPOSITORY}/actions/workflows/${definition.id}/runs?event=pull_request&head_sha=${pr.head.sha}`,
       { select: (payload) => payload?.workflow_runs },
     )
     for (const run of runs) {
-      const binding = (run.pull_requests ?? []).find(({ number }) => number === pr.number)
-      if (!binding || binding.head?.sha !== pr.head.sha) continue
+      if (run.head_sha !== pr.head.sha || !expected.has(run.id)) continue
       const jobs = await api.paginate(`/repos/${REPOSITORY}/actions/runs/${run.id}/jobs?filter=latest`, { select: (payload) => payload?.jobs })
       result.runs.push({
         id: run.id,
         path: workflow.path,
         workflowId: run.workflow_id,
         event: run.event,
-        prNumber: binding.number,
-        baseSha: binding.base?.sha,
-        headSha: binding.head?.sha,
-        mergeSha: run.head_sha,
+        prNumber: pr.number,
+        baseSha: pr.base.sha,
+        headSha: pr.head.sha,
+        statusSha: run.head_sha,
         status: run.status,
         conclusion: run.conclusion,
         jobs: jobs.map((job) => ({ id: job.id, name: job.name, conclusion: job.conclusion })),
@@ -271,47 +280,61 @@ async function fetchFinalizationWorkflowRuns(api, pr) {
   return result
 }
 
-function latestSuccessfulFinalizationRuns(workflowState, pr) {
-  const mergeShas = [...new Set(workflowState.runs
-    .filter(({ prNumber, headSha, mergeSha }) => prNumber === pr.number && headSha === pr.head.sha && SHA.test(mergeSha ?? ''))
-    .map(({ mergeSha }) => mergeSha))]
-  const candidates = mergeShas.map((mergeSha) => ({
-    mergeSha,
-    newestRunId: Math.max(...workflowState.runs.filter((run) => run.mergeSha === mergeSha).map(({ id }) => Number(id))),
-  })).sort((left, right) => right.newestRunId - left.newestRunId)
-  for (const { mergeSha } of candidates) {
-    const bases = [...new Set(workflowState.runs
-      .filter((run) => run.mergeSha === mergeSha && run.headSha === pr.head.sha)
-      .map(({ baseSha }) => baseSha))]
-    if (bases.length !== 1 || !SHA.test(bases[0] ?? '')) continue
-    try {
-      const checks = validateChildOutcomes(workflowState.runs, {
-        prNumber: pr.number,
-        baseSha: bases[0],
-        headSha: pr.head.sha,
-        mergeSha,
-        prValidationWorkflowId: workflowState.prValidationWorkflowId,
-        visualWorkflowId: workflowState.visualWorkflowId,
-      })
-      return { baseSha: bases[0], headSha: pr.head.sha, mergeSha, checks }
-    } catch {}
+function latestSuccessfulFinalizationRuns(workflowState, pr, expectedRunIds) {
+  if (!SHA.test(pr.base?.sha ?? '') || !SHA.test(pr.head?.sha ?? '')) {
+    fail('Creating-PR base or head identity is unavailable.')
   }
-  fail('No exact successful creating-PR workflow set exists for the recovery candidate.')
+  const checks = validateChildOutcomes(workflowState.runs, {
+    prNumber: pr.number,
+    baseSha: pr.base.sha,
+    headSha: pr.head.sha,
+    prValidationWorkflowId: workflowState.prValidationWorkflowId,
+    visualWorkflowId: workflowState.visualWorkflowId,
+  })
+  const selectedRunIds = checks.runs.map(({ id }) => Number(id)).sort((left, right) => left - right)
+  const recordedRunIds = expectedRunIds.map(Number).sort((left, right) => left - right)
+  if (selectedRunIds.length !== recordedRunIds.length
+    || selectedRunIds.some((id, index) => id !== recordedRunIds[index])) {
+    fail('Creating-PR workflow runs differ from the trusted governance record.')
+  }
+  return { baseSha: pr.base.sha, headSha: pr.head.sha, checks }
 }
 
 function successfulTrustedStatuses(statuses) {
   if (!Array.isArray(statuses)) fail('Creating-PR commit statuses are unavailable.')
   const result = {}
-  for (const context of REQUIRED_CONTEXT_NAMES.slice(0, 2)) {
+  let governanceBinding
+  for (const { name: context } of REQUIRED_CONTEXTS.filter(({ kind }) => kind === 'status')) {
     const latest = statuses.filter((status) => status?.context === context)
       .sort((left, right) => Number(left.id) - Number(right.id)).at(-1)
     if (latest?.state !== 'success' || latest?.creator?.login !== 'github-actions[bot]'
-      || !new RegExp(`^https://github\\.com/${REPOSITORY}/actions/runs/\\d+$`).test(latest?.target_url ?? '')) {
+      || (context === 'Protected Approval' && !isActionRunTargetUrl(latest?.target_url))) {
       fail(`Creating-PR status ${context} is not a current trusted success.`)
+    }
+    if (context === 'Trusted Governance') {
+      governanceBinding = parseGovernanceStatusBinding({
+        description: latest.description,
+        targetUrl: latest.target_url,
+      })
+      if (!governanceBinding) fail('Trusted governance status binding is invalid.')
     }
     result[context] = 'success'
   }
-  return result
+  return { contexts: result, governanceBinding }
+}
+
+function governanceSuccessBinding(snapshot, decision, targetUrl) {
+  const runs = Object.fromEntries(REQUIRED_WORKFLOWS.map((workflow) => {
+    const matches = decision?.checks?.runs?.filter(({ path }) => path === workflow?.path) ?? []
+    if (!workflow || matches.length !== 1) fail('Trusted workflow run identities are unavailable.')
+    return [workflow.run, Number(matches[0].id)]
+  }))
+  return createGovernanceStatusBinding({
+    prNumber: snapshot.prNumber,
+    baseSha: snapshot.baseSha,
+    runs,
+    actionRunUrl: targetUrl,
+  })
 }
 
 function mechanismDigestFromAudit(audit) {
@@ -383,7 +406,8 @@ async function buildFinalizationEvidenceSnapshot({ api, pr, runSet, candidateSha
   if (current?.number !== pr.number || current?.state !== 'closed' || !current?.merged_at
     || current?.merge_commit_sha !== candidateSha || current?.base?.ref !== PROTECTED_BASE
     || current?.base?.repo?.full_name !== REPOSITORY || current?.head?.repo?.full_name !== REPOSITORY
-    || current?.head?.sha !== runSet.headSha || !CODEX_BRANCH.test(current?.head?.ref ?? '')) {
+    || current?.base?.sha !== runSet.baseSha || current?.head?.sha !== runSet.headSha
+    || !CODEX_BRANCH.test(current?.head?.ref ?? '')) {
     fail('Current creating pull request metadata is no longer trusted.')
   }
   const [baseTree, headTree, comments, reviews] = await Promise.all([
@@ -405,7 +429,6 @@ async function buildFinalizationEvidenceSnapshot({ api, pr, runSet, candidateSha
     prNumber: pr.number,
     baseSha: runSet.baseSha,
     headSha: runSet.headSha,
-    mergeSha: runSet.mergeSha,
     body: current.body ?? '',
     diffDigest: treeDiff.digest,
     classification: policy.classification.classification,
@@ -441,16 +464,26 @@ export async function verifyRemoteFinalization({
   const pulls = await api.paginate(`/repos/${REPOSITORY}/commits/${candidateSha}/pulls`)
   const matches = pulls.filter((pr) => pr?.merged_at && pr?.merge_commit_sha === candidateSha
     && pr?.base?.ref === PROTECTED_BASE && pr?.base?.repo?.full_name === REPOSITORY
-    && pr?.head?.repo?.full_name === REPOSITORY && SHA.test(pr?.head?.sha ?? ''))
+    && pr?.head?.repo?.full_name === REPOSITORY && SHA.test(pr?.base?.sha ?? '') && SHA.test(pr?.head?.sha ?? ''))
   if (matches.length !== 1) fail('Recovery candidate does not have exactly one trusted creating pull request.')
   const pr = matches[0]
-  const workflowState = await fetchFinalizationWorkflowRuns(api, pr)
-  const runSet = latestSuccessfulFinalizationRuns(workflowState, pr)
+  await assertUniqueRecoveryHeadLifecycle(api, pr)
+  const statuses = await api.paginate(`/repos/${REPOSITORY}/commits/${pr.head.sha}/statuses`)
+  const trustedStatuses = successfulTrustedStatuses(statuses)
+  if (trustedStatuses.governanceBinding?.prNumber !== pr.number
+    || trustedStatuses.governanceBinding?.baseSha !== pr.base.sha) {
+    fail('Trusted governance status does not bind the creating pull request.')
+  }
+  const recordedRunIds = [
+    trustedStatuses.governanceBinding.runs.validation,
+    trustedStatuses.governanceBinding.runs.visual,
+  ]
+  const workflowState = await fetchFinalizationWorkflowRuns(api, pr, recordedRunIds)
+  const runSet = latestSuccessfulFinalizationRuns(workflowState, pr, recordedRunIds)
   const evidenceSnapshot = await buildFinalizationEvidenceSnapshot({ api, pr, runSet, candidateSha })
   evaluateEvidenceSnapshot(evidenceSnapshot)
-  const statuses = await api.paginate(`/repos/${REPOSITORY}/commits/${runSet.mergeSha}/statuses`)
   const actual = {
-    ...successfulTrustedStatuses(statuses),
+    ...trustedStatuses.contexts,
     ...Object.fromEntries(runSet.checks.jobs.map((name) => [name, 'success'])),
   }
   const repository = await repositoryValidator(root, { requireCompleteAudit: true })
@@ -462,7 +495,7 @@ export async function verifyRemoteFinalization({
     auditComplete: repository.auditComplete,
     statuses: actual,
   })
-  return { candidateSha, creatingPr: pr.number, testMergeSha: runSet.mergeSha, statuses: actual }
+  return { candidateSha, creatingPr: pr.number, validatedHeadSha: runSet.headSha, statuses: actual }
 }
 
 async function readTrustedRuleState(readFile, root) {
@@ -1017,6 +1050,7 @@ export async function buildCurrentSnapshot({
 }) {
   const pr = await api.json(`/repos/${REPOSITORY}/pulls/${prNumber}`)
   assertPullRequest(pr, prNumber)
+  await assertUniqueRecoveryHeadLifecycle(api, pr)
   if (expectedBaseSha && pr.base.sha !== expectedBaseSha) {
     throw new StaleEvaluatorError('Trusted evaluator revision no longer matches the pull request base.')
   }
@@ -1038,7 +1072,6 @@ export async function buildCurrentSnapshot({
     prNumber,
     baseSha: pr.base.sha,
     headSha: pr.head.sha,
-    mergeSha: pr.merge_commit_sha,
     body: pr.body ?? '',
     diffDigest: treeDiff.digest,
     classification: policy.classification.classification,
@@ -1101,7 +1134,7 @@ export function evaluateEvidenceSnapshot(snapshot) {
     headSha: snapshot.headSha,
     evidenceUpdatedAt: evidence.updatedAt,
   })
-  return { trace, evidence, approval, targetSha: snapshot.mergeSha }
+  return { trace, evidence, approval, targetSha: snapshot.headSha }
 }
 
 export async function postCommitStatus(api, { sha, context, state, description, targetUrl }) {
@@ -1147,14 +1180,11 @@ export async function evaluateAndPublish({
     const latest = await readSnapshot()
     if (!latest) return false
     if (trustedBaseSha && latest.baseSha !== trustedBaseSha) return false
-    if (governanceSnapshotVersion(latest) !== initialVersion) {
-      return false
-    }
-    return latest.mergeSha === current.mergeSha
+    return governanceSnapshotVersion(latest) === initialVersion
   }
-  const write = async (context, state, description) => {
+  const write = async (context, state, description, statusTargetUrl = targetUrl) => {
     if (!await stillCurrent()) return false
-    await statusWriter(api, { sha: current.mergeSha, context, state, description, targetUrl })
+    await statusWriter(api, { sha: current.headSha, context, state, description, targetUrl: statusTargetUrl })
     return true
   }
   for (const context of ['Trusted Governance', 'Protected Approval']) {
@@ -1169,12 +1199,13 @@ export async function evaluateAndPublish({
   } catch (error) {
     governanceFailure = error instanceof Error ? error.message : 'Trusted governance failed.'
     decision = {
-      targetSha: initial.mergeSha,
+      targetSha: initial.headSha,
       statuses: { 'Trusted Governance': 'failure', 'Protected Approval': 'failure' },
     }
   }
   const states = decision.statuses
   try {
+    const governanceBinding = governanceFailure ? null : governanceSuccessBinding(current, decision, targetUrl)
     if (!await write('Protected Approval', states['Protected Approval'], states['Protected Approval'] === 'success'
       ? 'Current protection approval requirement is satisfied.'
       : 'Current product-owner approval is required.')) {
@@ -1182,13 +1213,15 @@ export async function evaluateAndPublish({
     }
     if (!await write('Trusted Governance', states['Trusted Governance'], governanceFailure
       ? 'Trusted policy rejected the current PR state.'
-      : 'Trace, evidence, and validation are current.')) {
+      : governanceBinding.description, governanceFailure
+      ? targetUrl
+      : governanceBinding.targetUrl)) {
       return { posted: false, stale: true, reason: 'Current pull request state changed before governance status write.' }
     }
   } catch (error) {
     for (const context of ['Protected Approval', 'Trusted Governance']) {
       try {
-        await statusWriter(api, { sha: current.mergeSha, context, state: 'failure', description: 'Trusted status publication did not complete.', targetUrl })
+        await statusWriter(api, { sha: current.headSha, context, state: 'failure', description: 'Trusted status publication did not complete.', targetUrl })
       } catch {}
     }
     throw error
@@ -1212,7 +1245,7 @@ export async function evaluateMergePreflight({ prNumber, token, fetchImpl = fetc
   const current = await buildCurrentSnapshot({
     api, prNumber, root, readFile, includeWorkflows: false, expectedBaseSha: trustedBaseSha,
   })
-  if (governanceSnapshotVersion(current) !== version || current.mergeSha !== decision.targetSha) {
+  if (governanceSnapshotVersion(current) !== version || current.headSha !== decision.targetSha) {
     fail('Governance state changed during merge preflight.')
   }
   evaluateEvidenceSnapshot(current)
@@ -1231,6 +1264,22 @@ export async function evaluatePullRequestBatch({ prNumbers, evaluate, onFailure 
     }
   }
   return { results, failures }
+}
+
+export async function publishEvaluationFailure(api, prNumber, trustedBaseSha) {
+  const pr = await api.json(`/repos/${REPOSITORY}/pulls/${prNumber}`)
+  if (pr?.base?.ref !== PROTECTED_BASE || pr?.base?.repo?.full_name !== REPOSITORY
+    || pr?.head?.repo?.full_name !== REPOSITORY || !SHA.test(pr?.head?.sha ?? '')
+    || !SHA.test(trustedBaseSha ?? '') || pr?.base?.sha !== trustedBaseSha) return false
+  for (const context of ['Protected Approval', 'Trusted Governance']) {
+    await postCommitStatus(api, {
+      sha: pr.head.sha,
+      context,
+      state: 'failure',
+      description: 'Trusted evaluation did not complete for this pull request.',
+    })
+  }
+  return true
 }
 
 export async function runEvent({
@@ -1255,21 +1304,7 @@ export async function runEvent({
   const batch = await evaluatePullRequestBatch({
     prNumbers,
     evaluate: (prNumber) => evaluateAndPublish({ prNumber, api, root, readFile, trustedBaseSha }),
-    onFailure: async (prNumber) => {
-      try {
-        const pr = await api.json(`/repos/${REPOSITORY}/pulls/${prNumber}`)
-        if (SHA.test(pr?.merge_commit_sha ?? '')) {
-          for (const context of ['Protected Approval', 'Trusted Governance']) {
-            await postCommitStatus(api, {
-              sha: pr.merge_commit_sha,
-              context,
-              state: 'failure',
-              description: 'Trusted evaluation did not complete for this pull request.',
-            })
-          }
-        }
-      } catch {}
-    },
+    onFailure: (prNumber) => publishEvaluationFailure(api, prNumber, trustedBaseSha),
   })
   if (batch.failures.length > 0) fail(`Trusted governance failed for ${batch.failures.length} pull request(s).`)
   return batch.results

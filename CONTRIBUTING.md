@@ -163,9 +163,20 @@ repository diff.
 
 Six unique required contexts gate `recovery`: `Trusted Governance`,
 `Protected Approval`, `Behavior Tests`, `Type Check`, `Production Build`, and
-`Visual Baseline`. The first two target GitHub's current test-merge SHA. The
-four job contexts must each appear exactly once and finish with `success`;
-GitHub's native skipped or neutral treatment is not sufficient here.
+`Visual Baseline`. All six target the current PR head SHA. The four job contexts
+come from `pull_request` runs bound to the exact current PR, base, and head;
+their default checkout may test GitHub's generated merge ref without making
+that generated commit a second status target. Each job must appear exactly once
+and finish with `success`; GitHub's native skipped or neutral treatment is not
+sufficient here.
+
+One head SHA may belong to only one pull-request lifecycle in this repository.
+If a pull request is replaced or recreated, create a new commit first; reusing
+the previous head SHA fails trusted evaluation so head-scoped contexts cannot
+leak between pull requests.
+A successful `Trusted Governance` status also records in its description and
+target URL the exact PR, base SHA, and the two selected child workflow-run IDs
+used for that decision.
 
 An Agent-local or other routine non-protected PR needs no manual owner review
 after its evidence and required contexts pass. A protected PR needs a current
@@ -208,7 +219,13 @@ post-mutation lookup are inconclusive, it reports retryable
 declaring failure. `evidence-upsert` creates or replaces the
 single marked App comment and reconciles the marker after an ambiguous write
 before allowing a retry. `pr-merge` performs an
-immediate exact-head squash only after its trusted current-state preflight;
+immediate exact-head squash only after its trusted metadata/evidence preflight
+and an exact-success rollup check for all six required contexts. This preserves
+the App's no-Actions/no-Checks permission boundary; head uniqueness and the
+trusted governance context prevent another PR lifecycle from lending results.
+Job rollup entries are selected by the sealed workflow-run IDs and latest
+visible attempt, so older cancelled reruns are ignored while duplicate current
+entries fail.
 `merge_checks_pending` is a retryable pre-mutation result, and an ambiguous
 merge is reconciled against the exact head before it reports success or the
 retryable `merge_result_unknown` result. Failed required checks are retried
@@ -228,8 +245,11 @@ candidate's single creating PR, that PR's actual successful workflow jobs and
 trusted commit statuses, and the live tip again before emitting an attestation.
 It also reconstructs the exact historical base/head trees and validates the
 creating PR's current body, App evidence comment, and current exact-head owner
-approval; post-merge withdrawal or editing therefore blocks finalization. It
-never synthesizes success from the local gate.
+approval; post-merge withdrawal or editing therefore blocks finalization.
+GitHub may omit `pull_requests` from a merged workflow-run response, so this
+post-merge check joins those recorded run IDs and exact-head runs to the one
+unique creating PR instead of depending on that transient array. It never
+synthesizes success from the local gate.
 
 The trusted evaluator installs the dependency graph pinned by the trusted
 `recovery` lockfile with lifecycle scripts disabled. It parses selected PR

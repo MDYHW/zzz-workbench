@@ -8,20 +8,42 @@ export const REVIEW_APP_AUTHOR = 'zzz-workbench-agent-mdy[bot]'
 export const EVIDENCE_MARKER = '<!-- zzz-workbench:authority-review:v1 -->'
 export const FROZEN_ROSTER_SIZE = 38
 
-export const REQUIRED_JOB_NAMES = Object.freeze([
-  'Behavior Tests',
-  'Type Check',
-  'Production Build',
-  'Visual Baseline',
+export const REQUIRED_CONTEXTS = Object.freeze([
+  Object.freeze({ name: 'Trusted Governance', kind: 'status', run: 'trusted' }),
+  Object.freeze({ name: 'Protected Approval', kind: 'status', run: 'trusted' }),
+  Object.freeze({ name: 'Behavior Tests', kind: 'check', run: 'validation' }),
+  Object.freeze({ name: 'Type Check', kind: 'check', run: 'validation' }),
+  Object.freeze({ name: 'Production Build', kind: 'check', run: 'validation' }),
+  Object.freeze({ name: 'Visual Baseline', kind: 'check', run: 'visual' }),
 ])
 
-export const REQUIRED_CONTEXT_NAMES = Object.freeze([
-  'Trusted Governance',
-  'Protected Approval',
-  ...REQUIRED_JOB_NAMES,
+export const REQUIRED_WORKFLOWS = Object.freeze([
+  Object.freeze({
+    run: 'validation',
+    path: '.github/workflows/pr-validation.yml',
+    idField: 'prValidationWorkflowId',
+    names: Object.freeze(REQUIRED_CONTEXTS.filter(({ kind, run }) => kind === 'check' && run === 'validation')
+      .map(({ name }) => name)),
+  }),
+  Object.freeze({
+    run: 'visual',
+    path: '.github/workflows/visual-baseline.yml',
+    idField: 'visualWorkflowId',
+    names: Object.freeze(REQUIRED_CONTEXTS.filter(({ kind, run }) => kind === 'check' && run === 'visual')
+      .map(({ name }) => name)),
+  }),
 ])
+
+export const REQUIRED_JOB_NAMES = Object.freeze(
+  REQUIRED_CONTEXTS.filter(({ kind }) => kind === 'check').map(({ name }) => name),
+)
+
+export const REQUIRED_CONTEXT_NAMES = Object.freeze(REQUIRED_CONTEXTS.map(({ name }) => name))
 
 const SHA = /^[0-9a-f]{40}$/
+const ACTION_RUN_TARGET = /^https:\/\/github\.com\/Min-DongYoung\/zzz-workbench\/actions\/runs\/[1-9][0-9]*$/
+const GOVERNANCE_DESCRIPTION = /^pr=([1-9][0-9]*) base=([0-9a-f]{40}) runs=([1-9][0-9]*),([1-9][0-9]*)$/
+const GOVERNANCE_TARGET = /^https:\/\/github\.com\/Min-DongYoung\/zzz-workbench\/actions\/runs\/[1-9][0-9]*\?pr=([1-9][0-9]*)&base=([0-9a-f]{40})&run1=([1-9][0-9]*)&run2=([1-9][0-9]*)$/
 const DIGEST = /^sha256:[0-9a-f]{64}$/
 const RULE_ID = /^(?:SW|SF|UI|FM|GV|GOV)-\d{3}$/
 const CONSUMER = /^[^\s#]+#[^\s#].*$/
@@ -147,6 +169,44 @@ function sameStrings(left, right) {
 function assertSha(value, label) {
   if (!SHA.test(value ?? '')) fail(`${label} is invalid.`)
   return value
+}
+
+export function isActionRunTargetUrl(value) {
+  return ACTION_RUN_TARGET.test(value ?? '')
+}
+
+export function createGovernanceStatusBinding({ prNumber, baseSha, runs, actionRunUrl }) {
+  if (!Number.isInteger(prNumber) || prNumber <= 0) fail('Governance PR identity is invalid.')
+  assertSha(baseSha, 'Governance base SHA')
+  const runIds = [runs?.validation, runs?.visual]
+  if (runIds.length !== 2 || new Set(runIds).size !== 2
+    || runIds.some((id) => !Number.isInteger(id) || id <= 0)) fail('Governance workflow run identities are invalid.')
+  if (!isActionRunTargetUrl(actionRunUrl)) fail('Governance workflow target URL is invalid.')
+  return {
+    prNumber,
+    baseSha,
+    runs: { validation: runIds[0], visual: runIds[1] },
+    description: `pr=${prNumber} base=${baseSha} runs=${runIds.join(',')}`,
+    targetUrl: `${actionRunUrl}?pr=${prNumber}&base=${baseSha}&run1=${runIds[0]}&run2=${runIds[1]}`,
+  }
+}
+
+export function parseGovernanceTargetBinding(value) {
+  const match = GOVERNANCE_TARGET.exec(value ?? '')
+  if (!match || match[3] === match[4]) return null
+  return {
+    prNumber: Number(match[1]),
+    baseSha: match[2],
+    runs: { validation: Number(match[3]), visual: Number(match[4]) },
+  }
+}
+
+export function parseGovernanceStatusBinding({ description, targetUrl }) {
+  const match = GOVERNANCE_DESCRIPTION.exec(description ?? '')
+  const target = parseGovernanceTargetBinding(targetUrl)
+  if (!match || !target || Number(match[1]) !== target.prNumber || match[2] !== target.baseSha
+    || Number(match[3]) !== target.runs.validation || Number(match[4]) !== target.runs.visual) return null
+  return target
 }
 
 function assertDigest(value, label) {
@@ -488,10 +548,10 @@ export function validateProtectedApproval(reviews, { classification, headSha, ev
 
 export function validateChildOutcomes(runs, expected) {
   if (!Array.isArray(runs)) fail('Validation workflow runs are unavailable.')
-  const required = [
-    { path: '.github/workflows/pr-validation.yml', id: expected.prValidationWorkflowId, names: REQUIRED_JOB_NAMES.slice(0, 3) },
-    { path: '.github/workflows/visual-baseline.yml', id: expected.visualWorkflowId, names: REQUIRED_JOB_NAMES.slice(3) },
-  ]
+  const required = REQUIRED_WORKFLOWS.map((workflow) => ({
+    ...workflow,
+    id: expected[workflow.idField],
+  }))
   const selected = []
   for (const workflow of required) {
     const matches = runs.filter((run) => run.path === workflow.path
@@ -500,7 +560,7 @@ export function validateChildOutcomes(runs, expected) {
       && run.prNumber === expected.prNumber
       && run.baseSha === expected.baseSha
       && run.headSha === expected.headSha
-      && run.mergeSha === expected.mergeSha)
+      && run.statusSha === expected.headSha)
     if (matches.length === 0) fail('A required workflow run is absent.')
     const latest = matches.sort((left, right) => Number(left.id) - Number(right.id)).at(-1)
     if (latest.status !== 'completed' || latest.conclusion !== 'success') fail('The current required workflow run did not complete successfully.')
@@ -517,7 +577,6 @@ export function validateChildOutcomes(runs, expected) {
 export function trustedDecision(input) {
   assertSha(input.baseSha, 'Current base SHA')
   assertSha(input.headSha, 'Current head SHA')
-  assertSha(input.mergeSha, 'Current test-merge SHA')
   const trace = validateAuthorityTrace(parseAuthorityTrace(input.body), {
     knownRuleIds: input.knownRuleIds,
     computedClassification: input.classification,
@@ -556,7 +615,7 @@ export function trustedDecision(input) {
     approval = { required: input.classification === 'protected', approved: false, error: error.message }
   }
   return {
-    targetSha: input.mergeSha,
+    targetSha: input.headSha,
     statuses: {
       'Trusted Governance': 'success',
       'Protected Approval': approval.approved ? 'success' : 'failure',
@@ -579,7 +638,6 @@ export function governanceSnapshotVersion(snapshot) {
     prNumber: snapshot.prNumber,
     baseSha: snapshot.baseSha,
     headSha: snapshot.headSha,
-    mergeSha: snapshot.mergeSha,
     diffDigest: snapshot.diffDigest,
     body: snapshot.body,
     comments,

@@ -120,8 +120,8 @@ separately with a read-only token and no repository secret.
 
 The six required merge contexts have unique meanings and names:
 
-- `Trusted Governance` is a commit status for the current PR test-merge SHA;
-- `Protected Approval` is a separate commit status for that same SHA;
+- `Trusted Governance` is a commit status for the current PR head SHA;
+- `Protected Approval` is a separate commit status for that same head SHA;
 - `Behavior Tests`, `Type Check`, and `Production Build` are exact PR job names;
   and
 - `Visual Baseline` is always present and reports either an exact success or an
@@ -132,6 +132,17 @@ required name. Missing, failed, cancelled, skipped, neutral, duplicate, stale,
 or differently bound outcomes fail closed. Status and job names must not
 collide. GitHub rules bind every required context to the observed GitHub
 Actions integration and require the branch to be current.
+Each required `pull_request` workflow run must bind the exact PR number, base
+SHA, and head SHA, and its GitHub status target must equal that head SHA.
+GitHub may execute the workflow's default checkout from its generated merge
+ref; that tested merge state is not a second required-status identity.
+A successful `Trusted Governance` status records in its description and target
+URL the exact PR, base SHA, and two selected child workflow-run IDs used by the
+decision. The launcher and finalization can therefore reject stale results
+without trusting mutable post-merge arrays.
+A recovery head SHA must belong to exactly one repository pull-request
+lifecycle. Reusing the same head commit in another pull request fails closed;
+create a new commit before opening the replacement pull request.
 
 PR metadata cannot lower protection. Permanent authority, ACR, audit-index,
 governance/CI, shared semantic, and visual changes are protected. A production
@@ -149,7 +160,14 @@ The trusted workflow re-fetches
 the complete current comment and review sets on body, comment, review, head,
 and applicable base events. Editing, replacing, deleting, or making that
 evidence stale withdraws the green decision. The local App launcher repeats
-the same current-state preflight before an immediate exact-head squash merge.
+the metadata/evidence portion of that current-state preflight before an
+immediate exact-head squash merge, then requires exactly one `SUCCESS` rollup
+entry for each of the six required contexts. It does not broaden the App with
+Actions or Checks read permission; the unique-head lifecycle and trusted
+governance status bind that rollup to the current PR. The four job entries are
+selected by the run IDs sealed in that status and the latest visible attempt,
+so superseded rerun entries do not block a current result and cannot substitute
+for it.
 The trusted evaluator also binds its checked-out `recovery` revision to the
 PR's current base SHA before any status write; a stale evaluator publishes
 nothing.
@@ -164,7 +182,10 @@ reconstructs the historical base/head tree pair used by the successful PR
 runs, then re-reads the creating PR's current body, top-level evidence comment,
 and reviews. A deleted or edited evidence comment, edited trace, or withdrawn
 approval blocks finalization even when the historical jobs and statuses remain
-green.
+green. Because GitHub may omit a merged workflow run's `pull_requests` array,
+post-merge run discovery binds the exact unique head SHA back to that single
+creating PR, its recorded base SHA, and the run IDs sealed into the successful
+trusted status rather than inventing a second identity.
 
 The local GitHub App launcher is invoked by absolute path from a clean local
 `recovery` worktree whose HEAD equals local `origin/recovery`; routine work may

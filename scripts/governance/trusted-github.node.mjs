@@ -11,13 +11,13 @@ import {
   evaluateAndPublish,
   evaluatePullRequestBatch,
   evaluateSnapshot,
+  publishEvaluationFailure,
   resolveEventPullRequests,
   verifyRemoteFinalization,
 } from './trusted-github.mjs'
 
 const BASE = '1'.repeat(40)
 const HEAD = '2'.repeat(40)
-const MERGE = '3'.repeat(40)
 const OTHER = '4'.repeat(40)
 const DIFF = `sha256:${'a'.repeat(64)}`
 
@@ -74,7 +74,7 @@ function evidence(classification = 'agent-local', overrides = {}) {
 }
 
 function runs() {
-  const common = { event: 'pull_request', prNumber: 4, baseSha: BASE, headSha: HEAD, mergeSha: MERGE }
+  const common = { event: 'pull_request', prNumber: 4, baseSha: BASE, headSha: HEAD, statusSha: HEAD }
   return [
     {
       ...common, id: 10, status: 'completed', conclusion: 'success', path: '.github/workflows/pr-validation.yml', workflowId: 101,
@@ -92,7 +92,6 @@ function snapshot(overrides = {}) {
     prNumber: 4,
     baseSha: BASE,
     headSha: HEAD,
-    mergeSha: MERGE,
     body: body(),
     diffDigest: DIFF,
     classification: 'agent-local',
@@ -172,15 +171,63 @@ test('batch revalidation isolates one PR failure and continues every remaining P
   assert.equal(batch.failures.length, 1)
 })
 
+test('evaluation failure invalidates both trusted contexts only on the exact recovery PR head', async () => {
+  const writes = []
+  const api = {
+    json: async (pathname, init) => {
+      if (pathname.endsWith('/pulls/4')) return {
+        base: { ref: 'recovery', sha: BASE, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+        head: { sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+      }
+      if (pathname.endsWith(`/statuses/${HEAD}`)) {
+        writes.push(JSON.parse(init.body))
+        return {}
+      }
+      throw new Error(`unexpected json ${pathname}`)
+    },
+  }
+  assert.equal(await publishEvaluationFailure(api, 4, BASE), true)
+  assert.deepEqual(writes.map(({ context, state }) => [context, state]), [
+    ['Protected Approval', 'failure'],
+    ['Trusted Governance', 'failure'],
+  ])
+
+  for (const pull of [
+    {
+      base: { ref: 'main', sha: BASE, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+      head: { sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+    },
+    {
+      base: { ref: 'recovery', sha: BASE, repo: { full_name: 'other/repository' } },
+      head: { sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+    },
+    {
+      base: { ref: 'recovery', sha: BASE, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+      head: { sha: HEAD, repo: { full_name: 'other/repository' } },
+    },
+  ]) {
+    assert.equal(await publishEvaluationFailure({ json: async () => pull }, 4, BASE), false)
+  }
+
+  assert.equal(await publishEvaluationFailure({
+    json: async () => ({
+      base: { ref: 'recovery', sha: OTHER, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+      head: { sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+    }),
+  }, 4, BASE), false)
+})
+
 test('current snapshot adapter binds live PR, exact trees, trusted owners, and workflow definitions', async () => {
   const baseTreeSha = '4'.repeat(40)
   const headTreeSha = '5'.repeat(40)
   const baseBlob = '6'.repeat(40)
   const headBlob = '7'.repeat(40)
+  const runQueries = []
+  let duplicateLifecycle = false
   const api = {
     json: async (pathname) => {
       if (pathname.endsWith('/pulls/4')) return {
-        number: 4, state: 'open', body: body(), updated_at: '2026-08-16T00:00:00Z', merge_commit_sha: MERGE,
+        number: 4, state: 'open', body: body(), updated_at: '2026-08-16T00:00:00Z', merge_commit_sha: OTHER,
         base: { ref: 'recovery', sha: BASE, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
         head: { sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
       }
@@ -193,7 +240,23 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
       throw new Error(`unexpected json ${pathname}`)
     },
     paginate: async (pathname) => {
-      if (pathname.includes('/comments') || pathname.includes('/reviews') || pathname.includes('/runs')) return []
+      if (pathname.includes('/pulls?state=all&sort=created&direction=desc')) {
+        const current = {
+          number: 4,
+          base: { ref: 'recovery', sha: BASE, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+          head: { sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+        }
+        return duplicateLifecycle ? [current, {
+          ...current,
+          number: 5,
+          base: { ...current.base, ref: 'main' },
+        }] : [current]
+      }
+      if (pathname.includes('/runs')) {
+        runQueries.push(pathname)
+        return []
+      }
+      if (pathname.includes('/comments') || pathname.includes('/reviews')) return []
       throw new Error(`unexpected paginate ${pathname}`)
     },
   }
@@ -211,29 +274,40 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
   const current = await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })
   assert.equal(current.baseSha, BASE)
   assert.equal(current.headSha, HEAD)
-  assert.equal(current.mergeSha, MERGE)
   assert.deepEqual(current.changeCategories, ['supporting-doc'])
   assert.equal(current.classification, 'agent-local')
   assert.equal(current.prValidationWorkflowId, 101)
   assert.equal(current.visualWorkflowId, 102)
+  assert.equal(runQueries.length, 2)
+  assert.ok(runQueries.every((pathname) => pathname.includes(`head_sha=${HEAD}`)))
+  assert.ok(runQueries.every((pathname) => !pathname.includes(`head_sha=${OTHER}`)))
+  duplicateLifecycle = true
+  await assert.rejects(
+    () => buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile }),
+    /not unique to one recovery pull-request lifecycle/,
+  )
 })
 
-test('successful current snapshot posts two distinct statuses to the test-merge SHA', async () => {
+test('successful current snapshot posts two distinct statuses to the PR head SHA', async () => {
   const writes = []
-  const state = snapshot()
+  const state = snapshot({ runs: runs().reverse() })
   const result = await evaluateAndPublish({
     prNumber: 4,
     api: {},
+    targetUrl: 'https://github.com/Min-DongYoung/zzz-workbench/actions/runs/99',
     snapshotProvider: async () => structuredClone(state),
     statusWriter: async (_api, value) => writes.push(value),
   })
   assert.equal(result.posted, true)
   assert.deepEqual(writes.map(({ sha, context, state: status }) => [sha, context, status]), [
-    [MERGE, 'Trusted Governance', 'pending'],
-    [MERGE, 'Protected Approval', 'pending'],
-    [MERGE, 'Protected Approval', 'success'],
-    [MERGE, 'Trusted Governance', 'success'],
+    [HEAD, 'Trusted Governance', 'pending'],
+    [HEAD, 'Protected Approval', 'pending'],
+    [HEAD, 'Protected Approval', 'success'],
+    [HEAD, 'Trusted Governance', 'success'],
   ])
+  assert.equal(writes.at(-1).description, `pr=4 base=${BASE} runs=10,11`)
+  assert.equal(writes.at(-1).targetUrl,
+    `https://github.com/Min-DongYoung/zzz-workbench/actions/runs/99?pr=4&base=${BASE}&run1=10&run2=11`)
 })
 
 test('missing or edited evidence posts fail-closed statuses without trusting the event payload', async () => {
@@ -282,13 +356,17 @@ test('state change during evaluation prevents stale writes without cross-PR supe
   assert.equal(writes.length, 0)
 })
 
-test('validation remains bound to base, head, and merge identities', () => {
-  const state = snapshot()
-  state.runs[0].mergeSha = '4'.repeat(40)
-  assert.throws(() => evaluateSnapshot(state), /absent/)
-  state.runs = runs()
-  state.runs[0].headSha = '4'.repeat(40)
-  assert.throws(() => evaluateSnapshot(state), /absent/)
+test('validation binds the exact PR, base, head, and status target identities', () => {
+  for (const [field, value] of [
+    ['prNumber', 5],
+    ['baseSha', OTHER],
+    ['headSha', OTHER],
+    ['statusSha', OTHER],
+  ]) {
+    const state = snapshot()
+    state.runs[0][field] = value
+    assert.throws(() => evaluateSnapshot(state), /absent/)
+  }
 })
 
 test('finalization consumes actual creating-PR outcomes and rechecks the live recovery tip', async () => {
@@ -333,7 +411,22 @@ test('finalization consumes actual creating-PR outcomes and rechecks the live re
     submitted_at: '2026-08-15T01:02:00.000Z',
   }
   let tipReads = 0
-  const finalizationApi = (finalTip = candidate, { comments = [rawEvidence], reviews = [rawApproval] } = {}) => ({
+  const creatingPr = {
+    number: 4,
+    merged_at: '2026-08-16T01:00:00Z',
+    merge_commit_sha: candidate,
+    base: { ref: 'recovery', sha: BASE, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+    head: { ref: 'codex/final', sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+  }
+  const finalizationApi = (finalTip = candidate, {
+    comments = [rawEvidence],
+    reviews = [rawApproval],
+    duplicateLifecycle = false,
+    currentBaseSha = BASE,
+    statusBaseSha = BASE,
+    statusRunIds = [201, 202],
+    workflowStatusSha = HEAD,
+  } = {}) => ({
     json: async (pathname) => {
       if (pathname.endsWith('/git/ref/heads/recovery')) {
         tipReads += 1
@@ -342,7 +435,7 @@ test('finalization consumes actual creating-PR outcomes and rechecks the live re
       if (pathname.endsWith('/pulls/4')) return {
         number: 4, state: 'closed', merged_at: '2026-08-16T01:00:00Z', merge_commit_sha: candidate,
         body: body('protected'), updated_at: '2026-08-16T01:00:00Z',
-        base: { ref: 'recovery', repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+        base: { ref: 'recovery', sha: currentBaseSha, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
         head: { ref: 'codex/final', sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
       }
       if (pathname.endsWith(`/git/commits/${BASE}`)) return { tree: { sha: baseTreeSha } }
@@ -360,31 +453,37 @@ test('finalization consumes actual creating-PR outcomes and rechecks the live re
       throw new Error(`unexpected json ${pathname}`)
     },
     paginate: async (pathname) => {
-      if (pathname.endsWith(`/commits/${candidate}/pulls`)) return [{
-        number: 4,
-        merged_at: '2026-08-16T01:00:00Z',
-        merge_commit_sha: candidate,
-        base: { ref: 'recovery', repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
-        head: { ref: 'codex/final', sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
-      }]
+      if (pathname.endsWith(`/commits/${candidate}/pulls`)) return [creatingPr]
+      if (pathname.includes('/pulls?state=all&sort=created&direction=desc')) {
+        return duplicateLifecycle ? [creatingPr, {
+          ...creatingPr,
+          number: 5,
+          base: { ...creatingPr.base, ref: 'main' },
+        }] : [creatingPr]
+      }
       if (pathname.includes('/actions/workflows/101/runs')) return [{
-        id: 201, workflow_id: 101, event: 'pull_request', head_sha: MERGE,
+        id: 201, workflow_id: 101, event: 'pull_request', head_sha: workflowStatusSha,
         status: 'completed', conclusion: 'success',
-        pull_requests: [{ number: 4, base: { sha: BASE }, head: { sha: HEAD } }],
+        pull_requests: [],
       }]
       if (pathname.includes('/actions/workflows/102/runs')) return [{
-        id: 202, workflow_id: 102, event: 'pull_request', head_sha: MERGE,
+        id: 202, workflow_id: 102, event: 'pull_request', head_sha: workflowStatusSha,
         status: 'completed', conclusion: 'success',
-        pull_requests: [{ number: 4, base: { sha: BASE }, head: { sha: HEAD } }],
+        pull_requests: [],
       }]
       if (pathname.includes('/actions/runs/201/jobs')) return ['Behavior Tests', 'Type Check', 'Production Build']
         .map((name, index) => ({ id: index + 1, name, conclusion: 'success' }))
       if (pathname.includes('/actions/runs/202/jobs')) return [{ id: 4, name: 'Visual Baseline', conclusion: 'success' }]
-      if (pathname.endsWith(`/commits/${MERGE}/statuses`)) return ['Trusted Governance', 'Protected Approval']
+      if (pathname.endsWith(`/commits/${HEAD}/statuses`)) return ['Trusted Governance', 'Protected Approval']
         .map((context, index) => ({
           id: index + 1, context, state: 'success',
           creator: { login: 'github-actions[bot]' },
-          target_url: `https://github.com/Min-DongYoung/zzz-workbench/actions/runs/${300 + index}`,
+          description: context === 'Trusted Governance'
+            ? `pr=4 base=${statusBaseSha} runs=${statusRunIds.join(',')}`
+            : 'Current protection approval requirement is satisfied.',
+          target_url: context === 'Trusted Governance'
+            ? `https://github.com/Min-DongYoung/zzz-workbench/actions/runs/${300 + index}?pr=4&base=${statusBaseSha}&run1=${statusRunIds[0]}&run2=${statusRunIds[1]}`
+            : `https://github.com/Min-DongYoung/zzz-workbench/actions/runs/${300 + index}`,
         }))
       if (pathname.endsWith('/issues/4/comments')) return comments
       if (pathname.endsWith('/pulls/4/reviews')) return reviews
@@ -396,6 +495,7 @@ test('finalization consumes actual creating-PR outcomes and rechecks the live re
     api: finalizationApi(), actor: 'Min-DongYoung', candidateSha: candidate, root: '/trusted', repositoryValidator,
   })
   assert.equal(verified.creatingPr, 4)
+  assert.equal(verified.validatedHeadSha, HEAD)
   assert.deepEqual(Object.keys(verified.statuses).sort(), [
     'Behavior Tests', 'Production Build', 'Protected Approval', 'Trusted Governance', 'Type Check', 'Visual Baseline',
   ])
@@ -416,6 +516,32 @@ test('finalization consumes actual creating-PR outcomes and rechecks the live re
   await assert.rejects(() => verifyRemoteFinalization({
     api: finalizationApi(OTHER), actor: 'Min-DongYoung', candidateSha: candidate, root: '/trusted', repositoryValidator,
   }), /current recovery tip/)
+
+  tipReads = 0
+  await assert.rejects(() => verifyRemoteFinalization({
+    api: finalizationApi(candidate, { duplicateLifecycle: true }), actor: 'Min-DongYoung', candidateSha: candidate,
+    root: '/trusted', repositoryValidator,
+  }), /not unique to one recovery pull-request lifecycle/)
+
+  tipReads = 0
+  await assert.rejects(() => verifyRemoteFinalization({
+    api: finalizationApi(candidate, { currentBaseSha: OTHER }), actor: 'Min-DongYoung', candidateSha: candidate,
+    root: '/trusted', repositoryValidator,
+  }), /metadata is no longer trusted/)
+
+  tipReads = 0
+  await assert.rejects(() => verifyRemoteFinalization({
+    api: finalizationApi(candidate, { statusBaseSha: OTHER }), actor: 'Min-DongYoung', candidateSha: candidate,
+    root: '/trusted', repositoryValidator,
+  }), /does not bind the creating pull request/)
+
+  for (const options of [{ workflowStatusSha: OTHER }, { statusRunIds: [211, 212] }]) {
+    tipReads = 0
+    await assert.rejects(() => verifyRemoteFinalization({
+      api: finalizationApi(candidate, options), actor: 'Min-DongYoung', candidateSha: candidate,
+      root: '/trusted', repositoryValidator,
+    }), /required workflow run is absent/i)
+  }
 })
 
 test('trusted adapter contains no PR-code execution or artifact-download primitive', async () => {

@@ -3,16 +3,21 @@ import test from 'node:test'
 import {
   EVIDENCE_MARKER,
   PolicyError,
+  REQUIRED_CONTEXTS,
   REQUIRED_JOB_NAMES,
+  REQUIRED_WORKFLOWS,
   authorityTraceDigest,
   canonicalTreeDiff,
   categoryForPath,
   computeChangeClassification,
+  createGovernanceStatusBinding,
   evaluateChangeMatrix,
   extractCurrentRuleIds,
   extractRuleIdState,
   parseAuthorityTrace,
   parseAcrDocument,
+  parseGovernanceStatusBinding,
+  parseGovernanceTargetBinding,
   proveAgentLocal,
   trustedDecision,
   validateAcrStates,
@@ -28,7 +33,6 @@ import {
 
 const BASE = '1'.repeat(40)
 const HEAD = '2'.repeat(40)
-const MERGE = '3'.repeat(40)
 const OTHER = '4'.repeat(40)
 const DIFF = `sha256:${'a'.repeat(64)}`
 const KNOWN_RULES = ['SW-001', 'SF-001', 'GOV-001']
@@ -112,7 +116,7 @@ function evidenceComment(overrides = {}, commentOverrides = {}) {
 
 function validationRuns(overrides = {}) {
   const common = {
-    event: 'pull_request', prNumber: 4, baseSha: BASE, headSha: HEAD, mergeSha: MERGE,
+    event: 'pull_request', prNumber: 4, baseSha: BASE, headSha: HEAD, statusSha: HEAD,
   }
   return [
     {
@@ -137,7 +141,6 @@ function decisionInput(overrides = {}) {
     prNumber: 4,
     baseSha: BASE,
     headSha: HEAD,
-    mergeSha: MERGE,
     diffDigest: DIFF,
     classification: 'agent-local',
     mechanismDigest: 'none',
@@ -345,7 +348,7 @@ test('protected approval is exact-head, latest-state, and newer than review evid
 
 test('required workflow aggregation binds exact run identity and fails closed on every non-success outcome', () => {
   const expected = {
-    prNumber: 4, baseSha: BASE, headSha: HEAD, mergeSha: MERGE,
+    prNumber: 4, baseSha: BASE, headSha: HEAD,
     prValidationWorkflowId: 101, visualWorkflowId: 102,
   }
   assert.deepEqual(validateChildOutcomes(validationRuns(), expected).jobs, REQUIRED_JOB_NAMES)
@@ -355,13 +358,56 @@ test('required workflow aggregation binds exact run identity and fails closed on
     assert.throws(() => validateChildOutcomes(runs, expected), /exactly once with success/)
   }
   assert.deepEqual(validateChildOutcomes([...validationRuns(), { ...validationRuns()[0], id: 1 }], expected).jobs, REQUIRED_JOB_NAMES)
-  const wrongMerge = validationRuns({ mergeSha: OTHER })
-  assert.throws(() => validateChildOutcomes(wrongMerge, expected), /absent/)
+  for (const mismatch of [
+    { prNumber: 5 },
+    { baseSha: OTHER },
+    { headSha: OTHER },
+    { statusSha: OTHER },
+  ]) {
+    assert.throws(() => validateChildOutcomes(validationRuns(mismatch), expected), /absent/)
+  }
 })
 
-test('trusted decision targets the test-merge SHA and separates governance from protected approval', () => {
+test('required context descriptors and governance binding share one exact contract', () => {
+  assert.deepEqual(REQUIRED_CONTEXTS.map(({ name, kind, run }) => [name, kind, run]), [
+    ['Trusted Governance', 'status', 'trusted'],
+    ['Protected Approval', 'status', 'trusted'],
+    ['Behavior Tests', 'check', 'validation'],
+    ['Type Check', 'check', 'validation'],
+    ['Production Build', 'check', 'validation'],
+    ['Visual Baseline', 'check', 'visual'],
+  ])
+  assert.deepEqual(REQUIRED_WORKFLOWS, [
+    {
+      run: 'validation', path: '.github/workflows/pr-validation.yml', idField: 'prValidationWorkflowId',
+      names: ['Behavior Tests', 'Type Check', 'Production Build'],
+    },
+    {
+      run: 'visual', path: '.github/workflows/visual-baseline.yml', idField: 'visualWorkflowId',
+      names: ['Visual Baseline'],
+    },
+  ])
+  const binding = createGovernanceStatusBinding({
+    prNumber: 4,
+    baseSha: BASE,
+    runs: { validation: 10, visual: 11 },
+    actionRunUrl: 'https://github.com/Min-DongYoung/zzz-workbench/actions/runs/99',
+  })
+  assert.deepEqual(parseGovernanceTargetBinding(binding.targetUrl), {
+    prNumber: 4, baseSha: BASE, runs: { validation: 10, visual: 11 },
+  })
+  assert.deepEqual(parseGovernanceStatusBinding(binding), {
+    prNumber: 4, baseSha: BASE, runs: { validation: 10, visual: 11 },
+  })
+  assert.equal(parseGovernanceStatusBinding({ ...binding, description: binding.description.replace('10,11', '11,10') }), null)
+  assert.throws(() => createGovernanceStatusBinding({
+    prNumber: 4, baseSha: BASE, runs: { validation: 10, visual: 10 }, actionRunUrl: binding.targetUrl,
+  }), /run identities/)
+})
+
+test('trusted decision targets the PR head SHA and separates governance from protected approval', () => {
   const local = trustedDecision(decisionInput())
-  assert.equal(local.targetSha, MERGE)
+  assert.equal(local.targetSha, HEAD)
   assert.deepEqual(local.statuses, { 'Trusted Governance': 'success', 'Protected Approval': 'success' })
 
   const protectedComment = evidenceComment({
