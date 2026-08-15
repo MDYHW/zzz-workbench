@@ -1,10 +1,16 @@
 ---
 date: 2026-08-13
 topic: version-2-8-vertical-expansion
-status: active
+status: suspended-by-recovery
 ---
 
 # Version 2.8 Vertical Expansion Roadmap
+
+> **Recovery suspension:** Automatic vertical continuation is suspended. The
+> current runtime roster and completed-milestone entries are unverified audit
+> evidence until the authority-governance recovery is accepted and promoted to
+> trusted `main`. Grace remains `frozen-by-recovery`; no Anomaly or later
+> vertical may start from this roadmap during recovery.
 
 ## Purpose
 
@@ -38,9 +44,9 @@ contrasting-consumer checks.
 
 These verticals primarily reuse `general_damage`, `daze_buildup`, current
 stat/modifier projection, typed rank/faction qualification, pool-specific
-equipment authoring, and prepared-party lifecycle. Continue automatically
-through a completed vertical when its meaning is fully derived from permanent
-authority and established consumers.
+equipment authoring, and prepared-party lifecycle. Their current artifacts are
+inputs to the existing-vertical recovery, not accepted templates for further
+expansion. Automatic continuation remains disabled until trusted `main` exists.
 
 Pause before implementation when the next vertical requires a new semantic
 owner or product decision. Known review gates are Ben's DEF/shield foundation,
@@ -85,3 +91,7 @@ For every vertical:
 6. Commit the implementation, record a compact milestone, remove the completed
    plan body after it has been preserved in Git, and continue to the next
    vertical when no semantic gate remains.
+
+This repeated gate describes the post-recovery sequence only. During recovery,
+the recovery plan and protected repository policy supersede its continuation
+step without changing any product meaning in this roadmap.

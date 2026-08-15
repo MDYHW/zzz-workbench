@@ -61,6 +61,31 @@ is the minimum repeatable gate before review or commit. Browser verification is
 required in addition when a change has a visual or interactive consumer; it is
 not represented as passing merely because the build succeeds.
 
+## Protected remote gate
+
+The repository now has a shared pull-request and recovery flow, so local checks
+are necessary feedback but not the acceptance boundary. Protected changes must
+pass the repository's required governance-policy check, behavior tests, type
+checking, production build, and any applicable stable-environment Playwright
+visual check. A passing local run cannot replace a required remote status.
+
+During authority-governance recovery:
+
+- `unverified-baseline` and `unverified-baseline-3b2456a` preserve the exact
+  forensic checkpoint and may not move;
+- `recovery` accepts pull requests only and remains distinct from trusted
+  `main`;
+- every recovery pull request needs a fresh approval from the product-owner
+  account until the full ruleset and reviewer-evidence workflow is proven;
+- the project GitHub App may author non-protected branches and pull requests,
+  but it has no protection bypass and bootstrap auto-merge remains disabled;
+  and
+- no Agent vertical, frozen plan, or roadmap continuation resumes until the
+  recovery acceptance and promotion flow succeeds.
+
+Repository operations and checks enforce this boundary. They do not define
+product meaning or make a secondary requirement authoritative.
+
 ## Definition of done
 
 A checkpoint is done when all of the following apply:
@@ -77,16 +102,14 @@ A checkpoint is done when all of the following apply:
 
 ## Add process only when it has a current consumer
 
-The repository does not currently need CI configuration, an ADR registry, a
-research archive, visual-regression infrastructure, a content-management
-system, or an external issue tracker. Reconsider them only at these triggers:
+The shared remote, repeated semantic drift, and repeated portrait regressions
+now supply current consumers for required CI, protected review, policy checks,
+and stable visual-regression coverage. Keep those safeguards bounded to their
+accepted recovery requirements; do not turn them into product owners or a
+general evidence catalogue.
 
-- add CI when a shared remote or pull-request flow needs the canonical gate;
-- add an ADR only when a recurring cross-cutting technical decision cannot live
-  clearly in code, tests, or an existing owner;
-- add visual regression when stable screens suffer repeated visual regressions;
-- add content tooling when repeated authoring errors justify automation; and
-- add an issue tracker when parallel contributors need ownership and scheduling.
-
-Until then, active plans, behavior tests, browser verification, review, and
-focused Git history are the management system.
+An ADR registry, research archive, content-management system, and external
+issue tracker still require their own current consumer before introduction.
+Active plans, behavior tests, browser verification, protected review, and
+focused Git history remain the smallest management system outside the newly
+justified safeguards.
