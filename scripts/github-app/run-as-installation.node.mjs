@@ -18,6 +18,7 @@ import {
   parseCliOperationFromFiles,
   runAsInstallation,
   spawnCommand,
+  validateAppAndInstallation,
   validateInstallationToken,
   validateOperation,
   verifyTrustedRecoveryCheckout,
@@ -37,9 +38,12 @@ function appFetch(token = 'token-value') {
     if (url.endsWith('/app')) return ok({ id: APP_ID, owner: { login: 'Min-DongYoung' } });
     if (url.endsWith(`/app/installations/${INSTALLATION_ID}`)) return ok({
       id: INSTALLATION_ID, app_id: APP_ID, account: { login: 'Min-DongYoung' }, repository_selection: 'selected',
-      permissions: { contents: 'write', pull_requests: 'write', metadata: 'read' },
+      permissions: { checks: 'read', contents: 'write', pull_requests: 'write', statuses: 'read', metadata: 'read' },
     });
-    if (url.endsWith('/access_tokens')) return ok({ token, permissions: { contents: 'write', pull_requests: 'write', metadata: 'read' } }, 201);
+    if (url.endsWith('/access_tokens')) return ok({
+      token,
+      permissions: { checks: 'read', contents: 'write', pull_requests: 'write', statuses: 'read', metadata: 'read' },
+    }, 201);
     if (url.includes('/installation/repositories')) return ok({ total_count: 1, repositories: [{ full_name: REPOSITORY, private: true }] });
     if (url.endsWith('/installation/token')) return ok({}, 204);
     throw new Error('unexpected request');
@@ -123,7 +127,28 @@ test('body-file transport preserves multiline payloads without widening the comm
 });
 
 test('rejects broader installation permissions and foreign remotes or pull requests', () => {
-  assert.throws(() => validateInstallationToken({ token: 't', permissions: { contents: 'write', pull_requests: 'write', actions: 'write' } }), LauncherError);
+  const required = { checks: 'read', contents: 'write', pull_requests: 'write', statuses: 'read', metadata: 'read' };
+  const installation = {
+    id: INSTALLATION_ID,
+    app_id: APP_ID,
+    account: { login: 'Min-DongYoung' },
+    repository_selection: 'selected',
+    permissions: required,
+  };
+  assert.doesNotThrow(() => validateAppAndInstallation({ id: APP_ID, owner: { login: 'Min-DongYoung' } }, installation));
+  assert.throws(() => validateAppAndInstallation(
+    { id: APP_ID, owner: { login: 'Min-DongYoung' } },
+    { ...installation, permissions: { ...required, checks: undefined } },
+  ), LauncherError);
+  assert.throws(() => validateAppAndInstallation(
+    { id: APP_ID, owner: { login: 'Min-DongYoung' } },
+    { ...installation, permissions: { ...required, statuses: 'write' } },
+  ), LauncherError);
+  assert.equal(validateInstallationToken({ token: 't', permissions: required }), 't');
+  assert.throws(() => validateInstallationToken({ token: 't', permissions: { ...required, checks: 'write' } }), LauncherError);
+  assert.throws(() => validateInstallationToken({ token: 't', permissions: { ...required, statuses: 'write' } }), LauncherError);
+  assert.throws(() => validateInstallationToken({ token: 't', permissions: { ...required, checks: undefined } }), LauncherError);
+  assert.throws(() => validateInstallationToken({ token: 't', permissions: { ...required, actions: 'read' } }), LauncherError);
   assert.equal(isExpectedRemote('https://github.com/Min-DongYoung/zzz-workbench.git'), true);
   assert.equal(isExpectedRemote('https://github.com/other/repository.git'), false);
   assert.throws(() => assertPullRequestTarget({ baseRefName: 'main', headRefName: 'codex/a' }), LauncherError);
@@ -152,6 +177,10 @@ test('runs an allowlisted git push with the token only in the child environment 
     return { stdout: '' };
   };
   await runAsInstallation({ kind: 'git-push', branch: 'codex/launcher-test' }, runtimeOptions({ fetchImpl, runChild }));
+  const tokenRequest = calls.find(({ url }) => url.endsWith('/access_tokens'));
+  assert.deepEqual(JSON.parse(tokenRequest.init.body).permissions, {
+    checks: 'read', contents: 'write', pull_requests: 'write', statuses: 'read',
+  });
   assert.deepEqual(childCalls[0].args, ['push', `https://github.com/${REPOSITORY}.git`, 'HEAD:refs/heads/codex/launcher-test']);
   const encodedCredential = childCalls[0].options.env.GIT_CONFIG_VALUE_0.replace('AUTHORIZATION: basic ', '');
   assert.ok(Buffer.from(encodedCredential, 'base64').toString().includes('never-in-arguments'));

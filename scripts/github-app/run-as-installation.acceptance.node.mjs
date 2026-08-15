@@ -38,9 +38,12 @@ function options(overrides = {}) {
       if (url.endsWith('/app')) return response({ id: APP_ID, owner: { login: 'Min-DongYoung' } });
       if (url.endsWith(`/app/installations/${INSTALLATION_ID}`)) return response({
         id: INSTALLATION_ID, app_id: APP_ID, account: { login: 'Min-DongYoung' }, repository_selection: 'selected',
-        permissions: { contents: 'write', pull_requests: 'write', metadata: 'read' },
+        permissions: { checks: 'read', contents: 'write', pull_requests: 'write', statuses: 'read', metadata: 'read' },
       });
-      if (url.endsWith('/access_tokens')) return response({ token: 'test-token', permissions: { contents: 'write', pull_requests: 'write', metadata: 'read' } }, 201);
+      if (url.endsWith('/access_tokens')) return response({
+        token: 'test-token',
+        permissions: { checks: 'read', contents: 'write', pull_requests: 'write', statuses: 'read', metadata: 'read' },
+      }, 201);
       if (url.includes('/installation/repositories')) return response({ total_count: 1, repositories: [{ full_name: REPOSITORY, private: true }] });
       if (url.endsWith('/installation/token')) return response({}, 204);
       throw new Error('unexpected request');

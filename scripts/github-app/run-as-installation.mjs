@@ -24,8 +24,10 @@ const SHA = /^[0-9a-f]{40}$/;
 const POSITIVE_INTEGER = /^[1-9][0-9]*$/;
 const CHECK_RUN_TARGET = new RegExp(`^https://github\\.com/${REPOSITORY}/actions/runs/([1-9][0-9]*)/job/[1-9][0-9]*$`);
 const ALLOWED_TOKEN_PERMISSIONS = new Map([
+  ['checks', 'read'],
   ['contents', 'write'],
   ['pull_requests', 'write'],
+  ['statuses', 'read'],
   ['metadata', 'read'],
 ]);
 
@@ -367,7 +369,8 @@ export function validateAppAndInstallation(app, installation) {
   const permissionEntries = Object.entries(permissions);
   if (installation.repository_selection !== 'selected'
     || permissionEntries.some(([name, value]) => ALLOWED_TOKEN_PERMISSIONS.get(name) !== value)
-    || permissions.contents !== 'write' || permissions.pull_requests !== 'write') {
+    || permissions.checks !== 'read' || permissions.contents !== 'write'
+    || permissions.pull_requests !== 'write' || permissions.statuses !== 'read') {
     fail('GitHub App installation scope or permissions are invalid.');
   }
 }
@@ -379,7 +382,8 @@ export function validateInstallationToken(tokenResponse) {
       fail('Installation token permissions are broader than allowed.');
     }
   }
-  if (tokenResponse.permissions?.contents !== 'write' || tokenResponse.permissions?.pull_requests !== 'write') {
+  if (tokenResponse.permissions?.checks !== 'read' || tokenResponse.permissions?.contents !== 'write'
+    || tokenResponse.permissions?.pull_requests !== 'write' || tokenResponse.permissions?.statuses !== 'read') {
     fail('Installation token permissions are insufficient.');
   }
   return tokenResponse.token;
@@ -410,7 +414,7 @@ export async function mintInstallationToken({ fetchImpl = fetch, jwt, timeoutMs 
     headers: { ...jwtHeaders(jwt), 'Content-Type': 'application/json' },
     body: JSON.stringify({
       repositories: [REPOSITORY_NAME],
-      permissions: { contents: 'write', pull_requests: 'write' },
+      permissions: { checks: 'read', contents: 'write', pull_requests: 'write', statuses: 'read' },
     }),
   });
   const rawToken = tokenResponse?.token;
