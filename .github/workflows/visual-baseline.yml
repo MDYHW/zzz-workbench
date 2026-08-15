@@ -1,0 +1,35 @@
+name: Visual Baseline Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: visual-baseline-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  visual-baseline:
+    name: Visual Baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Emit the pre-U9 applicability result
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        shell: bash
+        run: |
+          if ! git diff --quiet "$BASE_SHA" HEAD -- \
+            src/App.tsx src/app.css src/components src/assets/agents \
+            tests/visual playwright.config.ts playwright.config.js; then
+            echo "Visual inputs changed before the accepted U9 baseline exists." >&2
+            exit 1
+          fi
+          echo "Visual Baseline: not applicable; no protected visual input changed."

@@ -2,3 +2,6 @@ node_modules/
 dist/
 *.tsbuildinfo
 .vite/
+*.pem
+.github-app/
+.github-app-*.json

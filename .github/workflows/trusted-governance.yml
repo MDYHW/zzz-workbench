@@ -1,0 +1,58 @@
+name: Trusted Governance Dispatcher
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+  issue_comment:
+    types: [created, edited, deleted]
+  workflow_run:
+    workflows: [PR Validation, Visual Baseline Validation, Review Signal]
+    types: [completed]
+  push:
+    branches: [recovery]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Optional open recovery PR number; blank revalidates all.
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+  actions: read
+  statuses: write
+
+concurrency:
+  group: trusted-governance-${{ github.event.pull_request.number || github.event.issue.number || github.event.workflow_run.pull_requests[0].number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  evaluate-current-state:
+    name: Governance Dispatcher
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the trusted recovery evaluator
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: recovery
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Bind the evaluator revision
+        id: trusted-base
+        shell: bash
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Use the pinned Node runtime
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install the trusted recovery dependency graph without scripts
+        run: npm ci --ignore-scripts
+      - name: Evaluate current GitHub state without executing PR code
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TRUSTED_BASE_SHA: ${{ steps.trusted-base.outputs.sha }}
+        run: node scripts/governance/trusted-github.mjs event

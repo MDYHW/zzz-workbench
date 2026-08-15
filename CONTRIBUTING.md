@@ -81,7 +81,7 @@ decision history, not current product authority.
 
 Protected authority, governance, shared-semantic, CI, and visual-baseline
 changes require fresh product-owner approval of their latest revision. A
-settled Agent-local change may later auto-merge only after the repository's
+settled Agent-local change may later merge without a manual owner review only after the repository's
 independent-review evidence and required checks prove their objective gates.
 
 ## Canonical local gate
@@ -112,13 +112,129 @@ During authority-governance recovery:
 - every recovery pull request needs a fresh approval from the product-owner
   account until the full ruleset and reviewer-evidence workflow is proven;
 - the project GitHub App may author non-protected branches and pull requests,
-  but it has no protection bypass and bootstrap auto-merge remains disabled;
+  but it has no protection bypass and bootstrap App merge remains disabled;
   and
 - no Agent vertical, frozen plan, or roadmap continuation resumes until the
   recovery acceptance and promotion flow succeeds.
 
 Repository operations and checks enforce this boundary. They do not define
 product meaning or make a secondary requirement authoritative.
+
+### Pull-request evidence and conditional approval
+
+Start every PR from the repository template and keep exactly one
+`## Authority trace` section. Use current stable Rule IDs and exact
+`path#symbol` consumer references. `Not applicable` is accepted only with the
+reason it does not apply. Declaring `agent-local` does not make a shared change
+local; trusted base code computes protection independently and declarations may
+only escalate it.
+
+After an independent semantic review of the latest revision, publish one
+top-level issue comment through the project App. Put this marker before the
+JSON fence in that same comment:
+
+`<!-- zzz-workbench:authority-review:v1 -->`
+
+```json
+{
+  "schema": "zzz-workbench-authority-review/v1",
+  "kind": "authority-review",
+  "result": "pass",
+  "reviewerRun": {
+    "id": "<review run>",
+    "completedAt": "<ISO-8601 time>",
+    "reviewers": ["<reviewer identity>"]
+  },
+  "prNumber": 1,
+  "baseSha": "<40 lowercase hex>",
+  "headSha": "<40 lowercase hex>",
+  "diffDigest": "sha256:<64 lowercase hex>",
+  "classification": "agent-local",
+  "traceDigest": "sha256:<64 lowercase hex>",
+  "mechanismDigest": "none",
+  "ruleIds": ["SW-001"],
+  "consumers": ["src/path.ts#symbol"]
+}
+```
+
+Editing or deleting the current comment, changing the PR body or head, or
+changing a bound tree invalidates it. Do not add this payload to the proposed
+repository diff.
+
+Six unique required contexts gate `recovery`: `Trusted Governance`,
+`Protected Approval`, `Behavior Tests`, `Type Check`, `Production Build`, and
+`Visual Baseline`. The first two target GitHub's current test-merge SHA. The
+four job contexts must each appear exactly once and finish with `success`;
+GitHub's native skipped or neutral treatment is not sufficient here.
+
+An Agent-local or other routine non-protected PR needs no manual owner review
+after its evidence and required contexts pass. A protected PR needs a current
+approval from `Min-DongYoung` after the latest evidence; a later push or
+evidence update invalidates that approval.
+
+### Local GitHub App launcher
+
+Keep the App PEM outside the repository. Provide only absolute executable and
+credential paths:
+
+```powershell
+$env:ZZZ_WORKBENCH_GITHUB_APP_PEM_PATH = 'C:\Users\mdy06\.config\zzz-workbench\<app-key>.pem'
+$env:ZZZ_WORKBENCH_GIT_EXECUTABLE = '<absolute path to git.exe>'
+$env:ZZZ_WORKBENCH_GH_EXECUTABLE = '<absolute path to gh.exe>'
+```
+
+Invoke the launcher by absolute path from a clean local `recovery` worktree
+whose HEAD equals local `origin/recovery`. The current working directory may be
+the clean candidate worktree for branch-bound operations. The allowlisted
+launcher commands are:
+
+```text
+node scripts/github-app/run-as-installation.mjs git-push <codex/branch>
+node scripts/github-app/run-as-installation.mjs pr-create <codex/branch> <title> <body>
+node scripts/github-app/run-as-installation.mjs pr-edit <number> <title> <body>
+node scripts/github-app/run-as-installation.mjs evidence-upsert <number> <body>
+node scripts/github-app/run-as-installation.mjs pr-merge <number> <40-char-head-sha>
+```
+
+For PR bodies, comments, and evidence payloads, replace the final body argument
+with `--body-file <absolute-path>` to avoid shell quoting or command-line length
+loss. The launcher reads at most 64 KiB and applies the same exact schema.
+
+`pr-create` reuses only an exact same-head, same-body open PR and reconciles it
+after an ambiguous creation result. A failed pre-mutation lookup reports
+retryable `pr_create_lookup_unavailable`; if both creation and the immediate
+post-mutation lookup are inconclusive, it reports retryable
+`pr_create_result_unknown` with the verified head identity instead of falsely
+declaring failure. `evidence-upsert` creates or replaces the
+single marked App comment and reconciles the marker after an ambiguous write
+before allowing a retry. `pr-merge` performs an
+immediate exact-head squash only after its trusted current-state preflight;
+`merge_checks_pending` is a retryable pre-mutation result, and an ambiguous
+merge is reconciled against the exact head before it reports success or the
+retryable `merge_result_unknown` result. Failed required checks are retried
+later rather than queued as auto-merge.
+An ambiguous non-force `git-push` reports retryable `git_push_result_unknown`
+with the exact branch and HEAD, and an ambiguous `pr-edit` first reconciles the
+exact title and body before reporting retryable `pr_edit_result_unknown`.
+Every success and failure is machine-readable JSON, and a cleanup failure states
+whether the mutation already completed. The launcher rejects another
+repository, protected branch push, force operation, arbitrary subprocess, or
+broader token scope.
+
+Run the focused governance gate with `npm run test:governance`; `npm run check`
+includes it before the existing behavior, type, and production-build gates.
+The owner-only recovery finalization re-reads the live `recovery` tip, the
+candidate's single creating PR, that PR's actual successful workflow jobs and
+trusted commit statuses, and the live tip again before emitting an attestation.
+It also reconstructs the exact historical base/head trees and validates the
+creating PR's current body, App evidence comment, and current exact-head owner
+approval; post-merge withdrawal or editing therefore blocks finalization. It
+never synthesizes success from the local gate.
+
+The trusted evaluator installs the dependency graph pinned by the trusted
+`recovery` lockfile with lifecycle scripts disabled. It parses selected PR
+TypeScript blobs only as inert syntax for the narrow Agent-local proof and does
+not install, import, or execute the proposed PR's package or code.
 
 ## Definition of done
 
