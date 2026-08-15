@@ -1,0 +1,55 @@
+name: Recovery Finalization
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Exact current recovery commit to attest.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: read
+  statuses: read
+
+concurrency:
+  group: recovery-finalization
+  cancel-in-progress: false
+
+jobs:
+  attest:
+    name: Recovery Finalization Attestation
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out the current protected recovery tip
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: recovery
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify owner and exact unchanged candidate
+        env:
+          ACTOR: ${{ github.actor }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        shell: bash
+        run: |
+          test "$ACTOR" = "Min-DongYoung"
+          test "$CANDIDATE_SHA" = "$(git rev-parse HEAD)"
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: npm
+      - name: Require a complete recovery index
+        run: node scripts/governance/check-policy.mjs repository --require-complete-audit
+      - run: npm ci --ignore-scripts
+      - name: Re-run the zero-secret full local gate at the exact candidate
+        run: npm run check
+      - name: Bind all mandatory exact-candidate outcomes into the final attestation
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ACTOR: ${{ github.actor }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: node scripts/governance/trusted-github.mjs finalization

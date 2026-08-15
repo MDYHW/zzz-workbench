@@ -1,0 +1,20 @@
+name: Review Signal
+
+on:
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: review-signal-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  signal:
+    name: Review Signal Event
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - run: echo "A current review event requires trusted API re-evaluation."

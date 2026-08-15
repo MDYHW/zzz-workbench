@@ -1,0 +1,30 @@
+# Product-owner approval is conditional on these protected paths. Routine
+# Agent-local production paths remain governed by Trusted Governance instead.
+/.github/ @Min-DongYoung
+/AGENTS.md @Min-DongYoung
+/CONTRIBUTING.md @Min-DongYoung
+/.gitattributes @Min-DongYoung
+/.gitignore @Min-DongYoung
+/package.json @Min-DongYoung
+/package-lock.json @Min-DongYoung
+/tsconfig*.json @Min-DongYoung
+/vite.config.ts @Min-DongYoung
+/scripts/governance/ @Min-DongYoung
+/scripts/github-app/ @Min-DongYoung
+
+/docs/setup-workbench-product-contract.md @Min-DongYoung
+/docs/source-fact-boundary.md @Min-DongYoung
+/docs/workbench-ui-design-rules.md @Min-DongYoung
+/docs/zzz-formula-mechanics.md @Min-DongYoung
+/docs/zzz-game-vocabulary.md @Min-DongYoung
+/docs/authority-changes/ @Min-DongYoung
+/docs/audits/ @Min-DongYoung
+/docs/brainstorms/2026-08-15-authority-governance-recovery-requirements.md @Min-DongYoung
+/docs/plans/2026-08-15-003-fix-authority-governance-recovery-plan.md @Min-DongYoung
+/docs/postmortems/2026-08-15-authority-governance-drift.md @Min-DongYoung
+
+/playwright.config.* @Min-DongYoung
+/tests/visual/ @Min-DongYoung
+/src/components/agentPortraits.ts @Min-DongYoung
+/src/app.css @Min-DongYoung
+/src/assets/agents/ @Min-DongYoung

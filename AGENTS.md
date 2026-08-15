@@ -51,6 +51,8 @@ preserves the transaction keeps its identifier. A split, merge, replacement,
 or retirement reserves the old identifier under a local `Retired Governance
 Rule IDs` heading and allocates new identifiers to the resulting current
 transactions.
+Historical ACRs continue to resolve retired identifiers from that owner-local
+ledger, while new traces and new ACR decisions may cite only current Rule IDs.
 
 When current permanent authority cannot decide a required product meaning:
 
@@ -67,8 +69,11 @@ When current permanent authority cannot decide a required product meaning:
    revision and obtain fresh owner approval before merging that record. A
    proposed, rejected, or stale record authorizes no authority amendment.
 5. After an accepted ACR is merged, amend only the affected permanent owner in
-   a separate protected PR. That PR cites the immutable accepted record and
-   contains no requirements, plans, production code, tests, or audit completion.
+   a separate protected PR. The cited immutable accepted record must reference
+   the same current Rule ID named by the amendment trace in that permanent
+   file; an unrelated accepted record, including one for a different rule in
+   the same owner, cannot authorize the amendment. That PR contains no
+   requirements, plans, production code, tests, or audit completion.
 6. Only after the owner amendment merges may later bounded changes correct
    subordinate requirements, implementation, and tests. Their verification
    proves fidelity to the already-current owner rather than validating the
@@ -93,11 +98,90 @@ the PR description rather than in a repository answer catalogue:
   references.
 
 Independent semantic-review evidence stays outside the proposed diff and binds
-the PR number, reviewed base SHA, head SHA, diff digest, traced Rule IDs, and
-consumer paths. CI may validate that evidence's provenance, shape, and
+the PR number, reviewed base SHA, head SHA, diff digest, the canonical digest
+of the complete Authority trace, traced Rule IDs, and consumer paths. CI may
+validate that evidence's provenance, shape, and
 freshness; it cannot establish that the semantic conclusion is correct. The
 compact recovery index stores only cohort scope, status, mechanism manifest
 digest, accepted merged PR/SHA references, and its own PR number.
+
+### Trusted governance execution
+
+The protected `recovery` revision owns the remote evaluator. The
+`pull_request_target` workflow checks out `recovery` explicitly and may read
+GitHub API metadata, Git tree identities, exact proposed Git blobs as untrusted
+text or binary data, current top-level issue comments, reviews, and workflow
+runs. It installs only the dependency graph pinned by the trusted `recovery`
+lockfile with lifecycle scripts disabled; its trusted parser may inspect a
+proposed TypeScript blob as inert syntax but never imports or executes it. It
+never checks out or downloads executable artifacts from the proposed PR. PR
+behavior, type, build, and visual jobs run
+separately with a read-only token and no repository secret.
+
+The six required merge contexts have unique meanings and names:
+
+- `Trusted Governance` is a commit status for the current PR test-merge SHA;
+- `Protected Approval` is a separate commit status for that same SHA;
+- `Behavior Tests`, `Type Check`, and `Production Build` are exact PR job names;
+  and
+- `Visual Baseline` is always present and reports either an exact success or an
+  explicit policy-verified not-applicable success.
+
+The trusted evaluator accepts only exactly one successful current job for each
+required name. Missing, failed, cancelled, skipped, neutral, duplicate, stale,
+or differently bound outcomes fail closed. Status and job names must not
+collide. GitHub rules bind every required context to the observed GitHub
+Actions integration and require the branch to be current.
+
+PR metadata cannot lower protection. Permanent authority, ACR, audit-index,
+governance/CI, shared semantic, and visual changes are protected. A production
+change is Agent-local only when trusted base code can prove one additive Agent
+boundary across every changed production path; any omitted path, replacement,
+deletion, common helper or type-schema edit, shared UI or selector change, or
+portrait input is protected. A declaration may escalate this result but never
+de-escalate it.
+
+Independent review publishes exactly one versioned top-level issue comment
+through the expected GitHub App identity. Its JSON binds the current PR, base,
+head, canonical Git-tree digest, classification, Rule IDs, consumers,
+complete Authority-trace digest, mechanism digest, and reviewer-run provenance.
+The trusted workflow re-fetches
+the complete current comment and review sets on body, comment, review, head,
+and applicable base events. Editing, replacing, deleting, or making that
+evidence stale withdraws the green decision. The local App launcher repeats
+the same current-state preflight before an immediate exact-head squash merge.
+The trusted evaluator also binds its checked-out `recovery` revision to the
+PR's current base SHA before any status write; a stale evaluator publishes
+nothing.
+
+Routine non-protected work does not require the product owner to submit a
+review on every PR. Protected work requires a fresh exact-head owner approval
+after the latest independent evidence. Global blanket approval remains zero;
+CODEOWNERS and `Protected Approval` supply the conditional owner boundary.
+
+Recovery finalization repeats the semantic-evidence boundary after merge. It
+reconstructs the historical base/head tree pair used by the successful PR
+runs, then re-reads the creating PR's current body, top-level evidence comment,
+and reviews. A deleted or edited evidence comment, edited trace, or withdrawn
+approval blocks finalization even when the historical jobs and statuses remain
+green.
+
+The local GitHub App launcher is invoked by absolute path from a clean local
+`recovery` worktree whose HEAD equals local `origin/recovery`; routine work may
+remain in a separate candidate worktree. It reads the PEM only after verifying
+that trusted source and the candidate repository/config boundary, and only from
+an absolute external path
+named by `ZZZ_WORKBENCH_GITHUB_APP_PEM_PATH`. It accepts only the fixed App,
+installation, repository, branch, and `git`/`gh` operation schemas; it places a
+narrow installation token only in the child environment and revokes it in
+guaranteed cleanup. The App has no administration, workflow, status, check,
+secret, or protection-bypass permission.
+
+If protection or its required evaluator is defective, freeze `recovery`,
+disable App mutation and immediate merge, invalidate outstanding evidence, and
+land
+one owner-reviewed repair under the minimal protection boundary. Restore and
+read back the full rules and rejection probes before resuming recovery.
 
 ## Controller Re-grounding And Authoring
 

@@ -14,7 +14,10 @@ amendment; dependent requirements, code, and tests follow in later changes.
 
 Name a record `YYYY-MM-DD-NNN-short-decision.md` and give it the stable ID
 `ACR-YYYY-MM-DD-NNN`. Numbers are monotonically allocated within the date and
-never reused. A filename, ID, or accepted decision is never repurposed.
+never reused. Every new number must be greater than the highest number already
+present for that date in the protected base; a deleted, rejected, or
+superseded record does not release its number. A filename, ID, or accepted
+decision is never repurposed.
 
 Use exactly one status:
 
@@ -119,6 +122,10 @@ Before merging an ACR PR, verify all of the following:
 - the record contains exactly one decision and every required section;
 - every existing-rule reference resolves to one stable ID in its owning
   permanent file;
+- every later owner-amendment PR cites an already-merged accepted record whose
+  Existing rule intersects the amendment trace on the same current Rule ID in
+  that permanent file; an unrelated accepted record, including one for a
+  different rule in the same owner, cannot authorize the amendment;
 - external independent review evidence reconstructs the owner, consumer,
   similar case, contrast, and impact instead of accepting this record as its
   premise, and binds the exact latest PR revision as required by `GOV-001`;
