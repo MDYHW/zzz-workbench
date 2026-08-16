@@ -107,13 +107,10 @@ export function resolveCaesarProviderClauses(
       setup.mindscape >= 2 ? values.mindscapeFocusAtk : values.coreFocusAtk,
       'focus',
     ),
-    withApplicability(
-      additive(
-        'dmgTaken', 'fully', STATIC_SOURCES.caesar.additional,
-        additionalActive ? values.additionalDmgTaken : 0,
-        'enemy-context',
-      ),
-      { formulas: ['general_damage', 'sheer_damage'] },
+    additive(
+      'dmgBonus', 'fully', STATIC_SOURCES.caesar.additional,
+      additionalActive ? values.additionalDmgBonus : 0,
+      'enemy-context',
     ),
     withApplicability(
       additive(

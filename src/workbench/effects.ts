@@ -59,7 +59,6 @@ export type EffectMetric =
   | 'dmgBonus' | 'sheerDmgBonus' | 'resIgnore' | 'dazeBonus'
   | 'stunDmgMultiplier' | 'energyRegen' | 'stunDuration'
   | 'penRatio' | 'defIgnore' | 'resReduction' | 'defReduction' | 'shieldEffect'
-  | 'dmgTaken'
   | 'anomalyProficiency' | 'anomalyMastery' | 'anomalyDmgBonus'
   | 'anomalyBuildupBonus' | 'anomalyBuildupResReduction'
 
@@ -169,7 +168,7 @@ export function clauseAppliesToContext(
     && formulas?.includes('general_damage')
     && [
       'atk', 'dmgBonus', 'penRatio', 'defIgnore', 'defReduction',
-      'resIgnore', 'resReduction', 'stunDmgMultiplier', 'dmgTaken',
+      'resIgnore', 'resReduction', 'stunDmgMultiplier',
     ].includes(clause.metric)
   if (
     formulas
