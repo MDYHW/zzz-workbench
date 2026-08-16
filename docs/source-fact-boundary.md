@@ -153,6 +153,19 @@ A source-local name is not automatically a shared term. Canonicalize it to an
 existing action, Attribute, stat, formula region, or source identity when that
 produces the same qualifying outcome.
 
+Classify a retained effect's stat or modifier region from its explicit
+mechanical meaning before resolving its recipient, trigger, or affected scope.
+An enemy recipient or application locus, target wording, or an "against"
+condition does not by itself establish the generic target-side
+`dmg_taken_multiplier`. The current outgoing setup boundary admits no Agent,
+W-Engine, or Drive Disc contribution to that component. Its formula component
+remains available for an independently retained enemy, stage, or environmental
+mechanic, while explicitly named Stun DMG Multiplier, Veil Vulnerability,
+RES/DEF-region, Daze, and other target mechanics keep their own meanings.
+Holder-side incoming-damage reduction may remain an exact compressed survival
+fact when its complete package independently passes this gate, but it creates
+neither an outgoing shared metric nor a Result row.
+
 For current Rupture Agents, canonicalize the shared 30% current-ATK and 10%
 current-Max-HP conversion clauses to one `Rupture specialty` source
 identity. The Max HP clause remains a game-authored Core Passive clause, but
