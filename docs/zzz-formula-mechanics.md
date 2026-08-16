@@ -478,20 +478,18 @@ Source facts own the threshold, increments, base output, and cap. Formula
 mechanics owns their calculation relationship, and the product contract owns
 which current basis and linked output the result exposes.
 
-The current bounded Ben relationship reads Initial DEF twice without turning
-DEF or shields into a new formula family:
+The current bounded Ben relationship reads Initial DEF for one independently
+admitted non-survival output without turning DEF into a new formula family:
 
 ```text
 Ben Combat ATK addition = 0.8 * Ben Initial DEF
-Ben Core shield per EX follow-up =
-  (0.3 * Ben Initial DEF + 550) * (1 + sum of applicable Shield Effect)
 ```
 
-Shield Effect percentages add in one modifier region before they scale the
-source-stated shield basis. Initial DEF changes both retained outputs; Shield
-Effect changes only the shield output. This relationship does not define
-incoming damage, shield uptime, replacement, duration optimization, or a
-generic survival formula.
+An exactly calculable shield, healing, or other survival amount is not a
+current linked output under this rule. Its basis and modifiers do not form a
+retained calculation relationship solely for that survival output. The same
+basis may remain in a separate independently admitted non-survival
+relationship, as Ben's Initial DEF does for Combat ATK.
 
 When initial ATK is a scaling basis, ATK% and flat ATK remain separate inputs.
 An ATK% contribution reads the current base ATK, which includes
