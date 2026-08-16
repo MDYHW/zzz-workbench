@@ -4,8 +4,7 @@ on:
   pull_request_review:
     types: [submitted, edited, dismissed]
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: review-signal-${{ github.event.pull_request.number }}
