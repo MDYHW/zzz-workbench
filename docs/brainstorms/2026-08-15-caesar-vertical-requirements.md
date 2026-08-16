@@ -9,13 +9,13 @@ topic: caesar-vertical
 
 Admit Caesar King through the current setup-to-Result path. Caesar is an
 S-Rank Physical Defense Agent whose primary Daze direction is coupled to one
-deterministic per-activation shield output, a Focus-routed ATK benefit, and the
-first current enemy DMG Taken multiplier. The vertical reuses existing Impact,
+deterministic per-activation shield output, a Focus-routed ATK benefit, and a
+qualified broad regular DMG Bonus. The vertical reuses existing Impact,
 Daze, shield-effect, recipient, action, equipment-package, contextual-candidate,
 and lifecycle meanings without introducing a generic survival model.
 
-The vertical adds one W-Engine identity, Original Transmorpher, and one Result
-metric, DMG Taken. It adds no incoming-damage simulation, shield uptime or
+The vertical adds one W-Engine identity, Original Transmorpher, and no new
+Result metric. It adds no incoming-damage simulation, shield uptime or
 depletion, anti-interrupt state, Assist catalogue, Energy gauge, anomaly
 direction, raw damage, raw Daze, or runtime optimizer.
 
@@ -31,8 +31,8 @@ direction, raw damage, raw Daze, or runtime optimizer.
    Impact and Daze but never retroactively increases the shield basis.
 3. Caesar's Result owns one Radiant Aegis amount. The controllable active
    bearer ATK benefit is delivered exactly once to Focus, while her qualified
-   Additional Ability exposes a separate enemy DMG Taken metric on current
-   general- and sheer-damage consumers.
+   Additional Ability contributes to the existing Fully Enabled regular DMG
+   Bonus quantity of every eligible current recipient.
 4. Astral Voice becomes a contextual 4-piece candidate only when the applied
    party supplies the established repeated Quick Assist opportunity. Party
    Apply that removes the opportunity rebuilds all three setups and prepares
@@ -45,7 +45,7 @@ direction, raw damage, raw Daze, or runtime optimizer.
 ## Owning Rules And Contrasts
 
 - Formula mechanics owns Initial/Combat/Fully stat regions, percentage Impact,
-  Daze Bonus, DMG Taken as its own damage-formula region, and Caesar's bounded
+  Daze Bonus, regular DMG Bonus, and Caesar's bounded
   shield relationship. Lighter's Core Fully Enabled Impact is the closest stat-region
   contrast: it improves Daze but cannot strengthen an Initial-Impact shield.
   Ben's provider-local Core shield is the closest operation contrast: it
@@ -56,7 +56,7 @@ direction, raw damage, raw Daze, or runtime optimizer.
   consumer. Proto Punk versus Bunny in Wonderland is the closest whole-package
   Disc contrast: one strengthens the shield plus squad damage, while the other
   trades an unused HP 2-piece for a larger squad damage maximum.
-- The source-fact boundary admits the shield, qualified DMG Taken multiplier,
+- The source-fact boundary admits the shield, qualified regular DMG Bonus,
   current Impact change, M2 ATK change, and complete M6 action differences
   because each has a deterministic current consumer. It excludes shield
   depletion, one-hit protection, duration, Energy events, and M4 Assist-point
@@ -93,8 +93,9 @@ direction, raw damage, raw Daze, or runtime optimizer.
   perform Defensive Assist or shares her faction. Keep this as one local
   current qualification consumer using the admitted Evasive-Assist exceptions,
   not as a new field on every Agent. When active, nearby enemies take 25% more
-  DMG at Fully Enabled. This is `dmgTaken`, not `dmgBonus`, and applies to
-  current `general_damage` and `sheer_damage` consumers. Caesar plus Zhu Yuan
+  DMG at Fully Enabled. This is an unscoped regular `dmgBonus` contribution,
+  not generic target-side `dmgTaken`, and follows each recipient's existing
+  regular-DMG-Bonus formula applicability. Caesar plus Zhu Yuan
   and Billy is the inactive contrast; replacing Billy with Anby activates the
   Defensive-Assist route, while Pulchra activates the same-faction route.
 
@@ -209,9 +210,10 @@ direction, raw damage, raw Daze, or runtime optimizer.
 - R19. Result exposes Impact, Daze Bonus, selected residual ATK/CRIT/DMG inputs,
   Shield Effect when supplied, the Caesar-owned shield operation, exact Core/
   Mindscape action rows, delivered Focus ATK, and applicable shared/enemy
-  modifiers. DMG Taken appears as a separately composed Initial/Combat/Fully
-  row only for current eligible damage formulas. Candidate dominance and
-  prepared choice do not broaden exact Result projection.
+  modifiers. A qualified Caesar contributes `+25%` under `Additional Ability`
+  to each eligible recipient's existing Fully Enabled DMG Bonus quantity;
+  Result does not create an Agent-supplied generic DMG Taken row. Candidate
+  dominance and prepared choice do not broaden exact Result projection.
 - R20. Selected and candidate equipment expose the same accessible compressed
   package descriptions, including inactive Specialty passives. Original asset
   inspection and in-app Browser comparison at desktop and one narrow viewport
@@ -230,7 +232,7 @@ direction, raw damage, raw Daze, or runtime optimizer.
 - AE3. Calculation tests prove Initial/Combat versus Fully Enabled Impact,
   shield basis and
   Shield Effect, Focus ATK at M0/M2, Additional active/inactive routes, broad
-  DMG Taken projection without DMG Bonus contamination, M1 RES Reduction,
+  regular DMG Bonus projection without a generic DMG Taken row, M1 RES Reduction,
   skill-tier Daze/Impact values, M6 capped action CRIT/DMG/operation, Tusks,
   inactive Hellfire/Demara passives, and Original Fully-only Impact.
 - AE4. Shared UI tests prove complete selected/candidate package copy,
@@ -246,9 +248,10 @@ direction, raw damage, raw Daze, or runtime optimizer.
   Pulchra, and Zhu Yuan. This list is owned only by Caesar's present Additional
   Ability consumer and must be revisited when a later admitted Agent can change
   that qualification; it is not Agent catalogue metadata.
-- The current formula participants consume Caesar's DMG Taken only through
-  `general_damage` and `sheer_damage`. A later anomaly vertical must establish
-  its own formula/result consumer before broadening the applicability.
+- Caesar's unscoped regular DMG Bonus follows each current recipient's existing
+  regular-DMG-Bonus formula applicability, including an applicable anomaly
+  damage consumer. It does not create a new formula family or generic target
+  input.
 
 ## Rejected Alternatives And Boundaries
 
@@ -260,8 +263,9 @@ direction, raw damage, raw Daze, or runtime optimizer.
   party members, or dynamically follow a runtime active character. One
   provider-owned operation plus one Focus recipient preserves the current
   controllable setup decision.
-- Do not encode DMG Taken as DMG Bonus. They occupy different permanent formula
-  regions even when both are additive percentages in visible prose.
+- Do not encode Caesar's regular DMG Bonus as generic DMG Taken merely because
+  the effect is applied at an enemy. Recipient/application locus and modifier
+  category remain independent.
 - Do not add generic shield, Assist-type, survival, or source-evidence schemas.
   The Caesar qualification helper, shield operation, and metric exist only for
   current consumers.
@@ -278,7 +282,8 @@ direction, raw damage, raw Daze, or runtime optimizer.
 No product decision blocks implementation planning. The Caesar shield and
 Initial-Impact semantic gate closes through the permanent stat-region and
 bounded-operation rules plus the established Ben/Lighter contrasts. The
-permanent formula and source-fact owners now admit Caesar's bounded DMG Taken
-and dedicated shield relationships without generalizing them. Exact
+permanent formula and source-fact owners now classify Caesar's qualified `+25%`
+as unscoped regular DMG Bonus while retaining the separate conceptual
+target-side component and dedicated shield relationships. Exact
 source values and current qualification facts were used as ephemeral inputs;
 this document owns only the settled local product outcomes above.

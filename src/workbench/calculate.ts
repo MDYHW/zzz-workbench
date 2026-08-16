@@ -180,22 +180,18 @@ function withSharedCanonicalDamageActions(
 }
 
 /**
- * Broad enemy-context modifiers are filtered by formula and Agent eligibility
- * before calculation. Project the resulting shared value for any eligible
- * current damage consumer whose local module has no independent row.
+ * Broad enemy-context DEF Reduction is filtered by formula and Agent
+ * eligibility before calculation. Project it for any eligible current damage
+ * consumer whose local module has no independent row.
  */
-function withSharedEnemyContextMetrics(
+function withSharedDefReductionMetric(
   result: AgentResult,
   enemy: SourceBoundCurrentClause[],
 ): AgentResult {
   const resolved = resolveDeliveredClauses(enemy, {})
-  const shared = [
-    { id: 'defReduction' as const, label: 'DEF Reduction' },
-    { id: 'dmgTaken' as const, label: 'DMG Taken' },
-  ]
+  const metric = { id: 'defReduction' as const, label: 'DEF Reduction' }
   const metrics = [...result.metrics]
-  for (const metric of shared) {
-    if (metrics.some(({ id }) => id === metric.id)) continue
+  if (!metrics.some(({ id }) => id === metric.id)) {
     const composed = composeMetricEffects(
       surfaces(0, 0, 0),
       surfaces([], [], []),
@@ -372,7 +368,7 @@ export function calculateParty(
           return assertNever(context)
       }
       return withSharedCanonicalDamageActions(
-        withSharedEnemyContextMetrics(result, enemy),
+        withSharedDefReductionMetric(result, enemy),
         inbox,
       )
     }),

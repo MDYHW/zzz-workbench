@@ -538,7 +538,7 @@ describe('bounded equipment effect facts', () => {
     expect(defaultMindscapeFor('caesar')).toBe(0)
     expect(VERTICAL_VALUES.caesar).toMatchObject({
       atk: 711, critRate: 5, critDmg: 50, impact: 123,
-      additionalDmgTaken: 25,
+      additionalDmgBonus: 25,
       coreShieldImpactRatio: 1400, coreShieldBase: 1400,
       coreFocusAtk: 1000, mindscapeFocusAtk: 1500,
       coreImpactByTier: [20, 22, 24], ultimateDazeByTier: [100, 110, 120],

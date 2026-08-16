@@ -1814,12 +1814,11 @@ describe('authored calculation policies', () => {
       }))
     })
 
-    it('projects Caesar through shield, Focus, enemy-context, action, and equipment consumers', () => {
+    it('projects Caesar through shield, Focus, regular DMG Bonus, action, and equipment consumers', () => {
       const base = createPreparedState({}, ['corin', 'caesar', 'astraYao'], 0)
       const baseResult = calculateParty(base)!
       const caesar = agent(baseResult, 'caesar')
       const corin = agent(baseResult, 'corin')
-      const astra = agent(baseResult, 'astraYao')
 
       expect(metric(caesar, 'impact').values).toMatchObject({
         initial: expect.closeTo(174.66),
@@ -1835,10 +1834,10 @@ describe('authored calculation policies', () => {
       expect(metric(corin, 'atk').breakdown.fully).toContainEqual(expect.objectContaining({
         label: 'Core Passive', ownerAgentId: 'caesar', amount: 1000,
       }))
-      expect(metric(corin, 'dmgTaken').values).toEqual({
-        initial: 0, combat: 0, fully: 25,
-      })
       expect(metric(corin, 'dmgBonus').breakdown.fully).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Additional Ability', ownerAgentId: 'caesar', amount: 25,
+        }),
         expect.objectContaining({
           label: 'Tusks of Fury', ownerAgentId: 'caesar', amount: 18,
         }),
@@ -1846,15 +1845,32 @@ describe('authored calculation policies', () => {
           label: 'Proto Punk', ownerAgentId: 'caesar', amount: 15,
         }),
       ]))
-      expect(astra.metrics.find(({ id }) => id === 'dmgTaken')).toBeUndefined()
+      expect(baseResult.agents.flatMap(({ metrics }) => metrics.map(({ id }) => id)))
+        .not.toContain('dmgTaken')
       expect(action(caesar, 'caesarShieldedUltimate').values.fully).toBe(112)
 
       const sheerParty = calculateParty(createPreparedState(
         {}, ['yixuan', 'caesar', 'lycaon'], 0,
       ))!
-      expect(metric(agent(sheerParty, 'yixuan'), 'dmgTaken').values.fully).toBe(25)
-      expect(agent(sheerParty, 'lycaon').metrics.find(({ id }) => id === 'dmgTaken'))
-        .toBeUndefined()
+      expect(metric(agent(sheerParty, 'yixuan'), 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Additional Ability', ownerAgentId: 'caesar', amount: 25,
+        }))
+      expect(agent(sheerParty, 'lycaon').metrics
+        .flatMap(({ breakdown }) => breakdown.fully))
+        .not.toContainEqual(expect.objectContaining({
+          label: 'Additional Ability', ownerAgentId: 'caesar',
+        }))
+
+      const anomalyParty = calculateParty(createPreparedState(
+        {}, ['grace', 'caesar', 'anby'], 0,
+      ))!
+      expect(metric(agent(anomalyParty, 'grace'), 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Additional Ability', ownerAgentId: 'caesar', amount: 25,
+        }))
+      expect(anomalyParty.agents.flatMap(({ metrics }) => metrics.map(({ id }) => id)))
+        .not.toContain('dmgTaken')
 
       const m1 = calculateParty(withMindscape(base, 'caesar', 1))!
       expect(metric(agent(m1, 'corin'), 'resReduction').breakdown.fully)
@@ -1891,18 +1907,28 @@ describe('authored calculation policies', () => {
       const inactive = calculateParty(createPreparedState(
         {}, ['zhuYuan', 'caesar', 'billy'], 0,
       ))!
-      expect(agent(inactive, 'zhuYuan').metrics.find(({ id }) => id === 'dmgTaken'))
-        .toBeUndefined()
-      expect(agent(inactive, 'caesar').metrics.find(({ id }) => id === 'dmgTaken'))
-        .toBeUndefined()
+      expect(metric(agent(inactive, 'zhuYuan'), 'dmgBonus').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({
+          label: 'Additional Ability', ownerAgentId: 'caesar',
+        }))
+      expect(metric(agent(inactive, 'caesar'), 'dmgBonus').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({
+          label: 'Additional Ability', ownerAgentId: 'caesar',
+        }))
       const defensiveAssist = calculateParty(createPreparedState(
         {}, ['zhuYuan', 'caesar', 'anby'], 0,
       ))!
-      expect(metric(agent(defensiveAssist, 'zhuYuan'), 'dmgTaken').values.fully).toBe(25)
+      expect(metric(agent(defensiveAssist, 'zhuYuan'), 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Additional Ability', ownerAgentId: 'caesar', amount: 25,
+        }))
       const sameFaction = calculateParty(createPreparedState(
         {}, ['corin', 'caesar', 'pulchra'], 0,
       ))!
-      expect(metric(agent(sameFaction, 'corin'), 'dmgTaken').values.fully).toBe(25)
+      expect(metric(agent(sameFaction, 'corin'), 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Additional Ability', ownerAgentId: 'caesar', amount: 25,
+        }))
 
       const originalW1 = agent(calculateParty(setRefinement(
         selectEngine(base, 'caesar', 'originalTransmorpher'),

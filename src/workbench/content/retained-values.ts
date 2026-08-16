@@ -331,7 +331,7 @@ export const VERTICAL_VALUES = {
   },
   caesar: {
     atk: 711, critRate: 5, critDmg: 50, impact: 123,
-    additionalDmgTaken: 25,
+    additionalDmgBonus: 25,
     coreShieldImpactRatio: 1400, coreShieldBase: 1400,
     coreFocusAtk: 1000, mindscapeFocusAtk: 1500,
     coreImpactByTier: [20, 22, 24],

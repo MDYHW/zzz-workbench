@@ -452,7 +452,6 @@ export function calculateGrace(
       ...optionalMetric('resIgnore', 'RES Ignore', effects),
       ...optionalMetric('resReduction', 'RES Reduction', effects),
       ...optionalMetric('stunDmgMultiplier', 'Stun DMG Multiplier', effects),
-      ...optionalMetric('dmgTaken', 'DMG Taken', effects),
     ],
     actionModifiers,
     operations: setup.mindscape >= 6
