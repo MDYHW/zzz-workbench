@@ -14,7 +14,10 @@ The workbench excludes shield, healing, and other survival value from Result
 and from positive damage or setup axes, while preserving a source-local shield
 condition required by an admitted non-survival effect and retaining compressed
 survival copy only when a current selected or candidate package needs it for
-complete Setup disclosure.
+complete Setup disclosure. Result projects each independently admitted
+non-survival effect directly into its existing quantity or action outcome under
+the effect's actual authored source. A named shield state and the action that
+creates it do not become Result sources merely because they mediate that effect.
 
 ## Context
 
@@ -27,14 +30,18 @@ created it.
 
 ## Existing rule
 
-- Owning Rule IDs: `SW-013`, `SF-003`, `FM-009`
+- Owning Rule IDs: `SW-013`, `SF-003`, `FM-009`, `UI-002`, `GV-006`
 - Conflict: the product contract exposes Ben's shield amount, the source-fact
   boundary admits Ben and Caesar as dedicated survival exceptions, and formula
   mechanics retains Ben's shield scaling as a current Result relationship.
   They conflict with the product boundary that survival value is not a damage
   or setup-tuning consumer. The source-fact rule also correctly permits an
   exact survival clause to remain in a whole-package Setup fact without
-  requiring Result projection.
+  requiring Result projection. The unchanged UI and vocabulary owners already
+  require the actual authored source locus, separate a trigger action from an
+  affected effect, and keep a mediating named state only as the smallest
+  functional condition. They constrain the visible consequence of removing the
+  survival exceptions without themselves requiring amendment.
 
 ## Proposed change
 
@@ -46,7 +53,14 @@ or candidate package whose admission is independently supported by non-survival
 consumers. Also preserve shield existence or activation as a source-local
 eligibility or target-state condition when an independently admitted damage,
 Daze, stat, or party effect requires that condition; this does not retain
-Shield Effect or the shield amount.
+Shield Effect or the shield amount. Keep that condition internal to activation
+and applicability. Result shows the resulting current quantity, earliest
+surface, and atomic contribution under the authored Core Passive, Additional
+Ability, Mindscape, equipment, or canonical-action source that owns the effect.
+Do not display the shield as a source, derive source ownership from a trigger
+action, or add activation prose or a causal chain to Result. A canonical action
+is the source only when the action itself owns the retained effect rather than
+merely creating the shield state.
 
 ## Evidence
 
@@ -81,9 +95,10 @@ Shield Effect or the shield amount.
 
 Evelyn M4 is the closest supported Result consumer. Chain Attack or Ultimate
 establishes its shield condition and the resulting CRIT DMG remains visible,
-while the shield amount itself does not enter Result. Ben's squad CRIT and
-Caesar's Focus ATK, M1 RES Reduction, shielded-enemy Ultimate Daze, and Bunny in
-Wonderland activation keep the same condition-without-survival-value boundary.
+under its authored Mindscape source, while the shield amount and trigger action
+do not become Result sources. Ben's squad CRIT and Caesar's Focus ATK, M1 RES
+Reduction, shielded-enemy Ultimate Daze, and Bunny in Wonderland activation
+keep the same condition-without-survival-value boundary.
 
 ## Contrast
 
@@ -115,11 +130,16 @@ axis.
   Reduction, Daze, and party-DMG effects keep their source-local conditions.
 - Visible Setup or Result consequence: Result no longer shows Shield Effect or
   shield-amount operations, and survival value no longer admits or strengthens
-  a setup choice. Compressed selected or candidate package copy may still name
-  an exact shield clause when the independently admitted whole package needs it.
+  a setup choice. Caesar's M0-M1 Focus ATK remains one Fully Enabled ATK
+  contribution under Core Passive; M2 replaces it with one `+1500` contribution
+  under Mindscape 2 rather than exposing a historical `+1000` and `+500` split.
+  M1 RES Reduction remains under Mindscape 1. Radiant Aegis and its trigger
+  actions do not become source labels or a separate Result chain. Compressed
+  selected or candidate package copy may still name an exact shield clause when
+  the independently admitted whole package needs it.
 
 ## Approval result
 
 - Product owner: `Min-DongYoung`
 - Result: `accepted`
-- Decided at: `2026-08-16T16:26:42.6991938+09:00`
+- Decided at: `2026-08-16T16:58:14.5796847+09:00`
