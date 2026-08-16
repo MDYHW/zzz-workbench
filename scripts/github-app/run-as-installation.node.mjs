@@ -25,6 +25,7 @@ import {
   verifyTrustedRecoveryCheckout,
 } from './run-as-installation.mjs';
 
+// Temporary protected-path rejection probe; never merge.
 const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
 const PEM = privateKey.export({ type: 'pkcs8', format: 'pem' });
 
