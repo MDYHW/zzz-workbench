@@ -133,13 +133,6 @@ export function resolveBenProviderClauses(
         : 0,
       'self', EX_ULTIMATE,
     ),
-    additive(
-      'shieldEffect', 'combat', engine,
-      setup.engineId === 'tusksOfFury'
-        ? equipmentEffectBaseValue(W_ENGINE_FACTS.tusksOfFury.effects.shield, refinement)
-        : 0,
-      'self',
-    ),
     withApplicability(
       additive(
         'dmgBonus', 'fully', engine,
@@ -222,7 +215,7 @@ export function calculateBen(
   const values = VERTICAL_VALUES.ben
   const baseAtk = values.atk + W_ENGINES[setup.engineId].baseAtk
   const effects = resolveDeliveredClauses([...inbox, ...enemy], {
-    atk: initialAtk, def: initialDef, impact: values.impact, shieldEffect: 0,
+    atk: initialAtk, def: initialDef, impact: values.impact,
   })
 
   const atkInputs = presentSetupInputs([
@@ -345,27 +338,11 @@ export function calculateBen(
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
 
-  const shieldInputs = presentSetupInputs([
-    discStatInput(setup, 'ben', 'fourPiece', 'protoPunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.protoPunk.twoPiece.shield), 'twoPiece'),
-    discStatInput(setup, 'ben', 'twoPiece', 'protoPunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.protoPunk.twoPiece.shield)),
-  ])
-  const initialShieldEffect = shieldInputs.reduce((sum, input) => sum + input.rawValue, 0)
-  const shieldEffect = composeMetricEffects(
-    surfaces(initialShieldEffect, initialShieldEffect, initialShieldEffect),
-    surfaces(shieldInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
-    effects,
-    'shieldEffect',
-  )
   const daze = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus')
   const actionModifiers = [
     ...composeActionHierarchy(dmg.values, effects, 'dmgBonus', DAMAGE_SCOPES),
     ...composeActionHierarchy(daze.values, effects, 'dazeBonus', DAZE_SCOPES),
   ]
-  const shieldAmount = (initialDef * values.coreShieldDefRatio / 100 + values.coreShieldBase)
-    * (1 + shieldEffect.values.fully / 100)
-
   return {
     agentId: 'ben',
     metrics: [
@@ -379,9 +356,6 @@ export function calculateBen(
       ...(pen.values.fully
         ? [{ id: 'penRatio' as const, label: 'PEN Ratio', unit: '%', decimals: 1, ...pen }]
         : []),
-      ...(shieldEffect.values.fully
-        ? [{ id: 'shieldEffect' as const, label: 'Shield Effect', unit: '%', decimals: 1, ...shieldEffect }]
-        : []),
       { id: 'dazeBonus', label: 'Daze Bonus', unit: '%', decimals: 1, ...daze },
       ...optionalMetric('defIgnore', 'DEF Ignore', effects),
       ...optionalMetric('defReduction', 'DEF Reduction', effects),
@@ -391,11 +365,6 @@ export function calculateBen(
     ],
     actionModifiers,
     operations: [
-      {
-        id: 'benCoreShield', label: 'Core shield per EX follow-up',
-        source: STATIC_SOURCES.ben.core,
-        surface: 'fully', value: shieldAmount, unit: '',
-      },
       ...(setup.mindscape >= 2
         ? [{
           id: 'benBlockCounterDefDamage',

@@ -1814,7 +1814,7 @@ describe('authored calculation policies', () => {
       }))
     })
 
-    it('projects Caesar through shield, Focus, regular DMG Bonus, action, and equipment consumers', () => {
+    it('projects Caesar through Focus, regular DMG Bonus, action, and equipment consumers without survival rows', () => {
       const base = createPreparedState({}, ['corin', 'caesar', 'astraYao'], 0)
       const baseResult = calculateParty(base)!
       const caesar = agent(baseResult, 'caesar')
@@ -1825,12 +1825,8 @@ describe('authored calculation policies', () => {
         combat: expect.closeTo(174.66),
         fully: expect.closeTo(209.592),
       })
-      expect(metric(caesar, 'shieldEffect').values).toEqual({
-        initial: 15, combat: 45, fully: 45,
-      })
-      expect(caesar.operations).toContainEqual(expect.objectContaining({
-        id: 'caesarRadiantAegis', value: expect.closeTo(5575.598),
-      }))
+      expect(caesar.metrics.map(({ label }) => label)).not.toContain('Shield Effect')
+      expect(caesar.operations.map(({ id }) => id)).not.toContain('caesarRadiantAegis')
       expect(metric(corin, 'atk').breakdown.fully).toContainEqual(expect.objectContaining({
         label: 'Core Passive', ownerAgentId: 'caesar', amount: 1000,
       }))
@@ -1882,7 +1878,9 @@ describe('authored calculation policies', () => {
       const m2 = calculateParty(withMindscape(base, 'caesar', 2))!
       const m2AtkSources = metric(agent(m2, 'corin'), 'atk').breakdown.fully
         .filter(({ ownerAgentId }) => ownerAgentId === 'caesar')
-      expect(m2AtkSources).toContainEqual(expect.objectContaining({ amount: 1500 }))
+      expect(m2AtkSources).toContainEqual(expect.objectContaining({
+        label: 'Mindscape', detail: 'M2 · Radiant Aegis ATK replacement', amount: 1500,
+      }))
       expect(m2AtkSources).not.toContainEqual(expect.objectContaining({ amount: 1000 }))
 
       const m3 = agent(calculateParty(withMindscape(base, 'caesar', 3))!, 'caesar')

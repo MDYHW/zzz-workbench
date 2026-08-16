@@ -160,13 +160,6 @@ export function resolveCaesarProviderClauses(
         : 0,
       'self',
     ),
-    additive(
-      'shieldEffect', 'combat', engine,
-      setup.engineId === 'tusksOfFury'
-        ? equipmentEffectBaseValue(W_ENGINE_FACTS.tusksOfFury.effects.shield, refinement)
-        : 0,
-      'self',
-    ),
     withApplicability(
       additive(
         'dmgBonus', 'fully', engine,
@@ -250,21 +243,9 @@ export function calculateCaesar(
   const initialImpact = values.impact * (
     1 + impactInputs.reduce((sum, input) => sum + input.rawValue, 0) / 100
   )
-  const shieldInputs = presentSetupInputs([
-    discStatInput(
-      setup, 'caesar', 'fourPiece', 'protoPunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.protoPunk.twoPiece.shield), 'twoPiece',
-    ),
-    discStatInput(
-      setup, 'caesar', 'twoPiece', 'protoPunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.protoPunk.twoPiece.shield),
-    ),
-  ])
-  const initialShieldEffect = shieldInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const effects = resolveDeliveredClauses([...inbox, ...enemy], {
     atk: initialAtk,
     impact: initialImpact,
-    shieldEffect: initialShieldEffect,
   })
 
   const atkInputs = presentSetupInputs([
@@ -339,12 +320,6 @@ export function calculateCaesar(
     effects,
     'penRatio',
   )
-  const shieldEffect = composeMetricEffects(
-    surfaces(initialShieldEffect, initialShieldEffect, initialShieldEffect),
-    surfaces(shieldInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
-    effects,
-    'shieldEffect',
-  )
   const daze = composeMetricEffects(
     surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus',
   )
@@ -360,10 +335,6 @@ export function calculateCaesar(
     ),
     ...composeActionHierarchy(daze.values, effects, 'dazeBonus', ULTIMATE_DAZE_SCOPES),
   ]
-  const shieldAmount = (
-    initialImpact * values.coreShieldImpactRatio / 100 + values.coreShieldBase
-  ) * (1 + shieldEffect.values.fully / 100)
-
   return {
     agentId: 'caesar',
     metrics: [
@@ -375,9 +346,6 @@ export function calculateCaesar(
       ...(pen.values.fully
         ? [{ id: 'penRatio' as const, label: 'PEN Ratio', unit: '%', decimals: 1, ...pen }]
         : []),
-      ...(shieldEffect.values.fully
-        ? [{ id: 'shieldEffect' as const, label: 'Shield Effect', unit: '%', decimals: 1, ...shieldEffect }]
-        : []),
       { id: 'dazeBonus', label: 'Daze Bonus', unit: '%', decimals: 1, ...daze },
       ...optionalMetric('defIgnore', 'DEF Ignore', effects),
       ...optionalMetric('defReduction', 'DEF Reduction', effects),
@@ -387,14 +355,6 @@ export function calculateCaesar(
     ],
     actionModifiers,
     operations: [
-      {
-        id: 'caesarRadiantAegis',
-        label: 'Radiant Aegis per activation',
-        source: STATIC_SOURCES.caesar.core,
-        surface: 'fully',
-        value: shieldAmount,
-        unit: '',
-      },
       ...(setup.mindscape >= 6
         ? [{
           id: 'caesarPrimaryTargetFollowup',

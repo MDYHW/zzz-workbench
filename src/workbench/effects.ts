@@ -58,7 +58,7 @@ export type EffectMetric =
   | 'maxHp' | 'atk' | 'def' | 'sheerForce' | 'impact' | 'critRate' | 'critDmg'
   | 'dmgBonus' | 'sheerDmgBonus' | 'resIgnore' | 'dazeBonus'
   | 'stunDmgMultiplier' | 'energyRegen' | 'stunDuration'
-  | 'penRatio' | 'defIgnore' | 'resReduction' | 'defReduction' | 'shieldEffect'
+  | 'penRatio' | 'defIgnore' | 'resReduction' | 'defReduction'
   | 'anomalyProficiency' | 'anomalyMastery' | 'anomalyDmgBonus'
   | 'anomalyBuildupBonus' | 'anomalyBuildupResReduction'
 

@@ -406,7 +406,7 @@ describe('representative calculation flows', () => {
       - metric(qingyi, 'dazeBonus').values.fully).toBe(32.5)
   })
 
-  it('projects prepared Ben through Initial DEF, Core ATK, shield, and exact actions', () => {
+  it('projects prepared Ben through Initial DEF, Core ATK, and exact actions without survival rows', () => {
     const state = createPreparedState({}, ['ben', 'koleda', 'panYinhu'], 0)
     const result = calculateParty(state)!
     const ben = agent(result, 'ben')
@@ -417,7 +417,13 @@ describe('representative calculation flows', () => {
       combat: expect.closeTo(3353.45),
       fully: expect.closeTo(4062.7535),
     })
+    expect(metric(ben, 'atk').breakdown.combat).toContainEqual(expect.objectContaining({
+      label: 'Core Passive', ownerAgentId: 'ben', amount: expect.closeTo(726.4),
+    }))
     expect(metric(ben, 'critRate').values).toEqual({ initial: 37, combat: 37, fully: 53 })
+    expect(metric(ben, 'critRate').breakdown.fully).toContainEqual(expect.objectContaining({
+      label: 'Additional Ability', ownerAgentId: 'ben', amount: 16,
+    }))
     expect(action(ben, 'benExUltimate').values.fully - metric(ben, 'dmgBonus').values.fully)
       .toBe(40)
     expect(action(ben, 'benBlockCounter').values.fully - metric(ben, 'dmgBonus').values.fully)
@@ -425,34 +431,35 @@ describe('representative calculation flows', () => {
     expect(action(ben, 'benBasicDashDodge').values.fully - metric(ben, 'dazeBonus').values.fully)
       .toBe(20)
     expect(ben.operations).toContainEqual(expect.objectContaining({
-      id: 'benCoreShield', value: expect.closeTo(822.4), surface: 'fully',
-    }))
-    expect(ben.operations).toContainEqual(expect.objectContaining({
       id: 'benBlockCounterDefDamage', value: 300, unit: '% DEF',
     }))
+    expect(ben.metrics.map(({ label }) => label)).not.toContain('Shield Effect')
+    expect(ben.operations.map(({ id }) => id)).not.toContain('benCoreShield')
 
     const unqualified = agent(
       calculateParty(createPreparedState({}, ['ben', 'dialyn', 'lucia'], 0))!,
       'ben',
     )
     expect(metric(unqualified, 'critRate').values.fully).toBe(37)
-    expect(unqualified.operations).toContainEqual(expect.objectContaining({
-      id: 'benCoreShield', value: expect.closeTo(822.4),
-    }))
+    expect(unqualified.metrics.map(({ label }) => label)).not.toContain('Shield Effect')
+    expect(unqualified.operations.map(({ id }) => id)).not.toContain('benCoreShield')
   })
 
-  it('keeps Ben DEF and Shield Effect inputs separate from Setup-only event packages', () => {
+  it('keeps Ben DEF and non-survival package effects without projecting survival inputs', () => {
     let tusksProto = createPreparedState({}, ['ben', 'koleda', 'panYinhu'], 0)
     tusksProto = selectEngine(tusksProto, 'ben', 'tusksOfFury')
     tusksProto = selectDisc(tusksProto, 'ben', 'fourPiece', 'protoPunk')
     const amplified = agent(calculateParty(tusksProto)!, 'ben')
     expect(metric(amplified, 'def').values.initial).toBe(908)
-    expect(metric(amplified, 'shieldEffect').values).toEqual({
-      initial: 15, combat: 45, fully: 45,
-    })
-    expect(amplified.operations).toContainEqual(expect.objectContaining({
-      id: 'benCoreShield', value: expect.closeTo(1192.48),
-    }))
+    expect(amplified.metrics.map(({ label }) => label)).not.toContain('Shield Effect')
+    expect(amplified.operations.map(({ id }) => id)).not.toContain('benCoreShield')
+    expect(metric(amplified, 'dmgBonus').breakdown.fully).toEqual(expect.arrayContaining([
+      expect.objectContaining({ label: 'Tusks of Fury', ownerAgentId: 'ben', amount: 18 }),
+      expect.objectContaining({ label: 'Proto Punk', ownerAgentId: 'ben', amount: 15 }),
+    ]))
+    expect(metric(amplified, 'dazeBonus').breakdown.fully).toContainEqual(
+      expect.objectContaining({ label: 'Tusks of Fury', ownerAgentId: 'ben', amount: 12 }),
+    )
 
     const big = agent(calculateParty(selectEngine(
       createPreparedState({}, ['ben', 'koleda', 'panYinhu'], 0),
@@ -460,9 +467,7 @@ describe('representative calculation flows', () => {
       'bigCylinder',
     ))!, 'ben')
     expect(metric(big, 'def').values.initial).toBeCloseTo(1197.6)
-    expect(big.operations.map(({ id }) => id)).toEqual([
-      'benCoreShield', 'benBlockCounterDefDamage',
-    ])
+    expect(big.operations.map(({ id }) => id)).toEqual(['benBlockCounterDefDamage'])
 
     const lycaonM4 = agent(calculateParty(withMindscape(
       createPreparedState({}, ['corin', 'lycaon', 'astraYao'], 0),
