@@ -91,12 +91,30 @@ mechanic as regular DMG Bonus.
   current formula consumers, while Caesar and Grace expose generic `DMG Taken`
   projectors. These consumers show the impact of the disputed classification;
   they do not prove it correct.
-- `src/workbench/calculation/agents/anby-soldier-0.ts` already projects Anby's
-  personal and allied damage "against Silver Star" as regular, source- and
-  action-scoped `dmgBonus`. Corin's damage against Stunned enemies and Zhu
-  Yuan's additional damage against Stunned enemies use the same distinction.
-  Target wording and an enemy condition therefore do not independently select
-  `dmg_taken_multiplier`.
+- `src/workbench/calculation/agents/pan-yinhu.ts` already projects Depleted
+  Qi's broad damage "against the target" as `enemy-context` `dmgBonus`, not
+  `dmgTaken`. This is the closest current consumer because it preserves the
+  same enemy application locus and broad regular-DMG outcome as Caesar while
+  keeping modifier classification independent from recipient distribution.
+- `src/workbench/calculation/agents/lycaon.ts` separates three clauses that can
+  share an enemy application locus: Ice RES Reduction uses `resReduction`,
+  other-Attribute damage against the target uses `dmgBonus`, and the Additional
+  Ability that explicitly changes Stun DMG Multiplier uses
+  `stunDmgMultiplier`. The source container, debuff presentation, and target
+  wording do not collapse those formula regions.
+- Commit `861748b5d307713ad2509647fb7b940c42f4c869` previously made the same
+  classification error for Lycaon's other-Attribute damage by introducing
+  `dmgTakenIncrease`. The current recovery implementation in commit
+  `dfd097b476955d7aeab6ecad4e840f3cad558719` restores it to regular
+  `dmgBonus`. That correction is current consumer evidence, not authority for
+  Caesar's classification.
+- `src/workbench/calculation/agents/corin.ts` projects personal damage against
+  Stunned enemies as regular `dmgBonus`. Soldier 11's Stunned-target Fire DMG,
+  Anby Soldier 0's personal and allied damage against Silver Star, and Koleda's
+  squad Chain Attack damage against a debuffed target preserve the same
+  distinction across self, action-scoped, all-party, and enemy-conditioned
+  forms. Target wording and an enemy condition therefore do not independently
+  select `dmg_taken_multiplier`.
 - `src/workbench/content/engines.ts` retains Big Cylinder and Spring Embrace
   holder-side `DMG taken` reduction in compressed Setup copy. Their current
   requirements keep those survival clauses outside Result while evaluating
@@ -105,22 +123,26 @@ mechanic as regular DMG Bonus.
 
 ## Nearest current consumer
 
-Anby Soldier 0 is the nearest supported Agent consumer. Her Core and Additional
-Ability increase personal or allied damage against a named enemy state, yet
-their exact recipient and action scopes project through regular DMG Bonus. Like
-Caesar, the source changes current damage after a party or target condition is
-established; unlike the disputed Caesar implementation, the presence of an
-enemy condition does not rename the formula region.
+Pan Yinhu is the nearest supported Agent consumer. His qualified Additional
+Ability applies Depleted Qi to an enemy and increases broad damage against that
+target by 20%, with another 10% at M1. The current provider keeps the exact
+enemy application locus while projecting the value through regular DMG Bonus.
+Like Caesar, the source changes broad current damage after a party and target
+condition is established; unlike the disputed Caesar implementation, the enemy
+recipient does not rename the formula region.
 
 ## Contrast
 
-Trigger's Core is the closest target-side Agent contrast. It explicitly adds
-Stun DMG Multiplier and therefore projects into the separately owned
-`stun_dmg_multiplier` component. Ye Shunguang's Veil Vulnerability then
-replaces that exact target multiplier for her bounded Fully Enabled window and
-cap. Both are retained because the source explicitly names and changes that
-target mechanic, not merely because their recipient is `enemy-context`.
-Likewise, the conceptual generic `dmg_taken_multiplier` remains available for
+Lycaon's Core is the closest within-source contrast. One enemy-applied Core
+state supplies actual Ice RES Reduction and regular other-Attribute DMG Bonus;
+neither the shared source nor the target wording merges those clauses. His
+Additional Ability separately and explicitly adds Stun DMG Multiplier, showing
+the target-side component selected by its mechanical meaning rather than its
+recipient. Trigger's Core supplies the same explicit Stun DMG Multiplier
+contrast, and Ye Shunguang's Veil Vulnerability replaces that exact target
+multiplier for her bounded Fully Enabled window and cap.
+
+The conceptual generic `dmg_taken_multiplier` likewise remains available for
 enemy, stage, or environmental mechanics even though no current setup source
 supplies it to outgoing Result. Big Cylinder and Spring Embrace are the
 W-Engine contrast: their holder-side incoming-damage reduction may remain an
