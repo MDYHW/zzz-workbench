@@ -330,7 +330,9 @@ async function responseJson(response) {
   try {
     return await response.json();
   } catch {
-    fail('GitHub App verification failed.');
+    throw new LauncherError('GitHub App response is invalid.', {
+      code: 'github_response_invalid', mutationCompleted: false,
+    });
   }
 }
 
@@ -339,7 +341,9 @@ async function githubJson(fetchImpl, pathname, init) {
   try {
     response = await fetchImpl(`${API_ORIGIN}${pathname}`, init);
   } catch {
-    fail('GitHub App verification failed.');
+    throw new LauncherError('GitHub App is temporarily unavailable.', {
+      code: 'github_unavailable', retryable: true, mutationCompleted: false,
+    });
   }
   return responseJson(response);
 }
@@ -358,6 +362,84 @@ function installationHeaders(token) {
     Authorization: `Bearer ${token}`,
     'X-GitHub-Api-Version': '2022-11-28',
   };
+}
+
+async function fetchPaginatedHeadSurface({ fetchImpl, token, headSha, kind, timeoutMs }) {
+  const values = [];
+  const field = kind === 'statuses' ? 'statuses' : 'check_runs';
+  const suffix = kind === 'statuses' ? 'status' : 'check-runs?filter=latest&';
+  const resource = { headSha, surface: kind };
+  for (let page = 1; page <= 100; page += 1) {
+    const separator = suffix.includes('?') ? '' : '?';
+    let payload;
+    try {
+      payload = await githubJson(
+        fetchImpl,
+        `/repos/${REPOSITORY}/commits/${headSha}/${suffix}${separator}per_page=100&page=${page}`,
+        { headers: installationHeaders(token), signal: AbortSignal.timeout(timeoutMs) },
+      );
+    } catch (error) {
+      if (error instanceof LauncherError && error.code === 'github_unavailable') {
+        throw new LauncherError('Required merge check surface is temporarily unavailable.', {
+          code: error.code, retryable: true, mutationCompleted: false, resource,
+        });
+      }
+      if (error instanceof LauncherError && error.code === 'github_response_invalid') {
+        throw new LauncherError('Required merge check surface is invalid.', {
+          code: 'merge_check_surface_invalid', mutationCompleted: false, resource,
+        });
+      }
+      throw error;
+    }
+    if (!Number.isInteger(payload?.total_count) || payload.total_count < 0 || !Array.isArray(payload?.[field])) {
+      throw new LauncherError('Required merge check surface is invalid.', {
+        code: 'merge_check_surface_invalid', mutationCompleted: false, resource,
+      });
+    }
+    values.push(...payload[field]);
+    if (values.length >= payload.total_count) return values;
+    if (payload[field].length === 0) {
+      throw new LauncherError('Required merge check surface is temporarily incomplete.', {
+        code: 'github_unavailable', retryable: true, mutationCompleted: false, resource,
+      });
+    }
+  }
+  throw new LauncherError('Required merge check surface is too large.', {
+    code: 'merge_check_surface_invalid', mutationCompleted: false, resource,
+  });
+}
+
+export async function fetchHeadStatusRollup({ fetchImpl = fetch, token, headSha, timeoutMs = 15_000 }) {
+  validateHeadSha(headSha);
+  const [statuses, checkRuns] = await Promise.all([
+    fetchPaginatedHeadSurface({ fetchImpl, token, headSha, kind: 'statuses', timeoutMs }),
+    fetchPaginatedHeadSurface({ fetchImpl, token, headSha, kind: 'checks', timeoutMs }),
+  ]);
+  if (statuses.some((status) => !isNonEmptyString(status?.context) || !isNonEmptyString(status?.state))) {
+    throw new LauncherError('Required merge check surface contains an invalid entry.', {
+      code: 'merge_check_surface_invalid', mutationCompleted: false, resource: { headSha, surface: 'statuses' },
+    });
+  }
+  if (checkRuns.some((check) => !isNonEmptyString(check?.name) || !isNonEmptyString(check?.status))) {
+    throw new LauncherError('Required merge check surface contains an invalid entry.', {
+      code: 'merge_check_surface_invalid', mutationCompleted: false, resource: { headSha, surface: 'checks' },
+    });
+  }
+  return [
+    ...statuses.map((status) => ({
+      context: status?.context,
+      state: status?.state?.toUpperCase(),
+      targetUrl: status?.target_url ?? null,
+    })),
+    ...checkRuns.map((check) => ({
+      name: check?.name,
+      status: check?.status?.toUpperCase(),
+      conclusion: check?.conclusion?.toUpperCase() ?? null,
+      startedAt: check?.started_at ?? null,
+      completedAt: check?.completed_at ?? null,
+      detailsUrl: check?.details_url ?? null,
+    })),
+  ];
 }
 
 export function validateAppAndInstallation(app, installation) {
@@ -540,10 +622,12 @@ async function verifyOperationCheckout({ runChild, gitExecutable, operation, cwd
   return proof;
 }
 
-async function verifyPullRequest({ runChild, ghExecutable, ghEnvironment, operation, governanceBinding }) {
+async function verifyPullRequest({
+  runChild, ghExecutable, ghEnvironment, operation, governanceBinding, fetchImpl, token, timeoutMs,
+}) {
   if (operation.kind === 'pr-create') return;
   const fields = operation.kind === 'pr-merge'
-    ? 'baseRefName,headRefName,headRefOid,state,isDraft,mergeStateStatus,statusCheckRollup'
+    ? 'baseRefName,headRefName,headRefOid,state,isDraft,mergeStateStatus'
     : 'baseRefName,headRefName,headRefOid';
   const result = await runChild(ghExecutable, ['pr', 'view', operation.number, '--repo', REPOSITORY, '--json', fields], {
     env: ghEnvironment,
@@ -555,7 +639,12 @@ async function verifyPullRequest({ runChild, ghExecutable, ghEnvironment, operat
     fail('Pull request verification failed.');
   }
   assertPullRequestTarget(details, operation.kind === 'pr-merge' ? operation.headSha : undefined);
-  if (operation.kind === 'pr-merge') assertMergeReady(details, governanceBinding);
+  if (operation.kind === 'pr-merge') {
+    details.statusCheckRollup = await fetchHeadStatusRollup({
+      fetchImpl, token, headSha: operation.headSha, timeoutMs,
+    });
+    assertMergeReady(details, governanceBinding);
+  }
   return details;
 }
 
@@ -574,6 +663,9 @@ function assertMergeReady(details, governanceBinding) {
   for (const required of orderedContexts) {
     const { name } = required;
     let matches = checks.filter((check) => (check?.name ?? check?.context) === name);
+    if (matches.some((check) => required.kind === 'status' ? check?.name : check?.context)) {
+      throw new LauncherError('A required merge check has the wrong type or result.', { code: 'merge_checks_failed' });
+    }
     if (required.kind === 'check') {
       if (!selectedRuns) {
         throw new LauncherError('Trusted governance status binding is unavailable.', { code: 'merge_checks_failed' });
@@ -583,20 +675,6 @@ function assertMergeReady(details, governanceBinding) {
         throw new LauncherError('Required merge check has no sealed workflow owner.', { code: 'merge_checks_failed' });
       }
       matches = matches.filter((check) => Number(CHECK_RUN_TARGET.exec(check?.detailsUrl ?? '')?.[1]) === expectedRunId);
-      if (matches.length > 1) {
-        if (matches.some((check) => check?.status !== 'COMPLETED'
-          && !Number.isFinite(Date.parse(check?.startedAt ?? '')))) {
-          throw new LauncherError('Required merge checks are still pending.', {
-            code: 'merge_checks_pending', retryable: true, mutationCompleted: false,
-          });
-        }
-        const started = matches.map((check) => Date.parse(check?.startedAt ?? ''));
-        if (started.some((value) => !Number.isFinite(value))) {
-          throw new LauncherError('Required merge check attempt identity is invalid.', { code: 'merge_checks_failed' });
-        }
-        const latestStartedAt = Math.max(...started);
-        matches = matches.filter((check) => Date.parse(check.startedAt) === latestStartedAt);
-      }
     }
     if (matches.length === 0) {
       throw new LauncherError('Required merge checks are still pending.', {
@@ -889,6 +967,7 @@ export async function runAsInstallation(operationInput, options = {}) {
       }
       await verifyPullRequest({
         runChild, ghExecutable, ghEnvironment, operation, governanceBinding: mergeGovernanceBinding,
+        fetchImpl, token, timeoutMs,
       });
       try {
         await runChild(ghExecutable, buildChildCommand(operation), { env: ghEnvironment, cwd: operationCwd });

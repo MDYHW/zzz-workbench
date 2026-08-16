@@ -499,8 +499,9 @@ non-protected branch and PR work.
   permission-narrowed installation token; passes it only through the isolated
   child environment for an allowlisted `git` or `gh` operation; revokes it when
   supported; and redacts every failure. The App has Contents and Pull Request
-  write access only and no workflow, administration, checks, secret, or bypass
-  capability.
+  write access plus read-only Checks and Commit statuses access for the exact
+  current-head merge preflight. It has no Actions, workflow, administration,
+  Checks or Commit statuses write, secret, or bypass capability.
 - Invoke absolute executable paths with exact subcommand/argument schemas and a
   scrubbed environment. Disable repository/user Git hooks, credential helpers,
   aliases, pagers, editors, and `gh` extensions; validate the GitHub host; use a

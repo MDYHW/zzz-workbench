@@ -12,6 +12,7 @@ import {
   buildChildCommand,
   buildGhEnvironment,
   createAppJwt,
+  fetchHeadStatusRollup,
   isExpectedRemote,
   mintInstallationToken,
   parseCliOperation,
@@ -31,8 +32,21 @@ function ok(body, status = 200) {
   return { ok: status >= 200 && status < 300, status, json: async () => body };
 }
 
-function appFetch(token = 'token-value') {
+function appFetch(token = 'token-value', rollup = successfulRollup()) {
   const calls = [];
+  const statuses = rollup.filter(({ context }) => context).map(({ context, state, targetUrl }) => ({
+    context, state: state.toLowerCase(), target_url: targetUrl ?? null,
+  }));
+  const checkRuns = rollup.filter(({ name }) => name).map(({
+    name, status, conclusion, detailsUrl, startedAt,
+  }, index) => ({
+    id: index + 1,
+    name,
+    status: status.toLowerCase(),
+    conclusion: conclusion?.toLowerCase() ?? null,
+    details_url: detailsUrl ?? null,
+    started_at: startedAt ?? null,
+  }));
   const fetchImpl = async (url, init = {}) => {
     calls.push({ url, init });
     if (url.endsWith('/app')) return ok({ id: APP_ID, owner: { login: 'Min-DongYoung' } });
@@ -45,6 +59,11 @@ function appFetch(token = 'token-value') {
       permissions: { checks: 'read', contents: 'write', pull_requests: 'write', statuses: 'read', metadata: 'read' },
     }, 201);
     if (url.includes('/installation/repositories')) return ok({ total_count: 1, repositories: [{ full_name: REPOSITORY, private: true }] });
+    if (url.includes('/commits/') && url.includes('/status?')) return ok({ total_count: statuses.length, statuses });
+    if (url.includes('/commits/') && url.includes('/check-runs?')) {
+      if (new URL(url).searchParams.get('filter') !== 'latest') throw new Error('unexpected check-run filter');
+      return ok({ total_count: checkRuns.length, check_runs: checkRuns });
+    }
     if (url.endsWith('/installation/token')) return ok({}, 204);
     throw new Error('unexpected request');
   };
@@ -52,7 +71,8 @@ function appFetch(token = 'token-value') {
 }
 
 function runtimeOptions(overrides = {}) {
-  const { fetchImpl } = appFetch();
+  const { rollup = successfulRollup(), ...runtimeOverrides } = overrides;
+  const { fetchImpl } = appFetch('token-value', rollup);
   return {
     environment: {
       ZZZ_WORKBENCH_GITHUB_APP_PEM_PATH: '/secure/app.pem',
@@ -71,7 +91,7 @@ function runtimeOptions(overrides = {}) {
       branch: operation.branch ?? operation.head ?? 'codex/launcher-test', headSha: 'a'.repeat(40), config: '',
     }),
     now: 1_700_000_000_000,
-    ...overrides,
+    ...runtimeOverrides,
   };
 }
 
@@ -93,6 +113,112 @@ function successfulRollup() {
       })),
   ];
 }
+
+test('reads only exact-head REST status surfaces and preserves pagination and check identity', async () => {
+  const headSha = 'a'.repeat(40);
+  const calls = [];
+  const fetchImpl = async (url) => {
+    calls.push(url);
+    const page = Number(new URL(url).searchParams.get('page'));
+    if (url.includes('/status?')) return ok({
+      total_count: 2,
+      statuses: page === 1
+        ? [{ context: 'Trusted Governance', state: 'success', target_url: 'https://github.com/trusted' }]
+        : [{ context: 'Protected Approval', state: 'failure', target_url: null }],
+    });
+    if (url.includes('/check-runs?')) return ok({
+      total_count: 1,
+      check_runs: page === 1 ? [{
+        name: 'Behavior Tests', status: 'completed', conclusion: 'success',
+        details_url: 'https://github.com/check', started_at: '2026-08-16T00:00:00Z',
+      }] : [],
+    });
+    throw new Error('unexpected request');
+  };
+  assert.deepEqual(await fetchHeadStatusRollup({ fetchImpl, token: 'token', headSha }), [
+    { context: 'Trusted Governance', state: 'SUCCESS', targetUrl: 'https://github.com/trusted' },
+    { context: 'Protected Approval', state: 'FAILURE', targetUrl: null },
+    {
+      name: 'Behavior Tests', status: 'COMPLETED', conclusion: 'SUCCESS',
+      startedAt: '2026-08-16T00:00:00Z', completedAt: null, detailsUrl: 'https://github.com/check',
+    },
+  ]);
+  assert.ok(calls.every((url) => url.includes(`/commits/${headSha}/`)));
+  assert.equal(calls.filter((url) => url.includes('/status?')).length, 2);
+  assert.equal(calls.filter((url) => url.includes('/check-runs?')).length, 1);
+  assert.ok(calls.filter((url) => url.includes('/check-runs?'))
+    .every((url) => new URL(url).searchParams.get('filter') === 'latest'));
+
+  const tiedAttempts = [
+    {
+      name: 'Behavior Tests', status: 'completed', conclusion: 'success',
+      details_url: `https://github.com/${REPOSITORY}/actions/runs/10/job/200`,
+      started_at: '2026-08-16T00:00:00Z',
+    },
+    {
+      name: 'Behavior Tests', status: 'completed', conclusion: 'failure',
+      details_url: `https://github.com/${REPOSITORY}/actions/runs/10/job/100`,
+      started_at: '2026-08-16T00:00:00Z',
+    },
+  ];
+  const latestAttempt = await fetchHeadStatusRollup({
+    token: 'token', headSha,
+    fetchImpl: async (url) => {
+      if (url.includes('/status?')) return ok({ total_count: 0, statuses: [] });
+      const checkRuns = new URL(url).searchParams.get('filter') === 'latest'
+        ? tiedAttempts.slice(0, 1)
+        : tiedAttempts;
+      return ok({ total_count: checkRuns.length, check_runs: checkRuns });
+    },
+  });
+  assert.equal(latestAttempt.length, 1);
+  assert.equal(latestAttempt[0].detailsUrl, `https://github.com/${REPOSITORY}/actions/runs/10/job/200`);
+
+  await assert.rejects(() => fetchHeadStatusRollup({
+    token: 'token', headSha,
+    fetchImpl: async () => ok({ total_count: '1', statuses: [], check_runs: [] }),
+  }), (error) => error instanceof LauncherError
+    && error.code === 'merge_check_surface_invalid'
+    && error.retryable === false
+    && error.mutationCompleted === false
+    && error.resource?.headSha === headSha);
+
+  await assert.rejects(() => fetchHeadStatusRollup({
+    token: 'token', headSha,
+    fetchImpl: async (url) => {
+      if (url.includes('/status?')) return ok({ total_count: 0, statuses: [] });
+      const page = Number(new URL(url).searchParams.get('page'));
+      return ok({
+        total_count: 2,
+        check_runs: page === 1 ? [{ name: 'Behavior Tests', status: 'completed' }] : [],
+      });
+    },
+  }), (error) => error instanceof LauncherError
+    && error.code === 'github_unavailable'
+    && error.retryable === true
+    && error.mutationCompleted === false
+    && error.resource?.surface === 'checks');
+
+  await assert.rejects(() => fetchHeadStatusRollup({
+    token: 'token', headSha,
+    fetchImpl: async (url) => url.includes('/status?')
+      ? ok({ total_count: 0, statuses: [] })
+      : ok({ total_count: 1, check_runs: [{ name: null, status: 'completed' }] }),
+  }), (error) => error instanceof LauncherError
+    && error.code === 'merge_check_surface_invalid'
+    && error.retryable === false
+    && error.resource?.surface === 'checks');
+
+  await assert.rejects(() => fetchHeadStatusRollup({
+    token: 'token', headSha,
+    fetchImpl: async (url) => url.includes('/status?')
+      ? ok({ total_count: 0, statuses: [] })
+      : ok({ total_count: 101, check_runs: [{ name: 'Behavior Tests', status: 'completed' }] }),
+  }), (error) => error instanceof LauncherError
+    && error.code === 'merge_check_surface_invalid'
+    && error.retryable === false
+    && error.resource?.surface === 'checks');
+});
 
 test('creates a signed GitHub App JWT without exposing the private key', () => {
   const jwt = createAppJwt(PEM, 1_700_000_000_000);
@@ -200,6 +326,7 @@ test('git push exposes an ambiguous result as an idempotent retry with exact bra
 });
 
 test('checks PR target and exact head before immediate squash merge', async () => {
+  const { calls, fetchImpl } = appFetch();
   const childCalls = [];
   let preflightInput;
   const runChild = async (executable, args, options) => {
@@ -208,13 +335,14 @@ test('checks PR target and exact head before immediate squash merge', async () =
       return { stdout: JSON.stringify({
         number: 42, url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42',
         baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
-        state: 'OPEN', mergeStateStatus: 'CLEAN', statusCheckRollup: successfulRollup(),
+        state: 'OPEN', mergeStateStatus: 'CLEAN',
       }) };
     }
     return { stdout: '' };
   };
   await runAsInstallation({ kind: 'pr-merge', number: '42', headSha: 'a'.repeat(40) }, runtimeOptions({
     runChild,
+    fetchImpl,
     sourceRoot: '/trusted/recovery',
     currentStatePreflight: async (value) => {
       preflightInput = value;
@@ -222,8 +350,78 @@ test('checks PR target and exact head before immediate squash merge', async () =
     },
   }));
   assert.ok(childCalls.some(({ args }) => JSON.stringify(args) === JSON.stringify(['pr', 'merge', '42', '--repo', REPOSITORY, '--squash', '--match-head-commit', 'a'.repeat(40)])));
+  const verification = childCalls.find(({ args }) => args[0] === 'pr' && args[1] === 'view');
+  assert.ok(!verification.args.at(-1).includes('statusCheckRollup'));
+  assert.ok(calls.some(({ url }) => url.includes(`/commits/${'a'.repeat(40)}/status?`)));
+  assert.ok(calls.some(({ url }) => url.includes(`/commits/${'a'.repeat(40)}/check-runs?`)));
+  assert.ok(calls.filter(({ url }) => url.includes('/check-runs?'))
+    .every(({ url }) => new URL(url).searchParams.get('filter') === 'latest'));
   assert.equal(preflightInput.sourceRoot, '/trusted/recovery');
   assert.equal(preflightInput.trustedBaseSha, 'b'.repeat(40));
+});
+
+test('REST transport failure blocks merge, stays retryable, and revokes the token', async () => {
+  const { calls, fetchImpl: baseFetch } = appFetch();
+  const childCalls = [];
+  const runChild = async (_executable, args) => {
+    childCalls.push(args);
+    if (args[0] === 'pr' && args[1] === 'view') return { stdout: JSON.stringify({
+      number: 42,
+      baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
+      state: 'OPEN', isDraft: false, mergeStateStatus: 'CLEAN',
+    }) };
+    return { stdout: '' };
+  };
+  await assert.rejects(() => runAsInstallation(
+    { kind: 'pr-merge', number: '42', headSha: 'a'.repeat(40) },
+    runtimeOptions({
+      runChild,
+      fetchImpl: async (url, init) => {
+        if (url.includes('/commits/') && url.includes('/check-runs?')) throw new Error('network timeout');
+        return baseFetch(url, init);
+      },
+    }),
+  ), (error) => error instanceof LauncherError
+    && error.code === 'github_unavailable'
+    && error.retryable === true
+    && error.mutationCompleted === false
+    && error.resource?.headSha === 'a'.repeat(40)
+    && error.resource?.surface === 'checks');
+  assert.ok(!childCalls.some((args) => args[0] === 'pr' && args[1] === 'merge'));
+  assert.ok(calls.some(({ url, init }) => url.endsWith('/installation/token') && init.method === 'DELETE'));
+});
+
+test('malformed REST response blocks merge with exact permanent surface identity and revokes the token', async () => {
+  const { calls, fetchImpl: baseFetch } = appFetch();
+  const childCalls = [];
+  const runChild = async (_executable, args) => {
+    childCalls.push(args);
+    if (args[0] === 'pr' && args[1] === 'view') return { stdout: JSON.stringify({
+      number: 42,
+      baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
+      state: 'OPEN', isDraft: false, mergeStateStatus: 'CLEAN',
+    }) };
+    return { stdout: '' };
+  };
+  await assert.rejects(() => runAsInstallation(
+    { kind: 'pr-merge', number: '42', headSha: 'a'.repeat(40) },
+    runtimeOptions({
+      runChild,
+      fetchImpl: async (url, init) => {
+        if (url.includes('/commits/') && url.includes('/check-runs?')) {
+          return { ok: true, status: 200, json: async () => { throw new SyntaxError('invalid JSON'); } };
+        }
+        return baseFetch(url, init);
+      },
+    }),
+  ), (error) => error instanceof LauncherError
+    && error.code === 'merge_check_surface_invalid'
+    && error.retryable === false
+    && error.mutationCompleted === false
+    && error.resource?.headSha === 'a'.repeat(40)
+    && error.resource?.surface === 'checks');
+  assert.ok(!childCalls.some((args) => args[0] === 'pr' && args[1] === 'merge'));
+  assert.ok(calls.some(({ url, init }) => url.endsWith('/installation/token') && init.method === 'DELETE'));
 });
 
 test('blocks immediate merge before key reads, token minting, or child execution when current-state preflight is absent', async () => {
@@ -352,12 +550,12 @@ test('merge reports pending checks and reconciles an ambiguous successful mutati
   pendingRollup[2] = { ...pendingRollup[2], status: 'IN_PROGRESS', conclusion: null };
   await assert.rejects(
     () => runAsInstallation({ kind: 'pr-merge', number: '42', headSha: 'a'.repeat(40) }, runtimeOptions({
+      rollup: pendingRollup,
       runChild: async (_executable, args) => {
         if (args[0] === 'pr' && args[1] === 'view') return { stdout: JSON.stringify({
           number: 42, url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42',
           baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
           state: 'OPEN', isDraft: false, mergeStateStatus: 'BLOCKED',
-          statusCheckRollup: pendingRollup,
         }) };
         return { stdout: '' };
       },
@@ -394,10 +592,10 @@ test('merge requires one exact success for every required context and ignores un
     ...duplicatedSelectedJob[2], detailsUrl: `https://github.com/${REPOSITORY}/actions/runs/10/job/999`,
   });
   const queuedRerun = successfulRollup();
-  queuedRerun.push({
+  queuedRerun[2] = {
     ...queuedRerun[2], status: 'QUEUED', conclusion: null, startedAt: null,
     detailsUrl: `https://github.com/${REPOSITORY}/actions/runs/10/job/998`,
-  });
+  };
   const missing = successfulRollup().filter((check) => (check.name ?? check.context) !== 'Visual Baseline');
   const staleBinding = successfulRollup();
   staleBinding[0] = {
@@ -424,10 +622,11 @@ test('merge requires one exact success for every required context and ignores un
   ]) {
     await assert.rejects(
       () => runAsInstallation({ kind: 'pr-merge', number: '42', headSha: 'a'.repeat(40) }, runtimeOptions({
+        rollup,
         runChild: async (_executable, args) => {
           if (args[0] === 'pr' && args[1] === 'view') return { stdout: JSON.stringify({
             number: 42, baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
-            state: 'OPEN', isDraft: false, mergeStateStatus: 'BLOCKED', statusCheckRollup: rollup,
+            state: 'OPEN', isDraft: false, mergeStateStatus: 'BLOCKED',
           }) };
           return { stdout: '' };
         },
@@ -440,6 +639,13 @@ test('merge requires one exact success for every required context and ignores un
   const accepted = await runAsInstallation(
     { kind: 'pr-merge', number: '42', headSha: 'a'.repeat(40) },
     runtimeOptions({
+      rollup: [...successfulRollup(), {
+        name: 'Optional Dispatcher', status: 'COMPLETED', conclusion: 'CANCELLED',
+      }, {
+        name: 'Behavior Tests', status: 'COMPLETED', conclusion: 'CANCELLED',
+        startedAt: '2026-08-16T01:00:00.000Z',
+        detailsUrl: `https://github.com/${REPOSITORY}/actions/runs/9/job/90`,
+      }],
       runChild: async (_executable, args) => {
         if (args[0] === 'pr' && args[1] === 'view') {
           views += 1;
@@ -447,13 +653,6 @@ test('merge requires one exact success for every required context and ignores un
             number: 42, url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42',
             baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
             state: views === 1 ? 'OPEN' : 'MERGED', isDraft: false, mergeStateStatus: 'CLEAN',
-            statusCheckRollup: [...successfulRollup(), {
-              name: 'Optional Dispatcher', status: 'COMPLETED', conclusion: 'CANCELLED',
-            }, {
-              name: 'Behavior Tests', status: 'COMPLETED', conclusion: 'CANCELLED',
-              startedAt: '2026-08-16T01:00:00.000Z',
-              detailsUrl: `https://github.com/${REPOSITORY}/actions/runs/10/job/90`,
-            }],
           }) };
         }
         return { stdout: '' };
