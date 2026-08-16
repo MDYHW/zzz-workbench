@@ -372,11 +372,12 @@ that time.
 
 General `dmg_taken_multiplier` remains in each applicable damage frame because
 enemy, stage, or other target mechanics can change it. It is not a direct
-setting pressure: the current setup-source boundary admits only Caesar King's
-qualified enemy-context DMG Taken contribution, projected after the party
-condition is established rather than used to author a recipient's equipment or
-stat candidates. Source-fact treatment owns that bounded admission and the
-wording distinctions used to preserve it.
+setting pressure: the current outgoing setup-source boundary admits no Agent,
+W-Engine, or Drive Disc contribution to that component. Source-fact treatment
+owns admission and classifies source meaning independently from recipient or
+application locus. A later independently retained enemy, stage, or
+environmental consumer can make this region visible without making it an
+equipment pressure or a generic editable target input by default.
 
 A current mechanics relationship states that current Rupture Agents convert
 30% of current ATK and 10% of current Max HP into Sheer Force. The Max HP
