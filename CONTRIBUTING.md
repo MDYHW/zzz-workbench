@@ -81,8 +81,9 @@ decision history, not current product authority.
 
 Protected authority, governance, shared-semantic, CI, and visual-baseline
 changes require fresh product-owner approval of their latest revision. A
-settled Agent-local change may later merge without a manual owner review only after the repository's
-independent-review evidence and required checks prove their objective gates.
+settled Agent-local change may merge without a manual owner review after the
+repository's independent-review evidence and required checks pass their
+objective gates.
 
 ## Canonical local gate
 
@@ -109,11 +110,13 @@ During authority-governance recovery:
   forensic checkpoint and may not move;
 - `recovery` accepts pull requests only and remains distinct from trusted
   `main`;
-- every recovery pull request needs a fresh approval from the product-owner
-  account until the full ruleset and reviewer-evidence workflow is proven;
-- the project GitHub App may author non-protected branches and pull requests,
-  but it has no protection bypass and bootstrap App merge remains disabled;
-  and
+- the completed bootstrap phase required a fresh product-owner approval for
+  every recovery pull request and kept App merge disabled until the full
+  ruleset and reviewer-evidence workflow was proven;
+- under the current conditional gate, the project GitHub App may author and
+  merge non-protected branches and pull requests without another owner review,
+  while protected changes still require the fresh approval defined below and
+  the App never receives protection bypass; and
 - no Agent vertical, frozen plan, or roadmap continuation resumes until the
   recovery acceptance and promotion flow succeeds.
 
