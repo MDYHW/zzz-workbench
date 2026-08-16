@@ -784,12 +784,24 @@ retained non-stat examples are Dialyn's enemy Stun-duration extension and Astra
 M4's next-Quick-Assist Daze modifier. A numeric resource or survival clause does
 not enter Result merely because the source states an amount.
 
-Ben's Core shield is the bounded current survival relationship admitted by the
-source-fact gate: selected Initial DEF and Shield Effect inputs determine one
-complete shield amount per EX Special Attack follow-up. Result exposes that
-amount as a source-local operation beside its Initial DEF and optional Shield
-Effect inputs. This does not admit shield uptime, incoming damage, replacement,
-healing, or another holder's shield clause without its own current consumer.
+Shield, healing, and other survival value are excluded from Result and from
+positive damage or setup axes. A deterministic and exactly calculable survival
+amount does not admit or strengthen a candidate, prepared representative, main
+stat, or substat and does not make Shield Effect or that amount visible in
+Result.
+
+Setup may retain the smallest exact survival clause needed to disclose a
+current selected or candidate package whose admission is independently
+supported by non-survival consumers. A shield's existence or activation may
+likewise remain an internal source-local eligibility or target-state condition
+for an independently admitted damage, Daze, stat, or party effect. Neither
+retention makes survival value positive or visible in Result.
+
+Result projects that admitted non-survival effect under the actual authored
+Core Passive, Additional Ability, Mindscape, equipment, or canonical-action
+source that owns it. A named shield state and an action that merely creates the
+shield do not become sources. A canonical action owns the Result contribution
+only when the action itself authors the retained effect.
 
 Expanded numeric breakdown is the explanation surface. Guide URLs, source
 wording, candidate rationale, activation prose, historical deltas, and narrative
