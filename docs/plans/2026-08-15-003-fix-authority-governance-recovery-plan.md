@@ -637,14 +637,22 @@ separate owner-only protected changes before any dependent correction begins.
 **Dependencies:** U4.
 
 **Files:**
-- Modify as owned by the shield ACR: `docs/setup-workbench-product-contract.md`
-- Modify as owned by the source ACR: `docs/source-fact-boundary.md`
-- Modify as owned by the source ACR: `docs/zzz-formula-mechanics.md`
+- Modify in its own protected amendment: `docs/setup-workbench-product-contract.md`
+- Modify in its own protected amendment: `docs/source-fact-boundary.md`
+- Modify in its own protected amendment: `docs/zzz-formula-mechanics.md`
 
 **Approach:**
-- Create one protected authority-amendment PR per accepted ACR; cite the
-  immutable accepted record and change only the owner documents needed for that
-  decision.
+- Create one protected authority-amendment PR per affected permanent owner,
+  even when one accepted ACR affects multiple owners. Cite the same immutable
+  accepted record and the amended owner's current Rule ID in every such PR;
+  change exactly that one permanent-owner document and no other owner or
+  dependent artifact.
+- Complete `ACR-2026-08-15-001` through three separate amendments: `SW-013` in
+  `docs/setup-workbench-product-contract.md`, `SF-003` in
+  `docs/source-fact-boundary.md`, and `FM-009` in
+  `docs/zzz-formula-mechanics.md`. Treat all three merged amendments as one
+  prerequisite gate: no shield/Proto requirement, plan, production, test, or
+  audit-completion correction begins after only a subset has merged.
 - Preserve shield package-copy meaning while excluding survival as a generic
   Result or positive setup axis.
 - Preserve conceptual target mechanics while excluding unsupported
@@ -660,15 +668,22 @@ separate owner-only protected changes before any dependent correction begins.
 **Test scenarios:**
 - Transaction shape: an owner amendment without an accepted ACR fails; an ACR
   and owner amendment in the same PR also fails.
+- Owner isolation: an amendment PR that changes two permanent owners fails even
+  when both changes cite the same accepted ACR; three ACR-001 amendment PRs
+  changing only `SW-013`, `SF-003`, and `FM-009` respectively pass this shape.
 - Ordering: each amendment cites an already-merged accepted ACR, and later ACR
-  supersession cannot silently rewrite the merged record.
+  supersession cannot silently rewrite the merged record. Dependent ACR-001
+  correction remains blocked until all three owner amendments have merged.
 - Content contrast: the amendment preserves exact Stun Multiplier and Veil
   Vulnerability owners without using them as generic DMG Taken precedents.
 
 **Verification:**
-- The owner approves each latest authority-only revision, policy proves no
-  dependent artifacts are present, and independent review confirms that the
-  amendment exactly realizes its accepted ACR.
+- The owner approves each latest authority-only revision, policy proves each PR
+  changes exactly one permanent owner with no dependent artifacts, and
+  independent review confirms that amendment exactly realizes its accepted ACR
+  for the cited current Rule ID. ACR-001 dependent work remains frozen until
+  the accepted merged set contains separate `SW-013`, `SF-003`, and `FM-009`
+  amendments.
 
 - U5. **Correct formula and source-to-Result consumers**
 
