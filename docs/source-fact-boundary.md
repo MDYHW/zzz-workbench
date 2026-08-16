@@ -124,9 +124,16 @@ output. Do not invent a raw damage, Daze, or personal-output Result merely to
 justify a candidate that already changes the visible choice set.
 
 Candidate or prepared-choice relevance can likewise retain an exact resource
-or survival clause without projecting it into Result. Keep only the value,
-trigger, applicability, and limit needed to express the whole package and its
-current setup consequence.
+clause without projecting it into Result. Keep only the value, trigger,
+applicability, and limit needed to express the whole package and its current
+setup consequence.
+
+An exact survival clause may remain only as the smallest retained part of a
+current selected or candidate package whose admission is independently
+supported by non-survival consumers. The survival clause does not itself admit
+or strengthen candidate membership, a prepared first choice, a main stat, or a
+substat. Keep only the value, trigger, applicability, and limit needed for the
+complete package copy.
 
 For Result, a non-stat value passes the gate only when its meaning is complete
 for one canonical action or one state outcome without assuming trigger
@@ -136,12 +143,17 @@ do not convert a per-event amount or cooldown into `/s`, a standalone operation,
 or an Energy Regen contribution. Their exact compressed facts may still pass
 through a current candidate or prepared-choice consumer.
 
-Do not proactively retain shield, healing, or survival amounts as generic
-Result operations. Ben Bigger's Core shield and Caesar King's Radiant Aegis
-are the current dedicated exceptions because their candidate or prepared
-policies materially strengthen one deterministic per-activation output. Each
-remains an Agent-local relationship and does not justify a generic survival
-schema, incoming-damage model, or shared shield state.
+Shield, healing, and other survival amounts fail this Result branch even when
+one deterministic activation makes the amount complete. Do not retain Shield
+Effect or another survival input solely to calculate or strengthen that output.
+
+Keep shield existence or activation only as the smallest internal source-local
+eligibility or target-state condition when it changes an independently retained
+damage, Daze, stat, or party effect. That condition does not retain Shield
+Effect or the shield amount. Keep the non-survival effect under the Core
+Passive, Additional Ability, Mindscape, equipment, or canonical action that
+actually authors it. A named shield state and an action that merely creates the
+shield remain conditions or triggers and do not acquire source ownership.
 
 Keep a value, threshold, cap, count, trigger, action scope, Attribute scope,
 recipient, duration, stack rule, or compatibility rule only when it changes a
