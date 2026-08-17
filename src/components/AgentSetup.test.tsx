@@ -224,19 +224,6 @@ describe('AgentSetup partial W-Engine package', () => {
       } as const
       const { rerender } = render(<AgentSetup {...props} setup={setup} />)
 
-      if (agentId === 'caesar') {
-        expect(screen.getByRole('button', {
-          name: 'Change W-Engine from Tusks of Fury',
-        })).toHaveAccessibleDescription(
-          'Impact +18%. Shield provided +30%. Squad DMG +18%. Squad Daze +12%',
-        )
-        expect(screen.getByRole('button', {
-          name: 'Change 4-piece Drive Disc from Proto Punk',
-        })).toHaveAccessibleDescription(
-          'After Defensive or Evasive Assist · Squad DMG +15%. Shield provided +15%',
-        )
-      }
-
       await user.click(screen.getByRole('button', {
         name: `Change W-Engine from ${selectedName}`,
       }))
@@ -449,11 +436,6 @@ describe('AgentSetup Ben and Koleda equipment packages', () => {
       name: 'Select Hailstorm Shrine W1',
     })).toHaveAccessibleDescription(
       'CRIT Rate +24%. Anomaly Specialty passive inactive. Inactive · CRIT DMG +50%. Inactive · Ice DMG +40%',
-    )
-    expect(within(candidates).getByRole('button', {
-      name: 'Select Tusks of Fury W1',
-    })).toHaveAccessibleDescription(
-      'Impact +18%. Shield provided +30%. Squad DMG +18%. Squad Daze +12%',
     )
     expect(within(candidates).getByRole('button', {
       name: 'Select Big Cylinder W5',

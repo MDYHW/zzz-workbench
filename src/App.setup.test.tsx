@@ -4,6 +4,49 @@ import { describe, expect, it } from 'vitest'
 import { App } from './App'
 
 describe('integrated party workbench: setup', () => {
+  it('keeps retained shield equipment copy accessible on selected and candidate surfaces', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Corin, Physical, Attack/)
+    await replace(2, /Caesar King, Physical, Defense/)
+    await replace(3, /Astra Yao, Ether, Support/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+    await user.click(screen.getByRole('tab', { name: 'View Caesar King setup and Result' }))
+
+    expect(screen.getByRole('button', {
+      name: 'Change W-Engine from Tusks of Fury',
+    })).toHaveAccessibleDescription(
+      'Impact +18%. Shield provided +30%. Squad DMG +18%. Squad Daze +12%',
+    )
+    expect(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Proto Punk',
+    })).toHaveAccessibleDescription(
+      'After Defensive or Evasive Assist · Squad DMG +15%. Shield provided +15%',
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Ben Bigger, Fire, Defense/)
+    await replace(2, /Koleda Belobog, Fire, Stun/)
+    await replace(3, /Pan Yinhu, Physical, Defense/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+    await user.click(screen.getByRole('tab', { name: 'View Ben Bigger setup and Result' }))
+    await user.click(screen.getByRole('button', {
+      name: 'Change W-Engine from Tremor Trigram Vessel',
+    }))
+
+    expect(within(screen.getByLabelText('W-Engine candidates')).getByRole('button', {
+      name: 'Select Tusks of Fury W1',
+    })).toHaveAccessibleDescription(
+      'Impact +18%. Shield provided +30%. Squad DMG +18%. Squad Daze +12%',
+    )
+  }, 10_000)
+
   it('keeps Evelyn’s complete representative stable while Astra and Dialyn add local Disc comparisons', async () => {
     const user = userEvent.setup()
     render(<App />)
