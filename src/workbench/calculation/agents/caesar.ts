@@ -153,13 +153,6 @@ export function resolveCaesarProviderClauses(
       'self', M6_ACTIONS,
     ),
 
-    percentage(
-      'impact', 'fully', engine,
-      setup.engineId === 'originalTransmorpher'
-        ? equipmentEffectBaseValue(W_ENGINE_FACTS.originalTransmorpher.effects.impact, refinement)
-        : 0,
-      'self',
-    ),
     withApplicability(
       additive(
         'dmgBonus', 'fully', engine,

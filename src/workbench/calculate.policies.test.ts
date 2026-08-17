@@ -1923,24 +1923,6 @@ describe('authored calculation policies', () => {
           label: 'Additional Ability', ownerAgentId: 'caesar', amount: 25,
         }))
 
-      const originalW1 = agent(calculateParty(setRefinement(
-        selectEngine(base, 'caesar', 'originalTransmorpher'),
-        'caesar',
-        1,
-      ))!, 'caesar')
-      expect(metric(originalW1, 'impact').values).toMatchObject({
-        initial: expect.closeTo(152.52),
-        combat: expect.closeTo(152.52),
-        fully: expect.closeTo(198.276),
-      })
-      expect(originalW1.metrics.find(({ id }) => id === 'maxHp')).toBeUndefined()
-      const originalW5 = agent(calculateParty(setRefinement(
-        selectEngine(base, 'caesar', 'originalTransmorpher'),
-        'caesar',
-        5,
-      ))!, 'caesar')
-      expect(metric(originalW5, 'impact').values.fully).toBeCloseTo(207.4272)
-
       const hellfire = agent(calculateParty(selectEngine(
         base, 'caesar', 'hellfireGears',
       ))!, 'caesar')
@@ -1949,14 +1931,16 @@ describe('authored calculation policies', () => {
         .not.toContainEqual(expect.objectContaining({
           label: 'Hellfire Gears', detail: 'W1', amount: expect.closeTo(17.466),
         }))
-      const demara = agent(calculateParty(selectEngine(
-        base, 'caesar', 'demaraBatteryMarkII',
+      const spring = agent(calculateParty(selectEngine(
+        base, 'caesar', 'springEmbrace',
       ))!, 'caesar')
-      expect(demara.metrics.find(({ id }) => id === 'energyRegen')).toBeUndefined()
-      expect(metric(demara, 'dmgBonus').breakdown.fully)
-        .not.toContainEqual(expect.objectContaining({
-          label: 'Demara Battery Mark II', ownerAgentId: 'caesar',
+      expect(metric(spring, 'atk').breakdown.initial)
+        .toContainEqual(expect.objectContaining({
+          label: 'Spring Embrace', ownerAgentId: 'caesar',
+          display: { value: 25, unit: '%', decimals: 0 },
         }))
+      expect(spring.metrics.find(({ id }) => id === 'energyRegen')).toBeUndefined()
+      expect(spring.operations).toEqual([])
     })
 
     it('keeps Ye target replacement raw, local, and separately clamped', () => {

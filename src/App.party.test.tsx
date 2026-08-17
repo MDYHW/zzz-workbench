@@ -552,7 +552,7 @@ describe('integrated party workbench: party', () => {
     const grillCandidate = within(screen.getByLabelText('W-Engine candidates'))
       .getByRole('button', { name: "Select Grill O'Wisp W5" })
     expect(grillCandidate).toHaveAccessibleDescription(
-      'HP +25%. Fire DMG +24%. After HP decreases · CRIT Rate +24%',
+      'HP +25%. Fire DMG +24%. CRIT Rate +24%',
     )
     await user.click(grillCandidate)
     await user.click(screen.getByRole('button', { name: 'M2' }))
@@ -564,7 +564,7 @@ describe('integrated party workbench: party', () => {
     expect(screen.getByRole('button', {
       name: "Change W-Engine from Grill O'Wisp",
     })).toHaveAccessibleDescription(
-      'HP +25%. Fire DMG +24%. After HP decreases · CRIT Rate +24%',
+      'HP +25%. Fire DMG +24%. CRIT Rate +24%',
     )
     expect(screen.getByRole('heading', { name: 'Yidhari Result' })).toBeInTheDocument()
 
@@ -603,7 +603,7 @@ describe('integrated party workbench: party', () => {
     expect(hugoTab).toHaveClass('source-tone--agent-hugo')
     expect(screen.getByRole('button', { name: 'Change W-Engine from Myriad Eclipse' }))
       .toHaveAccessibleDescription(
-        'CRIT Rate +24%. CRIT DMG +45%. After Ice DMG from EX Special, Chain Attack, or Ultimate · DEF Ignore +25%',
+        'CRIT Rate +24%. CRIT DMG +45%. DEF Ignore +25%',
       )
     expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Branch & Blade Song' }))
       .toHaveAccessibleDescription('CRIT DMG +16%')
@@ -778,7 +778,7 @@ describe('integrated party workbench: party', () => {
     expect(within(screen.getByLabelText('W-Engine candidates')).getByRole('button', {
       name: 'Select Cloudcleave Radiance W1',
     })).toHaveAccessibleDescription(
-      'CRIT DMG +48%. Physical RES Ignore +20%. Holder activates Ether Veil · DMG +25%. Holder activates Ether Veil · CRIT DMG +25%',
+      'CRIT DMG +48%. Physical RES Ignore +20%. DMG +25%. CRIT DMG +25%',
     )
     await user.click(steel)
     expect(screen.getByRole('heading', { name: 'Nekomata Result' })).toBeInTheDocument()
@@ -790,7 +790,7 @@ describe('integrated party workbench: party', () => {
       .toHaveLength(2)
     expect(screen.getByRole('button', { name: 'Change W-Engine from Cloudcleave Radiance' }))
       .toHaveAccessibleDescription(
-        'CRIT DMG +48%. Physical RES Ignore +20%. Holder activates Ether Veil · DMG +25%. Holder activates Ether Veil · CRIT DMG +25%',
+        'CRIT DMG +48%. Physical RES Ignore +20%. DMG +25%. CRIT DMG +25%',
       )
     expect(screen.getByRole('heading', { name: 'Billy Kid Result' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Non-limited' }))

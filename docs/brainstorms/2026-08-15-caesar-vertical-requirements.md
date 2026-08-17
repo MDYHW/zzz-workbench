@@ -24,10 +24,9 @@ direction, raw damage, raw Daze, or runtime optimizer.
 ## Product Flows
 
 1. Applying Caesar prepares a complete M0 setup with zero supplied substats.
-   The currently implemented full pool starts on Tusks of Fury and the
-   currently implemented non-limited pool starts on Hellfire Gears. U6 must
-   re-inspect those holder-local memberships and representatives before this
-   document treats either as reapproved.
+   The full pool starts on Tusks of Fury and the non-limited S-Rank pool starts
+   on Hellfire Gears. Both representatives follow the settled holder-local
+   non-survival package comparison.
 2. Result makes Initial/Combat versus Fully Enabled Impact visible. W-Engine,
    Slot 6, and Shockstar 2-piece Impact increase Daze. Caesar's triggered
    Special/Assist Impact increase affects Fully Enabled Impact and Daze but not
@@ -78,11 +77,10 @@ direction, raw damage, raw Daze, or runtime optimizer.
   value; it is neither Caesar's bare character Base Impact nor a Combat Impact
   buff.
 - UI rules own compressed selected/candidate package copy, Result source
-  disclosure, action rows, and portrait calibration.
-  Original Transmorpher exposes both its unused HP chassis and active
-  after-attacked Impact clause in Setup; independently admitted equipment may
-  retain its smallest complete survival clause there without projecting it to
-  Result or candidate rationale. Setup does not repeat rotation advice.
+  disclosure, action rows, and portrait calibration. Spring Embrace exposes
+  its complete source-owned package without turning damage reduction into
+  candidate value or projecting its event resource to Result. Setup does not
+  add compatibility labels or repeat routine trigger and duration advice.
 
 ## Requirements
 
@@ -142,40 +140,42 @@ direction, raw damage, raw Daze, or runtime optimizer.
 
 ### W-Engine authoring
 
-- R9. Caesar's currently implemented full W-Engine pool contains Tusks of Fury,
-  Hellfire Gears, Demara Battery Mark II, and Original Transmorpher. The
-  implemented non-limited pool contains Hellfire, Demara, and Original. The
-  current full representative is Tusks W1 and the current non-limited
-  representative is Hellfire W1. This U5 correction does not reapprove those
-  memberships or representatives. U6 must author the holder-local complete-
-  package conclusion independently per pool without crediting survival value.
+- R9. Caesar's full W-Engine pool contains Tusks of Fury, Hellfire Gears, and
+  Spring Embrace. Her non-limited S-Rank pool contains Hellfire and Spring.
+  Full prepares Tusks W1 and non-limited prepares Hellfire W1. Under SW-010,
+  City Fund Spring remains eligible as an A-Rank. Membership and representative
+  authoring are independently supported per pool without crediting survival
+  value.
 - R10. Tusks' complete package copy includes Base ATK 713, advanced
   Initial Impact +18%, Shield Effect +30%, squad DMG +18%, and squad Daze +12%,
   with Shield Effect retained only as Setup survival copy and no positive axis.
   Hellfire's Base ATK 684 and advanced Initial Impact +18% remain usable while
-  its Stun-only Energy/Fully-Impact passive is inactive. U6 must compare Tusks'
-  non-survival Impact/squad-DMG/squad-Daze package and Hellfire's Daze package
-  with every pool-local alternative before retaining either representative.
-- R11. The currently implemented Demara package has Base ATK 624 and advanced
+  its Stun-only Energy/Fully-Impact passive remains visible as source-owned
+  Setup copy but does not apply to Caesar's Result. Tusks' non-survival
+  Impact/squad-DMG/squad-Daze package and Hellfire's Daze package were compared
+  with every pool-local alternative. Tusks remains the stronger full
+  buffer/Daze package; Hellfire remains the strongest non-limited same-axis
+  Daze package even though its passive is not applied to Caesar's Result.
+- R11. Demara has Base ATK 624 and advanced
   Initial Impact +15%, which strengthens Daze, while its Stun-only Electric
-  DMG/Energy Generation passive is inactive. Its visible A-Rank accessibility
-  and lower same-axis values than Hellfire are inputs to U6, which must decide
-  whether the complete package is competitive enough for either pool rather
-  than treating current membership as approval. The implemented pool also
-  includes Original Transmorpher
-  as A-Rank non-limited, Base ATK 594, advanced HP +25%, holder Max HP
-  +8% / 9% / 10% / 11% / 12.5%, and after being attacked Fully Enabled Impact
-  +10% / 11.5% / 13% / 14.5% / 16% from W1-W5.
-  Original's HP is unused and its active Impact contributes only to Fully
-  Enabled Daze. U6 must compare that direction and its unused opportunity cost
-  against Demara and Hellfire; this U5 unit does not retain or remove it.
-- R12. Spring Embrace, Tremor Trigram Vessel, Big Cylinder, and other Defense
-  packages are currently excluded. Survival clauses cannot admit or strengthen
-  a package, and U6 must treat them as unused opportunity cost while comparing
-  any independently usable Energy-event, personal-damage, Impact, Daze, or
-  squad-buffer directions. This correction neither reapproves the exclusions
-  nor expands the pool. Any settled outcome remains a local Caesar judgment,
-  not a general rule for Defense holders.
+  DMG/Energy Generation passive does not apply to Caesar. It is excluded: its
+  only usable Impact axis is lower than Hellfire's always-available +18%, and
+  A-Rank accessibility alone does not create a material choice. Original
+  Transmorpher is A-Rank non-limited with Base ATK 594, advanced HP +25%,
+  holder Max HP +8% / 9% / 10% / 11% / 12.5%, and after being attacked Fully
+  Enabled Impact +10% / 11.5% / 13% / 14.5% / 16% from W1-W5.
+  Original's HP is unused and its active Fully Enabled Impact +16% at W5 is
+  lower than Hellfire's always-available Initial Impact +18%. It is therefore
+  excluded from Caesar's same Daze axis after its unused opportunity cost.
+- R12. Spring Embrace is admitted to both pools. Its A-Rank W5 package supplies
+  Base ATK 594, advanced ATK +25%, damage reduction, and Energy Generation Rate
+  +16% that transfers to the next on-field Agent. Damage reduction supplies no
+  positive axis, but the transferable resource is a distinct buffer operation
+  rather than a weaker Impact substitute. Tremor Trigram Vessel and Big
+  Cylinder remain excluded because their holder damage, small holder Energy,
+  DEF proc, or survival clauses do not create a competitive Caesar role or
+  recipient direction. These are local Caesar judgments, not a general rule
+  for Defense holders.
 
 ### Drive Discs, mains, and prepared setup
 
@@ -204,13 +204,12 @@ direction, raw damage, raw Daze, or runtime optimizer.
   regardless of supplier. U8 must decide which residual personal-damage mains
   remain competitive for this non-damage role and re-inspect the empty substat
   roster and its zero-count finite opportunity before reapproving either.
-- R16. The current implementation prepares Tusks in full and Hellfire in
-  non-limited, then Proto/Shockstar, CRIT Rate / Physical DMG / Impact, and no
-  substats. This U5 correction does not reapprove those candidate-dependent
-  first choices. U6/U7 must settle the non-survival engine and Disc packages,
-  then U8 must affirm the finite-investment balance and deterministic
-  representative. The result is not a runtime comparison of shield uptime,
-  Daze rotations, or incoming attacks.
+- R16. The settled W-Engine representatives prepare Tusks in full and Hellfire
+  in non-limited. The current downstream preparation then uses Proto/Shockstar,
+  CRIT Rate / Physical DMG / Impact, and no substats. U7 must settle the
+  non-survival Disc package and U8 the finite-investment balance before those
+  downstream first choices are reapproved. The result is not a runtime
+  comparison of shield uptime, Daze rotations, or incoming attacks.
 
 ### Preparation, Result, and visible acceptance
 
@@ -242,16 +241,17 @@ direction, raw damage, raw Daze, or runtime optimizer.
   the current contrast of no Agent-supplied generic DMG Taken row. Candidate
   dominance and prepared choice do not broaden exact Result projection.
 - R20. Selected and candidate equipment expose the same accessible compressed
-  package descriptions, including inactive Specialty passives. Original asset
+  source-owned package descriptions without holder compatibility labels;
+  Result alone applies Specialty-compatible clauses. Original asset
   inspection and in-app Browser comparison at desktop and one narrow viewport
   cover Caesar expanded and compact without changing another portrait.
 
 ## Acceptance Evidence
 
-- AE1. After U6-U8 reinspection, candidate and preparation tests prove both independent W-Engine pools,
-  usable versus inactive passive packages, Original's complete package, base
-  versus contextual Disc membership, zero-substat representatives, and one
-  unaffected party.
+- AE1. After U6-U8 reinspection, candidate and preparation tests prove both
+  independent W-Engine pools, source-owned package copy versus exact Result
+  applicability, Spring's distinct resource package, base versus contextual
+  Disc membership, zero-substat representatives, and one unaffected party.
 - AE2. After those candidate and representative conclusions settle, composed lifecycle tests cover contextual Astral present, absent, and
   reselected; Party Apply rebuilding all three setups; targeted pool/Mindscape
   rebuilding only Caesar; direct-edit locality; and preservation of the
@@ -262,9 +262,9 @@ direction, raw damage, raw Daze, or runtime optimizer.
   active/inactive routes, broad
   regular DMG Bonus projection without a generic DMG Taken row, M1 RES Reduction,
   skill-tier Daze/Impact values, M6 capped action CRIT/DMG/operation, Tusks,
-  inactive Hellfire/Demara passives, and Original Fully-only Impact.
-- AE4. Shared UI tests prove complete selected/candidate package copy,
-  accessible inactive-passive descriptions, Result remains empty when
+  and Hellfire's compatible chassis without its Stun-only passive.
+- AE4. Shared UI tests prove identical source-owned selected/candidate package
+  copy without compatibility labels, Result remains empty when
   incomplete, and no Shield Effect, exact shield amount, generic shield,
   incoming-damage, Assist, Energy, or anomaly Result surface appears. An
   independently admitted equipment package may retain its smallest complete
@@ -302,9 +302,10 @@ direction, raw damage, raw Daze, or runtime optimizer.
   current non-survival consumers; no shield operation or metric remains.
 - Do not admit Original, Demara, Spring, or off-Specialty Stun engines merely
   because a guide names them or a number is positive. Holder eligibility,
-  active versus inactive passive, complete package, same-axis comparator,
-  zero-substat opportunity cost, and pool-specific representative decide each
-  local outcome.
+  passive applicability, complete package, same-axis comparator, zero-substat
+  opportunity cost, and pool-specific representative decide each local
+  outcome. That comparison excludes Original and Demara but admits Spring's
+  distinct transferable resource direction.
 - Do not add anomaly equipment, anomaly formula participation, or Freedom
   Blues before the roadmap's anomaly semantic gate is independently closed.
 
@@ -314,10 +315,10 @@ U5 closes the formula and source classification needed here: Initial and Fully
 Enabled Impact feed Daze rather than a shield result; Core Passive, Mindscape,
 Additional Ability, and the applicable action retain ownership of their
 non-survival effects; Shield Effect and an exact shield amount or operation are
-excluded; and generic Agent DMG Taken remains absent. U6/U7 still owe the
-holder-local whole-package reinspection, and U8 still owes finite-investment
-and representative reinspection, before any current membership, exclusion, or
-prepared first choice is retained or removed as a settled product conclusion.
+excluded; and generic Agent DMG Taken remains absent. U6 closes the W-Engine
+holder-local whole-package reinspection and representatives above. U7 still
+owes the Disc reinspection, and U8 the finite-investment and downstream
+representative reinspection, before those later choices are settled.
 Exact source values and current qualification facts
 were used as ephemeral inputs; this document owns only the settled local
 non-survival outcomes above.

@@ -96,8 +96,6 @@ function localKingCritRate(setup: CompleteSetup): number {
 function engineImpact(setup: CompleteSetup): number {
   const refinement = setup.refinement
   switch (setup.engineId) {
-    case 'iceJadeTeapot':
-      return equipmentEffectMaximumValue(W_ENGINE_FACTS.iceJadeTeapot.effects.impact, refinement)
     case 'blazingLaurel':
       return equipmentEffectBaseValue(W_ENGINE_FACTS.blazingLaurel.effects.impact, refinement)
     case 'hellfireGears':
@@ -154,16 +152,6 @@ export function resolveKoledaProviderClauses(
         'self',
       )]
       : []),
-    withApplicability(
-      additive(
-        'dmgBonus', 'fully', engine,
-        setup.engineId === 'iceJadeTeapot'
-          ? equipmentEffectBaseValue(W_ENGINE_FACTS.iceJadeTeapot.effects.damage, refinement)
-          : 0,
-        'all-party', undefined, undefined, undefined, 'iceJadeTeapot',
-      ),
-      { formulas: ['general_damage', 'sheer_damage'] },
-    ),
     withApplicability(
       additive(
         'critDmg', 'fully', engine,

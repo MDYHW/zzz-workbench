@@ -397,6 +397,39 @@ describe('bounded equipment effect facts', () => {
       'Ice Sheer DMG +18%',
       '≤50% Max HP · CRIT Rate +20%',
     ])
+    expect(W_ENGINES.grillOWisp.passiveLines(5)).toEqual([
+      'Fire DMG +24%',
+      'CRIT Rate +24%',
+    ])
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.manato).toEqual({
+      full: ['grillOWisp', 'wrathfulVajra', 'qingming', 'radiowave', 'puzzleSphere'],
+      nonLimited: ['grillOWisp', 'radiowave', 'puzzleSphere'],
+    })
+  })
+
+  it('keeps the sampled U6 pools independently competitive within each availability boundary', () => {
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.panYinhu).toEqual({
+      full: ['tusksOfFury', 'tremorTrigramVessel'],
+      nonLimited: ['tremorTrigramVessel'],
+    })
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.pulchra).toEqual({
+      full: ['blazingLaurel', 'boxCutter', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
+      nonLimited: ['boxCutter', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
+    })
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.ben).toEqual({
+      full: [
+        'tremorTrigramVessel', 'tusksOfFury', 'cloudcleaveRadiance',
+        'hailstormShrine', 'bigCylinder', 'springEmbrace',
+      ],
+      nonLimited: ['tremorTrigramVessel', 'bigCylinder', 'springEmbrace'],
+    })
+    expect(ENGINE_IDS_BY_AGENT_AND_POOL.koleda).toEqual({
+      full: [
+        'hellfireGears', 'blazingLaurel', 'restrained',
+        'steamOven', 'preciousFossilizedCore',
+      ],
+      nonLimited: ['hellfireGears', 'restrained', 'steamOven', 'preciousFossilizedCore'],
+    })
   })
 
   it('retains Myriad Eclipse broad holder DEF Ignore separately from scoped alternatives', () => {
@@ -413,7 +446,7 @@ describe('bounded equipment effect facts', () => {
     expect(equipmentEffectBaseValue(W_ENGINE_FACTS.myriadEclipse.effects.defIgnore, 1)).toBe(25)
     expect(W_ENGINES.myriadEclipse.passiveLines(1)).toEqual([
       'CRIT DMG +45%',
-      'After Ice DMG from EX Special, Chain Attack, or Ultimate · DEF Ignore +25%',
+      'DEF Ignore +25%',
     ])
     expect(DRIVE_DISCS.polarMetal).toMatchObject({
       twoPieceEffect: 'Ice DMG +10%',
@@ -455,8 +488,8 @@ describe('bounded equipment effect facts', () => {
       'EX Special Attack DMG +24%',
     ])
     expect(W_ENGINES.boxCutter.passiveLines(5)).toEqual([
-      'After Aftershock · Physical DMG +24%',
-      'After Aftershock · Daze +16%',
+      'Physical DMG +24%',
+      'Daze +16%',
     ])
     expect(DRIVE_DISCS.protoPunk).toMatchObject({
       twoPieceEffect: 'Shield provided +15%',
@@ -481,8 +514,8 @@ describe('bounded equipment effect facts', () => {
       .toBe(false)
     expect(W_ENGINES.cloudcleaveRadiance.passiveLines(1)).toEqual([
       'Physical RES Ignore +20%',
-      'Holder activates Ether Veil · DMG +25%',
-      'Holder activates Ether Veil · CRIT DMG +25%',
+      'DMG +25%',
+      'CRIT DMG +25%',
     ])
 
     expect(W_ENGINES.starlightEngineReplica).toMatchObject({
@@ -521,7 +554,7 @@ describe('bounded equipment effect facts', () => {
     })
     expect(W_ENGINES.demaraBatteryMarkII.passiveLines(5)).toEqual([
       'Electric DMG +24%',
-      'After Dodge Counter or Assist Attack · Energy Generation Rate +27.5%',
+      'Energy Generation Rate +27.5%',
     ])
     expect(W_ENGINES.demaraBatteryMarkII.image).toContain('demara-battery-mark-ii.webp')
 
@@ -550,8 +583,8 @@ describe('bounded equipment effect facts', () => {
     })
 
     expect(ENGINE_IDS_BY_AGENT_AND_POOL.caesar).toEqual({
-      full: ['tusksOfFury', 'hellfireGears', 'demaraBatteryMarkII', 'originalTransmorpher'],
-      nonLimited: ['hellfireGears', 'demaraBatteryMarkII', 'originalTransmorpher'],
+      full: ['tusksOfFury', 'hellfireGears', 'springEmbrace'],
+      nonLimited: ['hellfireGears', 'springEmbrace'],
     })
     expect(W_ENGINES.tusksOfFury.passiveSpecialty).toBe('Defense')
     expect(W_ENGINES.hellfireGears.passiveSpecialty).toBe('Stun')
@@ -563,7 +596,7 @@ describe('bounded equipment effect facts', () => {
     })
     expect(W_ENGINES.originalTransmorpher.passiveLines(5)).toEqual([
       'Max HP +12.5%',
-      'After attacked · Impact +16%',
+      'Impact +16%',
     ])
     expect(([1, 2, 3, 4, 5] as const).map((refinement) =>
       equipmentEffectBaseValue(W_ENGINE_FACTS.originalTransmorpher.effects.maxHp, refinement),

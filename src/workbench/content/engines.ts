@@ -599,7 +599,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.myriadEclipse.advancedStat, image: myriadEclipseImage,
     passiveLines: (refinement) => [
       `CRIT DMG +${percent(W_ENGINE_FACTS.myriadEclipse.effects.critDamage, refinement)}`,
-      `After Ice DMG from EX Special, Chain Attack, or Ultimate · DEF Ignore +${percent(W_ENGINE_FACTS.myriadEclipse.effects.defIgnore, refinement)}`,
+      `DEF Ignore +${percent(W_ENGINE_FACTS.myriadEclipse.effects.defIgnore, refinement)}`,
     ],
   },
   krakensCradle: {
@@ -615,7 +615,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.grillOWisp.advancedStat, image: grillOWispImage,
     passiveLines: (refinement) => [
       `Fire DMG +${percent(W_ENGINE_FACTS.grillOWisp.effects.fireDamage, refinement)}`,
-      `After HP decreases · CRIT Rate +${percent(W_ENGINE_FACTS.grillOWisp.effects.critRate, refinement)}`,
+      `CRIT Rate +${percent(W_ENGINE_FACTS.grillOWisp.effects.critRate, refinement)}`,
     ],
   },
   wrathfulVajra: {
@@ -812,8 +812,8 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.deepSeaVisitor.advancedStat, image: deepSeaVisitorImage,
     passiveLines: (refinement) => [
       `Ice DMG +${percent(W_ENGINE_FACTS.deepSeaVisitor.effects.iceDamage, refinement)}`,
-      `After Basic Attack hit · CRIT Rate +${percent(W_ENGINE_FACTS.deepSeaVisitor.effects.basicCritRate, refinement)}`,
-      `After Ice Dash Attack hit · CRIT Rate +${percent(W_ENGINE_FACTS.deepSeaVisitor.effects.dashCritRate, refinement)}`,
+      `CRIT Rate +${equipmentEffectBaseValue(W_ENGINE_FACTS.deepSeaVisitor.effects.basicCritRate, refinement)
+        + equipmentEffectBaseValue(W_ENGINE_FACTS.deepSeaVisitor.effects.dashCritRate, refinement)}%`,
     ],
   },
   riotSuppressorMarkVI: {
@@ -848,8 +848,8 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.boxCutter.advancedStat, image: boxCutterImage,
     passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [
-      `After Aftershock · Physical DMG +${percent(W_ENGINE_FACTS.boxCutter.effects.physicalDamage, refinement)}`,
-      `After Aftershock · Daze +${percent(W_ENGINE_FACTS.boxCutter.effects.daze, refinement)}`,
+      `Physical DMG +${percent(W_ENGINE_FACTS.boxCutter.effects.physicalDamage, refinement)}`,
+      `Daze +${percent(W_ENGINE_FACTS.boxCutter.effects.daze, refinement)}`,
     ],
   },
   zanshinHerbCase: {
@@ -867,8 +867,8 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Attack',
     passiveLines: (refinement) => [
       `Physical RES Ignore +${percent(W_ENGINE_FACTS.cloudcleaveRadiance.effects.physicalResIgnore, refinement)}`,
-      `Holder activates Ether Veil · DMG +${percent(W_ENGINE_FACTS.cloudcleaveRadiance.effects.etherVeilDamage, refinement)}`,
-      `Holder activates Ether Veil · CRIT DMG +${percent(W_ENGINE_FACTS.cloudcleaveRadiance.effects.etherVeilCritDamage, refinement)}`,
+      `DMG +${percent(W_ENGINE_FACTS.cloudcleaveRadiance.effects.etherVeilDamage, refinement)}`,
+      `CRIT DMG +${percent(W_ENGINE_FACTS.cloudcleaveRadiance.effects.etherVeilCritDamage, refinement)}`,
     ],
   },
   hailstormShrine: {
@@ -886,7 +886,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Defense',
     passiveLines: (refinement) => [
       `DMG taken -${percent(W_ENGINE_FACTS.bigCylinder.effects.damageTaken, refinement)}`,
-      `After attacked · Next hit guaranteed CRIT with added ${percent(W_ENGINE_FACTS.bigCylinder.effects.addedDefDamage, refinement)} DEF DMG`,
+      `Next hit guaranteed CRIT with added ${percent(W_ENGINE_FACTS.bigCylinder.effects.addedDefDamage, refinement)} DEF DMG`,
     ],
   },
   springEmbrace: {
@@ -895,7 +895,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Defense',
     passiveLines: (refinement) => [
       `DMG taken -${percent(W_ENGINE_FACTS.springEmbrace.effects.damageTaken, refinement)}`,
-      `After attacked · Energy Generation Rate +${percent(W_ENGINE_FACTS.springEmbrace.effects.energyGeneration, refinement)} · Transfers to next on-field Agent`,
+      `Energy Generation Rate +${percent(W_ENGINE_FACTS.springEmbrace.effects.energyGeneration, refinement)} · Transfers to next on-field Agent`,
     ],
   },
   starlightEngineReplica: {
@@ -909,7 +909,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [
       `Electric DMG +${percent(W_ENGINE_FACTS.demaraBatteryMarkII.effects.electricDamage, refinement)}`,
-      `After Dodge Counter or Assist Attack · Energy Generation Rate +${percent(W_ENGINE_FACTS.demaraBatteryMarkII.effects.energyGeneration, refinement)}`,
+      `Energy Generation Rate +${percent(W_ENGINE_FACTS.demaraBatteryMarkII.effects.energyGeneration, refinement)}`,
     ],
   },
   originalTransmorpher: {
@@ -918,7 +918,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Defense',
     passiveLines: (refinement) => [
       `Max HP +${percent(W_ENGINE_FACTS.originalTransmorpher.effects.maxHp, refinement)}`,
-      `After attacked · Impact +${percent(W_ENGINE_FACTS.originalTransmorpher.effects.impact, refinement)}`,
+      `Impact +${percent(W_ENGINE_FACTS.originalTransmorpher.effects.impact, refinement)}`,
     ],
   },
   streetSuperstar: {
@@ -995,7 +995,7 @@ const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
 export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, EngineId[]>> = {
   yixuan: enginePools(['qingming', 'cauldron', 'radiowave', 'puzzleSphere']),
   yidhari: enginePools(['krakensCradle', 'grillOWisp', 'cauldron', 'qingming', 'radiowave', 'puzzleSphere']),
-  manato: enginePools(['grillOWisp', 'wrathfulVajra', 'qingming', 'cauldron', 'radiowave', 'puzzleSphere']),
+  manato: enginePools(['grillOWisp', 'wrathfulVajra', 'qingming', 'radiowave', 'puzzleSphere']),
   hugo: enginePools(['myriadEclipse', 'cordisGermina', 'heartstringNocturne', 'steelCushion', 'marcatoDesire']),
   juFufu: enginePools(['roaringFurnace', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   panYinhu: enginePools(['tusksOfFury', 'tremorTrigramVessel']),
@@ -1025,9 +1025,9 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   nekomata: enginePools(['steelCushion', 'heartstringNocturne', 'cordisGermina', 'cloudcleaveRadiance', 'severedInnocence', 'brimstone']),
   billy: enginePools(['cloudcleaveRadiance', 'heartstringNocturne', 'cordisGermina', 'brimstone', 'steelCushion', 'starlightEngineReplica']),
   ben: enginePools(['tremorTrigramVessel', 'tusksOfFury', 'cloudcleaveRadiance', 'hailstormShrine', 'bigCylinder', 'springEmbrace']),
-  koleda: enginePools(['hellfireGears', 'blazingLaurel', 'iceJadeTeapot', 'restrained', 'steamOven', 'preciousFossilizedCore']),
-  anby: enginePools(['hellfireGears', 'iceJadeTeapot', 'blazingLaurel', 'restrained', 'steamOven', 'preciousFossilizedCore', 'demaraBatteryMarkII']),
-  caesar: enginePools(['tusksOfFury', 'hellfireGears', 'demaraBatteryMarkII', 'originalTransmorpher']),
+  koleda: enginePools(['hellfireGears', 'blazingLaurel', 'restrained', 'steamOven', 'preciousFossilizedCore']),
+  anby: enginePools(['hellfireGears', 'blazingLaurel', 'restrained', 'steamOven', 'preciousFossilizedCore', 'demaraBatteryMarkII']),
+  caesar: enginePools(['tusksOfFury', 'hellfireGears', 'springEmbrace']),
   yeShunguang: enginePools([
     'cloudcleaveRadiance', 'brimstone', 'steelCushion', 'gildedBlossom',
     'marcatoDesire', 'starlightEngine', 'streetSuperstar',
