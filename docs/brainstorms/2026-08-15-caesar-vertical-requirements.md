@@ -214,21 +214,21 @@ direction, raw damage, raw Daze, or runtime optimizer.
   relative value; neither uniformly dominates across both outcomes. Both remain
   candidates despite Swing being prepared first.
   Proto's Shield Effect supplies no positive axis and is excluded.
-  U8 separately settles shared finite-investment and representative main/substat
-  behavior. Caesar's King 2-piece membership neither admits King 4-piece for
+  Shared finite-investment and representative main/substat behavior remains
+  separate from this set comparison. Caesar's King 2-piece membership neither admits King 4-piece for
   Caesar nor changes King allocation for actual Stun holders.
-- R15. The currently implemented main roster is CRIT Rate/CRIT DMG/ATK% in Slot
-  4, Physical DMG/ATK%/PEN Ratio in Slot 5, and Impact in Slot 6; the implemented
+- R15. The settled main roster is CRIT Rate/CRIT DMG/ATK% in Slot
+  4, Physical DMG/ATK%/PEN Ratio in Slot 5, and Impact in Slot 6; the settled
   base effective-substat roster is empty. Shield Effect is not a positive axis
-  regardless of supplier. U8 must decide which residual personal-damage mains
-  remain competitive for this non-damage role and re-inspect the empty substat
-  roster and its zero-count finite opportunity before reapproving either.
+  regardless of supplier. Residual personal-damage mains remain selectable Setup
+  inputs, but Caesar has no damage role and they do not create ordinary personal
+  Result rows; the empty substat roster remains the settled finite opportunity.
 - R16. The settled W-Engine representatives prepare Tusks W1 in full and Spring
   W5 in non-limited. Both downstream packages prepare Bunny/Swing,
   CRIT Rate / Physical DMG / Impact, and no substats. Bunny is the deterministic
   Disc first choice because Caesar self-activates its higher party-DMG value;
-  Swing remains only in the independent 2-piece role. U8 must still settle the
-  finite-investment balance before the main/substat choices are reapproved.
+  Swing remains only in the independent 2-piece role. The retained Setup mains
+  and zero-substat representative are settled without a runtime optimizer.
   The result is not a runtime
   comparison of shield uptime, Daze rotations, or incoming attacks.
 
@@ -251,10 +251,12 @@ direction, raw damage, raw Daze, or runtime optimizer.
   invalidation lifecycle. Bunny 4-piece and Swing 2-piece are the unaffected
   base-candidate contrast.
 - R19. Result exposes Impact, Energy Regen when selected Swing 2-piece supplies
-  it, Daze Bonus,
-  selected residual ATK/CRIT/DMG inputs,
-  exact non-survival Core/Mindscape/action rows, delivered Focus ATK, and
-  applicable shared/enemy modifiers. It exposes neither Shield Effect nor an
+  it, Daze Bonus, and only the exact M6 CRIT Rate/CRIT DMG rows and action
+  behavior needed by the accepted M6 source case. Residual ATK/CRIT/DMG/PEN
+  Setup mains remain selectable but create no ordinary personal Result rows.
+  Party Result retains exact non-survival Core/Mindscape/action rows, delivered
+  Focus ATK, and applicable shared/enemy modifiers on their actual recipients.
+  Caesar exposes neither Shield Effect nor an
   exact shield amount or operation. Core Passive owns M0-M1 Focus ATK,
   Mindscape 2 owns its replacement value, and the actual Mindscape or action
   source owns every other shield-conditioned non-survival contribution. A
@@ -273,18 +275,19 @@ direction, raw damage, raw Daze, or runtime optimizer.
 - AE1. U6/U7 candidate and preparation tests prove both independent W-Engine
   pools, source-owned package copy versus exact Result applicability, Spring's
   distinct resource package, base versus contextual Disc membership, the
-  settled Disc representative, and one unaffected party. U8 separately owns
-  the pending main, substat, and complete zero-substat representative review.
+  settled Disc representative, retained Setup main rosters, the zero-substat
+  representative, and one unaffected party.
 - AE2. Composed lifecycle tests cover contextual Astral present, absent, and
   reselected; Party Apply rebuilding all three setups; targeted pool/Mindscape
   rebuilding only Caesar; direct-edit locality; and preservation of the
   existing Stun King allocation in a Focus/Caesar/Stun flow.
 - AE3. Calculation tests prove Initial/Combat versus Fully Enabled Impact and
-  Daze, absence of Shield Effect and an exact shield operation, Focus ATK at
+  Daze; Shield Effect, an exact shield operation, and ordinary personal-damage
+  rows are absent at M0-M5. They prove Focus ATK at
   M0/M2 under its actual Core Passive/Mindscape source, Additional
   active/inactive routes, broad
   regular DMG Bonus projection without a generic DMG Taken row, M1 RES Reduction,
-  skill-tier Daze/Impact values, M6 capped action CRIT/DMG/operation, Tusks,
+  skill-tier Daze/Impact values, M6 exact CRIT/action/operation, Tusks,
   and Spring's source-owned package without projecting its transfer operation.
 - AE4. Shared UI tests prove identical source-owned selected/candidate package
   copy without compatibility labels, Result remains empty when
@@ -347,8 +350,8 @@ The bounded U6/U7 correction removes the earlier unsupported primary-Daze
 classification, re-inspects W-Engine and Disc candidates from Caesar's buffer
 role, and settles the equipment representatives above. It does not reopen the
 retained exact Result facts or other holders' established Stun allocation. U8
-still owes the finite-investment and downstream main/substat/complete-
-representative reinspection before those later choices are settled.
+settles the downstream main/substat/complete-representative finite-investment
+boundary in R15-R19.
 Exact source values and current qualification facts
 were used as ephemeral inputs; this document owns only the settled local
 non-survival outcomes above.

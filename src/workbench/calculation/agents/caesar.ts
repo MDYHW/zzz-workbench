@@ -2,7 +2,6 @@ import {
   DRIVE_DISC_FACTS,
   VERTICAL_VALUES,
   W_ENGINE_FACTS,
-  W_ENGINES,
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
 } from '../../content'
@@ -23,7 +22,6 @@ import {
   source,
   withApplicability,
   type CompleteSetup,
-  type EffectMetric,
   type SourceBoundCurrentClause,
 } from '../../effects'
 import {
@@ -197,17 +195,6 @@ export function resolveCaesarProviderClauses(
   ])
 }
 
-function optionalMetric(
-  metricId: EffectMetric,
-  label: string,
-  effects: ReturnType<typeof resolveDeliveredClauses>,
-): AgentResult['metrics'] {
-  const data = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, metricId)
-  return data.values.fully
-    ? [{ id: metricId, label, unit: '%', decimals: 1, ...data }]
-    : []
-}
-
 export function calculateCaesar(
   context: CaesarCalculationContext,
   inbox: SourceBoundCurrentClause[],
@@ -215,7 +202,6 @@ export function calculateCaesar(
 ): AgentResult {
   const { setup, initialAtk } = context
   const values = VERTICAL_VALUES.caesar
-  const baseAtk = values.atk + W_ENGINES[setup.engineId].baseAtk
 
   const impactInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'caesar', 'impactPct'),
@@ -233,23 +219,6 @@ export function calculateCaesar(
     impact: initialImpact,
   })
 
-  const atkInputs = presentSetupInputs([
-    engineAdvancedInput(setup, 'caesar', 'atkPct'),
-    mainStatInput(setup, 'caesar', 'slot4', 'atkPct'),
-    mainStatInput(setup, 'caesar', 'slot5', 'atkPct'),
-    discStatInput(
-      setup, 'caesar', 'fourPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece',
-    ),
-  ])
-  const atk = composeMetricEffects(
-    surfaces(initialAtk, initialAtk, initialAtk),
-    surfaces(atkInputs.map((input) => percentageContribution(
-      input.source, baseAtk * input.rawValue / 100, input.rawValue,
-    )), [], []),
-    effects,
-    'atk',
-  )
   const impact = composeMetricEffects(
     surfaces(initialImpact, initialImpact, initialImpact),
     surfaces(impactInputs.map((input) => percentageContribution(
@@ -259,9 +228,9 @@ export function calculateCaesar(
     'impact',
   )
 
-  const critRateInputs = presentSetupInputs([
+  const critRateInputs = setup.mindscape >= 6 ? presentSetupInputs([
     mainStatInput(setup, 'caesar', 'slot4', 'critRate'),
-  ])
+  ]) : []
   const initialCritRate = values.critRate
     + critRateInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const critRate = composeMetricEffects(
@@ -272,9 +241,9 @@ export function calculateCaesar(
     { value: 100, source: STATIC_SOURCES.caesar.critCap },
   )
 
-  const critDmgInputs = presentSetupInputs([
+  const critDmgInputs = setup.mindscape >= 6 ? presentSetupInputs([
     mainStatInput(setup, 'caesar', 'slot4', 'critDmg'),
-  ])
+  ]) : []
   const initialCritDmg = values.critDmg
     + critDmgInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const critDmg = composeMetricEffects(
@@ -284,26 +253,15 @@ export function calculateCaesar(
     'critDmg',
   )
 
-  const dmgInputs = presentSetupInputs([
+  const dmgInputs = setup.mindscape >= 6 ? presentSetupInputs([
     mainStatInput(setup, 'caesar', 'slot5', 'physicalDmg'),
-  ])
+  ]) : []
   const initialDmg = dmgInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const dmg = composeMetricEffects(
     surfaces(initialDmg, initialDmg, initialDmg),
     surfaces(dmgInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
     effects,
     'dmgBonus',
-  )
-
-  const penInputs = presentSetupInputs([
-    mainStatInput(setup, 'caesar', 'slot5', 'penRatio'),
-  ])
-  const initialPen = penInputs.reduce((sum, input) => sum + input.rawValue, 0)
-  const pen = composeMetricEffects(
-    surfaces(initialPen, initialPen, initialPen),
-    surfaces(penInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
-    effects,
-    'penRatio',
   )
   const energyInputs = presentSetupInputs([
     discStatInput(
@@ -330,23 +288,15 @@ export function calculateCaesar(
   return {
     agentId: 'caesar',
     metrics: [
-      { id: 'atk', label: 'ATK', unit: '', decimals: 0, ...atk },
-      { id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1, ...critRate },
-      { id: 'critDmg', label: 'CRIT DMG', unit: '%', decimals: 1, ...critDmg },
+      ...(setup.mindscape >= 6 ? [
+        { id: 'critRate' as const, label: 'CRIT Rate', unit: '%', decimals: 1, ...critRate },
+        { id: 'critDmg' as const, label: 'CRIT DMG', unit: '%', decimals: 1, ...critDmg },
+      ] : []),
       { id: 'impact', label: 'Impact', unit: '', decimals: 2, ...impact },
       ...(energyInputs.length
         ? [{ id: 'energyRegen' as const, label: 'Energy Regen', unit: '/s', decimals: 2, ...energy }]
         : []),
-      { id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...dmg },
-      ...(pen.values.fully
-        ? [{ id: 'penRatio' as const, label: 'PEN Ratio', unit: '%', decimals: 1, ...pen }]
-        : []),
       { id: 'dazeBonus', label: 'Daze Bonus', unit: '%', decimals: 1, ...daze },
-      ...optionalMetric('defIgnore', 'DEF Ignore', effects),
-      ...optionalMetric('defReduction', 'DEF Reduction', effects),
-      ...optionalMetric('resIgnore', 'RES Ignore', effects),
-      ...optionalMetric('resReduction', 'RES Reduction', effects),
-      ...optionalMetric('stunDmgMultiplier', 'Stun DMG Multiplier', effects),
     ],
     actionModifiers,
     operations: [

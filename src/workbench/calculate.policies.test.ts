@@ -1815,6 +1815,9 @@ describe('authored calculation policies', () => {
       const caesar = agent(baseResult, 'caesar')
       const corin = agent(baseResult, 'corin')
 
+      expect(caesar.metrics.map(({ id }) => id))
+        .toEqual(['impact', 'energyRegen', 'dazeBonus'])
+
       expect(metric(caesar, 'impact').values).toMatchObject({
         initial: expect.closeTo(167.28),
         combat: expect.closeTo(167.28),
@@ -1922,13 +1925,27 @@ describe('authored calculation policies', () => {
       expect(metric(m5, 'impact').values.fully).toBeCloseTo(207.4272)
       expect(action(m5, 'caesarShieldedUltimate').values.fully).toBe(132)
 
-      const m6 = agent(calculateParty(withMindscape(base, 'caesar', 6))!, 'caesar')
+      const m6State = withMindscape(base, 'caesar', 6)
+      const m6 = agent(calculateParty(m6State)!, 'caesar')
       expect(action(m6, 'caesarM6ActionsCritRate').values.fully).toBe(100)
       expect(action(m6, 'caesarM6Actions').outcomes).toContainEqual(
         actionForm('EX Special Attack', 'Overpowered Shield Bash'),
       )
+      expect(m6.metrics.map(({ id }) => id))
+        .toEqual(['critRate', 'critDmg', 'impact', 'energyRegen', 'dazeBonus'])
+      expect(metric(m6, 'critRate').values.fully).toBe(59)
+      expect(metric(m6, 'critDmg').values.fully).toBe(135)
+      expect(metric(m6, 'critDmg').breakdown.fully).toContainEqual(
+        expect.objectContaining({ ownerAgentId: 'caesar', locus: 'mindscape', amount: 60 }),
+      )
+      expect(action(m6, 'caesarM6Actions').breakdown.fully).toContainEqual(
+        expect.objectContaining({ ownerAgentId: 'caesar', locus: 'mindscape', amount: 50 }),
+      )
+      const m6AtkMain = agent(calculateParty(selectMain(
+        m6State, 'caesar', 'slot5', 'atkPct',
+      ))!, 'caesar')
       expect(action(m6, 'caesarM6Actions').values.fully
-        - metric(m6, 'dmgBonus').values.fully).toBe(50)
+        - action(m6AtkMain, 'caesarM6Actions').values.fully).toBe(30)
       expect(m6.operations).toContainEqual(expect.objectContaining({
         id: 'caesarPrimaryTargetFollowup', value: 50,
         unit: '% original action DMG',
@@ -1938,10 +1955,6 @@ describe('authored calculation policies', () => {
         {}, ['zhuYuan', 'caesar', 'billy'], 0,
       ))!
       expect(metric(agent(inactive, 'zhuYuan'), 'dmgBonus').breakdown.fully)
-        .not.toContainEqual(expect.objectContaining({
-          label: 'Additional Ability', ownerAgentId: 'caesar',
-        }))
-      expect(metric(agent(inactive, 'caesar'), 'dmgBonus').breakdown.fully)
         .not.toContainEqual(expect.objectContaining({
           label: 'Additional Ability', ownerAgentId: 'caesar',
         }))
@@ -1978,11 +1991,8 @@ describe('authored calculation policies', () => {
       const spring = agent(calculateParty(selectEngine(
         base, 'caesar', 'springEmbrace',
       ))!, 'caesar')
-      expect(metric(spring, 'atk').breakdown.initial)
-        .toContainEqual(expect.objectContaining({
-          label: 'Spring Embrace', ownerAgentId: 'caesar',
-          display: { value: 25, unit: '%', decimals: 0 },
-        }))
+      expect(spring.metrics.map(({ id }) => id))
+        .toEqual(['impact', 'energyRegen', 'dazeBonus'])
       expect(metric(spring, 'energyRegen').values.initial).toBeCloseTo(1.44)
       expect(metric(spring, 'energyRegen').breakdown.initial)
         .toContainEqual(expect.objectContaining({

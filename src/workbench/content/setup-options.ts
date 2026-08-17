@@ -214,9 +214,9 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['physicalDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
   },
   ben: {
-    slot4: ['critRate', 'critDmg', 'defPct'],
-    slot5: ['fireDmg', 'penRatio', 'atkPct', 'defPct'],
-    slot6: ['atkPct', 'defPct'],
+    slot4: ['critRate', 'critDmg', 'atkPct'],
+    slot5: ['fireDmg', 'penRatio', 'atkPct'],
+    slot6: ['atkPct'],
   },
   koleda: {
     slot4: ['atkPct'], slot5: ['fireDmg', 'atkPct'], slot6: ['impact'],
@@ -395,7 +395,6 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
     { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
     { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
     { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-    { id: 'defPct', label: 'DEF%', perHit: 4.8, unit: '%' },
   ],
   koleda: [],
   anby: [],
