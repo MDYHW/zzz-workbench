@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { App } from './App'
 
 describe('integrated party workbench: setup', () => {
-  it('keeps retained shield equipment copy accessible on selected and candidate surfaces', async () => {
+  it('keeps retained equipment copy and competitive Discs accessible on selected and candidate surfaces', async () => {
     const user = userEvent.setup()
     render(<App />)
     const replace = async (slot: number, agent: RegExp) => {
@@ -25,10 +25,15 @@ describe('integrated party workbench: setup', () => {
       'Impact +18%. Shield provided +30%. Squad DMG +18%. Squad Daze +12%',
     )
     expect(screen.getByRole('button', {
-      name: 'Change 4-piece Drive Disc from Proto Punk',
+      name: 'Change 4-piece Drive Disc from Bunny in Wonderland',
     })).toHaveAccessibleDescription(
-      'After Defensive or Evasive Assist · Squad DMG +15%. Shield provided +15%',
+      'Squad DMG +18%. HP +10%',
     )
+    expect(screen.getByLabelText('Swing Jazz selected as 2-piece'))
+      .toHaveAccessibleDescription('Energy Regen +20%')
+    expect(within(screen.getByRole('region', { name: 'Caesar King Result' })).getByRole('row', {
+      name: /Energy Regen.*1\.44.*1\.44.*1\.44/,
+    })).toBeInTheDocument()
     await user.click(screen.getByRole('button', {
       name: 'Change W-Engine from Tusks of Fury',
     }))
@@ -43,6 +48,8 @@ describe('integrated party workbench: setup', () => {
       .not.toBeInTheDocument()
     expect(within(caesarCandidates).queryByRole('button', { name: /Original Transmorpher/ }))
       .not.toBeInTheDocument()
+    expect(within(caesarCandidates).queryByRole('button', { name: /Hellfire Gears/ }))
+      .not.toBeInTheDocument()
     await user.click(spring)
     expect(screen.getByRole('button', {
       name: 'Change W-Engine from Spring Embrace',
@@ -50,8 +57,22 @@ describe('integrated party workbench: setup', () => {
       'ATK +25%. DMG taken -12%. Energy Generation Rate +16% · Transfers to next on-field Agent',
     )
     expect(screen.getByRole('button', {
-      name: 'Change 4-piece Drive Disc from Proto Punk',
+      name: 'Change 4-piece Drive Disc from Bunny in Wonderland',
     })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Bunny in Wonderland',
+    }))
+    const discCandidates = screen.getByLabelText('fourPiece Drive Disc candidates')
+    expect(within(discCandidates).getByRole('button', {
+      name: 'Select Astral Voice as fourPiece',
+    })).toHaveAccessibleDescription('Entrant DMG +24%. ATK +10%')
+    expect(within(discCandidates).queryByRole('button', {
+      name: 'Select Swing Jazz as fourPiece',
+    })).not.toBeInTheDocument()
+    expect(within(discCandidates).queryByRole('button', {
+      name: /Proto Punk/,
+    })).not.toBeInTheDocument()
+    await user.keyboard('{Escape}')
 
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
     await replace(1, /Ben Bigger, Fire, Defense/)
@@ -68,7 +89,7 @@ describe('integrated party workbench: setup', () => {
     })).toHaveAccessibleDescription(
       'Impact +18%. Shield provided +30%. Squad DMG +18%. Squad Daze +12%',
     )
-  }, 10_000)
+  }, 15_000)
 
   it('keeps Evelyn’s complete representative stable while Astra and Dialyn add local Disc comparisons', async () => {
     const user = userEvent.setup()

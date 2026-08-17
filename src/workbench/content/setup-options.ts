@@ -46,7 +46,7 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   ben: { primary: ['general_damage'], residual: ['daze_buildup'] },
   koleda: { primary: ['daze_buildup'], residual: ['general_damage'] },
   anby: { primary: ['daze_buildup'], residual: ['general_damage'] },
-  caesar: { primary: ['daze_buildup'], residual: ['general_damage'] },
+  caesar: { primary: [], residual: ['daze_buildup', 'general_damage'] },
   yeShunguang: { primary: ['general_damage'], residual: [] },
   zhao: { primary: [], residual: ['general_damage'] },
   grace: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: [] },

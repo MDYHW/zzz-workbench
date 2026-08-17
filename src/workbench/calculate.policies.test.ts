@@ -1816,10 +1816,11 @@ describe('authored calculation policies', () => {
       const corin = agent(baseResult, 'corin')
 
       expect(metric(caesar, 'impact').values).toMatchObject({
-        initial: expect.closeTo(174.66),
-        combat: expect.closeTo(174.66),
-        fully: expect.closeTo(209.592),
+        initial: expect.closeTo(167.28),
+        combat: expect.closeTo(167.28),
+        fully: expect.closeTo(200.736),
       })
+      expect(metric(caesar, 'energyRegen').values.initial).toBeCloseTo(1.44)
       expect(caesar.metrics.map(({ label }) => label)).not.toContain('Shield Effect')
       expect(caesar.operations.map(({ id }) => id)).not.toContain('caesarRadiantAegis')
       expect(metric(corin, 'atk').breakdown.fully).toContainEqual(expect.objectContaining({
@@ -1833,12 +1834,21 @@ describe('authored calculation policies', () => {
           label: 'Tusks of Fury', ownerAgentId: 'caesar', amount: 18,
         }),
         expect.objectContaining({
-          label: 'Proto Punk', ownerAgentId: 'caesar', amount: 15,
+          label: 'Bunny in Wonderland', ownerAgentId: 'caesar', amount: 18,
         }),
       ]))
       expect(baseResult.agents.flatMap(({ metrics }) => metrics.map(({ id }) => id)))
         .not.toContain('dmgTaken')
       expect(action(caesar, 'caesarShieldedUltimate').values.fully).toBe(112)
+
+      expect(metric(corin, 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Bunny in Wonderland', ownerAgentId: 'caesar', amount: 18,
+        }))
+      expect(metric(corin, 'dmgBonus').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({
+          label: 'Swing Jazz', ownerAgentId: 'caesar',
+        }))
 
       const sheerParty = calculateParty(createPreparedState(
         {}, ['yixuan', 'caesar', 'lycaon'], 0,
@@ -1879,10 +1889,10 @@ describe('authored calculation policies', () => {
       expect(m2AtkSources).not.toContainEqual(expect.objectContaining({ amount: 1000 }))
 
       const m3 = agent(calculateParty(withMindscape(base, 'caesar', 3))!, 'caesar')
-      expect(metric(m3, 'impact').values.fully).toBeCloseTo(213.0852)
+      expect(metric(m3, 'impact').values.fully).toBeCloseTo(204.0816)
       expect(action(m3, 'caesarShieldedUltimate').values.fully).toBe(122)
       const m5 = agent(calculateParty(withMindscape(base, 'caesar', 5))!, 'caesar')
-      expect(metric(m5, 'impact').values.fully).toBeCloseTo(216.5784)
+      expect(metric(m5, 'impact').values.fully).toBeCloseTo(207.4272)
       expect(action(m5, 'caesarShieldedUltimate').values.fully).toBe(132)
 
       const m6 = agent(calculateParty(withMindscape(base, 'caesar', 6))!, 'caesar')
@@ -1923,14 +1933,6 @@ describe('authored calculation policies', () => {
           label: 'Additional Ability', ownerAgentId: 'caesar', amount: 25,
         }))
 
-      const hellfire = agent(calculateParty(selectEngine(
-        base, 'caesar', 'hellfireGears',
-      ))!, 'caesar')
-      expect(hellfire.metrics.find(({ id }) => id === 'energyRegen')).toBeUndefined()
-      expect(metric(hellfire, 'impact').breakdown.fully)
-        .not.toContainEqual(expect.objectContaining({
-          label: 'Hellfire Gears', detail: 'W1', amount: expect.closeTo(17.466),
-        }))
       const spring = agent(calculateParty(selectEngine(
         base, 'caesar', 'springEmbrace',
       ))!, 'caesar')
@@ -1939,7 +1941,13 @@ describe('authored calculation policies', () => {
           label: 'Spring Embrace', ownerAgentId: 'caesar',
           display: { value: 25, unit: '%', decimals: 0 },
         }))
-      expect(spring.metrics.find(({ id }) => id === 'energyRegen')).toBeUndefined()
+      expect(metric(spring, 'energyRegen').values.initial).toBeCloseTo(1.44)
+      expect(metric(spring, 'energyRegen').breakdown.initial)
+        .toContainEqual(expect.objectContaining({
+          label: 'Swing Jazz', ownerAgentId: 'caesar', amount: 0.24,
+        }))
+      expect(metric(spring, 'energyRegen').breakdown.initial)
+        .not.toContainEqual(expect.objectContaining({ label: 'Spring Embrace' }))
       expect(spring.operations).toEqual([])
     })
 

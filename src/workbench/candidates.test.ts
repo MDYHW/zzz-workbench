@@ -19,10 +19,10 @@ describe('selected King pressure', () => {
     })
     state = workbenchReducer(state, { type: 'setSubstat', slot: 2, key: 'critRate', value: 5 })
     state = workbenchReducer(state, {
-      type: 'selectDisc', slot: 2, piece: 'fourPiece', discId: 'protoPunk',
+      type: 'selectDisc', slot: 2, piece: 'fourPiece', discId: 'astralVoice',
     })
     expect(state.slots[2].setup).toMatchObject({
-      fourPieceId: 'protoPunk', twoPieceId: null,
+      fourPieceId: 'astralVoice', twoPieceId: null,
       mains: { slot4: null }, substats: {},
     })
     expect(effectiveMainStatIds(state, 2, 'slot4')).toEqual(['atkPct'])
@@ -182,12 +182,12 @@ describe('contextual Disc candidates', () => {
     state = workbenchReducer(state, {
       type: 'setSubstat', slot: 0, key: 'atkPct', value: 3,
     })
-    state = workbenchReducer(state, { type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'protoPunk' })
+    state = workbenchReducer(state, { type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'swingJazz' })
     expect(effectiveTwoPieceIds(state, 0)).not.toContain('woodpecker')
     expect(effectiveSubstatChoicesForSlot(state, 0).map(({ id }) => id))
       .toEqual(['critRate', 'critDmg', 'atkPct'])
     expect(state.slots[0].setup).toMatchObject({
-      fourPieceId: 'protoPunk', twoPieceId: null,
+      fourPieceId: 'swingJazz', twoPieceId: null,
       substats: { critRate: 5, critDmg: 2, atkPct: 3 },
     })
     expect(isCompleteWorkbench(state)).toBe(false)

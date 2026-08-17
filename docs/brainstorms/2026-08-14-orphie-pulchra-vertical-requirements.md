@@ -13,11 +13,11 @@ Agent whose off-field direction, Aftershock identity, Energy-Regen-to-ATK Core,
 and squad Zeroed In effects reuse current general-damage, action-tag, capped
 provider, and New Eridu Defense Force meanings. Pulchra is an A-Rank Physical
 Stun Agent whose Daze direction, Aftershock delivery, default-M6 broad squad
-DMG, selected-King CRIT pressure, and alternative Proto Punk package reuse
+DMG, selected-King CRIT pressure, and competitive Stun Disc alternatives reuse
 current Stun, provider, equipment, allocation, and lifecycle meanings.
 
-The vertical adds three equipment identities: Gilded Blossom, Box Cutter, and
-Proto Punk. It does not add a rotation, resource gauge, trap-state simulator,
+The current vertical adds two equipment identities: Gilded Blossom and Box
+Cutter. It does not add a rotation, resource gauge, trap-state simulator,
 raw damage, raw Daze, a runtime optimizer, named-party ordering, or a general
 Aftershock catalogue.
 
@@ -33,7 +33,7 @@ Aftershock catalogue.
   Result. Pulchra's Core Daze applies to its current four actions while her
   Additional changes from Aftershock-only at M0-M5 to broad squad DMG at M6.
 - Selecting Pulchra's King creates CRIT Rate main/substat membership. Selecting
-  Astral, Proto, Shockstar, or Swing clears invalid CRIT selections without a
+  Astral, Shockstar, or Swing clears invalid CRIT selections without a
   fallback; reselecting King restores membership at zero, not history.
 - Party preparation composes existing non-stacking allocation before the new
   local representative reaches Setup: an established King-priority Stun holder
@@ -141,19 +141,20 @@ Aftershock catalogue.
   +15% / 17.3% / 19.5% / 21.8% / 24% and Daze +10% / 11.5% / 13% / 14.5% /
   16%. Both clauses are Fully Enabled and retain their Physical and Daze
   consumers separately.
-- R12. Add Proto Punk as Shield Effect +15% on 2-piece and, on 4-piece, after
-  any squad member triggers Defensive Assist or Evasive Assist, all squad
-  members deal +15% DMG for 10 seconds; the effect does not stack. Pulchra's
-  four-piece candidates are King of the Summit, Astral Voice, Proto Punk,
+- R12. Pulchra's four-piece candidates are King of the Summit, Astral Voice,
   Shockstar Disco, and Swing Jazz. Her two-piece candidates are Shockstar,
   King, and Swing; selected King additionally exposes Woodpecker as the current
-  CRIT-threshold pressure choice. King is a squad CRIT threshold package; Astral is the
-  controllable entrant package; Proto is a broad all-party package whose shield
-  2-piece is unused; Shockstar is action-limited Daze; Swing is a reachable
-  Chain/Ultimate squad-DMG package. Moonlight Lullaby is not a Pulchra candidate
-  because its holder activation requires Support Specialty. Proto's legal
-  Defensive/Evasive Assist trigger is local evidence for Proto only and must
-  not be generalized into a universal Stun priority.
+  CRIT-threshold pressure choice. King is the squad CRIT-threshold package,
+  Astral is the stronger controllable Focus-entrant direction whose two
+  reachable stacks already supply 16%, Shockstar is
+  action-limited Daze, and Swing combines a reachable Chain/Ultimate squad-DMG
+  clause with Energy Regen. Proto Punk is excluded holder-locally: its
+  Shield Effect supplies no positive axis, its Assist-triggered squad DMG is
+  no stronger than Swing's corresponding party effect, and it gives up Swing's
+  resource value while depending on an enemy-first Assist opportunity. A legal
+  Assist trigger alone does not preserve a materially weaker same-axis package.
+  Moonlight Lullaby is not a Pulchra candidate because its holder activation
+  requires Support Specialty.
 - R13. Both pools locally prepare King 4-piece plus Shockstar 2-piece with CRIT
   Rate / Physical DMG / Impact mains and zero CRIT hits. At default M6 the
   fixed CRIT basis is `5 + 10 M1 + 24 main = 39%`; five CRIT hits reach 51% and
@@ -200,8 +201,8 @@ Aftershock catalogue.
   normalized Result; M3/M5 skill tiers remain excluded.
 - R19. Pulchra's selected equipment preserves exact projection. Blazing adds
   Impact and a Fire/Ice squad CRIT-DMG effect; Box adds Fully Enabled Physical
-  DMG and Daze; Proto and Swing apply broad squad formula-compatible DMG once;
-  Astral applies entrant DMG once to Focus; King applies its non-stacking squad
+  DMG and Daze; Swing applies broad squad formula-compatible DMG once and
+  supplies its Energy 2-piece; Astral applies entrant DMG once to Focus; King applies its non-stacking squad
   CRIT DMG once. Candidate membership, local representative, holder allocation,
   and recipient projection remain separate decisions.
 
@@ -257,8 +258,8 @@ Aftershock catalogue.
   at M2 she adds ATK; at M4 she adds Heat Charge/Ultimate DMG. M6 does not add a
   raw-damage operation or a fabricated coefficient total.
 - AE5. Pulchra's local prepared King begins at 39% CRIT Rate at default M6 and
-  reaches 51% at five hits. Selecting Proto clears CRIT main/count and exposes
-  broad squad DMG but no shield Result. Reselecting King restores the candidate
+  reaches 51% at five hits. Selecting Astral clears CRIT main/count and exposes
+  the Focus entrant effect without a party-wide duplicate. Reselecting King restores the candidate
   at zero and never restores the prior count.
 - AE6. Pulchra Result keeps Core Daze on EX/Assist Follow-Up/Chain/Ultimate;
   Box Cutter Daze and Physical DMG Fully Enabled; and default-M6 Additional as
@@ -274,7 +275,8 @@ Aftershock catalogue.
 - AE8. If any required equipment or main selection is absent, all three Result
   surfaces are empty while the relevant candidate deck remains actionable.
   Repair restores Result without hidden fallback. Selected and candidate
-  Gilded, Box, and Proto descriptions match their compressed exact facts.
+  Gilded, Box, Astral, and Swing descriptions match their compressed exact
+  facts.
 - AE9. One browser journey at `127.0.0.1:5173` verifies both portraits/ranks,
   full/non-limited preparation, Pulchra King pressure/reselection, selected and
   candidate equipment descriptions, exact Result action rows, and desktop plus

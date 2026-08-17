@@ -141,7 +141,6 @@ export type DiscId =
   | 'polarMetal'
   | 'thunderMetal'
   | 'chaoticMetal'
-  | 'protoPunk'
   | 'whiteWaterBallad'
   | 'chaosJazz'
   | 'freedomBlues'

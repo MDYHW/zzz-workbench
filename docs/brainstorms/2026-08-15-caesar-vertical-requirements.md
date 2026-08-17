@@ -8,16 +8,18 @@ topic: caesar-vertical
 ## Summary
 
 Admit Caesar King through the current setup-to-Result path. Caesar is an
-S-Rank Physical Defense Agent whose primary Daze direction is coupled to a
-Focus-routed ATK benefit and a qualified broad regular DMG Bonus. Her Core
+S-Rank Physical Defense buffer whose setup is centered on her Focus-routed ATK
+benefit and qualified broad regular DMG Bonus. Her retained Impact and Daze
+facts remain secondary Result interpretation; neither an existing Daze value
+nor her Defense Specialty creates a Daze-investment role. Her Core
 shield remains only as an internal condition for independently retained
 non-survival effects; Shield Effect and an exact shield amount or operation are
 not Result or positive setup axes. The vertical reuses existing Impact, Daze,
 recipient, action, equipment-package, contextual-candidate, and lifecycle
 meanings without introducing a generic survival model.
 
-The vertical adds one W-Engine identity, Original Transmorpher, and no new
-Result metric. It adds no incoming-damage simulation, shield uptime or
+The vertical adds one W-Engine identity, Original Transmorpher, and one
+selected-resource Energy Regen row. It adds no incoming-damage simulation, shield uptime or
 depletion, anti-interrupt state, Assist catalogue, Energy gauge, anomaly
 direction, raw damage, raw Daze, or runtime optimizer.
 
@@ -25,10 +27,10 @@ direction, raw damage, raw Daze, or runtime optimizer.
 
 1. Applying Caesar prepares a complete M0 setup with zero supplied substats.
    The full pool starts on Tusks of Fury and the non-limited S-Rank pool starts
-   on Hellfire Gears. Both representatives follow the settled holder-local
-   non-survival package comparison.
-2. Result makes Initial/Combat versus Fully Enabled Impact visible. W-Engine,
-   Slot 6, and Shockstar 2-piece Impact increase Daze. Caesar's triggered
+   on Spring Embrace W5. Both representatives follow the settled holder-local
+   buffer-package comparison.
+2. Result makes Initial/Combat versus Fully Enabled Impact visible. Retained
+   source-compatible W-Engine and Slot 6 inputs increase Daze. Caesar's triggered
    Special/Assist Impact increase affects Fully Enabled Impact and Daze but not
    Initial Impact. Neither region is retained as a shield basis.
 3. Caesar's Core Passive delivers the controllable active-bearer ATK benefit
@@ -36,12 +38,12 @@ direction, raw damage, raw Daze, or runtime optimizer.
    to the existing Fully Enabled regular DMG Bonus quantity of every eligible
    current recipient. The shield state is only an internal condition and no
    Radiant Aegis amount appears in Result.
-4. The current implementation adds Astral Voice to the contextual 4-piece roster
-   only when the applied party supplies the established repeated Quick Assist
-   opportunity. U7 must decide its membership, competition with the other
-   implemented packages, and the prepared first choice. Party Apply rebuilds
-   the setup from the settled roster and does not preserve an invalid prior
-   selection.
+4. Astral Voice joins the contextual 4-piece roster only when the applied party
+   supplies the established repeated Quick Assist opportunity. Bunny in
+   Wonderland remains the prepared first choice because its self-activated
+   party value is stronger; contextual Astral remains a distinct controllable
+   entrant direction. Party Apply rebuilds the setup from this settled roster
+   and does not preserve an invalid prior selection.
 5. Party Apply rebuilds all three setups. Pool or Mindscape changes rebuild
    only Caesar. Direct edits stay local and never rerun contextual preparation
    or holder allocation.
@@ -50,18 +52,22 @@ direction, raw damage, raw Daze, or runtime optimizer.
 
 - Formula mechanics owns Initial/Combat/Fully stat regions, percentage Impact,
   Daze Bonus, regular DMG Bonus, and Caesar's Impact-to-Daze relationship.
-  Lighter's Core Fully Enabled Impact is the closest stat-region contrast: both
-  improve Daze without making an Initial or Fully Enabled Impact value a shield
-  basis. Ben's Initial DEF-to-Combat-ATK relation is the closest retained
+  Cissia is the closest role contrast: her fixed Daze facts likewise do not
+  justify Impact equipment when her authored setup does not intentionally
+  strengthen Daze. Lighter is the closest stat-region contrast because his
+  authored Stun setup does intentionally strengthen Fully Enabled Impact and
+  Daze. Ben's Initial DEF-to-Combat-ATK relation is the closest retained
   non-survival stat relation; neither Agent exposes a deterministic shield
   output.
 - The product contract owns Focus delivery, whole-package candidate and
   representative authoring, finite future investment, contextual candidates,
   and lifecycle. Pan Yinhu's Focus-delivered benefit is the closest recipient
-  consumer. Proto Punk versus Bunny in Wonderland remains the closest
-  currently implemented whole-package Disc contrast, but U7 must compare their
-  non-survival packages without crediting either shield clause before retaining
-  or removing either candidate.
+  consumer. Bunny in Wonderland versus Swing Jazz is the settled closest
+  complete-Disc contrast. Bunny 4-piece plus Swing 2-piece preserves the higher
+  self-activated party value while taking the Energy axis. Swing 4-piece gives
+  up three party-DMG percentage points without creating a second 2-piece slot,
+  so its Energy effect is taken beside Bunny instead of justifying a weaker
+  same-axis 4-piece package. Proto Punk is the excluded same-axis contrast.
 - The source-fact boundary admits qualified regular DMG Bonus, current Impact
   change, Core/M2 ATK delivery, and complete M6 action differences because each
   has a deterministic current non-survival consumer. It excludes the shield
@@ -87,13 +93,16 @@ direction, raw damage, raw Daze, or runtime optimizer.
 ### Identity, direction, and retained facts
 
 - R1. Admit Caesar King as S-Rank Physical Defense, Sons of Calydon, M0 by
-  default, and not Focus-eligible. Her primary formula participation is
-  `daze_buildup`; `general_damage` is residual only for variable main-stat and
-  retained M6/action equipment projection. Her squad benefits do not make her
-  a damage Focus, and her shield supplies no positive setup or Result axis.
+  default, and not Focus-eligible. Her setup role is buffer. She has no primary
+  formula participation; `daze_buildup` and `general_damage` are residual only
+  for retained source-compatible and action projection. Formula participation,
+  a positive Daze number, and Defense Specialty do not by themselves create a
+  Daze-investment role. Her squad benefits do not make her a damage Focus, and
+  her shield supplies no positive setup or Result axis.
 - R2. Retain completed ATK 711, CRIT Rate 5%, CRIT DMG 50%, and Impact 123.
   ATK supplies the residual variable-main and M6
-  action consumer; Impact supplies Daze. HP and DEF remain absent because
+  action consumer; Impact supplies retained Daze interpretation but is not a
+  positive candidate axis. HP and DEF remain absent because
   neither changes a current candidate,
   prepared choice, threshold, formula, operation, or Result.
 - R3. Caesar's Additional Ability is active when another applied Agent can
@@ -140,33 +149,34 @@ direction, raw damage, raw Daze, or runtime optimizer.
 
 ### W-Engine authoring
 
-- R9. Caesar's full W-Engine pool contains Tusks of Fury, Hellfire Gears, and
-  Spring Embrace. Her non-limited S-Rank pool contains Hellfire and Spring.
-  Full prepares Tusks W1 and non-limited prepares Hellfire W1. Under SW-010,
+- R9. Caesar's full W-Engine pool contains Tusks of Fury and Spring Embrace.
+  Her non-limited S-Rank pool contains Spring. Full prepares Tusks W1 and
+  non-limited prepares Spring W5. Under SW-010,
   City Fund Spring remains eligible as an A-Rank. Membership and representative
   authoring are independently supported per pool without crediting survival
   value.
 - R10. Tusks' complete package copy includes Base ATK 713, advanced
   Initial Impact +18%, Shield Effect +30%, squad DMG +18%, and squad Daze +12%,
   with Shield Effect retained only as Setup survival copy and no positive axis.
-  Hellfire's Base ATK 684 and advanced Initial Impact +18% remain usable while
-  its Stun-only Energy/Fully-Impact passive remains visible as source-owned
-  Setup copy but does not apply to Caesar's Result. Tusks' non-survival
-  Impact/squad-DMG/squad-Daze package and Hellfire's Daze package were compared
-  with every pool-local alternative. Tusks remains the stronger full
-  buffer/Daze package; Hellfire remains the strongest non-limited same-axis
-  Daze package even though its passive is not applied to Caesar's Result.
+  Tusks is admitted for its competitive squad DMG buffer value. Its Initial
+  Impact and squad Daze are source-compatible incidental projections, not the
+  membership rationale. Hellfire's Base ATK 684 and advanced Initial Impact
+  +18% are its only usable Caesar effects; its Stun-only Energy/Fully-Impact
+  passive is inactive. Without a Daze-investment role, that partial package is
+  not competitive with either retained buffer direction and is excluded.
 - R11. Demara has Base ATK 624 and advanced
-  Initial Impact +15%, which strengthens Daze, while its Stun-only Electric
-  DMG/Energy Generation passive does not apply to Caesar. It is excluded: its
-  only usable Impact axis is lower than Hellfire's always-available +18%, and
-  A-Rank accessibility alone does not create a material choice. Original
+  Initial Impact +15%, which can project retained Daze, while its Stun-only
+  Electric DMG/Energy Generation passive does not apply to Caesar. It is
+  excluded with Hellfire because an Impact-only partial package does not serve
+  Caesar's buffer role; A-Rank accessibility alone does not create a material
+  choice. Original
   Transmorpher is A-Rank non-limited with Base ATK 594, advanced HP +25%,
   holder Max HP +8% / 9% / 10% / 11% / 12.5%, and after being attacked Fully
   Enabled Impact +10% / 11.5% / 13% / 14.5% / 16% from W1-W5.
   Original's HP is unused and its active Fully Enabled Impact +16% at W5 is
-  lower than Hellfire's always-available Initial Impact +18%. It is therefore
-  excluded from Caesar's same Daze axis after its unused opportunity cost.
+  lower than the available Impact comparators. It is excluded after its unused
+  opportunity cost because neither HP nor Impact creates a competitive buffer
+  direction here.
 - R12. Spring Embrace is admitted to both pools. Its A-Rank W5 package supplies
   Base ATK 594, advanced ATK +25%, damage reduction, and Energy Generation Rate
   +16% that transfers to the next on-field Agent. Damage reduction supplies no
@@ -179,36 +189,40 @@ direction, raw damage, raw Daze, or runtime optimizer.
 
 ### Drive Discs, mains, and prepared setup
 
-- R13. Caesar's currently implemented base 4-piece roster contains Proto Punk
-  and Bunny in Wonderland. Proto's copy includes Shield Effect +15% and squad
-  DMG +15% after her Assist route; Bunny's includes HP +10% and up to squad DMG
-  +18% while a Defense holder has a shield. Shield Effect and HP are unused
-  survival clauses, while the shield can remain only as Bunny's internal
-  activation condition. Astral Voice is currently appended under the repeated
-  Quick Assist opportunity and supplies unused ATK +10% plus controllable
-  entrant DMG +24%. U7 must compare those non-survival packages with Swing Jazz,
-  Shockstar, Freedom Blues, and other legal alternatives holder-locally. This
-  U5 correction neither retains nor removes Proto, Bunny, Astral, or an excluded
-  contrast and does not use the removed shield axis as a dominance argument.
-- R14. Caesar's currently implemented 2-piece roster contains Shockstar Disco,
-  Proto Punk, and King of the Summit. Shockstar's Initial Impact +6% and King's
-  Daze +6% strengthen Daze; Proto's Shield Effect +15% supplies no positive
-  axis. U7 must re-inspect the complete choices under the current finite-
-  opportunity and exact same-effect boundaries; U8 separately settles shared
-  finite-investment and representative behavior. Do not infer King 4-piece
-  membership or Stun-holder allocation from Caesar's current King 2-piece
-  membership.
+- R13. Caesar's base 4-piece roster is Bunny in Wonderland.
+  Bunny's HP is unused survival value, while Caesar's own shield is only the
+  internal activation condition for up to squad DMG +18%.
+  A repeated Quick Assist opportunity appends
+  Astral Voice, whose ATK is unused but whose controllable entrant DMG reaches
+  +16% at two stacks and +24% at three. Proto Punk is excluded: its Shield
+  Effect supplies no positive axis and
+  its enemy-first Assist-triggered +15% squad DMG is weaker than Bunny and lacks
+  Swing's resource distinction. Swing 4-piece is likewise excluded because its
+  squad DMG +15% is a weaker same-axis value than Bunny's self-activated +18%,
+  while Swing's Energy Regen can occupy the independent 2-piece slot beside
+  Bunny. Shockstar 4-piece does not match Caesar's
+  defining Special/Assist Daze, and Freedom Blues has no current anomaly axis.
+- R14. Caesar's 2-piece roster contains Swing Jazz only. Its Energy Regen +20%
+  is the resource complement beside Bunny 4-piece. Shockstar's Initial Impact
+  +6% and King's Daze +6% do not serve the buffer role and are excluded rather
+  than being preserved by merely positive arithmetic. Proto's Shield Effect
+  supplies no positive axis and is excluded.
+  U8 separately settles shared finite-investment and representative main/substat
+  behavior. Excluding King 2-piece does not change King 4-piece membership or
+  allocation for actual Stun holders.
 - R15. The currently implemented main roster is CRIT Rate/CRIT DMG/ATK% in Slot
   4, Physical DMG/ATK%/PEN Ratio in Slot 5, and Impact in Slot 6; the implemented
   base effective-substat roster is empty. Shield Effect is not a positive axis
   regardless of supplier. U8 must decide which residual personal-damage mains
   remain competitive for this non-damage role and re-inspect the empty substat
   roster and its zero-count finite opportunity before reapproving either.
-- R16. The settled W-Engine representatives prepare Tusks in full and Hellfire
-  in non-limited. The current downstream preparation then uses Proto/Shockstar,
-  CRIT Rate / Physical DMG / Impact, and no substats. U7 must settle the
-  non-survival Disc package and U8 the finite-investment balance before those
-  downstream first choices are reapproved. The result is not a runtime
+- R16. The settled W-Engine representatives prepare Tusks W1 in full and Spring
+  W5 in non-limited. Both downstream packages prepare Bunny/Swing,
+  CRIT Rate / Physical DMG / Impact, and no substats. Bunny is the deterministic
+  Disc first choice because Caesar self-activates its higher party-DMG value;
+  Swing remains only in the independent 2-piece role. U8 must still settle the
+  finite-investment balance before the main/substat choices are reapproved.
+  The result is not a runtime
   comparison of shield uptime, Daze rotations, or incoming attacks.
 
 ### Preparation, Result, and visible acceptance
@@ -218,9 +232,8 @@ direction, raw damage, raw Daze, or runtime optimizer.
   apply any prepared-choice-only package adjustment, and select the package.
   Then derive downstream main-stat and effective-substat candidates from the
   established party and selected equipment and choose their prepared values.
-  Caesar adds no prepared King/Astral allocation pass. After U7 settles the
-  base and contextual roster, contextual Astral changes membership only and
-  the settled representative supplies the first choice. Existing Stun
+  Caesar adds no prepared King/Astral allocation pass. Contextual Astral changes
+  membership only and Bunny remains the prepared first choice. Existing Stun
   King/Astral/Shockstar allocation remains unchanged in a Focus + Caesar +
   one-Stun party.
 - R18. Selecting contextual Astral and then removing its party opportunity
@@ -228,9 +241,11 @@ direction, raw damage, raw Daze, or runtime optimizer.
   selection in favor of the settled prepared representative. Reapplying the
   opportunity restores candidate membership but not the prior selection. This
   follows Party Apply initialization rather than the direct selected-pressure
-  invalidation lifecycle. Every always-admitted settled 4-piece and 2-piece
-  choice is the unaffected contrast; U7 determines those memberships.
-- R19. Result exposes Impact, Daze Bonus, selected residual ATK/CRIT/DMG inputs,
+  invalidation lifecycle. Bunny 4-piece and Swing 2-piece are the unaffected
+  base-candidate contrast.
+- R19. Result exposes Impact, Energy Regen when selected Swing 2-piece supplies
+  it, Daze Bonus,
+  selected residual ATK/CRIT/DMG inputs,
   exact non-survival Core/Mindscape/action rows, delivered Focus ATK, and
   applicable shared/enemy modifiers. It exposes neither Shield Effect nor an
   exact shield amount or operation. Core Passive owns M0-M1 Focus ATK,
@@ -248,11 +263,12 @@ direction, raw damage, raw Daze, or runtime optimizer.
 
 ## Acceptance Evidence
 
-- AE1. After U6-U8 reinspection, candidate and preparation tests prove both
-  independent W-Engine pools, source-owned package copy versus exact Result
-  applicability, Spring's distinct resource package, base versus contextual
-  Disc membership, zero-substat representatives, and one unaffected party.
-- AE2. After those candidate and representative conclusions settle, composed lifecycle tests cover contextual Astral present, absent, and
+- AE1. U6/U7 candidate and preparation tests prove both independent W-Engine
+  pools, source-owned package copy versus exact Result applicability, Spring's
+  distinct resource package, base versus contextual Disc membership, the
+  settled Disc representative, and one unaffected party. U8 separately owns
+  the pending main, substat, and complete zero-substat representative review.
+- AE2. Composed lifecycle tests cover contextual Astral present, absent, and
   reselected; Party Apply rebuilding all three setups; targeted pool/Mindscape
   rebuilding only Caesar; direct-edit locality; and preservation of the
   existing Stun King allocation in a Focus/Caesar/Stun flow.
@@ -262,11 +278,13 @@ direction, raw damage, raw Daze, or runtime optimizer.
   active/inactive routes, broad
   regular DMG Bonus projection without a generic DMG Taken row, M1 RES Reduction,
   skill-tier Daze/Impact values, M6 capped action CRIT/DMG/operation, Tusks,
-  and Hellfire's compatible chassis without its Stun-only passive.
+  and Spring's source-owned package without projecting its transfer operation.
 - AE4. Shared UI tests prove identical source-owned selected/candidate package
   copy without compatibility labels, Result remains empty when
   incomplete, and no Shield Effect, exact shield amount, generic shield,
-  incoming-damage, Assist, Energy, or anomaly Result surface appears. An
+  incoming-damage, Assist, or anomaly Result surface appears. Selected Swing
+  Jazz 2-piece projects Energy Regen while Bunny alone and unrelated
+  equipment do not create that row. An
   independently admitted equipment package may retain its smallest complete
   survival clause in Setup only.
 - AE5. Full tests, typecheck, production build, original portrait inspection,
@@ -304,21 +322,25 @@ direction, raw damage, raw Daze, or runtime optimizer.
   because a guide names them or a number is positive. Holder eligibility,
   passive applicability, complete package, same-axis comparator, zero-substat
   opportunity cost, and pool-specific representative decide each local
-  outcome. That comparison excludes Original and Demara but admits Spring's
-  distinct transferable resource direction.
+  outcome. That comparison excludes Original and Demara, excludes the
+  off-Specialty Stun packages, and independently admits Spring's distinct
+  transferable resource direction.
 - Do not add anomaly equipment, anomaly formula participation, or Freedom
   Blues before the roadmap's anomaly semantic gate is independently closed.
 
 ## Status
 
 U5 closes the formula and source classification needed here: Initial and Fully
-Enabled Impact feed Daze rather than a shield result; Core Passive, Mindscape,
-Additional Ability, and the applicable action retain ownership of their
-non-survival effects; Shield Effect and an exact shield amount or operation are
-excluded; and generic Agent DMG Taken remains absent. U6 closes the W-Engine
-holder-local whole-package reinspection and representatives above. U7 still
-owes the Disc reinspection, and U8 the finite-investment and downstream
-representative reinspection, before those later choices are settled.
+Enabled Impact feed retained Daze interpretation rather than a shield result;
+Core Passive, Mindscape, Additional Ability, and the applicable action retain
+ownership of their non-survival effects; Shield Effect and an exact shield
+amount or operation are excluded; and generic Agent DMG Taken remains absent.
+The bounded U6/U7 correction removes the earlier unsupported primary-Daze
+classification, re-inspects W-Engine and Disc candidates from Caesar's buffer
+role, and settles the equipment representatives above. It does not reopen the
+retained exact Result facts or other holders' established Stun allocation. U8
+still owes the finite-investment and downstream main/substat/complete-
+representative reinspection before those later choices are settled.
 Exact source values and current qualification facts
 were used as ephemeral inputs; this document owns only the settled local
 non-survival outcomes above.

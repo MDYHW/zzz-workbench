@@ -133,12 +133,15 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
 
 ### Drive Discs, mains, and prepared setup
 
-- R10. Anby's 4-piece candidates are King of the Summit, Astral Voice, Proto
-  Punk, Shockstar Disco, and Swing Jazz. Her 2-piece candidates are Shockstar,
-  King, and Swing. King is the non-stacking squad CRIT threshold package;
-  Astral is a controllable entrant package; Proto is a legal Assist-triggered
-  squad package whose shield 2-piece is unused; Shockstar is action-limited
-  Daze; Swing is a reachable Chain/Ultimate squad package. Thunder Metal's
+- R10. Anby's 4-piece candidates are King of the Summit, Astral Voice,
+  Shockstar Disco, and Swing Jazz. Her 2-piece candidates are Shockstar, King,
+  and Swing. King is the non-stacking squad CRIT threshold package; Astral is
+  a stronger controllable entrant package at 16% from two reachable stacks;
+  Shockstar is action-limited Daze;
+  and Swing is a reachable Chain/Ultimate squad package with Energy Regen.
+  Proto Punk is excluded holder-locally because its unused Shield Effect and
+  enemy-first Assist route do not make its 15% squad-DMG package competitive
+  with Astral or Swing. Thunder Metal's
   personal Shock-dependent ATK package does not remain material for Anby's
   primary direction, and its matching Attribute alone does not admit it.
 - R11. Base main candidates are ATK% in Slot 4, Electric DMG/ATK% in Slot 5,

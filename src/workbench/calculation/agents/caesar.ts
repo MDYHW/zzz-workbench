@@ -30,6 +30,7 @@ import {
   composeActionHierarchy,
   composeMetricEffects,
   contribution,
+  energyRegenProjection,
   percentageContribution,
   surfaces,
   type ActionScopeNode,
@@ -174,14 +175,6 @@ export function resolveCaesarProviderClauses(
       { formulas: ['daze_buildup'] },
     ),
 
-    additive(
-      'dazeBonus', 'initial',
-      discSource('caesar', 'king', '2-piece'),
-      setup.twoPieceId === 'king'
-        ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze)
-        : 0,
-      'self',
-    ),
     withApplicability(
       additive(
         'dmgBonus', 'fully', discSource('caesar', 'bunnyInWonderland', '4-piece'),
@@ -189,16 +182,6 @@ export function resolveCaesarProviderClauses(
           ? equipmentEffectMaximumValue(DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage)
           : 0,
         'all-party', undefined, undefined, undefined, 'bunnyInWonderland',
-      ),
-      { formulas: ['general_damage', 'sheer_damage'] },
-    ),
-    withApplicability(
-      additive(
-        'dmgBonus', 'fully', discSource('caesar', 'protoPunk', '4-piece'),
-        setup.fourPieceId === 'protoPunk'
-          ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.protoPunk.fourPiece.damage)
-          : 0,
-        'all-party', undefined, undefined, undefined, 'protoPunk',
       ),
       { formulas: ['general_damage', 'sheer_damage'] },
     ),
@@ -228,10 +211,6 @@ export function calculateCaesar(
   const impactInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'caesar', 'impactPct'),
     mainStatInput(setup, 'caesar', 'slot6', 'impact'),
-    discStatInput(
-      setup, 'caesar', 'twoPiece', 'shockstar',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact),
-    ),
   ])
   const initialImpact = values.impact * (
     1 + impactInputs.reduce((sum, input) => sum + input.rawValue, 0) / 100
@@ -313,6 +292,13 @@ export function calculateCaesar(
     effects,
     'penRatio',
   )
+  const energyInputs = presentSetupInputs([
+    discStatInput(
+      setup, 'caesar', 'twoPiece', 'swingJazz',
+      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen),
+    ),
+  ])
+  const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
   const daze = composeMetricEffects(
     surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus',
   )
@@ -335,6 +321,9 @@ export function calculateCaesar(
       { id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1, ...critRate },
       { id: 'critDmg', label: 'CRIT DMG', unit: '%', decimals: 1, ...critDmg },
       { id: 'impact', label: 'Impact', unit: '', decimals: 2, ...impact },
+      ...(energyInputs.length
+        ? [{ id: 'energyRegen' as const, label: 'Energy Regen', unit: '/s', decimals: 2, ...energy }]
+        : []),
       { id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...dmg },
       ...(pen.values.fully
         ? [{ id: 'penRatio' as const, label: 'PEN Ratio', unit: '%', decimals: 1, ...pen }]

@@ -1027,7 +1027,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   ben: enginePools(['tremorTrigramVessel', 'tusksOfFury', 'cloudcleaveRadiance', 'hailstormShrine', 'bigCylinder', 'springEmbrace']),
   koleda: enginePools(['hellfireGears', 'blazingLaurel', 'restrained', 'steamOven', 'preciousFossilizedCore']),
   anby: enginePools(['hellfireGears', 'blazingLaurel', 'restrained', 'steamOven', 'preciousFossilizedCore', 'demaraBatteryMarkII']),
-  caesar: enginePools(['tusksOfFury', 'hellfireGears', 'springEmbrace']),
+  caesar: enginePools(['tusksOfFury', 'springEmbrace']),
   yeShunguang: enginePools([
     'cloudcleaveRadiance', 'brimstone', 'steelCushion', 'gildedBlossom',
     'marcatoDesire', 'starlightEngine', 'streetSuperstar',
