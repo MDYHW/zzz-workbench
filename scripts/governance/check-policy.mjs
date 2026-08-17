@@ -306,35 +306,28 @@ const PRE_U9_VISUAL_JOB = [
   '          node scripts/governance/check-policy.mjs pre-u9-visual "${changed_paths[@]}"',
 ]
 
-function exactYamlBlock(lines, startLine) {
-  const starts = lines.flatMap((line, index) => line === startLine ? [index] : [])
-  if (starts.length !== 1) return null
-  const start = starts[0]
-  const indentation = startLine.match(/^ */)[0].length
-  let end = lines.length
-  for (let index = start + 1; index < lines.length; index += 1) {
-    if (lines[index].trim() === '') continue
-    const lineIndentation = lines[index].match(/^ */)[0].length
-    if (lineIndentation <= indentation) {
-      end = index
-      break
-    }
-  }
-  while (end > start && lines[end - 1].trim() === '') end -= 1
-  return lines.slice(start, end)
-}
+const PRE_U9_VISUAL_WORKFLOW = [
+  'name: Visual Baseline Validation',
+  '',
+  ...PRE_U9_VISUAL_TRIGGER,
+  '',
+  ...PRE_U9_VISUAL_PERMISSIONS,
+  '',
+  'concurrency:',
+  '  group: visual-baseline-${{ github.event.pull_request.number }}',
+  '  cancel-in-progress: true',
+  '',
+  'jobs:',
+  ...PRE_U9_VISUAL_JOB,
+  '',
+]
 
 export function validatePreU9VisualWorkflow(source) {
   if (typeof source !== 'string') {
     fail('Visual workflow is not bound to the read-only pre-U9 applicability gate.')
   }
   const lines = source.replace(/\r\n?/g, '\n').split('\n')
-  const trigger = exactYamlBlock(lines, 'on:')
-  const permissions = exactYamlBlock(lines, 'permissions:')
-  const job = exactYamlBlock(lines, '  visual-baseline:')
-  if (JSON.stringify(trigger) !== JSON.stringify(PRE_U9_VISUAL_TRIGGER)
-    || JSON.stringify(permissions) !== JSON.stringify(PRE_U9_VISUAL_PERMISSIONS)
-    || JSON.stringify(job) !== JSON.stringify(PRE_U9_VISUAL_JOB)) {
+  if (!sameStrings(lines, PRE_U9_VISUAL_WORKFLOW)) {
     fail('Visual workflow is not bound to the read-only pre-U9 applicability gate.')
   }
   return true

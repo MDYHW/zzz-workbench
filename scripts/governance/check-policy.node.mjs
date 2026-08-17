@@ -342,11 +342,19 @@ test('pre-U9 visual path capture exposes a renamed visual source', () => {
 })
 
 test('pre-U9 visual workflow keeps one read-only explicit applicability gate', () => {
-  const workflow = `on:
+  const workflow = `name: Visual Baseline Validation
+
+on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+
 permissions:
   contents: read
+
+concurrency:
+  group: visual-baseline-\${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   visual-baseline:
     name: Visual Baseline
@@ -391,6 +399,15 @@ jobs:
   }
 
   for (const unreachableOrMisbound of [
+    workflow.replace(
+      'jobs:',
+      'env:\n  BASH_ENV: scripts/governance/bypass.sh\njobs:',
+    ),
+    workflow.replace(
+      'jobs:',
+      'defaults:\n  run:\n    working-directory: scripts\njobs:',
+    ),
+    `${workflow}  writer:\n    permissions: write-all\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo write\n`,
     workflow.replace('        env:', '        if: false\n        env:'),
     workflow.replace('        env:', '        continue-on-error: true\n        env:'),
     workflow.replace(
