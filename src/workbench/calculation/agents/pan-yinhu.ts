@@ -16,7 +16,6 @@ import {
   engineAdvancedInput,
   engineSource,
   mainStatInput,
-  mindscapeSource,
   presentSetupInputs,
   resolveDeliveredClauses,
   withApplicability,
@@ -242,30 +241,6 @@ export function calculatePanYinhu(
     actionModifiers: composeActionHierarchy(
       dmg.values, effects, 'dmgBonus', PAN_DAMAGE_SCOPES,
     ),
-    operations: [
-      ...(setup.engineId === 'tremorTrigramVessel'
-        ? [{
-          id: 'tremorEnergyRestore',
-          label: 'Energy restored when the squad takes DMG or heals',
-          source: engineSource('panYinhu', setup),
-          surface: 'combat' as const,
-          value: equipmentEffectBaseValue(
-            W_ENGINE_FACTS.tremorTrigramVessel.effects.energy,
-            setup.refinement,
-          ),
-          unit: '',
-        }]
-        : []),
-      ...(setup.mindscape >= 2
-        ? [{
-          id: 'panBreakForceEnergy',
-          label: 'Energy restored per 6 Break Force consumed',
-          source: mindscapeSource('panYinhu', 2),
-          surface: 'combat' as const,
-          value: values.mindscapeEnergyRestore,
-          unit: '',
-        }]
-        : []),
-    ],
+    operations: [],
   }
 }

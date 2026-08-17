@@ -984,12 +984,7 @@ describe('authored calculation policies', () => {
         .toContainEqual(expect.objectContaining({
           ownerAgentId: 'panYinhu', locus: 'w-engine', amount: 40,
         }))
-      expect(nonLimited.operations).toContainEqual(expect.objectContaining({
-        id: 'tremorEnergyRestore', value: 3.2,
-      }))
-      expect(nonLimited.operations).toContainEqual(expect.objectContaining({
-        id: 'panBreakForceEnergy', value: 4,
-      }))
+      expect(nonLimited.operations).toEqual([])
 
       const allocatedState = createPreparedState(
         {}, ['cissia', 'panYinhu', 'yixuan'], 2,

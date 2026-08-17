@@ -100,7 +100,6 @@ export const VERTICAL_VALUES = {
     mindscapeAdditionalDmg: 10,
     mindscapeCoreAtkRatio: 24,
     mindscapeCoreSheerCap: 720,
-    mindscapeEnergyRestore: 4,
   },
   banyue: {
     hp: 8497,

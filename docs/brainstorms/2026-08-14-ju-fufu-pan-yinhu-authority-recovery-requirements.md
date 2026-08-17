@@ -11,7 +11,8 @@ Recover the missing bounded owner for Ju Fufu and Pan Yinhu without treating
 their production code or tests as authority. Both are non-Focus Yunkui Summit
 party contributors and reuse the permanent provider, recipient, allocation,
 candidate, preparation, finite-investment, direct-edit, and Result contracts.
-The audit supports their current behavior and requires no production change.
+The audit supports Ju Fufu's sampled behavior but found two Pan Yinhu
+event-conditioned Energy events incorrectly projected as Result operations.
 
 Ju Fufu is a Stun holder with Daze and party CRIT/Chain/Ultimate consumers. Pan
 Yinhu is a Defense provider whose capped Focus-only Sheer Force buff makes ATK a
@@ -96,16 +97,17 @@ and equipment consequences, so no shared named-Agent rule is warranted.
   all-party ATK provider is the contrasting recipient shape.
 - R11. Pan's Additional Ability is active with another Rupture Agent or Yunkui
   Summit member. It adds enemy-context DMG +20%; M1 adds another +10%. M2's
-  bounded four-Energy-per-six-Break-Force event may appear only as the current
-  operation, while healing and survival remain excluded. M6 owns the Core
-  scaling change in R10.
+  four-Energy-per-six-Break-Force event is excluded from Result and retained
+  value storage because it has no current setup or candidate consumer. M6 owns
+  the Core scaling change in R10.
 - R12. Full W-Engine candidates are Tusks of Fury and Tremor Trigram Vessel;
   non-limited retains Tremor only. Both are Defense-holder legal. Full prepares
   Tusks W1; non-limited prepares Tremor W5. Tusks supplies advanced Impact +18%
   and reachable squad DMG +18% and Daze +12%; its shield clause has no current
   consumer. Tremor supplies advanced ATK +25%, EX/Ultimate DMG +40%, and its
-  bounded 3.2-Energy event operation. A whole usable/unused package, not rarity,
-  establishes each representative.
+  exact 3.2-Energy event clause as Setup-only package copy, not a Result
+  operation. A whole usable/unused package, not rarity, establishes each
+  representative.
 - R13. Pan's 4-piece candidates are Astral Voice, Bunny in Wonderland, and
   Swing Jazz. His 2-piece candidates are Swing, Moonlight, Astral, and Hormone.
   Selecting Astral exposes Hormone and Swing; selecting Swing exposes Astral
@@ -138,8 +140,9 @@ and equipment consequences, so no shared named-Agent rule is warranted.
 - R17. Result exposes Ju Fufu's ATK, Impact, Energy Regen, Daze, party CRIT and
   action modifiers, King threshold, and applicable enemy modifiers. Pan exposes
   ATK, Impact/Energy where nonzero, his exact Focus Sheer Force delivery,
-  qualified DMG, and retained operation. Incomplete selection empties all
-  Result; zero substats remain complete.
+  and qualified DMG. Tremor's event-conditioned Energy remains exact Setup-only
+  package copy, while its EX/Ultimate DMG remains an applicable Result modifier.
+  Incomplete selection empties all Result; zero substats remain complete.
 - R18. Shared tests cover Ju King pressure on/off/reselected, M0/M1 and both
   pools, one two-holder allocation composition and one unaffected contrast;
   Pan cap below/reached, full/non-limited whole packages, exact same-effect
@@ -158,6 +161,7 @@ and equipment consequences, so no shared named-Agent rule is warranted.
 
 ## Status
 
-The read-only recovery audit found no mismatch in the sampled supported Ju Fufu
-  or Pan Yinhu consumers. No production change is required for these two
-  verticals; this is not a repository-wide clean bill.
+The recovery audit found no mismatch in sampled Ju Fufu consumers. It corrected
+two Pan Yinhu event-conditioned Energy Result operations while preserving
+Tremor's exact Setup package copy and EX/Ultimate DMG projection. This is not a
+repository-wide clean bill.
