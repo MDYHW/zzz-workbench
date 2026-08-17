@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
 type PortraitAgent = {
+  agentId: string
   candidateName: string
   displayName: string
   slug: string
@@ -13,19 +14,20 @@ type PortraitParty = {
 }
 
 const agents = {
-  pulchra: { candidateName: 'Pulchra, Physical, Stun', displayName: 'Pulchra', slug: 'pulchra' },
-  nekomata: { candidateName: 'Nekomata, Physical, Attack', displayName: 'Nekomata', slug: 'nekomata' },
-  ben: { candidateName: 'Ben Bigger, Fire, Defense', displayName: 'Ben Bigger', slug: 'ben' },
-  koleda: { candidateName: 'Koleda Belobog, Fire, Stun', displayName: 'Koleda Belobog', slug: 'koleda' },
-  zhao: { candidateName: 'Zhao, Ice, Defense', displayName: 'Zhao', slug: 'zhao' },
+  pulchra: { agentId: 'pulchra', candidateName: 'Pulchra, Physical, Stun', displayName: 'Pulchra', slug: 'pulchra' },
+  nekomata: { agentId: 'nekomata', candidateName: 'Nekomata, Physical, Attack', displayName: 'Nekomata', slug: 'nekomata' },
+  ben: { agentId: 'ben', candidateName: 'Ben Bigger, Fire, Defense', displayName: 'Ben Bigger', slug: 'ben' },
+  koleda: { agentId: 'koleda', candidateName: 'Koleda Belobog, Fire, Stun', displayName: 'Koleda Belobog', slug: 'koleda' },
+  zhao: { agentId: 'zhao', candidateName: 'Zhao, Ice, Defense', displayName: 'Zhao', slug: 'zhao' },
   anbySoldier0: {
+    agentId: 'anbySoldier0',
     candidateName: 'Anby: Soldier 0, Electric, Attack',
     displayName: 'Anby: Soldier 0',
     slug: 'anby-soldier-0',
   },
-  lighter: { candidateName: 'Lighter, Fire, Stun', displayName: 'Lighter', slug: 'lighter' },
-  panYinhu: { candidateName: 'Pan Yinhu, Physical, Defense', displayName: 'Pan Yinhu', slug: 'pan-yinhu' },
-  corin: { candidateName: 'Corin, Physical, Attack', displayName: 'Corin', slug: 'corin' },
+  lighter: { agentId: 'lighter', candidateName: 'Lighter, Fire, Stun', displayName: 'Lighter', slug: 'lighter' },
+  panYinhu: { agentId: 'panYinhu', candidateName: 'Pan Yinhu, Physical, Defense', displayName: 'Pan Yinhu', slug: 'pan-yinhu' },
+  corin: { agentId: 'corin', candidateName: 'Corin, Physical, Attack', displayName: 'Corin', slug: 'corin' },
 } satisfies Record<string, PortraitAgent>
 
 const parties: readonly PortraitParty[] = [
@@ -49,8 +51,8 @@ const destinations = [
   { id: 'narrow', viewport: { width: 750, height: 900 } },
 ] as const
 
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+function agentTab(page: Page, agent: PortraitAgent) {
+  return page.locator(`[role="tab"][data-agent="${agent.agentId}"]`)
 }
 
 async function waitForPortraits(page: Page): Promise<void> {
@@ -79,9 +81,8 @@ async function applyParty(page: Page, party: PortraitParty): Promise<void> {
 }
 
 async function selectAgent(page: Page, agent: PortraitAgent): Promise<void> {
-  await page.getByRole('tab', {
-    name: new RegExp(`^(?:View|Close) ${escapeRegExp(agent.displayName)} setup and Result$`),
-  }).click()
+  const tab = agentTab(page, agent)
+  if (await tab.getAttribute('aria-selected') !== 'true') await tab.click()
 }
 
 async function captureDestinations(page: Page, party: PortraitParty): Promise<void> {
@@ -97,10 +98,8 @@ async function captureDestinations(page: Page, party: PortraitParty): Promise<vo
       )
 
       await selectAgent(page, contrast)
-      await expect.soft(page.getByRole('tab', {
-        name: `View ${agent.displayName} setup and Result`,
-        exact: true,
-      })).toHaveScreenshot(`${agent.slug}-${destination.id}-compact.png`)
+      await expect.soft(agentTab(page, agent)).toHaveAttribute('aria-label', `View ${agent.displayName} setup and Result`)
+      await expect.soft(agentTab(page, agent)).toHaveScreenshot(`${agent.slug}-${destination.id}-compact.png`)
     }
 
     expect(await page.evaluate(() => (
@@ -125,12 +124,12 @@ test('the real party surface keeps pointer and keyboard destination changes acce
   const party = parties[0]
   await applyParty(page, party)
 
-  const nekomata = page.getByRole('tab', { name: 'View Nekomata setup and Result', exact: true })
+  const nekomata = agentTab(page, agents.nekomata)
   await nekomata.press('Enter')
   await expect(nekomata).toHaveAttribute('aria-selected', 'true')
 
   await page.setViewportSize(destinations[1].viewport)
-  const ben = page.getByRole('tab', { name: 'View Ben Bigger setup and Result', exact: true })
+  const ben = agentTab(page, agents.ben)
   await ben.click()
   await expect(ben).toHaveAttribute('aria-selected', 'true')
   expect(await page.evaluate(() => (
