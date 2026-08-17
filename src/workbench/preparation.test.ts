@@ -5,10 +5,16 @@ import {
   type PreparationContext,
 } from './preparation'
 import {
-  DISC_IDS_BY_AGENT_AND_PIECE,
+  ADMITTED_AGENTS,
   ENGINE_IDS_BY_AGENT_AND_POOL,
+  type AgentId,
 } from './content'
-import { effectiveFourPieceIds } from './candidates'
+import {
+  effectiveFourPieceIds,
+  effectiveMainStatIds,
+  effectiveSubstatChoicesForSlot,
+  effectiveTwoPieceIds,
+} from './candidates'
 import { createPreparedState } from './state'
 
 const context = (
@@ -665,23 +671,30 @@ describe('party-directed preparation', () => {
     }
   })
 
-  it('keeps representative preparation candidate-bound and at zero supplied substats', () => {
-    const contexts = [
-      context('yixuan'), context('trigger'), context('dialyn'),
-    ] as const
-    const selections = preparePartySelections(contexts, 'yixuan')
-    const state = createPreparedState(
-      {}, [contexts[0].agentId, contexts[1].agentId, contexts[2].agentId], 0,
-    )
+  it('keeps every prepared target inside effective candidates at zero supplied substats', () => {
+    const companions = ['yixuan', 'lucia', 'anbySoldier0'] as const
 
-    for (const [index, selection] of selections.entries()) {
-      const input = contexts[index]
-      expect(ENGINE_IDS_BY_AGENT_AND_POOL[input.agentId][input.pool]).toContain(selection.engineId)
-      expect(DISC_IDS_BY_AGENT_AND_PIECE[input.agentId].fourPiece).toContain(selection.fourPieceId)
-      expect(DISC_IDS_BY_AGENT_AND_PIECE[input.agentId].twoPiece).toContain(selection.twoPieceId)
-      expect(selection.fourPieceId).not.toBe(selection.twoPieceId)
-      expect(Object.values(state.slots[index].setup.substats).every((value) => value === 0))
-        .toBe(true)
+    for (const { id: agentId, focusEligible } of ADMITTED_AGENTS) {
+      const support = companions.filter((candidateId) => candidateId !== agentId)
+      const party = [agentId, support[0], support[1]] as [AgentId, AgentId, AgentId]
+      const focusSlot = focusEligible ? 0 : 1
+
+      for (const pool of ['full', 'nonLimited'] as const) {
+        const state = createPreparedState({ [agentId]: pool }, party, focusSlot)
+        const setup = state.slots[0].setup
+
+        expect(ENGINE_IDS_BY_AGENT_AND_POOL[agentId][pool]).toContain(setup.engineId)
+        expect(effectiveFourPieceIds(state, 0)).toContain(setup.fourPieceId)
+        expect(effectiveTwoPieceIds(state, 0)).toContain(setup.twoPieceId)
+        expect(setup.fourPieceId).not.toBe(setup.twoPieceId)
+        for (const mainSlot of ['slot4', 'slot5', 'slot6'] as const) {
+          expect(effectiveMainStatIds(state, 0, mainSlot)).toContain(setup.mains[mainSlot])
+        }
+        expect(Object.values(setup.substats).every((value) => value === 0)).toBe(true)
+        expect(Object.keys(setup.substats).sort()).toEqual(
+          effectiveSubstatChoicesForSlot(state, 0).map(({ id }) => id).sort(),
+        )
+      }
     }
   })
 })
