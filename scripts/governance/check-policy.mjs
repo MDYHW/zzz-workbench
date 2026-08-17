@@ -262,6 +262,77 @@ export function categoryForPath(pathValue) {
   return 'unknown'
 }
 
+export function validatePreU9VisualApplicability(paths) {
+  const changedPaths = sortedUnique(paths.map(normalizePath), 'Changed paths')
+  const blockedPaths = changedPaths.filter((filePath) => categoryForPath(filePath) === 'visual-baseline')
+  if (blockedPaths.length > 0) {
+    fail(`Visual inputs changed before the accepted U9 baseline exists: ${blockedPaths.join(', ')}`)
+  }
+  return { changedPaths, result: 'not-applicable' }
+}
+
+const PRE_U9_VISUAL_TRIGGER = [
+  'on:',
+  '  pull_request:',
+  '    types: [opened, synchronize, reopened, ready_for_review]',
+]
+
+const PRE_U9_VISUAL_PERMISSIONS = [
+  'permissions:',
+  '  contents: read',
+]
+
+const PRE_U9_VISUAL_JOB = [
+  '  visual-baseline:',
+  '    name: Visual Baseline',
+  '    runs-on: ubuntu-latest',
+  '    timeout-minutes: 10',
+  '    steps:',
+  '      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1',
+  '        with:',
+  '          fetch-depth: 0',
+  '          persist-credentials: false',
+  '      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020',
+  '        with:',
+  '          node-version: 24',
+  '      - name: Emit the pre-U9 applicability result',
+  '        env:',
+  '          BASE_SHA: ${{ github.event.pull_request.base.sha }}',
+  '        shell: bash',
+  '        run: |',
+  '          changed_paths_file="$RUNNER_TEMP/pre-u9-changed-paths"',
+  '          git diff --no-renames --name-only -z "$BASE_SHA" HEAD > "$changed_paths_file"',
+  "          mapfile -d '' -t changed_paths < \"$changed_paths_file\"",
+  '          node scripts/governance/check-policy.mjs pre-u9-visual "${changed_paths[@]}"',
+]
+
+const PRE_U9_VISUAL_WORKFLOW = [
+  'name: Visual Baseline Validation',
+  '',
+  ...PRE_U9_VISUAL_TRIGGER,
+  '',
+  ...PRE_U9_VISUAL_PERMISSIONS,
+  '',
+  'concurrency:',
+  '  group: visual-baseline-${{ github.event.pull_request.number }}',
+  '  cancel-in-progress: true',
+  '',
+  'jobs:',
+  ...PRE_U9_VISUAL_JOB,
+  '',
+]
+
+export function validatePreU9VisualWorkflow(source) {
+  if (typeof source !== 'string') {
+    fail('Visual workflow is not bound to the read-only pre-U9 applicability gate.')
+  }
+  const lines = source.replace(/\r\n?/g, '\n').split('\n')
+  if (!sameStrings(lines, PRE_U9_VISUAL_WORKFLOW)) {
+    fail('Visual workflow is not bound to the read-only pre-U9 applicability gate.')
+  }
+  return true
+}
+
 export function evaluateChangeMatrix(paths, { visualTransaction = false } = {}) {
   const normalizedPaths = sortedUnique(paths.map(normalizePath), 'Changed paths')
   const byCategory = Object.fromEntries(normalizedPaths.map((path) => [path, categoryForPath(path)]))
@@ -978,9 +1049,7 @@ export async function validateRepository(root = process.cwd(), { requireComplete
     fail('Pull-request validation workflow is missing a required read-only gate.')
   }
   const visualWorkflow = workflowSources.get('.github/workflows/visual-baseline.yml') ?? ''
-  if (!/^\s*pull_request:/m.test(visualWorkflow) || !/persist-credentials:\s+false/.test(visualWorkflow)) {
-    fail('Visual workflow is not bound to the read-only pull-request context.')
-  }
+  validatePreU9VisualWorkflow(visualWorkflow)
   const finalizationWorkflow = workflowSources.get('.github/workflows/recovery-finalization.yml') ?? ''
   if (!/^\s+actions:\s+read\s*$/m.test(finalizationWorkflow)
     || !/^\s+pull-requests:\s+read\s*$/m.test(finalizationWorkflow)
@@ -1005,6 +1074,11 @@ async function main() {
     if (command === 'repository' && args.length <= 2 && (!option || option === '--require-complete-audit')) {
       const result = await validateRepository(process.cwd(), { requireCompleteAudit: option === '--require-complete-audit' })
       process.stdout.write(`Governance repository validation passed (${result.ruleIds.length} Rule IDs, ${result.rosterSize} frozen identities).\n`)
+      return
+    }
+    if (command === 'pre-u9-visual') {
+      validatePreU9VisualApplicability(args.slice(1))
+      process.stdout.write('Visual Baseline: not applicable; no U9-owned visual input changed.\n')
       return
     }
     fail('Policy command is not allowlisted.')
