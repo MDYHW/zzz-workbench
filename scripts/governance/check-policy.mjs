@@ -262,73 +262,70 @@ export function categoryForPath(pathValue) {
   return 'unknown'
 }
 
-export function validatePreU9VisualApplicability(paths) {
-  const changedPaths = sortedUnique(paths.map(normalizePath), 'Changed paths')
-  const blockedPaths = changedPaths.filter((filePath) => categoryForPath(filePath) === 'visual-baseline')
-  if (blockedPaths.length > 0) {
-    fail(`Visual inputs changed before the accepted U9 baseline exists: ${blockedPaths.join(', ')}`)
-  }
-  return { changedPaths, result: 'not-applicable' }
-}
-
-const PRE_U9_VISUAL_TRIGGER = [
+const VISUAL_TRIGGER = [
   'on:',
   '  pull_request:',
   '    types: [opened, synchronize, reopened, ready_for_review]',
 ]
 
-const PRE_U9_VISUAL_PERMISSIONS = [
+const VISUAL_PERMISSIONS = [
   'permissions:',
   '  contents: read',
 ]
 
-const PRE_U9_VISUAL_JOB = [
+const VISUAL_JOB = [
   '  visual-baseline:',
   '    name: Visual Baseline',
   '    runs-on: ubuntu-latest',
-  '    timeout-minutes: 10',
+  '    container:',
+  '      image: mcr.microsoft.com/playwright@sha256:baed2032d533817f3dbe6425de795788430ba345e819a1201337009ba17c9d07',
+  '    timeout-minutes: 15',
   '    steps:',
   '      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1',
   '        with:',
-  '          fetch-depth: 0',
   '          persist-credentials: false',
   '      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020',
   '        with:',
   '          node-version: 24',
-  '      - name: Emit the pre-U9 applicability result',
-  '        env:',
-  '          BASE_SHA: ${{ github.event.pull_request.base.sha }}',
-  '        shell: bash',
-  '        run: |',
-  '          changed_paths_file="$RUNNER_TEMP/pre-u9-changed-paths"',
-  '          git diff --no-renames --name-only -z "$BASE_SHA" HEAD > "$changed_paths_file"',
-  "          mapfile -d '' -t changed_paths < \"$changed_paths_file\"",
-  '          node scripts/governance/check-policy.mjs pre-u9-visual "${changed_paths[@]}"',
+  '          cache: npm',
+  '      - run: npm ci --ignore-scripts',
+  '      - run: npm run test:visual',
+  '      - name: Upload visual comparison evidence',
+  '        if: ${{ always() }}',
+  '        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02',
+  '        with:',
+  '          name: visual-baseline-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}',
+  '          path: |',
+  '            playwright-report/',
+  '            test-results/',
+  '            tests/visual/workbench-portraits.spec.ts-snapshots/',
+  '          if-no-files-found: warn',
+  '          retention-days: 14',
 ]
 
-const PRE_U9_VISUAL_WORKFLOW = [
+const VISUAL_WORKFLOW = [
   'name: Visual Baseline Validation',
   '',
-  ...PRE_U9_VISUAL_TRIGGER,
+  ...VISUAL_TRIGGER,
   '',
-  ...PRE_U9_VISUAL_PERMISSIONS,
+  ...VISUAL_PERMISSIONS,
   '',
   'concurrency:',
   '  group: visual-baseline-${{ github.event.pull_request.number }}',
   '  cancel-in-progress: true',
   '',
   'jobs:',
-  ...PRE_U9_VISUAL_JOB,
+  ...VISUAL_JOB,
   '',
 ]
 
-export function validatePreU9VisualWorkflow(source) {
+export function validateVisualWorkflow(source) {
   if (typeof source !== 'string') {
-    fail('Visual workflow is not bound to the read-only pre-U9 applicability gate.')
+    fail('Visual workflow is not bound to the pinned screenshot comparison gate.')
   }
   const lines = source.replace(/\r\n?/g, '\n').split('\n')
-  if (!sameStrings(lines, PRE_U9_VISUAL_WORKFLOW)) {
-    fail('Visual workflow is not bound to the read-only pre-U9 applicability gate.')
+  if (!sameStrings(lines, VISUAL_WORKFLOW)) {
+    fail('Visual workflow is not bound to the pinned screenshot comparison gate.')
   }
   return true
 }
@@ -1025,6 +1022,7 @@ export async function validateRepository(root = process.cwd(), { requireComplete
   const pinned = new Set([
     'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1',
     'actions/setup-node@820762786026740c76f36085b0efc47a31fe5020',
+    'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02',
   ])
   if (actionUses.some((value) => !pinned.has(value))) fail('A workflow Action is not explicitly allowlisted and immutably pinned.')
   if (new Set(jobNames).size !== jobNames.length) fail('Workflow job names are duplicated.')
@@ -1049,7 +1047,7 @@ export async function validateRepository(root = process.cwd(), { requireComplete
     fail('Pull-request validation workflow is missing a required read-only gate.')
   }
   const visualWorkflow = workflowSources.get('.github/workflows/visual-baseline.yml') ?? ''
-  validatePreU9VisualWorkflow(visualWorkflow)
+  validateVisualWorkflow(visualWorkflow)
   const finalizationWorkflow = workflowSources.get('.github/workflows/recovery-finalization.yml') ?? ''
   if (!/^\s+actions:\s+read\s*$/m.test(finalizationWorkflow)
     || !/^\s+pull-requests:\s+read\s*$/m.test(finalizationWorkflow)
@@ -1074,11 +1072,6 @@ async function main() {
     if (command === 'repository' && args.length <= 2 && (!option || option === '--require-complete-audit')) {
       const result = await validateRepository(process.cwd(), { requireCompleteAudit: option === '--require-complete-audit' })
       process.stdout.write(`Governance repository validation passed (${result.ruleIds.length} Rule IDs, ${result.rosterSize} frozen identities).\n`)
-      return
-    }
-    if (command === 'pre-u9-visual') {
-      validatePreU9VisualApplicability(args.slice(1))
-      process.stdout.write('Visual Baseline: not applicable; no U9-owned visual input changed.\n')
       return
     }
     fail('Policy command is not allowlisted.')

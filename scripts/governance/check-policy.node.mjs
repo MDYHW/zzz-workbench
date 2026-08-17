@@ -1,10 +1,6 @@
 import assert from 'node:assert/strict'
-import { spawnSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, renameSync, rmSync, writeFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
-import { fileURLToPath } from 'node:url'
 import {
   EVIDENCE_MARKER,
   PolicyError,
@@ -32,8 +28,7 @@ import {
   validateFinalization,
   validateFrozenRoster,
   validateProtectedApproval,
-  validatePreU9VisualApplicability,
-  validatePreU9VisualWorkflow,
+  validateVisualWorkflow,
   validateReviewEvidence,
   validateRepository,
   validateTrustedWorkflowConcurrency,
@@ -45,33 +40,6 @@ const OTHER = '4'.repeat(40)
 const DIFF = `sha256:${'a'.repeat(64)}`
 const KNOWN_RULES = ['SW-001', 'SF-001', 'GOV-001']
 const CONSUMERS = ['src/workbench/content/agents.ts#ADMITTED_AGENTS']
-const POLICY_PATH = fileURLToPath(new URL('./check-policy.mjs', import.meta.url))
-const U6_CHANGED_PATHS = [
-  'docs/brainstorms/2026-08-12-yidhari-manato-vertical-requirements.md',
-  'docs/brainstorms/2026-08-14-orphie-pulchra-vertical-requirements.md',
-  'docs/brainstorms/2026-08-15-anby-vertical-requirements.md',
-  'docs/brainstorms/2026-08-15-ben-koleda-vertical-requirements.md',
-  'docs/brainstorms/2026-08-15-caesar-vertical-requirements.md',
-  'src/App.party.test.tsx',
-  'src/App.setup.test.tsx',
-  'src/components/AgentSetup.test.tsx',
-  'src/components/AgentSetup.tsx',
-  'src/workbench/calculate.policies.test.ts',
-  'src/workbench/calculation/agents/anby.ts',
-  'src/workbench/calculation/agents/caesar.ts',
-  'src/workbench/calculation/agents/koleda.ts',
-  'src/workbench/calculation/agents/manato.ts',
-  'src/workbench/content/engines.ts',
-  'src/workbench/content/equipment-effects.test.ts',
-  'src/workbench/preparation.test.ts',
-  'src/workbench/state.test.ts',
-]
-
-function runGit(cwd, args) {
-  const result = spawnSync('git', args, { cwd, encoding: 'utf8' })
-  assert.equal(result.status, 0, result.stderr)
-  return result.stdout
-}
 
 function treeEntry(path, baseSha = BASE, headSha = HEAD) {
   return {
@@ -274,74 +242,17 @@ test('change matrix allows supporting documentation with production but protects
   assert.equal(categoryForPath('src/components/agentPortraits.ts'), 'visual-baseline')
 })
 
-test('pre-U9 visual applicability admits semantic UI work but blocks baseline-owned inputs', () => {
-  assert.deepEqual(validatePreU9VisualApplicability([]), {
-    changedPaths: [],
-    result: 'not-applicable',
-  })
-  assert.deepEqual(validatePreU9VisualApplicability([
-    'src/components/AgentSetup.test.tsx',
-    'src/components/AgentSetup.tsx',
-  ]), {
-    changedPaths: [
-      'src/components/AgentSetup.test.tsx',
-      'src/components/AgentSetup.tsx',
-    ],
-    result: 'not-applicable',
-  })
-
-  for (const blockedPath of [
+test('U9 visual inputs retain one protected transaction category', () => {
+  for (const visualPath of [
     'src/components/agentPortraits.ts',
     'src/app.css',
     'src/assets/agents/portraits/koleda.webp',
     'tests/visual/workbench-portraits.spec.ts',
     'playwright.config.ts',
-  ]) {
-    assert.throws(
-      () => validatePreU9VisualApplicability(['src/components/AgentSetup.tsx', blockedPath]),
-      /Visual inputs changed before the accepted U9 baseline exists/,
-    )
-  }
-
-  assert.equal(U6_CHANGED_PATHS.length, 18)
-  assert.equal(validatePreU9VisualApplicability(U6_CHANGED_PATHS).result, 'not-applicable')
-  assert.throws(
-    () => validatePreU9VisualApplicability([...U6_CHANGED_PATHS, 'src/app.css']),
-    /Visual inputs changed before the accepted U9 baseline exists/,
-  )
+  ]) assert.equal(categoryForPath(visualPath), 'visual-baseline')
 })
 
-test('pre-U9 visual path capture exposes a renamed visual source', () => {
-  const repository = mkdtempSync(join(tmpdir(), 'zzz-workbench-visual-rename-'))
-  try {
-    runGit(repository, ['init', '--quiet'])
-    runGit(repository, ['config', 'user.name', 'Visual Policy Test'])
-    runGit(repository, ['config', 'user.email', 'visual-policy@example.invalid'])
-    mkdirSync(join(repository, 'src'), { recursive: true })
-    writeFileSync(join(repository, 'src', 'app.css'), 'body { color: red; }\n')
-    runGit(repository, ['add', 'src/app.css'])
-    runGit(repository, ['commit', '--quiet', '-m', 'base'])
-    const base = runGit(repository, ['rev-parse', 'HEAD']).trim()
-
-    mkdirSync(join(repository, 'src', 'components'), { recursive: true })
-    renameSync(join(repository, 'src', 'app.css'), join(repository, 'src', 'components', 'semantic.ts'))
-    runGit(repository, ['add', '--all'])
-    runGit(repository, ['commit', '--quiet', '-m', 'rename'])
-
-    const changedPaths = runGit(repository, [
-      'diff', '--no-renames', '--name-only', '-z', base, 'HEAD',
-    ]).split('\0').filter(Boolean)
-    assert.deepEqual(changedPaths, ['src/app.css', 'src/components/semantic.ts'])
-    assert.throws(
-      () => validatePreU9VisualApplicability(changedPaths),
-      /Visual inputs changed before the accepted U9 baseline exists/,
-    )
-  } finally {
-    rmSync(repository, { recursive: true, force: true })
-  }
-})
-
-test('pre-U9 visual workflow keeps one read-only explicit applicability gate', () => {
+test('U9 visual workflow pins screenshot execution and failure evidence', () => {
   const workflow = `name: Visual Baseline Validation
 
 on:
@@ -359,95 +270,52 @@ jobs:
   visual-baseline:
     name: Visual Baseline
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    container:
+      image: mcr.microsoft.com/playwright@sha256:baed2032d533817f3dbe6425de795788430ba345e819a1201337009ba17c9d07
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: 24
-      - name: Emit the pre-U9 applicability result
-        env:
-          BASE_SHA: \${{ github.event.pull_request.base.sha }}
-        shell: bash
-        run: |
-          changed_paths_file="$RUNNER_TEMP/pre-u9-changed-paths"
-          git diff --no-renames --name-only -z "$BASE_SHA" HEAD > "$changed_paths_file"
-          mapfile -d '' -t changed_paths < "$changed_paths_file"
-          node scripts/governance/check-policy.mjs pre-u9-visual "\${changed_paths[@]}"
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run test:visual
+      - name: Upload visual comparison evidence
+        if: \${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: visual-baseline-\${{ github.event.pull_request.number }}-\${{ github.event.pull_request.head.sha }}
+          path: |
+            playwright-report/
+            test-results/
+            tests/visual/workbench-portraits.spec.ts-snapshots/
+          if-no-files-found: warn
+          retention-days: 14
 `
-  assert.equal(validatePreU9VisualWorkflow(workflow), true)
-  for (const missing of [
-    '  pull_request:',
-    '    types: [opened, synchronize, reopened, ready_for_review]',
-    '  contents: read',
-    '    name: Visual Baseline',
-    '          fetch-depth: 0',
+  assert.equal(validateVisualWorkflow(workflow), true)
+
+  for (const required of [
+    '      image: mcr.microsoft.com/playwright@sha256:baed2032d533817f3dbe6425de795788430ba345e819a1201337009ba17c9d07',
     '          persist-credentials: false',
-    '          node-version: 24',
-    '          BASE_SHA: \${{ github.event.pull_request.base.sha }}',
-    '        shell: bash',
-    'changed_paths_file="$RUNNER_TEMP/pre-u9-changed-paths"',
-    'git diff --no-renames --name-only -z "$BASE_SHA" HEAD > "$changed_paths_file"',
-    `mapfile -d '' -t changed_paths < "$changed_paths_file"`,
-    'node scripts/governance/check-policy.mjs pre-u9-visual',
-    '"\${changed_paths[@]}"',
+    '      - run: npm ci --ignore-scripts',
+    '      - run: npm run test:visual',
+    '        if: \${{ always() }}',
+    '        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02',
+    '          name: visual-baseline-\${{ github.event.pull_request.number }}-\${{ github.event.pull_request.head.sha }}',
+    '            playwright-report/',
+    '            test-results/',
+    '            tests/visual/workbench-portraits.spec.ts-snapshots/',
   ]) {
-    assert.throws(() => validatePreU9VisualWorkflow(workflow.replace(missing, '')), /Visual workflow/)
+    assert.throws(() => validateVisualWorkflow(workflow.replace(required, '')), /Visual workflow/)
   }
 
-  for (const unreachableOrMisbound of [
-    workflow.replace(
-      'jobs:',
-      'env:\n  BASH_ENV: scripts/governance/bypass.sh\njobs:',
-    ),
-    workflow.replace(
-      'jobs:',
-      'defaults:\n  run:\n    working-directory: scripts\njobs:',
-    ),
-    `${workflow}  writer:\n    permissions: write-all\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo write\n`,
-    workflow.replace('        env:', '        if: false\n        env:'),
-    workflow.replace('        env:', '        continue-on-error: true\n        env:'),
-    workflow.replace(
-      '          BASE_SHA: \${{ github.event.pull_request.base.sha }}',
-      '          BASE_SHA: base',
-    ),
-    workflow.replace(
-      '          node scripts/governance/check-policy.mjs pre-u9-visual "\${changed_paths[@]}"',
-      '          # node scripts/governance/check-policy.mjs pre-u9-visual "\${changed_paths[@]}"',
-    ),
-    workflow.replace(
-      '          node scripts/governance/check-policy.mjs pre-u9-visual "\${changed_paths[@]}"',
-      '          node scripts/governance/check-policy.mjs pre-u9-visual "\${changed_paths[@]}"\n          node scripts/governance/check-policy.mjs pre-u9-visual',
-    ),
-    workflow.replace(
-      '          changed_paths_file="$RUNNER_TEMP/pre-u9-changed-paths"',
-      '          if false; then\n            changed_paths_file="$RUNNER_TEMP/pre-u9-changed-paths"',
-    ).replace(
-      '          node scripts/governance/check-policy.mjs pre-u9-visual "\${changed_paths[@]}"',
-      '            node scripts/governance/check-policy.mjs pre-u9-visual "\${changed_paths[@]}"\n          fi\n          true',
-    ),
-    `${workflow}\n${workflow.slice(workflow.indexOf('  visual-baseline:'))}`,
-  ]) {
-    assert.throws(() => validatePreU9VisualWorkflow(unreachableOrMisbound), /Visual workflow/)
-  }
-})
-
-test('pre-U9 visual command treats an empty diff as explicitly not applicable', () => {
-  const result = spawnSync(process.execPath, [POLICY_PATH, 'pre-u9-visual'], { encoding: 'utf8' })
-  assert.equal(result.status, 0, result.stderr)
-  assert.match(result.stdout, /Visual Baseline: not applicable/)
-
-  const specialPaths = spawnSync(process.execPath, [
-    POLICY_PATH,
-    'pre-u9-visual',
-    'src/components/Agent Setup.tsx',
-    'src/components/Agent\nSetup.tsx',
-  ], { encoding: 'utf8' })
-  assert.equal(specialPaths.status, 0, specialPaths.stderr)
-  assert.match(specialPaths.stdout, /Visual Baseline: not applicable/)
+  assert.throws(
+    () => validateVisualWorkflow(workflow.replace('      - run: npm run test:visual', '      - run: true')),
+    /Visual workflow/,
+  )
 })
 
 test('AE4 proves one realistic additive Agent seam and protects a nearby shared helper edit', () => {

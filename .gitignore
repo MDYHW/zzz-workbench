@@ -5,3 +5,5 @@ dist/
 *.pem
 .github-app/
 .github-app-*.json
+playwright-report/
+test-results/
