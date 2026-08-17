@@ -271,17 +271,70 @@ export function validatePreU9VisualApplicability(paths) {
   return { changedPaths, result: 'not-applicable' }
 }
 
+const PRE_U9_VISUAL_TRIGGER = [
+  'on:',
+  '  pull_request:',
+  '    types: [opened, synchronize, reopened, ready_for_review]',
+]
+
+const PRE_U9_VISUAL_PERMISSIONS = [
+  'permissions:',
+  '  contents: read',
+]
+
+const PRE_U9_VISUAL_JOB = [
+  '  visual-baseline:',
+  '    name: Visual Baseline',
+  '    runs-on: ubuntu-latest',
+  '    timeout-minutes: 10',
+  '    steps:',
+  '      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1',
+  '        with:',
+  '          fetch-depth: 0',
+  '          persist-credentials: false',
+  '      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020',
+  '        with:',
+  '          node-version: 24',
+  '      - name: Emit the pre-U9 applicability result',
+  '        env:',
+  '          BASE_SHA: ${{ github.event.pull_request.base.sha }}',
+  '        shell: bash',
+  '        run: |',
+  '          changed_paths_file="$RUNNER_TEMP/pre-u9-changed-paths"',
+  '          git diff --no-renames --name-only -z "$BASE_SHA" HEAD > "$changed_paths_file"',
+  "          mapfile -d '' -t changed_paths < \"$changed_paths_file\"",
+  '          node scripts/governance/check-policy.mjs pre-u9-visual "${changed_paths[@]}"',
+]
+
+function exactYamlBlock(lines, startLine) {
+  const starts = lines.flatMap((line, index) => line === startLine ? [index] : [])
+  if (starts.length !== 1) return null
+  const start = starts[0]
+  const indentation = startLine.match(/^ */)[0].length
+  let end = lines.length
+  for (let index = start + 1; index < lines.length; index += 1) {
+    if (lines[index].trim() === '') continue
+    const lineIndentation = lines[index].match(/^ */)[0].length
+    if (lineIndentation <= indentation) {
+      end = index
+      break
+    }
+  }
+  while (end > start && lines[end - 1].trim() === '') end -= 1
+  return lines.slice(start, end)
+}
+
 export function validatePreU9VisualWorkflow(source) {
-  if (typeof source !== 'string'
-    || !/^\s*pull_request:/m.test(source)
-    || !/^\s+contents:\s+read\s*$/m.test(source)
-    || !/^\s{4}name:\s+Visual Baseline\s*$/m.test(source)
-    || !/persist-credentials:\s+false/.test(source)
-    || !/node-version:\s+24/.test(source)
-    || !/changed_paths_file="\$RUNNER_TEMP\/pre-u9-changed-paths"/.test(source)
-    || !/git diff --name-only -z "\$BASE_SHA" HEAD > "\$changed_paths_file"/.test(source)
-    || !/mapfile -d '' -t changed_paths < "\$changed_paths_file"/.test(source)
-    || !/node scripts\/governance\/check-policy\.mjs pre-u9-visual "\$\{changed_paths\[@\]\}"/.test(source)) {
+  if (typeof source !== 'string') {
+    fail('Visual workflow is not bound to the read-only pre-U9 applicability gate.')
+  }
+  const lines = source.replace(/\r\n?/g, '\n').split('\n')
+  const trigger = exactYamlBlock(lines, 'on:')
+  const permissions = exactYamlBlock(lines, 'permissions:')
+  const job = exactYamlBlock(lines, '  visual-baseline:')
+  if (JSON.stringify(trigger) !== JSON.stringify(PRE_U9_VISUAL_TRIGGER)
+    || JSON.stringify(permissions) !== JSON.stringify(PRE_U9_VISUAL_PERMISSIONS)
+    || JSON.stringify(job) !== JSON.stringify(PRE_U9_VISUAL_JOB)) {
     fail('Visual workflow is not bound to the read-only pre-U9 applicability gate.')
   }
   return true
