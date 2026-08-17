@@ -793,11 +793,6 @@ application to U10-U11.
   lifecycle, and separate Result projection.
 - Re-compare full and non-limited pools independently rather than filtering a
   full-pool ranking.
-- If the retained requirement assigned an unsupported role merely from a
-  Specialty, stat, or formula fact, correct that upstream role before judging
-  packages. Re-run the affected W-Engine representative and every dependent U7
-  Disc/representative conclusion together; a merged U6 transaction does not
-  preserve a downstream conclusion whose role premise has failed.
 - Remove selector-level `Inactive` prefixes and specialty-status prose. Show the
   same compressed whole package on selected and candidate surfaces regardless
   of the holder; Result applies only compatible clauses.
@@ -842,10 +837,7 @@ remaining identity-by-identity application to U10-U11.
 
 **Requirements:** R3, R4, R9, R14, R15; F2; AE2, AE6.
 
-**Dependencies:** U6, including any holder-local U6 correction discovered
-before U7 closure. When that correction changes the role premise, its dependent
-U7 candidate and representative outcomes are reverified in the same bounded
-unit before U7 can close.
+**Dependencies:** U6.
 
 **Files:**
 - Modify: applicable supporting requirements under `docs/brainstorms/`

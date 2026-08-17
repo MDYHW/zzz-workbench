@@ -52,13 +52,13 @@ direction, raw damage, raw Daze, or runtime optimizer.
 
 - Formula mechanics owns Initial/Combat/Fully stat regions, percentage Impact,
   Daze Bonus, regular DMG Bonus, and Caesar's Impact-to-Daze relationship.
-  Cissia is the closest role contrast: her fixed Daze facts likewise do not
-  justify Impact equipment when her authored setup does not intentionally
-  strengthen Daze. Lighter is the closest stat-region contrast because his
-  authored Stun setup does intentionally strengthen Fully Enabled Impact and
-  Daze. Ben's Initial DEF-to-Combat-ATK relation is the closest retained
-  non-survival stat relation; neither Agent exposes a deterministic shield
-  output.
+  Ben is the closest role contrast: his direction retains residual Daze facts,
+  but his authored equipment strengthens personal damage and buffer value
+  rather than Daze investment. Lighter is the closest stat-region contrast
+  because his authored Stun setup does intentionally strengthen Fully Enabled
+  Impact and Daze. Ben's Initial DEF-to-Combat-ATK relation is also the closest
+  retained non-survival stat relation; neither Agent exposes a deterministic
+  shield output.
 - The product contract owns Focus delivery, whole-package candidate and
   representative authoring, finite future investment, contextual candidates,
   and lifecycle. Pan Yinhu's Focus-delivered benefit is the closest recipient
