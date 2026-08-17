@@ -138,7 +138,7 @@ describe('AgentSetup Pan Yinhu Drive Disc candidates', () => {
 })
 
 describe('AgentSetup partial W-Engine package', () => {
-  it('marks Steel Cushion passive clauses inactive for a Rupture holder', () => {
+  it('shows the source-owned Steel Cushion package without holder compatibility labels', () => {
     const state = createPreparedState({}, ['starlightBilly', 'dialyn', 'lucia'], 0)
     state.slots[0] = {
       ...state.slots[0],
@@ -158,9 +158,12 @@ describe('AgentSetup partial W-Engine package', () => {
       />,
     )
 
-    expect(screen.getByText('Attack Specialty passive inactive')).toBeInTheDocument()
-    expect(screen.getByText('Inactive · Physical DMG +20%')).toBeInTheDocument()
-    expect(screen.getByText('Inactive · Back Attack DMG +25%')).toBeInTheDocument()
+    expect(screen.getByRole('button', {
+      name: 'Change W-Engine from Steel Cushion',
+    })).toHaveAccessibleDescription(
+      'CRIT Rate +24%. Physical DMG +20%. Back Attack DMG +25%',
+    )
+    expect(screen.queryByText(/Specialty passive inactive|Inactive ·/)).not.toBeInTheDocument()
   })
 
   it.each([
@@ -192,17 +195,17 @@ describe('AgentSetup partial W-Engine package', () => {
       candidateId: 'demaraBatteryMarkII',
       candidateName: 'Demara Battery Mark II',
       candidateRefinement: 5,
-      description: 'Impact +15%. Electric DMG +24%. After Dodge Counter or Assist Attack · Energy Generation Rate +27.5%',
+      description: 'Impact +15%. Electric DMG +24%. Energy Generation Rate +27.5%',
     },
     {
       agentId: 'caesar',
       party: ['corin', 'caesar', 'astraYao'] as [AgentId, AgentId, AgentId],
       slot: 1 as AppliedSlot,
       selectedName: 'Tusks of Fury',
-      candidateId: 'originalTransmorpher',
-      candidateName: 'Original Transmorpher',
-      candidateRefinement: 5,
-      description: 'HP +25%. Max HP +12.5%. After attacked · Impact +16%',
+      candidateId: 'hellfireGears',
+      candidateName: 'Hellfire Gears',
+      candidateRefinement: 1,
+      description: 'Impact +18%. Energy +0.6/s. Impact +20%',
     },
   ] as const)(
     'keeps the complete $candidateName package accessible as candidate and selection',
@@ -241,7 +244,7 @@ describe('AgentSetup partial W-Engine package', () => {
     },
   )
 
-  it('marks Stun W-Engine passives inactive on Caesar while retaining their chassis', async () => {
+  it('shows Caesar source-owned candidates while leaving compatibility to Result', async () => {
     const user = userEvent.setup()
     const state = createPreparedState(
       { caesar: 'nonLimited' },
@@ -264,16 +267,17 @@ describe('AgentSetup partial W-Engine package', () => {
     expect(screen.getByRole('button', {
       name: 'Change W-Engine from Hellfire Gears',
     })).toHaveAccessibleDescription(
-      'Impact +18%. Stun Specialty passive inactive. Inactive · Energy +0.6/s. Inactive · Impact +20%',
+      'Impact +18%. Energy +0.6/s. Impact +20%',
     )
     await user.click(screen.getByRole('button', {
       name: 'Change W-Engine from Hellfire Gears',
     }))
     expect(within(screen.getByLabelText('W-Engine candidates')).getByRole('button', {
-      name: 'Select Demara Battery Mark II W5',
+      name: 'Select Spring Embrace W5',
     })).toHaveAccessibleDescription(
-      'Impact +15%. Stun Specialty passive inactive. Inactive · Electric DMG +24%. Inactive · After Dodge Counter or Assist Attack · Energy Generation Rate +27.5%',
+      'ATK +25%. DMG taken -12%. Energy Generation Rate +16% · Transfers to next on-field Agent',
     )
+    expect(screen.queryByText(/Specialty passive inactive|Inactive ·/)).not.toBeInTheDocument()
   })
 
   it('preserves Deep Sea Visitor’s complete selected and candidate descriptions', async () => {
@@ -288,7 +292,7 @@ describe('AgentSetup partial W-Engine package', () => {
       onSourceToneChange: vi.fn(),
       slot: 0 as const,
     }
-    const deepSeaDescription = 'Ice DMG +25%. After Basic Attack hit · CRIT Rate +10%. After Ice Dash Attack hit · CRIT Rate +10%'
+    const deepSeaDescription = 'Ice DMG +25%. CRIT Rate +20%'
     const { rerender } = render(<AgentSetup {...props} setup={state.slots[0].setup} />)
     expect(screen.getByRole('button', { name: 'Change W-Engine from Deep Sea Visitor' }))
       .toHaveAccessibleDescription(`CRIT Rate +24%. ${deepSeaDescription}`)
@@ -376,7 +380,7 @@ describe('AgentSetup Orphie and Pulchra equipment packages', () => {
       onSourceToneChange: vi.fn(),
       slot: 2 as const,
     }
-    const boxDescription = 'Impact +15%. After Aftershock · Physical DMG +24%. After Aftershock · Daze +16%'
+    const boxDescription = 'Impact +15%. Physical DMG +24%. Daze +16%'
     const { rerender } = render(<AgentSetup {...props} setup={setup} />)
 
     await user.click(screen.getByRole('button', {
@@ -407,7 +411,7 @@ describe('AgentSetup Orphie and Pulchra equipment packages', () => {
 })
 
 describe('AgentSetup Ben and Koleda equipment packages', () => {
-  it('keeps Ben selected, inactive, and event-only W-Engine packages complete', async () => {
+  it('keeps Ben selected, partial, and event-only W-Engine packages complete', async () => {
     const user = userEvent.setup()
     const state = createPreparedState({}, ['ben', 'koleda', 'panYinhu'], 0)
     const setup = state.slots[0].setup
@@ -435,17 +439,17 @@ describe('AgentSetup Ben and Koleda equipment packages', () => {
     expect(within(candidates).getByRole('button', {
       name: 'Select Hailstorm Shrine W1',
     })).toHaveAccessibleDescription(
-      'CRIT Rate +24%. Anomaly Specialty passive inactive. Inactive · CRIT DMG +50%. Inactive · Ice DMG +40%',
+      'CRIT Rate +24%. CRIT DMG +50%. Ice DMG +40%',
     )
     expect(within(candidates).getByRole('button', {
       name: 'Select Big Cylinder W5',
     })).toHaveAccessibleDescription(
-      'DEF +40%. DMG taken -12%. After attacked · Next hit guaranteed CRIT with added 960% DEF DMG',
+      'DEF +40%. DMG taken -12%. Next hit guaranteed CRIT with added 960% DEF DMG',
     )
     expect(within(candidates).getByRole('button', {
       name: 'Select Spring Embrace W5',
     })).toHaveAccessibleDescription(
-      'ATK +25%. DMG taken -12%. After attacked · Energy Generation Rate +16% · Transfers to next on-field Agent',
+      'ATK +25%. DMG taken -12%. Energy Generation Rate +16% · Transfers to next on-field Agent',
     )
 
     rerender(<AgentSetup {...props} setup={{
@@ -454,7 +458,7 @@ describe('AgentSetup Ben and Koleda equipment packages', () => {
     expect(screen.getByRole('button', {
       name: 'Change W-Engine from Big Cylinder',
     })).toHaveAccessibleDescription(
-      'DEF +40%. DMG taken -12%. After attacked · Next hit guaranteed CRIT with added 960% DEF DMG',
+      'DEF +40%. DMG taken -12%. Next hit guaranteed CRIT with added 960% DEF DMG',
     )
   })
 

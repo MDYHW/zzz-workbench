@@ -17,8 +17,11 @@ behavior.
 Ben's bounded linked Result relationship is Initial DEF to Combat ATK. His Core
 shield remains only as the internal source-local condition for an independently
 retained Additional Ability effect; Shield Effect and the shield amount are not
-Result or positive setup axes. Exact survival clauses can remain in compressed
-equipment copy when an independently admitted complete package needs them.
+Result or positive setup axes. Incoming-damage and transfer events remain
+retained authoring/activation facts for eligibility and applicability, while
+compressed equipment copy intentionally omits routine trigger and duration
+prose and keeps only materially affected outcomes when an independently
+admitted complete package needs them.
 Koleda adds no new common mechanism.
 
 ## Product Flows
@@ -68,10 +71,13 @@ Koleda adds no new common mechanism.
   off-Specialty W-Engine keeps Base ATK and its advanced stat while its passive
   remains inactive.
 - UI rules own compressed equipment copy, source origins, the expanded numeric
-  Result, and accessible selected/candidate descriptions. Ben's Setup copy says
-  what Shield Effect or per-event survival package an item supplies when the
-  complete package is independently admitted; it does not project that copy to
-  Result or turn it into candidate rationale.
+  Result, and accessible selected/candidate descriptions. Ben's retained
+  authoring facts include Shield Effect and per-event survival packages for
+  eligibility and applicability; compressed Setup keeps materially affected
+  outcomes, such as Spring's transfer and Big Cylinder's next-hit outcome,
+  while intentionally omitting routine incoming-damage trigger and duration
+  prose. It does not project that copy to Result or turn it into candidate
+  rationale.
 
 ## Requirements
 
@@ -111,38 +117,44 @@ Koleda adds no new common mechanism.
 
 ### Ben equipment and prepared setup
 
-- R6. Ben's currently implemented full W-Engine pool contains Tremor Trigram
-  Vessel, Tusks of Fury,
-  Cloudcleave Radiance, Hailstorm Shrine, Big Cylinder, and Spring Embrace.
-  The implemented non-limited pool contains Tremor, Big Cylinder, and Spring
-  Embrace, and both currently prepare Tremor W5. This U5 correction does not
-  reapprove any membership or representative. U6 must re-inspect each holder-
-  and pool-local complete package without crediting survival value before any
-  listed engine is kept or removed as a product conclusion.
+- R6. Ben's full W-Engine pool contains Tremor Trigram Vessel, Tusks of Fury,
+  Cloudcleave Radiance, Hailstorm Shrine, Big Cylinder, and Spring Embrace. His
+  non-limited S-Rank pool contains Tremor, Big Cylinder, and Spring Embrace.
+  Both prepare Tremor W5. Under SW-010, City Fund Spring remains eligible there
+  as an A-Rank and independently competitive through its transferable resource
+  direction.
 - R7. Tremor is a matching-Defense complete damage package: Base ATK 624,
   advanced ATK +25%, EX/Ultimate DMG +40%, and its exact 3.2-Energy event
-  clause retained in Setup only. Tusks' complete copy includes advanced Impact
+  clause retained in Setup-only package copy and outside Result. Tusks' complete copy includes advanced Impact
   +18%, Shield Effect +30%, squad DMG +18%, and squad Daze +12% at W1. Shield
-  Effect remains Setup-only survival copy and adds no positive axis; U6 compares
-  the remaining non-survival package. Cloudcleave and Hailstorm are off-
-  Specialty partial packages whose passives are inactive; each retains Base ATK
-  743 and respectively CRIT DMG
-  +48% or CRIT Rate +24%. Hailstorm's inactive Anomaly passive is CRIT DMG
+  Effect remains Setup-only survival copy and adds no positive axis.
+  Cloudcleave and Hailstorm are off-Specialty partial packages; each retains
+  Base ATK 743 and respectively CRIT DMG +48% or CRIT Rate +24%. Hailstorm's
+  inactive Anomaly passive is CRIT DMG
   +50% plus two 20% Ice-DMG stacks triggered by EX Special or any squad
-  Attribute Anomaly; none of it applies to Ben. U6 must compare these currently
-  implemented partial packages with Severed Innocence, Heartstring Nocturne,
-  and every other legal same-axis alternative rather than preserving a prior
-  dominance conclusion.
+  Attribute Anomaly; none of it applies to Ben's Result. Setup nevertheless
+  shows each source-owned complete package without compatibility labels.
+  Cloudcleave's CRIT DMG +48% and Hailstorm's CRIT Rate +24% are equivalent
+  CRIT investment directions that can exchange Slot 4 and future-substat
+  balance, so both remain material full-pool alternatives. Severed Innocence
+  and Heartstring Nocturne repeat one of those same CRIT supplies at lower Base
+  ATK without a usable Ben passive and remain excluded.
 - R8. Big Cylinder is a matching-Defense local DEF package: Base ATK 624,
   advanced DEF +40%, DMG taken -12%, and at W5 the next hit after Ben is
   attacked is a guaranteed CRIT with an added 960% of DEF, once per 7.5
-  seconds. The incoming-damage trigger keeps both passive clauses in Setup and
-  outside Result. Spring Embrace supplies Base ATK 594, advanced ATK +25%, DMG
-  taken -12%, and after Ben is attacked grants Energy Generation Rate +16% for
-  12 seconds; switching him off-field transfers the buff to the new on-field
-  Agent and refreshes its duration. The event remains exact Setup package copy,
-  not Energy Regen or a Result operation. Their survival copy does not establish
-  membership; U6 owns the pending complete-package decision.
+  seconds. The incoming-damage activation remains a retained authoring fact;
+  compressed Setup keeps the Big Cylinder next-hit outcome and omits routine
+  trigger and duration prose, outside Result. Spring Embrace supplies Base ATK
+  594, advanced ATK +25%, DMG taken -12%, and after Ben is attacked grants
+  Energy Generation Rate +16% for 12 seconds; switching him off-field
+  transfers the buff to the new on-field Agent and refreshes its duration.
+  Its activation and transfer remain retained authoring/applicability facts;
+  compressed Setup keeps the Spring transfer outcome and omits routine trigger
+  and duration prose, not Energy Regen or a Result operation. Their survival
+  copy does not establish membership. Big Cylinder remains competitive through Ben's DEF-to-ATK
+  relationship and the distinct next-hit DEF operation; Spring remains through
+  ATK and its transferable resource package. Neither conclusion credits the
+  damage-reduction clauses.
 - R9. Ben's currently implemented 4-piece roster is Woodpecker Electro, Astral Voice,
   Bunny in Wonderland, Proto Punk, and Swing Jazz. The current implementation
   adds Puffer Electro only in the established Dialyn Ultimate-opportunity
@@ -160,11 +172,11 @@ Koleda adds no new common mechanism.
   DEF axis. Flat DEF is currently excluded. U8 must compare every listed
   direction and Flat DEF's finite per-line opportunity before reapproving the
   main/substat roster or that exclusion.
-- R11. The current implementation prepares Tremor, Woodpecker/Branch & Blade,
-  CRIT Rate/Fire DMG/ATK%, and zero supplied substat hits in both pools. This U5
-  correction does not reapprove that representative. U6/U7 will decide the
-  pool-local engine and Disc choices from non-survival whole packages, then U8
-  will settle the finite future DEF-to-ATK opportunity and prepared first choice.
+- R11. Both pools prepare Tremor from its fully usable personal-damage package.
+  The current Disc, main, and zero-substat preparation remains
+  Woodpecker/Branch & Blade, CRIT Rate/Fire DMG/ATK%, and zero supplied hits.
+  U7 must settle the Disc package and U8 the finite future DEF-to-ATK
+  opportunity before those downstream first choices are reapproved.
 
 ### Koleda kit, equipment, and prepared setup
 
@@ -181,12 +193,20 @@ Koleda adds no new common mechanism.
   Charge, up to +36%. M6 retains one added 360% ATK operation for each EX,
   Chain, or Ultimate explosion. M3 and M5 change no separately retained value.
 - R14. Koleda's full W-Engine candidates are Hellfire Gears, Blazing Laurel,
-  Ice-Jade Teapot, The Restrained, Steam Oven, and Precious Fossilized Core.
-  Non-limited excludes Blazing and Ice-Jade. Both pools prepare Hellfire W1.
-  Hellfire's off-field Energy +0.6/s and fully enabled Impact +20% strengthen
-  her EX/Daze direction; the other packages retain their current complete
-  Impact, Daze, Basic-action, resource, and party-facing clauses exactly as for
-  established Stun consumers.
+  The Restrained, Steam Oven, and Precious Fossilized Core. Her non-limited
+  S-Rank pool excludes only Blazing from that admitted set. Both pools prepare
+  Hellfire W1: its off-field Energy +0.6/s and
+  fully enabled Impact +20% directly reinforce Koleda's EX-driven Core Daze.
+  Blazing exchanges that resource package for higher Assist-enabled Impact and
+  Fire/Ice squad CRIT DMG. The Restrained is a separate enhanced-Basic DMG/Daze
+  direction. Steam remains the accessible A-Rank resource/Impact package, and
+  Precious remains the target-high-HP Daze package; their timing and ownership
+  paths do not duplicate Hellfire's EX package. Ice-Jade is excluded because
+  Koleda's short Basic-to-EX sequence does not sustain its 15/30 Basic-hit
+  thresholds without role-distorting field time. Box Cutter has no Koleda
+  Aftershock consumer, while Demara and Simmering Pot do not beat the retained
+  resource or action packages with their narrower usable clauses. These are
+  Koleda-local conclusions, not inherited Stun membership.
 - R15. Koleda's currently implemented 4-piece roster contains King of the
   Summit, Astral Voice, Proto Punk, Shockstar Disco, and Swing Jazz; her
   implemented 2-piece roster contains Shockstar, King, and Swing. King and
@@ -237,7 +257,7 @@ Koleda adds no new common mechanism.
 ## Acceptance Evidence
 
 - AE1. After U6/U7 reinspection, candidate tests prove Ben's independently
-  authored full/non-limited pools, complete inactive off-Specialty packages,
+  authored full/non-limited pools, complete source-owned off-Specialty packages,
   Proto's holder-local non-survival package conclusion, Dialyn Puffer
   absent/present/reselected lifecycle, and Koleda's base plus selected-King
   candidate lifecycle. One composed Ben flow covers broad pre-PEN pressure
@@ -276,10 +296,11 @@ Koleda adds no new common mechanism.
 - Do not make DEF the prepared first choice from a removed shield axis. U8 must
   compare its remaining finite DEF-to-ATK opportunity with the other current
   investment directions before reapproving a representative.
-- Do not admit or retain every off-Specialty CRIT W-Engine from a positive stat
-  or a prior same-axis dominance claim. U6 must compare Cloudcleave, Hailstorm,
-  Severed Innocence, Heartstring Nocturne, and other legal alternatives as
-  pool-local whole packages before settling Ben's partial candidates.
+- Do not admit every off-Specialty CRIT W-Engine from a positive stat.
+  Cloudcleave and Hailstorm survive the holder-local comparison because their
+  equal-rarity CRIT Rate/CRIT DMG exchange changes the complete finite setup;
+  Severed Innocence and Heartstring do not survive by repeating those axes at
+  lower Base ATK without a usable Ben passive.
 - Do not project Tremor's event Energy, Spring's Energy Generation Rate, Big
   Cylinder's incoming-damage proc, Koleda M2 Energy, damage reduction, ordinary
   skill coefficients, raw/final damage or Daze, coordinated Ben/Koleda

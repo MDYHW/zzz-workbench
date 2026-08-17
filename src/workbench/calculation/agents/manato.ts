@@ -112,9 +112,7 @@ export function resolveManatoProviderClauses(
     additive('critRate', 'fully', engine,
       setup.engineId === 'grillOWisp'
         ? equipmentEffectBaseValue(W_ENGINE_FACTS.grillOWisp.effects.critRate, refinement)
-        : setup.engineId === 'cauldron'
-          ? equipmentEffectBaseValue(W_ENGINE_FACTS.cauldron.effects.critRate, refinement)
-          : 0, 'self'),
+        : 0, 'self'),
     additive('critDmg', 'fully', engine,
       setup.engineId === 'puzzleSphere'
         ? equipmentEffectBaseValue(W_ENGINE_FACTS.puzzleSphere.effects.critDamage, refinement)
@@ -126,10 +124,6 @@ export function resolveManatoProviderClauses(
           : 0, 'self'),
       { attributes: ['Fire'], formulas: ['sheer_damage'] },
     ),
-    additive('dmgBonus', 'fully', engine,
-      setup.engineId === 'cauldron'
-        ? equipmentEffectBaseValue(W_ENGINE_FACTS.cauldron.effects.damage, refinement)
-        : 0, 'self'),
     additive('dmgBonus', 'fully', engine,
       setup.engineId === 'puzzleSphere'
         ? equipmentEffectBaseValue(W_ENGINE_FACTS.puzzleSphere.effects.damage, refinement)

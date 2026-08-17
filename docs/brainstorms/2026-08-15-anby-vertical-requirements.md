@@ -58,9 +58,11 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   Generation Rate. Anby: Soldier 0 remains a separate S-Rank Attack identity;
   neither internal identifiers nor visible labels may conflate the two.
 - UI rules own compressed selected/candidate equipment copy, Result source
-  disclosure, and portrait calibration. Demara copy retains its activation
-  event because it changes the package meaning; it does not copy duration or
-  rotation advice into Setup.
+  disclosure, and portrait calibration. Demara's activation event remains a
+  retained authoring/activation fact for eligibility and applicability, while
+  compressed Setup keeps the materially affected Energy Generation Rate
+  outcome and intentionally omits routine trigger, duration, and rotation
+  prose.
 
 ## Requirements
 
@@ -96,22 +98,27 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
 
 ### W-Engine authoring
 
-- R6. Anby's full W-Engine candidates are Hellfire Gears, Ice-Jade Teapot,
-  Blazing Laurel, The Restrained, Steam Oven, Precious Fossilized Core, and
-  Demara Battery Mark II. Non-limited candidates are Hellfire, The Restrained,
-  Steam, Precious, and Demara. Both pools prepare Hellfire W1.
+- R6. Anby's full W-Engine candidates are Hellfire Gears, Blazing Laurel, The
+  Restrained, Steam Oven, Precious Fossilized Core, and Demara Battery Mark II.
+  Non-limited candidates are Hellfire, The Restrained, Steam, Precious, and
+  Demara. Both pools prepare Hellfire W1.
 - R7. Hellfire is the prepared first choice through Base ATK 684, advanced
   Impact +18%, off-field Energy +0.6/s, and Fully Enabled Impact +20%, a broad
-  Daze/resource package that serves both Core actions. Ice-Jade and Blazing
-  retain distinct high-Impact squad packages; Restrained retains Basic-only
-  DMG/Daze aligned with Thunderbolt; Steam and Precious retain distinct
-  Energy/Impact and target-HP Daze packages.
+  Daze/resource package that serves both Core actions. Blazing retains a
+  distinct high-Impact squad package; Restrained retains Basic-only DMG/Daze
+  aligned with Thunderbolt; Steam and Precious retain distinct Energy/Impact
+  and target-HP Daze packages. Ice-Jade is excluded because Anby's ordinary
+  Basic-to-Thunderbolt sequence does not sustain its 15/30 Basic-hit thresholds
+  without displacing the current EX and swap cadence.
 - R8. Add Demara Battery Mark II as A-Rank, non-limited, Base ATK 624,
   advanced Impact +15%, and W1-W5 Electric DMG +15% / 17.5% / 20% / 22% / 24%.
-  After Dodge Counter or Assist Attack hits, it grants Energy Generation Rate
-  +18% / 20.5% / 23% / 25% / 27.5%. Setup exposes the complete conditional
-  package; Result projects only the unconditional Electric DMG. The Energy
-  Generation Rate event is neither Energy Regen nor an M4 resource operation.
+  Its Dodge Counter or Assist Attack activation and the resulting Energy
+  Generation Rate +18% / 20.5% / 23% / 25% / 27.5% remain retained
+  authoring/activation facts for eligibility and applicability. Compressed
+  Setup keeps the affected Energy Generation Rate outcome but intentionally
+  omits routine trigger and duration prose; Result projects only the
+  unconditional Electric DMG. The Energy Generation Rate event is neither
+  Energy Regen nor an M4 resource operation.
 - R9. Demara remains a partial but competitive accessibility path because its
   Impact chassis, Electric damage, and event Energy Generation package are all
   usable by Anby, including the M4 relationship, but its lower Base ATK and
@@ -205,10 +212,12 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   King threshold opportunity does not otherwise distinguish them. This is an
   authored representative only; it does not claim Lycaon is universally the
   better holder.
-- Demara's activation event remains compressed Setup copy rather than a new
-  generic trigger enum. Current structured facts already retain the consumed
-  modifier, magnitude, and affected Electric scope; no calculation or
-  applicability consumer needs a reusable Dodge-Counter-or-Assist trigger.
+- Demara's activation event remains a retained authoring fact rather than a
+  new generic trigger enum. Compressed Setup retains the affected outcome,
+  not routine trigger or duration prose. Current structured facts already
+  retain the consumed modifier, magnitude, and affected Electric scope; no
+  calculation or applicability consumer needs a reusable
+  Dodge-Counter-or-Assist trigger.
 
 ## Rejected Alternatives And Boundaries
 

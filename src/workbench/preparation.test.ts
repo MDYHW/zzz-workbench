@@ -665,7 +665,7 @@ describe('party-directed preparation', () => {
 
     expect(ENGINE_IDS_BY_AGENT_AND_POOL.anby).toEqual({
       full: [
-        'hellfireGears', 'iceJadeTeapot', 'blazingLaurel', 'restrained',
+        'hellfireGears', 'blazingLaurel', 'restrained',
         'steamOven', 'preciousFossilizedCore', 'demaraBatteryMarkII',
       ],
       nonLimited: [

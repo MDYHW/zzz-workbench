@@ -115,23 +115,27 @@ Aftershock catalogue.
 ### Pulchra equipment authoring
 
 - R9. Pulchra's full W-Engine candidates are Blazing Laurel, Box Cutter,
-  Hellfire Gears, Steam Oven, and Precious Fossilized Core. Non-limited
-  candidates are Box Cutter, Hellfire Gears, Steam Oven, and Precious Fossilized Core. Full
-  prepares Blazing Laurel W1; non-limited prepares Box Cutter W5.
+  Hellfire Gears, Steam Oven, and Precious Fossilized Core. Her non-limited
+  S-Rank pool retains Box Cutter, Hellfire Gears, Steam Oven, and Precious
+  Fossilized Core. Full prepares Blazing Laurel W1; non-limited prepares Box
+  Cutter W5.
 - R10. Blazing establishes the full first choice through high Base ATK,
   advanced and Fully Enabled Impact, and an activatable Fire/Ice squad CRIT-DMG
   package. The latter is a usable party clause even though it does not buff
   Physical Pulchra. Box Cutter is a partial but competitive package: its Base
   ATK and advanced Impact serve all Daze, while its Aftershock trigger supplies
   Physical DMG and Daze only after the holder's Aftershock. At W5 that exact
-  package establishes the non-limited first choice. Hellfire, Steam, and
-  Precious remain materially distinct Impact, Energy, and conditional Daze
-  alternatives. The Restrained is excluded because its passive Daze is limited
-  to Basic Attack while Pulchra's retained Core direction centers EX, Assist
-  Follow-Up, Chain, and Ultimate. Ice-Jade Teapot is excluded because its Basic
-  stack activation does not match Pulchra's current direction closely enough
-  to beat the retained aligned packages. Support W-Engines are ineligible and
-  never enter numerical comparison.
+  package establishes the non-limited first choice. Hellfire and Steam overlap
+  on Impact plus resource supply, but the standard S-Rank exchanges Steam's
+  accessible banked-Energy package for stronger EX-linked Impact and off-field
+  Energy; neither makes the other ownership path immaterial. Precious instead
+  supplies front-loaded target-HP Daze, so it does not repeat either sustained
+  package. The Restrained is excluded because its passive Daze is limited to
+  Basic Attack while Pulchra's retained Core direction centers EX, Assist
+  Follow-Up, Chain, Ultimate, and off-field Aftershock. Ice-Jade Teapot is
+  excluded because its Basic-stack activation does not match that direction
+  closely enough to beat the retained aligned packages. Support W-Engines are
+  ineligible and never enter numerical comparison.
 - R11. Add exact Box Cutter facts: A-Rank Stun, non-limited, Base ATK 624,
   advanced Impact 15%, and, after the holder's Aftershock, W1-W5 Physical DMG
   +15% / 17.3% / 19.5% / 21.8% / 24% and Daze +10% / 11.5% / 13% / 14.5% /

@@ -1325,6 +1325,23 @@ describe('workbench state lifecycle', () => {
     })
     expect(state.slots[1].setup.fourPieceId).toBe('astralVoice')
 
+    const corinBeforeEngine = state.slots[0]
+    const astraBeforeEngine = state.slots[2]
+    const downstreamBeforeEngine = {
+      fourPieceId: state.slots[1].setup.fourPieceId,
+      twoPieceId: state.slots[1].setup.twoPieceId,
+      mains: state.slots[1].setup.mains,
+      substats: state.slots[1].setup.substats,
+    }
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 1, engineId: 'springEmbrace',
+    })
+    expect(state.slots[0]).toBe(corinBeforeEngine)
+    expect(state.slots[2]).toBe(astraBeforeEngine)
+    expect(state.slots[1].setup).toMatchObject({
+      engineId: 'springEmbrace', refinement: 5, ...downstreamBeforeEngine,
+    })
+
     const corinBeforePool = state.slots[0]
     const astraBeforePool = state.slots[2]
     state = workbenchReducer(state, { type: 'switchPool', slot: 1, pool: 'nonLimited' })

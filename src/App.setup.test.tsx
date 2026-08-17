@@ -29,6 +29,29 @@ describe('integrated party workbench: setup', () => {
     })).toHaveAccessibleDescription(
       'After Defensive or Evasive Assist · Squad DMG +15%. Shield provided +15%',
     )
+    await user.click(screen.getByRole('button', {
+      name: 'Change W-Engine from Tusks of Fury',
+    }))
+    const caesarCandidates = screen.getByLabelText('W-Engine candidates')
+    const spring = within(caesarCandidates).getByRole('button', {
+      name: 'Select Spring Embrace W5',
+    })
+    expect(spring).toHaveAccessibleDescription(
+      'ATK +25%. DMG taken -12%. Energy Generation Rate +16% · Transfers to next on-field Agent',
+    )
+    expect(within(caesarCandidates).queryByRole('button', { name: /Demara Battery/ }))
+      .not.toBeInTheDocument()
+    expect(within(caesarCandidates).queryByRole('button', { name: /Original Transmorpher/ }))
+      .not.toBeInTheDocument()
+    await user.click(spring)
+    expect(screen.getByRole('button', {
+      name: 'Change W-Engine from Spring Embrace',
+    })).toHaveAccessibleDescription(
+      'ATK +25%. DMG taken -12%. Energy Generation Rate +16% · Transfers to next on-field Agent',
+    )
+    expect(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Proto Punk',
+    })).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
     await replace(1, /Ben Bigger, Fire, Defense/)

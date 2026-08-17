@@ -167,16 +167,20 @@ because future substats are finite and other modifiers can become saturated.
 ### Manato W-Engine authoring
 
 - R12. Manato's full W-Engine candidates are Grill O'Wisp, Wrathful Vajra,
-  Qingming Birdcage, Cauldron of Clarity, Radiowave Journey, and Puzzle Sphere.
-  His non-limited candidates are Grill O'Wisp, Cauldron of Clarity, Radiowave
-  Journey, and Puzzle Sphere.
+  Qingming Birdcage, Radiowave Journey, and Puzzle Sphere. His non-limited
+  S-Rank pool candidates are Grill O'Wisp, Radiowave Journey, and Puzzle
+  Sphere. All three retained A-Ranks remain available under SW-010's current
+  non-limited S-Rank boundary.
 - R13. Grill O'Wisp is fully usable by Manato: at W5 it supplies Base ATK 624,
   HP +25%, Fire DMG +24%, and reachable CRIT Rate +24% after HP decreases.
   Wrathful Vajra W1 supplies Base ATK 713, HP +30%, CRIT Rate +20%, and Fire
   Sheer DMG +9% per EX Special stack, up to two stacks. Qingming supplies a
   larger Base ATK plus HP and CRIT while its Ether clauses remain unused.
-  Cauldron, Radiowave, and Puzzle retain their distinct established generic
-  DMG/CRIT, direct Sheer Force, and EX-specialized packages.
+  Radiowave and Puzzle retain their distinct direct-Sheer-Force and
+  EX-specialized CRIT packages. Cauldron is excluded for Manato: at W5 its Base
+  ATK 594, HP +25%, general DMG +24%, and CRIT Rate +13% occupy Grill's same
+  usable Fire-DMG/HP/CRIT direction while losing Base ATK and 11% CRIT Rate.
+  It creates no separate formula, action, recipient, or operation choice.
 - R14. Kraken's Cradle and Starlight Rider Faceplate are excluded from Manato's
   candidates. Qingming is the nearest same-axis usable competitor: it has the
   same unconditional HP and CRIT package, greater Base ATK, and does not make
