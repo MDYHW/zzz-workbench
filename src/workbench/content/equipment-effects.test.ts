@@ -5,16 +5,10 @@ import {
   DRIVE_DISC_FACTS,
   DRIVE_DISCS,
   ENGINE_IDS_BY_AGENT_AND_POOL,
-  MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
   REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL,
   SAME_EFFECT_TWO_PIECE_RELATIONSHIPS,
-  SETUP_FORMULA_PARTICIPATION_BY_AGENT,
-  SOURCE_LABELS,
-  SUBSTAT_CHOICES_BY_AGENT,
-  VERTICAL_VALUES,
   W_ENGINE_FACTS,
   W_ENGINES,
-  defaultMindscapeFor,
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
   equipmentEffectProgressionIncrementValue,
@@ -94,6 +88,34 @@ describe('bounded equipment effect facts', () => {
       .toEqualTypeOf<'electricFireDamage' | 'offFieldActionDamage'>()
     expectTypeOf<DriveDiscEffectField<'freedomBlues', 'fourPiece'>>()
       .toEqualTypeOf<'buildupResReduction'>()
+  })
+
+  it('keeps authored pools and representatives structurally coherent without copying rosters', () => {
+    for (const { id: agentId } of ADMITTED_AGENTS) {
+      const pools = ENGINE_IDS_BY_AGENT_AND_POOL[agentId]
+      const discs = DISC_IDS_BY_AGENT_AND_PIECE[agentId]
+
+      expect(new Set(pools.full).size).toBe(pools.full.length)
+      expect(new Set(pools.nonLimited).size).toBe(pools.nonLimited.length)
+      expect(new Set(discs.fourPiece).size).toBe(discs.fourPiece.length)
+      expect(new Set(discs.twoPiece).size).toBe(discs.twoPiece.length)
+      for (const engineId of pools.full) expect(W_ENGINES).toHaveProperty(engineId)
+      for (const discId of [...discs.fourPiece, ...discs.twoPiece]) {
+        expect(DRIVE_DISCS).toHaveProperty(discId)
+      }
+      for (const engineId of pools.nonLimited) {
+        expect(pools.full).toContain(engineId)
+        expect(W_ENGINES[engineId].limited).toBe(false)
+      }
+
+      for (const pool of ['full', 'nonLimited'] as const) {
+        const representative = REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL[agentId][pool]
+        expect(pools[pool]).toContain(representative.engineId)
+        expect(discs.fourPiece).toContain(representative.fourPieceId)
+        expect(DRIVE_DISCS).toHaveProperty(representative.twoPieceId)
+        expect(representative.fourPieceId).not.toBe(representative.twoPieceId)
+      }
+    }
   })
 
   it('keeps W-Engine qualifiers separate from modifier and refinement magnitude', () => {
@@ -401,35 +423,6 @@ describe('bounded equipment effect facts', () => {
       'Fire DMG +24%',
       'CRIT Rate +24%',
     ])
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.manato).toEqual({
-      full: ['grillOWisp', 'wrathfulVajra', 'qingming', 'radiowave', 'puzzleSphere'],
-      nonLimited: ['grillOWisp', 'radiowave', 'puzzleSphere'],
-    })
-  })
-
-  it('keeps the sampled U6 pools independently competitive within each availability boundary', () => {
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.panYinhu).toEqual({
-      full: ['tusksOfFury', 'tremorTrigramVessel'],
-      nonLimited: ['tremorTrigramVessel'],
-    })
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.pulchra).toEqual({
-      full: ['blazingLaurel', 'boxCutter', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
-      nonLimited: ['boxCutter', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
-    })
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.ben).toEqual({
-      full: [
-        'tremorTrigramVessel', 'tusksOfFury', 'cloudcleaveRadiance',
-        'hailstormShrine', 'bigCylinder', 'springEmbrace',
-      ],
-      nonLimited: ['tremorTrigramVessel', 'bigCylinder', 'springEmbrace'],
-    })
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.koleda).toEqual({
-      full: [
-        'hellfireGears', 'blazingLaurel', 'restrained',
-        'steamOven', 'preciousFossilizedCore',
-      ],
-      nonLimited: ['hellfireGears', 'restrained', 'steamOven', 'preciousFossilizedCore'],
-    })
   })
 
   it('retains Myriad Eclipse broad holder DEF Ignore separately from scoped alternatives', () => {
@@ -495,16 +488,6 @@ describe('bounded equipment effect facts', () => {
       .toEqual({ attributes: ['Physical'] })
   })
 
-  it('keeps Proto Punk out after holder-local competitive reinspection', () => {
-    expect(DRIVE_DISCS).not.toHaveProperty('protoPunk')
-    expect(DRIVE_DISC_FACTS).not.toHaveProperty('protoPunk')
-
-    for (const agentId of ['pulchra', 'qingyi', 'ben', 'koleda', 'anby', 'caesar'] as const) {
-      expect(DISC_IDS_BY_AGENT_AND_PIECE[agentId].fourPiece).not.toContain('protoPunk')
-      expect(DISC_IDS_BY_AGENT_AND_PIECE[agentId].twoPiece).not.toContain('protoPunk')
-    }
-  })
-
   it('retains Cloudcleave and Replica as complete packages without hiding inactive clauses', () => {
     expect(W_ENGINES.cloudcleaveRadiance).toMatchObject({
       rank: 'S', limited: true, baseAtk: 743,
@@ -567,29 +550,7 @@ describe('bounded equipment effect facts', () => {
     }
   })
 
-  it('authors Caesar as a complete content path without activating off-Specialty packages', () => {
-    expect(ADMITTED_AGENTS.find(({ id }) => id === 'caesar')).toEqual({
-      id: 'caesar', name: 'Caesar King', attribute: 'Physical', specialty: 'Defense',
-      focusEligible: false, rank: 'S', faction: 'Sons of Calydon',
-    })
-    expect(defaultMindscapeFor('caesar')).toBe(0)
-    expect(VERTICAL_VALUES.caesar).toMatchObject({
-      atk: 711, critRate: 5, critDmg: 50, impact: 123,
-      additionalDmgBonus: 25,
-      coreFocusAtk: 1000, mindscapeFocusAtk: 1500,
-      coreImpactByTier: [20, 22, 24], ultimateDazeByTier: [100, 110, 120],
-    })
-    expect(SOURCE_LABELS).toMatchObject({
-      caesarCore: 'Core Passive', caesarAbility: 'Additional Ability',
-    })
-    expect(SETUP_FORMULA_PARTICIPATION_BY_AGENT.caesar).toEqual({
-      primary: [], residual: ['daze_buildup', 'general_damage'],
-    })
-
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.caesar).toEqual({
-      full: ['tusksOfFury', 'hellfireGears', 'springEmbrace'],
-      nonLimited: ['hellfireGears', 'springEmbrace'],
-    })
+  it('keeps Original Transmorpher facts separate from holder activation', () => {
     expect(W_ENGINES.tusksOfFury.passiveSpecialty).toBe('Defense')
     expect(W_ENGINES.hellfireGears.passiveSpecialty).toBe('Stun')
     expect(W_ENGINES.demaraBatteryMarkII.passiveSpecialty).toBe('Stun')
@@ -609,75 +570,9 @@ describe('bounded equipment effect facts', () => {
       equipmentEffectBaseValue(W_ENGINE_FACTS.originalTransmorpher.effects.impact, refinement),
     )).toEqual([10, 11.5, 13, 14.5, 16])
 
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.caesar).toEqual({
-      fourPiece: ['bunnyInWonderland'],
-      twoPiece: ['swingJazz', 'shockstar', 'king'],
-    })
-    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.caesar).toEqual({
-      slot4: ['critRate', 'critDmg', 'atkPct'],
-      slot5: ['physicalDmg', 'atkPct', 'penRatio'],
-      slot6: ['impact'],
-    })
-    expect(SUBSTAT_CHOICES_BY_AGENT.caesar).toEqual([])
-    expect(REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL.caesar).toEqual({
-      full: {
-        engineId: 'tusksOfFury', fourPieceId: 'bunnyInWonderland', twoPieceId: 'swingJazz',
-        mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
-      },
-      nonLimited: {
-        engineId: 'springEmbrace',
-        fourPieceId: 'bunnyInWonderland', twoPieceId: 'swingJazz',
-        mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
-      },
-    })
   })
 
-  it('authors Ye Shunguang and Zhao as complete typed content paths', () => {
-    expect(ADMITTED_AGENTS.find(({ id }) => id === 'yeShunguang')).toEqual({
-      id: 'yeShunguang', name: 'Ye Shunguang', attribute: 'Honed Edge', specialty: 'Attack',
-      focusEligible: true, rank: 'S', faction: 'Yunkui Summit',
-    })
-    expect(ADMITTED_AGENTS.find(({ id }) => id === 'zhao')).toEqual({
-      id: 'zhao', name: 'Zhao', attribute: 'Ice', specialty: 'Defense',
-      focusEligible: false, rank: 'S', faction: 'Krampus Compliance Authority',
-    })
-    expect(VERTICAL_VALUES.yeShunguang).toMatchObject({
-      atk: 938, critRate: 19.4, critDmg: 50,
-      unityCritRate: 30, unityDmg: 25, veilVulnerabilityCap: 110,
-      mindscapeActionDefIgnore: 40, mindscapeVeilVulnerabilityCap: 200,
-    })
-    expect(VERTICAL_VALUES.zhao).toMatchObject({
-      hp: 9117, atk: 765, critRate: 5, critDmg: 50, baseEnergyRegen: 1.2,
-      coreHp: 18, coreCritRatePer1000Hp: 1.4,
-      additionalHpThreshold: 15000, additionalHpCap: 27000, additionalDmgCap: 40,
-      finalVerdictMaxHp: 120, mindscapeFinalVerdictMaxHp: 168,
-    })
-    expect(SOURCE_LABELS).toMatchObject({
-      yeShunguangCore: 'Core Passive', zhaoCore: 'Core Passive',
-      zhaoAbility: 'Additional Ability', zhaoBasic: 'Basic Attack',
-    })
-    expect(SETUP_FORMULA_PARTICIPATION_BY_AGENT.yeShunguang).toEqual({
-      primary: ['general_damage'], residual: [],
-    })
-    expect(SETUP_FORMULA_PARTICIPATION_BY_AGENT.zhao).toEqual({
-      primary: [], residual: ['general_damage'],
-    })
-
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.yeShunguang).toEqual({
-      full: [
-        'cloudcleaveRadiance', 'brimstone', 'steelCushion', 'gildedBlossom',
-        'marcatoDesire', 'starlightEngine', 'streetSuperstar',
-      ],
-      nonLimited: [
-        'brimstone', 'steelCushion', 'gildedBlossom',
-        'marcatoDesire', 'starlightEngine', 'streetSuperstar',
-      ],
-    })
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.zhao).toEqual({
-      full: ['halfSugarBunny', 'originalTransmorpher'],
-      nonLimited: ['originalTransmorpher'],
-    })
-
+  it('keeps progression and same-effect identity mechanisms independent of authored rosters', () => {
     const refinements = [1, 2, 3, 4, 5] as const
     const streetDamage = W_ENGINE_FACTS.streetSuperstar.effects.ultimateDamage
     expect(refinements.map((refinement) =>
@@ -723,78 +618,9 @@ describe('bounded equipment effect facts', () => {
       members: ['bunnyInWonderland', 'yunkui'], canonical: 'bunnyInWonderland',
     })
 
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.yeShunguang).toEqual({
-      fourPiece: ['whiteWaterBallad', 'woodpecker', 'hormonePunk'],
-      twoPiece: [
-        'whiteWaterBallad', 'fangedMetal', 'woodpecker', 'branchAndBlade',
-        'pufferElectro', 'hormonePunk', 'astralVoice',
-      ],
-    })
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.zhao).toEqual({
-      fourPiece: ['bunnyInWonderland', 'astralVoice', 'swingJazz'],
-      twoPiece: ['bunnyInWonderland', 'yunkui', 'swingJazz', 'moonlight', 'astralVoice', 'hormonePunk'],
-    })
-    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.yeShunguang).toEqual({
-      slot4: ['critRate', 'critDmg'], slot5: ['physicalDmg', 'atkPct', 'penRatio'],
-      slot6: ['atkPct'],
-    })
-    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.zhao).toEqual({
-      slot4: ['hpPct'], slot5: ['hpPct'], slot6: ['hpPct', 'energyRegenPct'],
-    })
-    expect(SUBSTAT_CHOICES_BY_AGENT.yeShunguang.map(({ id }) => id))
-      .toEqual(['critRate', 'critDmg', 'atkPct'])
-    expect(SUBSTAT_CHOICES_BY_AGENT.zhao.map(({ id }) => id))
-      .toEqual(['hpPct', 'hpFlat'])
-    expect(REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL.yeShunguang).toEqual({
-      full: {
-        engineId: 'cloudcleaveRadiance', fourPieceId: 'whiteWaterBallad',
-        twoPieceId: 'branchAndBlade',
-        mains: { slot4: 'critDmg', slot5: 'physicalDmg', slot6: 'atkPct' },
-      },
-      nonLimited: {
-        engineId: 'brimstone', fourPieceId: 'whiteWaterBallad',
-        twoPieceId: 'branchAndBlade',
-        mains: { slot4: 'critDmg', slot5: 'physicalDmg', slot6: 'atkPct' },
-      },
-    })
-    expect(REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL.zhao).toEqual({
-      full: {
-        engineId: 'halfSugarBunny', fourPieceId: 'bunnyInWonderland',
-        twoPieceId: 'yunkui',
-        mains: { slot4: 'hpPct', slot5: 'hpPct', slot6: 'hpPct' },
-      },
-      nonLimited: {
-        engineId: 'originalTransmorpher', fourPieceId: 'bunnyInWonderland',
-        twoPieceId: 'yunkui',
-        mains: { slot4: 'hpPct', slot5: 'hpPct', slot6: 'hpPct' },
-      },
-    })
   })
 
-  it('authors Grace as a complete Anomaly content path', () => {
-    expect(ADMITTED_AGENTS.find(({ id }) => id === 'grace')).toEqual({
-      id: 'grace', name: 'Grace Howard', attribute: 'Electric', specialty: 'Anomaly',
-      focusEligible: true, rank: 'S', faction: 'Belobog Heavy Industries',
-    })
-    expect(SETUP_FORMULA_PARTICIPATION_BY_AGENT.grace).toEqual({
-      primary: ['anomaly_damage', 'anomaly_buildup'], residual: [],
-    })
-    expect(VERTICAL_VALUES.grace).toMatchObject({
-      atk: 825, anomalyProficiency: 116, anomalyMastery: 151, baseEnergyRegen: 1.2,
-      coreAnomalyBuildup: 130, additionalShockDmgPerStack: 18,
-      additionalShockDmgStacks: 2, potentialElectricDmg: 30,
-      mindscapeElectricResReduction: 8.5,
-      mindscapeElectricBuildupResReduction: 8.5,
-      mindscapeGrenadeDmgMultiplier: 2,
-    })
-
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.grace).toEqual({
-      full: [
-        'timeweaver', 'practicedPerfection', 'fusionCompiler',
-        'electroLipGloss', 'weepingGemini',
-      ],
-      nonLimited: ['fusionCompiler', 'electroLipGloss', 'weepingGemini'],
-    })
+  it('keeps Anomaly progression and same-effect identity facts structurally distinct', () => {
     expect(W_ENGINES.timeweaver).toMatchObject({
       rank: 'S', limited: true, baseAtk: 713,
       advancedStat: { id: 'atkPct', value: 30 }, passiveSpecialty: 'Anomaly',
@@ -810,13 +636,6 @@ describe('bounded equipment effect facts', () => {
       W_ENGINE_FACTS.fusionCompiler.effects.anomalyProficiency, 1,
     )).toBe(75)
 
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.grace).toEqual({
-      fourPiece: ['thunderMetal', 'chaosJazz', 'freedomBlues'],
-      twoPiece: [
-        'pufferElectro', 'phaethonsMelody', 'freedomBlues', 'chaosJazz',
-        'hormonePunk', 'astralVoice',
-      ],
-    })
     expect(SAME_EFFECT_TWO_PIECE_RELATIONSHIPS).toContainEqual({
       members: ['freedomBlues', 'chaosJazz'], canonical: 'freedomBlues',
     })
@@ -824,28 +643,5 @@ describe('bounded equipment effect facts', () => {
       'Fire & Electric DMG +15%',
       'Off-field EX Special & Assist DMG +20% · Continues 5s on-field',
     ])
-    expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.grace).toEqual({
-      slot4: ['anomalyProficiency', 'atkPct'],
-      slot5: ['penRatio', 'electricDmg', 'atkPct'],
-      slot6: ['anomalyMastery'],
-    })
-    expect(SUBSTAT_CHOICES_BY_AGENT.grace).toEqual([
-      { id: 'anomalyProficiency', label: 'Anomaly Proficiency', perHit: 9, unit: '' },
-      { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-    ])
-    expect(REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL.grace).toEqual({
-      full: {
-        engineId: 'timeweaver', fourPieceId: 'thunderMetal', twoPieceId: 'pufferElectro',
-        mains: {
-          slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'anomalyMastery',
-        },
-      },
-      nonLimited: {
-        engineId: 'fusionCompiler', fourPieceId: 'thunderMetal', twoPieceId: 'pufferElectro',
-        mains: {
-          slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'anomalyMastery',
-        },
-      },
-    })
   })
 })

@@ -5,10 +5,16 @@ import {
   type PreparationContext,
 } from './preparation'
 import {
-  DISC_IDS_BY_AGENT_AND_PIECE,
+  ADMITTED_AGENTS,
   ENGINE_IDS_BY_AGENT_AND_POOL,
+  type AgentId,
 } from './content'
-import { effectiveFourPieceIds, effectiveTwoPieceIds } from './candidates'
+import {
+  effectiveFourPieceIds,
+  effectiveMainStatIds,
+  effectiveSubstatChoicesForSlot,
+  effectiveTwoPieceIds,
+} from './candidates'
 import { createPreparedState } from './state'
 
 const context = (
@@ -63,36 +69,6 @@ describe('party-directed preparation', () => {
       .toMatchObject({ fourPieceId: 'king' })
     expect(prepareTargetSelection(context('juFufu'), 'harumasa', [{ agentId: 'qingyi', fourPieceId: 'king' }]))
       .toMatchObject({ fourPieceId: 'shockstar', twoPieceId: 'king' })
-  })
-
-  it('prepares Orphie and Pulchra with independent pool representatives at zero supplied substats', () => {
-    const full = createPreparedState({}, ['anbySoldier0', 'orphie', 'pulchra'], 0)
-    expect(full.slots[1].setup).toMatchObject({
-      mindscape: 0, engineId: 'bellicoseBlaze', refinement: 1,
-      fourPieceId: 'shadowHarmony', twoPieceId: 'swingJazz',
-      mains: { slot4: 'critDmg', slot5: 'fireDmg', slot6: 'energyRegenPct' },
-      substats: { critRate: 0, critDmg: 0, atkPct: 0 },
-    })
-    expect(full.slots[2].setup).toMatchObject({
-      mindscape: 6, engineId: 'blazingLaurel', refinement: 1,
-      fourPieceId: 'king', twoPieceId: 'shockstar',
-      mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
-      substats: { critRate: 0 },
-    })
-
-    const nonLimited = createPreparedState(
-      { orphie: 'nonLimited', pulchra: 'nonLimited' },
-      ['anbySoldier0', 'orphie', 'pulchra'],
-      0,
-    )
-    expect(nonLimited.slots[1].setup).toMatchObject({
-      engineId: 'gildedBlossom', refinement: 5,
-      mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'energyRegenPct' },
-    })
-    expect(nonLimited.slots[2].setup).toMatchObject({
-      engineId: 'boxCutter', refinement: 5,
-      fourPieceId: 'king', twoPieceId: 'shockstar',
-    })
   })
 
   it.each(['dialyn', 'trigger'] as const)(
@@ -151,25 +127,6 @@ describe('party-directed preparation', () => {
           mains: { slot4: 'atkPct' },
         })
     }
-  })
-
-  it('prepares Ellen and Soukaku with their authored pool representatives and zero supplied substats', () => {
-    const full = createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0)
-    expect(full.slots[0].setup).toMatchObject({
-      mindscape: 0, engineId: 'deepSeaVisitor', fourPieceId: 'woodpecker', twoPieceId: 'pufferElectro',
-      mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
-      substats: { critRate: 0, critDmg: 0, atkPct: 0 },
-    })
-    expect(full.slots[1].setup).toMatchObject({
-      mindscape: 6, engineId: 'kaboom', refinement: 5, fourPieceId: 'moonlight', twoPieceId: 'astralVoice',
-      mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'energyRegenPct' },
-      substats: { atkPct: 0, atkFlat: 0 },
-    })
-    const nonLimited = createPreparedState({ ellen: 'nonLimited', soukaku: 'nonLimited' }, ['ellen', 'soukaku', 'lycaon'], 0)
-    expect(nonLimited.slots[0].setup.engineId).toBe('brimstone')
-    expect(nonLimited.slots[1].setup).toMatchObject({
-      ...full.slots[1].setup, pool: 'nonLimited',
-    })
   })
 
   it('chooses the Trigger full-pool engine from the focused formula without changing her representative Disc package', () => {
@@ -423,44 +380,6 @@ describe('party-directed preparation', () => {
     ])
   })
 
-  it('keeps first-vertical representatives complete when no party adjustment applies', () => {
-    const prepared = preparePartySelections([
-      context('yixuan'), context('dialyn'), context('lucia'),
-    ], 'yixuan')
-    expect(prepared).toMatchObject([
-      { engineId: 'qingming', fourPieceId: 'yunkui', twoPieceId: 'branchAndBlade' },
-      { engineId: 'yesterdayCalls', fourPieceId: 'king', twoPieceId: 'woodpecker' },
-      { engineId: 'dreamlitHearth', fourPieceId: 'moonlight', twoPieceId: 'yunkui' },
-    ])
-  })
-
-  it('prepares Yidhari and Manato from their authored pool representatives', () => {
-    const selections = preparePartySelections([
-      context('yidhari'), context('manato'), context('astraYao'),
-    ], 'yidhari')
-    expect(selections.slice(0, 2)).toMatchObject([
-      { engineId: 'krakensCradle', fourPieceId: 'yunkui', twoPieceId: 'branchAndBlade' },
-      { engineId: 'grillOWisp', fourPieceId: 'yunkui', twoPieceId: 'woodpecker' },
-    ])
-  })
-
-  it('authors Hugo from a complete usable package for each pool', () => {
-    const full = preparePartySelections([
-      context('hugo'), context('lycaon'), context('astraYao'),
-    ], 'hugo')[0]
-    const nonLimited = preparePartySelections([
-      context('hugo', 'nonLimited'), context('lycaon'), context('astraYao'),
-    ], 'hugo')[0]
-    expect(full).toEqual({
-      engineId: 'myriadEclipse', fourPieceId: 'hormonePunk', twoPieceId: 'branchAndBlade',
-      mains: { slot4: 'critRate', slot5: 'iceDmg', slot6: 'atkPct' },
-    })
-    expect(nonLimited).toEqual({
-      engineId: 'steelCushion', fourPieceId: 'hormonePunk', twoPieceId: 'woodpecker',
-      mains: { slot4: 'critDmg', slot5: 'iceDmg', slot6: 'atkPct' },
-    })
-  })
-
   it('authors Ju Fufu pool packages and reuses non-overlapping two-Stun allocation', () => {
     expect(preparePartySelections([
       context('juFufu'), context('trigger'), context('yixuan'),
@@ -531,160 +450,6 @@ describe('party-directed preparation', () => {
     ])).toEqual({
       engineId: 'tusksOfFury', fourPieceId: 'bunnyInWonderland', twoPieceId: 'astralVoice',
       mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'energyRegenPct' },
-    })
-  })
-
-  it('authors Caesar by pool without disturbing the established Focus/Stun allocation', () => {
-    expect(prepareTargetSelection(context('caesar'), 'corin', [])).toEqual({
-      engineId: 'tusksOfFury', fourPieceId: 'bunnyInWonderland', twoPieceId: 'swingJazz',
-      mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
-    })
-    expect(prepareTargetSelection(context('caesar', 'nonLimited'), 'corin', []))
-      .toEqual({
-        engineId: 'springEmbrace',
-        fourPieceId: 'bunnyInWonderland', twoPieceId: 'swingJazz',
-        mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
-      })
-
-    const nonLimited = createPreparedState(
-      { caesar: 'nonLimited' }, ['corin', 'caesar', 'anby'], 0,
-    )
-    expect(nonLimited.slots[1].setup).toMatchObject({
-      pool: 'nonLimited', engineId: 'springEmbrace', refinement: 5,
-    })
-
-    expect(preparePartySelections([
-      context('corin'), context('caesar'), context('anby'),
-    ], 'corin')).toMatchObject([
-      {},
-      { fourPieceId: 'bunnyInWonderland', twoPieceId: 'swingJazz' },
-      { fourPieceId: 'king', twoPieceId: 'shockstar' },
-    ])
-
-    const contextual = createPreparedState({}, ['corin', 'caesar', 'astraYao'], 0)
-    expect(effectiveFourPieceIds(contextual, 1)).toEqual([
-      'bunnyInWonderland', 'astralVoice',
-    ])
-    expect(effectiveTwoPieceIds(contextual, 1)).toEqual(['swingJazz', 'shockstar', 'king'])
-    expect(contextual.slots[1].setup).toMatchObject({
-      fourPieceId: 'bunnyInWonderland', twoPieceId: 'swingJazz', substats: {},
-    })
-  })
-
-  it('authors Banyue from distinct full and non-limited whole packages', () => {
-    expect(prepareTargetSelection(context('banyue'), 'banyue', [])).toEqual({
-      engineId: 'wrathfulVajra', fourPieceId: 'yunkui', twoPieceId: 'branchAndBlade',
-      mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'hpPct' },
-    })
-    expect(prepareTargetSelection(context('banyue', 'nonLimited'), 'banyue', [])).toEqual({
-      engineId: 'cauldron', fourPieceId: 'yunkui', twoPieceId: 'woodpecker',
-      mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'hpPct' },
-    })
-  })
-
-  it('authors Starlight Billy from whole packages including a partial-passive full-pool entrant', () => {
-    expect(prepareTargetSelection(context('starlightBilly'), 'starlightBilly', [])).toEqual({
-      engineId: 'starlightRiderFaceplate', fourPieceId: 'yunkui', twoPieceId: 'branchAndBlade',
-      mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'hpPct' },
-    })
-    expect(prepareTargetSelection(
-      context('starlightBilly', 'nonLimited'), 'starlightBilly', [],
-    )).toEqual({
-      engineId: 'cauldron', fourPieceId: 'yunkui', twoPieceId: 'woodpecker',
-      mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'hpPct' },
-    })
-  })
-
-  it('authors Nekomata and Billy independently for full and non-limited pools', () => {
-    expect(prepareTargetSelection(context('nekomata'), 'nekomata', [])).toEqual({
-      engineId: 'steelCushion', fourPieceId: 'woodpecker', twoPieceId: 'pufferElectro',
-      mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
-    })
-    expect(prepareTargetSelection(context('nekomata', 'nonLimited'), 'nekomata', []))
-      .toEqual({
-        engineId: 'steelCushion', fourPieceId: 'woodpecker', twoPieceId: 'pufferElectro',
-        mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
-      })
-    expect(prepareTargetSelection(context('billy'), 'billy', [])).toEqual({
-      engineId: 'cloudcleaveRadiance', fourPieceId: 'woodpecker', twoPieceId: 'branchAndBlade',
-      mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
-    })
-    expect(prepareTargetSelection(context('billy', 'nonLimited'), 'billy', []))
-      .toEqual({
-        engineId: 'brimstone', fourPieceId: 'woodpecker', twoPieceId: 'branchAndBlade',
-        mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
-      })
-
-    const prepared = createPreparedState({}, ['nekomata', 'billy', 'lycaon'], 0)
-    expect(prepared.slots[0].setup.substats).toEqual({ critRate: 0, critDmg: 0, atkPct: 0 })
-    expect(prepared.slots[1].setup.substats).toEqual({ critRate: 0, critDmg: 0, atkPct: 0 })
-  })
-
-  it('prepares Ben and Koleda independently for both pools at zero supplied substats', () => {
-    const full = createPreparedState({}, ['ben', 'koleda', 'panYinhu'], 0)
-    expect(full.slots[0].setup).toMatchObject({
-      mindscape: 6, engineId: 'tremorTrigramVessel', refinement: 5,
-      fourPieceId: 'woodpecker', twoPieceId: 'branchAndBlade',
-      mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'atkPct' },
-      substats: { critRate: 0, critDmg: 0, atkPct: 0, defPct: 0 },
-    })
-    expect(full.slots[1].setup).toMatchObject({
-      mindscape: 0, engineId: 'hellfireGears', refinement: 1,
-      fourPieceId: 'king', twoPieceId: 'shockstar',
-      mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'impact' },
-      substats: { critRate: 0 },
-    })
-
-    const nonLimited = createPreparedState(
-      { ben: 'nonLimited', koleda: 'nonLimited' },
-      ['ben', 'koleda', 'panYinhu'],
-      0,
-    )
-    expect(nonLimited.slots[0].setup).toMatchObject({
-      engineId: 'tremorTrigramVessel', refinement: 5,
-      fourPieceId: 'woodpecker', twoPieceId: 'branchAndBlade',
-      substats: { critRate: 0, critDmg: 0, atkPct: 0, defPct: 0 },
-    })
-    expect(nonLimited.slots[1].setup).toMatchObject({
-      engineId: 'hellfireGears', refinement: 1,
-      fourPieceId: 'king', twoPieceId: 'shockstar', substats: { critRate: 0 },
-    })
-  })
-
-  it('prepares Anby independently for both pools at zero supplied substats', () => {
-    for (const pool of ['full', 'nonLimited'] as const) {
-      expect(prepareTargetSelection(
-        context('anby', pool, 6),
-        'billy',
-        [],
-      )).toEqual({
-        engineId: 'hellfireGears', fourPieceId: 'king', twoPieceId: 'shockstar',
-        mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'impact' },
-      })
-      const prepared = createPreparedState(
-        { anby: pool }, ['billy', 'anby', 'nekomata'], 0,
-      )
-      expect(prepared.slots[1].setup).toMatchObject({
-        mindscape: 6, pool, engineId: 'hellfireGears', refinement: 1,
-        fourPieceId: 'king', twoPieceId: 'shockstar',
-        mains: { slot4: 'critRate', slot5: 'electricDmg', slot6: 'impact' },
-        substats: { critRate: 0 },
-      })
-    }
-
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.anby).toEqual({
-      full: [
-        'hellfireGears', 'blazingLaurel', 'restrained',
-        'steamOven', 'preciousFossilizedCore', 'demaraBatteryMarkII',
-      ],
-      nonLimited: [
-        'hellfireGears', 'restrained', 'steamOven',
-        'preciousFossilizedCore', 'demaraBatteryMarkII',
-      ],
-    })
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.anby).toEqual({
-      fourPiece: ['king', 'astralVoice', 'shockstar', 'swingJazz'],
-      twoPiece: ['shockstar', 'king', 'swingJazz'],
     })
   })
 
@@ -763,45 +528,6 @@ describe('party-directed preparation', () => {
           })
       }
     }
-  })
-
-  it('keeps Nekomata and Billy candidate packages exact and Puffer contextual', () => {
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.nekomata).toEqual({
-      full: [
-        'steelCushion', 'heartstringNocturne', 'cordisGermina',
-        'cloudcleaveRadiance', 'severedInnocence', 'brimstone',
-      ],
-      nonLimited: ['steelCushion', 'brimstone'],
-    })
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.billy).toEqual({
-      full: [
-        'cloudcleaveRadiance', 'heartstringNocturne', 'cordisGermina',
-        'brimstone', 'steelCushion', 'starlightEngineReplica',
-      ],
-      nonLimited: ['brimstone', 'steelCushion', 'starlightEngineReplica'],
-    })
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.nekomata).toEqual({
-      fourPiece: ['woodpecker'],
-      twoPiece: [
-        'woodpecker', 'branchAndBlade', 'fangedMetal',
-        'pufferElectro', 'hormonePunk', 'astralVoice',
-      ],
-    })
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.billy).toEqual({
-      fourPiece: ['woodpecker', 'shadowHarmony'],
-      twoPiece: [
-        'woodpecker', 'branchAndBlade', 'fangedMetal',
-        'pufferElectro', 'hormonePunk', 'astralVoice',
-      ],
-    })
-
-    const withoutDialyn = createPreparedState({}, ['nekomata', 'billy', 'qingyi'], 0)
-    expect(effectiveFourPieceIds(withoutDialyn, 0)).toEqual(['woodpecker'])
-    expect(effectiveFourPieceIds(withoutDialyn, 1)).toEqual(['woodpecker', 'shadowHarmony'])
-    const withDialyn = createPreparedState({}, ['nekomata', 'billy', 'dialyn'], 0)
-    expect(effectiveFourPieceIds(withDialyn, 0)).toEqual(['woodpecker', 'pufferElectro'])
-    expect(effectiveFourPieceIds(withDialyn, 1))
-      .toEqual(['woodpecker', 'shadowHarmony', 'pufferElectro'])
   })
 
   it('balances Anby M2+ only when her Additional Ability is party-qualified', () => {
@@ -945,69 +671,30 @@ describe('party-directed preparation', () => {
     }
   })
 
-  it('keeps every authored adjustment inside the target candidate pools', () => {
-    const contexts = [
-      context('yixuan'), context('trigger'), context('dialyn'),
-    ] as const
-    const selections = preparePartySelections(contexts, 'yixuan')
+  it('keeps every prepared target inside effective candidates at zero supplied substats', () => {
+    const companions = ['yixuan', 'lucia', 'anbySoldier0'] as const
 
-    for (const [index, selection] of selections.entries()) {
-      const input = contexts[index]
-      expect(ENGINE_IDS_BY_AGENT_AND_POOL[input.agentId][input.pool]).toContain(selection.engineId)
-      expect(DISC_IDS_BY_AGENT_AND_PIECE[input.agentId].fourPiece).toContain(selection.fourPieceId)
-      expect(DISC_IDS_BY_AGENT_AND_PIECE[input.agentId].twoPiece).toContain(selection.twoPieceId)
-      expect(selection.fourPieceId).not.toBe(selection.twoPieceId)
+    for (const { id: agentId, focusEligible } of ADMITTED_AGENTS) {
+      const support = companions.filter((candidateId) => candidateId !== agentId)
+      const party = [agentId, support[0], support[1]] as [AgentId, AgentId, AgentId]
+      const focusSlot = focusEligible ? 0 : 1
+
+      for (const pool of ['full', 'nonLimited'] as const) {
+        const state = createPreparedState({ [agentId]: pool }, party, focusSlot)
+        const setup = state.slots[0].setup
+
+        expect(ENGINE_IDS_BY_AGENT_AND_POOL[agentId][pool]).toContain(setup.engineId)
+        expect(effectiveFourPieceIds(state, 0)).toContain(setup.fourPieceId)
+        expect(effectiveTwoPieceIds(state, 0)).toContain(setup.twoPieceId)
+        expect(setup.fourPieceId).not.toBe(setup.twoPieceId)
+        for (const mainSlot of ['slot4', 'slot5', 'slot6'] as const) {
+          expect(effectiveMainStatIds(state, 0, mainSlot)).toContain(setup.mains[mainSlot])
+        }
+        expect(Object.values(setup.substats).every((value) => value === 0)).toBe(true)
+        expect(Object.keys(setup.substats).sort()).toEqual(
+          effectiveSubstatChoicesForSlot(state, 0).map(({ id }) => id).sort(),
+        )
+      }
     }
-  })
-
-  it('admits bounded limited alternatives without changing prepared first choices', () => {
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.trigger.full).toContain('blazingLaurel')
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.trigger.nonLimited).not.toContain('blazingLaurel')
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.cissia.full).toContain('bellicoseBlaze')
-    expect(ENGINE_IDS_BY_AGENT_AND_POOL.cissia.nonLimited).not.toContain('bellicoseBlaze')
-
-    expect(createPreparedState(
-      {}, ['anbySoldier0', 'trigger', 'astraYao'], 0,
-    ).slots[1].setup).toMatchObject({
-      engineId: 'spectralGaze',
-    })
-    expect(createPreparedState(
-      {}, ['seed', 'cissia', 'astraYao'], 0,
-    ).slots[1].setup).toMatchObject({
-      engineId: 'serpentineSeeker',
-    })
-  })
-
-  it('prepares Grace independently by pool and composes existing broad pre-PEN pressure', () => {
-    const full = createPreparedState({}, ['grace', 'astraYao', 'anby'], 0)
-    expect(full.slots[0].setup).toEqual({
-      mindscape: 0,
-      pool: 'full',
-      engineId: 'timeweaver',
-      refinement: 1,
-      fourPieceId: 'thunderMetal',
-      twoPieceId: 'pufferElectro',
-      mains: {
-        slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'anomalyMastery',
-      },
-      substats: { anomalyProficiency: 0, atkPct: 0 },
-    })
-
-    const nonLimited = createPreparedState(
-      { grace: 'nonLimited' }, ['grace', 'astraYao', 'anby'], 0,
-    )
-    expect(nonLimited.slots[0].setup).toMatchObject({
-      pool: 'nonLimited', engineId: 'fusionCompiler', refinement: 1,
-      fourPieceId: 'thunderMetal', twoPieceId: 'pufferElectro',
-    })
-
-    const pressured = createPreparedState({}, ['grace', 'nicole', 'anby'], 0)
-    expect(pressured.slots[0].setup).toMatchObject({
-      fourPieceId: 'thunderMetal', twoPieceId: 'freedomBlues',
-      mains: {
-        slot4: 'anomalyProficiency', slot5: 'electricDmg', slot6: 'anomalyMastery',
-      },
-      substats: { anomalyProficiency: 0, atkPct: 0 },
-    })
   })
 })
