@@ -372,10 +372,12 @@ itself establish semantic readiness.
   reviews on the same claims merely for additional agreement.
 - A protected transaction receives one independent exact-head review after the
   code, PR body, and Authority trace are final. That review may cover semantic
-  fidelity and transaction shape together. A body-only correction rechecks the
-  affected trace, provenance, and freshness; it does not restart unrelated
-  implementation review unless the corrected claim changes product meaning or
-  the head changes.
+  fidelity and transaction shape together. When protected work also triggers a
+  domain review, the same qualified independent reviewer satisfies both; do not
+  add a separate transaction-shape reviewer. A body-only correction rechecks
+  the affected trace, provenance, and freshness; it does not restart unrelated
+  implementation review unless the corrected claim changes product or
+  transaction meaning, or the head changes.
 - Once the user approves a bounded vertical and its execution scope, the
   controller may continue autonomously through its settled units and gates.
   Stop for review when completion needs a new product decision, unresolved
