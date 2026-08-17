@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
+import { spawnSync } from 'node:child_process'
 import test from 'node:test'
+import { fileURLToPath } from 'node:url'
 import {
   EVIDENCE_MARKER,
   PolicyError,
@@ -27,6 +29,8 @@ import {
   validateFinalization,
   validateFrozenRoster,
   validateProtectedApproval,
+  validatePreU9VisualApplicability,
+  validatePreU9VisualWorkflow,
   validateReviewEvidence,
   validateRepository,
   validateTrustedWorkflowConcurrency,
@@ -38,6 +42,7 @@ const OTHER = '4'.repeat(40)
 const DIFF = `sha256:${'a'.repeat(64)}`
 const KNOWN_RULES = ['SW-001', 'SF-001', 'GOV-001']
 const CONSUMERS = ['src/workbench/content/agents.ts#ADMITTED_AGENTS']
+const POLICY_PATH = fileURLToPath(new URL('./check-policy.mjs', import.meta.url))
 
 function treeEntry(path, baseSha = BASE, headSha = HEAD) {
   return {
@@ -238,6 +243,82 @@ test('change matrix allows supporting documentation with production but protects
   assert.throws(() => evaluateChangeMatrix(['AGENTS.md', 'src/workbench/a.ts']), /cannot share/)
   assert.throws(() => evaluateChangeMatrix(['mystery.bin']), /Unknown/)
   assert.equal(categoryForPath('src/components/agentPortraits.ts'), 'visual-baseline')
+})
+
+test('pre-U9 visual applicability admits semantic UI work but blocks baseline-owned inputs', () => {
+  assert.deepEqual(validatePreU9VisualApplicability([]), {
+    changedPaths: [],
+    result: 'not-applicable',
+  })
+  assert.deepEqual(validatePreU9VisualApplicability([
+    'src/components/AgentSetup.test.tsx',
+    'src/components/AgentSetup.tsx',
+  ]), {
+    changedPaths: [
+      'src/components/AgentSetup.test.tsx',
+      'src/components/AgentSetup.tsx',
+    ],
+    result: 'not-applicable',
+  })
+
+  for (const blockedPath of [
+    'src/components/agentPortraits.ts',
+    'src/app.css',
+    'src/assets/agents/portraits/koleda.webp',
+    'tests/visual/workbench-portraits.spec.ts',
+    'playwright.config.ts',
+  ]) {
+    assert.throws(
+      () => validatePreU9VisualApplicability(['src/components/AgentSetup.tsx', blockedPath]),
+      /Visual inputs changed before the accepted U9 baseline exists/,
+    )
+  }
+})
+
+test('pre-U9 visual workflow keeps one read-only explicit applicability gate', () => {
+  const workflow = `on:
+  pull_request:
+permissions:
+  contents: read
+env:
+  BASE_SHA: base
+jobs:
+  visual-baseline:
+    name: Visual Baseline
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+      - run: |
+          changed_paths_file="$RUNNER_TEMP/pre-u9-changed-paths"
+          git diff --name-only -z "$BASE_SHA" HEAD > "$changed_paths_file"
+          mapfile -d '' -t changed_paths < "$changed_paths_file"
+          node scripts/governance/check-policy.mjs pre-u9-visual "\${changed_paths[@]}"
+`
+  assert.equal(validatePreU9VisualWorkflow(workflow), true)
+  for (const missing of [
+    '  pull_request:',
+    '  contents: read',
+    '    name: Visual Baseline',
+    '          persist-credentials: false',
+    '          node-version: 24',
+    'changed_paths_file="$RUNNER_TEMP/pre-u9-changed-paths"',
+    'git diff --name-only -z "$BASE_SHA" HEAD > "$changed_paths_file"',
+    `mapfile -d '' -t changed_paths < "$changed_paths_file"`,
+    'node scripts/governance/check-policy.mjs pre-u9-visual',
+    '"\${changed_paths[@]}"',
+  ]) {
+    assert.throws(() => validatePreU9VisualWorkflow(workflow.replace(missing, '')), /Visual workflow/)
+  }
+})
+
+test('pre-U9 visual command treats an empty diff as explicitly not applicable', () => {
+  const result = spawnSync(process.execPath, [POLICY_PATH, 'pre-u9-visual'], { encoding: 'utf8' })
+  assert.equal(result.status, 0, result.stderr)
+  assert.match(result.stdout, /Visual Baseline: not applicable/)
 })
 
 test('AE4 proves one realistic additive Agent seam and protects a nearby shared helper edit', () => {

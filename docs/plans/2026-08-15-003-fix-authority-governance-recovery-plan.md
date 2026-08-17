@@ -485,9 +485,15 @@ non-protected branch and PR work.
   Both workflows run on every PR without workflow-level path filters and expose
   stable, unique required check names.
 - Establish the stable visual result in U3. Until U9 lands the accepted
-  Playwright baseline, it may return only an explicit policy-verified
-  not-applicable result; U9 fills the existing job without changing its required
-  name or reopening branch protection.
+  Playwright baseline, the required job returns an explicit policy-verified
+  not-applicable result only when the repository path classifier finds no
+  `visual-baseline` input. Pre-U9 semantic or interaction changes in ordinary
+  production/test paths remain subject to their normal protected review,
+  behavior checks, and applicable in-app Browser verification; they are not
+  snapshot inputs before an accepted oracle exists. Portrait metadata and
+  assets, shared CSS, Playwright configuration, and visual tests remain blocked
+  until U9. U9 fills the existing job without changing its required name or
+  reopening branch protection.
 - Make each required result fail closed: failed, cancelled, absent, skipped,
   neutral, or duplicate-name mandatory outcomes cannot yield success. “Visual
   not applicable” is an explicit policy result, never an omitted job.
@@ -556,6 +562,10 @@ non-protected branch and PR work.
 - Fail-closed checks: failed, cancelled, absent, skipped, neutral, and duplicate
   child outcomes fail; a PR with no visual change emits explicit not-applicable
   success from policy rather than a missing Pending check.
+- Pre-U9 applicability contrast: a planned semantic Setup component and its
+  behavior test receive the explicit not-applicable success, while portrait
+  metadata/assets, shared CSS, Playwright configuration, and visual-test inputs
+  fail until U9 establishes and the owner accepts the first baseline.
 - Trust-boundary attack: a PR replaces its copy of `check-policy.mjs` with an
   unconditional pass, but the protected-base evaluator still rejects the
   forbidden diff.
@@ -814,7 +824,10 @@ application to U10-U11.
 **Verification:**
 - Every changed or sentinel package has a review trace and pool-local
   consequence; Setup contains no unapproved compatibility status and Result
-  remains exact. U10-U11 own exhaustive identity completion.
+  remains exact. Its planned semantic `AgentSetup` copy change receives the
+  explicit pre-U9 not-applicable visual result only because no U9-owned visual
+  input changes; behavior and in-app Browser verification remain mandatory.
+  U10-U11 own exhaustive identity completion.
 
 - U7. **Recover Drive Disc routing, dominance, and allocation**
 
