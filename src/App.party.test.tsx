@@ -325,7 +325,7 @@ describe('integrated party workbench: party', () => {
     expect(screen.queryByRole('heading', { name: 'Dialyn Result' })).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Cancel' }))
-    expect(edit).toHaveFocus()
+    await waitFor(() => expect(edit).toHaveFocus())
     expect(screen.getByText('Focus · Yixuan')).toBeInTheDocument()
     expect(screen.queryByText('Edit party', { selector: 'h2' })).not.toBeInTheDocument()
     expect(screen.getByRole('region', { name: 'Dialyn setup' })).toBeInTheDocument()
@@ -985,7 +985,7 @@ describe('integrated party workbench: party', () => {
     expect(screen.getByText('Focus · Anby: Soldier 0')).toBeInTheDocument()
     expect(screen.getByRole('region', { name: 'Anby: Soldier 0 setup' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Anby: Soldier 0 Result' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Edit party' })).toHaveFocus()
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Edit party' })).toHaveFocus())
 
     await user.click(screen.getByRole('button', { name: 'M2' }))
     await user.click(screen.getByRole('button', { name: 'Non-limited' }))
