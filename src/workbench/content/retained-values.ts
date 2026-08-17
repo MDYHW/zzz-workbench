@@ -329,7 +329,7 @@ export const VERTICAL_VALUES = {
     kingCritThreshold: 50,
   },
   caesar: {
-    atk: 711, critRate: 5, critDmg: 50, impact: 123,
+    atk: 711, critRate: 5, critDmg: 50, impact: 123, baseEnergyRegen: 1.2,
     additionalDmgBonus: 25,
     coreFocusAtk: 1000, mindscapeFocusAtk: 1500,
     coreImpactByTier: [20, 22, 24],

@@ -197,16 +197,6 @@ describe('AgentSetup partial W-Engine package', () => {
       candidateRefinement: 5,
       description: 'Impact +15%. Electric DMG +24%. Energy Generation Rate +27.5%',
     },
-    {
-      agentId: 'caesar',
-      party: ['corin', 'caesar', 'astraYao'] as [AgentId, AgentId, AgentId],
-      slot: 1 as AppliedSlot,
-      selectedName: 'Tusks of Fury',
-      candidateId: 'hellfireGears',
-      candidateName: 'Hellfire Gears',
-      candidateRefinement: 1,
-      description: 'Impact +18%. Energy +0.6/s. Impact +20%',
-    },
   ] as const)(
     'keeps the complete $candidateName package accessible as candidate and selection',
     async ({
@@ -264,20 +254,21 @@ describe('AgentSetup partial W-Engine package', () => {
       />,
     )
 
-    expect(screen.getByRole('button', {
-      name: 'Change W-Engine from Hellfire Gears',
-    })).toHaveAccessibleDescription(
-      'Impact +18%. Energy +0.6/s. Impact +20%',
-    )
-    await user.click(screen.getByRole('button', {
-      name: 'Change W-Engine from Hellfire Gears',
-    }))
-    expect(within(screen.getByLabelText('W-Engine candidates')).getByRole('button', {
-      name: 'Select Spring Embrace W5',
-    })).toHaveAccessibleDescription(
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Spring Embrace' }))
+      .toHaveAccessibleDescription(
       'ATK +25%. DMG taken -12%. Energy Generation Rate +16% · Transfers to next on-field Agent',
-    )
+      )
+    await user.click(screen.getByRole('button', { name: 'Change W-Engine from Spring Embrace' }))
+    expect(screen.getByRole('button', { name: 'Select Hellfire Gears W1' }))
+      .toHaveAccessibleDescription('Impact +18%. Energy +0.6/s. Impact +20%')
     expect(screen.queryByText(/Specialty passive inactive|Inactive ·/)).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Swing Jazz' }))
+      .toHaveAccessibleDescription('Energy Regen +20%')
+    await user.click(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Swing Jazz' }))
+    expect(screen.getByRole('button', { name: 'Select Shockstar Disco as twoPiece' }))
+      .toHaveAccessibleDescription('Impact +6%')
+    expect(screen.getByRole('button', { name: 'Select King of the Summit as twoPiece' }))
+      .toHaveAccessibleDescription('Daze +6%')
   })
 
   it('preserves Deep Sea Visitor’s complete selected and candidate descriptions', async () => {
@@ -367,7 +358,7 @@ describe('AgentSetup Orphie and Pulchra equipment packages', () => {
     })).toHaveAccessibleDescription(description)
   })
 
-  it('keeps Box Cutter and Proto Punk complete on Pulchra surfaces', async () => {
+  it('keeps Box Cutter and Astral Voice complete on Pulchra surfaces', async () => {
     const user = userEvent.setup()
     const state = createPreparedState({}, ['anbySoldier0', 'orphie', 'pulchra'], 0)
     const setup = state.slots[2].setup
@@ -403,9 +394,9 @@ describe('AgentSetup Orphie and Pulchra equipment packages', () => {
       name: 'Change 4-piece Drive Disc from King of the Summit',
     }))
     expect(within(screen.getByLabelText('fourPiece Drive Disc candidates')).getByRole('button', {
-      name: 'Select Proto Punk as fourPiece',
+      name: 'Select Astral Voice as fourPiece',
     })).toHaveAccessibleDescription(
-      'After Defensive or Evasive Assist · Squad DMG +15%. Shield provided +15%',
+      'Entrant DMG +24%. ATK +10%',
     )
   })
 })
@@ -488,9 +479,9 @@ describe('AgentSetup Ben and Koleda equipment packages', () => {
       name: 'Change 4-piece Drive Disc from King of the Summit',
     }))
     expect(within(screen.getByLabelText('fourPiece Drive Disc candidates')).getByRole('button', {
-      name: 'Select Proto Punk as fourPiece',
+      name: 'Select Astral Voice as fourPiece',
     })).toHaveAccessibleDescription(
-      'After Defensive or Evasive Assist · Squad DMG +15%. Shield provided +15%',
+      'Entrant DMG +24%. ATK +10%',
     )
   })
 })

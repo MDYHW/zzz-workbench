@@ -247,8 +247,8 @@ const anbyRepresentative: SetupSelection = {
 }
 
 const caesarRepresentative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'tusksOfFury' : 'hellfireGears',
-  fourPieceId: 'protoPunk', twoPieceId: 'shockstar',
+  engineId: pool === 'full' ? 'tusksOfFury' : 'springEmbrace',
+  fourPieceId: 'bunnyInWonderland', twoPieceId: 'swingJazz',
   mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
 })
 

@@ -762,7 +762,7 @@ describe('workbench state lifecycle', () => {
     })
     shared = workbenchReducer(shared, { type: 'applyPartyEdit' })
     expect(effectiveFourPieceIds(shared, 1)).not.toContain('astralVoice')
-    expect(shared.slots[1].setup.fourPieceId).toBe('protoPunk')
+    expect(shared.slots[1].setup.fourPieceId).toBe('bunnyInWonderland')
 
     shared = workbenchReducer(shared, { type: 'openPartyEdit' })
     shared = workbenchReducer(shared, {
@@ -770,7 +770,7 @@ describe('workbench state lifecycle', () => {
     })
     shared = workbenchReducer(shared, { type: 'applyPartyEdit' })
     expect(effectiveFourPieceIds(shared, 1)).toContain('astralVoice')
-    expect(shared.slots[1].setup.fourPieceId).toBe('protoPunk')
+    expect(shared.slots[1].setup.fourPieceId).toBe('bunnyInWonderland')
 
     let local = createPreparedState({}, ['harumasa', 'qingyi', 'zhao'], 0)
     expect(effectiveFourPieceIds(local, 1)).toContain('astralVoice')
@@ -1342,13 +1342,22 @@ describe('workbench state lifecycle', () => {
       engineId: 'springEmbrace', refinement: 5, ...downstreamBeforeEngine,
     })
 
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 1, engineId: 'tusksOfFury',
+    })
+    expect(state.slots[1].setup).toMatchObject({
+      pool: 'full', engineId: 'tusksOfFury', refinement: 1,
+      ...downstreamBeforeEngine,
+    })
+
     const corinBeforePool = state.slots[0]
     const astraBeforePool = state.slots[2]
     state = workbenchReducer(state, { type: 'switchPool', slot: 1, pool: 'nonLimited' })
     expect(state.slots[0]).toBe(corinBeforePool)
     expect(state.slots[2]).toBe(astraBeforePool)
     expect(state.slots[1].setup).toMatchObject({
-      pool: 'nonLimited', engineId: 'hellfireGears', fourPieceId: 'protoPunk',
+      pool: 'nonLimited', engineId: 'springEmbrace', refinement: 5,
+      fourPieceId: 'bunnyInWonderland', twoPieceId: 'swingJazz',
       substats: {},
     })
 
@@ -1360,8 +1369,8 @@ describe('workbench state lifecycle', () => {
     expect(state.slots[2]).toBe(astraBeforeMindscape)
     expect(state.slots[1]).not.toBe(caesarBeforeMindscape)
     expect(state.slots[1].setup).toMatchObject({
-      mindscape: 2, pool: 'nonLimited', engineId: 'hellfireGears',
-      fourPieceId: 'protoPunk', substats: {},
+      mindscape: 2, pool: 'nonLimited', engineId: 'springEmbrace', refinement: 5,
+      fourPieceId: 'bunnyInWonderland', twoPieceId: 'swingJazz', substats: {},
     })
 
     state = workbenchReducer(state, {
@@ -1373,7 +1382,7 @@ describe('workbench state lifecycle', () => {
     })
     state = workbenchReducer(state, { type: 'applyPartyEdit' })
     expect(effectiveFourPieceIds(state, 1)).not.toContain('astralVoice')
-    expect(state.slots[1].setup.fourPieceId).toBe('protoPunk')
+    expect(state.slots[1].setup.fourPieceId).toBe('bunnyInWonderland')
     expect(calculateParty(state)).not.toBeNull()
 
     state = workbenchReducer(state, { type: 'openPartyEdit' })
@@ -1382,7 +1391,7 @@ describe('workbench state lifecycle', () => {
     })
     state = workbenchReducer(state, { type: 'applyPartyEdit' })
     expect(effectiveFourPieceIds(state, 1)).toContain('astralVoice')
-    expect(state.slots[1].setup.fourPieceId).toBe('protoPunk')
+    expect(state.slots[1].setup.fourPieceId).toBe('bunnyInWonderland')
     state = workbenchReducer(state, {
       type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
     })

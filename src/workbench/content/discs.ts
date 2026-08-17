@@ -16,7 +16,6 @@ import swingJazzImage from '../../assets/equipment/drive-discs/swing-jazz.webp'
 import thunderMetalImage from '../../assets/equipment/drive-discs/thunder-metal.webp'
 import woodpeckerImage from '../../assets/equipment/drive-discs/woodpecker-electro.webp'
 import yunkuiImage from '../../assets/equipment/drive-discs/yunkui-tales.webp'
-import protoPunkImage from '../../assets/equipment/drive-discs/proto-punk.webp'
 import whiteWaterBalladImage from '../../assets/equipment/drive-discs/white-water-ballad.webp'
 import chaosJazzImage from '../../assets/equipment/drive-discs/chaos-jazz.webp'
 import freedomBluesImage from '../../assets/equipment/drive-discs/freedom-blues.webp'
@@ -172,14 +171,6 @@ export const DRIVE_DISC_FACTS = {
         progression: { kind: 'stacks', perStack: 6, maxStacks: 3 },
         scope: { recipient: 'squad' },
       },
-    },
-  },
-  protoPunk: {
-    twoPiece: {
-      shield: { modifier: 'shieldEffect', unit: '%', value: 15 },
-    },
-    fourPiece: {
-      damage: { modifier: 'dmgBonus', unit: '%', value: 15, scope: { recipient: 'squad' } },
     },
   },
   whiteWaterBallad: {
@@ -344,13 +335,6 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
       `Squad DMG +${equipmentEffectMaximumValue(DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage)}%`,
     ],
   },
-  protoPunk: {
-    id: 'protoPunk', name: 'Proto Punk', image: protoPunkImage,
-    twoPieceEffect: `Shield provided +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.protoPunk.twoPiece.shield)}%`,
-    fourPieceEffects: [
-      `After Defensive or Evasive Assist · Squad DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.protoPunk.fourPiece.damage)}%`,
-    ],
-  },
   whiteWaterBallad: {
     id: 'whiteWaterBallad', name: 'White Water Ballad', image: whiteWaterBalladImage,
     twoPieceEffect: `Physical DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.twoPiece.physicalDamage)}%`,
@@ -458,7 +442,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     twoPiece: ['shadowHarmony', 'infernoMetal', 'woodpecker', 'branchAndBlade', 'hormonePunk', 'astralVoice', 'swingJazz', 'moonlight'],
   },
   pulchra: {
-    fourPiece: ['king', 'astralVoice', 'protoPunk', 'shockstar', 'swingJazz'],
+    fourPiece: ['king', 'astralVoice', 'shockstar', 'swingJazz'],
     twoPiece: ['shockstar', 'king', 'swingJazz'],
   },
   harumasa: {
@@ -466,7 +450,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     twoPiece: ['shadowHarmony', 'thunderMetal', 'woodpecker', 'branchAndBlade', 'hormonePunk', 'astralVoice', 'pufferElectro'],
   },
   qingyi: {
-    fourPiece: ['king', 'protoPunk', 'shockstar', 'swingJazz'],
+    fourPiece: ['king', 'shockstar', 'swingJazz'],
     twoPiece: ['shockstar', 'king', 'swingJazz'],
   },
   nekomata: {
@@ -478,20 +462,20 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     twoPiece: ['woodpecker', 'branchAndBlade', 'fangedMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
   },
   ben: {
-    fourPiece: ['woodpecker', 'astralVoice', 'bunnyInWonderland', 'protoPunk', 'swingJazz'],
-    twoPiece: ['woodpecker', 'branchAndBlade', 'infernoMetal', 'pufferElectro', 'hormonePunk', 'astralVoice', 'swingJazz', 'moonlight', 'protoPunk'],
+    fourPiece: ['woodpecker', 'astralVoice', 'bunnyInWonderland', 'swingJazz'],
+    twoPiece: ['woodpecker', 'branchAndBlade', 'infernoMetal', 'pufferElectro', 'hormonePunk', 'astralVoice', 'swingJazz', 'moonlight'],
   },
   koleda: {
-    fourPiece: ['king', 'astralVoice', 'protoPunk', 'shockstar', 'swingJazz'],
+    fourPiece: ['king', 'astralVoice', 'shockstar', 'swingJazz'],
     twoPiece: ['shockstar', 'king', 'swingJazz'],
   },
   anby: {
-    fourPiece: ['king', 'astralVoice', 'protoPunk', 'shockstar', 'swingJazz'],
+    fourPiece: ['king', 'astralVoice', 'shockstar', 'swingJazz'],
     twoPiece: ['shockstar', 'king', 'swingJazz'],
   },
   caesar: {
-    fourPiece: ['protoPunk', 'bunnyInWonderland'],
-    twoPiece: ['shockstar', 'protoPunk', 'king'],
+    fourPiece: ['bunnyInWonderland'],
+    twoPiece: ['swingJazz', 'shockstar', 'king'],
   },
   yeShunguang: {
     fourPiece: ['whiteWaterBallad', 'woodpecker', 'hormonePunk'],

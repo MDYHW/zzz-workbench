@@ -63,7 +63,7 @@ Koleda adds no new common mechanism.
 - The source boundary excludes Ben's deterministic per-EX shield amount and
   Shield Effect from Result and from positive setup axes. It retains only the
   Core shield's existence as the smallest internal condition for Ben's
-  Additional Ability CRIT contribution. Pulchra's Proto Punk package and
+  Additional Ability CRIT contribution. The removed Proto Punk identity and
   Lycaon's M4 remain contrasts whose survival clauses create no Result or
   positive candidate axis.
 - Game vocabulary owns Defense and Stun identity, Belobog faction, W-Engine
@@ -155,16 +155,18 @@ Koleda adds no new common mechanism.
   relationship and the distinct next-hit DEF operation; Spring remains through
   ATK and its transferable resource package. Neither conclusion credits the
   damage-reduction clauses.
-- R9. Ben's currently implemented 4-piece roster is Woodpecker Electro, Astral Voice,
-  Bunny in Wonderland, Proto Punk, and Swing Jazz. The current implementation
-  adds Puffer Electro only in the established Dialyn Ultimate-opportunity
-  context. His implemented 2-piece roster is Woodpecker, Branch & Blade,
-  Inferno Metal, Puffer Electro, Hormone Punk,
-  Astral Voice, Swing Jazz, Moonlight Lullaby, and Proto Punk, subject to the
-  different-set and exact same-effect identity rules. Proto's Shield Effect is
-  unused survival value for Ben and every other holder. U7 must re-inspect each
-  4-piece and 2-piece whole package; this correction neither keeps nor removes
-  Proto or any neighboring candidate.
+- R9. Ben's 4-piece roster is Woodpecker Electro, Astral Voice, Bunny in
+  Wonderland, and Swing Jazz. Dialyn's Ultimate opportunity contextually adds
+  Puffer Electro. His 2-piece roster is Woodpecker, Branch & Blade, Inferno
+  Metal, Puffer Electro, Hormone Punk, Astral Voice, Swing Jazz, and Moonlight
+  Lullaby under the different-set and exact same-effect identity rules.
+  Woodpecker is Ben's personal CRIT/ATK direction, Astral is the Focus-entrant
+  buffer direction and already reaches 16% at two stacks, Bunny uses Ben's own
+  shield to reach 18% squad DMG, and
+  Swing exchanges three percentage points of party DMG for Energy Regen.
+  Proto Punk is excluded from both pieces: Shield Effect supplies no positive
+  axis, and its passive Assist-triggered 15% squad clause does not survive the
+  complete-package comparison with Bunny or Swing.
 - R10. Ben's currently implemented main roster is CRIT Rate/CRIT DMG/DEF% in Slot 4;
   Fire DMG/PEN Ratio/ATK%/DEF% in Slot 5; and ATK%/DEF% in Slot 6. Its currently
   implemented effective-substat roster is CRIT Rate, CRIT DMG, ATK%, and DEF%.
@@ -175,8 +177,9 @@ Koleda adds no new common mechanism.
 - R11. Both pools prepare Tremor from its fully usable personal-damage package.
   The current Disc, main, and zero-substat preparation remains
   Woodpecker/Branch & Blade, CRIT Rate/Fire DMG/ATK%, and zero supplied hits.
-  U7 must settle the Disc package and U8 the finite future DEF-to-ATK
-  opportunity before those downstream first choices are reapproved.
+  U7 settles the Disc package above. U8 must still settle the finite future
+  DEF-to-ATK opportunity before the main, substat, and complete prepared first
+  choice are reapproved.
 
 ### Koleda kit, equipment, and prepared setup
 
@@ -207,15 +210,15 @@ Koleda adds no new common mechanism.
   Aftershock consumer, while Demara and Simmering Pot do not beat the retained
   resource or action packages with their narrower usable clauses. These are
   Koleda-local conclusions, not inherited Stun membership.
-- R15. Koleda's currently implemented 4-piece roster contains King of the
-  Summit, Astral Voice, Proto Punk, Shockstar Disco, and Swing Jazz; her
-  implemented 2-piece roster contains Shockstar, King, and Swing. King and
-  Astral supply distinct party packages; Proto has an Assist-triggered party
-  clause whose shield 2-piece remains unused for Koleda; Shockstar has
-  action-limited Daze; and Swing has a reachable Chain/Ultimate party-DMG
-  clause. U7 must compare those complete packages holder-locally before
-  reapproving the roster, including Proto. None establishes a universal Stun
-  order.
+- R15. Koleda's 4-piece roster contains King of the Summit, Astral Voice,
+  Shockstar Disco, and Swing Jazz; her 2-piece roster contains Shockstar, King,
+  and Swing. King and Astral supply distinct party packages, Shockstar has
+  action-limited Daze, and Swing combines a reachable Chain/Ultimate party-DMG
+  clause with Energy Regen. Proto Punk is excluded holder-locally because its
+  unused Shield Effect and passive Assist route do not make the same 15% party
+  axis competitive with Swing or the controllable Astral direction, which
+  already reaches 16% at two stacks.
+  This does not establish a universal Stun order.
 - R16. Koleda's base main candidates are ATK% in Slot 4, Fire DMG/ATK% in Slot
   5, and Impact in Slot 6. She has no base effective substats. Selected King
   adds CRIT Rate in Slot 4 and as an effective substat solely for the 50%
@@ -258,7 +261,7 @@ Koleda adds no new common mechanism.
 
 - AE1. After U6/U7 reinspection, candidate tests prove Ben's independently
   authored full/non-limited pools, complete source-owned off-Specialty packages,
-  Proto's holder-local non-survival package conclusion, Dialyn Puffer
+  Proto's holder-local exclusion, Dialyn Puffer
   absent/present/reselected lifecycle, and Koleda's base plus selected-King
   candidate lifecycle. One composed Ben flow covers broad pre-PEN pressure
   present, absent, and reselected: Slot 5 PEN and standalone Puffer 2-piece are
@@ -273,7 +276,8 @@ Koleda adds no new common mechanism.
 - AE3. Calculation tests prove Ben's DEF-to-ATK contribution, qualification
   on/off under the Additional Ability source, absence of Shield Effect and an
   exact shield operation, Big Cylinder's absence from Result, and retained
-  Mindscape actions. Pulchra Proto and Lycaon M4 likewise expose no shield Result.
+  Mindscape actions. The removed Proto identity and Lycaon M4 likewise create
+  no shield Result.
 - AE4. Calculation tests prove Koleda Core/M1 Daze scopes, qualified two-stack
   Chain DMG delivery, M4 and M6, Hellfire complete package, and one inactive
   Additional contrast.

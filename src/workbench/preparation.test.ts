@@ -8,7 +8,7 @@ import {
   DISC_IDS_BY_AGENT_AND_PIECE,
   ENGINE_IDS_BY_AGENT_AND_POOL,
 } from './content'
-import { effectiveFourPieceIds } from './candidates'
+import { effectiveFourPieceIds, effectiveTwoPieceIds } from './candidates'
 import { createPreparedState } from './state'
 
 const context = (
@@ -536,29 +536,38 @@ describe('party-directed preparation', () => {
 
   it('authors Caesar by pool without disturbing the established Focus/Stun allocation', () => {
     expect(prepareTargetSelection(context('caesar'), 'corin', [])).toEqual({
-      engineId: 'tusksOfFury', fourPieceId: 'protoPunk', twoPieceId: 'shockstar',
+      engineId: 'tusksOfFury', fourPieceId: 'bunnyInWonderland', twoPieceId: 'swingJazz',
       mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
     })
     expect(prepareTargetSelection(context('caesar', 'nonLimited'), 'corin', []))
       .toEqual({
-        engineId: 'hellfireGears', fourPieceId: 'protoPunk', twoPieceId: 'shockstar',
+        engineId: 'springEmbrace',
+        fourPieceId: 'bunnyInWonderland', twoPieceId: 'swingJazz',
         mains: { slot4: 'critRate', slot5: 'physicalDmg', slot6: 'impact' },
       })
+
+    const nonLimited = createPreparedState(
+      { caesar: 'nonLimited' }, ['corin', 'caesar', 'anby'], 0,
+    )
+    expect(nonLimited.slots[1].setup).toMatchObject({
+      pool: 'nonLimited', engineId: 'springEmbrace', refinement: 5,
+    })
 
     expect(preparePartySelections([
       context('corin'), context('caesar'), context('anby'),
     ], 'corin')).toMatchObject([
       {},
-      { fourPieceId: 'protoPunk', twoPieceId: 'shockstar' },
+      { fourPieceId: 'bunnyInWonderland', twoPieceId: 'swingJazz' },
       { fourPieceId: 'king', twoPieceId: 'shockstar' },
     ])
 
     const contextual = createPreparedState({}, ['corin', 'caesar', 'astraYao'], 0)
     expect(effectiveFourPieceIds(contextual, 1)).toEqual([
-      'protoPunk', 'bunnyInWonderland', 'astralVoice',
+      'bunnyInWonderland', 'astralVoice',
     ])
+    expect(effectiveTwoPieceIds(contextual, 1)).toEqual(['swingJazz', 'shockstar', 'king'])
     expect(contextual.slots[1].setup).toMatchObject({
-      fourPieceId: 'protoPunk', substats: {},
+      fourPieceId: 'bunnyInWonderland', twoPieceId: 'swingJazz', substats: {},
     })
   })
 
@@ -674,7 +683,7 @@ describe('party-directed preparation', () => {
       ],
     })
     expect(DISC_IDS_BY_AGENT_AND_PIECE.anby).toEqual({
-      fourPiece: ['king', 'astralVoice', 'protoPunk', 'shockstar', 'swingJazz'],
+      fourPiece: ['king', 'astralVoice', 'shockstar', 'swingJazz'],
       twoPiece: ['shockstar', 'king', 'swingJazz'],
     })
   })

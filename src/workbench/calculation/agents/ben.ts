@@ -181,16 +181,6 @@ export function resolveBenProviderClauses(
       ),
       { formulas: ['general_damage', 'sheer_damage'] },
     ),
-    withApplicability(
-      additive(
-        'dmgBonus', 'fully', discSource('ben', 'protoPunk', '4-piece'),
-        setup.fourPieceId === 'protoPunk'
-          ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.protoPunk.fourPiece.damage)
-          : 0,
-        'all-party', undefined, undefined, undefined, 'protoPunk',
-      ),
-      { formulas: ['general_damage', 'sheer_damage'] },
-    ),
     ...pufferElectroFourPieceClauses('ben', setup, ULTIMATE),
   ])
 }

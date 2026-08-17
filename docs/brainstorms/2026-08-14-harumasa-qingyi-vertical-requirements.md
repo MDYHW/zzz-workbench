@@ -145,14 +145,16 @@ output, runtime package score, or catalogue.
   Impact and broad two-threshold Daze +32%. Steam's repeated-EX resource/Daze
   balance selects the non-limited representative without removing Hellfire's
   higher-Base-ATK/Impact package or Precious's distinct Daze package.
-- R12. Qingyi's authored base 4-piece candidates are King of the Summit, Proto
-  Punk, Shockstar Disco, and Swing Jazz. King is the current crit-capable Focus
-  buffer package; Proto is Qingyi's bounded current Defensive-Assist squad-DMG
-  alternate with unused Shield Effect opportunity cost; Shockstar matches her
-  defining Basic Daze and sufficient field responsibility; Swing is the
-  Chain/Ultimate squad-DMG and Energy package. This Proto outcome is local to
-  Qingyi's current direction and does not generalize Pulchra's or another Stun
-  Agent's policy.
+- R12. Qingyi's authored base 4-piece candidates are King of the Summit,
+  Shockstar Disco, and Swing Jazz. King is the current crit-capable Focus
+  buffer package, Shockstar matches her defining Basic Daze and sufficient
+  field responsibility, and Swing is the Chain/Ultimate squad-DMG and Energy
+  package. Proto Punk is excluded holder-locally: its Shield Effect supplies no
+  positive axis and its Assist-triggered 15% squad DMG does not beat Swing's
+  equal party effect plus Energy or the contextual Astral package, whose two
+  reachable stacks already supply 16%, when a Quick Assist provider is present.
+  This does not generalize Qingyi's Basic-aligned
+  Shockstar or high-field-time Ice-Jade conclusions to another Stun Agent.
 - R13. A retained external Quick Assist opportunity from Nicole, Astra Yao, or
   Pan Yinhu adds Astral Voice to Qingyi's current effective 4-piece candidates.
   It does not change the authored base set or prepared King first choice. Party
@@ -324,7 +326,7 @@ output, runtime package score, or catalogue.
 - No runtime equipment optimizer, arbitrary package score, exact substat
   farming distribution, dynamic main-stat recommendation, or named-Agent Stun
   priority table.
-- Do not generalize Qingyi/Pulchra Proto evidence, Qingyi Astral context, or the
+- Do not generalize Qingyi/Pulchra Proto exclusions, Qingyi Astral context, or the
   accepted two-Stun tie outcome beyond their exact current consumers.
 - Do not turn action-limited Cordis, Potential, M2, M6, or Zanshin clauses into
   broad candidate pressure.

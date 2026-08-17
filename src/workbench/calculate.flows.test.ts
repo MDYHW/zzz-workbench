@@ -328,9 +328,9 @@ describe('representative calculation flows', () => {
       .toHaveLength(1)
   })
 
-  it('keeps Pulchra King local while Proto projects broad DMG once without a shield row', () => {
+  it('keeps Pulchra King local while Astral projects only to Focus', () => {
     const kingState = selectEngine(
-      createPreparedState({}, ['pulchra', 'lucia', 'corin'], 0),
+      createPreparedState({}, ['pulchra', 'lucia', 'corin'], 2),
       'lucia',
       'unfetteredGameBall',
     )
@@ -344,21 +344,22 @@ describe('representative calculation flows', () => {
       outputValue: 15,
     })
 
-    const protoState = selectMain(
-      selectDisc(kingState, 'pulchra', 'fourPiece', 'protoPunk'),
+    const astralState = selectMain(
+      selectDisc(kingState, 'pulchra', 'fourPiece', 'astralVoice'),
       'pulchra',
       'slot4',
       'atkPct',
     )
-    const protoResult = calculateParty(protoState)!
-    const protoPulchra = agent(protoResult, 'pulchra')
-    expect(protoPulchra.metrics.find(({ id }) => id === 'critRate')).toBeUndefined()
-    expect(protoPulchra.metrics.map(({ label }) => label)).not.toContain('Shield Effect')
-    expect(metric(protoPulchra, 'dmgBonus').breakdown.fully
-      .filter(({ label, ownerAgentId }) => label === 'Proto Punk' && ownerAgentId === 'pulchra'))
-      .toHaveLength(1)
-    expect(metric(agent(protoResult, 'corin'), 'dmgBonus').breakdown.fully)
-      .toContainEqual(expect.objectContaining({ label: 'Proto Punk', ownerAgentId: 'pulchra', amount: 15 }))
+    const astralResult = calculateParty(astralState)!
+    const astralPulchra = agent(astralResult, 'pulchra')
+    expect(astralPulchra.metrics.find(({ id }) => id === 'critRate')).toBeUndefined()
+    expect(metric(astralPulchra, 'dmgBonus').breakdown.fully
+      .filter(({ label, ownerAgentId }) => label === 'Astral Voice' && ownerAgentId === 'pulchra'))
+      .toHaveLength(0)
+    expect(metric(agent(astralResult, 'corin'), 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Astral Voice', ownerAgentId: 'pulchra',
+      }))
   })
 
   it('projects prepared Harumasa and Qingyi through their authored zero-hit representatives', () => {
@@ -446,16 +447,16 @@ describe('representative calculation flows', () => {
   })
 
   it('keeps Ben DEF and non-survival package effects without projecting survival inputs', () => {
-    let tusksProto = createPreparedState({}, ['ben', 'koleda', 'panYinhu'], 0)
-    tusksProto = selectEngine(tusksProto, 'ben', 'tusksOfFury')
-    tusksProto = selectDisc(tusksProto, 'ben', 'fourPiece', 'protoPunk')
-    const amplified = agent(calculateParty(tusksProto)!, 'ben')
+    let tusksBunny = createPreparedState({}, ['ben', 'koleda', 'panYinhu'], 0)
+    tusksBunny = selectEngine(tusksBunny, 'ben', 'tusksOfFury')
+    tusksBunny = selectDisc(tusksBunny, 'ben', 'fourPiece', 'bunnyInWonderland')
+    const amplified = agent(calculateParty(tusksBunny)!, 'ben')
     expect(metric(amplified, 'def').values.initial).toBe(908)
     expect(amplified.metrics.map(({ label }) => label)).not.toContain('Shield Effect')
     expect(amplified.operations.map(({ id }) => id)).not.toContain('benCoreShield')
     expect(metric(amplified, 'dmgBonus').breakdown.fully).toEqual(expect.arrayContaining([
       expect.objectContaining({ label: 'Tusks of Fury', ownerAgentId: 'ben', amount: 18 }),
-      expect.objectContaining({ label: 'Proto Punk', ownerAgentId: 'ben', amount: 15 }),
+      expect.objectContaining({ label: 'Bunny in Wonderland', ownerAgentId: 'ben', amount: 18 }),
     ]))
     expect(metric(amplified, 'dazeBonus').breakdown.fully).toContainEqual(
       expect.objectContaining({ label: 'Tusks of Fury', ownerAgentId: 'ben', amount: 12 }),
