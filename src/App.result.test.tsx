@@ -672,7 +672,7 @@ describe('integrated party workbench: result', () => {
     expect(m4Operation).toHaveAttribute('data-source-tone', 'agent-astraYao')
   })
 
-  it('renders Ben’s bounded shield operation and Koleda’s exact prepared Result', async () => {
+  it('renders Ben and Koleda exact prepared Results without a survival operation', async () => {
     const user = userEvent.setup()
     render(<App />)
     const replace = async (slot: number, agent: RegExp) => {
@@ -691,8 +691,10 @@ describe('integrated party workbench: result', () => {
       name: /DEF.*908.*908.*908/,
     })).toBeInTheDocument()
     const operations = within(benResult).getByRole('region', { name: 'Agent operations' })
+    expect(within(benResult).queryByText(/Shield Effect/i)).not.toBeInTheDocument()
+    expect(within(operations).queryByText(/Core shield/i)).not.toBeInTheDocument()
     expect(within(operations).getByRole('listitem', {
-      name: /Fully enabled Core shield per EX follow-up.*Core Passive.*[+]822[.]4/,
+      name: /Fully enabled Special[/]EX Block Counter added DMG Multiplier.*Mindscape.*M2.*[+]300[.]0% DEF/,
     })).toBeInTheDocument()
 
     await user.click(screen.getByRole('tab', { name: 'View Koleda Belobog setup and Result' }))

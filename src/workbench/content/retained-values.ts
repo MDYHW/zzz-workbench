@@ -310,7 +310,7 @@ export const VERTICAL_VALUES = {
   },
   ben: {
     atk: 867, def: 724, critRate: 5, critDmg: 50, impact: 95, baseEnergyRegen: 1.56,
-    coreDefToAtk: 80, coreShieldDefRatio: 30, coreShieldBase: 550,
+    coreDefToAtk: 80,
     additionalCritRate: 16,
     mindscapeCounterDefDamage: 300, mindscapeCounterDmg: 30, mindscapeDaze: 20,
   },
@@ -332,7 +332,6 @@ export const VERTICAL_VALUES = {
   caesar: {
     atk: 711, critRate: 5, critDmg: 50, impact: 123,
     additionalDmgBonus: 25,
-    coreShieldImpactRatio: 1400, coreShieldBase: 1400,
     coreFocusAtk: 1000, mindscapeFocusAtk: 1500,
     coreImpactByTier: [20, 22, 24],
     ultimateDazeByTier: [100, 110, 120],

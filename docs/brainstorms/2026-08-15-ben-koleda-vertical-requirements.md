@@ -9,16 +9,17 @@ topic: ben-koleda-vertical
 
 Add Ben Bigger and Koleda Belobog through the current setup-to-Result path.
 Ben is a current Fire damage contributor and buffer whose completed Core makes
-Initial DEF a retained ATK and shield basis. Koleda is a Fire Daze contributor
+Initial DEF a retained Combat ATK basis. Koleda is a Fire Daze contributor
 and Chain Attack buffer. Both reuse established general-damage, Daze, party
 qualification, equipment, preparation, direct-edit, and incomplete-selection
 behavior.
 
-Ben opens one bounded Result relationship: the deterministic squad shield
-created by one completed EX Special Attack follow-up. The relationship exposes
-the selected setup's Initial DEF, Shield Effect, and final per-activation shield
-without adding a generic survival formula, incoming-damage model, shield uptime,
-or shield catalogue. Koleda adds no new common mechanism.
+Ben's bounded linked Result relationship is Initial DEF to Combat ATK. His Core
+shield remains only as the internal source-local condition for an independently
+retained Additional Ability effect; Shield Effect and the shield amount are not
+Result or positive setup axes. Exact survival clauses can remain in compressed
+equipment copy when an independently admitted complete package needs them.
+Koleda adds no new common mechanism.
 
 ## Product Flows
 
@@ -26,12 +27,14 @@ or shield catalogue. Koleda adds no new common mechanism.
    Mindscape and one complete pool-specific starting setup, and inspect the
    retained Result without supplying substats.
 2. Ben's prepared setup strengthens his current personal damage. Direct edits
-   can instead select materially distinct DEF/shield, party-buffer, and
-   resource packages. Changing DEF updates Ben's Core shield and dependent ATK
-   contribution; changing Shield Effect updates only the shield.
+   can instead select currently exposed DEF, party-buffer, and resource
+   packages. Changing DEF updates Ben's Core ATK contribution. Shield Effect
+   and an exact shield amount do not enter Result or make an input positive.
 3. A qualified Ben exposes the Core-shield CRIT Rate bundle to the whole squad.
    Removing the qualifying Fire or Belobog teammate removes that bundle without
-   removing Ben's shield amount.
+   introducing or removing a visible shield amount. The Additional Ability owns
+   the CRIT contribution; the shield-active state remains only its internal
+   condition.
 4. Koleda's prepared King package participates in the current one-King Stun
    allocation. If either Stun can prepare Astral, the less-flexible holder keeps
    King and the flexible holder takes Astral. If both can prepare Astral, the
@@ -53,19 +56,22 @@ or shield catalogue. Koleda adds no new common mechanism.
 - Formula mechanics owns Initial DEF as a stat surface, Ben's linear DEF-to-ATK
   relationship, regular damage, CRIT, Impact, and Daze composition. Ben's Core
   has no threshold or cap; Pan's capped Initial-ATK relationship therefore must
-  not be reused as a shield or DEF gauge.
-- The source boundary admits Ben's deterministic per-EX shield because current
-  candidate inputs materially strengthen it. Proto Punk on Pulchra and
-  Lycaon's M4 remain contrasting shield clauses with no current local survival
-  output and therefore no shield Result.
+  not be reused as a DEF gauge.
+- The source boundary excludes Ben's deterministic per-EX shield amount and
+  Shield Effect from Result and from positive setup axes. It retains only the
+  Core shield's existence as the smallest internal condition for Ben's
+  Additional Ability CRIT contribution. Pulchra's Proto Punk package and
+  Lycaon's M4 remain contrasts whose survival clauses create no Result or
+  positive candidate axis.
 - Game vocabulary owns Defense and Stun identity, Belobog faction, W-Engine
   Specialty activation, Initial DEF inputs, and exact action terms. An
   off-Specialty W-Engine keeps Base ATK and its advanced stat while its passive
   remains inactive.
 - UI rules own compressed equipment copy, source origins, the expanded numeric
   Result, and accessible selected/candidate descriptions. Ben's Setup copy says
-  what Shield Effect or per-event package an item supplies; it does not copy the
-  Core formula into every candidate summary.
+  what Shield Effect or per-event survival package an item supplies when the
+  complete package is independently admitted; it does not project that copy to
+  Result or turn it into candidate rationale.
 
 ## Requirements
 
@@ -84,20 +90,18 @@ or shield catalogue. Koleda adds no new common mechanism.
 
 ### Ben Core, qualification, and progression
 
-- R3. Ben's completed Core adds 80% of his Initial DEF to Combat ATK. The same
-  Core creates a squad shield equal to 30% of Ben's Initial DEF plus 550 after
-  one EX Special Attack follow-up, lasting 30 seconds. Shield Effect scales the
-  final provided amount. Applicable Shield Effect percentages add before
-  scaling the source-stated basis: `shield = (0.3 * Initial DEF + 550) *
-  (1 + summed Shield Effect / 100)`. Result exposes Initial DEF, the Core ATK
-  contribution, Shield Effect only when nonzero, and one `Core shield per EX
-  follow-up` operation. It does not model shield uptime, damage absorption,
-  replacement, or incoming attacks.
+- R3. Ben's completed Core adds 80% of his Initial DEF to Combat ATK. Result
+  exposes Initial DEF and the Core Passive ATK contribution. It exposes neither
+  Shield Effect nor an exact Core shield amount or operation. The Core shield's
+  active state remains only where R4 needs that source-local condition; neither
+  that state nor an activation action acquires ownership of R4's effect.
 - R4. Ben's Additional Ability activates when another Agent shares his Fire
   Attribute or Belobog faction. While Ben's Core shield is active, all squad
   members gain CRIT Rate +16%. It is a Fully Enabled all-party CRIT clause tied
-  to Ben's exact Core shield, not to any shield in general. The shield amount
-  remains visible when the Additional Ability is unqualified.
+  to Ben's Core shield state, not to any shield in general. Result attributes
+  the contribution to `Additional Ability`; neither the shield state nor the EX
+  follow-up becomes its source, and no shield amount remains visible when the
+  Additional Ability is unqualified.
 - R5. Ben's Mindscapes apply cumulatively. M1's enemy damage reduction has no
   current Result consumer. M2 retains the source-stated added 300% DEF damage
   for a successful Special/EX Block Counter as one action operation. M4 adds
@@ -107,20 +111,28 @@ or shield catalogue. Koleda adds no new common mechanism.
 
 ### Ben equipment and prepared setup
 
-- R6. Ben's full W-Engine candidates are Tremor Trigram Vessel, Tusks of Fury,
+- R6. Ben's currently implemented full W-Engine pool contains Tremor Trigram
+  Vessel, Tusks of Fury,
   Cloudcleave Radiance, Hailstorm Shrine, Big Cylinder, and Spring Embrace.
-  His non-limited candidates are Tremor, Big Cylinder, and Spring Embrace.
-  Full and non-limited both prepare Tremor W5.
+  The implemented non-limited pool contains Tremor, Big Cylinder, and Spring
+  Embrace, and both currently prepare Tremor W5. This U5 correction does not
+  reapprove any membership or representative. U6 must re-inspect each holder-
+  and pool-local complete package without crediting survival value before any
+  listed engine is kept or removed as a product conclusion.
 - R7. Tremor is a matching-Defense complete damage package: Base ATK 624,
   advanced ATK +25%, EX/Ultimate DMG +40%, and its exact 3.2-Energy event
-  clause retained in Setup only. Tusks is a matching-Defense buffer package:
-  advanced Impact +18%, Shield Effect +30%, squad DMG +18%, and squad Daze
-  +12% at W1. Cloudcleave and Hailstorm are off-Specialty partial packages whose
-  passives are inactive; each retains Base ATK 743 and respectively CRIT DMG
+  clause retained in Setup only. Tusks' complete copy includes advanced Impact
+  +18%, Shield Effect +30%, squad DMG +18%, and squad Daze +12% at W1. Shield
+  Effect remains Setup-only survival copy and adds no positive axis; U6 compares
+  the remaining non-survival package. Cloudcleave and Hailstorm are off-
+  Specialty partial packages whose passives are inactive; each retains Base ATK
+  743 and respectively CRIT DMG
   +48% or CRIT Rate +24%. Hailstorm's inactive Anomaly passive is CRIT DMG
   +50% plus two 20% Ice-DMG stacks triggered by EX Special or any squad
-  Attribute Anomaly; none of it applies to Ben. They dominate the same-axis
-  lower-Base-ATK Severed Innocence and Heartstring Nocturne partial packages.
+  Attribute Anomaly; none of it applies to Ben. U6 must compare these currently
+  implemented partial packages with Severed Innocence, Heartstring Nocturne,
+  and every other legal same-axis alternative rather than preserving a prior
+  dominance conclusion.
 - R8. Big Cylinder is a matching-Defense local DEF package: Base ATK 624,
   advanced DEF +40%, DMG taken -12%, and at W5 the next hit after Ben is
   attacked is a guaranteed CRIT with an added 960% of DEF, once per 7.5
@@ -129,26 +141,30 @@ or shield catalogue. Koleda adds no new common mechanism.
   taken -12%, and after Ben is attacked grants Energy Generation Rate +16% for
   12 seconds; switching him off-field transfers the buff to the new on-field
   Agent and refreshes its duration. The event remains exact Setup package copy,
-  not Energy Regen or a Result operation.
-- R9. Ben's authored 4-piece candidates are Woodpecker Electro, Astral Voice,
-  Bunny in Wonderland, Proto Punk, and Swing Jazz. Puffer Electro is added only
-  in the established Dialyn Ultimate-opportunity context. His 2-piece candidates
-  are Woodpecker, Branch & Blade, Inferno Metal, Puffer Electro, Hormone Punk,
+  not Energy Regen or a Result operation. Their survival copy does not establish
+  membership; U6 owns the pending complete-package decision.
+- R9. Ben's currently implemented 4-piece roster is Woodpecker Electro, Astral Voice,
+  Bunny in Wonderland, Proto Punk, and Swing Jazz. The current implementation
+  adds Puffer Electro only in the established Dialyn Ultimate-opportunity
+  context. His implemented 2-piece roster is Woodpecker, Branch & Blade,
+  Inferno Metal, Puffer Electro, Hormone Punk,
   Astral Voice, Swing Jazz, Moonlight Lullaby, and Proto Punk, subject to the
   different-set and exact same-effect identity rules. Proto's Shield Effect is
-  material only because Ben has the R3 consumer; this does not make Proto's
-  shield clause material for another holder.
-- R10. Ben's main candidates are CRIT Rate/CRIT DMG/DEF% in Slot 4;
-  Fire DMG/PEN Ratio/ATK%/DEF% in Slot 5; and ATK%/DEF% in Slot 6. Effective
-  substats are CRIT Rate, CRIT DMG, ATK%, and DEF%. DEF strengthens both the
-  Core ATK relationship and the bounded shield result, while direct damage axes
-  remain independently material. Flat DEF is the materially weaker supplier of
-  the same uncapped linear relationships and is not admitted. This is an
-  authored multi-axis opportunity, not a runtime package score.
-- R11. Ben prepares Tremor, Woodpecker/Branch & Blade, CRIT Rate/Fire DMG/ATK%,
-  and zero supplied substat hits in both pools. The stronger prepared damage
-  package does not remove the finite future DEF opportunity or the editable
-  buffer packages.
+  unused survival value for Ben and every other holder. U7 must re-inspect each
+  4-piece and 2-piece whole package; this correction neither keeps nor removes
+  Proto or any neighboring candidate.
+- R10. Ben's currently implemented main roster is CRIT Rate/CRIT DMG/DEF% in Slot 4;
+  Fire DMG/PEN Ratio/ATK%/DEF% in Slot 5; and ATK%/DEF% in Slot 6. Its currently
+  implemented effective-substat roster is CRIT Rate, CRIT DMG, ATK%, and DEF%.
+  DEF strengthens the Core ATK relationship; no shield result supplies a second
+  DEF axis. Flat DEF is currently excluded. U8 must compare every listed
+  direction and Flat DEF's finite per-line opportunity before reapproving the
+  main/substat roster or that exclusion.
+- R11. The current implementation prepares Tremor, Woodpecker/Branch & Blade,
+  CRIT Rate/Fire DMG/ATK%, and zero supplied substat hits in both pools. This U5
+  correction does not reapprove that representative. U6/U7 will decide the
+  pool-local engine and Disc choices from non-survival whole packages, then U8
+  will settle the finite future DEF-to-ATK opportunity and prepared first choice.
 
 ### Koleda kit, equipment, and prepared setup
 
@@ -171,12 +187,15 @@ or shield catalogue. Koleda adds no new common mechanism.
   her EX/Daze direction; the other packages retain their current complete
   Impact, Daze, Basic-action, resource, and party-facing clauses exactly as for
   established Stun consumers.
-- R15. Koleda's 4-piece candidates are King of the Summit, Astral Voice, Proto
-  Punk, Shockstar Disco, and Swing Jazz. Her 2-piece candidates are Shockstar,
-  King, and Swing. King and Astral are distinct party packages; Proto is a
-  legal Assist-triggered party package whose shield 2-piece remains unused for
-  Koleda; Shockstar is action-limited Daze; Swing is a reachable
-  Chain/Ultimate party-DMG package. None establishes a universal Stun order.
+- R15. Koleda's currently implemented 4-piece roster contains King of the
+  Summit, Astral Voice, Proto Punk, Shockstar Disco, and Swing Jazz; her
+  implemented 2-piece roster contains Shockstar, King, and Swing. King and
+  Astral supply distinct party packages; Proto has an Assist-triggered party
+  clause whose shield 2-piece remains unused for Koleda; Shockstar has
+  action-limited Daze; and Swing has a reachable Chain/Ultimate party-DMG
+  clause. U7 must compare those complete packages holder-locally before
+  reapproving the roster, including Proto. None establishes a universal Stun
+  order.
 - R16. Koleda's base main candidates are ATK% in Slot 4, Fire DMG/ATK% in Slot
   5, and Impact in Slot 6. She has no base effective substats. Selected King
   adds CRIT Rate in Slot 4 and as an effective substat solely for the 50%
@@ -202,8 +221,10 @@ or shield catalogue. Koleda adds no new common mechanism.
   allocation. An unaffected single-Stun party proves no pass leaks.
 - R19. Ben Result exposes ATK, DEF, CRIT Rate, CRIT DMG, DMG Bonus, PEN Ratio
   when nonzero, Impact, Energy Regen, Daze, retained M4 DMG and M6 Daze action
-  modifiers, optional Shield Effect, the Core shield operation, and the M2
-  added-multiplier operation. Koleda exposes
+  modifiers, and the M2 added-multiplier operation. It exposes no Shield Effect
+  or Core shield amount. The DEF-to-ATK contribution is owned by Core Passive;
+  the qualified all-party CRIT contribution is owned by Additional Ability.
+  Koleda exposes
   ATK only when needed by a retained operation, CRIT only when selected inputs
   or inbox effects supply it, Impact, Energy Regen when nonzero, Daze, retained
   action modifiers, and applicable M6 operations. Provider effects project to
@@ -215,8 +236,9 @@ or shield catalogue. Koleda adds no new common mechanism.
 
 ## Acceptance Evidence
 
-- AE1. Candidate tests prove Ben's full/non-limited pools, complete inactive
-  off-Specialty packages, Proto shield consumer, Dialyn Puffer
+- AE1. After U6/U7 reinspection, candidate tests prove Ben's independently
+  authored full/non-limited pools, complete inactive off-Specialty packages,
+  Proto's holder-local non-survival package conclusion, Dialyn Puffer
   absent/present/reselected lifecycle, and Koleda's base plus selected-King
   candidate lifecycle. One composed Ben flow covers broad pre-PEN pressure
   present, absent, and reselected: Slot 5 PEN and standalone Puffer 2-piece are
@@ -228,37 +250,42 @@ or shield catalogue. Koleda adds no new common mechanism.
   Koleda/Trigger flexible two-Stun ties in all slot orders, a rigid
   Dialyn-or-Ju-Fufu King holder plus Koleda Astral in all slot orders, and the
   existing neither-Astral King/Shockstar contrast.
-- AE3. Calculation tests prove Ben's DEF-to-ATK contribution, base and
-  simultaneously Tusks-plus-Proto-amplified Core shield, qualification on/off,
-  Big Cylinder's absence from Result, and retained Mindscape actions. Pulchra
-  Proto and Lycaon M4 still expose no shield Result.
+- AE3. Calculation tests prove Ben's DEF-to-ATK contribution, qualification
+  on/off under the Additional Ability source, absence of Shield Effect and an
+  exact shield operation, Big Cylinder's absence from Result, and retained
+  Mindscape actions. Pulchra Proto and Lycaon M4 likewise expose no shield Result.
 - AE4. Calculation tests prove Koleda Core/M1 Daze scopes, qualified two-stack
   Chain DMG delivery, M4 and M6, Hellfire complete package, and one inactive
   Additional contrast.
 - AE5. Shared UI tests prove both Agents render in selection, Setup candidates
   and selected copy are accessible, Result stays empty when incomplete, and
-  the new bounded shield operation renders without introducing generic survival
-  UI.
+  no Shield Effect or exact shield operation renders. Complete selected and
+  candidate equipment may retain exact survival copy without creating generic
+  survival UI.
 - AE6. Original portrait assets and in-app Browser checks cover desktop and one
   narrow viewport with Ben and Koleda expanded and compact before closure.
 
 ## Rejected Alternatives And Boundaries
 
-- Do not omit Ben's shield amount: DEF, Tusks, and Proto change a deterministic
-  current candidate-visible outcome. Do not add generic shield, healing,
-  survival, incoming-damage, uptime, or replacement infrastructure.
-- Do not make DEF the prepared first choice merely because it strengthens two
-  retained Ben relationships. Current damage practice keeps the zero-substat
-  representative on CRIT/Fire/ATK; editable DEF remains a separate finite axis.
-- Do not admit every off-Specialty CRIT W-Engine. Cloudcleave and Hailstorm are
-  the closest current high-Base-ATK partial packages; their lower-Base-ATK
-  same-axis counterparts are dominated for Ben.
+- Do not expose Ben's shield amount or Shield Effect in Result and do not use
+  either to justify DEF, Tusks, Proto, or another setup direction. Do not add
+  generic shield, healing, survival, incoming-damage, uptime, or replacement
+  infrastructure. Preserve only the smallest internal shield condition needed
+  by Additional Ability and complete equipment survival copy after independent
+  non-survival admission.
+- Do not make DEF the prepared first choice from a removed shield axis. U8 must
+  compare its remaining finite DEF-to-ATK opportunity with the other current
+  investment directions before reapproving a representative.
+- Do not admit or retain every off-Specialty CRIT W-Engine from a positive stat
+  or a prior same-axis dominance claim. U6 must compare Cloudcleave, Hailstorm,
+  Severed Innocence, Heartstring Nocturne, and other legal alternatives as
+  pool-local whole packages before settling Ben's partial candidates.
 - Do not project Tremor's event Energy, Spring's Energy Generation Rate, Big
   Cylinder's incoming-damage proc, Koleda M2 Energy, damage reduction, ordinary
   skill coefficients, raw/final damage or Daze, coordinated Ben/Koleda
   skill-table variants, Furnace Fire uptime, rotations, or action frequency.
-- Do not generalize Ben's shield consumer to Proto on Pulchra, Koleda, or any
-  other current holder. Do not infer a universal Stun priority from Koleda's
-  local King/Astral tie.
+- Do not generalize Ben's internal shield condition into a positive Proto axis
+  on Ben, Pulchra, Koleda, or any other current holder. Do not infer a universal
+  Stun priority from Koleda's local King/Astral tie.
 - Do not add a runtime equipment optimizer, package score, exact Disc-line
   feasibility model, shield catalogue, or named-Agent allocation framework.
