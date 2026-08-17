@@ -30,6 +30,6 @@ jobs:
         shell: bash
         run: |
           changed_paths_file="$RUNNER_TEMP/pre-u9-changed-paths"
-          git diff --name-only -z "$BASE_SHA" HEAD > "$changed_paths_file"
+          git diff --no-renames --name-only -z "$BASE_SHA" HEAD > "$changed_paths_file"
           mapfile -d '' -t changed_paths < "$changed_paths_file"
           node scripts/governance/check-policy.mjs pre-u9-visual "${changed_paths[@]}"
