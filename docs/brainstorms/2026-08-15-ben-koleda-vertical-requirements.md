@@ -167,19 +167,20 @@ Koleda adds no new common mechanism.
   Proto Punk is excluded from both pieces: Shield Effect supplies no positive
   axis, and its passive Assist-triggered 15% squad clause does not survive the
   complete-package comparison with Bunny or Swing.
-- R10. Ben's currently implemented main roster is CRIT Rate/CRIT DMG/DEF% in Slot 4;
-  Fire DMG/PEN Ratio/ATK%/DEF% in Slot 5; and ATK%/DEF% in Slot 6. Its currently
-  implemented effective-substat roster is CRIT Rate, CRIT DMG, ATK%, and DEF%.
-  DEF strengthens the Core ATK relationship; no shield result supplies a second
-  DEF axis. Flat DEF is currently excluded. U8 must compare every listed
-  direction and Flat DEF's finite per-line opportunity before reapproving the
-  main/substat roster or that exclusion.
+- R10. Ben's main roster is CRIT Rate/CRIT DMG/ATK% in Slot 4, Fire DMG/PEN
+  Ratio/ATK% in Slot 5, and ATK% in Slot 6; effective substats are CRIT Rate,
+  CRIT DMG, and ATK%. DEF and ATK both supply his one Combat ATK axis through
+  Core's `0.8 × DEF` relation: at Ben ATK 867 and Tremor Base ATK 624, an ATK%
+  hit adds 44.73 Combat ATK while a DEF% hit adds 27.8016 and flat DEF adds 12;
+  an ATK% main adds 447.3 while a DEF% main adds 278.016. DEF main, DEF%, and
+  flat DEF therefore lose the finite same-axis comparison.
+  Big Cylinder's fixed DEF and event operation remain complete package facts,
+  not repeatable setup investment directions.
 - R11. Both pools prepare Tremor from its fully usable personal-damage package.
   The current Disc, main, and zero-substat preparation remains
   Woodpecker/Branch & Blade, CRIT Rate/Fire DMG/ATK%, and zero supplied hits.
-  U7 settles the Disc package above. U8 must still settle the finite future
-  DEF-to-ATK opportunity before the main, substat, and complete prepared first
-  choice are reapproved.
+  The finite DEF-to-ATK comparison in R10 preserves this representative without
+  a runtime optimizer.
 
 ### Koleda kit, equipment, and prepared setup
 
@@ -297,9 +298,8 @@ Koleda adds no new common mechanism.
   infrastructure. Preserve only the smallest internal shield condition needed
   by Additional Ability and complete equipment survival copy after independent
   non-survival admission.
-- Do not make DEF the prepared first choice from a removed shield axis. U8 must
-  compare its remaining finite DEF-to-ATK opportunity with the other current
-  investment directions before reapproving a representative.
+- Do not retain DEF as a prepared or repeatable investment merely because it
+  has positive arithmetic through Core: ATK is the stronger same-axis supplier.
 - Do not admit every off-Specialty CRIT W-Engine from a positive stat.
   Cloudcleave and Hailstorm survive the holder-local comparison because their
   equal-rarity CRIT Rate/CRIT DMG exchange changes the complete finite setup;

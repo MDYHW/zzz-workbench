@@ -191,10 +191,10 @@ and genuine multi-recipient effects keep their actual rules.
   2-piece, CRIT Rate / PEN Ratio / ATK% mains, and zero effective
   substats. The full first choice uses Cordis's 713 Base ATK, 24% advanced CRIT
   Rate, 15% passive CRIT Rate, and reachable 20% Basic/Ultimate DEF Ignore even
-  though its Electric DMG clause is unused. Reserving eight CRIT Rate and CRIT
-  DMG hits makes full-pool Woodpecker plus a CRIT Rate main exceed the 100%
-  CRIT Rate cap; Branch preserves the higher stable CRIT Rate supplied by the
-  main without wasting the 2-piece on further CRIT Rate. The non-limited first choice uses
+  though its Electric DMG clause is unused. With eight CRIT Rate hits, Cordis,
+  Woodpecker, and a CRIT Rate main total 95.2%, not an overcap. Branch remains
+  the full representative because its CR/CD distribution has the stronger whole
+  expected-crit consequence, rather than by a false cap claim. The non-limited first choice uses
   Steel's higher-base, broad Physical, and back-attack package rather than
   defaulting to an A-Rank fallback.
 - R10. Material broad pre-PEN pressure applies to Corin through her
