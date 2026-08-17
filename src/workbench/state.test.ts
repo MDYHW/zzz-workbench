@@ -1342,6 +1342,14 @@ describe('workbench state lifecycle', () => {
       engineId: 'springEmbrace', refinement: 5, ...downstreamBeforeEngine,
     })
 
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 1, engineId: 'tusksOfFury',
+    })
+    expect(state.slots[1].setup).toMatchObject({
+      pool: 'full', engineId: 'tusksOfFury', refinement: 1,
+      ...downstreamBeforeEngine,
+    })
+
     const corinBeforePool = state.slots[0]
     const astraBeforePool = state.slots[2]
     state = workbenchReducer(state, { type: 'switchPool', slot: 1, pool: 'nonLimited' })

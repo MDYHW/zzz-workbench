@@ -475,7 +475,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
   },
   caesar: {
     fourPiece: ['bunnyInWonderland'],
-    twoPiece: ['swingJazz'],
+    twoPiece: ['swingJazz', 'shockstar', 'king'],
   },
   yeShunguang: {
     fourPiece: ['whiteWaterBallad', 'woodpecker', 'hormonePunk'],

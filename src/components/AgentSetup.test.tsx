@@ -234,7 +234,8 @@ describe('AgentSetup partial W-Engine package', () => {
     },
   )
 
-  it('shows Caesar source-owned candidates while leaving compatibility to Result', () => {
+  it('shows Caesar source-owned candidates while leaving compatibility to Result', async () => {
+    const user = userEvent.setup()
     const state = createPreparedState(
       { caesar: 'nonLimited' },
       ['corin', 'caesar', 'astraYao'],
@@ -253,13 +254,21 @@ describe('AgentSetup partial W-Engine package', () => {
       />,
     )
 
-    expect(screen.getByLabelText('Spring Embrace selected')).toHaveAccessibleDescription(
+    expect(screen.getByRole('button', { name: 'Change W-Engine from Spring Embrace' }))
+      .toHaveAccessibleDescription(
       'ATK +25%. DMG taken -12%. Energy Generation Rate +16% · Transfers to next on-field Agent',
-    )
-    expect(screen.queryByRole('button', { name: /Hellfire Gears/ })).not.toBeInTheDocument()
+      )
+    await user.click(screen.getByRole('button', { name: 'Change W-Engine from Spring Embrace' }))
+    expect(screen.getByRole('button', { name: 'Select Hellfire Gears W1' }))
+      .toHaveAccessibleDescription('Impact +18%. Energy +0.6/s. Impact +20%')
     expect(screen.queryByText(/Specialty passive inactive|Inactive ·/)).not.toBeInTheDocument()
-    expect(screen.getByLabelText('Swing Jazz selected as 2-piece'))
+    expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Swing Jazz' }))
       .toHaveAccessibleDescription('Energy Regen +20%')
+    await user.click(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Swing Jazz' }))
+    expect(screen.getByRole('button', { name: 'Select Shockstar Disco as twoPiece' }))
+      .toHaveAccessibleDescription('Impact +6%')
+    expect(screen.getByRole('button', { name: 'Select King of the Summit as twoPiece' }))
+      .toHaveAccessibleDescription('Daze +6%')
   })
 
   it('preserves Deep Sea Visitor’s complete selected and candidate descriptions', async () => {

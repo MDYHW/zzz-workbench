@@ -175,6 +175,15 @@ export function resolveCaesarProviderClauses(
       { formulas: ['daze_buildup'] },
     ),
 
+    additive(
+      'dazeBonus', 'initial',
+      discSource('caesar', 'king', '2-piece'),
+      setup.twoPieceId === 'king'
+        ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze)
+        : 0,
+      'self',
+    ),
+
     withApplicability(
       additive(
         'dmgBonus', 'fully', discSource('caesar', 'bunnyInWonderland', '4-piece'),
@@ -211,6 +220,10 @@ export function calculateCaesar(
   const impactInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'caesar', 'impactPct'),
     mainStatInput(setup, 'caesar', 'slot6', 'impact'),
+    discStatInput(
+      setup, 'caesar', 'twoPiece', 'shockstar',
+      equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact),
+    ),
   ])
   const initialImpact = values.impact * (
     1 + impactInputs.reduce((sum, input) => sum + input.rawValue, 0) / 100

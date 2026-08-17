@@ -11,7 +11,7 @@ Admit Caesar King through the current setup-to-Result path. Caesar is an
 S-Rank Physical Defense buffer whose setup is centered on her Focus-routed ATK
 benefit and qualified broad regular DMG Bonus. Her retained Impact and Daze
 facts remain secondary Result interpretation; neither an existing Daze value
-nor her Defense Specialty creates a Daze-investment role. Her Core
+nor her Defense Specialty creates a primary Daze-investment role. Her Core
 shield remains only as an internal condition for independently retained
 non-survival effects; Shield Effect and an exact shield amount or operation are
 not Result or positive setup axes. The vertical reuses existing Impact, Daze,
@@ -96,13 +96,15 @@ direction, raw damage, raw Daze, or runtime optimizer.
   default, and not Focus-eligible. Her setup role is buffer. She has no primary
   formula participation; `daze_buildup` and `general_damage` are residual only
   for retained source-compatible and action projection. Formula participation,
-  a positive Daze number, and Defense Specialty do not by themselves create a
-  Daze-investment role. Her squad benefits do not make her a damage Focus, and
-  her shield supplies no positive setup or Result axis.
+  a positive Daze number, and Defense Specialty do not by themselves make Daze
+  a primary preparation role. Her squad benefits do not make her a damage
+  Focus, and her shield supplies no positive setup or Result axis.
 - R2. Retain completed ATK 711, CRIT Rate 5%, CRIT DMG 50%, and Impact 123.
   ATK supplies the residual variable-main and M6
-  action consumer; Impact supplies retained Daze interpretation but is not a
-  positive candidate axis. HP and DEF remain absent because
+  action consumer; Impact supplies a retained non-survival Impact-to-Daze
+  relationship but does not make Caesar a primary Daze-investment role. That
+  relationship can support a secondary candidate when its input-specific
+  opportunity cost remains competitive. HP and DEF remain absent because
   neither changes a current candidate,
   prepared choice, threshold, formula, operation, or Result.
 - R3. Caesar's Additional Ability is active when another applied Agent can
@@ -149,9 +151,9 @@ direction, raw damage, raw Daze, or runtime optimizer.
 
 ### W-Engine authoring
 
-- R9. Caesar's full W-Engine pool contains Tusks of Fury and Spring Embrace.
-  Her non-limited S-Rank pool contains Spring. Full prepares Tusks W1 and
-  non-limited prepares Spring W5. Under SW-010,
+- R9. Caesar's full W-Engine pool contains Tusks of Fury, Hellfire Gears, and
+  Spring Embrace. Her non-limited S-Rank pool contains Hellfire and Spring.
+  Full prepares Tusks W1 and non-limited prepares Spring W5. Under SW-010,
   City Fund Spring remains eligible as an A-Rank. Membership and representative
   authoring are independently supported per pool without crediting survival
   value.
@@ -162,21 +164,22 @@ direction, raw damage, raw Daze, or runtime optimizer.
   Impact and squad Daze are source-compatible incidental projections, not the
   membership rationale. Hellfire's Base ATK 684 and advanced Initial Impact
   +18% are its only usable Caesar effects; its Stun-only Energy/Fully-Impact
-  passive is inactive. Without a Daze-investment role, that partial package is
-  not competitive with either retained buffer direction and is excluded.
+  passive is inactive. Its usable Impact-to-Daze package remains a competitive
+  secondary direction in the non-limited pool against Demara and Original, but
+  does not displace Spring's distinct transferable-resource direction or the
+  Tusks full-pool representative.
 - R11. Demara has Base ATK 624 and advanced
   Initial Impact +15%, which can project retained Daze, while its Stun-only
   Electric DMG/Energy Generation passive does not apply to Caesar. It is
-  excluded with Hellfire because an Impact-only partial package does not serve
-  Caesar's buffer role; A-Rank accessibility alone does not create a material
-  choice. Original
+  excluded because its always-available Impact is lower than Hellfire's +18%;
+  A-Rank accessibility alone does not create a material choice. Original
   Transmorpher is A-Rank non-limited with Base ATK 594, advanced HP +25%,
   holder Max HP +8% / 9% / 10% / 11% / 12.5%, and after being attacked Fully
   Enabled Impact +10% / 11.5% / 13% / 14.5% / 16% from W1-W5.
   Original's HP is unused and its active Fully Enabled Impact +16% at W5 is
-  lower than the available Impact comparators. It is excluded after its unused
-  opportunity cost because neither HP nor Impact creates a competitive buffer
-  direction here.
+  lower than Hellfire's always-available Initial Impact +18%. It is excluded
+  from the same Daze direction after charging its unused HP and survival
+  opportunity cost.
 - R12. Spring Embrace is admitted to both pools. Its A-Rank W5 package supplies
   Base ATK 594, advanced ATK +25%, damage reduction, and Energy Generation Rate
   +16% that transfers to the next on-field Agent. Damage reduction supplies no
@@ -202,14 +205,18 @@ direction, raw damage, raw Daze, or runtime optimizer.
   while Swing's Energy Regen can occupy the independent 2-piece slot beside
   Bunny. Shockstar 4-piece does not match Caesar's
   defining Special/Assist Daze, and Freedom Blues has no current anomaly axis.
-- R14. Caesar's 2-piece roster contains Swing Jazz only. Its Energy Regen +20%
-  is the resource complement beside Bunny 4-piece. Shockstar's Initial Impact
-  +6% and King's Daze +6% do not serve the buffer role and are excluded rather
-  than being preserved by merely positive arithmetic. Proto's Shield Effect
-  supplies no positive axis and is excluded.
+- R14. Caesar's 2-piece roster contains Swing Jazz, Shockstar Disco, and King
+  of the Summit. Swing Jazz's Energy Regen +20% is the prepared buffer/resource
+  complement beside Bunny 4-piece. Shockstar's Initial Impact +6% feeds the
+  retained broad Impact-to-Daze relationship, while King's Daze +6% occupies a
+  separate formula region. Current fixed Impact supply favors King for ordinary
+  Daze, while the shielded Ultimate's existing action Daze Bonus changes their
+  relative value; neither uniformly dominates across both outcomes. Both remain
+  candidates despite Swing being prepared first.
+  Proto's Shield Effect supplies no positive axis and is excluded.
   U8 separately settles shared finite-investment and representative main/substat
-  behavior. Excluding King 2-piece does not change King 4-piece membership or
-  allocation for actual Stun holders.
+  behavior. Caesar's King 2-piece membership neither admits King 4-piece for
+  Caesar nor changes King allocation for actual Stun holders.
 - R15. The currently implemented main roster is CRIT Rate/CRIT DMG/ATK% in Slot
   4, Physical DMG/ATK%/PEN Ratio in Slot 5, and Impact in Slot 6; the implemented
   base effective-substat roster is empty. Shield Effect is not a positive axis
@@ -322,9 +329,10 @@ direction, raw damage, raw Daze, or runtime optimizer.
   because a guide names them or a number is positive. Holder eligibility,
   passive applicability, complete package, same-axis comparator, zero-substat
   opportunity cost, and pool-specific representative decide each local
-  outcome. That comparison excludes Original and Demara, excludes the
-  off-Specialty Stun packages, and independently admits Spring's distinct
-  transferable resource direction.
+  outcome. That comparison excludes Original and Demara, admits Hellfire's
+  competitive advanced-Impact package while leaving its Stun-only passive
+  inactive, and independently admits Spring's distinct transferable resource
+  direction.
 - Do not add anomaly equipment, anomaly formula participation, or Freedom
   Blues before the roadmap's anomaly semantic gate is independently closed.
 

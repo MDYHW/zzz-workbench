@@ -1841,6 +1841,33 @@ describe('authored calculation policies', () => {
         .not.toContain('dmgTaken')
       expect(action(caesar, 'caesarShieldedUltimate').values.fully).toBe(112)
 
+      const shockstar = agent(calculateParty(selectDisc(
+        base, 'caesar', 'twoPiece', 'shockstar',
+      ))!, 'caesar')
+      expect(metric(shockstar, 'impact').breakdown.initial).toContainEqual(
+        expect.objectContaining({ label: 'Shockstar Disco', ownerAgentId: 'caesar', amount: 7.38 }),
+      )
+      expect(metric(shockstar, 'dazeBonus').breakdown.initial)
+        .not.toContainEqual(expect.objectContaining({ label: 'Shockstar Disco' }))
+
+      const king = agent(calculateParty(selectDisc(
+        base, 'caesar', 'twoPiece', 'king',
+      ))!, 'caesar')
+      expect(metric(king, 'dazeBonus').breakdown.initial).toContainEqual(
+        expect.objectContaining({ label: 'King of the Summit', ownerAgentId: 'caesar', amount: 6 }),
+      )
+      expect(king.metrics.map(({ id }) => id)).not.toContain('energyRegen')
+
+      const ordinaryDazeOpportunity = (result: ReturnType<typeof agent>) =>
+        metric(result, 'impact').values.fully
+          * (100 + metric(result, 'dazeBonus').values.fully)
+      const shieldedUltimateDazeOpportunity = (result: ReturnType<typeof agent>) =>
+        metric(result, 'impact').values.fully
+          * (100 + action(result, 'caesarShieldedUltimate').values.fully)
+      expect(ordinaryDazeOpportunity(king)).toBeGreaterThan(ordinaryDazeOpportunity(shockstar))
+      expect(shieldedUltimateDazeOpportunity(shockstar))
+        .toBeGreaterThan(shieldedUltimateDazeOpportunity(king))
+
       expect(metric(corin, 'dmgBonus').breakdown.fully)
         .toContainEqual(expect.objectContaining({
           label: 'Bunny in Wonderland', ownerAgentId: 'caesar', amount: 18,
@@ -1932,6 +1959,21 @@ describe('authored calculation policies', () => {
         .toContainEqual(expect.objectContaining({
           label: 'Additional Ability', ownerAgentId: 'caesar', amount: 25,
         }))
+
+      const hellfire = agent(calculateParty(selectEngine(
+        base, 'caesar', 'hellfireGears',
+      ))!, 'caesar')
+      expect(metric(hellfire, 'impact').breakdown.initial)
+        .toContainEqual(expect.objectContaining({
+          label: 'Hellfire Gears', detail: 'W1', amount: expect.closeTo(22.14),
+          display: { value: 18, unit: '%', decimals: 0 },
+        }))
+      expect(metric(hellfire, 'impact').breakdown.fully)
+        .not.toContainEqual(expect.objectContaining({
+          label: 'Hellfire Gears', detail: 'W1',
+        }))
+      expect(metric(hellfire, 'energyRegen').breakdown.initial)
+        .not.toContainEqual(expect.objectContaining({ label: 'Hellfire Gears' }))
 
       const spring = agent(calculateParty(selectEngine(
         base, 'caesar', 'springEmbrace',

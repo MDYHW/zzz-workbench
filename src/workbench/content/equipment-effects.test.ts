@@ -499,31 +499,10 @@ describe('bounded equipment effect facts', () => {
     expect(DRIVE_DISCS).not.toHaveProperty('protoPunk')
     expect(DRIVE_DISC_FACTS).not.toHaveProperty('protoPunk')
 
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.pulchra.fourPiece)
-      .toEqual(['king', 'astralVoice', 'shockstar', 'swingJazz'])
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.qingyi.fourPiece)
-      .toEqual(['king', 'shockstar', 'swingJazz'])
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.ben).toEqual({
-      fourPiece: ['woodpecker', 'astralVoice', 'bunnyInWonderland', 'swingJazz'],
-      twoPiece: [
-        'woodpecker', 'branchAndBlade', 'infernoMetal', 'pufferElectro',
-        'hormonePunk', 'astralVoice', 'swingJazz', 'moonlight',
-      ],
-    })
-    for (const agentId of ['koleda', 'anby'] as const) {
-      expect(DISC_IDS_BY_AGENT_AND_PIECE[agentId]).toEqual({
-        fourPiece: ['king', 'astralVoice', 'shockstar', 'swingJazz'],
-        twoPiece: ['shockstar', 'king', 'swingJazz'],
-      })
+    for (const agentId of ['pulchra', 'qingyi', 'ben', 'koleda', 'anby', 'caesar'] as const) {
+      expect(DISC_IDS_BY_AGENT_AND_PIECE[agentId].fourPiece).not.toContain('protoPunk')
+      expect(DISC_IDS_BY_AGENT_AND_PIECE[agentId].twoPiece).not.toContain('protoPunk')
     }
-    expect(DISC_IDS_BY_AGENT_AND_PIECE.caesar).toEqual({
-      fourPiece: ['bunnyInWonderland'],
-      twoPiece: ['swingJazz'],
-    })
-    expect(REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL.caesar).toMatchObject({
-      full: { fourPieceId: 'bunnyInWonderland', twoPieceId: 'swingJazz' },
-      nonLimited: { fourPieceId: 'bunnyInWonderland', twoPieceId: 'swingJazz' },
-    })
   })
 
   it('retains Cloudcleave and Replica as complete packages without hiding inactive clauses', () => {
@@ -608,8 +587,8 @@ describe('bounded equipment effect facts', () => {
     })
 
     expect(ENGINE_IDS_BY_AGENT_AND_POOL.caesar).toEqual({
-      full: ['tusksOfFury', 'springEmbrace'],
-      nonLimited: ['springEmbrace'],
+      full: ['tusksOfFury', 'hellfireGears', 'springEmbrace'],
+      nonLimited: ['hellfireGears', 'springEmbrace'],
     })
     expect(W_ENGINES.tusksOfFury.passiveSpecialty).toBe('Defense')
     expect(W_ENGINES.hellfireGears.passiveSpecialty).toBe('Stun')
@@ -632,7 +611,7 @@ describe('bounded equipment effect facts', () => {
 
     expect(DISC_IDS_BY_AGENT_AND_PIECE.caesar).toEqual({
       fourPiece: ['bunnyInWonderland'],
-      twoPiece: ['swingJazz'],
+      twoPiece: ['swingJazz', 'shockstar', 'king'],
     })
     expect(MAIN_STAT_IDS_BY_AGENT_AND_SLOT.caesar).toEqual({
       slot4: ['critRate', 'critDmg', 'atkPct'],

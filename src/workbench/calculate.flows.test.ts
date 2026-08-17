@@ -330,7 +330,7 @@ describe('representative calculation flows', () => {
 
   it('keeps Pulchra King local while Astral projects only to Focus', () => {
     const kingState = selectEngine(
-      createPreparedState({}, ['pulchra', 'lucia', 'corin'], 0),
+      createPreparedState({}, ['pulchra', 'lucia', 'corin'], 2),
       'lucia',
       'unfetteredGameBall',
     )
@@ -355,9 +355,9 @@ describe('representative calculation flows', () => {
     expect(astralPulchra.metrics.find(({ id }) => id === 'critRate')).toBeUndefined()
     expect(metric(astralPulchra, 'dmgBonus').breakdown.fully
       .filter(({ label, ownerAgentId }) => label === 'Astral Voice' && ownerAgentId === 'pulchra'))
-      .toHaveLength(1)
+      .toHaveLength(0)
     expect(metric(agent(astralResult, 'corin'), 'dmgBonus').breakdown.fully)
-      .not.toContainEqual(expect.objectContaining({
+      .toContainEqual(expect.objectContaining({
         label: 'Astral Voice', ownerAgentId: 'pulchra',
       }))
   })

@@ -565,7 +565,7 @@ describe('party-directed preparation', () => {
     expect(effectiveFourPieceIds(contextual, 1)).toEqual([
       'bunnyInWonderland', 'astralVoice',
     ])
-    expect(effectiveTwoPieceIds(contextual, 1)).toEqual(['swingJazz'])
+    expect(effectiveTwoPieceIds(contextual, 1)).toEqual(['swingJazz', 'shockstar', 'king'])
     expect(contextual.slots[1].setup).toMatchObject({
       fourPieceId: 'bunnyInWonderland', twoPieceId: 'swingJazz', substats: {},
     })

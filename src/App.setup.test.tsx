@@ -29,7 +29,7 @@ describe('integrated party workbench: setup', () => {
     })).toHaveAccessibleDescription(
       'Squad DMG +18%. HP +10%',
     )
-    expect(screen.getByLabelText('Swing Jazz selected as 2-piece'))
+    expect(screen.getByRole('button', { name: 'Change 2-piece Drive Disc from Swing Jazz' }))
       .toHaveAccessibleDescription('Energy Regen +20%')
     expect(within(screen.getByRole('region', { name: 'Caesar King Result' })).getByRole('row', {
       name: /Energy Regen.*1\.44.*1\.44.*1\.44/,
@@ -48,8 +48,8 @@ describe('integrated party workbench: setup', () => {
       .not.toBeInTheDocument()
     expect(within(caesarCandidates).queryByRole('button', { name: /Original Transmorpher/ }))
       .not.toBeInTheDocument()
-    expect(within(caesarCandidates).queryByRole('button', { name: /Hellfire Gears/ }))
-      .not.toBeInTheDocument()
+    expect(within(caesarCandidates).getByRole('button', { name: 'Select Hellfire Gears W1' }))
+      .toHaveAccessibleDescription('Impact +18%. Energy +0.6/s. Impact +20%')
     await user.click(spring)
     expect(screen.getByRole('button', {
       name: 'Change W-Engine from Spring Embrace',
