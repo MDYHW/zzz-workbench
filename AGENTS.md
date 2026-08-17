@@ -97,6 +97,13 @@ the PR description rather than in a repository answer catalogue:
 - behavior verification plus any prerequisite accepted ACR and owner-amendment
   references.
 
+Exact consumers form a minimal proof graph, not an exhaustive call graph or
+review checklist. Name a current symbol once and only when it establishes a
+distinct retained source or relationship, candidate or prepared consequence,
+lifecycle stage, or visible consequence claimed by the trace. Do not add a
+wrapper, sibling consumer, or test that merely repeats an already-bound claim;
+do not remove a distinct composition stage solely to shorten the list.
+
 Independent semantic-review evidence stays outside the proposed diff and binds
 the PR number, reviewed base SHA, head SHA, diff digest, the canonical digest
 of the complete Authority trace, traced Rule IDs, and consumer paths. CI may
@@ -309,6 +316,12 @@ itself establish semantic readiness.
   when it introduces a new behavior; do not duplicate retained source values
   in tests merely to freeze content. Keep a small set of representative
   cross-vertical user journeys for integration confidence.
+- An authored candidate exclusion, exact Agent candidate roster, or prepared
+  first choice is a local product outcome rather than a shared test invariant.
+  Keep that outcome in its owning requirement and content; tests cover generic
+  reference integrity, composition, lifecycle, and visible behavior. Add an
+  item- or Agent-specific regression only when it exercises a new mechanism or a
+  materially distinct observable failure that the shared coverage cannot prove.
 - Preserve incomplete-selection behavior: Result remains empty until every
   required setup selection is complete.
 - Prepared setup initialization is explicit product behavior, not a hidden
@@ -352,6 +365,19 @@ itself establish semantic readiness.
 - A worker `FINAL_ANSWER` reports that its turn ended; it does not establish
   task completion. The controller must inspect the diff and verify applicable
   tests, build, and browser-visible behavior before marking work complete.
+- Final review is risk-routed rather than persona accumulation. Perform one
+  controller review of the final diff, then add only a domain reviewer whose
+  concrete trigger is present in the changed surface. Do not stack overlapping
+  generic correctness, maintainability, language, standards, or prior-comment
+  reviews on the same claims merely for additional agreement.
+- A protected transaction receives one independent exact-head review after the
+  code, PR body, and Authority trace are final. That review may cover semantic
+  fidelity and transaction shape together. When protected work also triggers a
+  domain review, the same qualified independent reviewer satisfies both; do not
+  add a separate transaction-shape reviewer. A body-only correction rechecks
+  the affected trace, provenance, and freshness; it does not restart unrelated
+  implementation review unless the corrected claim changes product or
+  transaction meaning, or the head changes.
 - Once the user approves a bounded vertical and its execution scope, the
   controller may continue autonomously through its settled units and gates.
   Stop for review when completion needs a new product decision, unresolved
