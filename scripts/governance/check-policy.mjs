@@ -1031,7 +1031,7 @@ export async function validateRepository(root = process.cwd(), { requireComplete
   validateTrustedWorkflowConcurrency(trustedWorkflow)
   if (!/^\s*pull_request_target:/m.test(trustedWorkflow)
     || !/^\s+statuses:\s+write\s*$/m.test(trustedWorkflow)
-    || !/ref:\s+recovery/.test(trustedWorkflow)
+    || !/ref:\s+main/.test(trustedWorkflow)
     || !/persist-credentials:\s+false/.test(trustedWorkflow)
     || !/TRUSTED_BASE_SHA:\s+\$\{\{\s*steps\.trusted-base\.outputs\.sha\s*}}/.test(trustedWorkflow)
     || !/npm ci --ignore-scripts/.test(trustedWorkflow)

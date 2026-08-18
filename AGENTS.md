@@ -114,11 +114,11 @@ digest, accepted merged PR/SHA references, and its own PR number.
 
 ### Trusted governance execution
 
-The protected `recovery` revision owns the remote evaluator. The
-`pull_request_target` workflow checks out `recovery` explicitly and may read
+The protected `main` revision owns the remote evaluator. The
+`pull_request_target` workflow checks out `main` explicitly and may read
 GitHub API metadata, Git tree identities, exact proposed Git blobs as untrusted
 text or binary data, current top-level issue comments, reviews, and workflow
-runs. It installs only the dependency graph pinned by the trusted `recovery`
+runs. It installs only the dependency graph pinned by the trusted `main`
 lockfile with lifecycle scripts disabled; its trusted parser may inspect a
 proposed TypeScript blob as inert syntax but never imports or executes it. It
 never checks out or downloads executable artifacts from the proposed PR. PR
@@ -147,7 +147,7 @@ A successful `Trusted Governance` status records in its description and target
 URL the exact PR, base SHA, and two selected child workflow-run IDs used by the
 decision. The launcher and finalization can therefore reject stale results
 without trusting mutable post-merge arrays.
-A recovery head SHA must belong to exactly one repository pull-request
+A pull-request head SHA must belong to exactly one repository pull-request
 lifecycle. Reusing the same head commit in another pull request fails closed;
 create a new commit before opening the replacement pull request.
 
@@ -176,11 +176,11 @@ the unique-head lifecycle and trusted governance status bind that rollup to the
 current PR. The four job entries are selected by the run IDs sealed in that
 status and the latest visible attempt, so superseded rerun entries do not block
 a current result and cannot substitute for it.
-The trusted evaluator also binds its checked-out `recovery` revision to the
+The trusted evaluator also binds its checked-out `main` revision to the
 PR's current base SHA before any status write; a stale evaluator publishes
 nothing.
 Event-triggered evaluations share one repository-wide queue and never cancel an
-earlier PR-attached dispatcher run. Some events revalidate every open recovery
+earlier PR-attached dispatcher run. Some events revalidate every open protected
 PR, so a per-event or per-PR fallback does not prevent overlapping state writes.
 Cancellation also leaves a failed CheckRun on the PR rollup even when every
 required context later succeeds. Trusted evaluation must therefore serialize
@@ -202,7 +202,7 @@ creating PR, its recorded base SHA, and the run IDs sealed into the successful
 trusted status rather than inventing a second identity.
 
 The local GitHub App launcher is invoked by absolute path from a clean local
-`recovery` worktree whose HEAD equals local `origin/recovery`; routine work may
+`main` worktree whose HEAD equals local `origin/main`; routine work may
 remain in a separate candidate worktree. It reads the PEM only after verifying
 that trusted source and the candidate repository/config boundary, and only from
 an absolute external path
@@ -214,7 +214,7 @@ protection-bypass permission and no status/check write permission. Its only
 status/check access is the read-only pair required for the exact six-context
 merge preflight.
 
-If protection or its required evaluator is defective, freeze `recovery`,
+If protection or its required evaluator is defective, freeze `main`,
 disable App mutation and immediate merge, invalidate outstanding evidence, and
 land
 one owner-reviewed repair under the minimal protection boundary. Restore and

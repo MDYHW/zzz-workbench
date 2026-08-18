@@ -52,10 +52,10 @@ function options(overrides = {}) {
   };
 }
 
-test('accepts only fixed PR mutation commands against the verified recovery PR flow', async () => {
+test('accepts only fixed PR mutation commands against the verified main PR flow', async () => {
   const cases = [
-    [{ kind: 'pr-create', head: 'codex/launcher-test', title: 'Create', body: 'Body' }, ['pr', 'create', '--repo', REPOSITORY, '--head', 'codex/launcher-test', '--base', 'recovery', '--title', 'Create', '--body', 'Body']],
-    [{ kind: 'pr-edit', number: '42', title: 'Edit', body: 'Body' }, ['pr', 'edit', '42', '--repo', REPOSITORY, '--base', 'recovery', '--title', 'Edit', '--body', 'Body']],
+    [{ kind: 'pr-create', head: 'codex/launcher-test', title: 'Create', body: 'Body' }, ['pr', 'create', '--repo', REPOSITORY, '--head', 'codex/launcher-test', '--base', 'main', '--title', 'Create', '--body', 'Body']],
+    [{ kind: 'pr-edit', number: '42', title: 'Edit', body: 'Body' }, ['pr', 'edit', '42', '--repo', REPOSITORY, '--base', 'main', '--title', 'Edit', '--body', 'Body']],
   ];
 
   for (const [operation, expectedArgs] of cases) {
@@ -65,7 +65,7 @@ test('accepts only fixed PR mutation commands against the verified recovery PR f
         childCalls.push({ executable, args, childOptions });
         if (args[0] === 'pr' && args[1] === 'list') return { stdout: '[]' };
         if (args[0] === 'pr' && args[1] === 'view') {
-          return { stdout: JSON.stringify({ number: 42, url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42', baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40), state: 'OPEN', mergeStateStatus: 'CLEAN' }) };
+          return { stdout: JSON.stringify({ number: 42, url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42', baseRefName: 'main', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40), state: 'OPEN', mergeStateStatus: 'CLEAN' }) };
         }
         return { stdout: '' };
       },

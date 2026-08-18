@@ -1228,6 +1228,11 @@ create and protect trusted `main` without erasing forensic refs.
   current ref, trusted policy, zero-secret validation, visual freshness, and
   complete audit must all match; the workflow run is the external attestation.
   Any later recovery commit invalidates it.
+- In that final checkpoint transaction, cut the routine trusted evaluator,
+  required-context dispatcher, contributor instructions, and local App launcher
+  from `recovery` to the single future protected base `main`. Keep only the
+  owner-dispatched finalization adapter bound to `recovery`; do not retain a
+  dual-base compatibility mode or permit post-promotion recovery PRs.
 - Configure protection for the `main` target, create `main` directly at that
   externally accepted SHA, verify protection by API/UI readback, then make it
   default and freeze `recovery` while retaining the immutable unverified refs.

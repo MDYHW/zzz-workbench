@@ -9,11 +9,11 @@ on:
     workflows: [PR Validation, Visual Baseline Validation, Review Signal]
     types: [completed]
   push:
-    branches: [recovery]
+    branches: [main]
   workflow_dispatch:
     inputs:
       pr_number:
-        description: Optional open recovery PR number; blank revalidates all.
+        description: Optional open protected PR number; blank revalidates all.
         required: false
         type: string
 
@@ -34,10 +34,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Check out the trusted recovery evaluator
+      - name: Check out the trusted main evaluator
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: recovery
+          ref: main
           fetch-depth: 1
           persist-credentials: false
       - name: Bind the evaluator revision
@@ -49,7 +49,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - name: Install the trusted recovery dependency graph without scripts
+      - name: Install the trusted main dependency graph without scripts
         run: npm ci --ignore-scripts
       - name: Evaluate current GitHub state without executing PR code
         env:
