@@ -412,7 +412,7 @@ describe('bounded equipment effect facts', () => {
     })
     expect(equipmentEffectMaximumValue(W_ENGINE_FACTS.krakensCradle.effects.iceSheerDamage, 1)).toBe(18)
     expect(equipmentEffectBaseValue(W_ENGINE_FACTS.krakensCradle.effects.critRate, 1)).toBe(20)
-    expect(equipmentEffectBaseValue(W_ENGINE_FACTS.grillOWisp.effects.fireDamage, 5)).toBe(24)
+    expect(equipmentEffectBaseValue(W_ENGINE_FACTS.grillOWisp.effects.fireDamage, 1)).toBe(15)
     expect(equipmentEffectBaseValue(W_ENGINE_FACTS.grillOWisp.effects.critRate, 1)).toBe(15)
     expect(equipmentEffectMaximumValue(W_ENGINE_FACTS.wrathfulVajra.effects.fireSheerDamage, 5)).toBeCloseTo(28.8)
     expect(W_ENGINES.krakensCradle.passiveLines(1)).toEqual([

@@ -130,7 +130,7 @@ export const W_ENGINE_FACTS = {
   grillOWisp: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 25, unit: '%' },
     effects: {
-      fireDamage: { modifier: 'dmgBonus', unit: '%', value: [12, 15, 18, 21, 24], scope: { attributes: ['Fire'] } },
+      fireDamage: { modifier: 'dmgBonus', unit: '%', value: [15, 17.25, 19.5, 21.75, 24], scope: { attributes: ['Fire'] } },
       critRate: { modifier: 'critRate', unit: '%', value: [15, 17.25, 19.5, 21.75, 24] },
     },
   },
