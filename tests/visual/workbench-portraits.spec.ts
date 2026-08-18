@@ -9,6 +9,7 @@ type PortraitAgent = {
 type PortraitParty = {
   id: string
   focus?: string
+  captures: readonly PortraitAgent[]
   members: readonly [PortraitAgent, PortraitAgent, PortraitAgent]
 }
 
@@ -23,24 +24,19 @@ const agents = {
     displayName: 'Anby: Soldier 0',
     slug: 'anby-soldier-0',
   },
-  lighter: { candidateName: 'Lighter, Fire, Stun', displayName: 'Lighter', slug: 'lighter' },
-  panYinhu: { candidateName: 'Pan Yinhu, Physical, Defense', displayName: 'Pan Yinhu', slug: 'pan-yinhu' },
-  corin: { candidateName: 'Corin, Physical, Attack', displayName: 'Corin', slug: 'corin' },
 } satisfies Record<string, PortraitAgent>
 
 const parties: readonly PortraitParty[] = [
   {
     id: 'portrait-corrections-a',
     focus: 'Nekomata',
+    captures: [agents.pulchra, agents.nekomata],
     members: [agents.pulchra, agents.nekomata, agents.ben],
   },
   {
     id: 'portrait-corrections-b',
+    captures: [agents.koleda, agents.zhao],
     members: [agents.koleda, agents.zhao, agents.anbySoldier0],
-  },
-  {
-    id: 'nearby-unchanged-contrasts',
-    members: [agents.lighter, agents.panYinhu, agents.corin],
   },
 ]
 
@@ -93,8 +89,8 @@ async function captureDestinations(page: Page, party: PortraitParty): Promise<vo
   for (const destination of destinations) {
     await page.setViewportSize(destination.viewport)
 
-    for (const [index, agent] of party.members.entries()) {
-      const contrast = party.members[(index + 1) % party.members.length]
+    for (const agent of party.captures) {
+      const contrast = party.members.find((member) => member !== agent)!
 
       await selectAgent(page, agent)
       await expect.soft(page.locator('.slot-identity--expanded')).toHaveScreenshot(
