@@ -77,7 +77,7 @@ carriage returns, or other fields enter the digest.
 
 | Generation | Status | Formula/source merge | W-Engine merge | Drive Disc merge | Finite/preparation merge | Portrait/visual merge | Manifest digest | Index PR |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| — | pending | — | — | — | — | — | — | — |
+| 1 | accepted | #28 @ 417223fa4fefab0ec5cfd7d6aacca0a58091651b | #31 @ e5cc4807370b91eeeb58bdd8268d9b0e0e232ccf | #36 @ 5426264eec2ba5eac4f03f290c66e716084ee38c | #40 @ e51f73ea1247a2c6359fd9762ae1f0898607731a | #41 @ aafd0ec86d134d7ae1df2458d6e3616090a8c374 | sha256:85d48a26bae6b8a6836776f566ea8e0dc2143e979a204138c4e16cd21c905d65 | #42 |
 
 No cohort can become accepted until one complete ordered mechanism generation
 has been recorded by a later index-only PR. Reopening an applicable earlier
