@@ -37,13 +37,17 @@ describe('calculateParty mechanisms', () => {
     expect(agent(party, 'lycaon').metrics.find(({ id }) => id === 'resIgnore')).toBeUndefined()
   })
 
-  it('keeps Ellen’s Deep Sea initial and Combat CRIT surfaces capped at M1', () => {
-    const party = calculateParty(createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0))!
+  it('keeps Ellen’s Deep Sea CRIT balance below cap until finite investment and M1', () => {
+    const prepared = createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0)
+    expect(prepared.slots[0].setup.mains.slot4).toBe('critDmg')
+    const party = calculateParty(prepared)!
     const ellen = metric(agent(party, 'ellen'), 'critRate')
-    expect(ellen.values.initial).toBe(75.4)
-    expect(ellen.values.combat).toBe(95.4)
+    expect(ellen.values.initial).toBe(51.4)
+    expect(ellen.values.combat).toBe(71.4)
+    const invested = calculateParty(setSubstat(prepared, 'ellen', 'critRate', 8))!
+    expect(metric(agent(invested, 'ellen'), 'critRate').values.combat).toBeCloseTo(90.6)
     const mindscapeOne = calculateParty(withMindscape(
-      createPreparedState({}, ['ellen', 'soukaku', 'lycaon'], 0), 'ellen', 1,
+      setSubstat(prepared, 'ellen', 'critRate', 8), 'ellen', 1,
     ))!
     expect(metric(agent(mindscapeOne, 'ellen'), 'critRate').values.combat).toBe(100)
   })

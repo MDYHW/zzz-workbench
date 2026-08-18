@@ -121,8 +121,6 @@ export function resolveEllenProviderClauses(context: EllenCalculationContext): S
     additive('defIgnore', 'fully', engine,
       setup.engineId === 'myriadEclipse' ? equipmentEffectBaseValue(W_ENGINE_FACTS.myriadEclipse.effects.defIgnore, refinement) : 0,
       'enemy-context', undefined, undefined, ['ellen']),
-    additive('critDmg', 'combat', engine,
-      setup.engineId === 'heartstringNocturne' ? equipmentEffectBaseValue(W_ENGINE_FACTS.heartstringNocturne.effects.critDamage, refinement) : 0, 'self'),
     additive('critRate', 'combat', engine,
       setup.engineId === 'cordisGermina' ? equipmentEffectBaseValue(W_ENGINE_FACTS.cordisGermina.effects.critRate, refinement) : 0, 'self'),
     additive('defIgnore', 'fully', engine,

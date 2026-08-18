@@ -218,7 +218,7 @@ describe('integrated party workbench: result', () => {
     expect(woodpeckerSource).toHaveClass('is-source-active')
   })
 
-  it('links selected Puffer to Anby’s Disc and nests only Ultimate under Aftershock', async () => {
+  it('links selected Puffer 2-piece to Anby’s Disc and nests only Ultimate under its 4-piece', async () => {
     const user = userEvent.setup()
     render(<App />)
     const replace = async (slot: number, agent: RegExp) => {
@@ -233,10 +233,10 @@ describe('integrated party workbench: result', () => {
     await user.click(screen.getByRole('button', { name: 'Apply party' }))
 
     await user.click(screen.getByRole('button', {
-      name: 'Change 4-piece Drive Disc from Shadow Harmony',
+      name: 'Change 2-piece Drive Disc from Woodpecker Electro',
     }))
     await user.click(screen.getByRole('button', {
-      name: 'Select Puffer Electro as fourPiece',
+      name: 'Select Puffer Electro as twoPiece',
     }))
 
     const anbyResult = screen.getByRole('region', { name: 'Anby: Soldier 0 Result' })
@@ -248,11 +248,24 @@ describe('integrated party workbench: result', () => {
       name: /Puffer Electro.*2-piece/,
     })
     const discTarget = document.querySelector<HTMLElement>(
-      '.disc-selection[data-source-tone="disc-4pc"]',
+      '.disc-selection[data-source-tone="disc-2pc"]',
     )!
     await user.hover(pufferSource)
     expect(discTarget).toHaveClass('is-source-active')
     await user.unhover(pufferSource)
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Puffer Electro',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Woodpecker Electro as twoPiece',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Shadow Harmony',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Puffer Electro as fourPiece',
+    }))
 
     await user.click(within(anbyResult).getByRole('button', { name: 'DMG Bonus' }))
     const outcomes = within(anbyResult).getByRole('table', {

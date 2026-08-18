@@ -64,18 +64,20 @@ version switch, named-party table, or guide-backed evidence payload.
   +10% after an Ice Dash hit. Both CRIT clauses are current Combat inputs; they
   are not merged solely because their values match.
 - R5. Ellen's full candidates are Deep Sea Visitor, Myriad Eclipse, Cordis
-  Germina, Heartstring Nocturne, Steel Cushion, The Brimstone, and Starlight
-  Engine. Non-limited candidates are Steel Cushion, The Brimstone, and
+  Germina, Steel Cushion, The Brimstone, and Starlight Engine. Non-limited
+  candidates are Steel Cushion, The Brimstone, and
   Starlight Engine. Full
   prepares Deep Sea Visitor W1; non-limited prepares The Brimstone W1.
   Deep Sea is the full first choice because its entire Ice/CRIT package is
   usable and its two ordinary action triggers are native to Ellen. Myriad is
   the closest full same-axis competitor: the same Base/advanced-CRIT chassis
   replaces Ice DMG and two CRIT clauses with CRIT DMG and short post-action DEF
-  Ignore. Exact identity and scope therefore remain material. Cordis and
-  Heartstring retain distinct competitive CRIT/DEF packages; Steel retains a
-  CRIT accessibility path despite unused Physical DMG and unreliable
-  behind-hit value. The Brimstone wins the separately authored non-limited
+  Ignore. Exact identity and scope therefore remain material. Heartstring's
+  slightly higher CRIT DMG does not preserve a separate choice against Myriad's
+  same CRIT direction and usable DEF Ignore, so it is excluded for Ellen.
+  Cordis retains a distinct CRIT Rate and Basic/Ultimate DEF Ignore package;
+  Steel retains a CRIT accessibility path despite unused Physical DMG and
+  unreliable behind-hit value. The Brimstone wins the separately authored non-limited
   comparison through its high Base ATK and broadly usable sustained ATK; the
   refined Starlight package remains the A-Rank accessibility contrast.
 - R6. Ellen's base 4-piece candidate is Woodpecker Electro. Dialyn's existing
@@ -87,10 +89,14 @@ version switch, named-party table, or guide-backed evidence payload.
   Electro, Branch & Blade Song, Astral Voice, and Hormone Punk. The established
   same-effect identity lifecycle compresses the ATK pair. Her prepared Disc
   package in both pools is Woodpecker 4-piece plus Puffer 2-piece, with CRIT
-  Rate / PEN Ratio / ATK% mains. At zero substats, full Deep Sea reaches Initial
-  ATK 2,462.3, Initial CRIT Rate 75.4%, Combat CRIT Rate 95.4%, and Initial PEN
-  Ratio 32%. Non-limited Brimstone keeps the same legal package rather than
-  manufacturing a different set to compensate for future substats.
+  DMG / PEN Ratio / ATK% mains in full and CRIT Rate / PEN Ratio / ATK% in
+  non-limited. At zero substats, full Deep Sea reaches Initial ATK 2,462.3,
+  Initial CRIT Rate 51.4%, Combat CRIT Rate 71.4%, Initial CRIT DMG 98%, and
+  Initial PEN Ratio 32%. Eight conservative CRIT Rate substat hits reach 90.6%
+  Combat CRIT Rate at M0, preserving finite headroom without discarding Deep
+  Sea's native supply. Non-limited Brimstone keeps the same legal Disc package
+  with CRIT Rate Slot 4 rather than manufacturing a different set to compensate
+  for future substats.
 
 ### Soukaku equipment authoring
 

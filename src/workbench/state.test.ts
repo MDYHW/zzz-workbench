@@ -1182,6 +1182,7 @@ describe('workbench state lifecycle', () => {
   it('scopes Cissia Core pressure by Electric general-damage recipient', () => {
     const seedParty = createPreparedState({}, ['seed', 'cissia', 'anbySoldier0'], 0)
     expect(effectiveTwoPieceIds(seedParty, 0)).not.toContain('pufferElectro')
+    expect(effectiveTwoPieceIds(seedParty, 2)).not.toContain('pufferElectro')
     expect(effectiveMainStatIds(seedParty, 0, 'slot5')).not.toContain('penRatio')
     expect(effectiveMainStatIds(seedParty, 2, 'slot5')).not.toContain('penRatio')
 
@@ -1214,6 +1215,9 @@ describe('workbench state lifecycle', () => {
 
     const fireParty = createPreparedState({}, ['cissia', 'evelyn', 'astraYao'], 1)
     expect(effectiveMainStatIds(fireParty, 1, 'slot5')).toContain('penRatio')
+
+    const withoutPressure = createPreparedState({}, ['anbySoldier0', 'dialyn', 'astraYao'], 0)
+    expect(effectiveTwoPieceIds(withoutPressure, 0)).toContain('pufferElectro')
   })
 
   it('keeps Seed M2 pressure bounded to an actual Vanguard and its recipients', () => {
