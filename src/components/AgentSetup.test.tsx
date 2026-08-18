@@ -1057,7 +1057,7 @@ describe('AgentSetup Grace Anomaly packages', () => {
     const timeweaverDescription = [
       'ATK +30%',
       'Electric Anomaly Buildup +30%',
-      'Special/EX against anomalied enemy · Anomaly Proficiency +75',
+      'Anomaly Proficiency +75',
       'At 375 Anomaly Proficiency · Disorder DMG +25%',
     ].join('. ')
     expect(screen.getByRole('button', {
@@ -1071,17 +1071,17 @@ describe('AgentSetup Grace Anomaly packages', () => {
     expect(within(engineCandidates).getByRole('button', {
       name: 'Select Practiced Perfection W1',
     })).toHaveAccessibleDescription(
-      'ATK +30%. Anomaly Mastery +60. Inflict Assault · Physical DMG +20% per stack · 2 stacks on entry',
+      'ATK +30%. Anomaly Mastery +60. Physical DMG +40%',
     )
     expect(within(engineCandidates).getByRole('button', {
       name: 'Select Angel in the Shell W1',
     })).toHaveAccessibleDescription(
-      'Anomaly Mastery +30%. Anomaly Proficiency +90. Ether holder enters or uses Special/EX · DMG against anomalied enemies +20% · Attribute Anomaly DMG +10%',
+      'Anomaly Mastery +30%. Anomaly Proficiency +90. Ether holder · DMG against anomalied enemies +20% · Attribute Anomaly & Disorder DMG +10%',
     )
     expect(within(engineCandidates).getByRole('button', {
       name: 'Select Fusion Compiler W1',
     })).toHaveAccessibleDescription(
-      'PEN Ratio +24%. ATK +12%. Special/EX · Anomaly Proficiency +25 per stack · Maximum +75',
+      'PEN Ratio +24%. ATK +12%. Anomaly Proficiency +75',
     )
 
     await user.click(screen.getByRole('button', {
@@ -1091,17 +1091,17 @@ describe('AgentSetup Grace Anomaly packages', () => {
     expect(within(discCandidates).getByRole('button', {
       name: 'Select Chaos Jazz as fourPiece',
     })).toHaveAccessibleDescription(
-      'Fire & Electric DMG +15%. Off-field EX Special & Assist DMG +20% · Continues 5s on-field. Anomaly Proficiency +30',
+      'Fire & Electric DMG +15%. EX Special & Assist DMG +20%. Anomaly Proficiency +30',
     )
     expect(within(discCandidates).getByRole('button', {
       name: 'Select Freedom Blues as fourPiece',
     })).toHaveAccessibleDescription(
-      'EX Special hit · Matching-Attribute Anomaly Buildup RES -20% · Non-stacking by Attribute. Anomaly Proficiency +30',
+      'Matching-Attribute Anomaly Buildup RES -20% · Non-stacking by Attribute. Anomaly Proficiency +30',
     )
     expect(within(discCandidates).getByRole('button', {
       name: "Select Phaethon's Melody as fourPiece",
     })).toHaveAccessibleDescription(
-      'Any squad EX Special · Anomaly Proficiency +45. Other holder EX Special · Ether DMG +25%. Anomaly Mastery +8%',
+      'Anomaly Proficiency +45. Ether DMG +25%. Anomaly Mastery +8%',
     )
   })
 })

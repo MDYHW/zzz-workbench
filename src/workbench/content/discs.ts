@@ -349,22 +349,22 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     twoPieceEffect: `Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.twoPiece.anomalyProficiency)}`,
     fourPieceEffects: [
       `Fire & Electric DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.electricFireDamage)}%`,
-      `Off-field EX Special & Assist DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage)}% · Continues 5s on-field`,
+      `EX Special & Assist DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage)}%`,
     ],
   },
   freedomBlues: {
     id: 'freedomBlues', name: 'Freedom Blues', image: freedomBluesImage,
     twoPieceEffect: `Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.twoPiece.anomalyProficiency)}`,
     fourPieceEffects: [
-      `EX Special hit · Matching-Attribute Anomaly Buildup RES -${equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction)}% · Non-stacking by Attribute`,
+      `Matching-Attribute Anomaly Buildup RES -${equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction)}% · Non-stacking by Attribute`,
     ],
   },
   phaethonsMelody: {
     id: 'phaethonsMelody', name: "Phaethon's Melody", image: phaethonsMelodyImage,
     twoPieceEffect: `Anomaly Mastery +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.twoPiece.anomalyMastery)}%`,
     fourPieceEffects: [
-      `Any squad EX Special · Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.anomalyProficiency)}`,
-      `Other holder EX Special · Ether DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.otherHolderEtherDamage)}%`,
+      `Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.anomalyProficiency)}`,
+      `Ether DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.otherHolderEtherDamage)}%`,
     ],
   },
 }

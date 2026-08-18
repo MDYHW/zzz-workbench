@@ -614,7 +614,7 @@ describe('bounded equipment effect facts', () => {
     )).toEqual([75, 85, 95, 105, 115])
     expect(W_ENGINES.practicedPerfection.passiveLines(1)).toEqual([
       'Anomaly Mastery +60',
-      'Inflict Assault · Physical DMG +20% per stack · 2 stacks on entry',
+      'Physical DMG +40%',
     ])
     expect(W_ENGINES.angelInTheShell).toMatchObject({
       rank: 'S', limited: true, baseAtk: 713,
@@ -622,7 +622,7 @@ describe('bounded equipment effect facts', () => {
     })
     expect(W_ENGINES.angelInTheShell.passiveLines(1)).toEqual([
       'Anomaly Proficiency +90',
-      'Ether holder enters or uses Special/EX · DMG against anomalied enemies +20% · Attribute Anomaly DMG +10%',
+      'Ether holder · DMG against anomalied enemies +20% · Attribute Anomaly & Disorder DMG +10%',
     ])
     expect(equipmentEffectMaximumValue(
       W_ENGINE_FACTS.fusionCompiler.effects.anomalyProficiency, 1,
@@ -633,7 +633,7 @@ describe('bounded equipment effect facts', () => {
     })
     expect(DRIVE_DISCS.chaosJazz.fourPieceEffects).toEqual([
       'Fire & Electric DMG +15%',
-      'Off-field EX Special & Assist DMG +20% · Continues 5s on-field',
+      'EX Special & Assist DMG +20%',
     ])
   })
 })
