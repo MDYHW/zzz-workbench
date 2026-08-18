@@ -89,8 +89,9 @@ async function captureDestinations(page: Page, party: PortraitParty): Promise<vo
   for (const destination of destinations) {
     await page.setViewportSize(destination.viewport)
 
-    for (const agent of party.captures) {
-      const contrast = party.members.find((member) => member !== agent)!
+    for (const [memberIndex, agent] of party.members.entries()) {
+      if (!party.captures.includes(agent)) continue
+      const contrast = party.members[(memberIndex + 1) % party.members.length]
 
       await selectAgent(page, agent)
       await expect.soft(page.locator('.slot-identity--expanded')).toHaveScreenshot(
