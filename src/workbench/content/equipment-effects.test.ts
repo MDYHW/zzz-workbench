@@ -622,7 +622,7 @@ describe('bounded equipment effect facts', () => {
     })
     expect(W_ENGINES.angelInTheShell.passiveLines(1)).toEqual([
       'Anomaly Proficiency +90',
-      'Ether holder · DMG against anomalied enemies +20% · Attribute Anomaly & Disorder DMG +10%',
+      'Ether holder only · DMG +20% · Anomaly & Disorder DMG +10%',
     ])
     expect(equipmentEffectMaximumValue(
       W_ENGINE_FACTS.fusionCompiler.effects.anomalyProficiency, 1,

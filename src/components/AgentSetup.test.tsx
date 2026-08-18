@@ -1058,7 +1058,7 @@ describe('AgentSetup Grace Anomaly packages', () => {
       'ATK +30%',
       'Electric Anomaly Buildup +30%',
       'Anomaly Proficiency +75',
-      'At 375 Anomaly Proficiency · Disorder DMG +25%',
+      '≥375 Anomaly Proficiency · Disorder DMG +25%',
     ].join('. ')
     expect(screen.getByRole('button', {
       name: 'Change W-Engine from Timeweaver',
@@ -1076,7 +1076,7 @@ describe('AgentSetup Grace Anomaly packages', () => {
     expect(within(engineCandidates).getByRole('button', {
       name: 'Select Angel in the Shell W1',
     })).toHaveAccessibleDescription(
-      'Anomaly Mastery +30%. Anomaly Proficiency +90. Ether holder · DMG against anomalied enemies +20% · Attribute Anomaly & Disorder DMG +10%',
+      'Anomaly Mastery +30%. Anomaly Proficiency +90. Ether holder only · DMG +20% · Anomaly & Disorder DMG +10%',
     )
     expect(within(engineCandidates).getByRole('button', {
       name: 'Select Fusion Compiler W1',
@@ -1096,7 +1096,7 @@ describe('AgentSetup Grace Anomaly packages', () => {
     expect(within(discCandidates).getByRole('button', {
       name: 'Select Freedom Blues as fourPiece',
     })).toHaveAccessibleDescription(
-      'Matching-Attribute Anomaly Buildup RES -20% · Non-stacking by Attribute. Anomaly Proficiency +30',
+      'Electric Anomaly Buildup RES -20%. Anomaly Proficiency +30',
     )
     expect(within(discCandidates).getByRole('button', {
       name: "Select Phaethon's Melody as fourPiece",

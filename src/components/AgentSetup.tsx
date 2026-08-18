@@ -321,9 +321,11 @@ function EngineSelection({
 
 function DiscEffectRows({
   discId,
+  fourPieceEffects,
   piece,
 }: {
   discId: DiscId
+  fourPieceEffects: readonly string[]
   piece: 'fourPiece' | 'twoPiece'
 }) {
   const disc = DRIVE_DISCS[discId]
@@ -340,7 +342,7 @@ function DiscEffectRows({
 
   return (
     <span className="disc-effect-rows disc-effect-rows--four-piece">
-      {(disc.fourPieceEffects ?? []).map((effect, index) => (
+      {fourPieceEffects.map((effect, index) => (
         <span key={effect}>
           <small>{index === 0 ? '4PC' : ''}</small>
           <b>{effect}</b>
@@ -357,17 +359,22 @@ function DiscEffectRows({
 function DiscCard({
   descriptionId,
   discId,
+  holderAttribute,
   piece,
   showHead = false,
 }: {
   descriptionId?: string
   discId: DiscId
+  holderAttribute: string
   piece: 'fourPiece' | 'twoPiece'
   showHead?: boolean
 }) {
   const disc = DRIVE_DISCS[discId]
+  const fourPieceEffects = disc.fourPieceEffectsForHolder?.(holderAttribute)
+    ?? disc.fourPieceEffects
+    ?? []
   const accessibleDescription = piece === 'fourPiece'
-    ? [...(disc.fourPieceEffects ?? []), disc.twoPieceEffect].join('. ')
+    ? [...fourPieceEffects, disc.twoPieceEffect].join('. ')
     : disc.twoPieceEffect
   return (
     <>
@@ -378,7 +385,7 @@ function DiscCard({
         <img src={disc.image} alt="" />
       </span>
       <span className="equipment-copy">
-        <DiscEffectRows discId={discId} piece={piece} />
+        <DiscEffectRows discId={discId} fourPieceEffects={fourPieceEffects} piece={piece} />
       </span>
       {descriptionId && <span className="sr-only" id={descriptionId}>{accessibleDescription}</span>}
     </>
@@ -423,6 +430,7 @@ function DiscSelection({
     ))
   const isOpen = openSelector === selectorId
   const selectedName = selectedId ? DRIVE_DISCS[selectedId].name : null
+  const holderAttribute = ADMITTED_AGENTS.find(({ id }) => id === agentId)!.attribute
   const selectedDescriptionId = selectedId ? `${selectorId}-details` : undefined
   const pieceLabel = piece === 'fourPiece' ? '4-piece' : '2-piece'
   const focusTargetRef = useRef<HTMLElement | null>(null)
@@ -460,6 +468,7 @@ function DiscSelection({
           <DiscCard
             descriptionId={selectedDescriptionId}
             discId={selectedId}
+            holderAttribute={holderAttribute}
             piece={piece}
             showHead
           />
@@ -495,6 +504,7 @@ function DiscSelection({
                 <DiscCard
                   descriptionId={candidateDescriptionId}
                   discId={candidateId}
+                  holderAttribute={holderAttribute}
                   piece={piece}
                 />
               </button>

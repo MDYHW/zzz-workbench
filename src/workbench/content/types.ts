@@ -284,6 +284,7 @@ export interface DriveDiscChoice {
   image: string
   twoPieceEffect: string
   fourPieceEffects?: string[]
+  fourPieceEffectsForHolder?: (holderAttribute: string) => string[]
 }
 
 export interface MainStatChoice {

@@ -358,6 +358,9 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     fourPieceEffects: [
       `Matching-Attribute Anomaly Buildup RES -${equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction)}% · Non-stacking by Attribute`,
     ],
+    fourPieceEffectsForHolder: (holderAttribute) => [
+      `${holderAttribute} Anomaly Buildup RES -${equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction)}%`,
+    ],
   },
   phaethonsMelody: {
     id: 'phaethonsMelody', name: "Phaethon's Melody", image: phaethonsMelodyImage,

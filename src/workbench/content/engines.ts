@@ -937,7 +937,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveLines: (refinement) => [
       `Electric Anomaly Buildup +${percent(W_ENGINE_FACTS.timeweaver.effects.electricBuildup, refinement)}`,
       `Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.timeweaver.effects.anomalyProficiency, refinement)}`,
-      `At 375 Anomaly Proficiency · Disorder DMG +${percent(W_ENGINE_FACTS.timeweaver.effects.disorderDamage, refinement)}`,
+      `≥375 Anomaly Proficiency · Disorder DMG +${percent(W_ENGINE_FACTS.timeweaver.effects.disorderDamage, refinement)}`,
     ],
   },
   practicedPerfection: {
@@ -955,7 +955,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Anomaly',
     passiveLines: (refinement) => [
       `Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.angelInTheShell.effects.anomalyProficiency, refinement)}`,
-      `Ether holder · DMG against anomalied enemies +${percent(W_ENGINE_FACTS.angelInTheShell.effects.anomaliedEnemyDamage, refinement)} · Attribute Anomaly & Disorder DMG +${percent(W_ENGINE_FACTS.angelInTheShell.effects.anomalyDamage, refinement)}`,
+      `Ether holder only · DMG +${percent(W_ENGINE_FACTS.angelInTheShell.effects.anomaliedEnemyDamage, refinement)} · Anomaly & Disorder DMG +${percent(W_ENGINE_FACTS.angelInTheShell.effects.anomalyDamage, refinement)}`,
     ],
   },
   fusionCompiler: {
