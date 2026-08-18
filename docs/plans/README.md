@@ -25,6 +25,10 @@ While recovery is active, the authority-governance recovery plan is the sole
 active plan. Frozen plans do not resume and new vertical plans do not begin
 until recovery has been promoted and closed.
 
+Current recovery state: `promotion-ready`. The complete audit is accepted, but
+new vertical work remains frozen until exact-SHA finalization, trusted `main`
+promotion, and protected post-promotion housekeeping are complete.
+
 Use this sequence:
 
 1. Identify the visible input, Setup choice, Result consequence, and preserved
