@@ -1074,6 +1074,11 @@ describe('AgentSetup Grace Anomaly packages', () => {
       'ATK +30%. Anomaly Mastery +60. Inflict Assault · Physical DMG +20% per stack · 2 stacks on entry',
     )
     expect(within(engineCandidates).getByRole('button', {
+      name: 'Select Angel in the Shell W1',
+    })).toHaveAccessibleDescription(
+      'Anomaly Mastery +30%. Anomaly Proficiency +90. Ether holder enters or uses Special/EX · DMG against anomalied enemies +20% · Attribute Anomaly DMG +10%',
+    )
+    expect(within(engineCandidates).getByRole('button', {
       name: 'Select Fusion Compiler W1',
     })).toHaveAccessibleDescription(
       'PEN Ratio +24%. ATK +12%. Special/EX · Anomaly Proficiency +25 per stack · Maximum +75',
@@ -1092,6 +1097,11 @@ describe('AgentSetup Grace Anomaly packages', () => {
       name: 'Select Freedom Blues as fourPiece',
     })).toHaveAccessibleDescription(
       'EX Special hit · Matching-Attribute Anomaly Buildup RES -20% · Non-stacking by Attribute. Anomaly Proficiency +30',
+    )
+    expect(within(discCandidates).getByRole('button', {
+      name: "Select Phaethon's Melody as fourPiece",
+    })).toHaveAccessibleDescription(
+      'Any squad EX Special · Anomaly Proficiency +45. Other holder EX Special · Ether DMG +25%. Anomaly Mastery +8%',
     )
   })
 })
