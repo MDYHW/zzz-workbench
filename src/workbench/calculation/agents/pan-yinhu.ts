@@ -23,15 +23,12 @@ import {
   type ResolvedSetupInput,
   type SourceBoundCurrentClause,
 } from '../../effects'
-import { actionTarget, canonicalAction } from '../../actions'
 import {
-  composeActionHierarchy,
   composeMetricEffects,
   contribution,
   energyRegenProjection,
   percentageContribution,
   surfaces,
-  type ActionScopeNode,
 } from '../composition'
 import { initialAtkFor } from '../initial-atk'
 import type { AgentResult } from '../result'
@@ -42,14 +39,6 @@ export interface PanYinhuCalculationContext {
   initialAtk: number
   additionalActive: boolean
 }
-
-const PAN_EX_ULTIMATE = actionTarget([
-  canonicalAction('EX Special Attack'),
-  canonicalAction('Ultimate'),
-])
-const PAN_DAMAGE_SCOPES = [
-  { id: 'panExUltimate', target: PAN_EX_ULTIMATE },
-] satisfies readonly ActionScopeNode[]
 
 export function observePanYinhu(
   setup: CompleteSetup,
@@ -109,25 +98,12 @@ export function resolvePanYinhuProviderClauses(
         'all-party'),
       { formulas: ['daze_buildup'] },
     ),
-    additive('dmgBonus', 'fully', engine,
-      setup.engineId === 'tremorTrigramVessel'
-        ? equipmentEffectBaseValue(W_ENGINE_FACTS.tremorTrigramVessel.effects.damage, refinement)
-        : 0,
-      'self', PAN_EX_ULTIMATE),
     withApplicability(
       additive('dmgBonus', 'fully', discSource('panYinhu', 'bunnyInWonderland', '4-piece'),
         setup.fourPieceId === 'bunnyInWonderland'
           ? equipmentEffectMaximumValue(DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage)
           : 0,
         'all-party', undefined, undefined, undefined, 'bunnyInWonderland'),
-      { formulas: ['general_damage', 'sheer_damage'] },
-    ),
-    withApplicability(
-      additive('dmgBonus', 'fully', discSource('panYinhu', 'swingJazz', '4-piece'),
-        setup.fourPieceId === 'swingJazz'
-          ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage)
-          : 0,
-        'all-party', undefined, undefined, undefined, 'swingJazz'),
       { formulas: ['general_damage', 'sheer_damage'] },
     ),
   ])
@@ -207,7 +183,6 @@ export function calculatePanYinhu(
       equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen)),
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
-  const dmg = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dmgBonus')
   const daze = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus')
 
   return {
@@ -231,16 +206,11 @@ export function calculatePanYinhu(
       { id: 'impact', label: 'Impact', unit: '', decimals: 1, ...impact },
       { id: 'energyRegen', label: 'Energy Regen', unit: '', decimals: 2,
         values: energy.values, breakdown: energy.breakdown },
-      ...(dmg.values.fully
-        ? [{ id: 'dmgBonus' as const, label: 'DMG Bonus', unit: '%', decimals: 1, ...dmg }]
-        : []),
       ...(daze.values.fully
         ? [{ id: 'dazeBonus' as const, label: 'Daze Bonus', unit: '%', decimals: 1, ...daze }]
         : []),
     ],
-    actionModifiers: composeActionHierarchy(
-      dmg.values, effects, 'dmgBonus', PAN_DAMAGE_SCOPES,
-    ),
+    actionModifiers: [],
     operations: [],
   }
 }

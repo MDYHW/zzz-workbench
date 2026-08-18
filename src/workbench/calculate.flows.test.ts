@@ -231,8 +231,7 @@ describe('representative calculation flows', () => {
       values: { initial: 29, combat: 29, fully: 39 },
       gauge: { basisLabel: 'Local CRIT Rate', current: 39, threshold: 50, outputValue: 15 },
     })
-    expect(metric(pulchra, 'dmgBonus').values.fully).toBe(60)
-    expect(action(pulchra, 'pulchraAftershockDefIgnore').values.fully).toBe(25)
+    expect(pulchra.metrics.find(({ id }) => id === 'dmgBonus')).toBeUndefined()
     expect(action(pulchra, 'pulchraExAssistChainUltimate').values.fully).toBe(36)
   })
 
@@ -252,7 +251,6 @@ describe('representative calculation flows', () => {
     })
     expect(action(orphie, 'orphieExSpecial').values.fully).toBe(84)
     expect(metric(pulchra, 'impact').values.fully).toBeCloseTo(189.04, 10)
-    expect(metric(pulchra, 'dmgBonus').values.fully).toBe(84)
     expect(action(pulchra, 'pulchraExAssistChainUltimate').values.fully).toBe(52)
 
     const m5Result = calculateParty(withMindscape(prepared, 'pulchra', 5))!
@@ -293,12 +291,6 @@ describe('representative calculation flows', () => {
   })
 
   it('keeps selected four-piece own two-piece inputs visible on the new agents', () => {
-    const pulchraAllocated = createPreparedState({}, ['corin', 'trigger', 'pulchra'], 0)
-    const allocatedPulchra = agent(calculateParty(pulchraAllocated)!, 'pulchra')
-    expect(metric(allocatedPulchra, 'atk').breakdown.initial
-      .filter(({ label, detail }) => label === 'Astral Voice' && detail === '2-piece'))
-      .toHaveLength(1)
-
     const orphieAstral = selectDisc(
       createPreparedState({}, ['anbySoldier0', 'orphie', 'pulchra'], 0),
       'orphie',
@@ -353,9 +345,7 @@ describe('representative calculation flows', () => {
     const astralResult = calculateParty(astralState)!
     const astralPulchra = agent(astralResult, 'pulchra')
     expect(astralPulchra.metrics.find(({ id }) => id === 'critRate')).toBeUndefined()
-    expect(metric(astralPulchra, 'dmgBonus').breakdown.fully
-      .filter(({ label, ownerAgentId }) => label === 'Astral Voice' && ownerAgentId === 'pulchra'))
-      .toHaveLength(0)
+    expect(astralPulchra.metrics.find(({ id }) => id === 'dmgBonus')).toBeUndefined()
     expect(metric(agent(astralResult, 'corin'), 'dmgBonus').breakdown.fully)
       .toContainEqual(expect.objectContaining({
         label: 'Astral Voice', ownerAgentId: 'pulchra',
@@ -481,12 +471,13 @@ describe('representative calculation flows', () => {
 
   it('projects Koleda Core, Additional, Hellfire, and Mindscapes on exact consumers', () => {
     const state = createPreparedState({}, ['ben', 'koleda', 'panYinhu'], 0)
-    const baseline = agent(calculateParty(state)!, 'koleda')
+    const baselineParty = calculateParty(state)!
+    const baseline = agent(baselineParty, 'koleda')
+    const ben = agent(baselineParty, 'ben')
     expect(metric(baseline, 'critRate').gauge).toMatchObject({
       basisLabel: 'Initial CRIT Rate', current: 29, threshold: 50,
       outputLabel: 'Squad CRIT DMG', outputValue: 15,
     })
-    expect(metric(baseline, 'critDmg').values.fully).toBe(65)
     expect(metric(baseline, 'impact').values).toEqual({
       initial: expect.closeTo(190.28),
       combat: expect.closeTo(190.28),
@@ -499,27 +490,20 @@ describe('representative calculation flows', () => {
       - metric(baseline, 'dazeBonus').values.fully).toBe(60)
     expect(action(baseline, 'koledaExSpecial').values.fully
       - metric(baseline, 'dazeBonus').values.fully).toBe(60)
-    expect(action(baseline, 'koledaChain').values.fully
-      - metric(baseline, 'dmgBonus').values.fully).toBe(70)
+    expect(action(ben, 'sharedChainAttackDmg').values.fully
+      - metric(ben, 'dmgBonus').values.fully).toBe(70)
 
     const progressed = agent(calculateParty(withMindscape(state, 'koleda', 6))!, 'koleda')
     expect(action(progressed, 'koledaSpecial').values.fully
       - metric(progressed, 'dazeBonus').values.fully).toBe(15)
     expect(action(progressed, 'koledaExSpecial').values.fully
       - metric(progressed, 'dazeBonus').values.fully).toBe(75)
-    expect(action(progressed, 'koledaChain').values.fully
-      - metric(progressed, 'dmgBonus').values.fully).toBe(106)
-    expect(action(progressed, 'koledaChainUltimate').values.fully
-      - metric(progressed, 'dmgBonus').values.fully).toBe(36)
-    expect(progressed.operations).toContainEqual(expect.objectContaining({
-      id: 'koledaExplosionAtkDamage', value: 360, unit: '% ATK',
-    }))
+    expect(progressed.operations).toEqual([])
 
     const threshold = agent(calculateParty(setSubstat(state, 'koleda', 'critRate', 9))!, 'koleda')
     expect(metric(threshold, 'critRate').gauge).toMatchObject({
       current: expect.closeTo(50.6), outputValue: 30,
     })
-    expect(metric(threshold, 'critDmg').values.fully).toBe(80)
 
     const inactive = agent(
       calculateParty(createPreparedState({}, ['corin', 'koleda', 'astraYao'], 0))!,
@@ -610,11 +594,7 @@ describe('representative calculation flows', () => {
       .toContainEqual(expect.objectContaining({
         ownerAgentId: 'zhao', locus: 'mindscape', amount: 15,
       }))
-    expect(metric(m4Zhao, 'atk').breakdown.fully)
-      .toContainEqual(expect.objectContaining({
-        ownerAgentId: 'zhao', locus: 'mindscape',
-        amount: expect.closeTo(metric(m4Zhao, 'atk').values.initial * .2),
-      }))
+    expect(m4Zhao.metrics.find(({ id }) => id === 'atk')).toBeUndefined()
     expect(metric(agent(m4, 'yeShunguang'), 'atk').breakdown.fully)
       .toContainEqual(expect.objectContaining({
         ownerAgentId: 'zhao', locus: 'mindscape',

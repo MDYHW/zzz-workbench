@@ -55,9 +55,9 @@ and equipment consequences, so no shared named-Agent rule is warranted.
   recipients; it is not a general ATK-to-CRIT formula.
 - R4. Mindscapes apply cumulatively: M1 adds self CRIT Rate +12% and enemy Stun
   DMG Multiplier +35% after the qualified Chain relationship; M2 adds squad
-  CRIT DMG +22%; M4 adds self CRIT DMG +35%; M6 adds Chain Attack DMG +30% and
-  a source-stated 480% popcorn operation. Decibel/resource and raw-damage
-  clauses stay outside Result.
+  CRIT DMG +22%. M4 personal CRIT DMG, M6 personal Chain DMG and popcorn damage,
+  Decibel/resource, and raw-damage clauses do not strengthen Ju Fufu's retained
+  Daze/buffer direction and stay outside Result.
 - R5. Full W-Engine candidates are Roaring Furnace, Blazing Laurel, Hellfire
   Gears, Steam Oven, and Precious Fossilized Core. Non-limited candidates are
   Hellfire, Steam, and Precious. All are Stun-holder legal and retain only
@@ -69,12 +69,14 @@ and equipment consequences, so no shared named-Agent rule is warranted.
   and fully enabled Impact +20% at W1. Steam and Precious retain their exact
   Energy/Impact or Daze packages. The rare full pool and the non-limited pool
   are authored independently.
-- R7. Ju Fufu's 4-piece candidates are King of the Summit, Swing Jazz, and
-  Shockstar Disco. Two-piece candidates are Shockstar, King, Hormone Punk,
+- R7. Ju Fufu's 4-piece candidates are King of the Summit and Swing Jazz.
+  Two-piece candidates are Shockstar, King, Hormone Punk,
   Astral Voice, Swing Jazz, and Moonlight Lullaby, subject to different-set and
   same-effect routing. Hormone is the one base ATK% 2-piece identity because
   neither ATK set has a current 4-piece role for her. Swing 4 exposes Moonlight;
-  King or Shockstar 4 exposes Swing.
+  King exposes Swing. Shockstar's Basic/Dash/Dodge Daze does not align closely
+  enough with Ju Fufu's low-field-time EX/Chain/Ultimate direction to remain a
+  competitive four-piece package, while its Impact two-piece remains useful.
 - R8. Base main choices are ATK% in Slot 4, ATK%/Fire DMG in Slot 5, and ATK%/
   Impact in Slot 6. Base effective substats are ATK% and flat ATK. Selecting
   King additionally exposes CRIT Rate Slot 4, Woodpecker 2-piece, and CRIT Rate
@@ -100,18 +102,24 @@ and equipment consequences, so no shared named-Agent rule is warranted.
   four-Energy-per-six-Break-Force event is excluded from Result and retained
   value storage because it has no current setup or candidate consumer. M6 owns
   the Core scaling change in R10.
-- R12. Full W-Engine candidates are Tusks of Fury and Tremor Trigram Vessel;
-  non-limited retains Tremor only. Both are Defense-holder legal. Full prepares
-  Tusks W1; non-limited prepares Tremor W5. Tusks supplies advanced Impact +18%
+- R12. Full W-Engine candidates are Tusks of Fury, Tremor Trigram Vessel, and
+  Spring Embrace; non-limited retains Tremor and Spring. All are Defense-holder
+  legal. Full prepares Tusks W1; non-limited prepares Tremor W5. Tusks supplies advanced Impact +18%
   and reachable squad DMG +18% and Daze +12%; its shield clause has no current
   consumer. Tremor supplies advanced ATK +25%, EX/Ultimate DMG +40%, and its
   exact 3.2-Energy event clause as Setup-only package copy, not a Result
-  operation. A whole usable/unused package, not rarity, establishes each
-  representative.
-- R13. Pan's 4-piece candidates are Astral Voice, Bunny in Wonderland, and
-  Swing Jazz. His 2-piece candidates are Swing, Moonlight, Astral, and Hormone.
+  operation. Spring's ATK advanced stat directly advances Pan's Initial-ATK
+  provider cap and its transferable Energy-generation clause supplies a
+  distinct resource package despite unused survival copy. It remains a
+  candidate rather than replacing Tremor's stronger cap-facing first choice. A
+  whole usable/unused package, not rarity, establishes each representative.
+- R13. Pan's 4-piece candidates are Astral Voice and Bunny in Wonderland. His
+  2-piece candidates are Swing, Moonlight, Astral, and Hormone.
   Selecting Astral exposes Hormone and Swing; selecting Swing exposes Astral
-  and Moonlight; selecting Bunny exposes Astral and Swing. This presents one
+  and Moonlight; selecting Bunny exposes Astral and Swing. Swing's Energy
+  two-piece remains useful, but its four-piece shares the party-DMG axis and is
+  materially below Pan's repeated-Quick-Assist Astral package, so presenting it
+  as another four-piece only adds a lower-value duplicate. This presents one
   same-effect identity while preserving each legal 4-piece role exchange.
 - R14. Pan's main choices are ATK% in Slots 4/5 and ATK% or Energy Regen in Slot
   6. Effective substats are ATK% and flat ATK. Both pools prepare Astral/Swing,
@@ -129,7 +137,7 @@ and equipment consequences, so no shared named-Agent rule is warranted.
   King when the other holder can prepare Astral 4-piece; that holder takes its
   authored Astral alternative. When neither Ju nor the competing holder can
   prepare Astral, the current Dialyn contrast keeps King through its independent
-  CRIT consumer and Ju prepares Shockstar 4 plus King 2 with ATK Slot 4.
+  CRIT consumer and Ju prepares Swing 4 plus King 2 with ATK Slot 4.
   Allocation changes representatives, never candidate membership.
 - R16. Preparation order remains permanent: authored base candidates,
   contextual candidates, selected-input pressure, party allocation, prepared
@@ -137,11 +145,13 @@ and equipment consequences, so no shared named-Agent rule is warranted.
   allocation together; an unaffected Pan provider flow proves the passes do not
   leak across consumers. Party Apply rebuilds all three; pool/Mindscape changes
   rebuild only the target; direct edits remain local.
-- R17. Result exposes Ju Fufu's ATK, Impact, Energy Regen, Daze, party CRIT and
-  action modifiers, King threshold, and applicable enemy modifiers. Pan exposes
-  ATK, Impact/Energy where nonzero, his exact Focus Sheer Force delivery,
-  and qualified DMG. Tremor's event-conditioned Energy remains exact Setup-only
-  package copy, while its EX/Ultimate DMG remains an applicable Result modifier.
+- R17. Result exposes Ju Fufu's ATK, Impact, Energy Regen, Daze, Daze action
+  modifiers, party CRIT, King threshold, and applicable enemy modifiers; it
+  omits her personal M4/M6 damage. Pan exposes ATK, Impact/Energy where nonzero
+  and his exact Focus Sheer Force delivery. His qualified outgoing party/enemy
+  modifiers reach compatible recipients without creating a personal damage
+  row. Tremor's event-conditioned Energy and personal EX/Ultimate DMG remain
+  exact Setup-only package copy rather than Result projection.
   Incomplete selection empties all Result; zero substats remain complete.
 - R18. Shared tests cover Ju King pressure on/off/reselected, M0/M1 and both
   pools, one two-holder allocation composition and one unaffected contrast;
@@ -161,7 +171,9 @@ and equipment consequences, so no shared named-Agent rule is warranted.
 
 ## Status
 
-The recovery audit found no mismatch in sampled Ju Fufu consumers. It corrected
-two Pan Yinhu event-conditioned Energy Result operations while preserving
-Tremor's exact Setup package copy and EX/Ultimate DMG projection. This is not a
-repository-wide clean bill.
+The later U11 re-audit removed Ju Fufu's unsupported Shockstar four-piece and
+changed her collision fallback to Swing Jazz, while preserving King pressure
+and her exact Daze/party contributions. It also removed Pan Yinhu's Swing Jazz
+four-piece and Tremor personal EX/Ultimate DMG Result projection while
+preserving Tremor's exact Setup package copy and Pan's recipient delivery. This
+is not a repository-wide clean bill.

@@ -193,9 +193,10 @@ Koleda adds no new common mechanism.
 - R13. Koleda Mindscapes apply cumulatively. M1 adds Daze +15% to the Special
   or EX Special used directly after Basic hit two or four. M2's 60-Energy event
   and 45-second limit remain outside Result and do not change current
-  candidates or representatives. M4 adds Chain/Ultimate DMG +18% per consumed
-  Charge, up to +36%. M6 retains one added 360% ATK operation for each EX,
-  Chain, or Ultimate explosion. M3 and M5 change no separately retained value.
+  candidates or representatives. M4 personal Chain/Ultimate DMG and M6
+  explosion damage do not strengthen Koleda's retained Daze/Chain-buffer
+  direction and create no Result modifier or operation. M3 and M5 change no
+  separately retained value.
 - R14. Koleda's full W-Engine candidates are Hellfire Gears, Blazing Laurel,
   The Restrained, Steam Oven, and Precious Fossilized Core. Her non-limited
   S-Rank pool excludes only Blazing from that admitted set. Both pools prepare
@@ -248,11 +249,10 @@ Koleda adds no new common mechanism.
   modifiers, and the M2 added-multiplier operation. It exposes no Shield Effect
   or Core shield amount. The DEF-to-ATK contribution is owned by Core Passive;
   the qualified all-party CRIT contribution is owned by Additional Ability.
-  Koleda exposes
-  ATK only when needed by a retained operation, CRIT only when selected inputs
-  or inbox effects supply it, Impact, Energy Regen when nonzero, Daze, retained
-  action modifiers, and applicable M6 operations. Provider effects project to
-  exact recipients once.
+  Koleda exposes selected King CRIT and its gauge, Impact, Energy Regen when
+  nonzero, Daze and retained Daze action modifiers. Her outgoing Chain-DMG and
+  Daze clauses project to exact recipients once; personal ATK/damage rows and
+  the M6 operation are omitted.
 - R20. Incomplete selection empties all Result. Candidate and selected equipment
   summaries expose accessible compressed descriptions. Party Apply, target-only
   rebuilds, direct edits, pressure present/absent/reselected, exact same-effect
@@ -280,8 +280,8 @@ Koleda adds no new common mechanism.
   Mindscape actions. The removed Proto identity and Lycaon M4 likewise create
   no shield Result.
 - AE4. Calculation tests prove Koleda Core/M1 Daze scopes, qualified two-stack
-  Chain DMG delivery, M4 and M6, Hellfire complete package, and one inactive
-  Additional contrast.
+  Chain DMG delivery, omission of personal M4/M6 damage rows, Hellfire's
+  complete package, and one inactive Additional contrast.
 - AE5. Shared UI tests prove both Agents render in selection, Setup candidates
   and selected copy are accessible, Result stays empty when incomplete, and
   no Shield Effect or exact shield operation renders. Complete selected and

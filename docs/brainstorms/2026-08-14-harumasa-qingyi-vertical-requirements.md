@@ -132,7 +132,7 @@ output, runtime package score, or catalogue.
 
 - R10. Qingyi's full W-Engine candidates are Ice-Jade Teapot, Blazing Laurel,
   The Restrained, Hellfire Gears, Steam Oven, and Precious Fossilized Core.
-  Non-limited retains Hellfire, Steam, and Precious. Full prepares Ice-Jade
+  Non-limited retains The Restrained, Hellfire, Steam, and Precious. Full prepares Ice-Jade
   Teapot W1; non-limited prepares Steam Oven W5.
 - R11. Ice-Jade is fully compatible with Qingyi's repeated Basic route and
   supplies Base ATK 713, advanced Impact +18%, Fully Enabled Impact +21%, and

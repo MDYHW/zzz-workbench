@@ -114,7 +114,13 @@ export function resolveAstraProviderClauses(
     ),
     additive('dazeBonus', 'fully', mindscapeSource('astraYao', 4, 'Next Quick Assist'), setup.mindscape >= 4 ? 50 : 0, 'all-party', TRIGGER_QUICK_ASSIST_TARGET, undefined, [...stunRecipients]),
     withApplicability(
-      additive('dmgBonus', 'fully', engine, setup.engineId === 'elegantVanity' ? equipmentEffectMaximumValue(W_ENGINE_FACTS.elegantVanity.effects.damage, refinement) : 0, 'all-party'),
+      additive('dmgBonus', 'fully', engine,
+        setup.engineId === 'elegantVanity'
+          ? equipmentEffectMaximumValue(W_ENGINE_FACTS.elegantVanity.effects.damage, refinement)
+          : setup.engineId === 'theVault'
+            ? equipmentEffectBaseValue(W_ENGINE_FACTS.theVault.effects.targetDamage, refinement)
+            : 0,
+        'all-party'),
       { formulas: damageFormulas },
     ),
     withApplicability(

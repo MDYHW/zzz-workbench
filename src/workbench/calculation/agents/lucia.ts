@@ -182,11 +182,9 @@ export function resolveLuciaProviderClauses(
     : 0
   const engineEnergy = setup.engineId === 'dreamlitHearth'
     ? equipmentEffectBaseValue(W_ENGINE_FACTS.dreamlitHearth.effects.energy, refinement)
-    : setup.engineId === 'thoughtbop'
-      ? equipmentEffectBaseValue(W_ENGINE_FACTS.thoughtbop.effects.energy, refinement)
-      : setup.engineId === 'weepingCradle'
-        ? equipmentEffectBaseValue(W_ENGINE_FACTS.weepingCradle.effects.energy, refinement)
-        : 0
+    : setup.engineId === 'weepingCradle'
+      ? equipmentEffectBaseValue(W_ENGINE_FACTS.weepingCradle.effects.energy, refinement)
+      : 0
   const engineAtk = setup.engineId === 'kaboom'
     ? equipmentEffectBaseValue(W_ENGINE_FACTS.kaboom.effects.atk, refinement)
     : 0

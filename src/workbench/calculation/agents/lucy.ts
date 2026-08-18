@@ -128,7 +128,6 @@ export function calculateLucy(context: LucyCalculationContext, inbox: SourceBoun
     discStatInput(setup, 'lucy', 'twoPiece', 'swingJazz', equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
-  const dmg = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dmgBonus')
   const core = coreAtk(context)
   const tier = coreTier(setup.mindscape)
   return {
@@ -145,9 +144,6 @@ export function calculateLucy(context: LucyCalculationContext, inbox: SourceBoun
         },
       },
       { id: 'energyRegen', label: 'Energy Regen', unit: '/s', decimals: 2, values: energy.values, breakdown: energy.breakdown },
-      ...(dmg.values.fully
-        ? [{ id: 'dmgBonus' as const, label: 'DMG Bonus', unit: '%', decimals: 1, ...dmg }]
-        : []),
     ],
     actionModifiers: [],
     operations: [],

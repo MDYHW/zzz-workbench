@@ -45,11 +45,6 @@ export interface JuFufuCalculationContext {
   initialAtk: number
 }
 
-const JU_FUFU_BASIC_DASH_DODGE = actionTarget([
-  canonicalAction('Basic Attack'),
-  canonicalAction('Dash Attack'),
-  canonicalAction('Dodge Counter'),
-])
 const JU_FUFU_CHAIN = actionTarget([canonicalAction('Chain Attack')])
 const JU_FUFU_ULTIMATE = actionTarget([canonicalAction('Ultimate')])
 const JU_FUFU_EX_CHAIN_ULTIMATE = actionTarget([
@@ -58,12 +53,7 @@ const JU_FUFU_EX_CHAIN_ULTIMATE = actionTarget([
   canonicalAction('Ultimate'),
 ])
 const JU_FUFU_DAZE_SCOPES = [
-  { id: 'juFufuBasicDashDodge', target: JU_FUFU_BASIC_DASH_DODGE },
   { id: 'juFufuExChainUltimateDaze', target: JU_FUFU_EX_CHAIN_ULTIMATE },
-] satisfies readonly ActionScopeNode[]
-const JU_FUFU_DAMAGE_SCOPES = [
-  { id: 'juFufuChain', target: JU_FUFU_CHAIN },
-  { id: 'juFufuUltimate', target: JU_FUFU_ULTIMATE },
 ] satisfies readonly ActionScopeNode[]
 
 export function observeJuFufu(setup: CompleteSetup): JuFufuCalculationContext {
@@ -123,10 +113,6 @@ export function resolveJuFufuProviderClauses(
       setup.mindscape >= 1 ? values.mindscapeStunMultiplier : 0, 'enemy-context'),
     additive('critDmg', 'fully', mindscapeSource('juFufu', 2, "Tiger's Roar"),
       setup.mindscape >= 2 ? values.mindscapeSquadCritDmg : 0, 'all-party'),
-    additive('critDmg', 'fully', mindscapeSource('juFufu', 4, "Tiger's Roar"),
-      setup.mindscape >= 4 ? values.mindscapeSelfCritDmg : 0, 'self'),
-    additive('dmgBonus', 'fully', mindscapeSource('juFufu', 6),
-      setup.mindscape >= 6 ? values.mindscapeChainDmg : 0, 'self', JU_FUFU_CHAIN),
     additive('dazeBonus', 'fully', engine,
       setup.engineId === 'roaringFurnace'
         ? equipmentEffectBaseValue(W_ENGINE_FACTS.roaringFurnace.effects.daze, refinement)
@@ -180,11 +166,6 @@ export function resolveJuFufuProviderClauses(
         'all-party', undefined, undefined, undefined, 'swingJazz'),
       { formulas: ['general_damage', 'sheer_damage'] },
     ),
-    additive('dazeBonus', 'fully', discSource('juFufu', 'shockstar', '4-piece'),
-      setup.fourPieceId === 'shockstar'
-        ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze)
-        : 0,
-      'self', JU_FUFU_BASIC_DASH_DODGE),
   ])
 }
 
@@ -248,13 +229,6 @@ export function calculateJuFufu(
     'critRate',
     { value: 100, source: STATIC_SOURCES.juFufu.critCap },
   )
-  const critDmg = composeMetricEffects(
-    surfaces(values.critDmg, values.critDmg, values.critDmg),
-    surfaces([], [], []),
-    effects,
-    'critDmg',
-  )
-
   const impactInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'juFufu', 'impactPct'),
     mainStatInput(setup, 'juFufu', 'slot6', 'impact'),
@@ -286,14 +260,12 @@ export function calculateJuFufu(
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
   const daze = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus')
-  const dmg = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dmgBonus')
   const stun = composeMetricEffects(
     surfaces(0, 0, 0), surfaces([], [], []), effects, 'stunDmgMultiplier',
   )
-  const actionModifiers = [
-    ...composeActionHierarchy(dmg.values, effects, 'dmgBonus', JU_FUFU_DAMAGE_SCOPES),
-    ...composeActionHierarchy(daze.values, effects, 'dazeBonus', JU_FUFU_DAZE_SCOPES),
-  ]
+  const actionModifiers = composeActionHierarchy(
+    daze.values, effects, 'dazeBonus', JU_FUFU_DAZE_SCOPES,
+  )
 
   const critMetric: ResultMetric = {
     id: 'critRate',
@@ -335,30 +307,17 @@ export function calculateJuFufu(
         },
       },
       critMetric,
-      { id: 'critDmg', label: 'CRIT DMG', unit: '%', decimals: 1, ...critDmg },
       { id: 'impact', label: 'Impact', unit: '', decimals: 1, ...impact },
       ...(energyInputs.length || setup.engineId === 'hellfireGears'
         ? [{ id: 'energyRegen' as const, label: 'Energy Regen', unit: '', decimals: 2,
           values: energy.values, breakdown: energy.breakdown }]
         : []),
       { id: 'dazeBonus', label: 'Daze Bonus', unit: '%', decimals: 1, ...daze },
-      ...(dmg.values.fully
-        ? [{ id: 'dmgBonus' as const, label: 'DMG Bonus', unit: '%', decimals: 1, ...dmg }]
-        : []),
       ...(stun.values.fully
         ? [{ id: 'stunDmgMultiplier' as const, label: 'Stun DMG Multiplier', unit: '%', decimals: 1, ...stun }]
         : []),
     ],
     actionModifiers,
-    operations: setup.mindscape >= 6
-      ? [{
-        id: 'juFufuPopcornMultiplier',
-        label: 'Chain Attack popcorn added DMG Multiplier',
-        source: mindscapeSource('juFufu', 6),
-        surface: 'fully',
-        value: values.mindscapePopcornMultiplier,
-        unit: '%',
-      }]
-      : [],
+    operations: [],
   }
 }

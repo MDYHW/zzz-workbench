@@ -2,7 +2,6 @@ import {
   DRIVE_DISC_FACTS,
   VERTICAL_VALUES,
   W_ENGINE_FACTS,
-  W_ENGINES,
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
 } from '../../content'
@@ -23,7 +22,6 @@ import {
   STATIC_SOURCES,
   withApplicability,
   type CompleteSetup,
-  type EffectMetric,
   type SourceBoundCurrentClause,
 } from '../../effects'
 import { actionForm, actionTarget, canonicalAction } from '../../actions'
@@ -36,32 +34,21 @@ import {
   surfaces,
   type ActionScopeNode,
 } from '../composition'
-import { initialAtkFor } from '../initial-atk'
 import type { AgentResult } from '../result'
 import { TRIGGER_QUICK_ASSIST_TARGET } from './trigger'
 
 export interface AnbyDemaraCalculationContext {
   agentId: 'anby'
   setup: CompleteSetup
-  initialAtk: number
 }
 
 const BASIC = actionTarget([canonicalAction('Basic Attack')])
 const THUNDERBOLT = actionTarget([actionForm('Basic Attack', 'Thunderbolt')])
-const DASH = actionTarget([canonicalAction('Dash Attack')])
 const SPECIAL = actionTarget([canonicalAction('Special Attack')])
 const EX_SPECIAL = actionTarget([canonicalAction('EX Special Attack')])
 const DASH_DODGE = actionTarget([
   canonicalAction('Dash Attack'), canonicalAction('Dodge Counter'),
 ])
-
-const DAMAGE_SCOPES = [
-  {
-    id: 'anbyBasicDmg', target: BASIC,
-    children: [{ id: 'anbyThunderboltDmg', target: THUNDERBOLT }],
-  },
-  { id: 'anbyDashDmg', target: DASH },
-] satisfies readonly ActionScopeNode[]
 
 const DAZE_SCOPES = [
   {
@@ -76,9 +63,7 @@ const DAZE_SCOPES = [
 export function observeAnbyDemara(
   setup: CompleteSetup,
 ): AnbyDemaraCalculationContext {
-  const initialAtk = initialAtkFor('anby', setup)
-  if (initialAtk === null) throw new Error('Complete Anby setup requires a W-Engine')
-  return { agentId: 'anby', setup, initialAtk }
+  return { agentId: 'anby', setup }
 }
 
 function localKingCritRate(setup: CompleteSetup): number {
@@ -131,20 +116,10 @@ export function resolveAnbyDemaraProviderClauses(
     additive('dazeBonus', 'fully', STATIC_SOURCES.anby.core,
       values.coreActionDaze, 'self', EX_SPECIAL),
     additive(
-      'dmgBonus', 'fully', mindscapeSource('anby', 2, 'Against Stunned target'),
-      setup.mindscape >= 2 ? values.mindscapeThunderboltStunnedDmg : 0,
-      'self', THUNDERBOLT,
-    ),
-    additive(
       'dazeBonus', 'fully', mindscapeSource('anby', 2, 'Against non-Stunned target'),
       setup.mindscape >= 2 ? values.mindscapeExNonStunnedDaze : 0,
       'self', EX_SPECIAL,
     ),
-    additive('dmgBonus', 'fully', mindscapeSource('anby', 6, 'After EX Special Attack'),
-      setup.mindscape >= 6 ? values.mindscapeBasicDashDmg : 0, 'self', BASIC),
-    additive('dmgBonus', 'fully', mindscapeSource('anby', 6, 'After EX Special Attack'),
-      setup.mindscape >= 6 ? values.mindscapeBasicDashDmg : 0, 'self', DASH),
-
     percentage('impact', 'fully', engine, engineImpact(setup), 'self'),
     ...(setup.engineId === 'hellfireGears'
       ? [perSecond(
@@ -164,13 +139,6 @@ export function resolveAnbyDemaraProviderClauses(
       { attributes: ['Fire', 'Ice'], formulas: ['general_damage', 'sheer_damage'] },
     ),
     additive(
-      'dmgBonus', 'fully', engine,
-      setup.engineId === 'restrained'
-        ? equipmentEffectMaximumValue(W_ENGINE_FACTS.restrained.effects.damage, refinement)
-        : 0,
-      'self', BASIC,
-    ),
-    additive(
       'dazeBonus', 'fully', engine,
       setup.engineId === 'restrained'
         ? equipmentEffectMaximumValue(W_ENGINE_FACTS.restrained.effects.daze, refinement)
@@ -187,20 +155,6 @@ export function resolveAnbyDemaraProviderClauses(
         : 0,
       'self',
     ),
-    withApplicability(
-      additive(
-        'dmgBonus', 'combat', engine,
-        setup.engineId === 'demaraBatteryMarkII'
-          ? equipmentEffectBaseValue(
-            W_ENGINE_FACTS.demaraBatteryMarkII.effects.electricDamage,
-            refinement,
-          )
-          : 0,
-        'self',
-      ),
-      { attributes: ['Electric'] },
-    ),
-
     additive(
       'dazeBonus', 'initial',
       discSource('anby', 'king', '2-piece', setup.fourPieceId === 'king' ? '4-piece' : '2-piece'),
@@ -244,49 +198,16 @@ export function resolveAnbyDemaraProviderClauses(
   ])
 }
 
-function optionalMetric(
-  metricId: EffectMetric,
-  label: string,
-  effects: ReturnType<typeof resolveDeliveredClauses>,
-): AgentResult['metrics'] {
-  const data = composeMetricEffects(
-    surfaces(0, 0, 0), surfaces([], [], []), effects, metricId,
-  )
-  return data.values.fully
-    ? [{ id: metricId, label, unit: '%', decimals: 1, ...data }]
-    : []
-}
-
 export function calculateAnbyDemara(
   context: AnbyDemaraCalculationContext,
   inbox: SourceBoundCurrentClause[],
   enemy: SourceBoundCurrentClause[],
 ): AgentResult {
-  const { setup, initialAtk } = context
+  const { setup } = context
   const values = VERTICAL_VALUES.anby
   const effects = resolveDeliveredClauses([...inbox, ...enemy], {
-    atk: initialAtk, impact: values.impact,
+    impact: values.impact,
   })
-
-  const atkInputs = presentSetupInputs([
-    engineAdvancedInput(setup, 'anby', 'atkPct'),
-    mainStatInput(setup, 'anby', 'slot4', 'atkPct'),
-    mainStatInput(setup, 'anby', 'slot5', 'atkPct'),
-    discStatInput(
-      setup, 'anby', 'fourPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk),
-      'twoPiece',
-    ),
-  ])
-  const baseAtk = values.atk + W_ENGINES[setup.engineId].baseAtk
-  const atk = composeMetricEffects(
-    surfaces(initialAtk, initialAtk, initialAtk),
-    surfaces(atkInputs.map((input) => percentageContribution(
-      input.source, baseAtk * input.rawValue / 100, input.rawValue,
-    )), [], []),
-    effects,
-    'atk',
-  )
 
   const impactInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'anby', 'impactPct'),
@@ -327,23 +248,6 @@ export function calculateAnbyDemara(
     { value: 100, source: STATIC_SOURCES.anby.critCap },
   )
 
-  const critDmg = composeMetricEffects(
-    surfaces(values.critDmg, values.critDmg, values.critDmg),
-    surfaces([], [], []),
-    effects,
-    'critDmg',
-  )
-  const dmgInputs = presentSetupInputs([
-    mainStatInput(setup, 'anby', 'slot5', 'electricDmg'),
-  ])
-  const initialDmg = dmgInputs.reduce((sum, input) => sum + input.rawValue, 0)
-  const dmg = composeMetricEffects(
-    surfaces(initialDmg, initialDmg, initialDmg),
-    surfaces(dmgInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
-    effects,
-    'dmgBonus',
-  )
-
   const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'anby', 'energyRegenPct'),
     mainStatInput(setup, 'anby', 'slot6', 'energyRegenPct'),
@@ -370,7 +274,6 @@ export function calculateAnbyDemara(
   return {
     agentId: 'anby',
     metrics: [
-      { id: 'atk', label: 'ATK', unit: '', decimals: 0, ...atk },
       ...(kingSelected || critInputs.length || critRate.values.fully !== values.critRate
         ? [{
           id: 'critRate' as const, label: 'CRIT Rate', unit: '%' as const,
@@ -391,12 +294,6 @@ export function calculateAnbyDemara(
             : {}),
         }]
         : []),
-      ...(critDmg.values.fully !== values.critDmg
-        ? [{
-          id: 'critDmg' as const, label: 'CRIT DMG', unit: '%' as const,
-          decimals: 1, ...critDmg,
-        }]
-        : []),
       { id: 'impact', label: 'Impact', unit: '', decimals: 2, ...impact },
       ...(energyInputs.length || setup.engineId === 'hellfireGears'
         ? [{
@@ -404,18 +301,9 @@ export function calculateAnbyDemara(
           decimals: 2, ...energy,
         }]
         : []),
-      { id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...dmg },
       { id: 'dazeBonus', label: 'Daze Bonus', unit: '%', decimals: 1, ...daze },
-      ...optionalMetric('defIgnore', 'DEF Ignore', effects),
-      ...optionalMetric('defReduction', 'DEF Reduction', effects),
-      ...optionalMetric('resIgnore', 'RES Ignore', effects),
-      ...optionalMetric('resReduction', 'RES Reduction', effects),
-      ...optionalMetric('stunDmgMultiplier', 'Stun DMG Multiplier', effects),
     ],
-    actionModifiers: [
-      ...composeActionHierarchy(dmg.values, effects, 'dmgBonus', DAMAGE_SCOPES),
-      ...composeActionHierarchy(daze.values, effects, 'dazeBonus', DAZE_SCOPES),
-    ],
+    actionModifiers: composeActionHierarchy(daze.values, effects, 'dazeBonus', DAZE_SCOPES),
     operations: quickAssist
       ? [{
         id: 'nextQuickAssistDaze',

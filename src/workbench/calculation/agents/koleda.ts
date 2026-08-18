@@ -2,7 +2,6 @@ import {
   DRIVE_DISC_FACTS,
   VERTICAL_VALUES,
   W_ENGINE_FACTS,
-  W_ENGINES,
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
 } from '../../content'
@@ -23,7 +22,6 @@ import {
   STATIC_SOURCES,
   withApplicability,
   type CompleteSetup,
-  type EffectMetric,
   type SourceBoundCurrentClause,
 } from '../../effects'
 import { actionForm, actionTarget, canonicalAction } from '../../actions'
@@ -36,14 +34,12 @@ import {
   surfaces,
   type ActionScopeNode,
 } from '../composition'
-import { initialAtkFor } from '../initial-atk'
 import type { AgentResult } from '../result'
 
 export interface KoledaCalculationContext {
   agentId: 'koleda'
   setup: CompleteSetup
   additionalActive: boolean
-  initialAtk: number
 }
 
 const BASIC_DASH_DODGE = actionTarget([
@@ -56,25 +52,18 @@ const ENHANCED_BASIC = actionTarget([
 const SPECIAL = actionTarget([canonicalAction('Special Attack')])
 const EX_SPECIAL = actionTarget([canonicalAction('EX Special Attack')])
 const BASIC = actionTarget([canonicalAction('Basic Attack')])
-const CHAIN_ULTIMATE = actionTarget([
-  canonicalAction('Chain Attack'), canonicalAction('Ultimate'),
-])
 const CHAIN = actionTarget([canonicalAction('Chain Attack')])
 const DAZE_SCOPES = [
   {
     id: 'koledaBasicDashDodge', target: BASIC_DASH_DODGE,
-    children: [{ id: 'koledaEnhancedBasic', target: ENHANCED_BASIC }],
+    children: [
+      { id: 'koledaBasic', target: BASIC },
+      { id: 'koledaEnhancedBasic', target: ENHANCED_BASIC },
+    ],
   },
   {
     id: 'koledaSpecial', target: SPECIAL,
     children: [{ id: 'koledaExSpecial', target: EX_SPECIAL }],
-  },
-] satisfies readonly ActionScopeNode[]
-const DAMAGE_SCOPES = [
-  { id: 'koledaBasic', target: BASIC },
-  {
-    id: 'koledaChainUltimate', target: CHAIN_ULTIMATE,
-    children: [{ id: 'koledaChain', target: CHAIN }],
   },
 ] satisfies readonly ActionScopeNode[]
 
@@ -82,9 +71,7 @@ export function observeKoleda(
   setup: CompleteSetup,
   additionalActive: boolean,
 ): KoledaCalculationContext {
-  const initialAtk = initialAtkFor('koleda', setup)
-  if (initialAtk === null) throw new Error('Complete Koleda setup requires a W-Engine')
-  return { agentId: 'koleda', setup, additionalActive, initialAtk }
+  return { agentId: 'koleda', setup, additionalActive }
 }
 
 function localKingCritRate(setup: CompleteSetup): number {
@@ -138,12 +125,6 @@ export function resolveKoledaProviderClauses(
       setup.mindscape >= 1 ? values.mindscapeDaze : 0,
       'self', SPECIAL,
     ),
-    additive(
-      'dmgBonus', 'fully', mindscapeSource('koleda', 4, 'Two Charges consumed'),
-      setup.mindscape >= 4 ? values.mindscapeDmgMax : 0,
-      'self', CHAIN_ULTIMATE,
-    ),
-
     percentage('impact', 'fully', engine, engineImpact(setup), 'self'),
     ...(setup.engineId === 'hellfireGears'
       ? [perSecond(
@@ -161,13 +142,6 @@ export function resolveKoledaProviderClauses(
         'all-party',
       ),
       { attributes: ['Fire', 'Ice'], formulas: ['general_damage', 'sheer_damage'] },
-    ),
-    additive(
-      'dmgBonus', 'fully', engine,
-      setup.engineId === 'restrained'
-        ? equipmentEffectMaximumValue(W_ENGINE_FACTS.restrained.effects.damage, refinement)
-        : 0,
-      'self', BASIC,
     ),
     additive(
       'dazeBonus', 'fully', engine,
@@ -219,44 +193,16 @@ export function resolveKoledaProviderClauses(
   ])
 }
 
-function optionalMetric(
-  metricId: EffectMetric,
-  label: string,
-  effects: ReturnType<typeof resolveDeliveredClauses>,
-): AgentResult['metrics'] {
-  const data = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, metricId)
-  return data.values.fully
-    ? [{ id: metricId, label, unit: '%', decimals: 1, ...data }]
-    : []
-}
-
 export function calculateKoleda(
   context: KoledaCalculationContext,
   inbox: SourceBoundCurrentClause[],
   enemy: SourceBoundCurrentClause[],
 ): AgentResult {
-  const { setup, initialAtk } = context
+  const { setup } = context
   const values = VERTICAL_VALUES.koleda
   const effects = resolveDeliveredClauses([...inbox, ...enemy], {
-    atk: initialAtk, impact: values.impact,
+    impact: values.impact,
   })
-
-  const atkInputs = presentSetupInputs([
-    engineAdvancedInput(setup, 'koleda', 'atkPct'),
-    mainStatInput(setup, 'koleda', 'slot4', 'atkPct'),
-    mainStatInput(setup, 'koleda', 'slot5', 'atkPct'),
-    discStatInput(setup, 'koleda', 'fourPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
-  ])
-  const baseAtk = values.atk + W_ENGINES[setup.engineId].baseAtk
-  const atk = composeMetricEffects(
-    surfaces(initialAtk, initialAtk, initialAtk),
-    surfaces(atkInputs.map((input) => percentageContribution(
-      input.source, baseAtk * input.rawValue / 100, input.rawValue,
-    )), [], []),
-    effects,
-    'atk',
-  )
 
   const impactInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'koleda', 'impactPct'),
@@ -291,23 +237,6 @@ export function calculateKoleda(
     { value: 100, source: STATIC_SOURCES.koleda.critCap },
   )
 
-  const critDmg = composeMetricEffects(
-    surfaces(values.critDmg, values.critDmg, values.critDmg),
-    surfaces([], [], []),
-    effects,
-    'critDmg',
-  )
-  const dmgInputs = presentSetupInputs([
-    mainStatInput(setup, 'koleda', 'slot5', 'fireDmg'),
-  ])
-  const initialDmg = dmgInputs.reduce((sum, input) => sum + input.rawValue, 0)
-  const dmg = composeMetricEffects(
-    surfaces(initialDmg, initialDmg, initialDmg),
-    surfaces(dmgInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
-    effects,
-    'dmgBonus',
-  )
-
   const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'koleda', 'energyRegenPct'),
     discStatInput(setup, 'koleda', 'fourPiece', 'swingJazz',
@@ -317,18 +246,14 @@ export function calculateKoleda(
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
   const daze = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus')
-  const actionModifiers = [
-    ...composeActionHierarchy(dmg.values, effects, 'dmgBonus', DAMAGE_SCOPES),
-    ...composeActionHierarchy(daze.values, effects, 'dazeBonus', DAZE_SCOPES),
-  ]
+  const actionModifiers = composeActionHierarchy(
+    daze.values, effects, 'dazeBonus', DAZE_SCOPES,
+  )
   const kingSelected = setup.fourPieceId === 'king'
 
   return {
     agentId: 'koleda',
     metrics: [
-      ...(setup.mindscape >= 6
-        ? [{ id: 'atk' as const, label: 'ATK', unit: '', decimals: 0, ...atk }]
-        : []),
       ...(kingSelected || critInputs.length || critRate.values.fully !== values.critRate
         ? [{
           id: 'critRate' as const, label: 'CRIT Rate', unit: '%', decimals: 1, ...critRate,
@@ -348,31 +273,13 @@ export function calculateKoleda(
             : {}),
         }]
         : []),
-      ...(critDmg.values.fully !== values.critDmg
-        ? [{ id: 'critDmg' as const, label: 'CRIT DMG', unit: '%', decimals: 1, ...critDmg }]
-        : []),
       { id: 'impact', label: 'Impact', unit: '', decimals: 2, ...impact },
       ...(energyInputs.length || setup.engineId === 'hellfireGears'
         ? [{ id: 'energyRegen' as const, label: 'Energy Regen', unit: '/s', decimals: 2, ...energy }]
         : []),
-      { id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...dmg },
       { id: 'dazeBonus', label: 'Daze Bonus', unit: '%', decimals: 1, ...daze },
-      ...optionalMetric('defIgnore', 'DEF Ignore', effects),
-      ...optionalMetric('defReduction', 'DEF Reduction', effects),
-      ...optionalMetric('resIgnore', 'RES Ignore', effects),
-      ...optionalMetric('resReduction', 'RES Reduction', effects),
-      ...optionalMetric('stunDmgMultiplier', 'Stun DMG Multiplier', effects),
     ],
     actionModifiers,
-    operations: setup.mindscape >= 6
-      ? [{
-        id: 'koledaExplosionAtkDamage',
-        label: 'EX/Chain/Ultimate explosion added DMG Multiplier',
-        source: mindscapeSource('koleda', 6),
-        surface: 'fully',
-        value: values.mindscapeExplosionAtk,
-        unit: '% ATK',
-      }]
-      : [],
+    operations: [],
   }
 }

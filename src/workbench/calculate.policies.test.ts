@@ -853,9 +853,11 @@ describe('authored calculation policies', () => {
     })
 
     it('projects Ju Fufu ATK and King thresholds through complete equipment packages', () => {
-      const full = agent(calculateParty(
+      const fullParty = calculateParty(
         createPreparedState({}, ['juFufu', 'yixuan', 'lucia'], 1),
-      )!, 'juFufu')
+      )!
+      const full = agent(fullParty, 'juFufu')
+      const fullRecipient = agent(fullParty, 'yixuan')
       const nonLimited = agent(calculateParty(
         createPreparedState({ juFufu: 'nonLimited' }, ['juFufu', 'yixuan', 'lucia'], 1),
       )!, 'juFufu')
@@ -868,14 +870,10 @@ describe('authored calculation policies', () => {
       expect(metric(full, 'critRate').gauge).toMatchObject({
         threshold: 50, outputValue: 30,
       })
-      expect(metric(full, 'dmgBonus').breakdown.fully)
+      expect(metric(fullRecipient, 'dmgBonus').breakdown.fully)
         .toContainEqual(expect.objectContaining({ ownerAgentId: 'juFufu', locus: 'w-engine', amount: 20 }))
       expect(action(full, 'juFufuExChainUltimateDaze').values.fully - metric(full, 'dazeBonus').values.fully)
         .toBeCloseTo(28)
-      expect(action(full, 'juFufuChain').values.fully - metric(full, 'dmgBonus').values.fully)
-        .toBeCloseTo(20)
-      expect(action(full, 'juFufuUltimate').values.fully - metric(full, 'dmgBonus').values.fully)
-        .toBeCloseTo(40)
 
       expect(metric(nonLimited, 'atk').values.initial).toBeCloseTo(2199.7, 10)
       expect(metric(nonLimited, 'atk').gauge).toMatchObject({ outputValue: 20 })
@@ -896,20 +894,18 @@ describe('authored calculation policies', () => {
     it('applies Ju Fufu cumulative Mindscapes without inventing Decibel state', () => {
       const base = createPreparedState({}, ['juFufu', 'yixuan', 'lucia'], 1)
       const m0 = agent(calculateParty(base)!, 'juFufu')
-      const m1 = agent(calculateParty(withMindscape(base, 'juFufu', 1))!, 'juFufu')
-      const m2 = agent(calculateParty(withMindscape(base, 'juFufu', 2))!, 'juFufu')
-      const m4 = agent(calculateParty(withMindscape(base, 'juFufu', 4))!, 'juFufu')
+      const m1Party = calculateParty(withMindscape(base, 'juFufu', 1))!
+      const m2Party = calculateParty(withMindscape(base, 'juFufu', 2))!
+      const m1 = agent(m1Party, 'juFufu')
+      const m2 = agent(m2Party, 'juFufu')
       const m6 = agent(calculateParty(withMindscape(base, 'juFufu', 6))!, 'juFufu')
 
       expect(metric(m1, 'critRate').values.combat - metric(m0, 'critRate').values.combat).toBe(12)
       expect(metric(m1, 'stunDmgMultiplier').values.fully).toBe(35)
-      expect(metric(m2, 'critDmg').values.fully - metric(m1, 'critDmg').values.fully).toBe(22)
-      expect(metric(m4, 'critDmg').values.fully - metric(m2, 'critDmg').values.fully).toBe(35)
-      expect(action(m6, 'juFufuChain').values.fully - action(m4, 'juFufuChain').values.fully)
-        .toBe(30)
-      expect(m6.operations).toContainEqual(expect.objectContaining({
-        id: 'juFufuPopcornMultiplier', value: 480, unit: '%',
-      }))
+      expect(metric(agent(m2Party, 'yixuan'), 'critDmg').values.fully
+        - metric(agent(m1Party, 'yixuan'), 'critDmg').values.fully).toBe(22)
+      expect(m2.metrics.find(({ id }) => id === 'critDmg')).toBeUndefined()
+      expect(m6.operations).toEqual([])
       expect(JSON.stringify(m6)).not.toMatch(/decibel|momentum|might/i)
     })
 
@@ -980,10 +976,7 @@ describe('authored calculation policies', () => {
       matureNonLimitedState = setSubstat(matureNonLimitedState, 'panYinhu', 'atkFlat', 8)
       expect(metric(agent(calculateParty(matureNonLimitedState)!, 'panYinhu'), 'atk')
         .values.initial).toBeCloseTo(3282.15, 10)
-      expect(action(nonLimited, 'panExUltimate').breakdown.fully)
-        .toContainEqual(expect.objectContaining({
-          ownerAgentId: 'panYinhu', locus: 'w-engine', amount: 40,
-        }))
+      expect(nonLimited.actionModifiers).toEqual([])
       expect(nonLimited.operations).toEqual([])
 
       const allocatedState = createPreparedState(
@@ -1002,15 +995,6 @@ describe('authored calculation policies', () => {
       expect(metric(agent(allocated, 'panYinhu'), 'atk').values.initial)
         .toBeCloseTo(2651.8, 10)
 
-      let swingState = createPreparedState({}, ['yixuan', 'panYinhu', 'juFufu'], 0)
-      swingState = selectDisc(swingState, 'panYinhu', 'fourPiece', 'swingJazz')
-      swingState = selectDisc(swingState, 'panYinhu', 'twoPiece', 'astralVoice')
-      const swing = calculateParty(swingState)!
-      expect(metric(agent(swing, 'yixuan'), 'dmgBonus').breakdown.fully)
-        .toContainEqual(expect.objectContaining({
-          ownerAgentId: 'panYinhu', locus: 'disc-4pc', amount: 15,
-        }))
-      expect(metric(agent(swing, 'panYinhu'), 'energyRegen').values.initial).toBeCloseTo(2.808)
     })
 
     it('qualifies Pan Yinhu Additional by Rupture or typed faction and clears it otherwise', () => {
@@ -1262,7 +1246,8 @@ describe('authored calculation policies', () => {
         'qingyi',
         6,
       ))!
-      expect(metric(agent(broadM6Party, 'pulchra'), 'resReduction').values.fully).toBe(20)
+      expect(agent(broadM6Party, 'pulchra').metrics.find(({ id }) => id === 'resReduction'))
+        .toBeUndefined()
       expect(metric(agent(broadM6Party, 'starlightBilly'), 'resReduction').values.fully).toBe(20)
     })
 
@@ -1644,9 +1629,6 @@ describe('authored calculation policies', () => {
       expect(action(prepared, 'anbyThunderboltDaze').values.fully).toBe(70)
       expect(action(prepared, 'anbySpecialDaze').values.fully).toBe(70)
       expect(action(prepared, 'anbyExSpecialDaze').values.fully).toBe(80)
-      expect(action(prepared, 'anbyBasicDmg').values.fully).toBe(75)
-      expect(action(prepared, 'anbyThunderboltDmg').values.fully).toBe(105)
-      expect(action(prepared, 'anbyDashDmg').values.fully).toBe(75)
       expect(prepared.operations).toEqual([])
 
       const shockstar = agent(calculateParty(
@@ -1686,29 +1668,17 @@ describe('authored calculation policies', () => {
         1,
       )
       const demara = agent(calculateParty(demaraState)!, 'anby')
-      expect(metric(demara, 'dmgBonus').values).toEqual({
-        initial: 30, combat: 45, fully: 45,
-      })
-      expect(metric(demara, 'dmgBonus').breakdown.combat)
-        .toContainEqual(expect.objectContaining({
-          label: 'Demara Battery Mark II', ownerAgentId: 'anby', amount: 15,
-        }))
+      expect(demara.metrics.find(({ id }) => id === 'dmgBonus')).toBeUndefined()
       expect(demara.metrics.find(({ id }) => id === 'energyRegen')).toBeUndefined()
       expect(demara.operations).toEqual([])
 
       const restrained = agent(calculateParty(
         selectEngine(base, 'anby', 'restrained'),
       )!, 'anby')
-      expect(action(restrained, 'anbyBasicDmg').values.fully
-        - metric(restrained, 'dmgBonus').values.fully).toBe(75)
       expect(action(restrained, 'anbyThunderboltDaze').values.fully
         - metric(restrained, 'dazeBonus').values.fully).toBe(94)
 
       const m2 = agent(calculateParty(withMindscape(base, 'anby', 2))!, 'anby')
-      expect(action(m2, 'anbyThunderboltDmg').breakdown.fully)
-        .toContainEqual(expect.objectContaining({
-          label: 'Mindscape', detail: 'M2 · Against Stunned target', amount: 30,
-        }))
       expect(action(m2, 'anbyExSpecialDaze').breakdown.fully)
         .toContainEqual(expect.objectContaining({
           label: 'Mindscape', detail: 'M2 · Against non-Stunned target', amount: 10,
@@ -1741,7 +1711,7 @@ describe('authored calculation policies', () => {
       expect(m0.operations).toEqual([])
     })
 
-    it('delivers Trigger Core/M2 and Astra M4 only through Anby compatible consumers', () => {
+    it('delivers Trigger damage modifiers and Astra Daze only through compatible consumers', () => {
       const noTrigger = agent(calculateParty(
         createPreparedState({}, ['billy', 'anby', 'nekomata'], 0),
       )!, 'anby')
@@ -1752,7 +1722,8 @@ describe('authored calculation policies', () => {
         'trigger',
         0,
       )
-      const triggerM0 = agent(calculateParty(triggerM0State)!, 'anby')
+      const triggerM0Party = calculateParty(triggerM0State)!
+      const triggerM0 = agent(triggerM0Party, 'billy')
       expect(metric(triggerM0, 'stunDmgMultiplier').breakdown.fully)
         .toContainEqual(expect.objectContaining({
           label: 'Core Passive', ownerAgentId: 'trigger', amount: 35,
@@ -1764,7 +1735,7 @@ describe('authored calculation policies', () => {
 
       const triggerM2 = agent(calculateParty(
         withMindscape(triggerM0State, 'trigger', 2),
-      )!, 'anby')
+      )!, 'billy')
       expect(metric(triggerM2, 'stunDmgMultiplier').breakdown.fully)
         .toContainEqual(expect.objectContaining({
           label: 'Core Passive', ownerAgentId: 'trigger', amount: 55,
@@ -2048,8 +2019,8 @@ describe('authored calculation policies', () => {
         })
       expect(metric(agent(triggerResult, 'trigger'), 'stunDmgMultiplier').values.fully)
         .toBe(35)
-      expect(metric(agent(triggerResult, 'anby'), 'stunDmgMultiplier').values.fully)
-        .toBe(35)
+      expect(agent(triggerResult, 'anby').metrics.find(({ id }) => id === 'stunDmgMultiplier'))
+        .toBeUndefined()
 
       const m4 = calculateParty(
         withMindscape(triggerState, 'yeShunguang', 4),

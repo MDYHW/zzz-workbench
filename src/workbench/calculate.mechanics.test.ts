@@ -313,15 +313,6 @@ describe('calculateParty mechanisms', () => {
         label: 'Astral Voice', locus: 'disc-2pc', display: { value: 10, unit: '%', decimals: 0 },
       }))
 
-    let panState = createPreparedState({}, ['yixuan', 'panYinhu', 'juFufu'], 0)
-    panState = selectDisc(panState, 'panYinhu', 'fourPiece', 'swingJazz')
-    panState = selectDisc(panState, 'panYinhu', 'twoPiece', 'moonlight')
-    expect(metric(agent(calculateParty(panState)!, 'panYinhu'), 'energyRegen')
-      .breakdown.initial).toContainEqual(expect.objectContaining({
-        label: 'Moonlight Lullaby', locus: 'disc-2pc',
-        display: { value: 20, unit: '%', decimals: 0 },
-      }))
-
     let juFufuState = createPreparedState({}, ['yixuan', 'panYinhu', 'juFufu'], 0)
     juFufuState = selectDisc(juFufuState, 'juFufu', 'fourPiece', 'swingJazz')
     juFufuState = selectDisc(juFufuState, 'juFufu', 'twoPiece', 'moonlight')

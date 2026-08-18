@@ -131,8 +131,11 @@ The prose requirements govern if this diagram and the text ever differ.
   do not dynamically reprepare the selection.
 - R17. Dialyn retains Precious Fossilized Core W5 alongside Yesterday Calls, Hellfire Gears, and Steam Oven. Its retained advanced Impact is +15%; its fully enabled two-threshold Daze package is one +32% W5 contribution. Dialyn's representative remains Yesterday Calls/full and Hellfire/non-limited with King plus Woodpecker, CRIT Rate/ATK%/Energy Regen.
 - R18. Trigger's full W-Engine candidates are Spectral Gaze, Blazing Laurel,
-  Ice-Jade Teapot, The Restrained, Precious Fossilized Core, and Steam Oven;
-  non-limited retains The Restrained, Precious Fossilized Core, and Steam Oven.
+  Ice-Jade Teapot, The Restrained, Hellfire Gears, Precious Fossilized Core,
+  and Steam Oven; non-limited retains The Restrained, Hellfire, Precious, and
+  Steam. Hellfire's broad Impact package and automatic off-field Energy remain
+  competitive beside Restrained's aligned Basic/Aftershock direction; neither
+  changes the authored Restrained non-limited first choice.
   Blazing Laurel is a full-pool alternate rather than a new representative:
   Trigger can activate and consume its Impact package, and her Basic-category
   Aftershocks can establish the Fire/Ice squad CRIT DMG package. That recipient
@@ -154,7 +157,18 @@ The prose requirements govern if this diagram and the text ever differ.
   effective set and an edited substat count is cleared. Reselecting King
   reintroduces CRIT Rate at zero without restoring history.
 - R19. Trigger's local representative full setup is Spectral Gaze W1 with King of the Summit 4-piece and Shockstar Disco 2-piece. Her local representative non-limited setup is The Restrained W1 with the same King/Shockstar package. Both retain CRIT Rate/Electric DMG/Impact as their prepared mains. Authorized preparation may replace only the representative W-Engine or complete Disc package through R23d-R23g; those adjustments do not change candidate membership.
-- R20. Astra W-Engine candidates are Elegant Vanity, Bashful Demon, and Kaboom the Cannon. Full prepares Elegant Vanity W1; non-limited prepares Kaboom the Cannon W5. Kaboom's four qualifying distinct-squad stacks are reachable with the ordinary Bangboo party member without exposing Bangboo as an independent workbench variable, so its complete package supplies Energy Regen +50% and squad ATK +16%. Bashful remains a direct alternative, but its ATK-only supply does not replace Kaboom's zero-substat Energy/party-ATK balance. Do not admit Weeping Cradle or The Vault for Astra in this vertical.
+- R20. Astra W-Engine candidates are Elegant Vanity, Bashful Demon, The Vault,
+  and Kaboom the Cannon. Full prepares Elegant Vanity W1; non-limited prepares
+  Kaboom the Cannon W5. Kaboom's four qualifying distinct-squad stacks are
+  reachable with the ordinary Bangboo party member without exposing Bangboo as
+  an independent workbench variable, so its complete package supplies Energy
+  Regen +50% and squad ATK +16%. Bashful remains a direct alternative, but its
+  ATK-only supply does not replace Kaboom's zero-substat Energy/party-ATK
+  balance. Astra's off-field Tremolo counts as repeated Ether EX Special use,
+  so The Vault's short target-DMG and holder-Energy package is activatable and
+  competitive as a distinct selectable route; its short window and lower
+  cap-facing package do not replace either representative. Do not admit Weeping
+  Cradle for Astra.
 - R21. Astra's retained 4-piece candidates are Astral Voice and Moonlight
   Lullaby. Her ATK% 2-piece choice uses the authored Hormone Punk/Astral Voice
   relationship, and her Energy Regen choice uses the authored Swing
@@ -365,6 +379,21 @@ branches in candidate policy. Provider order does not change the outcome.
 - R47. Conditional rows, actions, retained action/state operations, and source disclosures are absent when no active current contribution or retained relationship changes the inspected Result. A currently applicable threshold/cap relationship keeps its gauge even when the current linked output is zero, so the user can see the setup pressure and boundary. Do not add zero placeholder rows or narrative rationale.
 - R48. The masthead and current party status derive from the applied party rather than a named first-vertical constant, without turning the UI into runtime vertical selection.
 - R49. Reapplying Yixuan, Dialyn, and Lucia restores their exact current prepared choices and leaves existing numeric Results, source order, action differences, operations, gauges, keyboard behavior, and responsive geometry unchanged. Lucia's later-authorized Swing Jazz 2-piece is an additional local selector candidate: selecting it changes only Lucia's 2-piece choice and the resulting HP/Energy relationships, while re-preparation restores Moonlight Lullaby 4-piece + Yunkui Tales 2-piece.
+- R49a. Lucia's full W-Engine candidates are Dreamlit Hearth, Weeping Cradle,
+  Kaboom the Cannon, and Unfettered Game Ball; non-limited retains Weeping,
+  Kaboom, and Unfettered. Full prepares Dreamlit W1 and non-limited prepares
+  Weeping W1. Dreamlit's HP, automatic Energy, squad HP, and squad-DMG package
+  advances Lucia's Initial-HP buffer direction most completely. Weeping keeps a
+  competitive automatic-Energy and squad-DMG route despite unused PEN Ratio;
+  Kaboom supplies a separate Energy-Regen and squad-ATK package; Unfettered
+  supplies the same resource stat with a distinct conditionally applicable
+  squad-CRIT direction. Thoughtbop is excluded holder-locally: its squad DMG
+  and ATK passive requires the holder's EX Special to deal Physical DMG, while
+  Lucia's EX is Ether, leaving only the same Energy axis already served by the
+  usable Weeping package. The Vault is legally activatable but its two-second
+  same-axis target window does not remain competitive with Lucia's reliable
+  Weeping delivery. These whole-package judgments do not alter either prepared
+  representative or create runtime scoring.
 
 ---
 

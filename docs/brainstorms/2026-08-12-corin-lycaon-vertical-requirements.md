@@ -209,15 +209,18 @@ and genuine multi-recipient effects keep their actual rules.
 ### Lycaon candidate sets and representatives
 
 - R11. Lycaon's authored W-Engine candidates are Blazing Laurel, Hellfire Gears,
-  Steam Oven, Precious Fossilized Core, and The Simmering Pot. Full pool contains
-  all five; non-limited contains Hellfire and the three A-Rank candidates. Full
+  The Restrained, Steam Oven, Precious Fossilized Core, and The Simmering Pot.
+  Full pool contains all six; non-limited contains Hellfire, Restrained, and the
+  three A-Rank candidates. Full
   prepares Blazing Laurel W1 and non-limited prepares Steam Oven W5. Hellfire's
   off-field Energy clause is unused by completed on-field Encircle Prey, but its
   Base ATK 684, advanced Impact +18%, and Fully Enabled Impact +20% remain a
   distinct usable Impact package beside Steam's Energy Regen +50% and maximum
   Impact +25.6%. Steam's prepared priority therefore does not exclude Hellfire
-  from either pool. The Restrained is excluded because its Basic-only Daze
-  package misses Lycaon's direction-defining Assist and EX Daze.
+  from either pool. The Restrained's Basic-only Daze does not cover Lycaon's
+  Assist and EX Daze, but his regular field sequence still activates the full
+  30% Basic-Daze package, making it a competitive distinct action direction
+  without displacing either representative.
 - R12. Retain Blazing Laurel as Base ATK 713 and advanced Impact +18%. W1-W5
   Quick Assist or Perfect Assist grants Impact
   `25 / 28.75 / 32.5 / 36.25 / 40%`. Basic Attack hits apply up to 20 Wilt

@@ -392,11 +392,11 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     twoPiece: ['polarMetal', 'woodpecker', 'branchAndBlade', 'pufferElectro', 'astralVoice', 'hormonePunk'],
   },
   juFufu: {
-    fourPiece: ['king', 'swingJazz', 'shockstar'],
+    fourPiece: ['king', 'swingJazz'],
     twoPiece: ['shockstar', 'king', 'hormonePunk', 'astralVoice', 'swingJazz', 'moonlight'],
   },
   panYinhu: {
-    fourPiece: ['astralVoice', 'bunnyInWonderland', 'swingJazz'],
+    fourPiece: ['astralVoice', 'bunnyInWonderland'],
     twoPiece: ['swingJazz', 'moonlight', 'astralVoice', 'hormonePunk'],
   },
   banyue: {
@@ -442,7 +442,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     twoPiece: ['shadowHarmony', 'infernoMetal', 'woodpecker', 'branchAndBlade', 'hormonePunk', 'astralVoice', 'swingJazz', 'moonlight'],
   },
   pulchra: {
-    fourPiece: ['king', 'astralVoice', 'shockstar', 'swingJazz'],
+    fourPiece: ['king', 'astralVoice', 'swingJazz'],
     twoPiece: ['shockstar', 'king', 'swingJazz'],
   },
   harumasa: {
@@ -485,7 +485,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     ],
   },
   zhao: {
-    fourPiece: ['bunnyInWonderland', 'astralVoice', 'swingJazz'],
+    fourPiece: ['bunnyInWonderland', 'astralVoice'],
     twoPiece: ['bunnyInWonderland', 'yunkui', 'swingJazz', 'moonlight', 'astralVoice', 'hormonePunk'],
   },
   grace: {
