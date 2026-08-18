@@ -95,7 +95,7 @@ ordered checks and reviews are renewed.
 | Stun A | Dialyn; Trigger; Ju Fufu; Lighter; Pulchra; Qingyi | 6 | pending | — | — | — |
 | Stun B | Lycaon; Koleda Belobog; Anby Demara | 3 | pending | — | — | — |
 | Support | Lucia; Astra Yao; Soukaku; Lucy; Nicole | 5 | pending | — | — | — |
-| Defense/provider | Pan Yinhu; Ben Bigger; Caesar King; Zhao | 4 | pending | — | — | — |
+| Defense | Pan Yinhu; Ben Bigger; Caesar King; Zhao | 4 | pending | — | — | — |
 
 Total: 38 identities.
 
