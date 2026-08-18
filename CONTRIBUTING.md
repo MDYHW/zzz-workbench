@@ -98,18 +98,20 @@ not represented as passing merely because the build succeeds.
 
 ## Protected remote gate
 
-The repository now has a shared pull-request and recovery flow, so local checks
+The repository has one protected pull-request flow, so local checks
 are necessary feedback but not the acceptance boundary. Protected changes must
 pass the repository's required governance-policy check, behavior tests, type
 checking, production build, and any applicable stable-environment Playwright
 visual check. A passing local run cannot replace a required remote status.
 
-During authority-governance recovery:
+The promotion boundary preserves the recovery history while establishing the
+permanent branch topology:
 
 - `unverified-baseline` and `unverified-baseline-3b2456a` preserve the exact
   forensic checkpoint and may not move;
-- `recovery` accepts pull requests only and remains distinct from trusted
+- `recovery` is the frozen attested checkpoint and remains distinct from trusted
   `main`;
+- protected `main` accepts pull requests only and is the permanent default;
 - the completed bootstrap phase required a fresh product-owner approval for
   every recovery pull request and kept App merge disabled until the full
   ruleset and reviewer-evidence workflow was proven;
@@ -164,7 +166,7 @@ Editing or deleting the current comment, changing the PR body or head, or
 changing a bound tree invalidates it. Do not add this payload to the proposed
 repository diff.
 
-Six unique required contexts gate `recovery`: `Trusted Governance`,
+Six unique required contexts gate `main`: `Trusted Governance`,
 `Protected Approval`, `Behavior Tests`, `Type Check`, `Production Build`, and
 `Visual Baseline`. All six target the current PR head SHA. The four job contexts
 come from `pull_request` runs bound to the exact current PR, base, and head;
@@ -197,8 +199,8 @@ $env:ZZZ_WORKBENCH_GIT_EXECUTABLE = '<absolute path to git.exe>'
 $env:ZZZ_WORKBENCH_GH_EXECUTABLE = '<absolute path to gh.exe>'
 ```
 
-Invoke the launcher by absolute path from a clean local `recovery` worktree
-whose HEAD equals local `origin/recovery`. The current working directory may be
+Invoke the launcher by absolute path from a clean local `main` worktree
+whose HEAD equals local `origin/main`. The current working directory may be
 the clean candidate worktree for branch-bound operations. The allowlisted
 launcher commands are:
 

@@ -22,7 +22,7 @@ import {
   validateAppAndInstallation,
   validateInstallationToken,
   validateOperation,
-  verifyTrustedRecoveryCheckout,
+  verifyTrustedBaseCheckout,
 } from './run-as-installation.mjs';
 
 const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
@@ -227,10 +227,10 @@ test('creates a signed GitHub App JWT without exposing the private key', () => {
 });
 
 test('accepts only fixed operation schemas and rejects force, protected, and arbitrary commands', () => {
-  assert.deepEqual(validateOperation({ kind: 'git-push', branch: 'codex/recovery-policy' }), { kind: 'git-push', branch: 'codex/recovery-policy' });
-  assert.deepEqual(buildChildCommand({ kind: 'git-push', branch: 'codex/recovery-policy' }), ['push', `https://github.com/${REPOSITORY}.git`, 'HEAD:refs/heads/codex/recovery-policy']);
+  assert.deepEqual(validateOperation({ kind: 'git-push', branch: 'codex/main-policy' }), { kind: 'git-push', branch: 'codex/main-policy' });
+  assert.deepEqual(buildChildCommand({ kind: 'git-push', branch: 'codex/main-policy' }), ['push', `https://github.com/${REPOSITORY}.git`, 'HEAD:refs/heads/codex/main-policy']);
   for (const operation of [
-    { kind: 'git-push', branch: 'recovery' },
+    { kind: 'git-push', branch: 'main' },
     { kind: 'git-push', branch: 'codex/force', force: true },
     { kind: 'gh-api', args: ['api', '/repos/other'] },
     { kind: 'pr-merge', number: '1', headSha: 'A'.repeat(40) },
@@ -277,19 +277,19 @@ test('rejects broader installation permissions and foreign remotes or pull reque
   assert.throws(() => validateInstallationToken({ token: 't', permissions: { ...required, actions: 'read' } }), LauncherError);
   assert.equal(isExpectedRemote('https://github.com/Min-DongYoung/zzz-workbench.git'), true);
   assert.equal(isExpectedRemote('https://github.com/other/repository.git'), false);
-  assert.throws(() => assertPullRequestTarget({ baseRefName: 'main', headRefName: 'codex/a' }), LauncherError);
-  assert.throws(() => assertPullRequestTarget({ baseRefName: 'recovery', headRefName: 'feature/a' }), LauncherError);
+  assert.throws(() => assertPullRequestTarget({ baseRefName: 'recovery', headRefName: 'codex/a' }), LauncherError);
+  assert.throws(() => assertPullRequestTarget({ baseRefName: 'main', headRefName: 'feature/a' }), LauncherError);
 });
 
-test('trusted launcher source requires clean recovery at local origin and preserves distinct git/gh PATH entries', async () => {
+test('trusted launcher source requires clean main at local origin and preserves distinct git/gh PATH entries', async () => {
   const runChild = async (_executable, args) => {
     if (args.join(' ') === 'remote get-url origin' || args.join(' ') === 'remote get-url --push origin') return { stdout: `https://github.com/${REPOSITORY}.git\n` };
-    if (args.join(' ') === 'rev-parse --abbrev-ref HEAD') return { stdout: 'recovery\n' };
-    if (args.join(' ') === 'rev-parse HEAD' || args.join(' ') === 'rev-parse refs/remotes/origin/recovery') return { stdout: `${'b'.repeat(40)}\n` };
+    if (args.join(' ') === 'rev-parse --abbrev-ref HEAD') return { stdout: 'main\n' };
+    if (args.join(' ') === 'rev-parse HEAD' || args.join(' ') === 'rev-parse refs/remotes/origin/main') return { stdout: `${'b'.repeat(40)}\n` };
     if (args[0] === 'status' || args[0] === 'config') return { stdout: '' };
     throw new Error('unexpected command');
   };
-  assert.equal((await verifyTrustedRecoveryCheckout({ runChild, gitExecutable: '/tools/git', sourceRoot: '/trusted' })).headSha, 'b'.repeat(40));
+  assert.equal((await verifyTrustedBaseCheckout({ runChild, gitExecutable: '/tools/git', sourceRoot: '/trusted' })).headSha, 'b'.repeat(40));
   const environment = buildGhEnvironment('token', '/gh/gh', '/tmp/config', '/git/git');
   assert.ok(environment.PATH.includes('/gh'));
   assert.ok(environment.PATH.includes('/git'));
@@ -334,7 +334,7 @@ test('checks PR target and exact head before immediate squash merge', async () =
     if (args[0] === 'pr' && args[1] === 'view') {
       return { stdout: JSON.stringify({
         number: 42, url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42',
-        baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
+        baseRefName: 'main', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
         state: 'OPEN', mergeStateStatus: 'CLEAN',
       }) };
     }
@@ -343,7 +343,7 @@ test('checks PR target and exact head before immediate squash merge', async () =
   await runAsInstallation({ kind: 'pr-merge', number: '42', headSha: 'a'.repeat(40) }, runtimeOptions({
     runChild,
     fetchImpl,
-    sourceRoot: '/trusted/recovery',
+    sourceRoot: '/trusted/main',
     currentStatePreflight: async (value) => {
       preflightInput = value;
       return { prNumber: 42, baseSha: value.trustedBaseSha, headSha: value.headSha };
@@ -356,7 +356,7 @@ test('checks PR target and exact head before immediate squash merge', async () =
   assert.ok(calls.some(({ url }) => url.includes(`/commits/${'a'.repeat(40)}/check-runs?`)));
   assert.ok(calls.filter(({ url }) => url.includes('/check-runs?'))
     .every(({ url }) => new URL(url).searchParams.get('filter') === 'latest'));
-  assert.equal(preflightInput.sourceRoot, '/trusted/recovery');
+  assert.equal(preflightInput.sourceRoot, '/trusted/main');
   assert.equal(preflightInput.trustedBaseSha, 'b'.repeat(40));
 });
 
@@ -367,7 +367,7 @@ test('REST transport failure blocks merge, stays retryable, and revokes the toke
     childCalls.push(args);
     if (args[0] === 'pr' && args[1] === 'view') return { stdout: JSON.stringify({
       number: 42,
-      baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
+      baseRefName: 'main', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
       state: 'OPEN', isDraft: false, mergeStateStatus: 'CLEAN',
     }) };
     return { stdout: '' };
@@ -398,7 +398,7 @@ test('malformed REST response blocks merge with exact permanent surface identity
     childCalls.push(args);
     if (args[0] === 'pr' && args[1] === 'view') return { stdout: JSON.stringify({
       number: 42,
-      baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
+      baseRefName: 'main', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
       state: 'OPEN', isDraft: false, mergeStateStatus: 'CLEAN',
     }) };
     return { stdout: '' };
@@ -487,7 +487,7 @@ test('evidence upsert creates or replaces the single marker comment and returns 
       calls.push({ url, init });
       if (url.endsWith('/pulls/42')) return ok({
         state: 'open',
-        base: { ref: 'recovery', repo: { full_name: REPOSITORY } },
+        base: { ref: 'main', repo: { full_name: REPOSITORY } },
         head: { ref: 'codex/launcher-test', repo: { full_name: REPOSITORY } },
       });
       if (url.endsWith('/issues/42/comments?per_page=100&page=1')) return ok(existing);
@@ -511,7 +511,7 @@ test('evidence upsert rejects a foreign target and reconciles an ambiguous mutat
       fetchImpl: async (url, init = {}) => {
         if (url.endsWith('/pulls/42')) return ok({
           state: 'open',
-          base: { ref: 'main', repo: { full_name: REPOSITORY } },
+          base: { ref: 'recovery', repo: { full_name: REPOSITORY } },
           head: { ref: 'codex/launcher-test', repo: { full_name: REPOSITORY } },
         });
         if (url.includes('/issues/') && ['POST', 'PATCH'].includes(init.method)) mutations += 1;
@@ -527,7 +527,7 @@ test('evidence upsert rejects a foreign target and reconciles an ambiguous mutat
     fetchImpl: async (url, init = {}) => {
       if (url.endsWith('/pulls/42')) return ok({
         state: 'open',
-        base: { ref: 'recovery', repo: { full_name: REPOSITORY } },
+        base: { ref: 'main', repo: { full_name: REPOSITORY } },
         head: { ref: 'codex/launcher-test', repo: { full_name: REPOSITORY } },
       });
       if (url.endsWith('/issues/42/comments?per_page=100&page=1')) {
@@ -554,7 +554,7 @@ test('merge reports pending checks and reconciles an ambiguous successful mutati
       runChild: async (_executable, args) => {
         if (args[0] === 'pr' && args[1] === 'view') return { stdout: JSON.stringify({
           number: 42, url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42',
-          baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
+          baseRefName: 'main', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
           state: 'OPEN', isDraft: false, mergeStateStatus: 'BLOCKED',
         }) };
         return { stdout: '' };
@@ -570,7 +570,7 @@ test('merge reports pending checks and reconciles an ambiguous successful mutati
         views += 1;
         return { stdout: JSON.stringify({
           number: 42, url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42',
-          baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
+          baseRefName: 'main', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
           state: views === 1 ? 'OPEN' : 'MERGED', isDraft: false, mergeStateStatus: 'CLEAN',
           statusCheckRollup: successfulRollup(),
         }) };
@@ -625,7 +625,7 @@ test('merge requires one exact success for every required context and ignores un
         rollup,
         runChild: async (_executable, args) => {
           if (args[0] === 'pr' && args[1] === 'view') return { stdout: JSON.stringify({
-            number: 42, baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
+            number: 42, baseRefName: 'main', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
             state: 'OPEN', isDraft: false, mergeStateStatus: 'BLOCKED',
           }) };
           return { stdout: '' };
@@ -651,7 +651,7 @@ test('merge requires one exact success for every required context and ignores un
           views += 1;
           return { stdout: JSON.stringify({
             number: 42, url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42',
-            baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
+            baseRefName: 'main', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
             state: views === 1 ? 'OPEN' : 'MERGED', isDraft: false, mergeStateStatus: 'CLEAN',
           }) };
         }
@@ -672,7 +672,7 @@ test('PR edit reconciles exact title and body after an ambiguous mutation', asyn
         views += 1;
         return { stdout: JSON.stringify({
           number: 42, url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42',
-          baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
+          baseRefName: 'main', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
           state: 'OPEN', mergeStateStatus: 'UNKNOWN',
           title: views === 1 ? 'Old title' : 'Updated title',
           body: views === 1 ? 'Old body' : 'Updated body',
@@ -692,7 +692,7 @@ test('PR creation reconciles an exact same-head PR after an ambiguous mutation',
   const pull = {
     number: 42,
     url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42',
-    baseRefName: 'recovery',
+    baseRefName: 'main',
     headRefName: 'codex/launcher-test',
     headRefOid: 'a'.repeat(40),
     state: 'OPEN',
@@ -778,7 +778,7 @@ test('post-mutation local cleanup failure reports completed identity and forbids
     if (args[0] === 'pr' && args[1] === 'view') return {
       stdout: JSON.stringify({
         number: 42, url: 'https://github.com/Min-DongYoung/zzz-workbench/pull/42',
-        baseRefName: 'recovery', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
+        baseRefName: 'main', headRefName: 'codex/launcher-test', headRefOid: 'a'.repeat(40),
         state: 'OPEN', mergeStateStatus: 'CLEAN',
       }),
     };

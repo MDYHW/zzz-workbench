@@ -10,7 +10,7 @@ export const APP_ID = 4603661;
 export const INSTALLATION_ID = 153925488;
 export const REPOSITORY = 'Min-DongYoung/zzz-workbench';
 export const API_ORIGIN = 'https://api.github.com';
-export const PROTECTED_BASE = 'recovery';
+export const PROTECTED_BASE = 'main';
 export const PEM_PATH_ENV = 'ZZZ_WORKBENCH_GITHUB_APP_PEM_PATH';
 export const GIT_EXECUTABLE_ENV = 'ZZZ_WORKBENCH_GIT_EXECUTABLE';
 export const GH_EXECUTABLE_ENV = 'ZZZ_WORKBENCH_GH_EXECUTABLE';
@@ -604,12 +604,12 @@ async function repositoryProof({ runChild, gitExecutable, cwd }) {
   };
 }
 
-export async function verifyTrustedRecoveryCheckout({ runChild, gitExecutable, sourceRoot }) {
+export async function verifyTrustedBaseCheckout({ runChild, gitExecutable, sourceRoot }) {
   const proof = await repositoryProof({ runChild, gitExecutable, cwd: sourceRoot });
   const environment = buildGitEnvironment('verification-only', gitExecutable);
-  const remoteRecovery = await runChild(gitExecutable, ['rev-parse', 'refs/remotes/origin/recovery'], { env: environment, cwd: sourceRoot });
-  if (proof.branch !== PROTECTED_BASE || proof.headSha !== (remoteRecovery.stdout ?? '').trim()) {
-    fail('Launcher source is not the clean exact local origin/recovery checkout.');
+  const remoteBase = await runChild(gitExecutable, ['rev-parse', `refs/remotes/origin/${PROTECTED_BASE}`], { env: environment, cwd: sourceRoot });
+  if (proof.branch !== PROTECTED_BASE || proof.headSha !== (remoteBase.stdout ?? '').trim()) {
+    fail(`Launcher source is not the clean exact local origin/${PROTECTED_BASE} checkout.`);
   }
   return proof;
 }
@@ -875,7 +875,7 @@ export async function runAsInstallation(operationInput, options = {}) {
   try {
     const sourceProof = options.trustedSourceProof
       ? await options.trustedSourceProof({ runChild, gitExecutable, sourceRoot })
-      : await verifyTrustedRecoveryCheckout({ runChild, gitExecutable, sourceRoot });
+      : await verifyTrustedBaseCheckout({ runChild, gitExecutable, sourceRoot });
     if (!sourceProof || !SHA.test(sourceProof.headSha ?? '')) fail('Trusted launcher source proof failed.');
     const checkoutProof = options.operationCheckoutProof
       ? await options.operationCheckoutProof({ runChild, gitExecutable, operation, cwd: operationCwd })

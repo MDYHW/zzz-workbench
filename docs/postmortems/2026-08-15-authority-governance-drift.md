@@ -170,9 +170,15 @@ identity separation is procedural rather than cryptographic. The pinned Linux
 visual oracle is complemented by required Windows in-app Browser calibration;
 it does not claim pixel equality across operating systems.
 
+The promotion cutover keeps one routine protected base. The trusted evaluator,
+required-context dispatcher, contributor instructions, and GitHub App launcher
+target `main`; the owner-only finalization adapter separately retains
+`recovery` only as the immutable attestation source. No dual-base compatibility
+or post-promotion recovery PR path remains.
+
 This checkpoint deliberately does not embed its own commit SHA. Promotion still
 requires an owner-dispatched finalization run against the exact unchanged
-checkpoint tip, protection readback for the future `main` target, creation of
+final cutover tip, protection readback for the future `main` target, creation of
 `main` at that attested SHA, default-branch transition, recovery freeze, and a
 later protected housekeeping descendant.
 

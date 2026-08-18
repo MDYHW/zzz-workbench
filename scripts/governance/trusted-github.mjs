@@ -32,7 +32,8 @@ import {
 export const REPOSITORY = 'Min-DongYoung/zzz-workbench'
 export const OWNER = 'Min-DongYoung'
 export const REPOSITORY_NAME = 'zzz-workbench'
-export const PROTECTED_BASE = 'recovery'
+export const PROTECTED_BASE = 'main'
+export const RECOVERY_BRANCH = 'recovery'
 export const API_ORIGIN = 'https://api.github.com'
 
 const SHA = /^[0-9a-f]{40}$/
@@ -159,19 +160,19 @@ export async function resolveEventPullRequests({ eventName, event, api }) {
 function assertPullRequest(pr, number) {
   if (pr?.number !== number || pr?.state !== 'open' || pr?.base?.ref !== PROTECTED_BASE
     || pr?.base?.repo?.full_name !== REPOSITORY || pr?.head?.repo?.full_name !== REPOSITORY) {
-    fail('Pull request is outside the trusted recovery flow.')
+    fail('Pull request is outside the trusted protected flow.')
   }
   for (const [label, value] of [['base', pr.base.sha], ['head', pr.head.sha]]) {
     if (!SHA.test(value ?? '')) fail(`Current ${label} SHA is unavailable.`)
   }
 }
 
-async function assertUniqueRecoveryHeadLifecycle(api, pr) {
+async function assertUniqueHeadLifecycle(api, pr) {
   const pulls = await api.paginate(`/repos/${REPOSITORY}/pulls?state=all&sort=created&direction=desc`)
   const exact = pulls.filter((candidate) => candidate?.head?.repo?.full_name === REPOSITORY
     && candidate?.head?.sha === pr.head.sha)
   if (exact.length !== 1 || exact[0]?.number !== pr.number) {
-    fail('Current PR head is not unique to one recovery pull-request lifecycle.')
+    fail('Current PR head is not unique to one pull-request lifecycle.')
   }
 }
 
@@ -404,7 +405,7 @@ async function derivePolicyState({ treeDiff, body, readText, baseTree, ruleState
 async function buildFinalizationEvidenceSnapshot({ api, pr, runSet, candidateSha }) {
   const current = await api.json(`/repos/${REPOSITORY}/pulls/${pr.number}`)
   if (current?.number !== pr.number || current?.state !== 'closed' || !current?.merged_at
-    || current?.merge_commit_sha !== candidateSha || current?.base?.ref !== PROTECTED_BASE
+    || current?.merge_commit_sha !== candidateSha || current?.base?.ref !== RECOVERY_BRANCH
     || current?.base?.repo?.full_name !== REPOSITORY || current?.head?.repo?.full_name !== REPOSITORY
     || current?.base?.sha !== runSet.baseSha || current?.head?.sha !== runSet.headSha
     || !CODEX_BRANCH.test(current?.head?.ref ?? '')) {
@@ -457,17 +458,17 @@ export async function verifyRemoteFinalization({
   repositoryValidator = validateRepository,
 }) {
   const recoveryTip = async () => {
-    const ref = await api.json(`/repos/${REPOSITORY}/git/ref/heads/${PROTECTED_BASE}`)
+    const ref = await api.json(`/repos/${REPOSITORY}/git/ref/heads/${RECOVERY_BRANCH}`)
     return ref?.object?.sha
   }
   if (await recoveryTip() !== candidateSha) fail('Finalization candidate is not the live recovery tip.')
   const pulls = await api.paginate(`/repos/${REPOSITORY}/commits/${candidateSha}/pulls`)
   const matches = pulls.filter((pr) => pr?.merged_at && pr?.merge_commit_sha === candidateSha
-    && pr?.base?.ref === PROTECTED_BASE && pr?.base?.repo?.full_name === REPOSITORY
+    && pr?.base?.ref === RECOVERY_BRANCH && pr?.base?.repo?.full_name === REPOSITORY
     && pr?.head?.repo?.full_name === REPOSITORY && SHA.test(pr?.base?.sha ?? '') && SHA.test(pr?.head?.sha ?? ''))
   if (matches.length !== 1) fail('Recovery candidate does not have exactly one trusted creating pull request.')
   const pr = matches[0]
-  await assertUniqueRecoveryHeadLifecycle(api, pr)
+  await assertUniqueHeadLifecycle(api, pr)
   const statuses = await api.paginate(`/repos/${REPOSITORY}/commits/${pr.head.sha}/statuses`)
   const trustedStatuses = successfulTrustedStatuses(statuses)
   if (trustedStatuses.governanceBinding?.prNumber !== pr.number
@@ -1050,7 +1051,7 @@ export async function buildCurrentSnapshot({
 }) {
   const pr = await api.json(`/repos/${REPOSITORY}/pulls/${prNumber}`)
   assertPullRequest(pr, prNumber)
-  await assertUniqueRecoveryHeadLifecycle(api, pr)
+  await assertUniqueHeadLifecycle(api, pr)
   if (expectedBaseSha && pr.base.sha !== expectedBaseSha) {
     throw new StaleEvaluatorError('Trusted evaluator revision no longer matches the pull request base.')
   }

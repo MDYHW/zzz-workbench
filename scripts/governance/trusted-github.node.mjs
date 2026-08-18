@@ -129,15 +129,15 @@ test('API pagination follows current pages without exposing the token in URLs', 
   assert.ok(urls.every(({ authorization }) => authorization === 'Bearer secret-token'))
 })
 
-test('event routing covers PR edits, comment deletion, workflow runs, recovery push, and ignores non-PR comments', async () => {
+test('event routing covers PR edits, comment deletion, workflow runs, protected-base push, and ignores non-PR comments', async () => {
   const api = {
     paginate: async (pathname) => {
-      if (pathname.includes('/commits/')) return [{ number: 8, base: { ref: 'recovery' } }]
+      if (pathname.includes('/commits/')) return [{ number: 8, base: { ref: 'main' } }]
       return [{ number: 9 }]
     },
   }
   assert.deepEqual(await resolveEventPullRequests({
-    eventName: 'pull_request_target', event: { pull_request: { number: 4, state: 'open', base: { ref: 'recovery' } } }, api,
+    eventName: 'pull_request_target', event: { pull_request: { number: 4, state: 'open', base: { ref: 'main' } } }, api,
   }), [4])
   assert.deepEqual(await resolveEventPullRequests({
     eventName: 'issue_comment', event: { repository: { full_name: 'Min-DongYoung/zzz-workbench' }, issue: { number: 5, pull_request: {} }, action: 'deleted' }, api,
@@ -149,7 +149,7 @@ test('event routing covers PR edits, comment deletion, workflow runs, recovery p
     eventName: 'workflow_run', event: { workflow_run: { head_sha: HEAD, pull_requests: [] } }, api,
   }), [8])
   assert.deepEqual(await resolveEventPullRequests({
-    eventName: 'push', event: { ref: 'refs/heads/recovery' }, api,
+    eventName: 'push', event: { ref: 'refs/heads/main' }, api,
   }), [9])
 })
 
@@ -171,12 +171,12 @@ test('batch revalidation isolates one PR failure and continues every remaining P
   assert.equal(batch.failures.length, 1)
 })
 
-test('evaluation failure invalidates both trusted contexts only on the exact recovery PR head', async () => {
+test('evaluation failure invalidates both trusted contexts only on the exact protected PR head', async () => {
   const writes = []
   const api = {
     json: async (pathname, init) => {
       if (pathname.endsWith('/pulls/4')) return {
-        base: { ref: 'recovery', sha: BASE, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+        base: { ref: 'main', sha: BASE, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
         head: { sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
       }
       if (pathname.endsWith(`/statuses/${HEAD}`)) {
@@ -194,15 +194,15 @@ test('evaluation failure invalidates both trusted contexts only on the exact rec
 
   for (const pull of [
     {
-      base: { ref: 'main', sha: BASE, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
-      head: { sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
-    },
-    {
-      base: { ref: 'recovery', sha: BASE, repo: { full_name: 'other/repository' } },
-      head: { sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
-    },
-    {
       base: { ref: 'recovery', sha: BASE, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+      head: { sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+    },
+    {
+      base: { ref: 'main', sha: BASE, repo: { full_name: 'other/repository' } },
+      head: { sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+    },
+    {
+      base: { ref: 'main', sha: BASE, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
       head: { sha: HEAD, repo: { full_name: 'other/repository' } },
     },
   ]) {
@@ -211,7 +211,7 @@ test('evaluation failure invalidates both trusted contexts only on the exact rec
 
   assert.equal(await publishEvaluationFailure({
     json: async () => ({
-      base: { ref: 'recovery', sha: OTHER, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+      base: { ref: 'main', sha: OTHER, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
       head: { sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
     }),
   }, 4, BASE), false)
@@ -228,7 +228,7 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
     json: async (pathname) => {
       if (pathname.endsWith('/pulls/4')) return {
         number: 4, state: 'open', body: body(), updated_at: '2026-08-16T00:00:00Z', merge_commit_sha: OTHER,
-        base: { ref: 'recovery', sha: BASE, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+        base: { ref: 'main', sha: BASE, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
         head: { sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
       }
       if (pathname.endsWith(`/git/commits/${BASE}`)) return { tree: { sha: baseTreeSha } }
@@ -243,13 +243,13 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
       if (pathname.includes('/pulls?state=all&sort=created&direction=desc')) {
         const current = {
           number: 4,
-          base: { ref: 'recovery', sha: BASE, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
+          base: { ref: 'main', sha: BASE, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
           head: { sha: HEAD, repo: { full_name: 'Min-DongYoung/zzz-workbench' } },
         }
         return duplicateLifecycle ? [current, {
           ...current,
           number: 5,
-          base: { ...current.base, ref: 'main' },
+          base: { ...current.base, ref: 'recovery' },
         }] : [current]
       }
       if (pathname.includes('/runs')) {
@@ -284,7 +284,7 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
   duplicateLifecycle = true
   await assert.rejects(
     () => buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile }),
-    /not unique to one recovery pull-request lifecycle/,
+    /not unique to one pull-request lifecycle/,
   )
 })
 
@@ -521,7 +521,7 @@ test('finalization consumes actual creating-PR outcomes and rechecks the live re
   await assert.rejects(() => verifyRemoteFinalization({
     api: finalizationApi(candidate, { duplicateLifecycle: true }), actor: 'Min-DongYoung', candidateSha: candidate,
     root: '/trusted', repositoryValidator,
-  }), /not unique to one recovery pull-request lifecycle/)
+  }), /not unique to one pull-request lifecycle/)
 
   tipReads = 0
   await assert.rejects(() => verifyRemoteFinalization({
