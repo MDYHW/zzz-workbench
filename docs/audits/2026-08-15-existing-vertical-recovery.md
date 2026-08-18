@@ -92,10 +92,10 @@ ordered checks and reviews are renewed.
 | Anomaly | Grace Howard | 1 | pending | — | — | — |
 | Attack A | Anby: Soldier 0; Seed; Cissia; Evelyn; Corin; Hugo; Ellen | 7 | accepted | sha256:85d48a26bae6b8a6836776f566ea8e0dc2143e979a204138c4e16cd21c905d65 | #45 @ 7692362b958bc14591c5d720b8d9bb74057af3b2 | #46 |
 | Attack B | Soldier 11; Zhu Yuan; Orphie & Magus; Asaba Harumasa; Nekomata; Billy Kid; Ye Shunguang | 7 | accepted | sha256:85d48a26bae6b8a6836776f566ea8e0dc2143e979a204138c4e16cd21c905d65 | #50 @ 4c40356f66eb3bfe8f8991252fd73cfc2e2bc9c2 | #51 |
-| Stun A | Dialyn; Trigger; Ju Fufu; Lighter; Pulchra; Qingyi | 6 | pending | — | — | — |
-| Stun B | Lycaon; Koleda Belobog; Anby Demara | 3 | pending | — | — | — |
-| Support | Lucia; Astra Yao; Soukaku; Lucy; Nicole | 5 | pending | — | — | — |
-| Defense | Pan Yinhu; Ben Bigger; Caesar King; Zhao | 4 | pending | — | — | — |
+| Stun A | Dialyn; Trigger; Ju Fufu; Lighter; Pulchra; Qingyi | 6 | accepted | sha256:85d48a26bae6b8a6836776f566ea8e0dc2143e979a204138c4e16cd21c905d65 | #52 @ a4fb3c15b25aec4a6088cc5b7e160a749106adc6 | #53 |
+| Stun B | Lycaon; Koleda Belobog; Anby Demara | 3 | accepted | sha256:85d48a26bae6b8a6836776f566ea8e0dc2143e979a204138c4e16cd21c905d65 | #52 @ a4fb3c15b25aec4a6088cc5b7e160a749106adc6 | #53 |
+| Support | Lucia; Astra Yao; Soukaku; Lucy; Nicole | 5 | accepted | sha256:85d48a26bae6b8a6836776f566ea8e0dc2143e979a204138c4e16cd21c905d65 | #52 @ a4fb3c15b25aec4a6088cc5b7e160a749106adc6 | #53 |
+| Defense | Pan Yinhu; Ben Bigger; Caesar King; Zhao | 4 | accepted | sha256:85d48a26bae6b8a6836776f566ea8e0dc2143e979a204138c4e16cd21c905d65 | #52 @ a4fb3c15b25aec4a6088cc5b7e160a749106adc6 | #53 |
 
 Total: 38 identities.
 
