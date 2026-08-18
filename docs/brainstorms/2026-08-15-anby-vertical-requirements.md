@@ -22,9 +22,8 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
 1. Applying Anby prepares a complete M6 setup in either availability pool with
    zero supplied substats. Both pools start on Hellfire Gears, King of the
    Summit, and a direct Impact direction.
-2. Result distinguishes Anby's Core-boosted Thunderbolt, Special, and EX Daze;
-   M2's Stunned-target Thunderbolt DMG and non-Stunned-target EX Daze; and M6's
-   Basic/Dash DMG without reproducing ordinary base action multipliers.
+2. Result distinguishes Anby's Core-boosted Thunderbolt, Special, and EX Daze
+   and M2's non-Stunned-target EX Daze without adding personal-damage rows.
 3. Selecting King creates Slot 4 and effective-substat CRIT Rate pressure.
    Leaving King clears invalid CRIT inputs without fallback or history;
    reselecting King restores the input at zero.
@@ -49,10 +48,11 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   modifiers, and exact action projection. Anby's M1, Additional Ability, M4,
   and Demara passive change Energy or Energy Generation Rate through events;
   they do not become Energy Regen or a normalized Result value.
-- The source-fact boundary admits Core/M2/M6 action differences because each
-  is complete without a rotation. It excludes M1/M4 resource cadence and
-  Demara's Energy Generation Rate from Result while retaining Demara's complete
-  package in Setup. Koleda M2 and Spring Embrace are the closest exclusions.
+- The source-fact boundary admits Core and M2's EX-Daze action difference
+  because they strengthen Anby's Daze direction. It excludes M2/M6 personal
+  damage, M1/M4 resource cadence, and Demara's Energy Generation Rate from
+  Result while retaining Demara's complete package in Setup. Koleda M2 and
+  Spring Embrace are the closest exclusions.
 - Game vocabulary owns Stun identity, W-Engine Specialty activation, Daze
   versus Impact, Stunned target state, and Energy Regen versus Energy
   Generation Rate. Anby: Soldier 0 remains a separate S-Rank Attack identity;
@@ -91,10 +91,9 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   modeling the combo sequence or ordinary skill Daze.
 - R5. Mindscapes apply cumulatively. M1 and M4 resource events create no current
   qualifying outcome and remain omitted from runtime facts and Result. M2 adds
-  Thunderbolt DMG +30% against a Stunned target and EX Special Daze +10%
-  against a non-Stunned target. M6 adds Basic and Dash Attack DMG +45% while
-  consuming the charges created by EX Special. M3/M5 skill tiers create no
-  separately retained value.
+  EX Special Daze +10% against a non-Stunned target. Its personal Thunderbolt
+  DMG and M6 Basic/Dash DMG do not strengthen Anby's Daze direction and create
+  no Result difference. M3/M5 skill tiers create no separately retained value.
 
 ### W-Engine authoring
 
@@ -168,12 +167,12 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   Koleda, Lycaon, Anby. If neither can prepare Astral, preserve King on the
   chosen holder and prepare Shockstar on the other. This is not a universal
   Stun ranking or runtime holder score.
-- R14. Result exposes ATK, Impact, Energy Regen when supplied, Daze Bonus,
-  selected CRIT Rate and King gauge when applicable, selected personal DMG Bonus, and
-  applicable shared party/enemy modifiers. Core, M2, M6, Restrained, Shockstar,
-  Demara, and other selected sources retain exact action, Attribute, recipient,
-  and target-state scopes. Candidate dominance and prepared choice do not
-  broaden Result projection.
+- R14. Result exposes Impact, Energy Regen when supplied, Daze Bonus, selected
+  CRIT Rate and King gauge when applicable, and exact retained Daze action
+  differences. Core, M2's EX-Daze clause, Restrained's Basic Daze, Shockstar,
+  and other selected Daze sources retain exact action and target-state scopes.
+  Demara's Electric DMG and Anby's M2/M6 personal damage remain outside Result;
+  candidate dominance and prepared choice do not broaden projection.
 - R15. Selecting away from King clears invalid CRIT Rate main and substat
   inputs without fallback. Reselecting King restores membership with its count
   at zero and does not restore prior edits. Qualified Trigger contrasts by
@@ -199,8 +198,8 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   and clears invalid CRIT inputs into incomplete Result, then target-rebuilds
   only Anby through pool or Mindscape while preserving the other valid edits.
   Ordinary non-stacking Result policy applies once.
-- AE3. Calculation tests prove Core action forms, M2 target-state action
-  differences, M6 Basic/Dash scope, Hellfire/Restrained/Demara projection,
+- AE3. Calculation tests prove Core action forms, M2 target-state EX-Daze,
+  Hellfire/Restrained Daze projection and Demara's absence from personal Result,
   King threshold below and above 50%, and the absence of Additional, M1, M4,
   and Demara Energy Generation Rate facts from Energy Regen and operations.
 - AE4. Shared UI tests prove Anby and Anby: Soldier 0 remain distinct visible

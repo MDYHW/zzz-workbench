@@ -727,7 +727,7 @@ describe('integrated party workbench: result', () => {
     })).toBeInTheDocument()
   }, 10_000)
 
-  it('renders Anby threshold and exact Core/Mindscape action differences', async () => {
+  it('renders Anby threshold and exact Core/Mindscape Daze differences', async () => {
     const user = userEvent.setup()
     render(<App />)
     const replace = async (slot: number, agent: RegExp) => {
@@ -764,16 +764,6 @@ describe('integrated party workbench: result', () => {
       'Show sources for EX Special Attack',
     ]) expect(within(daze).getByRole('button', { name })).toBeInTheDocument()
 
-    await user.click(within(result).getByRole('button', { name: 'DMG Bonus' }))
-    const damage = within(result).getByRole('table', {
-      name: 'DMG Bonus action outcome values',
-    })
-    expect(within(damage).getByRole('button', {
-      name: 'Show sources for Basic Attack: Thunderbolt',
-    })).toBeInTheDocument()
-    expect(within(damage).getByRole('button', {
-      name: 'Show sources for Dash Attack',
-    })).toBeInTheDocument()
     expect(within(result).queryByRole('region', { name: 'Agent operations' }))
       .not.toBeInTheDocument()
   }, 10_000)

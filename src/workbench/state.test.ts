@@ -179,7 +179,7 @@ describe('workbench state lifecycle', () => {
 
     replaceThird('juFufu')
     expect(state.slots[1].setup.fourPieceId).toBe('king')
-    expect(state.slots[2].setup.fourPieceId).toBe('shockstar')
+    expect(state.slots[2].setup.fourPieceId).toBe('swingJazz')
 
     replaceThird('dialyn')
     expect(state.slots[1].setup.fourPieceId).toBe('shockstar')
@@ -717,14 +717,6 @@ describe('workbench state lifecycle', () => {
 
     let pan = createPreparedState({}, ['yixuan', 'panYinhu', 'juFufu'], 0)
     expect(effectiveTwoPieceIds(pan, 1)).toEqual(['swingJazz', 'hormonePunk'])
-    pan = workbenchReducer(pan, {
-      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'swingJazz',
-    })
-    expect(pan.slots[1].setup).toMatchObject({
-      fourPieceId: 'swingJazz', twoPieceId: 'astralVoice',
-    })
-    expect(effectiveTwoPieceIds(pan, 1)).toEqual(['moonlight', 'astralVoice'])
-
     let juFufu = createPreparedState({}, ['juFufu', 'yixuan', 'lucia'], 1)
     expect(effectiveTwoPieceIds(juFufu, 0)).toEqual(expect.arrayContaining([
       'hormonePunk', 'swingJazz',

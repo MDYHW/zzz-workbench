@@ -86,9 +86,6 @@ export const VERTICAL_VALUES = {
     mindscapeCritRate: 12,
     mindscapeStunMultiplier: 35,
     mindscapeSquadCritDmg: 22,
-    mindscapeSelfCritDmg: 35,
-    mindscapeChainDmg: 30,
-    mindscapePopcornMultiplier: 480,
   },
   panYinhu: {
     atk: 661,
@@ -274,7 +271,7 @@ export const VERTICAL_VALUES = {
   pulchra: {
     atk: 665, critRate: 5, critDmg: 50, impact: 136, baseEnergyRegen: 1.2,
     coreDaze: 30, additionalDmg: 30,
-    mindscapeCritRate: 10, mindscapeAtk: 10, kingCritThreshold: 50,
+    mindscapeCritRate: 10, kingCritThreshold: 50,
   },
   harumasa: {
     atk: 915, critRate: 19.4, critDmg: 50, baseEnergyRegen: 1.2,
@@ -316,16 +313,13 @@ export const VERTICAL_VALUES = {
   koleda: {
     atk: 735, critRate: 5, critDmg: 50, impact: 134, baseEnergyRegen: 1.2,
     coreDaze: 60, additionalChainDmg: 70,
-    mindscapeDaze: 15, mindscapeDmgPerCharge: 18,
-    mindscapeDmgMax: 36, mindscapeExplosionAtk: 360,
+    mindscapeDaze: 15,
     kingCritThreshold: 50,
   },
   anby: {
     atk: 658, critRate: 5, critDmg: 50, impact: 136, baseEnergyRegen: 1.2,
     coreActionDaze: 64,
-    mindscapeThunderboltStunnedDmg: 30,
     mindscapeExNonStunnedDaze: 10,
-    mindscapeBasicDashDmg: 45,
     kingCritThreshold: 50,
   },
   caesar: {
@@ -369,7 +363,6 @@ export const VERTICAL_VALUES = {
     additionalHpCap: 27000,
     additionalDmgCap: 40,
     mindscapeResIgnore: 15,
-    mindscapeSelfAtk: 20,
     mindscapeOtherAtk: 15,
     mindscapeActionCritDmg: 40,
     finalVerdictMaxHp: 120,

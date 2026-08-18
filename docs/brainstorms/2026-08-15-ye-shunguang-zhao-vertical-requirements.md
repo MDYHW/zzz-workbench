@@ -212,7 +212,9 @@ optimizer.
   Agent is present.
 - R21. M1 supplies broad All-Attribute RES Ignore +15% to current damage
   consumers at Fully Enabled. M2's self-reachable healing condition supplies
-  Zhao ATK +20% and other party members ATK +15% at Fully Enabled. M3/M5 alter
+  other party members ATK +15% at Fully Enabled; its personal ATK clause does
+  not strengthen Zhao's retained provider direction and creates no local Result.
+  M3/M5 alter
   no separately retained coefficient. M4 supplies CRIT DMG +40% only to
   Ultimate, Chain Attack, and `Basic Attack: Final Verdict`.
 - R22. `Basic Attack: Final Verdict` retains one complete maximum-charge
@@ -237,12 +239,14 @@ optimizer.
   external shield for only personal ATK; Spring Embrace and Tusks do not
   preserve enough Initial-HP pressure to offset their unused survival/Daze
   clauses. These are local Zhao judgments, not general Defense exclusions.
-- R25. Zhao's 4-piece candidates are Bunny in Wonderland, Astral Voice, and
-  Swing Jazz. Bunny supplies HP +10% and squad DMG +18%; Astral supplies ATK
+- R25. Zhao's 4-piece candidates are Bunny in Wonderland and Astral Voice.
+  Bunny supplies HP +10% and squad DMG +18%; Astral supplies ATK
   +10% and a controllable entrant DMG +24% through Zhao's repeated Quick
-  Assists; Swing supplies Energy Regen +20% and squad DMG +15%. Proto Punk's
-  unused shield 2-piece is dominated by Swing's equal squad maximum plus Energy
-  axis, and Support-only Moonlight 4-piece is inactive for Zhao. Bunny is the
+  Assists. Swing's Energy two-piece remains useful, but its lower same-axis
+  squad-DMG four-piece is dominated by Zhao's controllable Astral route and
+  complete Bunny HP/buffer package. Proto Punk's unused shield 2-piece and
+  weaker Assist route likewise do not remain competitive, and Support-only
+  Moonlight 4-piece is inactive for Zhao. Bunny is the
   local representative because its second HP set can keep the 27,000 cap
   inside the bounded future opportunity while its squad output remains broad.
 - R26. Zhao's authored 2-piece roles are HP, Energy Regen, and one ATK identity.
@@ -290,8 +294,9 @@ optimizer.
   local target tone with the gauge and editor and never highlights an Agent or
   Setup locus. Party additions retain their own source rows and interactions.
 - R32. Zhao Result exposes Initial/Combat/Fully Max HP, HP-derived CRIT Rate,
-  ATK, Energy Regen, qualified squad-DMG gauge, exact party/equipment sources,
-  M1/M2/M4 effects, and Final Verdict operation. It omits healing totals,
+  Energy Regen, qualified squad-DMG gauge, exact party/equipment sources,
+  M4's action-scoped CRIT relationship, and the Final Verdict operation. M1 and
+  M2 project to applicable recipients without adding personal RES/ATK rows. It omits healing totals,
   Frostbite, Decibels, uptime, ordinary damage, and raw action coefficients.
 - R33. Selected and candidate equipment expose identical accessible compressed
   package descriptions, including inactive clauses and exact effect identities.
@@ -316,7 +321,8 @@ optimizer.
   contrasting non-Ye uncapped row.
 - AE4. Zhao calculation tests prove Initial HP composition, stepped Core CRIT,
   M6 scaling, Additional inactive/below/reached cap, equal Wellspring origins,
-  Half-Sugar package, M1/M2/M4, and the Final Verdict operation.
+  Half-Sugar package, M1/M2 recipient delivery, M4's exact action-scoped CRIT
+  DMG without local ATK or generic damage rows, and the Final Verdict operation.
 - AE5. UI tests prove the accessible whole-percent target input, immediate
   result-only recalculation, invalid-draft retention and blur/Enter restoration,
   preserved focus, neutral target-source interaction, raw gauge and clamped

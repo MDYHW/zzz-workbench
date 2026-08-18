@@ -46,7 +46,7 @@ describe('party-directed preparation', () => {
     }
   })
 
-  it('keeps Qingyi King against Ju Fufu and uses Ju Shockstar fallback', () => {
+  it('keeps Qingyi King against Ju Fufu and uses Ju Swing fallback', () => {
     for (const ordered of permutations([context('harumasa'), context('qingyi'), context('juFufu')])) {
       const prepared = preparePartySelections(ordered, 'harumasa')
       expect(prepared[ordered.findIndex(({ agentId }) => agentId === 'qingyi')])
@@ -54,7 +54,7 @@ describe('party-directed preparation', () => {
           fourPieceId: 'king', mains: { slot4: 'critRate' },
         })
       expect(prepared[ordered.findIndex(({ agentId }) => agentId === 'juFufu')])
-        .toMatchObject({ fourPieceId: 'shockstar', twoPieceId: 'king' })
+        .toMatchObject({ fourPieceId: 'swingJazz', twoPieceId: 'king' })
     }
   })
 
@@ -68,7 +68,7 @@ describe('party-directed preparation', () => {
     expect(prepareTargetSelection(qingyi, 'harumasa', [{ agentId: 'juFufu', fourPieceId: 'king' }]))
       .toMatchObject({ fourPieceId: 'king' })
     expect(prepareTargetSelection(context('juFufu'), 'harumasa', [{ agentId: 'qingyi', fourPieceId: 'king' }]))
-      .toMatchObject({ fourPieceId: 'shockstar', twoPieceId: 'king' })
+      .toMatchObject({ fourPieceId: 'swingJazz', twoPieceId: 'king' })
   })
 
   it.each(['dialyn', 'trigger'] as const)(
@@ -123,7 +123,7 @@ describe('party-directed preparation', () => {
         .toMatchObject({ fourPieceId: 'king' })
       expect(prepared[ordered.findIndex(({ agentId }) => agentId === 'juFufu')])
         .toMatchObject({
-          fourPieceId: 'shockstar', twoPieceId: 'king',
+          fourPieceId: 'swingJazz', twoPieceId: 'king',
           mains: { slot4: 'atkPct' },
         })
     }
@@ -392,7 +392,7 @@ describe('party-directed preparation', () => {
       context('juFufu'), context('dialyn'), context('yixuan'),
     ], 'yixuan')).toMatchObject([
       {
-        fourPieceId: 'shockstar', twoPieceId: 'king',
+        fourPieceId: 'swingJazz', twoPieceId: 'king',
         mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'atkPct' },
       },
       { fourPieceId: 'king' },

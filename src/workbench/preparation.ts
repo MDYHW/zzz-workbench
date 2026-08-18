@@ -337,7 +337,7 @@ function withEstablishedMoonlightAllocation(
     : selection
 }
 
-function withJuFufuShockstarFallback(
+function withJuFufuSwingFallback(
   context: PreparationContext,
   establishedHolders: readonly EstablishedDiscHolder[],
   selection: SetupSelection,
@@ -352,7 +352,7 @@ function withJuFufuShockstarFallback(
   }
   return {
     ...selection,
-    fourPieceId: 'shockstar',
+    fourPieceId: 'swingJazz',
     twoPieceId: 'king',
     mains: { ...selection.mains, slot4: 'atkPct' },
   }
@@ -504,7 +504,7 @@ export function prepareTargetSelection(
     establishedHolders,
     kingDirected,
   )
-  const nonoverlapping = withJuFufuShockstarFallback(
+  const nonoverlapping = withJuFufuSwingFallback(
     context,
     establishedHolders,
     allocated,
@@ -578,7 +578,7 @@ export function preparePartySelections(
     mindscape: context.mindscape,
   }))
   const withJuFufuFallback = withKingAllocation.map((selection, index) => (
-    withJuFufuShockstarFallback(contexts[index], kingHolders, selection)
+    withJuFufuSwingFallback(contexts[index], kingHolders, selection)
   ))
   const withQingyiFallback = withJuFufuFallback.map((selection, index) => (
     withQingyiDialynShockstarFallback(contexts[index], kingHolders, selection)

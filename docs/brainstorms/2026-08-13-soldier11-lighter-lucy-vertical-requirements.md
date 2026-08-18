@@ -206,6 +206,10 @@ faction graph, or guide-backed evidence payload.
   does not create a current buffer-direction CRIT Result, setup axis, or
   candidate. M1 event Energy, M2 activation timing, M6 raw boar damage, and
   M3/M5 skill tiers create no separate normalized Result.
+- R22b. Lucy's retained local Result is ATK with the Core output gauge and
+  Energy Regen. Her outgoing Core, M4, W-Engine, and Disc modifiers project to
+  compatible party recipients; receiving those same clauses does not create a
+  personal DMG Bonus row on this buffer-only projector.
 - R22a. Kaboom's established same-name non-stacking identity applies across
   Lucy, Soukaku, Astra Yao, and any later exact holder. Equal active origins
   remain visible in the breakdown, but the party receives only the highest

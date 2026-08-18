@@ -106,9 +106,9 @@ describe('AgentSetup Pan Yinhu Drive Disc candidates', () => {
       />,
     )
 
-    expect(screen.getByRole('button', {
-      name: 'Change 4-piece Drive Disc from Bunny in Wonderland',
-    })).toHaveAccessibleDescription('Squad DMG +18%. HP +10%')
+    expect(screen.getByLabelText(
+      'Bunny in Wonderland selected as 4-piece',
+    )).toHaveAccessibleDescription('Squad DMG +18%. HP +10%')
   })
 
   it('shows Bunny in Wonderland as a complete candidate package', async () => {
@@ -841,39 +841,6 @@ describe('AgentSetup exact two-piece choices', () => {
 
     expect(screen.getByTestId('actual-four-piece')).toHaveTextContent('king')
     expect(screen.getByTestId('actual-two-piece')).toHaveTextContent('shockstar')
-  })
-
-  it('exchanges same-effect roles with exact identity and clears only indirect invalidation', async () => {
-    const user = userEvent.setup()
-    render(<PanSameEffectDiscHarness />)
-
-    await user.click(screen.getByRole('button', {
-      name: 'Change 4-piece Drive Disc from Astral Voice',
-    }))
-    await user.click(screen.getByRole('button', {
-      name: 'Select Swing Jazz as fourPiece',
-    }))
-    expect(screen.getByTestId('actual-four-piece')).toHaveTextContent('swingJazz')
-    expect(screen.getByTestId('actual-two-piece')).toHaveTextContent('astralVoice')
-    expect(screen.getByRole('button', {
-      name: 'Change 4-piece Drive Disc from Swing Jazz',
-    })).toHaveAccessibleDescription('Squad DMG +15%. Energy Regen +20%')
-    expect(screen.getByRole('button', {
-      name: 'Change 2-piece Drive Disc from Astral Voice',
-    })).toHaveAccessibleDescription('ATK +10%')
-
-    await user.click(screen.getByRole('button', {
-      name: 'Change 2-piece Drive Disc from Astral Voice',
-    }))
-    const moonlight = screen.getByRole('button', {
-      name: 'Select Moonlight Lullaby as twoPiece',
-    })
-    expect(moonlight).toHaveAccessibleDescription('Energy Regen +20%')
-    await user.click(moonlight)
-    expect(screen.getByRole('button', {
-      name: 'Change 2-piece Drive Disc from Moonlight Lullaby',
-    })).toHaveFocus()
-    expect(screen.getByTestId('workbench-complete')).toHaveTextContent('true')
   })
 
   it('exposes manual repair after a four-piece edit invalidates the same-effect member', async () => {

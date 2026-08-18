@@ -2,7 +2,6 @@ import {
   DRIVE_DISC_FACTS,
   VERTICAL_VALUES,
   W_ENGINE_FACTS,
-  W_ENGINES,
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
   type MainSlot,
@@ -26,8 +25,6 @@ import {
   resolveDeliveredClauses,
   withApplicability,
   type CompleteSetup,
-  type EffectMetric,
-  type ResolvedCurrentEffect,
   type ResolvedSetupInput,
   type SourceBoundCurrentClause,
 } from '../../effects'
@@ -42,7 +39,6 @@ import {
   type ActionScopeNode,
 } from '../composition'
 import type { AgentResult, Contribution } from '../result'
-import { initialAtkFor } from '../initial-atk'
 
 const DAMAGE_FORMULAS: readonly SetupFormulaFamily[] = [
   'general_damage',
@@ -68,7 +64,6 @@ export interface ZhaoCalculationContext {
   agentId: 'zhao'
   setup: CompleteSetup
   initialHp: ZhaoInitialHpObservation
-  initialAtk: number
   additionalActive: boolean
 }
 
@@ -143,13 +138,10 @@ export function observeZhao(
   setup: CompleteSetup,
   additionalActive: boolean,
 ): ZhaoCalculationContext {
-  const initialAtk = initialAtkFor('zhao', setup)
-  if (initialAtk === null) throw new Error('Complete Zhao setup requires a W-Engine')
   return {
     agentId: 'zhao',
     setup,
     initialHp: calculateZhaoInitialHp(setup),
-    initialAtk,
     additionalActive,
   }
 }
@@ -190,10 +182,6 @@ export function resolveZhaoProviderClauses(
         'enemy-context',
       ),
       { formulas: DAMAGE_FORMULAS },
-    ),
-    percentage(
-      'atk', 'fully', mindscapeSource('zhao', 2, 'Reachable healing condition'),
-      setup.mindscape >= 2 ? values.mindscapeSelfAtk : 0, 'self',
     ),
     percentage(
       'atk', 'fully', mindscapeSource('zhao', 2, 'Reachable healing condition'),
@@ -245,34 +233,7 @@ export function resolveZhaoProviderClauses(
       ),
       { formulas: DAMAGE_FORMULAS },
     ),
-    withApplicability(
-      additive(
-        'dmgBonus', 'fully', discSource('zhao', 'swingJazz', '4-piece'),
-        setup.fourPieceId === 'swingJazz'
-          ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage)
-          : 0,
-        'all-party', undefined, undefined, undefined, 'swingJazz',
-      ),
-      { formulas: DAMAGE_FORMULAS },
-    ),
   ])
-}
-
-function optionalMetric(
-  metricId: EffectMetric,
-  label: string,
-  effects: ResolvedCurrentEffect[],
-  actions: AgentResult['actionModifiers'] = [],
-): AgentResult['metrics'] {
-  const metric = composeMetricEffects(
-    surfaces(0, 0, 0),
-    surfaces([], [], []),
-    effects,
-    metricId,
-  )
-  return metric.values.fully === 0 && !actions.some(({ metricId: id }) => id === metricId)
-    ? []
-    : [{ id: metricId, label, unit: '%', decimals: 1, ...metric }]
 }
 
 export function calculateZhao(
@@ -280,13 +241,10 @@ export function calculateZhao(
   inbox: SourceBoundCurrentClause[],
   enemy: SourceBoundCurrentClause[],
 ): AgentResult {
-  const { setup, initialHp, initialAtk, additionalActive } = context
+  const { setup, initialHp, additionalActive } = context
   const values = VERTICAL_VALUES.zhao
-  const engine = W_ENGINES[setup.engineId]
-  const baseAtk = values.atk + engine.baseAtk
   const effects = resolveDeliveredClauses([...inbox, ...enemy], {
     maxHp: initialHp.value,
-    atk: initialAtk,
   })
 
   const maxHp = composeMetricEffects(
@@ -306,36 +264,6 @@ export function calculateZhao(
     effects,
     'critRate',
     { value: 100, source: STATIC_SOURCES.zhao.critCap },
-  )
-
-  const initialAtkInputs = presentSetupInputs([
-    engineAdvancedInput(setup, 'zhao', 'atkPct'),
-    discStatInput(
-      setup, 'zhao', 'fourPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece',
-    ),
-    discStatInput(
-      setup, 'zhao', 'fourPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk), 'twoPiece',
-    ),
-    discStatInput(
-      setup, 'zhao', 'twoPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk),
-    ),
-    discStatInput(
-      setup, 'zhao', 'twoPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk),
-    ),
-  ])
-  const atk = composeMetricEffects(
-    surfaces(initialAtk, initialAtk, initialAtk),
-    surfaces(initialAtkInputs.map((input) => percentageContribution(
-      input.source,
-      baseAtk * input.rawValue / 100,
-      input.rawValue,
-    )), [], []),
-    effects,
-    'atk',
   )
 
   const energyInputs = presentSetupInputs([
@@ -360,12 +288,6 @@ export function calculateZhao(
     surfaces([], [], []),
     effects,
     'critDmg',
-  )
-  const dmgBonus = composeMetricEffects(
-    surfaces(0, 0, 0),
-    surfaces([], [], []),
-    effects,
-    'dmgBonus',
   )
   const actionModifiers = composeActionHierarchy(
     critDmg.values,
@@ -398,17 +320,13 @@ export function calculateZhao(
         } : {}),
       },
       { id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1, ...critRate },
-      { id: 'critDmg', label: 'CRIT DMG', unit: '%', decimals: 1, ...critDmg },
-      { id: 'atk', label: 'ATK', unit: '', decimals: 0, ...atk },
+      ...(actionModifiers.length > 0
+        ? [{ id: 'critDmg' as const, label: 'CRIT DMG', unit: '%', decimals: 1, ...critDmg }]
+        : []),
       {
         id: 'energyRegen', label: 'Energy Regen', unit: '', decimals: 2,
         values: energyRegen.values, breakdown: energyRegen.breakdown,
       },
-      { id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...dmgBonus },
-      ...optionalMetric('resIgnore', 'RES Ignore', effects),
-      ...optionalMetric('resReduction', 'RES Reduction', effects),
-      ...optionalMetric('defIgnore', 'DEF Ignore', effects),
-      ...optionalMetric('stunDmgMultiplier', 'Stun DMG Multiplier', effects),
     ],
     actionModifiers,
     operations: [{

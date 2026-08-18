@@ -55,13 +55,17 @@ const CHARGED = actionTarget([
   canonicalAction('Dash Attack'),
   canonicalAction('Dodge Counter'),
 ])
+const BASIC = actionTarget([canonicalAction('Basic Attack')])
 const EX = actionTarget([canonicalAction('EX Special Attack')])
 const FULL_CHARGE_EX = actionTarget([actionForm('EX Special Attack', 'Fully charged')])
 const ASSIST = actionTarget([canonicalAction('Assist Follow-Up')])
 const GLACIAL_WALTZ = actionTarget([sourceLocalAction('Glacial Waltz')])
 
 const DAZE_SCOPES = [
-  { id: 'lycaonCharged', target: CHARGED },
+  {
+    id: 'lycaonCharged', target: CHARGED,
+    children: [{ id: 'lycaonBasic', target: BASIC }],
+  },
   {
     id: 'lycaonEx',
     target: EX,
@@ -191,6 +195,16 @@ export function resolveLycaonProviderClauses(
         'all-party',
       ),
       { formulas: ['general_damage', 'sheer_damage'], attributes: ['Fire', 'Ice'] },
+    ),
+    additive(
+      'dazeBonus',
+      'fully',
+      engine,
+      setup.engineId === 'restrained'
+        ? equipmentEffectMaximumValue(W_ENGINE_FACTS.restrained.effects.daze, refinement)
+        : 0,
+      'self',
+      BASIC,
     ),
     additive(
       'dazeBonus',

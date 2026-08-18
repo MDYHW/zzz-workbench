@@ -967,28 +967,5 @@ describe('integrated party workbench: setup', () => {
       name: /Impact.*110.0.*112.8.*141.0/,
     })).toBeInTheDocument()
 
-    await user.click(screen.getByRole('tab', { name: 'View Lucia setup and Result' }))
-    await user.click(screen.getByRole('button', {
-      name: 'Change W-Engine from Dreamlit Hearth',
-    }))
-    const luciaCandidates = screen.getByLabelText('W-Engine candidates')
-    const thoughtbop = within(luciaCandidates).getByRole('button', {
-      name: 'Select Thoughtbop W1',
-    })
-    expect(within(thoughtbop).getByText('Energy +0.6/s')).toBeInTheDocument()
-    expect(within(thoughtbop).getByText('Squad DMG +25%')).toBeInTheDocument()
-    expect(within(thoughtbop).getByText('Squad ATK +10%')).toBeInTheDocument()
-    expect(thoughtbop).toHaveAccessibleDescription(
-      'Energy Regen +60%. Energy +0.6/s. Squad DMG +25%. Squad ATK +10%',
-    )
-    expect(within(luciaCandidates).getByRole('button', {
-      name: 'Select Weeping Cradle W1',
-    })).toBeInTheDocument()
-    expect(within(luciaCandidates).getByRole('button', {
-      name: 'Select Kaboom the Cannon W5',
-    })).toBeInTheDocument()
-    expect(within(luciaCandidates).getByRole('button', {
-      name: 'Select Unfettered Game Ball W5',
-    })).toBeInTheDocument()
   })
 })

@@ -33,7 +33,7 @@ Aftershock catalogue.
   Result. Pulchra's Core Daze applies to its current four actions while her
   Additional changes from Aftershock-only at M0-M5 to broad squad DMG at M6.
 - Selecting Pulchra's King creates CRIT Rate main/substat membership. Selecting
-  Astral, Shockstar, or Swing clears invalid CRIT selections without a
+  Astral or Swing clears invalid CRIT selections without a
   fallback; reselecting King restores membership at zero, not history.
 - Party preparation composes existing non-stacking allocation before the new
   local representative reaches Setup: an established King-priority Stun holder
@@ -142,17 +142,19 @@ Aftershock catalogue.
   16%. Both clauses are Fully Enabled and retain their Physical and Daze
   consumers separately.
 - R12. Pulchra's four-piece candidates are King of the Summit, Astral Voice,
-  Shockstar Disco, and Swing Jazz. Her two-piece candidates are Shockstar,
+  and Swing Jazz. Her two-piece candidates are Shockstar,
   King, and Swing; selected King additionally exposes Woodpecker as the current
   CRIT-threshold pressure choice. King is the squad CRIT-threshold package,
   Astral is the stronger controllable Focus-entrant direction whose two
-  reachable stacks already supply 16%, Shockstar is
-  action-limited Daze, and Swing combines a reachable Chain/Ultimate squad-DMG
+  reachable stacks already supply 16%, and Swing combines a reachable Chain/Ultimate squad-DMG
   clause with Energy Regen. Proto Punk is excluded holder-locally: its
   Shield Effect supplies no positive axis, its Assist-triggered squad DMG is
   no stronger than Swing's corresponding party effect, and it gives up Swing's
   resource value while depending on an enemy-first Assist opportunity. A legal
   Assist trigger alone does not preserve a materially weaker same-axis package.
+  Shockstar remains a useful Impact two-piece, but its Basic/Dash/Dodge Daze
+  misses Pulchra's defining off-field EX/Assist/Chain/Ultimate direction and
+  therefore does not remain a competitive four-piece.
   Moonlight Lullaby is not a Pulchra candidate because its holder activation
   requires Support Specialty.
 - R13. Both pools locally prepare King 4-piece plus Shockstar 2-piece with CRIT
@@ -196,12 +198,13 @@ Aftershock catalogue.
   Additional activates with another Attack or Rupture Agent or same-faction
   Agent. At M0-M5 it supplies all-party Aftershock DMG +30% against Binding
   Trap targets; default M6 broadens that same provider to all damage. M1 adds
-  self CRIT Rate +10% against trapped targets and M2 adds self ATK +10% in
-  Hunter's Gait. M4 Energy-cost behavior and M6 repeated raw damage create no
+  self CRIT Rate +10% against trapped targets only as the retained King
+  threshold basis. M2 personal ATK, M4 Energy-cost behavior, and M6 repeated
+  raw damage do not strengthen her Daze/buffer direction and create no
   normalized Result; M3/M5 skill tiers remain excluded.
 - R19. Pulchra's selected equipment preserves exact projection. Blazing adds
-  Impact and a Fire/Ice squad CRIT-DMG effect; Box adds Fully Enabled Physical
-  DMG and Daze; Swing applies broad squad formula-compatible DMG once and
+  Impact and a Fire/Ice squad CRIT-DMG effect; Box's Daze projects while its
+  personal Physical DMG remains Setup package copy; Swing applies broad squad formula-compatible DMG once and
   supplies its Energy 2-piece; Astral applies entrant DMG once to Focus; King applies its non-stacking squad
   CRIT DMG once. Candidate membership, local representative, holder allocation,
   and recipient projection remain separate decisions.
@@ -262,7 +265,8 @@ Aftershock catalogue.
   the Focus entrant effect without a party-wide duplicate. Reselecting King restores the candidate
   at zero and never restores the prior count.
 - AE6. Pulchra Result keeps Core Daze on EX/Assist Follow-Up/Chain/Ultimate;
-  Box Cutter Daze and Physical DMG Fully Enabled; and default-M6 Additional as
+  Box Cutter Daze Fully Enabled while its Physical DMG remains Setup copy; and
+  default-M6 Additional as
   broad all-party DMG. Setting M5 changes the Additional to Aftershock-only
   without changing another Agent's prepared setup.
 - AE7. Applying Corin + Dialyn + Pulchra or Anby: Soldier 0 + Trigger +
