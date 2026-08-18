@@ -128,14 +128,17 @@ export function resolveBanyueProviderClauses(
       setup.mindscape >= 4 ? values.mindscapeActionDmg : 0,
       'self', BANYUE_M4_ACTIONS),
 
-    additive('critRate', 'fully', engine,
+    additive('critRate', 'combat', engine,
       setup.engineId === 'wrathfulVajra'
         ? equipmentEffectBaseValue(W_ENGINE_FACTS.wrathfulVajra.effects.critRate, refinement)
         : setup.engineId === 'qingming'
           ? equipmentEffectBaseValue(W_ENGINE_FACTS.qingming.effects.critRate, refinement)
-          : setup.engineId === 'cauldron'
-            ? equipmentEffectBaseValue(W_ENGINE_FACTS.cauldron.effects.critRate, refinement)
-            : 0,
+          : 0,
+      'self'),
+    additive('critRate', 'fully', engine,
+      setup.engineId === 'cauldron'
+        ? equipmentEffectBaseValue(W_ENGINE_FACTS.cauldron.effects.critRate, refinement)
+        : 0,
       'self'),
     additive('critDmg', 'fully', engine,
       setup.engineId === 'puzzleSphere'
@@ -143,12 +146,18 @@ export function resolveBanyueProviderClauses(
         : 0,
       'self'),
     withApplicability(
+      additive('dmgBonus', 'combat', engine,
+        setup.engineId === 'grillOWisp'
+          ? equipmentEffectBaseValue(W_ENGINE_FACTS.grillOWisp.effects.fireDamage, refinement)
+          : 0,
+        'self'),
+      { attributes: ['Fire'], formulas: ['sheer_damage'] },
+    ),
+    withApplicability(
       additive('dmgBonus', 'fully', engine,
         setup.engineId === 'cauldron'
           ? equipmentEffectBaseValue(W_ENGINE_FACTS.cauldron.effects.damage, refinement)
-          : setup.engineId === 'grillOWisp'
-            ? equipmentEffectBaseValue(W_ENGINE_FACTS.grillOWisp.effects.fireDamage, refinement)
-            : 0,
+          : 0,
         'self'),
       { attributes: ['Fire'], formulas: ['sheer_damage'] },
     ),

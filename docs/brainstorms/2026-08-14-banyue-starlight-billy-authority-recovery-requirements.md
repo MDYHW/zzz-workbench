@@ -65,8 +65,10 @@ projection.
   HP/CRIT and Fire EX Sheer package is fully compatible. Qingming remains a
   competitive high-base HP/CRIT partial package though Ether clauses are unused.
   Cauldron's broad package, Grill's Fire package, and Puzzle's EX package retain
-  their exact projections. Full and non-limited choices are independent authoring
-  conclusions, not one ranking filtered by availability.
+  their exact projections. Wrathful and Qingming CRIT Rate and Grill's
+  unconditional Fire DMG enter at Combat; Cauldron and the EX-scoped clauses
+  enter at Fully Enabled. Full and non-limited choices are independent
+  authoring conclusions, not one ranking filtered by availability.
 - R7. Banyue's only 4-piece candidate is Yunkui Tales. Two-piece candidates are
   Woodpecker Electro, Branch & Blade Song, and Inferno Metal. Main choices are
   CRIT Rate/CRIT DMG, Fire DMG/HP%, and HP%. Effective substats are CRIT Rate,
@@ -95,6 +97,8 @@ projection.
   while its Attack-holder Physical passive is inactive and therefore projects
   no damage clause. An ineligible holder item would not be admitted at all.
   Qingming remains a competitive partial HP/CRIT package despite unused Ether.
+  Faceplate and Qingming CRIT Rate enter at Combat; the HP-decrease Faceplate
+  Sheer package and Cauldron or Grill post-entry effects enter at Fully Enabled.
 - R12. Candidate membership follows whole-package opportunity cost, while exact
   Result projection follows the selected engine's actual holder and activation
   compatibility. A competitive partial candidate does not gain its unused
@@ -146,6 +150,6 @@ projection.
 
 ## Status
 
-The read-only recovery audit found no mismatch in the sampled supported Banyue
-or Starlight Billy consumers. No production change is required for these two
-verticals; this conclusion does not assert repository-wide correctness.
+The recovery audit retained the sampled candidate memberships and prepared
+representatives while correcting the earliest Result surface of unconditional
+W-Engine clauses. It does not assert repository-wide correctness.
