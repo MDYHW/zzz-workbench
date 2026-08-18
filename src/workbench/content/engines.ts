@@ -936,8 +936,8 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Anomaly',
     passiveLines: (refinement) => [
       `Electric Anomaly Buildup +${percent(W_ENGINE_FACTS.timeweaver.effects.electricBuildup, refinement)}`,
-      `Special/EX against anomalied enemy · Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.timeweaver.effects.anomalyProficiency, refinement)}`,
-      `At 375 Anomaly Proficiency · Disorder DMG +${percent(W_ENGINE_FACTS.timeweaver.effects.disorderDamage, refinement)}`,
+      `Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.timeweaver.effects.anomalyProficiency, refinement)}`,
+      `≥375 Anomaly Proficiency · Disorder DMG +${percent(W_ENGINE_FACTS.timeweaver.effects.disorderDamage, refinement)}`,
     ],
   },
   practicedPerfection: {
@@ -946,7 +946,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Anomaly',
     passiveLines: (refinement) => [
       `Anomaly Mastery +${equipmentEffectBaseValue(W_ENGINE_FACTS.practicedPerfection.effects.anomalyMastery, refinement)}`,
-      `Inflict Assault · Physical DMG +${equipmentEffectProgressionIncrementValue(W_ENGINE_FACTS.practicedPerfection.effects.physicalDamage, refinement)}% per stack · 2 stacks on entry`,
+      `Physical DMG +${percent(W_ENGINE_FACTS.practicedPerfection.effects.physicalDamage, refinement, true)}`,
     ],
   },
   angelInTheShell: {
@@ -955,7 +955,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Anomaly',
     passiveLines: (refinement) => [
       `Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.angelInTheShell.effects.anomalyProficiency, refinement)}`,
-      `Ether holder enters or uses Special/EX · DMG against anomalied enemies +${percent(W_ENGINE_FACTS.angelInTheShell.effects.anomaliedEnemyDamage, refinement)} · Attribute Anomaly DMG +${percent(W_ENGINE_FACTS.angelInTheShell.effects.anomalyDamage, refinement)}`,
+      `Ether holder only · DMG +${percent(W_ENGINE_FACTS.angelInTheShell.effects.anomaliedEnemyDamage, refinement)} · Anomaly & Disorder DMG +${percent(W_ENGINE_FACTS.angelInTheShell.effects.anomalyDamage, refinement)}`,
     ],
   },
   fusionCompiler: {
@@ -964,7 +964,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Anomaly',
     passiveLines: (refinement) => [
       `ATK +${percent(W_ENGINE_FACTS.fusionCompiler.effects.atk, refinement)}`,
-      `Special/EX · Anomaly Proficiency +${equipmentEffectProgressionIncrementValue(W_ENGINE_FACTS.fusionCompiler.effects.anomalyProficiency, refinement)} per stack · Maximum +${equipmentEffectMaximumValue(W_ENGINE_FACTS.fusionCompiler.effects.anomalyProficiency, refinement)}`,
+      `Anomaly Proficiency +${equipmentEffectMaximumValue(W_ENGINE_FACTS.fusionCompiler.effects.anomalyProficiency, refinement)}`,
     ],
   },
   electroLipGloss: {
@@ -972,8 +972,8 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.electroLipGloss.advancedStat, image: electroLipGlossImage,
     passiveSpecialty: 'Anomaly',
     passiveLines: (refinement) => [
-      `Anomalied enemy present · ATK +${percent(W_ENGINE_FACTS.electroLipGloss.effects.atk, refinement)}`,
-      `Anomalied enemy present · DMG +${percent(W_ENGINE_FACTS.electroLipGloss.effects.damage, refinement)}`,
+      `ATK +${percent(W_ENGINE_FACTS.electroLipGloss.effects.atk, refinement)}`,
+      `DMG +${percent(W_ENGINE_FACTS.electroLipGloss.effects.damage, refinement)}`,
     ],
   },
   weepingGemini: {
@@ -981,7 +981,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.weepingGemini.advancedStat, image: weepingGeminiImage,
     passiveSpecialty: 'Anomaly',
     passiveLines: (refinement) => [
-      `Squad inflicts Attribute Anomaly · Anomaly Proficiency +${equipmentEffectProgressionIncrementValue(W_ENGINE_FACTS.weepingGemini.effects.anomalyProficiency, refinement)} per stack · Maximum +${equipmentEffectMaximumValue(W_ENGINE_FACTS.weepingGemini.effects.anomalyProficiency, refinement)}`,
+      `Anomaly Proficiency +${equipmentEffectMaximumValue(W_ENGINE_FACTS.weepingGemini.effects.anomalyProficiency, refinement)}`,
     ],
   },
 }

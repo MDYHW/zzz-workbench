@@ -123,9 +123,9 @@ preserving the current three-surface Result grammar.
   partial package competitive but below Timeweaver's complete Grace package.
   Angel in the Shell is limited S-Rank Anomaly, Base ATK 713, advanced AM
   +30%, and supplies AP +90/103/117/130/144. Grace cannot activate its
-  Ether-holder DMG and Attribute Anomaly DMG clauses, but its AP-and-AM package
-  remains competitive between Timeweaver's damage-weighted package and
-  Practiced Perfection's buildup-weighted package.
+  Ether-holder DMG and Attribute Anomaly/Disorder DMG clauses, but its
+  AP-and-AM package remains competitive between Timeweaver's damage-weighted
+  package and Practiced Perfection's buildup-weighted package.
 - R14. Fusion Compiler is non-limited S-Rank Anomaly, Base ATK 684, advanced
   PEN Ratio +24%. W1-W5 supplies ATK +12/15/18/21/24% and Special/EX AP
   +25/31/37/43/50 per stack up to three. Grace consumes the full package, so it
