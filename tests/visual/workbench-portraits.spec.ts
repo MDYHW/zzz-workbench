@@ -85,6 +85,14 @@ async function selectAgent(page: Page, agent: PortraitAgent): Promise<void> {
   if (await tab.getAttribute('aria-selected') !== 'true') await tab.click()
 }
 
+async function clearTransientSourceHighlight(page: Page): Promise<void> {
+  await page.mouse.move(-1, -1)
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+  })
+  await expect(page.locator('.source-target.is-source-active')).toHaveCount(0)
+}
+
 async function captureDestinations(page: Page, party: PortraitParty): Promise<void> {
   for (const destination of destinations) {
     await page.setViewportSize(destination.viewport)
@@ -94,11 +102,13 @@ async function captureDestinations(page: Page, party: PortraitParty): Promise<vo
       const contrast = party.members[(memberIndex + 1) % party.members.length]
 
       await selectAgent(page, agent)
+      await clearTransientSourceHighlight(page)
       await expect.soft(page.locator('.slot-identity--expanded')).toHaveScreenshot(
         `${agent.slug}-${destination.id}-expanded.png`,
       )
 
       await selectAgent(page, contrast)
+      await clearTransientSourceHighlight(page)
       await expect.soft(agentTab(page, agent)).toHaveAttribute('aria-label', `View ${agent.displayName} setup and Result`)
       await expect.soft(agentTab(page, agent)).toHaveScreenshot(`${agent.slug}-${destination.id}-compact.png`)
     }
