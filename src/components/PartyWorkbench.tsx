@@ -104,6 +104,12 @@ function IdentityMarks({ agentId, attribute, specialty }: { agentId: AgentId; at
   )
 }
 
+function identityNameClass(name: string): string {
+  if (name.length > 12) return 'identity-name identity-name--long'
+  if (name.length > 5) return 'identity-name identity-name--medium'
+  return 'identity-name'
+}
+
 interface SlotControlProps extends SourceInteractionProps {
   slot: AppliedSlot
   agentId: AgentId
@@ -143,7 +149,7 @@ function ExpandedIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = f
       <span className="identity-copy">
         {isIncomplete && <span className="slot-incomplete-marker">Setup incomplete</span>}
         <strong className={`focus-marker ${isFocus ? '' : 'focus-marker--reserved'}`} aria-hidden={!isFocus}>Focus</strong>
-        <span className="slot-name-line"><strong className={`identity-name${agent.name.length > 12 ? ' identity-name--long' : ''}`}>{agent.name}</strong></span>
+        <span className="slot-name-line"><strong className={identityNameClass(agent.name)}>{agent.name}</strong></span>
         <span className="identity-band">
           <RankMark rank={agent.rank} />
           <IdentityMarks agentId={agent.id} attribute={agent.attribute} specialty={agent.specialty} />
@@ -179,7 +185,7 @@ function CompactSlot({ activeSourceTone, agentId, isFocus, isIncomplete = false,
       <span className="identity-shade" aria-hidden="true" />
       <span className="source-tint" aria-hidden="true" />
       <span className="slot-identity">
-        <span className="slot-name-line"><strong>{agent.name}</strong></span>
+        <span className="slot-name-line"><strong className={identityNameClass(agent.name)}>{agent.name}</strong></span>
         <span className="identity-band">
           <RankMark rank={agent.rank} />
           <IdentityMarks agentId={agent.id} attribute={agent.attribute} specialty={agent.specialty} />
