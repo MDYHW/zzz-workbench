@@ -88,7 +88,7 @@ ordered checks and reviews are renewed.
 
 | Cohort | Baseline identities | Count | Status | Mechanism manifest digest | Accepted cohort merge | Index PR |
 | --- | --- | ---: | --- | --- | --- | --- |
-| Rupture | Yixuan; Yidhari; Manato; Banyue; Starlight Billy | 5 | pending | — | — | — |
+| Rupture | Yixuan; Yidhari; Manato; Banyue; Starlight Billy | 5 | accepted | sha256:85d48a26bae6b8a6836776f566ea8e0dc2143e979a204138c4e16cd21c905d65 | #43 @ b4293fccd4d8f90991d1df73961cad0257b93bfd | #44 |
 | Anomaly | Grace Howard | 1 | pending | — | — | — |
 | Attack A | Anby: Soldier 0; Seed; Cissia; Evelyn; Corin; Hugo; Ellen | 7 | pending | — | — | — |
 | Attack B | Soldier 11; Zhu Yuan; Orphie & Magus; Asaba Harumasa; Nekomata; Billy Kid; Ye Shunguang | 7 | pending | — | — | — |
