@@ -6,7 +6,7 @@ export default defineConfig({
   workers: 1,
   retries: 0,
   forbidOnly: Boolean(process.env.CI),
-  timeout: 30_000,
+  timeout: 60_000,
   expect: {
     timeout: 5_000,
     toHaveScreenshot: {

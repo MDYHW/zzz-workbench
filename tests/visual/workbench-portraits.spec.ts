@@ -1,7 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 
 type PortraitAgent = {
-  agentId: string
   candidateName: string
   displayName: string
   slug: string
@@ -14,20 +13,19 @@ type PortraitParty = {
 }
 
 const agents = {
-  pulchra: { agentId: 'pulchra', candidateName: 'Pulchra, Physical, Stun', displayName: 'Pulchra', slug: 'pulchra' },
-  nekomata: { agentId: 'nekomata', candidateName: 'Nekomata, Physical, Attack', displayName: 'Nekomata', slug: 'nekomata' },
-  ben: { agentId: 'ben', candidateName: 'Ben Bigger, Fire, Defense', displayName: 'Ben Bigger', slug: 'ben' },
-  koleda: { agentId: 'koleda', candidateName: 'Koleda Belobog, Fire, Stun', displayName: 'Koleda Belobog', slug: 'koleda' },
-  zhao: { agentId: 'zhao', candidateName: 'Zhao, Ice, Defense', displayName: 'Zhao', slug: 'zhao' },
+  pulchra: { candidateName: 'Pulchra, Physical, Stun', displayName: 'Pulchra', slug: 'pulchra' },
+  nekomata: { candidateName: 'Nekomata, Physical, Attack', displayName: 'Nekomata', slug: 'nekomata' },
+  ben: { candidateName: 'Ben Bigger, Fire, Defense', displayName: 'Ben Bigger', slug: 'ben' },
+  koleda: { candidateName: 'Koleda Belobog, Fire, Stun', displayName: 'Koleda Belobog', slug: 'koleda' },
+  zhao: { candidateName: 'Zhao, Ice, Defense', displayName: 'Zhao', slug: 'zhao' },
   anbySoldier0: {
-    agentId: 'anbySoldier0',
     candidateName: 'Anby: Soldier 0, Electric, Attack',
     displayName: 'Anby: Soldier 0',
     slug: 'anby-soldier-0',
   },
-  lighter: { agentId: 'lighter', candidateName: 'Lighter, Fire, Stun', displayName: 'Lighter', slug: 'lighter' },
-  panYinhu: { agentId: 'panYinhu', candidateName: 'Pan Yinhu, Physical, Defense', displayName: 'Pan Yinhu', slug: 'pan-yinhu' },
-  corin: { agentId: 'corin', candidateName: 'Corin, Physical, Attack', displayName: 'Corin', slug: 'corin' },
+  lighter: { candidateName: 'Lighter, Fire, Stun', displayName: 'Lighter', slug: 'lighter' },
+  panYinhu: { candidateName: 'Pan Yinhu, Physical, Defense', displayName: 'Pan Yinhu', slug: 'pan-yinhu' },
+  corin: { candidateName: 'Corin, Physical, Attack', displayName: 'Corin', slug: 'corin' },
 } satisfies Record<string, PortraitAgent>
 
 const parties: readonly PortraitParty[] = [
@@ -51,8 +49,14 @@ const destinations = [
   { id: 'narrow', viewport: { width: 750, height: 900 } },
 ] as const
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 function agentTab(page: Page, agent: PortraitAgent) {
-  return page.locator(`[role="tab"][data-agent="${agent.agentId}"]`)
+  return page.getByRole('tab', {
+    name: new RegExp(`^(?:View|Close) ${escapeRegExp(agent.displayName)} setup and Result$`),
+  })
 }
 
 async function waitForPortraits(page: Page): Promise<void> {
