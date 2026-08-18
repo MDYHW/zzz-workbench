@@ -79,18 +79,17 @@ faction graph, or guide-backed evidence payload.
 ### Soldier 11 equipment authoring
 
 - R5. Soldier 11's full W-Engine candidates are Heartstring Nocturne, Cordis
-  Germina, Myriad Eclipse, Severed Innocence, The Brimstone, and Starlight
-  Engine. Non-limited candidates are The Brimstone and Starlight Engine. Full
+  Germina, Severed Innocence, The Brimstone, and Starlight Engine. Non-limited
+  candidates are The Brimstone and Starlight Engine. Full
   prepares Heartstring W1; non-limited prepares The Brimstone W1.
 - R6. Heartstring's complete high-Base-ATK, advanced CRIT Rate, CRIT DMG, and
   Chain/Ultimate Fire RES Ignore package is usable by Soldier 11 and establishes
-  the full first choice. Myriad is the closest raw-CRIT chassis competitor, but
-  only its advanced CRIT Rate and unconditional CRIT DMG are usable: Soldier 11
-  cannot satisfy its Ice-DMG activation for DEF Ignore. Cordis is the closest
-  retained action/bypass contrast: its CRIT clauses and Basic/Ultimate DEF
-  Ignore remain useful while Electric-only damage is unused. Heartstring wins
-  because both its CRIT package and Fire Chain/Ultimate bypass clause are fully
-  usable. Severed and Brimstone
+  the full first choice. Myriad is excluded because it has the same Base ATK and
+  advanced CRIT Rate, lower unconditional CRIT DMG, and no usable DEF-Ignore
+  activation for Soldier 11, while Heartstring also retains its Fire
+  Chain/Ultimate bypass clause. Cordis is the closest retained action/bypass
+  contrast: its CRIT clauses and Basic/Ultimate DEF Ignore remain useful while
+  Electric-only damage is unused. Severed and Brimstone
   preserve other competitive CRIT or broadly usable ATK packages. Starlight is
   the accessible A-Rank contrast. Steel
   Cushion is excluded because its Physical clause is unusable and the remaining

@@ -50,7 +50,6 @@ import bigCylinderImage from '../../assets/equipment/w-engines/big-cylinder.webp
 import springEmbraceImage from '../../assets/equipment/w-engines/spring-embrace.webp'
 import demaraBatteryMarkIIImage from '../../assets/equipment/w-engines/demara-battery-mark-ii.webp'
 import originalTransmorpherImage from '../../assets/equipment/w-engines/original-transmorpher.webp'
-import streetSuperstarImage from '../../assets/equipment/w-engines/street-superstar.webp'
 import halfSugarBunnyImage from '../../assets/equipment/w-engines/half-sugar-bunny.webp'
 import timeweaverImage from '../../assets/equipment/w-engines/timeweaver.webp'
 import practicedPerfectionImage from '../../assets/equipment/w-engines/practiced-perfection.webp'
@@ -481,21 +480,6 @@ export const W_ENGINE_FACTS = {
       impact: { modifier: 'impact', unit: '%', value: [10, 11.5, 13, 14.5, 16] },
     },
   },
-  streetSuperstar: {
-    advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
-    effects: {
-      ultimateDamage: {
-        modifier: 'dmgBonus', unit: '%',
-        progression: {
-          kind: 'stacks',
-          perStack: [15, 17.2, 19.5, 21.7, 24],
-          maxStacks: 3,
-          maximum: [45, 51.6, 58.5, 65.1, 72],
-        },
-        scope: { actions: ['Ultimate'] },
-      },
-    },
-  },
   halfSugarBunny: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
     effects: {
@@ -921,15 +905,6 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `Impact +${percent(W_ENGINE_FACTS.originalTransmorpher.effects.impact, refinement)}`,
     ],
   },
-  streetSuperstar: {
-    id: 'streetSuperstar', name: 'Street Superstar', rank: 'A', limited: false, baseAtk: 594,
-    advancedStat: W_ENGINE_FACTS.streetSuperstar.advancedStat, image: streetSuperstarImage,
-    passiveSpecialty: 'Attack',
-    passiveLines: (refinement) => [
-      `Squad Chain Attack · Charge (max 3) · Ultimate DMG +${equipmentEffectProgressionIncrementValue(W_ENGINE_FACTS.streetSuperstar.effects.ultimateDamage, refinement)}% each`,
-      `Holder Ultimate · Consumes Charges · Maximum DMG +${percent(W_ENGINE_FACTS.streetSuperstar.effects.ultimateDamage, refinement, true)}`,
-    ],
-  },
   halfSugarBunny: {
     id: 'halfSugarBunny', name: 'Half-Sugar Bunny', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.halfSugarBunny.advancedStat, image: halfSugarBunnyImage,
@@ -1013,10 +988,10 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   lycaon: enginePools(['blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore', 'simmeringPot']),
   ellen: enginePools(['deepSeaVisitor', 'myriadEclipse', 'cordisGermina', 'steelCushion', 'brimstone', 'starlightEngine']),
   soukaku: enginePools(['weepingCradle', 'kaboom']),
-  soldier11: enginePools(['heartstringNocturne', 'cordisGermina', 'myriadEclipse', 'severedInnocence', 'brimstone', 'starlightEngine']),
+  soldier11: enginePools(['heartstringNocturne', 'cordisGermina', 'severedInnocence', 'brimstone', 'starlightEngine']),
   lighter: enginePools(['blazingLaurel', 'iceJadeTeapot', 'hellfireGears', 'steamOven', 'restrained', 'preciousFossilizedCore']),
   lucy: enginePools(['elegantVanity', 'weepingCradle', 'kaboom']),
-  zhuYuan: enginePools(['cordisGermina', 'heartstringNocturne', 'severedInnocence', 'brimstone', 'riotSuppressorMarkVI', 'marcatoDesire', 'starlightEngine']),
+  zhuYuan: enginePools(['cordisGermina', 'heartstringNocturne', 'brimstone', 'riotSuppressorMarkVI', 'marcatoDesire', 'starlightEngine']),
   nicole: enginePools(['elegantVanity', 'theVault', 'weepingCradle', 'kaboom']),
   orphie: enginePools(['bellicoseBlaze', 'heartstringNocturne', 'severedInnocence', 'cordisGermina', 'gildedBlossom', 'marcatoDesire']),
   pulchra: enginePools(['blazingLaurel', 'boxCutter', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
@@ -1030,7 +1005,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   caesar: enginePools(['tusksOfFury', 'hellfireGears', 'springEmbrace']),
   yeShunguang: enginePools([
     'cloudcleaveRadiance', 'brimstone', 'steelCushion', 'gildedBlossom',
-    'marcatoDesire', 'starlightEngine', 'streetSuperstar',
+    'marcatoDesire', 'starlightEngine',
   ]),
   zhao: enginePools(['halfSugarBunny', 'originalTransmorpher']),
   grace: enginePools([

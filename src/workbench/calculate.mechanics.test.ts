@@ -1199,13 +1199,6 @@ describe('calculateParty mechanisms', () => {
     expect(action(m2, 'soldier11FireSuppressionBasic').breakdown.fully)
       .toContainEqual(expect.objectContaining({ ownerAgentId: 'soldier11', locus: 'core', amount: 70 }))
 
-    const myriad = agent(calculateParty(selectEngine(
-      createPreparedState({}, ['soldier11', 'evelyn', 'corin'], 0), 'soldier11', 'myriadEclipse',
-    ))!, 'soldier11')
-    expect(metric(myriad, 'critDmg').breakdown.combat)
-      .toContainEqual(expect.objectContaining({ label: 'Myriad Eclipse', amount: 45 }))
-    expect(myriad.metrics.find(({ id }) => id === 'defIgnore')).toBeUndefined()
-
     const cordis = agent(calculateParty(selectEngine(
       createPreparedState({}, ['soldier11', 'evelyn', 'corin'], 0), 'soldier11', 'cordisGermina',
     ))!, 'soldier11')

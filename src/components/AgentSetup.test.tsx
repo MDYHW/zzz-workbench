@@ -487,6 +487,37 @@ describe('AgentSetup Ben and Koleda equipment packages', () => {
 })
 
 describe('AgentSetup compressed Disc effects', () => {
+  it('reuses the compressed White Water package on selected and candidate surfaces', async () => {
+    const user = userEvent.setup()
+    const state = createPreparedState({}, ['yeShunguang', 'zhao', 'astraYao'], 0)
+    const props = {
+      activeSourceTone: null,
+      agentId: 'yeShunguang' as const,
+      discCandidates: DISC_IDS_BY_AGENT_AND_PIECE.yeShunguang,
+      dispatch: vi.fn(),
+      mainStatCandidates: MAIN_STAT_IDS_BY_AGENT_AND_SLOT.yeShunguang,
+      onSourceToneChange: vi.fn(),
+      slot: 0 as const,
+    }
+    const description = 'CRIT Rate +20%. ATK +10%. Physical DMG +10%'
+    const { rerender } = render(<AgentSetup {...props} setup={state.slots[0].setup} />)
+
+    expect(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from White Water Ballad',
+    })).toHaveAccessibleDescription(description)
+
+    rerender(<AgentSetup {...props} setup={{
+      ...state.slots[0].setup,
+      fourPieceId: 'woodpecker',
+    }} />)
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Woodpecker Electro',
+    }))
+    expect(within(screen.getByLabelText('fourPiece Drive Disc candidates')).getByRole('button', {
+      name: 'Select White Water Ballad as fourPiece',
+    })).toHaveAccessibleDescription(description)
+  })
+
   it('shows final Dawn and Woodpecker values without routine trigger or stack steps', async () => {
     const user = userEvent.setup()
     const state = createPreparedState({}, ['seed', 'dialyn', 'lucia'], 0)
