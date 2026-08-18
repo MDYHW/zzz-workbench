@@ -1,7 +1,7 @@
 ---
 title: "fix: Establish authority governance and recover existing verticals"
 type: fix
-status: active
+status: promotion-ready
 date: 2026-08-15
 deepened: 2026-08-15
 origin: docs/brainstorms/2026-08-15-authority-governance-recovery-requirements.md

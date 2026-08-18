@@ -1,7 +1,7 @@
 ---
 date: 2026-08-15
 incident: authority-governance-drift
-status: open-recovery
+status: promotion-ready
 scope: workflow-and-prevention
 ---
 
@@ -134,6 +134,47 @@ The identifiers below are action references, not product rules.
 | Establish an approved portrait oracle and correct known framing failures | Prevent deferred visual calibration from recurring silently | U9 |
 | Re-audit all baseline Agent identities by formula and Specialty cohorts | Check existing verticals under one accepted mechanism generation | U10, U11 |
 | Bind complete audit, accepted authority ordering, checks, and visuals to one exact recovery SHA before trusted `main` | Prevent partial recovery from being promoted as complete | U12 |
+
+## Recovery acceptance checkpoint
+
+The recovery is promotion-ready. Common-mechanism generation 1 is accepted,
+and the compact recovery index records all 38 frozen baseline identities as
+accepted at that same manifest generation. The final Anomaly index transaction
+merged in PR #57 at `ad2252fb5d7d8a611cadc27d0f3200f1c114e8eb`.
+
+The two accepted authority changes retain the required one-way transaction
+order:
+
+- shield and survival exclusion: accepted ACR PR #19, separate permanent-owner
+  amendments PR #25 (`SW-013`), PR #26 (`SF-003`), and PR #27 (`FM-009`), then
+  dependent correction PR #28; and
+- generic setup-source DMG Taken exclusion: accepted ACR PR #20, separate
+  permanent-owner amendments PR #21 (`SF-003`) and PR #22 (`FM-007`), then
+  dependent correction PR #23.
+
+The known failure families are closed at the recovery checkpoint: generic DMG
+Taken correction merged in PR #23, shield and survival formula/source-to-Result
+correction in PR #28, W-Engine recovery in PR #31, Drive Disc recovery in PR
+#36, finite investment and preparation recovery in PR #40, and the approved
+portrait oracle in PR #41. The later cohort merges and their serialized index
+transactions apply that mechanism generation across the complete frozen roster,
+ending with the Grace Setup compression correction in PR #56 and its index
+transaction in PR #57. Every protected transaction retained current-head
+independent evidence, owner approval, and the six required remote outcomes. No
+proposed ACR, pending or invalidated mechanism row, pending or invalidated
+cohort row, known semantic failure, or known portrait failure remains open.
+
+Two limits remain accepted and non-blocking. Independent review uses one GitHub
+App identity with separately recorded reviewer-run provenance, so reviewer
+identity separation is procedural rather than cryptographic. The pinned Linux
+visual oracle is complemented by required Windows in-app Browser calibration;
+it does not claim pixel equality across operating systems.
+
+This checkpoint deliberately does not embed its own commit SHA. Promotion still
+requires an owner-dispatched finalization run against the exact unchanged
+checkpoint tip, protection readback for the future `main` target, creation of
+`main` at that attested SHA, default-branch transition, recovery freeze, and a
+later protected housekeeping descendant.
 
 ## Recovery exit conditions
 
