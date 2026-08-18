@@ -11,7 +11,6 @@ import {
   W_ENGINES,
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
-  equipmentEffectProgressionIncrementValue,
   equipmentEffectProgressionValue,
   defaultRefinementFor,
   type DriveDiscEffectField,
@@ -56,8 +55,6 @@ describe('bounded equipment effect facts', () => {
       .toEqualTypeOf<'electricDamage' | 'energyGeneration'>()
     expectTypeOf<WEngineEffectField<'originalTransmorpher'>>()
       .toEqualTypeOf<'maxHp' | 'impact'>()
-    expectTypeOf<WEngineEffectField<'streetSuperstar'>>()
-      .toEqualTypeOf<'ultimateDamage'>()
     expectTypeOf<WEngineEffectField<'halfSugarBunny'>>()
       .toEqualTypeOf<'automaticEnergy' | 'squadAtk' | 'squadMaxHp' | 'veilCritDamage'>()
     expectTypeOf<WEngineEffectField<'timeweaver'>>()
@@ -576,22 +573,6 @@ describe('bounded equipment effect facts', () => {
 
   it('keeps progression and same-effect identity mechanisms independent of authored rosters', () => {
     const refinements = [1, 2, 3, 4, 5] as const
-    const streetDamage = W_ENGINE_FACTS.streetSuperstar.effects.ultimateDamage
-    expect(refinements.map((refinement) =>
-      equipmentEffectProgressionIncrementValue(streetDamage, refinement),
-    )).toEqual([15, 17.2, 19.5, 21.7, 24])
-    expect(refinements.map((refinement) =>
-      equipmentEffectMaximumValue(streetDamage, refinement),
-    )).toEqual([45, 51.6, 58.5, 65.1, 72])
-    expect(W_ENGINES.streetSuperstar).toMatchObject({
-      rank: 'A', limited: false, baseAtk: 594,
-      advancedStat: { id: 'atkPct', value: 25 }, passiveSpecialty: 'Attack',
-    })
-    expect(W_ENGINES.streetSuperstar.passiveLines(5)).toEqual([
-      'Squad Chain Attack · Charge (max 3) · Ultimate DMG +24% each',
-      'Holder Ultimate · Consumes Charges · Maximum DMG +72%',
-    ])
-
     expect(W_ENGINES.halfSugarBunny).toMatchObject({
       rank: 'S', limited: true, baseAtk: 713,
       advancedStat: { id: 'hpPct', value: 30 }, passiveSpecialty: 'Defense',
@@ -608,9 +589,8 @@ describe('bounded equipment effect facts', () => {
     expect(DRIVE_DISCS.whiteWaterBallad).toMatchObject({
       twoPieceEffect: 'Physical DMG +10%',
       fourPieceEffects: [
-        'Within Ether Veil · CRIT Rate +10%',
-        'Attack holder activates or extends Ether Veil · CRIT Rate +10%',
-        'Attack holder activates or extends Ether Veil · ATK +10%',
+        'CRIT Rate +20%',
+        'ATK +10%',
       ],
     })
     expect(SAME_EFFECT_TWO_PIECE_RELATIONSHIPS).toContainEqual({

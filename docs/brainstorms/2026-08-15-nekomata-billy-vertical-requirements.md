@@ -125,11 +125,13 @@ runtime optimizer, or equipment catalogue.
   are Woodpecker Electro and Shadow Harmony; Dialyn likewise adds contextual
   Puffer. Shadow is Billy-local through his defining repeated Dash route and
   does not generalize to Nekomata.
-- R12. Both Agents' 2-piece candidates are Woodpecker Electro, Branch & Blade
-  Song, Fanged Metal, Puffer Electro, and Hormone Punk/Astral Voice under the
-  existing exact-identity exposure rule. These preserve CRIT, Physical DMG,
-  DEF-region, and ATK axes in legal complete packages. Slot 4 offers CRIT Rate,
-  CRIT DMG, and ATK%; Slot 5 offers PEN Ratio, ATK%, and Physical DMG; Slot 6
+- R12. Nekomata's 2-piece candidates are Woodpecker Electro, Branch & Blade
+  Song, Fanged Metal, Puffer Electro, and Hormone Punk/Astral Voice. Billy
+  additionally retains Shadow Harmony because its Dash DMG is a competitive
+  defining-action complement beside Woodpecker 4-piece. These candidates follow
+  the existing exact-identity exposure rule and preserve CRIT, Physical DMG,
+  DEF-region, defining-action, and ATK axes in legal complete packages. Slot 4
+  offers CRIT Rate, CRIT DMG, and ATK%; Slot 5 offers PEN Ratio, ATK%, and Physical DMG; Slot 6
   offers ATK%. Effective substats are CRIT Rate, CRIT DMG, and ATK%; all
   prepared counts remain zero.
 - R13. Nekomata prepares Woodpecker 4-piece plus Puffer 2-piece and CRIT Rate /

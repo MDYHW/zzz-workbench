@@ -156,11 +156,9 @@ export function resolveSoldier11ProviderClauses(
     additive('critDmg', 'combat', engine,
       setup.engineId === 'heartstringNocturne'
         ? equipmentEffectBaseValue(W_ENGINE_FACTS.heartstringNocturne.effects.critDamage, refinement)
-        : setup.engineId === 'myriadEclipse'
-          ? equipmentEffectBaseValue(W_ENGINE_FACTS.myriadEclipse.effects.critDamage, refinement)
-          : setup.engineId === 'severedInnocence'
-            ? equipmentEffectBaseValue(W_ENGINE_FACTS.severedInnocence.effects.critDamage, refinement)
-            : 0,
+        : setup.engineId === 'severedInnocence'
+          ? equipmentEffectBaseValue(W_ENGINE_FACTS.severedInnocence.effects.critDamage, refinement)
+          : 0,
       'self'),
     additive('critDmg', 'fully', engine,
       setup.engineId === 'severedInnocence'

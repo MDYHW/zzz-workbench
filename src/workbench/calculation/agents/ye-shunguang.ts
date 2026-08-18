@@ -194,17 +194,6 @@ export function resolveYeShunguangProviderClauses(
       'self', YE_EX_SPECIAL,
     ),
     additive(
-      'dmgBonus', 'fully', engine,
-      setup.engineId === 'streetSuperstar'
-        ? equipmentEffectMaximumValue(
-          W_ENGINE_FACTS.streetSuperstar.effects.ultimateDamage,
-          refinement,
-        )
-        : 0,
-      'self', YE_ULTIMATE,
-    ),
-
-    additive(
       'critRate', 'fully', discSource('yeShunguang', 'whiteWaterBallad', '4-piece'),
       setup.fourPieceId === 'whiteWaterBallad'
         ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.veilCritRate)

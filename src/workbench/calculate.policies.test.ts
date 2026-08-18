@@ -1601,6 +1601,15 @@ describe('authored calculation policies', () => {
         ownerAgentId: 'billy', locus: 'disc-4pc',
       }))
 
+      const shadowTwo = agent(calculateParty(selectDisc(
+        base, 'billy', 'twoPiece', 'shadowHarmony',
+      ))!, 'billy')
+      expect(action(shadowTwo, 'billyDash').values.initial
+        - action(shadowTwo, 'billyCrouchingActions').values.initial).toBe(15)
+      expect(action(shadowTwo, 'billyDash').breakdown.initial).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'billy', locus: 'disc-2pc',
+      }))
+
       const pufferBase = withMindscape(
         createPreparedState({}, ['billy', 'nekomata', 'dialyn'], 0),
         'billy',
@@ -2132,12 +2141,6 @@ describe('authored calculation policies', () => {
         sourceLocalAction('Ultimate: Cleaving Heavens', 'Ultimate'),
       ])
 
-      const street = agent(calculateParty(selectEngine(
-        base, 'yeShunguang', 'streetSuperstar',
-      ))!, 'yeShunguang')
-      expect(action(street, 'yeUltimateDmg').values.fully
-        - metric(street, 'dmgBonus').values.fully).toBe(72)
-      expect(street.operations).toEqual([])
       expect(agent(calculateParty(
         withMindscape(base, 'yeShunguang', 6),
       )!, 'yeShunguang').operations).toEqual([])

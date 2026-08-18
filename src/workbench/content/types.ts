@@ -114,7 +114,6 @@ export type EngineId =
   | 'springEmbrace'
   | 'demaraBatteryMarkII'
   | 'originalTransmorpher'
-  | 'streetSuperstar'
   | 'halfSugarBunny'
   | 'timeweaver'
   | 'practicedPerfection'

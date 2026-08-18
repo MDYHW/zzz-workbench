@@ -62,7 +62,7 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
 ### Zhu Yuan equipment authoring
 
 - R4. Zhu Yuan's full W-Engine candidates are Cordis Germina, Heartstring
-  Nocturne, Severed Innocence, The Brimstone, Riot Suppressor Mark VI, Marcato
+  Nocturne, The Brimstone, Riot Suppressor Mark VI, Marcato
   Desire, and Starlight Engine. Non-limited candidates are The Brimstone,
   Marcato Desire, and Starlight Engine. Full prepares Cordis Germina W1;
   non-limited prepares The Brimstone W1.
@@ -73,11 +73,12 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   DMG, fixed CRIT Rate, and charged Ether Basic/Dash-DMG package remains a distinct
   exact-identity candidate. Heartstring's advanced CRIT Rate and unconditional
   CRIT DMG remain a competitive raw-CRIT chassis even though its Fire-only
-  clause is unused. Severed keeps the distinct CRIT-DMG-heavy package when
-  party sources already supply Zhu Yuan's CRIT Rate; its Electric clause is
-  unused. Myriad Eclipse is excluded because Heartstring has the same Base ATK
-  and advanced CRIT Rate, higher unconditional CRIT DMG, and both holders leave
-  their Attribute-only bypass clause unused. Marcato and Starlight remain
+  clause is unused. Severed's CRIT-DMG-heavy package can be competitive for a
+  holder that needs that distribution, but Zhu Yuan's high existing CRIT DMG
+  makes its same-axis supply materially less valuable than her retained balanced
+  CRIT and action packages. Myriad Eclipse is excluded because Heartstring has
+  the same Base ATK and advanced CRIT Rate, higher unconditional CRIT DMG, and
+  both holders leave their Attribute-only bypass clause unused. Marcato and Starlight remain
   accessible A-Rank CRIT/ATK and broad-ATK contrasts. The Brimstone establishes
   the non-limited first choice because its high Base ATK and complete
   advanced and fully enabled ATK package surpass

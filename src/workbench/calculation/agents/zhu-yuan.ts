@@ -6,7 +6,6 @@ import {
   W_ENGINES,
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
-  equipmentEffectProgressionValue,
 } from '../../content'
 import {
   active,
@@ -143,13 +142,6 @@ export function resolveZhuYuanProviderClauses(
     additive('critDmg', 'combat', engine,
       setup.engineId === 'heartstringNocturne'
         ? equipmentEffectBaseValue(W_ENGINE_FACTS.heartstringNocturne.effects.critDamage, refinement)
-        : setup.engineId === 'severedInnocence'
-          ? equipmentEffectBaseValue(W_ENGINE_FACTS.severedInnocence.effects.critDamage, refinement)
-          : 0,
-      'self'),
-    additive('critDmg', 'fully', engine,
-      setup.engineId === 'severedInnocence'
-        ? equipmentEffectProgressionValue(W_ENGINE_FACTS.severedInnocence.effects.critDamage, refinement)
         : 0,
       'self'),
     additive('defIgnore', 'fully', engine,

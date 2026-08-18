@@ -339,9 +339,9 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     id: 'whiteWaterBallad', name: 'White Water Ballad', image: whiteWaterBalladImage,
     twoPieceEffect: `Physical DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.twoPiece.physicalDamage)}%`,
     fourPieceEffects: [
-      `Within Ether Veil · CRIT Rate +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.veilCritRate)}%`,
-      `Attack holder activates or extends Ether Veil · CRIT Rate +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.attackVeilCritRate)}%`,
-      `Attack holder activates or extends Ether Veil · ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.attackVeilAtk)}%`,
+      `CRIT Rate +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.veilCritRate)
+        + equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.attackVeilCritRate)}%`,
+      `ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.attackVeilAtk)}%`,
     ],
   },
   chaosJazz: {
@@ -459,7 +459,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
   },
   billy: {
     fourPiece: ['woodpecker', 'shadowHarmony'],
-    twoPiece: ['woodpecker', 'branchAndBlade', 'fangedMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
+    twoPiece: ['shadowHarmony', 'woodpecker', 'branchAndBlade', 'fangedMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
   },
   ben: {
     fourPiece: ['woodpecker', 'astralVoice', 'bunnyInWonderland', 'swingJazz'],

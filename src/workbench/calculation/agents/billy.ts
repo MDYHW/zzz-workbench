@@ -92,6 +92,12 @@ export function observeBilly(
   return { agentId: 'billy', setup, additionalActive, initialAtk }
 }
 
+function selectedShadowSource(setup: CompleteSetup) {
+  return setup.fourPieceId === 'shadowHarmony'
+    ? discSource('billy', 'shadowHarmony', '2-piece', '4-piece')
+    : discSource('billy', 'shadowHarmony', '2-piece')
+}
+
 export function resolveBillyProviderClauses(
   context: BillyCalculationContext,
 ): SourceBoundCurrentClause[] {
@@ -199,8 +205,8 @@ export function resolveBillyProviderClauses(
       'self',
     ),
     additive(
-      'dmgBonus', 'initial', discSource('billy', 'shadowHarmony', '2-piece', '4-piece'),
-      setup.fourPieceId === 'shadowHarmony'
+      'dmgBonus', 'initial', selectedShadowSource(setup),
+      setup.fourPieceId === 'shadowHarmony' || setup.twoPieceId === 'shadowHarmony'
         ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.shadowHarmony.twoPiece.damage)
         : 0,
       'self', DASH,

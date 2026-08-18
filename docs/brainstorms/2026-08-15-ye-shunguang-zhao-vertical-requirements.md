@@ -139,8 +139,8 @@ optimizer.
 ### Ye W-Engine and Drive Disc authoring
 
 - R11. Ye's full W-Engine candidates are Cloudcleave Radiance, The Brimstone,
-  Steel Cushion, Gilded Blossom, Marcato Desire, Starlight Engine, and Street
-  Superstar. Non-limited candidates exclude Cloudcleave and retain the other
+  Steel Cushion, Gilded Blossom, Marcato Desire, and Starlight Engine.
+  Non-limited candidates exclude Cloudcleave and retain the other
   non-limited packages. Full prepares Cloudcleave W1; non-limited prepares The
   Brimstone W1. S-Rank choices default to W1 and A-Rank choices to W5 when
   directly selected.
@@ -155,13 +155,11 @@ optimizer.
   ATK advanced stat, and reachable broad ATK stacks. Steel supplies a CRIT/
   Physical/back-attack balance; Gilded supplies accessible ATK and EX damage;
   Marcato supplies a CRIT chassis and smaller broad ATK route; Starlight supplies
-  accessible broad ATK after its retained Assist route. Street Superstar is a
-  non-limited A-Rank Attack package with Base ATK 594 and advanced ATK +25%.
-  Each squad Chain Attack grants the holder one Charge, up to three; the
-  holder's Ultimate consumes them, and each Charge supplies Ultimate DMG +15%
-  / 17.2% / 19.5% / 21.7% / 24% at W1-W5, for a reachable +45% / 51.6% /
-  58.5% / 65.1% / 72% maximum. Ye consumes both the ATK chassis and the exact
-  Ultimate alternative. Same-rarity limited CRIT packages whose usable clauses
+  accessible broad ATK after its retained Assist route. Street Superstar is
+  excluded because its same-Base-ATK and advanced-ATK chassis gives up those
+  broader packages for an Ultimate-only passive. Ye uses Ultimate, but her
+  damage direction is not concentrated there enough for that narrow clause to
+  remain competitive across the W-Engine slot. Same-rarity limited CRIT packages whose usable clauses
   are dominated by Cloudcleave add no current accessibility or formula path
   and remain excluded.
 - R14. Add White Water Ballad. Its 2-piece supplies Physical DMG +10%. Its
@@ -171,6 +169,9 @@ optimizer.
   Physical Attack Agent merely standing in Zhao's Veil receives only the first
   CRIT clause and does not gain contextual membership because that partial
   package is dominated by current authored personal 4-piece choices.
+  Ye's complete Setup package compresses the two CRIT clauses to CRIT Rate +20%
+  beside ATK +10%; the separate trigger facts remain available to exact Result
+  projection rather than being repeated as Setup prose.
 - R15. Ye's base 4-piece candidates are White Water Ballad, Woodpecker Electro,
   and Hormone Punk. Puffer Electro remains the established contextual candidate
   only when the applied party supplies Dialyn's retained Ultimate opportunity.
