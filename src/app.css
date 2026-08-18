@@ -486,12 +486,12 @@ main { margin-top: 18px; }
 
 @media (min-width: 761px) {
   .slot-identity--expanded .identity-name--medium {
-    font-size: clamp(34px, 2.8vw, 42px);
+    font-size: clamp(28px, 2.1vw, 30px);
     white-space: nowrap;
   }
 
   .slot-identity--expanded .identity-name--long {
-    font-size: clamp(23px, 1.9vw, 28px);
+    font-size: clamp(18px, 1.45vw, 21px);
     white-space: nowrap;
   }
 }
@@ -725,7 +725,7 @@ main { margin-top: 18px; }
   }
 
   .party-slot--compact .slot-name-line .identity-name--medium {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .party-slot--compact .slot-name-line .identity-name--long {
