@@ -1,7 +1,7 @@
 ---
 date: 2026-08-15
 incident: authority-governance-drift
-status: promotion-ready
+status: closed
 scope: workflow-and-prevention
 ---
 
@@ -137,7 +137,7 @@ The identifiers below are action references, not product rules.
 
 ## Recovery acceptance checkpoint
 
-The recovery is promotion-ready. Common-mechanism generation 1 is accepted,
+The recovery is closed. Common-mechanism generation 1 is accepted,
 and the compact recovery index records all 38 frozen baseline identities as
 accepted at that same manifest generation. The final Anomaly index transaction
 merged in PR #57 at `ad2252fb5d7d8a611cadc27d0f3200f1c114e8eb`.
@@ -176,19 +176,24 @@ target `main`; the owner-only finalization adapter separately retains
 `recovery` only as the immutable attestation source. No dual-base compatibility
 or post-promotion recovery PR path remains.
 
-This checkpoint deliberately does not embed its own commit SHA. Promotion still
-requires an owner-dispatched finalization run against the exact unchanged
-final cutover tip, protection readback for the future `main` target, creation of
-`main` at that attested SHA, default-branch transition, recovery freeze, and a
-later protected housekeeping descendant.
+The final cutover transaction merged in PR #59 at
+`85a547e549ba57a001ba6b8c57d5265ad0e1c390`. Owner-dispatched finalization run
+`32194644828` accepted that exact unchanged recovery tip after repeating the
+complete-audit and zero-secret full gates. The no-bypass `main` ruleset was
+read back with the six required contexts, `main` was created directly at that
+attested SHA and made default, and the `recovery` ruleset was replaced by
+no-bypass update, deletion, and non-fast-forward prohibitions. This
+housekeeping revision is the protected descendant that records those completed
+operations; it does not alter the historical attested SHA.
 
 ## Recovery exit conditions
 
-This postmortem remains open while recovery is active. It may be closed only
-when the complete audit index, accepted authority ordering, known semantic and
-portrait corrections, independent review, required checks, and exact-SHA
-promotion conditions all pass. Closing it records that preventive actions were
-completed; it does not certify future product conclusions automatically.
+This postmortem closed on 2026-08-19 after the complete audit index, accepted
+authority ordering, known semantic and portrait corrections, independent
+review, required checks, exact-SHA finalization, protected/default `main`
+promotion, and recovery freeze all passed. Closure records that the preventive
+actions completed; it does not certify future product conclusions
+automatically.
 
 If the same safeguard fails after promotion, append the observed failure and
 corrective action here through protected review. Fix forward from trusted

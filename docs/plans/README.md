@@ -8,26 +8,10 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-### Recovery states
-
-The authority-governance recovery temporarily uses two explicit non-completion
-states:
-
-- `frozen-by-recovery` preserves an interrupted plan as audit evidence. It is
-  not active work, does not satisfy its acceptance criteria, and cannot produce
-  a completed milestone.
-- `promotion-ready` keeps the recovery plan open while the exact accepted
-  recovery revision is finalized as trusted `main`. It is not completion and
-  the plan remains visible until protected post-promotion housekeeping closes
-  it.
-
-While recovery is active, the authority-governance recovery plan is the sole
-active plan. Frozen plans do not resume and new vertical plans do not begin
-until recovery has been promoted and closed.
-
-Current recovery state: `promotion-ready`. The complete audit is accepted, but
-new vertical work remains frozen until exact-SHA finalization, trusted `main`
-promotion, and protected post-promotion housekeeping are complete.
+Keep at most one active bounded implementation plan. There is currently no
+active plan. The authority-governance recovery closed after exact-SHA
+finalization, protected `main` promotion, and recovery freeze; its detailed
+execution record remains in Git history and the durable postmortem.
 
 Use this sequence:
 
@@ -82,6 +66,7 @@ and author the new local outcome from current consumers instead.
 | 2026-08-15 | Added Anby Demara as a distinct Electric Stun Agent through selected-King lifecycle, composed two-Stun allocation, exact Core and Mindscape action scopes, shared Trigger/Astra recipient projection, and calibrated portrait framing | [Anby requirements](../brainstorms/2026-08-15-anby-vertical-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [UI design rules](../workbench-ui-design-rules.md) |
 | 2026-08-15 | Added Caesar King as a buffer through qualified Focus ATK and regular DMG Bonus delivery, with retained residual Impact-to-Daze and exact Core/Mindscape/Additional authored-source projection; recovery reinspection owns equipment membership and representatives | [Caesar requirements](../brainstorms/2026-08-15-caesar-vertical-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [source-fact boundary](../source-fact-boundary.md), [UI design rules](../workbench-ui-design-rules.md) |
 | 2026-08-15 | Added Ye Shunguang and Zhao through Honed Edge/Physical applicability, capped Veil Vulnerability with editable target context, Initial-HP-derived support, contextual Quick Assist lifecycle, and pool-local equipment packages | [Ye/Zhao requirements](../brainstorms/2026-08-15-ye-shunguang-zhao-vertical-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [source-fact boundary](../source-fact-boundary.md), [UI design rules](../workbench-ui-design-rules.md) |
+| 2026-08-15 to 2026-08-19 | Established protected authority-change, review, CI, App, and visual gates; corrected shared semantic mechanisms; re-audited all 38 frozen Agent identities; finalized the exact accepted recovery tip; promoted protected/default `main`; and froze the attested recovery branch | [authority-governance postmortem](../postmortems/2026-08-15-authority-governance-drift.md), [recovery audit index](../audits/2026-08-15-existing-vertical-recovery.md), [authority-change records](../authority-changes/README.md), current `GOV-001` in [AGENTS.md](../../AGENTS.md) |
 
 For removed plan detail, use Git history for `docs/plans/`. The milestone index
 does not validate current product behavior; the linked owners and current
