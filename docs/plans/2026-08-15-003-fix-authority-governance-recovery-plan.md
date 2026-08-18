@@ -277,7 +277,7 @@ flowchart TB
   M3 --> M4["Substats and preparation lifecycle"]
   M4 --> V["Portrait correction and approved baseline"]
   V --> C1["Damage cohorts"]
-  V --> C2["Stun and provider cohorts"]
+  V --> C2["Stun, Support, and Defense cohorts"]
   C1 --> P["Recovery acceptance"]
   C2 --> P
   P --> T["Trusted main"]
@@ -1141,11 +1141,17 @@ only PRs remain serialized.
   `docs/audits/2026-08-15-existing-vertical-recovery.md`
 
 **Approach:**
-- Use four independently reviewable PRs:
+- Audit four bounded scopes serially before authoring corrections:
   1. Stun A: Dialyn, Trigger, Ju Fufu, Lighter, Pulchra, Qingyi.
   2. Stun B: Lycaon, Koleda, Anby Demara.
   3. Support: Lucia, Astra Yao, Soukaku, Lucy, Nicole.
-  4. Defense/provider: Pan Yinhu, Ben Bigger, Caesar King, Zhao.
+  4. Defense: Pan Yinhu, Ben Bigger, Caesar King, Zhao.
+- After all four audits, run one cross-scope reconciliation. When every finding
+  applies already-current authority under the same mechanism manifest and the
+  combined diff remains independently reviewable, use one integrated protected
+  U11 correction PR. Split only at a concrete authority or semantic stop, a
+  required common-mechanism change, or an otherwise unbounded diff; split by
+  root cause rather than by Specialty.
 - Reconstruct each high-risk outcome with the same R9 trace and separate
   candidate membership from prepared allocation and Result projection.
 - Bind every review to the current common-mechanism manifest. Rebase and rerun
@@ -1179,9 +1185,11 @@ only PRs remain serialized.
   compatible and incompatible holders, with exact Result application only.
 
 **Verification:**
-- Four accepted PR/SHA entries cover all 18 remaining baseline identities once
-  at the same current mechanism manifest; each was recorded by a later index-
-  only PR, and composed allocation and preserved contrasts pass shared tests.
+- Accepted PR/SHA coverage spans all 18 remaining baseline identities once at
+  the same current mechanism manifest, and every cohort row is recorded by a
+  later serialized index-only PR. One integrated correction PR may back all
+  four rows when the approach's stop conditions remain absent; composed
+  allocation and preserved contrasts pass shared tests.
 
 - U12. **Accept recovery and promote trusted main**
 
