@@ -150,7 +150,7 @@ const lycaonRepresentative = (pool: PoolId): SetupSelection => ({
 const ellenRepresentative = (pool: PoolId): SetupSelection => ({
   engineId: pool === 'full' ? 'deepSeaVisitor' : 'brimstone',
   fourPieceId: 'woodpecker', twoPieceId: 'pufferElectro',
-  mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
+  mains: { slot4: pool === 'full' ? 'critDmg' : 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
 })
 
 const soukakuRepresentative: SetupSelection = {

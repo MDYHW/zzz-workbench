@@ -107,6 +107,13 @@ export function calculateAnby(context: AnbyCalculationContext, inbox: SourceBoun
     discStatInput(
       setup,
       'anbySoldier0',
+      'twoPiece',
+      'pufferElectro',
+      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio),
+    ),
+    discStatInput(
+      setup,
+      'anbySoldier0',
       'fourPiece',
       'pufferElectro',
       equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio),

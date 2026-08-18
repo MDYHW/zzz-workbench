@@ -109,10 +109,14 @@ The prose requirements govern if this diagram and the text ever differ.
 - R13. Candidate arrays are competitive bounded choices, not catalogues. Full pool includes every admitted candidate; non-limited excludes limited S-Ranks while retaining admitted standard S-Ranks and A-Ranks. S-Ranks default to W1 and A-Ranks to W5.
 - R14. Anby's full W-Engine candidates are Severed Innocence, Cordis Germina, Heartstring Nocturne, Marcato Desire, and Starlight Engine; non-limited retains Marcato and Starlight. Full prepares Severed Innocence W1 and non-limited prepares Marcato Desire W5. Heartstring's Base ATK 713, advanced CRIT Rate +24%, and Combat CRIT DMG +50% form a distinct mixed-CRIT package at zero supplied substats even though its Fire RES Ignore is unusable by Electric Anby. The CRIT DMG enters Anby's existing received-dependent Aftershock basis; no Fire RES Ignore row is created.
 - R15. Anby prepares Shadow Harmony 4-piece. Her retained 2-piece candidates are
-  Woodpecker Electro, Branch & Blade Song, Thunder Metal, and Hormone Punk.
-  Thunder Metal preserves the matching Electric DMG axis, while Hormone Punk is
-  the authored ATK% identity because neither member of the Hormone Punk/Astral
-  Voice pair has a 4-piece role for Anby. Slot 4 offers CRIT Rate and CRIT DMG;
+  Woodpecker Electro, Branch & Blade Song, Puffer Electro, Thunder Metal, and
+  Hormone Punk. Puffer preserves the DEF-region alternative while no material
+  broad pre-PEN DEF Reduction or DEF Ignore pressures that finite choice; an
+  admitted broad source removes it through the shared pressure lifecycle, while
+  action-scoped Cordis DEF Ignore does not. Thunder Metal preserves the matching
+  Electric DMG axis, while Hormone Punk is the authored ATK% identity because
+  neither member of the Hormone Punk/Astral Voice pair has a 4-piece role for
+  Anby. Slot 4 offers CRIT Rate and CRIT DMG;
   Slot 5 offers Electric DMG, ATK%, and PEN Ratio; Slot 6 offers ATK%; effective
   substats are CRIT Rate, CRIT DMG, and ATK%.
 - R16. Anby's base prepared setup is Shadow Harmony plus Woodpecker in both
