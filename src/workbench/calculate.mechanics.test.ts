@@ -431,10 +431,11 @@ describe('calculateParty mechanisms', () => {
       expect.objectContaining({ label: "Grill O'Wisp", amount: 24 }),
       expect.objectContaining({ label: 'Yunkui Tales', amount: 12 }),
     ]))
-    expect(metric(manato, 'dmgBonus').breakdown.fully).toEqual(expect.arrayContaining([
-      expect.objectContaining({ label: 'Core Passive', amount: 20 }),
+    expect(metric(manato, 'dmgBonus').breakdown.combat).toEqual(expect.arrayContaining([
       expect.objectContaining({ label: "Grill O'Wisp", amount: 24 }),
     ]))
+    expect(metric(manato, 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Core Passive', amount: 20 }))
     expect(manato.metrics.find(({ id }) => id === 'defReduction')).toBeUndefined()
     expect(manato.metrics.find(({ id }) => id === 'defIgnore')).toBeUndefined()
     expect(manato.metrics.find(({ id }) => id === 'penRatio')).toBeUndefined()

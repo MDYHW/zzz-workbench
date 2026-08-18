@@ -118,7 +118,7 @@ export function resolveManatoProviderClauses(
         ? equipmentEffectBaseValue(W_ENGINE_FACTS.puzzleSphere.effects.critDamage, refinement)
         : 0, 'self'),
     withApplicability(
-      additive('dmgBonus', 'fully', engine,
+      additive('dmgBonus', 'combat', engine,
         setup.engineId === 'grillOWisp'
           ? equipmentEffectBaseValue(W_ENGINE_FACTS.grillOWisp.effects.fireDamage, refinement)
           : 0, 'self'),

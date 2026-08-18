@@ -131,16 +131,19 @@ export function resolveStarlightBillyProviderClauses(
       setup.mindscape >= 6 ? values.mindscapeSheerDmg : 0,
       'self', M6_SHEER_ACTIONS),
 
-    additive('critRate', 'fully', engine,
+    additive('critRate', 'combat', engine,
       setup.engineId === 'starlightRiderFaceplate'
         ? equipmentEffectBaseValue(W_ENGINE_FACTS.starlightRiderFaceplate.effects.critRate, refinement)
         : setup.engineId === 'qingming'
           ? equipmentEffectBaseValue(W_ENGINE_FACTS.qingming.effects.critRate, refinement)
-          : setup.engineId === 'cauldron'
-            ? equipmentEffectBaseValue(W_ENGINE_FACTS.cauldron.effects.critRate, refinement)
-            : setup.engineId === 'grillOWisp'
-              ? equipmentEffectBaseValue(W_ENGINE_FACTS.grillOWisp.effects.critRate, refinement)
-              : 0,
+          : 0,
+      'self'),
+    additive('critRate', 'fully', engine,
+      setup.engineId === 'cauldron'
+        ? equipmentEffectBaseValue(W_ENGINE_FACTS.cauldron.effects.critRate, refinement)
+        : setup.engineId === 'grillOWisp'
+          ? equipmentEffectBaseValue(W_ENGINE_FACTS.grillOWisp.effects.critRate, refinement)
+          : 0,
       'self'),
     additive('critDmg', 'fully', engine,
       setup.engineId === 'puzzleSphere'

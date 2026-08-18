@@ -173,6 +173,8 @@ because future substats are finite and other modifiers can become saturated.
   non-limited S-Rank boundary.
 - R13. Grill O'Wisp is fully usable by Manato: at W5 it supplies Base ATK 624,
   HP +25%, Fire DMG +24%, and reachable CRIT Rate +24% after HP decreases.
+  The unconditional Fire DMG enters at Combat while the HP-decrease CRIT Rate
+  enters at Fully Enabled.
   Wrathful Vajra W1 supplies Base ATK 713, HP +30%, CRIT Rate +20%, and Fire
   Sheer DMG +9% per EX Special stack, up to two stacks. Qingming supplies a
   larger Base ATK plus HP and CRIT while its Ether clauses remain unused.

@@ -131,14 +131,14 @@ export const W_ENGINE_FACTS = {
     advancedStat: { id: 'hpPct', label: 'HP', value: 25, unit: '%' },
     effects: {
       fireDamage: { modifier: 'dmgBonus', unit: '%', value: [12, 15, 18, 21, 24], scope: { attributes: ['Fire'] } },
-      critRate: { modifier: 'critRate', unit: '%', value: [12, 15, 18, 21, 24] },
+      critRate: { modifier: 'critRate', unit: '%', value: [15, 17.25, 19.5, 21.75, 24] },
     },
   },
   wrathfulVajra: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
     effects: {
       critRate: { modifier: 'critRate', unit: '%', value: [20, 23, 26, 29, 32] },
-      fireSheerDamage: { modifier: 'sheerDmgBonus', unit: '%', progression: { kind: 'stacks', perStack: [9, 10.5, 12, 13.5, 15], maxStacks: 2 }, scope: { actions: ['EX Special Attack'], attributes: ['Fire'] } },
+      fireSheerDamage: { modifier: 'sheerDmgBonus', unit: '%', progression: { kind: 'stacks', perStack: [9, 10.35, 11.7, 13.05, 14.4], maxStacks: 2 }, scope: { actions: ['EX Special Attack'], attributes: ['Fire'] } },
     },
   },
   starlightRiderFaceplate: {
@@ -664,7 +664,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.puzzleSphere.advancedStat, image: puzzleSphereImage,
     passiveLines: (refinement) => [
       `CRIT DMG +${percent(W_ENGINE_FACTS.puzzleSphere.effects.critDamage, refinement)}`,
-      `EX Special Attack \u00B7 DMG +${percent(W_ENGINE_FACTS.puzzleSphere.effects.damage, refinement)}`,
+      `Target HP <50% \u00B7 EX Special Attack DMG +${percent(W_ENGINE_FACTS.puzzleSphere.effects.damage, refinement)}`,
     ],
   },
   yesterdayCalls: {
