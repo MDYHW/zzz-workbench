@@ -53,6 +53,7 @@ import originalTransmorpherImage from '../../assets/equipment/w-engines/original
 import halfSugarBunnyImage from '../../assets/equipment/w-engines/half-sugar-bunny.webp'
 import timeweaverImage from '../../assets/equipment/w-engines/timeweaver.webp'
 import practicedPerfectionImage from '../../assets/equipment/w-engines/practiced-perfection.webp'
+import angelInTheShellImage from '../../assets/equipment/w-engines/angel-in-the-shell.webp'
 import fusionCompilerImage from '../../assets/equipment/w-engines/fusion-compiler.webp'
 import electroLipGlossImage from '../../assets/equipment/w-engines/electro-lip-gloss.webp'
 import weepingGeminiImage from '../../assets/equipment/w-engines/weeping-gemini.webp'
@@ -518,6 +519,20 @@ export const W_ENGINE_FACTS = {
       },
     },
   },
+  angelInTheShell: {
+    advancedStat: { id: 'anomalyMastery', label: 'Anomaly Mastery', value: 30, unit: '%' },
+    effects: {
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '', value: [90, 103, 117, 130, 144],
+      },
+      anomaliedEnemyDamage: {
+        modifier: 'dmgBonus', unit: '%', value: [20, 23, 26, 29, 32],
+      },
+      anomalyDamage: {
+        modifier: 'anomalyDmgBonus', unit: '%', value: [10, 11.5, 13, 14.5, 16],
+      },
+    },
+  },
   fusionCompiler: {
     advancedStat: { id: 'penRatio', label: 'PEN Ratio', value: 24, unit: '%' },
     effects: {
@@ -934,6 +949,15 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `Inflict Assault · Physical DMG +${equipmentEffectProgressionIncrementValue(W_ENGINE_FACTS.practicedPerfection.effects.physicalDamage, refinement)}% per stack · 2 stacks on entry`,
     ],
   },
+  angelInTheShell: {
+    id: 'angelInTheShell', name: 'Angel in the Shell', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.angelInTheShell.advancedStat, image: angelInTheShellImage,
+    passiveSpecialty: 'Anomaly',
+    passiveLines: (refinement) => [
+      `Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.angelInTheShell.effects.anomalyProficiency, refinement)}`,
+      `Ether holder enters or uses Special/EX · DMG against anomalied enemies +${percent(W_ENGINE_FACTS.angelInTheShell.effects.anomaliedEnemyDamage, refinement)} · Attribute Anomaly DMG +${percent(W_ENGINE_FACTS.angelInTheShell.effects.anomalyDamage, refinement)}`,
+    ],
+  },
   fusionCompiler: {
     id: 'fusionCompiler', name: 'Fusion Compiler', rank: 'S', limited: false, baseAtk: 684,
     advancedStat: W_ENGINE_FACTS.fusionCompiler.advancedStat, image: fusionCompilerImage,
@@ -1009,6 +1033,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   ]),
   zhao: enginePools(['halfSugarBunny', 'originalTransmorpher']),
   grace: enginePools([
-    'timeweaver', 'practicedPerfection', 'fusionCompiler', 'electroLipGloss', 'weepingGemini',
+    'timeweaver', 'practicedPerfection', 'angelInTheShell',
+    'fusionCompiler', 'electroLipGloss', 'weepingGemini',
   ]),
 }

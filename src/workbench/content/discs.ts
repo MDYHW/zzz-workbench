@@ -489,7 +489,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     twoPiece: ['bunnyInWonderland', 'yunkui', 'swingJazz', 'moonlight', 'astralVoice', 'hormonePunk'],
   },
   grace: {
-    fourPiece: ['thunderMetal', 'chaosJazz', 'freedomBlues'],
+    fourPiece: ['thunderMetal', 'chaosJazz', 'freedomBlues', 'phaethonsMelody'],
     twoPiece: [
       'pufferElectro', 'phaethonsMelody', 'freedomBlues', 'chaosJazz',
       'hormonePunk', 'astralVoice',

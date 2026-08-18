@@ -117,6 +117,7 @@ export type EngineId =
   | 'halfSugarBunny'
   | 'timeweaver'
   | 'practicedPerfection'
+  | 'angelInTheShell'
   | 'fusionCompiler'
   | 'electroLipGloss'
   | 'weepingGemini'
@@ -175,7 +176,7 @@ export type SubstatId =
   | 'anomalyProficiency'
 
 export interface AdvancedStat {
-  id: 'hpPct' | 'atkPct' | 'defPct' | 'critRate' | 'critDmg' | 'impactPct' | 'energyRegenPct' | 'penRatio' | 'anomalyProficiency'
+  id: 'hpPct' | 'atkPct' | 'defPct' | 'critRate' | 'critDmg' | 'impactPct' | 'energyRegenPct' | 'penRatio' | 'anomalyProficiency' | 'anomalyMastery'
   label: string
   value: number
   unit: '%' | ''

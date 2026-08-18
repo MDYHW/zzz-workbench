@@ -720,6 +720,19 @@ describe('representative calculation flows', () => {
     expect(metric(practiced, 'dmgBonus').breakdown.fully)
       .not.toContainEqual(expect.objectContaining({ label: 'Practiced Perfection' }))
 
+    const angel = agent(calculateParty(selectEngine(
+      base, 'grace', 'angelInTheShell',
+    ))!, 'grace')
+    expect(metric(angel, 'anomalyMastery').values.initial).toBeCloseTo(241.6)
+    expect(metric(angel, 'anomalyMastery').values.combat).toBeCloseTo(241.6)
+    expect(metric(angel, 'anomalyMastery').values.fully).toBeCloseTo(241.6)
+    expect(metric(angel, 'anomalyProficiency').values)
+      .toEqual({ initial: 208, combat: 298, fully: 298 })
+    expect(metric(angel, 'dmgBonus').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ label: 'Angel in the Shell' }))
+    expect(metric(angel, 'anomalyDmgBonus').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ label: 'Angel in the Shell' }))
+
     const electro = agent(calculateParty(selectEngine(
       base, 'grace', 'electroLipGloss',
     ))!, 'grace')
@@ -756,8 +769,10 @@ describe('representative calculation flows', () => {
     expect(metric(freedom, 'anomalyBuildupResReduction').values.fully).toBe(20)
 
     const phaethon = agent(calculateParty(selectDisc(
-      base, 'grace', 'twoPiece', 'phaethonsMelody',
+      base, 'grace', 'fourPiece', 'phaethonsMelody',
     ))!, 'grace')
     expect(metric(phaethon, 'anomalyMastery').values.initial).toBeCloseTo(208.38)
+    expect(metric(phaethon, 'anomalyProficiency').values)
+      .toEqual({ initial: 208, combat: 208, fully: 328 })
   })
 })
