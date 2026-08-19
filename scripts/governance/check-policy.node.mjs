@@ -17,6 +17,7 @@ import {
   extractRuleIdState,
   parseAuthorityTrace,
   parseAcrDocument,
+  parseAgentRoster,
   parseGovernanceStatusBinding,
   parseGovernanceTargetBinding,
   proveAgentLocal,
@@ -533,11 +534,30 @@ test('stable Rule IDs come only from five permanent owners plus AGENTS and rejec
 })
 
 test('AE6 frozen roster and finalization fail until exact complete recovery state exists', () => {
-  const roster = Array.from({ length: 38 }, (_, index) => `Agent ${String(index + 1).padStart(2, '0')}`)
-  assert.equal(validateFrozenRoster(roster, [...roster].reverse()), true)
-  assert.equal(validateFrozenRoster([...roster, 'New Agent'], [...roster].reverse()), true)
-  assert.throws(() => validateFrozenRoster([...roster.slice(1), 'New Agent'], roster), /exactly cover/)
-  assert.throws(() => validateFrozenRoster(roster, roster.slice(1)), /exactly cover/)
+  const roster = Array.from({ length: 38 }, (_, index) => ({
+    id: `agent${String(index + 1).padStart(2, '0')}`,
+    name: `Agent ${String(index + 1).padStart(2, '0')}`,
+  }))
+  const names = roster.map(({ name }) => name)
+  assert.equal(validateFrozenRoster(roster, [...names].reverse(), roster), true)
+  assert.equal(validateFrozenRoster([...roster, { id: 'newAgent', name: 'New Agent' }], [...names].reverse(), roster), true)
+  assert.throws(() => validateFrozenRoster([
+    ...roster.slice(1), { id: 'newAgent', name: roster[0].name },
+  ], names, roster), /exactly cover/)
+  assert.throws(() => validateFrozenRoster([
+    { ...roster[0], name: 'Renamed Agent' }, ...roster.slice(1), { id: 'newAgent', name: roster[0].name },
+  ], names, roster), /exactly cover/)
+  assert.throws(() => validateFrozenRoster([
+    ...roster, { id: roster[0].id, name: 'New Agent' },
+  ], names, roster), /duplicates/)
+  assert.throws(() => validateFrozenRoster([
+    ...roster, { id: 'newAgent', name: roster[0].name },
+  ], names, roster), /duplicates/)
+  assert.throws(() => validateFrozenRoster(roster, names.slice(1), roster), /exactly cover/)
+  assert.deepEqual(parseAgentRoster(`export const ADMITTED_AGENTS = [
+    // { id: 'forged', name: 'Forged Agent' },
+    { id: 'actual', name: 'Actual Agent' },
+  ]\n`), [{ id: 'actual', name: 'Actual Agent' }])
   const statuses = Object.fromEntries(['Trusted Governance', 'Protected Approval', ...REQUIRED_JOB_NAMES].map((name) => [name, 'success']))
   assert.throws(() => validateFinalization({ actor: 'other', candidateSha: HEAD, recoveryTipSha: HEAD, auditComplete: true, statuses }), /Only/)
   assert.throws(() => validateFinalization({ actor: 'Min-DongYoung', candidateSha: HEAD, recoveryTipSha: OTHER, auditComplete: true, statuses }), /current recovery tip/)
