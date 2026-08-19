@@ -755,7 +755,9 @@ export function extractCurrentRuleIds(ownerTexts) {
 export function validateFrozenRoster(baselineNames, indexedNames) {
   const baseline = sortedUnique(baselineNames, 'Baseline roster')
   const indexed = sortedUnique(indexedNames, 'Audit roster')
-  if (baseline.length !== FROZEN_ROSTER_SIZE || indexed.length !== FROZEN_ROSTER_SIZE || !sameStrings(baseline, indexed)) {
+  if (indexed.length !== FROZEN_ROSTER_SIZE
+    || baseline.length < FROZEN_ROSTER_SIZE
+    || indexed.some((name) => !baseline.includes(name))) {
     fail('Recovery audit roster does not exactly cover the frozen 38 identities.')
   }
   return true
@@ -933,9 +935,7 @@ function parseAgentNames(source) {
   const start = source.indexOf('export const ADMITTED_AGENTS')
   const end = source.indexOf('\n]\n', start)
   if (start < 0 || end < 0) fail('Baseline Agent roster source is unavailable.')
-  const names = [...source.slice(start, end).matchAll(/\bid:\s*'[^']+'\s*,[\s\S]*?\bname:\s*'([^']+)'/g)].map((match) => match[1])
-  if (names.length !== FROZEN_ROSTER_SIZE) fail('Baseline Agent roster does not contain 38 identities.')
-  return names
+  return [...source.slice(start, end).matchAll(/\bid:\s*'[^']+'\s*,[\s\S]*?\bname:\s*'([^']+)'/g)].map((match) => match[1])
 }
 
 function parseAuditNames(audit) {

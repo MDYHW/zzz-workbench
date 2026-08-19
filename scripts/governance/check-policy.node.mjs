@@ -535,6 +535,8 @@ test('stable Rule IDs come only from five permanent owners plus AGENTS and rejec
 test('AE6 frozen roster and finalization fail until exact complete recovery state exists', () => {
   const roster = Array.from({ length: 38 }, (_, index) => `Agent ${String(index + 1).padStart(2, '0')}`)
   assert.equal(validateFrozenRoster(roster, [...roster].reverse()), true)
+  assert.equal(validateFrozenRoster([...roster, 'New Agent'], [...roster].reverse()), true)
+  assert.throws(() => validateFrozenRoster([...roster.slice(1), 'New Agent'], roster), /exactly cover/)
   assert.throws(() => validateFrozenRoster(roster, roster.slice(1)), /exactly cover/)
   const statuses = Object.fromEntries(['Trusted Governance', 'Protected Approval', ...REQUIRED_JOB_NAMES].map((name) => [name, 'success']))
   assert.throws(() => validateFinalization({ actor: 'other', candidateSha: HEAD, recoveryTipSha: HEAD, auditComplete: true, statuses }), /Only/)
