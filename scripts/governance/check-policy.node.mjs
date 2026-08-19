@@ -553,11 +553,20 @@ test('AE6 frozen roster and finalization fail until exact complete recovery stat
   assert.throws(() => validateFrozenRoster([
     ...roster, { id: 'newAgent', name: roster[0].name },
   ], names, roster), /duplicates/)
+  assert.throws(() => validateFrozenRoster([
+    { ...roster[0], name: ` ${roster[0].name}` }, ...roster.slice(1),
+  ], names, roster), /invalid identity/)
   assert.throws(() => validateFrozenRoster(roster, names.slice(1), roster), /exactly cover/)
   assert.deepEqual(parseAgentRoster(`export const ADMITTED_AGENTS = [
     // { id: 'forged', name: 'Forged Agent' },
     { id: 'actual', name: 'Actual Agent' },
   ]\n`), [{ id: 'actual', name: 'Actual Agent' }])
+  assert.throws(() => parseAgentRoster(`export const ADMITTED_AGENTS = [
+    { id: 'actual', name: 'Actual Agent', ...replacement },
+  ]\n`), /non-literal identity/)
+  assert.throws(() => parseAgentRoster(`export const ADMITTED_AGENTS = [
+    { id: 'actual', name: 'Actual Agent', ['id']: 'replacement' },
+  ]\n`), /non-literal identity/)
   const statuses = Object.fromEntries(['Trusted Governance', 'Protected Approval', ...REQUIRED_JOB_NAMES].map((name) => [name, 'success']))
   assert.throws(() => validateFinalization({ actor: 'other', candidateSha: HEAD, recoveryTipSha: HEAD, auditComplete: true, statuses }), /Only/)
   assert.throws(() => validateFinalization({ actor: 'Min-DongYoung', candidateSha: HEAD, recoveryTipSha: OTHER, auditComplete: true, statuses }), /current recovery tip/)

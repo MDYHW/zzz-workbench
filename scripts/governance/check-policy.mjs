@@ -797,10 +797,10 @@ function normalizeAgentRoster(entries, label) {
   if (!Array.isArray(entries)) fail(`${label} must be an array.`)
   const normalized = entries.map((entry) => {
     if (!entry || !/^[a-z][A-Za-z0-9]*$/.test(entry.id ?? '')
-      || typeof entry.name !== 'string' || entry.name.trim().length === 0) {
+      || typeof entry.name !== 'string' || entry.name.length === 0 || entry.name !== entry.name.trim()) {
       fail(`${label} contains an invalid identity.`)
     }
-    return { id: entry.id, name: entry.name.trim() }
+    return { id: entry.id, name: entry.name }
   })
   sortedUnique(normalized.map(({ id }) => id), `${label} IDs`)
   sortedUnique(normalized.map(({ name }) => name), `${label} names`)
@@ -1006,6 +1006,9 @@ export function parseAgentRoster(source) {
   }
   return declarations[0].init.elements.map((element) => {
     if (element?.type !== 'ObjectExpression') fail('Baseline Agent roster contains a non-literal identity.')
+    if (element.properties.some((property) => property.type !== 'Property' || property.computed !== false)) {
+      fail('Baseline Agent roster contains a non-literal identity.')
+    }
     const readString = (key) => {
       const matches = element.properties.filter((property) => property.type === 'Property'
         && property.computed === false
