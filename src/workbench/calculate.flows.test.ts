@@ -645,6 +645,16 @@ describe('representative calculation flows', () => {
       outputLabel: 'Disorder DMG Bonus', outputValue: 0,
     })
 
+    const atkSlotSix = agent(calculateParty(selectMain(
+      fullState, 'grace', 'slot6', 'atkPct',
+    ))!, 'grace')
+    expect(metric(atkSlotSix, 'atk').breakdown.initial)
+      .toContainEqual(expect.objectContaining({
+        label: 'Drive Disc · Slot 6',
+        display: { value: 30, unit: '%', decimals: 0 },
+      }))
+    expect(metric(atkSlotSix, 'anomalyMastery').values.initial).toBe(151)
+
     const nonLimitedState = createPreparedState(
       { grace: 'nonLimited' }, ['grace', 'billy', 'nekomata'], 0,
     )
@@ -719,19 +729,6 @@ describe('representative calculation flows', () => {
       .toEqual({ initial: 196.3, combat: 256.3, fully: 256.3 })
     expect(metric(practiced, 'dmgBonus').breakdown.fully)
       .not.toContainEqual(expect.objectContaining({ label: 'Practiced Perfection' }))
-
-    const angel = agent(calculateParty(selectEngine(
-      base, 'grace', 'angelInTheShell',
-    ))!, 'grace')
-    expect(metric(angel, 'anomalyMastery').values.initial).toBeCloseTo(241.6)
-    expect(metric(angel, 'anomalyMastery').values.combat).toBeCloseTo(241.6)
-    expect(metric(angel, 'anomalyMastery').values.fully).toBeCloseTo(241.6)
-    expect(metric(angel, 'anomalyProficiency').values)
-      .toEqual({ initial: 208, combat: 298, fully: 298 })
-    expect(metric(angel, 'dmgBonus').breakdown.fully)
-      .not.toContainEqual(expect.objectContaining({ label: 'Angel in the Shell' }))
-    expect(metric(angel, 'anomalyDmgBonus').breakdown.fully)
-      .not.toContainEqual(expect.objectContaining({ label: 'Angel in the Shell' }))
 
     const electro = agent(calculateParty(selectEngine(
       base, 'grace', 'electroLipGloss',

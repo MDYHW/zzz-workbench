@@ -243,7 +243,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   grace: {
     slot4: ['anomalyProficiency', 'atkPct'],
     slot5: ['penRatio', 'electricDmg', 'atkPct'],
-    slot6: ['anomalyMastery'],
+    slot6: ['anomalyMastery', 'atkPct'],
   },
 }
 

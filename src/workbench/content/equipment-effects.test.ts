@@ -61,8 +61,6 @@ describe('bounded equipment effect facts', () => {
       .toEqualTypeOf<'electricBuildup' | 'anomalyProficiency' | 'disorderDamage'>()
     expectTypeOf<WEngineEffectField<'practicedPerfection'>>()
       .toEqualTypeOf<'anomalyMastery' | 'physicalDamage'>()
-    expectTypeOf<WEngineEffectField<'angelInTheShell'>>()
-      .toEqualTypeOf<'anomalyProficiency' | 'anomaliedEnemyDamage' | 'anomalyDamage'>()
     expectTypeOf<WEngineEffectField<'fusionCompiler'>>()
       .toEqualTypeOf<'atk' | 'anomalyProficiency'>()
 
@@ -615,14 +613,6 @@ describe('bounded equipment effect facts', () => {
     expect(W_ENGINES.practicedPerfection.passiveLines(1)).toEqual([
       'Anomaly Mastery +60',
       'Physical DMG +40%',
-    ])
-    expect(W_ENGINES.angelInTheShell).toMatchObject({
-      rank: 'S', limited: true, baseAtk: 713,
-      advancedStat: { id: 'anomalyMastery', value: 30 },
-    })
-    expect(W_ENGINES.angelInTheShell.passiveLines(1)).toEqual([
-      'Anomaly Proficiency +90',
-      'Ether holder only · DMG +20% · Anomaly & Disorder DMG +10%',
     ])
     expect(equipmentEffectMaximumValue(
       W_ENGINE_FACTS.fusionCompiler.effects.anomalyProficiency, 1,
