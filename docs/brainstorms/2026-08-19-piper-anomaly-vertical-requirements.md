@@ -205,10 +205,12 @@ only distinctions that change Piper's competitive setup or visible Result.
   substat candidates from the selected equipment and current authorized
   pressure, reconcile invalid dependent selections without fallback, choose
   the authored mains, and initialize every effective-substat count to zero.
-  SW-007 admits broad pre-PEN membership pressure only for `general_damage`;
-  Grace's accepted local anomaly outcome does not generalize it to Piper.
-  Therefore broad pre-PEN party effects do not remove Piper's Puffer or Slot 5
-  PEN candidates. Piper introduces no allocation or pressure pass.
+  SW-007 admits broad pre-PEN membership pressure for authored primary or
+  residual formula directions that consume the shared DEF region. Piper's
+  `anomaly_damage` direction therefore loses Puffer and Slot 5 PEN under that
+  pressure. Her authored Fanged/Phaethon and AP/Physical DMG/AM first choice is
+  already pressure-safe, so Piper introduces no Agent-local replacement,
+  allocation, or pressure pass.
 - R18. Party Apply rebuilds all three prepared setups and recalculates Piper's
   party qualification. A Piper-only Mindscape or pool change prepares Piper
   alone while reevaluating all party effects and effective candidates. Direct
@@ -256,9 +258,10 @@ only distinctions that change Piper's competitive setup or visible Result.
 - AE4. **Covers R14-R17.** Prepared Fanged/Phaethon remains a complete 4+2
   package and exposes White Water Ballad as the Physical 2-piece alternative.
   Selecting Freedom 4-piece exposes only a different same-effect AP identity as
-  its AP complement. Broad pre-PEN pressure preserves Piper's Puffer and Slot 5
-  PEN candidates while the established Grace-local contrast still reconciles
-  its own candidates; no invalid first choice or fallback is created.
+  its AP complement. Broad pre-PEN pressure removes Piper's Puffer and Slot 5
+  PEN candidates while preserving her authored first choice; a prior direct
+  selection clears without fallback, and later membership restoration does
+  not restore selection history.
 - AE5. **Covers R6, R19.** At M0 no M2 action difference appears. At M2 and
   higher, the applicable downward-smash and Ultimate action rows show +40%
   regular DMG Bonus at the M1-raised 30 Fully Enabled Power. M4 Energy and M6

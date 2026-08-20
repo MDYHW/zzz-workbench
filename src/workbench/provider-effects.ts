@@ -73,6 +73,7 @@ import {
   initialAtkFor,
   isSeedVanguardAtkAgent,
 } from './calculation/initial-atk'
+import { directionUsesDefRegion } from './formula-policy'
 import { observeCorin, resolveCorinProviderClauses, type CorinCalculationContext } from './calculation/agents/corin'
 import { observeLycaon, resolveLycaonProviderClauses, type LycaonCalculationContext } from './calculation/agents/lycaon'
 import {
@@ -552,14 +553,8 @@ function isAttackAgent(agentId: AgentId): boolean {
   return ADMITTED_AGENTS.find(({ id }) => id === agentId)?.specialty === 'Attack'
 }
 
-// Candidate removal is intentionally narrower than formula participation:
-// broad pre-PEN pressure only changes the prepared choices for general-DMG
-// recipients, with Grace's established local anomaly exception retained.
 function isCandidatePressureAgent(agentId: AgentId): boolean {
-  if (agentId === 'grace') return true
-  const participation = SETUP_FORMULA_PARTICIPATION_BY_AGENT[agentId]
-  return [...participation.primary, ...participation.residual]
-    .includes('general_damage')
+  return directionUsesDefRegion(agentId)
 }
 
 function isElectricCandidatePressureAgent(agentId: AgentId): boolean {
