@@ -1470,51 +1470,26 @@ describe('workbench state lifecycle', () => {
     expect(isCompleteWorkbench(state)).toBe(true)
   })
 
-  it('cycles Grace broad pre-PEN pressure without restoring prior direct selections', () => {
-    let state = createPreparedState({}, ['grace', 'trigger', 'anbySoldier0'], 0)
+  it('cycles prepared and edited Anomaly packages through broad pre-PEN pressure', () => {
+    let state = createPreparedState({}, ['grace', 'piper', 'trigger'], 0)
     expect(activeCandidatePressures(state, 0)).toEqual(['materialBroadPrePenDefBypass'])
+    expect(activeCandidatePressures(state, 1)).toEqual(['materialBroadPrePenDefBypass'])
     expect(state.slots[0].setup).toMatchObject({
       twoPieceId: 'freedomBlues', mains: { slot5: 'electricDmg' },
     })
+    expect(state.slots[1].setup).toMatchObject({
+      twoPieceId: 'phaethonsMelody', mains: { slot5: 'physicalDmg' },
+    })
+    expect(isCompleteWorkbench(state)).toBe(true)
 
     state = workbenchReducer(state, {
-      type: 'selectEngine', slot: 1, engineId: 'restrained',
+      type: 'selectEngine', slot: 2, engineId: 'restrained',
     })
     expect(activeCandidatePressures(state, 0)).toEqual([])
-    expect(effectiveTwoPieceIds(state, 0)).toContain('pufferElectro')
-    expect(effectiveMainStatIds(state, 0, 'slot5')).toContain('penRatio')
-    expect(state.slots[0].setup).toMatchObject({
-      twoPieceId: 'freedomBlues', mains: { slot5: 'electricDmg' },
-    })
-
-    state = workbenchReducer(state, {
-      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'pufferElectro',
-    })
-    state = workbenchReducer(state, {
-      type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'penRatio',
-    })
-    state = workbenchReducer(state, {
-      type: 'selectEngine', slot: 1, engineId: 'spectralGaze',
-    })
-    expect(state.slots[0].setup).toMatchObject({
-      twoPieceId: null, mains: { slot5: null },
-    })
-    expect(calculateParty(state)).toBeNull()
-
-    state = workbenchReducer(state, {
-      type: 'selectEngine', slot: 1, engineId: 'restrained',
-    })
-    expect(effectiveTwoPieceIds(state, 0)).toContain('pufferElectro')
-    expect(effectiveMainStatIds(state, 0, 'slot5')).toContain('penRatio')
-    expect(state.slots[0].setup).toMatchObject({
-      twoPieceId: null, mains: { slot5: null },
-    })
-  })
-
-  it('composes Grace invalidation with Piper retention across pressure reselection', () => {
-    let state = createPreparedState({}, ['grace', 'piper', 'trigger'], 0)
-    state = workbenchReducer(state, { type: 'selectEngine', slot: 2, engineId: 'restrained' })
+    expect(activeCandidatePressures(state, 1)).toEqual([])
     for (const slot of [0, 1] as const) {
+      expect(effectiveTwoPieceIds(state, slot)).toContain('pufferElectro')
+      expect(effectiveMainStatIds(state, slot, 'slot5')).toContain('penRatio')
       state = workbenchReducer(state, {
         type: 'selectDisc', slot, piece: 'twoPiece', discId: 'pufferElectro',
       })
@@ -1522,27 +1497,36 @@ describe('workbench state lifecycle', () => {
         type: 'selectMainStat', slot, mainSlot: 'slot5', mainStatId: 'penRatio',
       })
     }
-    expect(state.slots[0].setup).toMatchObject({ twoPieceId: 'pufferElectro', mains: { slot5: 'penRatio' } })
-    expect(state.slots[1].setup).toMatchObject({ twoPieceId: 'pufferElectro', mains: { slot5: 'penRatio' } })
 
-    state = workbenchReducer(state, { type: 'selectEngine', slot: 2, engineId: 'spectralGaze' })
-    expect(state.slots[0].setup).toMatchObject({ twoPieceId: null, mains: { slot5: null } })
-    expect(state.slots[1].setup).toMatchObject({ twoPieceId: 'pufferElectro', mains: { slot5: 'penRatio' } })
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 2, engineId: 'spectralGaze',
+    })
+    for (const slot of [0, 1] as const) {
+      expect(state.slots[slot].setup).toMatchObject({
+        twoPieceId: null, mains: { slot5: null },
+      })
+    }
     expect(calculateParty(state)).toBeNull()
 
-    state = workbenchReducer(state, { type: 'selectEngine', slot: 2, engineId: 'restrained' })
-    expect(state.slots[0].setup).toMatchObject({ twoPieceId: null, mains: { slot5: null } })
-    expect(state.slots[1].setup).toMatchObject({ twoPieceId: 'pufferElectro', mains: { slot5: 'penRatio' } })
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 2, engineId: 'restrained',
+    })
+    for (const slot of [0, 1] as const) {
+      expect(effectiveTwoPieceIds(state, slot)).toContain('pufferElectro')
+      expect(effectiveMainStatIds(state, slot, 'slot5')).toContain('penRatio')
+      expect(state.slots[slot].setup).toMatchObject({
+        twoPieceId: null, mains: { slot5: null },
+      })
+    }
 
     state = workbenchReducer(state, {
-      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'pufferElectro',
+      type: 'selectDisc', slot: 1, piece: 'twoPiece', discId: 'pufferElectro',
     })
     state = workbenchReducer(state, {
-      type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'penRatio',
+      type: 'selectMainStat', slot: 1, mainSlot: 'slot5', mainStatId: 'penRatio',
     })
     state = workbenchReducer(state, { type: 'selectEngine', slot: 2, engineId: 'spectralGaze' })
-    expect(state.slots[0].setup).toMatchObject({ twoPieceId: null, mains: { slot5: null } })
-    expect(state.slots[1].setup).toMatchObject({ twoPieceId: 'pufferElectro', mains: { slot5: 'penRatio' } })
+    expect(state.slots[1].setup).toMatchObject({ twoPieceId: null, mains: { slot5: null } })
   })
 
   it('derives Spectral Gaze pressure from broad pre-PEN meaning and formula participation', () => {

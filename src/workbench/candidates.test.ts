@@ -31,18 +31,6 @@ describe('selected King pressure', () => {
 })
 
 describe('contextual Disc candidates', () => {
-  it('keeps Piper PEN and Puffer choices under broad pressure while preserving Grace exception', () => {
-    const piper = createPreparedState({}, ['piper', 'nicole', 'anby'], 0)
-    expect(activeCandidatePressures(piper, 0)).toEqual([])
-    expect(effectiveTwoPieceIds(piper, 0)).toContain('pufferElectro')
-    expect(effectiveMainStatIds(piper, 0, 'slot5')).toContain('penRatio')
-
-    const grace = createPreparedState({}, ['grace', 'nicole', 'anby'], 0)
-    expect(activeCandidatePressures(grace, 0)).toEqual(['materialBroadPrePenDefBypass'])
-    expect(effectiveTwoPieceIds(grace, 0)).not.toContain('pufferElectro')
-    expect(effectiveMainStatIds(grace, 0, 'slot5')).not.toContain('penRatio')
-  })
-
   it('adds Qingyi Astral only for the local buffer-provider set', () => {
     for (const provider of ['nicole', 'astraYao', 'panYinhu', 'zhao'] as const) {
       expect(effectiveFourPieceIds(
@@ -119,13 +107,18 @@ describe('contextual Disc candidates', () => {
     expect(effectiveFourPieceIds(withoutDialyn, 0)).not.toContain('pufferElectro')
   })
 
-  it('applies Nicole broad pressure only to general-damage inputs while preserving Puffer 4-piece', () => {
-    const withNicole = createPreparedState({}, ['zhuYuan', 'nicole', 'dialyn'], 0)
+  it('applies Nicole broad pressure to DEF-region directions while preserving Puffer 4-piece', () => {
+    const generalDamage = createPreparedState({}, ['zhuYuan', 'nicole', 'dialyn'], 0)
+    const anomalyDamage = createPreparedState({}, ['piper', 'nicole', 'anby'], 0)
     const ruptureContrast = createPreparedState({}, ['yixuan', 'nicole', 'dialyn'], 0)
 
-    expect(effectiveFourPieceIds(withNicole, 0)).toContain('pufferElectro')
-    expect(effectiveTwoPieceIds(withNicole, 0)).not.toContain('pufferElectro')
-    expect(effectiveMainStatIds(withNicole, 0, 'slot5')).toEqual(['etherDmg', 'atkPct'])
+    expect(effectiveFourPieceIds(generalDamage, 0)).toContain('pufferElectro')
+    expect(effectiveTwoPieceIds(generalDamage, 0)).not.toContain('pufferElectro')
+    expect(effectiveMainStatIds(generalDamage, 0, 'slot5')).toEqual(['etherDmg', 'atkPct'])
+    expect(activeCandidatePressures(anomalyDamage, 0))
+      .toEqual(['materialBroadPrePenDefBypass'])
+    expect(effectiveTwoPieceIds(anomalyDamage, 0)).not.toContain('pufferElectro')
+    expect(effectiveMainStatIds(anomalyDamage, 0, 'slot5')).toEqual(['physicalDmg', 'atkPct'])
     expect(effectiveMainStatIds(ruptureContrast, 0, 'slot5')).toEqual(['etherDmg', 'hpPct'])
   })
 
