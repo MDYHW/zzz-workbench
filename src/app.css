@@ -728,6 +728,10 @@ main { margin-top: 18px; }
     font-size: 18px;
   }
 
+  .party-slot--compact .slot-name-line .identity-name--wide {
+    font-size: 15px;
+  }
+
   .party-slot--compact .slot-name-line .identity-name--long {
     font-size: 16px;
     line-height: 0.9;
