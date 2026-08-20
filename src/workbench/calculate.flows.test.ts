@@ -959,4 +959,149 @@ describe('representative calculation flows', () => {
     expect(JSON.stringify(projected)).not.toMatch(/DMG Taken|application|uptime/i)
     expect(projected.operations).toEqual([])
   })
+
+  it('projects one qualified AM basis into three distinct Yuzuha and recipient outcomes', () => {
+    const state = createPreparedState({}, ['yuzuha', 'grace', 'piper'], 1)
+    const result = calculateParty(state)!
+    const yuzuha = agent(result, 'yuzuha')
+
+    expect(metric(yuzuha, 'atk').gauge).toMatchObject({
+      basisLabel: 'Initial ATK', current: 2669.6, cap: 3000,
+      outputLabel: 'Squad flat ATK', outputValue: expect.closeTo(1067.84),
+      outputCap: 1200,
+    })
+    expect(metric(yuzuha, 'anomalyMastery').values).toEqual({
+      initial: expect.closeTo(171.12),
+      combat: expect.closeTo(171.12),
+      fully: expect.closeTo(201.12),
+    })
+    expect(metric(yuzuha, 'anomalyMastery').gauge).toMatchObject({
+      current: expect.closeTo(201.12), threshold: 100, cap: 200,
+      outputLabel: 'Anomaly Buildup Rate', outputValue: 20,
+      additionalOutputs: [
+        { label: 'Attribute Anomaly DMG', value: 20, cap: 20, unit: '%' },
+        { label: 'Disorder DMG', value: 20, cap: 20, unit: '%' },
+      ],
+    })
+    expect(action(yuzuha, 'yuzuhaFlavorMatchBuildup').outcomes).toEqual([{
+      kind: 'source-local',
+      label: 'Electric Anomaly Buildup · Flavor Match',
+      canonicalScope: 'Basic Attack',
+    }])
+    expect(action(yuzuha, 'yuzuhaFlavorMatchBuildup').values.fully
+      - metric(yuzuha, 'anomalyBuildupBonus').values.fully).toBe(25)
+
+    const thresholdState = withSetup(state, 'grace', (setup) => ({
+      ...setup,
+      substats: { ...setup.substats, anomalyProficiency: 4 },
+    }))
+    const composedGrace = agent(calculateParty(thresholdState)!, 'grace')
+    expect(composedGrace.actionModifiers.filter(({ id }) => id === 'graceDisorder'))
+      .toHaveLength(1)
+    expect(composedGrace.actionModifiers.find(({ id }) => id === 'receivedDisorderDmg'))
+      .toBeUndefined()
+    expect(action(composedGrace, 'graceDisorder').breakdown.fully).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ label: 'Timeweaver', ownerAgentId: 'grace', amount: 25 }),
+        expect.objectContaining({ ownerAgentId: 'yuzuha', locus: 'additional', amount: 20 }),
+      ]),
+    )
+
+    for (const recipientId of ['grace', 'piper'] as const) {
+      const recipient = agent(result, recipientId)
+      expect(metric(recipient, 'anomalyProficiency').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Metanukimorphosis', ownerAgentId: 'yuzuha', amount: 60,
+        }))
+      expect(action(recipient, 'receivedAttributeAnomalyDmg').values.fully
+        - metric(recipient, 'anomalyDmgBonus').values.fully).toBe(20)
+      const disorder = recipientId === 'grace'
+        ? action(recipient, 'graceDisorder')
+        : action(recipient, 'receivedDisorderDmg')
+      expect(disorder.values.fully - metric(recipient, 'anomalyDmgBonus').values.fully).toBe(20)
+      expect(metric(recipient, 'anomalyBuildupBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'yuzuha', locus: 'additional', amount: 20,
+        }))
+    }
+
+    const unqualified = agent(calculateParty(createPreparedState(
+      {}, ['yuzuha', 'billy', 'lycaon'], 1,
+    ))!, 'yuzuha')
+    expect(metric(unqualified, 'anomalyMastery').gauge).toBeUndefined()
+    expect(metric(unqualified, 'anomalyBuildupBonus').values.fully).toBe(0)
+    expect(action(unqualified, 'yuzuhaFlavorMatchBuildup').values.fully).toBe(25)
+  })
+
+  it('keeps Yuzuha Mindscape scopes and damage-formula contrasts distinct', () => {
+    const state = createPreparedState({}, ['yuzuha', 'grace', 'piper'], 1)
+
+    const m1 = calculateParty(withMindscape(state, 'yuzuha', 1))!
+    const m1Yuzuha = agent(m1, 'yuzuha')
+    expect(metric(m1Yuzuha, 'anomalyMastery').gauge).toMatchObject({
+      outputValue: 20,
+      additionalOutputs: [
+        expect.objectContaining({ value: 26, cap: 26 }),
+        expect.objectContaining({ value: 26, cap: 26 }),
+      ],
+    })
+    for (const recipientId of ['grace', 'piper'] as const) {
+      const recipient = agent(m1, recipientId)
+      expect(metric(recipient, 'resReduction').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'yuzuha', locus: 'mindscape', amount: 10,
+        }))
+      const disorder = recipientId === 'grace'
+        ? action(recipient, 'graceDisorder')
+        : action(recipient, 'receivedDisorderDmg')
+      expect(disorder.values.fully - metric(recipient, 'anomalyDmgBonus').values.fully).toBe(26)
+    }
+
+    const m2 = calculateParty(withMindscape(state, 'yuzuha', 2))!
+    expect(metric(agent(m2, 'grace'), 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        ownerAgentId: 'yuzuha', locus: 'mindscape', amount: 15,
+      }))
+    expect(metric(agent(m2, 'piper'), 'anomalyBuildupBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        ownerAgentId: 'yuzuha', locus: 'mindscape', amount: 15,
+      }))
+
+    const m4 = agent(calculateParty(withMindscape(state, 'yuzuha', 4))!, 'yuzuha')
+    expect(action(m4, 'yuzuhaAssistFollowUpBuildup').values.fully
+      - metric(m4, 'anomalyBuildupBonus').values.fully).toBe(20)
+    expect(m4.operations).toContainEqual(expect.objectContaining({
+      id: 'yuzuhaQuickAssist', label: 'Quick Assist', value: 1,
+    }))
+
+    const m6 = calculateParty(withMindscape(state, 'yuzuha', 6))!
+    expect(agent(m6, 'yuzuha').operations)
+      .not.toContainEqual(expect.objectContaining({ label: 'Disorder DMG Multiplier' }))
+    for (const recipientId of ['grace', 'piper'] as const) {
+      expect(agent(m6, recipientId).operations).toContainEqual(expect.objectContaining({
+        label: 'Disorder DMG Multiplier', value: 315, surface: 'fully',
+        source: expect.objectContaining({ ownerAgentId: 'yuzuha', locus: 'mindscape' }),
+      }))
+    }
+
+    for (const [party, recipientId] of [
+      [['yuzuha', 'yixuan', 'grace'], 'yixuan'],
+      [['yuzuha', 'billy', 'grace'], 'billy'],
+    ] as const) {
+      const contrast = agent(calculateParty(createPreparedState(
+        {}, [party[0], party[1], party[2]], 1,
+      ))!, recipientId)
+      expect(metric(contrast, 'atk').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'yuzuha', locus: 'core', amount: expect.closeTo(1067.84),
+        }))
+      expect(metric(contrast, 'dmgBonus').breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          ownerAgentId: 'yuzuha', locus: 'core', amount: 15,
+        }))
+      expect(contrast.metrics.map(({ id }) => id)).not.toContain('anomalyDmgBonus')
+      expect(contrast.operations)
+        .not.toContainEqual(expect.objectContaining({ label: 'Disorder DMG Multiplier' }))
+    }
+  })
 })

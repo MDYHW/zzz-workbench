@@ -19,6 +19,56 @@ import {
 } from './state'
 
 describe('workbench state lifecycle', () => {
+  it('composes Yuzuha selected-source edits with local rebuild and preserved pressure independence', () => {
+    let state = createPreparedState({}, ['yuzuha', 'grace', 'piper'], 0)
+    const grace = state.slots[1]
+    const piper = state.slots[2]
+    const hasMetanukimorphosisAp = () => metric(
+      agent(calculateParty(state)!, 'grace'),
+      'anomalyProficiency',
+    ).breakdown.fully.some(({ ownerAgentId, locus }) => (
+      ownerAgentId === 'yuzuha' && locus === 'w-engine'
+    ))
+
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 0, engineId: 'thoughtbop',
+    })
+    expect(hasMetanukimorphosisAp()).toBe(false)
+    expect(activeCandidatePressures(state, 1)).toEqual([])
+    expect(activeCandidatePressures(state, 2)).toEqual([])
+    expect(state.slots[1]).toBe(grace)
+    expect(state.slots[2]).toBe(piper)
+
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 0, engineId: 'metanukimorphosis',
+    })
+    expect(hasMetanukimorphosisAp()).toBe(true)
+    expect(state.slots[1]).toBe(grace)
+    expect(state.slots[2]).toBe(piper)
+
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 4 })
+    expect(state.slots[0].setup).toMatchObject({
+      mindscape: 4, pool: 'full', engineId: 'metanukimorphosis',
+      fourPieceId: 'moonlight', twoPieceId: 'phaethonsMelody',
+    })
+    expect(state.slots[1]).toBe(grace)
+    expect(state.slots[2]).toBe(piper)
+    expect(hasMetanukimorphosisAp()).toBe(true)
+
+    state = workbenchReducer(state, { type: 'switchPool', slot: 0, pool: 'nonLimited' })
+    expect(state.slots[0].setup).toMatchObject({
+      mindscape: 4, pool: 'nonLimited', engineId: 'kaboom',
+      fourPieceId: 'moonlight', twoPieceId: 'phaethonsMelody',
+    })
+    expect(state.slots[1]).toBe(grace)
+    expect(state.slots[2]).toBe(piper)
+    expect(hasMetanukimorphosisAp()).toBe(false)
+
+    state = workbenchReducer(state, { type: 'switchPool', slot: 0, pool: 'full' })
+    expect(hasMetanukimorphosisAp()).toBe(true)
+    expect(isCompleteWorkbench(state)).toBe(true)
+  })
+
   it('composes Anby direct edits, King pressure clearing, and target rebuilding', () => {
     let state = createPreparedState({}, ['ben', 'pulchra', 'anby'], 0)
     expect(state.slots[1].setup.fourPieceId).toBe('king')

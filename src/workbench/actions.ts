@@ -55,6 +55,10 @@ export const sourceLocalAction = (
   ...(canonicalScope ? { canonicalScope } : {}),
 })
 
+// Disorder has one qualifying outcome across holder and recipient clauses.
+// Sharing its identity lets the composition layer retain one Result row.
+export const DISORDER_TARGET = actionTarget([sourceLocalAction('Disorder')])
+
 export function actionOutcomeLabel(outcome: ActionOutcome): string {
   switch (outcome.kind) {
     case 'canonical':

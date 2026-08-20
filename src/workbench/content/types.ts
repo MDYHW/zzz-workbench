@@ -42,6 +42,7 @@ export type AgentId =
   | 'zhao'
   | 'grace'
   | 'piper'
+  | 'yuzuha'
 
 export type AgentRank = 'S' | 'A'
 export type AgentFaction =
@@ -55,6 +56,7 @@ export type AgentFaction =
   | 'Cunning Hares'
   | 'Belobog Heavy Industries'
   | 'Krampus Compliance Authority'
+  | 'Spook Shack'
 
 /** Game-recognized teammate qualification that does not replace display faction. */
 export type PartyQualificationGroup = 'New Eridu Defense Force'
@@ -123,6 +125,7 @@ export type EngineId =
   | 'weepingGemini'
   | 'sharpenedStinger'
   | 'roaringRide'
+  | 'metanukimorphosis'
 
 export type DiscId =
   | 'yunkui'

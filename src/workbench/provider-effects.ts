@@ -208,6 +208,11 @@ import {
   resolvePiperProviderClauses,
   type PiperCalculationContext,
 } from './calculation/agents/piper'
+import {
+  observeYuzuha,
+  resolveYuzuhaProviderClauses,
+  type YuzuhaCalculationContext,
+} from './calculation/agents/yuzuha'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -249,6 +254,7 @@ export type ProviderContext =
   | ZhaoCalculationContext
   | GraceCalculationContext
   | PiperCalculationContext
+  | YuzuhaCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -447,6 +453,14 @@ function observeProviderContext(
         slot.setup,
         piperAdditionalIsActive(partyAgentIds, providerIndex),
       )
+    case 'yuzuha':
+      return observeYuzuha(
+        slot.setup,
+        anotherHasSpecialty(['Anomaly']) || anotherSharesFaction,
+        ADMITTED_AGENTS.find(({ id }) => (
+          id === state.slots[state.focusSlot].agentId
+        ))!.attribute,
+      )
     default:
       return assertNever(slot.agentId)
   }
@@ -544,6 +558,8 @@ function providerClauses(
       return resolveGraceProviderClauses(context)
     case 'piper':
       return resolvePiperProviderClauses(context)
+    case 'yuzuha':
+      return resolveYuzuhaProviderClauses(context)
     default:
       return assertNever(context)
   }
