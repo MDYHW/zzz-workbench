@@ -278,6 +278,12 @@ const piperRepresentative = (pool: PoolId): SetupSelection => ({
   mains: { slot4: 'anomalyProficiency', slot5: 'physicalDmg', slot6: 'anomalyMastery' },
 })
 
+const yuzuhaRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'metanukimorphosis' : 'kaboom',
+  fourPieceId: 'moonlight', twoPieceId: 'phaethonsMelody',
+  mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'anomalyMastery' },
+})
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -382,6 +388,7 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   zhao: { full: zhaoRepresentative('full'), nonLimited: zhaoRepresentative('nonLimited') },
   grace: { full: graceRepresentative('full'), nonLimited: graceRepresentative('nonLimited') },
   piper: { full: piperRepresentative('full'), nonLimited: piperRepresentative('nonLimited') },
+  yuzuha: { full: yuzuhaRepresentative('full'), nonLimited: yuzuhaRepresentative('nonLimited') },
 }
 
 export function representativeSetupFor(

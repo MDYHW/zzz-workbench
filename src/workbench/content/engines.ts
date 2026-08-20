@@ -58,6 +58,7 @@ import electroLipGlossImage from '../../assets/equipment/w-engines/electro-lip-g
 import weepingGeminiImage from '../../assets/equipment/w-engines/weeping-gemini.webp'
 import sharpenedStingerImage from '../../assets/equipment/w-engines/sharpened-stinger.webp'
 import roaringRideImage from '../../assets/equipment/w-engines/roaring-ride.webp'
+import metanukimorphosisImage from '../../assets/equipment/w-engines/metanukimorphosis.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -235,6 +236,13 @@ export const W_ENGINE_FACTS = {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
     effects: {
       critRate: { modifier: 'critRate', unit: '%', value: [12, 14, 16, 18, 20], scope: { recipient: 'squad' } },
+    },
+  },
+  metanukimorphosis: {
+    advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 60, unit: '%' },
+    effects: {
+      anomalyMastery: { modifier: 'anomalyMastery', unit: '', value: [30, 34, 39, 43, 48] },
+      anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: [60, 69, 78, 87, 96], scope: { recipient: 'squad' } },
     },
   },
   severedInnocence: {
@@ -730,7 +738,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     id: 'unfetteredGameBall', name: 'Unfettered Game Ball', rank: 'A', limited: false, baseAtk: 594,
     advancedStat: W_ENGINE_FACTS.unfetteredGameBall.advancedStat, image: unfetteredImage,
     passiveLines: (refinement) => [
-      `Squad CRIT Rate +${percent(W_ENGINE_FACTS.unfetteredGameBall.effects.critRate, refinement)}`,
+      `Weakness-matched target · Squad CRIT Rate +${percent(W_ENGINE_FACTS.unfetteredGameBall.effects.critRate, refinement)}`,
     ],
   },
   severedInnocence: { id: 'severedInnocence', name: 'Severed Innocence', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.severedInnocence.advancedStat, image: severedInnocenceImage, passiveLines: (refinement) => [`CRIT DMG +${percent(W_ENGINE_FACTS.severedInnocence.effects.critDamage, refinement, true)}`, `Electric DMG +${percent(W_ENGINE_FACTS.severedInnocence.effects.damage, refinement)}`] },
@@ -1000,6 +1008,14 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `Anomaly Buildup +${percent(W_ENGINE_FACTS.roaringRide.effects.buildup, refinement)}`,
     ],
   },
+  metanukimorphosis: {
+    id: 'metanukimorphosis', name: 'Metanukimorphosis', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.metanukimorphosis.advancedStat, image: metanukimorphosisImage,
+    passiveLines: (refinement) => [
+      `Anomaly Mastery +${equipmentEffectBaseValue(W_ENGINE_FACTS.metanukimorphosis.effects.anomalyMastery, refinement)}`,
+      `Squad Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.metanukimorphosis.effects.anomalyProficiency, refinement)}`,
+    ],
+  },
 }
 
 const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
@@ -1056,4 +1072,5 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
     'practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss',
     'weepingGemini', 'roaringRide',
   ]),
+  yuzuha: enginePools(['metanukimorphosis', 'thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
 }

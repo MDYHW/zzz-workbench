@@ -62,6 +62,7 @@ export type EffectMetric =
   | 'penRatio' | 'defIgnore' | 'resReduction' | 'defReduction'
   | 'anomalyProficiency' | 'anomalyMastery' | 'anomalyDmgBonus'
   | 'anomalyBuildupBonus' | 'anomalyBuildupResReduction' | 'power'
+  | 'disorderDmgMultiplier'
 
 export type Recipient = 'self' | 'focus' | 'all-party' | 'other-party' | 'enemy-context'
 export type CandidatePressure = 'materialBroadPrePenDefBypass'
@@ -362,6 +363,10 @@ export const STATIC_SOURCES = {
   piper: {
     core: source(SOURCE_LABELS.piperCore, 'piper', 'core'),
     additional: source(SOURCE_LABELS.piperAbility, 'piper', 'additional'),
+  },
+  yuzuha: {
+    core: source(SOURCE_LABELS.yuzuhaCore, 'yuzuha', 'core'),
+    additional: source(SOURCE_LABELS.yuzuhaAbility, 'yuzuha', 'additional'),
   },
 } as const
 

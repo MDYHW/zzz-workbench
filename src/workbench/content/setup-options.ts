@@ -51,6 +51,7 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   zhao: { primary: [], residual: ['general_damage'] },
   grace: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: [] },
   piper: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: [] },
+  yuzuha: { primary: ['anomaly_buildup'], residual: [] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -251,6 +252,11 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot5: ['physicalDmg', 'atkPct', 'penRatio'],
     slot6: ['anomalyMastery', 'atkPct'],
   },
+  yuzuha: {
+    slot4: ['atkPct'],
+    slot5: ['atkPct'],
+    slot6: ['anomalyMastery'],
+  },
 }
 
 /** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
@@ -421,6 +427,10 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   piper: [
     { id: 'anomalyProficiency', label: 'Anomaly Proficiency', perHit: 9, unit: '' },
     { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+  ],
+  yuzuha: [
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+    { id: 'atkFlat', label: 'ATK', perHit: 19, unit: '' },
   ],
 }
 

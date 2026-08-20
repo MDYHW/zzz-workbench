@@ -9,7 +9,12 @@ import {
   type ResultSource,
   type SourceBoundCurrentClause,
 } from './effects'
-import { actionTarget, canonicalAction, type CanonicalActionKind } from './actions'
+import {
+  actionTarget,
+  canonicalAction,
+  DISORDER_TARGET,
+  type CanonicalActionKind,
+} from './actions'
 import { calculateYixuan } from './calculation/agents/yixuan'
 import { calculateDialyn } from './calculation/agents/dialyn'
 import { calculateLucia } from './calculation/agents/lucia'
@@ -49,7 +54,15 @@ import { calculateYeShunguang } from './calculation/agents/ye-shunguang'
 import { calculateZhao } from './calculation/agents/zhao'
 import { calculateGrace } from './calculation/agents/grace'
 import { calculatePiper } from './calculation/agents/piper'
-import { composeMetricEffects, surfaces } from './calculation/composition'
+import {
+  YUZUHA_ATTRIBUTE_ANOMALY_TARGET,
+  calculateYuzuha,
+} from './calculation/agents/yuzuha'
+import {
+  composeActionHierarchy,
+  composeMetricEffects,
+  surfaces,
+} from './calculation/composition'
 import type { ActionModifier, AgentResult, Contribution, PartyResult } from './calculation/result'
 import { resolveProviderEffects } from './provider-effects'
 import { ADMITTED_AGENTS, SETUP_FORMULA_PARTICIPATION_BY_AGENT } from './content'
@@ -206,6 +219,68 @@ function withSharedDefReductionMetric(
     }
   }
   return metrics.length === result.metrics.length ? result : { ...result, metrics }
+}
+
+/**
+ * Disorder coefficient operations are delivered only to current
+ * anomaly-damage recipients. They remain operations rather than a buff metric.
+ */
+function withSharedDisorderOperations(
+  result: AgentResult,
+  inbox: SourceBoundCurrentClause[],
+): AgentResult {
+  const delivered = resolveDeliveredClauses(inbox, {})
+    .filter(({ metric }) => metric === 'disorderDmgMultiplier')
+  if (delivered.length === 0) return result
+  return {
+    ...result,
+    operations: [
+      ...result.operations,
+      ...delivered.map((effect, index) => ({
+        id: `receivedDisorderDmgMultiplier${index}`,
+        label: 'Disorder DMG Multiplier',
+        source: effect.source,
+        surface: effect.earliestSurface === 'combat' ? 'combat' as const : 'fully' as const,
+        value: effect.amount,
+        unit: '%',
+      })),
+    ],
+  }
+}
+
+/**
+ * Yuzuha's Additional Ability changes two distinct anomaly-damage outcomes.
+ * Current anomaly recipients share this bounded consumer so the Attribute
+ * Anomaly and Disorder rows remain separate even when their values match.
+ */
+function withYuzuhaAdditionalAnomalyActions(
+  result: AgentResult,
+  inbox: SourceBoundCurrentClause[],
+): AgentResult {
+  const participation = SETUP_FORMULA_PARTICIPATION_BY_AGENT[result.agentId]
+  if (![...participation.primary, ...participation.residual].includes('anomaly_damage')) {
+    return result
+  }
+
+  const common = result.metrics.find(({ id }) => id === 'anomalyDmgBonus')
+  if (!common) return result
+  const effects = resolveDeliveredClauses(inbox, {})
+  const scopes = [
+    { id: 'receivedAttributeAnomalyDmg', target: YUZUHA_ATTRIBUTE_ANOMALY_TARGET },
+    // A local Disorder row has already composed this same shared target.
+    ...(!result.actionModifiers.some(({ target }) => target === DISORDER_TARGET)
+      ? [{ id: 'receivedDisorderDmg', target: DISORDER_TARGET }]
+      : []),
+  ]
+  const additions = composeActionHierarchy(
+    common.values,
+    effects,
+    'anomalyDmgBonus',
+    scopes,
+  )
+  return additions.length === 0
+    ? result
+    : { ...result, actionModifiers: [...result.actionModifiers, ...additions] }
 }
 
 export function calculateParty(
@@ -368,11 +443,20 @@ export function calculateParty(
         case 'piper':
           result = calculatePiper(context, inbox, enemy)
           break
+        case 'yuzuha':
+          result = calculateYuzuha(context, inbox)
+          break
         default:
           return assertNever(context)
       }
       return withSharedCanonicalDamageActions(
-        withSharedDefReductionMetric(result, enemy),
+        withYuzuhaAdditionalAnomalyActions(
+          withSharedDisorderOperations(
+            withSharedDefReductionMetric(result, enemy),
+            inbox,
+          ),
+          inbox,
+        ),
         inbox,
       )
     }),

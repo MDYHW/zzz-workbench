@@ -302,6 +302,9 @@ describe('bounded equipment effect facts', () => {
       'EX Special & Ultimate DMG +40%',
       'Squad takes DMG or heals · Energy +3.2',
     ])
+    expect(W_ENGINES.unfetteredGameBall.passiveLines(1)).toEqual([
+      'Weakness-matched target · Squad CRIT Rate +12%',
+    ])
   })
 
   it('retains Evelyn equipment facts as scoped effects and concise packages', () => {

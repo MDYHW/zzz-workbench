@@ -248,22 +248,31 @@ function Gauge({
   const capDecimals = gauge.decimals?.cap ?? 0
   const outputDecimals = gauge.decimals?.output ?? (gauge.presentation === 'scale' ? 2 : 1)
   const outputCapDecimals = gauge.decimals?.outputCap ?? 0
-  const outputValue = formatOperationValue(
-    gauge.outputValue,
-    gauge.outputUnit,
-    outputDecimals,
-    gauge.presentation,
-  )
+  const outputs = [{
+    label: gauge.outputLabel,
+    value: gauge.outputValue,
+    cap: gauge.outputCap,
+    unit: gauge.outputUnit,
+  }, ...(gauge.additionalOutputs ?? [])]
   const isActiveScale = gauge.presentation === 'scale'
     && gauge.threshold !== undefined
     && gauge.current >= gauge.threshold
   const thresholdDescription = gauge.threshold === undefined
     ? ''
     : `, threshold ${formatNumber(gauge.threshold, thresholdDecimals)}${isActiveScale ? ', Active' : ''}`
-  const outputCapDescription = gauge.outputCap === undefined
-    ? ''
-    : `, cap ${formatNumber(gauge.outputCap, outputCapDecimals)}${gauge.outputUnit}`
-  const description = `${gauge.basisLabel}: current ${formatNumber(gauge.current, currentDecimals)}, cap ${formatNumber(gauge.cap, capDecimals)}${thresholdDescription}; ${gauge.outputLabel}: ${outputValue}${outputCapDescription}`
+  const outputDescription = outputs.map((output) => {
+    const value = formatOperationValue(
+      output.value,
+      output.unit,
+      outputDecimals,
+      gauge.presentation,
+    )
+    const cap = output.cap === undefined
+      ? ''
+      : `, cap ${formatNumber(output.cap, outputCapDecimals)}${output.unit}`
+    return `${output.label}: ${value}${cap}`
+  }).join('; ')
+  const description = `${gauge.basisLabel}: current ${formatNumber(gauge.current, currentDecimals)}, cap ${formatNumber(gauge.cap, capDecimals)}${thresholdDescription}; ${outputDescription}`
   const tone = sourceTone(gauge.source, agentId)
 
   return (
@@ -291,13 +300,20 @@ function Gauge({
         </span>
         {threshold !== undefined && !isActiveScale && <i className="gauge__threshold" style={{ left: `${threshold}%` }} />}
       </div>
-      <div className="gauge__output">
-        <span>{gauge.outputLabel}</span>
-        <strong>
-          {outputValue}
-          {gauge.outputCap === undefined ? '' : ` / ${formatNumber(gauge.outputCap, outputCapDecimals)}${gauge.outputUnit}`}
-        </strong>
-      </div>
+      {outputs.map((output) => (
+        <div className="gauge__output" key={output.label}>
+          <span>{output.label}</span>
+          <strong>
+            {formatOperationValue(
+              output.value,
+              output.unit,
+              outputDecimals,
+              gauge.presentation,
+            )}
+            {output.cap === undefined ? '' : ` / ${formatNumber(output.cap, outputCapDecimals)}${output.unit}`}
+          </strong>
+        </div>
+      ))}
     </div>
   )
 }

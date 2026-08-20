@@ -25,7 +25,12 @@ import {
   type EffectMetric,
   type SourceBoundCurrentClause,
 } from '../../effects'
-import { actionTarget, canonicalAction, sourceLocalAction } from '../../actions'
+import {
+  actionTarget,
+  canonicalAction,
+  DISORDER_TARGET,
+  sourceLocalAction,
+} from '../../actions'
 import {
   composeActionHierarchy,
   composeMetricEffects,
@@ -61,7 +66,7 @@ const GRACE_SPECIAL_EX = actionTarget([
   canonicalAction('EX Special Attack'),
 ])
 const GRACE_SHOCK = actionTarget([sourceLocalAction('Shock')])
-const GRACE_DISORDER = actionTarget([sourceLocalAction('Disorder')])
+const GRACE_DISORDER = DISORDER_TARGET
 
 const GRACE_ANOMALY_DAMAGE_SCOPES = [
   { id: 'graceShock', target: GRACE_SHOCK },

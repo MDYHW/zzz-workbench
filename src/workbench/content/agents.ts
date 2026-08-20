@@ -242,6 +242,10 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     id: 'piper', name: 'Piper Wheel', attribute: 'Physical', specialty: 'Anomaly',
     focusEligible: true, rank: 'A', faction: 'Sons of Calydon',
   },
+  {
+    id: 'yuzuha', name: 'Ukinami Yuzuha', attribute: 'Physical', specialty: 'Support',
+    focusEligible: false, rank: 'S', faction: 'Spook Shack',
+  },
 ]
 
 export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>

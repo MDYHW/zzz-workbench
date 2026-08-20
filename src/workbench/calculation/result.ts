@@ -1,6 +1,6 @@
 import type { AgentId } from '../content'
 import type { EffectMetric, ResultSource, SurfaceKey } from '../effects'
-import type { ActionOutcome, ActionTag } from '../actions'
+import type { ActionOutcome, ActionTag, ActionTarget } from '../actions'
 
 export interface Contribution extends ResultSource {
   amount: number
@@ -23,6 +23,12 @@ export interface GaugeResult {
   outputValue: number
   outputCap?: number
   outputUnit: string
+  additionalOutputs?: Array<{
+    label: string
+    value: number
+    cap?: number
+    unit: string
+  }>
   presentation?: 'scale'
   decimals?: {
     current?: number
@@ -45,6 +51,8 @@ export interface ResultMetric {
 
 export interface ActionModifier {
   id: string
+  /** Internal identity used when a later shared consumer extends this action row. */
+  target?: ActionTarget
   outcomes: ActionOutcome[]
   tags: ActionTag[]
   metricId: EffectMetric

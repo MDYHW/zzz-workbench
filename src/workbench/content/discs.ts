@@ -495,4 +495,8 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     fourPiece: ['fangedMetal', 'freedomBlues'],
     twoPiece: ['phaethonsMelody', 'freedomBlues', 'chaosJazz', 'fangedMetal', 'whiteWaterBallad', 'pufferElectro', 'hormonePunk', 'astralVoice'],
   },
+  yuzuha: {
+    fourPiece: ['moonlight', 'astralVoice'],
+    twoPiece: ['phaethonsMelody', 'hormonePunk', 'astralVoice', 'swingJazz', 'moonlight'],
+  },
 }

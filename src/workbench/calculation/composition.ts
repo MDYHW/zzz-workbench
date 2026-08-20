@@ -265,6 +265,7 @@ export function composeActionHierarchy(
     const changed = surfaceValuesDiffer(composed.values, parentValues)
     if (changed) rows.push({
       id,
+      target: node.target,
       outcomes: [...node.target.outcomes],
       tags: [...node.target.tags],
       metricId: metric,

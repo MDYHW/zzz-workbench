@@ -8,8 +8,8 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-Keep at most one active bounded implementation plan. There is currently no
-active plan.
+Keep at most one active bounded implementation plan. The sole active plan is
+[`2026-08-21-001-feat-yuzuha-anomaly-support-plan.md`](2026-08-21-001-feat-yuzuha-anomaly-support-plan.md).
 The authority-governance recovery closed after exact-SHA
 finalization, protected `main` promotion, and recovery freeze; its detailed
 execution record remains in Git history and the durable postmortem.

@@ -155,6 +155,43 @@ describe('ResultPanel operation presentation', () => {
     expect(within(gauge).getByText('Threshold 40.0')).toBeInTheDocument()
   })
 
+  it('keeps every quantity changed by one gauge relationship on its own output line', async () => {
+    const user = userEvent.setup()
+    renderResult(syntheticResult({
+      metrics: [{
+        id: 'anomalyMastery',
+        label: 'Anomaly Mastery',
+        unit: '',
+        decimals: 2,
+        values: surfaces(171.12, 201.12, 201.12),
+        breakdown: surfaces([], [], []),
+        gauge: {
+          source: syntheticSource,
+          basisLabel: 'Fully Enabled Anomaly Mastery',
+          current: 201.12,
+          threshold: 100,
+          cap: 200,
+          outputLabel: 'Squad Anomaly Buildup Rate',
+          outputValue: 20,
+          outputCap: 20,
+          outputUnit: '%',
+          additionalOutputs: [
+            { label: 'Squad Attribute Anomaly DMG', value: 26, cap: 26, unit: '%' },
+            { label: 'Squad Disorder DMG', value: 26, cap: 26, unit: '%' },
+          ],
+          decimals: { current: 2, threshold: 0, cap: 0, output: 2, outputCap: 0 },
+        },
+      }],
+    }))
+
+    await user.click(screen.getByRole('button', { name: 'Anomaly Mastery' }))
+    const gauge = screen.getByRole('group', {
+      name: 'Fully Enabled Anomaly Mastery: current 201.12, cap 200, threshold 100; Squad Anomaly Buildup Rate: +20.00%, cap 20%; Squad Attribute Anomaly DMG: +26.00%, cap 26%; Squad Disorder DMG: +26.00%, cap 26%',
+    })
+    expect(within(gauge).getAllByText(/Squad (?:Anomaly Buildup Rate|Attribute Anomaly DMG|Disorder DMG)/))
+      .toHaveLength(3)
+  })
+
   it('presents action-local scale operations at Combat and Fully Enabled', () => {
     renderResult(syntheticResult({
       operations: [

@@ -1755,6 +1755,7 @@ button.main-stat-block:focus-visible {
 
 .gauge__fill { display: block; height: 100%; background: var(--accent); }
 .gauge__threshold { position: absolute; top: -4px; width: 2px; height: 18px; background: #f0eadf; }
+.gauge__output + .gauge__output { margin-top: 4px; }
 .gauge__output strong { color: var(--accent-soft); }
 
 .action-differences {

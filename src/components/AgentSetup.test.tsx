@@ -298,6 +298,44 @@ describe('AgentSetup partial W-Engine package', () => {
       .getByRole('button', { name: 'Select Deep Sea Visitor W1' }))
       .toHaveAccessibleDescription(`CRIT Rate +24%. ${deepSeaDescription}`)
   })
+
+  it('keeps Yuzuha selected and candidate Support packages equally compressed', async () => {
+    const user = userEvent.setup()
+    const state = createPreparedState({}, ['yuzuha', 'grace', 'piper'], 1)
+    const setup = state.slots[0].setup
+    const props = {
+      activeSourceTone: null,
+      agentId: 'yuzuha' as const,
+      discCandidates: DISC_IDS_BY_AGENT_AND_PIECE.yuzuha,
+      dispatch: vi.fn(),
+      mainStatCandidates: MAIN_STAT_IDS_BY_AGENT_AND_SLOT.yuzuha,
+      onSourceToneChange: vi.fn(),
+      slot: 0 as const,
+    }
+    const unfetteredDescription = 'Energy Regen +50%. Weakness-matched target · Squad CRIT Rate +20%'
+    const { rerender } = render(<AgentSetup {...props} setup={setup} />)
+
+    expect(screen.getByRole('button', {
+      name: 'Change W-Engine from Metanukimorphosis',
+    })).toHaveAccessibleDescription(
+      'Energy Regen +60%. Anomaly Mastery +30. Squad Anomaly Proficiency +60',
+    )
+    await user.click(screen.getByRole('button', {
+      name: 'Change W-Engine from Metanukimorphosis',
+    }))
+    expect(within(screen.getByLabelText('W-Engine candidates')).getByRole('button', {
+      name: 'Select Unfettered Game Ball W5',
+    })).toHaveAccessibleDescription(unfetteredDescription)
+
+    rerender(<AgentSetup {...props} setup={{
+      ...setup,
+      engineId: 'unfetteredGameBall',
+      refinement: 5,
+    }} />)
+    expect(screen.getByRole('button', {
+      name: 'Change W-Engine from Unfettered Game Ball',
+    })).toHaveAccessibleDescription(unfetteredDescription)
+  })
 })
 
 describe('AgentSetup Seed Additional Ability', () => {
