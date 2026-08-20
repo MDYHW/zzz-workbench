@@ -332,11 +332,25 @@ itself establish semantic readiness.
 
 - Delegate bounded work whose behavior is settled to a worker using the lowest
   model and reasoning level that can complete it reliably. The controller owns
-  product or semantic decisions, task boundaries, and final integration.
+  product or semantic decisions, task boundaries, external mutations, and final
+  integration.
 - Route each bounded unit independently rather than assigning one model or
   reasoning level to an entire vertical. A successful source-content or
   mechanical unit does not establish a lower default for semantic, formula,
   lifecycle, visual-calibration, or final-review work.
+- Before each delegated unit, state a compact routing declaration in the
+  dispatch: unit, whether its meaning is settled or unsettled, owner, selected
+  model and reasoning level, and the concrete reason for any route above the
+  cheapest reliable option. For tiny operations, the controller may keep the
+  work inline when delegation overhead exceeds the work, but states that reason.
+- Settled mechanical, content, test, and documentation work defaults to the
+  lowest reliable model and effort. When the platform supports an explicit
+  bounded-context override, full-history inheritance must not silently copy the
+  controller's higher model or effort into the unit.
+- Reserve higher model or reasoning effort for an unresolved semantic,
+  authority, or architectural decision; complex formula, lifecycle, or visual
+  judgment; or a measured reliability need. Escalate only the affected unit,
+  not the whole vertical.
 - Before dispatch, the controller closes the unit's exact authority, current
   consumer, visible consequence, preserved contrast, owned files, and
   acceptance. Candidate membership, prepared representatives, recipient or
