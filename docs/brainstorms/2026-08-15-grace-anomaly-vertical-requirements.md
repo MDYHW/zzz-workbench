@@ -98,11 +98,11 @@ preserving the current three-surface Result grammar.
 ### W-Engine authoring
 
 - R10. Grace is holder-eligible only for Anomaly W-Engine passives. Her full
-  candidates are Timeweaver, Fusion Compiler, Electro-Lip Gloss, and Weeping
-  Gemini. The non-limited pool independently retains Fusion Compiler,
-  Electro-Lip Gloss, and Weeping Gemini. Full prepares Timeweaver W1;
-  non-limited prepares Fusion Compiler W1. Directly selected S-Rank engines
-  default to W1 and A-Rank engines to W5.
+  candidates are Timeweaver, Practiced Perfection, Fusion Compiler,
+  Electro-Lip Gloss, and Weeping Gemini. The non-limited pool
+  independently retains Fusion Compiler, Electro-Lip Gloss, and Weeping
+  Gemini. Full prepares Timeweaver W1; non-limited prepares Fusion Compiler
+  W1. Directly selected S-Rank engines default to W1 and A-Rank engines to W5.
 - R11. Timeweaver is limited S-Rank Anomaly, Base ATK 713, advanced ATK +30%.
   W1-W5 supplies Electric Anomaly Buildup Bonus +30/35/40/45/50%, Special/EX
   against an anomalied enemy supplies AP +75/85/95/105/115, and AP at least 375
@@ -116,13 +116,20 @@ preserving the current three-surface Result grammar.
   and the selected refinement's Disorder DMG Bonus as output only at or above
   the threshold. An all-Electric party is the contrasting no-Disorder Result;
   no party anomaly sequence is simulated.
-- R13. Practiced Perfection's Base ATK, advanced ATK, and AM strengthen Grace,
-  but its Physical DMG clause is unused and the remaining package adds no
-  distinct role, formula, action, or operation axis beside Grace's stronger
-  complete choices. Angel in the Shell likewise leaves both Ether-holder DMG
-  clauses unused; its AP-and-AM remainder does not stay competitive with
-  Timeweaver's complete Electric damage-and-buildup package. Both are excluded
-  from Grace's full pool rather than retained as partial S-Rank stat chassis.
+- R13. Practiced Perfection is the retained limited S-Rank partial Anomaly
+  alternative for Grace, with Base ATK 713 and advanced
+  ATK +30%. W1-W5 holder AM is +60/69/78/87/96. Its Assault-triggered Physical
+  DMG +20/23/26/29/32% per stack, two stacks on entry, is unused by Grace's
+  retained Electric anomaly direction. Grace's fixed representative already
+  supplies AP/PEN Ratio/AM and preserves future AP before ATK% in the finite
+  substat opportunity, so Practiced adds the less-supplied ATK axis while its
+  AM still enters a separate multiplier from Grace's Core Buildup Bonus. That
+  usable chassis keeps the partial package competitive but below Timeweaver's
+  complete Grace package. Angel in the Shell was inspected as an AM+AP partial
+  chassis and locally excluded because it repeats the AP+buildup frontier
+  already supplied by Grace's representative and future investment; Flight of
+  Fancy was likewise inspected as an AP+Buildup chassis and remains locally
+  excluded. These are Grace-local exclusions, not global policy.
 - R14. Fusion Compiler is non-limited S-Rank Anomaly, Base ATK 684, advanced
   PEN Ratio +24%. W1-W5 supplies ATK +12/15/18/21/24% and Special/EX AP
   +25/31/37/43/50 per stack up to three. Grace consumes the full package, so it
@@ -136,11 +143,12 @@ preserving the current three-surface Result grammar.
   PEN, ATK, and reachable AP package.
 - R16. Hailstorm Shrine is an eligible Anomaly engine but its CRIT and Ice
   package has no Grace consumer. Frostfall Sickle's usable AM is dominated by
-  the retained complete packages after its Ice and Abloom clauses are charged
-  as unused. Flight of Fancy and Sharpened Stinger do not survive Timeweaver's
-  complete Electric-package comparison for Grace's direction-defining
-  maximum-Zap Special/EX buildup, and Flamemaker Shaker cannot sustain a
-  competitive package through Grace's Energy and field-time pattern. Attack-specialty
+  the retained AM packages after its Ice and Abloom clauses are charged as
+  unused. Flight of Fancy's AP+Buildup package is locally excluded after
+  inspection against the retained partial for Grace's direction-defining
+  maximum-Zap Special/EX buildup. Sharpened Stinger does not survive that
+  same local comparison, and Flamemaker Shaker cannot sustain a competitive
+  package through Grace's Energy and field-time pattern. Attack-specialty
   engines are passive-inactive for Grace even if their advanced stat is
   numerically positive. Roaring Ride's short random buff and Rainforest
   Gourmet's Energy-spend cadence do not add a competitive role beyond the
@@ -176,7 +184,9 @@ preserving the current three-surface Result grammar.
   because it contributes positively. This does not generalize to current
   Electric `general_damage` Agents whose formula and CRIT balance differ.
 - R21. Grace's mains are AP/ATK% in Slot 4, PEN Ratio/Electric DMG/ATK% in Slot
-  5, and AM in Slot 6. Effective substats are AP and ATK%. Flat ATK and flat PEN
+  5, and AM/ATK% in Slot 6. The prepared representative remains AP/PEN
+  Ratio/AM; Slot 6 ATK% is an editable damage-vs-buildup choice only. Effective
+  substats are AP and ATK%. Flat ATK and flat PEN
   do not create a separately material competitive direction in the bounded
   eight-count authoring check. Both pools prepare AP/PEN Ratio/AM with every
   offered count at zero.

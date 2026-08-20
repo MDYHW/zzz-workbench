@@ -1047,8 +1047,17 @@ describe('AgentSetup Grace Anomaly packages', () => {
     expect(screen.getByRole('button', {
       name: 'Change Disc 4 main stat from Anomaly Proficiency',
     })).not.toHaveTextContent('+92%')
-    expect(screen.getByLabelText('Disc 6 Anomaly Mastery selected'))
-      .toHaveTextContent('+30%')
+    const slotSix = screen.getByRole('button', {
+      name: 'Change Disc 6 main stat from Anomaly Mastery',
+    })
+    expect(slotSix).toHaveTextContent('+30%')
+    await user.click(slotSix)
+    expect(screen.getByRole('button', {
+      name: 'Select ATK% for Disc 6',
+    })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', {
+      name: 'Change Disc 6 main stat from Anomaly Mastery',
+    }))
     expect(screen.getByLabelText('Grace Howard prepared effective substats'))
       .toHaveTextContent('AP')
     expect(screen.getByLabelText('Anomaly Proficiency hit count'))
@@ -1068,6 +1077,11 @@ describe('AgentSetup Grace Anomaly packages', () => {
       name: 'Change W-Engine from Timeweaver',
     }))
     const engineCandidates = screen.getByLabelText('W-Engine candidates')
+    expect(within(engineCandidates).getByRole('button', {
+      name: 'Select Practiced Perfection W1',
+    })).toHaveAccessibleDescription(
+      'ATK +30%. Anomaly Mastery +60. Physical DMG +40%',
+    )
     expect(within(engineCandidates).getByRole('button', {
       name: 'Select Fusion Compiler W1',
     })).toHaveAccessibleDescription(

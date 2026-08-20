@@ -247,6 +247,7 @@ export function calculateGrace(
     engineAdvancedInput(setup, 'grace', 'atkPct'),
     mainStatInput(setup, 'grace', 'slot4', 'atkPct'),
     mainStatInput(setup, 'grace', 'slot5', 'atkPct'),
+    mainStatInput(setup, 'grace', 'slot6', 'atkPct'),
     discStatInput(
       setup, 'grace', 'fourPiece', 'hormonePunk',
       equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk), 'twoPiece',

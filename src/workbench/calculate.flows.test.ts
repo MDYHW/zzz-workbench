@@ -646,6 +646,16 @@ describe('representative calculation flows', () => {
       outputLabel: 'Disorder DMG Bonus', outputValue: 0,
     })
 
+    const atkSlotSix = agent(calculateParty(selectMain(
+      fullState, 'grace', 'slot6', 'atkPct',
+    ))!, 'grace')
+    expect(metric(atkSlotSix, 'atk').breakdown.initial)
+      .toContainEqual(expect.objectContaining({
+        label: 'Drive Disc · Slot 6',
+        display: { value: 30, unit: '%', decimals: 0 },
+      }))
+    expect(metric(atkSlotSix, 'anomalyMastery').values.initial).toBe(151)
+
     const nonLimitedState = createPreparedState(
       { grace: 'nonLimited' }, ['grace', 'billy', 'nekomata'], 0,
     )
@@ -712,6 +722,14 @@ describe('representative calculation flows', () => {
 
   it('keeps Grace alternative Anomaly W-Engine packages exact and independently useful', () => {
     const base = createPreparedState({}, ['grace', 'billy', 'nekomata'], 0)
+
+    const practiced = agent(calculateParty(selectEngine(
+      base, 'grace', 'practicedPerfection',
+    ))!, 'grace')
+    expect(metric(practiced, 'anomalyMastery').values)
+      .toEqual({ initial: 196.3, combat: 256.3, fully: 256.3 })
+    expect(metric(practiced, 'dmgBonus').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ label: 'Practiced Perfection' }))
 
     const electro = agent(calculateParty(selectEngine(
       base, 'grace', 'electroLipGloss',

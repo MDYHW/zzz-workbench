@@ -1049,7 +1049,8 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   ]),
   zhao: enginePools(['halfSugarBunny', 'originalTransmorpher']),
   grace: enginePools([
-    'timeweaver', 'fusionCompiler', 'electroLipGloss', 'weepingGemini',
+    'timeweaver', 'practicedPerfection',
+    'fusionCompiler', 'electroLipGloss', 'weepingGemini',
   ]),
   piper: enginePools([
     'practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss',
