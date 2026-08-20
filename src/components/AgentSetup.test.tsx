@@ -1129,6 +1129,15 @@ describe('AgentSetup Piper Anomaly packages', () => {
       'Assaulted target · Holder DMG +35%. Physical DMG +10%',
     )
 
+    const slotSix = screen.getByRole('button', {
+      name: 'Change Disc 6 main stat from Anomaly Mastery',
+    })
+    expect(slotSix).toHaveTextContent('+30%')
+    await user.click(slotSix)
+    expect(screen.getByRole('button', {
+      name: 'Select ATK% for Disc 6',
+    })).toBeInTheDocument()
+
     await user.click(screen.getByRole('button', {
       name: 'Change W-Engine from Practiced Perfection',
     }))

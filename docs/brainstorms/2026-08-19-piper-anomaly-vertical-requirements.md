@@ -188,8 +188,11 @@ only distinctions that change Piper's competitive setup or visible Result.
   the existing reconciliation rather than becoming duplicate semantic axes.
 - R16. Both pools prepare Fanged Metal 4-piece with Phaethon's Melody 2-piece,
   Slot 4 AP, Slot 5 Physical DMG, and Slot 6 AM. Legal alternatives are AP or
-  ATK% in Slot 4; Physical DMG, ATK%, or PEN Ratio in Slot 5; and AM in Slot 6.
-  Effective substats are AP and ATK%. Every supplied count starts at zero.
+  ATK% in Slot 4; Physical DMG, ATK%, or PEN Ratio in Slot 5; and AM or ATK% in
+  Slot 6. Effective substats are AP and ATK%. Every supplied count starts at
+  zero. Slot 6 AM strengthens Piper's `anomaly_buildup` direction while Slot 6
+  ATK% strengthens the ATK base of her `anomaly_damage` direction; both remain
+  material editable axes, while the deterministic prepared start keeps AM.
   AP-first is a Piper-local finite-investment default, not a claim that AP
   always beats a stronger complete package or that eight authored counts are a
   cap, saturation point, exact distribution, or farming promise.

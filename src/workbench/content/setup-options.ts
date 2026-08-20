@@ -249,7 +249,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   piper: {
     slot4: ['anomalyProficiency', 'atkPct'],
     slot5: ['physicalDmg', 'atkPct', 'penRatio'],
-    slot6: ['anomalyMastery'],
+    slot6: ['anomalyMastery', 'atkPct'],
   },
 }
 

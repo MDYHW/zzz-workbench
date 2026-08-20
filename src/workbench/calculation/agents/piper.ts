@@ -259,6 +259,7 @@ export function calculatePiper(
     engineAdvancedInput(setup, 'piper', 'atkPct'),
     mainStatInput(setup, 'piper', 'slot4', 'atkPct'),
     mainStatInput(setup, 'piper', 'slot5', 'atkPct'),
+    mainStatInput(setup, 'piper', 'slot6', 'atkPct'),
     discStatInput(
       setup, 'piper', 'twoPiece', 'hormonePunk',
       equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk),

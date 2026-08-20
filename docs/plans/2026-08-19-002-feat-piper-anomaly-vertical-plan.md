@@ -108,9 +108,9 @@ resolve a complete legal candidate set and deterministic representative.
 - Add Piper's identity, completed consumed values, formula participation,
   legal mains, effective substats, and roster position through every exhaustive
   content facade.
-- Add Sharpened Stinger, Roaring Ride, and Rainforest Gourmet using the existing
-  structured fact/copy boundary and local assets. Reuse existing engine facts
-  instead of duplicating them.
+- Add Sharpened Stinger and Roaring Ride using the existing structured
+  fact/copy boundary and local assets. Reuse existing engine facts instead of
+  duplicating them.
 - Extend Fanged Metal with its exact four-piece fact and compressed holder-side
   projection, then author Piper's 4-piece and role-based 2-piece candidates.
 - Author full Practiced W1 and non-limited Roaring W5 representatives with
@@ -192,8 +192,8 @@ action difference, and selected equipment effects without simulated outputs.
   calculator.
 - Project Power separately from Core buildup and Additional Ability; attach
   the threshold gauge only when the party qualifies.
-- Project Practiced, Sharpened, Fusion, Electro, Weeping, Roaring, Rainforest,
-  Fanged, Freedom, and Phaethon clauses only at their exact current scope.
+- Project Practiced, Sharpened, Fusion, Electro, Weeping, Roaring, Fanged,
+  Freedom, and Phaethon two-piece clauses only at their exact current scope.
 - Route M2 through action-scoped regular DMG Bonus; do not add operations,
   Assault/Disorder rows, DMG Taken, or final arithmetic.
 
@@ -210,13 +210,15 @@ action difference, and selected equipment effects without simulated outputs.
 - W5 and W1 Roaring edits change the three coexistable outputs without
   preparing or resetting Piper. Alternative package tests prove Fanged is
   broad holder DMG, Freedom is Physical buildup-RES reduction, and Phaethon's
-  other-holder Ether clause remains unused.
+  two-piece contributes AM without admitting its four-piece package.
 - One direct-edit flow changes representative variable inputs without
-  re-preparing: Slot 4 AP to ATK, Slot 5 Physical DMG to PEN, AP and ATK
-  effective-substat counts, and representative 2-piece supply. Each
+  re-preparing: Slot 4 AP to ATK, Slot 5 Physical DMG to PEN, Slot 6 AM to
+  ATK, AP and ATK effective-substat counts, and representative 2-piece supply.
+  Each
   substitution must remove the old supply and add the new supply in their exact
   stat and formula regions—AP/ATK for Slot 4, Physical DMG/PEN and DEF routing
-  for Slot 5, the edited stat for each count, and the selected 2-piece role—
+  for Slot 5, AM/ATK for Slot 6, the edited stat for each count, and the
+  selected 2-piece role—
   while unrelated regions remain unchanged.
 - At M2+, the downward-smash Special/EX and Ultimate receive the +40% action
   difference while the nearest non-downward Special/EX outcome remains at its

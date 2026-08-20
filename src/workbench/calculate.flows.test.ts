@@ -929,6 +929,14 @@ describe('representative calculation flows', () => {
     expect(metric(slot4Atk, 'atk').values.initial)
       .toBeGreaterThan(metric(agent(calculateParty(base)!, 'piper'), 'atk').values.initial)
 
+    const slot6Atk = agent(calculateParty(selectMain(
+      base, 'piper', 'slot6', 'atkPct',
+    ))!, 'piper')
+    expect(metric(slot6Atk, 'anomalyMastery').values.initial)
+      .toBeLessThan(metric(agent(calculateParty(base)!, 'piper'), 'anomalyMastery').values.initial)
+    expect(metric(slot6Atk, 'atk').values.initial)
+      .toBeGreaterThan(metric(agent(calculateParty(base)!, 'piper'), 'atk').values.initial)
+
     const slot5Pen = agent(calculateParty(selectMain(
       base, 'piper', 'slot5', 'penRatio',
     ))!, 'piper')
