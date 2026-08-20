@@ -156,16 +156,6 @@ export function resolveGraceProviderClauses(
       'self',
     ),
     additive(
-      'anomalyProficiency', 'combat', engine,
-      setup.engineId === 'angelInTheShell'
-        ? equipmentEffectBaseValue(
-          W_ENGINE_FACTS.angelInTheShell.effects.anomalyProficiency,
-          refinement,
-        )
-        : 0,
-      'self',
-    ),
-    additive(
       'anomalyMastery', 'combat', engine,
       setup.engineId === 'practicedPerfection'
         ? equipmentEffectBaseValue(
@@ -225,16 +215,6 @@ export function resolveGraceProviderClauses(
         'self',
       ),
       { attributes: ['Electric'], formulas: ['anomaly_buildup'] },
-    ),
-    additive(
-      'anomalyProficiency', 'fully',
-      discSource('grace', 'phaethonsMelody', '4-piece'),
-      setup.fourPieceId === 'phaethonsMelody'
-        ? equipmentEffectBaseValue(
-          DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.anomalyProficiency,
-        )
-        : 0,
-      'self',
     ),
   ])
 }

@@ -12,6 +12,7 @@ import {
   caesarAdditionalIsActive,
   harumasaAdditionalIsActive,
   nekomataAdditionalIsActive,
+  piperAdditionalIsActive,
   qingyiAdditionalIsActive,
   soldier11AdditionalIsActive,
   triggerAdditionalIsActive,
@@ -201,6 +202,11 @@ import {
   resolveGraceProviderClauses,
   type GraceCalculationContext,
 } from './calculation/agents/grace'
+import {
+  observePiper,
+  resolvePiperProviderClauses,
+  type PiperCalculationContext,
+} from './calculation/agents/piper'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -241,6 +247,7 @@ export type ProviderContext =
   | YeShunguangCalculationContext
   | ZhaoCalculationContext
   | GraceCalculationContext
+  | PiperCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -434,6 +441,11 @@ function observeProviderContext(
           && ADMITTED_AGENTS.find(({ id }) => id === agentId)!.attribute !== 'Electric'
         )),
       )
+    case 'piper':
+      return observePiper(
+        slot.setup,
+        piperAdditionalIsActive(partyAgentIds, providerIndex),
+      )
     default:
       return assertNever(slot.agentId)
   }
@@ -529,6 +541,8 @@ function providerClauses(
       return resolveZhaoProviderClauses(context)
     case 'grace':
       return resolveGraceProviderClauses(context)
+    case 'piper':
+      return resolvePiperProviderClauses(context)
     default:
       return assertNever(context)
   }
@@ -538,15 +552,19 @@ function isAttackAgent(agentId: AgentId): boolean {
   return ADMITTED_AGENTS.find(({ id }) => id === agentId)?.specialty === 'Attack'
 }
 
-function isPrePenDamageAgent(agentId: AgentId): boolean {
+// Candidate removal is intentionally narrower than formula participation:
+// broad pre-PEN pressure only changes the prepared choices for general-DMG
+// recipients, with Grace's established local anomaly exception retained.
+function isCandidatePressureAgent(agentId: AgentId): boolean {
+  if (agentId === 'grace') return true
   const participation = SETUP_FORMULA_PARTICIPATION_BY_AGENT[agentId]
   return [...participation.primary, ...participation.residual]
-    .some((formula) => formula === 'general_damage' || formula === 'anomaly_damage')
+    .includes('general_damage')
 }
 
-function isElectricPrePenDamageAgent(agentId: AgentId): boolean {
+function isElectricCandidatePressureAgent(agentId: AgentId): boolean {
   const agent = ADMITTED_AGENTS.find(({ id }) => id === agentId)
-  return agent?.attribute === 'Electric' && isPrePenDamageAgent(agentId)
+  return agent?.attribute === 'Electric' && isCandidatePressureAgent(agentId)
 }
 
 export function resolveSeedVanguard(
@@ -657,11 +675,11 @@ export function activeCandidatePressures(
   recipientSlot: AppliedSlot,
 ): NonNullable<SourceBoundCurrentClause['candidatePressure']>[] {
   const recipientAgentId = state.slots[recipientSlot].agentId
-  const hasCissiaCore = isElectricPrePenDamageAgent(recipientAgentId)
+  const hasCissiaCore = isElectricCandidatePressureAgent(recipientAgentId)
     && state.slots.some(({ agentId }) => agentId === 'cissia')
-  const hasNicoleCore = isPrePenDamageAgent(recipientAgentId)
+  const hasNicoleCore = isCandidatePressureAgent(recipientAgentId)
     && state.slots.some(({ agentId }) => agentId === 'nicole')
-  const hasSpectralGaze = isPrePenDamageAgent(recipientAgentId)
+  const hasSpectralGaze = isCandidatePressureAgent(recipientAgentId)
     && state.slots.some(({ agentId, setup }) => (
       agentId === 'trigger' && setup.engineId === 'spectralGaze'
     ))
@@ -670,7 +688,7 @@ export function activeCandidatePressures(
     state,
     recipientSlot,
   )
-  const hasQingyiM1 = isPrePenDamageAgent(recipientAgentId)
+  const hasQingyiM1 = isCandidatePressureAgent(recipientAgentId)
     && state.slots.some(({ agentId, setup }) => (
       agentId === 'qingyi' && setup.mindscape >= 1
     ))
@@ -686,7 +704,7 @@ function selectedEngineHasBroadPrePenPressure(
   recipientSlot: AppliedSlot,
 ): boolean {
   const { agentId, setup } = state.slots[recipientSlot]
-  if (!isPrePenDamageAgent(agentId) || !setup.engineId) return false
+  if (!isCandidatePressureAgent(agentId) || !setup.engineId) return false
   const effects = W_ENGINE_FACTS[setup.engineId].effects as EquipmentEffectCollection
   const attribute = ADMITTED_AGENTS.find(({ id }) => id === agentId)!.attribute
   // Myriad's DEF Ignore requires Ice damage, independent of the holder identity.
@@ -707,7 +725,7 @@ export function hasSeedM2CandidatePressure(
   const recipientAgentId = state.slots[recipientSlot].agentId
   const seed = state.slots.find(({ agentId }) => agentId === 'seed')
   const seedVanguard = resolveSeedVanguardForState(state)
-  return isPrePenDamageAgent(recipientAgentId) && Boolean(
+  return isCandidatePressureAgent(recipientAgentId) && Boolean(
     seed
       && seed.setup.mindscape >= 2
       && seedVanguard

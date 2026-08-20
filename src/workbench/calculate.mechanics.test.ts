@@ -1449,4 +1449,43 @@ describe('calculateParty mechanisms', () => {
         kind: 'canonical', action: 'Ultimate',
       }))
   })
+
+  it('observes Piper qualification once and delivers its all-party clause without leaking self clauses', () => {
+    const qualified = resolveProviderEffects(createPreparedState(
+      {}, ['piper', 'billy', 'soldier11'], 0,
+    ))
+    expect(qualified.contexts[0]).toMatchObject({
+      agentId: 'piper', additionalActive: true,
+    })
+    for (const inbox of qualified.inboxes) {
+      expect(inbox).toContainEqual(expect.objectContaining({
+        metric: 'dmgBonus', recipient: 'all-party',
+        source: expect.objectContaining({
+          ownerAgentId: 'piper', locus: 'additional',
+        }),
+        value: { kind: 'additive', amount: 18 },
+      }))
+    }
+    expect(qualified.inboxes[0]).toContainEqual(expect.objectContaining({
+      metric: 'power', recipient: 'self',
+      source: expect.objectContaining({ ownerAgentId: 'piper', locus: 'core' }),
+    }))
+    expect(qualified.inboxes[1]).not.toContainEqual(expect.objectContaining({
+      metric: 'power', source: expect.objectContaining({ ownerAgentId: 'piper' }),
+    }))
+
+    const unrelated = resolveProviderEffects(createPreparedState(
+      {}, ['piper', 'anby', 'lycaon'], 0,
+    ))
+    expect(unrelated.contexts[0]).toMatchObject({
+      agentId: 'piper', additionalActive: false,
+    })
+    for (const inbox of unrelated.inboxes) {
+      expect(inbox).not.toContainEqual(expect.objectContaining({
+        source: expect.objectContaining({
+          ownerAgentId: 'piper', locus: 'additional',
+        }),
+      }))
+    }
+  })
 })

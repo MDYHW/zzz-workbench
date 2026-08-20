@@ -132,6 +132,20 @@ export function billyAdditionalIsActive(
   })
 }
 
+/** Piper's Additional Ability: another matching Attribute or faction. */
+export function piperAdditionalIsActive(
+  agentIds: readonly AgentId[],
+  piperIndex: number,
+): boolean {
+  if (agentIds[piperIndex] !== 'piper') return false
+  const piper = summaryFor('piper')
+  return agentIds.some((agentId, index) => {
+    if (index === piperIndex) return false
+    const other = summaryFor(agentId)
+    return other.attribute === piper.attribute || other.faction === piper.faction
+  })
+}
+
 const CAESAR_EVASIVE_ASSIST_AGENTS: readonly AgentId[] = [
   'astraYao', 'billy', 'pulchra', 'zhuYuan',
 ]

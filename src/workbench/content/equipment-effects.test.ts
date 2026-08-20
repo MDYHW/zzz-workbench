@@ -61,10 +61,12 @@ describe('bounded equipment effect facts', () => {
       .toEqualTypeOf<'electricBuildup' | 'anomalyProficiency' | 'disorderDamage'>()
     expectTypeOf<WEngineEffectField<'practicedPerfection'>>()
       .toEqualTypeOf<'anomalyMastery' | 'physicalDamage'>()
-    expectTypeOf<WEngineEffectField<'angelInTheShell'>>()
-      .toEqualTypeOf<'anomalyProficiency' | 'anomaliedEnemyDamage' | 'anomalyDamage'>()
     expectTypeOf<WEngineEffectField<'fusionCompiler'>>()
       .toEqualTypeOf<'atk' | 'anomalyProficiency'>()
+    expectTypeOf<WEngineEffectField<'sharpenedStinger'>>()
+      .toEqualTypeOf<'physicalDamage' | 'buildup'>()
+    expectTypeOf<WEngineEffectField<'roaringRide'>>()
+      .toEqualTypeOf<'atk' | 'anomalyProficiency' | 'buildup'>()
 
     expectTypeOf<DriveDiscPiece<'dawnsBloom'>>()
       .toEqualTypeOf<'twoPiece' | 'fourPiece'>()
@@ -87,6 +89,8 @@ describe('bounded equipment effect facts', () => {
       .toEqualTypeOf<'electricFireDamage' | 'offFieldActionDamage'>()
     expectTypeOf<DriveDiscEffectField<'freedomBlues', 'fourPiece'>>()
       .toEqualTypeOf<'buildupResReduction'>()
+    expectTypeOf<DriveDiscEffectField<'fangedMetal', 'fourPiece'>>()
+      .toEqualTypeOf<'assaultDamage'>()
   })
 
   it('keeps authored pools and representatives structurally coherent without copying rosters', () => {
@@ -616,14 +620,6 @@ describe('bounded equipment effect facts', () => {
       'Anomaly Mastery +60',
       'Physical DMG +40%',
     ])
-    expect(W_ENGINES.angelInTheShell).toMatchObject({
-      rank: 'S', limited: true, baseAtk: 713,
-      advancedStat: { id: 'anomalyMastery', value: 30 },
-    })
-    expect(W_ENGINES.angelInTheShell.passiveLines(1)).toEqual([
-      'Anomaly Proficiency +90',
-      'Ether holder only · DMG +20% · Anomaly & Disorder DMG +10%',
-    ])
     expect(equipmentEffectMaximumValue(
       W_ENGINE_FACTS.fusionCompiler.effects.anomalyProficiency, 1,
     )).toBe(75)
@@ -636,4 +632,29 @@ describe('bounded equipment effect facts', () => {
       'EX Special & Assist DMG +20%',
     ])
   })
+
+  it('keeps Piper package compression distinct across engines and Fanged Metal scope', () => {
+    expect(W_ENGINES.roaringRide.passiveLines(5)).toEqual([
+      'ATK +12.8%',
+      'AP +64',
+      'Anomaly Buildup +40%',
+    ])
+    expect(W_ENGINES.roaringRide.passiveLines(1)).toEqual([
+      'ATK +8%',
+      'AP +40',
+      'Anomaly Buildup +25%',
+    ])
+    expect(W_ENGINES.sharpenedStinger.passiveLines(1)).toEqual([
+      'Physical DMG +36%',
+      'Physical Anomaly Buildup +40%',
+    ])
+
+    expect(DRIVE_DISCS.fangedMetal.fourPieceEffects).toEqual([
+      'Assaulted target · Holder DMG +35%',
+    ])
+    expect(DRIVE_DISC_FACTS.fangedMetal.fourPiece?.assaultDamage).toMatchObject({
+      modifier: 'dmgBonus', value: 35,
+    })
+  })
+
 })

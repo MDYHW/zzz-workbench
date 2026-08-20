@@ -116,9 +116,9 @@ only distinctions that change Piper's competitive setup or visible Result.
 **W-Engine authoring**
 
 - R8. Piper's full-pool candidates are Practiced Perfection, Sharpened Stinger,
-  Fusion Compiler, Electro-Lip Gloss, Weeping Gemini, Roaring Ride, and
-  Rainforest Gourmet. The non-limited pool independently retains Fusion
-  Compiler and the four admitted A-Rank choices. Other through-2.8 Anomaly
+  Fusion Compiler, Electro-Lip Gloss, Weeping Gemini, and Roaring Ride. The
+  non-limited pool independently retains Fusion Compiler and the three admitted
+  A-Rank choices. Other through-2.8 Anomaly
   engines are excluded when their Attribute, off-field, Abloom, CRIT, or other
   unusable clauses leave no materially competitive Piper package.
 - R9. Newly retained Sharpened Stinger is limited S-Rank Anomaly, Base ATK
@@ -130,12 +130,13 @@ only distinctions that change Piper's competitive setup or visible Result.
   advanced ATK +25%. An EX Special hit chooses one five-second effect at most
   once per 0.3 seconds: W1-W5 ATK +8/9.2/10.4/11.6/12.8%, AP
   +40/46/52/58/64, or Anomaly Buildup Rate +25/28/32/36/40%.
-- R10. Newly retained Rainforest Gourmet is non-limited A-Rank Anomaly, Base
-  ATK 594, advanced AP 75. Each 10 Energy spent supplies one independently
-  timed ATK stack for 10 seconds, W1-W5 +2.5/2.8/3.2/3.6/4% per stack up to
-  ten. Existing Practiced Perfection, Fusion Compiler, Electro-Lip Gloss, and
+- R10. Existing Practiced Perfection, Fusion Compiler, Electro-Lip Gloss, and
   Weeping Gemini facts remain owned by their current retained fact records;
-  Piper does not restate or alter them.
+  Piper does not restate or alter them. Rainforest Gourmet's Energy-spend route
+  is usable by Piper, but its AP-and-ATK package repeats already-retained axes
+  without approaching Roaring Ride's pool-local complete value or adding a
+  distinct role, formula, action, or operation axis. Activation suitability is
+  therefore insufficient to admit it in either pool.
 - R11. Practiced Perfection is Piper's full-pool representative at W1. Piper
   consumes its high Base ATK, advanced ATK, flat AM, and Physical DMG package;
   it wins as a complete package rather than from signature association or one
@@ -144,32 +145,39 @@ only distinctions that change Piper's competitive setup or visible Result.
   repeatable multi-hit EX Special can establish each of its three distinct
   outcomes in Fully Enabled Result. Equal kinds do not stack and refresh their
   duration; ATK, AP, and buildup are different kinds and can coexist. Its W5
-  compressed passive reads `One of: ATK +12.8% · AP +64 · Anomaly
-  Buildup +40% · Different effects coexist`; lower refinements substitute their
-  owned values. Selected and candidate copy use this same line. The service
-  does not predict order, probability, maintenance, or partial uptime.
+  compressed passive uses three final-effect lines: `ATK +12.8%`, `AP +64`,
+  and `Anomaly Buildup +40%`; lower refinements substitute their owned values.
+  Selected and candidate copy use these same lines. Trigger order, probability,
+  refresh, duration, maintenance, and partial uptime stay out of Setup copy and
+  the service does not predict them.
 - R13. Sharpened Stinger remains a full-pool alternative because its AP,
   Physical DMG, and maximum-stack buildup package is usable through its stated
   entry, dodge, and Dash Attack routes, but it does not displace Practiced
   Perfection's less conditional complete package for the prepared start.
-  Fusion Compiler, Electro-Lip Gloss, Weeping Gemini, and Rainforest Gourmet
-  remain distinct accessibility or supply alternatives only while their whole
-  package is retained; no isolated AP or ATK clause establishes membership.
+  Fusion Compiler, Electro-Lip Gloss, and Weeping Gemini remain distinct
+  accessibility or supply alternatives only while their whole package is
+  retained; no isolated AP or ATK clause establishes membership. Sharpened
+  Stinger's Setup copy likewise compresses its maximum reachable package to
+  `Physical DMG +36%` and `Physical Anomaly Buildup +40%` at W1, with owned
+  refinement values substituted, rather than displaying stack acquisition,
+  duration, or cooldown prose.
 
 **Drive Disc and finite investment authoring**
 
-- R14. Piper's 4-piece candidates are Fanged Metal, Freedom Blues, and
-  Phaethon's Melody. Fanged's inherent 2-piece Physical DMG +10% and 4-piece
+- R14. Piper's 4-piece candidates are Fanged Metal and Freedom Blues. Fanged's
+  inherent 2-piece Physical DMG +10% and 4-piece
   effect form her prepared direct-anomaly package: when any squad member
   inflicts Assault on an enemy, the holder deals +35% regular DMG to that target
   for 12 seconds. Repeated Assault refreshes the state; it is a holder-side DMG
   Bonus against that target, not generic DMG Taken, and projects at Fully
-  Enabled. Freedom's AP and matching-Attribute buildup-RES
-  reduction form the contrasting application package. Phaethon's inherent AM
-  and 4-piece AP form the distinct fixed damage-and-buildup balance while its
-  other-holder Ether DMG clause remains unused. Proto Punk, Soul Rock, and
-  every other set without a competitive Piper 4-piece package are not admitted
-  merely because their facts or assets exist.
+  Enabled. Its Setup copy is `Assaulted target · Holder DMG +35%`; the trigger
+  sequence, refresh, and duration remain internal. Freedom's AP and matching-
+  Attribute buildup-RES reduction form the contrasting application package.
+  Phaethon's Melody remains Piper's AM 2-piece complement, but its 4-piece is
+  excluded because the other-holder Ether DMG axis is unusable and its AP
+  remainder does not preserve a competitive complete package. Proto Punk, Soul
+  Rock, and every other set without a competitive Piper 4-piece package are not
+  admitted merely because their facts or assets exist.
 - R15. Piper's 2-piece roles are AM from Phaethon's Melody; AP from Freedom
   Blues or its exact same-effect Chaos Jazz counterpart; Physical DMG from the
   exact same-effect Fanged Metal/White Water Ballad relationship; PEN Ratio

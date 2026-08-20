@@ -98,11 +98,11 @@ preserving the current three-surface Result grammar.
 ### W-Engine authoring
 
 - R10. Grace is holder-eligible only for Anomaly W-Engine passives. Her full
-  candidates are Timeweaver, Practiced Perfection, Angel in the Shell, Fusion
-  Compiler, Electro-Lip Gloss, and Weeping Gemini. The non-limited pool
-  independently retains Fusion Compiler, Electro-Lip Gloss, and Weeping
-  Gemini. Full prepares Timeweaver W1; non-limited prepares Fusion Compiler
-  W1. Directly selected S-Rank engines default to W1 and A-Rank engines to W5.
+  candidates are Timeweaver, Fusion Compiler, Electro-Lip Gloss, and Weeping
+  Gemini. The non-limited pool independently retains Fusion Compiler,
+  Electro-Lip Gloss, and Weeping Gemini. Full prepares Timeweaver W1;
+  non-limited prepares Fusion Compiler W1. Directly selected S-Rank engines
+  default to W1 and A-Rank engines to W5.
 - R11. Timeweaver is limited S-Rank Anomaly, Base ATK 713, advanced ATK +30%.
   W1-W5 supplies Electric Anomaly Buildup Bonus +30/35/40/45/50%, Special/EX
   against an anomalied enemy supplies AP +75/85/95/105/115, and AP at least 375
@@ -116,16 +116,13 @@ preserving the current three-surface Result grammar.
   and the selected refinement's Disorder DMG Bonus as output only at or above
   the threshold. An all-Electric party is the contrasting no-Disorder Result;
   no party anomaly sequence is simulated.
-- R13. Practiced Perfection is limited S-Rank Anomaly, Base ATK 713, advanced
-  ATK +30%. W1-W5 holder AM is +60/69/78/87/96. Its Assault-triggered Physical
-  DMG +20/23/26/29/32% per stack, two stacks on entry, is unused by Grace's
-  retained Electric anomaly direction. Its large usable AM chassis keeps the
-  partial package competitive but below Timeweaver's complete Grace package.
-  Angel in the Shell is limited S-Rank Anomaly, Base ATK 713, advanced AM
-  +30%, and supplies AP +90/103/117/130/144. Grace cannot activate its
-  Ether-holder DMG and Attribute Anomaly/Disorder DMG clauses, but its
-  AP-and-AM package remains competitive between Timeweaver's damage-weighted
-  package and Practiced Perfection's buildup-weighted package.
+- R13. Practiced Perfection's Base ATK, advanced ATK, and AM strengthen Grace,
+  but its Physical DMG clause is unused and the remaining package adds no
+  distinct role, formula, action, or operation axis beside Grace's stronger
+  complete choices. Angel in the Shell likewise leaves both Ether-holder DMG
+  clauses unused; its AP-and-AM remainder does not stay competitive with
+  Timeweaver's complete Electric damage-and-buildup package. Both are excluded
+  from Grace's full pool rather than retained as partial S-Rank stat chassis.
 - R14. Fusion Compiler is non-limited S-Rank Anomaly, Base ATK 684, advanced
   PEN Ratio +24%. W1-W5 supplies ATK +12/15/18/21/24% and Special/EX AP
   +25/31/37/43/50 per stack up to three. Grace consumes the full package, so it
@@ -139,11 +136,11 @@ preserving the current three-surface Result grammar.
   PEN, ATK, and reachable AP package.
 - R16. Hailstorm Shrine is an eligible Anomaly engine but its CRIT and Ice
   package has no Grace consumer. Frostfall Sickle's usable AM is dominated by
-  the retained AM packages after its Ice and Abloom clauses are charged as
-  unused. Flight of Fancy and Sharpened Stinger do not survive Angel in the
-  Shell's same-AP comparison for Grace's direction-defining maximum-Zap
-  Special/EX buildup, and Flamemaker Shaker cannot sustain a competitive
-  package through Grace's Energy and field-time pattern. Attack-specialty
+  the retained complete packages after its Ice and Abloom clauses are charged
+  as unused. Flight of Fancy and Sharpened Stinger do not survive Timeweaver's
+  complete Electric-package comparison for Grace's direction-defining
+  maximum-Zap Special/EX buildup, and Flamemaker Shaker cannot sustain a
+  competitive package through Grace's Energy and field-time pattern. Attack-specialty
   engines are passive-inactive for Grace even if their advanced stat is
   numerically positive. Roaring Ride's short random buff and Rainforest
   Gourmet's Energy-spend cadence do not add a competitive role beyond the
@@ -157,17 +154,16 @@ preserving the current three-surface Result grammar.
   off-field EX Special/Assist DMG +20%, with the retained five-second on-field
   continuation. Freedom supplies AP +30 at 2 pieces and matching-Attribute
   Anomaly Buildup RES Reduction +20% for eight seconds after EX Special at 4
-  pieces, non-stacking with the same Attribute. Phaethon supplies AM +8% at 2
-  pieces and AP +45 after any squad EX at 4 pieces; its other-holder Ether DMG
-  clause is unused by Grace.
-- R18. Grace's 4-piece candidates are Thunder Metal, Chaos Jazz, Freedom Blues,
-  and Phaethon's Melody. Thunder's Shock-conditioned ATK +28% is the prepared
+  pieces, non-stacking with the same Attribute. Phaethon supplies the retained
+  AM +8% 2-piece role. Its 4-piece AP and other-holder Ether DMG package is not
+  retained for Grace because the Ether axis is unusable and the AP remainder
+  does not preserve a competitive complete 4-piece package.
+- R18. Grace's 4-piece candidates are Thunder Metal, Chaos Jazz, and Freedom
+  Blues. Thunder's Shock-conditioned ATK +28% is the prepared
   first choice; Grace establishes Shock herself and consumes the full ATK
   package. Chaos preserves the broad Electric/AP alternative while its direct
   EX/Assist clause is not projected into the anomaly-only Result. Freedom
-  preserves the unique buildup-RES route. Phaethon's complete AM +8% and
-  squad-EX-triggered AP +45 package preserves a competitive damage-and-buildup
-  balance while its other-holder Ether DMG clause remains unused by Grace.
+  preserves the unique buildup-RES route.
 - R19. Grace's authored 2-piece roles are PEN Ratio, AM, AP, and ATK. Puffer
   Electro supplies PEN Ratio; Phaethon supplies AM; Freedom Blues and Chaos
   Jazz form one exact same-effect AP identity; Hormone Punk and Astral Voice
@@ -236,8 +232,9 @@ preserving the current three-surface Result grammar.
   RES reductions, M6 scale, and Abloom/resource exclusions.
 - AE3. Timeweaver tests cover AP below/at/above 375, different-Attribute versus
   all-Electric party, complete package copy, and exact Disorder projection.
-  Practiced's partial package, Fusion's full package, and an inactive-specialty
-  contrast remain visible without broadening Result.
+  Fusion's full package and an inactive-specialty contrast remain visible
+  without broadening Result; excluded partial packages have no Setup or Result
+  consumer.
 - AE4. Shared flow tests traverse prepared full/non-limited setups, direct Disc
   identity selection, broad pre-PEN pressure present/absent/reselected,
   selection clearing, party Apply, changed-Agent-only rebuild, and one
@@ -259,7 +256,7 @@ preserving the current three-surface Result grammar.
   opportunity still gate membership.
 - Do not make CRIT generally valid for Anomaly because a later source may
   explicitly create a CRIT-capable anomaly exception.
-- Do not generalize Grace's Thunder, Timeweaver, or partial Practiced choices to
+- Do not generalize Grace's Thunder or Timeweaver choices to
   every Anomaly Agent.
 
 ## Status

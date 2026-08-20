@@ -1511,6 +1511,40 @@ describe('workbench state lifecycle', () => {
     })
   })
 
+  it('composes Grace invalidation with Piper retention across pressure reselection', () => {
+    let state = createPreparedState({}, ['grace', 'piper', 'trigger'], 0)
+    state = workbenchReducer(state, { type: 'selectEngine', slot: 2, engineId: 'restrained' })
+    for (const slot of [0, 1] as const) {
+      state = workbenchReducer(state, {
+        type: 'selectDisc', slot, piece: 'twoPiece', discId: 'pufferElectro',
+      })
+      state = workbenchReducer(state, {
+        type: 'selectMainStat', slot, mainSlot: 'slot5', mainStatId: 'penRatio',
+      })
+    }
+    expect(state.slots[0].setup).toMatchObject({ twoPieceId: 'pufferElectro', mains: { slot5: 'penRatio' } })
+    expect(state.slots[1].setup).toMatchObject({ twoPieceId: 'pufferElectro', mains: { slot5: 'penRatio' } })
+
+    state = workbenchReducer(state, { type: 'selectEngine', slot: 2, engineId: 'spectralGaze' })
+    expect(state.slots[0].setup).toMatchObject({ twoPieceId: null, mains: { slot5: null } })
+    expect(state.slots[1].setup).toMatchObject({ twoPieceId: 'pufferElectro', mains: { slot5: 'penRatio' } })
+    expect(calculateParty(state)).toBeNull()
+
+    state = workbenchReducer(state, { type: 'selectEngine', slot: 2, engineId: 'restrained' })
+    expect(state.slots[0].setup).toMatchObject({ twoPieceId: null, mains: { slot5: null } })
+    expect(state.slots[1].setup).toMatchObject({ twoPieceId: 'pufferElectro', mains: { slot5: 'penRatio' } })
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'pufferElectro',
+    })
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'penRatio',
+    })
+    state = workbenchReducer(state, { type: 'selectEngine', slot: 2, engineId: 'spectralGaze' })
+    expect(state.slots[0].setup).toMatchObject({ twoPieceId: null, mains: { slot5: null } })
+    expect(state.slots[1].setup).toMatchObject({ twoPieceId: 'pufferElectro', mains: { slot5: 'penRatio' } })
+  })
+
   it('derives Spectral Gaze pressure from broad pre-PEN meaning and formula participation', () => {
     const established = createPreparedState({}, ['anbySoldier0', 'trigger', 'dialyn'], 0)
     expect(effectiveMainStatIds(established, 0, 'slot5')).not.toContain('penRatio')

@@ -148,6 +148,11 @@ describe('integrated party workbench: party', () => {
         { agentId: 'ben', setup: createPreparedAgentSetup('ben') },
       ],
       [
+        { agentId: 'piper', setup: createPreparedAgentSetup('piper') },
+        { agentId: 'billy', setup: createPreparedAgentSetup('billy') },
+        { agentId: 'ben', setup: createPreparedAgentSetup('ben') },
+      ],
+      [
         { agentId: 'anby', setup: createPreparedAgentSetup('anby') },
         { agentId: 'caesar', setup: createPreparedAgentSetup('caesar') },
         { agentId: 'anbySoldier0', setup: createPreparedAgentSetup('anbySoldier0') },

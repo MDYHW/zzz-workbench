@@ -48,6 +48,7 @@ import { calculateCaesar } from './calculation/agents/caesar'
 import { calculateYeShunguang } from './calculation/agents/ye-shunguang'
 import { calculateZhao } from './calculation/agents/zhao'
 import { calculateGrace } from './calculation/agents/grace'
+import { calculatePiper } from './calculation/agents/piper'
 import { composeMetricEffects, surfaces } from './calculation/composition'
 import type { ActionModifier, AgentResult, Contribution, PartyResult } from './calculation/result'
 import { resolveProviderEffects } from './provider-effects'
@@ -363,6 +364,9 @@ export function calculateParty(
           break
         case 'grace':
           result = calculateGrace(context, inbox, enemy)
+          break
+        case 'piper':
+          result = calculatePiper(context, inbox, enemy)
           break
         default:
           return assertNever(context)
