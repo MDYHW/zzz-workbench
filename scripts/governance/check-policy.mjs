@@ -2,11 +2,52 @@ import { createHash } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { parseAst } from 'rolldown/parseAst'
 
 export const PRODUCT_OWNER = 'Min-DongYoung'
 export const REVIEW_APP_AUTHOR = 'zzz-workbench-agent-mdy[bot]'
 export const EVIDENCE_MARKER = '<!-- zzz-workbench:authority-review:v1 -->'
-export const FROZEN_ROSTER_SIZE = 38
+export const FROZEN_ROSTER = Object.freeze([
+  Object.freeze({ id: 'yixuan', name: 'Yixuan' }),
+  Object.freeze({ id: 'dialyn', name: 'Dialyn' }),
+  Object.freeze({ id: 'lucia', name: 'Lucia' }),
+  Object.freeze({ id: 'anbySoldier0', name: 'Anby: Soldier 0' }),
+  Object.freeze({ id: 'trigger', name: 'Trigger' }),
+  Object.freeze({ id: 'astraYao', name: 'Astra Yao' }),
+  Object.freeze({ id: 'seed', name: 'Seed' }),
+  Object.freeze({ id: 'cissia', name: 'Cissia' }),
+  Object.freeze({ id: 'evelyn', name: 'Evelyn' }),
+  Object.freeze({ id: 'corin', name: 'Corin' }),
+  Object.freeze({ id: 'lycaon', name: 'Lycaon' }),
+  Object.freeze({ id: 'yidhari', name: 'Yidhari' }),
+  Object.freeze({ id: 'manato', name: 'Manato' }),
+  Object.freeze({ id: 'hugo', name: 'Hugo' }),
+  Object.freeze({ id: 'juFufu', name: 'Ju Fufu' }),
+  Object.freeze({ id: 'panYinhu', name: 'Pan Yinhu' }),
+  Object.freeze({ id: 'banyue', name: 'Banyue' }),
+  Object.freeze({ id: 'starlightBilly', name: 'Starlight Billy' }),
+  Object.freeze({ id: 'ellen', name: 'Ellen' }),
+  Object.freeze({ id: 'soukaku', name: 'Soukaku' }),
+  Object.freeze({ id: 'soldier11', name: 'Soldier 11' }),
+  Object.freeze({ id: 'lighter', name: 'Lighter' }),
+  Object.freeze({ id: 'lucy', name: 'Lucy' }),
+  Object.freeze({ id: 'zhuYuan', name: 'Zhu Yuan' }),
+  Object.freeze({ id: 'nicole', name: 'Nicole' }),
+  Object.freeze({ id: 'orphie', name: 'Orphie & Magus' }),
+  Object.freeze({ id: 'pulchra', name: 'Pulchra' }),
+  Object.freeze({ id: 'harumasa', name: 'Asaba Harumasa' }),
+  Object.freeze({ id: 'qingyi', name: 'Qingyi' }),
+  Object.freeze({ id: 'nekomata', name: 'Nekomata' }),
+  Object.freeze({ id: 'billy', name: 'Billy Kid' }),
+  Object.freeze({ id: 'ben', name: 'Ben Bigger' }),
+  Object.freeze({ id: 'koleda', name: 'Koleda Belobog' }),
+  Object.freeze({ id: 'anby', name: 'Anby Demara' }),
+  Object.freeze({ id: 'caesar', name: 'Caesar King' }),
+  Object.freeze({ id: 'yeShunguang', name: 'Ye Shunguang' }),
+  Object.freeze({ id: 'zhao', name: 'Zhao' }),
+  Object.freeze({ id: 'grace', name: 'Grace Howard' }),
+])
+export const FROZEN_ROSTER_SIZE = FROZEN_ROSTER.length
 
 export const REQUIRED_CONTEXTS = Object.freeze([
   Object.freeze({ name: 'Trusted Governance', kind: 'status', run: 'trusted' }),
@@ -752,10 +793,29 @@ export function extractCurrentRuleIds(ownerTexts) {
   return extractRuleIdState(ownerTexts).currentRuleIds
 }
 
-export function validateFrozenRoster(baselineNames, indexedNames) {
-  const baseline = sortedUnique(baselineNames, 'Baseline roster')
+function normalizeAgentRoster(entries, label) {
+  if (!Array.isArray(entries)) fail(`${label} must be an array.`)
+  const normalized = entries.map((entry) => {
+    if (!entry || !/^[a-z][A-Za-z0-9]*$/.test(entry.id ?? '')
+      || typeof entry.name !== 'string' || entry.name.length === 0 || entry.name !== entry.name.trim()) {
+      fail(`${label} contains an invalid identity.`)
+    }
+    return { id: entry.id, name: entry.name }
+  })
+  sortedUnique(normalized.map(({ id }) => id), `${label} IDs`)
+  sortedUnique(normalized.map(({ name }) => name), `${label} names`)
+  return normalized
+}
+
+export function validateFrozenRoster(currentEntries, indexedNames, frozenEntries = FROZEN_ROSTER) {
+  const current = normalizeAgentRoster(currentEntries, 'Current roster')
+  const frozen = normalizeAgentRoster(frozenEntries, 'Frozen roster')
   const indexed = sortedUnique(indexedNames, 'Audit roster')
-  if (baseline.length !== FROZEN_ROSTER_SIZE || indexed.length !== FROZEN_ROSTER_SIZE || !sameStrings(baseline, indexed)) {
+  if (frozen.length !== FROZEN_ROSTER_SIZE
+    || indexed.length !== FROZEN_ROSTER_SIZE
+    || current.length < FROZEN_ROSTER_SIZE
+    || !sameStrings(frozen.map(({ name }) => name).sort(), indexed)
+    || frozen.some((identity) => !current.some(({ id, name }) => id === identity.id && name === identity.name))) {
     fail('Recovery audit roster does not exactly cover the frozen 38 identities.')
   }
   return true
@@ -929,13 +989,38 @@ export function validateFinalization({ actor, candidateSha, recoveryTipSha, audi
   return true
 }
 
-function parseAgentNames(source) {
-  const start = source.indexOf('export const ADMITTED_AGENTS')
-  const end = source.indexOf('\n]\n', start)
-  if (start < 0 || end < 0) fail('Baseline Agent roster source is unavailable.')
-  const names = [...source.slice(start, end).matchAll(/\bid:\s*'[^']+'\s*,[\s\S]*?\bname:\s*'([^']+)'/g)].map((match) => match[1])
-  if (names.length !== FROZEN_ROSTER_SIZE) fail('Baseline Agent roster does not contain 38 identities.')
-  return names
+export function parseAgentRoster(source) {
+  let program
+  try {
+    program = parseAst(source, { lang: 'ts' })
+  } catch {
+    fail('Baseline Agent roster source is unavailable.')
+  }
+  const declarations = program.body.flatMap((statement) => (
+    statement.type === 'ExportNamedDeclaration' && statement.declaration?.type === 'VariableDeclaration'
+      ? statement.declaration.declarations
+      : []
+  )).filter(({ id }) => id?.type === 'Identifier' && id.name === 'ADMITTED_AGENTS')
+  if (declarations.length !== 1 || declarations[0].init?.type !== 'ArrayExpression') {
+    fail('Baseline Agent roster source is unavailable.')
+  }
+  return declarations[0].init.elements.map((element) => {
+    if (element?.type !== 'ObjectExpression') fail('Baseline Agent roster contains a non-literal identity.')
+    if (element.properties.some((property) => property.type !== 'Property' || property.computed !== false)) {
+      fail('Baseline Agent roster contains a non-literal identity.')
+    }
+    const readString = (key) => {
+      const matches = element.properties.filter((property) => property.type === 'Property'
+        && property.computed === false
+        && ((property.key.type === 'Identifier' && property.key.name === key)
+          || (property.key.type === 'Literal' && property.key.value === key)))
+      if (matches.length !== 1 || matches[0].value?.type !== 'Literal' || typeof matches[0].value.value !== 'string') {
+        fail('Baseline Agent roster contains a non-literal identity.')
+      }
+      return matches[0].value.value
+    }
+    return { id: readString('id'), name: readString('name') }
+  })
 }
 
 function parseAuditNames(audit) {
@@ -996,7 +1081,7 @@ export async function validateRepository(root = process.cwd(), { requireComplete
   const ruleIds = ruleState.currentRuleIds
   const agents = await fs.readFile(path.join(root, 'src/workbench/content/agents.ts'), 'utf8')
   const audit = await fs.readFile(path.join(root, 'docs/audits/2026-08-15-existing-vertical-recovery.md'), 'utf8')
-  validateFrozenRoster(parseAgentNames(agents), parseAuditNames(audit))
+  validateFrozenRoster(parseAgentRoster(agents), parseAuditNames(audit))
 
   const acrDirectory = path.join(root, 'docs/authority-changes')
   const acrFiles = (await fs.readdir(acrDirectory)).filter((file) => file.endsWith('.md') && file !== 'README.md')
