@@ -13,8 +13,8 @@ Her prepared setups invest in Initial ATK and Anomaly Mastery, while Result
 separately explains her own anomaly buildup and the exact ATK, regular DMG,
 Anomaly Proficiency, buildup, anomaly/Disorder, RES, and Disorder-operation
 outcomes that reach eligible party recipients. The vertical does not turn
-Sugarburst into a personal anomaly-damage share or inherit Grace/Piper damage
-equipment merely because guides list personal AP or PEN after Yuzuha's caps.
+Sugarburst into a personal anomaly-damage share or generalize Yuzuha's residual
+Slot 4 AP choice into AP substats, damage equipment, or personal Result rows.
 
 ## Permanent-Owner And Consumer Review
 
@@ -73,8 +73,10 @@ equipment merely because guides list personal AP or PEN after Yuzuha's caps.
   `anomaly_buildup`; she has no personal `anomaly_damage` or
   `general_damage` setup direction at M0-M6. M4's Assist Follow-Up DMG +30%
   and M6's additional 300% ATK shells do not overcome the Initial-ATK, AM, and
-  party-support opportunity cost, so no Mindscape introduces personal AP,
-  CRIT, PEN, or damage equipment candidates.
+  party-support opportunity cost, so no Mindscape introduces personal-damage
+  W-Engine, Drive Disc, effective-substat, or additional main-stat candidates.
+  The residual Slot 4 AP candidate in R13 remains available at every Mindscape
+  without creating a personal damage formula direction or Result row.
 - R2. Sugarburst begins as Physical and Flavor Match follows the active Agent's
   Attribute. Its completed Basic level supplies Anomaly Buildup Rate +25% at
   M0-M2, +28% at M3-M4, and +31% at M5-M6, but its buildup does not enter
@@ -171,13 +173,18 @@ equipment merely because guides list personal AP or PEN after Yuzuha's caps.
   PEN Ratio, and Attribute DMG 2-piece choices are excluded because no Yuzuha
   damage formula consumes them.
 - R13. Both pools prepare Moonlight Lullaby 4-piece, Phaethon's Melody 2-piece,
-  Slot 4 ATK%, Slot 5 ATK%, and Slot 6 AM. Legal alternatives keep ATK% in
-  Slots 4/5, but Slot 6 AM is the sole candidate because AM is unavailable from
-  substats and the bounded future ATK opportunities already cover the capped
-  Initial-ATK axis. Energy Regen is not retained as a Slot 6 candidate because
-  it gives up the only fixed main-stat AM opportunity without a current whole-
-  package case that displaces it. Effective substats are ATK% and flat ATK,
-  each initialized to zero.
+  Slot 4 ATK%, Slot 5 ATK%, and Slot 6 AM. Slot 4 candidates keep ATK% first and
+  add AP second as a competitive residual personal-damage choice: higher
+  investment can preserve the Initial-ATK cap through Slot 5 plus retained ATK%
+  and flat-ATK opportunities while replacing fixed Slot 4 ATK% supply. This
+  variable-main-stat exception does not add AP effective substats, equipment,
+  a personal anomaly-damage direction, or a personal AP Result. Slot 5 ATK%
+  and Slot 6 AM remain the sole candidates in their slots because AM is
+  unavailable from substats and the bounded future ATK opportunities already
+  cover the capped Initial-ATK axis. Energy Regen is not retained as a Slot 6
+  candidate because it gives up the only fixed main-stat AM opportunity without
+  a current whole-package case that displaces it. Effective substats are ATK%
+  and flat ATK, each initialized to zero.
 - R14. Zero supplied counts preserve the authored first choice while the capped
   Initial-ATK provider reserves a conservative eight future hits in each
   retained same-axis substat supplier: ATK% and flat ATK. Eight is an
@@ -251,8 +258,9 @@ equipment merely because guides list personal AP or PEN after Yuzuha's caps.
 
 ## Rejected Alternatives And Scope Boundaries
 
-- Do not copy guide AP, PEN, CRIT, or personal-DMG recommendations into a
-  Yuzuha setup whose current direction has no personal damage consumer.
+- Do not generalize the admitted residual Slot 4 AP choice into AP effective
+  substats, W-Engines, Disc sets, a personal damage direction, or personal
+  Result rows. Competitive-practice discovery does not authorize those axes.
 - Do not admit every legally selectable Support W-Engine or Disc set. Whole-
   package competition, finite opportunity, and pool-local representative
   consequence remain required.

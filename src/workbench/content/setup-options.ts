@@ -253,7 +253,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot6: ['anomalyMastery', 'atkPct'],
   },
   yuzuha: {
-    slot4: ['atkPct'],
+    slot4: ['atkPct', 'anomalyProficiency'],
     slot5: ['atkPct'],
     slot6: ['anomalyMastery'],
   },
