@@ -156,16 +156,6 @@ export function resolveGraceProviderClauses(
       'self',
     ),
     additive(
-      'anomalyProficiency', 'combat', engine,
-      setup.engineId === 'angelInTheShell'
-        ? equipmentEffectBaseValue(
-          W_ENGINE_FACTS.angelInTheShell.effects.anomalyProficiency,
-          refinement,
-        )
-        : 0,
-      'self',
-    ),
-    additive(
       'anomalyMastery', 'combat', engine,
       setup.engineId === 'practicedPerfection'
         ? equipmentEffectBaseValue(
@@ -267,6 +257,7 @@ export function calculateGrace(
     engineAdvancedInput(setup, 'grace', 'atkPct'),
     mainStatInput(setup, 'grace', 'slot4', 'atkPct'),
     mainStatInput(setup, 'grace', 'slot5', 'atkPct'),
+    mainStatInput(setup, 'grace', 'slot6', 'atkPct'),
     discStatInput(
       setup, 'grace', 'fourPiece', 'hormonePunk',
       equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk), 'twoPiece',
