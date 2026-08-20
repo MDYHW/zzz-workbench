@@ -12,7 +12,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -75,14 +75,7 @@ function evelynAtkInputs(setup: CompleteSetup): ResolvedSetupInput[] {
     engineAdvancedInput(setup, 'evelyn', 'atkPct'),
     mainStatInput(setup, 'evelyn', 'slot5', 'atkPct'),
     mainStatInput(setup, 'evelyn', 'slot6', 'atkPct'),
-    discStatInput(setup, 'evelyn', 'fourPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk), 'twoPiece'),
-    discStatInput(setup, 'evelyn', 'twoPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
-    discStatInput(setup, 'evelyn', 'fourPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
-    discStatInput(setup, 'evelyn', 'twoPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
+    ...selectedDiscTwoPieceInputs(setup, 'evelyn', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'evelyn', 'atkPct'),
   ])
 }
@@ -286,10 +279,7 @@ export function calculateEvelyn(
   const critRateInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'evelyn', 'critRate'),
     mainStatInput(setup, 'evelyn', 'slot4', 'critRate'),
-    discStatInput(setup, 'evelyn', 'fourPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate), 'twoPiece'),
-    discStatInput(setup, 'evelyn', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'evelyn', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'evelyn', 'critRate'),
   ])
   const initialCritRate = values.critRate
@@ -305,8 +295,7 @@ export function calculateEvelyn(
   const critDmgInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'evelyn', 'critDmg'),
     mainStatInput(setup, 'evelyn', 'slot4', 'critDmg'),
-    discStatInput(setup, 'evelyn', 'twoPiece', 'branchAndBlade',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
+    ...selectedDiscTwoPieceInputs(setup, 'evelyn', { modifier: 'critDmg' }),
     effectiveSubstatInput(setup, 'evelyn', 'critDmg'),
   ])
   const initialCritDmg = values.critDmg
@@ -320,8 +309,7 @@ export function calculateEvelyn(
 
   const fireDmgInputs = presentSetupInputs([
     mainStatInput(setup, 'evelyn', 'slot5', 'fireDmg'),
-    discStatInput(setup, 'evelyn', 'twoPiece', 'infernoMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.infernoMetal.twoPiece.damage)),
+    ...selectedDiscTwoPieceInputs(setup, 'evelyn', { modifier: 'dmgBonus' }),
   ])
   const initialDmg = fireDmgInputs.reduce((total, input) => total + input.rawValue, 0)
   const regular = composeMetricEffects(
@@ -333,10 +321,7 @@ export function calculateEvelyn(
 
   const penInputs = presentSetupInputs([
     mainStatInput(setup, 'evelyn', 'slot5', 'penRatio'),
-    discStatInput(setup, 'evelyn', 'twoPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio)),
-    discStatInput(setup, 'evelyn', 'fourPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio), 'twoPiece'),
+    ...selectedDiscTwoPieceInputs(setup, 'evelyn', { modifier: 'penRatio' }),
   ])
   const initialPen = penInputs.reduce((total, input) => total + input.rawValue, 0)
   const pen = composeMetricEffects(

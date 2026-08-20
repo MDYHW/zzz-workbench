@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -208,10 +208,7 @@ export function calculateZhuYuan(
     engineAdvancedInput(setup, 'zhuYuan', 'atkPct'),
     mainStatInput(setup, 'zhuYuan', 'slot5', 'atkPct'),
     mainStatInput(setup, 'zhuYuan', 'slot6', 'atkPct'),
-    discStatInput(setup, 'zhuYuan', 'twoPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
-    discStatInput(setup, 'zhuYuan', 'twoPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
+    ...selectedDiscTwoPieceInputs(setup, 'zhuYuan', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'zhuYuan', 'atkPct'),
   ])
   const atk = composeMetricEffects(
@@ -225,10 +222,7 @@ export function calculateZhuYuan(
   const critRateInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'zhuYuan', 'critRate'),
     mainStatInput(setup, 'zhuYuan', 'slot4', 'critRate'),
-    discStatInput(setup, 'zhuYuan', 'fourPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate), 'twoPiece'),
-    discStatInput(setup, 'zhuYuan', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'zhuYuan', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'zhuYuan', 'critRate'),
   ])
   const initialCritRate = values.critRate
@@ -243,8 +237,7 @@ export function calculateZhuYuan(
   const critDmgInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'zhuYuan', 'critDmg'),
     mainStatInput(setup, 'zhuYuan', 'slot4', 'critDmg'),
-    discStatInput(setup, 'zhuYuan', 'twoPiece', 'branchAndBlade',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
+    ...selectedDiscTwoPieceInputs(setup, 'zhuYuan', { modifier: 'critDmg' }),
     effectiveSubstatInput(setup, 'zhuYuan', 'critDmg'),
   ])
   const initialCritDmg = values.critDmg
@@ -257,10 +250,7 @@ export function calculateZhuYuan(
   )
   const dmgInputs = presentSetupInputs([
     mainStatInput(setup, 'zhuYuan', 'slot5', 'etherDmg'),
-    discStatInput(setup, 'zhuYuan', 'fourPiece', 'chaoticMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaoticMetal.twoPiece.damage), 'twoPiece'),
-    discStatInput(setup, 'zhuYuan', 'twoPiece', 'chaoticMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaoticMetal.twoPiece.damage)),
+    ...selectedDiscTwoPieceInputs(setup, 'zhuYuan', { modifier: 'dmgBonus' }),
   ])
   const initialDmg = dmgInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const dmg = composeMetricEffects(
@@ -271,10 +261,7 @@ export function calculateZhuYuan(
   )
   const penInputs = presentSetupInputs([
     mainStatInput(setup, 'zhuYuan', 'slot5', 'penRatio'),
-    discStatInput(setup, 'zhuYuan', 'fourPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio), 'twoPiece'),
-    discStatInput(setup, 'zhuYuan', 'twoPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio)),
+    ...selectedDiscTwoPieceInputs(setup, 'zhuYuan', { modifier: 'penRatio' }),
   ])
   const initialPen = penInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const pen = composeMetricEffects(

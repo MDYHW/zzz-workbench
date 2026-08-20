@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -174,8 +174,7 @@ export function calculateYidhari(
   const baseAtk = values.atk + engine.baseAtk
   const hpInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'yidhari', 'hpPct'),
-    discStatInput(setup, 'yidhari', 'fourPiece', 'yunkui',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.twoPiece.maxHp), 'twoPiece'),
+    ...selectedDiscTwoPieceInputs(setup, 'yidhari', { modifier: 'maxHp' }),
     mainStatInput(setup, 'yidhari', 'slot5', 'hpPct'),
     mainStatInput(setup, 'yidhari', 'slot6', 'hpPct'),
     effectiveSubstatInput(setup, 'yidhari', 'hpPct'),
@@ -223,8 +222,7 @@ export function calculateYidhari(
 
   const critRateInputs = presentSetupInputs([
     mainStatInput(setup, 'yidhari', 'slot4', 'critRate'),
-    discStatInput(setup, 'yidhari', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'yidhari', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'yidhari', 'critRate'),
   ])
   const initialCritRate = values.critRate
@@ -239,8 +237,7 @@ export function calculateYidhari(
 
   const critDmgInputs = presentSetupInputs([
     mainStatInput(setup, 'yidhari', 'slot4', 'critDmg'),
-    discStatInput(setup, 'yidhari', 'twoPiece', 'branchAndBlade',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
+    ...selectedDiscTwoPieceInputs(setup, 'yidhari', { modifier: 'critDmg' }),
     effectiveSubstatInput(setup, 'yidhari', 'critDmg'),
   ])
   const initialCritDmg = values.critDmg
@@ -253,14 +250,14 @@ export function calculateYidhari(
   )
 
   const iceDmg = mainStatInput(setup, 'yidhari', 'slot5', 'iceDmg')
-  const polarDmg = discStatInput(setup, 'yidhari', 'twoPiece', 'polarMetal',
-    equipmentEffectBaseValue(DRIVE_DISC_FACTS.polarMetal.twoPiece.damage))
-  const initialDmg = (iceDmg?.rawValue ?? 0) + (polarDmg?.rawValue ?? 0)
+  const discDmgInputs = selectedDiscTwoPieceInputs(setup, 'yidhari', { modifier: 'dmgBonus' })
+  const initialDmg = (iceDmg?.rawValue ?? 0)
+    + discDmgInputs.reduce((total, input) => total + input.rawValue, 0)
   const dmgBonus = composeMetricEffects(
     surfaces(initialDmg, initialDmg, initialDmg),
     surfaces(withoutZero([
       ...(iceDmg ? [contribution(iceDmg.source, iceDmg.rawValue)] : []),
-      ...(polarDmg ? [contribution(polarDmg.source, polarDmg.rawValue)] : []),
+      ...discDmgInputs.map((input) => contribution(input.source, input.rawValue)),
     ]), [], []),
     effects,
     'dmgBonus',

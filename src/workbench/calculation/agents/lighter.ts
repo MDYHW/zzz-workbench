@@ -10,7 +10,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -29,6 +29,7 @@ import { actionTarget, canonicalAction, sourceLocalAction } from '../../actions'
 import {
   composeActionHierarchy,
   composeMetricEffects,
+  contribution,
   energyRegenProjection,
   percentageContribution,
   surfaces,
@@ -58,8 +59,7 @@ function impactInputs(setup: CompleteSetup) {
   return presentSetupInputs([
     engineAdvancedInput(setup, 'lighter', 'impactPct'),
     mainStatInput(setup, 'lighter', 'slot6', 'impact'),
-    discStatInput(setup, 'lighter', 'fourPiece', 'shockstar', equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact), 'twoPiece'),
-    discStatInput(setup, 'lighter', 'twoPiece', 'shockstar', equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact)),
+    ...selectedDiscTwoPieceInputs(setup, 'lighter', { modifier: 'impact' }),
   ])
 }
 
@@ -93,13 +93,8 @@ function elationOutput(impact: number, setup: CompleteSetup, active: boolean): n
 function localKingCritRate(setup: CompleteSetup): number {
   return VERTICAL_VALUES.lighter.critRate
     + (mainStatInput(setup, 'lighter', 'slot4', 'critRate')?.rawValue ?? 0)
-    + (discStatInput(
-      setup,
-      'lighter',
-      'twoPiece',
-      'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate),
-    )?.rawValue ?? 0)
+    + selectedDiscTwoPieceInputs(setup, 'lighter', { modifier: 'critRate' })
+      .reduce((total, input) => total + input.rawValue, 0)
     + (effectiveSubstatInput(setup, 'lighter', 'critRate')?.rawValue ?? 0)
 }
 
@@ -150,12 +145,6 @@ export function resolveLighterProviderClauses(context: LighterCalculationContext
     additive('stunDmgMultiplier', 'fully', mindscapeSource('lighter', 2),
       setup.mindscape >= 2 ? values.mindscapeStunMultiplier : 0, 'enemy-context'),
     fireIceDamage(additive('dmgBonus', 'fully', additional, elation, 'all-party')),
-    additive('dazeBonus', 'initial',
-      discSource('lighter', 'king', '2-piece', setup.fourPieceId === 'king' ? '4-piece' : '2-piece'),
-      setup.fourPieceId === 'king' || setup.twoPieceId === 'king'
-        ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze)
-        : 0,
-      'self'),
     withApplicability(
       additive('critDmg', 'fully', discSource('lighter', 'king', '4-piece'),
         kingCritDmg, 'all-party', undefined, undefined, undefined, 'kingOfTheSummit'),
@@ -213,13 +202,12 @@ export function calculateLighter(
   const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'lighter', 'energyRegenPct'),
     mainStatInput(setup, 'lighter', 'slot6', 'energyRegenPct'),
-    discStatInput(setup, 'lighter', 'twoPiece', 'swingJazz', equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
+    ...selectedDiscTwoPieceInputs(setup, 'lighter', { modifier: 'energyRegen' }),
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
   const critInputs = presentSetupInputs([
     mainStatInput(setup, 'lighter', 'slot4', 'critRate'),
-    discStatInput(setup, 'lighter', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'lighter', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'lighter', 'critRate'),
   ])
   const crit = composeMetricEffects(
@@ -233,7 +221,14 @@ export function calculateLighter(
     'critRate',
     { value: 100, source: source('Displayed CRIT Rate cap', 'lighter', 'calculation') },
   )
-  const daze = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus')
+  const dazeInputs = selectedDiscTwoPieceInputs(setup, 'lighter', { modifier: 'dazeBonus' })
+  const initialDaze = dazeInputs.reduce((total, input) => total + input.rawValue, 0)
+  const daze = composeMetricEffects(
+    surfaces(initialDaze, initialDaze, initialDaze),
+    surfaces(dazeInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
+    effects,
+    'dazeBonus',
+  )
   const res = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'resReduction')
   const stunDuration = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'stunDuration')
   const stunMultiplier = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'stunDmgMultiplier')

@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -210,8 +210,7 @@ export function calculateStarlightBilly(
   const baseAtk = values.atk + engine.baseAtk
   const hpInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'starlightBilly', 'hpPct'),
-    discStatInput(setup, 'starlightBilly', 'fourPiece', 'yunkui',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.twoPiece.maxHp), 'twoPiece'),
+    ...selectedDiscTwoPieceInputs(setup, 'starlightBilly', { modifier: 'maxHp' }),
     mainStatInput(setup, 'starlightBilly', 'slot4', 'hpPct'),
     mainStatInput(setup, 'starlightBilly', 'slot5', 'hpPct'),
     mainStatInput(setup, 'starlightBilly', 'slot6', 'hpPct'),
@@ -254,8 +253,7 @@ export function calculateStarlightBilly(
   const critRateInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'starlightBilly', 'critRate'),
     mainStatInput(setup, 'starlightBilly', 'slot4', 'critRate'),
-    discStatInput(setup, 'starlightBilly', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'starlightBilly', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'starlightBilly', 'critRate'),
   ])
   const initialCritRate = values.critRate
@@ -271,8 +269,7 @@ export function calculateStarlightBilly(
   const critDmgInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'starlightBilly', 'critDmg'),
     mainStatInput(setup, 'starlightBilly', 'slot4', 'critDmg'),
-    discStatInput(setup, 'starlightBilly', 'twoPiece', 'branchAndBlade',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
+    ...selectedDiscTwoPieceInputs(setup, 'starlightBilly', { modifier: 'critDmg' }),
     effectiveSubstatInput(setup, 'starlightBilly', 'critDmg'),
   ])
   const initialCritDmg = values.critDmg
@@ -286,8 +283,7 @@ export function calculateStarlightBilly(
 
   const dmgInputs = presentSetupInputs([
     mainStatInput(setup, 'starlightBilly', 'slot5', 'physicalDmg'),
-    discStatInput(setup, 'starlightBilly', 'twoPiece', 'fangedMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.twoPiece.damage)),
+    ...selectedDiscTwoPieceInputs(setup, 'starlightBilly', { modifier: 'dmgBonus' }),
   ])
   const initialDmg = dmgInputs.reduce((total, input) => total + input.rawValue, 0)
   const dmgBonus = composeMetricEffects(

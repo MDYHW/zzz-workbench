@@ -1,5 +1,5 @@
 import { DRIVE_DISC_FACTS, VERTICAL_VALUES, W_ENGINE_FACTS, W_ENGINES, equipmentEffectBaseValue, equipmentEffectMaximumValue, equipmentEffectProgressionValue } from '../../content'
-import { STATIC_SOURCES, active, additive, discSource, discStatInput, effectiveSubstatInput, engineAdvancedInput, engineSource, mainStatInput, mindscapeSource, percentage, presentSetupInputs, pufferElectroFourPieceClauses, resolveDeliveredClauses, type CompleteSetup, type EffectMetric, type ResolvedSetupInput, type SourceBoundCurrentClause } from '../../effects'
+import { STATIC_SOURCES, active, additive, discSource, selectedDiscTwoPieceInputs, effectiveSubstatInput, engineAdvancedInput, engineSource, mainStatInput, mindscapeSource, percentage, presentSetupInputs, pufferElectroFourPieceClauses, resolveDeliveredClauses, type CompleteSetup, type EffectMetric, type ResolvedSetupInput, type SourceBoundCurrentClause } from '../../effects'
 import { AFTERSHOCK_TARGET, actionTarget, canonicalAction } from '../../actions'
 import { composeActionEffects, composeMetricEffects, contribution, percentageContribution, surfaces } from '../composition'
 import { initialAtkFor } from '../initial-atk'
@@ -19,7 +19,7 @@ const ANBY_BASIC_ULTIMATE_TARGET = actionTarget([
 ])
 
 function anbyAtkInputs(setup: CompleteSetup): ResolvedSetupInput[] {
-  return presentSetupInputs([engineAdvancedInput(setup, 'anbySoldier0', 'atkPct'), mainStatInput(setup, 'anbySoldier0', 'slot5', 'atkPct'), mainStatInput(setup, 'anbySoldier0', 'slot6', 'atkPct'), discStatInput(setup, 'anbySoldier0', 'twoPiece', 'hormonePunk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)), effectiveSubstatInput(setup, 'anbySoldier0', 'atkPct')])
+  return presentSetupInputs([engineAdvancedInput(setup, 'anbySoldier0', 'atkPct'), mainStatInput(setup, 'anbySoldier0', 'slot5', 'atkPct'), mainStatInput(setup, 'anbySoldier0', 'slot6', 'atkPct'), ...selectedDiscTwoPieceInputs(setup, 'anbySoldier0', { modifier: 'atk' }), effectiveSubstatInput(setup, 'anbySoldier0', 'atkPct')])
 }
 
 export const observeAnby = (setup: CompleteSetup, hasStunOrSupport: boolean, isFocus: boolean): AnbyCalculationContext => {
@@ -70,7 +70,8 @@ export function anbyFullyCrit(setup: CompleteSetup, inbox: SourceBoundCurrentCla
   const initial = VERTICAL_VALUES.anbySoldier0.critDmg
     + (engineAdvancedInput(setup, 'anbySoldier0', 'critDmg')?.rawValue ?? 0)
     + (mainStatInput(setup, 'anbySoldier0', 'slot4', 'critDmg')?.rawValue ?? 0)
-    + (discStatInput(setup, 'anbySoldier0', 'twoPiece', 'branchAndBlade', equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage))?.rawValue ?? 0)
+    + selectedDiscTwoPieceInputs(setup, 'anbySoldier0', { modifier: 'critDmg' })
+      .reduce((total, input) => total + input.rawValue, 0)
     + (effectiveSubstatInput(setup, 'anbySoldier0', 'critDmg')?.rawValue ?? 0)
   return composeMetricEffects(surfaces(initial, initial, initial), surfaces([], [], []), resolveDeliveredClauses(inbox, {}), 'critDmg').values.fully
 }
@@ -93,32 +94,18 @@ export function calculateAnby(context: AnbyCalculationContext, inbox: SourceBoun
   const atkInputs = anbyAtkInputs(setup)
   const effects = resolveDeliveredClauses([...inbox, ...enemy], { atk: initialAtk })
   const atk = composeMetricEffects(surfaces(initialAtk, initialAtk, initialAtk), surfaces(atkInputs.map((x) => percentageContribution(x.source, baseAtk * x.rawValue / 100, x.rawValue)), [], []), effects, 'atk')
-  const critRateInputs = presentSetupInputs([engineAdvancedInput(setup, 'anbySoldier0', 'critRate'), mainStatInput(setup, 'anbySoldier0', 'slot4', 'critRate'), discStatInput(setup, 'anbySoldier0', 'twoPiece', 'woodpecker', equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)), effectiveSubstatInput(setup, 'anbySoldier0', 'critRate')])
+  const critRateInputs = presentSetupInputs([engineAdvancedInput(setup, 'anbySoldier0', 'critRate'), mainStatInput(setup, 'anbySoldier0', 'slot4', 'critRate'), ...selectedDiscTwoPieceInputs(setup, 'anbySoldier0', { modifier: 'critRate' }), effectiveSubstatInput(setup, 'anbySoldier0', 'critRate')])
   const critRate = composeMetricEffects(surfaces(Math.min(values.critRate + critRateInputs.reduce((n, x) => n + x.rawValue, 0), 100), Math.min(values.critRate + critRateInputs.reduce((n, x) => n + x.rawValue, 0), 100), Math.min(values.critRate + critRateInputs.reduce((n, x) => n + x.rawValue, 0), 100)), surfaces(critRateInputs.map((x) => contribution(x.source, x.rawValue)), [], []), effects, 'critRate', { value: 100, source: STATIC_SOURCES.anbySoldier0.critCap })
-  const critDmgInputs = presentSetupInputs([engineAdvancedInput(setup, 'anbySoldier0', 'critDmg'), mainStatInput(setup, 'anbySoldier0', 'slot4', 'critDmg'), discStatInput(setup, 'anbySoldier0', 'twoPiece', 'branchAndBlade', equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)), effectiveSubstatInput(setup, 'anbySoldier0', 'critDmg')])
+  const critDmgInputs = presentSetupInputs([engineAdvancedInput(setup, 'anbySoldier0', 'critDmg'), mainStatInput(setup, 'anbySoldier0', 'slot4', 'critDmg'), ...selectedDiscTwoPieceInputs(setup, 'anbySoldier0', { modifier: 'critDmg' }), effectiveSubstatInput(setup, 'anbySoldier0', 'critDmg')])
   const critDmg = composeMetricEffects(surfaces(values.critDmg + critDmgInputs.reduce((n, x) => n + x.rawValue, 0), values.critDmg + critDmgInputs.reduce((n, x) => n + x.rawValue, 0), values.critDmg + critDmgInputs.reduce((n, x) => n + x.rawValue, 0)), surfaces(critDmgInputs.map((x) => contribution(x.source, x.rawValue)), [], []), effects, 'critDmg')
   const electricDmgInputs = presentSetupInputs([
     mainStatInput(setup, 'anbySoldier0', 'slot5', 'electricDmg'),
-    discStatInput(setup, 'anbySoldier0', 'twoPiece', 'thunderMetal', equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.twoPiece.damage)),
+    ...selectedDiscTwoPieceInputs(setup, 'anbySoldier0', { modifier: 'dmgBonus' }),
   ])
   const initialElectricDmg = electricDmgInputs.reduce((total, input) => total + input.rawValue, 0)
   const penInputs = presentSetupInputs([
     mainStatInput(setup, 'anbySoldier0', 'slot5', 'penRatio'),
-    discStatInput(
-      setup,
-      'anbySoldier0',
-      'twoPiece',
-      'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio),
-    ),
-    discStatInput(
-      setup,
-      'anbySoldier0',
-      'fourPiece',
-      'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio),
-      'twoPiece',
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'anbySoldier0', { modifier: 'penRatio' }),
   ])
   const initialPen = penInputs.reduce((total, input) => total + input.rawValue, 0)
   const regular = composeMetricEffects(

@@ -12,7 +12,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -64,9 +64,7 @@ export function observeAstra(setup: CompleteSetup): AstraCalculationContext {
   const engine = W_ENGINES[setup.engineId]
   const initialInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'astraYao', 'atkPct'),
-    discStatInput(setup, 'astraYao', 'fourPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
-    discStatInput(setup, 'astraYao', 'twoPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
-    discStatInput(setup, 'astraYao', 'twoPiece', 'hormonePunk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
+    ...selectedDiscTwoPieceInputs(setup, 'astraYao', { modifier: 'atk' }),
     mainStatInput(setup, 'astraYao', 'slot4', 'atkPct'),
     mainStatInput(setup, 'astraYao', 'slot5', 'atkPct'),
     mainStatInput(setup, 'astraYao', 'slot6', 'atkPct'),
@@ -148,9 +146,7 @@ export function calculateAstra(
   const baseAtk = VERTICAL_VALUES.astraYao.atk + engine.baseAtk
   const initialAtkInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'astraYao', 'atkPct'),
-    discStatInput(setup, 'astraYao', 'fourPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
-    discStatInput(setup, 'astraYao', 'twoPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
-    discStatInput(setup, 'astraYao', 'twoPiece', 'hormonePunk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
+    ...selectedDiscTwoPieceInputs(setup, 'astraYao', { modifier: 'atk' }),
     mainStatInput(setup, 'astraYao', 'slot4', 'atkPct'),
     mainStatInput(setup, 'astraYao', 'slot5', 'atkPct'),
     mainStatInput(setup, 'astraYao', 'slot6', 'atkPct'),
@@ -161,9 +157,7 @@ export function calculateAstra(
   const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'astraYao', 'energyRegenPct'),
     mainStatInput(setup, 'astraYao', 'slot6', 'energyRegenPct'),
-    discStatInput(setup, 'astraYao', 'fourPiece', 'moonlight', equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen), 'twoPiece'),
-    discStatInput(setup, 'astraYao', 'twoPiece', 'moonlight', equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen)),
-    discStatInput(setup, 'astraYao', 'twoPiece', 'swingJazz', equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
+    ...selectedDiscTwoPieceInputs(setup, 'astraYao', { modifier: 'energyRegen' }),
   ])
   const energy = energyRegenProjection(VERTICAL_VALUES.astraYao.baseEnergyRegen, energyInputs, effects)
   // Astra's Core output is shown in the gauge and distributed to recipients; it

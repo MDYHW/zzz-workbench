@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -211,8 +211,7 @@ export function calculateBanyue(
   const baseAtk = values.atk + engine.baseAtk
   const hpInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'banyue', 'hpPct'),
-    discStatInput(setup, 'banyue', 'fourPiece', 'yunkui',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.twoPiece.maxHp), 'twoPiece'),
+    ...selectedDiscTwoPieceInputs(setup, 'banyue', { modifier: 'maxHp' }),
     mainStatInput(setup, 'banyue', 'slot5', 'hpPct'),
     mainStatInput(setup, 'banyue', 'slot6', 'hpPct'),
     effectiveSubstatInput(setup, 'banyue', 'hpPct'),
@@ -253,8 +252,7 @@ export function calculateBanyue(
 
   const critRateInputs = presentSetupInputs([
     mainStatInput(setup, 'banyue', 'slot4', 'critRate'),
-    discStatInput(setup, 'banyue', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'banyue', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'banyue', 'critRate'),
   ])
   const initialCritRate = values.critRate
@@ -269,8 +267,7 @@ export function calculateBanyue(
 
   const critDmgInputs = presentSetupInputs([
     mainStatInput(setup, 'banyue', 'slot4', 'critDmg'),
-    discStatInput(setup, 'banyue', 'twoPiece', 'branchAndBlade',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
+    ...selectedDiscTwoPieceInputs(setup, 'banyue', { modifier: 'critDmg' }),
     effectiveSubstatInput(setup, 'banyue', 'critDmg'),
   ])
   const initialCritDmg = values.critDmg
@@ -282,11 +279,14 @@ export function calculateBanyue(
     'critDmg',
   )
 
-  const fireDmg = mainStatInput(setup, 'banyue', 'slot5', 'fireDmg')
-  const initialDmg = fireDmg?.rawValue ?? 0
+  const dmgInputs = presentSetupInputs([
+    mainStatInput(setup, 'banyue', 'slot5', 'fireDmg'),
+    ...selectedDiscTwoPieceInputs(setup, 'banyue', { modifier: 'dmgBonus' }),
+  ])
+  const initialDmg = dmgInputs.reduce((total, input) => total + input.rawValue, 0)
   const dmgBonus = composeMetricEffects(
     surfaces(initialDmg, initialDmg, initialDmg),
-    surfaces(fireDmg ? [contribution(fireDmg.source, fireDmg.rawValue)] : [], [], []),
+    surfaces(dmgInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
     effects,
     'dmgBonus',
   )

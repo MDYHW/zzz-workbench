@@ -12,7 +12,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -231,14 +231,7 @@ export function calculateNekomata(
     mainStatInput(setup, 'nekomata', 'slot4', 'atkPct'),
     mainStatInput(setup, 'nekomata', 'slot5', 'atkPct'),
     mainStatInput(setup, 'nekomata', 'slot6', 'atkPct'),
-    discStatInput(setup, 'nekomata', 'fourPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk), 'twoPiece'),
-    discStatInput(setup, 'nekomata', 'twoPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
-    discStatInput(setup, 'nekomata', 'fourPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
-    discStatInput(setup, 'nekomata', 'twoPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
+    ...selectedDiscTwoPieceInputs(setup, 'nekomata', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'nekomata', 'atkPct'),
   ])
   const atk = composeMetricEffects(
@@ -253,10 +246,7 @@ export function calculateNekomata(
   const critRateInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'nekomata', 'critRate'),
     mainStatInput(setup, 'nekomata', 'slot4', 'critRate'),
-    discStatInput(setup, 'nekomata', 'fourPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate), 'twoPiece'),
-    discStatInput(setup, 'nekomata', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'nekomata', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'nekomata', 'critRate'),
   ])
   const initialCritRate = values.critRate
@@ -272,8 +262,7 @@ export function calculateNekomata(
   const critDmgInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'nekomata', 'critDmg'),
     mainStatInput(setup, 'nekomata', 'slot4', 'critDmg'),
-    discStatInput(setup, 'nekomata', 'twoPiece', 'branchAndBlade',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
+    ...selectedDiscTwoPieceInputs(setup, 'nekomata', { modifier: 'critDmg' }),
     effectiveSubstatInput(setup, 'nekomata', 'critDmg'),
   ])
   const initialCritDmg = values.critDmg
@@ -287,8 +276,7 @@ export function calculateNekomata(
 
   const dmgInputs = presentSetupInputs([
     mainStatInput(setup, 'nekomata', 'slot5', 'physicalDmg'),
-    discStatInput(setup, 'nekomata', 'twoPiece', 'fangedMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.twoPiece.damage)),
+    ...selectedDiscTwoPieceInputs(setup, 'nekomata', { modifier: 'dmgBonus' }),
   ])
   const initialDmg = dmgInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const dmg = composeMetricEffects(
@@ -300,10 +288,7 @@ export function calculateNekomata(
 
   const penInputs = presentSetupInputs([
     mainStatInput(setup, 'nekomata', 'slot5', 'penRatio'),
-    discStatInput(setup, 'nekomata', 'fourPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio), 'twoPiece'),
-    discStatInput(setup, 'nekomata', 'twoPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio)),
+    ...selectedDiscTwoPieceInputs(setup, 'nekomata', { modifier: 'penRatio' }),
   ])
   const initialPen = penInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const pen = composeMetricEffects(

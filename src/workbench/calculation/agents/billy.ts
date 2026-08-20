@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -256,14 +256,7 @@ export function calculateBilly(
     mainStatInput(setup, 'billy', 'slot4', 'atkPct'),
     mainStatInput(setup, 'billy', 'slot5', 'atkPct'),
     mainStatInput(setup, 'billy', 'slot6', 'atkPct'),
-    discStatInput(setup, 'billy', 'fourPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk), 'twoPiece'),
-    discStatInput(setup, 'billy', 'twoPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
-    discStatInput(setup, 'billy', 'fourPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
-    discStatInput(setup, 'billy', 'twoPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
+    ...selectedDiscTwoPieceInputs(setup, 'billy', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'billy', 'atkPct'),
   ])
   const atk = composeMetricEffects(
@@ -278,10 +271,7 @@ export function calculateBilly(
   const critRateInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'billy', 'critRate'),
     mainStatInput(setup, 'billy', 'slot4', 'critRate'),
-    discStatInput(setup, 'billy', 'fourPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate), 'twoPiece'),
-    discStatInput(setup, 'billy', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'billy', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'billy', 'critRate'),
   ])
   const initialCritRate = values.critRate
@@ -297,8 +287,7 @@ export function calculateBilly(
   const critDmgInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'billy', 'critDmg'),
     mainStatInput(setup, 'billy', 'slot4', 'critDmg'),
-    discStatInput(setup, 'billy', 'twoPiece', 'branchAndBlade',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
+    ...selectedDiscTwoPieceInputs(setup, 'billy', { modifier: 'critDmg' }),
     effectiveSubstatInput(setup, 'billy', 'critDmg'),
   ])
   const initialCritDmg = values.critDmg
@@ -312,8 +301,7 @@ export function calculateBilly(
 
   const dmgInputs = presentSetupInputs([
     mainStatInput(setup, 'billy', 'slot5', 'physicalDmg'),
-    discStatInput(setup, 'billy', 'twoPiece', 'fangedMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.twoPiece.damage)),
+    ...selectedDiscTwoPieceInputs(setup, 'billy', { modifier: 'dmgBonus' }),
   ])
   const initialDmg = dmgInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const dmg = composeMetricEffects(
@@ -325,10 +313,7 @@ export function calculateBilly(
 
   const penInputs = presentSetupInputs([
     mainStatInput(setup, 'billy', 'slot5', 'penRatio'),
-    discStatInput(setup, 'billy', 'fourPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio), 'twoPiece'),
-    discStatInput(setup, 'billy', 'twoPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio)),
+    ...selectedDiscTwoPieceInputs(setup, 'billy', { modifier: 'penRatio' }),
   ])
   const initialPen = penInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const pen = composeMetricEffects(

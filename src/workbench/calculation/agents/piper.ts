@@ -12,7 +12,6 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -21,6 +20,7 @@ import {
   percentage,
   presentSetupInputs,
   resolveDeliveredClauses,
+  selectedDiscTwoPieceInputs,
   source,
   withApplicability,
   type CompleteSetup,
@@ -260,14 +260,7 @@ export function calculatePiper(
     mainStatInput(setup, 'piper', 'slot4', 'atkPct'),
     mainStatInput(setup, 'piper', 'slot5', 'atkPct'),
     mainStatInput(setup, 'piper', 'slot6', 'atkPct'),
-    discStatInput(
-      setup, 'piper', 'twoPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk),
-    ),
-    discStatInput(
-      setup, 'piper', 'twoPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'piper', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'piper', 'atkPct'),
   ])
   const atk = composeMetricEffects(
@@ -282,18 +275,8 @@ export function calculatePiper(
   const proficiencyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'piper', 'anomalyProficiency'),
     mainStatInput(setup, 'piper', 'slot4', 'anomalyProficiency'),
-    discStatInput(
-      setup, 'piper', 'fourPiece', 'freedomBlues',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.twoPiece.anomalyProficiency),
-      'twoPiece',
-    ),
-    discStatInput(
-      setup, 'piper', 'twoPiece', 'freedomBlues',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.twoPiece.anomalyProficiency),
-    ),
-    discStatInput(
-      setup, 'piper', 'twoPiece', 'chaosJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.twoPiece.anomalyProficiency),
+    ...selectedDiscTwoPieceInputs(
+      setup, 'piper', { modifier: 'anomalyProficiency' },
     ),
     effectiveSubstatInput(setup, 'piper', 'anomalyProficiency'),
   ])
@@ -309,15 +292,7 @@ export function calculatePiper(
   const masteryInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'piper', 'anomalyMastery'),
     mainStatInput(setup, 'piper', 'slot6', 'anomalyMastery'),
-    discStatInput(
-      setup, 'piper', 'fourPiece', 'phaethonsMelody',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.twoPiece.anomalyMastery),
-      'twoPiece',
-    ),
-    discStatInput(
-      setup, 'piper', 'twoPiece', 'phaethonsMelody',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.twoPiece.anomalyMastery),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'piper', { modifier: 'anomalyMastery' }),
   ])
   const initialMastery = values.anomalyMastery * (
     1 + masteryInputs.reduce((total, input) => total + input.rawValue, 0) / 100
@@ -334,18 +309,8 @@ export function calculatePiper(
   const energyRegen = energyRegenProjection(values.baseEnergyRegen, [], effects)
   const dmgInputs = presentSetupInputs([
     mainStatInput(setup, 'piper', 'slot5', 'physicalDmg'),
-    discStatInput(
-      setup, 'piper', 'fourPiece', 'fangedMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.twoPiece.damage),
-      'twoPiece',
-    ),
-    discStatInput(
-      setup, 'piper', 'twoPiece', 'fangedMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.twoPiece.damage),
-    ),
-    discStatInput(
-      setup, 'piper', 'twoPiece', 'whiteWaterBallad',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.twoPiece.physicalDamage),
+    ...selectedDiscTwoPieceInputs(
+      setup, 'piper', { modifier: 'dmgBonus' },
     ),
   ])
   const initialDmg = dmgInputs.reduce((total, input) => total + input.rawValue, 0)
@@ -359,10 +324,7 @@ export function calculatePiper(
   const penInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'piper', 'penRatio'),
     mainStatInput(setup, 'piper', 'slot5', 'penRatio'),
-    discStatInput(
-      setup, 'piper', 'twoPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'piper', { modifier: 'penRatio' }),
   ])
   const initialPen = penInputs.reduce((total, input) => total + input.rawValue, 0)
   const penRatio = composeMetricEffects(

@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -74,13 +74,8 @@ function coreCritDmgBonus(initialAtk: number): number {
 function localKingCritRate(setup: CompleteSetup): number {
   return VERTICAL_VALUES.juFufu.critRate
     + (mainStatInput(setup, 'juFufu', 'slot4', 'critRate')?.rawValue ?? 0)
-    + (discStatInput(
-      setup,
-      'juFufu',
-      'twoPiece',
-      'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate),
-    )?.rawValue ?? 0)
+    + selectedDiscTwoPieceInputs(setup, 'juFufu', { modifier: 'critRate' })
+      .reduce((total, input) => total + input.rawValue, 0)
     + (effectiveSubstatInput(setup, 'juFufu', 'critRate')?.rawValue ?? 0)
     + (setup.mindscape >= 1 ? VERTICAL_VALUES.juFufu.mindscapeCritRate : 0)
 }
@@ -147,12 +142,6 @@ export function resolveJuFufuProviderClauses(
         'all-party'),
       { formulas: ['general_damage', 'sheer_damage'], attributes: ['Fire', 'Ice'] },
     ),
-    additive('dazeBonus', 'initial',
-      discSource('juFufu', 'king', '2-piece', setup.fourPieceId === 'king' ? '4-piece' : '2-piece'),
-      setup.fourPieceId === 'king' || setup.twoPieceId === 'king'
-        ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze)
-        : 0,
-      'self'),
     withApplicability(
       additive('critDmg', 'fully', discSource('juFufu', 'king', '4-piece'),
         kingCritDmg, 'all-party', undefined, undefined, undefined, 'kingOfTheSummit'),
@@ -179,12 +168,7 @@ function atkInputs(setup: CompleteSetup): {
     mainStatInput(setup, 'juFufu', 'slot4', 'atkPct'),
     mainStatInput(setup, 'juFufu', 'slot5', 'atkPct'),
     mainStatInput(setup, 'juFufu', 'slot6', 'atkPct'),
-    discStatInput(setup, 'juFufu', 'fourPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk), 'twoPiece'),
-    discStatInput(setup, 'juFufu', 'twoPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
-    discStatInput(setup, 'juFufu', 'twoPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
+    ...selectedDiscTwoPieceInputs(setup, 'juFufu', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'juFufu', 'atkPct'),
     ]),
     flat: effectiveSubstatInput(setup, 'juFufu', 'atkFlat'),
@@ -217,8 +201,7 @@ export function calculateJuFufu(
 
   const critInputs = presentSetupInputs([
     mainStatInput(setup, 'juFufu', 'slot4', 'critRate'),
-    discStatInput(setup, 'juFufu', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'juFufu', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'juFufu', 'critRate'),
   ])
   const initialCrit = values.critRate + critInputs.reduce((sum, input) => sum + input.rawValue, 0)
@@ -232,10 +215,7 @@ export function calculateJuFufu(
   const impactInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'juFufu', 'impactPct'),
     mainStatInput(setup, 'juFufu', 'slot6', 'impact'),
-    discStatInput(setup, 'juFufu', 'fourPiece', 'shockstar',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact), 'twoPiece'),
-    discStatInput(setup, 'juFufu', 'twoPiece', 'shockstar',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact)),
+    ...selectedDiscTwoPieceInputs(setup, 'juFufu', { modifier: 'impact' }),
   ])
   const initialImpact = values.impact * (
     1 + impactInputs.reduce((sum, input) => sum + input.rawValue, 0) / 100
@@ -251,15 +231,17 @@ export function calculateJuFufu(
 
   const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'juFufu', 'energyRegenPct'),
-    discStatInput(setup, 'juFufu', 'fourPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen), 'twoPiece'),
-    discStatInput(setup, 'juFufu', 'twoPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
-    discStatInput(setup, 'juFufu', 'twoPiece', 'moonlight',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen)),
+    ...selectedDiscTwoPieceInputs(setup, 'juFufu', { modifier: 'energyRegen' }),
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
-  const daze = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus')
+  const dazeInputs = selectedDiscTwoPieceInputs(setup, 'juFufu', { modifier: 'dazeBonus' })
+  const initialDaze = dazeInputs.reduce((total, input) => total + input.rawValue, 0)
+  const daze = composeMetricEffects(
+    surfaces(initialDaze, initialDaze, initialDaze),
+    surfaces(dazeInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
+    effects,
+    'dazeBonus',
+  )
   const stun = composeMetricEffects(
     surfaces(0, 0, 0), surfaces([], [], []), effects, 'stunDmgMultiplier',
   )

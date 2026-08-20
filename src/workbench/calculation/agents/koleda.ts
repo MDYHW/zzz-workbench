@@ -9,7 +9,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -158,14 +158,6 @@ export function resolveKoledaProviderClauses(
       'self',
     ),
 
-    additive(
-      'dazeBonus', 'initial',
-      discSource('koleda', 'king', '2-piece', setup.fourPieceId === 'king' ? '4-piece' : '2-piece'),
-      setup.fourPieceId === 'king' || setup.twoPieceId === 'king'
-        ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze)
-        : 0,
-      'self',
-    ),
     withApplicability(
       additive(
         'critDmg', 'fully', discSource('koleda', 'king', '4-piece'),
@@ -207,10 +199,7 @@ export function calculateKoleda(
   const impactInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'koleda', 'impactPct'),
     mainStatInput(setup, 'koleda', 'slot6', 'impact'),
-    discStatInput(setup, 'koleda', 'fourPiece', 'shockstar',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact), 'twoPiece'),
-    discStatInput(setup, 'koleda', 'twoPiece', 'shockstar',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact)),
+    ...selectedDiscTwoPieceInputs(setup, 'koleda', { modifier: 'impact' }),
   ])
   const initialImpact = values.impact * (
     1 + impactInputs.reduce((sum, input) => sum + input.rawValue, 0) / 100
@@ -239,13 +228,17 @@ export function calculateKoleda(
 
   const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'koleda', 'energyRegenPct'),
-    discStatInput(setup, 'koleda', 'fourPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen), 'twoPiece'),
-    discStatInput(setup, 'koleda', 'twoPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
+    ...selectedDiscTwoPieceInputs(setup, 'koleda', { modifier: 'energyRegen' }),
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
-  const daze = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus')
+  const dazeInputs = selectedDiscTwoPieceInputs(setup, 'koleda', { modifier: 'dazeBonus' })
+  const initialDaze = dazeInputs.reduce((total, input) => total + input.rawValue, 0)
+  const daze = composeMetricEffects(
+    surfaces(initialDaze, initialDaze, initialDaze),
+    surfaces(dazeInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
+    effects,
+    'dazeBonus',
+  )
   const actionModifiers = composeActionHierarchy(
     daze.values, effects, 'dazeBonus', DAZE_SCOPES,
   )

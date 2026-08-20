@@ -10,7 +10,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   engineAdvancedInput,
   engineSource,
   mainStatInput,
@@ -127,12 +127,7 @@ export function calculateNicole(
   const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'nicole', 'energyRegenPct'),
     mainStatInput(setup, 'nicole', 'slot6', 'energyRegenPct'),
-    discStatInput(setup, 'nicole', 'fourPiece', 'moonlight',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen), 'twoPiece'),
-    discStatInput(setup, 'nicole', 'twoPiece', 'moonlight',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen)),
-    discStatInput(setup, 'nicole', 'twoPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
+    ...selectedDiscTwoPieceInputs(setup, 'nicole', { modifier: 'energyRegen' }),
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
 

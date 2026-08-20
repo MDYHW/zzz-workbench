@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -72,10 +72,7 @@ function impactInputs(setup: CompleteSetup) {
   return presentSetupInputs([
     engineAdvancedInput(setup, 'qingyi', 'impactPct'),
     mainStatInput(setup, 'qingyi', 'slot6', 'impact'),
-    discStatInput(setup, 'qingyi', 'fourPiece', 'shockstar',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact), 'twoPiece'),
-    discStatInput(setup, 'qingyi', 'twoPiece', 'shockstar',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact)),
+    ...selectedDiscTwoPieceInputs(setup, 'qingyi', { modifier: 'impact' }),
   ])
 }
 
@@ -126,8 +123,8 @@ export function observeQingyi(
 function localKingCritRate(setup: CompleteSetup): number {
   return VERTICAL_VALUES.qingyi.critRate
     + (mainStatInput(setup, 'qingyi', 'slot4', 'critRate')?.rawValue ?? 0)
-    + (discStatInput(setup, 'qingyi', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate))?.rawValue ?? 0)
+    + selectedDiscTwoPieceInputs(setup, 'qingyi', { modifier: 'critRate' })
+      .reduce((total, input) => total + input.rawValue, 0)
     + (effectiveSubstatInput(setup, 'qingyi', 'critRate')?.rawValue ?? 0)
 }
 
@@ -243,14 +240,6 @@ export function resolveQingyiProviderClauses(
       'self',
     ),
 
-    additive(
-      'dazeBonus', 'initial',
-      discSource('qingyi', 'king', '2-piece', setup.fourPieceId === 'king' ? '4-piece' : '2-piece'),
-      setup.fourPieceId === 'king' || setup.twoPieceId === 'king'
-        ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze)
-        : 0,
-      'self',
-    ),
     withApplicability(
       additive(
         'critDmg', 'fully', discSource('qingyi', 'king', '4-piece'),
@@ -306,8 +295,7 @@ export function calculateQingyi(
     mainStatInput(setup, 'qingyi', 'slot4', 'atkPct'),
     mainStatInput(setup, 'qingyi', 'slot5', 'atkPct'),
     mainStatInput(setup, 'qingyi', 'slot6', 'atkPct'),
-    discStatInput(setup, 'qingyi', 'fourPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
+    ...selectedDiscTwoPieceInputs(setup, 'qingyi', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'qingyi', 'atkPct'),
   ])
   const atk = composeMetricEffects(
@@ -331,8 +319,7 @@ export function calculateQingyi(
 
   const critRateInputs = presentSetupInputs([
     mainStatInput(setup, 'qingyi', 'slot4', 'critRate'),
-    discStatInput(setup, 'qingyi', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'qingyi', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'qingyi', 'critRate'),
   ])
   const initialCritRate = values.critRate
@@ -382,13 +369,17 @@ export function calculateQingyi(
 
   const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'qingyi', 'energyRegenPct'),
-    discStatInput(setup, 'qingyi', 'fourPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen), 'twoPiece'),
-    discStatInput(setup, 'qingyi', 'twoPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
+    ...selectedDiscTwoPieceInputs(setup, 'qingyi', { modifier: 'energyRegen' }),
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
-  const daze = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus')
+  const dazeInputs = selectedDiscTwoPieceInputs(setup, 'qingyi', { modifier: 'dazeBonus' })
+  const initialDaze = dazeInputs.reduce((total, input) => total + input.rawValue, 0)
+  const daze = composeMetricEffects(
+    surfaces(initialDaze, initialDaze, initialDaze),
+    surfaces(dazeInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
+    effects,
+    'dazeBonus',
+  )
   const stun = composeMetricEffects(
     surfaces(0, 0, 0), surfaces([], [], []), effects, 'stunDmgMultiplier',
   )

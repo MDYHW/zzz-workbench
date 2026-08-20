@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -220,28 +220,7 @@ export function calculateCorin(
     engineAdvancedInput(setup, 'corin', 'atkPct'),
     mainStatInput(setup, 'corin', 'slot5', 'atkPct'),
     mainStatInput(setup, 'corin', 'slot6', 'atkPct'),
-    discStatInput(
-      setup,
-      'corin',
-      'fourPiece',
-      'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk),
-      'twoPiece',
-    ),
-    discStatInput(
-      setup,
-      'corin',
-      'twoPiece',
-      'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk),
-    ),
-    discStatInput(
-      setup,
-      'corin',
-      'twoPiece',
-      'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'corin', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'corin', 'atkPct'),
   ])
   const atk = composeMetricEffects(
@@ -258,13 +237,7 @@ export function calculateCorin(
   const critRateInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'corin', 'critRate'),
     mainStatInput(setup, 'corin', 'slot4', 'critRate'),
-    discStatInput(
-      setup,
-      'corin',
-      'twoPiece',
-      'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'corin', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'corin', 'critRate'),
   ])
   const critRateBase = VERTICAL_VALUES.corin.critRate
@@ -280,13 +253,7 @@ export function calculateCorin(
   const critDmgInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'corin', 'critDmg'),
     mainStatInput(setup, 'corin', 'slot4', 'critDmg'),
-    discStatInput(
-      setup,
-      'corin',
-      'twoPiece',
-      'branchAndBlade',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'corin', { modifier: 'critDmg' }),
     effectiveSubstatInput(setup, 'corin', 'critDmg'),
   ])
   const critDmgBase = VERTICAL_VALUES.corin.critDmg
@@ -300,13 +267,7 @@ export function calculateCorin(
 
   const dmgInputs = presentSetupInputs([
     mainStatInput(setup, 'corin', 'slot5', 'physicalDmg'),
-    discStatInput(
-      setup,
-      'corin',
-      'twoPiece',
-      'fangedMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.twoPiece.damage),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'corin', { modifier: 'dmgBonus' }),
   ])
   const dmgBase = dmgInputs.reduce((total, input) => total + input.rawValue, 0)
   const dmg = composeMetricEffects(
@@ -318,14 +279,7 @@ export function calculateCorin(
 
   const penInputs = presentSetupInputs([
     mainStatInput(setup, 'corin', 'slot5', 'penRatio'),
-    discStatInput(
-      setup,
-      'corin',
-      'fourPiece',
-      'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio),
-      'twoPiece',
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'corin', { modifier: 'penRatio' }),
   ])
   const penBase = penInputs.reduce((total, input) => total + input.rawValue, 0)
   const pen = composeMetricEffects(

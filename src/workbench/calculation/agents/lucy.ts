@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   engineAdvancedInput,
   engineSource,
   mainStatInput,
@@ -99,9 +99,7 @@ function atkInputs(setup: CompleteSetup): { percentage: ResolvedSetupInput[] } {
       mainStatInput(setup, 'lucy', 'slot4', 'atkPct'),
       mainStatInput(setup, 'lucy', 'slot5', 'atkPct'),
       mainStatInput(setup, 'lucy', 'slot6', 'atkPct'),
-      discStatInput(setup, 'lucy', 'fourPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
-      discStatInput(setup, 'lucy', 'twoPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
-      discStatInput(setup, 'lucy', 'twoPiece', 'hormonePunk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
+      ...selectedDiscTwoPieceInputs(setup, 'lucy', { modifier: 'atk' }),
     ]),
   }
 }
@@ -123,9 +121,7 @@ export function calculateLucy(context: LucyCalculationContext, inbox: SourceBoun
   const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'lucy', 'energyRegenPct'),
     mainStatInput(setup, 'lucy', 'slot6', 'energyRegenPct'),
-    discStatInput(setup, 'lucy', 'fourPiece', 'moonlight', equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen), 'twoPiece'),
-    discStatInput(setup, 'lucy', 'twoPiece', 'moonlight', equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen)),
-    discStatInput(setup, 'lucy', 'twoPiece', 'swingJazz', equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
+    ...selectedDiscTwoPieceInputs(setup, 'lucy', { modifier: 'energyRegen' }),
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
   const core = coreAtk(context)

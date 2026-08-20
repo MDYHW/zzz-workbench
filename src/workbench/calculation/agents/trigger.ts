@@ -1,5 +1,5 @@
 import { DRIVE_DISC_FACTS, VERTICAL_VALUES, W_ENGINE_FACTS, equipmentEffectBaseValue, equipmentEffectMaximumValue } from '../../content'
-import { STATIC_SOURCES, active, additive, discSource, discStatInput, effectiveSubstatInput, engineAdvancedInput, engineSource, mainStatInput, mindscapeSource, percentage, presentSetupInputs, resolveDeliveredClauses, withApplicability, withCandidatePressure, type CompleteSetup, type SourceBoundCurrentClause } from '../../effects'
+import { STATIC_SOURCES, active, additive, discSource, selectedDiscTwoPieceInputs, effectiveSubstatInput, engineAdvancedInput, engineSource, mainStatInput, mindscapeSource, percentage, presentSetupInputs, resolveDeliveredClauses, withApplicability, withCandidatePressure, type CompleteSetup, type SourceBoundCurrentClause } from '../../effects'
 import { actionTarget, canonicalAction, sourceLocalAction } from '../../actions'
 import { composeActionEffects, composeMetricEffects, contribution, percentageContribution, surfaces } from '../composition'
 import type { AgentResult, ResultMetric } from '../result'
@@ -23,7 +23,8 @@ export function resolveTriggerProviderClauses(setup: CompleteSetup): SourceBound
   const kingCrit = setup.fourPieceId === 'king' && (
     VERTICAL_VALUES.trigger.critRate + (engineAdvancedInput(setup, 'trigger', 'critRate')?.rawValue ?? 0)
       + (mainStatInput(setup, 'trigger', 'slot4', 'critRate')?.rawValue ?? 0)
-      + (discStatInput(setup, 'trigger', 'twoPiece', 'woodpecker', equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate))?.rawValue ?? 0)
+      + selectedDiscTwoPieceInputs(setup, 'trigger', { modifier: 'critRate' })
+        .reduce((total, input) => total + input.rawValue, 0)
       + (effectiveSubstatInput(setup, 'trigger', 'critRate')?.rawValue ?? 0)
   ) >= 50
     ? equipmentEffectMaximumValue(DRIVE_DISC_FACTS.king.fourPiece.critDamage)
@@ -31,7 +32,6 @@ export function resolveTriggerProviderClauses(setup: CompleteSetup): SourceBound
       ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.fourPiece.critDamage)
       : 0
   return active([
-    additive('dazeBonus', 'initial', discSource('trigger', 'king', '2-piece', setup.fourPieceId === 'king' ? '4-piece' : '2-piece'), setup.fourPieceId === 'king' || setup.twoPieceId === 'king' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze) : 0, 'self'),
     withApplicability(
       additive(
         'stunDmgMultiplier', 'fully', STATIC_SOURCES.trigger.core,
@@ -73,7 +73,7 @@ export function resolveTriggerProviderClauses(setup: CompleteSetup): SourceBound
     ),
     additive('dazeBonus', 'fully', engine, setup.engineId === 'restrained' ? equipmentEffectMaximumValue(W_ENGINE_FACTS.restrained.effects.daze, refinement) : 0, 'self', TRIGGER_BASIC_AFTERSHOCK_TARGET),
     additive('dazeBonus', 'fully', engine, setup.engineId === 'preciousFossilizedCore' ? equipmentEffectMaximumValue(W_ENGINE_FACTS.preciousFossilizedCore.effects.daze, refinement) : 0, 'self'),
-    additive('dazeBonus', 'fully', discStatInput(setup, 'trigger', 'fourPiece', 'shockstar', equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze))?.source ?? engine, setup.fourPieceId === 'shockstar' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze) : 0, 'self', TRIGGER_BASIC_AFTERSHOCK_TARGET),
+    additive('dazeBonus', 'fully', discSource('trigger', 'shockstar', '4-piece'), setup.fourPieceId === 'shockstar' ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze) : 0, 'self', TRIGGER_BASIC_AFTERSHOCK_TARGET),
     percentage('impact', 'fully', engine, setup.engineId === 'spectralGaze' ? equipmentEffectMaximumValue(W_ENGINE_FACTS.spectralGaze.effects.impact, refinement) : setup.engineId === 'blazingLaurel' ? equipmentEffectBaseValue(W_ENGINE_FACTS.blazingLaurel.effects.impact, refinement) : setup.engineId === 'iceJadeTeapot' ? equipmentEffectMaximumValue(W_ENGINE_FACTS.iceJadeTeapot.effects.impact, refinement) : setup.engineId === 'hellfireGears' ? equipmentEffectMaximumValue(W_ENGINE_FACTS.hellfireGears.effects.impact, refinement) : setup.engineId === 'steamOven' ? equipmentEffectBaseValue(W_ENGINE_FACTS.steamOven.effects.impact, refinement) : 0, 'self'),
   ])
 }
@@ -81,20 +81,21 @@ export function resolveTriggerProviderClauses(setup: CompleteSetup): SourceBound
 export function calculateTrigger(context: TriggerCalculationContext, inbox: SourceBoundCurrentClause[], enemy: SourceBoundCurrentClause[]): AgentResult {
   const { setup } = context
   const values = VERTICAL_VALUES.trigger
-  const critInputs = presentSetupInputs([engineAdvancedInput(setup, 'trigger', 'critRate'), mainStatInput(setup, 'trigger', 'slot4', 'critRate'), discStatInput(setup, 'trigger', 'twoPiece', 'woodpecker', equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)), effectiveSubstatInput(setup, 'trigger', 'critRate')])
+  const critInputs = presentSetupInputs([engineAdvancedInput(setup, 'trigger', 'critRate'), mainStatInput(setup, 'trigger', 'slot4', 'critRate'), ...selectedDiscTwoPieceInputs(setup, 'trigger', { modifier: 'critRate' }), effectiveSubstatInput(setup, 'trigger', 'critRate')])
   const critBase = Math.min(values.critRate + critInputs.reduce((n, x) => n + x.rawValue, 0), 100)
   const impactInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'trigger', 'impactPct'),
     mainStatInput(setup, 'trigger', 'slot6', 'impact'),
-    discStatInput(setup, 'trigger', 'twoPiece', 'shockstar', equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact)),
-    discStatInput(setup, 'trigger', 'fourPiece', 'shockstar', equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact), 'twoPiece'),
+    ...selectedDiscTwoPieceInputs(setup, 'trigger', { modifier: 'impact' }),
   ])
   const impactBase = values.impact * (1 + impactInputs.reduce((n, x) => n + x.rawValue, 0) / 100)
   const effects = resolveDeliveredClauses([...inbox, ...enemy], { impact: impactBase })
   const crit = composeMetricEffects(surfaces(critBase, critBase, critBase), surfaces(critInputs.map((x) => contribution(x.source, x.rawValue)), [], []), effects, 'critRate', { value: 100, source: STATIC_SOURCES.trigger.critCap })
   const critDmg = composeMetricEffects(surfaces(values.critDmg, values.critDmg, values.critDmg), surfaces([], [], []), effects, 'critDmg')
   const impact = composeMetricEffects(surfaces(impactBase, impactBase, impactBase), surfaces(impactInputs.map((x) => percentageContribution(x.source, values.impact * x.rawValue / 100, x.rawValue)), [], []), effects, 'impact')
-  const daze = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus')
+  const dazeInputs = selectedDiscTwoPieceInputs(setup, 'trigger', { modifier: 'dazeBonus' })
+  const initialDaze = dazeInputs.reduce((total, input) => total + input.rawValue, 0)
+  const daze = composeMetricEffects(surfaces(initialDaze, initialDaze, initialDaze), surfaces(dazeInputs.map((input) => contribution(input.source, input.rawValue)), [], []), effects, 'dazeBonus')
   const dazeGauge = context.additionalActive ? Math.min(Math.max(crit.values.fully - 40, 0) * 1.5, 75) : 0
   const quickAssist = effects.find((effect) => effect.action === TRIGGER_QUICK_ASSIST_TARGET && effect.metric === 'dazeBonus')
   const critMetric: ResultMetric = { id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1, ...crit }

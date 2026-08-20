@@ -10,7 +10,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -63,8 +63,8 @@ function localKingCritRate(setup: CompleteSetup): number {
   return VERTICAL_VALUES.pulchra.critRate
     + (setup.mindscape >= 1 ? VERTICAL_VALUES.pulchra.mindscapeCritRate : 0)
     + (mainStatInput(setup, 'pulchra', 'slot4', 'critRate')?.rawValue ?? 0)
-    + (discStatInput(setup, 'pulchra', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate))?.rawValue ?? 0)
+    + selectedDiscTwoPieceInputs(setup, 'pulchra', { modifier: 'critRate' })
+      .reduce((total, input) => total + input.rawValue, 0)
     + (effectiveSubstatInput(setup, 'pulchra', 'critRate')?.rawValue ?? 0)
 }
 
@@ -123,12 +123,6 @@ export function resolvePulchraProviderClauses(
           : 0,
       'self'),
 
-    additive('dazeBonus', 'initial',
-      discSource('pulchra', 'king', '2-piece', setup.fourPieceId === 'king' ? '4-piece' : '2-piece'),
-      setup.fourPieceId === 'king' || setup.twoPieceId === 'king'
-        ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze)
-        : 0,
-      'self'),
     withApplicability(
       additive('critDmg', 'fully', discSource('pulchra', 'king', '4-piece'),
         kingCritDmg, 'all-party', undefined, undefined, undefined, 'kingOfTheSummit'),
@@ -159,10 +153,7 @@ export function calculatePulchra(
   const impactInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'pulchra', 'impactPct'),
     mainStatInput(setup, 'pulchra', 'slot6', 'impact'),
-    discStatInput(setup, 'pulchra', 'fourPiece', 'shockstar',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact), 'twoPiece'),
-    discStatInput(setup, 'pulchra', 'twoPiece', 'shockstar',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact)),
+    ...selectedDiscTwoPieceInputs(setup, 'pulchra', { modifier: 'impact' }),
   ])
   const initialImpact = values.impact * (
     1 + impactInputs.reduce((sum, input) => sum + input.rawValue, 0) / 100
@@ -178,8 +169,7 @@ export function calculatePulchra(
 
   const critInputs = presentSetupInputs([
     mainStatInput(setup, 'pulchra', 'slot4', 'critRate'),
-    discStatInput(setup, 'pulchra', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'pulchra', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'pulchra', 'critRate'),
   ])
   const initialCrit = values.critRate + critInputs.reduce((sum, input) => sum + input.rawValue, 0)
@@ -191,16 +181,18 @@ export function calculatePulchra(
     { value: 100, source: source('Displayed CRIT Rate cap', 'pulchra', 'calculation') },
   )
 
+  const dazeInputs = selectedDiscTwoPieceInputs(setup, 'pulchra', { modifier: 'dazeBonus' })
+  const initialDaze = dazeInputs.reduce((total, input) => total + input.rawValue, 0)
   const daze = composeMetricEffects(
-    surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus',
+    surfaces(initialDaze, initialDaze, initialDaze),
+    surfaces(dazeInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
+    effects,
+    'dazeBonus',
   )
   const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'pulchra', 'energyRegenPct'),
     mainStatInput(setup, 'pulchra', 'slot6', 'energyRegenPct'),
-    discStatInput(setup, 'pulchra', 'fourPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen), 'twoPiece'),
-    discStatInput(setup, 'pulchra', 'twoPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
+    ...selectedDiscTwoPieceInputs(setup, 'pulchra', { modifier: 'energyRegen' }),
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
   const actions = composeActionHierarchy(daze.values, effects, 'dazeBonus', DAZE_SCOPES)

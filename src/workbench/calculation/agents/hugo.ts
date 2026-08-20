@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -210,12 +210,7 @@ export function calculateHugo(
     engineAdvancedInput(setup, 'hugo', 'atkPct'),
     mainStatInput(setup, 'hugo', 'slot5', 'atkPct'),
     mainStatInput(setup, 'hugo', 'slot6', 'atkPct'),
-    discStatInput(setup, 'hugo', 'fourPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk), 'twoPiece'),
-    discStatInput(setup, 'hugo', 'twoPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
-    discStatInput(setup, 'hugo', 'twoPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
+    ...selectedDiscTwoPieceInputs(setup, 'hugo', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'hugo', 'atkPct'),
   ])
   const atk = composeMetricEffects(
@@ -230,8 +225,7 @@ export function calculateHugo(
   const critRateInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'hugo', 'critRate'),
     mainStatInput(setup, 'hugo', 'slot4', 'critRate'),
-    discStatInput(setup, 'hugo', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'hugo', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'hugo', 'critRate'),
   ])
   const initialCritRate = values.critRate
@@ -247,8 +241,7 @@ export function calculateHugo(
   const critDmgInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'hugo', 'critDmg'),
     mainStatInput(setup, 'hugo', 'slot4', 'critDmg'),
-    discStatInput(setup, 'hugo', 'twoPiece', 'branchAndBlade',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
+    ...selectedDiscTwoPieceInputs(setup, 'hugo', { modifier: 'critDmg' }),
     effectiveSubstatInput(setup, 'hugo', 'critDmg'),
   ])
   const initialCritDmg = values.critDmg
@@ -262,8 +255,7 @@ export function calculateHugo(
 
   const dmgInputs = presentSetupInputs([
     mainStatInput(setup, 'hugo', 'slot5', 'iceDmg'),
-    discStatInput(setup, 'hugo', 'twoPiece', 'polarMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.polarMetal.twoPiece.damage)),
+    ...selectedDiscTwoPieceInputs(setup, 'hugo', { modifier: 'dmgBonus' }),
   ])
   const initialDmg = dmgInputs.reduce((total, input) => total + input.rawValue, 0)
   const dmg = composeMetricEffects(
@@ -275,10 +267,7 @@ export function calculateHugo(
 
   const penInputs = presentSetupInputs([
     mainStatInput(setup, 'hugo', 'slot5', 'penRatio'),
-    discStatInput(setup, 'hugo', 'fourPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio), 'twoPiece'),
-    discStatInput(setup, 'hugo', 'twoPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio)),
+    ...selectedDiscTwoPieceInputs(setup, 'hugo', { modifier: 'penRatio' }),
   ])
   const initialPen = penInputs.reduce((total, input) => total + input.rawValue, 0)
   const pen = composeMetricEffects(

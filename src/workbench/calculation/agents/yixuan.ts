@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -231,17 +231,11 @@ export function calculateYixuan(
   const critDmgSubstat = effectiveSubstatInput(setup, 'yixuan', 'critDmg')
   const engineHp = engineAdvancedInput(setup, 'yixuan', 'hpPct')
   const engineAtk = engineAdvancedInput(setup, 'yixuan', 'atkPct')
-  const discHp = discStatInput(
-    setup,
-    'yixuan',
-    'fourPiece',
-    'yunkui',
-    equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.twoPiece.maxHp),
-  )
+  const discHpInputs = selectedDiscTwoPieceInputs(setup, 'yixuan', { modifier: 'maxHp' })
   const slot5Hp = mainStatInput(setup, 'yixuan', 'slot5', 'hpPct')
   const slot6Hp = mainStatInput(setup, 'yixuan', 'slot6', 'hpPct')
   const hpPercent = (engineHp?.rawValue ?? 0)
-    + (discHp?.rawValue ?? 0)
+    + discHpInputs.reduce((total, input) => total + input.rawValue, 0)
     + (slot5Hp?.rawValue ?? 0)
     + (slot6Hp?.rawValue ?? 0)
     + (hpSubstat?.rawValue ?? 0)
@@ -256,50 +250,33 @@ export function calculateYixuan(
 
   const mainCritRate = mainStatInput(setup, 'yixuan', 'slot4', 'critRate')
   const mainCritDmg = mainStatInput(setup, 'yixuan', 'slot4', 'critDmg')
-  const twoPieceCritRate = discStatInput(
-    setup,
-    'yixuan',
-    'twoPiece',
-    'woodpecker',
-    equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate),
-  )
-  const twoPieceCritDmg = discStatInput(
-    setup,
-    'yixuan',
-    'twoPiece',
-    'branchAndBlade',
-    equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage),
-  )
+  const discCritRateInputs = selectedDiscTwoPieceInputs(setup, 'yixuan', { modifier: 'critRate' })
+  const discCritDmgInputs = selectedDiscTwoPieceInputs(setup, 'yixuan', { modifier: 'critDmg' })
   const uncappedInitialCritRate = yixuan.critRate
     + (mainCritRate?.rawValue ?? 0)
-    + (twoPieceCritRate?.rawValue ?? 0)
+    + discCritRateInputs.reduce((total, input) => total + input.rawValue, 0)
     + (critRateSubstat?.rawValue ?? 0)
   const initialCritRate = Math.min(uncappedInitialCritRate, 100)
   const initialCritDmg = yixuan.critDmg
     + (mainCritDmg?.rawValue ?? 0)
-    + (twoPieceCritDmg?.rawValue ?? 0)
+    + discCritDmgInputs.reduce((total, input) => total + input.rawValue, 0)
     + (critDmgSubstat?.rawValue ?? 0)
 
   const initialDmg = mainStatInput(setup, 'yixuan', 'slot5', 'etherDmg')
-  const twoPieceEtherDmg = discStatInput(
-    setup,
-    'yixuan',
-    'twoPiece',
-    'chaoticMetal',
-    equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaoticMetal.twoPiece.damage),
-  )
-  const initialDmgBonus = (initialDmg?.rawValue ?? 0) + (twoPieceEtherDmg?.rawValue ?? 0)
+  const discEtherDmgInputs = selectedDiscTwoPieceInputs(setup, 'yixuan', { modifier: 'dmgBonus' })
+  const initialDmgBonus = (initialDmg?.rawValue ?? 0)
+    + discEtherDmgInputs.reduce((total, input) => total + input.rawValue, 0)
   const hpInitialBreakdown = withoutZero([
     ...(engineHp ? [percentageContribution(
       engineHp.source,
       yixuan.hp * engineHp.rawValue / 100,
       engineHp.rawValue,
     )] : []),
-    ...(discHp ? [percentageContribution(
-      discHp.source,
-      yixuan.hp * discHp.rawValue / 100,
-      discHp.rawValue,
-    )] : []),
+    ...discHpInputs.map((input) => percentageContribution(
+      input.source,
+      yixuan.hp * input.rawValue / 100,
+      input.rawValue,
+    )),
     ...(slot5Hp ? [percentageContribution(
       slot5Hp.source,
       yixuan.hp * slot5Hp.rawValue / 100,
@@ -319,10 +296,7 @@ export function calculateYixuan(
 
   const rawCritInitialBreakdown = withoutZero([
     ...(mainCritRate ? [contribution(mainCritRate.source, mainCritRate.rawValue)] : []),
-    ...(twoPieceCritRate ? [contribution(
-      twoPieceCritRate.source,
-      twoPieceCritRate.rawValue,
-    )] : []),
+    ...discCritRateInputs.map((input) => contribution(input.source, input.rawValue)),
     ...(critRateSubstat ? [contribution(critRateSubstat.source, critRateSubstat.rawValue)] : []),
   ])
   const critInitialBreakdown = withoutZero([
@@ -371,7 +345,7 @@ export function calculateYixuan(
     surfaces(
       withoutZero([
         ...(mainCritDmg ? [contribution(mainCritDmg.source, mainCritDmg.rawValue)] : []),
-        ...(twoPieceCritDmg ? [contribution(twoPieceCritDmg.source, twoPieceCritDmg.rawValue)] : []),
+        ...discCritDmgInputs.map((input) => contribution(input.source, input.rawValue)),
         ...(critDmgSubstat ? [contribution(critDmgSubstat.source, critDmgSubstat.rawValue)] : []),
       ]),
       [],
@@ -385,9 +359,7 @@ export function calculateYixuan(
     surfaces(
       withoutZero([
         ...(initialDmg ? [contribution(initialDmg.source, initialDmg.rawValue)] : []),
-        ...(twoPieceEtherDmg
-          ? [contribution(twoPieceEtherDmg.source, twoPieceEtherDmg.rawValue)]
-          : []),
+        ...discEtherDmgInputs.map((input) => contribution(input.source, input.rawValue)),
       ]),
       [],
       [],

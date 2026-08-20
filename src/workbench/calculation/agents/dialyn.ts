@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -55,15 +55,13 @@ export function observeDialyn(
   const dialyn = VERTICAL_VALUES.dialyn
   const engineCrit = engineAdvancedInput(setup, 'dialyn', 'critRate')
   const mainCrit = mainStatInput(setup, 'dialyn', 'slot4', 'critRate')
-  const twoPieceCrit = discStatInput(
-    setup,
-    'dialyn',
-    'twoPiece',
-    'woodpecker',
-    equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate),
-  )
   const substatCrit = effectiveSubstatInput(setup, 'dialyn', 'critRate')
-  const inputs = presentSetupInputs([engineCrit, mainCrit, twoPieceCrit, substatCrit])
+  const inputs = presentSetupInputs([
+    engineCrit,
+    mainCrit,
+    ...selectedDiscTwoPieceInputs(setup, 'dialyn', { modifier: 'critRate' }),
+    substatCrit,
+  ])
   const uncappedValue = dialyn.critRate
     + inputs.reduce((total, input) => total + input.rawValue, 0)
 
@@ -154,20 +152,7 @@ export function calculateDialyn(
   const engineEnergyRegen = engineAdvancedInput(setup, 'dialyn', 'energyRegenPct')
   const slotEnergyRegen = mainStatInput(setup, 'dialyn', 'slot6', 'energyRegenPct')
   const discEnergyRegen = presentSetupInputs([
-    discStatInput(
-      setup,
-      'dialyn',
-      'twoPiece',
-      'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen),
-    ),
-    discStatInput(
-      setup,
-      'dialyn',
-      'twoPiece',
-      'moonlight',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'dialyn', { modifier: 'energyRegen' }),
   ])
   const initialEnergyRegenInputs: ResolvedSetupInput[] = [
     ...(engineEnergyRegen ? [engineEnergyRegen] : []),
@@ -180,13 +165,8 @@ export function calculateDialyn(
     effects,
   )
 
-  const kingDaze = discStatInput(
-    setup,
-    'dialyn',
-    'fourPiece',
-    'king',
-    equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze),
-  )
+  const dazeInputs = selectedDiscTwoPieceInputs(setup, 'dialyn', { modifier: 'dazeBonus' })
+  const initialDaze = dazeInputs.reduce((total, input) => total + input.rawValue, 0)
   const critRate = composeMetricEffects(
     surfaces(initialCrit.value, initialCrit.value, initialCrit.value),
     surfaces(
@@ -219,9 +199,9 @@ export function calculateDialyn(
     'impact',
   )
   const dazeBonus = composeMetricEffects(
-    surfaces(kingDaze?.rawValue ?? 0, kingDaze?.rawValue ?? 0, kingDaze?.rawValue ?? 0),
+    surfaces(initialDaze, initialDaze, initialDaze),
     surfaces(
-      withoutZero(kingDaze ? [contribution(kingDaze.source, kingDaze.rawValue)] : []),
+      withoutZero(dazeInputs.map((input) => contribution(input.source, input.rawValue))),
       [],
       [],
     ),

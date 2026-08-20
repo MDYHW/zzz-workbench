@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -119,12 +119,7 @@ function atkInputs(setup: CompleteSetup): {
       mainStatInput(setup, 'panYinhu', 'slot4', 'atkPct'),
       mainStatInput(setup, 'panYinhu', 'slot5', 'atkPct'),
       mainStatInput(setup, 'panYinhu', 'slot6', 'atkPct'),
-      discStatInput(setup, 'panYinhu', 'fourPiece', 'astralVoice',
-        equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
-      discStatInput(setup, 'panYinhu', 'twoPiece', 'astralVoice',
-        equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
-      discStatInput(setup, 'panYinhu', 'twoPiece', 'hormonePunk',
-        equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
+      ...selectedDiscTwoPieceInputs(setup, 'panYinhu', { modifier: 'atk' }),
       effectiveSubstatInput(setup, 'panYinhu', 'atkPct'),
     ]),
     flat: effectiveSubstatInput(setup, 'panYinhu', 'atkFlat'),
@@ -175,12 +170,7 @@ export function calculatePanYinhu(
 
   const energyInputs = presentSetupInputs([
     mainStatInput(setup, 'panYinhu', 'slot6', 'energyRegenPct'),
-    discStatInput(setup, 'panYinhu', 'fourPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen), 'twoPiece'),
-    discStatInput(setup, 'panYinhu', 'twoPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
-    discStatInput(setup, 'panYinhu', 'twoPiece', 'moonlight',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen)),
+    ...selectedDiscTwoPieceInputs(setup, 'panYinhu', { modifier: 'energyRegen' }),
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
   const daze = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus')
