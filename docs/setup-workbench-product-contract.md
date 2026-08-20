@@ -397,10 +397,10 @@ score, ranking, research receipt, or provider-identity branch.
 
 The current candidate-membership adjustment admits material **broad** pre-PEN
 DEF Reduction or DEF Ignore as pressure that may remove an admitted PEN Ratio
-supplier from an applied setup whose authored direction admits residual or
-primary general-damage investment and therefore consumes the DEF region. This
-can affect a Slot 5 PEN Ratio main stat or a PEN Ratio 2-piece Disc when each is
-otherwise a competitive candidate. Resolve the pressure through its actual
+supplier from an applied setup whose authored primary or residual damage
+direction uses an applicable formula frame that consumes the DEF region. This
+can affect a Slot 5 PEN Ratio main stat or a PEN Ratio 2-piece Disc when each
+is otherwise a competitive candidate. Resolve the pressure through its actual
 recipient, Attribute, action, and formula applicability; do not turn one
 provider's clause into a global party flag.
 
@@ -413,15 +413,16 @@ product decision before the qualifier is expanded. A broad or numerically
 large modifier likewise does not establish exclusion without that authored
 policy. A direction whose damage family omits the DEF region never admits PEN
 Ratio from this rule. The current broad Spectral Gaze pressure removes Slot 5
-PEN Ratio for every applicable setup whose authored primary or residual
-direction participates in `general_damage`; Agent identity, Specialty, and
-Attribute are not additional predicates. Its enemy DEF Reduction reaches the
-same formula-applicable Result consumers rather than a separately named Agent
-set. A representative that would otherwise start with invalid PEN requires its
-own authored pressure-safe prepared choice rather than a runtime fallback. A broad party
-Electric DEF Ignore can remove both Slot 5 PEN Ratio and a Puffer Electro
-2-piece candidate for an applicable Electric general-damage setup. It does not
-by itself remove a separately authored competitive Puffer Electro 4-piece case;
+PEN Ratio for every applicable setup whose authored primary or residual damage
+direction consumes `def_multiplier`; Agent identity, Specialty, and Attribute
+are not additional predicates. Its enemy DEF Reduction reaches the same
+formula-applicable Result consumers rather than a separately named Agent set.
+A representative that would otherwise start with invalid PEN requires its own
+authored pressure-safe prepared choice rather than a runtime fallback. A broad
+party Electric DEF Ignore can remove both Slot 5 PEN Ratio and a Puffer
+Electro 2-piece candidate for an applicable Electric setup whose authored
+primary or residual damage direction consumes `def_multiplier`. It does not by
+itself remove a separately authored competitive Puffer Electro 4-piece case;
 that complete package is evaluated through its inherent 2-piece and 4-piece
 effects under the whole-package rule. Cordis Germina's Basic/Ultimate-only DEF
 Ignore does not remove either PEN Ratio input by itself. This is authored
