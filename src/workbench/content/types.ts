@@ -117,7 +117,6 @@ export type EngineId =
   | 'halfSugarBunny'
   | 'timeweaver'
   | 'practicedPerfection'
-  | 'angelInTheShell'
   | 'fusionCompiler'
   | 'electroLipGloss'
   | 'weepingGemini'
