@@ -8,8 +8,8 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-Keep at most one active bounded implementation plan. The current active plan is
-[Piper Anomaly vertical](2026-08-19-002-feat-piper-anomaly-vertical-plan.md).
+Keep at most one active bounded implementation plan. There is currently no
+active plan.
 The authority-governance recovery closed after exact-SHA
 finalization, protected `main` promotion, and recovery freeze; its detailed
 execution record remains in Git history and the durable postmortem.
@@ -69,6 +69,7 @@ and author the new local outcome from current consumers instead.
 | 2026-08-15 | Added Ye Shunguang and Zhao through Honed Edge/Physical applicability, capped Veil Vulnerability with editable target context, Initial-HP-derived support, contextual Quick Assist lifecycle, and pool-local equipment packages | [Ye/Zhao requirements](../brainstorms/2026-08-15-ye-shunguang-zhao-vertical-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [source-fact boundary](../source-fact-boundary.md), [UI design rules](../workbench-ui-design-rules.md) |
 | 2026-08-15 to 2026-08-19 | Established protected authority-change, review, CI, App, and visual gates; corrected shared semantic mechanisms; re-audited all 38 frozen Agent identities; finalized the exact accepted recovery tip; promoted protected/default `main`; and froze the attested recovery branch | [authority-governance postmortem](../postmortems/2026-08-15-authority-governance-drift.md), [recovery audit index](../audits/2026-08-15-existing-vertical-recovery.md), [authority-change records](../authority-changes/README.md), current `GOV-001` in [AGENTS.md](../../AGENTS.md) |
 | 2026-08-19 | Bounded the through-2.8 Anomaly expansion cohort, deferred Anton/Rina and Miyabi, established Piper as the first rolling vertical, and separated reusable equipment facts from consumer-backed admission | [Anomaly preflight requirements](../brainstorms/2026-08-19-through-2-8-anomaly-expansion-preflight-requirements.md), [Piper requirements](../brainstorms/2026-08-19-piper-anomaly-vertical-requirements.md), current content and calculation consumers |
+| 2026-08-20 | Added Piper through the established Anomaly formula, party-condition, provider, preparation, equipment, direct-edit, and visible Setup/Result paths while retaining AP/Physical/AM as the deterministic start and admitting Slot 6 ATK% as a competitive edit | [Piper requirements](../brainstorms/2026-08-19-piper-anomaly-vertical-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), current content and calculation consumers |
 
 For removed plan detail, use Git history for `docs/plans/`. The milestone index
 does not validate current product behavior; the linked owners and current
