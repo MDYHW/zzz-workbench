@@ -118,6 +118,9 @@ export const DRIVE_DISC_FACTS = {
     twoPiece: {
       damage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Physical'] } },
     },
+    fourPiece: {
+      assaultDamage: { modifier: 'dmgBonus', unit: '%', value: 35 },
+    },
   },
   polarMetal: {
     twoPiece: {
@@ -212,13 +215,6 @@ export const DRIVE_DISC_FACTS = {
     twoPiece: {
       anomalyMastery: { modifier: 'anomalyMastery', unit: '%', value: 8 },
     },
-    fourPiece: {
-      anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: 45 },
-      otherHolderEtherDamage: {
-        modifier: 'dmgBonus', unit: '%', value: 25,
-        scope: { attributes: ['Ether'] },
-      },
-    },
   },
 } as const satisfies Record<DiscId, DriveDiscFacts>
 
@@ -298,6 +294,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   fangedMetal: {
     id: 'fangedMetal', name: 'Fanged Metal', image: fangedMetalImage,
     twoPieceEffect: `Physical DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.twoPiece.damage)}%`,
+    fourPieceEffects: [`Assaulted target · Holder DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.fourPiece.assaultDamage)}%`],
   },
   polarMetal: {
     id: 'polarMetal', name: 'Polar Metal', image: polarMetalImage,
@@ -365,10 +362,6 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   phaethonsMelody: {
     id: 'phaethonsMelody', name: "Phaethon's Melody", image: phaethonsMelodyImage,
     twoPieceEffect: `Anomaly Mastery +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.twoPiece.anomalyMastery)}%`,
-    fourPieceEffects: [
-      `Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.anomalyProficiency)}`,
-      `Ether DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.otherHolderEtherDamage)}%`,
-    ],
   },
 }
 
@@ -492,10 +485,14 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     twoPiece: ['bunnyInWonderland', 'yunkui', 'swingJazz', 'moonlight', 'astralVoice', 'hormonePunk'],
   },
   grace: {
-    fourPiece: ['thunderMetal', 'chaosJazz', 'freedomBlues', 'phaethonsMelody'],
+    fourPiece: ['thunderMetal', 'chaosJazz', 'freedomBlues'],
     twoPiece: [
       'pufferElectro', 'phaethonsMelody', 'freedomBlues', 'chaosJazz',
       'hormonePunk', 'astralVoice',
     ],
+  },
+  piper: {
+    fourPiece: ['fangedMetal', 'freedomBlues'],
+    twoPiece: ['phaethonsMelody', 'freedomBlues', 'chaosJazz', 'fangedMetal', 'whiteWaterBallad', 'pufferElectro', 'hormonePunk', 'astralVoice'],
   },
 }

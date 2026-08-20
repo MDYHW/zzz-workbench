@@ -24,6 +24,8 @@ const agents = {
     displayName: 'Anby: Soldier 0',
     slug: 'anby-soldier-0',
   },
+  grace: { candidateName: 'Grace Howard, Electric, Anomaly', displayName: 'Grace Howard', slug: 'grace' },
+  piper: { candidateName: 'Piper Wheel, Physical, Anomaly', displayName: 'Piper Wheel', slug: 'piper' },
 } satisfies Record<string, PortraitAgent>
 
 const parties: readonly PortraitParty[] = [
@@ -37,6 +39,12 @@ const parties: readonly PortraitParty[] = [
     id: 'portrait-corrections-b',
     captures: [agents.koleda, agents.zhao],
     members: [agents.koleda, agents.zhao, agents.anbySoldier0],
+  },
+  {
+    id: 'portrait-piper-anomaly',
+    focus: 'Piper Wheel',
+    captures: [agents.piper],
+    members: [agents.piper, agents.grace, agents.ben],
   },
 ]
 

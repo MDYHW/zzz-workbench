@@ -238,6 +238,10 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     id: 'grace', name: 'Grace Howard', attribute: 'Electric', specialty: 'Anomaly',
     focusEligible: true, rank: 'S', faction: 'Belobog Heavy Industries',
   },
+  {
+    id: 'piper', name: 'Piper Wheel', attribute: 'Physical', specialty: 'Anomaly',
+    focusEligible: true, rank: 'A', faction: 'Sons of Calydon',
+  },
 ]
 
 export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>

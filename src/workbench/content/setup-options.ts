@@ -50,6 +50,7 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   yeShunguang: { primary: ['general_damage'], residual: [] },
   zhao: { primary: [], residual: ['general_damage'] },
   grace: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: [] },
+  piper: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: [] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -245,6 +246,11 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot5: ['penRatio', 'electricDmg', 'atkPct'],
     slot6: ['anomalyMastery', 'atkPct'],
   },
+  piper: {
+    slot4: ['anomalyProficiency', 'atkPct'],
+    slot5: ['physicalDmg', 'atkPct', 'penRatio'],
+    slot6: ['anomalyMastery', 'atkPct'],
+  },
 }
 
 /** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
@@ -409,6 +415,10 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
     { id: 'hpFlat', label: 'HP', perHit: 112, unit: '' },
   ],
   grace: [
+    { id: 'anomalyProficiency', label: 'Anomaly Proficiency', perHit: 9, unit: '' },
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+  ],
+  piper: [
     { id: 'anomalyProficiency', label: 'Anomaly Proficiency', perHit: 9, unit: '' },
     { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
   ],

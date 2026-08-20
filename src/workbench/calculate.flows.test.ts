@@ -8,6 +8,7 @@ import {
   selectDisc,
   selectEngine,
   selectMain,
+  setRefinement,
   setSubstat,
   sourceLabels,
   withMindscape,
@@ -765,11 +766,197 @@ describe('representative calculation flows', () => {
     ))!, 'grace')
     expect(metric(freedom, 'anomalyBuildupResReduction').values.fully).toBe(20)
 
-    const phaethon = agent(calculateParty(selectDisc(
-      base, 'grace', 'fourPiece', 'phaethonsMelody',
-    ))!, 'grace')
-    expect(metric(phaethon, 'anomalyMastery').values.initial).toBeCloseTo(208.38)
-    expect(metric(phaethon, 'anomalyProficiency').values)
-      .toEqual({ initial: 208, combat: 208, fully: 328 })
+  })
+
+  it('projects exact M0, M1, M2, and M6 Piper Power outcomes', () => {
+    const fullState = createPreparedState({}, ['piper', 'billy', 'lycaon'], 0)
+    const full = agent(calculateParty(fullState)!, 'piper')
+    expect(metric(full, 'power').values).toEqual({ initial: 0, combat: 0, fully: 30 })
+    expect(metric(full, 'power').breakdown.fully).toContainEqual(expect.objectContaining({
+      ownerAgentId: 'piper', locus: 'core', amount: 30,
+    }))
+    expect(metric(full, 'power').gauge).toMatchObject({
+      source: expect.objectContaining({ ownerAgentId: 'piper', locus: 'additional' }),
+      current: 30, threshold: 20, cap: 30,
+      outputLabel: 'Squad DMG Bonus', outputValue: 18,
+    })
+    expect(metric(full, 'anomalyBuildupBonus').values.fully).toBe(120)
+    expect(action(full, 'piperDownwardSpecialEx').values.fully
+      - metric(full, 'dmgBonus').values.fully).toBe(40)
+    expect(action(full, 'piperUltimate').values.fully
+      - metric(full, 'dmgBonus').values.fully).toBe(40)
+
+    const m0 = agent(calculateParty(withMindscape(fullState, 'piper', 0))!, 'piper')
+    expect(metric(m0, 'power').values.fully).toBe(20)
+    expect(metric(m0, 'power').gauge).toMatchObject({ current: 20, cap: 20 })
+    expect(metric(m0, 'anomalyBuildupBonus').values.fully).toBe(80)
+    expect(m0.actionModifiers).toEqual([])
+
+    const m1 = agent(calculateParty(withMindscape(fullState, 'piper', 1))!, 'piper')
+    expect(metric(m1, 'power').values.fully).toBe(30)
+    expect(metric(m1, 'anomalyBuildupBonus').values.fully).toBe(120)
+    expect(m1.actionModifiers).toEqual([])
+
+    const m2 = agent(calculateParty(withMindscape(fullState, 'piper', 2))!, 'piper')
+    expect(action(m2, 'piperDownwardSpecialEx').outcomes).toEqual([
+      { kind: 'form', action: 'Special Attack', form: 'Downward smash' },
+      { kind: 'form', action: 'EX Special Attack', form: 'Downward smash' },
+    ])
+    expect(action(m2, 'piperDownwardSpecialEx').values.fully
+      - metric(m2, 'dmgBonus').values.fully).toBe(40)
+    expect(m2.operations).toEqual([])
+  })
+
+  it('keeps Piper qualification as Attribute-or-faction and projects its threshold output for applicable formulas', () => {
+    for (const party of [
+      ['piper', 'billy', 'soldier11'],
+      ['piper', 'lucy', 'soldier11'],
+    ] as const) {
+      const result = calculateParty(createPreparedState({}, [...party], 0))!
+      expect(metric(agent(result, 'piper'), 'power').gauge).toBeDefined()
+      for (const agentId of party.filter((id) => id !== 'lucy')) {
+        expect(metric(agent(result, agentId), 'dmgBonus').breakdown.fully)
+          .toContainEqual(expect.objectContaining({
+            ownerAgentId: 'piper', locus: 'additional', amount: 18,
+          }))
+      }
+    }
+
+    const unrelated = calculateParty(
+      createPreparedState({}, ['piper', 'anby', 'lycaon'], 0),
+    )!
+    const piper = agent(unrelated, 'piper')
+    expect(metric(piper, 'power').values.fully).toBe(30)
+    expect(metric(piper, 'power').gauge).toBeUndefined()
+    expect(metric(piper, 'anomalyBuildupBonus').values.fully).toBe(120)
+    for (const result of unrelated.agents) {
+      expect(result.metrics.flatMap(({ breakdown }) => breakdown.fully))
+        .not.toContainEqual(expect.objectContaining({
+          ownerAgentId: 'piper', locus: 'additional',
+        }))
+    }
+
+    const ruptureParty = calculateParty(createPreparedState(
+      {}, ['piper', 'starlightBilly', 'panYinhu'], 0,
+    ))!
+    expect(metric(agent(ruptureParty, 'starlightBilly'), 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        ownerAgentId: 'piper', locus: 'additional', amount: 18,
+      }))
+  })
+
+  it('projects Piper equipment packages and direct finite-input substitutions at their exact regions', () => {
+    const base = createPreparedState({}, ['piper', 'billy', 'lycaon'], 0)
+
+    const practiced = agent(calculateParty(selectEngine(
+      base, 'piper', 'practicedPerfection',
+    ))!, 'piper')
+    expect(metric(practiced, 'anomalyMastery').breakdown.combat)
+      .toContainEqual(expect.objectContaining({ label: 'Practiced Perfection', amount: 60 }))
+    expect(metric(practiced, 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Practiced Perfection', amount: 40 }))
+
+    const sharpened = agent(calculateParty(selectEngine(
+      base, 'piper', 'sharpenedStinger',
+    ))!, 'piper')
+    expect(metric(sharpened, 'anomalyProficiency').values.initial).toBe(300)
+    expect(metric(sharpened, 'anomalyBuildupBonus').values.fully).toBe(160)
+    expect(metric(sharpened, 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Sharpened Stinger', amount: 36 }))
+
+    const fusion = agent(calculateParty(selectEngine(
+      base, 'piper', 'fusionCompiler',
+    ))!, 'piper')
+    expect(metric(fusion, 'atk').breakdown.combat)
+      .toContainEqual(expect.objectContaining({
+        label: 'Fusion Compiler', display: { value: 12, unit: '%', decimals: 0 },
+      }))
+    expect(metric(fusion, 'anomalyProficiency').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Fusion Compiler', amount: 75 }))
+
+    const electro = agent(calculateParty(setRefinement(selectEngine(
+      base, 'piper', 'electroLipGloss',
+    ), 'piper', 1))!, 'piper')
+    expect(metric(electro, 'atk').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Electro-Lip Gloss', display: { value: 10, unit: '%', decimals: 0 },
+      }))
+    expect(metric(electro, 'dmgBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Electro-Lip Gloss', amount: 15 }))
+
+    const weeping = agent(calculateParty(setRefinement(selectEngine(
+      base, 'piper', 'weepingGemini',
+    ), 'piper', 1))!, 'piper')
+    expect(metric(weeping, 'anomalyProficiency').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Weeping Gemini', amount: 120 }))
+
+    const roaringW5 = agent(calculateParty(setRefinement(selectEngine(
+      base, 'piper', 'roaringRide',
+    ), 'piper', 5))!, 'piper')
+    expect(metric(roaringW5, 'atk').breakdown.fully).toContainEqual(expect.objectContaining({
+      label: 'Roaring Ride', detail: 'W5', display: { value: 12.8, unit: '%', decimals: 1 },
+    }))
+    expect(metric(roaringW5, 'anomalyProficiency').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Roaring Ride', amount: 64 }))
+    expect(metric(roaringW5, 'anomalyBuildupBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Roaring Ride', amount: 40 }))
+
+    const roaringW1 = agent(calculateParty(setRefinement(selectEngine(
+      base, 'piper', 'roaringRide',
+    ), 'piper', 1))!, 'piper')
+    expect(metric(roaringW1, 'anomalyProficiency').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Roaring Ride', amount: 40 }))
+    expect(metric(roaringW1, 'anomalyBuildupBonus').breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Roaring Ride', amount: 25 }))
+
+    const freedom = agent(calculateParty(selectDisc(
+      base, 'piper', 'fourPiece', 'freedomBlues',
+    ))!, 'piper')
+    expect(metric(freedom, 'anomalyProficiency').values.initial).toBe(240)
+    expect(metric(freedom, 'anomalyBuildupResReduction').values.fully).toBe(20)
+    expect(metric(freedom, 'dmgBonus').breakdown.fully)
+      .not.toContainEqual(expect.objectContaining({ label: 'Fanged Metal' }))
+
+    const fanged = agent(calculateParty(base)!, 'piper')
+    expect(metric(fanged, 'dmgBonus').breakdown.fully).toContainEqual(expect.objectContaining({
+      label: 'Fanged Metal', detail: '4-piece · After Assault · vs target', amount: 35,
+    }))
+
+    const slot4Atk = agent(calculateParty(selectMain(
+      base, 'piper', 'slot4', 'atkPct',
+    ))!, 'piper')
+    expect(metric(slot4Atk, 'anomalyProficiency').values.initial).toBe(118)
+    expect(metric(slot4Atk, 'atk').values.initial)
+      .toBeGreaterThan(metric(agent(calculateParty(base)!, 'piper'), 'atk').values.initial)
+
+    const slot6Atk = agent(calculateParty(selectMain(
+      base, 'piper', 'slot6', 'atkPct',
+    ))!, 'piper')
+    expect(metric(slot6Atk, 'anomalyMastery').values.initial)
+      .toBeLessThan(metric(agent(calculateParty(base)!, 'piper'), 'anomalyMastery').values.initial)
+    expect(metric(slot6Atk, 'atk').values.initial)
+      .toBeGreaterThan(metric(agent(calculateParty(base)!, 'piper'), 'atk').values.initial)
+
+    const slot5Pen = agent(calculateParty(selectMain(
+      base, 'piper', 'slot5', 'penRatio',
+    ))!, 'piper')
+    expect(metric(slot5Pen, 'dmgBonus').values.initial).toBe(10)
+    expect(metric(slot5Pen, 'penRatio').values.initial).toBe(24)
+
+    const invested = agent(calculateParty(setSubstat(
+      setSubstat(base, 'piper', 'anomalyProficiency', 2),
+      'piper', 'atkPct', 2,
+    ))!, 'piper')
+    expect(metric(invested, 'anomalyProficiency').values.initial).toBe(228)
+    expect(metric(invested, 'atk').values.initial)
+      .toBeGreaterThan(metric(agent(calculateParty(base)!, 'piper'), 'atk').values.initial)
+
+    const projected = agent(calculateParty(base)!, 'piper')
+    expect(projected.actionModifiers.flatMap(({ outcomes }) => outcomes))
+      .not.toContainEqual(expect.objectContaining({ label: 'Assault' }))
+    expect(projected.actionModifiers.flatMap(({ outcomes }) => outcomes))
+      .not.toContainEqual(expect.objectContaining({ label: 'Disorder' }))
+    expect(JSON.stringify(projected)).not.toMatch(/DMG Taken|application|uptime/i)
+    expect(projected.operations).toEqual([])
   })
 })

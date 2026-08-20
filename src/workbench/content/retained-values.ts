@@ -381,6 +381,19 @@ export const VERTICAL_VALUES = {
     mindscapeElectricBuildupResReduction: 8.5,
     mindscapeGrenadeDmgMultiplier: 2,
   },
+  piper: {
+    atk: 758,
+    anomalyProficiency: 118,
+    anomalyMastery: 116,
+    baseEnergyRegen: 1.56,
+    powerBuildupPerStack: 4,
+    basePowerCap: 20,
+    mindscapePowerCap: 30,
+    additionalPowerThreshold: 20,
+    additionalDmgBonus: 18,
+    mindscapeActionDmgBase: 10,
+    mindscapeActionDmgPerPower: 1,
+  },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [
@@ -479,5 +492,7 @@ export const SOURCE_LABELS = {
   graceCore: SOURCE_CATEGORY_LABELS.corePassive,
   graceAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   gracePotential: 'Potential Awakening',
+  piperCore: SOURCE_CATEGORY_LABELS.corePassive,
+  piperAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const

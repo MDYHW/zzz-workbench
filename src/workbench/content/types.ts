@@ -41,6 +41,7 @@ export type AgentId =
   | 'yeShunguang'
   | 'zhao'
   | 'grace'
+  | 'piper'
 
 export type AgentRank = 'S' | 'A'
 export type AgentFaction =
@@ -120,6 +121,8 @@ export type EngineId =
   | 'fusionCompiler'
   | 'electroLipGloss'
   | 'weepingGemini'
+  | 'sharpenedStinger'
+  | 'roaringRide'
 
 export type DiscId =
   | 'yunkui'

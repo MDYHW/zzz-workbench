@@ -6,6 +6,7 @@ import {
   effectiveTwoPieceIds,
 } from './candidates'
 import { createPreparedState, isCompleteWorkbench, workbenchReducer } from './state'
+import { activeCandidatePressures } from './provider-effects'
 
 describe('selected King pressure', () => {
   it('keeps Woodpecker membership independent from Qingyi King pressure', () => {
@@ -30,6 +31,18 @@ describe('selected King pressure', () => {
 })
 
 describe('contextual Disc candidates', () => {
+  it('keeps Piper PEN and Puffer choices under broad pressure while preserving Grace exception', () => {
+    const piper = createPreparedState({}, ['piper', 'nicole', 'anby'], 0)
+    expect(activeCandidatePressures(piper, 0)).toEqual([])
+    expect(effectiveTwoPieceIds(piper, 0)).toContain('pufferElectro')
+    expect(effectiveMainStatIds(piper, 0, 'slot5')).toContain('penRatio')
+
+    const grace = createPreparedState({}, ['grace', 'nicole', 'anby'], 0)
+    expect(activeCandidatePressures(grace, 0)).toEqual(['materialBroadPrePenDefBypass'])
+    expect(effectiveTwoPieceIds(grace, 0)).not.toContain('pufferElectro')
+    expect(effectiveMainStatIds(grace, 0, 'slot5')).not.toContain('penRatio')
+  })
+
   it('adds Qingyi Astral only for the local buffer-provider set', () => {
     for (const provider of ['nicole', 'astraYao', 'panYinhu', 'zhao'] as const) {
       expect(effectiveFourPieceIds(

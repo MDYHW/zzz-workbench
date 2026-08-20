@@ -56,6 +56,8 @@ import practicedPerfectionImage from '../../assets/equipment/w-engines/practiced
 import fusionCompilerImage from '../../assets/equipment/w-engines/fusion-compiler.webp'
 import electroLipGlossImage from '../../assets/equipment/w-engines/electro-lip-gloss.webp'
 import weepingGeminiImage from '../../assets/equipment/w-engines/weeping-gemini.webp'
+import sharpenedStingerImage from '../../assets/equipment/w-engines/sharpened-stinger.webp'
+import roaringRideImage from '../../assets/equipment/w-engines/roaring-ride.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -545,6 +547,25 @@ export const W_ENGINE_FACTS = {
       },
     },
   },
+  sharpenedStinger: {
+    advancedStat: { id: 'anomalyProficiency', label: 'Anomaly Proficiency', value: 90, unit: '' },
+    effects: {
+      physicalDamage: {
+        modifier: 'dmgBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: [12, 15, 18, 21, 24], maxStacks: 3 },
+        scope: { attributes: ['Physical'] },
+      },
+      buildup: { modifier: 'anomalyBuildupBonus', unit: '%', value: [40, 50, 60, 70, 80], scope: { attributes: ['Physical'] } },
+    },
+  },
+  roaringRide: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
+    effects: {
+      atk: { modifier: 'atk', unit: '%', value: [8, 9.2, 10.4, 11.6, 12.8] },
+      anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: [40, 46, 52, 58, 64] },
+      buildup: { modifier: 'anomalyBuildupBonus', unit: '%', value: [25, 28, 32, 36, 40] },
+    },
+  },
 } as const satisfies Record<EngineId, WEngineFacts>
 
 /** Exact authored fields for one admitted W-Engine, derived from the fact source. */
@@ -960,6 +981,25 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `Anomaly Proficiency +${equipmentEffectMaximumValue(W_ENGINE_FACTS.weepingGemini.effects.anomalyProficiency, refinement)}`,
     ],
   },
+  sharpenedStinger: {
+    id: 'sharpenedStinger', name: 'Sharpened Stinger', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.sharpenedStinger.advancedStat, image: sharpenedStingerImage,
+    passiveSpecialty: 'Anomaly',
+    passiveLines: (refinement) => [
+      `Physical DMG +${equipmentEffectMaximumValue(W_ENGINE_FACTS.sharpenedStinger.effects.physicalDamage, refinement)}%`,
+      `Physical Anomaly Buildup +${percent(W_ENGINE_FACTS.sharpenedStinger.effects.buildup, refinement)}`,
+    ],
+  },
+  roaringRide: {
+    id: 'roaringRide', name: 'Roaring Ride', rank: 'A', limited: false, baseAtk: 624,
+    advancedStat: W_ENGINE_FACTS.roaringRide.advancedStat, image: roaringRideImage,
+    passiveSpecialty: 'Anomaly',
+    passiveLines: (refinement) => [
+      `ATK +${percent(W_ENGINE_FACTS.roaringRide.effects.atk, refinement)}`,
+      `AP +${equipmentEffectBaseValue(W_ENGINE_FACTS.roaringRide.effects.anomalyProficiency, refinement)}`,
+      `Anomaly Buildup +${percent(W_ENGINE_FACTS.roaringRide.effects.buildup, refinement)}`,
+    ],
+  },
 }
 
 const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
@@ -1011,5 +1051,9 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   grace: enginePools([
     'timeweaver', 'practicedPerfection',
     'fusionCompiler', 'electroLipGloss', 'weepingGemini',
+  ]),
+  piper: enginePools([
+    'practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss',
+    'weepingGemini', 'roaringRide',
   ]),
 }

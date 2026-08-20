@@ -162,17 +162,16 @@ preserving the current three-surface Result grammar.
   off-field EX Special/Assist DMG +20%, with the retained five-second on-field
   continuation. Freedom supplies AP +30 at 2 pieces and matching-Attribute
   Anomaly Buildup RES Reduction +20% for eight seconds after EX Special at 4
-  pieces, non-stacking with the same Attribute. Phaethon supplies AM +8% at 2
-  pieces and AP +45 after any squad EX at 4 pieces; its other-holder Ether DMG
-  clause is unused by Grace.
-- R18. Grace's 4-piece candidates are Thunder Metal, Chaos Jazz, Freedom Blues,
-  and Phaethon's Melody. Thunder's Shock-conditioned ATK +28% is the prepared
+  pieces, non-stacking with the same Attribute. Phaethon supplies the retained
+  AM +8% 2-piece role. Its 4-piece AP and other-holder Ether DMG package is not
+  retained for Grace because the Ether axis is unusable and the AP remainder
+  does not preserve a competitive complete 4-piece package.
+- R18. Grace's 4-piece candidates are Thunder Metal, Chaos Jazz, and Freedom
+  Blues. Thunder's Shock-conditioned ATK +28% is the prepared
   first choice; Grace establishes Shock herself and consumes the full ATK
   package. Chaos preserves the broad Electric/AP alternative while its direct
   EX/Assist clause is not projected into the anomaly-only Result. Freedom
-  preserves the unique buildup-RES route. Phaethon's complete AM +8% and
-  squad-EX-triggered AP +45 package preserves a competitive damage-and-buildup
-  balance while its other-holder Ether DMG clause remains unused by Grace.
+  preserves the unique buildup-RES route.
 - R19. Grace's authored 2-piece roles are PEN Ratio, AM, AP, and ATK. Puffer
   Electro supplies PEN Ratio; Phaethon supplies AM; Freedom Blues and Chaos
   Jazz form one exact same-effect AP identity; Hormone Punk and Astral Voice
@@ -243,8 +242,9 @@ preserving the current three-surface Result grammar.
   RES reductions, M6 scale, and Abloom/resource exclusions.
 - AE3. Timeweaver tests cover AP below/at/above 375, different-Attribute versus
   all-Electric party, complete package copy, and exact Disorder projection.
-  Practiced's partial package, Fusion's full package, and an inactive-specialty
-  contrast remain visible without broadening Result.
+  Fusion's full package and an inactive-specialty contrast remain visible
+  without broadening Result; excluded partial packages have no Setup or Result
+  consumer.
 - AE4. Shared flow tests traverse prepared full/non-limited setups, direct Disc
   identity selection, broad pre-PEN pressure present/absent/reselected,
   selection clearing, party Apply, changed-Agent-only rebuild, and one
@@ -266,7 +266,7 @@ preserving the current three-surface Result grammar.
   opportunity still gate membership.
 - Do not make CRIT generally valid for Anomaly because a later source may
   explicitly create a CRIT-capable anomaly exception.
-- Do not generalize Grace's Thunder, Timeweaver, or partial Practiced choices to
+- Do not generalize Grace's Thunder or Timeweaver choices to
   every Anomaly Agent.
 
 ## Status

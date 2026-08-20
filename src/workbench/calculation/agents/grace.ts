@@ -216,16 +216,6 @@ export function resolveGraceProviderClauses(
       ),
       { attributes: ['Electric'], formulas: ['anomaly_buildup'] },
     ),
-    additive(
-      'anomalyProficiency', 'fully',
-      discSource('grace', 'phaethonsMelody', '4-piece'),
-      setup.fourPieceId === 'phaethonsMelody'
-        ? equipmentEffectBaseValue(
-          DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.anomalyProficiency,
-        )
-        : 0,
-      'self',
-    ),
   ])
 }
 

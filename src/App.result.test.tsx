@@ -906,4 +906,59 @@ describe('integrated party workbench: result', () => {
     expect(within(buildup).getByText('EX Special Attack')).toBeInTheDocument()
     expect(within(result).queryByText(/Abloom|final anomaly damage/i)).not.toBeInTheDocument()
   }, 10_000)
+
+  it('renders Piper Power while keeping its Additional Ability gauge qualification-only', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', {
+        name: new RegExp(`Replace slot ${slot},`),
+      }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(1, /Piper Wheel, Physical, Anomaly/)
+    await replace(2, /Billy Kid, Physical, Attack/)
+    await replace(3, /Soldier 11, Fire, Attack/)
+    await user.click(screen.getByRole('radio', { name: 'Piper Wheel' }))
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    const expandPower = async (region: HTMLElement) => {
+      const power = within(region).getByRole('button', { name: 'Power' })
+      if (power.getAttribute('aria-expanded') === 'false') {
+        await user.click(power)
+      }
+    }
+
+    let result = screen.getByRole('region', { name: 'Piper Wheel Result' })
+    await expandPower(result)
+    expect(within(result).getByRole('group', {
+      name: /Fully Enabled Power: current 30, cap 30, threshold 20; Squad DMG Bonus: [+]18%/,
+    })).toBeInTheDocument()
+    expect(within(result).getByText('Core Passive')).toBeInTheDocument()
+    expect(within(result).getByText('Additional Ability')).toBeInTheDocument()
+
+    const mindscape = screen.getByRole('group', { name: 'Mindscape' })
+    await user.click(within(mindscape).getByRole('button', { name: 'M0' }))
+    result = screen.getByRole('region', { name: 'Piper Wheel Result' })
+    await expandPower(result)
+    expect(within(result).getByRole('group', {
+      name: /Fully Enabled Power: current 20, cap 20, threshold 20; Squad DMG Bonus: [+]18%/,
+    })).toBeInTheDocument()
+    expect(within(result).queryByText(/Downward smash|Disorder|final anomaly damage/i))
+      .not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await replace(2, /Anby Demara, Electric, Stun/)
+    await user.click(screen.getByRole('radio', { name: 'Piper Wheel' }))
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+    result = screen.getByRole('region', { name: 'Piper Wheel Result' })
+    await expandPower(result)
+    expect(within(result).queryByRole('group', {
+      name: /Fully Enabled Power:/,
+    })).not.toBeInTheDocument()
+    expect(within(result).getByText('Core Passive')).toBeInTheDocument()
+    expect(within(result).queryByText('Additional Ability')).not.toBeInTheDocument()
+  }, 15_000)
 })

@@ -60,7 +60,7 @@ export type EffectMetric =
   | 'stunDmgMultiplier' | 'energyRegen' | 'stunDuration'
   | 'penRatio' | 'defIgnore' | 'resReduction' | 'defReduction'
   | 'anomalyProficiency' | 'anomalyMastery' | 'anomalyDmgBonus'
-  | 'anomalyBuildupBonus' | 'anomalyBuildupResReduction'
+  | 'anomalyBuildupBonus' | 'anomalyBuildupResReduction' | 'power'
 
 export type Recipient = 'self' | 'focus' | 'all-party' | 'other-party' | 'enemy-context'
 export type CandidatePressure = 'materialBroadPrePenDefBypass'
@@ -357,6 +357,10 @@ export const STATIC_SOURCES = {
     core: source(SOURCE_LABELS.graceCore, 'grace', 'core'),
     additional: source(SOURCE_LABELS.graceAbility, 'grace', 'additional'),
     potential: source(SOURCE_LABELS.gracePotential, 'grace', 'identity'),
+  },
+  piper: {
+    core: source(SOURCE_LABELS.piperCore, 'piper', 'core'),
+    additional: source(SOURCE_LABELS.piperAbility, 'piper', 'additional'),
   },
 } as const
 

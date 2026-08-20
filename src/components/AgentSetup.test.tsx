@@ -1102,10 +1102,58 @@ describe('AgentSetup Grace Anomaly packages', () => {
     })).toHaveAccessibleDescription(
       'Electric Anomaly Buildup RES -20%. Anomaly Proficiency +30',
     )
-    expect(within(discCandidates).getByRole('button', {
-      name: "Select Phaethon's Melody as fourPiece",
+  })
+})
+
+describe('AgentSetup Piper Anomaly packages', () => {
+  it('reuses complete Roaring Ride and Fanged Metal copy on selected and candidate surfaces', async () => {
+    const user = userEvent.setup()
+    const state = createPreparedState({}, ['piper', 'billy', 'nekomata'], 0)
+    const setup = state.slots[0].setup
+    render(
+      <AgentSetup
+        activeSourceTone={null}
+        agentId="piper"
+        discCandidates={DISC_IDS_BY_AGENT_AND_PIECE.piper}
+        dispatch={vi.fn()}
+        mainStatCandidates={MAIN_STAT_IDS_BY_AGENT_AND_SLOT.piper}
+        onSourceToneChange={vi.fn()}
+        setup={setup}
+        slot={0}
+      />,
+    )
+
+    expect(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Fanged Metal',
     })).toHaveAccessibleDescription(
-      'Anomaly Proficiency +45. Ether DMG +25%. Anomaly Mastery +8%',
+      'Assaulted target · Holder DMG +35%. Physical DMG +10%',
+    )
+
+    const slotSix = screen.getByRole('button', {
+      name: 'Change Disc 6 main stat from Anomaly Mastery',
+    })
+    expect(slotSix).toHaveTextContent('+30%')
+    await user.click(slotSix)
+    expect(screen.getByRole('button', {
+      name: 'Select ATK% for Disc 6',
+    })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change W-Engine from Practiced Perfection',
+    }))
+    expect(within(screen.getByLabelText('W-Engine candidates')).getByRole('button', {
+      name: 'Select Roaring Ride W5',
+    })).toHaveAccessibleDescription(
+      'ATK +25%. ATK +12.8%. AP +64. Anomaly Buildup +40%',
+    )
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Fanged Metal',
+    }))
+    expect(within(screen.getByLabelText('fourPiece Drive Disc candidates')).getByRole('button', {
+      name: 'Select Freedom Blues as fourPiece',
+    })).toHaveAccessibleDescription(
+      'Physical Anomaly Buildup RES -20%. Anomaly Proficiency +30',
     )
   })
 })
