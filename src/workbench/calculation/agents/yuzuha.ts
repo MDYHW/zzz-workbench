@@ -393,19 +393,19 @@ export function calculateYuzuha(
               current: mastery.values.fully,
               threshold: values.additionalMasteryThreshold,
               cap: values.additionalMasteryCap,
-              outputLabel: 'Squad Anomaly Buildup Rate',
+              outputLabel: 'Anomaly Buildup Rate',
               outputValue: output.buildup,
               outputCap: 20,
               outputUnit: '%',
               additionalOutputs: [
                 {
-                  label: 'Squad Attribute Anomaly DMG',
+                  label: 'Attribute Anomaly DMG',
                   value: output.anomaly,
                   cap: setup.mindscape >= 1 ? 26 : 20,
                   unit: '%',
                 },
                 {
-                  label: 'Squad Disorder DMG',
+                  label: 'Disorder DMG',
                   value: output.anomaly,
                   cap: setup.mindscape >= 1 ? 26 : 20,
                   unit: '%',

@@ -977,10 +977,10 @@ describe('representative calculation flows', () => {
     })
     expect(metric(yuzuha, 'anomalyMastery').gauge).toMatchObject({
       current: expect.closeTo(201.12), threshold: 100, cap: 200,
-      outputLabel: 'Squad Anomaly Buildup Rate', outputValue: 20,
+      outputLabel: 'Anomaly Buildup Rate', outputValue: 20,
       additionalOutputs: [
-        { label: 'Squad Attribute Anomaly DMG', value: 20, cap: 20, unit: '%' },
-        { label: 'Squad Disorder DMG', value: 20, cap: 20, unit: '%' },
+        { label: 'Attribute Anomaly DMG', value: 20, cap: 20, unit: '%' },
+        { label: 'Disorder DMG', value: 20, cap: 20, unit: '%' },
       ],
     })
     expect(action(yuzuha, 'yuzuhaFlavorMatchBuildup').outcomes).toEqual([{
