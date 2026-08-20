@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -62,19 +62,7 @@ function calculateLuciaInitialHp(
   const values = VERTICAL_VALUES
   const lucia = values.lucia
   const engineHp = engineAdvancedInput(setup, 'lucia', 'hpPct')
-  const discHp = discStatInput(
-    setup,
-    'lucia',
-    'fourPiece',
-    'yunkui',
-    equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.twoPiece.maxHp),
-  ) ?? discStatInput(
-    setup,
-    'lucia',
-    'twoPiece',
-    'yunkui',
-    equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.twoPiece.maxHp),
-  )
+  const discHpInputs = selectedDiscTwoPieceInputs(setup, 'lucia', { modifier: 'maxHp' })
   const mainHpInputs = presentSetupInputs(
     (['slot4', 'slot5', 'slot6'] as MainSlot[])
       .map((slot) => mainStatInput(setup, 'lucia', slot, 'hpPct')),
@@ -82,7 +70,7 @@ function calculateLuciaInitialHp(
   const hpSubstat = effectiveSubstatInput(setup, 'lucia', 'hpPct')
   const hpFlat = effectiveSubstatInput(setup, 'lucia', 'hpFlat')
   const totalHpPct = (engineHp?.rawValue ?? 0)
-    + (discHp?.rawValue ?? 0)
+    + discHpInputs.reduce((total, input) => total + input.rawValue, 0)
     + mainHpInputs.reduce((total, input) => total + input.rawValue, 0)
     + (hpSubstat?.rawValue ?? 0)
   const value = lucia.hp * (1 + totalHpPct / 100)
@@ -97,11 +85,11 @@ function calculateLuciaInitialHp(
         lucia.hp * engineHp.rawValue / 100,
         engineHp.rawValue,
       )] : []),
-      ...(discHp ? [percentageContribution(
-        discHp.source,
-        lucia.hp * discHp.rawValue / 100,
-        discHp.rawValue,
-      )] : []),
+      ...discHpInputs.map((input) => percentageContribution(
+        input.source,
+        lucia.hp * input.rawValue / 100,
+        input.rawValue,
+      )),
       ...mainHpInputs.map((input) => percentageContribution(
         input.source,
         lucia.hp * input.rawValue / 100,
@@ -233,21 +221,7 @@ export function calculateLucia(
   const engineEnergyRegen = engineAdvancedInput(setup, 'lucia', 'energyRegenPct')
   const slotEnergyRegen = mainStatInput(setup, 'lucia', 'slot6', 'energyRegenPct')
   const discEnergyRegen = presentSetupInputs([
-    discStatInput(
-      setup,
-      'lucia',
-      'fourPiece',
-      'moonlight',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen),
-      'twoPiece',
-    ),
-    discStatInput(
-      setup,
-      'lucia',
-      'twoPiece',
-      'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'lucia', { modifier: 'energyRegen' }),
   ])
   const initialEnergyRegenInputs: ResolvedSetupInput[] = [
     ...(engineEnergyRegen ? [engineEnergyRegen] : []),

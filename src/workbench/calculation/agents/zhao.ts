@@ -13,7 +13,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -79,28 +79,7 @@ function calculateZhaoInitialHp(
   const percentInputs = presentSetupInputs([
     coreHp,
     engineAdvancedInput(setup, 'zhao', 'hpPct'),
-    discStatInput(
-      setup,
-      'zhao',
-      'fourPiece',
-      'bunnyInWonderland',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.bunnyInWonderland.twoPiece.maxHp),
-      'twoPiece',
-    ),
-    discStatInput(
-      setup,
-      'zhao',
-      'twoPiece',
-      'bunnyInWonderland',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.bunnyInWonderland.twoPiece.maxHp),
-    ),
-    discStatInput(
-      setup,
-      'zhao',
-      'twoPiece',
-      'yunkui',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.twoPiece.maxHp),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'zhao', { modifier: 'maxHp' }),
     ...(['slot4', 'slot5', 'slot6'] as MainSlot[]).map((slot) => (
       mainStatInput(setup, 'zhao', slot, 'hpPct')
     )),
@@ -269,18 +248,7 @@ export function calculateZhao(
   const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'zhao', 'energyRegenPct'),
     mainStatInput(setup, 'zhao', 'slot6', 'energyRegenPct'),
-    discStatInput(
-      setup, 'zhao', 'fourPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen), 'twoPiece',
-    ),
-    discStatInput(
-      setup, 'zhao', 'twoPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen),
-    ),
-    discStatInput(
-      setup, 'zhao', 'twoPiece', 'moonlight',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'zhao', { modifier: 'energyRegen' }),
   ])
   const energyRegen = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
   const critDmg = composeMetricEffects(

@@ -10,7 +10,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -89,9 +89,7 @@ function atkInputs(setup: CompleteSetup): { percentage: ResolvedSetupInput[]; fl
   return {
     percentage: presentSetupInputs([
       engineAdvancedInput(setup, 'soukaku', 'atkPct'), mainStatInput(setup, 'soukaku', 'slot4', 'atkPct'), mainStatInput(setup, 'soukaku', 'slot5', 'atkPct'), mainStatInput(setup, 'soukaku', 'slot6', 'atkPct'),
-      discStatInput(setup, 'soukaku', 'fourPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
-      discStatInput(setup, 'soukaku', 'twoPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
-      discStatInput(setup, 'soukaku', 'twoPiece', 'hormonePunk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
+      ...selectedDiscTwoPieceInputs(setup, 'soukaku', { modifier: 'atk' }),
       effectiveSubstatInput(setup, 'soukaku', 'atkPct'),
     ]),
     flat: effectiveSubstatInput(setup, 'soukaku', 'atkFlat'),
@@ -113,9 +111,7 @@ export function calculateSoukaku(context: SoukakuCalculationContext, inbox: Sour
   )
   const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'soukaku', 'energyRegenPct'), mainStatInput(setup, 'soukaku', 'slot6', 'energyRegenPct'),
-    discStatInput(setup, 'soukaku', 'fourPiece', 'moonlight', equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen), 'twoPiece'),
-    discStatInput(setup, 'soukaku', 'twoPiece', 'moonlight', equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen)),
-    discStatInput(setup, 'soukaku', 'twoPiece', 'swingJazz', equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
+    ...selectedDiscTwoPieceInputs(setup, 'soukaku', { modifier: 'energyRegen' }),
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
   return {

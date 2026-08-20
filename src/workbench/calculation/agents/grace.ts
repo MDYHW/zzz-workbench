@@ -11,7 +11,6 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -20,6 +19,7 @@ import {
   percentage,
   presentSetupInputs,
   resolveDeliveredClauses,
+  selectedDiscTwoPieceInputs,
   withApplicability,
   type CompleteSetup,
   type EffectMetric,
@@ -248,22 +248,7 @@ export function calculateGrace(
     mainStatInput(setup, 'grace', 'slot4', 'atkPct'),
     mainStatInput(setup, 'grace', 'slot5', 'atkPct'),
     mainStatInput(setup, 'grace', 'slot6', 'atkPct'),
-    discStatInput(
-      setup, 'grace', 'fourPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk), 'twoPiece',
-    ),
-    discStatInput(
-      setup, 'grace', 'fourPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece',
-    ),
-    discStatInput(
-      setup, 'grace', 'twoPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk),
-    ),
-    discStatInput(
-      setup, 'grace', 'twoPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'grace', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'grace', 'atkPct'),
   ])
   const atk = composeMetricEffects(
@@ -278,23 +263,8 @@ export function calculateGrace(
   const proficiencyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'grace', 'anomalyProficiency'),
     mainStatInput(setup, 'grace', 'slot4', 'anomalyProficiency'),
-    discStatInput(
-      setup, 'grace', 'fourPiece', 'chaosJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.twoPiece.anomalyProficiency),
-      'twoPiece',
-    ),
-    discStatInput(
-      setup, 'grace', 'fourPiece', 'freedomBlues',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.twoPiece.anomalyProficiency),
-      'twoPiece',
-    ),
-    discStatInput(
-      setup, 'grace', 'twoPiece', 'chaosJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.twoPiece.anomalyProficiency),
-    ),
-    discStatInput(
-      setup, 'grace', 'twoPiece', 'freedomBlues',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.twoPiece.anomalyProficiency),
+    ...selectedDiscTwoPieceInputs(
+      setup, 'grace', { modifier: 'anomalyProficiency' },
     ),
     effectiveSubstatInput(setup, 'grace', 'anomalyProficiency'),
   ])
@@ -310,15 +280,7 @@ export function calculateGrace(
   const masteryInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'grace', 'anomalyMastery'),
     mainStatInput(setup, 'grace', 'slot6', 'anomalyMastery'),
-    discStatInput(
-      setup, 'grace', 'fourPiece', 'phaethonsMelody',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.twoPiece.anomalyMastery),
-      'twoPiece',
-    ),
-    discStatInput(
-      setup, 'grace', 'twoPiece', 'phaethonsMelody',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.twoPiece.anomalyMastery),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'grace', { modifier: 'anomalyMastery' }),
   ])
   const initialMastery = values.anomalyMastery * (
     1 + masteryInputs.reduce((total, input) => total + input.rawValue, 0) / 100
@@ -352,9 +314,8 @@ export function calculateGrace(
   const energyRegen = energyRegenProjection(values.baseEnergyRegen, [], effects)
   const dmgInputs = presentSetupInputs([
     mainStatInput(setup, 'grace', 'slot5', 'electricDmg'),
-    discStatInput(
-      setup, 'grace', 'fourPiece', 'thunderMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.twoPiece.damage), 'twoPiece',
+    ...selectedDiscTwoPieceInputs(
+      setup, 'grace', { modifier: 'dmgBonus' },
     ),
   ])
   const initialDmg = dmgInputs.reduce((total, input) => total + input.rawValue, 0)
@@ -368,10 +329,7 @@ export function calculateGrace(
   const penInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'grace', 'penRatio'),
     mainStatInput(setup, 'grace', 'slot5', 'penRatio'),
-    discStatInput(
-      setup, 'grace', 'twoPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'grace', { modifier: 'penRatio' }),
   ])
   const initialPen = penInputs.reduce((total, input) => total + input.rawValue, 0)
   const penRatio = composeMetricEffects(

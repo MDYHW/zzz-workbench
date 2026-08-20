@@ -14,7 +14,7 @@ import {
   additive,
   additiveMetricBundle,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -93,7 +93,7 @@ function seedAtkInputs(setup: CompleteSetup): ResolvedSetupInput[] {
     engineAdvancedInput(setup, 'seed', 'atkPct'),
     mainStatInput(setup, 'seed', 'slot5', 'atkPct'),
     mainStatInput(setup, 'seed', 'slot6', 'atkPct'),
-    discStatInput(setup, 'seed', 'twoPiece', 'hormonePunk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
+    ...selectedDiscTwoPieceInputs(setup, 'seed', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'seed', 'atkPct'),
   ])
 }
@@ -236,8 +236,7 @@ export function calculateSeed(
   const critRateInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'seed', 'critRate'),
     mainStatInput(setup, 'seed', 'slot4', 'critRate'),
-    discStatInput(setup, 'seed', 'twoPiece', 'woodpecker', equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
-    discStatInput(setup, 'seed', 'fourPiece', 'woodpecker', equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate), 'twoPiece'),
+    ...selectedDiscTwoPieceInputs(setup, 'seed', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'seed', 'critRate'),
   ])
   const initialCritRate = VERTICAL_VALUES.seed.critRate + critRateInputs.reduce((total, input) => total + input.rawValue, 0)
@@ -251,7 +250,7 @@ export function calculateSeed(
   const critDmgInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'seed', 'critDmg'),
     mainStatInput(setup, 'seed', 'slot4', 'critDmg'),
-    discStatInput(setup, 'seed', 'twoPiece', 'branchAndBlade', equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
+    ...selectedDiscTwoPieceInputs(setup, 'seed', { modifier: 'critDmg' }),
     effectiveSubstatInput(setup, 'seed', 'critDmg'),
   ])
   const initialCritDmg = VERTICAL_VALUES.seed.critDmg + critDmgInputs.reduce((total, input) => total + input.rawValue, 0)
@@ -263,7 +262,7 @@ export function calculateSeed(
   )
   const electricDmgInputs = presentSetupInputs([
     mainStatInput(setup, 'seed', 'slot5', 'electricDmg'),
-    discStatInput(setup, 'seed', 'twoPiece', 'thunderMetal', equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.twoPiece.damage)),
+    ...selectedDiscTwoPieceInputs(setup, 'seed', { modifier: 'dmgBonus' }),
   ])
   const initialElectricDmg = electricDmgInputs.reduce((total, input) => total + input.rawValue, 0)
   const regular = composeMetricEffects(
@@ -273,16 +272,10 @@ export function calculateSeed(
     'dmgBonus',
   )
   const mainPen = mainStatInput(setup, 'seed', 'slot5', 'penRatio')
-  const pufferTwoPiecePen = discStatInput(setup, 'seed', 'twoPiece', 'pufferElectro', equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio))
-  const pufferFourPiecePen = discStatInput(
-    setup,
-    'seed',
-    'fourPiece',
-    'pufferElectro',
-    equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio),
-    'twoPiece',
-  )
-  const penInputs = presentSetupInputs([mainPen, pufferTwoPiecePen, pufferFourPiecePen])
+  const penInputs = presentSetupInputs([
+    mainPen,
+    ...selectedDiscTwoPieceInputs(setup, 'seed', { modifier: 'penRatio' }),
+  ])
   const initialPen = penInputs.reduce((total, input) => total + input.rawValue, 0)
   const penRatio = composeMetricEffects(
     surfaces(initialPen, initialPen, initialPen),

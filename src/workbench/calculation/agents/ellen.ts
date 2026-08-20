@@ -11,13 +11,14 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
   mainStatInput,
   mindscapeSource,
   percentage,
+  presentSetupInputs,
   pufferElectroFourPieceClauses,
   resolveDeliveredClauses,
   withApplicability,
@@ -150,26 +151,25 @@ export function calculateEllen(context: EllenCalculationContext, inbox: SourceBo
   const values = VERTICAL_VALUES.ellen
   const baseAtk = values.atk + W_ENGINES[setup.engineId].baseAtk
   const effects = resolveDeliveredClauses([...inbox, ...enemy], { atk: initialAtk })
-  const atkInputs = [
+  const atkInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'ellen', 'atkPct'), mainStatInput(setup, 'ellen', 'slot5', 'atkPct'), mainStatInput(setup, 'ellen', 'slot6', 'atkPct'),
-    discStatInput(setup, 'ellen', 'twoPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
-    discStatInput(setup, 'ellen', 'twoPiece', 'hormonePunk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
+    ...selectedDiscTwoPieceInputs(setup, 'ellen', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'ellen', 'atkPct'),
-  ].filter((input): input is NonNullable<typeof input> => input !== undefined)
+  ])
   const atk = composeMetricEffects(surfaces(initialAtk, initialAtk, initialAtk), surfaces(atkInputs.map((input) => percentageContribution(input.source, baseAtk * input.rawValue / 100, input.rawValue)), [], []), effects, 'atk')
-  const critRateInputs = [
+  const critRateInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'ellen', 'critRate'), mainStatInput(setup, 'ellen', 'slot4', 'critRate'),
-    discStatInput(setup, 'ellen', 'fourPiece', 'woodpecker', equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate), 'twoPiece'),
-    discStatInput(setup, 'ellen', 'twoPiece', 'woodpecker', equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)), effectiveSubstatInput(setup, 'ellen', 'critRate'),
-  ].filter((input): input is NonNullable<typeof input> => input !== undefined)
+    ...selectedDiscTwoPieceInputs(setup, 'ellen', { modifier: 'critRate' }),
+    effectiveSubstatInput(setup, 'ellen', 'critRate'),
+  ])
   const critRateBase = values.critRate + critRateInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const critRate = composeMetricEffects(surfaces(critRateBase, critRateBase, critRateBase), surfaces(critRateInputs.map((input) => contribution(input.source, input.rawValue)), [], []), effects, 'critRate', { value: 100, source: STATIC_SOURCES.ellen.critCap })
-  const critDmgInputs = [engineAdvancedInput(setup, 'ellen', 'critDmg'), mainStatInput(setup, 'ellen', 'slot4', 'critDmg'), discStatInput(setup, 'ellen', 'twoPiece', 'branchAndBlade', equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)), effectiveSubstatInput(setup, 'ellen', 'critDmg')].filter((input): input is NonNullable<typeof input> => input !== undefined)
+  const critDmgInputs = presentSetupInputs([engineAdvancedInput(setup, 'ellen', 'critDmg'), mainStatInput(setup, 'ellen', 'slot4', 'critDmg'), ...selectedDiscTwoPieceInputs(setup, 'ellen', { modifier: 'critDmg' }), effectiveSubstatInput(setup, 'ellen', 'critDmg')])
   const critDmgBase = values.critDmg + critDmgInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const critDmg = composeMetricEffects(surfaces(critDmgBase, critDmgBase, critDmgBase), surfaces(critDmgInputs.map((input) => contribution(input.source, input.rawValue)), [], []), effects, 'critDmg')
-  const dmgInputs = [mainStatInput(setup, 'ellen', 'slot5', 'iceDmg'), discStatInput(setup, 'ellen', 'twoPiece', 'polarMetal', equipmentEffectBaseValue(DRIVE_DISC_FACTS.polarMetal.twoPiece.damage))].filter((input): input is NonNullable<typeof input> => input !== undefined)
+  const dmgInputs = presentSetupInputs([mainStatInput(setup, 'ellen', 'slot5', 'iceDmg'), ...selectedDiscTwoPieceInputs(setup, 'ellen', { modifier: 'dmgBonus' })])
   const dmg = composeMetricEffects(surfaces(dmgInputs.reduce((sum, input) => sum + input.rawValue, 0), dmgInputs.reduce((sum, input) => sum + input.rawValue, 0), dmgInputs.reduce((sum, input) => sum + input.rawValue, 0)), surfaces(dmgInputs.map((input) => contribution(input.source, input.rawValue)), [], []), effects, 'dmgBonus')
-  const penInputs = [mainStatInput(setup, 'ellen', 'slot5', 'penRatio'), discStatInput(setup, 'ellen', 'twoPiece', 'pufferElectro', equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio))].filter((input): input is NonNullable<typeof input> => input !== undefined)
+  const penInputs = presentSetupInputs([mainStatInput(setup, 'ellen', 'slot5', 'penRatio'), ...selectedDiscTwoPieceInputs(setup, 'ellen', { modifier: 'penRatio' })])
   const pen = composeMetricEffects(surfaces(penInputs.reduce((sum, input) => sum + input.rawValue, 0), penInputs.reduce((sum, input) => sum + input.rawValue, 0), penInputs.reduce((sum, input) => sum + input.rawValue, 0)), surfaces(penInputs.map((input) => contribution(input.source, input.rawValue)), [], []), effects, 'penRatio')
   const defIgnore = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'defIgnore')
   const resIgnore = composeMetricEffects(surfaces(0, 0, 0), surfaces([], [], []), effects, 'resIgnore')

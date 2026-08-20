@@ -11,6 +11,7 @@ import {
   type AgentId,
   type DiscId,
   type EngineId,
+  type EquipmentEffectFact,
   type MainSlot,
   type Refinement,
   type SetupFormulaFamily,
@@ -475,27 +476,65 @@ export function engineAdvancedInput(
     : undefined
 }
 
-export function discStatInput(
-  setup: CompleteSetup,
+type InitialDiscStatModifier =
+  | 'maxHp' | 'atk' | 'impact' | 'critRate' | 'critDmg'
+  | 'dazeBonus' | 'energyRegen' | 'penRatio'
+  | 'anomalyProficiency' | 'anomalyMastery'
+
+export type InitialDiscInputQuery =
+  | { modifier: InitialDiscStatModifier }
+  | { modifier: 'dmgBonus' }
+
+function matchesInitialDiscInput(
+  effect: EquipmentEffectFact,
+  query: InitialDiscInputQuery,
+  attribute: EffectAttribute,
+): boolean {
+  if (effect.modifier !== query.modifier) return false
+  const scope = effect.scope
+  if (scope?.recipient || scope?.actions || scope?.tags || scope?.condition) return false
+  return query.modifier === 'dmgBonus'
+    ? scope?.attributes?.includes(attribute) === true
+    : !scope?.attributes
+}
+
+/**
+ * Resolves only selected, unconditional 2-piece stat inputs. The selected
+ * 4-piece also owns its set's 2-piece effect. Conditional/action effects and
+ * 4-piece passives remain in the Agent-local projector that owns activation.
+ */
+export function selectedDiscTwoPieceInputs(
+  setup: {
+    fourPieceId: DiscId | null
+    twoPieceId: DiscId | null
+  },
   agentId: AgentId,
-  piece: 'fourPiece' | 'twoPiece',
-  discId: DiscId,
-  rawValue: number,
-  effectPiece: 'fourPiece' | 'twoPiece' = piece,
-): ResolvedSetupInput | undefined {
-  const selected = piece === 'fourPiece' ? setup.fourPieceId : setup.twoPieceId
-  return selected === discId
-    ? {
-      rawValue,
-      unit: '%',
-      source: discSource(
-        agentId,
-        discId,
-        effectPiece === 'fourPiece' ? '4-piece' : '2-piece',
-        piece === 'fourPiece' ? '4-piece' : '2-piece',
-      ),
-    }
-    : undefined
+  query: InitialDiscInputQuery,
+): ResolvedSetupInput[] {
+  const attribute = baseAttributeFor(agentId)
+  return ([
+    { selectedPiece: 'fourPiece' as const, discId: setup.fourPieceId },
+    { selectedPiece: 'twoPiece' as const, discId: setup.twoPieceId },
+  ]).flatMap(({ selectedPiece, discId }) => {
+    if (discId === null) return []
+    return (Object.values(DRIVE_DISC_FACTS[discId].twoPiece) as EquipmentEffectFact[])
+      .filter((effect) => matchesInitialDiscInput(effect, query, attribute))
+      .map((effect) => {
+        if (effect.unit === '/s') {
+          throw new Error(`Per-second effect cannot be an Initial Disc stat input: ${discId}`)
+        }
+        return {
+          rawValue: equipmentEffectBaseValue(effect),
+          unit: effect.unit,
+          source: discSource(
+            agentId,
+            discId,
+            '2-piece',
+            selectedPiece === 'fourPiece' ? '4-piece' : '2-piece',
+          ),
+        }
+      })
+  })
 }
 
 export const additive = (

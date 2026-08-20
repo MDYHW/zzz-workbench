@@ -1,10 +1,8 @@
 import {
-  DRIVE_DISC_FACTS,
   MAIN_STATS,
   SUBSTAT_CHOICES_BY_AGENT,
   VERTICAL_VALUES,
   W_ENGINES,
-  equipmentEffectBaseValue,
   type AgentId,
   type DiscId,
   type EngineId,
@@ -12,6 +10,7 @@ import {
   type MainStatId,
   type SubstatId,
 } from '../content'
+import { selectedDiscTwoPieceInputs } from '../effects'
 
 export const SEED_VANGUARD_ATK_AGENT_IDS = [
   'anbySoldier0', 'seed', 'cissia', 'evelyn', 'corin', 'hugo', 'ellen', 'soldier11', 'zhuYuan', 'orphie', 'nekomata', 'billy', 'yeShunguang',
@@ -36,19 +35,6 @@ export interface InitialAtkSetup {
   substats: Partial<Record<SubstatId, number>>
 }
 
-function selectedAtkTwoPiece(
-  setup: InitialAtkSetup,
-  discId: 'astralVoice' | 'hormonePunk',
-): number {
-  return setup.fourPieceId === discId || setup.twoPieceId === discId
-    ? equipmentEffectBaseValue(
-      discId === 'astralVoice'
-        ? DRIVE_DISC_FACTS.astralVoice.twoPiece.atk
-        : DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk,
-    )
-    : 0
-}
-
 /** Exact Initial ATK used only by Seed's current Vanguard comparison and ATK projectors. */
 export function initialAtkFor(
   agentId: InitialAtkAgentId,
@@ -69,8 +55,11 @@ export function initialAtkFor(
     + (setup.mains.slot4 === 'atkPct' ? MAIN_STATS.atkPct.numericValue : 0)
     + (setup.mains.slot5 === 'atkPct' ? MAIN_STATS.atkPct.numericValue : 0)
     + (setup.mains.slot6 === 'atkPct' ? MAIN_STATS.atkPct.numericValue : 0)
-    + selectedAtkTwoPiece(setup, 'astralVoice')
-    + selectedAtkTwoPiece(setup, 'hormonePunk')
+    + selectedDiscTwoPieceInputs({
+      fourPieceId: setup.fourPieceId,
+      twoPieceId: setup.twoPieceId,
+    }, agentId, { modifier: 'atk' })
+      .reduce((total, input) => total + input.rawValue, 0)
     + atkSubstatHits * (atkSubstat?.perHit ?? 0)
   )
   const baseAtk = VERTICAL_VALUES[agentId].atk + engine.baseAtk

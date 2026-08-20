@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   engineAdvancedInput,
   engineSource,
   mainStatInput,
@@ -173,15 +173,6 @@ export function resolveCaesarProviderClauses(
       { formulas: ['daze_buildup'] },
     ),
 
-    additive(
-      'dazeBonus', 'initial',
-      discSource('caesar', 'king', '2-piece'),
-      setup.twoPieceId === 'king'
-        ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze)
-        : 0,
-      'self',
-    ),
-
     withApplicability(
       additive(
         'dmgBonus', 'fully', discSource('caesar', 'bunnyInWonderland', '4-piece'),
@@ -206,10 +197,7 @@ export function calculateCaesar(
   const impactInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'caesar', 'impactPct'),
     mainStatInput(setup, 'caesar', 'slot6', 'impact'),
-    discStatInput(
-      setup, 'caesar', 'twoPiece', 'shockstar',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'caesar', { modifier: 'impact' }),
   ])
   const initialImpact = values.impact * (
     1 + impactInputs.reduce((sum, input) => sum + input.rawValue, 0) / 100
@@ -264,14 +252,16 @@ export function calculateCaesar(
     'dmgBonus',
   )
   const energyInputs = presentSetupInputs([
-    discStatInput(
-      setup, 'caesar', 'twoPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'caesar', { modifier: 'energyRegen' }),
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
+  const dazeInputs = selectedDiscTwoPieceInputs(setup, 'caesar', { modifier: 'dazeBonus' })
+  const initialDaze = dazeInputs.reduce((total, input) => total + input.rawValue, 0)
   const daze = composeMetricEffects(
-    surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus',
+    surfaces(initialDaze, initialDaze, initialDaze),
+    surfaces(dazeInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
+    effects,
+    'dazeBonus',
   )
   const actionModifiers = [
     ...composeActionHierarchy(dmg.values, effects, 'dmgBonus', M6_SCOPES),

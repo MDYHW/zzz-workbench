@@ -12,7 +12,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -84,9 +84,7 @@ function cissiaAtkInputs(setup: CompleteSetup): ResolvedSetupInput[] {
     engineAdvancedInput(setup, 'cissia', 'atkPct'),
     mainStatInput(setup, 'cissia', 'slot5', 'atkPct'),
     mainStatInput(setup, 'cissia', 'slot6', 'atkPct'),
-    discStatInput(setup, 'cissia', 'fourPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
-    discStatInput(setup, 'cissia', 'twoPiece', 'astralVoice', equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
-    discStatInput(setup, 'cissia', 'twoPiece', 'hormonePunk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
+    ...selectedDiscTwoPieceInputs(setup, 'cissia', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'cissia', 'atkPct'),
   ])
 }
@@ -95,7 +93,7 @@ function cissiaEnergyInputs(setup: CompleteSetup): ResolvedSetupInput[] {
   return presentSetupInputs([
     engineAdvancedInput(setup, 'cissia', 'energyRegenPct'),
     mainStatInput(setup, 'cissia', 'slot6', 'energyRegenPct'),
-    discStatInput(setup, 'cissia', 'twoPiece', 'swingJazz', equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
+    ...selectedDiscTwoPieceInputs(setup, 'cissia', { modifier: 'energyRegen' }),
   ])
 }
 
@@ -232,7 +230,7 @@ export function calculateCissia(
   const critRateInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'cissia', 'critRate'),
     mainStatInput(setup, 'cissia', 'slot4', 'critRate'),
-    discStatInput(setup, 'cissia', 'twoPiece', 'woodpecker', equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'cissia', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'cissia', 'critRate'),
   ])
   const initialCritRate = VERTICAL_VALUES.cissia.critRate + critRateInputs.reduce((total, input) => total + input.rawValue, 0)
@@ -246,7 +244,7 @@ export function calculateCissia(
   const critDmgInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'cissia', 'critDmg'),
     mainStatInput(setup, 'cissia', 'slot4', 'critDmg'),
-    discStatInput(setup, 'cissia', 'twoPiece', 'branchAndBlade', equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
+    ...selectedDiscTwoPieceInputs(setup, 'cissia', { modifier: 'critDmg' }),
     effectiveSubstatInput(setup, 'cissia', 'critDmg'),
   ])
   const initialCritDmg = VERTICAL_VALUES.cissia.critDmg + critDmgInputs.reduce((total, input) => total + input.rawValue, 0)
@@ -259,7 +257,7 @@ export function calculateCissia(
   const energy = energyRegenProjection(VERTICAL_VALUES.cissia.baseEnergyRegen, cissiaEnergyInputs(setup), effects)
   const electricDmgInputs = presentSetupInputs([
     mainStatInput(setup, 'cissia', 'slot5', 'electricDmg'),
-    discStatInput(setup, 'cissia', 'twoPiece', 'thunderMetal', equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.twoPiece.damage)),
+    ...selectedDiscTwoPieceInputs(setup, 'cissia', { modifier: 'dmgBonus' }),
   ])
   const initialElectricDmg = electricDmgInputs.reduce((total, input) => total + input.rawValue, 0)
   const regular = composeMetricEffects(
@@ -268,17 +266,11 @@ export function calculateCissia(
     effects,
     'dmgBonus',
   )
-  const pufferPen = discStatInput(
-    setup,
-    'cissia',
-    'fourPiece',
-    'pufferElectro',
-    equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio),
-    'twoPiece',
-  )
+  const penInputs = selectedDiscTwoPieceInputs(setup, 'cissia', { modifier: 'penRatio' })
+  const initialPen = penInputs.reduce((total, input) => total + input.rawValue, 0)
   const penRatio = composeMetricEffects(
-    surfaces(pufferPen?.rawValue ?? 0, pufferPen?.rawValue ?? 0, pufferPen?.rawValue ?? 0),
-    surfaces(pufferPen ? [contribution(pufferPen.source, pufferPen.rawValue)] : [], [], []),
+    surfaces(initialPen, initialPen, initialPen),
+    surfaces(penInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
     effects,
     'penRatio',
   )

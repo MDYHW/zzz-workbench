@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -178,8 +178,7 @@ function manatoHpInputs(setup: CompleteSetup): ResolvedSetupInput[] {
     }] : []),
     ...presentSetupInputs([
       engineAdvancedInput(setup, 'manato', 'hpPct'),
-      discStatInput(setup, 'manato', 'fourPiece', 'yunkui',
-        equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.twoPiece.maxHp), 'twoPiece'),
+      ...selectedDiscTwoPieceInputs(setup, 'manato', { modifier: 'maxHp' }),
       mainStatInput(setup, 'manato', 'slot5', 'hpPct'),
       mainStatInput(setup, 'manato', 'slot6', 'hpPct'),
       effectiveSubstatInput(setup, 'manato', 'hpPct'),
@@ -232,8 +231,7 @@ export function calculateManato(
 
   const critRateInputs = presentSetupInputs([
     mainStatInput(setup, 'manato', 'slot4', 'critRate'),
-    discStatInput(setup, 'manato', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'manato', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'manato', 'critRate'),
   ])
   const initialCritRate = values.critRate
@@ -247,8 +245,7 @@ export function calculateManato(
   )
   const critDmgInputs = presentSetupInputs([
     mainStatInput(setup, 'manato', 'slot4', 'critDmg'),
-    discStatInput(setup, 'manato', 'twoPiece', 'branchAndBlade',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
+    ...selectedDiscTwoPieceInputs(setup, 'manato', { modifier: 'critDmg' }),
     effectiveSubstatInput(setup, 'manato', 'critDmg'),
   ])
   const initialCritDmg = values.critDmg
@@ -261,8 +258,7 @@ export function calculateManato(
   )
   const dmgInputs = presentSetupInputs([
     mainStatInput(setup, 'manato', 'slot5', 'fireDmg'),
-    discStatInput(setup, 'manato', 'twoPiece', 'infernoMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.infernoMetal.twoPiece.damage)),
+    ...selectedDiscTwoPieceInputs(setup, 'manato', { modifier: 'dmgBonus' }),
   ])
   const initialDmg = dmgInputs.reduce((total, input) => total + input.rawValue, 0)
   const dmgBonus = composeMetricEffects(

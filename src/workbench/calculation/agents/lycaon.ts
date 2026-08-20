@@ -10,7 +10,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -88,13 +88,8 @@ export function resolveLycaonProviderClauses(
   const kingMax = equipmentEffectMaximumValue(DRIVE_DISC_FACTS.king.fourPiece.critDamage)
   const kingCrit = VERTICAL_VALUES.lycaon.critRate
     + (mainStatInput(setup, 'lycaon', 'slot4', 'critRate')?.rawValue ?? 0)
-    + (discStatInput(
-      setup,
-      'lycaon',
-      'twoPiece',
-      'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate),
-    )?.rawValue ?? 0)
+    + selectedDiscTwoPieceInputs(setup, 'lycaon', { modifier: 'critRate' })
+      .reduce((total, input) => total + input.rawValue, 0)
     + (effectiveSubstatInput(setup, 'lycaon', 'critRate')?.rawValue ?? 0)
   const kingCritDmg = setup.fourPieceId === 'king'
     ? (kingCrit >= VERTICAL_VALUES.lycaon.kingCritThreshold ? kingMax : kingBase)
@@ -225,15 +220,6 @@ export function resolveLycaonProviderClauses(
       'self',
       ASSIST,
     ),
-    additive(
-      'dazeBonus',
-      'initial',
-      discSource('lycaon', 'king', '2-piece', setup.fourPieceId === 'king' ? '4-piece' : '2-piece'),
-      setup.fourPieceId === 'king' || setup.twoPieceId === 'king'
-        ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze)
-        : 0,
-      'self',
-    ),
     withApplicability(
       additive(
         'critDmg',
@@ -270,21 +256,7 @@ export function calculateLycaon(
   const impactInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'lycaon', 'impactPct'),
     mainStatInput(setup, 'lycaon', 'slot6', 'impact'),
-    discStatInput(
-      setup,
-      'lycaon',
-      'fourPiece',
-      'shockstar',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact),
-      'twoPiece',
-    ),
-    discStatInput(
-      setup,
-      'lycaon',
-      'twoPiece',
-      'shockstar',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'lycaon', { modifier: 'impact' }),
   ])
   const impactBase = VERTICAL_VALUES.lycaon.impact * (
     1 + impactInputs.reduce((total, input) => total + input.rawValue, 0) / 100
@@ -307,20 +279,7 @@ export function calculateLycaon(
   const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'lycaon', 'energyRegenPct'),
     mainStatInput(setup, 'lycaon', 'slot6', 'energyRegenPct'),
-    discStatInput(
-      setup,
-      'lycaon',
-      'twoPiece',
-      'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen),
-    ),
-    discStatInput(
-      setup,
-      'lycaon',
-      'twoPiece',
-      'moonlight',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'lycaon', { modifier: 'energyRegen' }),
   ])
   const energyBase = VERTICAL_VALUES.lycaon.baseEnergyRegen * (
     1 + energyInputs.reduce((total, input) => total + input.rawValue, 0) / 100
@@ -336,9 +295,11 @@ export function calculateLycaon(
     'energyRegen',
   )
 
+  const dazeInputs = selectedDiscTwoPieceInputs(setup, 'lycaon', { modifier: 'dazeBonus' })
+  const initialDaze = dazeInputs.reduce((total, input) => total + input.rawValue, 0)
   const daze = composeMetricEffects(
-    surfaces(0, 0, 0),
-    surfaces([], [], []),
+    surfaces(initialDaze, initialDaze, initialDaze),
+    surfaces(dazeInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
     effects,
     'dazeBonus',
   )
@@ -357,13 +318,7 @@ export function calculateLycaon(
 
   const critInputs = presentSetupInputs([
     mainStatInput(setup, 'lycaon', 'slot4', 'critRate'),
-    discStatInput(
-      setup,
-      'lycaon',
-      'twoPiece',
-      'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'lycaon', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'lycaon', 'critRate'),
   ])
   const critBase = VERTICAL_VALUES.lycaon.critRate

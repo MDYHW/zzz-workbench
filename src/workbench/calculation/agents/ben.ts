@@ -10,7 +10,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -213,12 +213,7 @@ export function calculateBen(
     mainStatInput(setup, 'ben', 'slot4', 'atkPct'),
     mainStatInput(setup, 'ben', 'slot5', 'atkPct'),
     mainStatInput(setup, 'ben', 'slot6', 'atkPct'),
-    discStatInput(setup, 'ben', 'fourPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
-    discStatInput(setup, 'ben', 'twoPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
-    discStatInput(setup, 'ben', 'twoPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
+    ...selectedDiscTwoPieceInputs(setup, 'ben', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'ben', 'atkPct'),
   ])
   const atk = composeMetricEffects(
@@ -243,10 +238,7 @@ export function calculateBen(
   const critRateInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'ben', 'critRate'),
     mainStatInput(setup, 'ben', 'slot4', 'critRate'),
-    discStatInput(setup, 'ben', 'fourPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate), 'twoPiece'),
-    discStatInput(setup, 'ben', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'ben', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'ben', 'critRate'),
   ])
   const initialCritRate = values.critRate
@@ -262,8 +254,7 @@ export function calculateBen(
   const critDmgInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'ben', 'critDmg'),
     mainStatInput(setup, 'ben', 'slot4', 'critDmg'),
-    discStatInput(setup, 'ben', 'twoPiece', 'branchAndBlade',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
+    ...selectedDiscTwoPieceInputs(setup, 'ben', { modifier: 'critDmg' }),
     effectiveSubstatInput(setup, 'ben', 'critDmg'),
   ])
   const initialCritDmg = values.critDmg
@@ -292,8 +283,7 @@ export function calculateBen(
 
   const dmgInputs = presentSetupInputs([
     mainStatInput(setup, 'ben', 'slot5', 'fireDmg'),
-    discStatInput(setup, 'ben', 'twoPiece', 'infernoMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.infernoMetal.twoPiece.damage)),
+    ...selectedDiscTwoPieceInputs(setup, 'ben', { modifier: 'dmgBonus' }),
   ])
   const initialDmg = dmgInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const dmg = composeMetricEffects(
@@ -305,10 +295,7 @@ export function calculateBen(
 
   const penInputs = presentSetupInputs([
     mainStatInput(setup, 'ben', 'slot5', 'penRatio'),
-    discStatInput(setup, 'ben', 'fourPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio), 'twoPiece'),
-    discStatInput(setup, 'ben', 'twoPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio)),
+    ...selectedDiscTwoPieceInputs(setup, 'ben', { modifier: 'penRatio' }),
   ])
   const initialPen = penInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const pen = composeMetricEffects(
@@ -319,12 +306,7 @@ export function calculateBen(
   )
 
   const energyInputs = presentSetupInputs([
-    discStatInput(setup, 'ben', 'fourPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen), 'twoPiece'),
-    discStatInput(setup, 'ben', 'twoPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
-    discStatInput(setup, 'ben', 'twoPiece', 'moonlight',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen)),
+    ...selectedDiscTwoPieceInputs(setup, 'ben', { modifier: 'energyRegen' }),
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
 

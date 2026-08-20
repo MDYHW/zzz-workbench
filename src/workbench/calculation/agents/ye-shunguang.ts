@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -256,22 +256,7 @@ export function calculateYeShunguang(
     engineAdvancedInput(setup, 'yeShunguang', 'atkPct'),
     mainStatInput(setup, 'yeShunguang', 'slot5', 'atkPct'),
     mainStatInput(setup, 'yeShunguang', 'slot6', 'atkPct'),
-    discStatInput(
-      setup, 'yeShunguang', 'fourPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk), 'twoPiece',
-    ),
-    discStatInput(
-      setup, 'yeShunguang', 'twoPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk),
-    ),
-    discStatInput(
-      setup, 'yeShunguang', 'twoPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk),
-    ),
-    discStatInput(
-      setup, 'yeShunguang', 'fourPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece',
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'yeShunguang', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'yeShunguang', 'atkPct'),
   ])
   const atk = composeMetricEffects(
@@ -286,14 +271,7 @@ export function calculateYeShunguang(
   const critRateInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'yeShunguang', 'critRate'),
     mainStatInput(setup, 'yeShunguang', 'slot4', 'critRate'),
-    discStatInput(
-      setup, 'yeShunguang', 'fourPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate), 'twoPiece',
-    ),
-    discStatInput(
-      setup, 'yeShunguang', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'yeShunguang', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'yeShunguang', 'critRate'),
   ])
   const initialCritRate = values.critRate
@@ -309,10 +287,7 @@ export function calculateYeShunguang(
   const critDmgInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'yeShunguang', 'critDmg'),
     mainStatInput(setup, 'yeShunguang', 'slot4', 'critDmg'),
-    discStatInput(
-      setup, 'yeShunguang', 'twoPiece', 'branchAndBlade',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'yeShunguang', { modifier: 'critDmg' }),
     effectiveSubstatInput(setup, 'yeShunguang', 'critDmg'),
   ])
   const initialCritDmg = values.critDmg
@@ -326,19 +301,7 @@ export function calculateYeShunguang(
 
   const dmgInputs = presentSetupInputs([
     mainStatInput(setup, 'yeShunguang', 'slot5', 'physicalDmg'),
-    discStatInput(
-      setup, 'yeShunguang', 'fourPiece', 'whiteWaterBallad',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.twoPiece.physicalDamage),
-      'twoPiece',
-    ),
-    discStatInput(
-      setup, 'yeShunguang', 'twoPiece', 'whiteWaterBallad',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.twoPiece.physicalDamage),
-    ),
-    discStatInput(
-      setup, 'yeShunguang', 'twoPiece', 'fangedMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.twoPiece.damage),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'yeShunguang', { modifier: 'dmgBonus' }),
   ])
   const initialDmg = dmgInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const dmg = composeMetricEffects(
@@ -350,15 +313,7 @@ export function calculateYeShunguang(
 
   const penInputs = presentSetupInputs([
     mainStatInput(setup, 'yeShunguang', 'slot5', 'penRatio'),
-    discStatInput(
-      setup, 'yeShunguang', 'fourPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio),
-      'twoPiece',
-    ),
-    discStatInput(
-      setup, 'yeShunguang', 'twoPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'yeShunguang', { modifier: 'penRatio' }),
   ])
   const initialPen = penInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const pen = composeMetricEffects(

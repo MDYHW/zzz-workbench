@@ -9,7 +9,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -155,14 +155,6 @@ export function resolveAnbyDemaraProviderClauses(
         : 0,
       'self',
     ),
-    additive(
-      'dazeBonus', 'initial',
-      discSource('anby', 'king', '2-piece', setup.fourPieceId === 'king' ? '4-piece' : '2-piece'),
-      setup.fourPieceId === 'king' || setup.twoPieceId === 'king'
-        ? equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze)
-        : 0,
-      'self',
-    ),
     withApplicability(
       additive(
         'critDmg', 'fully', discSource('anby', 'king', '4-piece'),
@@ -212,15 +204,7 @@ export function calculateAnbyDemara(
   const impactInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'anby', 'impactPct'),
     mainStatInput(setup, 'anby', 'slot6', 'impact'),
-    discStatInput(
-      setup, 'anby', 'fourPiece', 'shockstar',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact),
-      'twoPiece',
-    ),
-    discStatInput(
-      setup, 'anby', 'twoPiece', 'shockstar',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'anby', { modifier: 'impact' }),
   ])
   const initialImpact = values.impact * (
     1 + impactInputs.reduce((sum, input) => sum + input.rawValue, 0) / 100
@@ -251,19 +235,16 @@ export function calculateAnbyDemara(
   const energyInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'anby', 'energyRegenPct'),
     mainStatInput(setup, 'anby', 'slot6', 'energyRegenPct'),
-    discStatInput(
-      setup, 'anby', 'fourPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen),
-      'twoPiece',
-    ),
-    discStatInput(
-      setup, 'anby', 'twoPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen),
-    ),
+    ...selectedDiscTwoPieceInputs(setup, 'anby', { modifier: 'energyRegen' }),
   ])
   const energy = energyRegenProjection(values.baseEnergyRegen, energyInputs, effects)
+  const dazeInputs = selectedDiscTwoPieceInputs(setup, 'anby', { modifier: 'dazeBonus' })
+  const initialDaze = dazeInputs.reduce((total, input) => total + input.rawValue, 0)
   const daze = composeMetricEffects(
-    surfaces(0, 0, 0), surfaces([], [], []), effects, 'dazeBonus',
+    surfaces(initialDaze, initialDaze, initialDaze),
+    surfaces(dazeInputs.map((input) => contribution(input.source, input.rawValue)), [], []),
+    effects,
+    'dazeBonus',
   )
   const quickAssist = effects.find(
     (effect) => effect.action === TRIGGER_QUICK_ASSIST_TARGET

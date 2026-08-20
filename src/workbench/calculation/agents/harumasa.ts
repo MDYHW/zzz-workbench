@@ -11,7 +11,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -285,14 +285,7 @@ export function calculateHarumasa(
     mainStatInput(setup, 'harumasa', 'slot4', 'atkPct'),
     mainStatInput(setup, 'harumasa', 'slot5', 'atkPct'),
     mainStatInput(setup, 'harumasa', 'slot6', 'atkPct'),
-    discStatInput(setup, 'harumasa', 'fourPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk), 'twoPiece'),
-    discStatInput(setup, 'harumasa', 'twoPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
-    discStatInput(setup, 'harumasa', 'fourPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
-    discStatInput(setup, 'harumasa', 'twoPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
+    ...selectedDiscTwoPieceInputs(setup, 'harumasa', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'harumasa', 'atkPct'),
   ])
   const atk = composeMetricEffects(
@@ -307,10 +300,7 @@ export function calculateHarumasa(
   const critRateInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'harumasa', 'critRate'),
     mainStatInput(setup, 'harumasa', 'slot4', 'critRate'),
-    discStatInput(setup, 'harumasa', 'fourPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate), 'twoPiece'),
-    discStatInput(setup, 'harumasa', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'harumasa', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'harumasa', 'critRate'),
   ])
   const initialCritRate = values.critRate
@@ -326,8 +316,7 @@ export function calculateHarumasa(
   const critDmgInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'harumasa', 'critDmg'),
     mainStatInput(setup, 'harumasa', 'slot4', 'critDmg'),
-    discStatInput(setup, 'harumasa', 'twoPiece', 'branchAndBlade',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
+    ...selectedDiscTwoPieceInputs(setup, 'harumasa', { modifier: 'critDmg' }),
     effectiveSubstatInput(setup, 'harumasa', 'critDmg'),
   ])
   const initialCritDmg = values.critDmg
@@ -341,10 +330,7 @@ export function calculateHarumasa(
 
   const dmgInputs = presentSetupInputs([
     mainStatInput(setup, 'harumasa', 'slot5', 'electricDmg'),
-    discStatInput(setup, 'harumasa', 'fourPiece', 'thunderMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.twoPiece.damage), 'twoPiece'),
-    discStatInput(setup, 'harumasa', 'twoPiece', 'thunderMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.twoPiece.damage)),
+    ...selectedDiscTwoPieceInputs(setup, 'harumasa', { modifier: 'dmgBonus' }),
   ])
   const initialDmg = dmgInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const dmg = composeMetricEffects(
@@ -356,8 +342,7 @@ export function calculateHarumasa(
 
   const penInputs = presentSetupInputs([
     mainStatInput(setup, 'harumasa', 'slot5', 'penRatio'),
-    discStatInput(setup, 'harumasa', 'twoPiece', 'pufferElectro',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio)),
+    ...selectedDiscTwoPieceInputs(setup, 'harumasa', { modifier: 'penRatio' }),
   ])
   const initialPen = penInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const pen = composeMetricEffects(

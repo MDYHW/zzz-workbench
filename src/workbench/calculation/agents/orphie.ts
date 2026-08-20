@@ -12,7 +12,7 @@ import {
   active,
   additive,
   discSource,
-  discStatInput,
+  selectedDiscTwoPieceInputs,
   effectiveSubstatInput,
   engineAdvancedInput,
   engineSource,
@@ -84,10 +84,7 @@ function energyInputs(setup: CompleteSetup) {
   return presentSetupInputs([
     engineAdvancedInput(setup, 'orphie', 'energyRegenPct'),
     mainStatInput(setup, 'orphie', 'slot6', 'energyRegenPct'),
-    discStatInput(setup, 'orphie', 'twoPiece', 'swingJazz',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)),
-    discStatInput(setup, 'orphie', 'twoPiece', 'moonlight',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen)),
+    ...selectedDiscTwoPieceInputs(setup, 'orphie', { modifier: 'energyRegen' }),
   ])
 }
 
@@ -270,12 +267,7 @@ export function calculateOrphie(
     engineAdvancedInput(setup, 'orphie', 'atkPct'),
     mainStatInput(setup, 'orphie', 'slot5', 'atkPct'),
     mainStatInput(setup, 'orphie', 'slot6', 'atkPct'),
-    discStatInput(setup, 'orphie', 'twoPiece', 'hormonePunk',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)),
-    discStatInput(setup, 'orphie', 'fourPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk), 'twoPiece'),
-    discStatInput(setup, 'orphie', 'twoPiece', 'astralVoice',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)),
+    ...selectedDiscTwoPieceInputs(setup, 'orphie', { modifier: 'atk' }),
     effectiveSubstatInput(setup, 'orphie', 'atkPct'),
   ])
   const atk = composeMetricEffects(
@@ -290,8 +282,7 @@ export function calculateOrphie(
   const critRateInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'orphie', 'critRate'),
     mainStatInput(setup, 'orphie', 'slot4', 'critRate'),
-    discStatInput(setup, 'orphie', 'twoPiece', 'woodpecker',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)),
+    ...selectedDiscTwoPieceInputs(setup, 'orphie', { modifier: 'critRate' }),
     effectiveSubstatInput(setup, 'orphie', 'critRate'),
   ])
   const initialCritRate = values.critRate
@@ -307,8 +298,7 @@ export function calculateOrphie(
   const critDmgInputs = presentSetupInputs([
     engineAdvancedInput(setup, 'orphie', 'critDmg'),
     mainStatInput(setup, 'orphie', 'slot4', 'critDmg'),
-    discStatInput(setup, 'orphie', 'twoPiece', 'branchAndBlade',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)),
+    ...selectedDiscTwoPieceInputs(setup, 'orphie', { modifier: 'critDmg' }),
     effectiveSubstatInput(setup, 'orphie', 'critDmg'),
   ])
   const initialCritDmg = values.critDmg
@@ -322,8 +312,7 @@ export function calculateOrphie(
 
   const dmgInputs = presentSetupInputs([
     mainStatInput(setup, 'orphie', 'slot5', 'fireDmg'),
-    discStatInput(setup, 'orphie', 'twoPiece', 'infernoMetal',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.infernoMetal.twoPiece.damage)),
+    ...selectedDiscTwoPieceInputs(setup, 'orphie', { modifier: 'dmgBonus' }),
   ])
   const initialDmg = dmgInputs.reduce((sum, input) => sum + input.rawValue, 0)
   const dmg = composeMetricEffects(
