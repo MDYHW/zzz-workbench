@@ -383,16 +383,3 @@ ever differ.
   and the mapping of each current source into the bounded relationship
   vocabulary are technical discovery for planning and do not authorize new
   product meanings.
-
----
-
-## Outstanding Questions
-
-### Deferred to Planning
-
-- [Affects R1, R4, R18][Needs research] Establish the safest bounded migration
-  order by tracing the current cross-vertical dependency graph and separating
-  authority-backed behavior corrections from mechanical source conversion.
-- [Affects R9, R20][Technical] Select the smallest representative cross-vertical
-  cases that collectively cover every retained relationship and lifecycle
-  mechanism without recreating an Agent catalogue.
