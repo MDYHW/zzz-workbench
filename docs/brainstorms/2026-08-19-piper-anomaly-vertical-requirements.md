@@ -44,12 +44,12 @@ only distinctions that change Piper's competitive setup or visible Result.
   - **Outcome:** Piper has one visible complete first choice whose candidates
     and Result remain editable through the shared lifecycle.
   - **Covered by:** R8-R18
-- F2. Power and party Result
+- F2. Power-derived and party Result
   - **Trigger:** Piper's setup is complete.
-  - **Steps:** Project her initial and enabled stats, expose Power's buildup
-    relationship, conditionally expose the Additional Ability threshold when
-    the applied party qualifies it, deliver the qualified squad DMG clause,
-    and show bounded Assault and action outcomes.
+  - **Steps:** Project her initial and enabled stats, project the buildup and
+    action effects derived from Fully Enabled Power without exposing that local
+    state, deliver the qualified squad DMG clause, and show bounded Assault and
+    action outcomes.
   - **Outcome:** The user can understand what the setup changes without a
     final-damage number, uptime estimate, or rotation model.
   - **Covered by:** R2-R7, R18-R19
@@ -74,7 +74,8 @@ only distinctions that change Piper's competitive setup or visible Result.
   setup directions are `anomaly_damage` and `anomaly_buildup`; ordinary skill
   damage is retained only for exact source-stated outcomes that materially
   explain a current Result. Her completed consumed values are ATK 758, AP 118,
-  AM 116, and Energy Regen 1.56/s.
+  and AM 116. Energy Regen has no current setup choice or Result consumer and
+  remains absent.
 - R2. Piper's anomaly-damage Result uses ATK as the current base stat and AP as
   its independent multiplicative stat region. Her anomaly-buildup Result uses
   AM and the Physical buildup-bonus and buildup-RES regions. The service
@@ -90,14 +91,13 @@ only distinctions that change Piper's competitive setup or visible Result.
   its current same-Attribute or same-Faction qualification. At 20 or more Power
   it supplies squad DMG +18%, including to Piper. Qualification and the Power
   threshold change Result, not candidate membership or hidden prepared inputs.
-- R5. `Power` is a Piper-local Result basis quantity: Initial and Combat are
-  zero and Fully Enabled is the reachable Mindscape-dependent cap 20 or 30.
-  Core Passive remains the source of the separate Physical Anomaly Buildup
-  Bonus contribution, +80% or +120%. When the applied party qualifies the
-  Additional Ability, its own source supplies a gauge on the Power parent row
-  with threshold 20, cap 20 or 30, and output `Squad DMG Bonus +18%`; without
-  that qualification the Power row and Core buildup remain but the Additional
-  Ability gauge and contribution are absent. Power is not a runtime control.
+- R5. `Power` is an internal Piper-local Fully Enabled basis rather than a
+  Result row, gauge, or runtime control. Its reachable Mindscape-dependent cap
+  remains 20 or 30 so Core Passive can supply the separate Physical Anomaly
+  Buildup Bonus contribution, +80% or +120%, and M2 can project its exact
+  action-scoped outcome. When the applied party qualifies the Additional
+  Ability, that source contributes `Squad DMG Bonus +18%`; without qualification
+  that contribution is absent while the Core buildup contribution remains.
 - R6. At M2 or higher, the downward-smash Special/EX Special and Ultimate
   outcomes receive regular action-scoped Physical DMG Bonus +10% plus 1% per
   Fully Enabled Power stack. This uses the existing action-difference grammar,
@@ -219,10 +219,10 @@ only distinctions that change Piper's competitive setup or visible Result.
   Any incomplete required selection keeps the shared Result empty.
 - R19. Piper Result exposes ATK, AP, AM, Physical DMG, regular DMG Bonus
   including Piper's qualified all-party +18% contribution, anomaly-damage and
-  buildup regions, applicable DEF/RES/Stun regions, Power current/cap and,
-  only when qualified, its Additional Ability threshold gauge, and the M2
-  action outcome. Assault and Disorder have no differing Piper-local modifier,
-  and DMG Taken has no current Piper source, so those rows are absent.
+  buildup regions, applicable DEF/RES/Stun regions, and the M2 action outcome.
+  Power has no Result row or gauge. Assault and Disorder have no differing
+  Piper-local modifier, and DMG Taken has no current Piper source, so those rows
+  are absent.
   Result does not expose a raw
   anomaly meter, final damage, Disorder ledger entry, rotation, trigger
   frequency, field time, or simulated uptime.
@@ -233,7 +233,7 @@ only distinctions that change Piper's competitive setup or visible Result.
   Existing local asset presence alone does not prove provenance or calibration.
   Browser acceptance also covers desktop and narrow Piper expanded states for
   prepared full and non-limited Setup, open W-Engine and Disc candidates,
-  qualified and unqualified Additional Ability, M0 and M6 Power gauges,
+  qualified and unqualified Additional Ability, M0 and M6 Power-derived effects,
   expanded anomaly/action disclosures, keyboard-visible source linking, and no
   clipping or horizontal overflow.
 
@@ -241,14 +241,14 @@ only distinctions that change Piper's competitive setup or visible Result.
 
 ## Acceptance Examples
 
-- AE1. **Covers R3-R5.** At M0, Fully Enabled Piper shows 20 Power and 80%
-  Physical anomaly-buildup bonus. At the authored M6 default it shows 30 Power
-  and 120% buildup bonus. A qualifying party adds the Additional Ability gauge
-  and +18% squad DMG output at threshold 20; an unqualified party retains Power
-  and buildup without that gauge. No time-to-cap or probability appears.
+- AE1. **Covers R3-R5.** At M0, Fully Enabled Piper shows 80% Physical
+  anomaly-buildup bonus. At the authored M6 default it shows 120% buildup bonus.
+  A qualifying party adds the Additional Ability's +18% squad DMG contribution;
+  an unqualified party does not. Neither party shows Power as a Result row or
+  gauge, and no time-to-cap or probability appears.
 - AE2. **Covers R4, R7, R18.** Applying a qualifying party activates Piper's
   +18% squad DMG after the Power threshold. Removing qualification on the next
-  Party Apply removes only that source, gauge, and Result contribution; Piper's
+  Party Apply removes only that source and Result contribution; Piper's
   equipment candidates and zero substat inputs do not change, and neither party
   creates a duplicate Disorder row.
 - AE3. **Covers R8-R13, R16.** A full-pool prepared Piper begins on Practiced
@@ -304,8 +304,8 @@ only distinctions that change Piper's competitive setup or visible Result.
 - Practiced Perfection and Roaring Ride are independent pool representatives;
   rarity, signature identity, and guide order do not replace whole-package
   comparison.
-- Power current/cap is always visible; its Additional Ability threshold gauge
-  is qualification-only, and neither is a runtime input.
+- Power is retained only as the internal Fully Enabled basis for its derived
+  buildup and action effects; it is not a Result row, gauge, or runtime input.
 - Only equipment with a Piper-local competitive or visible consequence enters
   this vertical; dormant facts and assets remain unadmitted.
 

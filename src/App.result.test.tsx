@@ -92,7 +92,7 @@ describe('integrated party workbench: result', () => {
       name: /Cissia.*Core Passive/,
     })
     const cissiaSlot = screen.getByRole('tab', { name: 'View Cissia setup and Result' })
-    expect(cissiaSource).toHaveAttribute('data-source-tone', 'agent-cissia')
+    expect(cissiaSource).toHaveAttribute('data-source-tone', 'agent-slot-2')
 
     await user.hover(cissiaSource)
     expect(cissiaSlot).toHaveClass('is-source-active')
@@ -114,7 +114,7 @@ describe('integrated party workbench: result', () => {
     const seedSource = within(cissiaSources).getByRole('row', {
       name: /Seed.*Core Passive/,
     })
-    expect(seedSource).toHaveAttribute('data-source-tone', 'agent-seed')
+    expect(seedSource).toHaveAttribute('data-source-tone', 'agent-slot-1')
     await user.hover(seedSource)
     expect(screen.getByRole('tab', { name: 'View Seed setup and Result' }))
       .toHaveClass('is-source-active')
@@ -341,7 +341,7 @@ describe('integrated party workbench: result', () => {
     })
     expect(within(dmgSources).getByRole('row', {
       name: /Dialyn.*Mindscape.*M2.*against Malicious Complaint.*[+]15[.]0%/,
-    })).toHaveAttribute('data-source-tone', 'agent-dialyn')
+    })).toHaveAttribute('data-source-tone', 'agent-slot-2')
 
     await user.click(screen.getByRole('button', { name: 'Stun DMG Multiplier' }))
     const stunSources = screen.getByRole('table', {
@@ -349,7 +349,7 @@ describe('integrated party workbench: result', () => {
     })
     expect(within(stunSources).getByRole('row', {
       name: /Dialyn.*Mindscape.*M2.*[+]20[.]0%/,
-    })).toHaveAttribute('data-source-tone', 'agent-dialyn')
+    })).toHaveAttribute('data-source-tone', 'agent-slot-2')
 
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
     expect(screen.queryByRole('table', {
@@ -388,7 +388,7 @@ describe('integrated party workbench: result', () => {
     })
     expect(within(sheerSources).getByRole('row', {
       name: /Lucia.*EX Special Attack.*M5 tier.*[+]901[.]6/,
-    })).toHaveAttribute('data-source-tone', 'agent-lucia')
+    })).toHaveAttribute('data-source-tone', 'agent-slot-3')
 
     await user.click(screen.getByRole('button', { name: 'Sheer DMG Bonus' }))
     const sheerDmgSources = screen.getByRole('table', {
@@ -396,7 +396,7 @@ describe('integrated party workbench: result', () => {
     })
     expect(within(sheerDmgSources).getByRole('row', {
       name: /Lucia.*Mindscape.*M2.*Darkbreaker.*Wellspring.*[+]15[.]0%/,
-    })).toHaveAttribute('data-source-tone', 'agent-lucia')
+    })).toHaveAttribute('data-source-tone', 'agent-slot-3')
   })
 
   it('links every prepared Drive Disc source to its visible setup surface', async () => {
@@ -610,7 +610,7 @@ describe('integrated party workbench: result', () => {
     const triggerSource = within(critSources).getByRole('row', {
       name: /Trigger.*King of the Summit.*4-piece.*[+]30[.]0%/,
     })
-    expect(triggerSource).toHaveAttribute('data-source-tone', 'agent-trigger')
+    expect(triggerSource).toHaveAttribute('data-source-tone', 'agent-slot-2')
     await user.hover(triggerSource)
     expect(screen.getByRole('tab', { name: 'View Trigger setup and Result' }))
       .toHaveClass('is-source-active')
@@ -682,7 +682,7 @@ describe('integrated party workbench: result', () => {
     expect(m4Operation).toHaveTextContent(
       /Fully enabled.*Next Quick Assist Daze.*Astra Yao.*Mindscape.*M4.*Next Quick Assist.*[+]50[.]0%/,
     )
-    expect(m4Operation).toHaveAttribute('data-source-tone', 'agent-astraYao')
+    expect(m4Operation).toHaveAttribute('data-source-tone', 'agent-slot-3')
   })
 
   it('renders Ben and Koleda exact prepared Results without a survival operation', async () => {
@@ -796,7 +796,7 @@ describe('integrated party workbench: result', () => {
     })).toHaveAttribute('data-source-tone', 'target')
     expect(within(sourceMatrix).getByRole('row', {
       name: /Trigger.*Core Passive.*[+]35[.]0%/,
-    })).toHaveAttribute('data-source-tone', 'agent-trigger')
+    })).toHaveAttribute('data-source-tone', 'agent-slot-2')
 
     const input = within(yeResult).getByRole('textbox', {
       name: 'Target Stun DMG Multiplier',
@@ -877,8 +877,8 @@ describe('integrated party workbench: result', () => {
       'ATK', 'Anomaly Proficiency', 'Anomaly Mastery',
       'DMG Bonus', 'Anomaly DMG Bonus', 'Anomaly Buildup Bonus', 'PEN Ratio',
     ]) expect(within(result).getByRole('button', { name: metricName })).toBeInTheDocument()
-    expect(within(result).getByRole('rowheader', { name: 'Energy Regen' }))
-      .toBeInTheDocument()
+    expect(within(result).queryByRole('rowheader', { name: 'Energy Regen' }))
+      .not.toBeInTheDocument()
 
     await user.click(within(result).getByRole('button', {
       name: 'Anomaly Proficiency',
@@ -907,7 +907,7 @@ describe('integrated party workbench: result', () => {
     expect(within(result).queryByText(/Abloom|final anomaly damage/i)).not.toBeInTheDocument()
   }, 10_000)
 
-  it('renders Piper Power while keeping its Additional Ability gauge qualification-only', async () => {
+  it('renders Piper effects without exposing Power as a local Result state', async () => {
     const user = userEvent.setup()
     render(<App />)
     const replace = async (slot: number, agent: RegExp) => {
@@ -924,28 +924,21 @@ describe('integrated party workbench: result', () => {
     await user.click(screen.getByRole('radio', { name: 'Piper Wheel' }))
     await user.click(screen.getByRole('button', { name: 'Apply party' }))
 
-    const expandPower = async (region: HTMLElement) => {
-      const power = within(region).getByRole('button', { name: 'Power' })
-      if (power.getAttribute('aria-expanded') === 'false') {
-        await user.click(power)
-      }
-    }
-
     let result = screen.getByRole('region', { name: 'Piper Wheel Result' })
-    await expandPower(result)
-    expect(within(result).getByRole('group', {
-      name: /Fully Enabled Power: current 30, cap 30, threshold 20; Squad DMG Bonus: [+]18%/,
-    })).toBeInTheDocument()
-    expect(within(result).getByText('Core Passive')).toBeInTheDocument()
+    expect(within(result).queryByRole('rowheader', { name: 'Energy Regen' }))
+      .not.toBeInTheDocument()
+    expect(within(result).queryByRole('rowheader', { name: 'Power' }))
+      .not.toBeInTheDocument()
+    await user.click(within(result).getByRole('button', { name: 'DMG Bonus' }))
     expect(within(result).getByText('Additional Ability')).toBeInTheDocument()
+    await user.click(within(result).getByRole('button', { name: 'Anomaly Buildup Bonus' }))
+    expect(within(result).getByText('Core Passive')).toBeInTheDocument()
 
     const mindscape = screen.getByRole('group', { name: 'Mindscape' })
     await user.click(within(mindscape).getByRole('button', { name: 'M0' }))
     result = screen.getByRole('region', { name: 'Piper Wheel Result' })
-    await expandPower(result)
-    expect(within(result).getByRole('group', {
-      name: /Fully Enabled Power: current 20, cap 20, threshold 20; Squad DMG Bonus: [+]18%/,
-    })).toBeInTheDocument()
+    expect(within(result).queryByRole('rowheader', { name: 'Power' }))
+      .not.toBeInTheDocument()
     expect(within(result).queryByText(/Downward smash|Disorder|final anomaly damage/i))
       .not.toBeInTheDocument()
 
@@ -954,10 +947,9 @@ describe('integrated party workbench: result', () => {
     await user.click(screen.getByRole('radio', { name: 'Piper Wheel' }))
     await user.click(screen.getByRole('button', { name: 'Apply party' }))
     result = screen.getByRole('region', { name: 'Piper Wheel Result' })
-    await expandPower(result)
-    expect(within(result).queryByRole('group', {
-      name: /Fully Enabled Power:/,
-    })).not.toBeInTheDocument()
+    expect(within(result).queryByRole('rowheader', { name: 'Power' }))
+      .not.toBeInTheDocument()
+    await user.click(within(result).getByRole('button', { name: 'Anomaly Buildup Bonus' }))
     expect(within(result).getByText('Core Passive')).toBeInTheDocument()
     expect(within(result).queryByText('Additional Ability')).not.toBeInTheDocument()
   }, 15_000)

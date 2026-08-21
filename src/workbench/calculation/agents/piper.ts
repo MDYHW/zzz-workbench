@@ -31,13 +31,12 @@ import {
   composeActionHierarchy,
   composeMetricEffects,
   contribution,
-  energyRegenProjection,
   percentageContribution,
   surfaces,
   type ActionScopeNode,
 } from '../composition'
 import { initialAtkFor } from '../initial-atk'
-import type { AgentResult, GaugeResult, ResultMetric } from '../result'
+import type { AgentResult, ResultMetric } from '../result'
 
 export interface PiperCalculationContext {
   agentId: 'piper'
@@ -87,7 +86,6 @@ export function resolvePiperProviderClauses(
     + values.mindscapeActionDmgPerPower * powerCap
 
   return active([
-    additive('power', 'fully', STATIC_SOURCES.piper.core, powerCap, 'self'),
     withApplicability(
       additive(
         'anomalyBuildupBonus', 'fully', STATIC_SOURCES.piper.core,
@@ -250,7 +248,7 @@ export function calculatePiper(
   inbox: SourceBoundCurrentClause[],
   enemy: SourceBoundCurrentClause[],
 ): AgentResult {
-  const { additionalActive, initialAtk, setup } = context
+  const { initialAtk, setup } = context
   const values = VERTICAL_VALUES.piper
   const baseAtk = values.atk + W_ENGINES[setup.engineId].baseAtk
   const effects = resolveDeliveredClauses([...inbox, ...enemy], { atk: initialAtk })
@@ -306,7 +304,6 @@ export function calculatePiper(
     'anomalyMastery',
   )
 
-  const energyRegen = energyRegenProjection(values.baseEnergyRegen, [], effects)
   const dmgInputs = presentSetupInputs([
     mainStatInput(setup, 'piper', 'slot5', 'physicalDmg'),
     ...selectedDiscTwoPieceInputs(
@@ -334,9 +331,6 @@ export function calculatePiper(
     'penRatio',
   )
 
-  const power = composeMetricEffects(
-    surfaces(0, 0, 0), surfaces([], [], []), effects, 'power',
-  )
   const anomalyDmgBonus = composeMetricEffects(
     surfaces(0, 0, 0), surfaces([], [], []), effects, 'anomalyDmgBonus',
   )
@@ -346,25 +340,6 @@ export function calculatePiper(
   const actionModifiers = composeActionHierarchy(
     dmg.values, effects, 'dmgBonus', PIPER_M2_SCOPES,
   )
-
-  const powerCap = setup.mindscape >= 1
-    ? values.mindscapePowerCap
-    : values.basePowerCap
-  const powerGauge: GaugeResult | undefined = additionalActive
-    ? {
-      source: STATIC_SOURCES.piper.additional,
-      basisLabel: 'Fully Enabled Power',
-      current: power.values.fully,
-      threshold: values.additionalPowerThreshold,
-      cap: powerCap,
-      outputLabel: 'Squad DMG Bonus',
-      outputValue: power.values.fully >= values.additionalPowerThreshold
-        ? values.additionalDmgBonus
-        : 0,
-      outputUnit: '%',
-      decimals: { current: 0, threshold: 0, cap: 0, output: 0 },
-    }
-    : undefined
 
   return {
     agentId: 'piper',
@@ -378,7 +353,6 @@ export function calculatePiper(
         id: 'anomalyMastery', label: 'Anomaly Mastery', unit: '', decimals: 1,
         ...anomalyMastery,
       },
-      { id: 'energyRegen', label: 'Energy Regen', unit: '', decimals: 2, ...energyRegen },
       { id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...dmg },
       {
         id: 'anomalyDmgBonus', label: 'Anomaly DMG Bonus', unit: '%', decimals: 1,
@@ -387,10 +361,6 @@ export function calculatePiper(
       {
         id: 'anomalyBuildupBonus', label: 'Anomaly Buildup Bonus', unit: '%', decimals: 1,
         ...anomalyBuildupBonus,
-      },
-      {
-        id: 'power', label: 'Power', unit: '', decimals: 0, ...power,
-        ...(powerGauge ? { gauge: powerGauge } : {}),
       },
       ...(penRatio.values.fully
         ? [{ id: 'penRatio' as const, label: 'PEN Ratio', unit: '%', decimals: 1, ...penRatio }]

@@ -141,6 +141,7 @@ export function App() {
                 agentResult={agentResult}
                 onSourceToneChange={changeSourceTone}
                 onTargetStunDmgMultiplierChange={setTargetStunDmgMultiplier}
+                partyAgentIds={state.slots.map(({ agentId }) => agentId)}
                 targetStunDmgMultiplier={targetStunDmgMultiplier}
               />
             </>

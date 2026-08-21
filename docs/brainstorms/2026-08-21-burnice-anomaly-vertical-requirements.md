@@ -197,7 +197,8 @@ general-damage build.
   local action. Do not create unconditional empty Afterburn, Burn, Fire Anomaly,
   or Disorder rows; a row exists only when current sources make it differ.
 - R19. Result exposes ATK, AP, AM, Energy Regen, applicable regular/anomaly/
-  buildup, CRIT, PEN, RES, and source-linked action differences; the AP gauge,
+  buildup, PEN, RES, and source-linked action differences. CRIT appears only
+  when M4 creates its current EX Special/Assist action difference; the AP gauge,
   Initial Energy Regen two-output gauge, Burn duration operation, and admitted
   Mindscape operations are exact. It excludes final Afterburn, Burn, Fire
   Anomaly, Disorder, Abloom, or original-Burn damage; raw meter, application

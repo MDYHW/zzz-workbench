@@ -432,7 +432,7 @@ describe('integrated party workbench: party', () => {
     expect(screen.getByLabelText('Fire, Attack').querySelectorAll('img')).toHaveLength(2)
     const evelynTab = screen.getByRole('tab', { name: 'Close Evelyn setup and Result' })
     await user.hover(evelynTab)
-    expect(evelynTab).toHaveClass('source-tone--agent-evelyn')
+    expect(evelynTab).toHaveClass('source-tone--agent-slot-1')
   })
 
   it('applies Corin and Lycaon with generic Rank defaults and Focus behavior', async () => {
@@ -545,7 +545,7 @@ describe('integrated party workbench: party', () => {
     expect(within(yidhariTab).getByLabelText('S Rank')).toBeInTheDocument()
     expect(within(yidhariTab).getByLabelText('Ice, Rupture').querySelectorAll('img')).toHaveLength(2)
     await user.hover(yidhariTab)
-    expect(yidhariTab).toHaveClass('source-tone--agent-yidhari')
+    expect(yidhariTab).toHaveClass('source-tone--agent-slot-1')
 
     const preparedKraken = screen.getByRole('button', {
       name: "Change W-Engine from Kraken's Cradle",
@@ -581,7 +581,7 @@ describe('integrated party workbench: party', () => {
     expect(within(manatoTab).getByLabelText('A Rank')).toBeInTheDocument()
     expect(within(manatoTab).getByLabelText('Fire, Rupture').querySelectorAll('img')).toHaveLength(2)
     await user.hover(manatoTab)
-    expect(manatoTab).toHaveClass('source-tone--agent-manato')
+    expect(manatoTab).toHaveClass('source-tone--agent-slot-2')
   }, 15_000)
 
   it('admits Hugo through the shared Attack setup and scoped Result flow', async () => {
@@ -605,7 +605,7 @@ describe('integrated party workbench: party', () => {
     expect(within(hugoTab).getByLabelText('S Rank')).toBeInTheDocument()
     expect(within(hugoTab).getByLabelText('Ice, Attack').querySelectorAll('img')).toHaveLength(2)
     await user.hover(hugoTab)
-    expect(hugoTab).toHaveClass('source-tone--agent-hugo')
+    expect(hugoTab).toHaveClass('source-tone--agent-slot-1')
     expect(screen.getByRole('button', { name: 'Change W-Engine from Myriad Eclipse' }))
       .toHaveAccessibleDescription(
         'CRIT Rate +24%. CRIT DMG +45%. DEF Ignore +25%',
