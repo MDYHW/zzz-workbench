@@ -1,17 +1,267 @@
 import { describe, expect, it } from 'vitest'
 import { calculateParty } from './calculate'
 import {
+  effectiveFourPieceIds,
+  effectiveFourPieceRoleSwapIds,
   effectiveMainStatIds,
+  effectiveSubstatChoicesForSlot,
   effectiveTwoPieceIds,
   incompleteRequiredSelections,
 } from './candidates'
 import {
+  ADMITTED_AGENTS,
+  DRIVE_DISCS,
+  EFFECTIVE_SUBSTAT_VALUES,
+  MAIN_STATS,
+  W_ENGINES,
+  isFocusEligible,
+  setupPolicyFor,
+  type AgentId,
+  type MainSlot,
+  type PoolId,
+} from './content'
+import {
   createPreparedState,
   isCompleteWorkbench,
   workbenchReducer,
+  type AppliedSlot,
+  type WorkbenchState,
 } from './state'
 
+const POOLS: readonly PoolId[] = ['full', 'nonLimited']
+const MAIN_SLOTS: readonly MainSlot[] = ['slot4', 'slot5', 'slot6']
+const SAFE_COMPANIONS: readonly AgentId[] = ['yixuan', 'dialyn', 'lucia']
+
+function candidateStateFor(agentId: AgentId, pool: PoolId): WorkbenchState {
+  const agentIds = [
+    agentId,
+    ...SAFE_COMPANIONS.filter((candidate) => candidate !== agentId),
+  ].slice(0, 3) as [AgentId, AgentId, AgentId]
+  const focusSlot = agentIds.findIndex(isFocusEligible) as AppliedSlot
+  if (focusSlot < 0) throw new Error(`Candidate fixture requires a Focus: ${agentId}`)
+  return createPreparedState({ [agentId]: pool }, agentIds, focusSlot)
+}
+
+function repairCompleteState(state: WorkbenchState): WorkbenchState {
+  let next = state
+  for (let pass = 0; pass < 8 && !isCompleteWorkbench(next); pass += 1) {
+    for (const slot of [0, 1, 2] as const) {
+      let setup = next.slots[slot].setup
+      if (!setup.engineId) {
+        const engineId = setupPolicyFor(next.slots[slot].agentId)
+          .engineIdsByPool[setup.pool][0]
+        next = workbenchReducer(next, { type: 'selectEngine', slot, engineId })
+        setup = next.slots[slot].setup
+      }
+      if (!setup.fourPieceId) {
+        const discId = effectiveFourPieceIds(next, slot)
+          .find((candidate) => candidate !== setup.twoPieceId)
+        if (!discId) throw new Error(`No compatible 4-piece repair for slot ${slot}`)
+        next = workbenchReducer(next, { type: 'selectDisc', slot, piece: 'fourPiece', discId })
+        setup = next.slots[slot].setup
+      }
+      if (!setup.twoPieceId) {
+        const discId = effectiveTwoPieceIds(next, slot)
+          .find((candidate) => candidate !== setup.fourPieceId)
+        if (!discId) throw new Error(`No compatible 2-piece repair for slot ${slot}`)
+        next = workbenchReducer(next, { type: 'selectDisc', slot, piece: 'twoPiece', discId })
+        setup = next.slots[slot].setup
+      }
+      for (const mainSlot of MAIN_SLOTS) {
+        if (setup.mains[mainSlot]) continue
+        const mainStatId = effectiveMainStatIds(next, slot, mainSlot)[0]
+        if (!mainStatId) throw new Error(`No ${mainSlot} repair for slot ${slot}`)
+        next = workbenchReducer(next, {
+          type: 'selectMainStat', slot, mainSlot, mainStatId,
+        })
+        setup = next.slots[slot].setup
+      }
+      for (const { id } of effectiveSubstatChoicesForSlot(next, slot)) {
+        if (Number.isFinite(setup.substats[id])) continue
+        next = workbenchReducer(next, { type: 'setSubstat', slot, key: id, value: 0 })
+        setup = next.slots[slot].setup
+      }
+    }
+  }
+  return next
+}
+
+function expectCalculable(state: WorkbenchState, context: string): WorkbenchState {
+  const complete = repairCompleteState(state)
+  expect(isCompleteWorkbench(complete), context).toBe(true)
+  expect(calculateParty(complete), context).not.toBeNull()
+  return complete
+}
+
+function expectPreparedCalculable(state: WorkbenchState, context: string): void {
+  expect(incompleteRequiredSelections(state), context).toEqual([])
+  expect(isCompleteWorkbench(state), context).toBe(true)
+  expect(calculateParty(state), context).not.toBeNull()
+}
+
+function effectiveCandidateSignature(state: WorkbenchState, slot: AppliedSlot): string {
+  const setup = state.slots[slot].setup
+  return JSON.stringify({
+    fourPieceIds: effectiveFourPieceIds(state, slot),
+    twoPieceIds: effectiveTwoPieceIds(state, slot),
+    selectedFourPieceId: setup.fourPieceId,
+    selectedTwoPieceId: setup.twoPieceId,
+    mains: MAIN_SLOTS.map((mainSlot) => effectiveMainStatIds(state, slot, mainSlot)),
+    substats: effectiveSubstatChoicesForSlot(state, slot).map(({ id }) => id),
+  })
+}
+
+function exerciseScalarCandidates(
+  state: WorkbenchState,
+  slot: AppliedSlot,
+  context: string,
+): void {
+  for (const mainSlot of MAIN_SLOTS) {
+    for (const mainStatId of effectiveMainStatIds(state, slot, mainSlot)) {
+      const selected = workbenchReducer(state, {
+        type: 'selectMainStat', slot, mainSlot, mainStatId,
+      })
+      expect(selected.slots[slot].setup.mains[mainSlot], context).toBe(mainStatId)
+      expectCalculable(selected, `${context}:${mainSlot}:${mainStatId}`)
+    }
+  }
+  for (const { id } of effectiveSubstatChoicesForSlot(state, slot)) {
+    const selected = workbenchReducer(state, {
+      type: 'setSubstat', slot, key: id, value: 1,
+    })
+    expect(selected.slots[slot].setup.substats[id], context).toBe(1)
+    expectCalculable(selected, `${context}:substat:${id}`)
+  }
+}
+
+function exerciseEffectiveCandidates(
+  initial: WorkbenchState,
+  slot: AppliedSlot,
+  context: string,
+): void {
+  const state = expectCalculable(initial, context)
+  exerciseScalarCandidates(state, slot, context)
+
+  const setup = state.slots[slot].setup
+  const roleSwaps = effectiveFourPieceRoleSwapIds(state, slot)
+  const twoPieceCandidates = effectiveTwoPieceIds(state, slot)
+  const visibleFourPieceIds = effectiveFourPieceIds(state, slot).filter((discId) => (
+    discId === setup.fourPieceId
+      || discId !== setup.twoPieceId
+      || roleSwaps.includes(discId)
+      || Boolean(setup.fourPieceId && twoPieceCandidates.includes(setup.fourPieceId))
+  ))
+  for (const discId of visibleFourPieceIds) {
+    const selected = workbenchReducer(state, {
+      type: 'selectDisc', slot, piece: 'fourPiece', discId,
+    })
+    expect(selected.slots[slot].setup.fourPieceId, context).toBe(discId)
+    const complete = expectCalculable(selected, `${context}:4pc:${discId}`)
+    exerciseScalarCandidates(complete, slot, `${context}:4pc:${discId}`)
+    for (const twoPieceId of effectiveTwoPieceIds(complete, slot).filter((candidate) => (
+      candidate !== complete.slots[slot].setup.fourPieceId
+    ))) {
+      const withTwoPiece = workbenchReducer(complete, {
+        type: 'selectDisc', slot, piece: 'twoPiece', discId: twoPieceId,
+      })
+      expect(withTwoPiece.slots[slot].setup.twoPieceId, context).toBe(twoPieceId)
+      expectCalculable(withTwoPiece, `${context}:4pc:${discId}:2pc:${twoPieceId}`)
+    }
+  }
+  for (const discId of twoPieceCandidates.filter((candidate) => (
+    candidate !== setup.fourPieceId
+  ))) {
+    const selected = workbenchReducer(state, {
+      type: 'selectDisc', slot, piece: 'twoPiece', discId,
+    })
+    expect(selected.slots[slot].setup.twoPieceId, context).toBe(discId)
+    expectCalculable(selected, `${context}:2pc:${discId}`)
+  }
+}
+
 describe('shared preparation and edit lifecycle', () => {
+  it('keeps authored setup references valid and every exposed candidate calculable', () => {
+    for (const agent of ADMITTED_AGENTS) {
+      const policy = setupPolicyFor(agent.id)
+      const exercisedCandidateSets = new Set<string>()
+      for (const pool of POOLS) {
+        expect(policy.engineIdsByPool[pool].length, `${agent.id}:${pool}`).toBeGreaterThan(0)
+        for (const engineId of policy.engineIdsByPool[pool]) {
+          expect(W_ENGINES, `${agent.id}:${engineId}`).toHaveProperty(engineId)
+          const state = candidateStateFor(agent.id, pool)
+          const selected = workbenchReducer(state, {
+            type: 'selectEngine', slot: 0, engineId,
+          })
+          expect(selected.slots[0].setup.engineId, `${agent.id}:${engineId}`).toBe(engineId)
+          expectCalculable(selected, `${agent.id}:${pool}:${engineId}`)
+        }
+      }
+      for (const discId of [
+        ...policy.discIdsByPiece.fourPiece,
+        ...policy.discIdsByPiece.twoPiece,
+      ]) {
+        expect(DRIVE_DISCS, `${agent.id}:${discId}`).toHaveProperty(discId)
+      }
+      for (const mainSlot of MAIN_SLOTS) {
+        for (const mainStatId of policy.mainStatIdsBySlot[mainSlot]) {
+          expect(MAIN_STATS, `${agent.id}:${mainSlot}:${mainStatId}`)
+            .toHaveProperty(mainStatId)
+        }
+      }
+      for (const choice of policy.substatChoices) {
+        expect(EFFECTIVE_SUBSTAT_VALUES[choice.id], `${agent.id}:${choice.id}`)
+          .toBe(choice)
+      }
+      for (const pool of POOLS) {
+        for (const mindscape of [0, 1, 2, 3, 4, 5, 6] as const) {
+          const baseState = candidateStateFor(agent.id, pool)
+          const representativeState = baseState.slots[0].setup.mindscape === mindscape
+            ? baseState
+            : workbenchReducer(baseState, { type: 'setMindscape', slot: 0, mindscape })
+          const representative = representativeState.slots[0].setup
+          expect(policy.engineIdsByPool[pool], `${agent.id}:${pool}:M${mindscape}`)
+            .toContain(representative.engineId)
+          expect(effectiveFourPieceIds(representativeState, 0), `${agent.id}:${pool}:M${mindscape}`)
+            .toContain(representative.fourPieceId)
+          expect(effectiveTwoPieceIds(representativeState, 0), `${agent.id}:${pool}:M${mindscape}`)
+            .toContain(representative.twoPieceId)
+          expect(representative.fourPieceId, `${agent.id}:${pool}:M${mindscape}`)
+            .not.toBe(representative.twoPieceId)
+          for (const mainSlot of MAIN_SLOTS) {
+            expect(effectiveMainStatIds(representativeState, 0, mainSlot), `${agent.id}:${pool}:M${mindscape}`)
+              .toContain(representative.mains[mainSlot])
+          }
+          for (const { id } of effectiveSubstatChoicesForSlot(representativeState, 0)) {
+            expect(representative.substats[id], `${agent.id}:${pool}:M${mindscape}:${id}`)
+              .toBe(0)
+          }
+          expectPreparedCalculable(representativeState, `${agent.id}:${pool}:M${mindscape}`)
+          const signature = effectiveCandidateSignature(representativeState, 0)
+          if (!exercisedCandidateSets.has(signature)) {
+            exercisedCandidateSets.add(signature)
+            exerciseEffectiveCandidates(representativeState, 0, `${agent.id}:${pool}:M${mindscape}`)
+          }
+        }
+      }
+    }
+
+    const contextualParties: readonly [AgentId, AgentId, AgentId][] = [
+      ['cissia', 'astraYao', 'yixuan'],
+      ['evelyn', 'astraYao', 'yixuan'],
+      ['caesar', 'astraYao', 'yixuan'],
+      ['qingyi', 'nicole', 'yixuan'],
+      ['trigger', 'anbySoldier0', 'yixuan'],
+    ]
+    for (const agentIds of contextualParties) {
+      const focusSlot = agentIds.findIndex(isFocusEligible) as AppliedSlot
+      exerciseEffectiveCandidates(
+        createPreparedState({}, [...agentIds], focusSlot),
+        0,
+        `contextual:${agentIds.join('+')}`,
+      )
+    }
+  })
+
   it('rebuilds every holder on Party Apply but only the target on pool or Mindscape changes', () => {
     let state = createPreparedState()
     const original = state.slots
