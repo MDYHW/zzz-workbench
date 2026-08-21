@@ -1467,11 +1467,12 @@ describe('calculateParty mechanisms', () => {
       }))
     }
     expect(qualified.inboxes[0]).toContainEqual(expect.objectContaining({
-      metric: 'power', recipient: 'self',
+      metric: 'anomalyBuildupBonus', recipient: 'self',
       source: expect.objectContaining({ ownerAgentId: 'piper', locus: 'core' }),
     }))
     expect(qualified.inboxes[1]).not.toContainEqual(expect.objectContaining({
-      metric: 'power', source: expect.objectContaining({ ownerAgentId: 'piper' }),
+      metric: 'anomalyBuildupBonus',
+      source: expect.objectContaining({ ownerAgentId: 'piper', locus: 'core' }),
     }))
 
     const unrelated = resolveProviderEffects(createPreparedState(

@@ -17,7 +17,7 @@ import { ADMITTED_AGENTS, type AgentId, type AgentRank } from '../workbench/cont
 import type { RequiredSetupSelection } from '../workbench/candidates'
 import type { AppliedAgentSlot, AppliedSlot } from '../workbench/state'
 import { AGENT_PORTRAITS, portraitSourceStyle } from './agentPortraits'
-import { sourceToneEvents, type SourceInteractionProps } from './sourceInteraction'
+import { agentSlotTone, sourceToneEvents, type SourceInteractionProps } from './sourceInteraction'
 
 const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> = {
   yixuan: { attribute: auricInkMark, specialty: ruptureMark },
@@ -125,7 +125,7 @@ interface SlotControlProps extends SourceInteractionProps {
 
 function ExpandedIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = false, onSourceToneChange, onSelect, onKeyDown, slot }: SlotControlProps) {
   const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
-  const identityTone = `agent-${agentId}`
+  const identityTone = agentSlotTone(slot)
   const identityTones = [identityTone, 'core', 'additional', 'special', 'ex-special']
   const matchingTone = identityTones.find((tone) => tone === activeSourceTone)
   const className = matchingTone
@@ -165,7 +165,7 @@ function ExpandedIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = f
 
 function CompactSlot({ activeSourceTone, agentId, isFocus, isIncomplete = false, isInactive = false, isOverview = false, onSourceToneChange, onSelect, onKeyDown, slot }: SlotControlProps & { isInactive?: boolean; isOverview?: boolean }) {
   const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
-  const tone = `agent-${agentId}`
+  const tone = agentSlotTone(slot)
   const className = `party-slot party-slot--compact source-target source-tone--${tone}${activeSourceTone === tone ? ' is-source-active' : ''}${isIncomplete ? ' is-setup-incomplete' : ''}`
 
   return (

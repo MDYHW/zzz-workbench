@@ -537,7 +537,9 @@ export function calculateBurnice(
         id: 'anomalyBuildupBonus', label: 'Anomaly Buildup Bonus', unit: '%',
         decimals: 1, ...anomalyBuildupBonus,
       },
-      { id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1, ...critRate },
+      ...(actionModifiers.some(({ metricId }) => metricId === 'critRate')
+        ? [{ id: 'critRate' as const, label: 'CRIT Rate', unit: '%', decimals: 1, ...critRate }]
+        : []),
       ...(penRatio.values.fully
         ? [{ id: 'penRatio' as const, label: 'PEN Ratio', unit: '%', decimals: 1, ...penRatio }]
         : []),

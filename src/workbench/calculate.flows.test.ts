@@ -768,18 +768,10 @@ describe('representative calculation flows', () => {
 
   })
 
-  it('projects exact M0, M1, M2, and M6 Piper Power outcomes', () => {
+  it('projects Piper Power-derived outcomes without exposing the local state', () => {
     const fullState = createPreparedState({}, ['piper', 'billy', 'lycaon'], 0)
     const full = agent(calculateParty(fullState)!, 'piper')
-    expect(metric(full, 'power').values).toEqual({ initial: 0, combat: 0, fully: 30 })
-    expect(metric(full, 'power').breakdown.fully).toContainEqual(expect.objectContaining({
-      ownerAgentId: 'piper', locus: 'core', amount: 30,
-    }))
-    expect(metric(full, 'power').gauge).toMatchObject({
-      source: expect.objectContaining({ ownerAgentId: 'piper', locus: 'additional' }),
-      current: 30, threshold: 20, cap: 30,
-      outputLabel: 'Squad DMG Bonus', outputValue: 18,
-    })
+    expect(full.metrics.map(({ label }) => label)).not.toContain('Power')
     expect(metric(full, 'anomalyBuildupBonus').values.fully).toBe(120)
     expect(action(full, 'piperDownwardSpecialEx').values.fully
       - metric(full, 'dmgBonus').values.fully).toBe(40)
@@ -787,13 +779,11 @@ describe('representative calculation flows', () => {
       - metric(full, 'dmgBonus').values.fully).toBe(40)
 
     const m0 = agent(calculateParty(withMindscape(fullState, 'piper', 0))!, 'piper')
-    expect(metric(m0, 'power').values.fully).toBe(20)
-    expect(metric(m0, 'power').gauge).toMatchObject({ current: 20, cap: 20 })
+    expect(m0.metrics.map(({ label }) => label)).not.toContain('Power')
     expect(metric(m0, 'anomalyBuildupBonus').values.fully).toBe(80)
     expect(m0.actionModifiers).toEqual([])
 
     const m1 = agent(calculateParty(withMindscape(fullState, 'piper', 1))!, 'piper')
-    expect(metric(m1, 'power').values.fully).toBe(30)
     expect(metric(m1, 'anomalyBuildupBonus').values.fully).toBe(120)
     expect(m1.actionModifiers).toEqual([])
 
@@ -813,7 +803,7 @@ describe('representative calculation flows', () => {
       ['piper', 'lucy', 'soldier11'],
     ] as const) {
       const result = calculateParty(createPreparedState({}, [...party], 0))!
-      expect(metric(agent(result, 'piper'), 'power').gauge).toBeDefined()
+      expect(agent(result, 'piper').metrics.map(({ label }) => label)).not.toContain('Power')
       for (const agentId of party.filter((id) => id !== 'lucy')) {
         expect(metric(agent(result, agentId), 'dmgBonus').breakdown.fully)
           .toContainEqual(expect.objectContaining({
@@ -826,8 +816,7 @@ describe('representative calculation flows', () => {
       createPreparedState({}, ['piper', 'anby', 'lycaon'], 0),
     )!
     const piper = agent(unrelated, 'piper')
-    expect(metric(piper, 'power').values.fully).toBe(30)
-    expect(metric(piper, 'power').gauge).toBeUndefined()
+    expect(piper.metrics.map(({ label }) => label)).not.toContain('Power')
     expect(metric(piper, 'anomalyBuildupBonus').values.fully).toBe(120)
     for (const result of unrelated.agents) {
       expect(result.metrics.flatMap(({ breakdown }) => breakdown.fully))
@@ -1145,6 +1134,7 @@ describe('representative calculation flows', () => {
     })
     expect(action(burnice, 'burniceAfterburnDmg').values.fully
       - metric(burnice, 'dmgBonus').values.fully).toBeCloseTo(29.2)
+    expect(burnice.metrics.find(({ id }) => id === 'critRate')).toBeUndefined()
     expect(action(burnice, 'burniceAdditionalBuildup').values.fully).toBe(65)
     expect(burnice.operations).toContainEqual(expect.objectContaining({
       id: 'burniceBurnDuration', value: 3, unit: 's', surface: 'fully',

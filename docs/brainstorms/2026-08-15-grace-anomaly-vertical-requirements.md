@@ -55,10 +55,10 @@ preserving the current three-surface Result grammar.
   M0 by default, and Focus-eligible. Her primary formula families are
   `anomaly_damage` and `anomaly_buildup`; she has no residual CRIT-capable
   `general_damage` direction.
-- R2. Retain completed ATK 825, AP 116, AM 151, and Base Energy Regen 1.2.
+- R2. Retain completed ATK 825, AP 116, and AM 151.
   ATK and AM already include completed Core enhancement nodes. HP, DEF, Impact,
-  CRIT Rate, and CRIT DMG create no current setup choice or Result consumer and
-  remain absent.
+  CRIT Rate, CRIT DMG, and Energy Regen create no current setup choice or Result
+  consumer and remain absent.
 - R3. AP is a flat stat that scales applicable anomaly damage. AM is a
   percentage-scaled stat that scales anomaly buildup. Initial AP includes base,
   W-Engine advanced AP, selected Disc AP, Slot 4 AP, and supplied AP substats.
@@ -213,7 +213,7 @@ preserving the current three-surface Result grammar.
   setups; Grace Mindscape or pool changes rebuild only Grace. Result-only
   qualification changes do not create candidates, hidden counts, or runtime
   equipment selection.
-- R25. Grace Result exposes ATK, AP, AM, Energy Regen, regular DMG Bonus, Shock
+- R25. Grace Result exposes ATK, AP, AM, regular DMG Bonus, Shock
   and Disorder Anomaly DMG Bonus outcomes, Anomaly Buildup Bonus with
   Special/EX action outcomes, Anomaly Buildup RES Reduction, PEN Ratio, and
   applicable DEF/RES/Stun regions. It exposes the M6 grenade scale operation

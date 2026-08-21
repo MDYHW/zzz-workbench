@@ -35,7 +35,6 @@ import {
   composeActionHierarchy,
   composeMetricEffects,
   contribution,
-  energyRegenProjection,
   percentageContribution,
   surfaces,
   type ActionScopeNode,
@@ -316,7 +315,6 @@ export function calculateGrace(
   ]), {})
   const effects = [...baseEffects, ...disorderEffects]
 
-  const energyRegen = energyRegenProjection(values.baseEnergyRegen, [], effects)
   const dmgInputs = presentSetupInputs([
     mainStatInput(setup, 'grace', 'slot5', 'electricDmg'),
     ...selectedDiscTwoPieceInputs(
@@ -397,10 +395,6 @@ export function calculateGrace(
       {
         id: 'anomalyMastery', label: 'Anomaly Mastery', unit: '', decimals: 1,
         ...anomalyMastery,
-      },
-      {
-        id: 'energyRegen', label: 'Energy Regen', unit: '', decimals: 2,
-        ...energyRegen,
       },
       { id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1, ...dmg },
       {

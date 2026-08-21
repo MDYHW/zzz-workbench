@@ -140,10 +140,10 @@ const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   caesar: { faceX: 56, headTopY: 6, scale: 1.1 },
   yeShunguang: { faceX: 51, headTopY: 5, scale: 1.1 },
   zhao: { faceX: 42, headTopY: 30, scale: 0.9 },
-  grace: { faceX: 51, headTopY: 7, scale: 1 },
+  grace: { faceX: 51, headTopY: 3, scale: 1 },
   piper: { faceX: 45, headTopY: 16, scale: 1.2 },
-  yuzuha: { faceX: 53, headTopY: 18, scale: 1.2 },
-  burnice: { faceX: 50, headTopY: 6, scale: 1.1 },
+  yuzuha: { faceX: 53, headTopY: 18, scale: 1.3 },
+  burnice: { faceX: 53, headTopY: 6, scale: 1.1 },
 }
 
 export function portraitSourceStyle(agentId: AgentId): PortraitSourceStyle {

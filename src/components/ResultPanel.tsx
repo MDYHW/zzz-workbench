@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
-import { ADMITTED_AGENTS } from '../workbench/content'
+import { ADMITTED_AGENTS, type AgentId } from '../workbench/content'
 import { actionOutcomeLabel, actionTagLabel } from '../workbench/actions'
 import type {
   ActionModifier,
@@ -11,11 +11,16 @@ import type {
   ResultSource,
   SurfaceKey,
 } from '../workbench/calculate'
-import { sourceToneEvents, type SourceInteractionProps } from './sourceInteraction'
+import {
+  agentToneForParty,
+  sourceToneEvents,
+  type SourceInteractionProps,
+} from './sourceInteraction'
 
 interface ResultPanelProps extends SourceInteractionProps {
   agentResult: AgentResult | null
   onTargetStunDmgMultiplierChange?: (value: number) => void
+  partyAgentIds: readonly AgentId[]
   targetStunDmgMultiplier?: number
 }
 
@@ -95,10 +100,14 @@ function sourceLabel(
   return [provider.name, source.label].join(' \u00B7 ')
 }
 
-function sourceTone(source: ResultSource, currentAgentId: AgentResult['agentId']): string {
+function sourceTone(
+  source: ResultSource,
+  currentAgentId: AgentResult['agentId'],
+  partyAgentIds: readonly AgentId[],
+): string {
   if (source.locus === 'target') return 'target'
   if (source.locus === 'identity' || source.ownerAgentId !== currentAgentId) {
-    return `agent-${source.ownerAgentId}`
+    return agentToneForParty(source.ownerAgentId, partyAgentIds)
   }
   return source.locus
 }
@@ -160,6 +169,7 @@ interface SourceMatrixProps extends SourceInteractionProps {
   agentId: AgentResult['agentId']
   breakdown: Record<SurfaceKey, Contribution[]>
   label: string
+  partyAgentIds: readonly AgentId[]
   shownSurfaces?: SurfaceKey[]
   sourceHeading?: string
   unit: string
@@ -171,6 +181,7 @@ function SourceMatrix({
   breakdown,
   label,
   onSourceToneChange,
+  partyAgentIds,
   shownSurfaces = allSurfaces,
   sourceHeading = 'Source',
   unit,
@@ -199,7 +210,7 @@ function SourceMatrix({
         </thead>
         <tbody>
           {rows.map((row) => {
-            const tone = sourceTone(row.source, agentId)
+            const tone = sourceTone(row.source, agentId, partyAgentIds)
             return (
               <tr
                 key={`${row.source.ownerAgentId}-${row.source.locus}-${row.source.label}`}
@@ -237,9 +248,11 @@ function Gauge({
   agentId,
   gauge,
   onSourceToneChange,
+  partyAgentIds,
 }: {
   agentId: AgentResult['agentId']
   gauge: GaugeResult
+  partyAgentIds: readonly AgentId[]
 } & SourceInteractionProps) {
   const progress = Math.min(gauge.current / gauge.cap * 100, 100)
   const threshold = gauge.threshold === undefined ? undefined : gauge.threshold / gauge.cap * 100
@@ -273,7 +286,7 @@ function Gauge({
     return `${output.label}: ${value}${cap}`
   }).join('; ')
   const description = `${gauge.basisLabel}: current ${formatNumber(gauge.current, currentDecimals)}, cap ${formatNumber(gauge.cap, capDecimals)}${thresholdDescription}; ${outputDescription}`
-  const tone = sourceTone(gauge.source, agentId)
+  const tone = sourceTone(gauge.source, agentId, partyAgentIds)
 
   return (
     <div
@@ -324,11 +337,13 @@ function TargetStunDmgEditor({
   gauge,
   onSourceToneChange,
   onTargetStunDmgMultiplierChange,
+  partyAgentIds,
   targetStunDmgMultiplier,
 }: {
   agentId: AgentResult['agentId']
   gauge: GaugeResult
   onTargetStunDmgMultiplierChange: (value: number) => void
+  partyAgentIds: readonly AgentId[]
   targetStunDmgMultiplier: number
 } & SourceInteractionProps) {
   const [draft, setDraft] = useState(String(targetStunDmgMultiplier))
@@ -390,6 +405,7 @@ function TargetStunDmgEditor({
         agentId={agentId}
         gauge={gauge}
         onSourceToneChange={onSourceToneChange}
+        partyAgentIds={partyAgentIds}
       />
     </section>
   )
@@ -401,10 +417,12 @@ function ActionRows({
   agentId,
   metric,
   onSourceToneChange,
+  partyAgentIds,
 }: {
   actions: ActionModifier[]
   agentId: AgentResult['agentId']
   metric: ResultMetric
+  partyAgentIds: readonly AgentId[]
 } & SourceInteractionProps) {
   const [expandedActions, setExpandedActions] = useState<Set<string>>(new Set())
 
@@ -490,7 +508,7 @@ function ActionRows({
                 {sourceRows.length > 0 && (
                   <tbody className="action-source-detail" id={sourceRegionId} hidden={!isExpanded}>
                     {sourceRows.map((row) => {
-                      const tone = sourceTone(row.source, agentId)
+                      const tone = sourceTone(row.source, agentId, partyAgentIds)
                       return (
                         <tr
                           key={`${row.source.ownerAgentId}-${row.source.locus}-${row.source.label}-${row.source.detail ?? ''}`}
@@ -532,9 +550,11 @@ function Operations({
   agentId,
   onSourceToneChange,
   operations,
+  partyAgentIds,
 }: {
   agentId: AgentResult['agentId']
   operations: ResultOperation[]
+  partyAgentIds: readonly AgentId[]
 } & SourceInteractionProps) {
   if (operations.length === 0) return null
 
@@ -543,7 +563,7 @@ function Operations({
       <h5>Operations</h5>
       <ul className="action-source-list">
         {operations.map((operation) => {
-          const tone = sourceTone(operation.source, agentId)
+          const tone = sourceTone(operation.source, agentId, partyAgentIds)
           const value = formatOperationValue(
             operation.value,
             operation.unit,
@@ -586,12 +606,14 @@ function MetricDetail({
   metric,
   onSourceToneChange,
   onTargetStunDmgMultiplierChange,
+  partyAgentIds,
   targetStunDmgMultiplier,
 }: {
   actions: ActionModifier[]
   agentId: AgentResult['agentId']
   metric: ResultMetric
   onTargetStunDmgMultiplierChange?: (value: number) => void
+  partyAgentIds: readonly AgentId[]
   targetStunDmgMultiplier?: number
 } & SourceInteractionProps) {
   const editsTargetStun = agentId === 'yeShunguang'
@@ -608,6 +630,7 @@ function MetricDetail({
         breakdown={metric.breakdown}
         label={`${metric.label} source contributions`}
         onSourceToneChange={onSourceToneChange}
+        partyAgentIds={partyAgentIds}
         sourceHeading={actions.length > 0 ? 'Common source' : 'Source'}
         unit={metric.unit}
       />
@@ -618,6 +641,7 @@ function MetricDetail({
           gauge={metric.gauge!}
           onSourceToneChange={onSourceToneChange}
           onTargetStunDmgMultiplierChange={onTargetStunDmgMultiplierChange}
+          partyAgentIds={partyAgentIds}
           targetStunDmgMultiplier={targetStunDmgMultiplier}
         />
       ) : metric.gauge && (
@@ -626,6 +650,7 @@ function MetricDetail({
           agentId={agentId}
           gauge={metric.gauge}
           onSourceToneChange={onSourceToneChange}
+          partyAgentIds={partyAgentIds}
         />
       )}
       <ActionRows
@@ -634,6 +659,7 @@ function MetricDetail({
         agentId={agentId}
         metric={metric}
         onSourceToneChange={onSourceToneChange}
+        partyAgentIds={partyAgentIds}
       />
     </div>
   )
@@ -644,6 +670,7 @@ export function ResultPanel({
   agentResult,
   onSourceToneChange,
   onTargetStunDmgMultiplierChange,
+  partyAgentIds,
   targetStunDmgMultiplier,
 }: ResultPanelProps) {
   const [expanded, setExpanded] = useState<Set<ResultMetric['id']>>(new Set())
@@ -737,6 +764,7 @@ export function ResultPanel({
                             metric={metric}
                             onSourceToneChange={onSourceToneChange}
                             onTargetStunDmgMultiplierChange={onTargetStunDmgMultiplierChange}
+                            partyAgentIds={partyAgentIds}
                             targetStunDmgMultiplier={targetStunDmgMultiplier}
                           />
                         </td>
@@ -754,6 +782,7 @@ export function ResultPanel({
         agentId={agentResult.agentId}
         onSourceToneChange={onSourceToneChange}
         operations={agentResult.operations}
+        partyAgentIds={partyAgentIds}
       />
     </section>
   )

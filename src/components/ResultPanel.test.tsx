@@ -30,11 +30,53 @@ function renderResult(agentResult: AgentResult) {
       activeSourceTone={null}
       agentResult={agentResult}
       onSourceToneChange={() => {}}
+      partyAgentIds={['seed', 'cissia', 'astraYao']}
     />,
   )
 }
 
 describe('ResultPanel action hierarchy', () => {
+  it('derives an external Agent source tone from the provider current party slot', async () => {
+    const user = userEvent.setup()
+    const result = syntheticResult({
+      metrics: [{
+        id: 'dmgBonus',
+        label: 'DMG Bonus',
+        unit: '%',
+        decimals: 1,
+        values: surfaces(0, 0, 10),
+        breakdown: surfaces([], [], [{
+          ...syntheticSource,
+          ownerAgentId: 'cissia',
+          amount: 10,
+        }]),
+      }],
+    })
+    const { rerender } = render(
+      <ResultPanel
+        activeSourceTone={null}
+        agentResult={result}
+        onSourceToneChange={() => {}}
+        partyAgentIds={['seed', 'cissia', 'astraYao']}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'DMG Bonus' }))
+    expect(screen.getByRole('row', { name: /Cissia.*Synthetic source/ }))
+      .toHaveAttribute('data-source-tone', 'agent-slot-2')
+
+    rerender(
+      <ResultPanel
+        activeSourceTone={null}
+        agentResult={result}
+        onSourceToneChange={() => {}}
+        partyAgentIds={['cissia', 'seed', 'astraYao']}
+      />,
+    )
+    expect(screen.getByRole('row', { name: /Cissia.*Synthetic source/ }))
+      .toHaveAttribute('data-source-tone', 'agent-slot-1')
+  })
+
   it('renders shared and nested scopes from the projected Result structure', async () => {
     const user = userEvent.setup()
     const emptyBreakdown = surfaces([], [], [])
@@ -78,6 +120,7 @@ describe('ResultPanel action hierarchy', () => {
         activeSourceTone={null}
         agentResult={result}
         onSourceToneChange={() => {}}
+        partyAgentIds={['seed', 'cissia', 'astraYao']}
       />,
     )
     const region = screen.getByRole('region', { name: 'Seed Result' })
@@ -269,6 +312,7 @@ describe('ResultPanel operation presentation', () => {
         activeSourceTone={null}
         agentResult={syntheticResult({ metrics: [scaleMetric(79, 1)] })}
         onSourceToneChange={() => {}}
+        partyAgentIds={['seed', 'cissia', 'astraYao']}
       />,
     )
     const inactiveGauge = screen.getByRole('group', {

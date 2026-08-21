@@ -61,7 +61,7 @@ export type EffectMetric =
   | 'stunDmgMultiplier' | 'energyRegen' | 'stunDuration'
   | 'penRatio' | 'defIgnore' | 'resReduction' | 'defReduction'
   | 'anomalyProficiency' | 'anomalyMastery' | 'anomalyDmgBonus'
-  | 'anomalyBuildupBonus' | 'anomalyBuildupResReduction' | 'power'
+  | 'anomalyBuildupBonus' | 'anomalyBuildupResReduction'
   | 'disorderDmgMultiplier'
 
 export type Recipient = 'self' | 'focus' | 'all-party' | 'other-party' | 'enemy-context'
