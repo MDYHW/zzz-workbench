@@ -90,8 +90,8 @@ Koleda adds no new common mechanism.
   Her primary direction is `daze_buildup`, with a buffer role and residual
   `general_damage` only where a retained action or package consumes it.
 - R2. Ben retains completed ATK 867, DEF 724, CRIT Rate 5%, CRIT DMG 50%,
-  Impact 95, and base Energy Regen 1.56/s. Koleda retains completed ATK 735,
-  CRIT Rate 5%, CRIT DMG 50%, Impact 134, and base Energy Regen 1.2/s. Other
+  Impact 95, and base Energy Regen 1.56/s. Koleda retains completed CRIT Rate
+  5%, Impact 134, and base Energy Regen 1.2/s. Other
   completed stats without a current consumer are omitted.
 
 ### Ben Core, qualification, and progression

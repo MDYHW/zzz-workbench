@@ -37,6 +37,16 @@ export const actionTarget = (
 // cross-Agent Aftershock clauses compose with the same current action row.
 export const AFTERSHOCK_TARGET = actionTarget([], ['aftershock'])
 
+// Shared action identities used by providers and their Stun recipients.
+export const BASIC_AFTERSHOCK_TARGET = actionTarget(
+  [{ kind: 'canonical', action: 'Basic Attack' }],
+  ['aftershock'],
+)
+
+export const QUICK_ASSIST_TARGET = actionTarget([
+  { kind: 'source-local', label: 'Quick Assist', canonicalScope: 'Assist' },
+])
+
 export const canonicalAction = (
   action: CanonicalActionKind,
 ): ActionOutcome => ({ kind: 'canonical', action })
@@ -55,9 +65,59 @@ export const sourceLocalAction = (
   ...(canonicalScope ? { canonicalScope } : {}),
 })
 
+function sameOutcome(left: ActionOutcome, right: ActionOutcome): boolean {
+  if (left.kind !== right.kind) return false
+  switch (left.kind) {
+    case 'canonical':
+      return right.kind === 'canonical' && left.action === right.action
+    case 'form':
+      return right.kind === 'form'
+        && left.action === right.action
+        && left.form === right.form
+    case 'source-local':
+      return right.kind === 'source-local'
+        && left.label === right.label
+        && left.canonicalScope === right.canonicalScope
+  }
+}
+
+function sameMembers<T>(
+  left: readonly T[],
+  right: readonly T[],
+  equal: (leftValue: T, rightValue: T) => boolean,
+): boolean {
+  if (left.length !== right.length) return false
+  const matched = right.map(() => false)
+  return left.every((leftValue) => {
+    const index = right.findIndex((rightValue, candidate) => (
+      !matched[candidate] && equal(leftValue, rightValue)
+    ))
+    if (index < 0) return false
+    matched[index] = true
+    return true
+  })
+}
+
+/** Semantic identity for canonical, form, source-local, and tagged targets. */
+export function sameActionTarget(
+  left: ActionTarget | undefined,
+  right: ActionTarget | undefined,
+): boolean {
+  if (left === right) return true
+  if (!left || !right) return false
+  return sameMembers(left.outcomes, right.outcomes, sameOutcome)
+    && sameMembers(left.tags, right.tags, (leftTag, rightTag) => leftTag === rightTag)
+}
+
 // Disorder has one qualifying outcome across holder and recipient clauses.
 // Sharing its identity lets the composition layer retain one Result row.
 export const DISORDER_TARGET = actionTarget([sourceLocalAction('Disorder')])
+
+// Attribute Anomaly is shared by holder-local anomaly rows and providers whose
+// matching Attribute is selected through Focus.
+export const ATTRIBUTE_ANOMALY_TARGET = actionTarget([
+  sourceLocalAction('Attribute Anomaly'),
+])
 
 export function actionOutcomeLabel(outcome: ActionOutcome): string {
   switch (outcome.kind) {

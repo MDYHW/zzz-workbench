@@ -63,8 +63,7 @@ output, runtime package score, or catalogue.
 - R1. Admit Asaba Harumasa as S-Rank Electric Attack, Section 6, Focus-eligible,
   rank-default M0. Retain `general_damage` as his primary formula, with ATK,
   Electric/general DMG, CRIT, DEF/RES-region, and Stun DMG Multiplier consumers.
-  His retained level-60 inputs are ATK 915, CRIT Rate 19.4%, CRIT DMG 50%, and
-  Energy Regen 1.2/s.
+  His retained level-60 inputs are ATK 915, CRIT Rate 19.4%, and CRIT DMG 50%.
 - R2. Admit Qingyi as S-Rank Electric Stun, Criminal Investigation Special
   Response Team, not Focus-eligible, rank-default M0. Her direction prioritizes
   Basic-centered `daze_buildup` and all-party Stun-window amplification while

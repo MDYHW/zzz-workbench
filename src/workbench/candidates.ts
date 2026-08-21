@@ -1,7 +1,6 @@
 import {
-  DISC_IDS_BY_AGENT_AND_PIECE,
-  MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
   SAME_EFFECT_TWO_PIECE_RELATIONSHIPS,
+  setupPolicyFor,
   type AgentId,
   type DiscId,
   type MainSlot,
@@ -12,9 +11,12 @@ import {
 import {
   activeCandidatePressures,
   hasDialynUltimateOpportunity,
-} from './provider-effects'
-import { hasRepeatedQuickAssistOpportunity } from './preparation'
-import { qingyiAstralOpportunity, triggerAdditionalIsActive } from './party-conditions'
+} from './candidate-context'
+import {
+  hasRepeatedQuickAssistOpportunity,
+  qingyiAstralOpportunity,
+  triggerAdditionalIsActive,
+} from './party-conditions'
 import type { AppliedSlot, WorkbenchState } from './state'
 
 export type RequiredSetupSelection =
@@ -88,7 +90,7 @@ export function effectiveFourPieceIds(
   slot: AppliedSlot,
 ): DiscId[] {
   const agentId = state.slots[slot].agentId
-  const base = DISC_IDS_BY_AGENT_AND_PIECE[agentId].fourPiece
+  const base = setupPolicyFor(agentId).discIdsByPiece.fourPiece
   const contextual = [
     ...((agentId === 'cissia' || agentId === 'evelyn' || agentId === 'caesar')
       && hasRepeatedQuickAssistOpportunity(state.slots.map(({ agentId: id }) => id))
@@ -108,7 +110,7 @@ export function effectiveTwoPieceIds(
   slot: AppliedSlot,
 ): DiscId[] {
   const agentId = state.slots[slot].agentId
-  const authored = DISC_IDS_BY_AGENT_AND_PIECE[agentId].twoPiece
+  const authored = setupPolicyFor(agentId).discIdsByPiece.twoPiece
   const base = agentId === 'trigger' && !triggerCritPressureIsActive(state, slot)
     ? authored.filter((candidateId) => candidateId !== 'woodpecker')
     : authored
@@ -122,7 +124,7 @@ export function effectiveTwoPieceIds(
     : candidates
   return compressSameEffectTwoPieceIds(
     pressureFiltered,
-    DISC_IDS_BY_AGENT_AND_PIECE[agentId].fourPiece,
+    setupPolicyFor(agentId).discIdsByPiece.fourPiece,
     effectiveFourPieceIds(state, slot),
     state.slots[slot].setup.fourPieceId,
   )
@@ -156,7 +158,7 @@ function effectiveMainStatIdsForPressure(
   hasMaterialBroadPrePenPressure: boolean,
   selectedFourPieceId: DiscId | null,
 ): MainStatId[] {
-  const base = MAIN_STAT_IDS_BY_AGENT_AND_SLOT[agentId][mainSlot]
+  const base = setupPolicyFor(agentId).mainStatIdsBySlot[mainSlot]
   const candidates = (agentId === 'lycaon' || agentId === 'juFufu' || agentId === 'lighter' || agentId === 'pulchra' || agentId === 'koleda' || agentId === 'anby')
     && mainSlot === 'slot4'
     && selectedFourPieceId === 'king'

@@ -46,9 +46,9 @@ version switch, named-party table, or guide-backed evidence payload.
   Focus-eligible, and a primary `general_damage` contributor. Admit Soukaku as
   A-Rank, Ice, Support, Section 6, not Focus-eligible, and a low-field buffer.
   The generic rank rule initializes Ellen at M0 and Soukaku at M6.
-- R2. Retain Ellen's level-60 current ATK 938, CRIT Rate 19.4%, CRIT DMG 50%,
-  and Energy Regen 1.2. Retain Soukaku's ATK 665, CRIT Rate 5%, CRIT DMG 50%,
-  and Energy Regen 1.56. Other source fields remain absent without a current
+- R2. Retain Ellen's level-60 current ATK 938, CRIT Rate 19.4%, and CRIT DMG
+  50%. Retain Soukaku's ATK 665 and Energy Regen 1.56/s. Other source fields
+  remain absent without a current
   Setup, formula, threshold, action, or Result consumer.
 - R3. Ellen uses ATK, CRIT Rate, CRIT DMG, Ice DMG, and PEN Ratio through the
   existing general-damage flow. Her effective substats are CRIT Rate, CRIT DMG,

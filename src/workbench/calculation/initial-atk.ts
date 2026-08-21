@@ -1,5 +1,6 @@
 import {
   MAIN_STATS,
+  FIXED_MAIN_STATS,
   SUBSTAT_CHOICES_BY_AGENT,
   VERTICAL_VALUES,
   W_ENGINES,
@@ -18,9 +19,8 @@ export const SEED_VANGUARD_ATK_AGENT_IDS = [
 
 export type SeedVanguardAtkAgentId = (typeof SEED_VANGUARD_ATK_AGENT_IDS)[number]
 export type InitialAtkAgentId = SeedVanguardAtkAgentId
-  | 'juFufu' | 'panYinhu' | 'soukaku' | 'lucy' | 'pulchra' | 'harumasa' | 'qingyi'
-  | 'ben' | 'koleda' | 'anby' | 'caesar'
-  | 'zhao'
+  | 'juFufu' | 'panYinhu' | 'soukaku' | 'lucy' | 'harumasa' | 'qingyi'
+  | 'ben'
   | 'grace' | 'piper' | 'yuzuha' | 'burnice'
 
 export function isSeedVanguardAtkAgent(agentId: AgentId): agentId is SeedVanguardAtkAgentId {
@@ -64,6 +64,6 @@ export function initialAtkFor(
   )
   const baseAtk = VERTICAL_VALUES[agentId].atk + engine.baseAtk
   return baseAtk * (1 + atkPct / 100)
-    + VERTICAL_VALUES.fixedDisc.atk
+    + FIXED_MAIN_STATS.slot2.numericValue
     + flatAtkSubstatHits * (flatAtkSubstat?.perHit ?? 0)
 }

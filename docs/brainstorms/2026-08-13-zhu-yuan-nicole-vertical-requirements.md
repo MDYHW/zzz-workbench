@@ -49,7 +49,7 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   and a buffer with no authored personal-damage or Anomaly direction. The
   generic rank mechanism initializes Zhu Yuan at M0 and Nicole at M6.
 - R2. Retain current level-60 values consumed by this vertical: Zhu Yuan ATK
-  919, CRIT Rate 5%, and CRIT DMG 78.8%; Nicole ATK 649 and Energy Regen 1.56.
+  919, CRIT Rate 5%, and CRIT DMG 78.8%; Nicole Energy Regen 1.56/s.
   Other facts remain absent without a current Setup,
   formula, threshold, action, operation, or Result consumer.
 - R3. Zhu Yuan uses ATK, CRIT Rate, CRIT DMG, Ether DMG, and PEN Ratio through

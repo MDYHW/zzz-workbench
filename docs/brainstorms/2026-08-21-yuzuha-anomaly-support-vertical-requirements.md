@@ -68,13 +68,12 @@ Slot 4 AP choice into AP substats, damage equipment, or personal Result rows.
 ### Identity, formula participation, and source outcomes
 
 - R1. Add Ukinami Yuzuha after Piper as S-Rank Physical Support, Spook Shack,
-  M0 by default, and not Focus-eligible. Retain completed ATK 758, AP 93, AM
-  124, and Base Energy Regen 1.2/s. Her primary formula participation is
+  M0 by default, and not Focus-eligible. Retain completed ATK 758, AM 124, and
+  Base Energy Regen 1.2/s. Her primary formula participation is
   `anomaly_buildup`; she has no personal `anomaly_damage` or
-  `general_damage` setup direction at M0-M6. M4's Assist Follow-Up DMG +30%
-  and M6's additional 300% ATK shells do not overcome the Initial-ATK, AM, and
-  party-support opportunity cost, so no Mindscape introduces personal-damage
-  W-Engine, Drive Disc, effective-substat, or additional main-stat candidates.
+  `general_damage` setup direction at M0-M6. No Mindscape introduces a current
+  personal-damage consumer, so none introduces personal-damage W-Engine, Drive
+  Disc, effective-substat, or additional main-stat candidates.
   The residual Slot 4 AP candidate in R13 remains available at every Mindscape
   without creating a personal damage formula direction or Result row.
 - R2. Sugarburst begins as Physical and Flavor Match follows the active Agent's
@@ -102,18 +101,17 @@ Slot 4 AP choice into AP substats, damage equipment, or personal Result rows.
   capped at +26%; its buildup output remains +0.2%, capped at +20%. M2 supplies
   all party regular DMG Bonus +15% and Anomaly Buildup Rate +15%. M4 supplies
   Assist Follow-Up Anomaly Buildup Rate +20% and triggers Quick Assist. The
-  action DMG +30% is retained as a source fact but excluded from Result and
-  equipment authoring because the whole personal package remains noncompetitive;
-  the Quick Assist route instead strengthens Astral Voice's already-legal
-  activation without changing the prepared 4-piece representative.
+  Quick Assist route strengthens Astral Voice's already-legal activation
+  without changing the prepared 4-piece representative. Unconsumed action-
+  damage details remain outside retained product facts and equipment authoring.
 - R6. At M6, the maximum reachable three qualifying shells supply all party
   Disorder DMG Multiplier +315% as one complete Fully Enabled state operation.
-  The source-stated +105% per shell, three separately calculated stacks changes
-  the Disorder coefficient in `anomaly_base_damage`; it is not an
-  `anomaly_buff_multiplier` bonus. Preserve the exact source, recipient,
-  quantity, and maximum state. The separate shell's 300% ATK action coefficient
-  remains source fact only. Do not expose charge, hit cadence, separate stack
-  timers, or simulate Disorder.
+  The complete operation changes the Disorder coefficient in
+  `anomaly_base_damage`; it is not an `anomaly_buff_multiplier` bonus. Preserve
+  the exact source, recipient, and maximum state. Per-shell arithmetic and raw
+  action coefficients have no current qualifying consumer and remain excluded.
+  Do not expose charge, hit cadence, separate stack timers, or simulate
+  Disorder.
 
 ### W-Engine authoring
 

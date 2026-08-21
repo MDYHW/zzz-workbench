@@ -1,9 +1,6 @@
 import {
   ADMITTED_AGENTS,
-  DISC_IDS_BY_AGENT_AND_PIECE,
-  MAIN_STAT_IDS_BY_AGENT_AND_SLOT,
-  SUBSTAT_CHOICES_BY_AGENT,
-  representativeSetupFor,
+  setupPolicyFor,
   type AgentId,
   type DiscId,
   type PoolId,
@@ -12,6 +9,7 @@ import {
 import { primaryFormulaUsesCrit, primaryFormulaUsesDefRegion } from './formula-policy'
 import {
   anotherAgentHasSpecialty,
+  hasRepeatedQuickAssistOpportunity,
   triggerAdditionalIsActive,
   zhuYuanAdditionalIsActive,
 } from './party-conditions'
@@ -26,14 +24,6 @@ export interface EstablishedDiscHolder {
   agentId: AgentId
   fourPieceId: DiscId | null
   mindscape?: number
-}
-
-export function hasRepeatedQuickAssistOpportunity(
-  agentIds: readonly AgentId[],
-): boolean {
-  return agentIds.includes('astraYao')
-    || agentIds.includes('panYinhu')
-    || agentIds.includes('zhao')
 }
 
 function withFocusedEngine(
@@ -57,9 +47,9 @@ function withCompetitiveKingAstralAllocation(
   establishedHolders: readonly EstablishedDiscHolder[],
   selection: SetupSelection,
 ): SetupSelection {
-  const canPrepareKing = DISC_IDS_BY_AGENT_AND_PIECE[context.agentId].fourPiece
+  const canPrepareKing = setupPolicyFor(context.agentId).discIdsByPiece.fourPiece
     .includes('king')
-  const canPrepareAstral = DISC_IDS_BY_AGENT_AND_PIECE[context.agentId].fourPiece
+  const canPrepareAstral = setupPolicyFor(context.agentId).discIdsByPiece.fourPiece
     .includes('astralVoice')
   const anotherHolderKeepsKing = establishedHolders.some((holder) => (
     holder.agentId !== context.agentId
@@ -92,7 +82,7 @@ function canPrepareFocusCritKing(
   selection: SetupSelection,
 ): boolean {
   return ADMITTED_AGENTS.find(({ id }) => id === context.agentId)?.specialty === 'Stun'
-    && DISC_IDS_BY_AGENT_AND_PIECE[context.agentId].fourPiece.includes('king')
+    && setupPolicyFor(context.agentId).discIdsByPiece.fourPiece.includes('king')
     && selection.fourPieceId !== 'king'
     && selection.twoPieceId !== 'king'
 }
@@ -156,19 +146,21 @@ function hasIndependentKingCrit(
 }
 
 function retainsAuthoredCritAfterKingAllocation(agentId: AgentId): boolean {
-  return MAIN_STAT_IDS_BY_AGENT_AND_SLOT[agentId].slot4.includes('critRate')
-    && SUBSTAT_CHOICES_BY_AGENT[agentId].some(({ id }) => id === 'critRate')
+  const policy = setupPolicyFor(agentId)
+  return policy.mainStatIdsBySlot.slot4.includes('critRate')
+    && policy.substatChoices.some(({ id }) => id === 'critRate')
 }
 
 function canPrepareAstral(agentId: AgentId): boolean {
-  return DISC_IDS_BY_AGENT_AND_PIECE[agentId].fourPiece.includes('astralVoice')
+  return setupPolicyFor(agentId).discIdsByPiece.fourPiece.includes('astralVoice')
 }
 
+const CURRENT_KING_TIE_ORDER = ['trigger', 'pulchra', 'koleda', 'lycaon', 'anby'] as const
+
 function winsCurrentKingTie(holderId: AgentId, targetId: AgentId): boolean {
-  return (holderId === 'trigger' && (targetId === 'pulchra' || targetId === 'koleda' || targetId === 'lycaon' || targetId === 'anby'))
-    || (holderId === 'pulchra' && (targetId === 'koleda' || targetId === 'lycaon' || targetId === 'anby'))
-    || (holderId === 'koleda' && (targetId === 'lycaon' || targetId === 'anby'))
-    || (holderId === 'lycaon' && targetId === 'anby')
+  const holderIndex = CURRENT_KING_TIE_ORDER.indexOf(holderId as (typeof CURRENT_KING_TIE_ORDER)[number])
+  const targetIndex = CURRENT_KING_TIE_ORDER.indexOf(targetId as (typeof CURRENT_KING_TIE_ORDER)[number])
+  return holderIndex >= 0 && targetIndex >= 0 && holderIndex < targetIndex
 }
 
 /**
@@ -227,14 +219,15 @@ function withPanYinhuAstralAlternative(
 }
 
 function canExchangeMoonlightForAstral(agentId: AgentId): boolean {
-  const candidates = DISC_IDS_BY_AGENT_AND_PIECE[agentId]
+  const candidates = setupPolicyFor(agentId).discIdsByPiece
   return candidates.fourPiece.includes('astralVoice')
     && candidates.twoPiece.includes('moonlight')
 }
 
 function hasStableAuthoredStatDirection(agentId: AgentId): boolean {
-  return SUBSTAT_CHOICES_BY_AGENT[agentId].length === 0
-    && Object.values(MAIN_STAT_IDS_BY_AGENT_AND_SLOT[agentId])
+  const policy = setupPolicyFor(agentId)
+  return policy.substatChoices.length === 0
+    && Object.values(policy.mainStatIdsBySlot)
       .every((candidates) => candidates.length === 1)
 }
 
@@ -397,7 +390,19 @@ function withCissiaAstralOpportunity(
 }
 
 function representativeFor(context: PreparationContext): SetupSelection {
-  return representativeSetupFor(context.agentId, context.pool, context.mindscape)
+  return setupPolicyFor(context.agentId)
+    .representativeSetupFor(context.pool, context.mindscape)
+}
+
+function holderSnapshots(
+  contexts: readonly PreparationContext[],
+  selections: readonly SetupSelection[],
+): EstablishedDiscHolder[] {
+  return contexts.map((context, index) => ({
+    agentId: context.agentId,
+    fourPieceId: selections[index].fourPieceId,
+    mindscape: context.mindscape,
+  }))
 }
 
 function withQualifiedAnbyCritBalance(
@@ -565,18 +570,10 @@ export function preparePartySelections(
   const withKingAllocation = focusKingDirected.map((selection, index) => withCompetitiveKingAstralAllocation(
     contexts[index],
     partyAgentIds,
-    contexts.map((context, holderIndex) => ({
-      agentId: context.agentId,
-      fourPieceId: focusKingDirected[holderIndex].fourPieceId,
-      mindscape: context.mindscape,
-    })),
+    holderSnapshots(contexts, focusKingDirected),
     selection,
   ))
-  const kingHolders = contexts.map((context, index) => ({
-    agentId: context.agentId,
-    fourPieceId: withKingAllocation[index].fourPieceId,
-    mindscape: context.mindscape,
-  }))
+  const kingHolders = holderSnapshots(contexts, withKingAllocation)
   const withJuFufuFallback = withKingAllocation.map((selection, index) => (
     withJuFufuSwingFallback(contexts[index], kingHolders, selection)
   ))
@@ -586,21 +583,13 @@ export function preparePartySelections(
   const withCissiaAstral = withQingyiFallback.map((selection, index) => (
     withCissiaAstralOpportunity(contexts[index], partyAgentIds, kingHolders, selection)
   ))
-  const holders = contexts.map((context, index) => ({
-    agentId: context.agentId,
-    fourPieceId: withCissiaAstral[index].fourPieceId,
-    mindscape: context.mindscape,
-  }))
+  const holders = holderSnapshots(contexts, withCissiaAstral)
   const withAstraAllocation = withCissiaAstral.map((selection, index) => withAstraAstralAllocation(
     contexts[index],
     holders,
     selection,
   ))
-  const astralHolders = contexts.map((context, index) => ({
-    agentId: context.agentId,
-    fourPieceId: withAstraAllocation[index].fourPieceId,
-    mindscape: context.mindscape,
-  }))
+  const astralHolders = holderSnapshots(contexts, withAstraAllocation)
   const withPanAllocation = withAstraAllocation.map((selection, index) => withPanYinhuAstralAlternative(
     contexts[index],
     astralHolders,

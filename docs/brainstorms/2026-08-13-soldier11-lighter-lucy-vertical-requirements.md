@@ -54,10 +54,9 @@ faction graph, or guide-backed evidence payload.
   contributor with no authored personal-damage direction. Admit Lucy as A-Rank,
   Fire, Support, Sons of Calydon, not Focus-eligible, and a buffer. The generic
   rank mechanism initializes Soldier 11 and Lighter at M0 and Lucy at M6.
-- R2. Retain current level-60 values: Soldier 11 ATK 888, CRIT Rate 19.4%,
-  CRIT DMG 50%, and Energy Regen 1.2; Lighter ATK 797, CRIT Rate 5%, CRIT DMG
-  50%, Impact 137, and Energy Regen 1.2; Lucy ATK 658, CRIT Rate 5%, CRIT DMG
-  50%, and Energy Regen 1.56. Other facts remain absent without a current
+- R2. Retain current level-60 values: Soldier 11 ATK 888, CRIT Rate 19.4%, and
+  CRIT DMG 50%; Lighter CRIT Rate 5%, Impact 137, and Energy Regen 1.2/s; Lucy
+  ATK 658 and Energy Regen 1.56/s. Other facts remain absent without a current
   Setup, formula, threshold, action, or Result consumer.
 - R3. Retain exact faction identity separately from teammate qualification.
   Soldier 0 belongs to Defense Force - Silver Squad, while Soldier 11, Trigger,
@@ -186,7 +185,8 @@ faction graph, or guide-backed evidence payload.
   enemy Fire/Ice RES by 15%, and extends the current Stun by 3 seconds once.
   Additional activates with another Attack or same-Faction Agent. Twenty
   Elation stacks provide 25% Fire/Ice DMG at 170 Impact, add 5 percentage
-  points per completed 10 Impact above 170, and cap at 75% at 270 Impact.
+  points per 10 Impact above 170, evaluated continuously and capped at 75% at
+  270 Impact.
   The gauge reads Fully Enabled Impact because both Core and selected-engine
   Combat Impact change the current output.
 - R20. Lighter M1 changes Collapse's Stun-duration extension from 3 seconds to
@@ -237,8 +237,9 @@ faction graph, or guide-backed evidence payload.
   with a non-Fire Agent outside the NEDF group. Display faction is not rewritten
   to force qualification.
 - AE3. Lighter's full representative shows its exact Fully Enabled Impact and
-  the corresponding Elation step, plus Fire/Ice RES reduction, one Quick Assist,
-  and Stun duration. M1 changes the extension from 3 to 5 seconds; M1/M2 add
+  the corresponding continuous Elation output, plus Fire/Ice RES reduction,
+  one Quick Assist, and Stun duration. M1 changes the extension from 3 to 5
+  seconds; M1/M2 add
   only their stated RES, duration, multiplier,
   and Elation consequences.
 - AE4. Prepared King for Lighter includes Slot 4 CRIT and a first CRIT Rate

@@ -210,13 +210,13 @@ input rather than a complete ranking rule. It does not add an unsupported
 personal-damage Result or make formula family, role, Specialty, and source
 relationship one hierarchy.
 
-#### Completed Agent stats
+#### Retained completed Agent inputs
 
-| Agent | HP | Agent ATK | DEF | Impact | CRIT Rate | CRIT DMG | Anomaly Mastery | Anomaly Proficiency | Energy Regen |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Anby: Soldier 0 | 7,673 | 929 | 612 | 93 | 19.4% | 50% | 94 | 93 | 1.2 |
-| Trigger | 7,923 | 750 | 600 | 131 | 5% | 50% | 96 | 95 | 1.2 |
-| Astra Yao | 8,609 | 715 | 600 | 83 | 5% | 50% | 93 | 92 | 1.56 |
+| Agent | Current consumed inputs |
+|---|---|
+| Anby: Soldier 0 | Agent ATK 929; CRIT Rate 19.4%; CRIT DMG 50% |
+| Trigger | CRIT Rate 5%; CRIT DMG 50%; Impact 131 |
+| Astra Yao | Agent ATK 715; Energy Regen 1.56/s |
 
 `Agent ATK` is the completed Agent-side value before selected W-Engine Base ATK, percentage ATK, and fixed Slot 2 ATK enter the existing ATK composition.
 

@@ -99,9 +99,8 @@ direction, raw damage, raw Daze, or runtime optimizer.
   a positive Daze number, and Defense Specialty do not by themselves make Daze
   a primary preparation role. Her squad benefits do not make her a damage
   Focus, and her shield supplies no positive setup or Result axis.
-- R2. Retain completed ATK 711, CRIT Rate 5%, CRIT DMG 50%, and Impact 123.
-  ATK supplies the residual variable-main and M6
-  action consumer; Impact supplies a retained non-survival Impact-to-Daze
+- R2. Retain completed CRIT Rate 5%, CRIT DMG 50%, and Impact 123. Impact
+  supplies a retained non-survival Impact-to-Daze
   relationship but does not make Caesar a primary Daze-investment role. That
   relationship can support a secondary candidate when its input-specific
   opportunity cost remains competitive. HP and DEF remain absent because

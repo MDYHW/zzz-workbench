@@ -3,8 +3,7 @@ import {
   defaultMindscapeFor,
   isFocusEligible,
   defaultRefinementFor,
-  ENGINE_IDS_BY_AGENT_AND_POOL,
-  representativeSetupFor,
+  setupPolicyFor,
   PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE,
   PREPARED_TWO_PIECE_BY_BROAD_PRE_PEN_PRESSURE,
   W_ENGINES,
@@ -32,7 +31,7 @@ import {
   effectiveSubstatChoicesForSlot,
   invalidRequiredSelections,
 } from './candidates'
-import { activeCandidatePressures } from './provider-effects'
+import { activeCandidatePressures } from './candidate-context'
 
 export type Mindscape = 0 | 1 | 2 | 3 | 4 | 5 | 6
 export type SubstatCounts = Partial<Record<SubstatId, number>>
@@ -122,7 +121,7 @@ export function createPreparedAgentSetup(
     agentId,
     pool,
     mindscape,
-    representativeSetupFor(agentId, pool, mindscape),
+    setupPolicyFor(agentId).representativeSetupFor(pool, mindscape),
   )
 }
 
@@ -215,7 +214,7 @@ function zeroEffectiveSubstatsForSlot(
   )
 }
 
-function withPreparedEffectiveSubstats(state: WorkbenchState): WorkbenchState {
+function withZeroInitializedEffectiveSubstats(state: WorkbenchState): WorkbenchState {
   const slots = state.slots.map((current, slotIndex) => ({
     ...current,
     setup: {
@@ -226,7 +225,7 @@ function withPreparedEffectiveSubstats(state: WorkbenchState): WorkbenchState {
   return { ...state, slots }
 }
 
-function withPreparedEffectiveSubstatsAtSlot(
+function withZeroInitializedEffectiveSubstatsAtSlot(
   state: WorkbenchState,
   slot: AppliedSlot,
   setup: AgentSetupState,
@@ -257,7 +256,30 @@ function createTargetPreparedSetup(
     slot,
     setupStateFromSelection(agentId, pool, mindscape, selection),
   )
-  return withPreparedEffectiveSubstatsAtSlot(state, slot, prepared)
+  return withZeroInitializedEffectiveSubstatsAtSlot(state, slot, prepared)
+}
+
+function createPartyPreparedState(
+  contexts: [PreparationContext, PreparationContext, PreparationContext],
+  focusSlot: AppliedSlot,
+): WorkbenchState {
+  const agentIds = contexts.map(({ agentId }) => agentId) as [AgentId, AgentId, AgentId]
+  const selections = preparePartySelections(contexts, agentIds[focusSlot])
+  const selected: WorkbenchState = {
+    slots: agentIds.map((agentId, index) => ({
+      agentId,
+      setup: setupStateFromSelection(
+        agentId,
+        contexts[index].pool,
+        contexts[index].mindscape as Mindscape,
+        selections[index],
+      ),
+    })) as WorkbenchState['slots'],
+    focusSlot,
+  }
+  return withZeroInitializedEffectiveSubstats(
+    withPreparedPartyPressurePackages(selected),
+  )
 }
 
 export function createPreparedState(
@@ -270,19 +292,7 @@ export function createPreparedState(
     pools[agentId] ?? 'full',
     defaultMindscapeFor(agentId),
   )) as [PreparationContext, PreparationContext, PreparationContext]
-  const selections = preparePartySelections(contexts, agentIds[focusSlot])
-  return withPreparedEffectiveSubstats(withPreparedPartyPressurePackages({
-    slots: agentIds.map((agentId, index) => ({
-      agentId,
-      setup: setupStateFromSelection(
-        agentId,
-        contexts[index].pool,
-        contexts[index].mindscape as Mindscape,
-        selections[index],
-      ),
-    })) as WorkbenchState['slots'],
-    focusSlot,
-  }))
+  return createPartyPreparedState(contexts, focusSlot)
 }
 
 function clampCount(value: number): number {
@@ -379,20 +389,7 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
           existing?.setup.mindscape ?? defaultMindscapeFor(agentId),
         )
       }) as [PreparationContext, PreparationContext, PreparationContext]
-      const selections = preparePartySelections(contexts, draft.agentIds[draft.focusSlot])
-      const slots = draft.agentIds.map((agentId, index) => ({
-        agentId,
-        setup: setupStateFromSelection(
-          agentId,
-          contexts[index].pool,
-          contexts[index].mindscape as Mindscape,
-          selections[index],
-        ),
-      })) as WorkbenchState['slots']
-      return withPreparedEffectiveSubstats(withPreparedPartyPressurePackages({
-        slots,
-        focusSlot: draft.focusSlot,
-      }))
+      return createPartyPreparedState(contexts, draft.focusSlot)
     }
     case 'setMindscape': {
       const currentSlot = state.slots[action.slot]
@@ -427,7 +424,7 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
     case 'selectEngine':
       return updateSetup(state, action.slot, (setup) => {
         const agentId = state.slots[action.slot].agentId
-        if (!ENGINE_IDS_BY_AGENT_AND_POOL[agentId][setup.pool].includes(action.engineId)) {
+        if (!setupPolicyFor(agentId).engineIdsByPool[setup.pool].includes(action.engineId)) {
           return setup
         }
         return {

@@ -55,8 +55,8 @@ Aftershock catalogue.
   Soldier 11, Seed, Trigger, and Anby: Soldier 0 without replacing her displayed
   faction. Rank defaults initialize Orphie at M0 and Pulchra at M6.
 - R2. Retain current level-60 values consumed by this vertical: Orphie ATK 929,
-  CRIT Rate 5%, CRIT DMG 50%, and Energy Regen 1.56; Pulchra ATK 665, CRIT Rate
-  5%, CRIT DMG 50%, Impact 136, and Energy Regen 1.2. Other facts remain absent
+  CRIT Rate 5%, CRIT DMG 50%, and Energy Regen 1.56/s; Pulchra CRIT Rate 5%,
+  Impact 136, and Energy Regen 1.2/s. Other facts remain absent
   without a current Setup, formula, threshold, action, operation, or Result
   consumer.
 - R3. Orphie uses ATK, CRIT Rate, CRIT DMG, Fire DMG, Energy Regen, and exact
@@ -170,7 +170,8 @@ Aftershock catalogue.
 
 - R14. Orphie's completed Core supplies self CRIT Rate +25%, self Aftershock
   DMG +85%, and Zeroed In squad ATK. Zeroed In starts at +280 ATK and gains
-  +20 ATK for each complete 0.1 Initial Energy Regen above 1.6, capped at +700.
+  +20 ATK per 0.1 Initial Energy Regen above 1.6, evaluated continuously and
+  capped at +700.
   Calculate that deterministic threshold from the selected setup's Initial
   Energy Regen; do not simulate Energy cadence or optimize Disc rolls. The
   all-party recipient and cap gauge reuse Astra, Soukaku, Lucy, and Pan Yinhu
@@ -250,8 +251,8 @@ Aftershock catalogue.
   zero and all three Results are complete.
 - AE2. Orphie's full Initial Energy Regen is 3.744 and Zeroed In supplies the
   capped +700 ATK. Non-limited Gilded/Shadow/Swing reaches Initial Energy Regen
-  2.808, supplies +520 ATK after complete 0.1 steps, and prepares CRIT Rate
-  rather than CRIT DMG. Direct pool change rebuilds only Orphie.
+  2.808, supplies +521.6 ATK through the continuous relation, and prepares CRIT
+  Rate rather than CRIT DMG. Direct pool change rebuilds only Orphie.
 - AE3. Orphie's Result exposes self Aftershock DMG +85%; qualified all-party
   Aftershock DEF Ignore +25%; Bellicose Fire Aftershock DEF Ignore; and the
   separate Heartstring, Cordis, or Gilded action rows only when selected.

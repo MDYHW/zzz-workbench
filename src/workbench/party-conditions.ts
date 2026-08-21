@@ -1,6 +1,7 @@
 import {
   ADMITTED_AGENTS,
   type AgentId,
+  type AgentSpecialty,
   type PartyQualificationGroup,
 } from './content'
 
@@ -8,13 +9,41 @@ function summaryFor(agentId: AgentId) {
   return ADMITTED_AGENTS.find(({ id }) => id === agentId)!
 }
 
+export function hasRepeatedQuickAssistOpportunity(
+  agentIds: readonly AgentId[],
+): boolean {
+  return agentIds.includes('astraYao')
+    || agentIds.includes('panYinhu')
+    || agentIds.includes('zhao')
+}
+
 export function anotherAgentHasSpecialty(
   agentIds: readonly AgentId[],
   providerIndex: number,
-  specialties: readonly string[],
+  specialties: readonly AgentSpecialty[],
 ): boolean {
   return agentIds.some((agentId, index) => (
     index !== providerIndex && specialties.includes(summaryFor(agentId).specialty)
+  ))
+}
+
+export function anotherAgentSharesAttribute(
+  agentIds: readonly AgentId[],
+  providerIndex: number,
+): boolean {
+  const provider = summaryFor(agentIds[providerIndex])
+  return agentIds.some((agentId, index) => (
+    index !== providerIndex && summaryFor(agentId).attribute === provider.attribute
+  ))
+}
+
+export function anotherAgentSharesFaction(
+  agentIds: readonly AgentId[],
+  providerIndex: number,
+): boolean {
+  const provider = summaryFor(agentIds[providerIndex])
+  return Boolean(provider.faction) && agentIds.some((agentId, index) => (
+    index !== providerIndex && summaryFor(agentId).faction === provider.faction
   ))
 }
 
