@@ -60,6 +60,7 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   grace: { attribute: electricMark, specialty: anomalyMark },
   piper: { attribute: physicalMark, specialty: anomalyMark },
   yuzuha: { attribute: physicalMark, specialty: supportMark },
+  burnice: { attribute: fireMark, specialty: anomalyMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {

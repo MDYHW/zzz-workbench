@@ -234,6 +234,39 @@ describe('AgentSetup partial W-Engine package', () => {
     },
   )
 
+  it('reuses Flamemaker Shaker compressed outcomes on selected and candidate surfaces', async () => {
+    const user = userEvent.setup()
+    const state = createPreparedState({}, ['burnice', 'lucy', 'lighter'], 0)
+    const setup = state.slots[0].setup
+    const props = {
+      activeSourceTone: null,
+      agentId: 'burnice' as const,
+      discCandidates: DISC_IDS_BY_AGENT_AND_PIECE.burnice,
+      dispatch: vi.fn(),
+      mainStatCandidates: MAIN_STAT_IDS_BY_AGENT_AND_SLOT.burnice,
+      onSourceToneChange: vi.fn(),
+      slot: 0 as const,
+    }
+    const description = 'ATK +30%. Off-field · Energy Regen +0.6/s. DMG +35%. Anomaly Proficiency +50'
+    const { rerender } = render(<AgentSetup {...props} setup={setup} />)
+
+    expect(screen.getByRole('button', {
+      name: 'Change W-Engine from Flamemaker Shaker',
+    })).toHaveAccessibleDescription(description)
+
+    rerender(<AgentSetup
+      {...props}
+      setup={{ ...setup, engineId: 'electroLipGloss', refinement: 5 }}
+    />)
+    await user.click(screen.getByRole('button', {
+      name: 'Change W-Engine from Electro-Lip Gloss',
+    }))
+    expect(within(screen.getByLabelText('W-Engine candidates')).getByRole('button', {
+      name: 'Select Flamemaker Shaker W1',
+    })).toHaveAccessibleDescription(description)
+    expect(screen.queryByText(/stack|duration|trigger/i)).not.toBeInTheDocument()
+  })
+
   it('shows Caesar source-owned candidates while leaving compatibility to Result', async () => {
     const user = userEvent.setup()
     const state = createPreparedState(

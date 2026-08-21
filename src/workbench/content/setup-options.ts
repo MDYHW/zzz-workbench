@@ -52,6 +52,7 @@ export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   grace: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: [] },
   piper: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: [] },
   yuzuha: { primary: ['anomaly_buildup'], residual: [] },
+  burnice: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: ['general_damage'] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -257,6 +258,11 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot5: ['atkPct'],
     slot6: ['anomalyMastery'],
   },
+  burnice: {
+    slot4: ['anomalyProficiency'],
+    slot5: ['penRatio', 'fireDmg'],
+    slot6: ['energyRegenPct', 'anomalyMastery'],
+  },
 }
 
 /** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
@@ -270,6 +276,7 @@ export const PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE: Partial<
   nekomata: 'atkPct',
   billy: 'atkPct',
   grace: 'electricDmg',
+  burnice: 'fireDmg',
 }
 
 /** Authored whole-package replacement when the selected 2-piece loses its distinct axis. */
@@ -431,6 +438,10 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   yuzuha: [
     { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
     { id: 'atkFlat', label: 'ATK', perHit: 19, unit: '' },
+  ],
+  burnice: [
+    { id: 'anomalyProficiency', label: 'Anomaly Proficiency', perHit: 9, unit: '' },
+    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
   ],
 }
 

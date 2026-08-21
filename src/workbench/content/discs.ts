@@ -499,4 +499,8 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     fourPiece: ['moonlight', 'astralVoice'],
     twoPiece: ['phaethonsMelody', 'hormonePunk', 'astralVoice', 'swingJazz', 'moonlight'],
   },
+  burnice: {
+    fourPiece: ['chaosJazz', 'freedomBlues'],
+    twoPiece: ['swingJazz', 'moonlight', 'phaethonsMelody', 'pufferElectro', 'freedomBlues', 'chaosJazz', 'infernoMetal'],
+  },
 }

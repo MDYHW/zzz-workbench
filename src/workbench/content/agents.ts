@@ -246,6 +246,10 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     id: 'yuzuha', name: 'Ukinami Yuzuha', attribute: 'Physical', specialty: 'Support',
     focusEligible: false, rank: 'S', faction: 'Spook Shack',
   },
+  {
+    id: 'burnice', name: 'Burnice White', attribute: 'Fire', specialty: 'Anomaly',
+    focusEligible: true, rank: 'S', faction: 'Sons of Calydon',
+  },
 ]
 
 export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>

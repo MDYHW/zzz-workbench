@@ -368,6 +368,11 @@ export const STATIC_SOURCES = {
     core: source(SOURCE_LABELS.yuzuhaCore, 'yuzuha', 'core'),
     additional: source(SOURCE_LABELS.yuzuhaAbility, 'yuzuha', 'additional'),
   },
+  burnice: {
+    core: source(SOURCE_LABELS.burniceCore, 'burnice', 'core'),
+    additional: source(SOURCE_LABELS.burniceAbility, 'burnice', 'additional'),
+    potential: source(SOURCE_LABELS.burnicePotential, 'burnice', 'identity'),
+  },
 } as const
 
 export const mindscapeSource = (

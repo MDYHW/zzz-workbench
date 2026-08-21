@@ -43,6 +43,7 @@ export type AgentId =
   | 'grace'
   | 'piper'
   | 'yuzuha'
+  | 'burnice'
 
 export type AgentRank = 'S' | 'A'
 export type AgentFaction =
@@ -126,6 +127,7 @@ export type EngineId =
   | 'sharpenedStinger'
   | 'roaringRide'
   | 'metanukimorphosis'
+  | 'flamemakerShaker'
 
 export type DiscId =
   | 'yunkui'

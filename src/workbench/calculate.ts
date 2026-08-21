@@ -58,6 +58,7 @@ import {
   YUZUHA_ATTRIBUTE_ANOMALY_TARGET,
   calculateYuzuha,
 } from './calculation/agents/yuzuha'
+import { calculateBurnice } from './calculation/agents/burnice'
 import {
   composeActionHierarchy,
   composeMetricEffects,
@@ -445,6 +446,9 @@ export function calculateParty(
           break
         case 'yuzuha':
           result = calculateYuzuha(context, inbox)
+          break
+        case 'burnice':
+          result = calculateBurnice(context, inbox, enemy)
           break
         default:
           return assertNever(context)

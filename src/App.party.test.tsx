@@ -150,7 +150,7 @@ describe('integrated party workbench: party', () => {
       [
         { agentId: 'piper', setup: createPreparedAgentSetup('piper') },
         { agentId: 'yuzuha', setup: createPreparedAgentSetup('yuzuha') },
-        { agentId: 'ben', setup: createPreparedAgentSetup('ben') },
+        { agentId: 'burnice', setup: createPreparedAgentSetup('burnice') },
       ],
       [
         { agentId: 'anby', setup: createPreparedAgentSetup('anby') },

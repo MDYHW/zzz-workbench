@@ -284,6 +284,12 @@ const yuzuhaRepresentative = (pool: PoolId): SetupSelection => ({
   mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'anomalyMastery' },
 })
 
+const burniceRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'flamemakerShaker' : 'electroLipGloss',
+  fourPieceId: 'chaosJazz', twoPieceId: 'swingJazz',
+  mains: { slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'energyRegenPct' },
+})
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -389,6 +395,7 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   grace: { full: graceRepresentative('full'), nonLimited: graceRepresentative('nonLimited') },
   piper: { full: piperRepresentative('full'), nonLimited: piperRepresentative('nonLimited') },
   yuzuha: { full: yuzuhaRepresentative('full'), nonLimited: yuzuhaRepresentative('nonLimited') },
+  burnice: { full: burniceRepresentative('full'), nonLimited: burniceRepresentative('nonLimited') },
 }
 
 export function representativeSetupFor(

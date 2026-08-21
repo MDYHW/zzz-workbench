@@ -40,6 +40,7 @@ import zhaoPortrait from '../assets/agents/portraits/zhao.webp'
 import gracePortrait from '../assets/agents/portraits/grace.webp'
 import piperPortrait from '../assets/agents/portraits/piper.webp'
 import yuzuhaPortrait from '../assets/agents/portraits/yuzuha.webp'
+import burnicePortrait from '../assets/agents/portraits/burnice.webp'
 
 export const AGENT_PORTRAITS: Record<AgentId, string> = {
   yixuan: yixuanPortrait,
@@ -82,6 +83,7 @@ export const AGENT_PORTRAITS: Record<AgentId, string> = {
   grace: gracePortrait,
   piper: piperPortrait,
   yuzuha: yuzuhaPortrait,
+  burnice: burnicePortrait,
 }
 
 interface PortraitSource {
@@ -141,6 +143,7 @@ const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   grace: { faceX: 51, headTopY: 7, scale: 1 },
   piper: { faceX: 45, headTopY: 16, scale: 1.2 },
   yuzuha: { faceX: 53, headTopY: 18, scale: 1.2 },
+  burnice: { faceX: 50, headTopY: 6, scale: 1.1 },
 }
 
 export function portraitSourceStyle(agentId: AgentId): PortraitSourceStyle {

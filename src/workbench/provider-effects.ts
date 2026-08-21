@@ -213,6 +213,11 @@ import {
   resolveYuzuhaProviderClauses,
   type YuzuhaCalculationContext,
 } from './calculation/agents/yuzuha'
+import {
+  observeBurnice,
+  resolveBurniceProviderClauses,
+  type BurniceCalculationContext,
+} from './calculation/agents/burnice'
 
 export type ProviderContext =
   | YixuanCalculationContext
@@ -255,6 +260,7 @@ export type ProviderContext =
   | GraceCalculationContext
   | PiperCalculationContext
   | YuzuhaCalculationContext
+  | BurniceCalculationContext
 
 export interface ProviderEffects {
   contexts: ProviderContext[]
@@ -461,6 +467,11 @@ function observeProviderContext(
           id === state.slots[state.focusSlot].agentId
         ))!.attribute,
       )
+    case 'burnice':
+      return observeBurnice(
+        slot.setup,
+        anotherHasSpecialty(['Anomaly']) || anotherSharesFaction,
+      )
     default:
       return assertNever(slot.agentId)
   }
@@ -560,6 +571,8 @@ function providerClauses(
       return resolvePiperProviderClauses(context)
     case 'yuzuha':
       return resolveYuzuhaProviderClauses(context)
+    case 'burnice':
+      return resolveBurniceProviderClauses(context)
     default:
       return assertNever(context)
   }

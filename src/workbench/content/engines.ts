@@ -59,6 +59,7 @@ import weepingGeminiImage from '../../assets/equipment/w-engines/weeping-gemini.
 import sharpenedStingerImage from '../../assets/equipment/w-engines/sharpened-stinger.webp'
 import roaringRideImage from '../../assets/equipment/w-engines/roaring-ride.webp'
 import metanukimorphosisImage from '../../assets/equipment/w-engines/metanukimorphosis.webp'
+import flamemakerShakerImage from '../../assets/equipment/w-engines/flamemaker-shaker.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -574,6 +575,20 @@ export const W_ENGINE_FACTS = {
       buildup: { modifier: 'anomalyBuildupBonus', unit: '%', value: [25, 28, 32, 36, 40] },
     },
   },
+  flamemakerShaker: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 30, unit: '%' },
+    effects: {
+      offFieldEnergy: { modifier: 'energyRegen', unit: '/s', value: [0.6, 0.75, 0.9, 1.05, 1.2] },
+      damage: {
+        modifier: 'dmgBonus', unit: '%',
+        progression: {
+          kind: 'stacks', perStack: [3.5, 4.4, 5.2, 6.1, 7], maxStacks: 10,
+          maximum: [35, 44, 52, 61, 70],
+        },
+      },
+      anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: [50, 62, 75, 87, 100] },
+    },
+  },
 } as const satisfies Record<EngineId, WEngineFacts>
 
 /** Exact authored fields for one admitted W-Engine, derived from the fact source. */
@@ -1016,6 +1031,16 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `Squad Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.metanukimorphosis.effects.anomalyProficiency, refinement)}`,
     ],
   },
+  flamemakerShaker: {
+    id: 'flamemakerShaker', name: 'Flamemaker Shaker', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.flamemakerShaker.advancedStat, image: flamemakerShakerImage,
+    passiveSpecialty: 'Anomaly',
+    passiveLines: (refinement) => [
+      `Off-field · Energy Regen +${perSecond(W_ENGINE_FACTS.flamemakerShaker.effects.offFieldEnergy, refinement)}`,
+      `DMG +${percent(W_ENGINE_FACTS.flamemakerShaker.effects.damage, refinement, true)}`,
+      `Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.flamemakerShaker.effects.anomalyProficiency, refinement)}`,
+    ],
+  },
 }
 
 const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
@@ -1073,4 +1098,5 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
     'weepingGemini', 'roaringRide',
   ]),
   yuzuha: enginePools(['metanukimorphosis', 'thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
+  burnice: enginePools(['flamemakerShaker', 'practicedPerfection', 'electroLipGloss', 'weepingGemini']),
 }
