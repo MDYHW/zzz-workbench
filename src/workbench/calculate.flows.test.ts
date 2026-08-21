@@ -1104,4 +1104,78 @@ describe('representative calculation flows', () => {
         .not.toContainEqual(expect.objectContaining({ label: 'Disorder DMG Multiplier' }))
     }
   })
+
+  it('separates Burnice Initial Energy scaling from fixed Energy and projects scoped outcomes', () => {
+    const state = createPreparedState({}, ['yixuan', 'burnice', 'lucy'], 0)
+    const burnice = agent(calculateParty(state)!, 'burnice')
+
+    expect(metric(burnice, 'atk').values.initial).toBeCloseTo(2364.8)
+    expect(metric(burnice, 'anomalyProficiency').values).toEqual({
+      initial: 242,
+      combat: 242,
+      fully: 292,
+    })
+    expect(metric(burnice, 'anomalyProficiency').gauge).toMatchObject({
+      basisLabel: 'Fully Enabled Anomaly Proficiency',
+      current: 292,
+      cap: 300,
+      outputLabel: 'Afterburn DMG Bonus',
+      outputValue: 29.2,
+      outputCap: 30,
+    })
+    expect(metric(burnice, 'energyRegen').values).toEqual({
+      initial: expect.closeTo(2.808),
+      combat: expect.closeTo(3.408),
+      fully: expect.closeTo(3.408),
+    })
+    expect(metric(burnice, 'energyRegen').gauge).toMatchObject({
+      basisLabel: 'Initial Energy Regen',
+      current: expect.closeTo(2.808),
+      threshold: 1.8,
+      cap: 2.8,
+      outputLabel: 'Anomaly Mastery',
+      outputValue: 25,
+      outputCap: 25,
+      additionalOutputs: [{ label: 'DMG Bonus', value: 20, cap: 20, unit: '%' }],
+    })
+    expect(metric(burnice, 'anomalyMastery').values).toEqual({
+      initial: 118,
+      combat: 118,
+      fully: 143,
+    })
+    expect(action(burnice, 'burniceAfterburnDmg').values.fully
+      - metric(burnice, 'dmgBonus').values.fully).toBeCloseTo(29.2)
+    expect(action(burnice, 'burniceAdditionalBuildup').values.fully).toBe(65)
+    expect(burnice.operations).toContainEqual(expect.objectContaining({
+      id: 'burniceBurnDuration', value: 3, unit: 's', surface: 'fully',
+    }))
+    expect(JSON.stringify(burnice)).not.toMatch(/final damage|application history|rotation|cadence|uptime/i)
+  })
+
+  it('keeps Burnice Mindscape scopes and Yuzuha anomaly outcomes distinct', () => {
+    const base = createPreparedState({}, ['yixuan', 'burnice', 'yuzuha'], 0)
+    const m6 = calculateParty(withMindscape(base, 'burnice', 6))!
+    const burnice = agent(m6, 'burnice')
+
+    expect(action(burnice, 'burniceAfterburnBuildup').values.fully
+      - metric(burnice, 'anomalyBuildupBonus').values.fully).toBe(25)
+    expect(action(burnice, 'burniceExAssistCrit').values.fully
+      - metric(burnice, 'critRate').values.fully).toBe(30)
+    expect(action(burnice, 'burniceM6DoubleShotResIgnore').values.fully).toBe(25)
+    expect(action(burnice, 'burniceBurnResIgnore').values.fully).toBe(25)
+    expect(burnice.operations).toContainEqual(expect.objectContaining({
+      id: 'burniceAfterburnAddedMultiplier', value: 100, unit: '% ATK',
+    }))
+    expect(action(burnice, 'receivedAttributeAnomalyDmg').values.fully
+      - metric(burnice, 'anomalyDmgBonus').values.fully).toBe(20)
+    expect(action(burnice, 'receivedDisorderDmg').values.fully
+      - metric(burnice, 'anomalyDmgBonus').values.fully).toBe(20)
+
+    expect(agent(m6, 'yixuan').metrics.find(({ id }) => id === 'penRatio'))
+      .toBeUndefined()
+    expect(metric(burnice, 'penRatio').breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        ownerAgentId: 'burnice', locus: 'mindscape', amount: 20,
+      }))
+  })
 })

@@ -419,6 +419,28 @@ export const VERTICAL_VALUES = {
     mindscape6DisorderMultiplier: 315,
     mindscape6ShellAtkPercent: 300,
   },
+  burnice: {
+    atk: 863,
+    critRate: 5,
+    anomalyProficiency: 120,
+    anomalyMastery: 118,
+    baseEnergyRegen: 1.56,
+    afterburnApCap: 300,
+    afterburnDmgBonusPerThreshold: 1,
+    afterburnDmgBonusCap: 30,
+    additionalBuildupRate: 65,
+    burnDurationExtensionSeconds: 3,
+    potentialEnergyThreshold: 1.8,
+    potentialMasteryPerStep: 2.5,
+    potentialDmgPerStep: 2,
+    potentialMasteryCap: 25,
+    potentialDmgCap: 20,
+    mindscape1BuildupRate: 25,
+    mindscape1AddedAtkPercent: 100,
+    mindscape2PenRatio: 20,
+    mindscape4CritRate: 30,
+    mindscape6FireResIgnore: 25,
+  },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [
@@ -521,5 +543,8 @@ export const SOURCE_LABELS = {
   piperAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   yuzuhaCore: SOURCE_CATEGORY_LABELS.corePassive,
   yuzuhaAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  burniceCore: SOURCE_CATEGORY_LABELS.corePassive,
+  burniceAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  burnicePotential: 'Potential Awakening',
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const
