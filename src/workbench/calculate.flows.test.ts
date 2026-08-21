@@ -1106,7 +1106,7 @@ describe('representative calculation flows', () => {
   })
 
   it('separates Burnice Initial Energy scaling from fixed Energy and projects scoped outcomes', () => {
-    const state = createPreparedState({}, ['burnice', 'lucy', 'lighter'], 0)
+    const state = createPreparedState({}, ['yixuan', 'burnice', 'lucy'], 0)
     const burnice = agent(calculateParty(state)!, 'burnice')
 
     expect(metric(burnice, 'atk').values.initial).toBeCloseTo(2364.8)
@@ -1153,7 +1153,7 @@ describe('representative calculation flows', () => {
   })
 
   it('keeps Burnice Mindscape scopes and Yuzuha anomaly outcomes distinct', () => {
-    const base = createPreparedState({}, ['burnice', 'yuzuha', 'yixuan'], 0)
+    const base = createPreparedState({}, ['yixuan', 'burnice', 'yuzuha'], 0)
     const m6 = calculateParty(withMindscape(base, 'burnice', 6))!
     const burnice = agent(m6, 'burnice')
 

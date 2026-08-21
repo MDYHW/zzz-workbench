@@ -236,8 +236,8 @@ describe('AgentSetup partial W-Engine package', () => {
 
   it('reuses Flamemaker Shaker compressed outcomes on selected and candidate surfaces', async () => {
     const user = userEvent.setup()
-    const state = createPreparedState({}, ['burnice', 'lucy', 'lighter'], 0)
-    const setup = state.slots[0].setup
+    const state = createPreparedState({}, ['yixuan', 'burnice', 'yuzuha'], 0)
+    const setup = state.slots[1].setup
     const props = {
       activeSourceTone: null,
       agentId: 'burnice' as const,
@@ -245,9 +245,9 @@ describe('AgentSetup partial W-Engine package', () => {
       dispatch: vi.fn(),
       mainStatCandidates: MAIN_STAT_IDS_BY_AGENT_AND_SLOT.burnice,
       onSourceToneChange: vi.fn(),
-      slot: 0 as const,
+      slot: 1 as const,
     }
-    const description = 'ATK +30%. Off-field · Energy Regen +0.6/s. DMG +35%. Anomaly Proficiency +50'
+    const description = 'ATK +30%. Energy Regen +0.6/s. DMG +35%. Anomaly Proficiency +50'
     const { rerender } = render(<AgentSetup {...props} setup={setup} />)
 
     expect(screen.getByRole('button', {

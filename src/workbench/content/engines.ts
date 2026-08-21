@@ -1036,7 +1036,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.flamemakerShaker.advancedStat, image: flamemakerShakerImage,
     passiveSpecialty: 'Anomaly',
     passiveLines: (refinement) => [
-      `Off-field · Energy Regen +${perSecond(W_ENGINE_FACTS.flamemakerShaker.effects.offFieldEnergy, refinement)}`,
+      `Energy Regen +${perSecond(W_ENGINE_FACTS.flamemakerShaker.effects.offFieldEnergy, refinement)}`,
       `DMG +${percent(W_ENGINE_FACTS.flamemakerShaker.effects.damage, refinement, true)}`,
       `Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.flamemakerShaker.effects.anomalyProficiency, refinement)}`,
     ],

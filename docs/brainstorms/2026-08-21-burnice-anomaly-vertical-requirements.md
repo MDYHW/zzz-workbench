@@ -61,7 +61,9 @@ general-damage build.
 ### Identity, formula participation, and source outcomes
 
 - R1. Add Burnice White after Yuzuha as S-Rank Fire Anomaly, Sons of Calydon,
-  M0 by default, and Focus-eligible. Retain completed ATK 863, AP 120, AM 118,
+  M0 by default, and not Focus-eligible: her primary contribution persists
+  through off-field Afterburn rather than serving as the fixed on-field damage-
+  concentration observation point. Retain completed ATK 863, AP 120, AM 118,
   and Base Energy Regen 1.56/s. Her primary formula participation is
   `anomaly_damage` plus `anomaly_buildup`; residual `general_damage` exists only
   for the materially different Afterburn sub-output.
@@ -104,7 +106,7 @@ general-damage build.
   ATK +30%. W1-W5 supplies off-field holder Energy +0.6/0.75/0.9/1.05/1.2 per
   second, maximum holder DMG Bonus +35/44/52/61/70%, and AP +50/62/75/87/100.
   Off-field doubles stack acquisition, not the maximum DMG value. Selected and
-  candidate Setup copy compresses these to `Off-field · Energy Regen +N/s`,
+  candidate Setup copy compresses these to `Energy Regen +N/s`,
   `DMG +N%`, and `Anomaly Proficiency +N`; activation, stack, and duration prose
   remains in retained source facts.
 - R10. Burnice's full candidates are Flamemaker Shaker, Practiced Perfection,
@@ -116,10 +118,14 @@ general-damage build.
   remain the closest current full-package alternative despite its unusable
   Physical-DMG clause.
 - R11. Timeweaver is excluded rather than retained as a Disorder contrast. Its
-  Electric buildup clause is unusable; its AP and ATK strengthen the same
-  anomaly-damage role as stronger whole packages; and its narrower Disorder
-  bonus begins only at AP 375, above Burnice's zero-substat prepared AP under
-  that package. A distinct visible target does not create a distinct equipment
+  Electric buildup clause is unusable. Under zero supplied substat counts its
+  Fully Enabled AP is 317, and the conservative eight-count AP opportunity can
+  reach 389, so the AP 375 threshold is reachable rather than invalid. Reaching
+  it spends most of that bounded AP opportunity, while the remaining ATK, AP,
+  and Disorder DMG still concentrate on Burnice's existing anomaly-damage axis.
+  Flamemaker's complete off-field package and Practiced's scarce AM/buildup
+  package remain more competitive uses of the single W-Engine opportunity. A
+  distinct visible target therefore does not create a distinct equipment-
   investment axis. Angel in the Shell and Flight of Fancy are likewise
   excluded: Burnice cannot activate Angel's two Ether clauses or Flight's
   Ether-hit AP stacks, and their remaining AP/AM/buildup supply does not survive
@@ -130,20 +136,25 @@ general-damage build.
   non-limited prepares Electro-Lip Gloss W5. Electro's AP advanced stat and
   off-field-compatible ATK/DMG package are all useful; Weeping's persistent
   party-Anomaly AP stacks and permanent ATK form the distinct accessible
-  accumulating-AP contrast. Fusion Compiler, Roaring Ride, and Rainforest
-  Gourmet are legal but excluded: their short Special/EX or Energy-consumption
-  windows require repeated holder field time and do not competitively cover
-  Burnice's primary off-field Afterburn interval. Frostfall Sickle and
-  Hailstorm Shrine are excluded personal/Attribute packages. Pool availability
-  is not a rarity catalogue, and full includes both retained non-limited
-  choices.
+  accumulating-AP contrast. Fusion Compiler's stable PEN/ATK is useful, but its
+  maximum AP supply requires repeated Special/EX activations and each stack lasts
+  8 seconds; it cannot competitively cover Burnice's primary off-field interval
+  against Electro or Weeping. Roaring Ride can trigger a random 5-second package
+  during Burnice's brief EX entry but cannot refresh it off field, and Burnice
+  cannot inherit Piper's sustained on-field EX pattern. Rainforest Gourmet is
+  legally activatable but supplies only a short same-axis ATK window after Energy
+  consumption and no distinct competitive direction. All three are excluded.
+  Frostfall Sickle and Hailstorm Shrine are excluded personal/Attribute packages.
+  Pool availability is not a rarity catalogue, and full includes both retained
+  non-limited choices.
 
 ### Drive Disc and finite investment authoring
 
 - R13. Burnice's 4-piece candidates are Chaos Jazz and Freedom Blues. Chaos is
-  prepared for off-field Fire/Electric DMG and EX/Assist Follow-Up DMG, matching
-  her field-time and action pattern. Freedom remains the nearest buildup-
-  resistance alternative. Inferno Metal is legal but excluded: its Burn-
+  prepared because its stable Fire/Electric DMG covers Burnice's off-field
+  interval, while its EX/Assist Follow-Up clause rewards her brief entry/exit
+  window without requiring extended field time. Freedom remains the nearest
+  buildup-resistance alternative. Inferno Metal is legal but excluded: its Burn-
   conditioned CRIT package spends the 4-piece opportunity on an axis outside
   Burnice's authored anomaly directions.
 - R14. Her independent 2-piece roles are Energy Regen through Swing Jazz or
@@ -170,7 +181,9 @@ general-damage build.
 
 ### Composition, lifecycle, and visible boundaries
 
-- R17. Burnice introduces no new candidate-pressure or preparation pass.
+- R17. Burnice is not a Focus candidate; a draft with no other eligible Agent
+  cannot Apply, while the generic policy auto-selects a sole eligible teammate.
+  Burnice introduces no new candidate-pressure or preparation pass.
   Party Apply rebuilds all setups; Burnice pool or Mindscape changes rebuild
   only Burnice; direct edits rebuild none. Reconciliation clears invalid
   dependent choices without fallback, `isCompleteWorkbench` keeps Result empty

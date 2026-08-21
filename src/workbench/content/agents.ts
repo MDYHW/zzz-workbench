@@ -248,7 +248,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
   },
   {
     id: 'burnice', name: 'Burnice White', attribute: 'Fire', specialty: 'Anomaly',
-    focusEligible: true, rank: 'S', faction: 'Sons of Calydon',
+    focusEligible: false, rank: 'S', faction: 'Sons of Calydon',
   },
 ]
 
