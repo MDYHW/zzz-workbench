@@ -550,6 +550,24 @@ describe('shared preparation and edit lifecycle', () => {
     }
   })
 
+  it('does not prepare contextual Astral over an established target-only holder', () => {
+    let state = createPreparedState({}, ['cissia', 'astraYao', 'yixuan'], 2)
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'astralVoice',
+    })
+
+    const establishedAstra = state.slots[1]
+    state = workbenchReducer(state, {
+      type: 'switchPool', slot: 0, pool: 'nonLimited',
+    })
+
+    expect(state.slots[1]).toBe(establishedAstra)
+    expect(state.slots[1].setup.fourPieceId).toBe('astralVoice')
+    expect(state.slots[0].setup.fourPieceId).toBe('dawnsBloom')
+    expect(state.slots.filter(({ setup }) => setup.fourPieceId === 'astralVoice'))
+      .toHaveLength(1)
+  })
+
   it('initializes finite substat opportunities at zero and clamps only offered inputs', () => {
     const prepared = createPreparedState()
     expect(Object.values(prepared.slots[0].setup.substats).every((value) => value === 0))
