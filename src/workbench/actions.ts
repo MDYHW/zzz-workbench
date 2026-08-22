@@ -17,7 +17,6 @@ export type ActionOutcome =
   | {
     kind: 'source-local'
     label: string
-    canonicalScope?: CanonicalActionKind
   }
 
 declare const actionTargetBrand: unique symbol
@@ -43,10 +42,6 @@ export const BASIC_AFTERSHOCK_TARGET = actionTarget(
   ['aftershock'],
 )
 
-export const QUICK_ASSIST_TARGET = actionTarget([
-  { kind: 'source-local', label: 'Quick Assist', canonicalScope: 'Assist' },
-])
-
 export const canonicalAction = (
   action: CanonicalActionKind,
 ): ActionOutcome => ({ kind: 'canonical', action })
@@ -58,11 +53,9 @@ export const actionForm = (
 
 export const sourceLocalAction = (
   label: string,
-  canonicalScope?: CanonicalActionKind,
 ): ActionOutcome => ({
   kind: 'source-local',
   label,
-  ...(canonicalScope ? { canonicalScope } : {}),
 })
 
 function sameOutcome(left: ActionOutcome, right: ActionOutcome): boolean {
@@ -77,7 +70,6 @@ function sameOutcome(left: ActionOutcome, right: ActionOutcome): boolean {
     case 'source-local':
       return right.kind === 'source-local'
         && left.label === right.label
-        && left.canonicalScope === right.canonicalScope
   }
 }
 

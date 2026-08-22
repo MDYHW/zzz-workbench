@@ -367,6 +367,7 @@ function withQingyiDialynShockstarFallback(
     ...selection,
     fourPieceId: 'shockstar',
     twoPieceId: 'king',
+    mains: { ...selection.mains, slot4: 'atkPct' },
   }
 }
 

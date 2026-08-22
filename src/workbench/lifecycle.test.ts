@@ -341,6 +341,44 @@ describe('shared preparation and edit lifecycle', () => {
     expect(calculateParty(state)).not.toBeNull()
   })
 
+  it('derives CRIT investment pressure from selected King instead of fixed personal supply', () => {
+    let state = createPreparedState({}, ['qingyi', 'harumasa', 'nicole'], 1)
+
+    expect(state.slots[0].setup.fourPieceId).toBe('king')
+    expect(effectiveMainStatIds(state, 0, 'slot4')).toContain('critRate')
+    expect(effectiveSubstatChoicesForSlot(state, 0).map(({ id }) => id))
+      .toEqual(['critRate'])
+    expect(effectiveTwoPieceIds(state, 0)).toContain('woodpecker')
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'shockstar',
+    })
+    expect(state.slots[0].setup.mains.slot4).toBeNull()
+    expect(state.slots[0].setup.substats).toEqual({})
+    expect(effectiveMainStatIds(state, 0, 'slot4')).toEqual(['critDmg', 'atkPct'])
+    expect(effectiveSubstatChoicesForSlot(state, 0)).toEqual([])
+    expect(effectiveTwoPieceIds(state, 0)).not.toContain('woodpecker')
+    expect(calculateParty(state)).toBeNull()
+
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 0, mainSlot: 'slot4', mainStatId: 'atkPct',
+    })
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 1 })
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'shockstar',
+    })
+    expect(effectiveMainStatIds(state, 0, 'slot4')).not.toContain('critRate')
+    expect(effectiveSubstatChoicesForSlot(state, 0)).toEqual([])
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'king',
+    })
+    expect(state.slots[0].setup.mains.slot4).toBeNull()
+    expect(state.slots[0].setup.substats).toEqual({ critRate: 0 })
+    expect(effectiveMainStatIds(state, 0, 'slot4')).toContain('critRate')
+    expect(calculateParty(state)).toBeNull()
+  })
+
   it('reconciles pressure after the edited source, preserves empty Result, and requires reselection', () => {
     let state = createPreparedState({}, ['anbySoldier0', 'trigger', 'dialyn'], 0)
     state = workbenchReducer(state, {

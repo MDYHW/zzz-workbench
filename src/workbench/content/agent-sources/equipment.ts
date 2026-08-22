@@ -1,4 +1,8 @@
-import { effectAttributeForAgent } from '../../formula-policy'
+import {
+  CRIT_DAMAGE_FORMULAS,
+  effectAttributeForAgent,
+  REGULAR_DAMAGE_FORMULAS,
+} from '../../formula-policy'
 import type { EffectMetric } from '../../effects'
 import type { ProfileRelationship } from '../../calculation/relationships'
 import { selectSource, type SelectedSourceInstance } from '../../calculation/source-instance'
@@ -8,7 +12,7 @@ import {
   DRIVE_DISC_FACTS,
   DRIVE_DISCS,
 } from '../discs'
-import { W_ENGINES } from '../engines'
+import { W_ENGINE_FACTS, W_ENGINES } from '../engines'
 import {
   EFFECTIVE_SUBSTAT_VALUES,
   FIXED_MAIN_STATS,
@@ -175,6 +179,103 @@ export function selectedDiscSource(
     appliedPartySlot,
     { kind: 'drive-disc', selectedRole, effectPiece },
   )
+}
+
+/** Exact party-facing passives shared unchanged across current profile families. */
+export function sharedPartyEquipmentRelationships(
+  agentId: AgentId,
+  appliedPartySlot: 0 | 1 | 2,
+  setup: CompleteSelectedSetup,
+): ProfileRelationship[] {
+  const relationships: ProfileRelationship[] = []
+  const engine = selectedWEngineSource(agentId, appliedPartySlot, setup)
+  const passiveEligible = W_ENGINES[setup.engineId].passiveSpecialty
+    === ADMITTED_AGENTS.find(({ id }) => id === agentId)?.specialty
+  if (passiveEligible) switch (setup.engineId) {
+    case 'weepingCradle':
+      relationships.push(
+        {
+          kind: 'provider', source: engine,
+          delivery: { recipient: 'all-party', formulas: REGULAR_DAMAGE_FORMULAS },
+          effect: {
+            kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
+            value: equipmentEffectBaseValue(
+              W_ENGINE_FACTS.weepingCradle.effects.damage,
+              setup.refinement,
+            ),
+          },
+        },
+        {
+          kind: 'automatic-energy',
+          atom: {
+            earliestSurface: 'combat',
+            value: equipmentEffectBaseValue(
+              W_ENGINE_FACTS.weepingCradle.effects.energy,
+              setup.refinement,
+            ),
+            source: engine,
+          },
+        },
+      )
+      break
+    case 'kaboom':
+      relationships.push({
+        kind: 'provider', source: engine,
+        delivery: { recipient: 'all-party', formulas: REGULAR_DAMAGE_FORMULAS },
+        effect: {
+          kind: 'stat', statId: 'atk', region: 'percentage', earliestSurface: 'fully',
+          value: equipmentEffectBaseValue(W_ENGINE_FACTS.kaboom.effects.atk, setup.refinement),
+          nonstackId: 'kaboomTheCannon',
+        },
+      })
+      break
+    case 'unfetteredGameBall':
+      relationships.push({
+        kind: 'provider', source: engine,
+        delivery: { recipient: 'all-party', formulas: CRIT_DAMAGE_FORMULAS },
+        effect: {
+          kind: 'stat', statId: 'critRate', region: 'flat', earliestSurface: 'fully',
+          value: equipmentEffectBaseValue(
+            W_ENGINE_FACTS.unfetteredGameBall.effects.critRate,
+            setup.refinement,
+          ),
+        },
+      })
+      break
+  }
+
+  const disc = selectedDiscSource(
+    agentId,
+    appliedPartySlot,
+    setup,
+    setup.fourPieceId,
+    '4-piece',
+  )
+  switch (setup.fourPieceId) {
+    case 'moonlight':
+      relationships.push({
+        kind: 'provider', source: disc,
+        delivery: { recipient: 'all-party', formulas: REGULAR_DAMAGE_FORMULAS },
+        effect: {
+          kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
+          value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.fourPiece.damage),
+          nonstackId: 'moonlightLullaby',
+        },
+      })
+      break
+    case 'astralVoice':
+      relationships.push({
+        kind: 'provider', source: disc,
+        delivery: { recipient: 'focus', formulas: REGULAR_DAMAGE_FORMULAS },
+        effect: {
+          kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
+          value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage),
+          nonstackId: 'astralVoiceEntrant',
+        },
+      })
+      break
+  }
+  return relationships
 }
 
 function statRelationship(

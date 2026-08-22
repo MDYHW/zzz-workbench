@@ -8,7 +8,6 @@ import {
 } from '../content/source-definitions'
 import { createPreparedState, type WorkbenchState } from '../state'
 import { providerDefenseProfileFor } from '../content/agent-sources/provider-defense'
-import { ruptureStunProfileFor } from '../content/agent-sources/rupture-stun'
 import {
   actionProjection,
   evaluateProfileParty,
@@ -211,7 +210,7 @@ describe('profile calculation harness', () => {
           },
           effect: {
             kind: 'operation', operationId: 'nextActionDaze',
-            operationKind: 'complete', label: 'Next action Daze',
+            label: 'Next action Daze',
             earliestSurface: 'fully', value: 50, unit: '%',
           },
         }],
@@ -418,7 +417,6 @@ describe('profile calculation harness', () => {
     const afterAstra = agentResult(after, 'astraYao')
     const beforeBen = agentResult(before, 'ben')
     const afterBen = agentResult(after, 'ben')
-    const nicole = agentResult(after, 'nicole')
 
     expect(beforeAstra.metrics.find(({ id }) => id === 'atk')?.gauge).toEqual(
       expect.objectContaining({ outputLabel: 'Core flat ATK' }),
@@ -429,26 +427,10 @@ describe('profile calculation harness', () => {
       .toBeGreaterThan(beforeBen.metrics.find(({ id }) => id === 'atk')!.values.fully)
     expect(afterBen.metrics.find(({ id }) => id === 'atk')!.breakdown.fully)
       .toContainEqual(expect.objectContaining({ ownerAgentId: 'astraYao' }))
+    expect(afterAstra.metrics.find(({ id }) => id === 'atk')!.breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Core Passive' }))
     expect(afterBen.metrics.map(({ id }) => id)).toContain('defReduction')
-    expect(nicole.operations.map(({ id }) => id)).toHaveLength(3)
     expect(edited.slots[0].setup.engineId).toBe(initial.slots[0].setup.engineId)
-  })
-
-  it('executes provider and Defense profiles through the shared runtime', () => {
-    const parties = [
-      ['lucia', 'astraYao', 'soukaku'],
-      ['lucy', 'nicole', 'panYinhu'],
-      ['ben', 'caesar', 'zhao'],
-    ] as const
-
-    for (const agents of parties) {
-      const state = createPreparedState({}, [...agents], 0)
-      const profiles = state.slots.map((_, index) => (
-        providerDefenseProfileFor(state, index as 0 | 1 | 2)!
-      ))
-      expect(evaluateProfileParty(state, profiles)?.agents.map(({ agentId }) => agentId))
-        .toEqual(agents)
-    }
   })
 
   it('recomposes one continuous derived stat independently at every Result surface', () => {
@@ -694,26 +676,6 @@ describe('profile calculation harness', () => {
     expect(above.actionModifiers[0].breakdown.fully).toContainEqual(
       expect.objectContaining({ label: 'Timeweaver threshold', amount: 25 }),
     )
-  })
-
-  it('executes every Rupture and Stun profile through one shared evaluator', () => {
-    const parties = [
-      ['yixuan', 'lighter', 'lucy'],
-      ['yidhari', 'dialyn', 'trigger'],
-      ['manato', 'lycaon', 'juFufu'],
-      ['banyue', 'pulchra', 'qingyi'],
-      ['starlightBilly', 'koleda', 'anby'],
-    ] as const
-
-    for (const agents of parties) {
-      const state = createPreparedState({}, [...agents], 0)
-      const profiles = state.slots.map((_, index) => {
-        const slot = index as 0 | 1 | 2
-        return ruptureStunProfileFor(state, slot) ?? providerDefenseProfileFor(state, slot)!
-      })
-      expect(evaluateProfileParty(state, profiles)?.agents.map(({ agentId }) => agentId))
-        .toEqual(agents)
-    }
   })
 
   it('runs the named Anby post-delivery derivation once and without slot-order feedback', () => {

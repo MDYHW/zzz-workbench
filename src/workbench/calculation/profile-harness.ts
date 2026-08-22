@@ -229,7 +229,6 @@ function relationshipSource(relationship: ProfileRelationship): SelectedSourceIn
     case 'modifier':
     case 'automatic-energy':
     case 'operation':
-    case 'replacement':
       return relationship.atom.source
     case 'linear':
     case 'gauge':

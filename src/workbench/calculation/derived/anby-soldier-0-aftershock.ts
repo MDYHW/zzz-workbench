@@ -34,7 +34,6 @@ export function deriveAnbySoldier0Aftershock(
     source: anby.source,
     delivery: {
       recipient: 'all-party',
-      triggerPerformerSlot: anby.appliedPartySlot,
       eligibleAgentIds: ['anbySoldier0', 'trigger'],
     },
     effect: {

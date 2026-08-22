@@ -92,7 +92,7 @@ describe('Result composition', () => {
     >()
     expect(actionOutcomeLabel(actionForm('EX Special Attack', 'Cloud-Shaper')))
       .toBe('EX Special Attack: Cloud-Shaper')
-    expect(actionOutcomeLabel(sourceLocalAction('Corrode Bone', 'Basic Attack')))
+    expect(actionOutcomeLabel(sourceLocalAction('Corrode Bone')))
       .toBe('Corrode Bone')
     expect(actionTarget([], ['aftershock'])).toMatchObject({
       outcomes: [],
@@ -114,7 +114,7 @@ describe('Result composition', () => {
       actionForm('Basic Attack', 'Falling Petals - Slaughter'),
     ])
     const differentLocal = actionTarget([
-      sourceLocalAction('Corrode Bone', 'Basic Attack'),
+      sourceLocalAction('Corrode Bone'),
     ])
     expect(sameActionTarget(effectTarget, projectedTarget)).toBe(true)
     expect(sameActionTarget(effectTarget, differentForm)).toBe(false)

@@ -11,7 +11,7 @@ import { ADMITTED_AGENTS } from '../agents'
 import { EFFECTIVE_SUBSTAT_VALUES, MAIN_STATS, effectiveSubstatChoices } from '../setup-options'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
 import { equipmentEffectBaseValue, equipmentEffectMaximumValue } from '../types'
-import { requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
+import { requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
 
 type Agent = 'yixuan' | 'yidhari' | 'manato' | 'banyue' | 'starlightBilly' | 'dialyn' | 'trigger' | 'lycaon' | 'juFufu' | 'lighter' | 'pulchra' | 'qingyi' | 'koleda' | 'anby'
@@ -65,9 +65,9 @@ const MANATO_BASIC_ASSIST = actionTarget([canonicalAction('Basic Attack'), canon
 const MANATO_ASSIST = actionTarget([canonicalAction('Assist Follow-Up')])
 const MANATO_EX = actionTarget([canonicalAction('EX Special Attack')])
 const BANYUE_EX = actionTarget([canonicalAction('EX Special Attack')])
-const BILLY_FULL_OUTCOME = sourceLocalAction('Basic Attack: Full-Throttle Starlight', 'Basic Attack')
-const BILLY_WHEELIE_OUTCOME = sourceLocalAction('EX Special Attack: Cool Wheelie', 'EX Special Attack')
-const BILLY_ULT_OUTCOME = sourceLocalAction('Ultimate: Starlight Knight Flying Kick', 'Ultimate')
+const BILLY_FULL_OUTCOME = sourceLocalAction('Basic Attack: Full-Throttle Starlight')
+const BILLY_WHEELIE_OUTCOME = sourceLocalAction('EX Special Attack: Cool Wheelie')
+const BILLY_ULT_OUTCOME = sourceLocalAction('Ultimate: Starlight Knight Flying Kick')
 const BILLY_ADDITIONAL = actionTarget([BILLY_FULL_OUTCOME, canonicalAction('EX Special Attack'), canonicalAction('Chain Attack'), canonicalAction('Ultimate')])
 const BILLY_FULL = actionTarget([BILLY_FULL_OUTCOME])
 const BILLY_EX = actionTarget([canonicalAction('EX Special Attack')])
@@ -79,7 +79,7 @@ const LYCAON_BASIC = actionTarget([canonicalAction('Basic Attack')])
 const LYCAON_EX = actionTarget([canonicalAction('EX Special Attack')])
 const LYCAON_GLACIAL = actionTarget([sourceLocalAction('Glacial Waltz')])
 const JU_EX_CHAIN_ULT = actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Chain Attack'), canonicalAction('Ultimate')])
-const LIGHTER_FIVE = actionTarget([sourceLocalAction('Empowered Basic Attack: 5th hit', 'Basic Attack')])
+const LIGHTER_FIVE = actionTarget([sourceLocalAction('Empowered Basic Attack: 5th hit')])
 const LIGHTER_BASIC_DASH_DODGE = actionTarget([canonicalAction('Basic Attack'), canonicalAction('Dash Attack'), canonicalAction('Dodge Counter')])
 const LIGHTER_BASIC = actionTarget([canonicalAction('Basic Attack')])
 const QINGYI_BASIC = actionTarget([canonicalAction('Basic Attack')])
@@ -98,18 +98,18 @@ const ANBY_DASH_DODGE = actionTarget([canonicalAction('Dash Attack'), canonicalA
 const LYCAON_FULL_EX = actionTarget([actionForm('EX Special Attack', 'Fully charged')])
 const LYCAON_ASSIST = actionTarget([canonicalAction('Assist Follow-Up')])
 const BANYUE_TREMOR = actionTarget([
-  sourceLocalAction("EX Special Attack: Lion's Roar", 'EX Special Attack'),
-  sourceLocalAction("EX Special Attack: Lion's Roar - Wrath", 'EX Special Attack'),
-  sourceLocalAction('EX Special Attack: Mountain Tremor', 'EX Special Attack'),
-  sourceLocalAction('EX Special Attack: Mountain Tremor - Wrath', 'EX Special Attack'),
-  sourceLocalAction('Basic Attack: Toppling Mountain', 'Basic Attack'),
-  sourceLocalAction('Basic Attack: Crushing Peaks', 'Basic Attack'),
+  sourceLocalAction("EX Special Attack: Lion's Roar"),
+  sourceLocalAction("EX Special Attack: Lion's Roar - Wrath"),
+  sourceLocalAction('EX Special Attack: Mountain Tremor'),
+  sourceLocalAction('EX Special Attack: Mountain Tremor - Wrath'),
+  sourceLocalAction('Basic Attack: Toppling Mountain'),
+  sourceLocalAction('Basic Attack: Crushing Peaks'),
 ])
 const BANYUE_M4 = actionTarget([
-  sourceLocalAction("EX Special Attack: Lion's Roar - Wrath", 'EX Special Attack'),
-  sourceLocalAction('EX Special Attack: Mountain Tremor - Wrath', 'EX Special Attack'),
-  sourceLocalAction('Basic Attack: Toppling Mountain', 'Basic Attack'),
-  sourceLocalAction('Basic Attack: Crushing Peaks', 'Basic Attack'),
+  sourceLocalAction("EX Special Attack: Lion's Roar - Wrath"),
+  sourceLocalAction('EX Special Attack: Mountain Tremor - Wrath'),
+  sourceLocalAction('Basic Attack: Toppling Mountain'),
+  sourceLocalAction('Basic Attack: Crushing Peaks'),
 ])
 const PULCHRA_CORE_COMPLETE = actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Assist Follow-Up'), canonicalAction('Chain Attack'), canonicalAction('Ultimate')])
 
@@ -156,6 +156,7 @@ function selectedEquipmentPassives(
   setup: ProfileSetup,
   relationships: ProfileRelationship[],
 ): void {
+  relationships.push(...sharedPartyEquipmentRelationships(agent, slot, setup))
   const engine = selectedWEngineSource(agent, slot, setup)
   const disc = selectedDiscSource(agent, slot, setup, setup.fourPieceId, '4-piece')
   const add = (relationship: ProfileRelationship) => relationships.push(relationship)
@@ -248,7 +249,6 @@ function selectedEquipmentPassives(
     if (agent === 'anby') add({ kind: 'modifier', atom: { metricId: 'dazeBonus', earliestSurface: 'fully', value: engineValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze, setup), source: disc, action: ANBY_DASH_DODGE } })
   }
   if (setup.fourPieceId === 'swingJazz') add({ kind: 'provider', source: disc, delivery: { recipient: 'all-party', formulas: DAMAGE }, effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: engineValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage, setup), nonstackId: 'swingJazz' } })
-  if (setup.fourPieceId === 'astralVoice') add({ kind: 'provider', source: disc, delivery: { recipient: 'focus', formulas: REGULAR_DAMAGE_FORMULAS }, effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage), nonstackId: 'astralVoiceEntrant' } })
 }
 
 function rupture(agent: Extract<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' | 'starlightBilly'>, state: WorkbenchState, slot: Slot, setup: ProfileSetup, relationships: ProfileRelationship[]): AgentSourceProfile {
@@ -262,7 +262,7 @@ function rupture(agent: Extract<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue
   if (agent === 'yixuan') {
     relationships.push(mod('dmgBonus', VERTICAL_VALUES.yixuan.coreActionDmgBonus, core, YIXUAN_CORE, 'combat'), mod('critDmg', VERTICAL_VALUES.yixuan.additionalCritDmg, ability), mod('dmgBonus', VERTICAL_VALUES.yixuan.additionalExDmgBonus, ability, YIXUAN_EX))
     if (selected >= 1) relationships.push(mod('critRate', VERTICAL_VALUES.yixuan.mindscapeCritRate, mind(agent, slot, selected, 1)))
-    if (selected >= 2) relationships.push(provider(mind(agent, slot, selected, 2), 'enemy-context', { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'fully', value: VERTICAL_VALUES.yixuan.mindscapeEtherResIgnore, action: YIXUAN_ETHER }, { eligibleAgentIds: ['yixuan'], attributes: ['Ether'], formulas: ['sheer_damage'] }), provider(mind(agent, slot, selected, 2), 'enemy-context', { kind: 'operation', operationId: 'yixuanStunDuration', operationKind: 'complete', label: 'Enemy Stun duration', earliestSurface: 'fully', value: VERTICAL_VALUES.yixuan.mindscapeStunExtension, unit: 's' }, { eligibleAgentIds: ['yixuan'] }))
+    if (selected >= 2) relationships.push(provider(mind(agent, slot, selected, 2), 'enemy-context', { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'fully', value: VERTICAL_VALUES.yixuan.mindscapeEtherResIgnore, action: YIXUAN_ETHER }, { eligibleAgentIds: ['yixuan'], attributes: ['Ether'], formulas: ['sheer_damage'] }), provider(mind(agent, slot, selected, 2), 'enemy-context', { kind: 'operation', operationId: 'yixuanStunDuration', label: 'Enemy Stun duration', earliestSurface: 'fully', value: VERTICAL_VALUES.yixuan.mindscapeStunExtension, unit: 's' }, { eligibleAgentIds: ['yixuan'] }))
     if (selected >= 4) relationships.push(mod('dmgBonus', VERTICAL_VALUES.yixuan.mindscapeActionDmgPerStack * 2, mind(agent, slot, selected, 4), YIXUAN_CLOUD))
     if (selected >= 6) relationships.push(mod('sheerDmgBonus', VERTICAL_VALUES.yixuan.mindscapeMeditationSheerDmg, mind(agent, slot, selected, 6)))
     actions.push({ metricId: 'dmgBonus', scopes: [{ id: 'yixuanCore', target: YIXUAN_CORE, children: [{ id: 'yixuanStunnedEx', target: YIXUAN_EX, children: [{ id: 'yixuanCloudShaper', target: YIXUAN_CLOUD }] }] }] })
@@ -287,10 +287,10 @@ function rupture(agent: Extract<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue
     if (setup.engineId === 'wrathfulVajra') actions.push(actionProjection('sheerDmgBonus', 'manatoExSpecialSheer', MANATO_EX))
   } else if (agent === 'banyue') {
     relationships.push(mod('sheerForce', VERTICAL_VALUES.banyue.coreSheerForce, core), mod('dmgBonus', VERTICAL_VALUES.banyue.coreFireDmg, core), mod('critDmg', VERTICAL_VALUES.banyue.coreCritDmg, core), ...((selected >= 6 || hasStunOrSupport(ids, slot)) ? [mod('dmgBonus', VERTICAL_VALUES.banyue.additionalFireDmgPerStack * VERTICAL_VALUES.banyue.additionalStacks, ability)] : []))
-    if (selected >= 1) relationships.push(provider(mind(agent, slot, selected, 1), 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.banyue.mindscapeFireResReduction }, { attributes: ['Fire'], formulas: DAMAGE }), mod('sheerDmgBonus', VERTICAL_VALUES.banyue.mindscapeActionSheerDmg, mind(agent, slot, selected, 1), BANYUE_TREMOR), provider(mind(agent, slot, selected, 1), 'enemy-context', { kind: 'operation', operationId: 'banyueStunDuration', operationKind: 'complete', label: 'Enemy Stun duration', earliestSurface: 'fully', value: VERTICAL_VALUES.banyue.mindscapeStunExtension, unit: 's' }, { eligibleAgentIds: ['banyue'], triggerPerformerSlot: slot }))
+    if (selected >= 1) relationships.push(provider(mind(agent, slot, selected, 1), 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.banyue.mindscapeFireResReduction }, { attributes: ['Fire'], formulas: DAMAGE }), mod('sheerDmgBonus', VERTICAL_VALUES.banyue.mindscapeActionSheerDmg, mind(agent, slot, selected, 1), BANYUE_TREMOR), provider(mind(agent, slot, selected, 1), 'enemy-context', { kind: 'operation', operationId: 'banyueStunDuration', label: 'Enemy Stun duration', earliestSurface: 'fully', value: VERTICAL_VALUES.banyue.mindscapeStunExtension, unit: 's' }, { eligibleAgentIds: ['banyue'] }))
     if (selected >= 2) { relationships.push(mod('critDmg', VERTICAL_VALUES.banyue.mindscapeCoreCritDmg, mind(agent, slot, selected, 2)), mod('dmgBonus', VERTICAL_VALUES.banyue.mindscapeCoreFireDmg, mind(agent, slot, selected, 2))) }
     if (selected >= 4) relationships.push(mod('dmgBonus', VERTICAL_VALUES.banyue.mindscapeActionDmg, mind(agent, slot, selected, 4), BANYUE_M4))
-    if (selected >= 6) relationships.push(mod('dmgBonus', VERTICAL_VALUES.banyue.mindscapeVidyarajaPerStack * VERTICAL_VALUES.banyue.additionalStacks, mind(agent, slot, selected, 6)), { kind: 'operation', atom: { operationId: 'banyueCrushingPeaksMultiplier', operationKind: 'complete', label: 'Basic Attack: Crushing Peaks added DMG Multiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.banyue.mindscapeCrushingPeaksMultiplier, unit: '%', source: mind(agent, slot, selected, 6) } })
+    if (selected >= 6) relationships.push(mod('dmgBonus', VERTICAL_VALUES.banyue.mindscapeVidyarajaPerStack * VERTICAL_VALUES.banyue.additionalStacks, mind(agent, slot, selected, 6)), { kind: 'operation', atom: { operationId: 'banyueCrushingPeaksMultiplier', label: 'Basic Attack: Crushing Peaks added DMG Multiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.banyue.mindscapeCrushingPeaksMultiplier, unit: '%', source: mind(agent, slot, selected, 6) } })
     if (setup.engineId === 'puzzleSphere' || selected >= 4) actions.push({ metricId: 'dmgBonus', scopes: [{ id: 'banyueEx', target: BANYUE_EX }, { id: 'banyueM4Actions', target: BANYUE_M4 }] })
     if (setup.engineId === 'wrathfulVajra' || selected >= 1) actions.push({ metricId: 'sheerDmgBonus', scopes: [{ id: 'banyueExSheer', target: BANYUE_EX }, { id: 'banyueTremorActions', target: BANYUE_TREMOR }] })
   } else {
@@ -299,7 +299,7 @@ function rupture(agent: Extract<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue
     if (selected >= 1) relationships.push(provider(mind(agent, slot, selected, 1), 'enemy-context', { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'fully', value: VERTICAL_VALUES.starlightBilly.mindscapePhysicalResIgnore }, { attributes: ['Physical'], formulas: DAMAGE }))
     if (selected >= 2) { for (const action of [BILLY_FULL, BILLY_WHEELIE, BILLY_ULT]) relationships.push(mod('dmgBonus', VERTICAL_VALUES.starlightBilly.mindscapeActionDmg, mind(agent, slot, selected, 2), action)); relationships.push(mod('critDmg', VERTICAL_VALUES.starlightBilly.mindscapeCoolWheelieCritDmg, mind(agent, slot, selected, 2), BILLY_WHEELIE)) }
     if (selected >= 4) relationships.push(mod('critDmg', VERTICAL_VALUES.starlightBilly.mindscapeCoreCritDmgPerStack * VERTICAL_VALUES.starlightBilly.mindscapeCoreCritDmgStacks, mind(agent, slot, selected, 4)))
-    if (selected >= 6) relationships.push(mod('sheerDmgBonus', VERTICAL_VALUES.starlightBilly.mindscapeSheerDmg, mind(agent, slot, selected, 6), BILLY_M6), { kind: 'operation', atom: { operationId: 'starlightBillyFinalHitMultiplier', operationKind: 'complete', label: 'Ultimate & Full-Throttle final-hit added Physical DMG', earliestSurface: 'fully', value: VERTICAL_VALUES.starlightBilly.mindscapeAddedPhysicalDmgPerStack * VERTICAL_VALUES.starlightBilly.mindscapeConsumedStacks, unit: '% Sheer Force', source: mind(agent, slot, selected, 6) } })
+    if (selected >= 6) relationships.push(mod('sheerDmgBonus', VERTICAL_VALUES.starlightBilly.mindscapeSheerDmg, mind(agent, slot, selected, 6), BILLY_M6), { kind: 'operation', atom: { operationId: 'starlightBillyFinalHitMultiplier', label: 'Ultimate & Full-Throttle final-hit added Physical DMG', earliestSurface: 'fully', value: VERTICAL_VALUES.starlightBilly.mindscapeAddedPhysicalDmgPerStack * VERTICAL_VALUES.starlightBilly.mindscapeConsumedStacks, unit: '% Sheer Force', source: mind(agent, slot, selected, 6) } })
     if (additionalActive || selected >= 2 || setup.engineId === 'puzzleSphere') actions.push({ metricId: 'dmgBonus', scopes: [{ id: 'starlightBillyAdditionalActions', target: BILLY_ADDITIONAL, children: [{ id: 'starlightBillyExSpecial', target: BILLY_EX, children: [{ id: 'starlightBillyCoolWheelie', target: BILLY_WHEELIE }] }, { id: 'starlightBillyFullThrottle', target: BILLY_FULL }, { id: 'starlightBillyUltimate', target: BILLY_ULT }] }] })
     if (selected >= 2) actions.push(actionProjection('critDmg', 'starlightBillyWheelieCrit', BILLY_WHEELIE))
     if (selected >= 6) actions.push(actionProjection('sheerDmgBonus', 'starlightBillyM6Sheer', BILLY_M6))
@@ -335,7 +335,7 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
   let lighterImpactElation: AgentSourceProfile['lighterImpactElation']
   if (agent === 'dialyn') {
     relationships.push({ kind: 'gauge', gaugeId: 'dialynImpact', source: core, basis: { statId: 'critRate', surface: 'initial' }, basisLabel: 'Initial CRIT Rate', basisThreshold: VERTICAL_VALUES.dialyn.critThreshold, basisCap: 100, metricId: 'critRate', outputs: [{ label: 'Combat Impact bonus', unit: '', transform: { basisThreshold: VERTICAL_VALUES.dialyn.critThreshold, basisIncrement: 1, outputIncrement: VERTICAL_VALUES.dialyn.impactPerCrit, outputCap: VERTICAL_VALUES.dialyn.impactBonusCap }, emission: { kind: 'stat', statId: 'impact', region: 'flat', earliestSurface: 'combat' } }] } as ProfileRelationship)
-    relationships.push(provider(ability, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.party.dialynDmg }, { formulas: DAMAGE }), provider(core, 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.party.dialynStunMultiplier }), { kind: 'operation', atom: { operationId: 'dialynStunDuration', operationKind: 'complete', label: 'Enemy Stun duration', earliestSurface: 'fully', value: VERTICAL_VALUES.party.dialynStunExtension, unit: 's', source: core } })
+    relationships.push(provider(ability, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.party.dialynDmg }, { formulas: DAMAGE }), provider(core, 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.party.dialynStunMultiplier }), { kind: 'operation', atom: { operationId: 'dialynStunDuration', label: 'Enemy Stun duration', earliestSurface: 'fully', value: VERTICAL_VALUES.party.dialynStunExtension, unit: 's', source: core } })
     if (selected >= 1) relationships.push(provider(mind(agent, slot, selected, 1), 'enemy-context', { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'fully', value: VERTICAL_VALUES.dialyn.mindscapeResIgnore }))
     if (selected >= 2) relationships.push(provider(mind(agent, slot, selected, 2), 'focus', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.dialyn.mindscapeDmg }), provider(mind(agent, slot, selected, 2), 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.dialyn.mindscapeStunMultiplier }))
     metrics.find(({ id }) => id === 'critRate')!.gaugeId = 'dialynImpact'
@@ -361,7 +361,7 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
   } else if (agent === 'lighter') {
     const coreImpactSource = source(agent, slot, 'empowered-basic-five', 'Core Passive', 'special')
     const active = another(ids, slot, (id) => partyAgent(id).specialty === 'Attack') || sameFaction(ids, slot)
-    relationships.push(provider(core, 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.lighter.coreFireIceResReduction }, { attributes: ['Fire', 'Ice'] }), { kind: 'operation', atom: { operationId: 'lighterStunDuration', operationKind: 'complete', label: 'Enemy Stun duration', earliestSurface: 'fully', value: selected >= 1 ? VERTICAL_VALUES.lighter.mindscapeStunExtension : VERTICAL_VALUES.lighter.coreStunExtension, unit: 's', source: selected >= 1 ? mind(agent, slot, selected, 1) : core } }, { kind: 'operation', atom: { operationId: 'lighterQuickAssist', operationKind: 'complete', label: 'Quick Assist', earliestSurface: 'fully', value: 1, unit: '', source: core } })
+    relationships.push(provider(core, 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.lighter.coreFireIceResReduction }, { attributes: ['Fire', 'Ice'] }), { kind: 'operation', atom: { operationId: 'lighterStunDuration', label: 'Enemy Stun duration', earliestSurface: 'fully', value: selected >= 1 ? VERTICAL_VALUES.lighter.mindscapeStunExtension : VERTICAL_VALUES.lighter.coreStunExtension, unit: 's', source: selected >= 1 ? mind(agent, slot, selected, 1) : core } }, { kind: 'operation', atom: { operationId: 'lighterQuickAssist', label: 'Quick Assist', earliestSurface: 'fully', value: 1, unit: '', source: core } })
     if (selected >= 1) relationships.push(provider(mind(agent, slot, selected, 1), 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.lighter.mindscapeFireIceResReduction }, { attributes: ['Fire', 'Ice'] }))
     if (selected >= 2) relationships.push(provider(mind(agent, slot, selected, 2), 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.lighter.mindscapeStunMultiplier }))
     lighterImpactElation = {
@@ -374,7 +374,7 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
     actions.push({ metricId: 'dazeBonus', scopes: [{ id: 'lighterEmpoweredFive', target: LIGHTER_FIVE }, { id: 'lighterBasicDashDodge', target: LIGHTER_BASIC_DASH_DODGE }, { id: 'lighterBasic', target: LIGHTER_BASIC }] })
   } else if (agent === 'pulchra') {
     relationships.push(mod('dazeBonus', VERTICAL_VALUES.pulchra.coreDaze, core, PULCHRA_CORE_COMPLETE))
-    if (another(ids, slot, (id) => ['Attack', 'Rupture'].includes(partyAgent(id).specialty)) || sameFaction(ids, slot)) relationships.push(provider(ability, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.pulchra.additionalDmg, ...(selected >= 6 ? {} : { action: AFTERSHOCK_TARGET }) }, { formulas: DAMAGE, triggerPerformerSlot: slot }))
+    if (another(ids, slot, (id) => ['Attack', 'Rupture'].includes(partyAgent(id).specialty)) || sameFaction(ids, slot)) relationships.push(provider(ability, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.pulchra.additionalDmg, ...(selected >= 6 ? {} : { action: AFTERSHOCK_TARGET }) }, { formulas: DAMAGE }))
     if (selected >= 1) relationships.push(mod('critRate', VERTICAL_VALUES.pulchra.mindscapeCritRate, mind(agent, slot, selected, 1)))
     actions.push(actionProjection('dazeBonus', 'pulchraCore', PULCHRA_CORE_COMPLETE))
   } else if (agent === 'qingyi') {

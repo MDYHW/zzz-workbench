@@ -72,7 +72,6 @@ export interface ModifierAtom {
 
 export interface OperationAtom {
   operationId: string
-  operationKind: 'complete' | 'replacement'
   label: string
   earliestSurface: Exclude<SurfaceKey, 'initial'>
   value: number
@@ -93,7 +92,6 @@ export type ProviderRecipient =
 
 export interface DeliveryRule {
   recipient: ProviderRecipient
-  triggerPerformerSlot?: 0 | 1 | 2
   eligibleAgentIds?: readonly AgentId[]
   specialties?: readonly AgentSpecialty[]
   attributes?: readonly EffectAttribute[]
@@ -124,7 +122,6 @@ export type ProviderEffect =
   | {
     kind: 'operation'
     operationId: string
-    operationKind: OperationAtom['operationKind']
     label: string
     earliestSurface: OperationAtom['earliestSurface']
     value: number
@@ -180,7 +177,6 @@ export type LinearEmission =
   | {
     kind: 'operation'
     operationId: string
-    operationKind: OperationAtom['operationKind']
     label: string
     earliestSurface: OperationAtom['earliestSurface']
     unit: string
@@ -320,8 +316,7 @@ export type ProfileRelationship =
   | ThresholdOperationRelationship
   | ProjectionGaugeRelationship
   | PostDeliveryStatModifierGaugeRelationship
-  | { kind: 'operation'; atom: OperationAtom & { operationKind: 'complete' } }
-  | { kind: 'replacement'; atom: OperationAtom & { operationKind: 'replacement' } }
+  | { kind: 'operation'; atom: OperationAtom }
   | ProviderRelationship
 
 export interface EvaluatedGauge {
@@ -510,7 +505,6 @@ export function evaluateRelationships(
         evaluated.modifierAtoms.push(relationship.atom)
         break
       case 'operation':
-      case 'replacement':
         evaluated.operations.push(relationship.atom)
         break
       case 'automatic-energy':
@@ -617,7 +611,6 @@ export function evaluateThresholdOperation(
     ...(qualifyingSurface ? {
       operation: {
         operationId: relationship.operationId,
-        operationKind: 'complete',
         label: relationship.outputLabel,
         earliestSurface: qualifyingSurface,
         value: relationship.activeValue,

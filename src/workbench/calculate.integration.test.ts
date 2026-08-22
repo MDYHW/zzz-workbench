@@ -50,6 +50,21 @@ describe('shared calculation integration', () => {
       .not.toContain('power')
   })
 
+  it('projects an overlapping entrant buff to every current recipient instead of Focus only', () => {
+    const result = calculateParty(createPreparedState(
+      {}, ['astraYao', 'seed', 'cissia'], 1,
+    ))!
+
+    for (const agentId of ['astraYao', 'seed', 'cissia'] as const) {
+      const atk = result.agents.find((agent) => agent.agentId === agentId)!
+        .metrics.find(({ id }) => id === 'atk')!
+      expect(atk.breakdown.fully).toContainEqual(expect.objectContaining({
+        label: 'Core Passive',
+        ownerAgentId: 'astraYao',
+      }))
+    }
+  })
+
   it('returns no Result while any required Setup selection is incomplete', () => {
     const state = createPreparedState()
     const incomplete = {

@@ -14,7 +14,7 @@ import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
 import { equipmentEffectBaseValue, equipmentEffectMaximumValue, equipmentEffectProgressionIncrementValue, equipmentEffectProgressionValue, type AgentId, type EquipmentEffectFact } from '../types'
 import type { EffectMetric, SurfaceKey } from '../../effects'
 import type { StatId, StatRegion } from '../../calculation/stat-composer'
-import { requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
+import { requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
 
 type Agent = 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen' | 'soldier11' | 'zhuYuan' | 'orphie' | 'harumasa' | 'nekomata' | 'billy' | 'yeShunguang'
@@ -32,10 +32,10 @@ const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
 const A = (name: CanonicalActionKind, form?: string) => form ? actionForm(name, form) : canonicalAction(name)
 const BASIC_ULT = actionTarget([A('Basic Attack'), A('Ultimate')])
 const ELLEN_CORE = actionTarget([
-  sourceLocalAction('Charged Arctic Ambush', 'Dash Attack'),
-  sourceLocalAction('Flash Freeze Basic', 'Basic Attack'),
-  sourceLocalAction('Icy Blade', 'Basic Attack'),
-  sourceLocalAction('Glacial Blade Wave', 'Basic Attack'),
+  sourceLocalAction('Charged Arctic Ambush'),
+  sourceLocalAction('Flash Freeze Basic'),
+  sourceLocalAction('Icy Blade'),
+  sourceLocalAction('Glacial Blade Wave'),
   A('Chain Attack'), A('Ultimate'),
 ])
 const BASIC = actionTarget([A('Basic Attack')])
@@ -50,30 +50,30 @@ const SEED_SLAUGHTER = actionTarget([actionForm('Basic Attack', 'Falling Petals 
 const SEED_DOWNFALL = actionTarget([actionForm('Basic Attack', 'Falling Petals - Downfall')])
 const SEED_BASIC = actionTarget([...SEED_SLAUGHTER.outcomes, ...SEED_DOWNFALL.outcomes])
 const SEED_ACTIONS = actionTarget([...SEED_BASIC.outcomes, ...ULT.outcomes])
-const CISSIA_CORRODE = actionTarget([sourceLocalAction('Corrode Bone', 'Basic Attack')])
+const CISSIA_CORRODE = actionTarget([sourceLocalAction('Corrode Bone')])
 const CISSIA_SERPENT = actionTarget([actionForm('Basic Attack', "Serpent's Kiss")])
 const CISSIA_BASIC = actionTarget([...CISSIA_CORRODE.outcomes, ...CISSIA_SERPENT.outcomes])
-const CORIN_CHAINSAW = actionTarget([sourceLocalAction('Extended chainsaw actions', 'Basic Attack')])
+const CORIN_CHAINSAW = actionTarget([sourceLocalAction('Extended chainsaw actions')])
 const CORIN_BASIC_ULT = actionTarget([A('Basic Attack'), A('Ultimate')])
 const HUGO_TOTALIZE = actionTarget([sourceLocalAction('Totalize')])
-const FIRE_SUPPRESSION_BASIC = actionTarget([sourceLocalAction('Fire Suppression Basic Attack', 'Basic Attack')])
-const FIRE_SUPPRESSION_DASH = actionTarget([sourceLocalAction('Fire Suppression Dash Attack', 'Dash Attack')])
+const FIRE_SUPPRESSION_BASIC = actionTarget([sourceLocalAction('Fire Suppression Basic Attack')])
+const FIRE_SUPPRESSION_DASH = actionTarget([sourceLocalAction('Fire Suppression Dash Attack')])
 const STUNNED = actionTarget([sourceLocalAction('Against Stunned enemies')])
-const ZHU_ENHANCED_BASIC = actionTarget([sourceLocalAction('Enhanced Shotshell Basic Attack', 'Basic Attack')])
-const ZHU_ENHANCED_DASH = actionTarget([sourceLocalAction('Enhanced Shotshell Dash Attack', 'Dash Attack')])
-const ZHU_STUNNED_BASIC = actionTarget([sourceLocalAction('Enhanced Shotshell Basic Attack against Stunned enemies', 'Basic Attack')])
-const ZHU_STUNNED_DASH = actionTarget([sourceLocalAction('Enhanced Shotshell Dash Attack against Stunned enemies', 'Dash Attack')])
+const ZHU_ENHANCED_BASIC = actionTarget([sourceLocalAction('Enhanced Shotshell Basic Attack')])
+const ZHU_ENHANCED_DASH = actionTarget([sourceLocalAction('Enhanced Shotshell Dash Attack')])
+const ZHU_STUNNED_BASIC = actionTarget([sourceLocalAction('Enhanced Shotshell Basic Attack against Stunned enemies')])
+const ZHU_STUNNED_DASH = actionTarget([sourceLocalAction('Enhanced Shotshell Dash Attack against Stunned enemies')])
 const ORPHIE_SPECIAL_EX_CHAIN_ULT = actionTarget([A('Special Attack'), A('EX Special Attack'), A('Chain Attack'), A('Ultimate')])
 const ORPHIE_HEAT_ULT = actionTarget([sourceLocalAction('Heat Charge'), A('Ultimate')])
-const HARUMASA_SLASH_OUTCOME = sourceLocalAction('Dash Attack: Hiten no Tsuru - Slash', 'Dash Attack')
+const HARUMASA_SLASH_OUTCOME = sourceLocalAction('Dash Attack: Hiten no Tsuru - Slash')
 const HARUMASA_CHASING_OUTCOME = sourceLocalAction('Chasing Thunder')
 const HARUMASA_SLASH = actionTarget([HARUMASA_SLASH_OUTCOME])
 const HARUMASA_CORE = actionTarget([HARUMASA_SLASH_OUTCOME, HARUMASA_CHASING_OUTCOME, A('Ultimate')])
 const HARUMASA_DASH_CHASING = actionTarget([HARUMASA_SLASH_OUTCOME, HARUMASA_CHASING_OUTCOME])
 const NEKOMATA_EX_DODGE = actionTarget([A('EX Special Attack'), A('Dodge Counter')])
 const BILLY_CROUCHING = actionTarget([A('Basic Attack'), A('Dash Attack'), A('Dodge Counter'), A('Special Attack'), A('EX Special Attack'), A('Ultimate')])
-const YE_EX = actionTarget([sourceLocalAction('EX Special Attack: Enlightened Mind - Soaring Light', 'EX Special Attack')])
-const YE_ULT = actionTarget([sourceLocalAction('Ultimate: Cleaving Heavens', 'Ultimate')])
+const YE_EX = actionTarget([sourceLocalAction('EX Special Attack: Enlightened Mind - Soaring Light')])
+const YE_ULT = actionTarget([sourceLocalAction('Ultimate: Cleaving Heavens')])
 const YE_M2 = actionTarget([...YE_EX.outcomes, ...YE_ULT.outcomes])
 const src = (agent: Agent, slot: Slot, id: string, label: string, locus: 'identity' | 'core' | 'additional' | 'special' | 'ex-special' = 'core') => selectedAgentSource(agent, slot, id, label, locus)
 const m = (id: EffectMetric, label: string, unit = '', statId?: MetricProjection['statId'], admission?: MetricProjection['admission']): MetricProjection => ({ id, label, unit, decimals: unit === '/s' ? 2 : unit === '%' ? 1 : 0, ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }), ...(admission ? { admission } : {}) })
@@ -81,9 +81,10 @@ function engineValue(effect: EquipmentEffectFact, setup: CompleteSelectedSetup) 
 function engineMax(effect: EquipmentEffectFact, setup: CompleteSelectedSetup) { return equipmentEffectMaximumValue(effect, setup.refinement) }
 function stat(source: ReturnType<typeof selectedAgentSource>, statId: StatId, value: number, region: Exclude<StatRegion, 'base'> = 'flat', earliestSurface: SurfaceKey = 'fully', detail?: string): ProfileRelationship { return { kind: 'stat', atom: { statId, region, value, earliestSurface, source, ...(detail ? { sourceDetail: detail } : {}) } } }
 function mod(source: ReturnType<typeof selectedAgentSource>, metricId: EffectMetric, value: number, action?: ActionTarget, earliestSurface: SurfaceKey = 'fully', detail?: string): ProfileRelationship { return { kind: 'modifier', atom: { metricId, value, earliestSurface, source, ...(action ? { action } : {}), ...(detail ? { sourceDetail: detail } : {}) } } }
-function operation(source: ReturnType<typeof selectedAgentSource>, operationId: string, label: string, value: number, unit = '%', earliestSurface: 'combat' | 'fully' = 'fully', presentation?: 'scale'): ProfileRelationship { return { kind: 'operation', atom: { operationId, operationKind: 'complete', label, earliestSurface, value, unit, source, ...(presentation ? { presentation } : {}) } } }
+function operation(source: ReturnType<typeof selectedAgentSource>, operationId: string, label: string, value: number, unit = '%', earliestSurface: 'combat' | 'fully' = 'fully', presentation?: 'scale'): ProfileRelationship { return { kind: 'operation', atom: { operationId, label, earliestSurface, value, unit, source, ...(presentation ? { presentation } : {}) } } }
 
 function equipment(agent: Agent, slot: Slot, setup: CompleteSelectedSetup, relationships: ProfileRelationship[], baseStats: SelectedSetupObservation['baseStats']): void {
+  relationships.push(...sharedPartyEquipmentRelationships(agent, slot, setup))
   const e = selectedWEngineSource(agent, slot, setup)
   const d = selectedDiscSource(agent, slot, setup, setup.fourPieceId, '4-piece')
   const add = (metric: EffectMetric, value: number, action?: ActionTarget, surface: 'combat' | 'fully' = 'fully') => {
@@ -133,7 +134,6 @@ function equipment(agent: Agent, slot: Slot, setup: CompleteSelectedSetup, relat
     case 'pufferElectro': relationships.push(stat(d, 'atk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.atk), 'percentage')); relationships.push(mod(d, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.damage), ULT, 'initial')); break
     case 'chaoticMetal': relationships.push(mod(d, 'critDmg', equipmentEffectMaximumValue(DRIVE_DISC_FACTS.chaoticMetal.fourPiece.critDamage))); break
     case 'shadowHarmony': relationships.push(stat(d, 'atk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.shadowHarmony.fourPiece.atk), 'percentage')); relationships.push(mod(d, 'critRate', equipmentEffectBaseValue(DRIVE_DISC_FACTS.shadowHarmony.fourPiece.critRate))); break
-    case 'astralVoice': relationships.push({ kind: 'provider', source: d, delivery: { recipient: 'focus', formulas: REGULAR_DAMAGE_FORMULAS }, effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage), nonstackId: 'astralVoiceEntrant' } }); break
     case 'whiteWaterBallad': relationships.push(mod(d, 'critRate', equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.veilCritRate) + equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.attackVeilCritRate))); relationships.push(stat(d, 'atk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.attackVeilAtk), 'percentage')); break
   }
   if (setup.fourPieceId === 'shadowHarmony' || setup.twoPieceId === 'shadowHarmony') {
@@ -188,7 +188,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
       addMetric('dmgBonus', VERTICAL_VALUES.anbySoldier0.coreDmg, core)
       addMetric('critRate', qualified ? VERTICAL_VALUES.anbySoldier0.additionalCritRate : 0, ability)
       if (setup.mindscape >= 2) addMetric('critRate', VERTICAL_VALUES.anbySoldier0.mindscapeCritRate, mind(2), undefined, 'combat')
-      if (qualified && state.focusSlot === slot) add({ kind: 'provider', source: ability, delivery: { recipient: 'all-party', formulas: REGULAR_DAMAGE_FORMULAS, triggerPerformerSlot: slot, eligibleAgentIds: ['anbySoldier0', 'trigger'] }, effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.anbySoldier0.additionalAftershockDmg, action: AFTERSHOCK_TARGET } })
+      if (qualified && state.focusSlot === slot) add({ kind: 'provider', source: ability, delivery: { recipient: 'all-party', formulas: REGULAR_DAMAGE_FORMULAS, eligibleAgentIds: ['anbySoldier0', 'trigger'] }, effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.anbySoldier0.additionalAftershockDmg, action: AFTERSHOCK_TARGET } })
       if (setup.mindscape >= 4) add({ kind: 'provider', source: mind(4), delivery: { ...enemy, attributes: ['Electric'], eligibleAgentIds: ['anbySoldier0'] }, effect: { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'fully', value: VERTICAL_VALUES.anbySoldier0.mindscapeElectricResIgnore } })
       actions.push(
         { metricId: 'dmgBonus', scopes: [{ id: 'anbyAftershock', target: AFTERSHOCK_TARGET }, { id: 'anbyDash', target: DASH }, { id: 'anbyUltimate', target: ULT }] },
@@ -303,9 +303,9 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
       addMetric('resIgnore', values.potentialIceResIgnore, potential)
       if (setup.mindscape >= 1) addMetric('critRate', values.mindscapeCritRate, mind(1), undefined, 'combat')
       if (setup.mindscape >= 2) addMetric('critDmg', values.mindscapeExCritDmg, mind(2), EX)
-      if (setup.mindscape >= 6) { addMetric('penRatio', values.mindscapePenRatio, mind(6)); addMetric('dmgBonus', values.mindscapeChargedDmg, mind(6), actionTarget([sourceLocalAction('Charged Arctic Ambush', 'Dash Attack')])) }
+      if (setup.mindscape >= 6) { addMetric('penRatio', values.mindscapePenRatio, mind(6)); addMetric('dmgBonus', values.mindscapeChargedDmg, mind(6), actionTarget([sourceLocalAction('Charged Arctic Ambush')])) }
       actions.push(
-        { metricId: 'dmgBonus', scopes: [{ id: 'ellenCoreActions', target: ELLEN_CORE }, { id: 'ellenEx', target: EX }, { id: 'ellenCharged', target: actionTarget([sourceLocalAction('Charged Arctic Ambush', 'Dash Attack')]) }, { id: 'ellenUltimate', target: ULT }, { id: 'ellenBackAttack', target: BACK }] },
+        { metricId: 'dmgBonus', scopes: [{ id: 'ellenCoreActions', target: ELLEN_CORE }, { id: 'ellenEx', target: EX }, { id: 'ellenCharged', target: actionTarget([sourceLocalAction('Charged Arctic Ambush')]) }, { id: 'ellenUltimate', target: ULT }, { id: 'ellenBackAttack', target: BACK }] },
         { metricId: 'critDmg', scopes: [{ id: 'ellenCoreCritDmg', target: ELLEN_CORE }, { id: 'ellenExCritDmg', target: EX }] },
         actionProjection('defIgnore', 'ellenBasicUltimateDef Ignore', BASIC_ULT),
       )

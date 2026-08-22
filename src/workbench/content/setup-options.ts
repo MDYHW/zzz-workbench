@@ -215,7 +215,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['electricDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
   },
   qingyi: {
-    slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['electricDmg', 'atkPct', 'penRatio'], slot6: ['impact', 'atkPct'],
+    slot4: ['critDmg', 'atkPct'], slot5: ['electricDmg', 'atkPct', 'penRatio'], slot6: ['impact', 'atkPct'],
   },
   nekomata: {
     slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['physicalDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
@@ -292,7 +292,7 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   seed: substats('critRate', 'critDmg', 'atkPct'), cissia: substats('critRate', 'critDmg', 'atkPct'), evelyn: substats('critRate', 'critDmg', 'atkPct'), corin: substats('critRate', 'critDmg', 'atkPct'),
   lycaon: substats('critRate'), ellen: substats('critRate', 'critDmg', 'atkPct'), soukaku: substats('atkPct', 'atkFlat'), soldier11: substats('critRate', 'critDmg', 'atkPct'),
   lighter: [], lucy: [], zhuYuan: substats('critRate', 'critDmg', 'atkPct'), nicole: [], orphie: substats('critRate', 'critDmg', 'atkPct'), pulchra: [],
-  harumasa: substats('critRate', 'critDmg', 'atkPct'), qingyi: substats('critRate', 'critDmg', 'atkPct'), nekomata: substats('critRate', 'critDmg', 'atkPct'), billy: substats('critRate', 'critDmg', 'atkPct'), ben: substats('critRate', 'critDmg', 'atkPct'),
+  harumasa: substats('critRate', 'critDmg', 'atkPct'), qingyi: [], nekomata: substats('critRate', 'critDmg', 'atkPct'), billy: substats('critRate', 'critDmg', 'atkPct'), ben: substats('critRate', 'critDmg', 'atkPct'),
   koleda: [], anby: [], caesar: [], yeShunguang: substats('critRate', 'critDmg', 'atkPct'), zhao: substats('hpPct', 'hpFlat'), grace: substats('anomalyProficiency', 'atkPct'), piper: substats('anomalyProficiency', 'atkPct'), yuzuha: substats('atkPct', 'atkFlat'), burnice: substats('anomalyProficiency', 'atkPct'),
 }
 
@@ -305,7 +305,7 @@ export function effectiveSubstatChoices(
   agentId: AgentId,
   setup: { fourPieceId: DiscId | null },
 ): SubstatChoice[] {
-  if ((agentId === 'lycaon' || agentId === 'lighter' || agentId === 'pulchra' || agentId === 'koleda' || agentId === 'anby') && setup.fourPieceId !== 'king') return []
+  if ((agentId === 'lycaon' || agentId === 'lighter' || agentId === 'pulchra' || agentId === 'qingyi' || agentId === 'koleda' || agentId === 'anby') && setup.fourPieceId !== 'king') return []
   if (agentId === 'pulchra' && setup.fourPieceId === 'king') {
     return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
   }
@@ -316,6 +316,9 @@ export function effectiveSubstatChoices(
     return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
   }
   if (agentId === 'anby' && setup.fourPieceId === 'king') {
+    return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
+  }
+  if (agentId === 'qingyi' && setup.fourPieceId === 'king') {
     return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
   }
   if (agentId === 'juFufu' && setup.fourPieceId === 'king') {

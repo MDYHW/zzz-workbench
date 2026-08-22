@@ -125,7 +125,6 @@ function deliverEffect(
       delivered.operations.push({
         atom: {
           operationId: effect.operationId,
-          operationKind: effect.operationKind,
           label: effect.label,
           earliestSurface: effect.earliestSurface,
           value: effect.value,

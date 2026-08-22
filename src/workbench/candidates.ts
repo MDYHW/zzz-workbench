@@ -159,7 +159,7 @@ function effectiveMainStatIdsForPressure(
   selectedFourPieceId: DiscId | null,
 ): MainStatId[] {
   const base = setupPolicyFor(agentId).mainStatIdsBySlot[mainSlot]
-  const candidates = (agentId === 'lycaon' || agentId === 'juFufu' || agentId === 'lighter' || agentId === 'pulchra' || agentId === 'koleda' || agentId === 'anby')
+  const candidates = (agentId === 'lycaon' || agentId === 'juFufu' || agentId === 'lighter' || agentId === 'pulchra' || agentId === 'qingyi' || agentId === 'koleda' || agentId === 'anby')
     && mainSlot === 'slot4'
     && selectedFourPieceId === 'king'
     ? [...base, 'critRate' as const]
