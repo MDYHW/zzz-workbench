@@ -75,12 +75,7 @@ function highestNonstackEffects(
     }
     : item.effect)
 
-  // King was already a deferred non-stacking source in the preserved first
-  // vertical. New set groups retain their authored provider-local position.
-  return [
-    ...accepted.filter(({ nonstackKey }) => nonstackKey !== 'kingOfTheSummit'),
-    ...accepted.filter(({ nonstackKey }) => nonstackKey === 'kingOfTheSummit'),
-  ]
+  return accepted
 }
 
 function valueEffectsForNonstack(

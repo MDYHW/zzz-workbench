@@ -188,6 +188,11 @@ describe('profile calculation harness', () => {
     expect(anbyAction.breakdown.fully.filter(
       ({ notation }) => notation === 'equal-nonstack-origin',
     )).toHaveLength(1)
+    expect(anbyAction.breakdown.fully.map(({ label }) => label)).toEqual([
+      'King of the Summit',
+      'Unrelated Aftershock bonus',
+      'King of the Summit',
+    ])
     expect(triggerAction.values.fully).toBe(25)
     expect(triggerAction.breakdown.fully.filter(
       ({ label }) => label === 'King of the Summit',

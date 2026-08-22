@@ -457,12 +457,6 @@ describe('shared preparation and edit lifecycle', () => {
       fourPieceId: 'astralVoice', twoPieceId: 'moonlight',
     })
 
-    const reversed = createPreparedState({}, ['lucy', 'zhuYuan', 'nicole'], 1)
-    const discsByAgent = Object.fromEntries(reversed.slots.map(({ agentId, setup }) => (
-      [agentId, setup.fourPieceId]
-    )))
-    expect(discsByAgent).toMatchObject({ lucy: 'astralVoice', nicole: 'moonlight' })
-
     const contrast = createPreparedState({}, ['nicole', 'zhuYuan', 'ben'], 1)
     expect(contrast.slots[0].setup.fourPieceId).toBe('moonlight')
 
@@ -489,12 +483,26 @@ describe('shared preparation and edit lifecycle', () => {
     for (let left = 0; left < moonlightRepresentatives.length; left += 1) {
       for (let right = left + 1; right < moonlightRepresentatives.length; right += 1) {
         const pair = [moonlightRepresentatives[left], moonlightRepresentatives[right]] as const
-        const prepared = createPreparedState({}, [...pair, 'yixuan'], 2)
-        expect(
-          prepared.slots.filter(({ setup }) => setup.fourPieceId === 'moonlight'),
-          `Moonlight allocation: ${pair.join('+')}`,
-        ).toHaveLength(1)
-        expectCalculable(prepared, `Moonlight allocation: ${pair.join('+')}`)
+        for (const orderedPair of [pair, [pair[1], pair[0]] as const]) {
+          const prepared = createPreparedState({}, [...orderedPair, 'yixuan'], 2)
+          const moonlightHolders = prepared.slots
+            .filter(({ setup }) => setup.fourPieceId === 'moonlight')
+          expect(moonlightHolders, `Moonlight allocation: ${orderedPair.join('+')}`)
+            .toHaveLength(1)
+          const rigidKeeper = orderedPair.find((agentId) => (
+            !setupPolicyFor(agentId).preparedDisc?.moonlightCollisionAlternative
+          ))
+          const expectedKeeper = rigidKeeper ?? orderedPair.reduce((keeper, candidate) => {
+            const keeperPrecedence = setupPolicyFor(keeper).preparedDisc
+              ?.moonlightCollisionAlternative?.authoredKeeperPrecedence ?? -1
+            const candidatePrecedence = setupPolicyFor(candidate).preparedDisc
+              ?.moonlightCollisionAlternative?.authoredKeeperPrecedence ?? -1
+            return candidatePrecedence > keeperPrecedence ? candidate : keeper
+          })
+          expect(moonlightHolders[0].agentId, `Moonlight keeper: ${orderedPair.join('+')}`)
+            .toBe(expectedKeeper)
+          expectCalculable(prepared, `Moonlight allocation: ${orderedPair.join('+')}`)
+        }
       }
     }
 
