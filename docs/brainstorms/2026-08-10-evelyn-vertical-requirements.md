@@ -110,7 +110,7 @@ The prose requirements govern if this diagram and the text ever differ.
   completed stats do not enter the current candidate, representative, or Result
   policy and are omitted.
 
-**W-Engine candidates and facts**
+**W-Engine candidates and prepared outcomes**
 
 - R3. Evelyn's authored full-pool W-Engine candidates are Heartstring Nocturne,
   Severed Innocence, Cordis Germina, Starlight Engine, and Steel Cushion. Her
@@ -118,19 +118,14 @@ The prose requirements govern if this diagram and the text ever differ.
   Heartstring Nocturne at W1; non-limited prepares Starlight Engine at W5.
   Existing source-owned Severed, Cordis, and Starlight facts are reused rather
   than duplicated.
-- R4. Retain Heartstring Nocturne's level-60 Base ATK 713 and CRIT Rate +24%
-  advanced stat. Its W1-W5 CRIT DMG values are
-  `50 / 57.5 / 65 / 72.5 / 80%`; each Heartstring stack gives Chain Attack and
-  Ultimate `12.5 / 14.5 / 16.5 / 18.5 / 20%` Fire RES Ignore, with two reachable
-  stacks. Setup compresses the W1 package to `CRIT DMG +50%` and
-  `Chain Attack & Ultimate Fire RES Ignore +25%`; it does not display entry,
-  stack-acquisition, refresh, or duration prose.
-- R5. Retain Steel Cushion's level-60 Base ATK 684 and CRIT Rate +24% advanced
-  stat. Its source-owned W1-W5 passive values are Physical DMG
-  `20 / 25 / 30 / 35 / 40%` and back-attack DMG
-  `25 / 31.5 / 38 / 44 / 50%`. Setup shows both compressed clauses because the
-  full competitive package remains visible even though Evelyn's current
-  projector consumes only the applicable back-attack clause.
+- R4. Heartstring's mixed-CRIT and Chain/Ultimate Fire-RES-Ignore package is
+  fully compatible with Evelyn and determines the full-pool first choice. Setup
+  uses the shared W-Engine fact's compressed package rather than exposing
+  entry, stack-acquisition, refresh, or duration prose.
+- R5. Steel Cushion retains a legally selectable mixed-CRIT package whose
+  back-attack clause has a current Evelyn projector. Its Physical-DMG clause is
+  unused by Evelyn but remains visible through the shared complete equipment
+  package.
 
 **Drive Discs, main stats, and preparation**
 
@@ -140,9 +135,9 @@ The prose requirements govern if this diagram and the text ever differ.
   Hormone Punk/Astral Voice ATK% relationship, subject to the existing
   different-set rule. Selecting Hormone Punk 4-piece exposes Astral Voice as
   the legal ATK% complement; selecting Woodpecker 4-piece exposes Hormone Punk
-  so its 4-piece swap remains available. Retain Inferno Metal 2-piece as Fire
-  DMG +10% and Hormone Punk 4-piece as ATK +25%; reuse existing Disc facts
-  elsewhere.
+  so its 4-piece swap remains available. Inferno Metal supplies the distinct
+  Fire-DMG 2-piece direction and Hormone Punk the prepared ATK direction; both
+  derive their values and Setup copy from the shared Disc facts.
 - R7. Evelyn's main-stat candidates are Slot 4 CRIT Rate and CRIT DMG; Slot 5
   PEN Ratio, Fire DMG, and ATK%; and Slot 6 ATK%. Her effective-substat choices
   are CRIT Rate, CRIT DMG, and ATK%, using the existing per-hit values. Her local
@@ -262,21 +257,19 @@ The prose requirements govern if this diagram and the text ever differ.
   ATK% mains, and zero substats. Non-limited prepares Starlight W5, Hormone
   4-piece, Branch & Blade 2-piece, CRIT Rate / PEN Ratio / ATK% mains, and zero
   substats. Both preparations are complete and immediately produce Result.
-- AE2. **Covers R2, R4-R7, R10-R11, R15.** Given the full representative, Initial
-  CRIT Rate is 51.4% from Evelyn 19.4%, Heartstring 24%, and Woodpecker 8%;
-  Binding Seal raises Combat CRIT Rate to 76.4%. The zero-substat gauge is not
-  active. Two CRIT Rate hits raise it to 81.2%, and the Additional Ability gauge
-  and operation then read `Active` and ×1.25 for Chain Attack and Ultimate when
-  another Stun or Support Agent is applied. It is not +25% DMG Bonus. The
-  zero-substat non-limited representative reaches 68.4% at Fully Enabled; its
-  gauge shows Fully Enabled and ×1.00, and no scale operation. Eight retained
-  CRIT Rate hits take each pool's authored package above the 80% threshold
-  without exceeding the 100% formula cap.
-- AE3. **Covers R3-R5, R14-R15.** Given Heartstring W1, Combat adds CRIT DMG
-  +50% and one 12.5% Chain/Ultimate Fire RES Ignore stack; Fully Enabled reaches
-  25% Fire RES Ignore. W5 uses 80%, 20%, and 40% respectively. Setup omits Base
-  ATK, triggers, stacks, duration, and refresh prose while calculation uses Base
-  ATK 713 internally.
+- AE2. **Covers R2, R4-R7, R10-R11, R15.** Given the full representative, the
+  selected W-Engine and 2-piece facts compose Initial CRIT with Evelyn's
+  retained CRIT. The zero-substat Additional Ability gauge is inactive; two
+  CRIT Rate hits cross its threshold and expose the Chain/Ultimate scale
+  operation when another Stun or Support Agent is applied. The zero-substat
+  non-limited representative remains below the threshold, while the bounded
+  future opportunity crosses it without exceeding the formula cap.
+- AE3. **Covers R3-R5, R14-R15.** Given Heartstring W1, its selected shared fact
+  contributes the entry-established CRIT-DMG and Chain/Ultimate Fire-RES-Ignore
+  clauses at their owned surfaces and reaches the complete package at Fully
+  Enabled. Changing refinement changes those source-owned values without
+  changing candidate membership. Setup omits Base ATK, triggers, stacks,
+  duration, and refresh prose.
 - AE4. **Covers R6-R8, R19.** Given Evelyn/Astra/another Agent, Astral Voice is
   an effective Evelyn 4-piece candidate while Hormone remains prepared. Given
   Evelyn/Dialyn/another Agent, Puffer is an effective candidate while Hormone
@@ -284,10 +277,10 @@ The prose requirements govern if this diagram and the text ever differ.
   automatic choice or ranking occurs. Selected and candidate descriptions are
   accessible and use the same compressed packages.
 - AE5. **Covers R8, R14-R16.** Given Evelyn directly selects Puffer, Result
-  shows inherited Initial PEN Ratio +8%, an Ultimate child 20 percentage points
-  above the shared Chain/Ultimate DMG outcome from Initial onward, and Fully
-  Enabled ATK +15%. Given Astral is selected, its inherited ATK and reachable
-  entrant DMG use existing non-stacking rules even if Astra still holds Astral.
+  shows its inherited PEN Ratio, an Ultimate child above the shared
+  Chain/Ultimate DMG outcome, and its fully enabled ATK. Given Astral is
+  selected, its inherited ATK and reachable entrant DMG use existing
+  non-stacking rules even if Astra still holds Astral.
 - AE6. **Covers R9, R17-R18.** Given Seed M2/Evelyn/Astra and Evelyn is the sole
   eligible Vanguard, Party Apply prepares Evelyn with Fire DMG rather than PEN
   Ratio and remains complete. Given Evelyn/Trigger/Astra and Trigger prepares
@@ -299,13 +292,11 @@ The prose requirements govern if this diagram and the text ever differ.
   Throughout the Seed-incomplete state the same exact Initial-ATK observation
   keeps Evelyn as Vanguard and the invalid PEN candidates stay absent.
 - AE7. **Covers R2, R6-R7, R17.** Full representative Evelyn includes Hormone
-  Punk's inherent 2-piece ATK +10%, so her exact Initial ATK is
-  `(929 + 713) × 1.40 + 316 = 2,614.8`. To make the authored Woodpecker
-  4-piece choice legal, Evelyn first selects Branch & Blade as her 2-piece and
-  then selects Woodpecker 4-piece. With the other full representative inputs,
-  Woodpecker supplies CRIT Rate rather than Hormone's inherent ATK and her
-  exact Initial ATK becomes 2,450.6, equal to full representative Anby. In
-  Seed/Evelyn/Anby, the
+  Punk's inherited ATK when resolving exact Initial ATK. To make the authored
+  Woodpecker 4-piece choice legal, Evelyn first selects Branch & Blade as her
+  2-piece and then selects Woodpecker 4-piece. The replacement removes
+  Hormone's inherited ATK and leaves Evelyn tied with full representative Anby.
+  In Seed/Evelyn/Anby, the
   earlier applied tied slot becomes Vanguard. Reversing provider traversal
   changes nothing; directly selecting Slot 5 ATK on one candidate changes exact
   Initial ATK and re-resolves Vanguard.

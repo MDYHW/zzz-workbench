@@ -83,30 +83,28 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   the non-limited first choice because its high Base ATK and complete
   advanced and fully enabled ATK package surpass
   those A-Rank packages at zero substats.
-- R6. Add exact Riot facts: S-Rank Attack, limited, Base ATK 713, advanced CRIT
-  DMG 48%, CRIT Rate +15%, and eight EX-created charges whose consumed charge
-  gives Ether Basic and Dash Attack DMG +35%. Exact action and Attribute scopes
-  are preserved in Setup and Result.
+- R6. Add Riot Suppressor Mark VI as a limited S-Rank Attack candidate. Its
+  mixed-CRIT and charge-enabled Ether Basic/Dash package is fully compatible
+  with Zhu Yuan and determines her full-pool first choice. Its narrower
+  action/Attribute clauses project only through their admitted consumers.
 - R7. Zhu Yuan's base 4-piece candidates are Chaotic Metal and Woodpecker
   Electro. Dialyn adds Puffer Electro contextually through the established
   repeated-Ultimate opportunity. Her base 2-piece candidates are Chaotic Metal,
   Woodpecker Electro, Branch & Blade Song, Dawn's Bloom, Puffer Electro,
   Hormone Punk, and Astral Voice, subject to the existing formula pressure and
   same-effect exact-identity lifecycle.
-- R8. Retain Chaotic Metal as Ether DMG +10% on 2-piece and, on 4-piece, CRIT
-  DMG +20% plus another 5.5% per Corruption-damage stack up to six. The legal
-  repeatable route reaches 53% total 4-piece CRIT DMG. This exact package is a
-  local candidate; it does not require an Anomaly Result or make Nicole a
-  hidden setup dependency.
+- R8. Chaotic Metal's Ether-DMG and Corruption-enabled CRIT-DMG package is fully
+  usable by Zhu Yuan and is a local candidate. The package does not require an
+  Anomaly Result or make Nicole a hidden setup dependency.
 - R9. Full prepares Chaotic Metal 4-piece plus Branch & Blade Song 2-piece;
   non-limited prepares Chaotic Metal 4-piece plus Woodpecker 2-piece. Both use
   ATK% in Slots 5 and 6 and zero substats. Slot 4 follows only already-applied
   fixed CRIT supply rather than runtime scoring. Full uses CRIT DMG while Zhu
-  Yuan's Additional is active and CRIT Rate otherwise: Cordis supplies 44%
-  fixed CRIT Rate before the Additional, so its active 30% leaves the bounded
-  future CRIT opportunity useful without another fixed 24%, while its absence
-  makes the CRIT main competitive. Non-limited uses CRIT DMG only while
-  default-M6 Nicole supplies her 15% on top of the Additional and Woodpecker;
+  Yuan's Additional is active and CRIT Rate otherwise: Cordis's fixed CRIT plus
+  the active Additional leaves the bounded future CRIT opportunity useful
+  without another fixed main, while its absence makes the CRIT main competitive.
+  Non-limited uses CRIT DMG only while default-M6 Nicole supplies her fixed CRIT
+  on top of the Additional and Woodpecker;
   otherwise it uses CRIT Rate because Brimstone supplies no fixed CRIT. Direct
   later Mindscape edits do not silently retune Zhu Yuan, while a Party Apply
   prepares from the current applied context. Nicole's broad DEF Reduction
@@ -121,12 +119,11 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   fully usable squad-DMG package. It therefore remains a legal full-pool
   alternative, while losing The Vault's advanced and temporary holder Energy
   prevents activation alone from making it the first choice.
-- R11. Add exact The Vault facts: A-Rank Support, non-limited, Base ATK 624,
-  advanced Energy Regen 50%, and, at W5, Ether EX/Chain/Ultimate hits grant
-  squad DMG against the target +24% and holder Energy +0.8/s for 2 seconds.
-  Both clauses are usable whole-package authoring facts and establish both pool
-  representatives. The event-conditioned holder Energy remains compressed
-  Setup content but does not project as automatic Energy Regen in Result.
+- R11. Add The Vault as an A-Rank non-limited Support candidate. Its Energy and
+  Ether EX/Chain/Ultimate-triggered squad-DMG/holder-Energy package is fully
+  usable by Nicole and establishes both pool representatives. The
+  event-conditioned holder Energy remains compressed Setup content but does not
+  project as automatic Energy Regen in Result.
   Weeping is the closest same-recipient competitor through off-field Energy and
   squad DMG while its advanced PEN is unused. Kaboom keeps the distinct
   always-reachable four-unit squad-ATK package but supplies less of Nicole's
@@ -138,7 +135,7 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   the same-recipient comparison because Moonlight is stronger and the current
   three-Agent party has no third competitive non-stacking Support holder.
 - R13. Nicole's 2-piece candidates are Swing Jazz and Moonlight Lullaby, the
-  exact-identity pair for Energy Regen +20%. Both pools prepare Moonlight
+  exact-identity pair for the same Energy-Regen effect. Both pools prepare Moonlight
   4-piece plus Swing 2-piece with ATK% / Ether DMG / Energy Regen mains and no
   substats. The ATK and Ether mains are residual legal completion choices, not
   evidence for a personal-damage Result, substat, or scaling relationship. Selecting
@@ -236,8 +233,8 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
 - AE2. Zhu Yuan Result distinguishes enhanced Basic and Dash totals: Core and
   M2 and Riot combine on both, while Cordis applies only to
   Basic and Ultimate. M4 applies Ether RES Ignore only to enhanced Basic/Dash.
-- AE3. With Nicole applied, Zhu Yuan receives enemy DEF Reduction 40%, Ether
-  DMG +25%, M6 CRIT Rate +15%, and The Vault squad DMG +24%. A non-Ether
+- AE3. With Nicole applied, Zhu Yuan receives Nicole's enemy DEF Reduction,
+  Ether DMG, M6 CRIT Rate, and The Vault's source-owned squad DMG. A non-Ether
   general-damage teammate receives
   DEF Reduction and CRIT Rate but not Ether DMG. Yixuan receives applicable
   Ether DMG and CRIT Rate but no DEF-region value or candidate pressure.

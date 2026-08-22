@@ -69,20 +69,17 @@ runtime optimizer, or equipment catalogue.
 
 ### W-Engine authoring
 
-- R5. Add Cloudcleave Radiance as limited S-Rank Attack, Base ATK 743,
-  advanced CRIT DMG +48%. At W1-W5 it supplies Physical RES Ignore +20% / 22%
-  / 24% / 26% / 28%. Activating an Ether Veil supplies broad DMG and CRIT DMG
-  +25% / 28.7% / 32.5% / 36.2% / 40%; Ether Veil is the activation condition,
-  not the affected Attribute. Billy and Nekomata are holder-eligible and
+- R5. Add Cloudcleave Radiance as a limited S-Rank Attack candidate. Ether Veil
+  is the activation condition for its broad DMG/CRIT-DMG clauses, not the
+  affected Attribute. Billy and Nekomata are holder-eligible and
   consume the broad Physical RES Ignore, but neither holder activates Ether
   Veil; the inactive clauses remain part of Setup's complete compressed package
   and do not project into their Result.
-- R6. Add Starlight Engine Replica as non-limited A-Rank Attack, Base ATK 624,
-  advanced ATK +25%. A Basic or Dash hit at least six meters away supplies
-  Physical DMG +36% / 41% / 46.5% / 52% / 57.5% at W1-W5. Billy's ranged
+- R6. Add Starlight Engine Replica as a non-limited A-Rank Attack candidate.
+  Billy's ranged
   defining route activates it, while Nekomata's melee route does not establish
-  compatible activation. Setup compresses the retained effect to the Physical
-  DMG value without adding distance validation.
+  compatible activation for its distance-gated Basic/Dash Physical-DMG clause.
+  Setup adds no distance validation.
 - R7. Nekomata's full W-Engine candidates are Steel Cushion, Heartstring
   Nocturne, Cordis Germina, Cloudcleave Radiance, Severed Innocence, and The
   Brimstone. Non-limited retains Steel Cushion and The Brimstone. Both pools

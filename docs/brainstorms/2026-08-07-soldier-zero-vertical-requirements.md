@@ -107,7 +107,7 @@ The prose requirements govern if this diagram and the text ever differ.
 ### Candidate and prepared setup policy
 
 - R13. Candidate arrays are competitive bounded choices, not catalogues. Full pool includes every admitted candidate; non-limited excludes limited S-Ranks while retaining admitted standard S-Ranks and A-Ranks. S-Ranks default to W1 and A-Ranks to W5.
-- R14. Anby's full W-Engine candidates are Severed Innocence, Cordis Germina, Heartstring Nocturne, Marcato Desire, and Starlight Engine; non-limited retains Marcato and Starlight. Full prepares Severed Innocence W1 and non-limited prepares Marcato Desire W5. Heartstring's Base ATK 713, advanced CRIT Rate +24%, and Combat CRIT DMG +50% form a distinct mixed-CRIT package at zero supplied substats even though its Fire RES Ignore is unusable by Electric Anby. The CRIT DMG enters Anby's existing received-dependent Aftershock basis; no Fire RES Ignore row is created.
+- R14. Anby's full W-Engine candidates are Severed Innocence, Cordis Germina, Heartstring Nocturne, Marcato Desire, and Starlight Engine; non-limited retains Marcato and Starlight. Full prepares Severed Innocence W1 and non-limited prepares Marcato Desire W5. Heartstring's mixed-CRIT package remains distinct at zero supplied substats even though its Fire RES Ignore is unusable by Electric Anby. The CRIT DMG enters Anby's existing received-dependent Aftershock basis; no Fire RES Ignore row is created.
 - R15. Anby prepares Shadow Harmony 4-piece. Her retained 2-piece candidates are
   Woodpecker Electro, Branch & Blade Song, Puffer Electro, Thunder Metal, and
   Hormone Punk. Puffer preserves the DEF-region alternative while no material
@@ -129,7 +129,7 @@ The prose requirements govern if this diagram and the text ever differ.
   opportunity. M0 or an unqualified M2+ party keeps the base Woodpecker package.
   All effective-substat counts start at zero, and direct party/equipment edits
   do not dynamically reprepare the selection.
-- R17. Dialyn retains Precious Fossilized Core W5 alongside Yesterday Calls, Hellfire Gears, and Steam Oven. Its retained advanced Impact is +15%; its fully enabled two-threshold Daze package is one +32% W5 contribution. Dialyn's representative remains Yesterday Calls/full and Hellfire/non-limited with King plus Woodpecker, CRIT Rate/ATK%/Energy Regen.
+- R17. Dialyn retains Precious Fossilized Core W5 alongside Yesterday Calls, Hellfire Gears, and Steam Oven. Its advanced Impact and fully enabled thresholded Daze package are usable, while Dialyn's representative remains Yesterday Calls/full and Hellfire/non-limited with King plus Woodpecker, CRIT Rate/ATK%/Energy Regen.
 - R18. Trigger's full W-Engine candidates are Spectral Gaze, Blazing Laurel,
   Ice-Jade Teapot, The Restrained, Hellfire Gears, Precious Fossilized Core,
   and Steam Oven; non-limited retains The Restrained, Hellfire, Precious, and
@@ -161,8 +161,8 @@ The prose requirements govern if this diagram and the text ever differ.
   and Kaboom the Cannon. Full prepares Elegant Vanity W1; non-limited prepares
   Kaboom the Cannon W5. Kaboom's four qualifying distinct-squad stacks are
   reachable with the ordinary Bangboo party member without exposing Bangboo as
-  an independent workbench variable, so its complete package supplies Energy
-  Regen +50% and squad ATK +16%. Bashful remains a direct alternative, but its
+  an independent workbench variable, so its complete Energy/party-ATK package
+  is usable. Bashful remains a direct alternative, but its
   ATK-only supply does not replace Kaboom's zero-substat Energy/party-ATK
   balance. Astra's off-field Tremolo counts as repeated Ether EX Special use,
   so The Vault's short target-DMG and holder-Energy package is activatable and
@@ -190,7 +190,9 @@ The prose requirements govern if this diagram and the text ever differ.
 - R23g. Party or Focus Apply performs the two preparation adjustments for all three Agents. A Mindscape or pool transition performs them only for the changed Agent and may read non-target equipment as already-established holder context; it never prepares another Agent. Direct equipment edits invoke neither adjustment and may temporarily create duplicate non-stacking holders or a non-representative allocation. Existing selected-equipment pressure and effective-candidate reconciliation run only after the authorized equipment preparation, remain one-pass, and may clear invalid downstream mains without selecting fallbacks.
 - R24. Mindscapes apply cumulatively. Ordinary-skill level tiers are read only for Astra's retained Cadenza table: M0-M2 level 12, M3-M4 level 14, and M5-M6 level 16.
 - R25. Prepared choices remain authored policy. Result values never feed back into automatic preparation.
-- R25a. The retained numerical tables below are the complete current fact contract for implementation. Values not listed there or in the preserved first-vertical content do not enter selectors, preparation, calculation, Result, or source disclosure.
+- R25a. The numerical tables below are the complete bounded Agent fact contract
+  for this vertical. Equipment and investment inputs enter by reference through
+  the identities and local relationships admitted in R13-R22.
 
 #### Admitted Agent identity facts
 
@@ -231,12 +233,9 @@ relationship one hierarchy.
 | Mindscape · M2 | CRIT Rate +12% | Combat | Anby |
 | Mindscape · M4 | Electric RES Ignore +12% against Silver Star | Fully Enabled | Anby Electric general damage |
 
-| W-Engine | Rank/default | Base ATK | Advanced stat | Exact retained passive clauses |
-|---|---|---:|---|---|
-| Severed Innocence | S / W1 | 713 | CRIT DMG +48% | CRIT DMG +30% in Combat; Basic, Special, or Aftershock hits add +10% CRIT DMG per stack, 3 stacks; at 3 stacks Electric DMG +20% |
-| Cordis Germina | S / W1 | 713 | CRIT Rate +24% | CRIT Rate +15%; Electric DMG +12.5% per stack, 2 stacks; at 2 stacks Basic Attack and Ultimate DEF Ignore +20% |
-| Marcato Desire | A / W5 | 594 | CRIT Rate +20% | EX Special or Chain Attack grants ATK +9.6%; if the target has an Attribute Anomaly, add another +9.6% |
-| Starlight Engine | A / W5 | 594 | ATK +25% | Dodge Counter or Quick Assist grants ATK +19.2% |
+Selected Severed, Cordis, Marcato, and Starlight facts supply Anby's admitted
+CRIT/ATK packages; Cordis's Basic/Ultimate DEF Ignore and Severed's Aftershock
+package reach their narrower current consumers.
 
 #### Trigger retained sources
 
@@ -246,14 +245,9 @@ relationship one hierarchy.
 | Additional Ability | each Fully CRIT point above 40 grants Aftershock Daze +1.5%, capped at +75% when Fully CRIT reaches 90 | Fully Enabled / Phase 3 | Trigger Aftershock Daze gauge |
 | Mindscape · M2 | party CRIT DMG +6% per stack, 4 stacks, maximum +24% | Fully Enabled | all current applicable damage contributors |
 
-| W-Engine | Rank/default | Base ATK | Advanced stat | Exact retained passive clauses |
-|---|---|---:|---|---|
-| Spectral Gaze | S / W1 | 713 | CRIT Rate +24% | Electric Aftershock DEF Reduction +25%; while off-field Impact +4% per stack, 3 stacks, plus +8% at maximum, total +20% |
-| Blazing Laurel | S / W1 | 713 | Impact +18% | Quick Assist or Perfect Assist grants Impact +25%; holder Basic-category hits establish up to 20 Wilt stacks, supplying Fire/Ice squad CRIT DMG +30% at maximum; the current Trigger Aftershock category can establish the stack package |
-| Ice-Jade Teapot | S / W1 | 713 | Impact +18% | Basic Attack hits grant Impact +0.7% per stack, 30 stacks, total +21%; at 15 stacks party DMG +20% |
-| The Restrained | S / W1 | 684 | Impact +18% | attacks grant Basic Attack DMG +6% and Daze +6% per stack, 5 stacks, total +30% each; Trigger's retained Harmonizing Aftershock belongs to the applicable Basic Attack category |
-| Precious Fossilized Core | A / W5 | 594 | Impact +15% | Daze +16% while target HP is at least 50%, plus another +16% while at least 75%, total +32% |
-| Steam Oven | A / W5 | 594 | Energy Regen +50% | each 10 Energy grants Impact +3.2%, 8 stacks, total +25.6% |
+Selected Spectral, Blazing, Ice-Jade, Restrained, Precious, and Steam facts
+supply Trigger's admitted CRIT, Impact, Daze, Energy, and applicable party
+packages; Blazing's Fire-only portion remains recipient-conditional.
 
 #### Astra retained sources
 
@@ -267,49 +261,32 @@ relationship one hierarchy.
 | Mindscape · M1 | all-attribute RES Reduction +6% per stack, 3 stacks, total +18% | Fully Enabled | enemy context for applicable party damage |
 | Mindscape · M4 | next Quick Assist Daze +50%, represented as a 1.5 source-stated action scale | Fully Enabled | applied Stun recipient; Trigger in the selected trio |
 
-| W-Engine | Rank/default | Base ATK | Advanced stat | Exact retained passive clauses |
-|---|---|---:|---|---|
-| Elegant Vanity | S / W1 | 713 | ATK +30% | Energy +5; spending at least 25 Energy grants party DMG +10% per stack, 2 stacks, total +20%. Setup compresses the package to `Energy +5` and `Squad DMG +20%`; the Energy clause is candidate-package content, not a Result operation. |
-| Bashful Demon | A / W5 | 624 | ATK +25% | EX Special hits grant party ATK +3.2% per stack, 4 stacks, total +12.8% |
-| Kaboom the Cannon | A / W5 | 624 | Energy Regen +50% | qualifying distinct squad hits grant party ATK +4% per stack, 4 reachable stacks, total +16% |
+Selected Elegant, Bashful, and Kaboom facts supply Astra's party-facing
+packages; Elegant's event-Energy clause remains Setup-only rather than becoming
+a Result operation.
 
-#### Retained Drive Disc facts
+#### Retained Drive Disc relationships
 
-| Drive Disc | 2-piece | Retained 4-piece clauses |
-|---|---|---|
-| Shadow Harmony | Aftershock and Dash Attack DMG +15% | aligned Aftershock/Dash hits grant ATK +4% and CRIT Rate +4% per stack, 3 stacks, total +12% each |
-| Shockstar Disco | Impact +6% | Basic Attack, Dash Attack, and Dodge Counter Daze +20% |
-| Astral Voice | ATK +10% | each Quick Assist entry adds one shared Astral stack, 3 stacks; entrant DMG +8% per stack, total +24% |
-| Hormone Punk | ATK +10% | no retained 4-piece consumer in this vertical |
-| Woodpecker Electro | CRIT Rate +8% | preserved existing content; no retained new 4-piece consumer |
-| Branch & Blade Song | CRIT DMG +16% | preserved existing content; no retained new 4-piece consumer |
-| King of the Summit | Daze +6% | party CRIT DMG +15%; if the wearer's Initial CRIT Rate is at least 50%, add another +15%, total +30% |
-| Moonlight Lullaby | Energy Regen +20% | current 4-piece party DMG consumer for Yixuan and Anby; duplicate Moonlight providers do not stack |
+Shadow supplies the operation-fitting Aftershock/Dash package; Shockstar and
+King supply distinct Daze/recipient directions; Astral and Moonlight supply
+non-stacking party packages; Hormone, Woodpecker, and Branch preserve the
+independent ATK/CRIT directions needed by the authored candidates.
 
-#### Retained main stats and effective substats
+#### Retained main-stat and effective-substat relationships
 
-| Input | Exact value |
-|---|---:|
-| Slot 4 CRIT Rate | 24% |
-| Slot 4 CRIT DMG | 48% |
-| Slot 4/5/6 ATK% | 30% |
-| Slot 5 Electric DMG | 30% |
-| Slot 5 PEN Ratio | 24% |
-| Slot 6 Impact | 18% |
-| Slot 6 Energy Regen | 60% |
-| CRIT Rate effective-substat hit | 2.4% |
-| CRIT DMG effective-substat hit | 4.8% |
-| ATK% effective-substat hit | 3% |
-| flat ATK effective-substat hit | 19 |
+The candidate rosters and representatives in R15-R22 consume the shared fixed
+main-stat and per-hit substat facts. This requirement does not duplicate those
+values; every prepared effective-substat count starts at zero while preserving
+the authored finite future opportunity.
 
 #### Bounded action groups
 
 | Action group | Displayed actions | Retained clauses |
 |---|---|---|
-| Anby Aftershock | `AFTERSHOCK` tag outcome | Anby +50% allied Aftershock DMG; 35%-of-current-CRIT-DMG relationship; Shadow Harmony and applicable current general regions |
-| Anby Dash | Dash Attack | Shadow Harmony DMG +15% and applicable current general regions; no Anby Aftershock-only clause |
-| Anby Basic/Ultimate | Basic Attack; Ultimate | Cordis Germina DEF Ignore +20% at two stacks |
-| Trigger Aftershock | `AFTERSHOCK` tag outcome | Anby +50% allied Aftershock DMG; 35%-of-current-CRIT-DMG relationship; regular Daze, Basic-scoped Daze, and Trigger CRIT-to-Daze relationship |
+| Anby Aftershock | `AFTERSHOCK` tag outcome | Anby allied-Aftershock and current-CRIT-DMG relationships; Shadow Harmony and applicable current general regions |
+| Anby Dash | Dash Attack | Shadow Harmony and applicable current general regions; no Anby Aftershock-only clause |
+| Anby Basic/Ultimate | Basic Attack; Ultimate | Cordis Germina DEF Ignore |
+| Trigger Aftershock | `AFTERSHOCK` tag outcome | Anby allied-Aftershock and current-CRIT-DMG relationships; regular Daze, Basic-scoped Daze, and Trigger CRIT-to-Daze relationship |
 | Trigger Basic category | internal Basic Attack scope within the `AFTERSHOCK` aggregate | The Restrained and Shockstar Disco Basic Attack Daze; neither retains a personal Trigger DMG Result |
 | Trigger Quick Assist | Quick Assist | Astra M4 next-Quick-Assist Daze scale at Astra M4+ |
 
@@ -328,16 +305,16 @@ Every Anby-derived Aftershock clause additionally requires Anby to be applied an
 
 ### Exact retained Agent behavior
 
-- R34. Anby exposes ATK, CRIT Rate, CRIT DMG, applicable regular and action-scoped DMG Bonus, PEN Ratio, DEF Ignore, RES Ignore, RES Reduction, DEF Reduction, and Stun DMG Multiplier only when each has a current applicable contribution. Her Core contributes +25% personal general DMG against reachable Silver Star and the completed-Potential 35%-of-current-CRIT-DMG Aftershock relation. Her Additional Ability contributes +10% CRIT Rate with a Stun or Support teammate and completed-Potential +50% allied Aftershock DMG only when Anby is Focus/on-field. Shadow Harmony applies +15% to both retained `AFTERSHOCK` tag outcomes and a distinct Dash Attack outcome; the Dash outcome excludes the Aftershock-only Core-derived and Additional clauses.
+- R34. Anby exposes ATK, CRIT Rate, CRIT DMG, applicable regular and action-scoped DMG Bonus, PEN Ratio, DEF Ignore, RES Ignore, RES Reduction, DEF Reduction, and Stun DMG Multiplier only when each has a current applicable contribution. Her Core contributes +25% personal general DMG against reachable Silver Star and the completed-Potential 35%-of-current-CRIT-DMG Aftershock relation. Her Additional Ability contributes +10% CRIT Rate with a Stun or Support teammate and completed-Potential +50% allied Aftershock DMG only when Anby is Focus/on-field. Shadow Harmony applies its source-owned contribution to both retained `AFTERSHOCK` tag outcomes and a distinct Dash Attack outcome; the Dash outcome excludes the Aftershock-only Core-derived and Additional clauses.
 - R35. Anby M2 adds 12% CRIT Rate and M4 adds 12% Electric RES Ignore against Silver Star. M1, M3, M5, and M6 add no current supported Result difference.
 - R36. Trigger ordinarily exposes CRIT Rate, Impact, Daze Bonus, and Stun DMG Multiplier, plus separate current operations. ATK, Energy Regen, generic CRIT DMG, generic DMG Bonus, and generic DEF/RES rows are omitted even when a party clause is delivered. Her Core contributes +35 Stun DMG Multiplier, becoming +55 at M1. While another applied Agent is Attack or shares Trigger's Electric attribute, her Additional Ability links Fully Enabled CRIT Rate above 40% to Aftershock Daze at 1.5% per CRIT point, capped at +75% when CRIT reaches 90%, and appears as a threshold/cap gauge on CRIT Rate. Without that exact qualification the gauge and its action contribution are absent. When Anby's completed Core Passive delivers its 35%-of-Anby's-Fully-CRIT-DMG Aftershock clause, Trigger additionally admits a CRIT DMG Result region with an `AFTERSHOCK` tag outcome; common delivered CRIT DMG remains in the parent value while the Anby amount is tag-scoped and cannot feed Phase 2. Anby's Focus does not gate that Core relation. Anby Focus may similarly admit a DMG Bonus tag outcome through her +50% Aftershock clause. M2 contributes up to 24% party CRIT DMG. M3-M6 add no other current supported Result difference.
 - R36a. Trigger's CRIT-to-Aftershock-Daze gauge is a Phase-3 recipient projection. It reads her completed delivered Fully Enabled CRIT Rate, emits no outgoing clause, cannot schedule another derivation phase, appears on that CRIT Rate basis, and is included by its exact source in the `AFTERSHOCK` Daze aggregate beside regular Daze and Basic-scoped Daze.
 - R37. Astra exposes Initial ATK and Energy Regen as her retained local Result. Her Core supplies `min(35% of Initial ATK, 1,200)` at M0-M1 and `min(54% of Initial ATK, 1,600)` at M2-M6. Cadenza supplies party DMG Bonus / CRIT DMG of 20% / 25% at M0-M2, 22% / 28% at M3-M4, and 24% / 31% at M5-M6. M1 supplies 18% all-attribute RES Reduction.
-- R38. Astra M4 supplies each currently applied Stun recipient one source-stated next-Quick-Assist Daze operation of +50% (equivalently a 1.5 scale for that action). This is Trigger in the selected trio and may be Dialyn in an admitted mixed party. It remains separate from regular Daze Bonus and does not create raw/final Daze calculation. Elegant Vanity's `Energy +5` remains compressed Setup content because the whole package affects candidate and representative authoring; it does not project as a Result operation or alter an Energy Regen row. Its routine trigger and cooldown are not Setup content.
+- R38. Astra M4 supplies each currently applied Stun recipient one source-stated next-Quick-Assist Daze operation of +50% (equivalently a 1.5 scale for that action). This is Trigger in the selected trio and may be Dialyn in an admitted mixed party. It remains separate from regular Daze Bonus and does not create raw/final Daze calculation. Elegant Vanity's event-Energy clause remains compressed Setup content because the whole package affects candidate and representative authoring; it does not project as a Result operation or alter an Energy Regen row. Its routine trigger and cooldown are not Setup content.
 
 ### Cross-Agent applicability and formula regions
 
-- R39. Astral Voice owns one shared stack state: each qualifying Quick Assist entry adds one stack for the squad, to three, and refreshes the common duration. The 8% per-stack DMG effect belongs to the character entering through Quick Assist rather than to every squad member. Under the permanent controllable-single-recipient compression, any selected Astral Voice holder with a reachable Quick Assist route projects the reachable 24% exactly once to the applied Focus when that Focus is legally eligible and has a retained compatible damage consumer. The holder may itself be Focus; Astra identity, provider identity, and holder identity are not predicates. Trigger's off-field direction does not gain a generic personal DMG Result from this rule. Removing every selected Astral Voice holder removes the contribution, while duplicate holders remain subject to the existing non-stacking rule. Candidate membership and holder allocation remain separate upstream decisions.
+- R39. The selected Astral Voice fact owns its shared stack, duration, and entrant-DMG semantics. Under the permanent controllable-single-recipient compression, any selected Astral Voice holder with a reachable Quick Assist route projects the source-owned reachable maximum exactly once to the applied Focus when that Focus is legally eligible and has a retained compatible damage consumer. The holder may itself be Focus; Astra identity, provider identity, and holder identity are not predicates. Trigger's off-field direction does not gain a generic personal DMG Result from this rule. Removing every selected Astral Voice holder removes the contribution, while duplicate holders remain subject to the existing non-stacking rule. Candidate membership and holder allocation remain separate upstream decisions.
 - R40. Anby's Additional Ability grants its +10% CRIT Rate when either a Stun or Support teammate is present. Its completed-Potential +50% allied Aftershock branch additionally requires Anby as applied Focus/on-field. Trigger's Additional Ability is active when another applied Agent has Attack Specialty or shares her Electric attribute; the predicate consumes typed party identity rather than a named-Agent list. Party Edit must reevaluate these predicates after Apply; roster admission alone changes nothing.
 - R41. Preserve DEF Reduction, DEF Ignore, RES Reduction, RES Ignore, PEN Ratio, and Stun DMG Multiplier as distinct current general-damage Result regions. Do not collapse them into one resistance or bypass row and do not calculate final damage.
 - R42. Spectral Gaze's Electric Aftershock trigger establishes a Fully Enabled enemy DEF Reduction rather than a modifier restricted to Trigger's triggering hit. It projects to each applicable `general_damage` Result consumer with Spectral Gaze as its source; an Agent without a current DEF Reduction projector gains no invented row. Yixuan's Sheer damage omits the DEF multiplier and therefore has no Spectral projection. Cordis Germina supplies Basic/Ultimate DEF Ignore; Astra M1 supplies all-attribute RES Reduction; Anby M4 supplies Electric RES Ignore; selected Slot 5 supplies PEN Ratio. Each appears only for applicable current Agents/actions and with its actual source identity.
@@ -406,13 +383,13 @@ branches in candidate policy. Provider order does not change the outcome.
 - AE4. **Covers R10-R12.** Given an unchanged applied Agent has a non-default Mindscape and pool, applying a changed party preserves those two inputs for that Agent but rebuilds all three equipment/main/stat preparations; a newly applied Agent starts at M0/full.
 - AE5. **Covers R14-R22.** Given the second trio at M0/full, preparation selects Severed Innocence, Spectral Gaze, and Elegant Vanity with the authored sets/mains and zero substats; full-pool Astra uses Astral Voice 4-piece + Moonlight Lullaby 2-piece and Slot 6 Energy Regen. Switching only Trigger to non-limited prepares The Restrained and leaves Anby/Astra unchanged. Switching Astra to non-limited prepares Kaboom W5 with the same Disc package and M0-M1 Slot 6 ATK%; changing that Astra to M2 prepares only her and changes Slot 6 to Energy Regen.
 - AE6. **Covers R22, R24, R37.** Given full-pool Astra M1, Slot 6 remains Energy Regen. Given non-limited Astra M1, Slot 6 remains ATK%; changing her to M2 reprepares only Astra with Slot 6 Energy Regen and the 54%/1,600 Core relation. M3 changes Cadenza to 22/28 and M5 to 24/31 without another prepared change.
-- AE7. **Covers R26-R33.** Given full M0 second-vertical preparation, Anby's provider-local Fully CRIT DMG is 158%, Trigger and Astra deliver 30% and 25%, Phase 2 observes 213%, and the derived Aftershock value is 74.55%. Reordering providers or slots preserves that value.
-- AE8. **Covers R28-R30, R36.** Given Anby's derived Aftershock clause is delivered, Trigger's common CRIT DMG remains 105% while the `AFTERSHOCK` outcome shows 179.55%; the 74.55% Anby Core contribution does not change Anby's CRIT DMG basis or create a second derivation. Without Anby, Trigger omits CRIT DMG despite generic party CRIT DMG.
+- AE7. **Covers R26-R33.** Given Anby's completed provider-local Fully CRIT DMG basis and two independently delivered CRIT DMG clauses, Phase 2 reads the composed basis once and derives exactly 35% of it for compatible Aftershock outcomes. Reordering providers or slots preserves both the basis and derived value.
+- AE8. **Covers R28-R30, R36.** Given Anby's derived Aftershock clause is delivered, Trigger's common CRIT DMG remains in the parent value while the derived amount appears only on the `AFTERSHOCK` outcome. The derived contribution does not change Anby's CRIT DMG basis or create a second derivation. Without Anby, Trigger omits CRIT DMG despite generic party CRIT DMG.
 - AE9. **Covers R33, R49.** Given the first vertical is applied through the three-phase orchestrator, Lucia Initial-derived Squad Sheer, Dialyn Initial-derived King output, and every existing first-vertical Result equal the preserved baseline.
 - AE10. **Covers R34-R38, R41-R43.** Given representative Mindscapes/equipment and a qualifying Attack or Electric teammate, Trigger omits ATK, Energy Regen, generic DMG, and generic DEF/RES rows; CRIT Rate owns the Additional Ability gauge while the `AFTERSHOCK` Daze aggregate includes its exact source beside Basic-scoped Daze. Without that teammate the gauge and contribution are absent. Astra M4 remains a separate operation; each distinct DEF/RES/PEN/Stun region appears only at its applicable Agent/action; M0 or inapplicable contexts omit the row entirely.
 - AE11. **Covers R32, R36-R36a.** Given Trigger Fully CRIT is 53%, her Phase-3 Additional Ability gauge outputs +19.5% Aftershock Daze; below or at 40% it outputs zero, and at 90% or above it caps at +75%. Reordering applied slots preserves both this gauge and Anby's Phase-2 derived clause.
-- AE12. **Covers R20, R38, R46-R47.** Given Astra M4 and Trigger is applied, Trigger shows one Fully Enabled next-Quick-Assist Daze operation of +50%, not a Daze Bonus stat row or raw Daze result. Without Astra M4 it is absent. Given full-pool Astra uses Elegant Vanity, Setup shows `Energy +5` and `Squad DMG +20%` without routine trigger or cooldown prose; the Energy effect produces neither a Result operation nor an Energy Regen change.
-- AE13. **Covers R39.** Given Astra is applied with Astral Voice, Yixuan and Anby show the reachable 24% entrant DMG contribution while Trigger and Astra show no generic personal damage row. Replacing Astra or changing her 4-piece removes that contribution.
+- AE12. **Covers R20, R38, R46-R47.** Given Astra M4 and Trigger is applied, Trigger shows one Fully Enabled next-Quick-Assist Daze operation of +50%, not a Daze Bonus stat row or raw Daze result. Without Astra M4 it is absent. Given full-pool Astra uses Elegant Vanity, Setup uses its shared compressed package without routine trigger or cooldown prose; the event-Energy effect produces neither a Result operation nor an Energy Regen change.
+- AE13. **Covers R39.** Given Astra is applied with Astral Voice, Yixuan and Anby show its source-owned reachable entrant-DMG contribution while Trigger and Astra show no generic personal damage row. Replacing Astra or changing her 4-piece removes that contribution.
 - AE14. **Covers R44-R49.** Given desktop, breakpoint-adjacent, and narrow viewports, both verticals, Party Edit states, all expanded slots, disclosures, gauges, keyboard paths, and source highlighting remain usable without page-level horizontal overflow or console errors.
 - AE15. **Covers R45-R45a.** Given keyboard-only input, opening Party Edit focuses draft slot 1; targeting a slot focuses the first available filtered candidate; choosing it returns to that draft slot; Cancel or successful Apply returns to Edit party; no-results filtering keeps focus on a present control.
 - AE16. **Covers R10-R12, R44, R49.** Given edited Anby/Trigger/Astra setups are applied, when the user drafts and applies Yixuan/Dialyn/Lucia, all three newly applied Agents receive M0/full authored preparations, the departed second-vertical setups are discarded, and the complete first-vertical setup, Result, source, interaction, and responsive baseline returns.

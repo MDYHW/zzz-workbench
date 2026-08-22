@@ -142,20 +142,18 @@ because future substats are finite and other modifiers can become saturated.
   Cauldron of Clarity, Qingming Birdcage, Radiowave Journey, and Puzzle Sphere.
   Her non-limited candidates are Grill O'Wisp, Cauldron of Clarity, Radiowave
   Journey, and Puzzle Sphere. All are legal Rupture W-Engines.
-- R7. Retain Kraken's Cradle at W1 as Base ATK 713 and HP +30%. Fully Enabled
-  adds Ice Sheer DMG +6% per HP-decrease stack, up to three stacks, and CRIT
-  Rate +20% at or below 50% Max HP. Every clause is usable by Yidhari.
-- R8. Retain Grill O'Wisp at W5 as Base ATK 624 and HP +25%. Fully Enabled adds
-  CRIT Rate +24% after HP decreases. Its Fire DMG +24% is retained in the
-  equipment package but has no Yidhari Result consumer.
+- R7. Every clause of the selected Kraken's Cradle W1 fact is usable by
+  Yidhari, including its Ice Sheer, HP, and reachable CRIT package.
+- R8. Grill O'Wisp W5 supplies a usable HP/CRIT package. Its Fire-DMG clause
+  remains part of the equipment package but has no Yidhari Result consumer.
 - R9. Reuse Cauldron of Clarity W5, Qingming Birdcage W1, Radiowave Journey W5,
   and Puzzle Sphere W5 with their established exact packages. Yidhari can
   maintain Cauldron through her EX-class tentacle, can use Qingming's HP and
   CRIT but not its Ether clauses, can use Radiowave's direct Sheer Force, and
   can use Puzzle's ATK-fed Rupture conversion plus EX Special CRIT DMG and DMG.
 - R10. Wrathful Vajra and Starlight Rider Faceplate are excluded from Yidhari's
-  candidates. Each offers the same usable HP +30% and CRIT Rate +20% axes as
-  Qingming while supplying lower Base ATK and an Attribute-specific passive
+  candidates. Each offers the same usable HP/CRIT axes as Qingming while
+  supplying lower Base ATK and an Attribute-specific passive
   that Yidhari cannot use. Exact identity therefore does not rescue either
   dominated package. Kraken is the contrast: its Ice passive is fully usable
   and materially changes the whole package.
@@ -171,21 +169,17 @@ because future substats are finite and other modifiers can become saturated.
   S-Rank pool candidates are Grill O'Wisp, Radiowave Journey, and Puzzle
   Sphere. All three retained A-Ranks remain available under SW-010's current
   non-limited S-Rank boundary.
-- R13. Grill O'Wisp is fully usable by Manato: at W5 it supplies Base ATK 624,
-  HP +25%, Fire DMG +24%, and reachable CRIT Rate +24% after HP decreases.
-  The unconditional Fire DMG enters at Combat while the HP-decrease CRIT Rate
-  enters at Fully Enabled.
-  Wrathful Vajra W1 supplies Base ATK 713, HP +30%, CRIT Rate +20%, and Fire
-  Sheer DMG +9% per EX Special stack, up to two stacks. Qingming supplies a
-  larger Base ATK plus HP and CRIT while its Ether clauses remain unused.
-  Radiowave and Puzzle retain their distinct direct-Sheer-Force and
-  EX-specialized CRIT packages. Cauldron is excluded for Manato: at W5 its Base
-  ATK 594, HP +25%, general DMG +24%, and CRIT Rate +13% occupy Grill's same
-  usable Fire-DMG/HP/CRIT direction while losing Base ATK and 11% CRIT Rate.
-  It creates no separate formula, action, recipient, or operation choice.
+- R13. Grill O'Wisp W5 is fully usable by Manato through its Fire-DMG, HP, and
+  reachable-CRIT package. Wrathful Vajra W1 supplies a fully usable
+  Fire-Sheer/HP/CRIT package. Qingming supplies greater Base ATK plus HP and
+  CRIT while its Ether clauses remain unused. Radiowave and Puzzle retain their
+  distinct direct-Sheer-Force and EX-specialized CRIT packages. Cauldron is
+  excluded for Manato because it occupies Grill's same usable Fire-DMG/HP/CRIT
+  direction with a weaker complete package and creates no separate formula,
+  action, recipient, or operation choice.
 - R14. Kraken's Cradle and Starlight Rider Faceplate are excluded from Manato's
   candidates. Qingming is the nearest same-axis usable competitor: it has the
-  same unconditional HP and CRIT package, greater Base ATK, and does not make
+  same unconditional HP/CRIT package, greater Base ATK, and does not make
   those benefits conditional on low HP. Kraken's Ice and Starlight's Physical
   clauses are unusable by Manato. Wrathful is the contrast because its exact
   Fire clause is usable and keeps it competitive.
@@ -221,8 +215,8 @@ because future substats are finite and other modifiers can become saturated.
   authored, the conservative finite-hit opportunity distinguishes Woodpecker as
   the balanced 2-piece first choice for his defining HP-consuming Basic and
   Assist output. Branch remains a direct CRIT-axis edit and Inferno remains a
-  distinct regular-DMG edit. ATK 2-piece sets are excluded because their 10%
-  ATK contribution through the 0.30 conversion is dominated by the retained
+  distinct regular-DMG edit. ATK 2-piece sets are excluded because their ATK
+  contribution through the Agent-owned conversion is dominated by the retained
   CRIT and Fire alternatives.
 - R19. After each damage direction's pool-specific W-Engine package is fixed, a
   conservative eight-hit future opportunity in each retained substat may help

@@ -143,10 +143,8 @@ optimizer.
   non-limited packages. Full prepares Cloudcleave W1; non-limited prepares The
   Brimstone W1. S-Rank choices default to W1 and A-Rank choices to W5 when
   directly selected.
-- R12. Cloudcleave is limited S-Rank Attack, Base ATK 743, advanced CRIT DMG
-  +48%. W1-W5 broad Physical RES Ignore is +20% / 22% / 24% / 26% / 28% at
-  Combat. Holder activation of Ether Veil supplies broad Fully Enabled DMG
-  Bonus and CRIT DMG +25% / 28.7% / 32.5% / 36.2% / 40%. Ye consumes the whole
+- R12. Cloudcleave is a limited S-Rank Attack candidate. Ye consumes its whole
+  broad Physical-RES-Ignore and holder-activated Ether-Veil DMG/CRIT-DMG
   package. Billy and Nekomata remain the closest partial-package contrast:
   their broad Physical RES Ignore stays usable, but another Agent's Veil does
   not satisfy the holder-activation clause.
@@ -161,16 +159,11 @@ optimizer.
   remain competitive across the W-Engine slot. Same-rarity limited CRIT packages whose usable clauses
   are dominated by Cloudcleave add no current accessibility or formula path
   and remain excluded.
-- R14. Add White Water Ballad. Its 2-piece supplies Physical DMG +10%. Its
-  4-piece supplies Fully Enabled CRIT Rate +10% while within any Ether Veil;
-  when an Attack holder activates or extends Ether Veil it supplies another
-  CRIT Rate +10% and ATK +10%. Ye reaches the complete package herself. Another
+- R14. Add White Water Ballad. Ye reaches its complete Physical-DMG and
+  Ether-Veil CRIT/ATK package herself. Another
   Physical Attack Agent merely standing in Zhao's Veil receives only the first
   CRIT clause and does not gain contextual membership because that partial
   package is dominated by current authored personal 4-piece choices.
-  Ye's complete Setup package compresses the two CRIT clauses to CRIT Rate +20%
-  beside ATK +10%; the separate trigger facts remain available to exact Result
-  projection rather than being repeated as Setup prose.
 - R15. Ye's base 4-piece candidates are White Water Ballad, Woodpecker Electro,
   and Hormone Punk. Puffer Electro remains the established contextual candidate
   only when the applied party supplies Dialyn's retained Ultimate opportunity.
@@ -224,24 +217,21 @@ optimizer.
   final damage, charge timing, or repeated M6 consumption behavior. Zhao's
   Special/EX healing amount and HP consumption remain outside the survival
   boundary; they only establish M2 reachability.
-- R23. Add Half-Sugar Bunny as limited S-Rank Defense, Base ATK 713, advanced HP
-  +30%. W1-W5 holder automatic Energy Regen is +0.46 / 0.53 / 0.60 / 0.67 /
-  0.74 per second. Its non-stacking squad ATK and Max HP values are +10% / 11.5%
-  / 13% / 14.5% / 16%; activating or extending Ether Veil supplies squad CRIT
-  DMG +30% / 34.5% / 39% / 43.5% / 48% at Fully Enabled. Zhao is
-  holder-eligible and activates the complete package.
+- R23. Add Half-Sugar Bunny as a limited S-Rank Defense candidate. Zhao is
+  holder-eligible and activates its complete automatic-Energy, non-stacking
+  squad-ATK/HP, and Ether-Veil squad-CRIT-DMG package.
 - R24. Zhao's full W-Engine candidates are Half-Sugar Bunny and Original
   Transmorpher; non-limited retains Original. Full prepares Half-Sugar W1 and
-  non-limited prepares Original W5. Original's Base ATK 594, advanced HP +25%,
-  unconditional holder Max HP +12.5% at W5, and inactive after-attacked Impact
-  clause form the nearest same-axis accessibility package. Bunny Band is
+  non-limited prepares Original W5. Original's holder-HP package and inactive
+  after-attacked Impact clause form the nearest same-axis accessibility
+  package. Bunny Band is
   dominated by Original's same-rank, same-Base-ATK HP package and needs an
   external shield for only personal ATK; Spring Embrace and Tusks do not
   preserve enough Initial-HP pressure to offset their unused survival/Daze
   clauses. These are local Zhao judgments, not general Defense exclusions.
 - R25. Zhao's 4-piece candidates are Bunny in Wonderland and Astral Voice.
-  Bunny supplies HP +10% and squad DMG +18%; Astral supplies ATK
-  +10% and a controllable entrant DMG +24% through Zhao's repeated Quick
+  Bunny supplies HP and squad DMG; Astral supplies ATK and a controllable
+  entrant-DMG package through Zhao's repeated Quick
   Assists. Swing's Energy two-piece remains useful, but its lower same-axis
   squad-DMG four-piece is dominated by Zhao's controllable Astral route and
   complete Bunny HP/buffer package. Proto Punk's unused shield 2-piece and

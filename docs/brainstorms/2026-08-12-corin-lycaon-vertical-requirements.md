@@ -156,19 +156,15 @@ and genuine multi-recipient effects keep their actual rules.
 - R5. Corin's authored W-Engine candidates are Cordis Germina, Heartstring
   Nocturne, Steel Cushion, and Housekeeper. Full pool contains all four;
   non-limited contains Steel Cushion and Housekeeper. Myriad Eclipse is excluded:
-  beside Heartstring it has the same Base ATK and CRIT Rate advanced stat, 45%
-  rather than 50% W1 CRIT DMG, and an Ice-only DEF Ignore clause Corin cannot
-  use, so it adds no distinct usable axis. Starlight Engine and other generic
+  beside Heartstring it has the same Base ATK and advanced CRIT axis, a weaker
+  W1 CRIT-DMG clause, and an Ice-only DEF Ignore clause Corin cannot use, so it
+  adds no distinct usable axis. Starlight Engine and other generic
   Attack stat sticks add no distinct current choice beside the retained Steel
   and Housekeeper packages.
-- R6. Reuse the existing exact Cordis, Heartstring, and Steel refinement facts.
-  Retain Housekeeper as Base ATK 624 with ATK +25% at level 60; W1-W5 automatic
-  off-field Energy recovery is `0.45 / 0.52 / 0.58 / 0.65 / 0.72` per second,
-  and each EX Special hit grants Physical DMG
-  `3 / 3.5 / 4 / 4.4 / 4.8` percentage points per stack to 15 stacks. Fully
-  Enabled therefore reaches `45 / 52.5 / 60 / 66 / 72%` EX-scoped Physical DMG.
-  Its automatic recovery is an Energy Regen Result contribution; it is not
-  normalized from an event grant.
+- R6. Reuse the shared Cordis, Heartstring, Steel, and Housekeeper facts.
+  Housekeeper's ATK, off-field Energy, and stackable EX-scoped Physical package
+  is fully compatible with Corin's burst interval. Its automatic recovery is an
+  Energy Regen Result contribution; it is not normalized from an event grant.
 - R7. Corin's authored base 4-piece candidate is Hormone Punk. Dialyn's existing
   recipient-applied canonical Ultimate opportunity adds Puffer Electro 4-piece
   to Corin's current effective candidates under the common contextual rule. It
@@ -189,10 +185,9 @@ and genuine multi-recipient effects keep their actual rules.
   Branch & Blade 2-piece, CRIT Rate / PEN Ratio / ATK% mains, and zero effective
   substats. Her non-limited representative is Steel Cushion W1 with Woodpecker
   2-piece, CRIT Rate / PEN Ratio / ATK% mains, and zero effective
-  substats. The full first choice uses Cordis's 713 Base ATK, 24% advanced CRIT
-  Rate, 15% passive CRIT Rate, and reachable 20% Basic/Ultimate DEF Ignore even
-  though its Electric DMG clause is unused. With eight CRIT Rate hits, Cordis,
-  Woodpecker, and a CRIT Rate main total 95.2%, not an overcap. Branch remains
+  substats. The full first choice uses Cordis's mixed-CRIT and reachable
+  Basic/Ultimate-DEF-Ignore package even though its Electric-DMG clause is
+  unused. The bounded CRIT-Rate opportunity remains below cap. Branch remains
   the full representative because its CR/CD distribution has the stronger whole
   expected-crit consequence, rather than by a false cap claim. The non-limited first choice uses
   Steel's higher-base, broad Physical, and back-attack package rather than
@@ -214,49 +209,39 @@ and genuine multi-recipient effects keep their actual rules.
   three A-Rank candidates. Full
   prepares Blazing Laurel W1 and non-limited prepares Steam Oven W5. Hellfire's
   off-field Energy clause is unused while Corin's stun-led burst direction keeps
-  Lycaon on-field for completed Encircle Prey, but its
-  Base ATK 684, advanced Impact +18%, and Fully Enabled Impact +20% remain a
-  distinct usable Impact package beside Steam's Energy Regen +50% and maximum
-  Impact +25.6%. Steam's prepared priority therefore does not exclude Hellfire
+  Lycaon on-field for completed Encircle Prey, but its Impact package remains a
+  distinct usable direction beside Steam's Energy/Impact package. Steam's
+  prepared priority therefore does not exclude Hellfire
   from either pool. The Restrained's Basic-only Daze does not cover Lycaon's
   Assist and EX Daze, but his regular field sequence still activates the full
-  30% Basic-Daze package, making it a competitive distinct action direction
+  complete Basic-Daze package, making it a competitive distinct action direction
   without displacing either representative.
-- R12. Retain Blazing Laurel as Base ATK 713 and advanced Impact +18%. W1-W5
-  Quick Assist or Perfect Assist grants Impact
-  `25 / 28.75 / 32.5 / 36.25 / 40%`. Basic Attack hits apply up to 20 Wilt
-  stacks; each stack grants Fire- and Ice-DMG CRIT DMG
-  `1.5 / 1.72 / 1.95 / 2.17 / 2.4%`, reaching
-  `30 / 34.4 / 39 / 43.4 / 48%`. Only one Blazing effect is active per party.
-  The Impact clause is holder-local; the Fire/Ice CRIT DMG clause is a genuine
-  multi-recipient effect and projects to every eligible current Fire or Ice
-  crit-capable damage consumer.
-- R13. Reuse the existing exact Hellfire Gears, Steam Oven, and Precious
-  Fossilized Core facts. Hellfire W1 supplies advanced Impact +18% and reaches
-  Impact +20% at Fully Enabled; its off-field Energy clause remains disclosed
-  in Setup and creates a Lycaon Energy Result operation only when the current
-  Focus direction leaves Lycaon's authored operating interval off-field. The
+- R12. Blazing Laurel's Impact and reachable Wilt package is fully compatible
+  with Lycaon. Only one Blazing effect is active per party. The Impact clause is
+  holder-local; the Fire/Ice CRIT-DMG clause is a genuine multi-recipient effect
+  and projects to every eligible current Fire or Ice crit-capable damage
+  consumer.
+- R13. Reuse the shared Hellfire Gears, Steam Oven, Precious Fossilized Core,
+  and Simmering Pot facts. Hellfire's Impact package is usable; its off-field
+  Energy clause remains disclosed in Setup and creates a Lycaon Energy Result
+  operation only when the current Focus direction leaves Lycaon's authored
+  operating interval off-field. The
   same bounded on-field override applies to the current Hugo and Zhu Yuan
-  stun-led burst directions. Steam W5
-  supplies Energy Regen +50% and reaches Impact +25.6% at eight
-  10-Energy stacks. Precious Fossilized Core W5 supplies advanced Impact +15%
-  and Daze +16% at target HP at least 50%, with another +16% at target HP at
-  least 75%. Retain The Simmering Pot as Base ATK 594 and advanced Impact +15%;
-  W1-W5 Assist Follow-Up Daze and personal DMG are each
-  `7.2 / 8.2 / 9.2 / 10.2 / 11.5%` for 30 seconds. Lycaon consumes the
-  Assist-Daze clause but has no personal-DMG Result consumer. Simmering Pot
+  stun-led burst directions. Steam supplies Energy and reachable Impact;
+  Precious supplies Impact and thresholded Daze. Lycaon consumes Simmering
+  Pot's Assist-Daze clause but has no personal-DMG Result consumer. Simmering Pot
   remains a distinct candidate beside Steam because it exchanges Energy and
   broader Impact supply for direction-defining Assist Daze; Steam remains the
   non-limited first choice because it strengthens repeated EX operation and
   broad Daze together.
 - R14. Lycaon's authored base 4-piece candidates are King of the Summit, Astral
-  Voice, and Shockstar Disco. Proto Punk is excluded: its Shield Effect +15%
-  has no current survival consumer, while its reachable squad DMG +15% occupies
+  Voice, and Shockstar Disco. Proto Punk is excluded: its Shield Effect
+  has no current survival consumer, while its reachable squad DMG occupies
   the same buffer axis as the usable Astral entrant package without matching
-  Astral's reachable entrant DMG +24% package. Trigger difference alone does not
+  Astral's stronger reachable entrant-DMG package. Trigger difference alone does not
   preserve Proto. Moonlight Lullaby cannot be the comparator or candidate
   because its 4-piece activation requires a Support holder and Lycaon is Stun;
-  its Energy Regen +20% and squad DMG +18% therefore do not form a legal Lycaon
+  its Energy Regen and squad DMG therefore do not form a legal Lycaon
   4-piece package.
 - R15. Lycaon's base 2-piece candidates are Shockstar Disco, King of the Summit,
   and Swing Jazz, subject to the different-set rule. Swing Jazz is the authored
@@ -268,7 +253,7 @@ and genuine multi-recipient effects keep their actual rules.
   do not bypass holder eligibility and complete-package legality.
 - R16. Without selected King, Lycaon's Slot 4 offers ATK% as the bounded residual
   choice and has no effective-substat candidates. Selecting King adds CRIT Rate
-  to Slot 4 and CRIT Rate effective-substat hits because its 50% holder threshold
+  to Slot 4 and CRIT Rate effective-substat hits because its holder threshold
   is then a current buffer consumer. Slot 5 always offers Ice DMG and ATK%; Slot
   6 offers Impact and Energy Regen. Slot 5 prepares Ice DMG and Slot 6 prepares
   Impact. CRIT DMG is not retained merely as personal damage.
@@ -276,9 +261,9 @@ and genuine multi-recipient effects keep their actual rules.
   Shockstar 2-piece, CRIT Rate / Ice DMG / Impact mains, and zero effective
   substats. His local non-limited representative changes only the W-Engine to
   Steam Oven W5. King remains competitive at zero supplied substats because its
-  Daze 2-piece and first 15% squad CRIT DMG clause are active before the
+  Daze 2-piece and first squad-CRIT-DMG clause are active before the
   threshold; the second clause is visibly inactive until current CRIT Rate
-  reaches 50%.
+  reaches the source-owned threshold.
 
 ### Prepared holder allocation and recipient behavior
 
@@ -308,9 +293,9 @@ and genuine multi-recipient effects keep their actual rules.
   Astral holders. Result applies each selected set's ordinary non-stacking rule.
 - R20. Astral Voice remains a Lycaon authored base candidate because completed
   Glacial Waltz provides a retained Quick Assist route; no external provider is
-  required to create membership. Its reachable 24% entrant DMG is nevertheless
+  required to create membership. Its source-owned reachable entrant DMG is nevertheless
   a separate recipient decision. Under the permanent controllable-single-
-  recipient compression, any selected Astral holder projects that value exactly
+  recipient compression, any selected Astral holder projects that contribution exactly
   once to the legally eligible applied Focus. Lycaon holder identity does not
   grant Lycaon the value, and a Focus holder may legally receive its own Astral
   value. Genuine all-party effects, exact Attribute recipients, and Seed
@@ -372,7 +357,7 @@ and genuine multi-recipient effects keep their actual rules.
   current candidate membership or representatives. M4's shield has no current
   survival consumer. M3 and M5 change no retained setting effect, and M6's
   personal damage has no current Lycaon role consumer.
-- R29. With selected King, Lycaon exposes the current CRIT Rate basis and a 50%
+- R29. With selected King, Lycaon exposes the current CRIT Rate basis and its
   threshold gauge, plus Impact, Energy Regen when nonzero, Daze Bonus, retained
   action-Daze differences, Stun DMG Multiplier when qualified, and applicable
   party or enemy modifiers. Without selected King, the CRIT row, threshold
@@ -421,15 +406,14 @@ and genuine multi-recipient effects keep their actual rules.
   Additional Abilities. Replacing Lycaon with a non-Physical, non-Victoria
   teammate removes Corin's qualification unless the remaining teammate supplies
   it; roster admission alone changes nothing.
-- AE2. **Covers R5-R9.** Corin's full representative has Initial CRIT Rate
-  `5 + 24 + 15 + 24 = 68%`, CRIT DMG `78.8 + 16 = 94.8%`, and Initial ATK
-  `(807 + 713) × 1.40 + 316 = 2,444`. Her non-limited Steel representative has
-  CRIT Rate `5 + 24 + 8 + 24 = 61%`, CRIT DMG 78.8%, and Initial ATK
-  `(807 + 684) × 1.40 + 316 = 2,403.4`. All effective-substat counts are zero.
+- AE2. **Covers R5-R9.** Corin's full representative composes the selected
+  Cordis and Disc facts with Corin's retained CRIT/ATK inputs. Her
+  non-limited Steel representative composes its distinct CRIT/Physical package.
+  All effective-substat counts are zero.
 - AE3. **Covers R5-R6, R23.** Selecting Heartstring retains its higher broad
   CRIT package but no Fire RES Ignore on Physical Corin. Selecting Housekeeper
-  W5 adds ATK +25%, automatic off-field Energy +0.72/s, and an EX-scoped
-  Physical DMG +72% Fully Enabled outcome. Myriad never appears merely because
+  W5 adds its ATK, automatic off-field Energy, and EX-scoped Physical-DMG
+  outcome at their source-owned values. Myriad never appears merely because
   it shares Base ATK and advanced CRIT Rate with Heartstring.
 - AE4. **Covers R7-R10, R24.** Applying Corin/Dialyn/Astra adds Puffer Electro
   4-piece to Corin while Hormone remains prepared. Selecting Puffer projects its
@@ -439,32 +423,23 @@ and genuine multi-recipient effects keep their actual rules.
   standalone Slot 5 PEN choice but not the selected Puffer package.
 - AE5. **Covers R10, R25.** In Seed/Corin/Astra, Corin is the only eligible other
   Attack Agent and becomes Vanguard without an Initial-ATK comparison. In a
-  complete full representative Seed/Corin/Anby party, Corin's 2,444 is compared
-  with Anby's 2,450.6, so Anby is Vanguard. Directly selecting Corin Slot 5 ATK%
-  raises her exact Initial ATK to 2,900 and moves Vanguard to Corin without
-  preparing any setup. At Seed M2, the resulting broad pressure does not require
-  another comparison because its affected PEN input is not part of that 2,900.
-- AE6. **Covers R11-R13, R17.** Lycaon's full local representative starts with
-  Impact `137 × (1 + 0.18 + 0.06 + 0.18) = 194.54`; Fully Enabled Blazing and
-  raises the common value to
-  `194.54 × (1 + 0.25) = 243.175`, while the completed-
-  Potential Basic/Dash/Dodge-Counter outcome reaches
-  `243.175 + 137 × 0.15 = 263.725`.
-  His non-limited Steam representative starts with Impact
-  `137 × (1 + 0.06 + 0.18) = 169.88` and Energy Regen
-  `1.2 × (1 + 0.50) = 1.8/s`; Fully Enabled Steam raises the common Impact to
-  `169.88 × (1 + 0.256) = 213.36928`, and the completed-Potential
-  action outcome reaches
-  `213.36928 + 137 × 0.15 = 233.91928`.
-  Directly selecting Hellfire keeps its full package visible and adds its +18%
-  advanced and +20% Fully Enabled Impact to Result. It creates no off-field
+  complete full representative Seed/Corin/Anby party, the exact Initial-ATK
+  comparison selects Anby. Directly selecting Corin Slot 5 ATK% moves Vanguard
+  to Corin without preparing any setup. At Seed M2, the resulting broad pressure
+  does not require another comparison because its affected PEN input is not
+  part of that Initial-ATK observation.
+- AE6. **Covers R11-R13, R17.** Lycaon's full local representative composes the
+  selected Blazing fact with Shockstar and his Agent/Potential relationships;
+  the non-limited representative instead composes Steam's Energy and reachable
+  Impact package. Directly selecting Hellfire keeps its full package visible
+  and adds its source-owned Impact to Result. It creates no off-field
   Energy operation with the Corin/Hugo/Zhu Yuan stun-led burst directions, but
   does create that operation when another current Focus direction leaves Lycaon
   off-field; neither case changes the authored Blazing/Steam first choices.
 - AE7. **Covers R15-R17, R29-R31.** Local prepared King plus CRIT Rate Slot 4
-  begins at 29% CRIT Rate. Nine CRIT substat hits reach 50.6% and activate the
-  second King clause. Selecting Woodpecker 2-piece instead begins at 37% and six
-  hits reach 51.4%. Directly selecting Astral clears a selected CRIT main or
+  begins below King's threshold; nine CRIT substat hits activate its second
+  clause. Selecting Woodpecker 2-piece instead reaches that threshold in six
+  hits. Directly selecting Astral clears a selected CRIT main or
   Woodpecker and removes the CRIT count; reselecting King restores those
   candidates but none of their old selections. A party-qualified Trigger
   retains her independent CRIT candidates throughout the same Disc edit

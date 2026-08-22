@@ -177,12 +177,19 @@ ever differ.
   distinct whenever collapsing them changes a qualifying outcome.
 - R12. Re-evaluate independent provider amounts from the current holder's
   local, pre-delivery surface values whenever calculation runs. Preparation
-  must not cache provider amounts. Preserve exactly one current post-delivery
-  derived **provider** relationship: Anby: Soldier 0 reads her Fully Enabled
-  CRIT DMG after independent delivery, derives 35% of that value for compatible
-  Anby and Trigger Aftershock outcomes, and stops without changing its own basis
-  or scheduling another phase. Five bounded recipient-local Result derivations
-  also read completed delivered stats without emitting another provider:
+  must not cache provider amounts. After ordinary delivery, preserve exactly
+  two current provider-producing derivations in one acyclic pass. Anby: Soldier
+  0 reads her completed Fully Enabled CRIT DMG, derives 35% of that value for
+  compatible Anby and Trigger Aftershock outcomes, and does not change its own
+  basis. Jane Doe reads her completed Fully Enabled Anomaly Proficiency once,
+  derives local Passion ATK as `min(max(AP - 120, 0) * 2, 600)`, and derives the
+  Assault-only CRIT provider as `min(40 + 0.16 * AP, 100)%` CRIT Rate with 50%
+  CRIT DMG for compatible Physical anomaly recipients. Jane's local ATK changes
+  no AP, and the Assault provider changes no stat. Deliver the Anby and Jane
+  derived providers once, then perform final composition; neither derivation
+  is reevaluated after derived delivery or schedules another phase. Five bounded
+  recipient-local Result derivations also read completed delivered stats without
+  emitting another provider:
   Rupture Sheer Force reads each surface's current ATK and current Max HP, a
   qualified Trigger reads Fully Enabled CRIT Rate for her Aftershock Daze gauge
   and action output, and qualified Evelyn reads completed Combat then Fully
@@ -287,15 +294,22 @@ ever differ.
   migration extends shared reference and representative-flow coverage without
   adding an Agent-named calculation suite.
 - AE10. **Covers R12, R20.** Given Anby's provider-local Fully Enabled CRIT DMG
-  is 158% and independent providers deliver 30% and 25%, the bounded derived
-  phase reads 213% and supplies 74.55% to each compatible Aftershock outcome.
-  Reordering slots or providers preserves the value, and the derived clause
-  neither changes the 213% basis nor schedules another derivation.
+  is `L` and independent providers deliver `P` and `Q`, the bounded derived
+  phase reads `L + P + Q` once and supplies `0.35 * (L + P + Q)` to each
+  compatible Aftershock outcome. Reordering slots or providers preserves the
+  value, and the derived clause neither changes its basis nor schedules another
+  derivation.
 - AE11. **Covers R10, R12.** Given Fully Enabled AP received from an independent
   provider, the completed value can activate Timeweaver at, but not below, 375
   and changes Burnice's continuous capped Afterburn output. Both gauges and
   action differences use the original Timeweaver or Core source, and neither
   result emits another stat, provider, or derived pass.
+- AE12. **Covers R11, R12.** Given Seth's ordinary AP delivery raises Jane's
+  completed Fully Enabled AP basis from `J` to `J + 100`, the single derived
+  pass reads `J + 100` for both Passion ATK and Assault CRIT. Passion ATK changes
+  only Jane's ATK, and the Assault provider changes only compatible Physical
+  anomaly Assault output. Neither changes AP, derived delivery runs once, and
+  final composition does not feed either result back into the basis.
 
 ---
 
@@ -325,10 +339,10 @@ ever differ.
 - No final damage or Daze totals, rotation, uptime, anomaly application count,
   buildup-share simulation, or combat-state simulator.
 - No arbitrary formula callbacks, expression DSL, dependency graph, or cycle
-  solver. No post-delivery provider phase beyond the exact current Anby derived
-  relationship, and no recipient-local derived Result consumer beyond the
-  current Rupture, qualified Trigger, qualified Evelyn, Timeweaver, and Burnice
-  cases named by R12.
+  solver. No post-delivery provider production beyond the exact current Anby
+  and Jane derivations, no second derived-delivery pass, and no recipient-local
+  derived Result consumer beyond the current Rupture, qualified Trigger,
+  qualified Evelyn, Timeweaver, and Burnice cases named by R12.
 - No source archive, explanation payload, retained research trail, dormant
   `noConsumer` data model, or generic uncertainty schema.
 - No generalization of one residual main-stat choice into a new Agent role,
@@ -354,8 +368,9 @@ ever differ.
   values and calculation rules stay single-owned.
 - Live pre-delivery holder evaluation instead of prepared snapshots: direct
   edits must recalculate immediately without silently preparing setup again.
-- Six named acyclic post-delivery consumers instead of a general dependency
-  phase: Anby alone emits a derived provider, while Rupture, qualified Trigger,
+- Seven named acyclic post-delivery consumers instead of a general dependency
+  phase: Anby emits one derived provider; Jane emits one derived provider and
+  one local stat from the same completed AP basis; Rupture, qualified Trigger,
   qualified Evelyn, Timeweaver, and Burnice derive only recipient-local Result
   output. Their exact completed-stat consumers are retained without admitting
   iteration, feedback, or another relationship by analogy.

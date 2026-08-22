@@ -104,26 +104,20 @@ general-damage build.
 
 ### W-Engine authoring
 
-- R9. Add Flamemaker Shaker as limited S-Rank Anomaly, Base ATK 713, advanced
-  ATK +30%. W1-W5 supplies off-field holder Energy +0.6/0.75/0.9/1.05/1.2 per
-  second, maximum holder DMG Bonus +35/44/52/61/70%, and AP +50/62/75/87/100.
-  Off-field doubles stack acquisition, not the maximum DMG value. Selected and
-  candidate Setup copy compresses these to `Energy Regen +N/s`,
-  `DMG +N%`, and `Anomaly Proficiency +N`; activation, stack, and duration prose
-  remains in retained source facts.
+- R9. Flamemaker Shaker's off-field Energy, damage, and AP clauses all support
+  Burnice's current interval and direction.
 - R10. Burnice's full candidates are Flamemaker Shaker, Practiced Perfection,
   Electro-Lip Gloss, and Weeping Gemini. Full prepares Flamemaker W1: every
-  advanced/passive axis is used and its off-field Energy plus AP/DMG package
+  retained axis is used and its off-field Energy plus AP/DMG package
   uniquely coordinates with the prepared Energy main. Practiced Perfection is
-  the sole retained partial limited package. Its Base ATK, advanced ATK +30%,
-  and unconditional AM +60 are all material, keep Slot 6 Energy Regen, and
+  the sole retained partial limited package. Its usable ATK and AM axes are
+  material, keep Slot 6 Energy Regen, and
   remain the closest current full-package alternative despite its unusable
   Physical-DMG clause.
 - R11. Timeweaver is excluded rather than retained as a Disorder contrast. Its
-  Electric buildup clause is unusable. Under zero supplied substat counts its
-  Fully Enabled AP is 317, and the conservative eight-count AP opportunity can
-  reach 389, so the AP 375 threshold is reachable rather than invalid. Reaching
-  it spends most of that bounded AP opportunity, while the remaining ATK, AP,
+  Electric buildup clause is unusable. Its source-owned AP threshold is
+  reachable only after spending most of the conservative eight-count AP
+  opportunity, while the remaining ATK, AP,
   and Disorder DMG still concentrate on Burnice's existing anomaly-damage axis.
   Flamemaker's complete off-field package and Practiced's scarce AM/buildup
   package remain more competitive uses of the single W-Engine opportunity. A
@@ -139,8 +133,7 @@ general-damage build.
   off-field-compatible ATK/DMG package are all useful; Weeping's persistent
   party-Anomaly AP stacks and permanent ATK form the distinct accessible
   accumulating-AP contrast. Fusion Compiler's stable PEN/ATK is useful, but its
-  maximum AP supply requires repeated Special/EX activations and each stack lasts
-  8 seconds; it cannot competitively cover Burnice's primary off-field interval
+  AP activation cannot competitively cover Burnice's primary off-field interval
   against Electro or Weeping. Roaring Ride can trigger a random 5-second package
   during Burnice's brief EX entry but cannot refresh it off field, and Burnice
   cannot inherit Piper's sustained on-field EX pattern. Rainforest Gourmet is
@@ -174,12 +167,9 @@ general-damage build.
   combination clears without fallback and is not silently rewritten.
 - R16. Eight future AP and eight future ATK% hits are a conservative opportunity
   comparison, not a maximum, exact distribution, optimizer input, or farming
-  promise. Prepared supplied counts remain zero. With Chaos's inherent AP
-  2-piece, Swing 2-piece, and AP/PEN/Energy mains, full Flamemaker starts at
-  Initial ATK 2364.8, Initial AP 242, Initial Energy Regen 2.808/s, and reaches
-  Fully Enabled AP 292 and Energy Regen 3.408/s. Non-limited Electro-Lip Gloss
-  starts at Initial ATK 1773, AP 317, and Initial Energy Regen 2.808/s, reaching
-  Fully Enabled ATK 2006.12 when its W5 ATK clause is active.
+  promise. Prepared supplied counts remain zero. Both pool representatives
+  compose their selected shared equipment facts with AP/PEN/Energy mains and
+  no hidden future hits.
 
 ### Composition, lifecycle, and visible boundaries
 

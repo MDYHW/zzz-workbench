@@ -141,13 +141,13 @@ The prose requirements govern if this diagram and the text ever differ.
 - R4. Seed's full W-Engine candidates are Cordis Germina, Heartstring Nocturne,
   Severed Innocence, The Brimstone, and Marcato Desire; non-limited candidates
   are The Brimstone and Marcato Desire. Full prepares Cordis Germina W1 and
-  non-limited prepares Marcato Desire W5. Heartstring's Base ATK 713, advanced
-  CRIT Rate +24%, and Combat CRIT DMG +50% form a distinct mixed-CRIT package at
-  zero supplied substats even though its Fire RES Ignore is unusable by
-  Electric Seed. Cordis remains the full first choice after the finite
-  stat-supply comparison; candidate admission does not imply representative
-  priority. Do not admit generic stat sticks whose usable package adds no
-  distinct current role, formula, action, operation, threshold, or cap axis.
+  non-limited prepares Marcato Desire W5. Heartstring's mixed-CRIT package is
+  distinct at zero supplied substats even though its Fire RES Ignore is
+  unusable by Electric Seed. Cordis remains the full first choice after the
+  finite stat-supply comparison; candidate admission does not imply
+  representative priority. Do not admit generic stat sticks whose usable
+  package adds no distinct current role, formula, action, operation, threshold,
+  or cap axis.
 - R5. Seed's retained 4-piece candidates are Dawn's Bloom and Woodpecker
   Electro. Her base 2-piece candidates are Woodpecker Electro, Branch & Blade
   Song, Puffer Electro, Thunder Metal, and Hormone Punk. Thunder Metal preserves
@@ -165,8 +165,8 @@ The prose requirements govern if this diagram and the text ever differ.
   Drill Rig - Red Axis, and Cordis Germina; non-limited retains Drill Rig - Red
   Axis. Full prepares Serpentine Seeker W1 and non-limited prepares Drill Rig -
   Red Axis W5. Bellicose Blaze is a partial but material limited-ownership
-  alternate: its Energy Regen +60% and CRIT Rate +20% both strengthen Cissia's
-  current Core threshold and damage direction, while its Fire Aftershock DEF
+  alternate: its Energy Regen and CRIT Rate both strengthen Cissia's current
+  Core threshold and damage direction, while its Fire Aftershock DEF
   Ignore is unusable by her Electric Aftershocks and is charged as package
   opportunity cost. Serpentine remains the stronger full representative because
   its comparable Energy Regen package supplies more CRIT Rate and a usable
@@ -200,12 +200,13 @@ The prose requirements govern if this diagram and the text ever differ.
   Full Astra completes that package with Astral Voice 2-piece; non-limited Astra
   retains Hormone Punk 2-piece. Astra preserves her current W-Engine, main-stat,
   effective-substat, pool, and M0-M1 versus M2-M6 preparation rules. A
-  target-only Cissia Mindscape or pool preparation prepares Cissia's authored
-  Astra-context package but may mutate only Cissia; Astra remains untouched even
-  when this leaves duplicate Astral Voice holders. Direct setup edits likewise
-  remain local and rerun no holder allocation. Existing non-stacking Result
-  behavior resolves any duplicate active effect. Candidate addition and holder
-  allocation remain separate authored decisions.
+  target-only Cissia Mindscape or pool preparation may mutate only Cissia and
+  treats Astra's selected Disc as established. It prepares contextual Astral
+  only when no established holder already uses Astral; otherwise Cissia keeps
+  her authored Dawn's Bloom package while Astra remains untouched. Direct setup
+  edits likewise remain local, rerun no holder allocation, and may create a
+  duplicate that existing non-stacking Result behavior resolves. Candidate
+  addition and prepared holder allocation remain separate authored decisions.
 
 **Retained facts and Result boundary**
 
@@ -213,33 +214,18 @@ The prose requirements govern if this diagram and the text ever differ.
   candidate, prepared setup, or Result: Seed ATK 929, CRIT Rate 5%, and CRIT
   DMG 78.8%; Cissia ATK 938, CRIT Rate 5%, CRIT DMG 50%, and Energy Regen
   1.56. Their other completed stats have no current retained consumer.
-- R11a. Retain the following new W-Engine facts. Refinement remains editable,
-  so every Result-changing W1-W5 passive value is retained even though the
-  prepared defaults remain S-Rank W1 and A-Rank W5. Existing Cordis Germina,
-  Heartstring Nocturne, Severed Innocence, and Marcato Desire facts remain
-  owned by current content and are not duplicated here.
-
-  | W-Engine | Rank / prepared default | Base ATK | Advanced stat | Exact retained passive and surface |
-  | --- | --- | ---: | --- | --- |
-  | The Brimstone | S / W1 | 684 | ATK +30% | Fully Enabled: a Basic Attack, Dash Attack, or Dodge Counter hit grants one ATK stack. Per-stack W1-W5 values are 3.5% / 4.4% / 5.2% / 6% / 7%; the eight-stack reachable maxima are 28% / 35.2% / 41.6% / 48% / 56%. |
-  | Serpentine Seeker | S / W1 | 713 | Energy Regen +60% | Combat and Fully Enabled CRIT Rate W1-W5 values are 25% / 28.8% / 32.5% / 36.3% / 40%. Entering combat establishes that the equipper's Electric DMG ignores target DEF at Combat and Fully Enabled; W1-W5 values are 28% / 31.5% / 35% / 38.5% / 42%. |
-  | Bellicose Blaze | S / W1 | 713 | Energy Regen +60% | Combat and Fully Enabled CRIT Rate W1-W5 values are 20% / 23% / 26% / 29% / 32%. A Fire Aftershock grants one DEF Ignore stack; per-stack W1-W5 values are 15% / 17.2% / 19.5% / 21.7% / 24%, with two stacks. Cissia cannot activate that Fire-only clause. |
-  | Drill Rig - Red Axis | A / W5 | 624 | Energy Regen +50% | Fully Enabled: after an EX Special Attack or Chain Attack, Basic Attack and Dash Attack Electric DMG W1-W5 values are 50% / 57.5% / 65% / 72.5% / 80%. |
-- R11b. Retain only these newly required Drive Disc facts. Woodpecker Electro's
-  existing 2-piece CRIT Rate +8% fact remains reused rather than restated.
-
-  | Drive Disc role | Exact retained effect and surface |
-  | --- | --- |
-  | Dawn's Bloom 2-piece | Initial Basic Attack DMG +15%. |
-  | Dawn's Bloom 4-piece | Combat Basic Attack DMG +20%; after an Attack Agent uses an EX Special Attack or Ultimate, Fully Enabled Basic Attack DMG gains another +20%. A 4-piece holder also owns the 2-piece effect, so its current Basic action totals are +15% Initial, +35% Combat, and +55% Fully Enabled. |
-  | Woodpecker Electro 4-piece | A CRIT from each distinct category of Basic Attack, Dodge Counter, and EX Special Attack grants ATK +9%; Fully Enabled reaches the three-category +27% ATK maximum. |
-  | Puffer Electro 2-piece | Initial PEN Ratio +8%. This vertical does not retain Puffer Electro 4-piece; the separately approved Dialyn Ultimate-opportunity consumer is owned by the [bounded follow-up requirements](2026-08-10-dialyn-puffer-electro-contextual-candidate-requirements.md). |
-
-  These are retained authoring and calculation facts, not verbatim Setup copy.
-  Setup applies the common equipment compression rule: Dawn's Bloom 4-piece
-  shows `Basic Attack DMG +40%`, Woodpecker Electro 4-piece shows `ATK +27%`,
-  and their 2-piece rows show `Basic Attack DMG +15%` and `CRIT Rate +8%`.
-  Routine trigger and category-acquisition steps are absent from the summary.
+- R11a. Refinement remains editable for the newly selected W-Engines, but their
+  Base ATK, advanced stats, refinement progression, activation clauses, and
+  compressed Setup copy remain owned by the shared W-Engine facts. This
+  requirement owns only the candidate membership, prepared refinement, holder
+  compatibility, and local Result relationships stated above.
+- R11b. Dawn's Bloom supplies Seed and Cissia's operation-fitting Basic package;
+  Woodpecker supplies the alternate CRIT-to-ATK package; Puffer supplies the
+  independent PEN direction. Their exact effects, surfaces, and compressed
+  Setup copy remain owned by the shared Drive Disc facts. This vertical does
+  not admit Puffer Electro 4-piece; the separately approved Dialyn
+  Ultimate-opportunity consumer is owned by the [bounded follow-up
+  requirements](2026-08-10-dialyn-puffer-electro-contextual-candidate-requirements.md).
 - R12. Entering combat with a Vanguard immediately establishes Seed's Core at
   Combat: Seed and the current Vanguard each receive +1,000 ATK and +30% CRIT
   DMG through their respective statuses, and both receive broad +25% DMG while
@@ -288,14 +274,12 @@ The prose requirements govern if this diagram and the text ever differ.
   entry-supplied Venom establishes her Core at Combat and resolves broad party
   Electric DEF Ignore as
   `min(25, 6 + max(Initial Energy Regen - 1.4, 0) / 0.12)` percentage points.
-  The 6% base remains below or at the 1.4 threshold. With Serpentine Seeker,
-  Swing Jazz, and Slot 6 Energy Regen, Initial Energy Regen is
-  `1.56 * (1 + 0.60 + 0.20 + 0.60) = 3.744` and the output caps at 25%. With
-  Drill Rig - Red Axis, the value is `1.56 * (1 + 0.50 + 0.20 + 0.60) = 3.588`
-  and the output is 24.233333...%.
+  The Agent-owned base remains below or at the threshold. The full
+  representative's selected shared facts reach the cap; the non-limited Drill
+  Rig package remains below it. Runtime calculation derives both exact values
+  from those shared facts rather than storing prepared totals here.
 - R16a. Cissia M1 multiplies the already resolved and capped Combat Core value
-  by 140%, producing 35% and 33.926666...% for the full and non-limited
-  representatives; display may round the latter to 33.927% only after the
+  by 140% after equipment composition; display rounds only after that
   multiplication. M1 also adds 5% party Electric RES Ignore at Combat and 10%
   Corrode Bone Electric RES Ignore at Fully Enabled. M2 adds +35% DMG to `Basic
   Attack: Serpent's Kiss` at Fully Enabled. M3-M6 add no other current retained
@@ -349,8 +333,8 @@ The prose requirements govern if this diagram and the text ever differ.
   deliver to the party but remain absent on a recipient that has no current
   CRIT DMG projector. Her extra +10% and Corrode Bone-specific 10% M1 clause
   remain self and action scoped.
-- R18b. Cissia owns Astral Voice's reachable entrant +24% DMG and Astra owns
-  Moonlight Lullaby's +18% party DMG; each non-stacking set effect applies once
+- R18b. Cissia owns Astral Voice's reachable entrant-DMG contribution and Astra
+  owns Moonlight Lullaby's party-DMG contribution; each non-stacking set effect applies once
   and projects only to compatible current damage consumers. Astra retains only
   her established ATK and Energy Regen Result: received Cissia CRIT DMG or
   Electric clauses do not invent personal Astra damage, CRIT, DEF, or RES rows.
@@ -365,10 +349,11 @@ The prose requirements govern if this diagram and the text ever differ.
   and Cissia add no aggregate action tag: the named action identities and their
   Basic, Ultimate, or source-specific applicability remain explicit. No Seed or
   Cissia output depends on a received clause before emitting another outgoing
-  clause, so the existing Anby-only extra calculation phase remains the sole
-  received-effect-dependent outgoing phase.
+  clause, so this vertical adds no post-delivery provider phase. Anby's bounded
+  derived-provider phase remains unchanged; other current post-delivery
+  derivations stay owned by the shared harness and are not generalized here.
 - R18d. When Seed selects Heartstring Nocturne, its advanced CRIT Rate appears
-  at Initial and its +50% CRIT DMG appears at Combat and Fully Enabled. Seed
+  at Initial and its source-owned CRIT DMG appears at Combat and Fully Enabled. Seed
   receives no Fire RES Ignore row. This retained partial-package projection
   neither replaces Cordis as the full prepared representative nor infers any
   Result effect merely from Heartstring's candidate priority.
@@ -393,12 +378,11 @@ The prose requirements govern if this diagram and the text ever differ.
   or user-facing Vanguard selector is involved. Given Seed, Yixuan, and Astra,
   no Vanguard exists and every Vanguard-dependent Seed source is absent.
 - AE1a. **Covers R3-R3c.** Given full representative Seed, Cissia, and Anby,
-  Anby's displayed current Initial ATK is 2,450.6 and Cissia's is 1,967, so the
-  ordinary exact, unrounded comparison selects Anby without consulting party
-  slot. Directly changing only Cissia's Slot 5 from Electric DMG to ATK% raises
-  her displayed Initial ATK to 2,462.3 and moves Vanguard and its received
-  Result sources to Cissia without preparing any setup. Current combat buffs do
-  not participate in either comparison.
+  the ordinary exact, unrounded Initial-ATK comparison selects Anby without
+  consulting party slot. Directly changing only Cissia's Slot 5 from Electric
+  DMG to ATK% moves Vanguard and its received Result sources to Cissia without
+  preparing any setup. Current combat buffs do not participate in either
+  comparison.
 - AE1b. **Covers R3-R3c.** Given Seed in applied slot 2 and two synthetic
   eligible Attack teammates in slots 1 and 3 with exactly equal unrounded
   Initial ATK, slot 1 is Vanguard. Swapping only those tied Agents' applied
@@ -415,9 +399,11 @@ The prose requirements govern if this diagram and the text ever differ.
   only the W-Engine to Drill Rig. Astral Voice is not added merely because a
   Quick Assist is mechanically possible. Given the authored Astra context, an
   all-party Apply prepares Cissia with Astral and Astra with Moonlight together.
-  A later target-only Cissia Mindscape or pool preparation and any direct Cissia
-  edit leave Astra untouched, even if duplicate Astral holders result; Result
-  applies the existing non-stacking behavior.
+  A later target-only Cissia Mindscape or pool preparation leaves Astra
+  untouched and treats her current Disc as established: if Astra already holds
+  Astral, Cissia prepares Dawn's Bloom rather than another Astral. A direct
+  Cissia edit still leaves Astra untouched and may create a duplicate that
+  Result handles through the existing non-stacking behavior.
 - AE4. **Covers R5, R13, R16-R17a.** Given Seed's base Slot 5 and 2-piece selectors,
   Cissia's active broad Electric DEF Ignore removes PEN Ratio and Puffer
   Electro. Cordis alone leaves both available. A direct pressure change clears
@@ -435,35 +421,29 @@ The prose requirements govern if this diagram and the text ever differ.
   show one Seed Core +1,000 ATK source and one Seed Core +30% CRIT DMG source.
   Result groups the three complete Seed action labels for common sources, nests
   the two Basic Attack forms for shared Basic scope, and adds only the narrower
-  Mindscape child outcome. Dawn's Bloom supplies Slaughter and Downfall
-  +15% at Initial, +35% at Combat, and +55% at Fully Enabled; M1 adds only to
-  Downfall and M4 only to Ultimate. The entry-established Core and M2 DEF Ignore
-  appear at Combat. Selecting Brimstone W1 uses 684 Base ATK internally for
-  Initial ATK, discloses Initial ATK +30% and the Fully Enabled eight-stack +28%
-  ATK source, and omits W-Engine Base ATK from Result disclosure. Refinement W5
-  changes that reachable source to +56% without changing candidate membership.
-  In the full authored party, M2 Seed has 45% broad Combat DEF Ignore from
-  Cissia Core plus Besiege and reaches 65% on its Cordis-scoped Basic/Ultimate
-  outcomes;
-  Vanguard Cissia has 73% broad Combat DEF Ignore from her Core, Serpentine
-  Seeker, and Besiege, while Astra omits the region.
-  Selecting Heartstring instead supplies Seed +24% Initial CRIT Rate and +50%
-  Combat CRIT DMG without a Fire RES Ignore row; preparing the full pool again
-  restores Cordis rather than treating candidate admission as first-choice
-  priority.
+  Mindscape child outcome. Dawn's Bloom contributes through its shared
+  source-owned surfaces; M1 adds only to Downfall and M4 only to Ultimate. The
+  entry-established Core and M2 DEF Ignore appear at Combat. Selecting
+  Brimstone composes its Base ATK internally, discloses its Initial and reachable
+  ATK sources, and omits W-Engine Base ATK from Result disclosure. Refinement
+  changes the reachable source without changing candidate membership. In the
+  full authored party, M2 Seed combines Cissia Core, Besiege, and Cordis on the
+  applicable DEF-region outcomes; Vanguard Cissia combines Core, Serpentine,
+  and Besiege, while Astra omits the region. Selecting Heartstring instead
+  supplies Seed's mixed-CRIT package without a Fire-RES-Ignore row; preparing
+  the full pool again restores Cordis rather than treating candidate admission
+  as first-choice priority.
 - AE6. **Covers R11a-R11b, R15-R16b.** Given Cissia's full representative, the
-  Initial Energy Regen gauge reads 3.744 and reaches the 25% DEF Ignore cap.
-  In selected and candidate Setup cards, Dawn's Bloom 4-piece is summarized as
-  `Basic Attack DMG +40%` and Woodpecker Electro 4-piece as `ATK +27%`; their
-  corresponding 2-piece rows remain `Basic Attack DMG +15%` and `CRIT Rate
-  +8%`, and routine trigger or category-acquisition prose is absent.
-  Serpentine Seeker contributes Combat CRIT Rate +25% and its entry-established
-  28% Electric DEF Ignore; W5 changes those sources to 40% and 42%. Switching
-  only Cissia to the non-limited Drill Rig W5 representative reads 3.588 and
-  24.233%, while the grouped `Corrode Bone` and `Basic Attack: Serpent's Kiss`
-  outcome gains the exact +80% Basic Electric DMG source; Drill Rig W1 instead
-  contributes +50%. M1 scales the Core
-  values to 35% and 33.927% without changing another Agent's setup, and M2 adds
+  selected shared facts compose her Energy Regen gauge and Core DEF-Ignore
+  relationship. Selected and candidate Setup cards use the shared compressed
+  Disc and W-Engine packages, omitting routine trigger or category-acquisition
+  prose. Changing Serpentine refinement changes its CRIT and Electric-DEF-Ignore
+  sources without changing membership. Switching only Cissia to the
+  non-limited Drill Rig representative replaces those sources with its grouped
+  `Corrode Bone` and `Basic Attack: Serpent's Kiss` Basic-Electric-DMG source.
+  Changing Drill Rig refinement changes that source without changing the
+  prepared package. M1 scales the Core values without changing another Agent's
+  setup, and M2 adds
   +35% only to Serpent's Kiss.
 - AE7. **Covers R18-R18c.** Given the selected complete party, Astral Voice is
   disclosed as Cissia's source and Moonlight Lullaby as Astra's source; neither
@@ -490,12 +470,13 @@ The prose requirements govern if this diagram and the text ever differ.
   is Vanguard, her existing Fully Enabled CRIT-DMG-derived Aftershock phase
   observes both Seed's +30% Vanguard CRIT DMG and Cissia's party +40%; moving
   Vanguard to Cissia removes only Seed's +30% from Anby, and the same
-  established Anby-only phase recalculates without adding another
-  received-effect-dependent outgoing phase.
+  established Anby phase recalculates. Seed and Cissia add no further
+  received-effect-dependent outgoing phase; this example does not claim that
+  Anby is the repository's only post-delivery derived provider.
 - AE10. **Covers R19-R20.** Given this document has passed user review, planning
   may choose the smallest implementation shape that preserves the requirements.
   Before that review, no plan or implementation is authorized by this capture.
-- AE11. **Covers R7, R11a, R16-R16b.** Given full-pool Cissia, Bellicose Blaze is selectable and supplies Initial Energy Regen +60% plus Combat CRIT Rate +20%, while no Fire Aftershock DEF Ignore source or Result row appears. Serpentine Seeker remains the prepared full first choice and continues to supply its usable Electric DEF Ignore. Bellicose Blaze is absent from the non-limited pool.
+- AE11. **Covers R7, R11a, R16-R16b.** Given full-pool Cissia, Bellicose Blaze is selectable and supplies its source-owned Initial Energy Regen and Combat CRIT Rate, while no Fire Aftershock DEF Ignore source or Result row appears. Serpentine Seeker remains the prepared full first choice and continues to supply its usable Electric DEF Ignore. Bellicose Blaze is absent from the non-limited pool.
 
 ---
 

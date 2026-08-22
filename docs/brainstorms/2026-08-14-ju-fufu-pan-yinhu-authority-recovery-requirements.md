@@ -63,12 +63,11 @@ and equipment consequences, so no shared named-Agent rule is warranted.
   Hellfire, Steam, and Precious. All are Stun-holder legal and retain only
   compatible activations. Full prepares Roaring W1; non-limited prepares
   Hellfire W1.
-- R6. Roaring's complete package supplies advanced ATK +30%, EX/Chain/Ultimate
-  Daze +28%, and squad DMG +20% at the retained fully enabled stack state.
-  Hellfire supplies advanced Impact +18%, automatic off-field Energy +0.6/s,
-  and fully enabled Impact +20% at W1. Steam and Precious retain their exact
-  Energy/Impact or Daze packages. The rare full pool and the non-limited pool
-  are authored independently.
+- R6. Roaring's complete ATK, EX/Chain/Ultimate-Daze, and squad-DMG package is
+  fully compatible with Ju Fufu. Hellfire supplies a distinct Impact/off-field-
+  Energy package; Steam and Precious retain their Energy/Impact or Daze
+  directions. The rare full pool and the non-limited pool are authored
+  independently.
 - R7. Ju Fufu's 4-piece candidates are King of the Summit and Swing Jazz.
   Two-piece candidates are Shockstar, King, Hormone Punk,
   Astral Voice, Swing Jazz, and Moonlight Lullaby, subject to different-set and
@@ -80,8 +79,8 @@ and equipment consequences, so no shared named-Agent rule is warranted.
 - R8. Base main choices are ATK% in Slot 4, ATK%/Fire DMG in Slot 5, and ATK%/
   Impact in Slot 6. Base effective substats are ATK% and flat ATK. Selecting
   King additionally exposes CRIT Rate Slot 4, Woodpecker 2-piece, and CRIT Rate
-  substats solely to reach King's 50% threshold. Leaving King clears invalid
-  selected inputs without fallback; reselecting King restores membership but no
+  substats solely to reach King's source-owned threshold. Leaving King clears
+  invalid selected inputs without fallback; reselecting King restores membership but no
   prior selection or count. Lycaon is the closest pressure-only contrast;
   Trigger retains independent CRIT when her own relationship qualifies.
 - R9. At M0, full prepares Roaring, King/Woodpecker, CRIT Rate/ATK%/ATK%; at
@@ -104,11 +103,11 @@ and equipment consequences, so no shared named-Agent rule is warranted.
   the Core scaling change in R10.
 - R12. Full W-Engine candidates are Tusks of Fury, Tremor Trigram Vessel, and
   Spring Embrace; non-limited retains Tremor and Spring. All are Defense-holder
-  legal. Full prepares Tusks W1; non-limited prepares Tremor W5. Tusks supplies advanced Impact +18%
-  and reachable squad DMG +18% and Daze +12%; its shield clause has no current
-  consumer. Tremor supplies advanced ATK +25%, EX/Ultimate DMG +40%, and its
-  exact 3.2-Energy event clause as Setup-only package copy, not a Result
-  operation. Spring's ATK advanced stat directly advances Pan's Initial-ATK
+  legal. Full prepares Tusks W1; non-limited prepares Tremor W5. Tusks supplies
+  a reachable squad-DMG/Daze package; its personal Impact and shield clause have
+  no current consumer. Tremor supplies ATK and EX/Ultimate DMG; its event-Energy
+  clause remains Setup-only package copy, not a Result operation. Spring's ATK
+  advanced stat directly advances Pan's Initial-ATK
   provider cap and its transferable Energy-generation clause supplies a
   distinct resource package despite unused survival copy. It remains a
   candidate rather than replacing Tremor's stronger cap-facing first choice. A

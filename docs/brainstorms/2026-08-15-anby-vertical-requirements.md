@@ -100,20 +100,17 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   Restrained, Steam Oven, Precious Fossilized Core, and Demara Battery Mark II.
   Non-limited candidates are Hellfire, The Restrained, Steam, Precious, and
   Demara. Both pools prepare Hellfire W1.
-- R7. Hellfire is the prepared first choice through Base ATK 684, advanced
-  Impact +18%, off-field Energy +0.6/s, and Fully Enabled Impact +20%, a broad
-  Daze/resource package that serves both Core actions. Blazing retains a
+- R7. Hellfire is the prepared first choice through its broad Impact/off-field-
+  Energy package, which serves both Core actions. Blazing retains a
   distinct high-Impact squad package; Restrained retains Basic-only DMG/Daze
   aligned with Thunderbolt; Steam and Precious retain distinct Energy/Impact
   and target-HP Daze packages. Ice-Jade is excluded because Anby's ordinary
   Basic-to-Thunderbolt sequence does not sustain its 15/30 Basic-hit thresholds
   without displacing the current EX and swap cadence.
-- R8. Add Demara Battery Mark II as A-Rank, non-limited, Base ATK 624,
-  advanced Impact +15%, and W1-W5 Electric DMG +15% / 17.5% / 20% / 22% / 24%.
-  Its Dodge Counter or Assist Attack activation and the resulting Energy
-  Generation Rate +18% / 20.5% / 23% / 25% / 27.5% remain retained
-  authoring/activation facts for eligibility and applicability. Compressed
-  Setup keeps the affected Energy Generation Rate outcome but intentionally
+- R8. Add Demara Battery Mark II as an A-Rank non-limited candidate. Its Impact,
+  Electric-DMG, and Dodge-Counter/Assist-activated Energy-generation package is
+  fully usable by Anby. Setup keeps the affected Energy Generation Rate outcome
+  but intentionally
   omits routine trigger and duration prose. The unconditional Electric DMG
   remains complete selected/candidate package copy but, like the personal
   damage clauses excluded by R14, does not create an Anby Result row. The
@@ -136,11 +133,11 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
 - R10. Anby's 4-piece candidates are King of the Summit, Astral Voice,
   Shockstar Disco, and Swing Jazz. Her 2-piece candidates are Shockstar, King,
   and Swing. King is the non-stacking squad CRIT threshold package; Astral is
-  a stronger controllable entrant package at 16% from two reachable stacks;
+  a stronger controllable entrant package at its reachable partial state;
   Shockstar is action-limited Daze;
   and Swing is a reachable Chain/Ultimate squad package with Energy Regen.
   Proto Punk is excluded holder-locally because its unused Shield Effect and
-  enemy-first Assist route do not make its 15% squad-DMG package competitive
+  enemy-first Assist route do not make its squad-DMG package competitive
   with Astral or Swing. Thunder Metal's
   personal Shock-dependent ATK package does not remain material for Anby's
   primary direction, and its matching Attribute alone does not admit it.
@@ -149,7 +146,7 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   Regen is a distinct resource-direction choice for EX access, while M1,
   Demara, and M4 use Energy Generation Rate and do not supply that stat.
   Selected King adds CRIT Rate in Slot 4 and as an effective substat solely for
-  its 50% threshold. It does not add Woodpecker 2-piece.
+  its source-owned threshold. It does not add Woodpecker 2-piece.
 - R12. Both pools locally prepare Hellfire, King/Shockstar, CRIT Rate / Electric
   DMG / Impact, and zero CRIT Rate hits. The visible fixed threshold basis is
   `5 + 24 = 29%`; nine ordinary CRIT Rate hits reach 50.6%. The zero start
@@ -201,8 +198,9 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   Ordinary non-stacking Result policy applies once.
 - AE3. Calculation tests prove Core action forms, M2 target-state EX-Daze,
   Hellfire/Restrained Daze projection and Demara's absence from personal Result,
-  King threshold below and above 50%, and the absence of Additional, M1, M4,
-  and Demara Energy Generation Rate facts from Energy Regen and operations.
+  King threshold below and above its source-owned boundary, and the absence of
+  Additional, M1, M4, and Demara Energy Generation Rate facts from Energy Regen
+  and operations.
 - AE4. Shared UI tests prove Anby and Anby: Soldier 0 remain distinct visible
   identities, Setup candidate and selected copy are accessible, Result stays
   empty when incomplete, and no new generic resource surface appears.

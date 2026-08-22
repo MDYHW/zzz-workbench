@@ -123,38 +123,29 @@ Koleda adds no new common mechanism.
   Both prepare Tremor W5. Under SW-010, City Fund Spring remains eligible there
   as an A-Rank and independently competitive through its transferable resource
   direction.
-- R7. Tremor is a matching-Defense complete damage package: Base ATK 624,
-  advanced ATK +25%, EX/Ultimate DMG +40%, and its exact 3.2-Energy event
-  clause retained in Setup-only package copy and outside Result. Tusks' complete copy includes advanced Impact
-  +18%, Shield Effect +30%, squad DMG +18%, and squad Daze +12% at W1. Shield
-  Effect remains Setup-only survival copy and adds no positive axis.
-  Cloudcleave and Hailstorm are off-Specialty partial packages; each retains
-  Base ATK 743 and respectively CRIT DMG +48% or CRIT Rate +24%. Hailstorm's
-  inactive Anomaly passive is CRIT DMG
-  +50% plus two 20% Ice-DMG stacks triggered by EX Special or any squad
-  Attribute Anomaly; none of it applies to Ben's Result. Setup nevertheless
-  shows each source-owned complete package without compatibility labels.
-  Cloudcleave's CRIT DMG +48% and Hailstorm's CRIT Rate +24% are equivalent
-  CRIT investment directions that can exchange Slot 4 and future-substat
+- R7. Tremor is a matching-Defense complete ATK and EX/Ultimate-DMG package;
+  its event-Energy clause remains Setup-only copy outside Result. Tusks supplies
+  a recipient-facing squad-DMG/Daze package, while its Impact and Shield Effect
+  do not strengthen Ben's direction. Shield Effect remains Setup-only survival
+  copy and adds no positive axis. Cloudcleave and Hailstorm are off-Specialty
+  partial packages with equivalent-rarity CRIT-DMG or CRIT-Rate directions.
+  Hailstorm's Anomaly and Ice clauses are inactive for Ben and do not apply to
+  Result. Setup nevertheless shows each source-owned complete package without
+  compatibility labels. Cloudcleave's CRIT DMG and Hailstorm's CRIT Rate are
+  equivalent CRIT investment directions that can exchange Slot 4 and future-substat
   balance, so both remain material full-pool alternatives. Severed Innocence
   and Heartstring Nocturne repeat one of those same CRIT supplies at lower Base
   ATK without a usable Ben passive and remain excluded.
-- R8. Big Cylinder is a matching-Defense local DEF package: Base ATK 624,
-  advanced DEF +40%, DMG taken -12%, and at W5 the next hit after Ben is
-  attacked is a guaranteed CRIT with an added 960% of DEF, once per 7.5
-  seconds. The incoming-damage activation remains a retained authoring fact;
-  compressed Setup keeps the Big Cylinder next-hit outcome and omits routine
-  trigger and duration prose, outside Result. Spring Embrace supplies Base ATK
-  594, advanced ATK +25%, DMG taken -12%, and after Ben is attacked grants
-  Energy Generation Rate +16% for 12 seconds; switching him off-field
-  transfers the buff to the new on-field Agent and refreshes its duration.
-  Its activation and transfer remain retained authoring/applicability facts;
-  compressed Setup keeps the Spring transfer outcome and omits routine trigger
-  and duration prose, not Energy Regen or a Result operation. Their survival
-  copy does not establish membership. Big Cylinder remains competitive through Ben's DEF-to-ATK
-  relationship and the distinct next-hit DEF operation; Spring remains through
-  ATK and its transferable resource package. Neither conclusion credits the
-  damage-reduction clauses.
+- R8. Big Cylinder is a matching-Defense local DEF and next-hit package. Its
+  incoming-damage activation and cadence remain authoring interpretation;
+  compressed Setup keeps the next-hit outcome outside Result. Spring Embrace
+  supplies ATK and a transferable Energy-generation package. Its activation,
+  transfer, and duration remain authoring interpretation; compressed Setup
+  keeps the transfer outcome without creating Energy Regen or a Result
+  operation. Their survival copy does not establish membership. Big Cylinder
+  remains competitive through Ben's DEF-to-ATK relationship and the distinct
+  next-hit DEF operation; Spring remains through ATK and its transferable
+  resource package. Neither conclusion credits the damage-reduction clauses.
 - R9. Ben's 4-piece roster is Woodpecker Electro, Astral Voice, Bunny in
   Wonderland, and Swing Jazz. Dialyn's Ultimate opportunity contextually adds
   Puffer Electro. His 2-piece roster is Woodpecker, Branch & Blade, Inferno
@@ -170,10 +161,10 @@ Koleda adds no new common mechanism.
 - R10. Ben's main roster is CRIT Rate/CRIT DMG/ATK% in Slot 4, Fire DMG/PEN
   Ratio/ATK% in Slot 5, and ATK% in Slot 6; effective substats are CRIT Rate,
   CRIT DMG, and ATK%. DEF and ATK both supply his one Combat ATK axis through
-  Core's `0.8 × DEF` relation: at Ben ATK 867 and Tremor Base ATK 624, an ATK%
-  hit adds 44.73 Combat ATK while a DEF% hit adds 27.8016 and flat DEF adds 12;
-  an ATK% main adds 447.3 while a DEF% main adds 278.016. DEF main, DEF%, and
-  flat DEF therefore lose the finite same-axis comparison.
+  Core's `0.8 × DEF` relation. With Ben's retained Agent values and selected
+  Tremor fact, both a fixed ATK% main and one ATK% substat hit add more Combat
+  ATK than their DEF alternatives. DEF main, DEF%, and flat DEF therefore lose
+  the finite same-axis comparison.
   Big Cylinder's fixed DEF and event operation remain complete package facts,
   not repeatable setup investment directions.
 - R11. Both pools prepare Tremor from its fully usable personal-damage package.
@@ -200,8 +191,8 @@ Koleda adds no new common mechanism.
 - R14. Koleda's full W-Engine candidates are Hellfire Gears, Blazing Laurel,
   The Restrained, Steam Oven, and Precious Fossilized Core. Her non-limited
   S-Rank pool excludes only Blazing from that admitted set. Both pools prepare
-  Hellfire W1: its off-field Energy +0.6/s and
-  fully enabled Impact +20% directly reinforce Koleda's EX-driven Core Daze.
+  Hellfire W1: its off-field Energy and fully enabled Impact directly reinforce
+  Koleda's EX-driven Core Daze.
   Blazing exchanges that resource package for higher Assist-enabled Impact and
   Fire/Ice squad CRIT DMG. The Restrained is a separate enhanced-Basic DMG/Daze
   direction. Steam remains the accessible A-Rank resource/Impact package, and

@@ -87,13 +87,12 @@ Aftershock catalogue.
   activation-dependent broad ATK packages do not create a material package
   advantage over Gilded's fully aligned EX/ATK package or Marcato's CRIT/ATK
   axis at zero supplied substats.
-- R6. Add exact Gilded Blossom facts: A-Rank Attack, non-limited, Base ATK 594,
-  advanced ATK 25%, and W1-W5 ATK +6% / 6.9% / 7.8% / 8.7% / 9.6% plus EX
-  Special DMG +15% / 17.2% / 19.5% / 21.8% / 24%. Both clauses are usable by
-  Orphie and remain separately visible in Setup and Result.
+- R6. Add Gilded Blossom as an A-Rank non-limited Attack candidate. Its ATK and
+  EX-Special-DMG clauses are both usable by Orphie and remain separately visible
+  in Setup and Result.
 - R7. Orphie's 4-piece candidates are Shadow Harmony and Astral Voice. Shadow
   is the local self-package through Aftershock/Dash 2-piece identity and its
-  4-piece ATK +12% and CRIT Rate +12%. Astral is a distinct controllable
+  4-piece ATK/CRIT package. Astral is a distinct controllable
   one-recipient squad alternative, not a numerical duplicate of Shadow.
   Orphie's 2-piece candidates are Shadow Harmony, Inferno Metal, Woodpecker
   Electro, Branch & Blade Song, Hormone Punk, Astral Voice, Swing Jazz, and
@@ -101,15 +100,14 @@ Aftershock catalogue.
   whole-package combination; same-effect ATK and Energy identities follow the
   existing exact-identity lifecycle.
 - R8. Full prepares Shadow Harmony 4-piece plus Swing Jazz 2-piece, CRIT DMG /
-  Fire DMG / Energy Regen mains, and zero substats. Its fixed CRIT Rate is
-  `5 + 25 Core + 20 Bellicose + 12 Shadow = 62%`; another fixed 24% main would
-  leave too little of the conservative eight-hit CRIT opportunity, so CRIT DMG
-  precedes it. The Energy package yields
-  `1.56 × (1 + .60 + .20 + .60) = 3.744`, which reaches Orphie's Core ATK cap.
+  Fire DMG / Energy Regen mains, and zero substats. Its selected W-Engine,
+  Shadow, and Agent-local Core supply leave too little of the conservative
+  eight-hit CRIT opportunity for another fixed CRIT-Rate main, so CRIT DMG
+  precedes it. The selected Energy package reaches Orphie's Core ATK cap.
   Non-limited prepares Gilded Blossom W5, Shadow Harmony 4-piece plus Swing
   Jazz 2-piece, CRIT Rate / Fire DMG / Energy Regen mains, and zero substats.
-  Its fixed CRIT Rate is `5 + 25 + 12 = 42%`, so the CRIT Rate main precedes
-  CRIT DMG before future substat allocation. The prepared difference is a
+  Its lower fixed CRIT supply makes the CRIT Rate main precede CRIT DMG before
+  future substat allocation. The prepared difference is a
   bounded authored representative, not runtime scoring.
 
 ### Pulchra equipment authoring
@@ -136,11 +134,9 @@ Aftershock catalogue.
   excluded because its Basic-stack activation does not match that direction
   closely enough to beat the retained aligned packages. Support W-Engines are
   ineligible and never enter numerical comparison.
-- R11. Add exact Box Cutter facts: A-Rank Stun, non-limited, Base ATK 624,
-  advanced Impact 15%, and, after the holder's Aftershock, W1-W5 Physical DMG
-  +15% / 17.3% / 19.5% / 21.8% / 24% and Daze +10% / 11.5% / 13% / 14.5% /
-  16%. Both clauses are Fully Enabled and retain their Physical and Daze
-  consumers separately.
+- R11. Add Box Cutter as an A-Rank non-limited Stun candidate. Pulchra can
+  activate its Aftershock-conditioned Physical-DMG/Daze package, and both
+  clauses retain their separate consumers.
 - R12. Pulchra's four-piece candidates are King of the Summit, Astral Voice,
   and Swing Jazz. Her two-piece candidates are Shockstar,
   King, and Swing; selected King additionally exposes Woodpecker as the current
@@ -249,10 +245,10 @@ Aftershock catalogue.
   CRIT DMG/Fire/Energy, and Pulchra with Blazing/King/Shockstar and
   CRIT Rate/Physical/Impact. Every offered effective-substat count starts at
   zero and all three Results are complete.
-- AE2. Orphie's full Initial Energy Regen is 3.744 and Zeroed In supplies the
-  capped +700 ATK. Non-limited Gilded/Shadow/Swing reaches Initial Energy Regen
-  2.808, supplies +521.6 ATK through the continuous relation, and prepares CRIT
-  Rate rather than CRIT DMG. Direct pool change rebuilds only Orphie.
+- AE2. Orphie's full representative reaches Zeroed In's ATK cap. The
+  non-limited Gilded/Shadow/Swing package remains below it through the same
+  continuous relation and prepares CRIT Rate rather than CRIT DMG. Direct pool
+  change rebuilds only Orphie.
 - AE3. Orphie's Result exposes self Aftershock DMG +85%; qualified all-party
   Aftershock DEF Ignore +25%; Bellicose Fire Aftershock DEF Ignore; and the
   separate Heartstring, Cordis, or Gilded action rows only when selected.
@@ -261,9 +257,10 @@ Aftershock catalogue.
 - AE4. At M1 Orphie exposes four-action Fire RES Ignore and broad Zeroed In DMG;
   at M2 she adds ATK; at M4 she adds Heat Charge/Ultimate DMG. M6 does not add a
   raw-damage operation or a fabricated coefficient total.
-- AE5. Pulchra's local prepared King begins at 39% CRIT Rate at default M6 and
-  reaches 51% at five hits. Selecting Astral clears CRIT main/count and exposes
-  the Focus entrant effect without a party-wide duplicate. Reselecting King restores the candidate
+- AE5. Pulchra's local prepared King begins below its threshold at default M6
+  and reaches it at five hits. Selecting Astral clears CRIT main/count and
+  exposes the Focus entrant effect without a party-wide duplicate. Reselecting
+  King restores the candidate
   at zero and never restores the prior count.
 - AE6. Pulchra Result keeps Core Daze on EX/Assist Follow-Up/Chain/Ultimate;
   Box Cutter Daze Fully Enabled while its Physical DMG remains Setup copy; and

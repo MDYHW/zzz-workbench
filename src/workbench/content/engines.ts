@@ -552,7 +552,7 @@ export const W_ENGINE_FACTS = {
     effects: {
       anomalyProficiency: {
         modifier: 'anomalyProficiency', unit: '',
-        progression: { kind: 'stacks', perStack: [30, 34, 38, 42, 46], maxStacks: 4 },
+        progression: { kind: 'stacks', perStack: [30, 34, 38, 42, 48], maxStacks: 4 },
       },
     },
   },

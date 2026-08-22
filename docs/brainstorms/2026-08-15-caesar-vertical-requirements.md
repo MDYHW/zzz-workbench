@@ -156,32 +156,27 @@ direction, raw damage, raw Daze, or runtime optimizer.
   City Fund Spring remains eligible as an A-Rank. Membership and representative
   authoring are independently supported per pool without crediting survival
   value.
-- R10. Tusks' complete package copy includes Base ATK 713, advanced
-  Initial Impact +18%, Shield Effect +30%, squad DMG +18%, and squad Daze +12%,
-  with Shield Effect retained only as Setup survival copy and no positive axis.
-  Tusks is admitted for its competitive squad DMG buffer value. Its Initial
-  Impact and squad Daze are source-compatible incidental projections, not the
-  membership rationale. Hellfire's Base ATK 684 and advanced Initial Impact
-  +18% are its only usable Caesar effects; its Stun-only Energy/Fully-Impact
+- R10. Tusks' complete package includes a recipient-facing squad-DMG/Daze
+  direction, with its Shield Effect retained only as Setup survival copy and no
+  positive axis. Tusks is admitted for its competitive squad-DMG buffer value.
+  Its Initial Impact and squad Daze are source-compatible incidental
+  projections, not the membership rationale. Hellfire's Base ATK and Initial
+  Impact are its only usable Caesar effects; its Stun-only Energy/Fully-Impact
   passive is inactive. Its usable Impact-to-Daze package remains a competitive
   secondary direction in the non-limited pool against Demara and Original, but
   does not displace Spring's distinct transferable-resource direction or the
   Tusks full-pool representative.
-- R11. Demara has Base ATK 624 and advanced
-  Initial Impact +15%, which can project retained Daze, while its Stun-only
-  Electric DMG/Energy Generation passive does not apply to Caesar. It is
-  excluded because its always-available Impact is lower than Hellfire's +18%;
-  A-Rank accessibility alone does not create a material choice. Original
-  Transmorpher is A-Rank non-limited with Base ATK 594, advanced HP +25%,
-  holder Max HP +8% / 9% / 10% / 11% / 12.5%, and after being attacked Fully
-  Enabled Impact +10% / 11.5% / 13% / 14.5% / 16% from W1-W5.
-  Original's HP is unused and its active Fully Enabled Impact +16% at W5 is
-  lower than Hellfire's always-available Initial Impact +18%. It is excluded
+- R11. Demara's Initial Impact can project retained Daze, while its Stun-only
+  Electric-DMG/Energy-generation passive does not apply to Caesar. It is
+  excluded because its always-available Impact package is weaker than
+  Hellfire's; A-Rank accessibility alone does not create a material choice.
+  Original Transmorpher's HP is unused and its after-attacked Fully Enabled
+  Impact package is weaker than Hellfire's always-available Initial Impact. It
+  is excluded
   from the same Daze direction after charging its unused HP and survival
   opportunity cost.
 - R12. Spring Embrace is admitted to both pools. Its A-Rank W5 package supplies
-  Base ATK 594, advanced ATK +25%, damage reduction, and Energy Generation Rate
-  +16% that transfers to the next on-field Agent. Damage reduction supplies no
+  ATK and next-holder Energy generation. Damage reduction supplies no
   positive axis, but the transferable resource is a distinct buffer operation
   rather than a weaker Impact substitute. Tremor Trigram Vessel and Big
   Cylinder remain excluded because their holder damage, small holder Energy,
@@ -193,21 +188,21 @@ direction, raw damage, raw Daze, or runtime optimizer.
 
 - R13. Caesar's base 4-piece roster is Bunny in Wonderland.
   Bunny's HP is unused survival value, while Caesar's own shield is only the
-  internal activation condition for up to squad DMG +18%.
+  internal activation condition for its squad-DMG package.
   A repeated Quick Assist opportunity appends
   Astral Voice, whose ATK is unused but whose controllable entrant DMG reaches
-  +16% at two stacks and +24% at three. Proto Punk is excluded: its Shield
+  the source-owned partial and maximum states. Proto Punk is excluded: its Shield
   Effect supplies no positive axis and
-  its enemy-first Assist-triggered +15% squad DMG is weaker than Bunny and lacks
+  its enemy-first Assist-triggered squad DMG is weaker than Bunny and lacks
   Swing's resource distinction. Swing 4-piece is likewise excluded because its
-  squad DMG +15% is a weaker same-axis value than Bunny's self-activated +18%,
+  squad DMG is a weaker same-axis value than Bunny's self-activated package,
   while Swing's Energy Regen can occupy the independent 2-piece slot beside
   Bunny. Shockstar 4-piece does not match Caesar's
   defining Special/Assist Daze, and Freedom Blues has no current anomaly axis.
 - R14. Caesar's 2-piece roster contains Swing Jazz, Shockstar Disco, and King
-  of the Summit. Swing Jazz's Energy Regen +20% is the prepared buffer/resource
-  complement beside Bunny 4-piece. Shockstar's Initial Impact +6% feeds the
-  retained broad Impact-to-Daze relationship, while King's Daze +6% occupies a
+  of the Summit. Swing Jazz's Energy Regen is the prepared buffer/resource
+  complement beside Bunny 4-piece. Shockstar's Initial Impact feeds the
+  retained broad Impact-to-Daze relationship, while King's Daze occupies a
   separate formula region. Current fixed Impact supply favors King for ordinary
   Daze, while the shielded Ultimate's existing action Daze Bonus changes their
   relative value; neither uniformly dominates across both outcomes. Both remain

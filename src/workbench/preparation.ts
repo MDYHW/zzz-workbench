@@ -333,12 +333,15 @@ function withCissiaAstralOpportunity(
   partyAgentIds: readonly AgentId[],
   establishedHolders: readonly EstablishedDiscHolder[],
   selection: SetupSelection,
+  canReallocateFlexibleHolders: boolean,
 ): SetupSelection {
   const heldByNonYieldingAgent = establishedHolders.some(({ agentId, fourPieceId }) => (
     agentId !== context.agentId
-    && agentId !== 'astraYao'
-    && agentId !== 'panYinhu'
     && fourPieceId === 'astralVoice'
+    && (
+      !canReallocateFlexibleHolders
+      || !exclusiveCollisionAlternative(agentId, ASTRAL_ALLOCATION)
+    )
   ))
   return context.agentId === 'cissia'
     && hasRepeatedQuickAssistOpportunity(partyAgentIds)
@@ -477,6 +480,7 @@ export function prepareTargetSelection(
     partyAgentIds,
     establishedHolders,
     nonoverlapping,
+    false,
   )
   const withoutContextualCollision = withEstablishedContextualCissiaCollisionResolved(
     context,
@@ -532,7 +536,13 @@ export function preparePartySelections(
     withKingCollisionAlternative(contexts[index], kingHolders, selection)
   ))
   const withCissiaAstral = withKingAlternatives.map((selection, index) => (
-    withCissiaAstralOpportunity(contexts[index], partyAgentIds, kingHolders, selection)
+    withCissiaAstralOpportunity(
+      contexts[index],
+      partyAgentIds,
+      kingHolders,
+      selection,
+      true,
+    )
   ))
   const withAstralAllocation = withNonoverlappingExclusiveDiscAllocation(
     contexts,
