@@ -16,7 +16,7 @@ current setup, equipment, delivery, action, lifecycle, and Result mechanisms.
 The only new calculation stage is Jane's acyclic post-delivery AP derivation.
 
 The permanent owners are `SF-001`-`SF-004`, `GV-001`-`GV-003` and
-`GV-005`-`GV-009`, `FM-001`-`FM-003` and `FM-006`-`FM-010`,
+`GV-005`-`GV-009`, `FM-001`-`FM-003` and `FM-006`-`FM-011`,
 `SW-002`-`SW-016`, and `UI-002`-`UI-004`. This requirement settles only the
 bounded Jane/Seth outcomes below; it does not restate those common policies.
 
