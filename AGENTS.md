@@ -255,18 +255,6 @@ itself establish semantic readiness.
   contrary condition, and selected-input lifecycle when applicable. Keep this
   analysis ephemeral and persist only the settled local outcome; do not restate
   the common policy in the requirement.
-- Shared W-Engine and Drive Disc facts exclusively own equipment rank and pool
-  identity, Base ATK or fixed supply, advanced stats, exact effects, refinement
-  progression, activation, stack, duration, action, Attribute, holder and
-  recipient conditions, surfaces, and compressed Setup copy. An Agent
-  requirement may name a selected W1/W5 refinement as a product input, but
-  persists only candidate and representative identities, holder compatibility,
-  usable and unused axes, nearest comparator, contrary case, finite opportunity
-  consequence, lifecycle, and local Setup or Result consequence. Do not copy
-  equipment values or simple equipment-derived prepared totals into an Agent
-  requirement. When a shared equipment fact changes, inspect every referencing
-  candidate and representative for a changed local outcome; do not add a
-  dependency registry, duplicate value, or item-specific catalogue test.
 - Secondary requirements cannot validate themselves. Review their new product
   conclusions against the owning permanent authority and established current
   consumers before writing an implementation plan. Tests, build, browser
