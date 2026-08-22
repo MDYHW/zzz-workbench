@@ -138,7 +138,8 @@ preserving the current three-surface Result grammar.
   AP +75. While an anomalied enemy is present it supplies ATK
   +10/11.5/13/14.5/16% and broad DMG Bonus +15/17.5/20/22.5/25%. Weeping Gemini
   is non-limited A-Rank Anomaly, Base ATK 594, advanced ATK +25%; each squad
-  Attribute Anomaly supplies AP +30/34/38/42/46 up to four stacks. Both are
+  Attribute Anomaly supplies AP +30/34/38/42/48 up to four stacks, for a W5
+  maximum of 192. Both are
   complete accessible alternatives, but neither displaces Fusion's Base ATK,
   PEN, ATK, and reachable AP package.
 - R16. Hailstorm Shrine is an eligible Anomaly engine but its CRIT and Ice

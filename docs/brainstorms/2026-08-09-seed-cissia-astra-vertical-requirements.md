@@ -200,12 +200,13 @@ The prose requirements govern if this diagram and the text ever differ.
   Full Astra completes that package with Astral Voice 2-piece; non-limited Astra
   retains Hormone Punk 2-piece. Astra preserves her current W-Engine, main-stat,
   effective-substat, pool, and M0-M1 versus M2-M6 preparation rules. A
-  target-only Cissia Mindscape or pool preparation prepares Cissia's authored
-  Astra-context package but may mutate only Cissia; Astra remains untouched even
-  when this leaves duplicate Astral Voice holders. Direct setup edits likewise
-  remain local and rerun no holder allocation. Existing non-stacking Result
-  behavior resolves any duplicate active effect. Candidate addition and holder
-  allocation remain separate authored decisions.
+  target-only Cissia Mindscape or pool preparation may mutate only Cissia and
+  treats Astra's selected Disc as established. It prepares contextual Astral
+  only when no established holder already uses Astral; otherwise Cissia keeps
+  her authored Dawn's Bloom package while Astra remains untouched. Direct setup
+  edits likewise remain local, rerun no holder allocation, and may create a
+  duplicate that existing non-stacking Result behavior resolves. Candidate
+  addition and prepared holder allocation remain separate authored decisions.
 
 **Retained facts and Result boundary**
 
@@ -365,8 +366,9 @@ The prose requirements govern if this diagram and the text ever differ.
   and Cissia add no aggregate action tag: the named action identities and their
   Basic, Ultimate, or source-specific applicability remain explicit. No Seed or
   Cissia output depends on a received clause before emitting another outgoing
-  clause, so the existing Anby-only extra calculation phase remains the sole
-  received-effect-dependent outgoing phase.
+  clause, so this vertical adds no post-delivery provider phase. Anby's bounded
+  derived-provider phase remains unchanged; other current post-delivery
+  derivations stay owned by the shared harness and are not generalized here.
 - R18d. When Seed selects Heartstring Nocturne, its advanced CRIT Rate appears
   at Initial and its +50% CRIT DMG appears at Combat and Fully Enabled. Seed
   receives no Fire RES Ignore row. This retained partial-package projection
@@ -415,9 +417,11 @@ The prose requirements govern if this diagram and the text ever differ.
   only the W-Engine to Drill Rig. Astral Voice is not added merely because a
   Quick Assist is mechanically possible. Given the authored Astra context, an
   all-party Apply prepares Cissia with Astral and Astra with Moonlight together.
-  A later target-only Cissia Mindscape or pool preparation and any direct Cissia
-  edit leave Astra untouched, even if duplicate Astral holders result; Result
-  applies the existing non-stacking behavior.
+  A later target-only Cissia Mindscape or pool preparation leaves Astra
+  untouched and treats her current Disc as established: if Astra already holds
+  Astral, Cissia prepares Dawn's Bloom rather than another Astral. A direct
+  Cissia edit still leaves Astra untouched and may create a duplicate that
+  Result handles through the existing non-stacking behavior.
 - AE4. **Covers R5, R13, R16-R17a.** Given Seed's base Slot 5 and 2-piece selectors,
   Cissia's active broad Electric DEF Ignore removes PEN Ratio and Puffer
   Electro. Cordis alone leaves both available. A direct pressure change clears
@@ -490,8 +494,9 @@ The prose requirements govern if this diagram and the text ever differ.
   is Vanguard, her existing Fully Enabled CRIT-DMG-derived Aftershock phase
   observes both Seed's +30% Vanguard CRIT DMG and Cissia's party +40%; moving
   Vanguard to Cissia removes only Seed's +30% from Anby, and the same
-  established Anby-only phase recalculates without adding another
-  received-effect-dependent outgoing phase.
+  established Anby phase recalculates. Seed and Cissia add no further
+  received-effect-dependent outgoing phase; this example does not claim that
+  Anby is the repository's only post-delivery derived provider.
 - AE10. **Covers R19-R20.** Given this document has passed user review, planning
   may choose the smallest implementation shape that preserves the requirements.
   Before that review, no plan or implementation is authorized by this capture.
