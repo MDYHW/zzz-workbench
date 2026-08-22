@@ -103,24 +103,18 @@ preserving the current three-surface Result grammar.
   independently retains Fusion Compiler, Electro-Lip Gloss, and Weeping
   Gemini. Full prepares Timeweaver W1; non-limited prepares Fusion Compiler
   W1. Directly selected S-Rank engines default to W1 and A-Rank engines to W5.
-- R11. Timeweaver is limited S-Rank Anomaly, Base ATK 713, advanced ATK +30%.
-  W1-W5 supplies Electric Anomaly Buildup Bonus +30/35/40/45/50%, Special/EX
-  against an anomalied enemy supplies AP +75/85/95/105/115, and AP at least 375
-  supplies Disorder DMG Bonus +25/27.5/30/32.5/35%. Grace consumes every clause
-  when its exact condition is reachable, making Timeweaver the full-pool first
-  choice.
+- R11. Timeweaver's retained Electric-buildup, AP, and thresholded Disorder
+  clauses are all compatible with Grace's current direction and reachable
+  party context, making it the full-pool first choice.
 - R12. Timeweaver's complete package remains visible regardless of party. Exact
   Result projection shows its AP threshold gauge only when another applied
   Agent has a non-Electric effective Attribute and therefore supplies a current
-  Disorder opportunity. The gauge uses Fully Enabled AP, threshold/cap 375,
-  and the selected refinement's Disorder DMG Bonus as output only at or above
-  the threshold. An all-Electric party is the contrasting no-Disorder Result;
-  no party anomaly sequence is simulated.
+  Disorder opportunity. The gauge uses Fully Enabled AP and the selected
+  W-Engine fact's threshold and output. An all-Electric party is the
+  contrasting no-Disorder Result; no party anomaly sequence is simulated.
 - R13. Practiced Perfection is the retained limited S-Rank partial Anomaly
-  alternative for Grace, with Base ATK 713 and advanced
-  ATK +30%. W1-W5 holder AM is +60/69/78/87/96. Its Assault-triggered Physical
-  DMG +20/23/26/29/32% per stack, two stacks on entry, is unused by Grace's
-  retained Electric anomaly direction. Grace's fixed representative already
+  alternative for Grace. Its ATK and AM axes are usable while its Physical
+  clause is unused by Grace's retained Electric anomaly direction. Grace's fixed representative already
   supplies AP/PEN Ratio/AM and preserves future AP before ATK% in the finite
   substat opportunity, so Practiced adds the less-supplied ATK axis while its
   AM still enters a separate multiplier from Grace's Core Buildup Bonus. That
@@ -130,18 +124,12 @@ preserving the current three-surface Result grammar.
   already supplied by Grace's representative and future investment; Flight of
   Fancy was likewise inspected as an AP+Buildup chassis and remains locally
   excluded. These are Grace-local exclusions, not global policy.
-- R14. Fusion Compiler is non-limited S-Rank Anomaly, Base ATK 684, advanced
-  PEN Ratio +24%. W1-W5 supplies ATK +12/15/18/21/24% and Special/EX AP
-  +25/31/37/43/50 per stack up to three. Grace consumes the full package, so it
-  prepares the non-limited pool over the A-Rank alternatives.
-- R15. Electro-Lip Gloss is non-limited A-Rank Anomaly, Base ATK 594, advanced
-  AP +75. While an anomalied enemy is present it supplies ATK
-  +10/11.5/13/14.5/16% and broad DMG Bonus +15/17.5/20/22.5/25%. Weeping Gemini
-  is non-limited A-Rank Anomaly, Base ATK 594, advanced ATK +25%; each squad
-  Attribute Anomaly supplies AP +30/34/38/42/48 up to four stacks, for a W5
-  maximum of 192. Both are
-  complete accessible alternatives, but neither displaces Fusion's Base ATK,
-  PEN, ATK, and reachable AP package.
+- R14. Grace consumes Fusion Compiler's full PEN, ATK, and reachable-AP
+  package, so it prepares the non-limited pool over the A-Rank alternatives.
+- R15. Electro-Lip Gloss and Weeping Gemini remain complete accessible
+  alternatives through their distinct AP, ATK, damage, and accumulating-AP
+  packages, but neither displaces Fusion Compiler as Grace's non-limited
+  representative.
 - R16. Hailstorm Shrine is an eligible Anomaly engine but its CRIT and Ice
   package has no Grace consumer. Frostfall Sickle's usable AM is dominated by
   the retained AM packages after its Ice and Abloom clauses are charged as
@@ -158,18 +146,15 @@ preserving the current three-surface Result grammar.
 
 ### Drive Disc authoring and prepared setup
 
-- R17. Add Chaos Jazz, Freedom Blues, and Phaethon's Melody. Chaos Jazz supplies
-  AP +30 at 2 pieces; at 4 pieces it supplies Fire/Electric DMG +15% and
-  off-field EX Special/Assist DMG +20%, with the retained five-second on-field
-  continuation. Freedom supplies AP +30 at 2 pieces and matching-Attribute
-  Anomaly Buildup RES Reduction +20% for eight seconds after EX Special at 4
-  pieces, non-stacking with the same Attribute. Phaethon supplies the retained
-  AM +8% 2-piece role. Its 4-piece AP and other-holder Ether DMG package is not
+- R17. Add Chaos Jazz, Freedom Blues, and Phaethon's Melody. Chaos preserves
+  the AP plus Fire/Electric and compatible action-DMG package; Freedom preserves
+  the AP plus matching-Attribute buildup-RES package; Phaethon supplies the AM
+  2-piece role. Phaethon's 4-piece AP and other-holder Ether DMG package is not
   retained for Grace because the Ether axis is unusable and the AP remainder
   does not preserve a competitive complete 4-piece package.
 - R18. Grace's 4-piece candidates are Thunder Metal, Chaos Jazz, and Freedom
-  Blues. Thunder's Shock-conditioned ATK +28% is the prepared
-  first choice; Grace establishes Shock herself and consumes the full ATK
+  Blues. Thunder's matching ATK package is the prepared first choice; Grace
+  satisfies its activation herself and consumes the full ATK
   package. Chaos preserves the broad Electric/AP alternative while its direct
   EX/Assist clause is not projected into the anomaly-only Result. Freedom
   preserves the unique buildup-RES route.

@@ -696,10 +696,10 @@ describe('profile calculation harness', () => {
             agentId, appliedPartySlot: slot, metrics: [critDmgMetric],
             actions: [actionProjection('critDmg', 'anbyAftershockCrit', AFTERSHOCK_TARGET)],
             anbyAftershockSource: core,
-            relationships: [baseStat(agentId, slot, 'critDmg', 158)],
+            relationships: [baseStat(agentId, slot, 'critDmg', 100)],
           }
         }
-        const amount = agentId === 'trigger' ? 30 : 25
+        const amount = agentId === 'trigger' ? 20 : 10
         const source = selectSource(
           defineAgentSource(agentId, 'crit-provider', `${agentId} CRIT provider`, 'core'),
           agentId, slot,
@@ -732,9 +732,9 @@ describe('profile calculation harness', () => {
       const result = evaluateProfileParty(state, [...profilesFor(state)].reverse())!
       const anby = agentResult(result, 'anbySoldier0')
       const trigger = agentResult(result, 'trigger')
-      expect(anby.metrics[0].values.fully).toBe(213)
-      expect(anby.actionModifiers[0].values.fully).toBeCloseTo(287.55, 10)
-      expect(trigger.actionModifiers[0].values.fully).toBeCloseTo(179.55, 10)
+      expect(anby.metrics[0].values.fully).toBe(130)
+      expect(anby.actionModifiers[0].values.fully).toBeCloseTo(175.5, 10)
+      expect(trigger.actionModifiers[0].values.fully).toBeCloseTo(125.5, 10)
       expect(anby.actionModifiers[0].breakdown.fully.filter(
         ({ label }) => label === 'Core Passive',
       )).toHaveLength(1)
@@ -792,7 +792,7 @@ describe('profile calculation harness', () => {
       metrics: [critDmgMetric],
       actions: [actionProjection('critDmg', 'anbyAftershockCrit', AFTERSHOCK_TARGET)],
       anbyAftershockSource: anbyCore,
-      relationships: [baseStat('anbySoldier0', 1, 'critDmg', 158)],
+      relationships: [baseStat('anbySoldier0', 1, 'critDmg', 100)],
     }, {
       agentId: 'soldier11', appliedPartySlot: 2,
       metrics: [damageMetric],
@@ -821,8 +821,8 @@ describe('profile calculation harness', () => {
     expect(lighter.metrics[0].values.fully).toBeCloseTo(189.06, 10)
     expect(lighter.metrics[0].gauge?.outputValue).toBeCloseTo(34.53, 10)
     expect(soldier.metrics[0].values.fully).toBeCloseTo(34.53, 10)
-    expect(anby.metrics[0].values.fully).toBe(188)
-    expect(anby.actionModifiers[0].values.fully).toBeCloseTo(253.8, 10)
+    expect(anby.metrics[0].values.fully).toBe(130)
+    expect(anby.actionModifiers[0].values.fully).toBeCloseTo(175.5, 10)
   })
 
   it('derives Rupture Sheer Force from each completed ATK and Max HP surface before direct additions', () => {

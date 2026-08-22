@@ -20,29 +20,6 @@ The permanent owners are `SF-001`-`SF-004`, `GV-001`-`GV-003` and
 `SW-002`-`SW-016`, and `UI-002`-`UI-004`. This requirement settles only the
 bounded Jane/Seth outcomes below; it does not restate those common policies.
 
-## Current Source Resolution
-
-Exact completed values use the current structured client-data payload exposed
-by zzz.nanoka.cc, version `3.2.3+18259966`:
-
-- [Jane character payload](https://static.nanoka.cc/zzz/3.2.3+18259966/en/character/1261.json)
-- [Seth character payload](https://static.nanoka.cc/zzz/3.2.3+18259966/en/character/1271.json)
-- [Weeping Gemini payload](https://static.nanoka.cc/zzz/3.2.3+18259966/en/weapon/13008.json)
-
-The payload exposes level-60 rows, completed Core increments, Potential detail,
-and refinement tables separately; the settled values below compose only those
-current level-60, full-Core, full-Potential rows required by a current consumer.
-The current Prydwen [Jane](https://www.prydwen.gg/zenless/characters/jane-doe)
-and [Seth](https://www.prydwen.gg/zenless/characters/seth) guides remain
-discovery and competitive-practice corroboration, not exact retained-value
-sources. Its current [W-Engine table](https://www.prydwen.gg/zenless/w-engines)
-still reports Weeping Gemini at 46 AP per W5 stack and 184 maximum, while the
-current client table reports
-48 and 192. This observed stale value lowers Prydwen's credibility for exact
-numeric retention without removing its bounded use for practiced setup
-comparisons. Do not add a runtime source registry, evidence payload, or copied
-client-data archive.
-
 ## Requirements
 
 ### Jane identity, direction, and retained relationships
@@ -90,18 +67,18 @@ client-data archive.
   Stinger W1, Fusion Compiler W1, Electro-Lip Gloss W5, and Weeping Gemini W5.
   The non-limited candidates are Fusion, Electro, and Weeping. Prepare
   Practiced in full and Weeping in non-limited.
-  - Practiced is the complete Physical package: ATK +30%, AM +60, and Physical
-    DMG up to +40%. AM overlaps Slot 6, but its ATK does not displace Jane's
-    prepared AP/PEN/AM mains; this is the decisive advantage over the other
-    legal partial AM/buildup packages. The ATK still overlaps finite ATK
-    substat and alternative-main opportunity and is not a unique formula axis.
-  - Sharpened supplies AP +90, Physical DMG up to +36%, and Physical buildup
-    +40% through Jane-valid entry, Dodge, and Dash routes. It remains the
-    nearest complete same-axis comparator and a distinct buildup direction.
+  - Practiced is the complete Physical package. Its AM overlaps Slot 6, but its
+    ATK does not displace Jane's prepared AP/PEN/AM mains; this is the decisive
+    advantage over the other legal partial AM/buildup packages. The ATK still
+    overlaps finite ATK-substat and alternative-main opportunity and is not a
+    unique formula axis.
+  - Sharpened's AP, Physical-damage, and Physical-buildup package is fully
+    compatible with Jane's operating interval. It remains the nearest complete
+    same-axis comparator and a distinct buildup direction.
   - Fusion supplies PEN/ATK/AP; Electro supplies AP/ATK/broad damage; Weeping
-    supplies ATK +25% and up to AP +192. These remain materially different
-    accessible packages. With prepared Slot 4 AP, Weeping gives Jane
-    `114 + 92 + 192 = 398` AP and crosses the 375 Assault-CRIT threshold.
+    supplies ATK/AP. These remain materially different accessible packages.
+    With prepared Slot 4 AP, the selected Weeping fact crosses Jane's
+    Assault-CRIT threshold.
   - Timeweaver is legally selectable and arithmetically positive but rejected:
     its ATK is usable, its AP repeats Slot 4/future AP, its Disorder threshold
     repeats an admitted damage direction, and its Electric buildup is unusable.
@@ -153,16 +130,14 @@ client-data archive.
 - R12. Seth's full W-Engine candidates are Peacekeeper - Specialized W5,
   Tusks of Fury W1, and Spring Embrace W5. Non-limited keeps Peacekeeper and
   Spring. Prepare Peacekeeper in both pools.
-  - Peacekeeper's shield condition is active in Seth's actual interval, so its
-    automatic Energy +0.64/s supports repeated buffer access; EX/Assist buildup
-    +55% is usable but does not establish Seth's role. Advanced ATK is unused
-    personal supply.
-  - Tusks supplies squad DMG +18% and squad Daze +12%, a distinct limited
-    recipient-facing package. Personal Impact and shield strength do not
-    strengthen Seth's direction.
-  - Spring's next-on-field Energy Generation Rate +16% transfer is a distinct
-    accessible buffer operation. Its ATK and incoming-damage reduction do not
-    strengthen the role, and cadence prevents a numeric Result operation.
+  - Peacekeeper's Energy and EX/Assist buildup are active in Seth's actual
+    interval and support repeated buffer access without establishing his role.
+    Its personal ATK is unused supply.
+  - Tusks supplies a distinct limited recipient-facing damage/Daze package.
+    Personal Impact and shield strength do not strengthen Seth's direction.
+  - Spring supplies a distinct accessible next-holder Energy-transfer
+    operation. Its ATK and incoming-damage reduction do not strengthen the
+    role, and cadence prevents a numeric Result operation.
   - Tremor, Big Cylinder, Original Transmorpher, Half-Sugar Bunny, and
     off-Specialty chassis leave only weaker, personal, survival, cadence-bound,
     or inactive remnants after comparison with those three packages.
@@ -224,10 +199,9 @@ client-data archive.
 
 ## Acceptance Examples
 
-- AE1. With prepared Jane and Focus-directed Seth, Jane starts at
-  `114 + 92 = 206` AP and receives Seth's +100 for 306. Passion adds 372 ATK;
-  Core Assault CRIT Rate is 88.96% and Core CRIT DMG is 50%. Jane-triggered
-  Assault also receives the separate Potential +30% CRIT DMG. A compatible
+- AE1. With prepared Jane and Focus-directed Seth, Jane receives Seth's AP and
+  recomposes Passion and the Assault gauge from the completed AP result.
+  Jane-triggered Assault also receives the separate Potential +30% CRIT DMG. A compatible
   Physical anomaly teammate receives only the Core provider, not Potential;
   Electric Seth receives neither Assault provider. No shield or final-damage
   row appears.
@@ -236,10 +210,11 @@ client-data archive.
   Seth and Piper, while the enemy buildup-RES contribution disappears. Existing
   Piper/Burnice local effects remain unchanged.
 - AE3. Jane full prepares Practiced/Fanged/Puffer/AP/PEN/AM. Non-limited
-  prepares Weeping/Fanged/Puffer/AP/PEN/AM, and Weeping's Result contribution is
-  192 AP. Broad pre-PEN pressure prepares Freedom/Physical instead. Directly
-  adding that pressure clears selected Puffer/PEN without fallback; removing it
-  restores membership but not the cleared selection.
+  prepares Weeping/Fanged/Puffer/AP/PEN/AM and derives Weeping's AP Result
+  contribution from the selected shared fact. Broad pre-PEN pressure prepares
+  Freedom/Physical instead. Directly adding that pressure clears selected
+  Puffer/PEN without fallback; removing it restores membership but not the
+  cleared selection.
 - AE4. Given Jane/Seth/Cissia on Party Apply, Seth's repeated Quick Assist admits
   contextual Cissia Astral. Cissia keeps the rigid Astral package and flexible
   Seth moves to Swing/Moonlight. Without a repeated-Quick-Assist holder, Cissia
@@ -252,11 +227,7 @@ client-data archive.
   cadence-derived Energy Result operation. Selecting Freedom exposes Setup copy
   but no holder-local or Attribute-scoped Result until the deferred shared
   correction is separately admitted.
-- AE7. Weeping W5 contributes 192 AP to any current compatible selected holder.
-  Grace and Piper's candidate memberships and representatives do not change.
-  Burnice remains over her Afterburn AP cap before and after the +8 correction,
-  so only her AP breakdown changes.
-- AE8. Portrait metadata or DOM tests without original-asset and four-destination
+- AE7. Portrait metadata or DOM tests without original-asset and four-destination
   browser comparison leave the portrait unit incomplete.
 
 ## Scope Boundary

@@ -294,10 +294,11 @@ ever differ.
   migration extends shared reference and representative-flow coverage without
   adding an Agent-named calculation suite.
 - AE10. **Covers R12, R20.** Given Anby's provider-local Fully Enabled CRIT DMG
-  is 158% and independent providers deliver 30% and 25%, the bounded derived
-  phase reads 213% and supplies 74.55% to each compatible Aftershock outcome.
-  Reordering slots or providers preserves the value, and the derived clause
-  neither changes the 213% basis nor schedules another derivation.
+  is `L` and independent providers deliver `P` and `Q`, the bounded derived
+  phase reads `L + P + Q` once and supplies `0.35 * (L + P + Q)` to each
+  compatible Aftershock outcome. Reordering slots or providers preserves the
+  value, and the derived clause neither changes its basis nor schedules another
+  derivation.
 - AE11. **Covers R10, R12.** Given Fully Enabled AP received from an independent
   provider, the completed value can activate Timeweaver at, but not below, 375
   and changes Burnice's continuous capped Afterburn output. Both gauges and

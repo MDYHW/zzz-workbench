@@ -72,8 +72,9 @@ Basic/Ultimate action effect.
   filtered copy of the full ranking, establishes the two choices.
 - R8. Retain each candidate's complete usable and unused package. Cordis CRIT
   applies broadly and its compatible DEF Ignore appears as a Basic/Ultimate
-  action modifier, 20% at W1; Electric DMG is unused. The aggregate/headline
-  DEF-Ignore basis remains zero. Heartstring's Fire-only clause is unused;
+  action modifier at its source-owned value; Electric DMG is unused. The
+  aggregate/headline DEF-Ignore basis remains zero. Heartstring's Fire-only
+  clause is unused;
   Steel's back-attack and Marcato's activation remain on their exact current
   scopes. Candidate dominance never defines these Result projections.
 - R9. Selected Myriad creates broad DEF-Ignore pressure because its package

@@ -118,20 +118,24 @@ consumers. The preflight must find the narrow boundary between those failures.
   does not batch-calibrate or admit portraits.
 - R11. Inventory one finite through-2.8 equipment universe once: every
   Anomaly-Specialty S-Rank and A-Rank W-Engine first introduced by Version 2.8,
-  and every Drive Disc set first introduced by Version 2.8. Use each eligible
-  item's current released facts and record rank, pool availability, Base ATK or
-  fixed package supply, advanced stat, refinement progression, exact effect,
+  and every Drive Disc set first introduced by Version 2.8. Verify that each
+  eligible item's shared retained fact owns rank, pool availability, Base ATK
+  or fixed package supply, advanced stat, refinement progression, exact effect,
   trigger, recipient or holder restriction, condition, same-effect identity,
-  and controllability. Exclude B-Rank W-Engines and every equipment identity
-  first introduced after Version 2.8.
+  controllability, and compressed Setup copy. The preflight inventory records
+  identities and missing shared facts, not a second copy of those values.
+  Exclude B-Rank W-Engines and every equipment identity first introduced after
+  Version 2.8.
 - R12. Keep common equipment facts separate from Agent-local competitive
   judgments. An inventoried item gains no candidate membership, prepared
   priority, or visible Result merely because another Agent consumes an
   equal-looking effect.
-- R13. Final Setup compression remains consumer-specific. Each vertical must
+- R13. Shared equipment facts own final Setup compression. Each vertical must
   account for the complete package, unused clauses, partial limited
   competition, slot cost, condition reliability, and selected-versus-candidate
-  parity before settling compressed copy.
+  parity before settling membership and preparation, but persists only the
+  local usable/unused judgment and visible consequence rather than another
+  copy of the equipment fact.
 
 **Harness and vertical entry gate**
 

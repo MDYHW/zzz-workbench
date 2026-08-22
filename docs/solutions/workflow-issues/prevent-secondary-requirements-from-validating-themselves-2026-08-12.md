@@ -1,7 +1,7 @@
 ---
 title: Prevent secondary requirements from validating themselves
 date: 2026-08-12
-last_updated: 2026-08-14
+last_updated: 2026-08-23
 category: workflow-issues
 module: controller-refresh-and-requirements-authoring
 problem_type: workflow_issue
@@ -131,6 +131,16 @@ Persist only the resulting bounded policy. This check is not a source registry,
 evidence payload, runtime score, optimizer, candidate catalogue, or universal
 condition language. If exact evidence cannot resolve a representative, stop
 authoring that representative rather than guessing a replacement.
+
+The equipment fact used during that proof remains in its shared W-Engine or
+Drive Disc owner. Do not copy its Base ATK, advanced stat, exact values,
+refinement table, activation details, or compressed Setup copy into the Agent
+requirement, and do not freeze a simple total derived from those facts there.
+The Agent requirement keeps the selected identity/refinement, compatibility,
+usable and unused axes, comparison outcome, lifecycle, and visible local
+consequence. If a shared equipment value changes later, re-evaluate those local
+outcomes rather than synchronizing duplicate prose or adding an item-specific
+catalogue test.
 
 Eligibility precedes package comparison. A package with stronger visible values
 cannot dominate for a holder that fails its exact Specialty or activation

@@ -136,16 +136,14 @@ The prose requirements govern if this diagram and the text ever differ.
   recipient direction even while another required setup input is incomplete, so
   an incomplete setup cannot hide the candidate needed to repair itself.
 
-### Exact Puffer package and setup policy
+### Puffer package and setup policy
 
-- R8. Retain the exact Puffer Electro package needed by the current consumer:
-  the 2-piece effect is PEN Ratio +8%; the 4-piece effect increases Ultimate DMG
-  by 20%, and launching an Ultimate increases the equipper's ATK by 15% for 12s.
-  A selected 4-piece owns its inherent 2-piece effect.
-- R9. Setup applies the common semantic compression rule. Puffer's 2-piece row
-  shows `PEN Ratio +8%`; its 4-piece summary shows `Ultimate DMG +20%` and
-  `ATK +15%`. The routine trigger and 12s duration remain exact authoring facts
-  used to settle the package, not Setup prose or runtime uptime state.
+- R8. Puffer Electro's inherited PEN, Ultimate-DMG, and post-Ultimate ATK
+  package is fully usable by the admitted recipients. A selected 4-piece owns
+  its inherent 2-piece effect.
+- R9. Setup applies the shared Disc fact's semantic compression. Routine trigger
+  and duration detail remains authoring interpretation, not Setup prose or
+  runtime uptime state.
 - R10. Puffer Electro is a contextual 4-piece addition only. Do not add it to
   any recipient's authored base 4-piece set, add new Puffer 2-piece membership,
   or change any current W-Engine, main-stat, effective-substat, or complementary
@@ -187,10 +185,9 @@ The prose requirements govern if this diagram and the text ever differ.
 ### Result and calculation boundary
 
 - R17. A complete selected Puffer 4-piece setup projects three current
-  relationships with Puffer source identity: Initial PEN Ratio +8% from its
-  inherent 2-piece effect; Ultimate-scoped regular DMG Bonus +20% from Initial
-  through Fully Enabled from its 4-piece effect; and Fully Enabled ATK +15%
-  after the equipper launches an Ultimate. The Ultimate amount remains
+  relationships with Puffer source identity: inherited PEN Ratio;
+  Ultimate-scoped regular DMG Bonus; and post-Ultimate Fully Enabled ATK. The
+  Ultimate amount remains
   action-scoped and must not inflate the parent DMG Bonus metric.
 - R18. The Ultimate action outcome is canonical and recipient-local. Seed's
   existing Ultimate action composes Puffer with other applicable Seed sources;
@@ -199,7 +196,7 @@ The prose requirements govern if this diagram and the text ever differ.
   the retained Aftershock outcome, preserving its Aftershock classification and
   other applicable Ultimate clauses without applying Puffer to every
   Aftershock. Basic, Dash, Corrode Bone, Slaughter, and Downfall outcomes do not
-  inherit Puffer's Ultimate-only +20%.
+  inherit Puffer's Ultimate-only contribution.
 - R19. Dialyn's opportunity itself produces no Result operation, stat row, or
   gauge. It changes effective candidate membership, while the selected Puffer
   package supplies the retained numeric Result. Dialyn M6 Aftertone remains
@@ -250,12 +247,12 @@ The prose requirements govern if this diagram and the text ever differ.
   reprepares Seed from her local pool representative while Cissia and Dialyn
   remain byte-for-byte unchanged.
 - AE7. **Covers R17-R18.** Given complete Puffer setups, Seed, Cissia, and Anby
-  each show Initial PEN Ratio +8%, Fully Enabled ATK +15%, and an Ultimate action
-  DMG Bonus from Initial through Fully Enabled that is 20 percentage points
-  above the same parent contribution before other action-scoped sources. The
-  +20% does not appear on their parent DMG Bonus metric or unrelated actions.
+  each show Puffer's inherited PEN Ratio, post-Ultimate ATK, and
+  Ultimate-scoped DMG Bonus at their source-owned values. The Ultimate
+  contribution does not appear on their parent DMG Bonus metric or unrelated
+  actions.
 - AE8. **Covers R17-R18.** Given Seed M4 selects Puffer, Puffer's Ultimate
-  +20% and Seed M4's Ultimate +20% remain separate atomic sources in the same
+  contribution and Seed M4's Ultimate +20% remain separate atomic sources in the same
   canonical action outcome. Given Anby selects Puffer, Ultimate appears as the
   canonical child action of the retained Aftershock outcome, and Puffer's source
   applies only to that Ultimate child rather than every Aftershock action.

@@ -85,14 +85,9 @@ output, runtime package score, or catalogue.
   Germina, The Brimstone, Heartstring Nocturne, and Starlight Engine.
   Non-limited retains The Brimstone and Starlight Engine. Full prepares Zanshin
   Herb Case W1; non-limited prepares The Brimstone W1.
-- R5. Add Zanshin Herb Case as limited S-Rank Attack, Base ATK 713, advanced
-  CRIT DMG +48%. At W1-W5 it supplies CRIT Rate +10% / 11.5% / 13% / 14.5% /
-  16%, Electric Dash Attack DMG +40% / 46% / 52% / 58% / 64%, and another CRIT
-  Rate +10% / 11.5% / 13% / 14.5% / 16% for 15 seconds after any squad member
-  applies an Attribute Anomaly or Stuns an enemy. Harumasa is holder-eligible,
-  his defining Dash action consumes the action/Attribute clause, and the
-  repeated party route reaches the conditional CRIT clause. At W1 Setup
-  compresses this to `CRIT Rate +20%` and `Electric Dash Attack DMG +40%`;
+- R5. Add Zanshin Herb Case as a limited S-Rank Attack candidate. Harumasa is
+  holder-eligible, his defining Dash action consumes its action/Attribute
+  clause, and the repeated party route reaches its conditional CRIT clause.
   Result preserves the unconditional and enabled timing surfaces without
   displaying trigger prose.
 - R6. The retained Harumasa W-Engine comparisons remain whole packages:
@@ -134,15 +129,14 @@ output, runtime package score, or catalogue.
   The Restrained, Hellfire Gears, Steam Oven, and Precious Fossilized Core.
   Non-limited retains The Restrained, Hellfire, Steam, and Precious. Full prepares Ice-Jade
   Teapot W1; non-limited prepares Steam Oven W5.
-- R11. Ice-Jade is fully compatible with Qingyi's repeated Basic route and
-  supplies Base ATK 713, advanced Impact +18%, Fully Enabled Impact +21%, and
-  non-stacking squad DMG +20%. The Restrained's Basic-only DMG and Daze clauses
+- R11. Ice-Jade's Impact and non-stacking squad-DMG package is fully compatible
+  with Qingyi's repeated Basic route. The Restrained's Basic-only DMG and Daze clauses
   both match her defining action, unlike the excluded Lycaon package. Blazing
   retains its Impact package and Fire/Ice squad-CRIT alternate for current
-  eligible Focus recipients. Hellfire retains Base ATK, advanced Impact, and
-  Fully Enabled Impact while its off-field Energy clause is unused; Steam
-  supplies Energy Regen and broad maximum Impact +25.6%; Precious supplies
-  Impact and broad two-threshold Daze +32%. Steam's repeated-EX resource/Daze
+  eligible Focus recipients. Hellfire retains its Impact package while its
+  off-field Energy clause is unused; Steam supplies Energy and broad reachable
+  Impact; Precious supplies Impact and broad thresholded Daze. Steam's
+  repeated-EX resource/Daze
   balance selects the non-limited representative without removing Hellfire's
   higher-Base-ATK/Impact package or Precious's distinct Daze package.
 - R12. Qingyi's authored base 4-piece candidates are King of the Summit,
@@ -175,7 +169,7 @@ output, runtime package score, or catalogue.
   pressure when King is absent.
 - R15. Both pools locally prepare King 4-piece plus Shockstar 2-piece with CRIT
   Rate / Electric DMG / Impact mains and zero substat hits. Qingyi's Initial
-  King basis is `5 + 24 = 29%`; nine legal CRIT hits reach 50.6%. The visible
+  King basis is below its threshold; nine legal CRIT hits reach it. The visible
   zero-hit setup therefore keeps King's first squad clause and a finite future
   opportunity for the threshold rather than pretending that future investment
   is already supplied. Full Ice-Jade plus Impact main and Shockstar 2-piece
@@ -288,7 +282,8 @@ output, runtime package score, or catalogue.
   Zanshin/Cordis, M2, and M6 scopes without leaking Dash-only, Basic-only,
   Ultimate-only, or Electric-only values to a contrast action/Attribute.
 - AE4. Qingyi full and non-limited candidates and first choices match R10-R15.
-  Prepared King starts at 29%, its output changes at 50%, and zero supplied hits
+  Prepared King starts below its threshold, its output changes when the
+  threshold is reached, and zero supplied hits
   remain visible. Ice-Jade reaches the Impact-to-ATK cap while Steam's prepared
   zero start remains below it.
 - AE5. Qingyi Result shows Enchanted Basic DMG/Daze, Basic Additional Daze,

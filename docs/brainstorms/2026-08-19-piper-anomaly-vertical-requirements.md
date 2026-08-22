@@ -121,15 +121,9 @@ only distinctions that change Piper's competitive setup or visible Result.
   A-Rank choices. Other through-2.8 Anomaly
   engines are excluded when their Attribute, off-field, Abloom, CRIT, or other
   unusable clauses leave no materially competitive Piper package.
-- R9. Newly retained Sharpened Stinger is limited S-Rank Anomaly, Base ATK
-  713, advanced AP 90. W1-W5 Predatory Instinct supplies Physical DMG
-  +12/15/18/21/24% per stack up to three for 10 seconds and, at three stacks,
-  Anomaly Buildup Rate +40/50/60/70/80%. Entry or Perfect Dodge supplies three
-  stacks; Dash Attack supplies one with the stated 0.5-second trigger limit.
-  Newly retained Roaring Ride is non-limited A-Rank Anomaly, Base ATK 624,
-  advanced ATK +25%. An EX Special hit chooses one five-second effect at most
-  once per 0.3 seconds: W1-W5 ATK +8/9.2/10.4/11.6/12.8%, AP
-  +40/46/52/58/64, or Anomaly Buildup Rate +25/28/32/36/40%.
+- R9. Sharpened Stinger's Physical-DMG and buildup package is fully reachable
+  in Piper's current interval, while Roaring Ride's ATK, AP, and buildup
+  outcomes are all usable through Piper's sustained EX route.
 - R10. Existing Practiced Perfection, Fusion Compiler, Electro-Lip Gloss, and
   Weeping Gemini facts remain owned by their current retained fact records;
   Piper does not restate or alter them. Rainforest Gourmet's Energy-spend route
@@ -138,40 +132,28 @@ only distinctions that change Piper's competitive setup or visible Result.
   distinct role, formula, action, or operation axis. Activation suitability is
   therefore insufficient to admit it in either pool.
 - R11. Practiced Perfection is Piper's full-pool representative at W1. Piper
-  consumes its high Base ATK, advanced ATK, flat AM, and Physical DMG package;
+  consumes its complete ATK, AM, and Physical-DMG package;
   it wins as a complete package rather than from signature association or one
   isolated value.
 - R12. Roaring Ride is Piper's non-limited representative at W5. Piper's
   repeatable multi-hit EX Special can establish each of its three distinct
-  outcomes in Fully Enabled Result. Equal kinds do not stack and refresh their
-  duration; ATK, AP, and buildup are different kinds and can coexist. Its W5
-  compressed passive uses three final-effect lines: `ATK +12.8%`, `AP +64`,
-  and `Anomaly Buildup +40%`; lower refinements substitute their owned values.
-  Selected and candidate copy use these same lines. Trigger order, probability,
-  refresh, duration, maintenance, and partial uptime stay out of Setup copy and
-  the service does not predict them.
+  outcomes in Fully Enabled Result. The outcomes coexist under their shared
+  source semantics, while trigger order, probability, maintenance, and partial
+  uptime remain outside the service.
 - R13. Sharpened Stinger remains a full-pool alternative because its AP,
-  Physical DMG, and maximum-stack buildup package is usable through its stated
-  entry, dodge, and Dash Attack routes, but it does not displace Practiced
+  Physical-DMG, and buildup package is fully usable by Piper, but it does not displace Practiced
   Perfection's less conditional complete package for the prepared start.
   Fusion Compiler, Electro-Lip Gloss, and Weeping Gemini remain distinct
   accessibility or supply alternatives only while their whole package is
   retained; no isolated AP or ATK clause establishes membership. Sharpened
-  Stinger's Setup copy likewise compresses its maximum reachable package to
-  `Physical DMG +36%` and `Physical Anomaly Buildup +40%` at W1, with owned
-  refinement values substituted, rather than displaying stack acquisition,
-  duration, or cooldown prose.
+  Stinger's complete package remains visible in selected and candidate Setup.
 
 **Drive Disc and finite investment authoring**
 
 - R14. Piper's 4-piece candidates are Fanged Metal and Freedom Blues. Fanged's
-  inherent 2-piece Physical DMG +10% and 4-piece
-  effect form her prepared direct-anomaly package: when any squad member
-  inflicts Assault on an enemy, the holder deals +35% regular DMG to that target
-  for 12 seconds. Repeated Assault refreshes the state; it is a holder-side DMG
-  Bonus against that target, not generic DMG Taken, and projects at Fully
-  Enabled. Its Setup copy is `Assaulted target · Holder DMG +35%`; the trigger
-  sequence, refresh, and duration remain internal. Freedom's AP and matching-
+  complete Physical and Assault-target package forms her prepared
+  direct-anomaly choice, with the reachable holder-side effect projected only
+  on its owned surface. Freedom's AP and matching-
   Attribute buildup-RES reduction form the contrasting application package.
   Phaethon's Melody remains Piper's AM 2-piece complement, but its 4-piece is
   excluded because the other-holder Ether DMG axis is unusable and its AP

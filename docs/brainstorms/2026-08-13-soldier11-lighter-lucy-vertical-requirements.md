@@ -69,8 +69,9 @@ faction graph, or guide-backed evidence payload.
   qualify each other through their exact Sons of Calydon faction.
 - R4. Soldier 11 uses ATK, CRIT Rate, CRIT DMG, Fire DMG, and PEN Ratio through
   general damage; effective substats are CRIT Rate, CRIT DMG, and ATK%. Lighter
-  uses Impact and Daze, with no base effective substat. King selection adds only
-  CRIT Rate at count zero because it creates the current 50% threshold consumer.
+  uses Impact and Daze, with no base effective substat. King selection adds
+  only CRIT Rate at count zero because it creates the current source-owned
+  threshold consumer.
   Lucy uses ATK and Energy Regen and has no effective substat in the authored
   competitive packages because every current candidate representative already
   reaches her highest Core requirement at zero supplied substats.
@@ -161,10 +162,10 @@ faction graph, or guide-backed evidence payload.
   projection. Her 2-piece candidates are Swing Jazz, Moonlight Lullaby,
   Hormone Punk, and Astral Voice under the same-effect lifecycle.
 - R16. Both Lucy pools prepare Moonlight 4-piece plus Astral Voice 2-piece with
-  ATK% / ATK% / Energy Regen mains and zero substats. Kaboom W5 produces
-  Initial ATK 2,495.4, above even M0-M2's highest 2,265.5 requirement, so the
-  prepared package spends Slot 6 on Energy Regen. Astral is the exposed ATK
-  2-piece because Astral is also a current 4-piece candidate; the shared
+  ATK% / ATK% / Energy Regen mains and zero substats. The selected Kaboom W5
+  fact reaches even M0-M2's highest Core requirement at zero supplied substats,
+  so the prepared package spends Slot 6 on Energy Regen. Astral is the exposed
+  ATK 2-piece because Astral is also a current 4-piece candidate; the shared
   same-effect lifecycle is not bypassed with a hidden Hormone selection.
 
 ### Current Agent and equipment projection

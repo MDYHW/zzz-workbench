@@ -59,10 +59,10 @@ version switch, named-party table, or guide-backed evidence payload.
 
 ### Ellen equipment authoring
 
-- R4. Add Deep Sea Visitor as an Attack S-Rank limited W-Engine: Base ATK 713,
-  CRIT Rate +24%, Ice DMG +25%, CRIT Rate +10% after a Basic hit, and a separate
-  +10% after an Ice Dash hit. Both CRIT clauses are current Combat inputs; they
-  are not merged solely because their values match.
+- R4. Add Deep Sea Visitor as an Attack S-Rank limited W-Engine. Its Ice-DMG and
+  two independently activated CRIT clauses are fully compatible with Ellen and
+  are current Combat inputs; they are not merged solely because their values
+  match.
 - R5. Ellen's full candidates are Deep Sea Visitor, Myriad Eclipse, Cordis
   Germina, Steel Cushion, The Brimstone, and Starlight Engine. Non-limited
   candidates are Steel Cushion, The Brimstone, and
@@ -90,31 +90,30 @@ version switch, named-party table, or guide-backed evidence payload.
   same-effect identity lifecycle compresses the ATK pair. Her prepared Disc
   package in both pools is Woodpecker 4-piece plus Puffer 2-piece, with CRIT
   DMG / PEN Ratio / ATK% mains in full and CRIT Rate / PEN Ratio / ATK% in
-  non-limited. At zero substats, full Deep Sea reaches Initial ATK 2,462.3,
-  Initial CRIT Rate 51.4%, Combat CRIT Rate 71.4%, Initial CRIT DMG 98%, and
-  Initial PEN Ratio 32%. Eight conservative CRIT Rate substat hits reach 90.6%
-  Combat CRIT Rate at M0, preserving finite headroom without discarding Deep
-  Sea's native supply. Non-limited Brimstone keeps the same legal Disc package
-  with CRIT Rate Slot 4 rather than manufacturing a different set to compensate
-  for future substats.
+  non-limited. Full Deep Sea keeps finite CRIT Rate headroom at M0 after its
+  complete zero-substat package and the conservative eight-hit opportunity;
+  the opportunity remains useful rather than displacing Deep Sea's native
+  supply. Non-limited Brimstone keeps the same legal Disc package with CRIT
+  Rate Slot 4 rather than manufacturing a different set to compensate for
+  future substats.
 
 ### Soukaku equipment authoring
 
 - R8. Soukaku's full and non-limited W-Engine candidates are Weeping Cradle and
   Kaboom the Cannon. Both pools prepare Kaboom W5. Kaboom is holder-compatible,
   its four distinct-squad stacks are reachable with the ordinary Bangboo party
-  member without exposing Bangboo as an input, and it provides Energy Regen
-  +50% plus squad ATK +16% while still reaching Soukaku's completed-Core cap at
+  member without exposing Bangboo as an input, and its Energy/party-ATK package
+  reaches Soukaku's completed-Core cap at
   zero supplied substats. Weeping is the closest same-recipient-axis
-  alternative: off-field Energy and squad DMG +20.2% are usable buffer clauses,
+  alternative: off-field Energy and squad DMG are usable buffer clauses,
   while its advanced PEN is outside Soukaku's authored direction. Bashful Demon
   is not retained for Soukaku: after the direction gate, its personal Ice DMG
-  is unused, and its remaining ATK +25% plus squad ATK +12.8% package neither
+  is unused, and its remaining ATK/party-ATK package neither
   adds Energy nor beats Kaboom's stronger squad ATK after both packages reach
   the same Core cap. No limited engine is forced into full merely because that
   pool permits one.
 - R9. Soukaku's 4-piece candidates are Moonlight Lullaby and Astral Voice.
-  Moonlight is exactly Support-holder-compatible and supplies squad DMG +18%
+  Moonlight is exactly Support-holder-compatible and supplies squad DMG
   through her EX/Ultimate operation. Soukaku's own Vortex-consuming Fly the
   Flag supplies the repeated Quick Assist route that makes Astral a base rather
   than contextual candidate; Astral supplies a stronger single entrant value
@@ -122,9 +121,9 @@ version switch, named-party table, or guide-backed evidence payload.
   Her 2-piece candidates are Swing Jazz, Moonlight Lullaby, Hormone Punk, and
   Astral Voice, subject to the established same-effect identity lifecycle.
 - R10. Both Soukaku pools prepare Moonlight 4-piece plus Astral Voice 2-piece,
-  ATK% / ATK% / Energy Regen mains, and zero substats. With Kaboom W5 the
-  Initial ATK is 2,507.3, already above the 2,500 needed for her completed-Core
-  1,000 output. The package therefore spends Slot 6 on Energy Regen rather than
+  ATK% / ATK% / Energy Regen mains, and zero substats. The selected Kaboom fact
+  reaches her completed-Core ATK cap at zero supplied substats. The package
+  therefore spends Slot 6 on Energy Regen rather than
   oversupplying ATK. This does not remove ATK substats from other legal edited
   packages that can fall below the cap.
 
@@ -185,10 +184,10 @@ version switch, named-party table, or guide-backed evidence payload.
 - AE2. Switching only Ellen to non-limited prepares Brimstone W1 and leaves
   Soukaku unchanged. Switching Soukaku pools preserves the same Kaboom W5
   package because its independently authored representative is legal in both.
-- AE3. Full Ellen at M0 shows 75.4 Initial and 95.4 Combat CRIT Rate before
-  substats, while M1 reaches the 100% cap rather than displaying 107.4. Her
-  Core/Potential/M2/M6 modifiers appear only on their exact action or attribute
-  consumers.
+- AE3. Full Ellen at M0 begins below the CRIT Rate cap and retains useful
+  future CRIT Rate opportunity; cumulative M1 supply and edited counts never
+  display above the cap. Her Core/Potential/M2/M6 modifiers appear only on
+  their exact action or attribute consumers.
 - AE4. Ellen + Soukaku activates Ellen's +30% Ice DMG and Soukaku's all-party
   +20% Ice DMG. Replacing Soukaku with a non-Stun, non-Ice, non-Victoria Agent
   removes Ellen's qualified effect; replacing Ellen analogously removes

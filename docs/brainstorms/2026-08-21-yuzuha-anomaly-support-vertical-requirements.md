@@ -115,12 +115,8 @@ Slot 4 AP choice into AP substats, damage equipment, or personal Result rows.
 
 ### W-Engine authoring
 
-- R7. Add Metanukimorphosis as limited S-Rank Support, Base ATK 713, advanced
-  Energy Regen +60%. W1-W5 supplies holder AM +30/34/39/43/48 and all party AP
-  +60/69/78/87/96 through its source conditions. Selected and candidate Setup
-  copy compresses those outcomes to `Anomaly Mastery +N` and
-  `Squad Anomaly Proficiency +N`; triggers, duration, and instance limits stay
-  in the retained fact only.
+- R7. Metanukimorphosis's holder AM and party AP clauses are compatible with
+  Yuzuha's current provider direction.
 - R8. Yuzuha's full candidates are Metanukimorphosis, Thoughtbop, Weeping
   Cradle, Kaboom the Cannon, and Unfettered Game Ball. Her non-limited
   candidates are Weeping Cradle, Kaboom, and Unfettered. Unfettered's
@@ -133,17 +129,17 @@ Slot 4 AP choice into AP substats, damage equipment, or personal Result rows.
   Slice of Time, Vault, and Half Sugar Bunny are excluded where activation is
   impossible or their personal, HP, pre-filled ATK, or weaker repeated axes are
   dominated after unused opportunity cost is charged.
-- R9. Full prepares Metanukimorphosis W1. Its Base ATK and Energy Regen support
-  Tanuki Wish, its AM closes Yuzuha's Additional cap with the prepared Disc
+- R9. Full prepares Metanukimorphosis W1. Its Energy and AM axes support Tanuki
+  Wish and close Yuzuha's Additional cap with the prepared Disc
   package at Fully Enabled, and its AP reaches only current
   `anomaly_damage` recipients. Thoughtbop remains the nearest limited
-  same-axis Support alternative through high Base ATK, Energy Regen, squad
+  same-axis Support alternative through Energy, squad
   regular DMG, and squad ATK; it does not displace Metanukimorphosis's distinct
   AM/AP anomaly package.
-- R10. Non-limited prepares Kaboom the Cannon W5. Its Base ATK, Energy Regen,
-  and squad ATK are all used, while Weeping Cradle W1 charges an unused
-  advanced PEN Ratio against its higher Base ATK, off-field Energy, and squad
-  regular DMG package. Weeping remains the nearest partial same-axis
+- R10. Non-limited prepares Kaboom the Cannon W5. Its Energy and squad ATK axes
+  are used, while Weeping Cradle charges an unused PEN Ratio axis against its
+  off-field Energy and squad regular-DMG package. Weeping remains the nearest
+  partial same-axis
   alternative and Unfettered the recipient-dependent CRIT contrast.
   Non-limited exclusion of limited S-Ranks is availability semantics, not a
   lower-rarity pool; all three non-limited choices also appear in full.
@@ -194,13 +190,11 @@ Slot 4 AP choice into AP substats, damage equipment, or personal Result rows.
   Initial-ATK provider reserves a conservative eight future hits in each
   retained same-axis substat supplier: ATK% and flat ATK. Eight is an
   authoring pressure check, not a maximum, exact distribution, saturation
-  claim, optimizer input, or farming promise. Full Metanukimorphosis zero-
-  substat Initial ATK is 2669.6 and eight ATK% plus eight flat hits raise it
-  to 3174.64; non-limited Kaboom zero is 2527.2 and eight ATK% plus eight flat
-  hits raise it to 3010.88. The prepared Phaethon/AM package gives AM 171.12
-  before the engine: Metanukimorphosis W1 reaches 201.12 and the output cap of
-  200, while Kaboom remains at 171.12. Prepared Result still supplies zero
-  substat counts in both pools.
+  claim, optimizer input, or farming promise. Both zero-substat representatives
+  begin below the Initial-ATK cap and can reach it within the bounded ATK% and
+  flat-ATK opportunity. The selected Metanukimorphosis fact reaches the AM
+  output cap with the prepared Phaethon package, while Kaboom remains below it.
+  Prepared Result still supplies zero substat counts in both pools.
 
 ### Composition, lifecycle, and visible boundaries
 
