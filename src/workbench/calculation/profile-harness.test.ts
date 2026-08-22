@@ -472,11 +472,11 @@ describe('profile calculation harness', () => {
 
     const result = agentResult(evaluateProfileParty(state, profiles)!, 'astraYao')
     expect(result.metrics.find(({ id }) => id === 'impact')?.values)
-      .toEqual({ initial: 130, combat: 150, fully: 170 })
+      .toEqual({ initial: 130, combat: 156, fully: 182 })
     expect(result.metrics.find(({ id }) => id === 'atk')?.values)
-      .toEqual({ initial: 1060, combat: 1180, fully: 1300 })
+      .toEqual({ initial: 1060, combat: 1216, fully: 1372 })
     expect(result.metrics.find(({ id }) => id === 'impact')?.gauge)
-      .toEqual(expect.objectContaining({ current: 170, outputValue: 300 }))
+      .toEqual(expect.objectContaining({ current: 182, outputValue: 372 }))
   })
 
   it('keeps a completed-stat activation gauge below threshold and emits only at the earliest qualifying surface', () => {

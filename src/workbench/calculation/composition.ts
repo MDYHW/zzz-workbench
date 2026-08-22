@@ -45,9 +45,14 @@ function effectsForMetric(
   effects: ResolvedCurrentEffect[],
   metric: EffectMetric,
   action?: ActionTarget,
+  inheritedEffectTargets: readonly ActionTarget[] = [],
 ): ResolvedCurrentEffect[] {
+  const applicableTargets = action
+    ? [action, ...inheritedEffectTargets]
+    : [undefined]
   return effects.filter((effect) => (
-    effect.metric === metric && sameActionTarget(effect.action, action)
+    effect.metric === metric
+    && applicableTargets.some((target) => sameActionTarget(effect.action, target))
   ))
 }
 
@@ -153,9 +158,15 @@ export function composeActionEffects(
   effects: ResolvedCurrentEffect[],
   metric: EffectMetric,
   action: ActionTarget,
+  inheritedEffectTargets: readonly ActionTarget[] = [],
   cap?: { value: number; source: ResultSource },
 ): Pick<ActionModifier, 'values' | 'breakdown'> {
-  const scopedEffects = effectsForMetric(effects, metric, action)
+  const scopedEffects = effectsForMetric(
+    effects,
+    metric,
+    action,
+    inheritedEffectTargets,
+  )
   return composeMetricEffects(
     baseValues,
     surfaces([], [], []),
@@ -168,6 +179,8 @@ export function composeActionEffects(
 export interface ActionScopeNode {
   id: string
   target: ActionTarget
+  /** Broader canonical scopes whose effects apply without replacing this visible identity. */
+  inheritedEffectTargets?: readonly ActionTarget[]
   children?: readonly ActionScopeNode[]
 }
 
@@ -193,7 +206,14 @@ export function composeActionHierarchy(
     parentValues: Record<SurfaceKey, number>,
     nearestVisibleParentId?: string,
   ) => {
-    const composed = composeActionEffects(parentValues, effects, metric, node.target, cap)
+    const composed = composeActionEffects(
+      parentValues,
+      effects,
+      metric,
+      node.target,
+      node.inheritedEffectTargets,
+      cap,
+    )
     const id = `${node.id}${idSuffix}`
     const changed = surfaceValuesDiffer(composed.values, parentValues)
     if (changed) rows.push({

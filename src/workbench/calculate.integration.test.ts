@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { calculateParty } from './calculate'
 import { ADMITTED_AGENTS, type AgentId } from './content'
-import { createPreparedState } from './state'
+import { createPreparedState, workbenchReducer } from './state'
 
 const profileGroups: readonly (readonly [AgentId, AgentId, AgentId])[] = [
   ['yixuan', 'dialyn', 'lucia'],
@@ -63,6 +63,48 @@ describe('shared calculation integration', () => {
         ownerAgentId: 'astraYao',
       }))
     }
+  })
+
+  it('applies an equipment interval condition through direction metadata and a bounded holder override', () => {
+    const lycaonEnergyWith = (focusAgentId: 'corin' | 'ellen') => {
+      const companions = focusAgentId === 'corin'
+        ? ['corin', 'lycaon', 'lucia'] as const
+        : ['ellen', 'lycaon', 'soukaku'] as const
+      let state = createPreparedState({}, [...companions], 0)
+      state = workbenchReducer(state, {
+        type: 'selectEngine', slot: 1, engineId: 'hellfireGears',
+      })
+      return calculateParty(state)!.agents.find(({ agentId }) => agentId === 'lycaon')!
+        .metrics.find(({ id }) => id === 'energyRegen')
+    }
+
+    expect(lycaonEnergyWith('corin')).toBeUndefined()
+    const offFieldEnergy = lycaonEnergyWith('ellen')!
+    expect(offFieldEnergy.values.fully).toBeCloseTo(1.8)
+    expect(offFieldEnergy.breakdown.combat).toEqual([
+      expect.objectContaining({ label: 'Hellfire Gears', amount: 0.6 }),
+    ])
+  })
+
+  it('projects canonical equipment scopes through retained Agent-local action identities', () => {
+    const hasActionSource = (
+      state: ReturnType<typeof createPreparedState>,
+      agentId: AgentId,
+      metricId: 'dmgBonus' | 'defIgnore',
+      label: string,
+    ) => calculateParty(state)!.agents.find((agent) => agent.agentId === agentId)!
+      .actionModifiers.some((modifier) => (
+        modifier.metricId === metricId
+        && Object.values(modifier.breakdown).flat().some((source) => source.label === label)
+      ))
+
+    let state = createPreparedState({}, ['seed', 'cissia', 'evelyn'], 0)
+    expect(hasActionSource(state, 'seed', 'defIgnore', 'Cordis Germina')).toBe(true)
+    expect(hasActionSource(state, 'seed', 'dmgBonus', "Dawn's Bloom")).toBe(true)
+
+    state = workbenchReducer(state, { type: 'switchPool', slot: 1, pool: 'nonLimited' })
+    expect(state.slots[1].setup.engineId).toBe('drillRigRedAxis')
+    expect(hasActionSource(state, 'cissia', 'dmgBonus', 'Drill Rig - Red Axis')).toBe(true)
   })
 
   it('returns no Result while any required Setup selection is incomplete', () => {

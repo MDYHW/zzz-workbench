@@ -213,7 +213,8 @@ and genuine multi-recipient effects keep their actual rules.
   Full pool contains all six; non-limited contains Hellfire, Restrained, and the
   three A-Rank candidates. Full
   prepares Blazing Laurel W1 and non-limited prepares Steam Oven W5. Hellfire's
-  off-field Energy clause is unused by completed on-field Encircle Prey, but its
+  off-field Energy clause is unused while Corin's stun-led burst direction keeps
+  Lycaon on-field for completed Encircle Prey, but its
   Base ATK 684, advanced Impact +18%, and Fully Enabled Impact +20% remain a
   distinct usable Impact package beside Steam's Energy Regen +50% and maximum
   Impact +25.6%. Steam's prepared priority therefore does not exclude Hellfire
@@ -233,7 +234,10 @@ and genuine multi-recipient effects keep their actual rules.
 - R13. Reuse the existing exact Hellfire Gears, Steam Oven, and Precious
   Fossilized Core facts. Hellfire W1 supplies advanced Impact +18% and reaches
   Impact +20% at Fully Enabled; its off-field Energy clause remains disclosed
-  in Setup but creates no current Lycaon Energy Result operation. Steam W5
+  in Setup and creates a Lycaon Energy Result operation only when the current
+  Focus direction leaves Lycaon's authored operating interval off-field. The
+  same bounded on-field override applies to the current Hugo and Zhu Yuan
+  stun-led burst directions. Steam W5
   supplies Energy Regen +50% and reaches Impact +25.6% at eight
   10-Energy stacks. Precious Fossilized Core W5 supplies advanced Impact +15%
   and Daze +16% at target HP at least 50%, with another +16% at target HP at
@@ -443,18 +447,20 @@ and genuine multi-recipient effects keep their actual rules.
 - AE6. **Covers R11-R13, R17.** Lycaon's full local representative starts with
   Impact `137 × (1 + 0.18 + 0.06 + 0.18) = 194.54`; Fully Enabled Blazing and
   raises the common value to
-  `137 × (1 + 0.18 + 0.06 + 0.18 + 0.25) = 228.79`, while the completed-
+  `194.54 × (1 + 0.25) = 243.175`, while the completed-
   Potential Basic/Dash/Dodge-Counter outcome reaches
-  `137 × (1 + 0.18 + 0.06 + 0.18 + 0.25 + 0.15) = 249.34`.
+  `243.175 + 137 × 0.15 = 263.725`.
   His non-limited Steam representative starts with Impact
   `137 × (1 + 0.06 + 0.18) = 169.88` and Energy Regen
   `1.2 × (1 + 0.50) = 1.8/s`; Fully Enabled Steam raises the common Impact to
-  `137 × (1 + 0.06 + 0.18 + 0.256) = 204.952`, and the completed-Potential
+  `169.88 × (1 + 0.256) = 213.36928`, and the completed-Potential
   action outcome reaches
-  `137 × (1 + 0.06 + 0.18 + 0.256 + 0.15) = 225.502`.
-  Directly selecting Hellfire keeps its full package visible, adds its +18%
-  advanced and +20% Fully Enabled Impact to Result, and creates no off-field
-  Energy operation; it does not change the authored Blazing/Steam first choices.
+  `213.36928 + 137 × 0.15 = 233.91928`.
+  Directly selecting Hellfire keeps its full package visible and adds its +18%
+  advanced and +20% Fully Enabled Impact to Result. It creates no off-field
+  Energy operation with the Corin/Hugo/Zhu Yuan stun-led burst directions, but
+  does create that operation when another current Focus direction leaves Lycaon
+  off-field; neither case changes the authored Blazing/Steam first choices.
 - AE7. **Covers R15-R17, R29-R31.** Local prepared King plus CRIT Rate Slot 4
   begins at 29% CRIT Rate. Nine CRIT substat hits reach 50.6% and activate the
   second King clause. Selecting Woodpecker 2-piece instead begins at 37% and six

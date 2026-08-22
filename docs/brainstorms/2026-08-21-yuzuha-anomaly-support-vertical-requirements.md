@@ -163,6 +163,13 @@ Slot 4 AP choice into AP substats, damage equipment, or personal Result rows.
   AP axis unused. Phaethon's Melody 4-piece and personal-damage sets are likewise
   excluded when their remaining package is not competitive for Yuzuha's
   Support and buildup direction.
+  When Yuzuha and Nicole would both prepare Moonlight, Yuzuha keeps Moonlight
+  and Nicole uses her authored Astral plus Moonlight alternative. Yuzuha's
+  Phaethon 2-piece AM directly supplies the current Additional Ability gauge
+  and threshold direction, while Nicole's alternative retains one Energy Regen
+  2-piece and has no comparable holder-local gauge or threshold consumer. This
+  is bounded prepared allocation and changes neither holder's candidates nor
+  direct-edit behavior.
 - R12. Her 2-piece roles are AM from Phaethon's Melody, ATK from the existing
   Hormone Punk/Astral Voice identity, and Energy Regen from the existing Swing
   Jazz/Moonlight Lullaby identity. The selected 2-piece remains independent of

@@ -232,7 +232,7 @@ export type EquipmentEffectAction =
   >
 
 export type EquipmentEffectTag = Extract<ActionTag, 'aftershock'>
-export type EquipmentEffectCondition = 'backAttack'
+export type EquipmentEffectCondition = 'backAttack' | 'offField'
 
 export type EquipmentEffectRecipient = 'self' | 'squad' | 'enemy'
 export type EquipmentEffectValue = number | RefinementValues

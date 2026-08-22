@@ -181,6 +181,11 @@ export function selectedDiscSource(
   )
 }
 
+export function isWEnginePassiveEligible(agentId: AgentId, engineId: EngineId): boolean {
+  return W_ENGINES[engineId].passiveSpecialty
+    === ADMITTED_AGENTS.find(({ id }) => id === agentId)?.specialty
+}
+
 /** Exact party-facing passives shared unchanged across current profile families. */
 export function sharedPartyEquipmentRelationships(
   agentId: AgentId,
@@ -189,8 +194,7 @@ export function sharedPartyEquipmentRelationships(
 ): ProfileRelationship[] {
   const relationships: ProfileRelationship[] = []
   const engine = selectedWEngineSource(agentId, appliedPartySlot, setup)
-  const passiveEligible = W_ENGINES[setup.engineId].passiveSpecialty
-    === ADMITTED_AGENTS.find(({ id }) => id === agentId)?.specialty
+  const passiveEligible = isWEnginePassiveEligible(agentId, setup.engineId)
   if (passiveEligible) switch (setup.engineId) {
     case 'weepingCradle':
       relationships.push(
@@ -252,6 +256,17 @@ export function sharedPartyEquipmentRelationships(
     '4-piece',
   )
   switch (setup.fourPieceId) {
+    case 'swingJazz':
+      relationships.push({
+        kind: 'provider', source: disc,
+        delivery: { recipient: 'all-party', formulas: REGULAR_DAMAGE_FORMULAS },
+        effect: {
+          kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
+          value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage),
+          nonstackId: 'swingJazz',
+        },
+      })
+      break
     case 'moonlight':
       relationships.push({
         kind: 'provider', source: disc,

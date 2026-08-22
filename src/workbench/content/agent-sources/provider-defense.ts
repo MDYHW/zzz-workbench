@@ -7,10 +7,9 @@ import { CRIT_DAMAGE_FORMULAS, REGULAR_DAMAGE_FORMULAS } from '../../formula-pol
 import { anotherAgentHasSpecialty, anotherAgentSharesAttribute, anotherAgentSharesFaction, caesarAdditionalIsActive } from '../../party-conditions'
 import { DRIVE_DISC_FACTS } from '../discs'
 import { W_ENGINE_FACTS, W_ENGINES } from '../engines'
-import { ADMITTED_AGENTS } from '../agents'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
 import { equipmentEffectBaseValue, equipmentEffectMaximumValue, type AgentSpecialty, type EquipmentEffectFact } from '../types'
-import { requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
+import { isWEnginePassiveEligible, requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
 
 type Agent = 'lucia' | 'astraYao' | 'soukaku' | 'lucy' | 'nicole' | 'panYinhu' | 'ben' | 'caesar' | 'zhao'
@@ -48,7 +47,7 @@ function selectedEquipment(agent: Agent, slot: Slot, setup: CompleteSelectedSetu
   const allDamage = (value: number, source = engine, nonstackId?: 'moonlightLullaby' | 'swingJazz' | 'bunnyInWonderland') => ({ kind: 'provider' as const, source, delivery: { recipient: 'all-party' as const, formulas: DAMAGE }, effect: { kind: 'modifier' as const, metricId: 'dmgBonus' as const, earliestSurface: 'fully' as const, value, ...(nonstackId ? { nonstackId } : {}) } })
   const energy = (value: number) => ({ kind: 'automatic-energy' as const, atom: { earliestSurface: 'combat' as const, value, source: engine } })
   const relationships = sharedPartyEquipmentRelationships(agent, slot, setup)
-  const passiveEligible = W_ENGINES[setup.engineId].passiveSpecialty === ADMITTED_AGENTS.find(({ id }) => id === agent)?.specialty
+  const passiveEligible = isWEnginePassiveEligible(agent, setup.engineId)
   if (passiveEligible) switch (setup.engineId) {
     case 'dreamlitHearth': relationships.push({ kind: 'provider', source: engine, delivery: { recipient: 'all-party' }, effect: { kind: 'stat', statId: 'maxHp', region: 'percentage', earliestSurface: 'fully', value: engineValue(W_ENGINE_FACTS.dreamlitHearth.effects.maxHp, setup) } }, allDamage(engineValue(W_ENGINE_FACTS.dreamlitHearth.effects.damage, setup)), energy(engineValue(W_ENGINE_FACTS.dreamlitHearth.effects.energy, setup))); break
     case 'elegantVanity': relationships.push(allDamage(engineMax(W_ENGINE_FACTS.elegantVanity.effects.damage, setup))); break
@@ -60,7 +59,6 @@ function selectedEquipment(agent: Agent, slot: Slot, setup: CompleteSelectedSetu
     case 'halfSugarBunny': relationships.push(energy(engineValue(W_ENGINE_FACTS.halfSugarBunny.effects.automaticEnergy, setup)), { kind: 'provider', source: engine, delivery: { recipient: 'all-party' }, effect: { kind: 'stat', statId: 'atk', region: 'percentage', earliestSurface: 'fully', value: engineValue(W_ENGINE_FACTS.halfSugarBunny.effects.squadAtk, setup), nonstackId: 'halfSugarBunny' } }, { kind: 'provider', source: engine, delivery: { recipient: 'all-party' }, effect: { kind: 'stat', statId: 'maxHp', region: 'percentage', earliestSurface: 'fully', value: engineValue(W_ENGINE_FACTS.halfSugarBunny.effects.squadMaxHp, setup), nonstackId: 'halfSugarBunny' } }, { kind: 'provider', source: engine, delivery: { recipient: 'all-party', formulas: CRIT_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully', value: engineValue(W_ENGINE_FACTS.halfSugarBunny.effects.veilCritDamage, setup) } }); break
   }
   switch (setup.fourPieceId) {
-    case 'swingJazz': relationships.push(allDamage(equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage), disc, 'swingJazz')); break
     case 'bunnyInWonderland': relationships.push(allDamage(equipmentEffectMaximumValue(DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage), disc, 'bunnyInWonderland')); break
     case 'woodpecker': if (observation.baseStats.atk !== undefined) relationships.push({ kind: 'stat', atom: { statId: 'atk', region: 'percentage', earliestSurface: 'fully', value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.fourPiece.atk), source: disc } }); break
     case 'pufferElectro': if (agent === 'ben') relationships.push({ kind: 'stat', atom: { statId: 'atk', region: 'percentage', earliestSurface: 'fully', value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.atk), source: disc } }, { kind: 'modifier', atom: { metricId: 'dmgBonus', earliestSurface: 'initial', value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.damage), source: disc, action: BEN_ULT } }); break
@@ -122,7 +120,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     metrics = [{ ...m('atk', 'ATK', '', 'atk'), gaugeId: 'lucyCore' }, m('energyRegen', 'Energy Regen', '/s', 'energyRegen')]
   } else if (agent === 'nicole') {
     add({ kind: 'provider', source: own('core', SOURCE_LABELS.nicoleCore), delivery: { recipient: 'enemy-context', formulas: ['general_damage'] }, effect: { kind: 'modifier', metricId: 'defReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.nicole.coreDefReduction } }); if (anotherAgentSharesAttribute(agentIds, slot) || anotherAgentSharesFaction(agentIds, slot)) add({ kind: 'provider', source: own('additional', SOURCE_LABELS.nicoleAbility, 'additional'), delivery: { recipient: 'all-party', attributes: ['Ether'], formulas: DAMAGE }, effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.nicole.additionalEtherDmg } }); if (setup.mindscape >= 6) add({ kind: 'provider', source: mind(6), delivery: { ...all, formulas: CRIT_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'critRate', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.nicole.mindscapeSquadCritRate, sourceDetail: '10 stacks' } })
-    for (const action of ['EX Special Attack', 'Chain Attack', 'Ultimate'] as const) add({ kind: 'operation', atom: { operationId: `nicole${action.replaceAll(' ', '')}QuickAssist`, label: `Quick Assist · ${action}`, earliestSurface: 'fully', value: 1, unit: '', source: own('core', SOURCE_LABELS.nicoleCore), sourceDetail: action } }); metrics = [m('energyRegen', 'Energy Regen', '/s', 'energyRegen')]
+    metrics = [m('energyRegen', 'Energy Regen', '/s', 'energyRegen')]
   } else if (agent === 'panYinhu') {
     const m6 = setup.mindscape >= 6; const ratio = m6 ? VERTICAL_VALUES.panYinhu.mindscapeCoreAtkRatio : VERTICAL_VALUES.panYinhu.coreAtkRatio; const cap = m6 ? VERTICAL_VALUES.panYinhu.mindscapeCoreSheerCap : VERTICAL_VALUES.panYinhu.coreSheerCap
     add({ kind: 'gauge', gaugeId: 'panYinhuCore', source: m6 ? mind(6) : own('core', SOURCE_LABELS.panYinhuCore), basis: { statId: 'atk', surface: 'initial' }, basisLabel: 'Initial ATK', basisCap: 3000, metricId: 'atk', outputs: [{ label: 'Focus Sheer Force', unit: '', cap, transform: { basisIncrement: 100, outputIncrement: ratio, outputCap: cap }, emission: { kind: 'provider', delivery: { recipient: 'focus', formulas: ['sheer_damage'] }, effect: { kind: 'modifier', metricId: 'sheerForce', earliestSurface: 'fully' } } }] })

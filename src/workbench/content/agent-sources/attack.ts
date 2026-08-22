@@ -8,13 +8,13 @@ import type { WorkbenchState } from '../../state'
 import { anotherAgentHasSpecialty, anotherAgentSharesAttribute, anotherAgentSharesFaction, soldier11AdditionalIsActive, zhuYuanAdditionalIsActive, harumasaAdditionalIsActive, nekomataAdditionalIsActive, billyAdditionalIsActive } from '../../party-conditions'
 import { resolveSeedVanguardForState } from '../../candidate-context'
 import { DRIVE_DISC_FACTS } from '../discs'
-import { W_ENGINE_FACTS, W_ENGINES } from '../engines'
+import { W_ENGINE_FACTS } from '../engines'
 import { ADMITTED_AGENTS } from '../agents'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
 import { equipmentEffectBaseValue, equipmentEffectMaximumValue, equipmentEffectProgressionIncrementValue, equipmentEffectProgressionValue, type AgentId, type EquipmentEffectFact } from '../types'
 import type { EffectMetric, SurfaceKey } from '../../effects'
 import type { StatId, StatRegion } from '../../calculation/stat-composer'
-import { requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
+import { isWEnginePassiveEligible, requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
 
 type Agent = 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen' | 'soldier11' | 'zhuYuan' | 'orphie' | 'harumasa' | 'nekomata' | 'billy' | 'yeShunguang'
@@ -31,6 +31,7 @@ const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
 }
 const A = (name: CanonicalActionKind, form?: string) => form ? actionForm(name, form) : canonicalAction(name)
 const BASIC_ULT = actionTarget([A('Basic Attack'), A('Ultimate')])
+const BASIC_DASH = actionTarget([A('Basic Attack'), A('Dash Attack')])
 const ELLEN_CORE = actionTarget([
   sourceLocalAction('Charged Arctic Ambush'),
   sourceLocalAction('Flash Freeze Basic'),
@@ -98,14 +99,12 @@ function equipment(agent: Agent, slot: Slot, setup: CompleteSelectedSetup, relat
   const electric = ['anbySoldier0', 'seed', 'cissia', 'harumasa'].includes(agent)
   const fire = ['evelyn', 'soldier11', 'orphie'].includes(agent)
   const physical = ['corin', 'nekomata', 'billy', 'yeShunguang'].includes(agent)
-  if (W_ENGINES[setup.engineId].passiveSpecialty === 'Attack') switch (setup.engineId) {
+  if (isWEnginePassiveEligible(agent, setup.engineId)) switch (setup.engineId) {
     case 'cordisGermina': {
       add('critRate', engineValue(W_ENGINE_FACTS.cordisGermina.effects.critRate, setup), undefined, 'combat')
       if (electric) add('dmgBonus', engineMax(W_ENGINE_FACTS.cordisGermina.effects.damage, setup))
       const value = engineValue(W_ENGINE_FACTS.cordisGermina.effects.defIgnore, setup)
-      if (agent === 'seed') add('defIgnore', value, SEED_ACTIONS)
-      else if (agent === 'cissia') { add('defIgnore', value, CISSIA_BASIC); add('defIgnore', value, ULT) }
-      else add('defIgnore', value, BASIC_ULT)
+      add('defIgnore', value, BASIC_ULT)
       break
     }
     case 'severedInnocence': add('critDmg', engineValue(W_ENGINE_FACTS.severedInnocence.effects.critDamage, setup), undefined, 'combat'); add('critDmg', equipmentEffectProgressionValue(W_ENGINE_FACTS.severedInnocence.effects.critDamage, setup.refinement), undefined, 'fully'); if (electric) add('dmgBonus', engineValue(W_ENGINE_FACTS.severedInnocence.effects.damage, setup)); break
@@ -121,13 +120,13 @@ function equipment(agent: Agent, slot: Slot, setup: CompleteSelectedSetup, relat
     case 'brimstone': relationships.push(stat(e, 'atk', engineMax(W_ENGINE_FACTS.brimstone.effects.atk, setup), 'percentage')); break
     case 'marcatoDesire': relationships.push(stat(e, 'atk', engineMax(W_ENGINE_FACTS.marcatoDesire.effects.atk, setup), 'percentage')); break
     case 'gildedBlossom': relationships.push(stat(e, 'atk', engineValue(W_ENGINE_FACTS.gildedBlossom.effects.atk, setup), 'percentage', agent === 'yeShunguang' ? 'combat' : 'fully')); add('dmgBonus', engineValue(W_ENGINE_FACTS.gildedBlossom.effects.exDamage, setup), EX); break
-    case 'drillRigRedAxis': if (electric) add('dmgBonus', engineValue(W_ENGINE_FACTS.drillRigRedAxis.effects.damage, setup), agent === 'cissia' ? CISSIA_BASIC : actionTarget([A('Basic Attack'), A('Dash Attack')])); break
+    case 'drillRigRedAxis': if (electric) add('dmgBonus', engineValue(W_ENGINE_FACTS.drillRigRedAxis.effects.damage, setup), BASIC_DASH); break
     case 'bellicoseBlaze': add('critRate', engineValue(W_ENGINE_FACTS.bellicoseBlaze.effects.critRate, setup), undefined, 'combat'); if (agent === 'orphie') add('defIgnore', engineMax(W_ENGINE_FACTS.bellicoseBlaze.effects.fireAftershockDefIgnore, setup), AFTERSHOCK_TARGET); break
     case 'serpentineSeeker': if (electric) { add('critRate', engineValue(W_ENGINE_FACTS.serpentineSeeker.effects.critRate, setup), undefined, 'combat'); add('defIgnore', engineValue(W_ENGINE_FACTS.serpentineSeeker.effects.defIgnore, setup), undefined, 'combat') } break
     case 'starlightEngineReplica': if (physical) add('dmgBonus', engineValue(W_ENGINE_FACTS.starlightEngineReplica.effects.physicalDamage, setup)); break
   }
   switch (setup.fourPieceId) {
-    case 'dawnsBloom': { const target = agent === 'seed' ? SEED_BASIC : agent === 'cissia' ? CISSIA_BASIC : BASIC; relationships.push(mod(d, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.dawnsBloom.fourPiece.damage), target, 'combat')); relationships.push(mod(d, 'dmgBonus', equipmentEffectProgressionIncrementValue(DRIVE_DISC_FACTS.dawnsBloom.fourPiece.damage), target)); break }
+    case 'dawnsBloom': { relationships.push(mod(d, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.dawnsBloom.fourPiece.damage), BASIC, 'combat')); relationships.push(mod(d, 'dmgBonus', equipmentEffectProgressionIncrementValue(DRIVE_DISC_FACTS.dawnsBloom.fourPiece.damage), BASIC)); break }
     case 'woodpecker': if (baseStats.atk !== undefined) relationships.push(stat(d, 'atk', agent === 'seed' ? equipmentEffectMaximumValue(DRIVE_DISC_FACTS.woodpecker.fourPiece.atk) : equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.fourPiece.atk), 'percentage', agent === 'ellen' ? 'combat' : 'fully')); break
     case 'hormonePunk': relationships.push(stat(d, 'atk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.fourPiece.atk), 'percentage', 'combat')); break
     case 'thunderMetal': relationships.push(stat(d, 'atk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.fourPiece.atk), 'percentage')); break
@@ -144,8 +143,7 @@ function equipment(agent: Agent, slot: Slot, setup: CompleteSelectedSetup, relat
   }
   if (setup.fourPieceId === 'dawnsBloom' || setup.twoPieceId === 'dawnsBloom') {
     const dawnTwo = selectedDiscSource(agent, slot, setup, 'dawnsBloom', '2-piece')
-    const target = agent === 'seed' ? SEED_BASIC : agent === 'cissia' ? CISSIA_BASIC : BASIC
-    relationships.push(mod(dawnTwo, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.dawnsBloom.twoPiece.damage), target, 'initial'))
+    relationships.push(mod(dawnTwo, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.dawnsBloom.twoPiece.damage), BASIC, 'initial'))
   }
 }
 
@@ -214,11 +212,19 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
       }
       if (setup.mindscape >= 4) addMetric('dmgBonus', VERTICAL_VALUES.seed.mindscapeUltimateDmg, mind(4), ULT)
       if (setup.mindscape >= 6) addMetric('critDmg', VERTICAL_VALUES.seed.mindscapeCritDmg, mind(6), undefined, 'combat')
-      const scopes = [{ id: 'seedActions', target: SEED_ACTIONS, children: [{ id: 'seedBasicActions', target: SEED_BASIC, children: [{ id: 'seedSlaughter', target: SEED_SLAUGHTER }, { id: 'seedDownfall', target: SEED_DOWNFALL }] }, { id: 'seedUltimate', target: ULT }] }] satisfies readonly ActionScopeNode[]
+      const scopes = [{
+        id: 'seedActions', target: SEED_ACTIONS,
+        inheritedEffectTargets: [BASIC_ULT],
+        children: [{
+          id: 'seedBasicActions', target: SEED_BASIC,
+          inheritedEffectTargets: [BASIC],
+          children: [{ id: 'seedSlaughter', target: SEED_SLAUGHTER }, { id: 'seedDownfall', target: SEED_DOWNFALL }],
+        }, { id: 'seedUltimate', target: ULT }],
+      }] satisfies readonly ActionScopeNode[]
       actions.push(
         { metricId: 'dmgBonus', scopes },
         actionProjection('critDmg', 'seedDownfallCritDmg', SEED_DOWNFALL),
-        actionProjection('defIgnore', 'seedActionsDefIgnore', SEED_ACTIONS),
+        { metricId: 'defIgnore', scopes },
         actionProjection('resIgnore', 'seedActionsResIgnore', SEED_ACTIONS),
       )
       break
@@ -241,11 +247,19 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
         add({ kind: 'provider', source: mind(1), delivery: { recipient: 'enemy-context', attributes: ['Electric'], formulas: ['general_damage'], eligibleAgentIds: ['cissia'] }, effect: { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'fully', value: VERTICAL_VALUES.cissia.mindscapeCorrodeElectricResIgnore, action: CISSIA_CORRODE, sourceDetail: 'Corrode Bone' } })
       }
       if (setup.mindscape >= 2) addMetric('dmgBonus', VERTICAL_VALUES.cissia.mindscapeSerpentDmg, mind(2), CISSIA_SERPENT)
-      const scopes = [{ id: 'cissiaBasicActions', target: CISSIA_BASIC, children: [{ id: 'cissiaCorrode', target: CISSIA_CORRODE }, { id: 'cissiaSerpent', target: CISSIA_SERPENT }] }, { id: 'cissiaUltimate', target: ULT }] satisfies readonly ActionScopeNode[]
+      const basicScopes = [{
+        id: 'cissiaBasicActions', target: CISSIA_BASIC,
+        inheritedEffectTargets: [BASIC, BASIC_DASH],
+        children: [{ id: 'cissiaCorrode', target: CISSIA_CORRODE }, { id: 'cissiaSerpent', target: CISSIA_SERPENT }],
+      }] satisfies readonly ActionScopeNode[]
       actions.push(
-        { metricId: 'dmgBonus', scopes },
-        actionProjection('defIgnore', 'cissiaBasicActionsDefIgnore', CISSIA_BASIC),
-        actionProjection('defIgnore', 'cissiaUltimateDefIgnore', ULT),
+        { metricId: 'dmgBonus', scopes: basicScopes },
+        { metricId: 'defIgnore', scopes: [{
+          ...basicScopes[0], inheritedEffectTargets: [BASIC_ULT],
+        }, {
+          id: 'cissiaUltimateDefIgnore', target: ULT,
+          inheritedEffectTargets: [BASIC_ULT],
+        }] },
         { metricId: 'resIgnore', scopes: [{ id: 'cissiaBasicActionsResIgnore', target: CISSIA_BASIC, children: [{ id: 'cissiaCorrodeResIgnore', target: CISSIA_CORRODE }] }] },
         actionProjection('dazeBonus', 'cissiaCorrodeDaze', CISSIA_CORRODE),
       )

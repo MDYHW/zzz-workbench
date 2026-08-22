@@ -6,7 +6,7 @@ import {
   type EquipmentEffectCollection,
 } from './content'
 import type { SourceDefinitionKey } from './content/source-definitions'
-import { initialAtkFor, isSeedVanguardAtkAgent } from './calculation/initial-atk'
+import { initialAtkFor } from './calculation/initial-atk'
 import { directionUsesDefRegion, effectAttributeForAgent } from './formula-policy'
 import type { AppliedSlot, WorkbenchState } from './state'
 
@@ -97,7 +97,6 @@ export function resolveSeedVanguardForState(state: WorkbenchState): AgentId | nu
 
   const observations: SeedVanguardObservation[] = []
   for (const slot of eligible) {
-    if (!isSeedVanguardAtkAgent(slot.agentId)) return null
     const initialAtk = initialAtkFor(slot.agentId, slot.setup)
     if (initialAtk === null) return null
     observations.push({

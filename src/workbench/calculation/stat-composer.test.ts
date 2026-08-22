@@ -58,7 +58,7 @@ describe('shared stat composer', () => {
       .toEqual([variableMain, atkPercentageHits, atkFlatHits])
   })
 
-  it('uses cumulative base × percentage + flat regions at every surface without compounding', () => {
+  it('uses Initial as the shared basis for later percentage and flat regions', () => {
     const visible = selectSource(defineWEngineSource('steamOven', 'Steam Oven'), 'anby', 0, {
       kind: 'refinement', refinement: 5,
     })
@@ -73,10 +73,12 @@ describe('shared stat composer', () => {
     ])
 
     expect(stat.values.initial).toBeCloseTo(112)
-    expect(stat.values.combat).toBeCloseTo(142)
-    expect(stat.values.fully).toBeCloseTo(177)
-    expect(stat.contributions.combat.map(({ derivedValue }) => derivedValue)).toEqual([20, 10])
-    expect(stat.contributions.fully.map(({ derivedValue }) => derivedValue)).toEqual([30, 5])
+    expect(stat.values.combat).toBeCloseTo(144.4)
+    expect(stat.values.fully).toBeCloseTo(183)
+    expect(stat.contributions.combat[0].derivedValue).toBeCloseTo(22.4)
+    expect(stat.contributions.combat[1].derivedValue).toBe(10)
+    expect(stat.contributions.fully[0].derivedValue).toBeCloseTo(33.6)
+    expect(stat.contributions.fully[1].derivedValue).toBe(5)
   })
 
   it('uses the same composer for percentage-point CRIT and flat Anomaly Proficiency', () => {
@@ -105,7 +107,7 @@ describe('shared stat composer', () => {
     const recovery = composeAutomaticEnergyRecovery(regen, [{
       earliestSurface: 'combat', value: 0.72, source: visible,
     }])
-    expect(recovery.values).toEqual({ initial: 1.92, combat: 2.88, fully: 2.88 })
+    expect(recovery.values).toEqual({ initial: 1.92, combat: 3.024, fully: 3.024 })
     expect(recovery.operations.combat).toHaveLength(1)
     expect(recovery.operations.fully).toHaveLength(0)
   })

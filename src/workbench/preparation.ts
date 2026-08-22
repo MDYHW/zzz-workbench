@@ -1,5 +1,6 @@
 import {
   ADMITTED_AGENTS,
+  applyPreparedDiscPatch,
   setupPolicyFor,
   type AgentId,
   type DiscId,
@@ -146,21 +147,22 @@ function hasIndependentKingCrit(
 }
 
 function retainsAuthoredCritAfterKingAllocation(agentId: AgentId): boolean {
-  const policy = setupPolicyFor(agentId)
-  return policy.mainStatIdsBySlot.slot4.includes('critRate')
-    && policy.substatChoices.some(({ id }) => id === 'critRate')
+  return setupPolicyFor(agentId).preparedDisc
+    ?.kingAstralAlternative?.preservesCritInvestment ?? false
 }
 
 function canPrepareAstral(agentId: AgentId): boolean {
   return setupPolicyFor(agentId).discIdsByPiece.fourPiece.includes('astralVoice')
 }
 
-const CURRENT_KING_TIE_ORDER = ['trigger', 'pulchra', 'koleda', 'lycaon', 'anby'] as const
-
 function winsCurrentKingTie(holderId: AgentId, targetId: AgentId): boolean {
-  const holderIndex = CURRENT_KING_TIE_ORDER.indexOf(holderId as (typeof CURRENT_KING_TIE_ORDER)[number])
-  const targetIndex = CURRENT_KING_TIE_ORDER.indexOf(targetId as (typeof CURRENT_KING_TIE_ORDER)[number])
-  return holderIndex >= 0 && targetIndex >= 0 && holderIndex < targetIndex
+  const holderPriority = setupPolicyFor(holderId).preparedDisc
+    ?.kingAstralAlternative?.authoredTiePrecedence
+  const targetPriority = setupPolicyFor(targetId).preparedDisc
+    ?.kingAstralAlternative?.authoredTiePrecedence
+  return holderPriority !== undefined
+    && targetPriority !== undefined
+    && holderPriority > targetPriority
 }
 
 /**
@@ -182,57 +184,58 @@ function kingHolderPrecedes(
   return winsCurrentKingTie(holderId, targetId)
 }
 
-function withAstraAstralAllocation(
+function withEstablishedAstralAllocation(
   context: PreparationContext,
   establishedHolders: readonly EstablishedDiscHolder[],
   selection: SetupSelection,
 ): SetupSelection {
+  const alternative = setupPolicyFor(context.agentId).preparedDisc
+    ?.astralCollisionAlternative
   const anotherAstralHolder = establishedHolders.some(({ agentId, fourPieceId }) => (
     agentId !== context.agentId && fourPieceId === 'astralVoice'
   ))
-  if (context.agentId !== 'astraYao' || !anotherAstralHolder) return selection
-  return {
-    ...selection,
-    fourPieceId: 'moonlight',
-    twoPieceId: 'astralVoice',
-  }
+  return alternative
+    && selection.fourPieceId === 'astralVoice'
+    && anotherAstralHolder
+      ? applyPreparedDiscPatch(selection, alternative.patch)
+      : selection
 }
 
-function withPanYinhuAstralAlternative(
-  context: PreparationContext,
-  establishedHolders: readonly EstablishedDiscHolder[],
-  selection: SetupSelection,
-): SetupSelection {
-  const anotherAstralHolder = establishedHolders.some(({ agentId, fourPieceId }) => (
-    agentId !== context.agentId && fourPieceId === 'astralVoice'
+function withNonoverlappingAstralAllocation(
+  contexts: readonly PreparationContext[],
+  selections: readonly SetupSelection[],
+): SetupSelection[] {
+  const astralHolders = selections.flatMap((selection, index) => (
+    selection.fourPieceId === 'astralVoice' ? [index] : []
   ))
-  if (
-    context.agentId !== 'panYinhu'
-    || selection.fourPieceId !== 'astralVoice'
-    || !anotherAstralHolder
-  ) return selection
-  return {
-    ...selection,
-    fourPieceId: 'bunnyInWonderland',
-    twoPieceId: 'astralVoice',
-  }
-}
+  if (astralHolders.length <= 1) return [...selections]
 
-function canExchangeMoonlightForAstral(agentId: AgentId): boolean {
-  const candidates = setupPolicyFor(agentId).discIdsByPiece
-  return candidates.fourPiece.includes('astralVoice')
-    && candidates.twoPiece.includes('moonlight')
-}
+  const rigid = astralHolders.filter((index) => (
+    !setupPolicyFor(contexts[index].agentId).preparedDisc?.astralCollisionAlternative
+  ))
+  const priorities = astralHolders.map((index) => ({
+    index,
+    priority: setupPolicyFor(contexts[index].agentId).preparedDisc
+      ?.astralCollisionAlternative?.authoredKeeperPrecedence,
+  })).filter((entry): entry is { index: number; priority: number } => (
+    entry.priority !== undefined
+  ))
+  const maximumPriority = Math.max(...priorities.map(({ priority }) => priority))
+  const priorityKeepers = priorities.filter(({ priority }) => priority === maximumPriority)
+  const keeper = rigid.length === 1
+    ? rigid[0]
+    : rigid.length === 0 && priorityKeepers.length === 1
+      ? priorityKeepers[0].index
+      : null
+  if (keeper === null) return [...selections]
 
-function hasStableAuthoredStatDirection(agentId: AgentId): boolean {
-  const policy = setupPolicyFor(agentId)
-  return policy.substatChoices.length === 0
-    && Object.values(policy.mainStatIdsBySlot)
-      .every((candidates) => candidates.length === 1)
-}
-
-function exchangeMoonlightForAstral(selection: SetupSelection): SetupSelection {
-  return { ...selection, fourPieceId: 'astralVoice', twoPieceId: 'moonlight' }
+  return selections.map((selection, index) => {
+    const alternative = setupPolicyFor(contexts[index].agentId).preparedDisc
+      ?.astralCollisionAlternative
+    return index !== keeper && selection.fourPieceId === 'astralVoice' && alternative
+      ? applyPreparedDiscPatch(selection, alternative.patch)
+      : selection
+  })
 }
 
 /**
@@ -250,7 +253,9 @@ function withContextualCissiaCollisionResolved(
   if (moonlightHolderCount <= 1) return [...selections]
 
   return selections.map((selection, index) => (
-    contexts[index].agentId === 'cissia' && selection.fourPieceId === 'astralVoice'
+    setupPolicyFor(contexts[index].agentId).preparedDisc
+      ?.restoreRepresentativeOnAstralMoonlightCollision
+    && selection.fourPieceId === 'astralVoice'
       ? representativeFor(contexts[index])
       : selection
   ))
@@ -262,7 +267,8 @@ function withEstablishedContextualCissiaCollisionResolved(
   selection: SetupSelection,
 ): SetupSelection {
   const occupiedEffects = new Set(establishedHolders.map(({ fourPieceId }) => fourPieceId))
-  return context.agentId === 'cissia'
+  return setupPolicyFor(context.agentId).preparedDisc
+    ?.restoreRepresentativeOnAstralMoonlightCollision
     && selection.fourPieceId === 'astralVoice'
     && occupiedEffects.has('astralVoice')
     && occupiedEffects.has('moonlight')
@@ -270,12 +276,7 @@ function withEstablishedContextualCissiaCollisionResolved(
       : selection
 }
 
-/**
- * Keep the Support-only package with the least-flexible current holder, then
- * move every legal flexible holder to the non-overlapping Astral package.
- * Exact 2-piece preservation precedes authored stat-direction stability; this
- * is structural preparation policy, not a runtime equipment score.
- */
+/** Keep the authored highest-priority Moonlight fit, then apply holder-local alternatives. */
 function withNonoverlappingMoonlightAllocation(
   contexts: readonly PreparationContext[],
   selections: readonly SetupSelection[],
@@ -286,33 +287,31 @@ function withNonoverlappingMoonlightAllocation(
   if (moonlightHolders.length <= 1) return [...selections]
 
   const rigid = moonlightHolders.filter((index) => (
-    !canExchangeMoonlightForAstral(contexts[index].agentId)
+    !setupPolicyFor(contexts[index].agentId).preparedDisc?.moonlightCollisionAlternative
   ))
-  const packageSensitive = moonlightHolders.filter((index) => (
-    canExchangeMoonlightForAstral(contexts[index].agentId)
-    && selections[index].twoPieceId !== 'astralVoice'
+  const priorities = moonlightHolders.map((index) => ({
+    index,
+    priority: setupPolicyFor(contexts[index].agentId).preparedDisc
+      ?.moonlightCollisionAlternative?.authoredKeeperPrecedence,
+  })).filter((entry): entry is { index: number; priority: number } => (
+    entry.priority !== undefined
   ))
-  const stable = moonlightHolders.filter((index) => (
-    canExchangeMoonlightForAstral(contexts[index].agentId)
-    && selections[index].twoPieceId === 'astralVoice'
-    && hasStableAuthoredStatDirection(contexts[index].agentId)
-  ))
+  const maximumPriority = Math.max(...priorities.map(({ priority }) => priority))
+  const priorityKeepers = priorities.filter(({ priority }) => priority === maximumPriority)
   const keeper = rigid.length === 1
     ? rigid[0]
-    : packageSensitive.length === 1
-      ? packageSensitive[0]
-      : stable.length === 1
-        ? stable[0]
-        : null
+    : rigid.length === 0 && priorityKeepers.length === 1
+      ? priorityKeepers[0].index
+      : null
   if (keeper === null) return [...selections]
 
-  return selections.map((selection, index) => (
-    index !== keeper
-    && selection.fourPieceId === 'moonlight'
-    && canExchangeMoonlightForAstral(contexts[index].agentId)
-      ? exchangeMoonlightForAstral(selection)
+  return selections.map((selection, index) => {
+    const alternative = setupPolicyFor(contexts[index].agentId).preparedDisc
+      ?.moonlightCollisionAlternative
+    return index !== keeper && selection.fourPieceId === 'moonlight' && alternative
+      ? applyPreparedDiscPatch(selection, alternative.patch)
       : selection
-  ))
+  })
 }
 
 function withEstablishedMoonlightAllocation(
@@ -320,55 +319,36 @@ function withEstablishedMoonlightAllocation(
   establishedHolders: readonly EstablishedDiscHolder[],
   selection: SetupSelection,
 ): SetupSelection {
+  const alternative = setupPolicyFor(context.agentId).preparedDisc
+    ?.moonlightCollisionAlternative
   const anotherMoonlightHolder = establishedHolders.some(({ agentId, fourPieceId }) => (
     agentId !== context.agentId && fourPieceId === 'moonlight'
   ))
   return selection.fourPieceId === 'moonlight'
     && anotherMoonlightHolder
-    && canExchangeMoonlightForAstral(context.agentId)
-    ? exchangeMoonlightForAstral(selection)
+    && alternative
+    ? applyPreparedDiscPatch(selection, alternative.patch)
     : selection
 }
 
-function withJuFufuSwingFallback(
+function withKingCollisionAlternative(
   context: PreparationContext,
   establishedHolders: readonly EstablishedDiscHolder[],
   selection: SetupSelection,
 ): SetupSelection {
-  const rigidKingHolder = establishedHolders.some(({ agentId, fourPieceId }) => (
-    agentId !== context.agentId
-    && fourPieceId === 'king'
-    && !canPrepareAstral(agentId)
-  ))
-  if (context.agentId !== 'juFufu' || selection.fourPieceId !== 'king' || !rigidKingHolder) {
-    return selection
-  }
-  return {
-    ...selection,
-    fourPieceId: 'swingJazz',
-    twoPieceId: 'king',
-    mains: { ...selection.mains, slot4: 'atkPct' },
-  }
-}
+  const alternative = setupPolicyFor(context.agentId).preparedDisc
+    ?.kingCollisionAlternative
+  if (!alternative || selection.fourPieceId !== 'king') return selection
 
-/** Qingyi's bounded no-Astral fallback beside Dialyn's rigid King package. */
-function withQingyiDialynShockstarFallback(
-  context: PreparationContext,
-  establishedHolders: readonly EstablishedDiscHolder[],
-  selection: SetupSelection,
-): SetupSelection {
-  const dialynKeepsKing = establishedHolders.some(({ agentId, fourPieceId }) => (
-    agentId === 'dialyn' && fourPieceId === 'king'
-  ))
-  if (context.agentId !== 'qingyi' || selection.fourPieceId !== 'king' || !dialynKeepsKing) {
-    return selection
-  }
-  return {
-    ...selection,
-    fourPieceId: 'shockstar',
-    twoPieceId: 'king',
-    mains: { ...selection.mains, slot4: 'atkPct' },
-  }
+  const hasConflictingHolder = establishedHolders.some(({ agentId, fourPieceId }) => {
+    if (agentId === context.agentId || fourPieceId !== 'king') return false
+    return alternative.kind === 'exact-holder'
+      ? agentId === alternative.holderAgentId
+      : !canPrepareAstral(agentId)
+  })
+  return hasConflictingHolder
+    ? applyPreparedDiscPatch(selection, alternative.patch)
+    : selection
 }
 
 function withCissiaAstralOpportunity(
@@ -510,38 +490,28 @@ export function prepareTargetSelection(
     establishedHolders,
     kingDirected,
   )
-  const nonoverlapping = withJuFufuSwingFallback(
+  const nonoverlapping = withKingCollisionAlternative(
     context,
     establishedHolders,
     allocated,
-  )
-  const qingyiFallback = withQingyiDialynShockstarFallback(
-    context,
-    establishedHolders,
-    nonoverlapping,
   )
   const contextual = withCissiaAstralOpportunity(
     context,
     partyAgentIds,
     establishedHolders,
-    qingyiFallback,
+    nonoverlapping,
   )
   const withoutContextualCollision = withEstablishedContextualCissiaCollisionResolved(
     context,
     establishedHolders,
     contextual,
   )
-  const withAstraAllocation = withAstraAstralAllocation(
+  const withAstralAllocation = withEstablishedAstralAllocation(
     context,
     establishedHolders,
     withoutContextualCollision,
   )
-  const panAllocated = withPanYinhuAstralAlternative(
-    context,
-    establishedHolders,
-    withAstraAllocation,
-  )
-  return withEstablishedMoonlightAllocation(context, establishedHolders, panAllocated)
+  return withEstablishedMoonlightAllocation(context, establishedHolders, withAstralAllocation)
 }
 
 export function preparePartySelections(
@@ -575,30 +545,16 @@ export function preparePartySelections(
     selection,
   ))
   const kingHolders = holderSnapshots(contexts, withKingAllocation)
-  const withJuFufuFallback = withKingAllocation.map((selection, index) => (
-    withJuFufuSwingFallback(contexts[index], kingHolders, selection)
+  const withKingAlternatives = withKingAllocation.map((selection, index) => (
+    withKingCollisionAlternative(contexts[index], kingHolders, selection)
   ))
-  const withQingyiFallback = withJuFufuFallback.map((selection, index) => (
-    withQingyiDialynShockstarFallback(contexts[index], kingHolders, selection)
-  ))
-  const withCissiaAstral = withQingyiFallback.map((selection, index) => (
+  const withCissiaAstral = withKingAlternatives.map((selection, index) => (
     withCissiaAstralOpportunity(contexts[index], partyAgentIds, kingHolders, selection)
   ))
-  const holders = holderSnapshots(contexts, withCissiaAstral)
-  const withAstraAllocation = withCissiaAstral.map((selection, index) => withAstraAstralAllocation(
-    contexts[index],
-    holders,
-    selection,
-  ))
-  const astralHolders = holderSnapshots(contexts, withAstraAllocation)
-  const withPanAllocation = withAstraAllocation.map((selection, index) => withPanYinhuAstralAlternative(
-    contexts[index],
-    astralHolders,
-    selection,
-  ))
+  const withAstralAllocation = withNonoverlappingAstralAllocation(contexts, withCissiaAstral)
   const withoutContextualCollision = withContextualCissiaCollisionResolved(
     contexts,
-    withPanAllocation,
+    withAstralAllocation,
   )
   return withNonoverlappingMoonlightAllocation(contexts, withoutContextualCollision)
 }

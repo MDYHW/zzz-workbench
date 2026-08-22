@@ -13,20 +13,6 @@ import {
 } from '../content'
 import { selectedDiscTwoPieceInputs } from '../effects'
 
-export const SEED_VANGUARD_ATK_AGENT_IDS = [
-  'anbySoldier0', 'seed', 'cissia', 'evelyn', 'corin', 'hugo', 'ellen', 'soldier11', 'zhuYuan', 'orphie', 'nekomata', 'billy', 'yeShunguang',
-] as const
-
-export type SeedVanguardAtkAgentId = (typeof SEED_VANGUARD_ATK_AGENT_IDS)[number]
-export type InitialAtkAgentId = SeedVanguardAtkAgentId
-  | 'juFufu' | 'panYinhu' | 'soukaku' | 'lucy' | 'harumasa' | 'qingyi'
-  | 'ben'
-  | 'grace' | 'piper' | 'yuzuha' | 'burnice'
-
-export function isSeedVanguardAtkAgent(agentId: AgentId): agentId is SeedVanguardAtkAgentId {
-  return SEED_VANGUARD_ATK_AGENT_IDS.some((candidate) => candidate === agentId)
-}
-
 export interface InitialAtkSetup {
   engineId: EngineId | null
   fourPieceId: DiscId | null
@@ -37,12 +23,14 @@ export interface InitialAtkSetup {
 
 /** Exact Initial ATK used only by Seed's current Vanguard comparison and ATK projectors. */
 export function initialAtkFor(
-  agentId: InitialAtkAgentId,
+  agentId: AgentId,
   setup: InitialAtkSetup,
 ): number | null {
   if (!setup.engineId) return null
 
   const engine = W_ENGINES[setup.engineId]
+  const retained = VERTICAL_VALUES[agentId]
+  if (!('atk' in retained) || typeof retained.atk !== 'number') return null
   const atkSubstat = SUBSTAT_CHOICES_BY_AGENT[agentId]
     .find(({ id }) => id === 'atkPct')
   const flatAtkSubstat = SUBSTAT_CHOICES_BY_AGENT[agentId]
@@ -62,7 +50,7 @@ export function initialAtkFor(
       .reduce((total, input) => total + input.rawValue, 0)
     + atkSubstatHits * (atkSubstat?.perHit ?? 0)
   )
-  const baseAtk = VERTICAL_VALUES[agentId].atk + engine.baseAtk
+  const baseAtk = retained.atk + engine.baseAtk
   return baseAtk * (1 + atkPct / 100)
     + FIXED_MAIN_STATS.slot2.numericValue
     + flatAtkSubstatHits * (flatAtkSubstat?.perHit ?? 0)

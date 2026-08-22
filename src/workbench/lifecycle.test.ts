@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { calculateParty } from './calculate'
 import {
+  resolveSeedVanguard,
+  resolveSeedVanguardForState,
+} from './candidate-context'
+import {
   effectiveFourPieceIds,
   effectiveFourPieceRoleSwapIds,
   effectiveMainStatIds,
@@ -202,6 +206,26 @@ describe('shared preparation and edit lifecycle', () => {
       ]) {
         expect(DRIVE_DISCS, `${agent.id}:${discId}`).toHaveProperty(discId)
       }
+      const preparedDisc = policy.preparedDisc
+      const patches = [
+        preparedDisc?.astralCollisionAlternative?.patch,
+        preparedDisc?.moonlightCollisionAlternative?.patch,
+        preparedDisc?.kingCollisionAlternative?.patch,
+      ].filter((patch): patch is NonNullable<typeof patch> => patch !== undefined)
+      for (const patch of patches) {
+        expect(policy.discIdsByPiece.fourPiece, `${agent.id}:prepared:${patch.fourPieceId}`)
+          .toContain(patch.fourPieceId)
+        if (patch.twoPieceId) {
+          expect(policy.discIdsByPiece.twoPiece, `${agent.id}:prepared:${patch.twoPieceId}`)
+            .toContain(patch.twoPieceId)
+          expect(patch.twoPieceId, `${agent.id}:prepared:different-set`)
+            .not.toBe(patch.fourPieceId)
+        }
+        for (const [mainSlot, mainStatId] of Object.entries(patch.mains ?? {})) {
+          expect(policy.mainStatIdsBySlot[mainSlot as MainSlot], `${agent.id}:prepared:${mainSlot}`)
+            .toContain(mainStatId)
+        }
+      }
       for (const mainSlot of MAIN_SLOTS) {
         for (const mainStatId of policy.mainStatIdsBySlot[mainSlot]) {
           expect(MAIN_STATS, `${agent.id}:${mainSlot}:${mainStatId}`)
@@ -345,6 +369,7 @@ describe('shared preparation and edit lifecycle', () => {
     let state = createPreparedState({}, ['qingyi', 'harumasa', 'nicole'], 1)
 
     expect(state.slots[0].setup.fourPieceId).toBe('king')
+    expect(state.slots[2].setup.fourPieceId).toBe('moonlight')
     expect(effectiveMainStatIds(state, 0, 'slot4')).toContain('critRate')
     expect(effectiveSubstatChoicesForSlot(state, 0).map(({ id }) => id))
       .toEqual(['critRate'])
@@ -420,6 +445,103 @@ describe('shared preparation and edit lifecycle', () => {
     expect(effectiveMainStatIds(sheerContrast, 0, 'slot5')).toEqual(before)
   })
 
+  it('allocates a non-stacking prepared package through holder policy in party and target rebuilds', () => {
+    let state = createPreparedState({}, ['nicole', 'lucy', 'zhuYuan'], 2)
+    expect(state.slots.map(({ setup }) => setup.fourPieceId))
+      .toEqual(['moonlight', 'astralVoice', 'chaoticMetal'])
+
+    const establishedNicole = state.slots[0]
+    state = workbenchReducer(state, { type: 'switchPool', slot: 1, pool: 'nonLimited' })
+    expect(state.slots[0]).toBe(establishedNicole)
+    expect(state.slots[1].setup).toMatchObject({
+      fourPieceId: 'astralVoice', twoPieceId: 'moonlight',
+    })
+
+    const reversed = createPreparedState({}, ['lucy', 'zhuYuan', 'nicole'], 1)
+    const discsByAgent = Object.fromEntries(reversed.slots.map(({ agentId, setup }) => (
+      [agentId, setup.fourPieceId]
+    )))
+    expect(discsByAgent).toMatchObject({ lucy: 'astralVoice', nicole: 'moonlight' })
+
+    const contrast = createPreparedState({}, ['nicole', 'zhuYuan', 'ben'], 1)
+    expect(contrast.slots[0].setup.fourPieceId).toBe('moonlight')
+
+    let contextualAstra = createPreparedState(
+      {}, ['cissia', 'astraYao', 'nicole'], 0,
+    )
+    expect(Object.fromEntries(contextualAstra.slots.map(({ agentId, setup }) => (
+      [agentId, setup.fourPieceId]
+    )))).toMatchObject({ cissia: 'dawnsBloom', astraYao: 'astralVoice', nicole: 'moonlight' })
+    expectCalculable(contextualAstra, 'contextual Astra Moonlight reversal')
+    const establishedAroundAstra = [contextualAstra.slots[0], contextualAstra.slots[2]]
+    contextualAstra = workbenchReducer(contextualAstra, {
+      type: 'switchPool', slot: 1, pool: 'nonLimited',
+    })
+    expect(contextualAstra.slots[1].setup).toMatchObject({
+      fourPieceId: 'astralVoice', twoPieceId: 'moonlight',
+    })
+    expect([contextualAstra.slots[0], contextualAstra.slots[2]])
+      .toEqual(establishedAroundAstra)
+
+    const moonlightRepresentatives = ADMITTED_AGENTS.map(({ id }) => id)
+      .filter((agentId) => setupPolicyFor(agentId)
+        .representativeSetupFor('full', 0).fourPieceId === 'moonlight')
+    for (let left = 0; left < moonlightRepresentatives.length; left += 1) {
+      for (let right = left + 1; right < moonlightRepresentatives.length; right += 1) {
+        const pair = [moonlightRepresentatives[left], moonlightRepresentatives[right]] as const
+        const prepared = createPreparedState({}, [...pair, 'yixuan'], 2)
+        expect(
+          prepared.slots.filter(({ setup }) => setup.fourPieceId === 'moonlight'),
+          `Moonlight allocation: ${pair.join('+')}`,
+        ).toHaveLength(1)
+        expectCalculable(prepared, `Moonlight allocation: ${pair.join('+')}`)
+      }
+    }
+
+    const collisionCases = [
+      {
+        label: 'authored Astral precedence',
+        agentIds: ['astraYao', 'panYinhu', 'yixuan'], focusSlot: 2, targetSlot: 0,
+        expected: { fourPieceId: 'moonlight', twoPieceId: 'astralVoice' },
+      },
+      {
+        label: 'rigid King holder',
+        agentIds: ['juFufu', 'dialyn', 'yixuan'], focusSlot: 2, targetSlot: 0,
+        expected: {
+          fourPieceId: 'swingJazz', twoPieceId: 'king', mains: { slot4: 'atkPct' },
+        },
+      },
+      {
+        label: 'exact King holder',
+        agentIds: ['qingyi', 'dialyn', 'yixuan'], focusSlot: 2, targetSlot: 0,
+        expected: {
+          fourPieceId: 'shockstar', twoPieceId: 'king', mains: { slot4: 'atkPct' },
+        },
+      },
+    ] as const
+    for (const collision of collisionCases) {
+      let prepared = createPreparedState(
+        {}, [...collision.agentIds], collision.focusSlot,
+      )
+      expect(prepared.slots[collision.targetSlot].setup, collision.label)
+        .toMatchObject(collision.expected)
+      expect(prepared.slots.every(({ setup }) => (
+        Object.values(setup.substats).every((value) => value === 0)
+      )), collision.label).toBe(true)
+      expectCalculable(prepared, collision.label)
+
+      const established = prepared.slots.filter((_, index) => index !== collision.targetSlot)
+      prepared = workbenchReducer(prepared, {
+        type: 'switchPool', slot: collision.targetSlot, pool: 'nonLimited',
+      })
+      expect(prepared.slots[collision.targetSlot].setup, `${collision.label}:target rebuild`)
+        .toMatchObject(collision.expected)
+      expect(prepared.slots.filter((_, index) => index !== collision.targetSlot))
+        .toEqual(established)
+      expectCalculable(prepared, `${collision.label}:target rebuild`)
+    }
+  })
+
   it('initializes finite substat opportunities at zero and clamps only offered inputs', () => {
     const prepared = createPreparedState()
     expect(Object.values(prepared.slots[0].setup.substats).every((value) => value === 0))
@@ -455,5 +577,29 @@ describe('shared preparation and edit lifecycle', () => {
     state = workbenchReducer(state, { type: 'applyPartyEdit' })
     expect(state.slots.map(({ agentId }) => agentId)).toEqual(['yixuan', 'seed', 'evelyn'])
     expect(state.focusSlot).toBe(1)
+  })
+})
+
+describe('selected party relationship resolution', () => {
+  it('selects the only other Attack without requiring an Initial ATK calculation', () => {
+    const state = createPreparedState({}, ['seed', 'cissia', 'astraYao'], 0)
+    state.slots[1].setup.engineId = null
+
+    expect(resolveSeedVanguardForState(state)).toBe('cissia')
+  })
+
+  it('compares the exact Initial ATK of two other Attack teammates', () => {
+    expect(resolveSeedVanguard([
+      { agentId: 'seed', appliedSlot: 0, initialAtk: 9_999 },
+      { agentId: 'cissia', appliedSlot: 1, initialAtk: 2_400 },
+      { agentId: 'evelyn', appliedSlot: 2, initialAtk: 2_500 },
+    ])).toBe('evelyn')
+  })
+
+  it('returns no Vanguard without another Attack teammate', () => {
+    expect(resolveSeedVanguard([
+      { agentId: 'seed', appliedSlot: 0, initialAtk: 9_999 },
+      { agentId: 'astraYao', appliedSlot: 1, initialAtk: 9_999 },
+    ])).toBeNull()
   })
 })

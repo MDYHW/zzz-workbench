@@ -141,6 +141,39 @@ describe('Result composition', () => {
     ])
   })
 
+  it('inherits a canonical equipment scope without replacing a source-local visible target', () => {
+    const equipmentTarget = actionTarget([
+      canonicalAction('Basic Attack'),
+      canonicalAction('Ultimate'),
+    ])
+    const visibleTarget = actionTarget([
+      sourceLocalAction('Corrode Bone'),
+      actionForm('Basic Attack', "Serpent's Kiss"),
+    ])
+    const rows = composeActionHierarchy(
+      surfaces(0, 0, 0),
+      [{
+        metric: 'defIgnore', earliestSurface: 'fully', amount: 15,
+        source: source('Canonical equipment source', 'cissia', 'w-engine'),
+        action: equipmentTarget,
+      }],
+      'defIgnore',
+      [{
+        id: 'cissiaBasicActions',
+        target: visibleTarget,
+        inheritedEffectTargets: [equipmentTarget],
+      }],
+    )
+
+    expect(rows).toEqual([expect.objectContaining({
+      id: 'cissiaBasicActions',
+      target: visibleTarget,
+      outcomes: visibleTarget.outcomes,
+      values: { initial: 0, combat: 0, fully: 15 },
+    })])
+    expect(sameActionTarget(rows[0].target, equipmentTarget)).toBe(false)
+  })
+
   it('projects only changed action scopes and links each one to its nearest visible parent', () => {
     const syntheticSource = source('Synthetic action source', 'seed', 'core')
     const effects: ResolvedCurrentEffect[] = [

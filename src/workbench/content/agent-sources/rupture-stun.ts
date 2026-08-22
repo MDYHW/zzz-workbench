@@ -9,9 +9,10 @@ import { DRIVE_DISC_FACTS } from '../discs'
 import { W_ENGINE_FACTS, W_ENGINES } from '../engines'
 import { ADMITTED_AGENTS } from '../agents'
 import { EFFECTIVE_SUBSTAT_VALUES, MAIN_STATS, effectiveSubstatChoices } from '../setup-options'
+import { operatingIntervalFor } from '../setup-policies'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
-import { equipmentEffectBaseValue, equipmentEffectMaximumValue } from '../types'
-import { requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
+import { equipmentEffectBaseValue, equipmentEffectMaximumValue, type AgentId } from '../types'
+import { isWEnginePassiveEligible, requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
 
 type Agent = 'yixuan' | 'yidhari' | 'manato' | 'banyue' | 'starlightBilly' | 'dialyn' | 'trigger' | 'lycaon' | 'juFufu' | 'lighter' | 'pulchra' | 'qingyi' | 'koleda' | 'anby'
@@ -57,6 +58,7 @@ const mod = (metricId: 'dmgBonus' | 'sheerDmgBonus' | 'sheerForce' | 'critRate' 
 const provider = (src: ReturnType<typeof source>, recipient: 'all-party' | 'focus' | 'enemy-context', effect: Extract<ProfileRelationship, { kind: 'provider' }>['effect'], extras: Partial<Extract<ProfileRelationship, { kind: 'provider' }>['delivery']> = {}): ProfileRelationship => ({ kind: 'provider', source: src, delivery: { recipient, ...extras }, effect })
 
 const YIXUAN_CORE = actionTarget([canonicalAction('Basic Attack'), canonicalAction('EX Special Attack'), canonicalAction('Assist Follow-Up'), canonicalAction('Chain Attack'), canonicalAction('Ultimate')])
+const EX_SPECIAL = actionTarget([canonicalAction('EX Special Attack')])
 const YIXUAN_EX = actionTarget([canonicalAction('EX Special Attack')])
 const YIXUAN_CLOUD = actionTarget([actionForm('EX Special Attack', 'Cloud-Shaper'), actionForm('EX Special Attack', 'Ashen Ink Becomes Shadows')])
 const YIXUAN_SHEER = actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Ultimate')])
@@ -154,6 +156,7 @@ function selectedEquipmentPassives(
   agent: Agent,
   slot: Slot,
   setup: ProfileSetup,
+  focusAgentId: AgentId,
   relationships: ProfileRelationship[],
 ): void {
   relationships.push(...sharedPartyEquipmentRelationships(agent, slot, setup))
@@ -177,7 +180,7 @@ function selectedEquipmentPassives(
   })
   const enemy = (metricId: 'resIgnore' | 'defReduction', value: number, extras: Parameters<typeof provider>[3] = {}, action?: ReturnType<typeof actionTarget>) => add({ kind: 'provider', source: engine, delivery: { recipient: 'enemy-context', ...extras }, effect: { kind: 'modifier', metricId, earliestSurface: 'fully', value, ...(action ? { action } : {}) } })
   const rupture = ['yixuan', 'yidhari', 'manato', 'banyue', 'starlightBilly'].includes(agent)
-  const passiveEligible = W_ENGINES[setup.engineId].passiveSpecialty === partyAgent(agent).specialty
+  const passiveEligible = isWEnginePassiveEligible(agent, setup.engineId)
   if (rupture) {
     if (passiveEligible) switch (setup.engineId) {
       case 'qingming':
@@ -188,11 +191,11 @@ function selectedEquipmentPassives(
       case 'radiowave': local('sheerForce', engineValue(W_ENGINE_FACTS.radiowave.effects.sheerForce, setup)); break
       case 'puzzleSphere':
         local('critDmg', engineValue(W_ENGINE_FACTS.puzzleSphere.effects.critDamage, setup))
-        local('dmgBonus', engineValue(W_ENGINE_FACTS.puzzleSphere.effects.damage, setup), agent === 'yixuan' ? YIXUAN_EX : agent === 'banyue' ? BANYUE_EX : agent === 'manato' ? MANATO_EX : agent === 'starlightBilly' ? BILLY_EX : actionTarget([canonicalAction('EX Special Attack')]))
+        local('dmgBonus', engineValue(W_ENGINE_FACTS.puzzleSphere.effects.damage, setup), EX_SPECIAL)
         break
       case 'krakensCradle': if (agent === 'yidhari') { local('critRate', engineValue(W_ENGINE_FACTS.krakensCradle.effects.critRate, setup)); local('sheerDmgBonus', engineMax(W_ENGINE_FACTS.krakensCradle.effects.iceSheerDamage, setup)) }; break
       case 'grillOWisp': if (agent === 'manato' || agent === 'banyue') { local('critRate', engineValue(W_ENGINE_FACTS.grillOWisp.effects.critRate, setup)); local('dmgBonus', engineValue(W_ENGINE_FACTS.grillOWisp.effects.fireDamage, setup), undefined, 'combat') } else if (agent === 'starlightBilly') local('critRate', engineValue(W_ENGINE_FACTS.grillOWisp.effects.critRate, setup)); break
-      case 'wrathfulVajra': if (agent === 'manato' || agent === 'banyue') { local('critRate', engineValue(W_ENGINE_FACTS.wrathfulVajra.effects.critRate, setup), undefined, 'combat'); local('sheerDmgBonus', engineMax(W_ENGINE_FACTS.wrathfulVajra.effects.fireSheerDamage, setup), agent === 'manato' ? MANATO_EX : BANYUE_EX) }; break
+      case 'wrathfulVajra': if (agent === 'manato' || agent === 'banyue') { local('critRate', engineValue(W_ENGINE_FACTS.wrathfulVajra.effects.critRate, setup), undefined, 'combat'); local('sheerDmgBonus', engineMax(W_ENGINE_FACTS.wrathfulVajra.effects.fireSheerDamage, setup), EX_SPECIAL) }; break
       case 'starlightRiderFaceplate': if (agent === 'starlightBilly') { local('critRate', engineValue(W_ENGINE_FACTS.starlightRiderFaceplate.effects.critRate, setup), undefined, 'combat'); local('sheerDmgBonus', engineMax(W_ENGINE_FACTS.starlightRiderFaceplate.effects.physicalSheerDamage, setup)) }; break
     }
     if (setup.fourPieceId === 'yunkui') {
@@ -210,7 +213,9 @@ function selectedEquipmentPassives(
         selfImpact(['trigger', 'koleda', 'anby'].includes(agent)
           ? engineMax(W_ENGINE_FACTS.hellfireGears.effects.impact, setup)
           : engineValue(W_ENGINE_FACTS.hellfireGears.effects.impact, setup))
-        if (['dialyn', 'juFufu', 'lighter', 'pulchra', 'koleda', 'anby'].includes(agent)) {
+        if (BASE[agent].energyRegen !== undefined
+          && W_ENGINE_FACTS.hellfireGears.effects.energy.scope?.condition === 'offField'
+          && operatingIntervalFor(agent, focusAgentId) === 'off-field') {
           automatic(engineValue(W_ENGINE_FACTS.hellfireGears.effects.energy, setup))
         }
       }
@@ -248,7 +253,6 @@ function selectedEquipmentPassives(
     if (shockstarTarget) add({ kind: 'modifier', atom: { metricId: 'dazeBonus', earliestSurface: 'fully', value: engineValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze, setup), source: disc, action: shockstarTarget } })
     if (agent === 'anby') add({ kind: 'modifier', atom: { metricId: 'dazeBonus', earliestSurface: 'fully', value: engineValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze, setup), source: disc, action: ANBY_DASH_DODGE } })
   }
-  if (setup.fourPieceId === 'swingJazz') add({ kind: 'provider', source: disc, delivery: { recipient: 'all-party', formulas: DAMAGE }, effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: engineValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage, setup), nonstackId: 'swingJazz' } })
 }
 
 function rupture(agent: Extract<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' | 'starlightBilly'>, state: WorkbenchState, slot: Slot, setup: ProfileSetup, relationships: ProfileRelationship[]): AgentSourceProfile {
@@ -304,7 +308,7 @@ function rupture(agent: Extract<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue
     if (selected >= 2) actions.push(actionProjection('critDmg', 'starlightBillyWheelieCrit', BILLY_WHEELIE))
     if (selected >= 6) actions.push(actionProjection('sheerDmgBonus', 'starlightBillyM6Sheer', BILLY_M6))
   }
-  selectedEquipmentPassives(agent, slot, setup, relationships)
+  selectedEquipmentPassives(agent, slot, setup, state.slots[state.focusSlot].agentId, relationships)
   return { agentId: agent, appliedPartySlot: slot, relationships, metrics, ...(actions.length ? { actions } : {}), ruptureSheerSource: source(agent, slot, 'rupture-sheer-force', 'Rupture specialty', 'identity') }
 }
 
@@ -345,7 +349,7 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
     if (selected >= 2) relationships.push(provider(mind(agent, slot, selected, 2), 'all-party', { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully', value: 24 }, { formulas: CRIT_DAMAGE_FORMULAS }))
     metrics.find(({ id }) => id === 'critRate')!.gaugeId = 'triggerAftershockDaze'
     actions.push(actionProjection('dazeBonus', 'triggerBasicAftershock', BASIC_AFTERSHOCK_TARGET), actionProjection('dmgBonus', 'triggerAftershockDmg', AFTERSHOCK_TARGET), actionProjection('critDmg', 'triggerAftershockCritDmg', AFTERSHOCK_TARGET), actionProjection('defIgnore', 'triggerAftershockDefIgnore', AFTERSHOCK_TARGET))
-    selectedEquipmentPassives(agent, slot, setup, relationships)
+    selectedEquipmentPassives(agent, slot, setup, state.slots[state.focusSlot].agentId, relationships)
     return { agentId: agent, appliedPartySlot: slot, relationships, metrics, ...(actions.length ? { actions } : {}), ...(triggerAdditionalIsActive(ids, slot) ? { triggerAftershockDazeSource: ability } : {}) }
   } else if (agent === 'lycaon') {
     const potential = source(agent, slot, 'potential', SOURCE_LABELS.lycaonPotential, 'special')
@@ -361,7 +365,7 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
   } else if (agent === 'lighter') {
     const coreImpactSource = source(agent, slot, 'empowered-basic-five', 'Core Passive', 'special')
     const active = another(ids, slot, (id) => partyAgent(id).specialty === 'Attack') || sameFaction(ids, slot)
-    relationships.push(provider(core, 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.lighter.coreFireIceResReduction }, { attributes: ['Fire', 'Ice'] }), { kind: 'operation', atom: { operationId: 'lighterStunDuration', label: 'Enemy Stun duration', earliestSurface: 'fully', value: selected >= 1 ? VERTICAL_VALUES.lighter.mindscapeStunExtension : VERTICAL_VALUES.lighter.coreStunExtension, unit: 's', source: selected >= 1 ? mind(agent, slot, selected, 1) : core } }, { kind: 'operation', atom: { operationId: 'lighterQuickAssist', label: 'Quick Assist', earliestSurface: 'fully', value: 1, unit: '', source: core } })
+    relationships.push(provider(core, 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.lighter.coreFireIceResReduction }, { attributes: ['Fire', 'Ice'] }), { kind: 'operation', atom: { operationId: 'lighterStunDuration', label: 'Enemy Stun duration', earliestSurface: 'fully', value: selected >= 1 ? VERTICAL_VALUES.lighter.mindscapeStunExtension : VERTICAL_VALUES.lighter.coreStunExtension, unit: 's', source: selected >= 1 ? mind(agent, slot, selected, 1) : core } })
     if (selected >= 1) relationships.push(provider(mind(agent, slot, selected, 1), 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.lighter.mindscapeFireIceResReduction }, { attributes: ['Fire', 'Ice'] }))
     if (selected >= 2) relationships.push(provider(mind(agent, slot, selected, 2), 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.lighter.mindscapeStunMultiplier }))
     lighterImpactElation = {
@@ -397,7 +401,7 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
     if (selected >= 2) relationships.push(mod('dazeBonus', VERTICAL_VALUES.anby.mindscapeExNonStunnedDaze, mind(agent, slot, selected, 2), ANBY_EX))
     actions.push({ metricId: 'dazeBonus', scopes: [{ id: 'anbyBasic', target: ANBY_BASIC, children: [{ id: 'anbyThunderbolt', target: ANBY_THUNDERBOLT }] }, { id: 'anbySpecial', target: ANBY_SPECIAL }, { id: 'anbyExSpecial', target: ANBY_EX }, { id: 'anbyDashDodge', target: ANBY_DASH_DODGE }] })
   }
-  selectedEquipmentPassives(agent, slot, setup, relationships)
+  selectedEquipmentPassives(agent, slot, setup, state.slots[state.focusSlot].agentId, relationships)
   const critMetric = metrics.find(({ id }) => id === 'critRate')
   if (setup.fourPieceId === 'king' && critMetric && !critMetric.gaugeId) {
     critMetric.gaugeId = 'kingOfTheSummit'

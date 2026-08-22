@@ -194,7 +194,7 @@ export const W_ENGINE_FACTS = {
   hellfireGears: {
     advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' },
     effects: {
-      energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.6) },
+      energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.6), scope: { condition: 'offField' } },
       impact: { modifier: 'impact', unit: '%', value: scaledRefinementValues(20) },
     },
   },
@@ -721,7 +721,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.hellfireGears.advancedStat, image: hellfireImage,
     passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [
-      `Energy +${perSecond(W_ENGINE_FACTS.hellfireGears.effects.energy, refinement)}`,
+      `Off-field Energy +${perSecond(W_ENGINE_FACTS.hellfireGears.effects.energy, refinement)}`,
       `Impact +${percent(W_ENGINE_FACTS.hellfireGears.effects.impact, refinement)}`,
     ],
   },

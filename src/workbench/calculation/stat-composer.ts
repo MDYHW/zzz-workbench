@@ -102,7 +102,8 @@ const contribution = (atom: StatAtom, derivedValue: number): StatContribution =>
 
 /**
  * Composes one stat through the shared base, percentage, and flat regions.
- * Fully enabled percentages always read Initial, never the Combat total.
+ * Combat and fully enabled percentages always read Initial, never the Combat
+ * total. Initial and later flat regions remain additive on their own surface.
  */
 export function composeStat(statId: StatId, atoms: readonly StatAtom[]): ComposedStat {
   validateAtoms(statId, atoms)
@@ -110,16 +111,22 @@ export function composeStat(statId: StatId, atoms: readonly StatAtom[]): Compose
   const base = atoms
     .filter((atom): atom is BaseStatAtom => atom.region === 'base')
     .reduce((total, atom) => total + atom.value, 0)
+  const initialPercentages = atoms
+    .filter((atom) => atom.region === 'percentage' && atom.earliestSurface === 'initial')
+    .reduce((total, atom) => total + atom.value, 0)
+  const initialFlats = atoms
+    .filter((atom) => atom.region === 'flat' && atom.earliestSurface === 'initial')
+    .reduce((total, atom) => total + atom.value, 0)
+  const initial = base * (1 + initialPercentages / 100) + initialFlats
   const valueAt = (surface: SurfaceKey): number => {
-    const activePercentages = atoms.filter((atom) => (
-      atom.region === 'percentage' && activeAt(atom, surface)
-    ))
-    const activeFlats = atoms.filter((atom) => (
-      atom.region === 'flat' && activeAt(atom, surface)
-    ))
-    return base * (1 + activePercentages.reduce(
-      (total, atom) => total + atom.value, 0,
-    ) / 100) + activeFlats.reduce((total, atom) => total + atom.value, 0)
+    if (surface === 'initial') return initial
+    const combatPercentages = atoms
+      .filter((atom) => atom.region === 'percentage' && activeAt(atom, surface) && atom.earliestSurface !== 'initial')
+      .reduce((total, atom) => total + atom.value, 0)
+    const laterFlats = atoms
+      .filter((atom) => atom.region === 'flat' && activeAt(atom, surface) && atom.earliestSurface !== 'initial')
+      .reduce((total, atom) => total + atom.value, 0)
+    return initial * (1 + combatPercentages / 100) + laterFlats
   }
 
   const values = emptySurfaceRecord(valueAt('initial'))
@@ -128,7 +135,9 @@ export function composeStat(statId: StatId, atoms: readonly StatAtom[]): Compose
     .filter((atom) => atom.earliestSurface === surface)
     .map((atom) => contribution(
       atom,
-      atom.region === 'percentage' ? base * atom.value / 100 : atom.value,
+      atom.region === 'percentage'
+        ? (atom.earliestSurface === 'initial' ? base : initial) * atom.value / 100
+        : atom.value,
     ))
   const initialContributions = contributionsAt('initial')
   contributions.initial = initialContributions

@@ -180,9 +180,10 @@ faction graph, or guide-backed evidence payload.
   tiers create no normalized Result row. Selected equipment clauses retain
   exact attribute, action, enemy, and condition scopes; broad pre-PEN pressure
   uses the shared Slot 5 lifecycle.
-- R19. Lighter's completed Core at full Morale creates one Quick Assist
-  operation, supplies Combat Impact +20% during empowered Basic 5, reduces
-  enemy Fire/Ice RES by 15%, and extends the current Stun by 3 seconds once.
+- R19. Lighter's completed Core at full Morale creates a reachable Quick Assist
+  route used by Astral Voice authoring, supplies Combat Impact +20% during
+  empowered Basic 5, reduces enemy Fire/Ice RES by 15%, and extends the current
+  Stun by 3 seconds once.
   Additional activates with another Attack or same-Faction Agent. Twenty
   Elation stacks provide 25% Fire/Ice DMG at 170 Impact, add 5 percentage
   points per 10 Impact above 170, evaluated continuously and capped at 75% at
@@ -237,8 +238,9 @@ faction graph, or guide-backed evidence payload.
   with a non-Fire Agent outside the NEDF group. Display faction is not rewritten
   to force qualification.
 - AE3. Lighter's full representative shows its exact Fully Enabled Impact and
-  the corresponding continuous Elation output, plus Fire/Ice RES reduction,
-  one Quick Assist, and Stun duration. M1 changes the extension from 3 to 5
+  the corresponding continuous Elation output, plus Fire/Ice RES reduction and
+  Stun duration. Its Quick Assist route remains an Astral Voice authoring fact,
+  not a Result operation. M1 changes the extension from 3 to 5
   seconds; M1/M2 add
   only their stated RES, duration, multiplier,
   and Elation consequences.
