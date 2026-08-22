@@ -56,7 +56,7 @@ runtime optimizer, or equipment catalogue.
   rank-default M6. Retain `general_damage` with ATK, Physical/general DMG,
   CRIT, DEF/RES-region, and exact Basic, Dash, Dodge Counter, EX, Chain, and
   Ultimate consumers. His retained level-60 inputs are ATK 787, CRIT Rate
-  19.4%, CRIT DMG 50%, and Energy Regen 1.2/s.
+  19.4%, and CRIT DMG 50%.
 - R3. Nekomata's Additional Ability is active when another applied Agent is
   Support or shares her Attribute or faction. Billy's is active when another
   applied Agent shares his Attribute or faction. Their pair activates both.

@@ -73,9 +73,8 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   `daze_buildup`; `general_damage` is residual only where a retained action or
   selected package creates a material visible difference. Three Stun Agents
   remain an invalid party because none can be Focus.
-- R2. Retain completed ATK 658, CRIT Rate 5%, CRIT DMG 50%, Impact 136, and
-  base Energy Regen 1.2/s. ATK supplies the current base/W-Engine/main-stat
-  Result consumer. Other completed values remain absent without a current
+- R2. Retain completed CRIT Rate 5%, Impact 136, and base Energy Regen 1.2/s.
+  Other completed values remain absent without a current
   Setup, formula, threshold, action, operation, or Result consumer.
 - R3. Anby's Additional Ability Energy event creates no current candidate,
   prepared choice, editable setup input, applicability rule, or Result. Omit
@@ -115,9 +114,11 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   Generation Rate +18% / 20.5% / 23% / 25% / 27.5% remain retained
   authoring/activation facts for eligibility and applicability. Compressed
   Setup keeps the affected Energy Generation Rate outcome but intentionally
-  omits routine trigger and duration prose; Result projects only the
-  unconditional Electric DMG. The Energy Generation Rate event is neither
-  Energy Regen nor an M4 resource operation.
+  omits routine trigger and duration prose. The unconditional Electric DMG
+  remains complete selected/candidate package copy but, like the personal
+  damage clauses excluded by R14, does not create an Anby Result row. The
+  Energy Generation Rate event is neither Energy Regen nor an M4 resource
+  operation.
 - R9. Demara remains a partial but competitive accessibility path because its
   Impact chassis, Electric damage, and event Energy Generation package are all
   usable by Anby, including the M4 relationship, but its lower Base ATK and

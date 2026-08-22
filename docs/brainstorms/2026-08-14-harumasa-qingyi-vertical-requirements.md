@@ -63,14 +63,14 @@ output, runtime package score, or catalogue.
 - R1. Admit Asaba Harumasa as S-Rank Electric Attack, Section 6, Focus-eligible,
   rank-default M0. Retain `general_damage` as his primary formula, with ATK,
   Electric/general DMG, CRIT, DEF/RES-region, and Stun DMG Multiplier consumers.
-  His retained level-60 inputs are ATK 915, CRIT Rate 19.4%, CRIT DMG 50%, and
-  Energy Regen 1.2/s.
+  His retained level-60 inputs are ATK 915, CRIT Rate 19.4%, and CRIT DMG 50%.
 - R2. Admit Qingyi as S-Rank Electric Stun, Criminal Investigation Special
   Response Team, not Focus-eligible, rank-default M0. Her direction prioritizes
   Basic-centered `daze_buildup` and all-party Stun-window amplification while
   retaining the bounded personal-damage contribution needed by her
   Impact-to-ATK relationship, Basic/Chain modifiers, current W-Engine tradeoffs,
-  variable damage mains, and effective CRIT/ATK tuning. Her retained level-60
+  and variable damage mains. That bounded contribution does not create a
+  damage-contributor role or unconditional effective CRIT/ATK tuning. Her retained level-60
   inputs are ATK 758, CRIT Rate 5%, CRIT DMG 50%, Impact 136, and Energy Regen
   1.2/s.
 - R3. Harumasa's Additional Ability is active when another applied Agent is
@@ -164,12 +164,15 @@ output, runtime package score, or catalogue.
   Qingyi buffer-role outcome does not broaden the stronger repeated-Quick-
   Assist rule already authored for focused damage contributors.
 - R14. Qingyi's base 2-piece candidates are Shockstar Disco, King of the
-  Summit, and Swing Jazz. Selected King additionally exposes Woodpecker through
-  its existing CRIT-threshold pressure. Slot 4 offers CRIT Rate, CRIT DMG, and
-  ATK%; Slot 5 offers Electric DMG, ATK%, and PEN Ratio; Slot 6 offers Impact
-  and ATK%. Her retained personal contribution makes CRIT Rate, CRIT DMG, and
-  ATK% materially effective substats, but does not make flat PEN valid or
-  displace the Daze/buffer-first complete packages.
+  Summit, and Swing Jazz. Selected King additionally exposes Woodpecker, Slot 4
+  CRIT Rate, and CRIT Rate effective-substat hits through its existing
+  threshold pressure. Without selected King, Slot 4 offers only residual CRIT
+  DMG and ATK%, and no effective substat is admitted. Slot 5 offers Electric
+  DMG, ATK%, and PEN Ratio; Slot 6 offers Impact and ATK%. These variable-main
+  residual choices do not create a damage-contributor role or admit personal-
+  damage effective substats. Qingyi M1 is a Fully Enabled Agent buff, so it does
+  not enter King's Initial CRIT Rate basis and does not create CRIT candidate
+  pressure when King is absent.
 - R15. Both pools locally prepare King 4-piece plus Shockstar 2-piece with CRIT
   Rate / Electric DMG / Impact mains and zero substat hits. Qingyi's Initial
   King basis is `5 + 24 = 29%`; nine legal CRIT hits reach 50.6%. The visible
@@ -185,7 +188,7 @@ output, runtime package score, or catalogue.
   can prepare Astral, one bounded holder keeps King and the other uses its
   authored Shockstar fallback. With Dialyn, Dialyn keeps King because Qingyi is
   the only holder with a legal Shockstar fallback; all-party preparation assigns
-  Qingyi Shockstar in every slot order. Rebuilding Qingyi beside established
+  Qingyi Shockstar with residual Slot 4 ATK% in every slot order. Rebuilding Qingyi beside established
   Dialyn King also prepares Qingyi Shockstar, while rebuilding Dialyn preserves
   an untouched directly edited Qingyi King duplicate because Dialyn has no
   fallback. Existing independent CRIT consumers, the Qingyi/Ju Fufu outcome,

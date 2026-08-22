@@ -194,7 +194,7 @@ export const W_ENGINE_FACTS = {
   hellfireGears: {
     advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' },
     effects: {
-      energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.6) },
+      energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.6), scope: { condition: 'offField' } },
       impact: { modifier: 'impact', unit: '%', value: scaledRefinementValues(20) },
     },
   },
@@ -609,6 +609,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   tremorTrigramVessel: {
     id: 'tremorTrigramVessel', name: 'Tremor Trigram Vessel', rank: 'A', limited: false, baseAtk: 624,
     advancedStat: W_ENGINE_FACTS.tremorTrigramVessel.advancedStat, image: tremorTrigramVesselImage,
+    passiveSpecialty: 'Defense',
     passiveLines: (refinement) => [
       `EX Special & Ultimate DMG +${percent(W_ENGINE_FACTS.tremorTrigramVessel.effects.damage, refinement)}`,
       `Squad takes DMG or heals · Energy +${equipmentEffectBaseValue(W_ENGINE_FACTS.tremorTrigramVessel.effects.energy, refinement)}`,
@@ -617,6 +618,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   roaringFurnace: {
     id: 'roaringFurnace', name: 'Roaring Fur-nace', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.roaringFurnace.advancedStat, image: roaringFurnaceImage,
+    passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [
       `EX Special, Chain Attack & Ultimate Daze +${percent(W_ENGINE_FACTS.roaringFurnace.effects.daze, refinement)}`,
       `Squad DMG +${percent(W_ENGINE_FACTS.roaringFurnace.effects.damage, refinement, true)}`,
@@ -625,6 +627,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   myriadEclipse: {
     id: 'myriadEclipse', name: 'Myriad Eclipse', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.myriadEclipse.advancedStat, image: myriadEclipseImage,
+    passiveSpecialty: 'Attack',
     passiveLines: (refinement) => [
       `CRIT DMG +${percent(W_ENGINE_FACTS.myriadEclipse.effects.critDamage, refinement)}`,
       `DEF Ignore +${percent(W_ENGINE_FACTS.myriadEclipse.effects.defIgnore, refinement)}`,
@@ -633,6 +636,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   krakensCradle: {
     id: 'krakensCradle', name: "Kraken's Cradle", rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.krakensCradle.advancedStat, image: krakensCradleImage,
+    passiveSpecialty: 'Rupture',
     passiveLines: (refinement) => [
       `Ice Sheer DMG +${percent(W_ENGINE_FACTS.krakensCradle.effects.iceSheerDamage, refinement, true)}`,
       `≤50% Max HP · CRIT Rate +${percent(W_ENGINE_FACTS.krakensCradle.effects.critRate, refinement)}`,
@@ -641,6 +645,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   grillOWisp: {
     id: 'grillOWisp', name: "Grill O'Wisp", rank: 'A', limited: false, baseAtk: 624,
     advancedStat: W_ENGINE_FACTS.grillOWisp.advancedStat, image: grillOWispImage,
+    passiveSpecialty: 'Rupture',
     passiveLines: (refinement) => [
       `Fire DMG +${percent(W_ENGINE_FACTS.grillOWisp.effects.fireDamage, refinement)}`,
       `CRIT Rate +${percent(W_ENGINE_FACTS.grillOWisp.effects.critRate, refinement)}`,
@@ -649,6 +654,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   wrathfulVajra: {
     id: 'wrathfulVajra', name: 'Wrathful Vajra', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.wrathfulVajra.advancedStat, image: wrathfulVajraImage,
+    passiveSpecialty: 'Rupture',
     passiveLines: (refinement) => [
       `CRIT Rate +${percent(W_ENGINE_FACTS.wrathfulVajra.effects.critRate, refinement)}`,
       `EX Special Attack · Fire Sheer DMG +${percent(W_ENGINE_FACTS.wrathfulVajra.effects.fireSheerDamage, refinement, true)}`,
@@ -658,6 +664,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     id: 'starlightRiderFaceplate', name: 'Starlight Rider Faceplate', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.starlightRiderFaceplate.advancedStat,
     image: starlightRiderFaceplateImage,
+    passiveSpecialty: 'Rupture',
     passiveLines: (refinement) => [
       `CRIT Rate +${percent(W_ENGINE_FACTS.starlightRiderFaceplate.effects.critRate, refinement)}`,
       `Physical Sheer DMG +${percent(W_ENGINE_FACTS.starlightRiderFaceplate.effects.physicalSheerDamage, refinement, true)}`,
@@ -666,6 +673,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   qingming: {
     id: 'qingming', name: 'Qingming Birdcage', rank: 'S', limited: true, baseAtk: 743,
     advancedStat: W_ENGINE_FACTS.qingming.advancedStat, image: qingmingImage,
+    passiveSpecialty: 'Rupture',
     passiveLines: (refinement) => [
       `CRIT Rate +${percent(W_ENGINE_FACTS.qingming.effects.critRate, refinement)}`,
       `Ether DMG +${percent(W_ENGINE_FACTS.qingming.effects.damage, refinement)}`,
@@ -675,6 +683,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   cauldron: {
     id: 'cauldron', name: 'Cauldron of Clarity', rank: 'A', limited: false, baseAtk: 594,
     advancedStat: W_ENGINE_FACTS.cauldron.advancedStat, image: cauldronImage,
+    passiveSpecialty: 'Rupture',
     passiveLines: (refinement) => [
       `DMG +${percent(W_ENGINE_FACTS.cauldron.effects.damage, refinement)}`,
       `CRIT Rate +${percent(W_ENGINE_FACTS.cauldron.effects.critRate, refinement)}`,
@@ -683,6 +692,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   radiowave: {
     id: 'radiowave', name: 'Radiowave Journey', rank: 'A', limited: false, baseAtk: 594,
     advancedStat: W_ENGINE_FACTS.radiowave.advancedStat, image: radiowaveImage,
+    passiveSpecialty: 'Rupture',
     passiveLines: (refinement) => [
       `Sheer Force +${equipmentEffectBaseValue(W_ENGINE_FACTS.radiowave.effects.sheerForce, refinement)}`,
     ],
@@ -690,6 +700,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   puzzleSphere: {
     id: 'puzzleSphere', name: 'Puzzle Sphere', rank: 'A', limited: false, baseAtk: 594,
     advancedStat: W_ENGINE_FACTS.puzzleSphere.advancedStat, image: puzzleSphereImage,
+    passiveSpecialty: 'Rupture',
     passiveLines: (refinement) => [
       `CRIT DMG +${percent(W_ENGINE_FACTS.puzzleSphere.effects.critDamage, refinement)}`,
       `Target HP <50% \u00B7 EX Special Attack DMG +${percent(W_ENGINE_FACTS.puzzleSphere.effects.damage, refinement)}`,
@@ -698,6 +709,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   yesterdayCalls: {
     id: 'yesterdayCalls', name: 'Yesterday Calls', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.yesterdayCalls.advancedStat, image: yesterdayCallsImage,
+    passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [
       `Energy +${perSecond(W_ENGINE_FACTS.yesterdayCalls.effects.energy, refinement)}`,
       `Daze +${percent(W_ENGINE_FACTS.yesterdayCalls.effects.daze, refinement)}`,
@@ -709,18 +721,20 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.hellfireGears.advancedStat, image: hellfireImage,
     passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [
-      `Energy +${perSecond(W_ENGINE_FACTS.hellfireGears.effects.energy, refinement)}`,
+      `Off-field Energy +${perSecond(W_ENGINE_FACTS.hellfireGears.effects.energy, refinement)}`,
       `Impact +${percent(W_ENGINE_FACTS.hellfireGears.effects.impact, refinement)}`,
     ],
   },
   steamOven: {
     id: 'steamOven', name: 'Steam Oven', rank: 'A', limited: false, baseAtk: 594,
     advancedStat: W_ENGINE_FACTS.steamOven.advancedStat, image: steamOvenImage,
+    passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [`Impact +${percent(W_ENGINE_FACTS.steamOven.effects.impact, refinement)}`],
   },
   dreamlitHearth: {
     id: 'dreamlitHearth', name: 'Dreamlit Hearth', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.dreamlitHearth.advancedStat, image: dreamlitImage,
+    passiveSpecialty: 'Support',
     passiveLines: (refinement) => [
       `Energy +${perSecond(W_ENGINE_FACTS.dreamlitHearth.effects.energy, refinement)}`,
       `Max HP +${percent(W_ENGINE_FACTS.dreamlitHearth.effects.maxHp, refinement)}`,
@@ -730,6 +744,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   thoughtbop: {
     id: 'thoughtbop', name: 'Thoughtbop', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.thoughtbop.advancedStat, image: thoughtbopImage,
+    passiveSpecialty: 'Support',
     passiveLines: (refinement) => [
       `Energy +${perSecond(W_ENGINE_FACTS.thoughtbop.effects.energy, refinement)}`,
       `Squad DMG +${percent(W_ENGINE_FACTS.thoughtbop.effects.damage, refinement, true)}`,
@@ -739,6 +754,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   weepingCradle: {
     id: 'weepingCradle', name: 'Weeping Cradle', rank: 'S', limited: false, baseAtk: 684,
     advancedStat: W_ENGINE_FACTS.weepingCradle.advancedStat, image: weepingCradleImage,
+    passiveSpecialty: 'Support',
     passiveLines: (refinement) => [
       `Energy +${perSecond(W_ENGINE_FACTS.weepingCradle.effects.energy, refinement)}`,
       `Squad DMG +${percent(W_ENGINE_FACTS.weepingCradle.effects.damage, refinement)}`,
@@ -747,33 +763,37 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   kaboom: {
     id: 'kaboom', name: 'Kaboom the Cannon', rank: 'A', limited: false, baseAtk: 624,
     advancedStat: W_ENGINE_FACTS.kaboom.advancedStat, image: kaboomImage,
+    passiveSpecialty: 'Support',
     passiveLines: (refinement) => [`Squad ATK +${percent(W_ENGINE_FACTS.kaboom.effects.atk, refinement)}`],
   },
   unfetteredGameBall: {
     id: 'unfetteredGameBall', name: 'Unfettered Game Ball', rank: 'A', limited: false, baseAtk: 594,
     advancedStat: W_ENGINE_FACTS.unfetteredGameBall.advancedStat, image: unfetteredImage,
+    passiveSpecialty: 'Support',
     passiveLines: (refinement) => [
       `Weakness-matched target · Squad CRIT Rate +${percent(W_ENGINE_FACTS.unfetteredGameBall.effects.critRate, refinement)}`,
     ],
   },
-  severedInnocence: { id: 'severedInnocence', name: 'Severed Innocence', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.severedInnocence.advancedStat, image: severedInnocenceImage, passiveLines: (refinement) => [`CRIT DMG +${percent(W_ENGINE_FACTS.severedInnocence.effects.critDamage, refinement, true)}`, `Electric DMG +${percent(W_ENGINE_FACTS.severedInnocence.effects.damage, refinement)}`] },
-  cordisGermina: { id: 'cordisGermina', name: 'Cordis Germina', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.cordisGermina.advancedStat, image: cordisGerminaImage, passiveLines: (refinement) => [`CRIT Rate +${percent(W_ENGINE_FACTS.cordisGermina.effects.critRate, refinement)}`, `Electric DMG +${percent(W_ENGINE_FACTS.cordisGermina.effects.damage, refinement, true)}`, `Basic Attack & Ultimate DEF Ignore +${percent(W_ENGINE_FACTS.cordisGermina.effects.defIgnore, refinement)}`] },
-  marcatoDesire: { id: 'marcatoDesire', name: 'Marcato Desire', rank: 'A', limited: false, baseAtk: 594, advancedStat: W_ENGINE_FACTS.marcatoDesire.advancedStat, image: marcatoDesireImage, passiveLines: (refinement) => [`ATK +${percent(W_ENGINE_FACTS.marcatoDesire.effects.atk, refinement, true)}`] },
-  starlightEngine: { id: 'starlightEngine', name: 'Starlight Engine', rank: 'A', limited: false, baseAtk: 594, advancedStat: W_ENGINE_FACTS.starlightEngine.advancedStat, image: starlightEngineImage, passiveLines: (refinement) => [`ATK +${percent(W_ENGINE_FACTS.starlightEngine.effects.atk, refinement)}`] },
-  spectralGaze: { id: 'spectralGaze', name: 'Spectral Gaze', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.spectralGaze.advancedStat, image: spectralGazeImage, passiveLines: (refinement) => [`Enemy DEF Reduction +${percent(W_ENGINE_FACTS.spectralGaze.effects.defReduction, refinement)}`, `Impact +${percent(W_ENGINE_FACTS.spectralGaze.effects.impact, refinement, true)}`] },
-  iceJadeTeapot: { id: 'iceJadeTeapot', name: 'Ice-Jade Teapot', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.iceJadeTeapot.advancedStat, image: iceJadeTeapotImage, passiveLines: (refinement) => [`Impact +${percent(W_ENGINE_FACTS.iceJadeTeapot.effects.impact, refinement, true)}`, `Squad DMG +${percent(W_ENGINE_FACTS.iceJadeTeapot.effects.damage, refinement)}`] },
-  restrained: { id: 'restrained', name: 'The Restrained', rank: 'S', limited: false, baseAtk: 684, advancedStat: W_ENGINE_FACTS.restrained.advancedStat, image: restrainedImage, passiveLines: (refinement) => [`Basic Attack DMG +${percent(W_ENGINE_FACTS.restrained.effects.damage, refinement, true)}`, `Basic Attack Daze +${percent(W_ENGINE_FACTS.restrained.effects.daze, refinement, true)}`] },
-  preciousFossilizedCore: { id: 'preciousFossilizedCore', name: 'Precious Fossilized Core', rank: 'A', limited: false, baseAtk: 594, advancedStat: W_ENGINE_FACTS.preciousFossilizedCore.advancedStat, image: preciousFossilizedCoreImage, passiveLines: (refinement) => [`Target HP ≥50% \u00B7 Daze +${equipmentEffectProgressionIncrementValue(W_ENGINE_FACTS.preciousFossilizedCore.effects.daze, refinement)}%`, `Target HP ≥75% \u00B7 Daze +${percent(W_ENGINE_FACTS.preciousFossilizedCore.effects.daze, refinement, true)} total`] },
-  elegantVanity: { id: 'elegantVanity', name: 'Elegant Vanity', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.elegantVanity.advancedStat, image: elegantVanityImage, passiveLines: (refinement) => [`Energy +${equipmentEffectBaseValue(W_ENGINE_FACTS.elegantVanity.effects.energy, refinement)}`, `Squad DMG +${percent(W_ENGINE_FACTS.elegantVanity.effects.damage, refinement, true)}`] },
-  bashfulDemon: { id: 'bashfulDemon', name: 'Bashful Demon', rank: 'A', limited: false, baseAtk: 624, advancedStat: W_ENGINE_FACTS.bashfulDemon.advancedStat, image: bashfulDemonImage, passiveLines: (refinement) => [`Squad ATK +${percent(W_ENGINE_FACTS.bashfulDemon.effects.atk, refinement, true)}`] },
+  severedInnocence: { id: 'severedInnocence', name: 'Severed Innocence', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.severedInnocence.advancedStat, image: severedInnocenceImage, passiveSpecialty: 'Attack', passiveLines: (refinement) => [`CRIT DMG +${percent(W_ENGINE_FACTS.severedInnocence.effects.critDamage, refinement, true)}`, `Electric DMG +${percent(W_ENGINE_FACTS.severedInnocence.effects.damage, refinement)}`] },
+  cordisGermina: { id: 'cordisGermina', name: 'Cordis Germina', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.cordisGermina.advancedStat, image: cordisGerminaImage, passiveSpecialty: 'Attack', passiveLines: (refinement) => [`CRIT Rate +${percent(W_ENGINE_FACTS.cordisGermina.effects.critRate, refinement)}`, `Electric DMG +${percent(W_ENGINE_FACTS.cordisGermina.effects.damage, refinement, true)}`, `Basic Attack & Ultimate DEF Ignore +${percent(W_ENGINE_FACTS.cordisGermina.effects.defIgnore, refinement)}`] },
+  marcatoDesire: { id: 'marcatoDesire', name: 'Marcato Desire', rank: 'A', limited: false, baseAtk: 594, advancedStat: W_ENGINE_FACTS.marcatoDesire.advancedStat, image: marcatoDesireImage, passiveSpecialty: 'Attack', passiveLines: (refinement) => [`ATK +${percent(W_ENGINE_FACTS.marcatoDesire.effects.atk, refinement, true)}`] },
+  starlightEngine: { id: 'starlightEngine', name: 'Starlight Engine', rank: 'A', limited: false, baseAtk: 594, advancedStat: W_ENGINE_FACTS.starlightEngine.advancedStat, image: starlightEngineImage, passiveSpecialty: 'Attack', passiveLines: (refinement) => [`ATK +${percent(W_ENGINE_FACTS.starlightEngine.effects.atk, refinement)}`] },
+  spectralGaze: { id: 'spectralGaze', name: 'Spectral Gaze', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.spectralGaze.advancedStat, image: spectralGazeImage, passiveSpecialty: 'Stun', passiveLines: (refinement) => [`Enemy DEF Reduction +${percent(W_ENGINE_FACTS.spectralGaze.effects.defReduction, refinement)}`, `Impact +${percent(W_ENGINE_FACTS.spectralGaze.effects.impact, refinement, true)}`] },
+  iceJadeTeapot: { id: 'iceJadeTeapot', name: 'Ice-Jade Teapot', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.iceJadeTeapot.advancedStat, image: iceJadeTeapotImage, passiveSpecialty: 'Stun', passiveLines: (refinement) => [`Impact +${percent(W_ENGINE_FACTS.iceJadeTeapot.effects.impact, refinement, true)}`, `Squad DMG +${percent(W_ENGINE_FACTS.iceJadeTeapot.effects.damage, refinement)}`] },
+  restrained: { id: 'restrained', name: 'The Restrained', rank: 'S', limited: false, baseAtk: 684, advancedStat: W_ENGINE_FACTS.restrained.advancedStat, image: restrainedImage, passiveSpecialty: 'Stun', passiveLines: (refinement) => [`Basic Attack DMG +${percent(W_ENGINE_FACTS.restrained.effects.damage, refinement, true)}`, `Basic Attack Daze +${percent(W_ENGINE_FACTS.restrained.effects.daze, refinement, true)}`] },
+  preciousFossilizedCore: { id: 'preciousFossilizedCore', name: 'Precious Fossilized Core', rank: 'A', limited: false, baseAtk: 594, advancedStat: W_ENGINE_FACTS.preciousFossilizedCore.advancedStat, image: preciousFossilizedCoreImage, passiveSpecialty: 'Stun', passiveLines: (refinement) => [`Target HP ≥50% \u00B7 Daze +${equipmentEffectProgressionIncrementValue(W_ENGINE_FACTS.preciousFossilizedCore.effects.daze, refinement)}%`, `Target HP ≥75% \u00B7 Daze +${percent(W_ENGINE_FACTS.preciousFossilizedCore.effects.daze, refinement, true)} total`] },
+  elegantVanity: { id: 'elegantVanity', name: 'Elegant Vanity', rank: 'S', limited: true, baseAtk: 713, advancedStat: W_ENGINE_FACTS.elegantVanity.advancedStat, image: elegantVanityImage, passiveSpecialty: 'Support', passiveLines: (refinement) => [`Energy +${equipmentEffectBaseValue(W_ENGINE_FACTS.elegantVanity.effects.energy, refinement)}`, `Squad DMG +${percent(W_ENGINE_FACTS.elegantVanity.effects.damage, refinement, true)}`] },
+  bashfulDemon: { id: 'bashfulDemon', name: 'Bashful Demon', rank: 'A', limited: false, baseAtk: 624, advancedStat: W_ENGINE_FACTS.bashfulDemon.advancedStat, image: bashfulDemonImage, passiveSpecialty: 'Support', passiveLines: (refinement) => [`Squad ATK +${percent(W_ENGINE_FACTS.bashfulDemon.effects.atk, refinement, true)}`] },
   brimstone: {
     id: 'brimstone', name: 'The Brimstone', rank: 'S', limited: false, baseAtk: 684,
     advancedStat: W_ENGINE_FACTS.brimstone.advancedStat, image: brimstoneImage,
+    passiveSpecialty: 'Attack',
     passiveLines: (refinement) => [`ATK +${percent(W_ENGINE_FACTS.brimstone.effects.atk, refinement, true)}`],
   },
   serpentineSeeker: {
     id: 'serpentineSeeker', name: 'Serpentine Seeker', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.serpentineSeeker.advancedStat, image: serpentineSeekerImage,
+    passiveSpecialty: 'Attack',
     passiveLines: (refinement) => [
       `CRIT Rate +${percent(W_ENGINE_FACTS.serpentineSeeker.effects.critRate, refinement)}`,
       `Electric DMG \u00B7 DEF Ignore +${percent(W_ENGINE_FACTS.serpentineSeeker.effects.defIgnore, refinement)}`,
@@ -782,6 +802,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   bellicoseBlaze: {
     id: 'bellicoseBlaze', name: 'Bellicose Blaze', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.bellicoseBlaze.advancedStat, image: bellicoseBlazeImage,
+    passiveSpecialty: 'Attack',
     passiveLines: (refinement) => [
       `CRIT Rate +${percent(W_ENGINE_FACTS.bellicoseBlaze.effects.critRate, refinement)}`,
       `Fire Aftershock DEF Ignore +${percent(W_ENGINE_FACTS.bellicoseBlaze.effects.fireAftershockDefIgnore, refinement, true)}`,
@@ -790,6 +811,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   drillRigRedAxis: {
     id: 'drillRigRedAxis', name: 'Drill Rig - Red Axis', rank: 'A', limited: false, baseAtk: 624,
     advancedStat: W_ENGINE_FACTS.drillRigRedAxis.advancedStat, image: drillRigImage,
+    passiveSpecialty: 'Attack',
     passiveLines: (refinement) => [
       `Basic & Dash Attack Electric DMG +${percent(W_ENGINE_FACTS.drillRigRedAxis.effects.damage, refinement)}`,
     ],
@@ -797,6 +819,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   heartstringNocturne: {
     id: 'heartstringNocturne', name: 'Heartstring Nocturne', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.heartstringNocturne.advancedStat, image: heartstringNocturneImage,
+    passiveSpecialty: 'Attack',
     passiveLines: (refinement) => [
       `CRIT DMG +${percent(W_ENGINE_FACTS.heartstringNocturne.effects.critDamage, refinement)}`,
       `Chain Attack & Ultimate Fire RES Ignore +${percent(W_ENGINE_FACTS.heartstringNocturne.effects.fireResIgnore, refinement, true)}`,
@@ -814,6 +837,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   housekeeper: {
     id: 'housekeeper', name: 'Housekeeper', rank: 'A', limited: false, baseAtk: 624,
     advancedStat: W_ENGINE_FACTS.housekeeper.advancedStat, image: housekeeperImage,
+    passiveSpecialty: 'Attack',
     passiveLines: (refinement) => [
       `Automatic Energy +${perSecond(W_ENGINE_FACTS.housekeeper.effects.energy, refinement)}`,
       `EX Special Physical DMG +${percent(W_ENGINE_FACTS.housekeeper.effects.damage, refinement, true)}`,
@@ -822,6 +846,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   blazingLaurel: {
     id: 'blazingLaurel', name: 'Blazing Laurel', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.blazingLaurel.advancedStat, image: blazingLaurelImage,
+    passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [
       `Impact +${percent(W_ENGINE_FACTS.blazingLaurel.effects.impact, refinement)}`,
       `Fire & Ice CRIT DMG +${percent(W_ENGINE_FACTS.blazingLaurel.effects.critDamage, refinement, true)}`,
@@ -830,6 +855,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   simmeringPot: {
     id: 'simmeringPot', name: 'The Simmering Pot', rank: 'A', limited: false, baseAtk: 594,
     advancedStat: W_ENGINE_FACTS.simmeringPot.advancedStat, image: simmeringPotImage,
+    passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [
       `Assist Follow-Up Daze +${percent(W_ENGINE_FACTS.simmeringPot.effects.daze, refinement)}`,
       `Assist Follow-Up DMG +${percent(W_ENGINE_FACTS.simmeringPot.effects.damage, refinement)}`,
@@ -838,6 +864,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   deepSeaVisitor: {
     id: 'deepSeaVisitor', name: 'Deep Sea Visitor', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.deepSeaVisitor.advancedStat, image: deepSeaVisitorImage,
+    passiveSpecialty: 'Attack',
     passiveLines: (refinement) => [
       `Ice DMG +${percent(W_ENGINE_FACTS.deepSeaVisitor.effects.iceDamage, refinement)}`,
       `CRIT Rate +${equipmentEffectBaseValue(W_ENGINE_FACTS.deepSeaVisitor.effects.basicCritRate, refinement)
@@ -883,6 +910,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   zanshinHerbCase: {
     id: 'zanshinHerbCase', name: 'Zanshin Herb Case', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.zanshinHerbCase.advancedStat, image: zanshinHerbCaseImage,
+    passiveSpecialty: 'Attack',
     passiveLines: (refinement) => [
       `CRIT Rate +${equipmentEffectBaseValue(W_ENGINE_FACTS.zanshinHerbCase.effects.critRate, refinement)
         + equipmentEffectBaseValue(W_ENGINE_FACTS.zanshinHerbCase.effects.anomalyStunCritRate, refinement)}%`,
@@ -929,6 +957,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   starlightEngineReplica: {
     id: 'starlightEngineReplica', name: 'Starlight Engine Replica', rank: 'A', limited: false, baseAtk: 624,
     advancedStat: W_ENGINE_FACTS.starlightEngineReplica.advancedStat, image: starlightEngineReplicaImage,
+    passiveSpecialty: 'Attack',
     passiveLines: (refinement) => [`Physical DMG +${percent(W_ENGINE_FACTS.starlightEngineReplica.effects.physicalDamage, refinement)}`],
   },
   demaraBatteryMarkII: {
@@ -1026,6 +1055,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   metanukimorphosis: {
     id: 'metanukimorphosis', name: 'Metanukimorphosis', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.metanukimorphosis.advancedStat, image: metanukimorphosisImage,
+    passiveSpecialty: 'Support',
     passiveLines: (refinement) => [
       `Anomaly Mastery +${equipmentEffectBaseValue(W_ENGINE_FACTS.metanukimorphosis.effects.anomalyMastery, refinement)}`,
       `Squad Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.metanukimorphosis.effects.anomalyProficiency, refinement)}`,

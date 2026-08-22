@@ -6,6 +6,7 @@ import {
   actionTagLabel,
   canonicalAction,
   sourceLocalAction,
+  sameActionTarget,
   actionTarget,
   type ActionOutcome,
   type ActionTag,
@@ -16,6 +17,7 @@ import {
   surfaces,
   type ActionScopeNode,
 } from './composition'
+import { linearDerivedOutput } from './relationships'
 import type { ActionModifier, ResultMetric } from './result'
 
 const sharedTarget = actionTarget([
@@ -25,7 +27,9 @@ const sharedTarget = actionTarget([
 
 const canonicalTarget = actionTarget([canonicalAction('Basic Attack')])
 
-const leafTarget = actionTarget([canonicalAction('Basic Attack')])
+const leafTarget = actionTarget([
+  actionForm('Basic Attack', 'Falling Petals - Slaughter'),
+])
 
 const sourceLocalTarget = actionTarget(
   [sourceLocalAction('Source-local outcome')],
@@ -51,6 +55,25 @@ const actionScopes: readonly ActionScopeNode[] = [{
 }]
 
 describe('Result composition', () => {
+  it('evaluates stat-derived scaling continuously between source-stated increments', () => {
+    expect(linearDerivedOutput({
+      basisValue: 2.808,
+      basisThreshold: 1.6,
+      basisIncrement: 0.1,
+      baseOutput: 280,
+      outputIncrement: 20,
+      outputCap: 700,
+    })).toBeCloseTo(521.6, 10)
+    expect(linearDerivedOutput({
+      basisValue: 4,
+      basisThreshold: 1.6,
+      basisIncrement: 0.1,
+      baseOutput: 280,
+      outputIncrement: 20,
+      outputCap: 700,
+    })).toBe(700)
+  })
+
   it('uses the shared effect metric vocabulary for Result rows and action outcomes', () => {
     expectTypeOf<ResultMetric['id']>().toEqualTypeOf<EffectMetric>()
     expectTypeOf<ActionModifier['metricId']>().toEqualTypeOf<EffectMetric>()
@@ -69,13 +92,86 @@ describe('Result composition', () => {
     >()
     expect(actionOutcomeLabel(actionForm('EX Special Attack', 'Cloud-Shaper')))
       .toBe('EX Special Attack: Cloud-Shaper')
-    expect(actionOutcomeLabel(sourceLocalAction('Corrode Bone', 'Basic Attack')))
+    expect(actionOutcomeLabel(sourceLocalAction('Corrode Bone')))
       .toBe('Corrode Bone')
     expect(actionTarget([], ['aftershock'])).toMatchObject({
       outcomes: [],
       tags: ['aftershock'],
     })
     expect(actionTagLabel('aftershock')).toBe('Aftershock')
+  })
+
+  it('composes semantically equal targets without collapsing forms or source-local outcomes', () => {
+    const effectTarget = actionTarget([
+      canonicalAction('Ultimate'),
+      canonicalAction('Basic Attack'),
+    ])
+    const projectedTarget = actionTarget([
+      canonicalAction('Basic Attack'),
+      canonicalAction('Ultimate'),
+    ])
+    const differentForm = actionTarget([
+      actionForm('Basic Attack', 'Falling Petals - Slaughter'),
+    ])
+    const differentLocal = actionTarget([
+      sourceLocalAction('Corrode Bone'),
+    ])
+    expect(sameActionTarget(effectTarget, projectedTarget)).toBe(true)
+    expect(sameActionTarget(effectTarget, differentForm)).toBe(false)
+    expect(sameActionTarget(effectTarget, differentLocal)).toBe(false)
+
+    const rows = composeActionHierarchy(
+      surfaces(0, 0, 0),
+      [{
+        metric: 'defIgnore', earliestSurface: 'fully', amount: 15,
+        source: source('Semantic action source', 'seed', 'core'),
+        action: effectTarget,
+      }],
+      'defIgnore',
+      [
+        { id: 'canonicalBasicUltimate', target: projectedTarget },
+        { id: 'seedSlaughter', target: differentForm },
+      ],
+    )
+    expect(rows).toEqual([
+      expect.objectContaining({
+        id: 'canonicalBasicUltimate',
+        values: { initial: 0, combat: 0, fully: 15 },
+      }),
+    ])
+  })
+
+  it('inherits a canonical equipment scope without replacing a source-local visible target', () => {
+    const equipmentTarget = actionTarget([
+      canonicalAction('Basic Attack'),
+      canonicalAction('Ultimate'),
+    ])
+    const visibleTarget = actionTarget([
+      sourceLocalAction('Corrode Bone'),
+      actionForm('Basic Attack', "Serpent's Kiss"),
+    ])
+    const rows = composeActionHierarchy(
+      surfaces(0, 0, 0),
+      [{
+        metric: 'defIgnore', earliestSurface: 'fully', amount: 15,
+        source: source('Canonical equipment source', 'cissia', 'w-engine'),
+        action: equipmentTarget,
+      }],
+      'defIgnore',
+      [{
+        id: 'cissiaBasicActions',
+        target: visibleTarget,
+        inheritedEffectTargets: [equipmentTarget],
+      }],
+    )
+
+    expect(rows).toEqual([expect.objectContaining({
+      id: 'cissiaBasicActions',
+      target: visibleTarget,
+      outcomes: visibleTarget.outcomes,
+      values: { initial: 0, combat: 0, fully: 15 },
+    })])
+    expect(sameActionTarget(rows[0].target, equipmentTarget)).toBe(false)
   })
 
   it('projects only changed action scopes and links each one to its nearest visible parent', () => {
@@ -187,4 +283,5 @@ describe('Result composition', () => {
       actionScopes,
     )).toEqual([])
   })
+
 })

@@ -46,6 +46,21 @@ export type AgentId =
   | 'burnice'
 
 export type AgentRank = 'S' | 'A'
+export type AgentAttribute =
+  | 'Physical'
+  | 'Fire'
+  | 'Ice'
+  | 'Electric'
+  | 'Ether'
+  | 'Auric Ink'
+  | 'Honed Edge'
+export type AgentSpecialty =
+  | 'Attack'
+  | 'Stun'
+  | 'Support'
+  | 'Defense'
+  | 'Rupture'
+  | 'Anomaly'
 export type AgentFaction =
   | 'Victoria Housekeeping Co.'
   | 'Yunkui Summit'
@@ -154,6 +169,8 @@ export type DiscId =
   | 'phaethonsMelody'
 
 export type MainSlot = 'slot4' | 'slot5' | 'slot6'
+export type FixedMainSlot = 'slot1' | 'slot2' | 'slot3'
+export type MindscapeRank = 0 | 1 | 2 | 3 | 4 | 5 | 6
 
 export type MainStatId =
   | 'critRate'
@@ -179,7 +196,6 @@ export type SubstatId =
   | 'hpFlat'
   | 'atkPct'
   | 'atkFlat'
-  | 'defPct'
   | 'anomalyProficiency'
 
 export interface AdvancedStat {
@@ -216,7 +232,7 @@ export type EquipmentEffectAction =
   >
 
 export type EquipmentEffectTag = Extract<ActionTag, 'aftershock'>
-export type EquipmentEffectCondition = 'backAttack'
+export type EquipmentEffectCondition = 'backAttack' | 'offField'
 
 export type EquipmentEffectRecipient = 'self' | 'squad' | 'enemy'
 export type EquipmentEffectValue = number | RefinementValues
@@ -282,7 +298,7 @@ export interface WEngineChoice {
   advancedStat: AdvancedStat
   image: string
   passiveLines: (refinement: Refinement) => string[]
-  passiveSpecialty?: string
+  passiveSpecialty: AgentSpecialty
 }
 
 export interface DriveDiscChoice {
@@ -291,7 +307,7 @@ export interface DriveDiscChoice {
   image: string
   twoPieceEffect: string
   fourPieceEffects?: string[]
-  fourPieceEffectsForHolder?: (holderAttribute: string) => string[]
+  fourPieceEffectsForHolder?: (holderAttribute: AgentAttribute) => string[]
 }
 
 export interface MainStatChoice {
@@ -318,8 +334,8 @@ export interface SetupSelection {
 export interface AgentSummary {
   id: AgentId
   name: string
-  attribute: string
-  specialty: string
+  attribute: AgentAttribute
+  specialty: AgentSpecialty
   focusEligible: boolean
   rank: AgentRank
   faction?: AgentFaction

@@ -8,6 +8,7 @@ import {
   ADMITTED_AGENTS,
   SEED_SETUP_PASSIVE_LINES,
   W_ENGINES,
+  type AgentAttribute,
   type AgentId,
   type DiscId,
   type EngineId,
@@ -365,7 +366,7 @@ function DiscCard({
 }: {
   descriptionId?: string
   discId: DiscId
-  holderAttribute: string
+  holderAttribute: AgentAttribute
   piece: 'fourPiece' | 'twoPiece'
   showHead?: boolean
 }) {

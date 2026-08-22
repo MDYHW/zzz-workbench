@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { AgentResult } from '../workbench/calculation/result'
 import { surfaces } from '../workbench/calculation/composition'
 import { canonicalAction, sourceLocalAction } from '../workbench/actions'
@@ -24,12 +24,15 @@ function syntheticResult(
   }
 }
 
-function renderResult(agentResult: AgentResult) {
+function renderResult(
+  agentResult: AgentResult,
+  onSourceToneChange = () => {},
+) {
   return render(
     <ResultPanel
       activeSourceTone={null}
       agentResult={agentResult}
-      onSourceToneChange={() => {}}
+      onSourceToneChange={onSourceToneChange}
       partyAgentIds={['seed', 'cissia', 'astraYao']}
     />,
   )
@@ -141,6 +144,7 @@ describe('ResultPanel action hierarchy', () => {
 describe('ResultPanel operation presentation', () => {
   it('preserves additive operations and gauge output', async () => {
     const user = userEvent.setup()
+    const onSourceToneChange = vi.fn()
     renderResult(syntheticResult({
       metrics: [{
         id: 'critRate',
@@ -179,7 +183,7 @@ describe('ResultPanel operation presentation', () => {
           unit: '%',
         },
       ],
-    }))
+    }), onSourceToneChange)
 
     const operations = screen.getByRole('region', { name: 'Agent operations' })
     const items = within(operations).getAllByRole('listitem')
@@ -189,6 +193,15 @@ describe('ResultPanel operation presentation', () => {
     expect(items[1]).toHaveTextContent(
       'Fully enabledNext Quick Assist Daze · Synthetic source+50.0%',
     )
+
+    await user.hover(items[0])
+    expect(onSourceToneChange).toHaveBeenLastCalledWith('pointer', 'core')
+    await user.unhover(items[0])
+    expect(onSourceToneChange).toHaveBeenLastCalledWith('pointer', null)
+    items[0].focus()
+    expect(onSourceToneChange).toHaveBeenLastCalledWith('focus', 'core')
+    items[0].blur()
+    expect(onSourceToneChange).toHaveBeenLastCalledWith('focus', null)
 
     await user.click(screen.getByRole('button', { name: 'CRIT Rate' }))
     const gauge = screen.getByRole('group', {

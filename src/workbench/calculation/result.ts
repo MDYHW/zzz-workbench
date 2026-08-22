@@ -1,6 +1,42 @@
 import type { AgentId } from '../content'
 import type { EffectMetric, ResultSource, SurfaceKey } from '../effects'
 import type { ActionOutcome, ActionTag, ActionTarget } from '../actions'
+import type { SelectedSourceInstance } from './source-instance'
+
+function selectedSourceDetail(source: SelectedSourceInstance): string | undefined {
+  const { key } = source.definition
+  switch (key.kind) {
+    case 'w-engine-base':
+    case 'w-engine':
+      return source.selection?.kind === 'refinement'
+        ? `W${source.selection.refinement}`
+        : undefined
+    case 'mindscape':
+      return `M${key.tier}`
+    case 'drive-disc':
+      return key.piece
+    default:
+      return undefined
+  }
+}
+
+export function resultSourceFor(
+  source: SelectedSourceInstance,
+  detail?: string,
+): ResultSource {
+  const selectedRole = source.selection?.kind === 'drive-disc'
+    ? source.selection.selectedRole
+    : undefined
+  const locus = selectedRole
+    ? selectedRole === '4-piece' ? 'disc-4pc' : 'disc-2pc'
+    : source.definition.presentation.locus
+  return {
+    label: source.definition.presentation.label,
+    ownerAgentId: source.holderAgentId,
+    locus,
+    detail: [selectedSourceDetail(source), detail].filter(Boolean).join(' · ') || undefined,
+  }
+}
 
 export interface Contribution extends ResultSource {
   amount: number

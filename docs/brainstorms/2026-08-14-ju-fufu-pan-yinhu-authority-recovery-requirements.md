@@ -42,7 +42,7 @@ and equipment consequences, so no shared named-Agent rule is warranted.
   `general_damage`. Pan Yinhu is A-Rank Physical Defense, M6 by default, Yunkui
   Summit, and not Focus-eligible; he has no personal damage role and only a
   residual Daze direction.
-- R2. Ju Fufu retains ATK 765, CRIT Rate 19.4%, CRIT DMG 50%, Impact 118, and
+- R2. Ju Fufu retains ATK 765, CRIT Rate 19.4%, Impact 118, and
   base Energy Regen 1.2/s. Pan Yinhu retains ATK 661, Impact 94, and base Energy
   Regen 1.56/s. Other completed stats with no current consumer are omitted.
 

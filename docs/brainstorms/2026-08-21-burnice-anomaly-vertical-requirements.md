@@ -19,10 +19,12 @@ general-damage build.
 ## Permanent-Owner And Consumer Review
 
 - `docs/zzz-formula-mechanics.md` owns the separate anomaly-damage, anomaly-
-  buildup, general-damage, Energy Regen, and action-operation regions. AP enters
-  the anomaly modifier as `AP / 100`; AM changes buildup. Initial Energy Regen
-  is the Potential basis, while Flamemaker Shaker's fixed Energy per second is
-  composed afterward and cannot feed that relationship.
+  buildup, general-damage, Energy Regen, and action-operation regions. AP
+  participates multiplicatively in the anomaly proficiency modifier, but the
+  current owner does not specify a literal numeric normalization and the
+  workbench has no final anomaly-damage-number consumer. AM changes buildup.
+  Initial Energy Regen is the Potential basis, while Flamemaker Shaker's fixed
+  Energy per second is composed afterward and cannot feed that relationship.
 - `docs/setup-workbench-product-contract.md` owns direction-derived candidates,
   whole-package representatives, independent 4-piece and 2-piece investment,
   provider delivery, selected-input reconciliation, and complete state
@@ -67,10 +69,10 @@ general-damage build.
   and Base Energy Regen 1.56/s. Her primary formula participation is
   `anomaly_damage` plus `anomaly_buildup`; residual `general_damage` exists only
   for the materially different Afterburn sub-output.
-- R2. Completed Core Afterburn is an existing source-local Fire action. Its
-  ordinary 175% ATK coefficient, Heat cost, 1.5-second cadence, and Assist
-  arithmetic remain source facts only. Every 10 AP adds Afterburn DMG Bonus
-  +1%, capped at +30% at AP 300. Result shows an AP gauge
+- R2. Completed Core Afterburn is an existing source-local Fire action. Its raw
+  coefficient, Heat cost, trigger cadence, and Assist arithmetic have no
+  current qualifying consumer and remain excluded. Every 10 AP adds Afterburn
+  DMG Bonus +1%, capped at +30% at AP 300. Result shows an AP gauge
   whose output is `Afterburn DMG Bonus` and routes that bonus to Afterburn; it
   does not show calculated Afterburn DMG.
 - R3. Burnice's Additional Ability is active when another applied Agent is

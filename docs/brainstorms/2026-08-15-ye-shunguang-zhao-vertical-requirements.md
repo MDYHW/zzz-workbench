@@ -85,9 +85,8 @@ optimizer.
 - R3. Admit Zhao as S-Rank Ice Defense, Krampus Compliance Authority, M0 by
   default, and not Focus-eligible. Her primary direction is party support with
   residual `general_damage` only for her HP-derived CRIT and retained Final
-  Verdict action outcome. Retain HP 9117, ATK 765, CRIT Rate 5%, CRIT DMG 50%,
-  and Base Energy Regen 1.2. Her completed Core adds Initial HP +18%; ATK 765
-  already includes its completed Base-ATK node.
+  Verdict action outcome. Retain HP 9117, CRIT Rate 5%, CRIT DMG 50%, and Base
+  Energy Regen 1.2/s. Her completed Core adds Initial HP +18%.
 
 ### Ye Core, Mindscapes, and target replacement
 
@@ -194,8 +193,8 @@ optimizer.
 ### Zhao Core, Mindscapes, and equipment authoring
 
 - R18. Zhao's completed Core supplies Initial HP +18%. Initial Max HP grants
-  CRIT Rate in complete 1,000-HP steps at +1.4% per step; M6 uses 125% of that
-  output. The resulting CRIT Rate is capped only by the ordinary displayed
+  CRIT Rate at +1.4% per 1,000 HP through a continuous relation; M6 uses 125%
+  of that output. The resulting CRIT Rate is capped only by the ordinary displayed
   100% CRIT cap. This relation has no 27,000-HP cap.
 - R19. Activating Ether Veil: Wellspring supplies all party Max HP +5% and flat
   ATK +1000 at Fully Enabled. The HP effect shares the established identical
@@ -204,8 +203,9 @@ optimizer.
   cadence, duration, and Quick Assist sequencing remain outside Result.
 - R20. Zhao's Additional Ability qualifies with another Attack, Anomaly, or
   Support Agent. While Zhao is in any Ether Veil, it supplies squad DMG +10%,
-  then +1% for each complete 400 Initial Max HP above 15,000, capped at +40% at
-  27,000. The Max HP row shows a `15,000` threshold, `27,000` cap, and current
+  then +1% per 400 Initial Max HP above 15,000 through a continuous relation,
+  capped at +40% at 27,000. The Max HP row shows a `15,000` threshold,
+  `27,000` cap, and current
   squad-DMG output only when qualified. Ye is the closest qualifying current
   partner; Zhao with Caesar and Focus-eligible Rupture Agent Yixuan is the
   applicable inactive contrast because no other Attack, Anomaly, or Support

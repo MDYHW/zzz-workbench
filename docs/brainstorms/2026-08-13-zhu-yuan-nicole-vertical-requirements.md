@@ -12,7 +12,7 @@ their current released behavior. Zhu Yuan is an Ether Attack Focus and
 `general_damage` contributor whose enhanced Suppressive Mode Basic and Dash
 attacks retain materially different action modifiers. Nicole is an A-Rank
 Ether Support whose broad enemy DEF Reduction, conditional Ether squad DMG,
-M6 squad CRIT Rate, and Quick Assist operation use existing provider and
+M6 squad CRIT Rate, and Quick Assist route use existing provider and
 candidate-pressure mechanisms.
 
 This vertical reuses current general-damage, Attribute, CRIT-cap, enemy-context,
@@ -49,15 +49,15 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   and a buffer with no authored personal-damage or Anomaly direction. The
   generic rank mechanism initializes Zhu Yuan at M0 and Nicole at M6.
 - R2. Retain current level-60 values consumed by this vertical: Zhu Yuan ATK
-  919, CRIT Rate 5%, and CRIT DMG 78.8%; Nicole ATK 649 and Energy Regen 1.56.
+  919, CRIT Rate 5%, and CRIT DMG 78.8%; Nicole Energy Regen 1.56/s.
   Other facts remain absent without a current Setup,
   formula, threshold, action, operation, or Result consumer.
 - R3. Zhu Yuan uses ATK, CRIT Rate, CRIT DMG, Ether DMG, and PEN Ratio through
   general damage. Her effective substats are CRIT Rate, CRIT DMG, and ATK%.
   Flat ATK is materially weaker than her three high-value tuning axes. Nicole
-  uses Energy Regen for her current operation and has no effective substat:
-  ordinary personal damage or Attribute buildup does not create a Support or
-  Anomaly role.
+  uses Energy Regen as a retained setup and stat direction and has no effective
+  substat: ordinary personal damage or Attribute buildup does not create a
+  Support or Anomaly role.
 
 ### Zhu Yuan equipment authoring
 
@@ -175,8 +175,9 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   bullets or Energy Fields. It is broad pre-PEN pressure for applicable
   `general_damage`, but not for `sheer_damage`. Her Additional activates with
   another Ether or same-faction Agent and supplies Ether DMG +25% only to
-  current Ether recipients. Her EX Special, Chain Attack, and Ultimate each
-  expose the existing one-Quick-Assist operation without modeling cadence.
+  current Ether recipients. Her EX Special, Chain Attack, and Ultimate retain
+  the reachable Quick Assist route used by Astral Voice authoring, but the
+  trigger count creates no standalone Result operation.
 - R17. Nicole M6 supplies all-party CRIT Rate +15% at ten Energy-Field stacks.
   M1 personal EX damage and buildup, M2 event Energy, M4 field size, and M3/M5
   skill tiers create no separate normalized Result. The default M6 value

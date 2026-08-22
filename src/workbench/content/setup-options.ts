@@ -2,11 +2,18 @@ import type {
   AgentId,
   DiscId,
   MainSlot,
+  FixedMainSlot,
   MainStatChoice,
   MainStatId,
   SetupFormulaParticipation,
   SubstatChoice,
 } from './types'
+
+export const FIXED_MAIN_STATS: Record<FixedMainSlot, { slot: FixedMainSlot; stat: 'hpFlat' | 'atkFlat' | 'defFlat'; numericValue: number; unit: '' }> = {
+  slot1: { slot: 'slot1', stat: 'hpFlat', numericValue: 2200, unit: '' },
+  slot2: { slot: 'slot2', stat: 'atkFlat', numericValue: 316, unit: '' },
+  slot3: { slot: 'slot3', stat: 'defFlat', numericValue: 184, unit: '' },
+}
 
 export const SETUP_FORMULA_PARTICIPATION_BY_AGENT: Record<
   AgentId,
@@ -208,7 +215,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['electricDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
   },
   qingyi: {
-    slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['electricDmg', 'atkPct', 'penRatio'], slot6: ['impact', 'atkPct'],
+    slot4: ['critDmg', 'atkPct'], slot5: ['electricDmg', 'atkPct', 'penRatio'], slot6: ['impact', 'atkPct'],
   },
   nekomata: {
     slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['physicalDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
@@ -265,184 +272,28 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   },
 }
 
-/** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
-export const PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE: Partial<
-  Record<AgentId, Exclude<MainStatId, 'penRatio'>>
-> = {
-  evelyn: 'fireDmg',
-  corin: 'physicalDmg',
-  hugo: 'iceDmg',
-  zhuYuan: 'atkPct',
-  nekomata: 'atkPct',
-  billy: 'atkPct',
-  grace: 'electricDmg',
-  burnice: 'fireDmg',
+export const EFFECTIVE_SUBSTAT_VALUES: Record<SubstatChoice['id'], SubstatChoice> = {
+  critRate: { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
+  critDmg: { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
+  hpPct: { id: 'hpPct', label: 'HP%', perHit: 3, unit: '%' },
+  hpFlat: { id: 'hpFlat', label: 'HP', perHit: 112, unit: '' },
+  atkPct: { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
+  atkFlat: { id: 'atkFlat', label: 'ATK', perHit: 19, unit: '' },
+  anomalyProficiency: { id: 'anomalyProficiency', label: 'Anomaly Proficiency', perHit: 9, unit: '' },
 }
 
-/** Authored whole-package replacement when the selected 2-piece loses its distinct axis. */
-export const PREPARED_TWO_PIECE_BY_BROAD_PRE_PEN_PRESSURE: Partial<
-  Record<AgentId, DiscId>
-> = {
-  nekomata: 'branchAndBlade',
-  grace: 'freedomBlues',
-}
+const substats = (...ids: SubstatChoice['id'][]): SubstatChoice[] => ids.map((id) => EFFECTIVE_SUBSTAT_VALUES[id])
 
 export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
-  yixuan: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'hpPct', label: 'HP%', perHit: 3, unit: '%' },
-  ],
-  yidhari: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'hpPct', label: 'HP%', perHit: 3, unit: '%' },
-  ],
-  manato: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'hpPct', label: 'HP%', perHit: 3, unit: '%' },
-  ],
-  hugo: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  juFufu: [
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-    { id: 'atkFlat', label: 'ATK', perHit: 19, unit: '' },
-  ],
-  panYinhu: [
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-    { id: 'atkFlat', label: 'ATK', perHit: 19, unit: '' },
-  ],
-  banyue: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'hpPct', label: 'HP%', perHit: 3, unit: '%' },
-  ],
-  starlightBilly: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'hpPct', label: 'HP%', perHit: 3, unit: '%' },
-  ],
-  dialyn: [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }],
-  lucia: [
-    { id: 'hpPct', label: 'HP%', perHit: 3, unit: '%' },
-    { id: 'hpFlat', label: 'HP', perHit: 112, unit: '' },
-  ],
-  anbySoldier0: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  trigger: [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }],
-  astraYao: [
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-    { id: 'atkFlat', label: 'ATK', perHit: 19, unit: '' },
-  ],
-  seed: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  cissia: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  evelyn: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  corin: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  lycaon: [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }],
-  ellen: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  soukaku: [
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-    { id: 'atkFlat', label: 'ATK', perHit: 19, unit: '' },
-  ],
-  soldier11: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  lighter: [],
-  lucy: [],
-  zhuYuan: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  nicole: [],
-  orphie: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  pulchra: [],
-  harumasa: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  qingyi: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  nekomata: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  billy: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  ben: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  koleda: [],
-  anby: [],
-  caesar: [],
-  yeShunguang: [
-    { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-    { id: 'critDmg', label: 'CRIT DMG', perHit: 4.8, unit: '%' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  zhao: [
-    { id: 'hpPct', label: 'HP%', perHit: 3, unit: '%' },
-    { id: 'hpFlat', label: 'HP', perHit: 112, unit: '' },
-  ],
-  grace: [
-    { id: 'anomalyProficiency', label: 'Anomaly Proficiency', perHit: 9, unit: '' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  piper: [
-    { id: 'anomalyProficiency', label: 'Anomaly Proficiency', perHit: 9, unit: '' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
-  yuzuha: [
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-    { id: 'atkFlat', label: 'ATK', perHit: 19, unit: '' },
-  ],
-  burnice: [
-    { id: 'anomalyProficiency', label: 'Anomaly Proficiency', perHit: 9, unit: '' },
-    { id: 'atkPct', label: 'ATK%', perHit: 3, unit: '%' },
-  ],
+  yixuan: substats('critRate', 'critDmg', 'hpPct'), yidhari: substats('critRate', 'critDmg', 'hpPct'), manato: substats('critRate', 'critDmg', 'hpPct'),
+  hugo: substats('critRate', 'critDmg', 'atkPct'), juFufu: substats('atkPct', 'atkFlat'), panYinhu: substats('atkPct', 'atkFlat'),
+  banyue: substats('critRate', 'critDmg', 'hpPct'), starlightBilly: substats('critRate', 'critDmg', 'hpPct'), dialyn: substats('critRate'), lucia: substats('hpPct', 'hpFlat'),
+  anbySoldier0: substats('critRate', 'critDmg', 'atkPct'), trigger: substats('critRate'), astraYao: substats('atkPct', 'atkFlat'),
+  seed: substats('critRate', 'critDmg', 'atkPct'), cissia: substats('critRate', 'critDmg', 'atkPct'), evelyn: substats('critRate', 'critDmg', 'atkPct'), corin: substats('critRate', 'critDmg', 'atkPct'),
+  lycaon: substats('critRate'), ellen: substats('critRate', 'critDmg', 'atkPct'), soukaku: substats('atkPct', 'atkFlat'), soldier11: substats('critRate', 'critDmg', 'atkPct'),
+  lighter: [], lucy: [], zhuYuan: substats('critRate', 'critDmg', 'atkPct'), nicole: [], orphie: substats('critRate', 'critDmg', 'atkPct'), pulchra: [],
+  harumasa: substats('critRate', 'critDmg', 'atkPct'), qingyi: [], nekomata: substats('critRate', 'critDmg', 'atkPct'), billy: substats('critRate', 'critDmg', 'atkPct'), ben: substats('critRate', 'critDmg', 'atkPct'),
+  koleda: [], anby: [], caesar: [], yeShunguang: substats('critRate', 'critDmg', 'atkPct'), zhao: substats('hpPct', 'hpFlat'), grace: substats('anomalyProficiency', 'atkPct'), piper: substats('anomalyProficiency', 'atkPct'), yuzuha: substats('atkPct', 'atkFlat'), burnice: substats('anomalyProficiency', 'atkPct'),
 }
 
 /**
@@ -454,7 +305,7 @@ export function effectiveSubstatChoices(
   agentId: AgentId,
   setup: { fourPieceId: DiscId | null },
 ): SubstatChoice[] {
-  if ((agentId === 'lycaon' || agentId === 'lighter' || agentId === 'pulchra' || agentId === 'koleda' || agentId === 'anby') && setup.fourPieceId !== 'king') return []
+  if ((agentId === 'lycaon' || agentId === 'lighter' || agentId === 'pulchra' || agentId === 'qingyi' || agentId === 'koleda' || agentId === 'anby') && setup.fourPieceId !== 'king') return []
   if (agentId === 'pulchra' && setup.fourPieceId === 'king') {
     return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
   }
@@ -465,6 +316,9 @@ export function effectiveSubstatChoices(
     return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
   }
   if (agentId === 'anby' && setup.fourPieceId === 'king') {
+    return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
+  }
+  if (agentId === 'qingyi' && setup.fourPieceId === 'king') {
     return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
   }
   if (agentId === 'juFufu' && setup.fourPieceId === 'king') {
