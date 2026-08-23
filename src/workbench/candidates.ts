@@ -130,25 +130,42 @@ export function effectiveTwoPieceIds(
   )
 }
 
+export function effectiveFourPieceRoleSwapTwoPieceId(
+  state: WorkbenchState,
+  slot: AppliedSlot,
+): DiscId | null {
+  const setup = state.slots[slot].setup
+  const targetFourPieceId = setup.twoPieceId
+  if (!setup.fourPieceId || !targetFourPieceId) return null
+  if (!effectiveFourPieceIds(state, slot).includes(targetFourPieceId)) return null
+
+  const acceptsComplement = (twoPieceId: DiscId) => {
+    const slots = [...state.slots] as WorkbenchState['slots']
+    slots[slot] = {
+      ...slots[slot],
+      setup: { ...setup, fourPieceId: targetFourPieceId, twoPieceId },
+    }
+    return effectiveTwoPieceIds({ ...state, slots }, slot).includes(twoPieceId)
+  }
+
+  if (acceptsComplement(setup.fourPieceId)) return setup.fourPieceId
+
+  const sameEffect = SAME_EFFECT_TWO_PIECE_RELATIONSHIPS.find(({ members }) => (
+    members.some((id) => id === targetFourPieceId)
+  ))
+  const sameEffectComplement = sameEffect?.members.find((id) => id !== targetFourPieceId)
+  return sameEffectComplement && acceptsComplement(sameEffectComplement)
+    ? sameEffectComplement
+    : null
+}
+
 export function effectiveFourPieceRoleSwapIds(
   state: WorkbenchState,
   slot: AppliedSlot,
 ): DiscId[] {
-  const setup = state.slots[slot].setup
-  if (!setup.fourPieceId || !setup.twoPieceId) return []
-  if (!effectiveFourPieceIds(state, slot).includes(setup.twoPieceId)) return []
-
-  const slots = [...state.slots] as WorkbenchState['slots']
-  slots[slot] = {
-    ...slots[slot],
-    setup: {
-      ...setup,
-      fourPieceId: setup.twoPieceId,
-      twoPieceId: setup.fourPieceId,
-    },
-  }
-  return effectiveTwoPieceIds({ ...state, slots }, slot).includes(setup.fourPieceId)
-    ? [setup.twoPieceId]
+  const targetFourPieceId = state.slots[slot].setup.twoPieceId
+  return targetFourPieceId && effectiveFourPieceRoleSwapTwoPieceId(state, slot)
+    ? [targetFourPieceId]
     : []
 }
 

@@ -61,6 +61,8 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   piper: { attribute: physicalMark, specialty: anomalyMark },
   yuzuha: { attribute: physicalMark, specialty: supportMark },
   burnice: { attribute: fireMark, specialty: anomalyMark },
+  jane: { attribute: physicalMark, specialty: anomalyMark },
+  seth: { attribute: electricMark, specialty: defenseMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {

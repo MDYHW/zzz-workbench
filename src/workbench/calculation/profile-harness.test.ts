@@ -1,10 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import { AFTERSHOCK_TARGET, BASIC_AFTERSHOCK_TARGET, DISORDER_TARGET } from '../actions'
 import {
+  deriveJanePassionAssault,
+  JANE_ASSAULT_TARGET,
+  JANE_PASSION_TARGET,
+} from './derived/jane-passion-assault'
+import {
   defineAgentBaseSource,
   defineAgentSource,
   defineCalculationSource,
   defineDriveDiscSource,
+  defineMindscapeSource,
 } from '../content/source-definitions'
 import { createPreparedState, type WorkbenchState } from '../state'
 import { providerDefenseProfileFor } from '../content/agent-sources/provider-defense'
@@ -16,7 +22,7 @@ import {
 } from './profile-harness'
 import { evaluateRelationships, type ProfileRelationship } from './relationships'
 import { selectSource, type SelectedSourceInstance } from './source-instance'
-import type { StatId } from './stat-composer'
+import { composeStat, type StatId } from './stat-composer'
 
 const atkMetric: MetricProjection = {
   id: 'atk', statId: 'atk', label: 'ATK', unit: '', decimals: 0,
@@ -64,6 +70,123 @@ function agentResult(
 }
 
 describe('profile calculation harness', () => {
+  it('clamps Jane Passion ATK and Assault CRIT Rate from completed AP at both boundaries', () => {
+    const core = selectSource(
+      defineAgentSource('jane', 'core', 'Core Passive', 'core'), 'jane', 0,
+    )
+    const mindscape1 = selectSource(
+      defineMindscapeSource('jane', 1, 'Mindscape'), 'jane', 0,
+      { kind: 'mindscape', selectedTier: 1 },
+    )
+    const apSource = selectSource(
+      defineAgentBaseSource('jane', 'Jane AP boundary test'), 'jane', 0,
+    )
+    const completedAp = (value: number) => composeStat('anomalyProficiency', [{
+      statId: 'anomalyProficiency', region: 'base', earliestSurface: 'initial', value, source: apSource,
+    }])
+
+    const belowThreshold = deriveJanePassionAssault(core, undefined, completedAp(119))
+    expect(belowThreshold.localStat.value).toBe(0)
+    expect(belowThreshold.providers[0].effect.value).toBeCloseTo(59.04, 10)
+    expect(belowThreshold.modifiers).toEqual([])
+
+    const mindscape = deriveJanePassionAssault(core, mindscape1, completedAp(214))
+    expect(mindscape.modifiers).toEqual([
+      expect.objectContaining({
+        metricId: 'anomalyBuildupBonus', action: JANE_PASSION_TARGET,
+      }),
+      expect.objectContaining({
+        metricId: 'dmgBonus', action: JANE_PASSION_TARGET,
+      }),
+    ])
+
+    const aboveCaps = deriveJanePassionAssault(core, undefined, completedAp(1000))
+    expect(aboveCaps.localStat.value).toBe(600)
+    expect(aboveCaps.providers[0].effect.value).toBe(100)
+  })
+
+  it('runs Jane Passion and Assault after ordinary Seth AP delivery with scoped CRIT providers', () => {
+    const state = createPreparedState({}, ['jane', 'piper', 'seth'], 0)
+    const janeCore = selectSource(
+      defineAgentSource('jane', 'core', 'Core Passive', 'core'), 'jane', 0,
+    )
+    const janePotential = selectSource(
+      defineAgentSource('jane', 'potential', 'Potential Awakening', 'identity'), 'jane', 0,
+    )
+    const sethCore = selectSource(
+      defineAgentSource('seth', 'core', 'Core Passive', 'core'), 'seth', 2,
+    )
+    const profiles: AgentSourceProfile[] = [
+      {
+        agentId: 'jane', appliedPartySlot: 0,
+        metrics: [
+          atkMetric,
+          { id: 'anomalyProficiency', statId: 'anomalyProficiency', label: 'AP', unit: '', decimals: 0, gaugeId: 'janePassionAssault' },
+          { id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1, baseValues: { initial: 0, combat: 0, fully: 0 }, admission: 'action' },
+          { id: 'critDmg', label: 'CRIT DMG', unit: '%', decimals: 1, baseValues: { initial: 0, combat: 0, fully: 0 }, admission: 'action' },
+        ],
+        actions: [
+          actionProjection('critRate', 'janeAssaultCritRate', JANE_ASSAULT_TARGET),
+          actionProjection('critDmg', 'janeAssaultCritDmg', JANE_ASSAULT_TARGET),
+        ],
+        relationships: [
+          baseStat('jane', 0, 'atk', 880),
+          baseStat('jane', 0, 'anomalyProficiency', 114),
+          { kind: 'modifier', atom: {
+            metricId: 'critDmg', earliestSurface: 'fully', value: 30,
+            source: janePotential, action: JANE_ASSAULT_TARGET,
+          } },
+        ],
+        janePassionAssault: { coreSource: janeCore },
+      },
+      {
+        agentId: 'piper', appliedPartySlot: 1,
+        metrics: [
+          { id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1, baseValues: { initial: 0, combat: 0, fully: 0 }, admission: 'action' },
+          { id: 'critDmg', label: 'CRIT DMG', unit: '%', decimals: 1, baseValues: { initial: 0, combat: 0, fully: 0 }, admission: 'action' },
+        ],
+        actions: [
+          actionProjection('critRate', 'piperAssaultCritRate', JANE_ASSAULT_TARGET),
+          actionProjection('critDmg', 'piperAssaultCritDmg', JANE_ASSAULT_TARGET),
+        ],
+        relationships: [],
+      },
+      {
+        agentId: 'seth', appliedPartySlot: 2,
+        metrics: [{ id: 'anomalyProficiency', statId: 'anomalyProficiency', label: 'AP', unit: '', decimals: 0 }],
+        relationships: [
+          baseStat('seth', 2, 'anomalyProficiency', 90),
+          {
+            kind: 'provider', source: sethCore,
+            delivery: { recipient: 'focus' },
+            effect: { kind: 'stat', statId: 'anomalyProficiency', region: 'flat', earliestSurface: 'fully', value: 100 },
+          },
+        ],
+      },
+    ]
+
+    const result = evaluateProfileParty(state, profiles)!
+    const jane = agentResult(result, 'jane')
+    const piper = agentResult(result, 'piper')
+    const seth = agentResult(result, 'seth')
+    const janeAp = jane.metrics.find(({ id }) => id === 'anomalyProficiency')!
+    expect(janeAp.values.fully).toBe(214)
+    expect(jane.metrics.find(({ id }) => id === 'atk')!.values.fully).toBe(1068)
+    expect(janeAp.gauge).toEqual(expect.objectContaining({
+      current: 214,
+      outputLabel: 'Assault CRIT Rate',
+      additionalOutputs: [expect.objectContaining({ label: 'Passion flat ATK', value: 188 })],
+    }))
+    expect(janeAp.gauge!.outputValue).toBeCloseTo(74.24, 10)
+    expect(jane.actionModifiers.find(({ id }) => id === 'janeAssaultCritRate')!.values.fully)
+      .toBeCloseTo(74.24, 10)
+    expect(jane.actionModifiers.find(({ id }) => id === 'janeAssaultCritDmg')!.values.fully).toBe(80)
+    expect(piper.actionModifiers.find(({ id }) => id === 'piperAssaultCritRate')!.values.fully)
+      .toBeCloseTo(74.24, 10)
+    expect(piper.actionModifiers.find(({ id }) => id === 'piperAssaultCritDmg')!.values.fully).toBe(50)
+    expect(seth.actionModifiers).toEqual([])
+  })
+
   it('recalculates a holder-derived provider from the live setup without preparation', () => {
     const initial = createPreparedState({}, ['astraYao', 'corin', 'anby'], 1)
     const profilesFor = (state: WorkbenchState): AgentSourceProfile[] => {
@@ -233,7 +356,7 @@ describe('profile calculation harness', () => {
     expect(agentResult(result, 'zhao').operations).toEqual([])
   })
 
-  it('admits an optional metric only for a nonzero aggregate or an action consumer', () => {
+  it('admits an optional parent metric when one action aggregate differs', () => {
     const state = createPreparedState({}, ['astraYao', 'trigger', 'zhao'], 1)
     const actionSource = selectSource(
       defineAgentSource('astraYao', 'scoped-damage', 'Scoped damage', 'core'),
@@ -264,7 +387,10 @@ describe('profile calculation harness', () => {
 
     const result = evaluateProfileParty(state, profiles)!
     expect(agentResult(result, 'astraYao').metrics.map(({ id }) => id)).toEqual(['dmgBonus'])
-    expect(agentResult(result, 'astraYao').actionModifiers[0].values.fully).toBe(20)
+    expect(agentResult(result, 'astraYao').actionModifiers[0]).toEqual(expect.objectContaining({
+      values: expect.objectContaining({ fully: 20 }),
+    }))
+    expect(agentResult(result, 'astraYao').actionModifiers[0].standaloneMetric).toBeUndefined()
     expect(agentResult(result, 'trigger').metrics).toEqual([])
   })
 
@@ -341,7 +467,16 @@ describe('profile calculation harness', () => {
     const result = agentResult(evaluateProfileParty(state, profiles)!, 'astraYao')
     expect(result.metrics).toEqual([])
     expect(result.actionModifiers).toEqual([
-      expect.objectContaining({ id: 'actionOnlyDamage', values: expect.objectContaining({ fully: 50 }) }),
+      expect.objectContaining({
+        id: 'actionOnlyDamage',
+        values: expect.objectContaining({ fully: 50 }),
+        standaloneMetric: {
+          label: 'DMG Bonus',
+          unit: '%',
+          decimals: 1,
+          values: { initial: 0, combat: 0, fully: 0 },
+        },
+      }),
     ])
   })
 

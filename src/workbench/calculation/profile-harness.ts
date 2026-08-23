@@ -27,6 +27,11 @@ import {
   type DeliveryRecipientContext,
 } from './delivery'
 import { deriveAnbySoldier0Aftershock } from './derived/anby-soldier-0-aftershock'
+import {
+  deriveJanePassionAssault,
+  JANE_ASSAULT_TARGET,
+  JANE_PASSION_TARGET,
+} from './derived/jane-passion-assault'
 import { deriveLighterImpactElation } from './derived/lighter-impact-elation'
 import { deriveRuptureSheerForce } from './derived/rupture-sheer-force'
 import { deriveTriggerAftershockDaze } from './derived/trigger-aftershock-daze'
@@ -91,6 +96,11 @@ export interface AgentSourceProfile {
   actions?: readonly ActionProjection[]
   /** Present only on Anby: Soldier 0's profile. */
   anbyAftershockSource?: SelectedSourceInstance
+  /** Present only on Jane's one-pass Passion and Assault derivation. */
+  janePassionAssault?: {
+    coreSource: SelectedSourceInstance
+    mindscape1Source?: SelectedSourceInstance
+  }
   /** Present only on a Rupture profile with a visible Sheer Force metric. */
   ruptureSheerSource?: SelectedSourceInstance
   /** Present only while Trigger's exact Additional Ability predicate is active. */
@@ -160,6 +170,43 @@ function assertProfilesMatchState(
       )
     ) {
       throw new Error('The named Anby derivation requires Anby\'s current holder source')
+    }
+    if (profile.janePassionAssault) {
+      const { coreSource, mindscape1Source } = profile.janePassionAssault
+      if (
+        profile.agentId !== 'jane'
+        || coreSource.holderAgentId !== profile.agentId
+        || coreSource.appliedPartySlot !== profile.appliedPartySlot
+        || (mindscape1Source && (
+          mindscape1Source.holderAgentId !== profile.agentId
+          || mindscape1Source.appliedPartySlot !== profile.appliedPartySlot
+        ))
+      ) {
+        throw new Error('Jane Passion and Assault derivation requires Jane\'s current holder sources')
+      }
+      const hasGauge = profile.metrics.some((metric) => (
+        metric.id === 'anomalyProficiency'
+        && metric.gaugeId === 'janePassionAssault'
+      ))
+      const hasAssaultCrit = ['critRate', 'critDmg'].every((metricId) => (
+        profile.actions?.some((projection) => (
+          projection.metricId === metricId
+          && projection.scopes.some(({ target }) => (
+            sameActionTarget(target, JANE_ASSAULT_TARGET)
+          ))
+        ))
+      ))
+      const hasPassionM1 = !mindscape1Source || ['anomalyBuildupBonus', 'dmgBonus'].every(
+        (metricId) => profile.actions?.some((projection) => (
+          projection.metricId === metricId
+          && projection.scopes.some(({ target }) => (
+            sameActionTarget(target, JANE_PASSION_TARGET)
+          ))
+        )),
+      )
+      if (!hasGauge || !hasAssaultCrit || !hasPassionM1) {
+        throw new Error('Jane Passion and Assault derivation requires its gauge and action consumers')
+      }
     }
     for (const [source, expectedAgent, label] of [
       [profile.ruptureSheerSource, profile.agentId, 'Rupture Sheer Force'],
@@ -604,10 +651,25 @@ function projectAgent(
       || metric.breakdown.fully.length > 0
       || actionModifiers.some(({ metricId }) => metricId === metric.id)
   })
+  const visibleMetricIds = new Set(metrics.map(({ id }) => id))
+  const projectedActionModifiers = actionModifiers.map((action) => {
+    if (visibleMetricIds.has(action.metricId)) return action
+    const metric = projectedMetrics.find(({ id }) => id === action.metricId)
+    if (!metric) throw new Error(`Scoped Result requires projected ${action.metricId}`)
+    return {
+      ...action,
+      standaloneMetric: {
+        label: metric.label,
+        unit: metric.unit,
+        decimals: metric.decimals,
+        values: metric.values,
+      },
+    }
+  })
   return {
     agentId: evaluated.profile.agentId,
     metrics,
-    actionModifiers,
+    actionModifiers: projectedActionModifiers,
     operations: projectOperations([
       ...evaluated.evaluated.operations,
       ...delivered.operations.map(({ atom }) => atom),
@@ -662,14 +724,26 @@ export function evaluateProfileParty(
     ...ordinary[slot].statAtoms.map(({ atom }) => atom),
   ]))
 
-  const derivedProviders = deriveAnbySoldier0Aftershock(evaluatedProfiles.map(
-    ({ profile }, slot) => ({
-      agentId: profile.agentId,
-      appliedPartySlot: profile.appliedPartySlot,
-      source: profile.anbyAftershockSource,
-      critDmg: afterOrdinaryStats[slot].critDmg?.composed,
-    }),
+  const janeDerivations = evaluatedProfiles.map(({ profile }, slot) => (
+    profile.janePassionAssault
+      ? deriveJanePassionAssault(
+          profile.janePassionAssault.coreSource,
+          profile.janePassionAssault.mindscape1Source,
+          afterOrdinaryStats[slot].anomalyProficiency?.composed,
+        )
+      : undefined
   ))
+  const derivedProviders = [
+    ...deriveAnbySoldier0Aftershock(evaluatedProfiles.map(
+      ({ profile }, slot) => ({
+        agentId: profile.agentId,
+        appliedPartySlot: profile.appliedPartySlot,
+        source: profile.anbyAftershockSource,
+        critDmg: afterOrdinaryStats[slot].critDmg?.composed,
+      }),
+    )),
+    ...janeDerivations.flatMap((derivation) => derivation?.providers ?? []),
+  ]
   const derived = deliverProviderRelationships(
     stableProviderOrder(derivedProviders),
     recipients,
@@ -686,6 +760,7 @@ export function evaluateProfileParty(
       const stats = composeStats([
         ...evaluated.evaluated.statAtoms,
         ...delivered.statAtoms.map(({ atom }) => atom),
+        ...(janeDerivations[slot] ? [janeDerivations[slot].localStat] : []),
       ])
       const rupture = evaluated.profile.ruptureSheerSource
         ? deriveRuptureSheerForce(
@@ -708,10 +783,14 @@ export function evaluateProfileParty(
           ...(rupture ? { sheerForce: rupture } : {}),
           ...(lighterDerivations[slot] ? { impact: lighterDerivations[slot].impact } : {}),
         },
-        trigger ? [trigger.modifier] : [],
+        [
+          ...(trigger ? [trigger.modifier] : []),
+          ...(janeDerivations[slot]?.modifiers ?? []),
+        ],
         [
           ...(trigger ? [trigger.gauge] : []),
           ...(lighterDerivations[slot]?.gauge ? [lighterDerivations[slot].gauge] : []),
+          ...(janeDerivations[slot] ? [janeDerivations[slot].gauge] : []),
         ],
       )
     }),

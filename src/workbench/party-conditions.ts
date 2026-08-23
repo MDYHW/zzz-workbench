@@ -15,6 +15,7 @@ export function hasRepeatedQuickAssistOpportunity(
   return agentIds.includes('astraYao')
     || agentIds.includes('panYinhu')
     || agentIds.includes('zhao')
+    || agentIds.includes('seth')
 }
 
 export function anotherAgentHasSpecialty(

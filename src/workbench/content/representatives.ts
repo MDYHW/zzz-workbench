@@ -290,6 +290,17 @@ const burniceRepresentative = (pool: PoolId): SetupSelection => ({
   mains: { slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'energyRegenPct' },
 })
 
+const janeRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'practicedPerfection' : 'weepingGemini',
+  fourPieceId: 'fangedMetal', twoPieceId: 'pufferElectro',
+  mains: { slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'anomalyMastery' },
+})
+
+const sethRepresentative: SetupSelection = {
+  engineId: 'peacekeeperSpecialized', fourPieceId: 'astralVoice', twoPieceId: 'swingJazz',
+  mains: { slot4: 'anomalyProficiency', slot5: 'electricDmg', slot6: 'energyRegenPct' },
+}
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -396,6 +407,8 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   piper: { full: piperRepresentative('full'), nonLimited: piperRepresentative('nonLimited') },
   yuzuha: { full: yuzuhaRepresentative('full'), nonLimited: yuzuhaRepresentative('nonLimited') },
   burnice: { full: burniceRepresentative('full'), nonLimited: burniceRepresentative('nonLimited') },
+  jane: { full: janeRepresentative('full'), nonLimited: janeRepresentative('nonLimited') },
+  seth: { full: sethRepresentative, nonLimited: sethRepresentative },
 }
 
 export function representativeSetupFor(

@@ -18,6 +18,7 @@ const profileGroups: readonly (readonly [AgentId, AgentId, AgentId])[] = [
   ['anby', 'caesar', 'yeShunguang'],
   ['zhao', 'grace', 'piper'],
   ['yuzuha', 'burnice', 'yixuan'],
+  ['jane', 'seth', 'yixuan'],
 ]
 
 describe('shared calculation integration', () => {
@@ -118,5 +119,122 @@ describe('shared calculation integration', () => {
       setup: { ...incomplete.slots[0].setup, engineId: null },
     }
     expect(calculateParty(incomplete)).toBeNull()
+  })
+
+  it('keeps Seth Core delivery and Peacekeeper action effects while gating Additional buildup RES', () => {
+    const active = calculateParty(createPreparedState({}, ['seth', 'piper', 'grace'], 1))!
+    const inactive = calculateParty(createPreparedState({}, ['seth', 'piper', 'burnice'], 1))!
+    const agent = (result: NonNullable<ReturnType<typeof calculateParty>>, id: AgentId) => (
+      result.agents.find(({ agentId }) => agentId === id)!
+    )
+    const activeSeth = agent(active, 'seth')
+    const inactiveSeth = agent(inactive, 'seth')
+    const activeAp = activeSeth.metrics.find(({ id }) => id === 'anomalyProficiency')!
+    const inactiveAp = inactiveSeth.metrics.find(({ id }) => id === 'anomalyProficiency')!
+
+    expect(activeAp.values.fully).toBe(190)
+    expect(inactiveAp.values.fully).toBe(190)
+    expect(agent(active, 'piper').metrics.find(({ id }) => id === 'anomalyBuildupResReduction')?.values.fully)
+      .toBe(20)
+    expect(agent(inactive, 'piper').metrics.find(({ id }) => id === 'anomalyBuildupResReduction')).toBeUndefined()
+    expect(activeSeth.metrics.find(({ id }) => id === 'anomalyBuildupResReduction')?.values.fully)
+      .toBe(20)
+    expect(inactiveSeth.metrics.find(({ id }) => id === 'anomalyBuildupResReduction')).toBeUndefined()
+
+    const energy = activeSeth.metrics.find(({ id }) => id === 'energyRegen')!
+    expect(energy.values.combat).toBe(energy.values.initial)
+    expect(energy.values.fully).toBeGreaterThan(energy.values.combat)
+    expect(activeSeth.metrics.find(({ id }) => id === 'anomalyBuildupBonus')?.values.fully)
+      .toBe(0)
+    expect(activeSeth.metrics.find(({ id }) => id === 'dazeBonus')?.values.fully)
+      .toBe(0)
+    const exAssistBuildup = activeSeth.actionModifiers
+      .find(({ id }) => id === 'sethExAssistBuildup')!
+    expect(exAssistBuildup.values.fully).toBeGreaterThan(0)
+    expect(exAssistBuildup.standaloneMetric).toBeUndefined()
+    expect(activeSeth.actionModifiers.find(({ id }) => id === 'sethDefensiveAssistDaze')?.standaloneMetric)
+      .toBeUndefined()
+
+    let tusksState = createPreparedState({}, ['seth', 'piper', 'grace'], 1)
+    tusksState = workbenchReducer(tusksState, {
+      type: 'selectEngine', slot: 0, engineId: 'tusksOfFury',
+    })
+    const tusksSeth = agent(calculateParty(tusksState)!, 'seth')
+    expect(tusksSeth.metrics.find(({ id }) => id === 'dazeBonus')?.values.fully)
+      .toBeGreaterThan(0)
+  })
+
+  it('derives prepared Jane Passion from Seth AP and scopes Assault CRIT providers', () => {
+    const withSeth = calculateParty(createPreparedState({}, ['jane', 'piper', 'seth'], 0))!
+    const withoutSeth = calculateParty(createPreparedState({}, ['jane', 'piper', 'burnice'], 0))!
+    const agent = (result: NonNullable<ReturnType<typeof calculateParty>>, id: AgentId) => (
+      result.agents.find(({ agentId }) => agentId === id)!
+    )
+    const jane = agent(withSeth, 'jane')
+    const piper = agent(withSeth, 'piper')
+    const seth = agent(withSeth, 'seth')
+    const janeAp = jane.metrics.find(({ id }) => id === 'anomalyProficiency')!
+    const janeApWithoutSeth = agent(withoutSeth, 'jane').metrics
+      .find(({ id }) => id === 'anomalyProficiency')!
+
+    expect(janeAp.values.fully - janeApWithoutSeth.values.fully).toBe(100)
+    expect(janeAp.gauge?.additionalOutputs).toContainEqual(expect.objectContaining({
+      label: 'Passion flat ATK',
+      value: Math.min(Math.max(janeAp.values.fully - 120, 0) * 2, 600),
+    }))
+
+    const modifier = (result: ReturnType<typeof agent>, id: string) => (
+      result.actionModifiers.find(({ id: modifierId }) => modifierId === id)
+    )
+    expect(modifier(jane, 'janeAssaultCritRate')?.breakdown.fully.flat())
+      .toContainEqual(expect.objectContaining({ label: 'Core Passive' }))
+    expect(modifier(jane, 'janeAssaultCritRate')?.standaloneMetric?.label).toBe('CRIT Rate')
+    expect(jane.metrics.some(({ id }) => id === 'critRate' || id === 'critDmg')).toBe(false)
+    expect(piper.metrics.some(({ id }) => id === 'critRate' || id === 'critDmg')).toBe(false)
+    expect(modifier(piper, 'piperAssaultCritRate')?.breakdown.fully.flat())
+      .toContainEqual(expect.objectContaining({ label: 'Core Passive' }))
+    expect(modifier(jane, 'janeAssaultCritDmg')?.breakdown.fully.flat())
+      .toContainEqual(expect.objectContaining({ label: 'Potential Awakening' }))
+    expect(modifier(piper, 'piperAssaultCritDmg')?.breakdown.fully.flat())
+      .not.toContainEqual(expect.objectContaining({ label: 'Potential Awakening' }))
+    expect(seth.actionModifiers.some(({ id }) => id === 'janeAssaultCritRate' || id === 'janeAssaultCritDmg'))
+      .toBe(false)
+
+    let m2State = createPreparedState({}, ['jane', 'piper', 'seth'], 0)
+    m2State = workbenchReducer(m2State, { type: 'setMindscape', slot: 0, mindscape: 2 })
+    const m2 = calculateParty(m2State)!
+    const m2Jane = agent(m2, 'jane')
+    const m2Piper = agent(m2, 'piper')
+    const m2Seth = agent(m2, 'seth')
+    const piperM2Crit = modifier(m2Piper, 'piperAssaultCritDmg')!
+    const piperM2Defense = modifier(m2Piper, 'piperAssaultDefIgnore')!
+
+    expect(piperM2Crit.values.fully).toBeGreaterThan(modifier(piper, 'piperAssaultCritDmg')!.values.fully)
+    expect(piperM2Crit.breakdown.fully.flat())
+      .toContainEqual(expect.objectContaining({ label: 'Mindscape', detail: 'M2' }))
+    expect(piperM2Defense.breakdown.fully.flat())
+      .toContainEqual(expect.objectContaining({ label: 'Mindscape', detail: 'M2' }))
+    expect(modifier(m2Jane, 'janeAssaultCritDmg')?.breakdown.fully.flat())
+      .toContainEqual(expect.objectContaining({ label: 'Mindscape', detail: 'M2' }))
+    expect(m2Seth.actionModifiers.some(({ id }) => id.includes('Assault'))).toBe(false)
+  })
+
+  it('keeps action-admitted CRIT hidden until Anby creates Trigger\'s scoped outcome', () => {
+    const withoutAnby = calculateParty(
+      createPreparedState({}, ['trigger', 'harumasa', 'nicole'], 1),
+    )!
+    const withAnby = calculateParty(
+      createPreparedState({}, ['trigger', 'anbySoldier0', 'nicole'], 1),
+    )!
+    const trigger = (result: NonNullable<ReturnType<typeof calculateParty>>) => (
+      result.agents.find(({ agentId }) => agentId === 'trigger')!
+    )
+
+    expect(trigger(withoutAnby).metrics.some(({ id }) => id === 'critDmg')).toBe(false)
+    expect(trigger(withoutAnby).actionModifiers.some(({ id }) => id === 'triggerAftershockCritDmg'))
+      .toBe(false)
+    expect(trigger(withAnby).metrics.some(({ id }) => id === 'critDmg')).toBe(true)
+    expect(trigger(withAnby).actionModifiers.some(({ id }) => id === 'triggerAftershockCritDmg'))
+      .toBe(true)
   })
 })

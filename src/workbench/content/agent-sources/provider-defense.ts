@@ -2,17 +2,19 @@ import { actionForm, actionTarget, canonicalAction, sourceLocalAction } from '..
 import { effectiveSubstatChoicesForSlot } from '../../candidates'
 import { actionProjection, type AgentSourceProfile, type MetricProjection } from '../../calculation/profile-harness'
 import type { ProfileRelationship } from '../../calculation/relationships'
+import { selectSource } from '../../calculation/source-instance'
 import type { WorkbenchState } from '../../state'
 import { CRIT_DAMAGE_FORMULAS, REGULAR_DAMAGE_FORMULAS } from '../../formula-policy'
 import { anotherAgentHasSpecialty, anotherAgentSharesAttribute, anotherAgentSharesFaction, caesarAdditionalIsActive } from '../../party-conditions'
 import { DRIVE_DISC_FACTS } from '../discs'
 import { W_ENGINE_FACTS, W_ENGINES } from '../engines'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
+import { defineAgentBaseSource } from '../source-definitions'
 import { equipmentEffectBaseValue, equipmentEffectMaximumValue, type AgentSpecialty, type EquipmentEffectFact } from '../types'
 import { isWEnginePassiveEligible, requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
 
-type Agent = 'lucia' | 'astraYao' | 'soukaku' | 'lucy' | 'nicole' | 'panYinhu' | 'ben' | 'caesar' | 'zhao'
+type Agent = 'lucia' | 'astraYao' | 'soukaku' | 'lucy' | 'nicole' | 'panYinhu' | 'ben' | 'caesar' | 'zhao' | 'seth'
 type Slot = 0 | 1 | 2
 const DAMAGE = REGULAR_DAMAGE_FORMULAS
 const STUN: readonly AgentSpecialty[] = ['Stun']
@@ -23,6 +25,9 @@ const BEN_EX_ULT = actionTarget([canonicalAction('EX Special Attack'), canonical
 const BEN_COUNTER = actionTarget([sourceLocalAction('Special/EX Block Counter')])
 const BEN_BASIC_DASH_DODGE = actionTarget([canonicalAction('Basic Attack'), canonicalAction('Dash Attack'), canonicalAction('Dodge Counter')])
 const BEN_ULT = actionTarget([canonicalAction('Ultimate')])
+const SETH_ELECTRIFIED_BASIC = actionTarget([actionForm('Basic Attack', 'Electrified')])
+const SETH_DEFENSIVE_ASSIST = actionTarget([sourceLocalAction('Defensive Assist')])
+const SETH_EX_ASSIST = actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Assist Follow-Up')])
 
 const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   lucia: { maxHp: VERTICAL_VALUES.lucia.hp, energyRegen: VERTICAL_VALUES.lucia.baseEnergyRegen },
@@ -34,6 +39,7 @@ const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   ben: { atk: VERTICAL_VALUES.ben.atk, def: VERTICAL_VALUES.ben.def, impact: VERTICAL_VALUES.ben.impact, critRate: VERTICAL_VALUES.ben.critRate, critDmg: VERTICAL_VALUES.ben.critDmg, penRatio: 0, energyRegen: VERTICAL_VALUES.ben.baseEnergyRegen },
   caesar: { impact: VERTICAL_VALUES.caesar.impact, energyRegen: VERTICAL_VALUES.caesar.baseEnergyRegen },
   zhao: { maxHp: VERTICAL_VALUES.zhao.hp, critRate: VERTICAL_VALUES.zhao.critRate, energyRegen: VERTICAL_VALUES.zhao.baseEnergyRegen },
+  seth: { atk: VERTICAL_VALUES.seth.atk, anomalyProficiency: VERTICAL_VALUES.seth.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.seth.anomalyMastery, impact: VERTICAL_VALUES.seth.impact, energyRegen: VERTICAL_VALUES.seth.baseEnergyRegen },
 }
 const m = (id: MetricProjection['id'], label: string, unit: string, statId?: MetricProjection['statId'], admission?: MetricProjection['admission']): MetricProjection => ({ id, label, unit, decimals: unit === '/s' ? 2 : unit === '%' ? 1 : id === 'impact' ? 2 : 0, ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }), ...(admission ? { admission } : {}) })
 
@@ -49,6 +55,19 @@ function selectedEquipment(agent: Agent, slot: Slot, setup: CompleteSelectedSetu
   const relationships = sharedPartyEquipmentRelationships(agent, slot, setup)
   const passiveEligible = isWEnginePassiveEligible(agent, setup.engineId)
   if (passiveEligible) switch (setup.engineId) {
+    case 'peacekeeperSpecialized': relationships.push(
+      { kind: 'automatic-energy', atom: { earliestSurface: 'fully', value: engineValue(W_ENGINE_FACTS.peacekeeperSpecialized.effects.energyRegen, setup), source: engine } },
+      {
+        kind: 'modifier',
+        atom: {
+          metricId: 'anomalyBuildupBonus',
+          earliestSurface: 'fully',
+          value: engineValue(W_ENGINE_FACTS.peacekeeperSpecialized.effects.buildup, setup),
+          source: engine,
+          action: SETH_EX_ASSIST,
+        },
+      },
+    ); break
     case 'dreamlitHearth': relationships.push({ kind: 'provider', source: engine, delivery: { recipient: 'all-party' }, effect: { kind: 'stat', statId: 'maxHp', region: 'percentage', earliestSurface: 'fully', value: engineValue(W_ENGINE_FACTS.dreamlitHearth.effects.maxHp, setup) } }, allDamage(engineValue(W_ENGINE_FACTS.dreamlitHearth.effects.damage, setup)), energy(engineValue(W_ENGINE_FACTS.dreamlitHearth.effects.energy, setup))); break
     case 'elegantVanity': relationships.push(allDamage(engineMax(W_ENGINE_FACTS.elegantVanity.effects.damage, setup))); break
     case 'theVault': relationships.push(allDamage(engineValue(W_ENGINE_FACTS.theVault.effects.targetDamage, setup))); break
@@ -78,11 +97,20 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
       : {}),
   }
   const observation: SelectedSetupObservation = {
-    baseStats,
+    baseStats: agent === 'seth'
+      ? {
+          atk: baseStats.atk,
+          anomalyMastery: baseStats.anomalyMastery,
+          impact: baseStats.impact,
+          energyRegen: baseStats.energyRegen,
+        }
+      : baseStats,
     effectiveSubstats: effectiveSubstatChoicesForSlot(state, slot),
     modifierMetrics: agent === 'ben' || agent === 'caesar'
       ? ['dmgBonus', 'dazeBonus']
-      : undefined,
+      : agent === 'seth'
+        ? ['anomalyBuildupBonus', 'anomalyBuildupResReduction', 'dazeBonus']
+        : undefined,
   }
   const relationships = selectedSetupRelationships(agent, slot, setup, observation)
   const agentIds = state.slots.map(({ agentId }) => agentId)
@@ -93,7 +121,98 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
   const all = { recipient: 'all-party' as const }
   let metrics: MetricProjection[]
   let actions: AgentSourceProfile['actions']
-  if (agent === 'lucia') {
+  if (agent === 'seth') {
+    const core = own('core', SOURCE_LABELS.sethCore)
+    add({
+      kind: 'stat',
+      atom: {
+        statId: 'anomalyProficiency',
+        region: 'base',
+        earliestSurface: 'initial',
+        value: VERTICAL_VALUES.seth.anomalyProficiency,
+        source: selectSource(
+          defineAgentBaseSource('seth', 'Seth Lowell base stats'),
+          'seth',
+          slot,
+        ),
+      },
+    })
+    add({
+      kind: 'provider',
+      source: core,
+      delivery: { recipient: 'self' },
+      effect: {
+        kind: 'stat',
+        statId: 'anomalyProficiency',
+        region: 'flat',
+        earliestSurface: 'fully',
+        value: VERTICAL_VALUES.seth.coreAnomalyProficiency,
+        sourceDetail: 'Shield of Firm Resolve',
+      },
+    })
+    add({
+      kind: 'provider',
+      source: core,
+      delivery: { recipient: 'focus' },
+      effect: {
+        kind: 'stat',
+        statId: 'anomalyProficiency',
+        region: 'flat',
+        earliestSurface: 'fully',
+        value: VERTICAL_VALUES.seth.coreAnomalyProficiency,
+        sourceDetail: 'Shield of Firm Resolve',
+      },
+    })
+    if (anotherAgentSharesAttribute(agentIds, slot) || anotherAgentSharesFaction(agentIds, slot)) {
+      add({
+        kind: 'provider',
+        source: own('additional', SOURCE_LABELS.sethAbility, 'additional'),
+        delivery: { recipient: 'enemy-context', formulas: ['anomaly_buildup'] },
+        effect: {
+          kind: 'modifier',
+          metricId: 'anomalyBuildupResReduction',
+          earliestSurface: 'fully',
+          value: VERTICAL_VALUES.seth.additionalBuildupResReduction,
+        },
+      })
+    }
+    if (setup.mindscape >= 2) {
+      add({
+        kind: 'modifier',
+        atom: {
+          metricId: 'anomalyBuildupBonus',
+          earliestSurface: 'fully',
+          value: VERTICAL_VALUES.seth.mindscape2Buildup,
+          source: mind(2),
+          action: SETH_ELECTRIFIED_BASIC,
+        },
+      })
+    }
+    if (setup.mindscape >= 4) {
+      add({
+        kind: 'modifier',
+        atom: {
+          metricId: 'dazeBonus',
+          earliestSurface: 'fully',
+          value: VERTICAL_VALUES.seth.mindscape4Daze,
+          source: mind(4),
+          action: SETH_DEFENSIVE_ASSIST,
+        },
+      })
+    }
+    metrics = [
+      m('anomalyProficiency', 'Anomaly Proficiency', '', 'anomalyProficiency'),
+      m('energyRegen', 'Energy Regen', '/s', 'energyRegen'),
+      m('anomalyBuildupBonus', 'Anomaly Buildup Bonus', '%', undefined, 'nonzero-or-action'),
+      m('anomalyBuildupResReduction', 'Anomaly Buildup RES Reduction', '%', undefined, 'nonzero-or-action'),
+      m('dazeBonus', 'Daze Bonus', '%', undefined, 'nonzero-or-action'),
+    ]
+    actions = [
+      actionProjection('anomalyBuildupBonus', 'sethElectrifiedBasicBuildup', SETH_ELECTRIFIED_BASIC),
+      actionProjection('anomalyBuildupBonus', 'sethExAssistBuildup', SETH_EX_ASSIST),
+      actionProjection('dazeBonus', 'sethDefensiveAssistDaze', SETH_DEFENSIVE_ASSIST),
+    ]
+  } else if (agent === 'lucia') {
     const t = setup.mindscape >= 5 ? 'm5' : setup.mindscape >= 3 ? 'm3' : 'base'; const cap = VERTICAL_VALUES.lucia.darkbreakerCap[t]
     add({ kind: 'gauge', gaugeId: 'luciaDarkbreaker', source: t === 'base' ? own('darkbreaker', SOURCE_LABELS.luciaSheer, 'ex-special') : mind(t === 'm3' ? 3 : 5), basis: { statId: 'maxHp', surface: 'initial' }, basisLabel: 'Initial Max HP', basisCap: VERTICAL_VALUES.lucia.darkbreakerHpCap, metricId: 'maxHp', outputs: [{ label: 'Squad Sheer Force', unit: '', cap, transform: { basisIncrement: 200, baseOutput: VERTICAL_VALUES.lucia.darkbreakerBase, outputIncrement: VERTICAL_VALUES.lucia.darkbreakerPer200Hp[t], outputCap: cap }, emission: { kind: 'provider', delivery: all, effect: { kind: 'modifier', metricId: 'sheerForce', earliestSurface: 'fully' } } }], sourceDetail: t === 'base' ? 'Darkbreaker' : `M${t === 'm3' ? 3 : 5} tier · Darkbreaker` })
     add({ kind: 'provider', source: own('core', SOURCE_LABELS.luciaCore), delivery: all, effect: { kind: 'stat', statId: 'maxHp', region: 'percentage', earliestSurface: 'fully', value: VERTICAL_VALUES.party.wellspringHp, nonstackId: 'etherVeilWellspring', sourceDetail: 'Ether Veil: Wellspring' } }); add({ kind: 'provider', source: own('core', SOURCE_LABELS.luciaCore), delivery: all, effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.party.luciaCoreDmg, sourceDetail: 'Ether Veil: Wellspring' } })
@@ -180,5 +299,5 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
 
 export function providerDefenseProfileFor(state: WorkbenchState, slot: Slot): AgentSourceProfile | null {
   const agent = state.slots[slot].agentId
-  return ['lucia', 'astraYao', 'soukaku', 'lucy', 'nicole', 'panYinhu', 'ben', 'caesar', 'zhao'].includes(agent) ? profile(agent as Agent, state, slot) : null
+  return ['lucia', 'astraYao', 'soukaku', 'lucy', 'nicole', 'panYinhu', 'ben', 'caesar', 'zhao', 'seth'].includes(agent) ? profile(agent as Agent, state, slot) : null
 }

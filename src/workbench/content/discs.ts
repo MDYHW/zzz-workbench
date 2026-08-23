@@ -503,4 +503,12 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     fourPiece: ['chaosJazz', 'freedomBlues'],
     twoPiece: ['swingJazz', 'moonlight', 'phaethonsMelody', 'pufferElectro', 'freedomBlues', 'chaosJazz', 'infernoMetal'],
   },
+  jane: {
+    fourPiece: ['fangedMetal', 'freedomBlues'],
+    twoPiece: ['pufferElectro', 'phaethonsMelody', 'freedomBlues', 'chaosJazz', 'fangedMetal', 'whiteWaterBallad', 'hormonePunk', 'astralVoice'],
+  },
+  seth: {
+    fourPiece: ['astralVoice', 'swingJazz', 'freedomBlues'],
+    twoPiece: ['swingJazz', 'moonlight'],
+  },
 }
