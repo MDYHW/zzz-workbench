@@ -99,8 +99,9 @@ consumers. The preflight must find the narrow boundary between those failures.
   facts from current product admission. An Agent absent from the landed roster,
   preparation, calculation, portrait, and visible consumers remains unadmitted
   regardless of roadmap placement or guide coverage.
-- R5. Classify each primary consumer by the formula family that owns its setup
-  direction, not by Specialty or party association alone. Distinguish standard
+- R5. Classify each primary consumer by the formula families its primary setup
+  direction materially strengthens or supports, not by Specialty or party
+  association alone. Distinguish standard
   anomaly-damage/buildup, Agent-local threshold, conversion, Disorder,
   off-field, or reaction cases from a general-damage-led Anomaly exception such
   as Miyabi and from a general-damage consumer such as Anton whose setup
@@ -264,8 +265,8 @@ consumers. The preflight must find the narrow boundary between those failures.
   is not.
 - Finish anomaly-damage consumers before Miyabi's general-damage-led Anomaly
   exception, then close Anton + Rina as the separate Shock-state
-  general-damage vertical. Formula ownership, not Specialty or an old sequence
-  slot, decides that boundary.
+  general-damage vertical. Formula consumption, not Specialty or an old
+  sequence slot, decides that boundary.
 - Treat the suspended roadmap as a hypothesis to revalidate: its dependency
   reasoning is useful, but it neither certifies current facts nor authorizes
   continuation.
