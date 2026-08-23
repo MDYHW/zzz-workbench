@@ -8,8 +8,8 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-Keep at most one active bounded implementation plan. The active plan is
-[Sunna and Nangong Yu bounded anomaly expansion](2026-08-24-001-feature-sunna-nangong-anomaly-expansion-plan.md).
+Keep at most one active bounded implementation plan. There is no active bounded
+implementation plan.
 The authority-governance recovery closed after exact-SHA
 finalization, protected `main` promotion, and recovery freeze; its detailed
 execution record remains in Git history and the durable postmortem.
@@ -84,6 +84,7 @@ and author the new local outcome from current consumers instead.
 | 2026-08-23 | Separated Setup investment direction from Result formula participation through one shared carrier, preserving direct stat projection while correcting action and provider applicability | [shared harness requirements](../brainstorms/2026-08-21-shared-source-calculation-harness-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), current setup and calculation consumers |
 | 2026-08-23 | Added Yanagi and Alice as the first remaining Anomaly damage/buildup track unit through competitive pool packages, shared local/provider/operation/action relationships, Yanagi's finite Timeweaver threshold, Alice's one-way AM-to-AP conversion, coherent source replacement, and accepted portrait geometry with fine calibration deferred | [Yanagi/Alice requirements](../brainstorms/2026-08-23-yanagi-alice-anomaly-expansion-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [source-fact boundary](../source-fact-boundary.md), [UI design rules](../workbench-ui-design-rules.md), current content and calculation consumers |
 | 2026-08-23 | Aligned the Timeweaver threshold harness with its Anomaly Buff Multiplier consumer and added Vivian, Aria, and Promeia through competitive equipment packages with semantically compressed Setup copy, exact Abloom/Corruption action inheritance, Promeia's one-pass Initial-AM outputs, shared provider delivery, visible source hierarchy, and accepted portrait geometry with fine calibration deferred | [Vivian/Aria/Promeia requirements](../brainstorms/2026-08-23-vivian-aria-promeia-anomaly-expansion-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [source-fact boundary](../source-fact-boundary.md), [UI design rules](../workbench-ui-design-rules.md), current content and calculation consumers |
+| 2026-08-24 | Added Sunna and Nangong Yu as the final paired Anomaly damage/buildup track unit through competitive Support/Stun packages, source-owned equipment activation, capped and open-ended relationship gauges, canonical anomaly/Daze action projection, composed provider delivery, and calibrated portrait geometry | [Sunna/Nangong requirements](../brainstorms/2026-08-24-sunna-nangong-anomaly-expansion-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [source-fact boundary](../source-fact-boundary.md), [UI design rules](../workbench-ui-design-rules.md), current content and calculation consumers |
 
 For removed plan detail, use Git history for `docs/plans/`. The milestone index
 does not validate current product behavior; the linked owners and current
