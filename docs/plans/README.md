@@ -24,7 +24,10 @@ Use this sequence:
 3. Write one active plan with bounded units, ownership, dependencies,
    non-goals, behavior tests, and proportionate browser verification. A plan
    cannot turn a zero-substat snapshot into an authoring conclusion or replace
-   the preceding permanent-authority/consumer review.
+   the preceding permanent-authority/consumer review. For every unit that
+   proposes a new or changed test, include the compact `Testing delta` required
+   by `AGENTS.md`; if shared coverage already proves the behavior, cite that
+   coverage and plan no additional test.
 4. Implement from the visible outcome backward. A worker completion report,
    passing test, or plan requirement cannot validate the product conclusion
    that created it. When adjacent preparation passes compose, verify their

@@ -328,6 +328,14 @@ itself establish semantic readiness.
   when it introduces a new behavior; do not duplicate retained source values
   in tests merely to freeze content. Keep a small set of representative
   cross-vertical user journeys for integration confidence.
+- Before a plan or final diff review authorizes a new or changed test, record a
+  compact `Testing delta`: the new relationship, formula, state transition, or
+  materially distinct visible failure; the nearest existing test; the exact
+  failure that test cannot prove; and whether the assertion remains meaningful
+  when named Agents, equipment, and exact content values are replaced by an
+  equivalent fixture. If there is no new mechanism or uncovered failure, add no
+  test; cite the shared coverage instead. A proposed test without this delta is
+  not ready for implementation or review.
 - An authored candidate exclusion, exact Agent candidate roster, or prepared
   first choice is a local product outcome rather than a shared test invariant.
   Keep that outcome in its owning requirement and content; tests cover generic
