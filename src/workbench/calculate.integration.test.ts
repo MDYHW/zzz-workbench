@@ -20,6 +20,7 @@ const profileGroups: readonly (readonly [AgentId, AgentId, AgentId])[] = [
   ['yuzuha', 'burnice', 'yixuan'],
   ['jane', 'seth', 'yixuan'],
   ['yanagi', 'alice', 'yixuan'],
+  ['vivian', 'aria', 'promeia'],
 ]
 
 describe('shared calculation integration', () => {

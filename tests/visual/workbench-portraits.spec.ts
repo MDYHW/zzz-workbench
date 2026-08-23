@@ -36,6 +36,9 @@ const agents = {
     displayName: 'Alice Thymefield',
     slug: 'alice',
   },
+  vivian: { candidateName: 'Vivian, Ether, Anomaly', displayName: 'Vivian', slug: 'vivian' },
+  aria: { candidateName: 'Aria, Ether, Anomaly', displayName: 'Aria', slug: 'aria' },
+  promeia: { candidateName: 'Promeia, Ice, Anomaly', displayName: 'Promeia', slug: 'promeia' },
 } satisfies Record<string, PortraitAgent>
 
 const parties: readonly PortraitParty[] = [
@@ -61,6 +64,12 @@ const parties: readonly PortraitParty[] = [
     focus: 'Tsukishiro Yanagi',
     captures: [agents.yanagi, agents.alice],
     members: [agents.yanagi, agents.alice, agents.piper],
+  },
+  {
+    id: 'portrait-abloom-anomaly',
+    focus: 'Aria',
+    captures: [agents.vivian, agents.aria, agents.promeia],
+    members: [agents.vivian, agents.aria, agents.promeia],
   },
 ]
 

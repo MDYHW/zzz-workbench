@@ -111,6 +111,12 @@ export const ATTRIBUTE_ANOMALY_TARGET = actionTarget([
   sourceLocalAction('Attribute Anomaly'),
 ])
 
+// Abloom and Corruption are exact current anomaly outcomes. They remain action
+// identities inside the existing anomaly formula family rather than becoming
+// formula families or reaction registries.
+export const ABLOOM_TARGET = actionTarget([sourceLocalAction('Abloom')])
+export const CORRUPTION_TARGET = actionTarget([sourceLocalAction('Corruption')])
+
 export function actionOutcomeLabel(outcome: ActionOutcome): string {
   switch (outcome.kind) {
     case 'canonical':

@@ -64,6 +64,9 @@ export const FORMULA_PARTICIPATION_BY_AGENT: Record<
   seth: { setup: { primary: [], residual: ['anomaly_buildup', 'daze_buildup'] }, result: ['anomaly_buildup', 'daze_buildup'] },
   yanagi: { setup: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: [] }, result: ['anomaly_damage', 'anomaly_buildup'] },
   alice: { setup: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: [] }, result: ['anomaly_damage', 'anomaly_buildup'] },
+  vivian: { setup: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: [] }, result: ['anomaly_damage', 'anomaly_buildup'] },
+  aria: { setup: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: [] }, result: ['anomaly_damage', 'anomaly_buildup'] },
+  promeia: { setup: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: [] }, result: ['anomaly_damage', 'anomaly_buildup'] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -286,6 +289,15 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   alice: {
     slot4: ['anomalyProficiency', 'atkPct'], slot5: ['penRatio', 'physicalDmg', 'atkPct'], slot6: ['anomalyMastery'],
   },
+  vivian: {
+    slot4: ['anomalyProficiency'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['anomalyMastery'],
+  },
+  aria: {
+    slot4: ['anomalyProficiency'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['anomalyMastery'],
+  },
+  promeia: {
+    slot4: ['anomalyProficiency'], slot5: ['iceDmg', 'atkPct', 'penRatio'], slot6: ['anomalyMastery'],
+  },
 }
 
 export const EFFECTIVE_SUBSTAT_VALUES: Record<SubstatChoice['id'], SubstatChoice> = {
@@ -310,6 +322,7 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   lighter: [], lucy: [], zhuYuan: substats('critRate', 'critDmg', 'atkPct'), nicole: [], orphie: substats('critRate', 'critDmg', 'atkPct'), pulchra: [],
   harumasa: substats('critRate', 'critDmg', 'atkPct'), qingyi: [], nekomata: substats('critRate', 'critDmg', 'atkPct'), billy: substats('critRate', 'critDmg', 'atkPct'), ben: substats('critRate', 'critDmg', 'atkPct'),
   koleda: [], anby: [], caesar: [], yeShunguang: substats('critRate', 'critDmg', 'atkPct'), zhao: substats('hpPct', 'hpFlat'), grace: substats('anomalyProficiency', 'atkPct'), piper: substats('anomalyProficiency', 'atkPct'), yuzuha: substats('atkPct', 'atkFlat'), burnice: substats('anomalyProficiency', 'atkPct'), jane: substats('anomalyProficiency', 'atkPct'), seth: [], yanagi: substats('anomalyProficiency', 'atkPct'), alice: substats('anomalyProficiency', 'atkPct'),
+  vivian: substats('anomalyProficiency', 'atkPct'), aria: substats('anomalyProficiency', 'atkPct'), promeia: substats('anomalyProficiency', 'atkPct'),
 }
 
 /**

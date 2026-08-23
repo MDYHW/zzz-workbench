@@ -45,6 +45,9 @@ import janePortrait from '../assets/agents/portraits/jane.webp'
 import sethPortrait from '../assets/agents/portraits/seth.webp'
 import yanagiPortrait from '../assets/agents/portraits/yanagi.webp'
 import alicePortrait from '../assets/agents/portraits/alice.webp'
+import vivianPortrait from '../assets/agents/portraits/vivian.webp'
+import ariaPortrait from '../assets/agents/portraits/aria.webp'
+import promeiaPortrait from '../assets/agents/portraits/promeia.webp'
 
 export const AGENT_PORTRAITS: Record<AgentId, string> = {
   yixuan: yixuanPortrait,
@@ -92,6 +95,9 @@ export const AGENT_PORTRAITS: Record<AgentId, string> = {
   seth: sethPortrait,
   yanagi: yanagiPortrait,
   alice: alicePortrait,
+  vivian: vivianPortrait,
+  aria: ariaPortrait,
+  promeia: promeiaPortrait,
 }
 
 interface PortraitSource {
@@ -156,6 +162,9 @@ const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   seth: { faceX: 54, headTopY: 2, scale: 1.1 },
   yanagi: { faceX: 42, headTopY: 3, scale: 1.1 },
   alice: { faceX: 50, headTopY: 0, scale: 1.15 },
+  vivian: { faceX: 54, headTopY: 15, scale: 1.1 },
+  aria: { faceX: 65, headTopY: 0, scale: 1.05 },
+  promeia: { faceX: 49, headTopY: 0, scale: 1.2 },
 }
 
 export function portraitSourceStyle(agentId: AgentId): PortraitSourceStyle {

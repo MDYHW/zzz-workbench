@@ -12,7 +12,7 @@ import { EFFECTIVE_SUBSTAT_VALUES, MAIN_STATS, effectiveSubstatChoices } from '.
 import { operatingIntervalFor } from '../setup-policies'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
 import { equipmentEffectBaseValue, equipmentEffectMaximumValue, type AgentId } from '../types'
-import { isWEnginePassiveEligible, requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
+import { equipmentEffectAppliesInOperatingInterval, isWEnginePassiveEligible, requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
 
 type Agent = 'yixuan' | 'yidhari' | 'manato' | 'banyue' | 'starlightBilly' | 'dialyn' | 'trigger' | 'lycaon' | 'juFufu' | 'lighter' | 'pulchra' | 'qingyi' | 'koleda' | 'anby'
@@ -213,9 +213,10 @@ function selectedEquipmentPassives(
         selfImpact(['trigger', 'koleda', 'anby'].includes(agent)
           ? engineMax(W_ENGINE_FACTS.hellfireGears.effects.impact, setup)
           : engineValue(W_ENGINE_FACTS.hellfireGears.effects.impact, setup))
-        if (BASE[agent].energyRegen !== undefined
-          && W_ENGINE_FACTS.hellfireGears.effects.energy.scope?.condition === 'offField'
-          && operatingIntervalFor(agent, focusAgentId) === 'off-field') {
+        if (BASE[agent].energyRegen !== undefined && equipmentEffectAppliesInOperatingInterval(
+          W_ENGINE_FACTS.hellfireGears.effects.energy,
+          operatingIntervalFor(agent, focusAgentId),
+        )) {
           automatic(engineValue(W_ENGINE_FACTS.hellfireGears.effects.energy, setup))
         }
       }
