@@ -609,7 +609,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.peacekeeperSpecialized.advancedStat, image: peacekeeperSpecializedImage,
     passiveSpecialty: 'Defense',
     passiveLines: (refinement) => [
-      `While Shielded · Energy Regen +${perSecond(W_ENGINE_FACTS.peacekeeperSpecialized.effects.energyRegen, refinement)}`,
+      `Energy Regen +${perSecond(W_ENGINE_FACTS.peacekeeperSpecialized.effects.energyRegen, refinement)}`,
       `EX Special & Assist Follow-Up Anomaly Buildup +${percent(W_ENGINE_FACTS.peacekeeperSpecialized.effects.buildup, refinement)}`,
     ],
   },

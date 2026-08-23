@@ -149,14 +149,7 @@ export function effectiveFourPieceRoleSwapTwoPieceId(
   }
 
   if (acceptsComplement(setup.fourPieceId)) return setup.fourPieceId
-
-  const sameEffect = SAME_EFFECT_TWO_PIECE_RELATIONSHIPS.find(({ members }) => (
-    members.some((id) => id === targetFourPieceId)
-  ))
-  const sameEffectComplement = sameEffect?.members.find((id) => id !== targetFourPieceId)
-  return sameEffectComplement && acceptsComplement(sameEffectComplement)
-    ? sameEffectComplement
-    : null
+  return null
 }
 
 export function effectiveFourPieceRoleSwapIds(
