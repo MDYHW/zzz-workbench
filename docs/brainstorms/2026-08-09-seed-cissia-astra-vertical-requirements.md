@@ -103,9 +103,11 @@ The prose requirements govern if this diagram and the text ever differ.
   direction.
 - R2. Retain Seed as an Electric `general_damage` contributor and bounded
   Vanguard-facing buffer. Retain Cissia as an off-field Electric
-  `general_damage` contributor, Corrode Bone Daze contributor, and Electric
-  buffer. Retain Astra as the existing low-field buffer. Specialty alone does
-  not establish any of these roles.
+  `general_damage` contributor and Electric buffer. Corrode Bone Daze remains a
+  Result-only action outcome through `daze_buildup`; it does not grant a
+  daze-contributor role or admit Impact/Daze setup investment. Retain Astra as the
+  existing low-field buffer. Specialty alone does not establish any of these
+  roles.
 - R3. Seed's Vanguard is resolved from the applied party by the exact source
   rule: among Seed's other applied Attack teammates, the one with the highest
   exact, unrounded current Initial ATK is the Vanguard. Seed is never her own
