@@ -26,6 +26,16 @@ const agents = {
   },
   grace: { candidateName: 'Grace Howard, Electric, Anomaly', displayName: 'Grace Howard', slug: 'grace' },
   piper: { candidateName: 'Piper Wheel, Physical, Anomaly', displayName: 'Piper Wheel', slug: 'piper' },
+  yanagi: {
+    candidateName: 'Tsukishiro Yanagi, Electric, Anomaly',
+    displayName: 'Tsukishiro Yanagi',
+    slug: 'yanagi',
+  },
+  alice: {
+    candidateName: 'Alice Thymefield, Physical, Anomaly',
+    displayName: 'Alice Thymefield',
+    slug: 'alice',
+  },
 } satisfies Record<string, PortraitAgent>
 
 const parties: readonly PortraitParty[] = [
@@ -45,6 +55,12 @@ const parties: readonly PortraitParty[] = [
     focus: 'Piper Wheel',
     captures: [agents.piper],
     members: [agents.piper, agents.grace, agents.ben],
+  },
+  {
+    id: 'portrait-yanagi-alice-anomaly',
+    focus: 'Tsukishiro Yanagi',
+    captures: [agents.yanagi, agents.alice],
+    members: [agents.yanagi, agents.alice, agents.piper],
   },
 ]
 

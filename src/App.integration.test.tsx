@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { App } from './App'
@@ -67,7 +67,7 @@ describe('workbench UI integration', () => {
       .toBeInTheDocument()
   })
 
-  it('uses the same compressed W-Engine package for selected and candidate controls', async () => {
+  it('uses the same compressed equipment package for selected and candidate controls', async () => {
     const user = userEvent.setup()
     render(<App />)
 
@@ -96,5 +96,54 @@ describe('workbench UI integration', () => {
     expect(screen.getByRole('button', {
       name: 'Select Peacekeeper - Specialized W5',
     })).toHaveAccessibleDescription(compressedPackage)
+
+    const selectedAstral = screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Astral Voice',
+    })
+    const astralDescriptionId = selectedAstral.getAttribute('aria-describedby')!
+    const compressedDiscPackage = document.getElementById(astralDescriptionId)!.textContent!
+
+    await user.click(selectedAstral)
+    await user.click(screen.getByRole('button', {
+      name: 'Select Freedom Blues as fourPiece',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Freedom Blues',
+    }))
+
+    expect(screen.getByRole('button', {
+      name: 'Select Astral Voice as fourPiece',
+    })).toHaveAccessibleDescription(compressedDiscPackage)
+  })
+
+  it('clears a stale source link when direct selection replaces its source identity', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Branch & Blade Song',
+    }))
+    await user.click(screen.getByRole('button', {
+      name: 'Select Woodpecker Electro as twoPiece',
+    }))
+    await user.click(screen.getByRole('button', { name: 'CRIT Rate' }))
+
+    const source = within(screen.getByRole('table', {
+      name: 'CRIT Rate source contributions',
+    })).getByRole('row', { name: /Woodpecker Electro/ })
+    fireEvent.mouseEnter(source)
+    expect(document.querySelector('.disc-selection[data-source-tone="disc-2pc"]'))
+      .toHaveClass('is-source-active')
+
+    fireEvent.click(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Woodpecker Electro',
+    }))
+    fireEvent.click(screen.getByRole('button', {
+      name: 'Select Branch & Blade Song as twoPiece',
+    }))
+
+    await waitFor(() => expect(document.querySelector(
+      '.disc-selection[data-source-tone="disc-2pc"]',
+    )).not.toHaveClass('is-source-active'))
   })
 })

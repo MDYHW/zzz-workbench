@@ -43,6 +43,8 @@ import yuzuhaPortrait from '../assets/agents/portraits/yuzuha.webp'
 import burnicePortrait from '../assets/agents/portraits/burnice.webp'
 import janePortrait from '../assets/agents/portraits/jane.webp'
 import sethPortrait from '../assets/agents/portraits/seth.webp'
+import yanagiPortrait from '../assets/agents/portraits/yanagi.webp'
+import alicePortrait from '../assets/agents/portraits/alice.webp'
 
 export const AGENT_PORTRAITS: Record<AgentId, string> = {
   yixuan: yixuanPortrait,
@@ -88,6 +90,8 @@ export const AGENT_PORTRAITS: Record<AgentId, string> = {
   burnice: burnicePortrait,
   jane: janePortrait,
   seth: sethPortrait,
+  yanagi: yanagiPortrait,
+  alice: alicePortrait,
 }
 
 interface PortraitSource {
@@ -150,6 +154,8 @@ const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   burnice: { faceX: 53, headTopY: 6, scale: 1.1 },
   jane: { faceX: 50, headTopY: 2, scale: 1.1 },
   seth: { faceX: 54, headTopY: 2, scale: 1.1 },
+  yanagi: { faceX: 42, headTopY: 3, scale: 1.1 },
+  alice: { faceX: 50, headTopY: 0, scale: 1.15 },
 }
 
 export function portraitSourceStyle(agentId: AgentId): PortraitSourceStyle {

@@ -521,6 +521,7 @@ export const W_ENGINE_FACTS = {
       },
       disorderDamage: {
         modifier: 'anomalyDmgBonus', unit: '%', value: [25, 27.5, 30, 32.5, 35],
+        activation: { kind: 'minimum-stat', statId: 'anomalyProficiency', threshold: 375 },
       },
     },
   },
@@ -1012,7 +1013,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveLines: (refinement) => [
       `Electric Anomaly Buildup +${percent(W_ENGINE_FACTS.timeweaver.effects.electricBuildup, refinement)}`,
       `Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.timeweaver.effects.anomalyProficiency, refinement)}`,
-      `≥375 Anomaly Proficiency · Disorder DMG +${percent(W_ENGINE_FACTS.timeweaver.effects.disorderDamage, refinement)}`,
+      `≥${W_ENGINE_FACTS.timeweaver.effects.disorderDamage.activation.threshold} Anomaly Proficiency · Disorder DMG +${percent(W_ENGINE_FACTS.timeweaver.effects.disorderDamage, refinement)}`,
     ],
   },
   practicedPerfection: {
@@ -1148,4 +1149,6 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   burnice: enginePools(['flamemakerShaker', 'practicedPerfection', 'electroLipGloss', 'weepingGemini']),
   jane: enginePools(['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
   seth: enginePools(['peacekeeperSpecialized', 'tusksOfFury', 'springEmbrace']),
+  yanagi: enginePools(['timeweaver', 'practicedPerfection', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
+  alice: enginePools(['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
 }

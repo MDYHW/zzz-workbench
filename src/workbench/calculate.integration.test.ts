@@ -19,6 +19,7 @@ const profileGroups: readonly (readonly [AgentId, AgentId, AgentId])[] = [
   ['zhao', 'grace', 'piper'],
   ['yuzuha', 'burnice', 'yixuan'],
   ['jane', 'seth', 'yixuan'],
+  ['yanagi', 'alice', 'yixuan'],
 ]
 
 describe('shared calculation integration', () => {
@@ -121,6 +122,74 @@ describe('shared calculation integration', () => {
       setup: { ...incomplete.slots[0].setup, engineId: null },
     }
     expect(calculateParty(incomplete)).toBeNull()
+  })
+
+  it('composes one-way local stats before provider delivery and preserves action-scoped anomaly recipients', () => {
+    let state = createPreparedState({}, ['yanagi', 'alice', 'yixuan'], 1)
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 2 })
+    const result = calculateParty(state)!
+    const yanagi = result.agents.find(({ agentId }) => agentId === 'yanagi')!
+    const alice = result.agents.find(({ agentId }) => agentId === 'alice')!
+    const contrast = result.agents.find(({ agentId }) => agentId === 'yixuan')!
+
+    expect(alice.metrics.find(({ id }) => id === 'anomalyMastery')?.values.fully)
+      .toBeCloseTo(255.96)
+    expect(alice.metrics.find(({ id }) => id === 'anomalyProficiency')?.values.fully)
+      .toBeCloseTo(395.536)
+    expect(alice.operations.map(({ id }) => id)).toEqual(expect.arrayContaining([
+      'aliceDisorderDmgMultiplier',
+      'yanagiDisorderDmgMultiplier',
+    ]))
+    expect(contrast.operations.some(({ id }) => id === 'yanagiDisorderDmgMultiplier'))
+      .toBe(false)
+
+    expect(alice.actionModifiers.find(({ id }) => id === 'aliceAssault')?.values.fully)
+      .toBe(15)
+    expect(alice.actionModifiers.find(({ id }) => id === 'aliceDisorder')?.values.fully)
+      .toBe(15)
+    expect(yanagi.actionModifiers.find(({ id }) => id === 'yanagiDisorder')?.breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Mindscape',
+        detail: 'M2 · Against an enemy suffering Physical Anomaly',
+      }))
+    expect(yanagi.actionModifiers.filter(({ breakdown }) => (
+      breakdown.fully.some(({ label, ownerAgentId }) => (
+        label === 'Mindscape' && ownerAgentId === 'alice'
+      ))
+    )).map(({ id }) => id)).toEqual(['yanagiDisorder'])
+    expect(contrast.actionModifiers.some(({ breakdown }) => (
+      breakdown.fully.some(({ label, ownerAgentId }) => (
+        label === 'Mindscape' && ownerAgentId === 'alice'
+      ))
+    ))).toBe(false)
+
+    const unqualified = calculateParty(createPreparedState({}, ['alice', 'yixuan', 'ben'], 0))!
+      .agents.find(({ agentId }) => agentId === 'alice')!
+    expect(unqualified.metrics.find(({ id }) => id === 'anomalyProficiency')?.values.fully)
+      .toBe(210)
+  })
+
+  it('keeps a selected-input threshold finite across counts and a target-only Mindscape rebuild', () => {
+    const ap = (state: ReturnType<typeof createPreparedState>) => (
+      calculateParty(state)!.agents.find(({ agentId }) => agentId === 'yanagi')!
+        .metrics.find(({ id }) => id === 'anomalyProficiency')!
+    )
+    let state = createPreparedState({}, ['yanagi', 'alice', 'piper'], 0)
+
+    expect(ap(state).values.fully).toBe(341)
+    expect(ap(state).gauge).toEqual(expect.objectContaining({ current: 341, threshold: 375, outputValue: 0 }))
+
+    state = workbenchReducer(state, { type: 'setSubstat', slot: 0, key: 'anomalyProficiency', value: 4 })
+    expect(ap(state).values.fully).toBe(377)
+    expect(ap(state).gauge?.outputValue).toBe(25)
+
+    state = workbenchReducer(state, { type: 'setSubstat', slot: 0, key: 'anomalyProficiency', value: 8 })
+    expect(ap(state).values.fully).toBe(413)
+
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 1 })
+    expect(state.slots[0].setup.substats.anomalyProficiency).toBe(0)
+    expect(ap(state).values.fully).toBe(421)
+    expect(ap(state).gauge?.outputValue).toBe(25)
   })
 
   it('keeps Seth Core delivery and Peacekeeper action effects while gating Additional buildup RES', () => {

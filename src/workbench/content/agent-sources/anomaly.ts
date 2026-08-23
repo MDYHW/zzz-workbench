@@ -14,13 +14,14 @@ import { DRIVE_DISC_FACTS } from '../discs'
 import { ADMITTED_AGENTS } from '../agents'
 import { W_ENGINE_FACTS, type WEngineEffectField } from '../engines'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
-import { equipmentEffectBaseValue, equipmentEffectMaximumValue, type AgentId, type EquipmentEffectFact, type FormulaFamily } from '../types'
+import { equipmentEffectAppliesToAttribute, equipmentEffectBaseValue, equipmentEffectMaximumValue, type AgentId, type EquipmentEffectFact, type FormulaFamily } from '../types'
 import { isWEnginePassiveEligible, requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedMindscapeSource } from './sources'
 
-type Agent = 'grace' | 'piper' | 'yuzuha' | 'burnice' | 'jane'
+type Agent = 'grace' | 'piper' | 'yuzuha' | 'burnice' | 'jane' | 'yanagi' | 'alice'
 type Slot = 0 | 1 | 2
 const DAMAGE = REGULAR_DAMAGE_FORMULAS
+const TIMEWEAVER_DISORDER_AP_THRESHOLD = W_ENGINE_FACTS.timeweaver.effects.disorderDamage.activation.threshold
 
 const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   grace: { atk: VERTICAL_VALUES.grace.atk, anomalyProficiency: VERTICAL_VALUES.grace.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.grace.anomalyMastery, penRatio: 0 },
@@ -28,6 +29,8 @@ const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   yuzuha: { atk: VERTICAL_VALUES.yuzuha.atk, anomalyMastery: VERTICAL_VALUES.yuzuha.anomalyMastery, energyRegen: VERTICAL_VALUES.yuzuha.baseEnergyRegen },
   burnice: { atk: VERTICAL_VALUES.burnice.atk, anomalyProficiency: VERTICAL_VALUES.burnice.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.burnice.anomalyMastery, critRate: VERTICAL_VALUES.burnice.critRate, energyRegen: VERTICAL_VALUES.burnice.baseEnergyRegen, penRatio: 0 },
   jane: { atk: VERTICAL_VALUES.jane.atk, anomalyProficiency: VERTICAL_VALUES.jane.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.jane.anomalyMastery, penRatio: 0 },
+  yanagi: { atk: VERTICAL_VALUES.yanagi.atk, anomalyProficiency: VERTICAL_VALUES.yanagi.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.yanagi.anomalyMastery, penRatio: 0 },
+  alice: { atk: VERTICAL_VALUES.alice.atk, anomalyProficiency: VERTICAL_VALUES.alice.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.alice.anomalyMastery, penRatio: 0 },
 }
 
 const A = (action: Parameters<typeof canonicalAction>[0], form?: string) => form ? actionForm(action, form) : canonicalAction(action)
@@ -41,6 +44,9 @@ const BURNICE_BUILDUP = actionTarget([actionForm('Basic Attack', 'Mixed Flame'),
 const BURNICE_EX_ASSIST = actionTarget([A('EX Special Attack'), A('Assist')])
 const BURNICE_DOUBLE = actionTarget([sourceLocalAction('Double Shot'), sourceLocalAction('Special Afterburn')])
 const BURNICE_BURN = actionTarget([sourceLocalAction('Burn')])
+const YANAGI_EX_RAPID_THRUST = actionTarget([actionForm('EX Special Attack', 'Rapid thrust')])
+const YANAGI_EX = actionTarget([A('EX Special Attack')])
+const ALICE_ENHANCED_BASIC = actionTarget([actionForm('Basic Attack', 'Celestial Overture')])
 
 const GRACE_ANOMALY_SCOPES = [
   { id: 'graceAttributeAnomaly', target: ATTRIBUTE_ANOMALY_TARGET, children: [{ id: 'graceShock', target: GRACE_SHOCK }] },
@@ -68,6 +74,16 @@ const BURNICE_RES_SCOPES = [
   { id: 'burniceAttributeAnomalyRes', target: ATTRIBUTE_ANOMALY_TARGET, children: [{ id: 'burniceBurnRes', target: BURNICE_BURN }] },
 ] satisfies readonly ActionScopeNode[]
 
+const YANAGI_ANOMALY_SCOPES = [
+  { id: 'yanagiAttributeAnomaly', target: ATTRIBUTE_ANOMALY_TARGET },
+  { id: 'yanagiDisorder', target: DISORDER_TARGET },
+] satisfies readonly ActionScopeNode[]
+
+const ALICE_ANOMALY_SCOPES = [
+  { id: 'aliceAttributeAnomaly', target: ATTRIBUTE_ANOMALY_TARGET, children: [{ id: 'aliceAssault', target: JANE_ASSAULT_TARGET }] },
+  { id: 'aliceDisorder', target: DISORDER_TARGET },
+] satisfies readonly ActionScopeNode[]
+
 const src = (agent: Agent, slot: Slot, id: string, label: string, locus: 'identity' | 'core' | 'additional' | 'special' = 'core') => selectedAgentSource(agent, slot, id, label, locus)
 const m = (
   id: MetricProjection['id'],
@@ -84,6 +100,21 @@ const m = (
   ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }),
   ...(admission ? { admission } : {}),
 })
+const anomalyDealerMetrics = (): MetricProjection[] => [
+  m('atk', 'ATK', '', 'atk'),
+  m('anomalyProficiency', 'Anomaly Proficiency', '', 'anomalyProficiency'),
+  m('anomalyMastery', 'Anomaly Mastery', '', 'anomalyMastery', undefined, 2),
+  m('dmgBonus', 'DMG Bonus', '%', undefined, 'nonzero-or-action'),
+  m('anomalyDmgBonus', 'Anomaly DMG Bonus', '%', undefined, 'nonzero-or-action'),
+  m('anomalyBuildupBonus', 'Anomaly Buildup Bonus', '%', undefined, 'nonzero-or-action'),
+  m('penRatio', 'PEN Ratio', '%', 'penRatio', 'disclosed-or-action'),
+  m('anomalyBuildupResReduction', 'Anomaly Buildup RES Reduction', '%', undefined, 'nonzero-or-action'),
+  m('defIgnore', 'DEF Ignore', '%', undefined, 'nonzero-or-action'),
+  m('defReduction', 'DEF Reduction', '%', undefined, 'nonzero-or-action'),
+  m('resIgnore', 'RES Ignore', '%', undefined, 'nonzero-or-action'),
+  m('resReduction', 'RES Reduction', '%', undefined, 'nonzero-or-action'),
+  m('stunDmgMultiplier', 'Stun DMG Multiplier', '%', undefined, 'nonzero-or-action'),
+]
 const engineEffect = <Id extends keyof typeof W_ENGINE_FACTS>(
   id: Id,
   effect: WEngineEffectField<Id>,
@@ -136,7 +167,14 @@ function equipment(agent: Agent, slot: Slot, setup: CompleteSelectedSetup, relat
   if (isWEnginePassiveEligible(agent, setup.engineId)) {
     switch (setup.engineId) {
       case 'timeweaver': add('anomalyBuildupBonus', engineValue('timeweaver', 'electricBuildup', setup), undefined, 'combat'); add('anomalyProficiency', engineValue('timeweaver', 'anomalyProficiency', setup), undefined, 'fully'); break
-      case 'practicedPerfection': add('anomalyMastery', engineValue('practicedPerfection', 'anomalyMastery', setup), undefined, 'combat'); if (agent === 'piper' || agent === 'jane') add('dmgBonus', engineMax('practicedPerfection', 'physicalDamage', setup), undefined, 'fully'); break
+      case 'practicedPerfection': {
+        add('anomalyMastery', engineValue('practicedPerfection', 'anomalyMastery', setup), undefined, 'combat')
+        const physicalDamage = engineEffect('practicedPerfection', 'physicalDamage')
+        if (equipmentEffectAppliesToAttribute(physicalDamage, effectAttributeForAgent(agent))) {
+          add('dmgBonus', engineMax('practicedPerfection', 'physicalDamage', setup), undefined, 'fully')
+        }
+        break
+      }
       case 'fusionCompiler': add('atk', engineValue('fusionCompiler', 'atk', setup), undefined, 'combat'); add('anomalyProficiency', engineMax('fusionCompiler', 'anomalyProficiency', setup), undefined, 'fully'); break
       case 'electroLipGloss': add('atk', engineValue('electroLipGloss', 'atk', setup)); add('dmgBonus', engineValue('electroLipGloss', 'damage', setup)); break
       case 'weepingGemini': add('anomalyProficiency', engineMax('weepingGemini', 'anomalyProficiency', setup)); break
@@ -150,8 +188,8 @@ function equipment(agent: Agent, slot: Slot, setup: CompleteSelectedSetup, relat
   const disc4 = selectedDiscSource(agent, slot, setup, setup.fourPieceId, '4-piece')
   switch (setup.fourPieceId) {
     case 'thunderMetal': if (base.atk !== undefined) relationships.push(stat(disc4, 'atk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.fourPiece.atk), 'percentage')); break
-    case 'chaosJazz': relationships.push(mod(disc4, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.electricFireDamage), undefined, 'combat')); if (agent === 'burnice') relationships.push(provider(disc4, 'self', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage), action: actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Assist')]) }, ['general_damage'], ['Fire'])); break
-    case 'freedomBlues': if (agent !== 'jane') relationships.push(mod(disc4, 'anomalyBuildupResReduction', equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction))); break
+    case 'chaosJazz': relationships.push(mod(disc4, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.electricFireDamage), undefined, 'combat')); if (agent === 'burnice') relationships.push(provider(disc4, 'self', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage), action: actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Assist')]) }, ['general_damage'], ['Fire'])); if (agent === 'yanagi') relationships.push(mod(disc4, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage), actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Assist')]))); break
+    case 'freedomBlues': if (agent !== 'jane' && agent !== 'yanagi' && agent !== 'alice') relationships.push(mod(disc4, 'anomalyBuildupResReduction', equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction))); break
     case 'fangedMetal': relationships.push(mod(disc4, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.fourPiece.assaultDamage))); break
   }
 }
@@ -173,7 +211,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     add(mod(src(agent, slot, 'potential', SOURCE_LABELS.gracePotential, 'identity'), 'dmgBonus', VERTICAL_VALUES.grace.potentialElectricDmg))
     if (setup.mindscape >= 2) { add(provider(mind(2), 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.grace.mindscapeElectricResReduction }, DAMAGE, ['Electric'])); add(provider(mind(2), 'enemy-context', { kind: 'modifier', metricId: 'anomalyBuildupResReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.grace.mindscapeElectricBuildupResReduction }, ['anomaly_buildup'], ['Electric'])) }
     if (setup.mindscape >= 6) add({ kind: 'operation', atom: { operationId: 'graceGrenadeDmgMultiplier', label: 'Special/EX grenade DMG', earliestSurface: 'fully', value: VERTICAL_VALUES.grace.mindscapeGrenadeDmgMultiplier, unit: '', presentation: 'scale', source: mind(6) } })
-    if (setup.engineId === 'timeweaver' && anotherAgentHasNonElectric(ids, slot)) add({ kind: 'post-delivery-stat-modifier-gauge', gaugeId: 'graceDisorder', source: selectedWEngineSource(agent, slot, setup), basis: { statId: 'anomalyProficiency', surface: 'fully' }, basisLabel: 'Fully Enabled Anomaly Proficiency', basisCap: 375, gaugeMetricId: 'anomalyProficiency', modifierMetricId: 'anomalyDmgBonus', action: DISORDER_TARGET, modifierSurface: 'fully', output: { label: 'Disorder DMG Bonus', value: { kind: 'activation', threshold: 375, inactiveValue: 0, activeValue: engineValue('timeweaver', 'disorderDamage', setup) }, unit: '%', cap: engineValue('timeweaver', 'disorderDamage', setup) }, decimals: { current: 0, threshold: 0, cap: 0, output: 1 } })
+    if (setup.engineId === 'timeweaver' && anotherAgentHasNonElectric(ids, slot)) add({ kind: 'post-delivery-stat-modifier-gauge', gaugeId: 'graceDisorder', source: selectedWEngineSource(agent, slot, setup), basis: { statId: 'anomalyProficiency', surface: 'fully' }, basisLabel: 'Fully Enabled Anomaly Proficiency', basisCap: TIMEWEAVER_DISORDER_AP_THRESHOLD, gaugeMetricId: 'anomalyProficiency', modifierMetricId: 'anomalyDmgBonus', action: DISORDER_TARGET, modifierSurface: 'fully', output: { label: 'Disorder DMG Bonus', value: { kind: 'activation', threshold: TIMEWEAVER_DISORDER_AP_THRESHOLD, inactiveValue: 0, activeValue: engineValue('timeweaver', 'disorderDamage', setup) }, unit: '%', cap: engineValue('timeweaver', 'disorderDamage', setup) }, decimals: { current: 0, threshold: 0, cap: 0, output: 1 } })
     actions.push(
       actionProjection('anomalyBuildupBonus', 'graceSpecialExBuildup', GRACE_EX),
       { metricId: 'anomalyDmgBonus', scopes: GRACE_ANOMALY_SCOPES },
@@ -332,6 +370,136 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
       },
     }
   }
+  if (agent === 'yanagi') {
+    const additionalActive = anotherAgentHasSpecialty(ids, slot, ['Anomaly']) || anotherAgentSharesAttribute(ids, slot)
+    const stances = src(agent, slot, 'stances', SOURCE_LABELS.yanagiStances, 'special')
+    add(mod(stances, 'dmgBonus', VERTICAL_VALUES.yanagi.stanceElectricDmg))
+    add(stat(stances, 'penRatio', VERTICAL_VALUES.yanagi.stancePenRatio, 'flat'))
+    add({
+      kind: 'modifier',
+      atom: {
+        metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.yanagi.coreElectricDmg,
+        source: core, sourceDetail: 'Against an EX-hit target',
+      },
+    })
+    if (additionalActive) add(mod(ability, 'anomalyBuildupBonus', VERTICAL_VALUES.yanagi.additionalElectricBuildup))
+    add(provider(
+      core,
+      'all-party',
+      {
+        kind: 'operation', operationId: 'yanagiDisorderDmgMultiplier', label: 'Disorder DMG Multiplier',
+        earliestSurface: 'fully', value: VERTICAL_VALUES.yanagi.coreDisorderMultiplier, unit: '%',
+      },
+      ['anomaly_damage'],
+    ))
+    if (setup.mindscape >= 1) add(stat(mind(1), 'anomalyProficiency', VERTICAL_VALUES.yanagi.mindscape1AnomalyProficiency, 'flat'))
+    if (setup.mindscape >= 2) add(mod(mind(2), 'anomalyBuildupBonus', VERTICAL_VALUES.yanagi.mindscape2ElectricBuildup, YANAGI_EX_RAPID_THRUST))
+    if (setup.mindscape >= 4) add(provider(
+      mind(4),
+      'enemy-context',
+      {
+        kind: 'modifier', metricId: 'penRatio', earliestSurface: 'fully',
+        value: VERTICAL_VALUES.yanagi.mindscape4PenRatio, sourceDetail: 'Against an Exposed target',
+      },
+      DEF_DAMAGE_FORMULAS,
+    ))
+    if (setup.mindscape >= 6) add(mod(mind(6), 'dmgBonus', VERTICAL_VALUES.yanagi.mindscape6ExDmg, YANAGI_EX))
+    equipment(agent, slot, setup, relationships, BASE[agent])
+    if (setup.engineId === 'timeweaver') add({
+      kind: 'post-delivery-stat-modifier-gauge',
+      gaugeId: 'yanagiDisorder',
+      source: selectedWEngineSource(agent, slot, setup),
+      basis: { statId: 'anomalyProficiency', surface: 'fully' },
+      basisLabel: 'Fully Enabled Anomaly Proficiency',
+      basisCap: TIMEWEAVER_DISORDER_AP_THRESHOLD,
+      gaugeMetricId: 'anomalyProficiency',
+      modifierMetricId: 'anomalyDmgBonus',
+      action: DISORDER_TARGET,
+      modifierSurface: 'fully',
+      output: {
+        label: 'Disorder DMG Bonus',
+        value: {
+          kind: 'activation', threshold: TIMEWEAVER_DISORDER_AP_THRESHOLD, inactiveValue: 0,
+          activeValue: engineValue('timeweaver', 'disorderDamage', setup),
+        },
+        unit: '%',
+        cap: engineValue('timeweaver', 'disorderDamage', setup),
+      },
+      decimals: { current: 0, threshold: 0, cap: 0, output: 1 },
+    })
+    actions.push(
+      actionProjection('anomalyBuildupBonus', 'yanagiExRapidThrustBuildup', YANAGI_EX_RAPID_THRUST),
+      actionProjection('dmgBonus', 'yanagiExDmg', YANAGI_EX),
+      { metricId: 'anomalyDmgBonus', scopes: YANAGI_ANOMALY_SCOPES },
+    )
+    const metrics = anomalyDealerMetrics()
+    if (setup.engineId === 'timeweaver') metrics.find(({ id }) => id === 'anomalyProficiency')!.gaugeId = 'yanagiDisorder'
+    return { agentId: agent, appliedPartySlot: slot, relationships, metrics, actions }
+  }
+  if (agent === 'alice') {
+    const additionalActive = anotherAgentHasSpecialty(ids, slot, ['Anomaly', 'Support'])
+    add(mod(core, 'anomalyBuildupBonus', VERTICAL_VALUES.alice.corePhysicalBuildup))
+    add({
+      kind: 'operation',
+      atom: {
+        operationId: 'aliceDisorderDmgMultiplier', label: 'Maximum Disorder DMG Multiplier',
+        earliestSurface: 'fully', value: VERTICAL_VALUES.alice.coreDisorderMultiplier, unit: '%', source: core,
+      },
+    })
+    if (additionalActive) add({
+      kind: 'linear',
+      source: ability,
+      basis: { statId: 'anomalyMastery', surface: 'fully' },
+      outputs: [{
+        transform: {
+          basisThreshold: VERTICAL_VALUES.alice.additionalMasteryThreshold,
+          basisIncrement: 1,
+          outputIncrement: VERTICAL_VALUES.alice.additionalApPerMastery,
+        },
+        emission: { kind: 'stat', statId: 'anomalyProficiency', region: 'flat', earliestSurface: 'fully' },
+      }],
+    })
+    if (setup.mindscape >= 1) add(provider(
+      mind(1),
+      'enemy-context',
+      {
+        kind: 'modifier', metricId: 'defReduction', earliestSurface: 'fully',
+        value: VERTICAL_VALUES.alice.mindscape1DefReduction,
+      },
+      DEF_DAMAGE_FORMULAS,
+    ))
+    if (setup.mindscape >= 2) {
+      add(provider(
+        mind(2),
+        'all-party',
+        {
+          kind: 'modifier', metricId: 'anomalyDmgBonus', earliestSurface: 'fully',
+          value: VERTICAL_VALUES.alice.mindscape2AssaultDmg, action: JANE_ASSAULT_TARGET,
+        },
+        ['anomaly_damage'],
+      ))
+      add(provider(
+        mind(2),
+        'all-party',
+        {
+          kind: 'modifier', metricId: 'anomalyDmgBonus', earliestSurface: 'fully',
+          value: VERTICAL_VALUES.alice.mindscape2DisorderDmg, action: DISORDER_TARGET,
+          sourceDetail: 'Against an enemy suffering Physical Anomaly',
+        },
+        ['anomaly_damage'],
+      ))
+    }
+    if (setup.mindscape >= 4) {
+      add(mod(mind(4), 'resIgnore', VERTICAL_VALUES.alice.mindscape4PhysicalResIgnore))
+      add(mod(mind(4), 'anomalyBuildupBonus', VERTICAL_VALUES.alice.mindscape4PhysicalBuildup, ALICE_ENHANCED_BASIC))
+    }
+    equipment(agent, slot, setup, relationships, BASE[agent])
+    actions.push(
+      actionProjection('anomalyBuildupBonus', 'aliceEnhancedBasicBuildup', ALICE_ENHANCED_BASIC),
+      { metricId: 'anomalyDmgBonus', scopes: ALICE_ANOMALY_SCOPES },
+    )
+    return { agentId: agent, appliedPartySlot: slot, relationships, metrics: anomalyDealerMetrics(), actions }
+  }
   if (agent === 'yuzuha') {
     const additionalActive = anotherAgentHasSpecialty(ids, slot, ['Anomaly']) || anotherAgentSharesFaction(ids, slot)
     const flavorAttribute = effectAttributeForAgent(ids[state.focusSlot])
@@ -408,6 +576,6 @@ function anotherAgentHasNonElectric(ids: readonly AgentId[], slot: number): bool
 
 export function anomalyProfileFor(state: WorkbenchState, slot: Slot): AgentSourceProfile | null {
   const agent = state.slots[slot].agentId
-  if (!(['grace', 'piper', 'yuzuha', 'burnice', 'jane'] as readonly string[]).includes(agent)) return null
+  if (!(['grace', 'piper', 'yuzuha', 'burnice', 'jane', 'yanagi', 'alice'] as readonly string[]).includes(agent)) return null
   return profile(agent as Agent, state, slot)
 }

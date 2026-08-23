@@ -258,6 +258,14 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     id: 'seth', name: 'Seth Lowell', attribute: 'Electric', specialty: 'Defense',
     focusEligible: false, rank: 'A', faction: 'Criminal Investigation Special Response Team',
   },
+  {
+    id: 'yanagi', name: 'Tsukishiro Yanagi', attribute: 'Electric', specialty: 'Anomaly',
+    focusEligible: true, rank: 'S', faction: 'Section 6',
+  },
+  {
+    id: 'alice', name: 'Alice Thymefield', attribute: 'Physical', specialty: 'Anomaly',
+    focusEligible: true, rank: 'S', faction: 'Spook Shack',
+  },
 ]
 
 export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>

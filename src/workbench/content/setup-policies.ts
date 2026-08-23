@@ -64,6 +64,8 @@ const OPERATING_INTERVAL_BY_AGENT: Partial<Record<AgentId, OperatingIntervalPoli
   anby: { default: 'off-field' },
   jane: { default: 'on-field' },
   seth: { default: 'off-field' },
+  yanagi: { default: 'on-field' },
+  alice: { default: 'on-field' },
 }
 
 /**
@@ -164,6 +166,8 @@ export const PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE: Partial<
   grace: 'electricDmg',
   burnice: 'fireDmg',
   jane: 'physicalDmg',
+  yanagi: 'electricDmg',
+  alice: 'physicalDmg',
 }
 
 /** Authored whole-package replacement when the selected 2-piece loses its distinct axis. */

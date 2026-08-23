@@ -2,6 +2,7 @@ import {
   ADMITTED_AGENTS,
   FORMULA_PARTICIPATION_BY_AGENT,
   W_ENGINE_FACTS,
+  equipmentEffectAppliesToAttribute,
   type AgentId,
   type EquipmentEffectCollection,
 } from './content'
@@ -121,7 +122,7 @@ function selectedEngineHasBroadPrePenPressure(
   return Object.values(effects).some((effect) => (
     (effect.modifier === 'defIgnore' || effect.modifier === 'defReduction')
     && !effect.scope?.actions?.length
-    && (!effect.scope?.attributes?.length || effect.scope.attributes.includes(attribute))
+    && equipmentEffectAppliesToAttribute(effect, attribute)
   ))
 }
 

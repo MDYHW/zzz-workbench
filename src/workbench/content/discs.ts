@@ -511,4 +511,12 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     fourPiece: ['astralVoice', 'swingJazz', 'freedomBlues'],
     twoPiece: ['swingJazz', 'moonlight'],
   },
+  yanagi: {
+    fourPiece: ['chaosJazz', 'thunderMetal', 'freedomBlues'],
+    twoPiece: ['freedomBlues', 'chaosJazz', 'pufferElectro', 'phaethonsMelody', 'thunderMetal', 'hormonePunk', 'astralVoice'],
+  },
+  alice: {
+    fourPiece: ['fangedMetal', 'freedomBlues', 'hormonePunk'],
+    twoPiece: ['phaethonsMelody', 'pufferElectro', 'freedomBlues', 'chaosJazz', 'fangedMetal', 'whiteWaterBallad', 'hormonePunk', 'astralVoice'],
+  },
 }

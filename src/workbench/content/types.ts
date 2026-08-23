@@ -46,6 +46,8 @@ export type AgentId =
   | 'burnice'
   | 'jane'
   | 'seth'
+  | 'yanagi'
+  | 'alice'
 
 export type AgentRank = 'S' | 'A'
 export type AgentAttribute =
@@ -240,6 +242,12 @@ export type EquipmentEffectCondition = 'backAttack' | 'offField' | 'shielded'
 export type EquipmentEffectRecipient = 'self' | 'squad' | 'enemy'
 export type EquipmentEffectValue = number | RefinementValues
 
+export interface EquipmentEffectActivation {
+  kind: 'minimum-stat'
+  statId: 'anomalyProficiency'
+  threshold: number
+}
+
 export interface EquipmentEffectScope {
   recipient?: EquipmentEffectRecipient
   actions?: readonly EquipmentEffectAction[]
@@ -276,10 +284,12 @@ export type EquipmentEffectFact = {
   modifier: EquipmentEffectModifier
   unit: '%' | '' | '/s'
   scope?: EquipmentEffectScope
+  activation?: EquipmentEffectActivation
 } & EquipmentEffectMagnitude
 
 // Setup-content facts only. Local collection keys are handles for explicit
-// consumers; this shape does not decide activation or project effects into Result.
+// consumers. Retained activation belongs here; holder applicability and Result
+// projection remain decisions of their local consumers.
 export type EquipmentEffectCollection = Readonly<Record<string, EquipmentEffectFact>>
 
 export interface WEngineFacts {
@@ -392,6 +402,11 @@ export const equipmentEffectBaseValue = (
   effect: EquipmentEffectFact,
   refinement?: Refinement,
 ): number => effect.value === undefined ? 0 : resolveEquipmentEffectValue(effect.value, refinement)
+
+export const equipmentEffectAppliesToAttribute = (
+  effect: EquipmentEffectFact,
+  attribute: EquipmentEffectAttribute,
+): boolean => !effect.scope?.attributes?.length || effect.scope.attributes.includes(attribute)
 
 export const equipmentEffectProgressionValue = (
   effect: EquipmentEffectFact,
