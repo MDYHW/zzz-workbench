@@ -172,8 +172,10 @@ registry, or a rule for later Agents.
   the identities are new.
 - R20. Selected and candidate equipment keep the same compressed accessible
   descriptions and source interaction destinations. Add all three original
-  portraits and verify desktop/narrow, expanded/compact geometry, readable
-  names, control clearance, clipping, and horizontal overflow.
+  portraits and verify desktop/narrow, expanded/compact geometry, baseline
+  framing, readable names, control clearance, clipping, and horizontal
+  overflow. Fine crop/alignment calibration remains deferred to the agreed
+  post-expansion portrait batch and is not complete in this unit.
 
 ---
 

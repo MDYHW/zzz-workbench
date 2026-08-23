@@ -68,6 +68,8 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   vivian: { attribute: etherMark, specialty: anomalyMark },
   aria: { attribute: etherMark, specialty: anomalyMark },
   promeia: { attribute: iceMark, specialty: anomalyMark },
+  sunna: { attribute: physicalMark, specialty: supportMark },
+  nangongYu: { attribute: etherMark, specialty: stunMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {

@@ -597,4 +597,12 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     fourPiece: ['notesFromTheChained'],
     twoPiece: ['phaethonsMelody', 'freedomBlues', 'chaosJazz', 'hormonePunk', 'astralVoice'],
   },
+  sunna: {
+    fourPiece: ['moonlight', 'astralVoice'],
+    twoPiece: ['swingJazz', 'moonlight', 'astralVoice', 'hormonePunk'],
+  },
+  nangongYu: {
+    fourPiece: ['phaethonsMelody', 'freedomBlues'],
+    twoPiece: ['phaethonsMelody', 'freedomBlues', 'chaosJazz', 'shiningAria', 'chaoticMetal', 'hormonePunk', 'astralVoice', 'pufferElectro'],
+  },
 }

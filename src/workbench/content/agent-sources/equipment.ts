@@ -32,6 +32,7 @@ import {
 } from '../source-definitions'
 import {
   equipmentEffectBaseValue,
+  equipmentEffectMaximumValue,
   type AgentId,
   type DiscId,
   type EngineId,
@@ -68,6 +69,26 @@ export function equipmentEffectAppliesInOperatingInterval(
     effect.activation?.kind === 'trigger'
     && effect.activation.removedOffField
     && interval === 'off-field'
+  )
+}
+
+const EQUIPPER_ATTACK_TRIGGER_UNAVAILABLE_IN_PREPARED_INTERVAL = new Set<AgentId>(['sunna'])
+
+/** Resolves holder capability only after the selected equipment fact supplies the trigger meaning. */
+export function equipmentEffectCanBeActivatedByHolder(
+  agentId: AgentId,
+  effect: EquipmentEffectFact,
+): boolean {
+  if (
+    effect.activation?.kind === 'trigger'
+    && effect.activation.performer === 'equipper'
+    && effect.activation.attributes !== undefined
+    && !effect.activation.attributes.includes(effectAttributeForAgent(agentId))
+  ) return false
+  return !(
+    effect.activation?.kind === 'trigger'
+    && effect.activation.performer === 'equipper'
+    && EQUIPPER_ATTACK_TRIGGER_UNAVAILABLE_IN_PREPARED_INTERVAL.has(agentId)
   )
 }
 
@@ -211,19 +232,44 @@ export function sharedPartyEquipmentRelationships(
   const engine = selectedWEngineSource(agentId, appliedPartySlot, setup)
   const passiveEligible = isWEnginePassiveEligible(agentId, setup.engineId)
   if (passiveEligible) switch (setup.engineId) {
-    case 'weepingCradle':
+    case 'thoughtbop':
       relationships.push(
         {
           kind: 'provider', source: engine,
           delivery: { recipient: 'all-party', formulas: REGULAR_DAMAGE_FORMULAS },
           effect: {
             kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
+            value: equipmentEffectMaximumValue(W_ENGINE_FACTS.thoughtbop.effects.damage, setup.refinement),
+          },
+        },
+        {
+          kind: 'provider', source: engine,
+          delivery: { recipient: 'all-party', formulas: REGULAR_DAMAGE_FORMULAS },
+          effect: {
+            kind: 'stat', statId: 'atk', region: 'percentage', earliestSurface: 'fully',
+            value: equipmentEffectBaseValue(W_ENGINE_FACTS.thoughtbop.effects.atk, setup.refinement),
+          },
+        },
+        {
+          kind: 'automatic-energy',
+          atom: { earliestSurface: 'combat', value: equipmentEffectBaseValue(W_ENGINE_FACTS.thoughtbop.effects.energy, setup.refinement), source: engine },
+        },
+      )
+      break
+    case 'weepingCradle': {
+      const damage = W_ENGINE_FACTS.weepingCradle.effects.damage
+      relationships.push(
+        ...(equipmentEffectCanBeActivatedByHolder(agentId, damage) ? [{
+          kind: 'provider', source: engine,
+          delivery: { recipient: 'all-party', formulas: REGULAR_DAMAGE_FORMULAS },
+          effect: {
+            kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
             value: equipmentEffectBaseValue(
-              W_ENGINE_FACTS.weepingCradle.effects.damage,
+              damage,
               setup.refinement,
             ),
           },
-        },
+        } satisfies ProfileRelationship] : []),
         {
           kind: 'automatic-energy',
           atom: {
@@ -237,6 +283,7 @@ export function sharedPartyEquipmentRelationships(
         },
       )
       break
+    }
     case 'kaboom':
       relationships.push({
         kind: 'provider', source: engine,

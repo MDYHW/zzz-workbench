@@ -64,6 +64,7 @@ import flightOfFancyImage from '../../assets/equipment/w-engines/flight-of-fancy
 import angelInTheShellImage from '../../assets/equipment/w-engines/angel-in-the-shell.webp'
 import frostfallSickleImage from '../../assets/equipment/w-engines/frostfall-sickle.webp'
 import peacekeeperSpecializedImage from '../../assets/equipment/w-engines/peacekeeper-specialized.webp'
+import neonFantasiesImage from '../../assets/equipment/w-engines/neon-fantasies.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -124,6 +125,10 @@ export const W_ENGINE_FACTS = {
         modifier: 'dmgBonus', unit: '%',
         progression: { kind: 'stacks', perStack: [10, 11.5, 13, 14.5, 16], maxStacks: 2 },
         scope: { recipient: 'squad' },
+        activation: {
+          kind: 'trigger', performer: 'equipper',
+          actions: ['Chain Attack', 'Ultimate'], attributes: ['Fire'],
+        },
       },
     },
   },
@@ -209,6 +214,19 @@ export const W_ENGINE_FACTS = {
       impact: { modifier: 'impact', unit: '%', value: scaledRefinementValues(20) },
     },
   },
+  neonFantasies: {
+    advancedStat: { id: 'anomalyMastery', label: 'Anomaly Mastery', value: 30, unit: '%' },
+    effects: {
+      anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: 90 },
+      damage: {
+        modifier: 'dmgBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: scaledRefinementValues(15), maxStacks: 2, maximum: scaledRefinementValues(30) },
+        scope: { recipient: 'squad' },
+        activation: { kind: 'trigger', actions: ['Basic Attack', 'EX Special Attack'], attributes: ['Ether'] },
+      },
+      maximumAnomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: 60, activation: { kind: 'trigger', stackThreshold: 2 } },
+    },
+  },
   steamOven: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
     effects: {
@@ -226,16 +244,29 @@ export const W_ENGINE_FACTS = {
   thoughtbop: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 60, unit: '%' },
     effects: {
-      energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.6) },
-      damage: { modifier: 'dmgBonus', unit: '%', progression: { kind: 'stacks', perStack: scaledRefinementValues(12.5), maxStacks: 2, maximum: scaledRefinementValues(25) }, scope: { recipient: 'squad' } },
-      atk: { modifier: 'atk', unit: '%', value: scaledRefinementValues(10), scope: { recipient: 'squad' } },
+      energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.6), scope: { condition: 'offField' } },
+      damage: {
+        modifier: 'dmgBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: scaledRefinementValues(12.5), maxStacks: 2, maximum: scaledRefinementValues(25) },
+        scope: { recipient: 'squad' },
+        activation: { kind: 'trigger', actions: ['EX Special Attack'], attributes: ['Physical'] },
+      },
+      atk: {
+        modifier: 'atk', unit: '%', value: scaledRefinementValues(10),
+        scope: { recipient: 'squad' },
+        activation: { kind: 'trigger', stackThreshold: 2 },
+      },
     },
   },
   weepingCradle: {
     advancedStat: { id: 'penRatio', label: 'PEN Ratio', value: 24, unit: '%' },
     effects: {
-      energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.6) },
-      damage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(20.2), scope: { recipient: 'squad' } },
+      energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.6), scope: { condition: 'offField' } },
+      damage: {
+        modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(20.2),
+        scope: { recipient: 'squad' },
+        activation: { kind: 'trigger', performer: 'equipper' },
+      },
     },
   },
   kaboom: {
@@ -386,8 +417,8 @@ export const W_ENGINE_FACTS = {
   simmeringPot: {
     advancedStat: { id: 'impactPct', label: 'Impact', value: 15, unit: '%' },
     effects: {
-      daze: { modifier: 'dazeBonus', unit: '%', value: [7.2, 8.2, 9.2, 10.2, 11.5], scope: { actions: ['Assist Follow-Up'] } },
-      damage: { modifier: 'dmgBonus', unit: '%', value: [7.2, 8.2, 9.2, 10.2, 11.5], scope: { actions: ['Assist Follow-Up'] } },
+      daze: { modifier: 'dazeBonus', unit: '%', value: [7.2, 8.2, 9.2, 10.2, 11.5], activation: { kind: 'trigger', actions: ['Assist Follow-Up'], durationSeconds: 30 } },
+      damage: { modifier: 'dmgBonus', unit: '%', value: [7.2, 8.2, 9.2, 10.2, 11.5], activation: { kind: 'trigger', actions: ['Assist Follow-Up'], durationSeconds: 30 } },
     },
   },
   deepSeaVisitor: {
@@ -794,6 +825,15 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `Impact +${percent(W_ENGINE_FACTS.hellfireGears.effects.impact, refinement)}`,
     ],
   },
+  neonFantasies: {
+    id: 'neonFantasies', name: 'Neon Fantasies', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.neonFantasies.advancedStat, image: neonFantasiesImage,
+    passiveSpecialty: 'Stun',
+    passiveLines: (refinement) => [
+      `AP +${equipmentEffectBaseValue(W_ENGINE_FACTS.neonFantasies.effects.anomalyProficiency, refinement) + equipmentEffectBaseValue(W_ENGINE_FACTS.neonFantasies.effects.maximumAnomalyProficiency, refinement)}`,
+      `Squad DMG +${percent(W_ENGINE_FACTS.neonFantasies.effects.damage, refinement, true)}`,
+    ],
+  },
   steamOven: {
     id: 'steamOven', name: 'Steam Oven', rank: 'A', limited: false, baseAtk: 594,
     advancedStat: W_ENGINE_FACTS.steamOven.advancedStat, image: steamOvenImage,
@@ -926,8 +966,8 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.simmeringPot.advancedStat, image: simmeringPotImage,
     passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [
-      `Assist Follow-Up Daze +${percent(W_ENGINE_FACTS.simmeringPot.effects.daze, refinement)}`,
-      `Assist Follow-Up DMG +${percent(W_ENGINE_FACTS.simmeringPot.effects.damage, refinement)}`,
+      `Daze +${percent(W_ENGINE_FACTS.simmeringPot.effects.daze, refinement)}`,
+      `DMG +${percent(W_ENGINE_FACTS.simmeringPot.effects.damage, refinement)}`,
     ],
   },
   deepSeaVisitor: {
@@ -1185,6 +1225,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   banyue: enginePools(['wrathfulVajra', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere']),
   starlightBilly: enginePools(['starlightRiderFaceplate', 'qingming', 'cauldron', 'steelCushion', 'grillOWisp', 'puzzleSphere']),
   dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
+  nangongYu: enginePools(['neonFantasies', 'hellfireGears', 'simmeringPot', 'preciousFossilizedCore', 'roaringFurnace']),
   lucia: enginePools(['dreamlitHearth', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
   anbySoldier0: enginePools(['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'marcatoDesire', 'starlightEngine']),
   trigger: enginePools(['spectralGaze', 'blazingLaurel', 'iceJadeTeapot', 'restrained', 'hellfireGears', 'preciousFossilizedCore', 'steamOven']),
@@ -1225,6 +1266,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
     'weepingGemini', 'roaringRide',
   ]),
   yuzuha: enginePools(['metanukimorphosis', 'thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
+  sunna: enginePools(['thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
   burnice: enginePools(['flamemakerShaker', 'practicedPerfection', 'electroLipGloss', 'weepingGemini']),
   jane: enginePools(['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
   seth: enginePools(['peacekeeperSpecialized', 'tusksOfFury', 'springEmbrace']),

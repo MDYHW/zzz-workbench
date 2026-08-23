@@ -201,8 +201,10 @@ Koleda adds no new common mechanism.
   Koleda's short Basic-to-EX sequence does not sustain its 15/30 Basic-hit
   thresholds without role-distorting field time. Box Cutter has no Koleda
   Aftershock consumer, while Demara and Simmering Pot do not beat the retained
-  resource or action packages with their narrower usable clauses. These are
-  Koleda-local conclusions, not inherited Stun membership.
+  resource or action packages. Simmering's Daze/DMG outcome is broad, but its
+  complete package remains less aligned than Koleda's retained resource and
+  defining-action alternatives.
+  These are Koleda-local conclusions, not inherited Stun membership.
 - R15. Koleda's 4-piece roster contains King of the Summit, Astral Voice,
   Shockstar Disco, and Swing Jazz; her 2-piece roster contains Shockstar, King,
   and Swing. King and Astral supply distinct party packages, Shockstar has

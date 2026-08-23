@@ -278,6 +278,14 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     id: 'promeia', name: 'Promeia', attribute: 'Ice', specialty: 'Anomaly',
     focusEligible: true, rank: 'S', faction: 'Krampus Compliance Authority',
   },
+  {
+    id: 'sunna', name: 'Sunna', attribute: 'Physical', specialty: 'Support',
+    focusEligible: false, rank: 'S', faction: 'Angels of Delusion',
+  },
+  {
+    id: 'nangongYu', name: 'Nangong Yu', attribute: 'Ether', specialty: 'Stun',
+    focusEligible: false, rank: 'S', faction: 'Angels of Delusion',
+  },
 ]
 
 export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>

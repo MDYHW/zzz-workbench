@@ -282,8 +282,10 @@ function Gauge({
   gauge: GaugeResult
   partyAgentIds: readonly AgentId[]
 } & SourceInteractionProps) {
-  const progress = Math.min(gauge.current / gauge.cap * 100, 100)
-  const threshold = gauge.threshold === undefined ? undefined : gauge.threshold / gauge.cap * 100
+  const boundary = gauge.cap ?? gauge.threshold
+  if (boundary === undefined) throw new Error('A gauge requires a cap or threshold boundary')
+  const progress = Math.min(gauge.current / boundary * 100, 100)
+  const threshold = gauge.threshold === undefined ? undefined : gauge.threshold / boundary * 100
   const currentDecimals = gauge.decimals?.current ?? 1
   const thresholdDecimals = gauge.decimals?.threshold ?? 1
   const capDecimals = gauge.decimals?.cap ?? 0
@@ -295,12 +297,12 @@ function Gauge({
     cap: gauge.outputCap,
     unit: gauge.outputUnit,
   }, ...(gauge.additionalOutputs ?? [])]
-  const isActiveScale = gauge.presentation === 'scale'
-    && gauge.threshold !== undefined
+  const isThresholdOnlyActive = gauge.threshold !== undefined
+    && (gauge.cap === undefined || gauge.cap === gauge.threshold)
     && gauge.current >= gauge.threshold
   const thresholdDescription = gauge.threshold === undefined
     ? ''
-    : `, threshold ${formatNumber(gauge.threshold, thresholdDecimals)}${isActiveScale ? ', Active' : ''}`
+    : `, threshold ${formatNumber(gauge.threshold, thresholdDecimals)}${isThresholdOnlyActive ? ', Active' : ''}`
   const outputDescription = outputs.map((output) => {
     const value = formatOperationValue(
       output.value,
@@ -313,7 +315,10 @@ function Gauge({
       : `, cap ${formatNumber(output.cap, outputCapDecimals)}${output.unit}`
     return `${output.label}: ${value}${cap}`
   }).join('; ')
-  const description = `${gauge.basisLabel}: current ${formatNumber(gauge.current, currentDecimals)}, cap ${formatNumber(gauge.cap, capDecimals)}${thresholdDescription}; ${outputDescription}`
+  const capDescription = gauge.cap === undefined
+    ? ''
+    : `, cap ${formatNumber(gauge.cap, capDecimals)}`
+  const description = `${gauge.basisLabel}: current ${formatNumber(gauge.current, currentDecimals)}${capDescription}${thresholdDescription}; ${outputDescription}`
   const tone = sourceTone(gauge.source, agentId, partyAgentIds)
 
   return (
@@ -330,16 +335,19 @@ function Gauge({
       </small>
       <div className="gauge__labels">
         <span>{gauge.basisLabel}</span>
-        <strong>{formatNumber(gauge.current, currentDecimals)} / {formatNumber(gauge.cap, capDecimals)}</strong>
+        <strong>
+          {formatNumber(gauge.current, currentDecimals)}
+          {gauge.cap === undefined ? '' : ` / ${formatNumber(gauge.cap, capDecimals)}`}
+        </strong>
       </div>
-      {gauge.threshold !== undefined && !isActiveScale && (
+      {gauge.threshold !== undefined && !isThresholdOnlyActive && (
         <small className="gauge__threshold-copy">Threshold {formatNumber(gauge.threshold, thresholdDecimals)}</small>
       )}
       <div className="gauge__track" aria-hidden="true">
-        <span className="gauge__fill" style={{ width: `${isActiveScale ? 100 : progress}%` }}>
-          {isActiveScale ? 'Active' : null}
+        <span className="gauge__fill" style={{ width: `${isThresholdOnlyActive ? 100 : progress}%` }}>
+          {isThresholdOnlyActive ? 'Active' : null}
         </span>
-        {threshold !== undefined && !isActiveScale && <i className="gauge__threshold" style={{ left: `${threshold}%` }} />}
+        {threshold !== undefined && !isThresholdOnlyActive && <i className="gauge__threshold" style={{ left: `${threshold}%` }} />}
       </div>
       {outputs.map((output) => (
         <div className="gauge__output" key={output.label}>

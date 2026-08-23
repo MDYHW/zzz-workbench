@@ -48,6 +48,8 @@ import alicePortrait from '../assets/agents/portraits/alice.webp'
 import vivianPortrait from '../assets/agents/portraits/vivian.webp'
 import ariaPortrait from '../assets/agents/portraits/aria.webp'
 import promeiaPortrait from '../assets/agents/portraits/promeia.webp'
+import sunnaPortrait from '../assets/agents/portraits/sunna.webp'
+import nangongYuPortrait from '../assets/agents/portraits/nangong-yu.webp'
 
 export const AGENT_PORTRAITS: Record<AgentId, string> = {
   yixuan: yixuanPortrait,
@@ -98,6 +100,8 @@ export const AGENT_PORTRAITS: Record<AgentId, string> = {
   vivian: vivianPortrait,
   aria: ariaPortrait,
   promeia: promeiaPortrait,
+  sunna: sunnaPortrait,
+  nangongYu: nangongYuPortrait,
 }
 
 interface PortraitSource {
@@ -165,6 +169,8 @@ const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   vivian: { faceX: 54, headTopY: 15, scale: 1.1 },
   aria: { faceX: 65, headTopY: 0, scale: 1.05 },
   promeia: { faceX: 49, headTopY: 0, scale: 1.2 },
+  sunna: { faceX: 52, headTopY: 10, scale: 1.15 },
+  nangongYu: { faceX: 64, headTopY: 8, scale: 1.15 },
 }
 
 export function portraitSourceStyle(agentId: AgentId): PortraitSourceStyle {
