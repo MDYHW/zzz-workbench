@@ -310,6 +310,47 @@ describe('ResultPanel operation presentation', () => {
       .toHaveLength(3)
   })
 
+  it('renders an open-ended threshold gauge without cap copy while retaining capped gauges', async () => {
+    const user = userEvent.setup()
+    renderResult(syntheticResult({
+      metrics: [
+        {
+          id: 'atk', label: 'ATK', unit: '', decimals: 0,
+          values: surfaces(125, 125, 125), breakdown: surfaces([], [], []),
+          gauge: {
+            source: syntheticSource,
+            basisLabel: 'Initial ATK', current: 125, threshold: 100,
+            outputLabel: 'Squad flat ATK', outputValue: 25, outputUnit: '',
+          },
+        },
+        {
+          id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1,
+          values: surfaces(80, 80, 80), breakdown: surfaces([], [], []),
+          gauge: {
+            source: syntheticSource,
+            basisLabel: 'Initial CRIT Rate', current: 80, threshold: 50, cap: 100,
+            outputLabel: 'Daze Bonus', outputValue: 15, outputCap: 20, outputUnit: '%',
+          },
+        },
+      ],
+    }))
+
+    await user.click(screen.getByRole('button', { name: 'ATK' }))
+    const openGauge = screen.getByRole('group', {
+      name: 'Initial ATK: current 125.0, threshold 100.0; Squad flat ATK: +25.0',
+    })
+    expect(within(openGauge).getByText('Initial ATK')).toBeInTheDocument()
+    expect(within(openGauge).getByText('Threshold 100.0')).toBeInTheDocument()
+    expect(within(openGauge).getByText('+25.0')).toBeInTheDocument()
+    expect(openGauge).not.toHaveTextContent(' / ')
+    expect(openGauge).not.toHaveAccessibleName(/cap/)
+
+    await user.click(screen.getByRole('button', { name: 'CRIT Rate' }))
+    expect(screen.getByRole('group', {
+      name: 'Initial CRIT Rate: current 80.0, cap 100, threshold 50.0; Daze Bonus: +15.0%, cap 20%',
+    })).toBeInTheDocument()
+  })
+
   it('presents action-local scale operations at Combat and Fully Enabled', () => {
     renderResult(syntheticResult({
       operations: [

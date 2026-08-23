@@ -39,6 +39,12 @@ const agents = {
   vivian: { candidateName: 'Vivian, Ether, Anomaly', displayName: 'Vivian', slug: 'vivian' },
   aria: { candidateName: 'Aria, Ether, Anomaly', displayName: 'Aria', slug: 'aria' },
   promeia: { candidateName: 'Promeia, Ice, Anomaly', displayName: 'Promeia', slug: 'promeia' },
+  sunna: { candidateName: 'Sunna, Physical, Support', displayName: 'Sunna', slug: 'sunna' },
+  nangongYu: {
+    candidateName: 'Nangong Yu, Ether, Stun',
+    displayName: 'Nangong Yu',
+    slug: 'nangong-yu',
+  },
 } satisfies Record<string, PortraitAgent>
 
 const parties: readonly PortraitParty[] = [
@@ -70,6 +76,12 @@ const parties: readonly PortraitParty[] = [
     focus: 'Aria',
     captures: [agents.vivian, agents.aria, agents.promeia],
     members: [agents.vivian, agents.aria, agents.promeia],
+  },
+  {
+    id: 'portrait-angels-anomaly-support',
+    focus: 'Aria',
+    captures: [agents.sunna, agents.nangongYu],
+    members: [agents.sunna, agents.nangongYu, agents.aria],
   },
 ]
 
@@ -108,7 +120,16 @@ async function applyParty(page: Page, party: PortraitParty): Promise<void> {
     await page.getByRole('button', { name: agent.candidateName, exact: true }).click()
   }
 
-  if (party.focus) await page.getByRole('radio', { name: party.focus, exact: true }).click()
+  if (party.focus) {
+    const focusChoice = page.getByRole('radio', { name: party.focus, exact: true })
+    if (await focusChoice.count()) {
+      await focusChoice.click()
+    } else {
+      await expect(
+        page.getByText(`${party.focus} is Focus automatically.`, { exact: true }).first(),
+      ).toBeVisible()
+    }
+  }
   await page.getByRole('button', { name: 'Apply party' }).click()
   await waitForPortraits(page)
 }

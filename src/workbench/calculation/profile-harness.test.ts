@@ -732,6 +732,42 @@ describe('profile calculation harness', () => {
     expect(combat.operations[0]).toEqual(expect.objectContaining({ surface: 'combat' }))
   })
 
+  it('preserves an open-ended gauge threshold and output without synthesizing caps', () => {
+    const state = createPreparedState({}, ['astraYao', 'trigger', 'zhao'], 1)
+    const source = selectSource(
+      defineAgentSource('astraYao', 'open-threshold', 'Open threshold', 'core'),
+      'astraYao', 0,
+    )
+    const profiles: AgentSourceProfile[] = [
+      {
+        agentId: 'astraYao', appliedPartySlot: 0,
+        metrics: [{ ...atkMetric, gaugeId: 'openThreshold' }, damageMetric],
+        relationships: [
+          baseStat('astraYao', 0, 'atk', 125),
+          {
+            kind: 'gauge', gaugeId: 'openThreshold', source,
+            basis: { statId: 'atk', surface: 'initial' }, basisLabel: 'Initial ATK',
+            basisThreshold: 100, metricId: 'atk',
+            outputs: [{
+              label: 'Squad flat ATK', unit: '',
+              transform: { basisThreshold: 100, basisIncrement: 1, outputIncrement: 1 },
+              emission: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully' },
+            }],
+          },
+        ],
+      },
+      { agentId: 'trigger', appliedPartySlot: 1, metrics: [], relationships: [] },
+      { agentId: 'zhao', appliedPartySlot: 2, metrics: [], relationships: [] },
+    ]
+
+    const gauge = agentResult(evaluateProfileParty(state, profiles)!, 'astraYao').metrics[0].gauge!
+    expect(gauge).toEqual(expect.objectContaining({
+      basisLabel: 'Initial ATK', current: 125, threshold: 100, outputValue: 25,
+    }))
+    expect(gauge).not.toHaveProperty('cap')
+    expect(gauge).not.toHaveProperty('outputCap')
+  })
+
   it('projects a Result-only cap from target input plus compatible delivered modifiers', () => {
     const state = createPreparedState({}, ['yeShunguang', 'astraYao', 'zhao'], 1)
     const target = selectSource(
@@ -785,7 +821,7 @@ describe('profile calculation harness', () => {
     const metric = agentResult(evaluateProfileParty(state, profiles)!, 'yeShunguang').metrics[0]
     expect(metric.values.fully).toBe(130)
     expect(metric.gauge).toEqual(expect.objectContaining({
-      current: 130, outputValue: 110, outputCap: 110,
+      current: 130, cap: 110, outputValue: 110, outputCap: 110,
     }))
     expect(metric.breakdown.fully).toContainEqual(expect.objectContaining({
       locus: 'target', amount: 50,

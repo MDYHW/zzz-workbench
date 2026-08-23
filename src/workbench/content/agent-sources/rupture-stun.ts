@@ -1,5 +1,6 @@
-import { AFTERSHOCK_TARGET, BASIC_AFTERSHOCK_TARGET, actionForm, actionTarget, canonicalAction, sourceLocalAction } from '../../actions'
+import { ABLOOM_TARGET, AFTERSHOCK_TARGET, ATTRIBUTE_ANOMALY_TARGET, BASIC_AFTERSHOCK_TARGET, DISORDER_TARGET, actionForm, actionTarget, canonicalAction, sourceLocalAction } from '../../actions'
 import { effectiveSubstatChoicesForSlot } from '../../candidates'
+import type { ActionScopeNode } from '../../calculation/composition'
 import { actionProjection, type ActionProjection, type AgentSourceProfile, type MetricProjection } from '../../calculation/profile-harness'
 import type { ProfileRelationship } from '../../calculation/relationships'
 import type { WorkbenchState } from '../../state'
@@ -12,10 +13,10 @@ import { EFFECTIVE_SUBSTAT_VALUES, MAIN_STATS, effectiveSubstatChoices } from '.
 import { operatingIntervalFor } from '../setup-policies'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
 import { equipmentEffectBaseValue, equipmentEffectMaximumValue, type AgentId } from '../types'
-import { equipmentEffectAppliesInOperatingInterval, isWEnginePassiveEligible, requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
+import { equipmentEffectAppliesInOperatingInterval, equipmentEffectCanBeActivatedByHolder, isWEnginePassiveEligible, requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
 
-type Agent = 'yixuan' | 'yidhari' | 'manato' | 'banyue' | 'starlightBilly' | 'dialyn' | 'trigger' | 'lycaon' | 'juFufu' | 'lighter' | 'pulchra' | 'qingyi' | 'koleda' | 'anby'
+type Agent = 'yixuan' | 'yidhari' | 'manato' | 'banyue' | 'starlightBilly' | 'dialyn' | 'trigger' | 'lycaon' | 'juFufu' | 'lighter' | 'pulchra' | 'qingyi' | 'koleda' | 'anby' | 'nangongYu'
 type Slot = 0 | 1 | 2
 type Locus = 'identity' | 'core' | 'additional' | 'special' | 'ex-special'
 type ProfileSetup = CompleteSelectedSetup & {
@@ -38,6 +39,7 @@ const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   qingyi: { atk: VERTICAL_VALUES.qingyi.atk, critRate: VERTICAL_VALUES.qingyi.critRate, critDmg: VERTICAL_VALUES.qingyi.critDmg, impact: VERTICAL_VALUES.qingyi.impact, energyRegen: VERTICAL_VALUES.qingyi.baseEnergyRegen },
   koleda: { critRate: VERTICAL_VALUES.koleda.critRate, impact: VERTICAL_VALUES.koleda.impact, energyRegen: VERTICAL_VALUES.koleda.baseEnergyRegen },
   anby: { critRate: VERTICAL_VALUES.anby.critRate, impact: VERTICAL_VALUES.anby.impact, energyRegen: VERTICAL_VALUES.anby.baseEnergyRegen },
+  nangongYu: { atk: VERTICAL_VALUES.nangongYu.atk, anomalyProficiency: VERTICAL_VALUES.nangongYu.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.nangongYu.anomalyMastery, impact: VERTICAL_VALUES.nangongYu.impact, energyRegen: VERTICAL_VALUES.nangongYu.baseEnergyRegen, penRatio: 0 },
 }
 
 const m = (id: MetricProjection['id'], label: string, unit: string, statId?: MetricProjection['statId'], admission?: MetricProjection['admission']): MetricProjection => ({
@@ -50,7 +52,7 @@ const source = (agent: Agent, slot: Slot, id: string, label: string, locus: Locu
 const critCap = (agent: Agent, slot: Slot) => ({ value: 100, source: selectedCalculationSource(agent, slot, 'crit-rate-cap', 'Displayed CRIT Rate cap') })
 const mind = (agent: Agent, slot: Slot, selected: 0 | 1 | 2 | 3 | 4 | 5 | 6, tier: 1 | 2 | 3 | 4 | 5 | 6) => selectedMindscapeSource(agent, slot, selected, tier)
 const stat = (statId: 'maxHp' | 'atk' | 'impact' | 'critRate' | 'critDmg', region: 'percentage' | 'flat', value: number, src: ReturnType<typeof source>, earliestSurface: 'initial' | 'combat' | 'fully' = 'fully'): ProfileRelationship => ({ kind: 'stat', atom: { statId, region, earliestSurface, value, source: src } })
-const mod = (metricId: 'dmgBonus' | 'sheerDmgBonus' | 'sheerForce' | 'critRate' | 'critDmg' | 'dazeBonus' | 'stunDmgMultiplier' | 'resIgnore' | 'resReduction' | 'defReduction', value: number, src: ReturnType<typeof source>, action?: ReturnType<typeof actionTarget>, earliestSurface: 'combat' | 'fully' = 'fully'): ProfileRelationship => (
+const mod = (metricId: 'dmgBonus' | 'sheerDmgBonus' | 'sheerForce' | 'critRate' | 'critDmg' | 'dazeBonus' | 'stunDmgMultiplier' | 'resIgnore' | 'resReduction' | 'defReduction' | 'anomalyBuildupBonus', value: number, src: ReturnType<typeof source>, action?: ReturnType<typeof actionTarget>, earliestSurface: 'combat' | 'fully' = 'fully'): ProfileRelationship => (
   !action && (metricId === 'critRate' || metricId === 'critDmg')
     ? stat(metricId, 'flat', value, src, earliestSurface)
     : { kind: 'modifier', atom: { metricId, earliestSurface, value, source: src, ...(action ? { action } : {}) } }
@@ -80,7 +82,7 @@ const LYCAON_CHARGED = actionTarget([canonicalAction('Basic Attack'), canonicalA
 const LYCAON_BASIC = actionTarget([canonicalAction('Basic Attack')])
 const LYCAON_EX = actionTarget([canonicalAction('EX Special Attack')])
 const LYCAON_GLACIAL = actionTarget([sourceLocalAction('Glacial Waltz')])
-const JU_EX_CHAIN_ULT = actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Chain Attack'), canonicalAction('Ultimate')])
+const EX_CHAIN_ULT = actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Chain Attack'), canonicalAction('Ultimate')])
 const LIGHTER_FIVE = actionTarget([sourceLocalAction('Empowered Basic Attack: 5th hit')])
 const LIGHTER_BASIC_DASH_DODGE = actionTarget([canonicalAction('Basic Attack'), canonicalAction('Dash Attack'), canonicalAction('Dodge Counter')])
 const LIGHTER_BASIC = actionTarget([canonicalAction('Basic Attack')])
@@ -99,6 +101,15 @@ const ANBY_SPECIAL = actionTarget([canonicalAction('Special Attack')])
 const ANBY_DASH_DODGE = actionTarget([canonicalAction('Dash Attack'), canonicalAction('Dodge Counter')])
 const LYCAON_FULL_EX = actionTarget([actionForm('EX Special Attack', 'Fully charged')])
 const LYCAON_ASSIST = actionTarget([canonicalAction('Assist Follow-Up')])
+const NANGONG_CHAIN = actionTarget([canonicalAction('Chain Attack')])
+const NANGONG_CHARGED_BASIC = actionTarget([actionForm('Basic Attack', 'Charged')])
+const NANGONG_ANOMALY_SCOPES = [
+  {
+    id: 'nangongAttributeAnomaly', target: ATTRIBUTE_ANOMALY_TARGET,
+    children: [{ id: 'nangongAbloom', target: ABLOOM_TARGET }],
+  },
+  { id: 'nangongDisorder', target: DISORDER_TARGET },
+] satisfies readonly ActionScopeNode[]
 const BANYUE_TREMOR = actionTarget([
   sourceLocalAction("EX Special Attack: Lion's Roar"),
   sourceLocalAction("EX Special Attack: Lion's Roar - Wrath"),
@@ -209,7 +220,7 @@ function selectedEquipmentPassives(
       if (agent === 'dialyn') { automatic(engineValue(W_ENGINE_FACTS.yesterdayCalls.effects.energy, setup)); local('dazeBonus', engineValue(W_ENGINE_FACTS.yesterdayCalls.effects.daze, setup)); party('critDmg', engineValue(W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, setup)) }
       break
     case 'hellfireGears':
-      if (['dialyn', 'trigger', 'lycaon', 'juFufu', 'lighter', 'pulchra', 'qingyi', 'koleda', 'anby'].includes(agent)) {
+      if (['dialyn', 'trigger', 'lycaon', 'juFufu', 'lighter', 'pulchra', 'qingyi', 'koleda', 'anby', 'nangongYu'].includes(agent)) {
         selfImpact(['trigger', 'koleda', 'anby'].includes(agent)
           ? engineMax(W_ENGINE_FACTS.hellfireGears.effects.impact, setup)
           : engineValue(W_ENGINE_FACTS.hellfireGears.effects.impact, setup))
@@ -227,9 +238,19 @@ function selectedEquipmentPassives(
     case 'blazingLaurel': if (['trigger', 'lycaon', 'juFufu', 'lighter', 'pulchra', 'qingyi', 'koleda', 'anby'].includes(agent)) { selfImpact(engineValue(W_ENGINE_FACTS.blazingLaurel.effects.impact, setup)); party('critDmg', engineMax(W_ENGINE_FACTS.blazingLaurel.effects.critDamage, setup), { attributes: ['Fire', 'Ice'] }) }; break
     case 'restrained': local('dazeBonus', engineMax(W_ENGINE_FACTS.restrained.effects.daze, setup), agent === 'trigger' ? BASIC_AFTERSHOCK_TARGET : agent === 'lycaon' ? LYCAON_BASIC : agent === 'lighter' ? LIGHTER_BASIC : agent === 'qingyi' ? QINGYI_BASIC : agent === 'koleda' ? KOLEDA_BASIC : agent === 'anby' ? ANBY_BASIC : undefined); if (agent === 'qingyi') local('dmgBonus', engineMax(W_ENGINE_FACTS.restrained.effects.damage, setup), QINGYI_BASIC); break
     case 'preciousFossilizedCore': local('dazeBonus', engineMax(W_ENGINE_FACTS.preciousFossilizedCore.effects.daze, setup)); break
-    case 'roaringFurnace': if (agent === 'juFufu') { local('dazeBonus', engineValue(W_ENGINE_FACTS.roaringFurnace.effects.daze, setup), JU_EX_CHAIN_ULT); party('dmgBonus', engineMax(W_ENGINE_FACTS.roaringFurnace.effects.damage, setup)) }; break
+    case 'roaringFurnace': {
+      if (agent === 'juFufu' || agent === 'nangongYu') {
+        local('dazeBonus', engineValue(W_ENGINE_FACTS.roaringFurnace.effects.daze, setup), EX_CHAIN_ULT)
+        const damage = W_ENGINE_FACTS.roaringFurnace.effects.damage
+        if (equipmentEffectCanBeActivatedByHolder(agent, damage)) {
+          party('dmgBonus', engineMax(damage, setup))
+        }
+      }
+      break
+    }
     case 'boxCutter': if (agent === 'pulchra') local('dazeBonus', engineValue(W_ENGINE_FACTS.boxCutter.effects.daze, setup)); break
-    case 'simmeringPot': if (agent === 'lycaon') local('dazeBonus', engineValue(W_ENGINE_FACTS.simmeringPot.effects.daze, setup), LYCAON_ASSIST); break
+    case 'simmeringPot': if (agent === 'lycaon' || agent === 'nangongYu') { local('dazeBonus', engineValue(W_ENGINE_FACTS.simmeringPot.effects.daze, setup)); if (agent === 'nangongYu') local('dmgBonus', engineValue(W_ENGINE_FACTS.simmeringPot.effects.damage, setup)) }; break
+    case 'neonFantasies': if (agent === 'nangongYu') { add({ kind: 'stat', atom: { statId: 'anomalyProficiency', region: 'flat', earliestSurface: 'initial', value: engineValue(W_ENGINE_FACTS.neonFantasies.effects.anomalyProficiency, setup), source: engine } }); add({ kind: 'stat', atom: { statId: 'anomalyProficiency', region: 'flat', earliestSurface: 'fully', value: engineValue(W_ENGINE_FACTS.neonFantasies.effects.maximumAnomalyProficiency, setup), source: engine, sourceDetail: 'At maximum stacks' } }); party('dmgBonus', engineMax(W_ENGINE_FACTS.neonFantasies.effects.damage, setup)) }; break
   }
   if (setup.fourPieceId === 'king') {
     const king = initialCrit(agent, setup) >= 50 ? engineMax(DRIVE_DISC_FACTS.king.fourPiece.critDamage, setup) : engineValue(DRIVE_DISC_FACTS.king.fourPiece.critDamage, setup)
@@ -254,6 +275,15 @@ function selectedEquipmentPassives(
     if (shockstarTarget) add({ kind: 'modifier', atom: { metricId: 'dazeBonus', earliestSurface: 'fully', value: engineValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze, setup), source: disc, action: shockstarTarget } })
     if (agent === 'anby') add({ kind: 'modifier', atom: { metricId: 'dazeBonus', earliestSurface: 'fully', value: engineValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze, setup), source: disc, action: ANBY_DASH_DODGE } })
   }
+  if (agent === 'nangongYu') {
+    if (setup.fourPieceId === 'phaethonsMelody') {
+      add({ kind: 'stat', atom: { statId: 'anomalyProficiency', region: 'flat', earliestSurface: 'fully', value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.anomalyProficiency), source: disc } })
+      add({ kind: 'modifier', atom: { metricId: 'dmgBonus', earliestSurface: 'fully', value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.otherHolderEtherDamage), source: disc } })
+    }
+    if (setup.fourPieceId === 'freedomBlues') {
+      add({ kind: 'modifier', atom: { metricId: 'anomalyBuildupResReduction', earliestSurface: 'fully', value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction), source: disc } })
+    }
+  }
 }
 
 function rupture(agent: Extract<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' | 'starlightBilly'>, state: WorkbenchState, slot: Slot, setup: ProfileSetup, relationships: ProfileRelationship[]): AgentSourceProfile {
@@ -262,7 +292,7 @@ function rupture(agent: Extract<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue
   const core = source(agent, slot, 'core', SOURCE_LABELS[`${agent}Core`])
   const abilityLabel = SOURCE_LABELS[`${agent}Ability` as keyof typeof SOURCE_LABELS]
   const ability = abilityLabel ? source(agent, slot, 'additional', abilityLabel, 'additional') : core
-  const metrics: MetricProjection[] = [m('maxHp', 'Max HP', '', 'maxHp'), m('atk', 'ATK', '', 'atk'), m('sheerForce', 'Sheer Force', ''), { ...m('critRate', 'CRIT Rate', '%', 'critRate'), cap: critCap(agent, slot) }, m('critDmg', 'CRIT DMG', '%', 'critDmg'), m('dmgBonus', 'DMG Bonus', '%'), m('sheerDmgBonus', 'Sheer DMG Bonus', '%'), m('resIgnore', 'RES Ignore', '%', undefined, 'nonzero-or-action'), m('resReduction', 'RES Reduction', '%', undefined, 'nonzero-or-action'), m('stunDmgMultiplier', 'Stun DMG Multiplier', '%', undefined, 'nonzero-or-action')]
+  const metrics: MetricProjection[] = [m('maxHp', 'Max HP', '', 'maxHp'), m('atk', 'ATK', '', 'atk'), m('sheerForce', 'Sheer Force', ''), { ...m('critRate', 'CRIT Rate', '%', 'critRate'), cap: critCap(agent, slot) }, m('critDmg', 'CRIT DMG', '%', 'critDmg'), m('dmgBonus', 'DMG Bonus', '%'), m('sheerDmgBonus', 'Sheer DMG Bonus', '%'), m('resIgnore', 'RES Ignore', '%', undefined, 'nonzero-or-action'), m('resReduction', 'RES Reduction', '%', undefined, 'nonzero-or-action'), m('defReduction', 'DEF Reduction', '%', undefined, 'nonzero-or-action'), m('stunDmgMultiplier', 'Stun DMG Multiplier', '%', undefined, 'nonzero-or-action')]
   const actions: ActionProjection[] = []
   if (agent === 'yixuan') {
     relationships.push(mod('dmgBonus', VERTICAL_VALUES.yixuan.coreActionDmgBonus, core, YIXUAN_CORE, 'combat'), mod('critDmg', VERTICAL_VALUES.yixuan.additionalCritDmg, ability), mod('dmgBonus', VERTICAL_VALUES.yixuan.additionalExDmgBonus, ability, YIXUAN_EX))
@@ -331,12 +361,21 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
       : agent === 'qingyi'
         ? [m('critDmg', 'CRIT DMG', '%', 'critDmg')]
         : []),
+    ...(agent === 'nangongYu' ? [
+      m('anomalyProficiency', 'Anomaly Proficiency', '', 'anomalyProficiency'),
+      m('anomalyMastery', 'Anomaly Mastery', '', 'anomalyMastery'),
+      m('anomalyDmgBonus', 'Anomaly DMG Bonus', '%', undefined, 'nonzero-or-action'),
+      m('penRatio', 'PEN Ratio', '%', 'penRatio', 'disclosed-or-action'),
+      m('anomalyBuildupResReduction', 'Anomaly Buildup RES Reduction', '%', undefined, 'nonzero-or-action'),
+    ] : []),
     m('impact', 'Impact', '', 'impact'),
     ...(BASE[agent].energyRegen !== undefined ? [m('energyRegen', 'Energy Regen', '/s', 'energyRegen', agent === 'dialyn' ? undefined : 'disclosed-or-action')] : []),
+    ...(agent === 'nangongYu' ? [m('anomalyBuildupBonus', 'Anomaly Buildup Bonus', '%', undefined, 'nonzero-or-action')] : []),
     m('dazeBonus', 'Daze Bonus', '%', undefined, 'nonzero-or-action'), m('dmgBonus', 'DMG Bonus', '%', undefined, 'nonzero-or-action'), m('stunDmgMultiplier', 'Stun DMG Multiplier', '%', undefined, 'nonzero-or-action'), m('resReduction', 'RES Reduction', '%', undefined, 'nonzero-or-action'), m('resIgnore', 'RES Ignore', '%', undefined, 'nonzero-or-action'), m('defReduction', 'DEF Reduction', '%', undefined, 'nonzero-or-action'),
     ...(agent === 'trigger' ? [m('defIgnore', 'DEF Ignore', '%', undefined, 'nonzero-or-action')] : []),
   ]
   const actions: ActionProjection[] = []
+  const add = (relationship: ProfileRelationship) => relationships.push(relationship)
   let lighterImpactElation: AgentSourceProfile['lighterImpactElation']
   if (agent === 'dialyn') {
     relationships.push({ kind: 'gauge', gaugeId: 'dialynImpact', source: core, basis: { statId: 'critRate', surface: 'initial' }, basisLabel: 'Initial CRIT Rate', basisThreshold: VERTICAL_VALUES.dialyn.critThreshold, basisCap: 100, metricId: 'critRate', outputs: [{ label: 'Combat Impact bonus', unit: '', transform: { basisThreshold: VERTICAL_VALUES.dialyn.critThreshold, basisIncrement: 1, outputIncrement: VERTICAL_VALUES.dialyn.impactPerCrit, outputCap: VERTICAL_VALUES.dialyn.impactBonusCap }, emission: { kind: 'stat', statId: 'impact', region: 'flat', earliestSurface: 'combat' } }] } as ProfileRelationship)
@@ -397,6 +436,48 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
     if (anotherAgentSharesAttribute(ids, slot) || anotherAgentSharesFaction(ids, slot) || another(ids, slot, (id) => partyAgent(id).specialty === 'Rupture')) relationships.push(provider(ability, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.koleda.additionalChainDmg, action: actionTarget([canonicalAction('Chain Attack')]) }, { formulas: DAMAGE }))
     if (selected >= 1) relationships.push(mod('dazeBonus', VERTICAL_VALUES.koleda.mindscapeDaze, mind(agent, slot, selected, 1), KOLEDA_SPECIAL))
     actions.push({ metricId: 'dazeBonus', scopes: [{ id: 'koledaBasicDashDodge', target: KOLEDA_BASIC_DASH_DODGE, children: [{ id: 'koledaBasic', target: KOLEDA_BASIC }, { id: 'koledaEnhancedBasic', target: KOLEDA_ENHANCED }] }, { id: 'koledaSpecial', target: KOLEDA_SPECIAL, children: [{ id: 'koledaExSpecial', target: KOLEDA_EX }] }] })
+  } else if (agent === 'nangongYu') {
+    const ultimate = source(agent, slot, 'ultimate', 'Ultimate', 'special')
+    add({ kind: 'stat', atom: { statId: 'anomalyProficiency', region: 'flat', earliestSurface: 'initial', value: VERTICAL_VALUES.nangongYu.coreAnomalyProficiency, source: core } })
+    add({
+      kind: 'gauge', gaugeId: 'nangongImpact', source: core,
+      basis: { statId: 'anomalyMastery', surface: 'initial' },
+      basisLabel: 'Initial Anomaly Mastery',
+      basisThreshold: VERTICAL_VALUES.nangongYu.coreImpactThreshold,
+      metricId: 'anomalyMastery',
+      outputs: [{
+        label: 'Impact', unit: '',
+        transform: { basisThreshold: VERTICAL_VALUES.nangongYu.coreImpactThreshold, basisIncrement: 1, outputIncrement: VERTICAL_VALUES.nangongYu.coreImpactPerMastery },
+        emission: { kind: 'stat', statId: 'impact', region: 'flat', earliestSurface: 'combat' },
+      }],
+      decimals: { current: 2, threshold: 0, output: 2 },
+    })
+    metrics.find(({ id }) => id === 'anomalyMastery')!.gaugeId = 'nangongImpact'
+    add({ kind: 'modifier', atom: { metricId: 'anomalyBuildupBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.coreBuildup, source: core } })
+    add({ kind: 'modifier', atom: { metricId: 'dazeBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.coreDaze, source: core } })
+    add(provider(core, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.coreDmg }, { formulas: DAMAGE }))
+    const additionalActive = another(ids, slot, (id) => partyAgent(id).specialty === 'Anomaly' || partyAgent(id).faction === 'Angels of Delusion')
+    if (additionalActive) {
+      add(provider(ability, 'all-party', { kind: 'modifier', metricId: 'anomalyBuildupBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.additionalAnomalyBuildup }, { formulas: ['anomaly_buildup'] }))
+      add(provider(ability, 'all-party', { kind: 'modifier', metricId: 'anomalyBuildupBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.additionalChainBuildup, action: NANGONG_CHAIN }, { formulas: ['anomaly_buildup'] }))
+      add(provider(ability, 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.additionalStunMultiplier }, { formulas: DAMAGE }))
+      if (setup.mindscape >= 2) add(provider(mind(agent, slot, selected, 2), 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.mindscape2StunMultiplier - VERTICAL_VALUES.nangongYu.additionalStunMultiplier }, { formulas: DAMAGE }))
+      add({ kind: 'operation', atom: { operationId: 'nangongMisstepStunDuration', label: 'Enemy Stun duration', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.additionalStunDuration, unit: 's', source: ability } })
+    }
+    add({ kind: 'provider', source: ultimate, delivery: { recipient: 'all-party', formulas: DAMAGE }, effect: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.ultimateAtk } })
+    add({ kind: 'operation', atom: { operationId: 'nangongAbloomAddedMultiplier', label: 'Added Abloom DMG Multiplier', earliestSurface: 'fully', value: setup.mindscape >= 2 ? VERTICAL_VALUES.nangongYu.mindscape2AddedAbloomMultiplier : VERTICAL_VALUES.nangongYu.addedAbloomMultiplier, unit: '%', source: setup.mindscape >= 2 ? mind(agent, slot, selected, 2) : core } })
+    if (setup.mindscape >= 1) add(provider(mind(agent, slot, selected, 1), 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.mindscape1ResReduction }, { formulas: DAMAGE }))
+    if (setup.mindscape >= 4) {
+      add({ kind: 'stat', atom: { statId: 'anomalyProficiency', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.mindscape4Ap, source: mind(agent, slot, selected, 4) } })
+      add({ kind: 'modifier', atom: { metricId: 'anomalyBuildupBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.mindscape4Buildup, source: mind(agent, slot, selected, 4), action: NANGONG_CHARGED_BASIC } })
+    }
+    if (setup.mindscape >= 6) add({ kind: 'modifier', atom: { metricId: 'dazeBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.mindscape6Daze, source: mind(agent, slot, selected, 6) } })
+    actions.push(
+      { metricId: 'anomalyDmgBonus', scopes: NANGONG_ANOMALY_SCOPES },
+      actionProjection('anomalyBuildupBonus', 'nangongChainBuildup', NANGONG_CHAIN),
+    )
+    if (setup.engineId === 'roaringFurnace') actions.push(actionProjection('dazeBonus', 'nangongRoaringFurnaceDaze', EX_CHAIN_ULT))
+    if (setup.mindscape >= 4) actions.push(actionProjection('anomalyBuildupBonus', 'nangongChargedBasicBuildup', NANGONG_CHARGED_BASIC))
   } else {
     relationships.push(mod('dazeBonus', VERTICAL_VALUES.anby.coreActionDaze, core, ANBY_THUNDERBOLT), mod('dazeBonus', VERTICAL_VALUES.anby.coreActionDaze, core, ANBY_SPECIAL), mod('dazeBonus', VERTICAL_VALUES.anby.coreActionDaze, core, ANBY_EX))
     if (selected >= 2) relationships.push(mod('dazeBonus', VERTICAL_VALUES.anby.mindscapeExNonStunnedDaze, mind(agent, slot, selected, 2), ANBY_EX))
@@ -419,13 +500,13 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
 
 export function ruptureStunProfileFor(state: WorkbenchState, slot: Slot): AgentSourceProfile | null {
   const agent = state.slots[slot].agentId
-  if (!['yixuan', 'yidhari', 'manato', 'banyue', 'starlightBilly', 'dialyn', 'trigger', 'lycaon', 'juFufu', 'lighter', 'pulchra', 'qingyi', 'koleda', 'anby'].includes(agent)) return null
+  if (!['yixuan', 'yidhari', 'manato', 'banyue', 'starlightBilly', 'dialyn', 'trigger', 'lycaon', 'juFufu', 'lighter', 'pulchra', 'qingyi', 'koleda', 'anby', 'nangongYu'].includes(agent)) return null
   const typed = agent as Agent
   const setup = { ...requireCompleteSelectedSetup(state.slots[slot].setup), mindscape: state.slots[slot].setup.mindscape }
   const observation: SelectedSetupObservation = {
     baseStats: BASE[typed],
     effectiveSubstats: effectiveSubstatChoicesForSlot(state, slot),
-    modifierMetrics: ['dmgBonus', 'dazeBonus'],
+    modifierMetrics: ['dmgBonus', 'dazeBonus', 'anomalyDmgBonus', 'anomalyBuildupResReduction'],
   }
   const relationships = selectedSetupRelationships(typed, slot, setup, observation)
   return ['yixuan', 'yidhari', 'manato', 'banyue', 'starlightBilly'].includes(typed)

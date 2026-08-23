@@ -69,6 +69,8 @@ const OPERATING_INTERVAL_BY_AGENT: Partial<Record<AgentId, OperatingIntervalPoli
   vivian: { default: 'off-field' },
   aria: { default: 'on-field' },
   promeia: { default: 'on-field' },
+  sunna: { default: 'off-field' },
+  nangongYu: { default: 'off-field' },
 }
 
 /**
@@ -152,6 +154,12 @@ const PREPARED_DISC_HOLDER_POLICY_BY_AGENT: Partial<Record<AgentId, PreparedDisc
     astralCollisionAlternative: {
       patch: { fourPieceId: 'swingJazz', twoPieceId: 'moonlight' },
       authoredKeeperPrecedence: 5,
+    },
+  },
+  sunna: {
+    moonlightCollisionAlternative: {
+      patch: { fourPieceId: 'astralVoice', twoPieceId: 'moonlight' },
+      authoredKeeperPrecedence: 0.5,
     },
   },
 }

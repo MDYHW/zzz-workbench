@@ -410,7 +410,7 @@ function gaugeResult(gauge: EvaluatedGauge): GaugeResult {
     basisLabel: gauge.basisLabel,
     current: gauge.current,
     ...(gauge.threshold === undefined ? {} : { threshold: gauge.threshold }),
-    cap: gauge.cap,
+    ...(gauge.cap === undefined ? {} : { cap: gauge.cap }),
     outputLabel: first.label,
     outputValue: first.value,
     ...(first.cap === undefined ? {} : { outputCap: first.cap }),

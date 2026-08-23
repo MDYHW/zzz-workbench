@@ -124,9 +124,10 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   for Anby. Roaring Fur-nace is excluded because its partial EX/Chain/Ultimate
   Daze does not create a material package advantage over the retained broad
   Impact/resource and Basic-aligned alternatives after its ATK/Fire squad
-  opportunity cost. The Simmering Pot is dominated by the retained stronger
-  action and broad-Daze packages. Do not generalize these local exclusions to
-  another Stun holder.
+  opportunity cost. The Simmering Pot's broad Daze/DMG package remains
+  dominated by Anby's stronger retained resource, defining-action, and broad-Daze packages; the
+  exclusion does not treat that broad effect as Assist-scoped. Do not
+  generalize these local exclusions to another Stun holder.
 
 ### Drive Discs, mains, and prepared setup
 

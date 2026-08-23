@@ -208,14 +208,12 @@ export interface GaugeOutput extends LinearOutput {
   decimals?: number
 }
 
-export interface GaugeRelationship {
+export type GaugeRelationship = {
   kind: 'gauge'
   gaugeId: string
   source: SelectedSourceInstance
   basis: LinearBasis
   basisLabel: string
-  basisThreshold?: number
-  basisCap: number
   metricId: EffectMetric
   outputs: readonly GaugeOutput[]
   presentation?: 'scale'
@@ -227,7 +225,10 @@ export interface GaugeRelationship {
     output?: number
     outputCap?: number
   }
-}
+} & (
+  | { basisCap: number; basisThreshold?: number }
+  | { basisCap?: never; basisThreshold: number }
+)
 
 /**
  * A visible activation condition over the completed post-delivery stat.
@@ -326,7 +327,7 @@ export interface EvaluatedGauge {
   basisLabel: string
   current: number
   threshold?: number
-  cap: number
+  cap?: number
   outputs: Array<{
     label: string
     value: number
@@ -552,7 +553,7 @@ export function evaluateRelationships(
           ...(relationship.basisThreshold === undefined
             ? {}
             : { threshold: relationship.basisThreshold }),
-          cap: relationship.basisCap,
+          ...(relationship.basisCap === undefined ? {} : { cap: relationship.basisCap }),
           outputs: relationship.outputs.map((output, index) => ({
             label: output.label,
             value: values[index],

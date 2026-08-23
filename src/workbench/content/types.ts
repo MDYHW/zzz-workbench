@@ -51,6 +51,8 @@ export type AgentId =
   | 'vivian'
   | 'aria'
   | 'promeia'
+  | 'sunna'
+  | 'nangongYu'
 
 export type AgentRank = 'S' | 'A'
 export type AgentAttribute =
@@ -156,6 +158,7 @@ export type EngineId =
   | 'flightOfFancy'
   | 'angelInTheShell'
   | 'frostfallSickle'
+  | 'neonFantasies'
 
 export type DiscId =
   | 'yunkui'
@@ -264,7 +267,7 @@ export type EquipmentEffectActivation =
     actions?: readonly EquipmentEffectAction[]
     attributes?: readonly EquipmentEffectAttribute[]
     anomalyResult?: 'Abloom' | 'Freeze'
-    performer?: 'squad-member' | 'other-squad-member'
+    performer?: 'equipper' | 'squad-member' | 'other-squad-member'
     fieldEntry?: true
     durationSeconds?: number
     removedOffField?: true

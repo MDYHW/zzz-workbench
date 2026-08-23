@@ -228,10 +228,11 @@ and genuine multi-recipient effects keep their actual rules.
   operating interval off-field. The
   same bounded on-field override applies to the current Hugo and Zhu Yuan
   stun-led burst directions. Steam supplies Energy and reachable Impact;
-  Precious supplies Impact and thresholded Daze. Lycaon consumes Simmering
-  Pot's Assist-Daze clause but has no personal-DMG Result consumer. Simmering Pot
-  remains a distinct candidate beside Steam because it exchanges Energy and
-  broader Impact supply for direction-defining Assist Daze; Steam remains the
+  Precious supplies Impact and thresholded Daze. Simmering Pot supplies broad
+  holder Daze and DMG rather than an Assist-only action scope. Lycaon consumes the broad Daze
+  clause but has no personal-DMG Result consumer. Simmering Pot remains a
+  distinct candidate beside Steam because it exchanges Energy and broader
+  Impact supply for a broad Daze direction; Steam remains the
   non-limited first choice because it strengthens repeated EX operation and
   broad Daze together.
 - R14. Lycaon's authored base 4-piece candidates are King of the Summit, Astral

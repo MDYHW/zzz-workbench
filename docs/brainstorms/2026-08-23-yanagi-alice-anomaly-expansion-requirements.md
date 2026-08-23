@@ -276,12 +276,14 @@ prepared consequence.
   Selected and candidate W-Engine and Drive Disc surfaces expose equivalent
   accessible compressed package summaries; selection alone does not hide the
   comparison meaning from keyboard or assistive-technology users.
-- R21. Use the original Yanagi and Alice roster portraits. Calibration is a
-  required implementation unit: inspect each original and verify one shared
+- R21. Use the original Yanagi and Alice roster portraits. The admitted unit
+  verifies shared geometry and baseline framing from each original through one
   `scale/headTopY/faceX` triple across desktop/narrow and expanded/compact
   Party and Result destinations. Check adjacent compact context, readable
   name, face and connected-body balance, control clearance, clipping, and
-  horizontal overflow; metadata wiring alone is not acceptance.
+  horizontal overflow; metadata wiring alone is not acceptance. Fine
+  crop/alignment calibration remains deferred to the agreed post-expansion
+  portrait batch and is not complete in this unit.
 
 ---
 
@@ -324,7 +326,8 @@ prepared consequence.
   rather than creating Yanagi and Alice catalogue suites.
 - AE7. **Covers R21.** Original-asset inspection and browser comparisons cover
   both Agents in desktop/narrow and expanded/compact destinations with no
-  clipping, overflow, unreadable name, or control collision.
+  clipping, overflow, unreadable name, or control collision, without claiming
+  the deferred fine-calibration batch is complete.
 - AE8. **Covers R19-R20.** Pointer hover and keyboard focus on Yanagi's
   provider operation, Alice's local AM-derived AP source, and selected and
   candidate equipment summaries reach their owning Setup sources. Replacing a

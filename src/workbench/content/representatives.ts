@@ -284,6 +284,12 @@ const yuzuhaRepresentative = (pool: PoolId): SetupSelection => ({
   mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'anomalyMastery' },
 })
 
+const sunnaRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'thoughtbop' : 'kaboom',
+  fourPieceId: 'moonlight', twoPieceId: 'swingJazz',
+  mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'energyRegenPct' },
+})
+
 const burniceRepresentative = (pool: PoolId): SetupSelection => ({
   engineId: pool === 'full' ? 'flamemakerShaker' : 'electroLipGloss',
   fourPieceId: 'chaosJazz', twoPieceId: 'swingJazz',
@@ -329,6 +335,12 @@ const promeiaRepresentative = (pool: PoolId): SetupSelection => ({
   engineId: pool === 'full' ? 'frostfallSickle' : 'fusionCompiler',
   fourPieceId: 'notesFromTheChained', twoPieceId: 'phaethonsMelody',
   mains: { slot4: 'anomalyProficiency', slot5: 'iceDmg', slot6: 'anomalyMastery' },
+})
+
+const nangongYuRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'neonFantasies' : 'hellfireGears',
+  fourPieceId: 'phaethonsMelody', twoPieceId: 'freedomBlues',
+  mains: { slot4: 'anomalyProficiency', slot5: 'etherDmg', slot6: 'anomalyMastery' },
 })
 
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
@@ -444,6 +456,8 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   vivian: { full: vivianRepresentative('full'), nonLimited: vivianRepresentative('nonLimited') },
   aria: { full: ariaRepresentative('full'), nonLimited: ariaRepresentative('nonLimited') },
   promeia: { full: promeiaRepresentative('full'), nonLimited: promeiaRepresentative('nonLimited') },
+  sunna: { full: sunnaRepresentative('full'), nonLimited: sunnaRepresentative('nonLimited') },
+  nangongYu: { full: nangongYuRepresentative('full'), nonLimited: nangongYuRepresentative('nonLimited') },
 }
 
 export function representativeSetupFor(

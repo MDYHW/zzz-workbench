@@ -54,7 +54,7 @@ export interface GaugeResult {
   basisLabel: string
   current: number
   threshold?: number
-  cap: number
+  cap?: number
   outputLabel: string
   outputValue: number
   outputCap?: number

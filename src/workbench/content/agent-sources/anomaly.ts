@@ -66,6 +66,7 @@ const ARIA_ATTACKS = actionTarget([
   A('Ultimate'),
 ])
 const ARIA_M6_DAMAGE = actionTarget([actionForm('Basic Attack', 'Enhanced'), A('Ultimate')])
+const ANOMALY_RECIPIENT_CHAIN = actionTarget([A('Chain Attack')])
 
 const GRACE_ANOMALY_SCOPES = [
   { id: 'graceAttributeAnomaly', target: ATTRIBUTE_ANOMALY_TARGET, children: [{ id: 'graceShock', target: GRACE_SHOCK }] },
@@ -247,7 +248,6 @@ function equipment(agent: Agent, slot: Slot, setup: CompleteSelectedSetup, relat
       case 'sharpenedStinger': add('dmgBonus', engineMax('sharpenedStinger', 'physicalDamage', setup)); add('anomalyBuildupBonus', engineValue('sharpenedStinger', 'buildup', setup)); break
       case 'roaringRide': add('atk', engineValue('roaringRide', 'atk', setup)); add('anomalyProficiency', engineValue('roaringRide', 'anomalyProficiency', setup)); add('anomalyBuildupBonus', engineValue('roaringRide', 'buildup', setup)); break
       case 'metanukimorphosis': add('anomalyMastery', engineValue('metanukimorphosis', 'anomalyMastery', setup)); relationships.push(provider(engine, 'all-party', { kind: 'stat', statId: 'anomalyProficiency', region: 'flat', earliestSurface: 'fully', value: engineValue('metanukimorphosis', 'anomalyProficiency', setup) }, ['anomaly_damage'])); break
-      case 'thoughtbop': relationships.push(provider(engine, 'all-party', { kind: 'stat', statId: 'atk', region: 'percentage', earliestSurface: 'fully', value: engineValue('thoughtbop', 'atk', setup) }, DAMAGE)); relationships.push(provider(engine, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: engineMax('thoughtbop', 'damage', setup) }, DAMAGE)); relationships.push({ kind: 'automatic-energy', atom: { earliestSurface: 'combat', value: engineValue('thoughtbop', 'energy', setup), source: engine } }); break
       case 'flamemakerShaker': add('dmgBonus', engineMax('flamemakerShaker', 'damage', setup)); add('anomalyProficiency', engineValue('flamemakerShaker', 'anomalyProficiency', setup)); relationships.push({ kind: 'automatic-energy', atom: { earliestSurface: 'combat', value: engineValue('flamemakerShaker', 'offFieldEnergy', setup), source: engine } }); break
       case 'flightOfFancy': add('anomalyProficiency', engineMax('flightOfFancy', 'anomalyProficiency', setup)); add('anomalyBuildupBonus', engineValue('flightOfFancy', 'etherBuildup', setup)); break
       case 'angelInTheShell': {
@@ -296,6 +296,17 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
   const relationships = selectedSetupRelationships(agent, slot, setup, observation)
   const add = (r: ProfileRelationship) => relationships.push(r)
   const actions: ActionProjection[] = []
+  const nangongSlot = ids.indexOf('nangongYu')
+  if (
+    nangongSlot >= 0
+    && nangongSlot !== slot
+    && (
+      anotherAgentHasSpecialty(ids, nangongSlot as Slot, ['Anomaly'])
+      || anotherAgentSharesFaction(ids, nangongSlot as Slot)
+    )
+  ) {
+    actions.push(actionProjection('anomalyBuildupBonus', 'chainAttackAnomalyBuildup', ANOMALY_RECIPIENT_CHAIN))
+  }
   if (agent === 'grace') {
     const qualified = anotherAgentHasSpecialty(ids, slot, ['Anomaly']) || anotherAgentSharesAttribute(ids, slot) || anotherAgentSharesFaction(ids, slot)
     add(mod(core, 'anomalyBuildupBonus', VERTICAL_VALUES.grace.coreAnomalyBuildup, GRACE_EX, 'fully'))

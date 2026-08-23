@@ -4,7 +4,7 @@ import { actionProjection, type AgentSourceProfile, type MetricProjection } from
 import type { ProfileRelationship } from '../../calculation/relationships'
 import { selectSource } from '../../calculation/source-instance'
 import type { WorkbenchState } from '../../state'
-import { CRIT_DAMAGE_FORMULAS, REGULAR_DAMAGE_FORMULAS } from '../../formula-policy'
+import { CRIT_DAMAGE_FORMULAS, DEF_DAMAGE_FORMULAS, REGULAR_DAMAGE_FORMULAS } from '../../formula-policy'
 import { anotherAgentHasSpecialty, anotherAgentSharesAttribute, anotherAgentSharesFaction, caesarAdditionalIsActive } from '../../party-conditions'
 import { DRIVE_DISC_FACTS } from '../discs'
 import { W_ENGINE_FACTS, W_ENGINES } from '../engines'
@@ -14,7 +14,7 @@ import { equipmentEffectBaseValue, equipmentEffectMaximumValue, type AgentSpecia
 import { isWEnginePassiveEligible, requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
 
-type Agent = 'lucia' | 'astraYao' | 'soukaku' | 'lucy' | 'nicole' | 'panYinhu' | 'ben' | 'caesar' | 'zhao' | 'seth'
+type Agent = 'lucia' | 'astraYao' | 'soukaku' | 'lucy' | 'nicole' | 'panYinhu' | 'ben' | 'caesar' | 'zhao' | 'seth' | 'sunna'
 type Slot = 0 | 1 | 2
 const DAMAGE = REGULAR_DAMAGE_FORMULAS
 const STUN: readonly AgentSpecialty[] = ['Stun']
@@ -28,6 +28,7 @@ const BEN_ULT = actionTarget([canonicalAction('Ultimate')])
 const SETH_ELECTRIFIED_BASIC = actionTarget([actionForm('Basic Attack', 'Electrified')])
 const SETH_DEFENSIVE_ASSIST = actionTarget([sourceLocalAction('Defensive Assist')])
 const SETH_EX_ASSIST = actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Assist Follow-Up')])
+const NANGONG_CHAIN = actionTarget([canonicalAction('Chain Attack')])
 
 const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   lucia: { maxHp: VERTICAL_VALUES.lucia.hp, energyRegen: VERTICAL_VALUES.lucia.baseEnergyRegen },
@@ -40,6 +41,7 @@ const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   caesar: { impact: VERTICAL_VALUES.caesar.impact, energyRegen: VERTICAL_VALUES.caesar.baseEnergyRegen },
   zhao: { maxHp: VERTICAL_VALUES.zhao.hp, critRate: VERTICAL_VALUES.zhao.critRate, energyRegen: VERTICAL_VALUES.zhao.baseEnergyRegen },
   seth: { atk: VERTICAL_VALUES.seth.atk, anomalyProficiency: VERTICAL_VALUES.seth.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.seth.anomalyMastery, impact: VERTICAL_VALUES.seth.impact, energyRegen: VERTICAL_VALUES.seth.baseEnergyRegen },
+  sunna: { atk: VERTICAL_VALUES.sunna.atk, energyRegen: VERTICAL_VALUES.sunna.baseEnergyRegen },
 }
 const m = (id: MetricProjection['id'], label: string, unit: string, statId?: MetricProjection['statId'], admission?: MetricProjection['admission']): MetricProjection => ({ id, label, unit, decimals: unit === '/s' ? 2 : unit === '%' ? 1 : id === 'impact' ? 2 : 0, ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }), ...(admission ? { admission } : {}) })
 
@@ -283,7 +285,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
         { ...actionProjection('critRate', 'caesarM6Crit', CAESAR_M6), cap: critCap },
       ] : []),
     ]
-  } else {
+  } else if (agent === 'zhao') {
     const core = own('core', SOURCE_LABELS.zhaoCore)
     add({ kind: 'stat', atom: { statId: 'maxHp', region: 'percentage', earliestSurface: 'initial', value: VERTICAL_VALUES.zhao.coreHp, source: core } }); add({ kind: 'linear', source: core, basis: { statId: 'maxHp', surface: 'initial' }, outputs: [{ transform: { basisIncrement: 1000, outputIncrement: VERTICAL_VALUES.zhao.coreCritRatePer1000Hp }, emission: { kind: 'stat', statId: 'critRate', region: 'flat', earliestSurface: 'initial' } }] }); if (setup.mindscape >= 6) add({ kind: 'linear', source: mind(6), basis: { statId: 'maxHp', surface: 'initial' }, outputs: [{ transform: { basisIncrement: 1000, outputIncrement: VERTICAL_VALUES.zhao.coreCritRatePer1000Hp * (VERTICAL_VALUES.zhao.mindscapeCoreCritRateMultiplier - 1) }, emission: { kind: 'stat', statId: 'critRate', region: 'flat', earliestSurface: 'initial', sourceDetail: 'Core CRIT Rate increase' } }] })
     add({ kind: 'provider', source: core, delivery: all, effect: { kind: 'stat', statId: 'maxHp', region: 'percentage', earliestSurface: 'fully', value: VERTICAL_VALUES.zhao.wellspringHp, nonstackId: 'etherVeilWellspring', sourceDetail: 'Ether Veil: Wellspring' } }); add({ kind: 'provider', source: core, delivery: all, effect: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.zhao.wellspringAtk, sourceDetail: 'Ether Veil: Wellspring' } })
@@ -292,6 +294,47 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     add({ kind: 'operation', atom: { operationId: 'zhaoFinalVerdictMaxHp', label: 'Basic Attack: Final Verdict maximum-charge Max HP', earliestSurface: 'fully', value: setup.mindscape >= 6 ? VERTICAL_VALUES.zhao.mindscapeFinalVerdictMaxHp : VERTICAL_VALUES.zhao.finalVerdictMaxHp, unit: '%', source: setup.mindscape >= 6 ? mind(6) : own('finalVerdict', SOURCE_LABELS.zhaoBasic, 'special'), sourceDetail: 'Final Verdict · Maximum charge' } })
     const critCap = { value: 100, source: calculation('crit-rate-cap', 'Displayed CRIT Rate cap') }
     metrics = [{ ...m('maxHp', 'Max HP', '', 'maxHp'), gaugeId: 'zhaoAdditional' }, { ...m('critRate', 'CRIT Rate', '%', 'critRate'), cap: critCap }, ...(setup.mindscape >= 4 ? [m('critDmg', 'CRIT DMG', '%', 'critDmg')] : []), m('energyRegen', 'Energy Regen', '/s', 'energyRegen')]; actions = setup.mindscape >= 4 ? [actionProjection('critDmg', 'zhaoM4CritDmg', ZHAO_M4)] : undefined
+  } else {
+    const core = own('core', SOURCE_LABELS.sunnaCore)
+    const ability = own('additional', SOURCE_LABELS.sunnaAbility, 'additional')
+    const exSpecial = own('ex-special', 'EX Special Attack', 'ex-special')
+    add({ kind: 'stat', atom: { statId: 'atk', region: 'percentage', earliestSurface: 'initial', value: VERTICAL_VALUES.sunna.initialAtk, source: core } })
+    add({
+      kind: 'gauge', gaugeId: 'sunnaCore', source: core,
+      basis: { statId: 'atk', surface: 'initial' }, basisLabel: 'Initial ATK',
+      basisCap: VERTICAL_VALUES.sunna.coreAtkCapBasis, metricId: 'atk',
+      outputs: [{
+        label: 'Squad flat ATK', unit: '', cap: VERTICAL_VALUES.sunna.coreAtkCap,
+        transform: { basisIncrement: 1, outputIncrement: VERTICAL_VALUES.sunna.coreAtkRatio / 100, outputCap: VERTICAL_VALUES.sunna.coreAtkCap },
+        emission: { kind: 'provider', delivery: { recipient: 'all-party', formulas: DAMAGE }, effect: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully' } },
+      }],
+    })
+    add({ kind: 'provider', source: exSpecial, delivery: { recipient: 'all-party', formulas: DAMAGE }, effect: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.sunna.exSpecialAtk } })
+    const additionalActive = anotherAgentHasSpecialty(agentIds, slot, ['Attack']) || anotherAgentSharesFaction(agentIds, slot)
+    if (additionalActive) add({ kind: 'provider', source: ability, delivery: { recipient: 'enemy-context', formulas: DAMAGE }, effect: { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.sunna.additionalStunMultiplier } })
+    const triggerPerformer = setup.mindscape >= 6 || anotherAgentHasSpecialty(agentIds, slot, ['Attack', 'Anomaly'])
+    if (setup.mindscape >= 1 && triggerPerformer) add({ kind: 'provider', source: mind(1), delivery: { recipient: 'enemy-context', formulas: DEF_DAMAGE_FORMULAS }, effect: { kind: 'modifier', metricId: 'defReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.sunna.mindscape1DefReduction } })
+    if (setup.mindscape >= 2) add({ kind: 'provider', source: mind(2), delivery: { recipient: 'all-party', formulas: DAMAGE }, effect: { kind: 'stat', statId: 'atk', region: 'percentage', earliestSurface: 'fully', value: VERTICAL_VALUES.sunna.mindscape2Atk } })
+    if (setup.mindscape >= 4) add({ kind: 'provider', source: mind(4), delivery: { recipient: 'all-party', formulas: DAMAGE }, effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.sunna.mindscape4Dmg } })
+    metrics = [
+      { ...m('atk', 'ATK', '', 'atk'), gaugeId: 'sunnaCore' },
+      m('energyRegen', 'Energy Regen', '/s', 'energyRegen'),
+    ]
+  }
+  const nangongSlot = agentIds.indexOf('nangongYu')
+  if (
+    agent === 'seth'
+    && nangongSlot >= 0
+    && nangongSlot !== slot
+    && (
+      anotherAgentHasSpecialty(agentIds, nangongSlot as Slot, ['Anomaly'])
+      || anotherAgentSharesFaction(agentIds, nangongSlot as Slot)
+    )
+  ) {
+    actions = [
+      ...(actions ?? []),
+      actionProjection('anomalyBuildupBonus', 'chainAttackAnomalyBuildup', NANGONG_CHAIN),
+    ]
   }
   relationships.push(...selectedEquipment(agent, slot, setup, observation))
   return { agentId: agent, appliedPartySlot: slot, relationships, metrics, ...(actions ? { actions } : {}) }
@@ -299,5 +342,5 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
 
 export function providerDefenseProfileFor(state: WorkbenchState, slot: Slot): AgentSourceProfile | null {
   const agent = state.slots[slot].agentId
-  return ['lucia', 'astraYao', 'soukaku', 'lucy', 'nicole', 'panYinhu', 'ben', 'caesar', 'zhao', 'seth'].includes(agent) ? profile(agent as Agent, state, slot) : null
+  return ['lucia', 'astraYao', 'soukaku', 'lucy', 'nicole', 'panYinhu', 'ben', 'caesar', 'zhao', 'seth', 'sunna'].includes(agent) ? profile(agent as Agent, state, slot) : null
 }

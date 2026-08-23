@@ -282,8 +282,10 @@ function Gauge({
   gauge: GaugeResult
   partyAgentIds: readonly AgentId[]
 } & SourceInteractionProps) {
-  const progress = Math.min(gauge.current / gauge.cap * 100, 100)
-  const threshold = gauge.threshold === undefined ? undefined : gauge.threshold / gauge.cap * 100
+  const boundary = gauge.cap ?? gauge.threshold
+  if (boundary === undefined) throw new Error('A gauge requires a cap or threshold boundary')
+  const progress = Math.min(gauge.current / boundary * 100, 100)
+  const threshold = gauge.threshold === undefined ? undefined : gauge.threshold / boundary * 100
   const currentDecimals = gauge.decimals?.current ?? 1
   const thresholdDecimals = gauge.decimals?.threshold ?? 1
   const capDecimals = gauge.decimals?.cap ?? 0
@@ -313,7 +315,10 @@ function Gauge({
       : `, cap ${formatNumber(output.cap, outputCapDecimals)}${output.unit}`
     return `${output.label}: ${value}${cap}`
   }).join('; ')
-  const description = `${gauge.basisLabel}: current ${formatNumber(gauge.current, currentDecimals)}, cap ${formatNumber(gauge.cap, capDecimals)}${thresholdDescription}; ${outputDescription}`
+  const capDescription = gauge.cap === undefined
+    ? ''
+    : `, cap ${formatNumber(gauge.cap, capDecimals)}`
+  const description = `${gauge.basisLabel}: current ${formatNumber(gauge.current, currentDecimals)}${capDescription}${thresholdDescription}; ${outputDescription}`
   const tone = sourceTone(gauge.source, agentId, partyAgentIds)
 
   return (
@@ -330,7 +335,10 @@ function Gauge({
       </small>
       <div className="gauge__labels">
         <span>{gauge.basisLabel}</span>
-        <strong>{formatNumber(gauge.current, currentDecimals)} / {formatNumber(gauge.cap, capDecimals)}</strong>
+        <strong>
+          {formatNumber(gauge.current, currentDecimals)}
+          {gauge.cap === undefined ? '' : ` / ${formatNumber(gauge.cap, capDecimals)}`}
+        </strong>
       </div>
       {gauge.threshold !== undefined && !isActiveScale && (
         <small className="gauge__threshold-copy">Threshold {formatNumber(gauge.threshold, thresholdDecimals)}</small>
