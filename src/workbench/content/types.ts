@@ -345,16 +345,19 @@ export interface AgentSummary {
   partyQualificationGroup?: PartyQualificationGroup
 }
 
-export type SetupFormulaFamily =
+export type FormulaFamily =
   | 'general_damage'
   | 'sheer_damage'
   | 'anomaly_damage'
   | 'daze_buildup'
   | 'anomaly_buildup'
 
-export interface SetupFormulaParticipation {
-  primary: readonly SetupFormulaFamily[]
-  residual: readonly SetupFormulaFamily[]
+export interface FormulaParticipation {
+  setup: {
+    primary: readonly FormulaFamily[]
+    residual: readonly FormulaFamily[]
+  }
+  result: readonly FormulaFamily[]
 }
 
 const round = (value: number): number => Math.round(value * 100) / 100

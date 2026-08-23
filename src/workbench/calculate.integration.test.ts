@@ -106,6 +106,8 @@ describe('shared calculation integration', () => {
     state = workbenchReducer(state, { type: 'switchPool', slot: 1, pool: 'nonLimited' })
     expect(state.slots[1].setup.engineId).toBe('drillRigRedAxis')
     expect(hasActionSource(state, 'cissia', 'dmgBonus', 'Drill Rig - Red Axis')).toBe(true)
+    expect(calculateParty(state)!.agents.find(({ agentId }) => agentId === 'cissia')!.actionModifiers)
+      .toEqual(expect.arrayContaining([expect.objectContaining({ id: 'cissiaCorrodeDaze' })]))
   })
 
   it('returns no Result while any required Setup selection is incomplete', () => {

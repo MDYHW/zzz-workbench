@@ -1,5 +1,5 @@
 import type { ActionTarget } from '../actions'
-import type { AgentId, AgentSpecialty, SetupFormulaFamily } from '../content/types'
+import type { AgentId, AgentSpecialty, FormulaFamily } from '../content/types'
 import type {
   EffectAttribute,
   EffectMetric,
@@ -95,7 +95,7 @@ export interface DeliveryRule {
   eligibleAgentIds?: readonly AgentId[]
   specialties?: readonly AgentSpecialty[]
   attributes?: readonly EffectAttribute[]
-  formulas?: readonly SetupFormulaFamily[]
+  formulas?: readonly FormulaFamily[]
 }
 
 export type ProviderEffect =

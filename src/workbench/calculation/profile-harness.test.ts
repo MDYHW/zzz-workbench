@@ -356,6 +356,59 @@ describe('profile calculation harness', () => {
     expect(agentResult(result, 'zhao').operations).toEqual([])
   })
 
+  it('uses Result participation for formula delivery while preserving direct stat projection', () => {
+    const state = createPreparedState({}, ['astraYao', 'panYinhu', 'piper'], 2)
+    const operationSource = selectSource(
+      defineAgentSource('astraYao', 'scoped-operation', 'Scoped operation', 'special'),
+      'astraYao', 0,
+    )
+    const atkSource = selectSource(
+      defineAgentSource('astraYao', 'scoped-atk', 'Scoped ATK', 'core'),
+      'astraYao', 0,
+    )
+    const profiles: AgentSourceProfile[] = [
+      {
+        agentId: 'astraYao', appliedPartySlot: 0, metrics: [atkMetric], relationships: [
+          baseStat('astraYao', 0, 'atk', 100),
+          {
+            kind: 'provider', source: operationSource,
+            delivery: { recipient: 'all-party', formulas: ['daze_buildup'] },
+            effect: {
+              kind: 'operation', operationId: 'dazeOperation',
+              label: 'Daze operation', earliestSurface: 'fully', value: 50, unit: '%',
+            },
+          },
+          {
+            kind: 'provider', source: operationSource,
+            delivery: { recipient: 'all-party', formulas: ['general_damage'] },
+            effect: {
+              kind: 'operation', operationId: 'generalOperation',
+              label: 'General operation', earliestSurface: 'fully', value: 25, unit: '%',
+            },
+          },
+          {
+            kind: 'provider', source: atkSource,
+            delivery: { recipient: 'all-party', formulas: ['general_damage'] },
+            effect: {
+              kind: 'stat', statId: 'atk', region: 'flat',
+              earliestSurface: 'fully', value: 25,
+            },
+          },
+        ],
+      },
+      { agentId: 'panYinhu', appliedPartySlot: 1, metrics: [], relationships: [] },
+      { agentId: 'piper', appliedPartySlot: 2, metrics: [], relationships: [] },
+    ]
+
+    const result = evaluateProfileParty(state, profiles)!
+    expect(agentResult(result, 'panYinhu').operations).toEqual([])
+    expect(agentResult(result, 'astraYao').operations).toEqual([])
+    expect(agentResult(result, 'piper').operations).toEqual([
+      expect.objectContaining({ id: 'generalOperation', value: 25 }),
+    ])
+    expect(agentResult(result, 'astraYao').metrics[0].values.fully).toBe(125)
+  })
+
   it('admits an optional parent metric when one action aggregate differs', () => {
     const state = createPreparedState({}, ['astraYao', 'trigger', 'zhao'], 1)
     const actionSource = selectSource(

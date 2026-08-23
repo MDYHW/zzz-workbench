@@ -1,8 +1,8 @@
 import {
   ADMITTED_AGENTS,
-  SETUP_FORMULA_PARTICIPATION_BY_AGENT,
+  FORMULA_PARTICIPATION_BY_AGENT,
   type AgentId,
-  type SetupFormulaFamily,
+  type FormulaFamily,
 } from './content'
 import type { EffectAttribute, EffectMetric } from './effects'
 
@@ -10,17 +10,17 @@ export const REGULAR_DAMAGE_FORMULAS = [
   'general_damage',
   'sheer_damage',
   'anomaly_damage',
-] as const satisfies readonly SetupFormulaFamily[]
+] as const satisfies readonly FormulaFamily[]
 
 export const CRIT_DAMAGE_FORMULAS = [
   'general_damage',
   'sheer_damage',
-] as const satisfies readonly SetupFormulaFamily[]
+] as const satisfies readonly FormulaFamily[]
 
 export const DEF_DAMAGE_FORMULAS = [
   'general_damage',
   'anomaly_damage',
-] as const satisfies readonly SetupFormulaFamily[]
+] as const satisfies readonly FormulaFamily[]
 
 const GENERAL_REGION_METRICS_SHARED_BY_ANOMALY: readonly EffectMetric[] = [
   'atk',
@@ -33,26 +33,26 @@ const GENERAL_REGION_METRICS_SHARED_BY_ANOMALY: readonly EffectMetric[] = [
   'stunDmgMultiplier',
 ]
 
-export function formulaUsesDefRegion(formula: SetupFormulaFamily): boolean {
+export function formulaUsesDefRegion(formula: FormulaFamily): boolean {
   return formula === 'general_damage' || formula === 'anomaly_damage'
 }
 
-export function formulaUsesCrit(formula: SetupFormulaFamily): boolean {
+export function formulaUsesCrit(formula: FormulaFamily): boolean {
   return formula === 'general_damage' || formula === 'sheer_damage'
 }
 
 export function directionUsesDefRegion(agentId: AgentId): boolean {
-  const { primary, residual } = SETUP_FORMULA_PARTICIPATION_BY_AGENT[agentId]
+  const { primary, residual } = FORMULA_PARTICIPATION_BY_AGENT[agentId].setup
   return [...primary, ...residual].some(formulaUsesDefRegion)
 }
 
 export function primaryFormulaUsesDefRegion(agentId: AgentId): boolean {
-  return SETUP_FORMULA_PARTICIPATION_BY_AGENT[agentId].primary
+  return FORMULA_PARTICIPATION_BY_AGENT[agentId].setup.primary
     .some(formulaUsesDefRegion)
 }
 
 export function primaryFormulaUsesCrit(agentId: AgentId): boolean {
-  return SETUP_FORMULA_PARTICIPATION_BY_AGENT[agentId].primary
+  return FORMULA_PARTICIPATION_BY_AGENT[agentId].setup.primary
     .some(formulaUsesCrit)
 }
 
@@ -76,8 +76,8 @@ export function effectAttributeForAgent(agentId: AgentId): EffectAttribute {
  * consumes; this does not make the two formula families equivalent.
  */
 export function formulaScopeAppliesToMetric(
-  recipientFormulas: readonly SetupFormulaFamily[],
-  sourceFormulas: readonly SetupFormulaFamily[],
+  recipientFormulas: readonly FormulaFamily[],
+  sourceFormulas: readonly FormulaFamily[],
   metric: EffectMetric,
 ): boolean {
   if (recipientFormulas.some((formula) => sourceFormulas.includes(formula))) return true

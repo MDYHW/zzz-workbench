@@ -1,4 +1,4 @@
-import type { AgentId, AgentSpecialty, SetupFormulaFamily } from '../content/types'
+import type { AgentId, AgentSpecialty, FormulaFamily } from '../content/types'
 import type { EffectAttribute, EffectMetric } from '../effects'
 import { formulaScopeAppliesToMetric } from '../formula-policy'
 import type {
@@ -16,7 +16,7 @@ export interface DeliveryRecipientContext {
   agentId: AgentId
   specialty: AgentSpecialty
   attribute: EffectAttribute
-  formulas: readonly SetupFormulaFamily[]
+  formulas: readonly FormulaFamily[]
   statIds: readonly StatId[]
 }
 
