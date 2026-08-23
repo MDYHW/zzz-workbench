@@ -129,7 +129,7 @@ describe('ResultPanel action hierarchy', () => {
     const region = screen.getByRole('region', { name: 'Seed Result' })
     await user.click(within(region).getByRole('button', { name: 'DMG Bonus' }))
     const actions = within(region).getByRole('table', {
-      name: 'DMG Bonus action outcome values',
+      name: 'DMG Bonus outcome values',
     })
 
     expect(within(actions).getByRole('rowheader', {
@@ -138,6 +138,36 @@ describe('ResultPanel action hierarchy', () => {
     expect(within(actions).getByRole('rowheader', {
       name: /^Basic Attack$/,
     })).toBeInTheDocument()
+  })
+
+  it('renders a scoped-only outcome without a generic metric row', () => {
+    const result: AgentResult = {
+      agentId: 'seed',
+      metrics: [],
+      actionModifiers: [{
+        id: 'assaultCritRate',
+        outcomes: [sourceLocalAction('Assault')],
+        tags: [],
+        metricId: 'critRate',
+        values: surfaces(0, 0, 98.6),
+        breakdown: surfaces([], [], [{ ...syntheticSource, amount: 98.6 }]),
+        standaloneMetric: {
+          label: 'CRIT Rate',
+          unit: '%',
+          decimals: 1,
+          values: surfaces(0, 0, 0),
+        },
+      }],
+      operations: [],
+    }
+
+    renderResult(result)
+
+    expect(screen.queryByRole('rowheader', { name: 'CRIT Rate' })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'CRIT Rate outcomes' })).toBeInTheDocument()
+    const outcomes = screen.getByRole('table', { name: 'CRIT Rate outcome values' })
+    expect(within(outcomes).getByRole('rowheader', { name: 'Assault' })).toBeInTheDocument()
+    expect(within(outcomes).getByText('98.6%')).toBeInTheDocument()
   })
 })
 

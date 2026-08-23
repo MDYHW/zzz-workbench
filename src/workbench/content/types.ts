@@ -44,6 +44,8 @@ export type AgentId =
   | 'piper'
   | 'yuzuha'
   | 'burnice'
+  | 'jane'
+  | 'seth'
 
 export type AgentRank = 'S' | 'A'
 export type AgentAttribute =
@@ -81,6 +83,7 @@ export type Refinement = 1 | 2 | 3 | 4 | 5
 export type EngineRank = 'S' | 'A'
 
 export type EngineId =
+  | 'peacekeeperSpecialized'
   | 'qingming'
   | 'cauldron'
   | 'radiowave'
@@ -232,7 +235,7 @@ export type EquipmentEffectAction =
   >
 
 export type EquipmentEffectTag = Extract<ActionTag, 'aftershock'>
-export type EquipmentEffectCondition = 'backAttack' | 'offField'
+export type EquipmentEffectCondition = 'backAttack' | 'offField' | 'shielded'
 
 export type EquipmentEffectRecipient = 'self' | 'squad' | 'enemy'
 export type EquipmentEffectValue = number | RefinementValues

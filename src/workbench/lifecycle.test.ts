@@ -365,6 +365,22 @@ describe('shared preparation and edit lifecycle', () => {
     expect(calculateParty(state)).not.toBeNull()
   })
 
+  it('keeps a same-effect complement available for a legal 4-piece transition', () => {
+    let state = createPreparedState({}, ['jane', 'seth', 'yuzuha'], 0)
+    expect(state.slots[1].setup).toMatchObject({
+      fourPieceId: 'astralVoice', twoPieceId: 'swingJazz',
+    })
+    expect(effectiveFourPieceRoleSwapIds(state, 1)).toContain('swingJazz')
+
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'swingJazz',
+    })
+    expect(state.slots[1].setup).toMatchObject({
+      fourPieceId: 'swingJazz', twoPieceId: 'moonlight',
+    })
+    expectCalculable(state, 'same-effect 4-piece transition')
+  })
+
   it('derives CRIT investment pressure from selected King instead of fixed personal supply', () => {
     let state = createPreparedState({}, ['qingyi', 'harumasa', 'nicole'], 1)
 
@@ -548,6 +564,72 @@ describe('shared preparation and edit lifecycle', () => {
         .toEqual(established)
       expectCalculable(prepared, `${collision.label}:target rebuild`)
     }
+  })
+
+  it('preserves Party Apply allocation and selected-pressure lifecycle across later edits', () => {
+    let allocated = createPreparedState({}, ['jane', 'seth', 'cissia'], 0)
+    expect(allocated.slots[0].setup).toMatchObject({
+      twoPieceId: 'pufferElectro',
+      mains: { slot5: 'penRatio' },
+    })
+    expect(allocated.slots[1].setup).toMatchObject({
+      fourPieceId: 'swingJazz', twoPieceId: 'moonlight',
+    })
+    expect(allocated.slots[2].setup.fourPieceId).toBe('astralVoice')
+    expectPreparedCalculable(allocated, 'Jane pressure with Seth/Cissia allocation')
+
+    const established = [allocated.slots[0], allocated.slots[2]]
+    allocated = workbenchReducer(allocated, {
+      type: 'switchPool', slot: 1, pool: 'nonLimited',
+    })
+    expect([allocated.slots[0], allocated.slots[2]]).toEqual(established)
+    expect(allocated.slots[1].setup).toMatchObject({
+      fourPieceId: 'swingJazz', twoPieceId: 'moonlight',
+    })
+    expectPreparedCalculable(allocated, 'Seth target rebuild around established holders')
+
+    let pressure = createPreparedState({}, ['jane', 'trigger', 'seth'], 0)
+    expect(pressure.slots[0].setup).toMatchObject({
+      twoPieceId: 'freedomBlues',
+      mains: { slot5: 'physicalDmg' },
+    })
+
+    pressure = workbenchReducer(pressure, {
+      type: 'selectEngine', slot: 1, engineId: 'iceJadeTeapot',
+    })
+    expect(effectiveTwoPieceIds(pressure, 0)).toContain('pufferElectro')
+    expect(effectiveMainStatIds(pressure, 0, 'slot5')).toContain('penRatio')
+    expect(pressure.slots[0].setup).toMatchObject({
+      twoPieceId: 'freedomBlues',
+      mains: { slot5: 'physicalDmg' },
+    })
+
+    pressure = workbenchReducer(pressure, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'pufferElectro',
+    })
+    pressure = workbenchReducer(pressure, {
+      type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'penRatio',
+    })
+    expect(calculateParty(pressure)).not.toBeNull()
+
+    pressure = workbenchReducer(pressure, {
+      type: 'selectEngine', slot: 1, engineId: 'spectralGaze',
+    })
+    expect(pressure.slots[0].setup).toMatchObject({
+      twoPieceId: null,
+      mains: { slot5: null },
+    })
+    expect(calculateParty(pressure)).toBeNull()
+
+    pressure = workbenchReducer(pressure, {
+      type: 'selectEngine', slot: 1, engineId: 'iceJadeTeapot',
+    })
+    expect(effectiveTwoPieceIds(pressure, 0)).toContain('pufferElectro')
+    expect(effectiveMainStatIds(pressure, 0, 'slot5')).toContain('penRatio')
+    expect(pressure.slots[0].setup).toMatchObject({
+      twoPieceId: null,
+      mains: { slot5: null },
+    })
   })
 
   it('does not prepare contextual Astral over an established target-only holder', () => {

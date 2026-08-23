@@ -74,6 +74,30 @@ function currentMetricRows(result: AgentResult) {
     .filter(({ metric, actions }) => hasCurrentConsumer(metric, actions))
 }
 
+function currentStandaloneActionRows(result: AgentResult) {
+  const visibleMetricIds = new Set(result.metrics.map(({ id }) => id))
+  const grouped = new Map<ResultMetric['id'], {
+    metric: ResultMetric
+    actions: ActionModifier[]
+  }>()
+
+  for (const action of result.actionModifiers) {
+    if (visibleMetricIds.has(action.metricId) || !action.standaloneMetric) continue
+    const current = grouped.get(action.metricId) ?? {
+      metric: {
+        id: action.metricId,
+        ...action.standaloneMetric,
+        breakdown: { initial: [], combat: [], fully: [] },
+      },
+      actions: [],
+    }
+    current.actions.push(action)
+    grouped.set(action.metricId, current)
+  }
+
+  return [...grouped.values()]
+}
+
 function formatContributionValue(
   amount: number,
   display: Contribution['display'],
@@ -418,11 +442,13 @@ function ActionRows({
   metric,
   onSourceToneChange,
   partyAgentIds,
+  standalone = false,
 }: {
   actions: ActionModifier[]
   agentId: AgentResult['agentId']
   metric: ResultMetric
   partyAgentIds: readonly AgentId[]
+  standalone?: boolean
 } & SourceInteractionProps) {
   const [expandedActions, setExpandedActions] = useState<Set<string>>(new Set())
 
@@ -437,10 +463,10 @@ function ActionRows({
   })
 
   return (
-    <section className="action-differences" aria-label={`${metric.label} action outcomes`}>
-      <h5 className="hierarchy-caption">Action outcomes</h5>
+    <section className="action-differences" aria-label={`${metric.label} outcomes`}>
+      <h5 className="hierarchy-caption">{standalone ? `${metric.label} outcomes` : 'Action outcomes'}</h5>
       <div className="action-matrix-wrap">
-        <table className="source-matrix action-matrix" aria-label={`${metric.label} action outcome values`}>
+        <table className="source-matrix action-matrix" aria-label={`${metric.label} outcome values`}>
           <colgroup>
             <col className="action-hierarchy-track" />
             <col className="action-label-track" />
@@ -449,7 +475,7 @@ function ActionRows({
           <thead>
             <tr>
               <th className="action-hierarchy-cell" aria-hidden="true" />
-              <th scope="col">Action outcome</th>
+              <th scope="col">Outcome</th>
               {allSurfaces.map((surface) => <th scope="col" key={surface}>{surfaceLabels[surface]}</th>)}
             </tr>
           </thead>
@@ -678,6 +704,10 @@ export function ResultPanel({
     () => agentResult ? currentMetricRows(agentResult) : [],
     [agentResult],
   )
+  const standaloneActionRows = useMemo(
+    () => agentResult ? currentStandaloneActionRows(agentResult) : [],
+    [agentResult],
+  )
 
   useEffect(() => {
     const visibleIds = new Set(metricRows.map(({ metric }) => metric.id))
@@ -776,6 +806,18 @@ export function ResultPanel({
             </tbody>
           </table>
         </div>
+        {standaloneActionRows.map(({ metric, actions }) => (
+          <ActionRows
+            actions={actions}
+            activeSourceTone={activeSourceTone}
+            agentId={agentResult.agentId}
+            key={metric.id}
+            metric={metric}
+            onSourceToneChange={onSourceToneChange}
+            partyAgentIds={partyAgentIds}
+            standalone
+          />
+        ))}
       </article>
       <Operations
         activeSourceTone={activeSourceTone}

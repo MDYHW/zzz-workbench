@@ -60,6 +60,7 @@ import sharpenedStingerImage from '../../assets/equipment/w-engines/sharpened-st
 import roaringRideImage from '../../assets/equipment/w-engines/roaring-ride.webp'
 import metanukimorphosisImage from '../../assets/equipment/w-engines/metanukimorphosis.webp'
 import flamemakerShakerImage from '../../assets/equipment/w-engines/flamemaker-shaker.webp'
+import peacekeeperSpecializedImage from '../../assets/equipment/w-engines/peacekeeper-specialized.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -87,6 +88,13 @@ const perSecond = (effect: EquipmentEffectFact, refinement: Refinement): string 
   `${equipmentEffectBaseValue(effect, refinement)}/s`
 
 export const W_ENGINE_FACTS = {
+  peacekeeperSpecialized: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
+    effects: {
+      energyRegen: { modifier: 'energyRegen', unit: '/s', value: [0.4, 0.46, 0.52, 0.58, 0.64], scope: { condition: 'shielded' } },
+      buildup: { modifier: 'anomalyBuildupBonus', unit: '%', value: [36, 40, 45, 50, 55], scope: { actions: ['EX Special Attack', 'Assist Follow-Up'] } },
+    },
+  },
   tusksOfFury: {
     advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' },
     effects: {
@@ -596,6 +604,15 @@ export type WEngineFactContract<Id extends EngineId> = (typeof W_ENGINE_FACTS)[I
 export type WEngineEffectField<Id extends EngineId> = keyof WEngineFactContract<Id>['effects']
 
 export const W_ENGINES: Record<EngineId, WEngineChoice> = {
+  peacekeeperSpecialized: {
+    id: 'peacekeeperSpecialized', name: 'Peacekeeper - Specialized', rank: 'A', limited: false, baseAtk: 624,
+    advancedStat: W_ENGINE_FACTS.peacekeeperSpecialized.advancedStat, image: peacekeeperSpecializedImage,
+    passiveSpecialty: 'Defense',
+    passiveLines: (refinement) => [
+      `While Shielded · Energy Regen +${perSecond(W_ENGINE_FACTS.peacekeeperSpecialized.effects.energyRegen, refinement)}`,
+      `EX Special & Assist Follow-Up Anomaly Buildup +${percent(W_ENGINE_FACTS.peacekeeperSpecialized.effects.buildup, refinement)}`,
+    ],
+  },
   tusksOfFury: {
     id: 'tusksOfFury', name: 'Tusks of Fury', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.tusksOfFury.advancedStat, image: tusksOfFuryImage,
@@ -1129,4 +1146,6 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   ]),
   yuzuha: enginePools(['metanukimorphosis', 'thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
   burnice: enginePools(['flamemakerShaker', 'practicedPerfection', 'electroLipGloss', 'weepingGemini']),
+  jane: enginePools(['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
+  seth: enginePools(['peacekeeperSpecialized', 'tusksOfFury', 'springEmbrace']),
 }

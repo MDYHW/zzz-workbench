@@ -24,7 +24,7 @@ import {
 } from './preparation'
 import {
   effectiveFourPieceIds,
-  effectiveFourPieceRoleSwapIds,
+  effectiveFourPieceRoleSwapTwoPieceId,
   effectiveMainStatIds,
   effectiveTwoPieceIds,
   effectiveSubstatChoices,
@@ -452,14 +452,12 @@ function reduceWorkbenchState(state: WorkbenchState, action: WorkbenchAction): W
           return { ...setup, twoPieceId: action.discId }
         }
         if (action.discId === setup.twoPieceId) {
-          if (!setup.fourPieceId || !effectiveFourPieceRoleSwapIds(state, action.slot)
-            .includes(action.discId)) {
-            return setup
-          }
+          const twoPieceId = effectiveFourPieceRoleSwapTwoPieceId(state, action.slot)
+          if (!twoPieceId) return setup
           return withSelectedDerivedSubstats(state, action.slot, setup, {
             ...setup,
             fourPieceId: action.discId,
-            twoPieceId: setup.fourPieceId,
+            twoPieceId,
           })
         }
         return withSelectedDerivedSubstats(state, action.slot, setup, {

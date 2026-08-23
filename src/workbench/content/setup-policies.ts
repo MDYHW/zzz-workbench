@@ -62,6 +62,8 @@ const OPERATING_INTERVAL_BY_AGENT: Partial<Record<AgentId, OperatingIntervalPoli
   qingyi: { default: 'on-field' },
   koleda: { default: 'off-field' },
   anby: { default: 'off-field' },
+  jane: { default: 'on-field' },
+  seth: { default: 'off-field' },
 }
 
 /**
@@ -141,6 +143,12 @@ const PREPARED_DISC_HOLDER_POLICY_BY_AGENT: Partial<Record<AgentId, PreparedDisc
       authoredKeeperPrecedence: 4,
     },
   },
+  seth: {
+    astralCollisionAlternative: {
+      patch: { fourPieceId: 'swingJazz', twoPieceId: 'moonlight' },
+      authoredKeeperPrecedence: 5,
+    },
+  },
 }
 
 /** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
@@ -155,6 +163,7 @@ export const PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE: Partial<
   billy: 'atkPct',
   grace: 'electricDmg',
   burnice: 'fireDmg',
+  jane: 'physicalDmg',
 }
 
 /** Authored whole-package replacement when the selected 2-piece loses its distinct axis. */
@@ -163,6 +172,7 @@ export const PREPARED_TWO_PIECE_BY_BROAD_PRE_PEN_PRESSURE: Partial<
 > = {
   nekomata: 'branchAndBlade',
   grace: 'freedomBlues',
+  jane: 'freedomBlues',
 }
 
 export type SetupPolicy = {
