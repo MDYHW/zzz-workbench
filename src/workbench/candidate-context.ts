@@ -1,6 +1,6 @@
 import {
   ADMITTED_AGENTS,
-  SETUP_FORMULA_PARTICIPATION_BY_AGENT,
+  FORMULA_PARTICIPATION_BY_AGENT,
   W_ENGINE_FACTS,
   type AgentId,
   type EquipmentEffectCollection,
@@ -229,7 +229,7 @@ export function hasDialynUltimateOpportunity(
 ): boolean {
   const recipientAgentId = state.slots[recipientSlot].agentId
   return recipientAgentId !== 'dialyn'
-    && SETUP_FORMULA_PARTICIPATION_BY_AGENT[recipientAgentId].primary
+    && FORMULA_PARTICIPATION_BY_AGENT[recipientAgentId].setup.primary
       .includes('general_damage')
     && state.slots.some(({ agentId }) => agentId === 'dialyn')
 }

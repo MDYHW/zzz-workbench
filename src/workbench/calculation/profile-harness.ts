@@ -8,7 +8,7 @@ import {
 } from '../actions'
 import {
   ADMITTED_AGENTS,
-  SETUP_FORMULA_PARTICIPATION_BY_AGENT,
+  FORMULA_PARTICIPATION_BY_AGENT,
   type AgentId,
 } from '../content'
 import type { EffectMetric, SurfaceKey } from '../effects'
@@ -336,13 +336,13 @@ function recipientContexts(
   profiles: readonly AgentSourceProfile[],
 ): DeliveryRecipientContext[] {
   return state.slots.map(({ agentId }, appliedPartySlot) => {
-    const formulas = SETUP_FORMULA_PARTICIPATION_BY_AGENT[agentId]
+    const formulas = FORMULA_PARTICIPATION_BY_AGENT[agentId]
     return {
       agentId,
       appliedPartySlot: appliedPartySlot as 0 | 1 | 2,
       specialty: ADMITTED_AGENTS.find(({ id }) => id === agentId)!.specialty,
       attribute: effectAttributeForAgent(agentId),
-      formulas: [...formulas.primary, ...formulas.residual],
+      formulas: formulas.result,
       statIds: profiles[appliedPartySlot].metrics.flatMap(({ statId }) => (
         statId ? [statId] : []
       )),

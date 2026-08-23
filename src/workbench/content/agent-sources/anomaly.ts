@@ -14,7 +14,7 @@ import { DRIVE_DISC_FACTS } from '../discs'
 import { ADMITTED_AGENTS } from '../agents'
 import { W_ENGINE_FACTS, type WEngineEffectField } from '../engines'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
-import { equipmentEffectBaseValue, equipmentEffectMaximumValue, type AgentId, type EquipmentEffectFact, type SetupFormulaFamily } from '../types'
+import { equipmentEffectBaseValue, equipmentEffectMaximumValue, type AgentId, type EquipmentEffectFact, type FormulaFamily } from '../types'
 import { isWEnginePassiveEligible, requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedMindscapeSource } from './sources'
 
@@ -119,7 +119,7 @@ const provider = (
   source: SelectedSourceInstance,
   recipient: ProviderRecipient,
   effect: ProviderEffect,
-  formulas?: readonly SetupFormulaFamily[],
+  formulas?: readonly FormulaFamily[],
   attributes?: readonly EffectAttribute[],
 ): ProfileRelationship => ({ kind: 'provider', source, delivery: { recipient, ...(formulas ? { formulas } : {}), ...(attributes ? { attributes } : {}) }, effect })
 
