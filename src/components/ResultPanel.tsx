@@ -136,6 +136,10 @@ function sourceTone(
   return source.locus
 }
 
+function sourceIdentity(source: ResultSource): string {
+  return [source.ownerAgentId, source.locus, source.label, source.detail ?? ''].join('|')
+}
+
 function toneClass(tone: string, activeSourceTone: string | null): string {
   return `source-link source-tone--${tone}${activeSourceTone === tone ? ' is-source-active' : ''}`
 }
@@ -156,7 +160,7 @@ function groupContributions(
 
   for (const surface of shownSurfaces) {
     for (const item of breakdown[surface]) {
-      const key = [item.ownerAgentId, item.locus, item.label, item.detail ?? ''].join('|')
+      const key = sourceIdentity(item)
       const row = grouped.get(key) ?? {
         source: {
           label: item.label,
@@ -237,7 +241,7 @@ function SourceMatrix({
             const tone = sourceTone(row.source, agentId, partyAgentIds)
             return (
               <tr
-                key={`${row.source.ownerAgentId}-${row.source.locus}-${row.source.label}`}
+                key={sourceIdentity(row.source)}
                 className={toneClass(tone, activeSourceTone)}
                 data-source-tone={tone}
                 {...sourceToneEvents(tone, onSourceToneChange)}
@@ -537,7 +541,7 @@ function ActionRows({
                       const tone = sourceTone(row.source, agentId, partyAgentIds)
                       return (
                         <tr
-                          key={`${row.source.ownerAgentId}-${row.source.locus}-${row.source.label}-${row.source.detail ?? ''}`}
+                          key={sourceIdentity(row.source)}
                           className={toneClass(tone, activeSourceTone)}
                           data-source-tone={tone}
                           {...sourceToneEvents(tone, onSourceToneChange)}
