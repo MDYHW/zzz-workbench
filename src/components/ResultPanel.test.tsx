@@ -310,7 +310,7 @@ describe('ResultPanel operation presentation', () => {
       .toHaveLength(3)
   })
 
-  it('renders an open-ended threshold gauge without cap copy while retaining capped gauges', async () => {
+  it('renders a reached open-ended threshold as Active while retaining capped progress', async () => {
     const user = userEvent.setup()
     renderResult(syntheticResult({
       metrics: [
@@ -337,10 +337,12 @@ describe('ResultPanel operation presentation', () => {
 
     await user.click(screen.getByRole('button', { name: 'ATK' }))
     const openGauge = screen.getByRole('group', {
-      name: 'Initial ATK: current 125.0, threshold 100.0; Squad flat ATK: +25.0',
+      name: 'Initial ATK: current 125.0, threshold 100.0, Active; Squad flat ATK: +25.0',
     })
     expect(within(openGauge).getByText('Initial ATK')).toBeInTheDocument()
-    expect(within(openGauge).getByText('Threshold 100.0')).toBeInTheDocument()
+    expect(within(openGauge).getByText('125.0')).toBeInTheDocument()
+    expect(within(openGauge).getByText('Active')).toBeInTheDocument()
+    expect(within(openGauge).queryByText('Threshold 100.0')).not.toBeInTheDocument()
     expect(within(openGauge).getByText('+25.0')).toBeInTheDocument()
     expect(openGauge).not.toHaveTextContent(' / ')
     expect(openGauge).not.toHaveAccessibleName(/cap/)

@@ -297,12 +297,12 @@ function Gauge({
     cap: gauge.outputCap,
     unit: gauge.outputUnit,
   }, ...(gauge.additionalOutputs ?? [])]
-  const isActiveScale = gauge.presentation === 'scale'
-    && gauge.threshold !== undefined
+  const isThresholdOnlyActive = gauge.threshold !== undefined
+    && (gauge.cap === undefined || gauge.cap === gauge.threshold)
     && gauge.current >= gauge.threshold
   const thresholdDescription = gauge.threshold === undefined
     ? ''
-    : `, threshold ${formatNumber(gauge.threshold, thresholdDecimals)}${isActiveScale ? ', Active' : ''}`
+    : `, threshold ${formatNumber(gauge.threshold, thresholdDecimals)}${isThresholdOnlyActive ? ', Active' : ''}`
   const outputDescription = outputs.map((output) => {
     const value = formatOperationValue(
       output.value,
@@ -340,14 +340,14 @@ function Gauge({
           {gauge.cap === undefined ? '' : ` / ${formatNumber(gauge.cap, capDecimals)}`}
         </strong>
       </div>
-      {gauge.threshold !== undefined && !isActiveScale && (
+      {gauge.threshold !== undefined && !isThresholdOnlyActive && (
         <small className="gauge__threshold-copy">Threshold {formatNumber(gauge.threshold, thresholdDecimals)}</small>
       )}
       <div className="gauge__track" aria-hidden="true">
-        <span className="gauge__fill" style={{ width: `${isActiveScale ? 100 : progress}%` }}>
-          {isActiveScale ? 'Active' : null}
+        <span className="gauge__fill" style={{ width: `${isThresholdOnlyActive ? 100 : progress}%` }}>
+          {isThresholdOnlyActive ? 'Active' : null}
         </span>
-        {threshold !== undefined && !isActiveScale && <i className="gauge__threshold" style={{ left: `${threshold}%` }} />}
+        {threshold !== undefined && !isThresholdOnlyActive && <i className="gauge__threshold" style={{ left: `${threshold}%` }} />}
       </div>
       {outputs.map((output) => (
         <div className="gauge__output" key={output.label}>
