@@ -365,20 +365,33 @@ describe('shared preparation and edit lifecycle', () => {
     expect(calculateParty(state)).not.toBeNull()
   })
 
-  it('keeps a same-effect complement available for a legal 4-piece transition', () => {
-    let state = createPreparedState({}, ['jane', 'seth', 'yuzuha'], 0)
-    expect(state.slots[1].setup).toMatchObject({
+  it('offers only atomic 4-piece role swaps that reuse the prior 4-piece', () => {
+    let sethState = createPreparedState({}, ['jane', 'seth', 'yuzuha'], 0)
+    expect(sethState.slots[1].setup).toMatchObject({
       fourPieceId: 'astralVoice', twoPieceId: 'swingJazz',
     })
-    expect(effectiveFourPieceRoleSwapIds(state, 1)).toContain('swingJazz')
+    expect(effectiveFourPieceRoleSwapIds(sethState, 1)).not.toContain('swingJazz')
 
-    state = workbenchReducer(state, {
+    sethState = workbenchReducer(sethState, {
       type: 'selectDisc', slot: 1, piece: 'fourPiece', discId: 'swingJazz',
     })
-    expect(state.slots[1].setup).toMatchObject({
-      fourPieceId: 'swingJazz', twoPieceId: 'moonlight',
+    expect(sethState.slots[1].setup).toMatchObject({
+      fourPieceId: 'astralVoice', twoPieceId: 'swingJazz',
     })
-    expectCalculable(state, 'same-effect 4-piece transition')
+
+    let janeState = createPreparedState({}, ['jane', 'trigger', 'seth'], 0)
+    expect(janeState.slots[0].setup).toMatchObject({
+      fourPieceId: 'fangedMetal', twoPieceId: 'freedomBlues',
+    })
+    expect(effectiveFourPieceRoleSwapIds(janeState, 0)).toContain('freedomBlues')
+
+    janeState = workbenchReducer(janeState, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'freedomBlues',
+    })
+    expect(janeState.slots[0].setup).toMatchObject({
+      fourPieceId: 'freedomBlues', twoPieceId: 'fangedMetal',
+    })
+    expectCalculable(janeState, 'atomic 4-piece role swap')
   })
 
   it('derives CRIT investment pressure from selected King instead of fixed personal supply', () => {
