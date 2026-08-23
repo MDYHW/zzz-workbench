@@ -44,6 +44,26 @@ describe('shared calculation integration', () => {
       .not.toContain('power')
   })
 
+  it('projects compatible exact anomaly outcomes across current recipient profiles', () => {
+    let state = createPreparedState({}, ['jane', 'alice', 'piper'], 0)
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 2 })
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 2 })
+    const result = calculateParty(state)!
+    const agent = (agentId: AgentId) => result.agents.find((entry) => entry.agentId === agentId)!
+    const hasSource = (agentId: AgentId, actionId: string, ownerAgentId: AgentId) => (
+      agent(agentId).actionModifiers.find(({ id }) => id === actionId)?.breakdown.fully
+        .some((source) => source.ownerAgentId === ownerAgentId) ?? false
+    )
+
+    expect(hasSource('alice', 'aliceAssaultCritRate', 'jane')).toBe(true)
+    expect(hasSource('alice', 'aliceAssaultCritDmg', 'jane')).toBe(true)
+    expect(hasSource('alice', 'aliceAssaultDefIgnore', 'jane')).toBe(true)
+    expect(hasSource('jane', 'janeAssaultAnomaly', 'alice')).toBe(true)
+    expect(hasSource('jane', 'janeDisorderAnomaly', 'alice')).toBe(true)
+    expect(hasSource('piper', 'piperAssaultAnomaly', 'alice')).toBe(true)
+    expect(hasSource('piper', 'piperDisorder', 'alice')).toBe(true)
+  })
+
   it('applies an equipment interval condition through direction metadata and a bounded holder override', () => {
     const lycaonEnergyWith = (focusAgentId: 'corin' | 'ellen') => {
       const companions = focusAgentId === 'corin'

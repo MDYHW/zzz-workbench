@@ -73,8 +73,19 @@ const GRACE_ANOMALY_SCOPES = [
 ] satisfies readonly ActionScopeNode[]
 
 const PIPER_ANOMALY_SCOPES = [
-  { id: 'piperAttributeAnomaly', target: ATTRIBUTE_ANOMALY_TARGET },
+  {
+    id: 'piperAttributeAnomaly', target: ATTRIBUTE_ANOMALY_TARGET,
+    children: [{ id: 'piperAssaultAnomaly', target: JANE_ASSAULT_TARGET }],
+  },
   { id: 'piperDisorder', target: DISORDER_TARGET },
+] satisfies readonly ActionScopeNode[]
+
+const JANE_ANOMALY_SCOPES = [
+  {
+    id: 'janeAttributeAnomaly', target: ATTRIBUTE_ANOMALY_TARGET,
+    children: [{ id: 'janeAssaultAnomaly', target: JANE_ASSAULT_TARGET }],
+  },
+  { id: 'janeDisorderAnomaly', target: DISORDER_TARGET },
 ] satisfies readonly ActionScopeNode[]
 
 const BURNICE_BUILDUP_SCOPES = [{
@@ -261,6 +272,7 @@ function equipment(agent: Agent, slot: Slot, setup: CompleteSelectedSetup, relat
   }
   const disc4 = selectedDiscSource(agent, slot, setup, setup.fourPieceId, '4-piece')
   switch (setup.fourPieceId) {
+    case 'hormonePunk': relationships.push(stat(disc4, 'atk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.fourPiece.atk), 'percentage', 'combat')); break
     case 'thunderMetal': if (base.atk !== undefined) relationships.push(stat(disc4, 'atk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.fourPiece.atk), 'percentage')); break
     case 'chaosJazz': relationships.push(mod(disc4, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.electricFireDamage), undefined, 'combat')); if (agent === 'burnice') relationships.push(provider(disc4, 'self', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage), action: actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Assist')]) }, ['general_damage'], ['Fire'])); if (agent === 'yanagi') relationships.push(mod(disc4, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage), YANAGI_EX_ASSIST)); break
     case 'freedomBlues': if (agent !== 'jane' && agent !== 'yanagi' && agent !== 'alice') relationships.push(mod(disc4, 'anomalyBuildupResReduction', equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction))); break
@@ -419,7 +431,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
       actionProjection('defIgnore', 'janeAssaultDefIgnore', JANE_ASSAULT_TARGET),
       actionProjection('anomalyBuildupBonus', 'janePassionBuildup', JANE_PASSION_TARGET),
       actionProjection('dmgBonus', 'janePassionDmg', JANE_PASSION_TARGET),
-      actionProjection('anomalyDmgBonus', 'janeAttributeAnomalyDmg', ATTRIBUTE_ANOMALY_TARGET),
+      { metricId: 'anomalyDmgBonus', scopes: JANE_ANOMALY_SCOPES },
     )
     equipment(agent, slot, setup, relationships, BASE[agent], focusAgentId)
     return {
@@ -577,8 +589,21 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     actions.push(
       actionProjection('anomalyBuildupBonus', 'aliceEnhancedBasicBuildup', ALICE_ENHANCED_BASIC),
       { metricId: 'anomalyDmgBonus', scopes: ALICE_ANOMALY_SCOPES },
+      actionProjection('critRate', 'aliceAssaultCritRate', JANE_ASSAULT_TARGET),
+      actionProjection('critDmg', 'aliceAssaultCritDmg', JANE_ASSAULT_TARGET),
+      actionProjection('defIgnore', 'aliceAssaultDefIgnore', JANE_ASSAULT_TARGET),
     )
-    return { agentId: agent, appliedPartySlot: slot, relationships, metrics: anomalyDealerMetrics(), actions }
+    return {
+      agentId: agent,
+      appliedPartySlot: slot,
+      relationships,
+      metrics: [
+        ...anomalyDealerMetrics(),
+        { ...m('critRate', 'CRIT Rate', '%', undefined, 'action'), resultVisibility: 'action-only' },
+        { ...m('critDmg', 'CRIT DMG', '%', undefined, 'action'), resultVisibility: 'action-only' },
+      ],
+      actions,
+    }
   }
   if (agent === 'vivian') {
     const additionalActive = anotherAgentHasSpecialty(ids, slot, ['Anomaly']) || anotherAgentSharesAttribute(ids, slot)
