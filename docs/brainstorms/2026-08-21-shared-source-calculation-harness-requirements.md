@@ -396,7 +396,8 @@ ever differ.
 
 - A1 sees the same authority-supported competitive choices and Result meanings
   across every migrated Specialty, with corrected continuous relationships and
-  intact Apply, rebuild, direct-edit, completeness, and source-Focus behavior.
+  intact Apply, rebuild, direct-edit, completeness, and source-interaction
+  behavior.
 - A2 can add ordinary future content by authoring retained facts, local setup
   policy, and bounded source relationships without creating another Agent-
   specific calculator or copying shared equipment and investment values.
