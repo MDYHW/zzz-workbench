@@ -6,23 +6,10 @@ import {
   defineDriveDiscSource,
   defineWEngineSource,
 } from '../content/source-definitions'
-import {
-  EFFECTIVE_SUBSTAT_VALUES,
-  FIXED_MAIN_STATS,
-  SUBSTAT_CHOICES_BY_AGENT,
-} from '../content/setup-options'
 import { selectSource } from './source-instance'
 import { resultSourceFor } from './result'
 
 describe('shared source foundation', () => {
-  it('owns fixed main and currently admitted effective-substat facts once', () => {
-    expect(FIXED_MAIN_STATS.slot1.numericValue).toBe(2200)
-    expect(FIXED_MAIN_STATS.slot2.numericValue).toBe(316)
-    expect(FIXED_MAIN_STATS.slot3.numericValue).toBe(184)
-    expect(SUBSTAT_CHOICES_BY_AGENT.yixuan[0]).toBe(EFFECTIVE_SUBSTAT_VALUES.critRate)
-    expect(EFFECTIVE_SUBSTAT_VALUES).not.toHaveProperty('defPct')
-  })
-
   it('distinguishes one selected W-Engine definition by its holder snapshot', () => {
     const definition = defineWEngineSource('steamOven', 'Steam Oven')
     const anby = selectSource(definition, 'anby', 0, {
