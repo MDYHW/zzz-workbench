@@ -11,7 +11,11 @@ status: approved
 Replace the existing per-Agent calculation verticals with one authority-grounded
 source, composition, preparation, and Result harness. Agent-local content keeps
 competitive setup policy and genuinely unique relationships while shared game
-facts and mechanisms are authored and verified once.
+facts and mechanisms are authored and verified once. Formula participation is
+separated into Setup and Result relations because Setup investment and admitted
+Result consumption answer different questions; the relations may contain the
+same families when their consumers agree. Roles, outcomes, candidates, and
+representatives are not duplicated into Agent catalogues.
 
 ---
 
@@ -29,6 +33,15 @@ Several current secondary requirements and calculations also encode displayed
 "per increment" descriptions as integer steps even though the permanent formula
 owner defines continuous linear relationships. Existing implementation and
 tests therefore cannot be used as the parity authority for this migration.
+
+One current formula-participation model is also asked to represent both the
+formula families intentionally strengthened by an Agent's Setup and every
+formula family needed by provider applicability or a visible local Result
+outcome. Those meanings can differ: an action-local Daze or damage contribution
+does not by itself make that formula an investment direction. Treating the two
+as one relation can admit unsupported setup axes or erase a retained threshold,
+cap, conversion, or other relationship that actually drives a candidate and
+representative choice.
 
 The user still needs authored, competitive candidates and one deterministic
 complete starting setup per Agent and availability pool. Compression must not
@@ -54,7 +67,7 @@ flowchart TB
   Local --> Delivery
   Delivery --> Compose
   Compose --> Result
-  Result -. Source Focus .-> Setup
+  Result -. Source interaction .-> Setup
 ```
 
 The prose requirements govern if this conceptual flow and a detailed design
@@ -106,11 +119,12 @@ ever differ.
   - **Actors:** A2, A3
   - **Steps:** A2 starts from a qualifying Setup or Result outcome, references
     shared retained facts, authors local candidate and representative policy,
-    expresses retained effects through current relationship kinds, and adds a
-    shared-mechanism test only for genuinely new behavior.
+    distinguishes Setup-strengthened formulas from admitted Result formula
+    participation, expresses retained effects through current relationship
+    kinds, and adds a shared-mechanism test only for genuinely new behavior.
   - **Outcome:** Content extends the common harness without recreating an Agent-
     specific calculator or test catalogue.
-  - **Covered by:** R1, R2, R3, R8, R18, R20
+  - **Covered by:** R1, R2, R3, R8, R18, R20, R21, R22
 
 ---
 
@@ -123,9 +137,11 @@ ever differ.
   calculation and policy branches. Do not preserve a legacy/new dual execution
   path.
 - R2. Separate each Agent's setup policy from its retained source model. Setup
-  policy owns the Agent's direction, roles, Focus eligibility, competitive
-  candidate references, contextual cases, and complete pool representatives;
-  it does not copy shared equipment or investment facts.
+  policy owns the Agent's direction and role judgments, Focus eligibility,
+  competitive candidate references, contextual cases, and complete pool
+  representatives; it does not copy shared equipment or investment facts.
+  Owning a role judgment does not require an Agent-wide production role
+  catalogue when no current shared consumer queries that judgment.
 - R3. Treat Agent sources, Mindscapes, W-Engines, Drive Discs, main stats, and
   substats as independent contributors to the same downstream composition
   flow. A selected Mindscape cumulatively enables every retained tier at or
@@ -173,8 +189,8 @@ ever differ.
 - R11. Preserve a stable source definition and the actual selected source
   instance through delivery, composition, non-stacking reconciliation, and
   Result projection. Holder, trigger performer, recipient, formula consumer,
-  action or Attribute applicability, and visible Focus destination remain
-  distinct whenever collapsing them changes a qualifying outcome.
+  action or Attribute applicability, and visible source-interaction destination
+  remain distinct whenever collapsing them changes a qualifying outcome.
 - R12. Re-evaluate independent provider amounts from the current holder's
   local, pre-delivery surface values whenever calculation runs. Preparation
   must not cache provider amounts. After ordinary delivery, preserve exactly
@@ -250,6 +266,45 @@ ever differ.
   visible failure that shared coverage cannot prove. Exact candidate rosters,
   prepared first choices, and retained source-value catalogues remain content
   outcomes rather than duplicated shared test invariants.
+- R21. Keep Setup formula participation separate from admitted Result formula
+  participation. Author Setup participation first from permanent authority,
+  retained relationships, and the direction's intended contribution. It keeps
+  the primary and residual categories consumed by candidate and preparation
+  pressure and contains only formula families the direction is intended to
+  strengthen, including any bounded residual-main-stat consequence already
+  admitted by permanent authority. Candidate rosters and representatives then
+  validate that participation through their exact downstream choices; they
+  cannot create or preserve its premise.
+
+  Result participation is a flat recipient-consumer set established only by an
+  independently admitted recipient-local calculation, canonical action or
+  target outcome, or explicitly formula-owned parent Result consumer. Inbound
+  provider applicability and shared stat or modifier regions consume that set
+  but cannot create it. A provider's emitted formula scope remains on its source
+  relationship and does not populate the holder's Result participation unless
+  the holder has an independent consumer.
+
+  A source relationship such as Initial Energy Regen to DEF Ignore or Impact to
+  ATK remains authored once with its calculation and Result consumer; the
+  established candidate roster and representative retain its Setup consequence
+  without a second `setup-driving` record. Likewise, an action-local outcome
+  remains in its source relationship and projection rather than a parallel
+  Agent outcome map. The participation carrier, every current entry, candidate
+  and preparation consumers, recipient delivery consumer, and affected shared
+  verification change atomically without a fallback from missing Result
+  participation to Setup participation.
+- R22. Limit setup roles to the permanent three meanings: damage contributor,
+  daze contributor, and buffer. Author a role first from permanent authority,
+  retained relationships, and the direction's intended contribution. Candidate
+  and representative policy must then intentionally strengthen it and cannot
+  create or preserve the role's premise. Specialty, one damaging action, one
+  Daze action, a provider clause, an operating interval, or a legal positive
+  stat does not grant a role by itself. Do not add new role names or persist
+  every Agent's role assignment merely for completeness. Preserve a role as
+  production metadata only when a current shared Focus, candidate, preparation,
+  or allocation consumer must query it. Equipment-local thresholds, activation,
+  and selected-input pressure remain owned by that equipment and current context
+  rather than being copied into the Agent role or direction.
 
 ---
 
@@ -261,8 +316,11 @@ ever differ.
   rounding never feeds back into the calculation.
 - AE2. **Covers R3, R11, R14.** Given a Mindscape-unlocked provider effect whose
   holder differs from its recipient, selecting the qualifying Mindscape enables
-  the source, the recipient receives the applicable amount, and Result Focus
-  returns to the holder's Mindscape source rather than the recipient.
+  the source and the recipient receives the applicable amount. The recipient
+  breakdown keeps the holder-prefixed Mindscape source identity; pointer hover
+  or keyboard focus highlights the provider Agent slot rather than the recipient
+  and does not expand it automatically. Selecting the holder slot exposes the
+  local Mindscape distinction.
 - AE3. **Covers R12, R17.** Given an applied party with an Initial-ATK-derived
   provider, directly editing the holder's ATK main stat or supplied substat
   count does not reprepare any setup; the current provider amount and every
@@ -310,6 +368,27 @@ ever differ.
   only Jane's ATK, and the Assault provider changes only compatible Physical
   anomaly Assault output. Neither changes AP, derived delivery runs once, and
   final composition does not feed either result back into the basis.
+- AE13. **Covers R21, R22.** Given Cissia's current policy, Setup participation
+  contains general damage while her retained Initial Energy Regen relationship
+  continues to justify Energy Regen as a Slot 6 candidate and prepared first
+  choice through its Electric DEF Ignore output. Her Corrode Bone Daze remains
+  an admitted action Result through Daze-buildup participation, but it admits
+  neither a daze-contributor role nor Impact/Daze setup investment. Given
+  Qingyi, Setup participation instead contains primary Daze buildup plus
+  residual general damage solely for the already-admitted variable-main-stat
+  exception, while Result participation contains both admitted families. She
+  preserves Impact as the prepared Slot 6 choice plus the Impact-to-ATK
+  relationship; her admitted personal general-damage actions create no
+  damage-contributor role or unconditional personal-damage effective-substat
+  investment. King selection may add its own CRIT threshold pressure without
+  changing either Agent's setup role or Setup formula participation.
+- AE14. **Covers R21.** Given Grace, both Setup and Result participation contain
+  anomaly damage and anomaly buildup because her authored investment materially
+  strengthens both. The split preserves her current candidates,
+  representatives, provider applicability, and Result. A contrasting ordinary
+  damage Agent does not gain anomaly-buildup participation merely because
+  Attribute attacks can produce buildup when the workbench has no admitted
+  Setup or Result consumer for that output.
 
 ---
 
@@ -324,6 +403,9 @@ ever differ.
 - Shared tests demonstrate composition and lifecycle once, while the remaining
   Agent-specific cases correspond only to genuinely different mechanisms or
   visible failures.
+- Setup investment, provider applicability, and Result admission no longer
+  infer one another from a single overloaded formula relation, while existing
+  candidates, representatives, and source-local outcomes remain single-owned.
 - The completed migration contains no legacy execution path, unused retained
   facts, speculative relationship kinds, or generic Result projections without
   current consumers.
@@ -350,6 +432,10 @@ ever differ.
 - No Agent-by-Agent catalogue tests, exact roster snapshots, or duplicated
   outcome tests where shared mechanism and representative-flow coverage already
   establishes the behavior.
+- No Agent-wide `setup-driving` or local-outcome inventory, role catalogue,
+  automatic candidate generation from formula participation, or copy of an
+  equipment-owned threshold, condition, effect, or contextual pressure into
+  Agent metadata.
 - No unrelated visual redesign. Existing Setup and Result information
   architecture changes only where the shared provenance and corrected behavior
   require it.
@@ -382,6 +468,13 @@ ever differ.
 - Local Yuzuha Slot 4 AP admission instead of a personal-damage vertical: it
   preserves a competitive minority choice without expanding unsupported
   formula and equipment surfaces.
+- Separate Setup and Result formula participation instead of one overloaded
+  direction map: Cissia and Qingyi keep different investment and visible-output
+  meanings, while Grace proves the split does not force artificial differences
+  where the two consumers agree.
+- Closed role judgments instead of an Agent role catalogue: the permanent three
+  roles constrain authoring, but production retains an assignment only for an
+  exact current shared consumer.
 
 ---
 
