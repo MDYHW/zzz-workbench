@@ -19,7 +19,8 @@ import { equipmentEffectAppliesToAttribute, equipmentEffectBaseValue, equipmentE
 import { equipmentEffectAppliesInOperatingInterval, isWEnginePassiveEligible, requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
 
-type Agent = 'grace' | 'piper' | 'yuzuha' | 'burnice' | 'jane' | 'yanagi' | 'alice' | 'vivian' | 'aria' | 'promeia'
+const ANOMALY_AGENTS = ['grace', 'piper', 'yuzuha', 'burnice', 'jane', 'yanagi', 'alice', 'vivian', 'aria', 'promeia'] as const satisfies readonly AgentId[]
+type Agent = (typeof ANOMALY_AGENTS)[number]
 type Slot = 0 | 1 | 2
 const DAMAGE = REGULAR_DAMAGE_FORMULAS
 const TIMEWEAVER_DISORDER_AP_THRESHOLD = W_ENGINE_FACTS.timeweaver.effects.disorderDamage.activation.threshold
@@ -49,9 +50,21 @@ const BURNICE_EX_ASSIST = actionTarget([A('EX Special Attack'), A('Assist')])
 const BURNICE_DOUBLE = actionTarget([sourceLocalAction('Double Shot'), sourceLocalAction('Special Afterburn')])
 const BURNICE_BURN = actionTarget([sourceLocalAction('Burn')])
 const YANAGI_EX_RAPID_THRUST = actionTarget([actionForm('EX Special Attack', 'Rapid thrust')])
+const YANAGI_EX_ASSIST = actionTarget([A('EX Special Attack'), A('Assist')])
 const YANAGI_EX = actionTarget([A('EX Special Attack')])
 const ALICE_ENHANCED_BASIC = actionTarget([actionForm('Basic Attack', 'Celestial Overture')])
 const ARIA_BUILDUP = actionTarget([A('Basic Attack'), A('Special Attack'), A('EX Special Attack')])
+const ARIA_ATTACKS = actionTarget([
+  A('Basic Attack'),
+  A('Dash Attack'),
+  A('Dodge Counter'),
+  A('Special Attack'),
+  A('EX Special Attack'),
+  A('Assist'),
+  A('Assist Follow-Up'),
+  A('Chain Attack'),
+  A('Ultimate'),
+])
 const ARIA_M6_DAMAGE = actionTarget([actionForm('Basic Attack', 'Enhanced'), A('Ultimate')])
 
 const GRACE_ANOMALY_SCOPES = [
@@ -84,6 +97,12 @@ const YANAGI_ANOMALY_SCOPES = [
   { id: 'yanagiAttributeAnomaly', target: ATTRIBUTE_ANOMALY_TARGET },
   { id: 'yanagiDisorder', target: DISORDER_TARGET },
 ] satisfies readonly ActionScopeNode[]
+
+const YANAGI_DAMAGE_SCOPES = [{
+  id: 'yanagiExAssistDmg',
+  target: YANAGI_EX_ASSIST,
+  children: [{ id: 'yanagiExDmg', target: YANAGI_EX }],
+}] satisfies readonly ActionScopeNode[]
 
 const ALICE_ANOMALY_SCOPES = [
   { id: 'aliceAttributeAnomaly', target: ATTRIBUTE_ANOMALY_TARGET, children: [{ id: 'aliceAssault', target: JANE_ASSAULT_TARGET }] },
@@ -243,7 +262,7 @@ function equipment(agent: Agent, slot: Slot, setup: CompleteSelectedSetup, relat
   const disc4 = selectedDiscSource(agent, slot, setup, setup.fourPieceId, '4-piece')
   switch (setup.fourPieceId) {
     case 'thunderMetal': if (base.atk !== undefined) relationships.push(stat(disc4, 'atk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.fourPiece.atk), 'percentage')); break
-    case 'chaosJazz': relationships.push(mod(disc4, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.electricFireDamage), undefined, 'combat')); if (agent === 'burnice') relationships.push(provider(disc4, 'self', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage), action: actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Assist')]) }, ['general_damage'], ['Fire'])); if (agent === 'yanagi') relationships.push(mod(disc4, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage), actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Assist')]))); break
+    case 'chaosJazz': relationships.push(mod(disc4, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.electricFireDamage), undefined, 'combat')); if (agent === 'burnice') relationships.push(provider(disc4, 'self', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage), action: actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Assist')]) }, ['general_damage'], ['Fire'])); if (agent === 'yanagi') relationships.push(mod(disc4, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage), YANAGI_EX_ASSIST)); break
     case 'freedomBlues': if (agent !== 'jane' && agent !== 'yanagi' && agent !== 'alice') relationships.push(mod(disc4, 'anomalyBuildupResReduction', equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction))); break
     case 'fangedMetal': relationships.push(mod(disc4, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.fourPiece.assaultDamage))); break
     case 'phaethonsMelody': relationships.push(stat(disc4, 'anomalyProficiency', equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.anomalyProficiency), 'flat')); if (effectAttributeForAgent(agent) === 'Ether') relationships.push(mod(disc4, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.otherHolderEtherDamage))); break
@@ -256,8 +275,10 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
   const setup = { ...requireCompleteSelectedSetup(state.slots[slot].setup), mindscape: state.slots[slot].setup.mindscape }
   const ids = state.slots.map(({ agentId }) => agentId)
   const focusAgentId = ids[state.focusSlot]
-  const core = src(agent, slot, 'core', SOURCE_LABELS[`${agent}Core` as keyof typeof SOURCE_LABELS])
-  const ability = src(agent, slot, 'additional', SOURCE_LABELS[`${agent}Ability` as keyof typeof SOURCE_LABELS], 'additional')
+  const coreKey = `${agent}Core` as const
+  const abilityKey = `${agent}Ability` as const
+  const core = src(agent, slot, 'core', SOURCE_LABELS[coreKey])
+  const ability = src(agent, slot, 'additional', SOURCE_LABELS[abilityKey], 'additional')
   const mind = (tier: 1 | 2 | 4 | 6) => selectedMindscapeSource(agent, slot, setup.mindscape, tier)
   const observation: SelectedSetupObservation = { baseStats: BASE[agent], effectiveSubstats: effectiveSubstatChoicesForSlot(state, slot), modifierMetrics: ['dmgBonus', 'anomalyDmgBonus', 'anomalyBuildupBonus', 'anomalyBuildupResReduction', 'resReduction', 'resIgnore'] }
   const relationships = selectedSetupRelationships(agent, slot, setup, observation)
@@ -488,7 +509,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     })
     actions.push(
       actionProjection('anomalyBuildupBonus', 'yanagiExRapidThrustBuildup', YANAGI_EX_RAPID_THRUST),
-      actionProjection('dmgBonus', 'yanagiExDmg', YANAGI_EX),
+      { metricId: 'dmgBonus', scopes: YANAGI_DAMAGE_SCOPES },
       { metricId: 'anomalyDmgBonus', scopes: YANAGI_ANOMALY_SCOPES },
     )
     const metrics = anomalyDealerMetrics()
@@ -642,13 +663,22 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
         },
       })
     }
-    if (setup.mindscape >= 2) add(mod(mind(2), 'defIgnore', VERTICAL_VALUES.aria.mindscape2DefIgnore))
+    if (setup.mindscape >= 2) {
+      add(mod(mind(2), 'defIgnore', VERTICAL_VALUES.aria.mindscape2DefIgnore, ARIA_ATTACKS))
+      add(mod(mind(2), 'defIgnore', VERTICAL_VALUES.aria.mindscape2DefIgnore, ABLOOM_TARGET))
+    }
     if (setup.mindscape >= 6) add(mod(mind(6), 'dmgBonus', VERTICAL_VALUES.aria.mindscape6EtherDmg, ARIA_M6_DAMAGE))
     equipment(agent, slot, setup, relationships, BASE[agent], focusAgentId)
     const critCap = { value: 100, source: selectedCalculationSource(agent, slot, 'crit-rate-cap', 'Displayed CRIT Rate cap') }
     actions.push(
       { metricId: 'anomalyDmgBonus', scopes: ARIA_ANOMALY_SCOPES },
-      actionProjection('defIgnore', 'ariaAbloomDefIgnore', ABLOOM_TARGET),
+      {
+        metricId: 'defIgnore',
+        scopes: [
+          { id: 'ariaAttacksDefIgnore', target: ARIA_ATTACKS },
+          { id: 'ariaAbloomDefIgnore', target: ABLOOM_TARGET },
+        ],
+      },
       { ...actionProjection('critRate', 'ariaAbloomCritRate', ABLOOM_TARGET), cap: critCap },
       actionProjection('critDmg', 'ariaAbloomCritDmg', ABLOOM_TARGET),
       actionProjection('anomalyBuildupResReduction', 'ariaBasicSpecialBuildupRes', ARIA_BUILDUP),
@@ -826,6 +856,10 @@ function anotherAgentHasNonElectric(ids: readonly AgentId[], slot: number): bool
 
 export function anomalyProfileFor(state: WorkbenchState, slot: Slot): AgentSourceProfile | null {
   const agent = state.slots[slot].agentId
-  if (!(['grace', 'piper', 'yuzuha', 'burnice', 'jane', 'yanagi', 'alice', 'vivian', 'aria', 'promeia'] as readonly string[]).includes(agent)) return null
-  return profile(agent as Agent, state, slot)
+  if (!isAnomalyAgent(agent)) return null
+  return profile(agent, state, slot)
+}
+
+function isAnomalyAgent(agent: AgentId): agent is Agent {
+  return ANOMALY_AGENTS.some((candidate) => candidate === agent)
 }

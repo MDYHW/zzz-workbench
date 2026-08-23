@@ -114,12 +114,11 @@ prepared consequence.
     stat, Electric buildup, Special/EX AP, and thresholded Disorder bonus are
     all usable in Yanagi's actual interval.
   - With prepared AP/Freedom-2/AM and zero supplied substats, Timeweaver Yanagi
-    reaches 341 Fully Enabled AP, below its 375 threshold. Four AP counts
-    reach 377 and eight reach 413; M1 instead reaches 421 at zero counts. The
-    gauge therefore
-    preserves a real finite-investment and Mindscape lifecycle consequence.
-  - Weeping supplies ATK and reachable accumulating AP, reaching 458 Fully
-    Enabled AP in the complete non-limited Chaos/Freedom representative at zero
+    remains below its AP threshold. Four AP counts cross it, eight remain above
+    it, and M1 instead crosses it at zero counts. The gauge therefore preserves
+    a real finite-investment and Mindscape lifecycle consequence.
+  - Weeping supplies ATK and reachable accumulating AP, exceeding the same
+    threshold in the complete non-limited Chaos/Freedom representative at zero
     counts. Electro's
     stable AP/ATK/damage and Fusion's PEN/ATK/Special-AP packages remain
     materially different accessible alternatives.
@@ -146,11 +145,10 @@ prepared consequence.
   Electric DMG through Thunder Metal, and ATK through Hormone Punk/Astral
   Voice. Prepare Freedom with Chaos 4-piece. Freedom and Chaos remain one
   exact same-effect AP identity and substitute only when the selected 4-piece
-  makes the other legal. The complete Chaos/Freedom package supplies 60 AP,
-  leaves Timeweaver 34 AP short at zero counts, and crosses its threshold with
-  four future AP hits. Replacing Freedom with Phaethon supplies 11.84 more AM
-  instead, leaves 311 AP, and reaches the same threshold only at the full
-  bounded eight-hit opportunity. Phaethon remains a materially distinct AM
+  makes the other legal. The complete Chaos/Freedom package leaves Timeweaver
+  below its threshold at zero counts and crosses it with four future AP hits.
+  Replacing Freedom with Phaethon supplies more AM instead and reaches the same
+  threshold only at the full bounded eight-hit opportunity. Phaethon remains a materially distinct AM
   candidate, but the stronger zero-count AP region, earlier threshold
   opportunity, and current competitive preference make Freedom the prepared
   complement. Positive Electric 2-piece supply does not itself displace it.
@@ -184,10 +182,10 @@ prepared consequence.
   Agent. When active, every point of Fully Enabled AM above 140 adds 1.6 AP.
   This is a one-way linear Alice-local relationship: compose selected AM
   sources first, add the derived AP once, and never feed AP or another provider
-  back into AM. Her prepared Practiced/Phaethon/AP/PEN/AM package reaches
-  255.96 AM and 395.536 AP at zero supplied substats. The prepared non-limited
-  Fusion package reaches 195.96 AM and 374.536 AP. Disorder and entry grants of
-  Blade Etiquette remain invisible.
+  back into AM. Her prepared Practiced/Phaethon/AP/PEN/AM package retains the
+  stronger zero-count AM-derived AP direction; the prepared non-limited Fusion
+  package retains the distinct PEN/ATK/AP direction. Disorder and entry grants
+  of Blade Etiquette remain invisible.
 - R13. Retain only Alice Mindscape outcomes with current consumers. M1 makes
   Alice-triggered Assault reduce enemy DEF by 20% for current compatible
   recipients. M2 supplies all-party Assault DMG +15% to compatible Assault
