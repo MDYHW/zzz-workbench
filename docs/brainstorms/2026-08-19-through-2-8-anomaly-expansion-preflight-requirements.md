@@ -17,12 +17,22 @@ expansion begins.
 
 ## Problem Frame
 
-Grace is the only currently admitted Anomaly Agent and the first current
-consumer of Anomaly Proficiency, Anomaly Mastery, anomaly damage, anomaly
-buildup, Shock, and bounded Disorder qualification. The remaining work is not
-limited to Agents with Anomaly Specialty. Anton, Rina, Yuzuha, Nangong Yu, and
-other direct teammates can materially change qualification, party supply,
-candidate pressure, prepared choices, or visible Results for Anomaly setups.
+Grace is the first admitted Anomaly Agent and the reusable baseline for Anomaly
+Proficiency, Anomaly Mastery, anomaly damage, anomaly buildup, Shock, and
+bounded Disorder qualification. The current landed anomaly-damage consumers
+also include Piper, Burnice, and Jane, while Yuzuha and Seth provide current
+support and provider contrasts. The remaining work is not limited to Agents
+with Anomaly Specialty. Anton, Rina, Nangong Yu, and other direct teammates can
+materially change qualification, party supply, candidate pressure, prepared
+choices, or visible Results for Anomaly setups.
+
+That shared cohort does not make every member an Anomaly-damage vertical.
+Remaining consumers are sequenced in three tracks: Agents whose primary setup
+direction strengthens anomaly damage or buildup, the general-damage-led
+Anomaly exception represented by Miyabi, and finally Anton plus Rina, whose
+primary damage remains general damage while consuming or supporting the Shock
+Attribute Anomaly state. Required party partners remain with the dependent
+Anomaly vertical even when their Specialty differs.
 
 Starting one Agent at a time without a bounded inventory would repeat portrait
 and equipment research, obscure dependency order, and risk discovering a
@@ -54,9 +64,11 @@ consumers. The preflight must find the narrow boundary between those failures.
   - **Covered by:** R9-R16
 - F3. Rolling-vertical handoff
   - **Trigger:** Cohort and readiness inspections are complete.
-  - **Steps:** Order basic then advanced verticals by semantic dependency and
-    useful contrast, state blockers, and stop for advisory approval before any
-    plan or implementation begins.
+  - **Steps:** Order the anomaly-damage/buildup track, then Miyabi's
+    general-damage-led Anomaly exception, then the Anton/Rina Shock-state
+    general-damage vertical. Within those boundaries, use semantic dependency
+    and useful contrast, state blockers, and stop for advisory approval before
+    any plan or implementation begins.
   - **Outcome:** The first bounded vertical can begin without inventing cohort,
     source, asset, or sequencing policy during planning.
   - **Covered by:** R6-R8, R17-R18
@@ -87,26 +99,34 @@ consumers. The preflight must find the narrow boundary between those failures.
   facts from current product admission. An Agent absent from the landed roster,
   preparation, calculation, portrait, and visible consumers remains unadmitted
   regardless of roadmap placement or guide coverage.
-- R5. Classify each primary consumer as a standard anomaly-damage/buildup case,
-  an Agent-local threshold, conversion, Disorder, off-field, or reaction case,
-  or a general-damage-led exception such as Miyabi when current kit evidence
-  supports that direction.
+- R5. Classify each primary consumer by the formula families its primary setup
+  direction materially strengthens or supports, not by Specialty or party
+  association alone. Distinguish standard
+  anomaly-damage/buildup, Agent-local threshold, conversion, Disorder,
+  off-field, or reaction cases from a general-damage-led Anomaly exception such
+  as Miyabi and from a general-damage consumer such as Anton whose setup
+  relevance comes from the Shock Attribute Anomaly state.
 
 **Vertical sequencing**
 
-- R6. Re-evaluate the existing basic-cohort hypothesis of Anton + Rina, Piper,
-  Yuzuha, Burnice, and Jane + Seth against current official facts and permanent
-  owners. Preserve that order only where each vertical has an established
-  predecessor, a useful contrast, and no unresolved earlier semantic
-  dependency.
-- R7. Keep advanced consumers and enablers such as Yanagi, Vivian, Alice,
-  Miyabi, Aria, Sunna + Nangong Yu, and Promeia after the basic flow unless
-  current evidence proves that one is a prerequisite rather than merely a
-  later consumer.
-- R8. Order verticals by semantic dependency, shared equipment and party
-  relationships, contrast value, and bounded implementation risk. Release
-  chronology, popularity, or a guide's team order cannot decide the sequence
-  by itself.
+- R6. Complete the remaining through-2.8 consumers whose primary setup
+  direction strengthens anomaly damage or buildup before general-damage-led
+  exceptions. This track includes Yanagi, Vivian, Alice, Aria, Sunna with her
+  required Nangong Yu dependency, and Promeia. Determine their internal order
+  from established predecessors, useful contrasts, semantic dependencies, and
+  bounded implementation risk rather than Specialty metadata alone.
+- R7. After the anomaly-damage track closes, implement Miyabi as the
+  general-damage-led Anomaly exception. Implement Anton + Rina last as a
+  separate Shock-state general-damage vertical: their relationship to an
+  Attribute Anomaly state keeps them in the bounded cohort, but neither makes
+  them Anomaly-damage consumers nor an unfinished prerequisite for the
+  anomaly-damage track. Move either boundary earlier only if current evidence
+  proves a concrete dependency rather than a party association.
+- R8. Within the R6-R7 track boundaries, order verticals by semantic
+  dependency, shared equipment and party relationships that establish a
+  concrete dependency, contrast value, and bounded implementation risk. Party
+  association alone cannot override those boundaries. Release chronology,
+  popularity, or a guide's team order cannot decide the sequence by itself.
 
 **Portrait and equipment readiness**
 
@@ -173,10 +193,12 @@ consumers. The preflight must find the narrow boundary between those failures.
   behavior, excludes the later teammate and conclusions that depend on that
   teammate, and does not treat guide coverage or roadmap placement as landed
   admission.
-- AE2. **Covers R3, R6.** Anton and Rina may enter the inventory even though
-  they are not Anomaly Specialty when their current Shock or party effects
-  materially change an established Grace consumer. Their candidate and Result
-  outcomes remain unsettled until their bounded vertical.
+- AE2. **Covers R3, R5-R7.** Anton and Rina remain in the inventory when their
+  current Shock or party effects materially change an established Grace
+  consumer, but an unimplemented earlier ordering hypothesis does not make
+  them the next vertical. Because their primary output uses general damage and
+  only consumes or supports the Shock state, their candidate and Result
+  outcomes remain unsettled until the final post-Miyabi bounded vertical.
 - AE3. **Covers R6-R8.** Yuzuha does not open party AP scaling before at least
   two current contrasting Anomaly consumers can test recipient meaning and the
   cap, unless current evidence establishes a different prerequisite order.
@@ -241,6 +263,10 @@ consumers. The preflight must find the narrow boundary between those failures.
 - Inventory equipment facts once but settle membership, representatives, and
   compression per consumer: fixed facts are reusable while competitive meaning
   is not.
+- Finish anomaly-damage consumers before Miyabi's general-damage-led Anomaly
+  exception, then close Anton + Rina as the separate Shock-state
+  general-damage vertical. Formula consumption, not Specialty or an old
+  sequence slot, decides that boundary.
 - Treat the suspended roadmap as a hypothesis to revalidate: its dependency
   reasoning is useful, but it neither certifies current facts nor authorizes
   continuation.
@@ -254,5 +280,7 @@ consumers. The preflight must find the narrow boundary between those failures.
 - Current official sources remain available to verify release version,
   identity, kit, and equipment facts; secondary guides may assist but cannot
   self-authorize a product outcome.
-- Grace remains the only landed Anomaly consumer and the reusable baseline
-  unless the trusted checkout changes before the preflight begins.
+- Grace remains the first reusable Anomaly baseline; Piper, Burnice, and Jane
+  remain landed anomaly-damage contrasts, and Yuzuha and Seth remain current
+  support and provider contrasts unless the trusted checkout changes before
+  the preflight begins.
