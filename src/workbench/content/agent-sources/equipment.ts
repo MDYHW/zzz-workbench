@@ -8,6 +8,7 @@ import type { ProfileRelationship } from '../../calculation/relationships'
 import { selectSource, type SelectedSourceInstance } from '../../calculation/source-instance'
 import type { StatId, StatRegion } from '../../calculation/stat-composer'
 import { ADMITTED_AGENTS } from '../agents'
+import type { OperatingInterval } from '../setup-policies'
 import {
   DRIVE_DISC_FACTS,
   DRIVE_DISCS,
@@ -57,6 +58,19 @@ export interface SelectedSetupObservation {
   effectiveSubstats?: readonly SubstatChoice[]
 }
 
+/** Resolves only the operating-interval conditions retained by equipment facts. */
+export function equipmentEffectAppliesInOperatingInterval(
+  effect: EquipmentEffectFact,
+  interval: OperatingInterval | null,
+): boolean {
+  if (effect.scope?.condition === 'offField') return interval === 'off-field'
+  return !(
+    effect.activation?.kind === 'trigger'
+    && effect.activation.removedOffField
+    && interval === 'off-field'
+  )
+}
+
 interface StatInputMeaning {
   statId: StatId
   region: Exclude<StatRegion, 'base'>
@@ -85,6 +99,7 @@ const advancedStatMeanings = {
   energyRegenPct: { statId: 'energyRegen', region: 'percentage' },
   penRatio: { statId: 'penRatio', region: 'flat' },
   anomalyProficiency: { statId: 'anomalyProficiency', region: 'flat' },
+  anomalyMastery: { statId: 'anomalyMastery', region: 'percentage' },
 } as const satisfies Record<string, StatInputMeaning>
 
 const substatMeanings: Record<SubstatId, StatInputMeaning> = {
@@ -480,7 +495,13 @@ function twoPieceEffectIsInitial(
   agentId: AgentId,
 ): boolean {
   const scope = effect.scope
-  if (scope?.recipient || scope?.actions || scope?.tags || scope?.condition) return false
+  if (
+    scope?.recipient
+    || scope?.actions
+    || scope?.anomalyResults
+    || scope?.tags
+    || scope?.condition
+  ) return false
   return effect.modifier === 'dmgBonus'
     ? scope?.attributes?.includes(effectAttributeForAgent(agentId)) === true
     : !scope?.attributes

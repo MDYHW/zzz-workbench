@@ -24,10 +24,14 @@ Use this sequence:
 3. Write one active plan with bounded units, ownership, dependencies,
    non-goals, behavior tests, and proportionate browser verification. A plan
    cannot turn a zero-substat snapshot into an authoring conclusion or replace
-   the preceding permanent-authority/consumer review. For every unit that
-   proposes a new or changed test, include the compact `Testing delta` required
-   by `AGENTS.md`; if shared coverage already proves the behavior, cite that
-   coverage and plan no additional test.
+   the preceding permanent-authority/consumer review. When it adds W-Engines
+   or Drive Discs, include one explicit Setup-compression verification unit:
+   compare retained facts, selected/candidate copy, and Result projection;
+   distinguish activation paths from affected scopes; and inspect the shared
+   accessible description rather than deferring copy cleanup. For every unit
+   that proposes a new or changed test, include the compact `Testing delta`
+   required by `AGENTS.md`; if shared coverage already proves the behavior,
+   cite that coverage and plan no additional test.
 4. Implement from the visible outcome backward. A worker completion report,
    passing test, or plan requirement cannot validate the product conclusion
    that created it. When adjacent preparation passes compose, verify their
@@ -78,6 +82,8 @@ and author the new local outcome from current consumers instead.
 | 2026-08-22 | Replaced 41 Agent-local calculators and catalogue tests with one shared selected-source, surface-stat, relationship-delivery, lifecycle, and Result harness while retaining local competitive setup policy and exact named derivations | [shared harness requirements](../brainstorms/2026-08-21-shared-source-calculation-harness-requirements.md), [calculation harness](../../src/workbench/calculation/profile-harness.ts), [lifecycle coverage](../../src/workbench/lifecycle.test.ts), [integration coverage](../../src/workbench/calculate.integration.test.ts) |
 | 2026-08-23 | Added Jane Doe and Seth Lowell through the shared setup and calculation harness, including Jane's one-way Fully Enabled AP derivation and Assault outcomes, Seth's provider and action-scoped outcomes, competitive pool packages, composed lifecycle behavior, and calibrated portraits | [Jane/Seth requirements](../brainstorms/2026-08-22-jane-seth-anomaly-expansion-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [source-fact boundary](../source-fact-boundary.md), [UI design rules](../workbench-ui-design-rules.md), current content and calculation consumers |
 | 2026-08-23 | Separated Setup investment direction from Result formula participation through one shared carrier, preserving direct stat projection while correcting action and provider applicability | [shared harness requirements](../brainstorms/2026-08-21-shared-source-calculation-harness-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), current setup and calculation consumers |
+| 2026-08-23 | Added Yanagi and Alice as the first remaining Anomaly damage/buildup track unit through competitive pool packages, shared local/provider/operation/action relationships, Yanagi's finite Timeweaver threshold, Alice's one-way AM-to-AP conversion, coherent source replacement, and calibrated portraits | [Yanagi/Alice requirements](../brainstorms/2026-08-23-yanagi-alice-anomaly-expansion-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [source-fact boundary](../source-fact-boundary.md), [UI design rules](../workbench-ui-design-rules.md), current content and calculation consumers |
+| 2026-08-23 | Aligned the Timeweaver threshold harness with its Anomaly Buff Multiplier consumer and added Vivian, Aria, and Promeia through competitive equipment packages with semantically compressed Setup copy, exact Abloom/Corruption action inheritance, Promeia's one-pass Initial-AM outputs, shared provider delivery, visible source hierarchy, and calibrated portraits | [Vivian/Aria/Promeia requirements](../brainstorms/2026-08-23-vivian-aria-promeia-anomaly-expansion-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [source-fact boundary](../source-fact-boundary.md), [UI design rules](../workbench-ui-design-rules.md), current content and calculation consumers |
 
 For removed plan detail, use Git history for `docs/plans/`. The milestone index
 does not validate current product behavior; the linked owners and current

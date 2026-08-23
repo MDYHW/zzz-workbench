@@ -38,6 +38,38 @@ function renderResult(
   )
 }
 
+describe('ResultPanel source breakdown', () => {
+  it('keeps distinct clauses from one selected source as stable breakdown rows', async () => {
+    const user = userEvent.setup()
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const source = { ...syntheticSource, label: 'Selected equipment', locus: 'disc-4pc' as const }
+
+    try {
+      renderResult(syntheticResult({
+        metrics: [{
+          id: 'atk',
+          label: 'ATK',
+          unit: '',
+          decimals: 0,
+          values: surfaces(1000, 1350, 1350),
+          breakdown: surfaces([], [
+            { ...source, detail: '2-piece', amount: 100 },
+            { ...source, detail: '4-piece', amount: 250 },
+          ], []),
+        }],
+      }))
+
+      await user.click(screen.getByRole('button', { name: 'ATK' }))
+      const table = screen.getByRole('table', { name: 'ATK source contributions' })
+      expect(within(table).getByRole('row', { name: /Selected equipment.*2-piece/ })).toBeInTheDocument()
+      expect(within(table).getByRole('row', { name: /Selected equipment.*4-piece/ })).toBeInTheDocument()
+      expect(consoleError).not.toHaveBeenCalled()
+    } finally {
+      consoleError.mockRestore()
+    }
+  })
+})
+
 describe('ResultPanel action hierarchy', () => {
   it('derives an external Agent source tone from the provider current party slot', async () => {
     const user = userEvent.setup()

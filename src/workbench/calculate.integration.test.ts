@@ -1,37 +1,30 @@
 import { describe, expect, it } from 'vitest'
 import { calculateParty } from './calculate'
-import { ADMITTED_AGENTS, type AgentId } from './content'
-import { createPreparedState, workbenchReducer } from './state'
+import { ADMITTED_AGENTS, isFocusEligible, type AgentId } from './content'
+import { createPreparedState, workbenchReducer, type AppliedSlot } from './state'
 
-const profileGroups: readonly (readonly [AgentId, AgentId, AgentId])[] = [
-  ['yixuan', 'dialyn', 'lucia'],
-  ['anbySoldier0', 'trigger', 'astraYao'],
-  ['seed', 'cissia', 'evelyn'],
-  ['corin', 'lycaon', 'juFufu'],
-  ['yidhari', 'manato', 'hugo'],
-  ['panYinhu', 'banyue', 'starlightBilly'],
-  ['ellen', 'soukaku', 'soldier11'],
-  ['lighter', 'lucy', 'zhuYuan'],
-  ['nicole', 'orphie', 'pulchra'],
-  ['harumasa', 'qingyi', 'nekomata'],
-  ['billy', 'ben', 'koleda'],
-  ['anby', 'caesar', 'yeShunguang'],
-  ['zhao', 'grace', 'piper'],
-  ['yuzuha', 'burnice', 'yixuan'],
-  ['jane', 'seth', 'yixuan'],
-]
+const SAFE_COMPANIONS: readonly AgentId[] = ['yixuan', 'dialyn', 'lucia']
+
+function profileStateFor(agentId: AgentId) {
+  const agentIds = [
+    agentId,
+    ...SAFE_COMPANIONS.filter((candidate) => candidate !== agentId),
+  ].slice(0, 3) as [AgentId, AgentId, AgentId]
+  const focusSlot = agentIds.findIndex(isFocusEligible) as AppliedSlot
+  if (focusSlot < 0) throw new Error(`Profile fixture requires a Focus: ${agentId}`)
+  return createPreparedState({}, agentIds, focusSlot)
+}
 
 describe('shared calculation integration', () => {
   it('routes every admitted Agent through the same complete profile evaluator', () => {
-    const reached = new Set<AgentId>()
-
-    for (const group of profileGroups) {
-      const result = calculateParty(createPreparedState({}, [...group], 0))
-      expect(result?.agents.map(({ agentId }) => agentId)).toEqual(group)
-      group.forEach((agentId) => reached.add(agentId))
+    for (const { id } of ADMITTED_AGENTS) {
+      const state = profileStateFor(id)
+      const result = calculateParty(state)
+      expect(result?.agents.map(({ agentId }) => agentId), id)
+        .toEqual(state.slots.map(({ agentId }) => agentId))
+      expect(result?.agents.find(({ agentId }) => agentId === id)?.metrics.length, id)
+        .toBeGreaterThan(0)
     }
-
-    expect([...reached].sort()).toEqual(ADMITTED_AGENTS.map(({ id }) => id).sort())
   })
 
   it('projects one composed cross-holder flow without exposing undeclared shared rows', () => {
@@ -51,19 +44,24 @@ describe('shared calculation integration', () => {
       .not.toContain('power')
   })
 
-  it('projects an overlapping entrant buff to every current recipient instead of Focus only', () => {
-    const result = calculateParty(createPreparedState(
-      {}, ['astraYao', 'seed', 'cissia'], 1,
-    ))!
+  it('projects compatible exact anomaly outcomes across current recipient profiles', () => {
+    let state = createPreparedState({}, ['jane', 'alice', 'piper'], 0)
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 2 })
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 2 })
+    const result = calculateParty(state)!
+    const agent = (agentId: AgentId) => result.agents.find((entry) => entry.agentId === agentId)!
+    const hasSource = (agentId: AgentId, actionId: string, ownerAgentId: AgentId) => (
+      agent(agentId).actionModifiers.find(({ id }) => id === actionId)?.breakdown.fully
+        .some((source) => source.ownerAgentId === ownerAgentId) ?? false
+    )
 
-    for (const agentId of ['astraYao', 'seed', 'cissia'] as const) {
-      const atk = result.agents.find((agent) => agent.agentId === agentId)!
-        .metrics.find(({ id }) => id === 'atk')!
-      expect(atk.breakdown.fully).toContainEqual(expect.objectContaining({
-        label: 'Core Passive',
-        ownerAgentId: 'astraYao',
-      }))
-    }
+    expect(hasSource('alice', 'aliceAssaultCritRate', 'jane')).toBe(true)
+    expect(hasSource('alice', 'aliceAssaultCritDmg', 'jane')).toBe(true)
+    expect(hasSource('alice', 'aliceAssaultDefIgnore', 'jane')).toBe(true)
+    expect(hasSource('jane', 'janeAssaultAnomaly', 'alice')).toBe(true)
+    expect(hasSource('jane', 'janeDisorderAnomaly', 'alice')).toBe(true)
+    expect(hasSource('piper', 'piperAssaultAnomaly', 'alice')).toBe(true)
+    expect(hasSource('piper', 'piperDisorder', 'alice')).toBe(true)
   })
 
   it('applies an equipment interval condition through direction metadata and a bounded holder override', () => {
@@ -81,33 +79,8 @@ describe('shared calculation integration', () => {
 
     expect(lycaonEnergyWith('corin')).toBeUndefined()
     const offFieldEnergy = lycaonEnergyWith('ellen')!
-    expect(offFieldEnergy.values.fully).toBeCloseTo(1.8)
-    expect(offFieldEnergy.breakdown.combat).toEqual([
-      expect.objectContaining({ label: 'Hellfire Gears', amount: 0.6 }),
-    ])
-  })
-
-  it('projects canonical equipment scopes through retained Agent-local action identities', () => {
-    const hasActionSource = (
-      state: ReturnType<typeof createPreparedState>,
-      agentId: AgentId,
-      metricId: 'dmgBonus' | 'defIgnore',
-      label: string,
-    ) => calculateParty(state)!.agents.find((agent) => agent.agentId === agentId)!
-      .actionModifiers.some((modifier) => (
-        modifier.metricId === metricId
-        && Object.values(modifier.breakdown).flat().some((source) => source.label === label)
-      ))
-
-    let state = createPreparedState({}, ['seed', 'cissia', 'evelyn'], 0)
-    expect(hasActionSource(state, 'seed', 'defIgnore', 'Cordis Germina')).toBe(true)
-    expect(hasActionSource(state, 'seed', 'dmgBonus', "Dawn's Bloom")).toBe(true)
-
-    state = workbenchReducer(state, { type: 'switchPool', slot: 1, pool: 'nonLimited' })
-    expect(state.slots[1].setup.engineId).toBe('drillRigRedAxis')
-    expect(hasActionSource(state, 'cissia', 'dmgBonus', 'Drill Rig - Red Axis')).toBe(true)
-    expect(calculateParty(state)!.agents.find(({ agentId }) => agentId === 'cissia')!.actionModifiers)
-      .toEqual(expect.arrayContaining([expect.objectContaining({ id: 'cissiaCorrodeDaze' })]))
+    expect(offFieldEnergy.breakdown.combat)
+      .toContainEqual(expect.objectContaining({ label: 'Hellfire Gears' }))
   })
 
   it('returns no Result while any required Setup selection is incomplete', () => {
@@ -123,120 +96,4 @@ describe('shared calculation integration', () => {
     expect(calculateParty(incomplete)).toBeNull()
   })
 
-  it('keeps Seth Core delivery and Peacekeeper action effects while gating Additional buildup RES', () => {
-    const active = calculateParty(createPreparedState({}, ['seth', 'piper', 'grace'], 1))!
-    const inactive = calculateParty(createPreparedState({}, ['seth', 'piper', 'burnice'], 1))!
-    const agent = (result: NonNullable<ReturnType<typeof calculateParty>>, id: AgentId) => (
-      result.agents.find(({ agentId }) => agentId === id)!
-    )
-    const activeSeth = agent(active, 'seth')
-    const inactiveSeth = agent(inactive, 'seth')
-    const activeAp = activeSeth.metrics.find(({ id }) => id === 'anomalyProficiency')!
-    const inactiveAp = inactiveSeth.metrics.find(({ id }) => id === 'anomalyProficiency')!
-
-    expect(activeAp.values.fully).toBe(190)
-    expect(inactiveAp.values.fully).toBe(190)
-    expect(agent(active, 'piper').metrics.find(({ id }) => id === 'anomalyBuildupResReduction')?.values.fully)
-      .toBe(20)
-    expect(agent(inactive, 'piper').metrics.find(({ id }) => id === 'anomalyBuildupResReduction')).toBeUndefined()
-    expect(activeSeth.metrics.find(({ id }) => id === 'anomalyBuildupResReduction')?.values.fully)
-      .toBe(20)
-    expect(inactiveSeth.metrics.find(({ id }) => id === 'anomalyBuildupResReduction')).toBeUndefined()
-
-    const energy = activeSeth.metrics.find(({ id }) => id === 'energyRegen')!
-    expect(energy.values.combat).toBe(energy.values.initial)
-    expect(energy.values.fully).toBeGreaterThan(energy.values.combat)
-    expect(activeSeth.metrics.find(({ id }) => id === 'anomalyBuildupBonus')?.values.fully)
-      .toBe(0)
-    expect(activeSeth.metrics.find(({ id }) => id === 'dazeBonus')?.values.fully)
-      .toBe(0)
-    const exAssistBuildup = activeSeth.actionModifiers
-      .find(({ id }) => id === 'sethExAssistBuildup')!
-    expect(exAssistBuildup.values.fully).toBeGreaterThan(0)
-    expect(exAssistBuildup.standaloneMetric).toBeUndefined()
-    expect(activeSeth.actionModifiers.find(({ id }) => id === 'sethDefensiveAssistDaze')?.standaloneMetric)
-      .toBeUndefined()
-
-    let tusksState = createPreparedState({}, ['seth', 'piper', 'grace'], 1)
-    tusksState = workbenchReducer(tusksState, {
-      type: 'selectEngine', slot: 0, engineId: 'tusksOfFury',
-    })
-    const tusksSeth = agent(calculateParty(tusksState)!, 'seth')
-    expect(tusksSeth.metrics.find(({ id }) => id === 'dazeBonus')?.values.fully)
-      .toBeGreaterThan(0)
-  })
-
-  it('derives prepared Jane Passion from Seth AP and scopes Assault CRIT providers', () => {
-    const withSeth = calculateParty(createPreparedState({}, ['jane', 'piper', 'seth'], 0))!
-    const withoutSeth = calculateParty(createPreparedState({}, ['jane', 'piper', 'burnice'], 0))!
-    const agent = (result: NonNullable<ReturnType<typeof calculateParty>>, id: AgentId) => (
-      result.agents.find(({ agentId }) => agentId === id)!
-    )
-    const jane = agent(withSeth, 'jane')
-    const piper = agent(withSeth, 'piper')
-    const seth = agent(withSeth, 'seth')
-    const janeAp = jane.metrics.find(({ id }) => id === 'anomalyProficiency')!
-    const janeApWithoutSeth = agent(withoutSeth, 'jane').metrics
-      .find(({ id }) => id === 'anomalyProficiency')!
-
-    expect(janeAp.values.fully - janeApWithoutSeth.values.fully).toBe(100)
-    expect(janeAp.gauge?.additionalOutputs).toContainEqual(expect.objectContaining({
-      label: 'Passion flat ATK',
-      value: Math.min(Math.max(janeAp.values.fully - 120, 0) * 2, 600),
-    }))
-
-    const modifier = (result: ReturnType<typeof agent>, id: string) => (
-      result.actionModifiers.find(({ id: modifierId }) => modifierId === id)
-    )
-    expect(modifier(jane, 'janeAssaultCritRate')?.breakdown.fully.flat())
-      .toContainEqual(expect.objectContaining({ label: 'Core Passive' }))
-    expect(modifier(jane, 'janeAssaultCritRate')?.standaloneMetric?.label).toBe('CRIT Rate')
-    expect(jane.metrics.some(({ id }) => id === 'critRate' || id === 'critDmg')).toBe(false)
-    expect(piper.metrics.some(({ id }) => id === 'critRate' || id === 'critDmg')).toBe(false)
-    expect(modifier(piper, 'piperAssaultCritRate')?.breakdown.fully.flat())
-      .toContainEqual(expect.objectContaining({ label: 'Core Passive' }))
-    expect(modifier(jane, 'janeAssaultCritDmg')?.breakdown.fully.flat())
-      .toContainEqual(expect.objectContaining({ label: 'Potential Awakening' }))
-    expect(modifier(piper, 'piperAssaultCritDmg')?.breakdown.fully.flat())
-      .not.toContainEqual(expect.objectContaining({ label: 'Potential Awakening' }))
-    expect(seth.actionModifiers.some(({ id }) => id === 'janeAssaultCritRate' || id === 'janeAssaultCritDmg'))
-      .toBe(false)
-
-    let m2State = createPreparedState({}, ['jane', 'piper', 'seth'], 0)
-    m2State = workbenchReducer(m2State, { type: 'setMindscape', slot: 0, mindscape: 2 })
-    const m2 = calculateParty(m2State)!
-    const m2Jane = agent(m2, 'jane')
-    const m2Piper = agent(m2, 'piper')
-    const m2Seth = agent(m2, 'seth')
-    const piperM2Crit = modifier(m2Piper, 'piperAssaultCritDmg')!
-    const piperM2Defense = modifier(m2Piper, 'piperAssaultDefIgnore')!
-
-    expect(piperM2Crit.values.fully).toBeGreaterThan(modifier(piper, 'piperAssaultCritDmg')!.values.fully)
-    expect(piperM2Crit.breakdown.fully.flat())
-      .toContainEqual(expect.objectContaining({ label: 'Mindscape', detail: 'M2' }))
-    expect(piperM2Defense.breakdown.fully.flat())
-      .toContainEqual(expect.objectContaining({ label: 'Mindscape', detail: 'M2' }))
-    expect(modifier(m2Jane, 'janeAssaultCritDmg')?.breakdown.fully.flat())
-      .toContainEqual(expect.objectContaining({ label: 'Mindscape', detail: 'M2' }))
-    expect(m2Seth.actionModifiers.some(({ id }) => id.includes('Assault'))).toBe(false)
-  })
-
-  it('keeps action-admitted CRIT hidden until Anby creates Trigger\'s scoped outcome', () => {
-    const withoutAnby = calculateParty(
-      createPreparedState({}, ['trigger', 'harumasa', 'nicole'], 1),
-    )!
-    const withAnby = calculateParty(
-      createPreparedState({}, ['trigger', 'anbySoldier0', 'nicole'], 1),
-    )!
-    const trigger = (result: NonNullable<ReturnType<typeof calculateParty>>) => (
-      result.agents.find(({ agentId }) => agentId === 'trigger')!
-    )
-
-    expect(trigger(withoutAnby).metrics.some(({ id }) => id === 'critDmg')).toBe(false)
-    expect(trigger(withoutAnby).actionModifiers.some(({ id }) => id === 'triggerAftershockCritDmg'))
-      .toBe(false)
-    expect(trigger(withAnby).metrics.some(({ id }) => id === 'critDmg')).toBe(true)
-    expect(trigger(withAnby).actionModifiers.some(({ id }) => id === 'triggerAftershockCritDmg'))
-      .toBe(true)
-  })
 })

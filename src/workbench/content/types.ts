@@ -46,6 +46,11 @@ export type AgentId =
   | 'burnice'
   | 'jane'
   | 'seth'
+  | 'yanagi'
+  | 'alice'
+  | 'vivian'
+  | 'aria'
+  | 'promeia'
 
 export type AgentRank = 'S' | 'A'
 export type AgentAttribute =
@@ -75,6 +80,8 @@ export type AgentFaction =
   | 'Belobog Heavy Industries'
   | 'Krampus Compliance Authority'
   | 'Spook Shack'
+  | 'Mockingbird'
+  | 'Angels of Delusion'
 
 /** Game-recognized teammate qualification that does not replace display faction. */
 export type PartyQualificationGroup = 'New Eridu Defense Force'
@@ -146,6 +153,9 @@ export type EngineId =
   | 'roaringRide'
   | 'metanukimorphosis'
   | 'flamemakerShaker'
+  | 'flightOfFancy'
+  | 'angelInTheShell'
+  | 'frostfallSickle'
 
 export type DiscId =
   | 'yunkui'
@@ -170,6 +180,8 @@ export type DiscId =
   | 'chaosJazz'
   | 'freedomBlues'
   | 'phaethonsMelody'
+  | 'shiningAria'
+  | 'notesFromTheChained'
 
 export type MainSlot = 'slot4' | 'slot5' | 'slot6'
 export type FixedMainSlot = 'slot1' | 'slot2' | 'slot3'
@@ -235,14 +247,34 @@ export type EquipmentEffectAction =
   >
 
 export type EquipmentEffectTag = Extract<ActionTag, 'aftershock'>
-export type EquipmentEffectCondition = 'backAttack' | 'offField' | 'shielded'
+export type EquipmentEffectCondition = 'backAttack' | 'offField' | 'shielded' | 'anomalyAfflictedTarget' | 'stunnedTarget'
+export type EquipmentEffectAnomalyResult = 'Attribute Anomaly' | 'Disorder' | 'Abloom'
 
 export type EquipmentEffectRecipient = 'self' | 'squad' | 'enemy'
 export type EquipmentEffectValue = number | RefinementValues
 
+export type EquipmentEffectActivation =
+  | {
+    kind: 'minimum-stat'
+    statId: 'anomalyProficiency'
+    threshold: number
+  }
+  | {
+    kind: 'trigger'
+    actions?: readonly EquipmentEffectAction[]
+    attributes?: readonly EquipmentEffectAttribute[]
+    anomalyResult?: 'Abloom' | 'Freeze'
+    performer?: 'squad-member' | 'other-squad-member'
+    fieldEntry?: true
+    durationSeconds?: number
+    removedOffField?: true
+    stackThreshold?: number
+  }
+
 export interface EquipmentEffectScope {
   recipient?: EquipmentEffectRecipient
   actions?: readonly EquipmentEffectAction[]
+  anomalyResults?: readonly EquipmentEffectAnomalyResult[]
   tags?: readonly EquipmentEffectTag[]
   attributes?: readonly EquipmentEffectAttribute[]
   condition?: EquipmentEffectCondition
@@ -276,10 +308,12 @@ export type EquipmentEffectFact = {
   modifier: EquipmentEffectModifier
   unit: '%' | '' | '/s'
   scope?: EquipmentEffectScope
+  activation?: EquipmentEffectActivation
 } & EquipmentEffectMagnitude
 
 // Setup-content facts only. Local collection keys are handles for explicit
-// consumers; this shape does not decide activation or project effects into Result.
+// consumers. Retained activation belongs here; holder applicability and Result
+// projection remain decisions of their local consumers.
 export type EquipmentEffectCollection = Readonly<Record<string, EquipmentEffectFact>>
 
 export interface WEngineFacts {
@@ -392,6 +426,11 @@ export const equipmentEffectBaseValue = (
   effect: EquipmentEffectFact,
   refinement?: Refinement,
 ): number => effect.value === undefined ? 0 : resolveEquipmentEffectValue(effect.value, refinement)
+
+export const equipmentEffectAppliesToAttribute = (
+  effect: EquipmentEffectFact,
+  attribute: EquipmentEffectAttribute,
+): boolean => !effect.scope?.attributes?.length || effect.scope.attributes.includes(attribute)
 
 export const equipmentEffectProgressionValue = (
   effect: EquipmentEffectFact,

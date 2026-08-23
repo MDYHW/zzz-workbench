@@ -301,6 +301,36 @@ const sethRepresentative: SetupSelection = {
   mains: { slot4: 'anomalyProficiency', slot5: 'electricDmg', slot6: 'energyRegenPct' },
 }
 
+const yanagiRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'timeweaver' : 'weepingGemini',
+  fourPieceId: 'chaosJazz', twoPieceId: 'freedomBlues',
+  mains: { slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'anomalyMastery' },
+})
+
+const aliceRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'practicedPerfection' : 'fusionCompiler',
+  fourPieceId: 'fangedMetal', twoPieceId: 'phaethonsMelody',
+  mains: { slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'anomalyMastery' },
+})
+
+const vivianRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'flightOfFancy' : 'weepingGemini',
+  fourPieceId: 'phaethonsMelody', twoPieceId: 'freedomBlues',
+  mains: { slot4: 'anomalyProficiency', slot5: 'etherDmg', slot6: 'anomalyMastery' },
+})
+
+const ariaRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'angelInTheShell' : 'electroLipGloss',
+  fourPieceId: 'phaethonsMelody', twoPieceId: 'freedomBlues',
+  mains: { slot4: 'anomalyProficiency', slot5: 'etherDmg', slot6: 'anomalyMastery' },
+})
+
+const promeiaRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'frostfallSickle' : 'fusionCompiler',
+  fourPieceId: 'notesFromTheChained', twoPieceId: 'phaethonsMelody',
+  mains: { slot4: 'anomalyProficiency', slot5: 'iceDmg', slot6: 'anomalyMastery' },
+})
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -409,6 +439,11 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   burnice: { full: burniceRepresentative('full'), nonLimited: burniceRepresentative('nonLimited') },
   jane: { full: janeRepresentative('full'), nonLimited: janeRepresentative('nonLimited') },
   seth: { full: sethRepresentative, nonLimited: sethRepresentative },
+  yanagi: { full: yanagiRepresentative('full'), nonLimited: yanagiRepresentative('nonLimited') },
+  alice: { full: aliceRepresentative('full'), nonLimited: aliceRepresentative('nonLimited') },
+  vivian: { full: vivianRepresentative('full'), nonLimited: vivianRepresentative('nonLimited') },
+  aria: { full: ariaRepresentative('full'), nonLimited: ariaRepresentative('nonLimited') },
+  promeia: { full: promeiaRepresentative('full'), nonLimited: promeiaRepresentative('nonLimited') },
 }
 
 export function representativeSetupFor(

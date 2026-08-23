@@ -20,6 +20,8 @@ import whiteWaterBalladImage from '../../assets/equipment/drive-discs/white-wate
 import chaosJazzImage from '../../assets/equipment/drive-discs/chaos-jazz.webp'
 import freedomBluesImage from '../../assets/equipment/drive-discs/freedom-blues.webp'
 import phaethonsMelodyImage from '../../assets/equipment/drive-discs/phaethons-melody.webp'
+import shiningAriaImage from '../../assets/equipment/drive-discs/shining-aria.webp'
+import notesFromTheChainedImage from '../../assets/equipment/drive-discs/notes-from-the-chained.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -215,6 +217,49 @@ export const DRIVE_DISC_FACTS = {
     twoPiece: {
       anomalyMastery: { modifier: 'anomalyMastery', unit: '%', value: 8 },
     },
+    fourPiece: {
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '', value: 45,
+        activation: { kind: 'trigger', actions: ['EX Special Attack'], performer: 'squad-member', durationSeconds: 8 },
+      },
+      otherHolderEtherDamage: {
+        modifier: 'dmgBonus', unit: '%', value: 25,
+        scope: { attributes: ['Ether'] },
+        activation: { kind: 'trigger', actions: ['EX Special Attack'], performer: 'other-squad-member', durationSeconds: 8 },
+      },
+    },
+  },
+  shiningAria: {
+    twoPiece: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Ether'] } },
+    },
+    fourPiece: {
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '', value: 36,
+        activation: { kind: 'trigger', actions: ['Basic Attack'], durationSeconds: 8 },
+      },
+      stunnedTargetDamage: {
+        modifier: 'dmgBonus', unit: '%', value: 25,
+        scope: { condition: 'stunnedTarget' },
+        activation: { kind: 'trigger', performer: 'squad-member', durationSeconds: 18 },
+      },
+    },
+  },
+  notesFromTheChained: {
+    twoPiece: {
+      damage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Ice'] } },
+    },
+    fourPiece: {
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '', value: 48,
+        activation: { kind: 'trigger', anomalyResult: 'Abloom', durationSeconds: 30 },
+      },
+      squadAnomalyDamage: {
+        modifier: 'anomalyDmgBonus', unit: '%', value: 16,
+        scope: { recipient: 'squad', anomalyResults: ['Attribute Anomaly', 'Disorder'] },
+        activation: { kind: 'trigger', anomalyResult: 'Freeze', durationSeconds: 30 },
+      },
+    },
   },
 } as const satisfies Record<DiscId, DriveDiscFacts>
 
@@ -362,6 +407,26 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   phaethonsMelody: {
     id: 'phaethonsMelody', name: "Phaethon's Melody", image: phaethonsMelodyImage,
     twoPieceEffect: `Anomaly Mastery +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.twoPiece.anomalyMastery)}%`,
+    fourPieceEffects: [
+      `Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.anomalyProficiency)}`,
+      `Ether DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.otherHolderEtherDamage)}%`,
+    ],
+  },
+  shiningAria: {
+    id: 'shiningAria', name: 'Shining Aria', image: shiningAriaImage,
+    twoPieceEffect: `Ether DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.shiningAria.twoPiece.damage)}%`,
+    fourPieceEffects: [
+      `Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.shiningAria.fourPiece.anomalyProficiency)}`,
+      `Stunned target DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.shiningAria.fourPiece.stunnedTargetDamage)}%`,
+    ],
+  },
+  notesFromTheChained: {
+    id: 'notesFromTheChained', name: 'Notes From the Chained', image: notesFromTheChainedImage,
+    twoPieceEffect: `Ice DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.notesFromTheChained.twoPiece.damage)}%`,
+    fourPieceEffects: [
+      `Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.anomalyProficiency)}`,
+      `Squad Attribute Anomaly & Disorder DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.squadAnomalyDamage)}%`,
+    ],
   },
 }
 
@@ -371,6 +436,7 @@ export const SAME_EFFECT_TWO_PIECE_RELATIONSHIPS = [
   { members: ['whiteWaterBallad', 'fangedMetal'], canonical: 'whiteWaterBallad' },
   { members: ['bunnyInWonderland', 'yunkui'], canonical: 'bunnyInWonderland' },
   { members: ['freedomBlues', 'chaosJazz'], canonical: 'freedomBlues' },
+  { members: ['chaoticMetal', 'shiningAria'], canonical: 'chaoticMetal' },
 ] as const satisfies readonly {
   members: readonly [DiscId, DiscId]
   canonical: DiscId
@@ -510,5 +576,25 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
   seth: {
     fourPiece: ['astralVoice', 'swingJazz', 'freedomBlues'],
     twoPiece: ['swingJazz', 'moonlight'],
+  },
+  yanagi: {
+    fourPiece: ['chaosJazz', 'thunderMetal', 'freedomBlues'],
+    twoPiece: ['freedomBlues', 'chaosJazz', 'pufferElectro', 'phaethonsMelody', 'thunderMetal', 'hormonePunk', 'astralVoice'],
+  },
+  alice: {
+    fourPiece: ['fangedMetal', 'freedomBlues', 'hormonePunk'],
+    twoPiece: ['phaethonsMelody', 'pufferElectro', 'freedomBlues', 'chaosJazz', 'fangedMetal', 'whiteWaterBallad', 'hormonePunk', 'astralVoice'],
+  },
+  vivian: {
+    fourPiece: ['phaethonsMelody'],
+    twoPiece: ['freedomBlues', 'chaosJazz', 'shiningAria', 'chaoticMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
+  },
+  aria: {
+    fourPiece: ['phaethonsMelody', 'shiningAria'],
+    twoPiece: ['freedomBlues', 'chaosJazz', 'shiningAria', 'chaoticMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
+  },
+  promeia: {
+    fourPiece: ['notesFromTheChained'],
+    twoPiece: ['phaethonsMelody', 'freedomBlues', 'chaosJazz', 'hormonePunk', 'astralVoice'],
   },
 }

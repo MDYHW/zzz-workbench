@@ -36,6 +36,10 @@ const damageMetric: MetricProjection = {
   id: 'dmgBonus', label: 'DMG Bonus', unit: '%', decimals: 1,
 }
 
+const anomalyDamageMetric: MetricProjection = {
+  id: 'anomalyDmgBonus', label: 'Anomaly DMG Bonus', unit: '%', decimals: 1,
+}
+
 const critRateMetric: MetricProjection = {
   id: 'critRate', statId: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1,
 }
@@ -803,9 +807,9 @@ describe('profile calculation harness', () => {
             label: 'Anomaly Proficiency', unit: '', decimals: 0,
             gaugeId: 'timeweaverDisorder',
           },
-          { ...damageMetric, resultVisibility: 'action-only' },
+          { ...anomalyDamageMetric, resultVisibility: 'action-only' },
         ],
-        actions: [actionProjection('dmgBonus', 'graceDisorder', DISORDER_TARGET)],
+        actions: [actionProjection('anomalyDmgBonus', 'graceDisorder', DISORDER_TARGET)],
         relationships: [
           baseStat('grace', 0, 'anomalyProficiency', 340),
           {
@@ -814,7 +818,7 @@ describe('profile calculation harness', () => {
             basis: { statId: 'anomalyProficiency', surface: 'fully' },
             basisLabel: 'Fully Enabled Anomaly Proficiency',
             basisCap: 375,
-            gaugeMetricId: 'anomalyProficiency', modifierMetricId: 'dmgBonus',
+            gaugeMetricId: 'anomalyProficiency', modifierMetricId: 'anomalyDmgBonus',
             action: DISORDER_TARGET, modifierSurface: 'fully',
             output: {
               label: 'Disorder DMG Bonus',

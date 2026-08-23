@@ -60,6 +60,9 @@ import sharpenedStingerImage from '../../assets/equipment/w-engines/sharpened-st
 import roaringRideImage from '../../assets/equipment/w-engines/roaring-ride.webp'
 import metanukimorphosisImage from '../../assets/equipment/w-engines/metanukimorphosis.webp'
 import flamemakerShakerImage from '../../assets/equipment/w-engines/flamemaker-shaker.webp'
+import flightOfFancyImage from '../../assets/equipment/w-engines/flight-of-fancy.webp'
+import angelInTheShellImage from '../../assets/equipment/w-engines/angel-in-the-shell.webp'
+import frostfallSickleImage from '../../assets/equipment/w-engines/frostfall-sickle.webp'
 import peacekeeperSpecializedImage from '../../assets/equipment/w-engines/peacekeeper-specialized.webp'
 import {
   equipmentEffectBaseValue,
@@ -521,6 +524,7 @@ export const W_ENGINE_FACTS = {
       },
       disorderDamage: {
         modifier: 'anomalyDmgBonus', unit: '%', value: [25, 27.5, 30, 32.5, 35],
+        activation: { kind: 'minimum-stat', statId: 'anomalyProficiency', threshold: 375 },
       },
     },
   },
@@ -595,6 +599,54 @@ export const W_ENGINE_FACTS = {
         },
       },
       anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: [50, 62, 75, 87, 100] },
+    },
+  },
+  flightOfFancy: {
+    advancedStat: { id: 'anomalyProficiency', label: 'Anomaly Proficiency', value: 90, unit: '' },
+    effects: {
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '',
+        progression: { kind: 'stacks', perStack: [20, 23, 26, 29, 32], maxStacks: 6 },
+        activation: { kind: 'trigger', attributes: ['Ether'], durationSeconds: 8 },
+      },
+      etherBuildup: {
+        modifier: 'anomalyBuildupBonus', unit: '%', value: [40, 46, 52, 58, 64],
+        scope: { attributes: ['Ether'] },
+      },
+    },
+  },
+  angelInTheShell: {
+    advancedStat: { id: 'anomalyMastery', label: 'Anomaly Mastery', value: 30, unit: '%' },
+    effects: {
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '', value: [90, 103.5, 117, 130.5, 144],
+      },
+      damage: {
+        modifier: 'dmgBonus', unit: '%', value: [20, 23, 26, 29, 32],
+        scope: { condition: 'anomalyAfflictedTarget' },
+        activation: { kind: 'trigger', fieldEntry: true, actions: ['Special Attack', 'EX Special Attack'], durationSeconds: 15, removedOffField: true },
+      },
+      anomalyDamage: {
+        modifier: 'anomalyDmgBonus', unit: '%', value: [10, 11.5, 13, 14.5, 16],
+        scope: { anomalyResults: ['Attribute Anomaly', 'Disorder'] },
+        activation: { kind: 'trigger', fieldEntry: true, actions: ['Special Attack', 'EX Special Attack'], durationSeconds: 15, removedOffField: true },
+      },
+    },
+  },
+  frostfallSickle: {
+    advancedStat: { id: 'anomalyMastery', label: 'Anomaly Mastery', value: 30, unit: '%' },
+    effects: {
+      iceDamage: {
+        modifier: 'dmgBonus', unit: '%', value: 0,
+        progression: { kind: 'stacks', perStack: [20, 23, 26, 29, 32], maxStacks: 2 },
+        scope: { attributes: ['Ice'] },
+        activation: { kind: 'trigger', actions: ['Special Attack', 'EX Special Attack'], attributes: ['Ice'], durationSeconds: 40 },
+      },
+      abloomDamage: {
+        modifier: 'anomalyDmgBonus', unit: '%', value: [35, 40.25, 45.5, 50.75, 56],
+        scope: { anomalyResults: ['Abloom'] },
+        activation: { kind: 'trigger', actions: ['Special Attack', 'EX Special Attack'], attributes: ['Ice'], durationSeconds: 40, stackThreshold: 2 },
+      },
     },
   },
 } as const satisfies Record<EngineId, WEngineFacts>
@@ -1012,7 +1064,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveLines: (refinement) => [
       `Electric Anomaly Buildup +${percent(W_ENGINE_FACTS.timeweaver.effects.electricBuildup, refinement)}`,
       `Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.timeweaver.effects.anomalyProficiency, refinement)}`,
-      `≥375 Anomaly Proficiency · Disorder DMG +${percent(W_ENGINE_FACTS.timeweaver.effects.disorderDamage, refinement)}`,
+      `≥${W_ENGINE_FACTS.timeweaver.effects.disorderDamage.activation.threshold} Anomaly Proficiency · Disorder DMG +${percent(W_ENGINE_FACTS.timeweaver.effects.disorderDamage, refinement)}`,
     ],
   },
   practicedPerfection: {
@@ -1088,6 +1140,34 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.flamemakerShaker.effects.anomalyProficiency, refinement)}`,
     ],
   },
+  flightOfFancy: {
+    id: 'flightOfFancy', name: 'Flight of Fancy', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.flightOfFancy.advancedStat, image: flightOfFancyImage,
+    passiveSpecialty: 'Anomaly',
+    passiveLines: (refinement) => [
+      `Ether Anomaly Buildup +${percent(W_ENGINE_FACTS.flightOfFancy.effects.etherBuildup, refinement)}`,
+      `Anomaly Proficiency +${equipmentEffectMaximumValue(W_ENGINE_FACTS.flightOfFancy.effects.anomalyProficiency, refinement)}`,
+    ],
+  },
+  angelInTheShell: {
+    id: 'angelInTheShell', name: 'Angel in the Shell', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.angelInTheShell.advancedStat, image: angelInTheShellImage,
+    passiveSpecialty: 'Anomaly',
+    passiveLines: (refinement) => [
+      `Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.angelInTheShell.effects.anomalyProficiency, refinement)}`,
+      `Anomaly-afflicted target DMG +${percent(W_ENGINE_FACTS.angelInTheShell.effects.damage, refinement)}`,
+      `Attribute Anomaly & Disorder DMG +${percent(W_ENGINE_FACTS.angelInTheShell.effects.anomalyDamage, refinement)}`,
+    ],
+  },
+  frostfallSickle: {
+    id: 'frostfallSickle', name: 'Frostfall Sickle', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.frostfallSickle.advancedStat, image: frostfallSickleImage,
+    passiveSpecialty: 'Anomaly',
+    passiveLines: (refinement) => [
+      `Ice DMG +${equipmentEffectMaximumValue(W_ENGINE_FACTS.frostfallSickle.effects.iceDamage, refinement)}%`,
+      `Abloom DMG +${percent(W_ENGINE_FACTS.frostfallSickle.effects.abloomDamage, refinement)}`,
+    ],
+  },
 }
 
 const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
@@ -1148,4 +1228,18 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   burnice: enginePools(['flamemakerShaker', 'practicedPerfection', 'electroLipGloss', 'weepingGemini']),
   jane: enginePools(['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
   seth: enginePools(['peacekeeperSpecialized', 'tusksOfFury', 'springEmbrace']),
+  yanagi: enginePools(['timeweaver', 'practicedPerfection', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
+  alice: enginePools(['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
+  vivian: {
+    full: ['flightOfFancy', 'angelInTheShell', 'weepingGemini'],
+    nonLimited: ['weepingGemini'],
+  },
+  aria: {
+    full: ['angelInTheShell', 'flightOfFancy', 'electroLipGloss', 'weepingGemini', 'fusionCompiler'],
+    nonLimited: ['electroLipGloss', 'weepingGemini', 'fusionCompiler'],
+  },
+  promeia: {
+    full: ['frostfallSickle', 'fusionCompiler', 'angelInTheShell', 'electroLipGloss', 'weepingGemini'],
+    nonLimited: ['fusionCompiler', 'electroLipGloss', 'weepingGemini'],
+  },
 }

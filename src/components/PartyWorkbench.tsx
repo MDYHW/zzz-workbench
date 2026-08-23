@@ -63,6 +63,11 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   burnice: { attribute: fireMark, specialty: anomalyMark },
   jane: { attribute: physicalMark, specialty: anomalyMark },
   seth: { attribute: electricMark, specialty: defenseMark },
+  yanagi: { attribute: electricMark, specialty: anomalyMark },
+  alice: { attribute: physicalMark, specialty: anomalyMark },
+  vivian: { attribute: etherMark, specialty: anomalyMark },
+  aria: { attribute: etherMark, specialty: anomalyMark },
+  promeia: { attribute: iceMark, specialty: anomalyMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {
