@@ -17,12 +17,14 @@ expansion begins.
 
 ## Problem Frame
 
-Grace is the only currently admitted Anomaly Agent and the first current
-consumer of Anomaly Proficiency, Anomaly Mastery, anomaly damage, anomaly
-buildup, Shock, and bounded Disorder qualification. The remaining work is not
-limited to Agents with Anomaly Specialty. Anton, Rina, Yuzuha, Nangong Yu, and
-other direct teammates can materially change qualification, party supply,
-candidate pressure, prepared choices, or visible Results for Anomaly setups.
+Grace is the first admitted Anomaly Agent and the reusable baseline for Anomaly
+Proficiency, Anomaly Mastery, anomaly damage, anomaly buildup, Shock, and
+bounded Disorder qualification. The current landed anomaly-damage consumers
+also include Piper, Burnice, and Jane, while Yuzuha and Seth provide current
+support and provider contrasts. The remaining work is not limited to Agents
+with Anomaly Specialty. Anton, Rina, Nangong Yu, and other direct teammates can
+materially change qualification, party supply, candidate pressure, prepared
+choices, or visible Results for Anomaly setups.
 
 That shared cohort does not make every member an Anomaly-damage vertical.
 Remaining consumers are sequenced in three tracks: Agents whose primary setup
@@ -277,5 +279,7 @@ consumers. The preflight must find the narrow boundary between those failures.
 - Current official sources remain available to verify release version,
   identity, kit, and equipment facts; secondary guides may assist but cannot
   self-authorize a product outcome.
-- Grace remains the only landed Anomaly consumer and the reusable baseline
-  unless the trusted checkout changes before the preflight begins.
+- Grace remains the first reusable Anomaly baseline; Piper, Burnice, and Jane
+  remain landed anomaly-damage contrasts, and Yuzuha and Seth remain current
+  support and provider contrasts unless the trusted checkout changes before
+  the preflight begins.
