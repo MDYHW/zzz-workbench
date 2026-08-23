@@ -66,4 +66,35 @@ describe('workbench UI integration', () => {
     expect(screen.getByRole('tab', { name: 'View Astra Yao setup and Result' }))
       .toBeInTheDocument()
   })
+
+  it('uses the same compressed W-Engine package for selected and candidate controls', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await user.click(screen.getByRole('button', { name: /Replace slot 2,/ }))
+    await user.click(screen.getByRole('button', { name: /Seth Lowell, Electric, Defense/ }))
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+    await user.click(screen.getByRole('tab', { name: 'View Seth Lowell setup and Result' }))
+
+    const selectedPeacekeeper = screen.getByRole('button', {
+      name: 'Change W-Engine from Peacekeeper - Specialized',
+    })
+    const descriptionId = selectedPeacekeeper.getAttribute('aria-describedby')!
+    const compressedPackage = document.getElementById(descriptionId)!.textContent!
+    expect(selectedPeacekeeper).not.toHaveAccessibleDescription(/While Shielded/)
+    expect(selectedPeacekeeper).toHaveAccessibleDescription(
+      /Energy Regen.*EX Special & Assist Follow-Up Anomaly Buildup/,
+    )
+
+    await user.click(selectedPeacekeeper)
+    await user.click(screen.getByRole('button', { name: 'Select Spring Embrace W5' }))
+    await user.click(screen.getByRole('button', {
+      name: 'Change W-Engine from Spring Embrace',
+    }))
+
+    expect(screen.getByRole('button', {
+      name: 'Select Peacekeeper - Specialized W5',
+    })).toHaveAccessibleDescription(compressedPackage)
+  })
 })
