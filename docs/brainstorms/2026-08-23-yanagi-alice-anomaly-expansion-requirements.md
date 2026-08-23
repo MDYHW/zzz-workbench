@@ -217,9 +217,9 @@ prepared consequence.
     because its stable PEN and reachable Special-AP package narrowly preserves
     more complete finite investment than the A-Rank alternatives.
   - Timeweaver is legally selectable and arithmetically positive. With Alice's
-    prepared Disc package it reaches 374.536 AP at zero counts and can cross
-    375 with one AP count, but its Electric buildup is unusable and its
-    remaining ATK/AP/Disorder directions are covered by complete Physical or
+    prepared Disc package it remains just below the engine threshold at zero
+    counts and crosses it with one AP count. Its Electric buildup is unusable,
+    while its remaining ATK/AP/Disorder directions are covered by complete Physical or
     accessible packages. It is therefore rejected despite a reachable
     threshold.
   - Flight of Fancy loses to Sharpened on the same AP/buildup axis because its
@@ -288,7 +288,7 @@ prepared consequence.
 ## Acceptance Examples
 
 - AE1. **Covers R2-R5, R20.** A prepared M0 Yanagi with Timeweaver shows both
-  stance-derived values, Core Electric DMG, qualified buildup, and a 341/375 AP
+  stance-derived values, Core Electric DMG, qualified buildup, and an AP
   threshold gauge. Four AP counts activate the engine's Disorder bonus. M1
   activates it at zero counts through visible AP +80 while Clarity stays
   invisible. Polarity base percentages never appear.
