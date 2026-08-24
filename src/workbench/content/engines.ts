@@ -625,11 +625,7 @@ export const W_ENGINE_FACTS = {
         scope: { condition: 'offField' },
       },
       damage: {
-        modifier: 'dmgBonus', unit: '%',
-        progression: {
-          kind: 'stacks', perStack: [3.5, 4.4, 5.2, 6.1, 7], maxStacks: 10,
-          maximum: [35, 44, 52, 61, 70],
-        },
+        modifier: 'dmgBonus', unit: '%', value: [35, 44, 52, 61, 70],
       },
       anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: [50, 62, 75, 87, 100] },
     },
@@ -638,9 +634,8 @@ export const W_ENGINE_FACTS = {
     advancedStat: { id: 'anomalyProficiency', label: 'Anomaly Proficiency', value: 90, unit: '' },
     effects: {
       anomalyProficiency: {
-        modifier: 'anomalyProficiency', unit: '',
-        progression: { kind: 'stacks', perStack: [20, 23, 26, 29, 32], maxStacks: 6 },
-        activation: { kind: 'trigger', attributes: ['Ether'], durationSeconds: 8 },
+        modifier: 'anomalyProficiency', unit: '', value: [120, 138, 156, 174, 192],
+        activation: { kind: 'trigger', attributes: ['Ether'] },
       },
       buildup: {
         modifier: 'anomalyBuildupBonus', unit: '%', value: [40, 46, 52, 58, 64],
@@ -657,16 +652,14 @@ export const W_ENGINE_FACTS = {
         modifier: 'dmgBonus', unit: '%', value: [20, 23, 26, 29, 32],
         scope: { condition: 'anomalyAfflictedTarget' },
         activation: {
-          kind: 'trigger', holderAttributes: ['Ether'], fieldEntry: true,
-          actions: ['Special Attack', 'EX Special Attack'], durationSeconds: 15, removedOffField: true,
+          kind: 'trigger', holderAttributes: ['Ether'], removedOffField: true,
         },
       },
       anomalyDamage: {
         modifier: 'anomalyDmgBonus', unit: '%', value: [10, 11.5, 13, 14.5, 16],
         scope: { anomalyResults: ['Attribute Anomaly', 'Disorder'] },
         activation: {
-          kind: 'trigger', holderAttributes: ['Ether'], fieldEntry: true,
-          actions: ['Special Attack', 'EX Special Attack'], durationSeconds: 15, removedOffField: true,
+          kind: 'trigger', holderAttributes: ['Ether'], removedOffField: true,
         },
       },
     },
@@ -1202,8 +1195,8 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Anomaly',
     passiveLines: (refinement) => [
       `Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.angelInTheShell.effects.anomalyProficiency, refinement)}`,
-      `Ether holder · Anomaly-afflicted target DMG +${percent(W_ENGINE_FACTS.angelInTheShell.effects.damage, refinement)}`,
-      `Ether holder · Attribute Anomaly & Disorder DMG +${percent(W_ENGINE_FACTS.angelInTheShell.effects.anomalyDamage, refinement)}`,
+      `Anomaly-afflicted target DMG +${percent(W_ENGINE_FACTS.angelInTheShell.effects.damage, refinement)}`,
+      `Attribute Anomaly & Disorder DMG +${percent(W_ENGINE_FACTS.angelInTheShell.effects.anomalyDamage, refinement)}`,
     ],
   },
   frostfallSickle: {
