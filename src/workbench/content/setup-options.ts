@@ -69,6 +69,7 @@ export const FORMULA_PARTICIPATION_BY_AGENT: Record<
   promeia: { setup: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: [] }, result: ['anomaly_damage', 'anomaly_buildup'] },
   sunna: { setup: { primary: [], residual: [] }, result: [] },
   nangongYu: { setup: { primary: ['anomaly_damage', 'anomaly_buildup', 'daze_buildup'], residual: [] }, result: ['anomaly_damage', 'anomaly_buildup', 'daze_buildup'] },
+  miyabi: { setup: { primary: ['general_damage'], residual: ['anomaly_buildup'] }, result: ['general_damage', 'anomaly_buildup'] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -306,6 +307,9 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   nangongYu: {
     slot4: ['anomalyProficiency'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['anomalyMastery'],
   },
+  miyabi: {
+    slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['iceDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
+  },
 }
 
 export const EFFECTIVE_SUBSTAT_VALUES: Record<SubstatChoice['id'], SubstatChoice> = {
@@ -331,7 +335,7 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   harumasa: substats('critRate', 'critDmg', 'atkPct'), qingyi: [], nekomata: substats('critRate', 'critDmg', 'atkPct'), billy: substats('critRate', 'critDmg', 'atkPct'), ben: substats('critRate', 'critDmg', 'atkPct'),
   koleda: [], anby: [], caesar: [], yeShunguang: substats('critRate', 'critDmg', 'atkPct'), zhao: substats('hpPct', 'hpFlat'), grace: substats('anomalyProficiency', 'atkPct'), piper: substats('anomalyProficiency', 'atkPct'), yuzuha: substats('atkPct', 'atkFlat'), burnice: substats('anomalyProficiency', 'atkPct'), jane: substats('anomalyProficiency', 'atkPct'), seth: [], yanagi: substats('anomalyProficiency', 'atkPct'), alice: substats('anomalyProficiency', 'atkPct'),
   vivian: substats('anomalyProficiency', 'atkPct'), aria: substats('anomalyProficiency', 'atkPct'), promeia: substats('anomalyProficiency', 'atkPct'),
-  sunna: substats('atkPct', 'atkFlat'), nangongYu: substats('anomalyProficiency', 'atkPct'),
+  sunna: substats('atkPct', 'atkFlat'), nangongYu: substats('anomalyProficiency', 'atkPct'), miyabi: substats('critRate', 'critDmg', 'atkPct'),
 }
 
 /**

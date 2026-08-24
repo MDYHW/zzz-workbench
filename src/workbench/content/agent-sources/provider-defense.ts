@@ -1,4 +1,4 @@
-import { actionForm, actionTarget, canonicalAction, sourceLocalAction } from '../../actions'
+import { MIYABI_FROSTBURN_BUILDUP_TARGET, MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET, actionForm, actionTarget, canonicalAction, sourceLocalAction } from '../../actions'
 import { effectiveSubstatChoicesForSlot } from '../../candidates'
 import { actionProjection, type AgentSourceProfile, type MetricProjection } from '../../calculation/profile-harness'
 import type { ProfileRelationship } from '../../calculation/relationships'
@@ -298,6 +298,16 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     actions = [
       ...(actions ?? []),
       actionProjection('anomalyBuildupBonus', 'chainAttackAnomalyBuildup', NANGONG_CHAIN),
+    ]
+  }
+  const miyabiSlot = agentIds.indexOf('miyabi')
+  if (agent === 'seth' && miyabiSlot >= 0 && miyabiSlot !== slot) {
+    actions = [
+      ...(actions ?? []),
+      actionProjection('anomalyBuildupBonus', 'miyabiFrostburnBuildup', MIYABI_FROSTBURN_BUILDUP_TARGET),
+      ...(state.slots[miyabiSlot].setup.mindscape >= 1
+        ? [actionProjection('anomalyBuildupBonus', 'miyabiFrostburnRemovedBuildup', MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET)]
+        : []),
     ]
   }
   relationships.push(...selectedEquipmentRelationships(agent, slot, setup, {

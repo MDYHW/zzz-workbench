@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  effectAttributeForAgent,
   formulaUsesCrit,
   formulaUsesDefRegion,
 } from './formula-policy'
@@ -19,5 +20,13 @@ describe('formula policy', () => {
     expect(formulaUsesDefRegion('sheer_damage')).toBe(false)
     expect(formulaUsesDefRegion('daze_buildup')).toBe(false)
     expect(formulaUsesDefRegion('anomaly_buildup')).toBe(false)
+  })
+
+  it.each([
+    ['yixuan', 'Ether'],
+    ['yeShunguang', 'Physical'],
+    ['miyabi', 'Ice'],
+  ] as const)('maps special display Attribute %s to calculation Attribute %s', (agentId, attribute) => {
+    expect(effectAttributeForAgent(agentId)).toBe(attribute)
   })
 })

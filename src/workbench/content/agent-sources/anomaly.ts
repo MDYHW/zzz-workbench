@@ -1,4 +1,4 @@
-import { ABLOOM_TARGET, ATTRIBUTE_ANOMALY_TARGET, actionForm, actionTarget, canonicalAction, CORRUPTION_TARGET, DISORDER_TARGET, sourceLocalAction, type ActionTarget } from '../../actions'
+import { ABLOOM_TARGET, ATTRIBUTE_ANOMALY_TARGET, actionForm, actionTarget, canonicalAction, CORRUPTION_TARGET, DISORDER_TARGET, MIYABI_FROSTBURN_BUILDUP_TARGET, MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET, sourceLocalAction, type ActionTarget } from '../../actions'
 import { effectiveSubstatChoicesForSlot } from '../../candidates'
 import type { ActionScopeNode } from '../../calculation/composition'
 import { actionProjection, type ActionProjection, type AgentSourceProfile, type MetricProjection } from '../../calculation/profile-harness'
@@ -223,6 +223,19 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     )
   ) {
     actions.push(actionProjection('anomalyBuildupBonus', 'chainAttackAnomalyBuildup', ANOMALY_RECIPIENT_CHAIN))
+  }
+  const miyabiSlot = ids.indexOf('miyabi')
+  if (miyabiSlot >= 0 && miyabiSlot !== slot) {
+    actions.push(actionProjection(
+      'anomalyBuildupBonus',
+      'miyabiFrostburnBuildup',
+      MIYABI_FROSTBURN_BUILDUP_TARGET,
+    ))
+    if (state.slots[miyabiSlot].setup.mindscape >= 1) actions.push(actionProjection(
+      'anomalyBuildupBonus',
+      'miyabiFrostburnRemovedBuildup',
+      MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET,
+    ))
   }
   if (agent === 'grace') {
     const qualified = anotherAgentHasSpecialty(ids, slot, ['Anomaly']) || anotherAgentSharesAttribute(ids, slot) || anotherAgentSharesFaction(ids, slot)

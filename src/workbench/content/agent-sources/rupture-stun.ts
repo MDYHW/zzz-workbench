@@ -1,4 +1,4 @@
-import { ABLOOM_TARGET, AFTERSHOCK_TARGET, ATTRIBUTE_ANOMALY_TARGET, BASIC_AFTERSHOCK_TARGET, DISORDER_TARGET, actionForm, actionTarget, canonicalAction, sourceLocalAction } from '../../actions'
+import { ABLOOM_TARGET, AFTERSHOCK_TARGET, ATTRIBUTE_ANOMALY_TARGET, BASIC_AFTERSHOCK_TARGET, DISORDER_TARGET, MIYABI_FROSTBURN_BUILDUP_TARGET, MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET, actionForm, actionTarget, canonicalAction, sourceLocalAction } from '../../actions'
 import { effectiveSubstatChoicesForSlot } from '../../candidates'
 import type { ActionScopeNode } from '../../calculation/composition'
 import { actionProjection, type ActionProjection, type AgentSourceProfile, type MetricProjection } from '../../calculation/profile-harness'
@@ -235,6 +235,19 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
     ...(agent === 'trigger' ? [m('defIgnore', 'DEF Ignore', '%', undefined, 'nonzero-or-action')] : []),
   ]
   const actions: ActionProjection[] = []
+  const miyabiSlot = ids.indexOf('miyabi')
+  if (agent === 'nangongYu' && miyabiSlot >= 0 && miyabiSlot !== slot) {
+    actions.push(actionProjection(
+      'anomalyBuildupBonus',
+      'miyabiFrostburnBuildup',
+      MIYABI_FROSTBURN_BUILDUP_TARGET,
+    ))
+    if (state.slots[miyabiSlot].setup.mindscape >= 1) actions.push(actionProjection(
+      'anomalyBuildupBonus',
+      'miyabiFrostburnRemovedBuildup',
+      MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET,
+    ))
+  }
   const add = (relationship: ProfileRelationship) => relationships.push(relationship)
   if (agent === 'dialyn') {
     relationships.push({ kind: 'gauge', source: core, basis: { statId: 'critRate', surface: 'initial' }, basisLabel: 'Initial CRIT Rate', basisThreshold: VERTICAL_VALUES.dialyn.critThreshold, basisCap: 100, metricId: 'critRate', outputs: [{ label: 'Combat Impact bonus', unit: '', transform: { basisThreshold: VERTICAL_VALUES.dialyn.critThreshold, basisIncrement: 1, outputIncrement: VERTICAL_VALUES.dialyn.impactPerCrit, outputCap: VERTICAL_VALUES.dialyn.impactBonusCap }, emission: { kind: 'stat', statId: 'impact', region: 'flat', earliestSurface: 'combat' } }] } as ProfileRelationship)
