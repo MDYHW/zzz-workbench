@@ -59,7 +59,7 @@ export const DRIVE_DISC_FACTS = {
       daze: { modifier: 'dazeBonus', unit: '%', value: 6 },
     },
     fourPiece: {
-      critDamage: { modifier: 'critDmg', unit: '%', value: 15, progression: { kind: 'conditions', perCondition: 15, maxConditions: 1 }, scope: { recipient: 'squad' } },
+      critDamage: { modifier: 'critDmg', unit: '%', value: 15, progression: { kind: 'conditions', perCondition: 15, maxConditions: 1 }, scope: { recipient: 'squad' }, activation: { kind: 'minimum-stat', statId: 'critRate', threshold: 50 }, composition: 'highest-only' },
     },
   },
   swingJazz: {
@@ -67,7 +67,7 @@ export const DRIVE_DISC_FACTS = {
       energyRegen: { modifier: 'energyRegen', unit: '%', value: 20 },
     },
     fourPiece: {
-      damage: { modifier: 'dmgBonus', unit: '%', value: 15, scope: { recipient: 'squad' } },
+      damage: { modifier: 'dmgBonus', unit: '%', value: 15, scope: { recipient: 'squad' }, composition: 'highest-only' },
     },
   },
   moonlight: {
@@ -75,7 +75,7 @@ export const DRIVE_DISC_FACTS = {
       energyRegen: { modifier: 'energyRegen', unit: '%', value: 20 },
     },
     fourPiece: {
-      damage: { modifier: 'dmgBonus', unit: '%', value: 18, scope: { recipient: 'squad' } },
+      damage: { modifier: 'dmgBonus', unit: '%', value: 18, scope: { recipient: 'squad' }, composition: 'highest-only' },
     },
   },
   shadowHarmony: {
@@ -100,7 +100,7 @@ export const DRIVE_DISC_FACTS = {
       atk: { modifier: 'atk', unit: '%', value: 10 },
     },
     fourPiece: {
-      damage: { modifier: 'dmgBonus', unit: '%', value: 24, scope: { recipient: 'squad' } },
+      damage: { modifier: 'dmgBonus', unit: '%', value: 24, scope: { recipient: 'focus' }, composition: 'highest-only' },
     },
   },
   hormonePunk: {
@@ -175,6 +175,7 @@ export const DRIVE_DISC_FACTS = {
         unit: '%',
         progression: { kind: 'stacks', perStack: 6, maxStacks: 3 },
         scope: { recipient: 'squad' },
+        composition: 'highest-only',
       },
     },
   },
@@ -210,6 +211,9 @@ export const DRIVE_DISC_FACTS = {
     fourPiece: {
       buildupResReduction: {
         modifier: 'anomalyBuildupResReduction', unit: '%', value: 20,
+        scope: { recipient: 'enemy' },
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
+        composition: 'highest-only',
       },
     },
   },

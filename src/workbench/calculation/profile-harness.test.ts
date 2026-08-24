@@ -1,18 +1,24 @@
 import { describe, expect, it } from 'vitest'
-import { AFTERSHOCK_TARGET, BASIC_AFTERSHOCK_TARGET, DISORDER_TARGET } from '../actions'
-import {
-  deriveJanePassionAssault,
-  JANE_ASSAULT_TARGET,
-  JANE_PASSION_TARGET,
-} from './derived/jane-passion-assault'
+import { AFTERSHOCK_TARGET, DISORDER_TARGET } from '../actions'
+import { DRIVE_DISC_FACTS } from '../content/discs'
 import {
   defineAgentBaseSource,
   defineAgentSource,
   defineCalculationSource,
   defineDriveDiscSource,
-  defineMindscapeSource,
 } from '../content/source-definitions'
+import {
+  equipmentEffectBaseValue,
+  type AgentId,
+  type DiscId,
+} from '../content/types'
 import { createPreparedState, type WorkbenchState } from '../state'
+import { selectedDriveDiscRelationships } from '../content/agent-sources/drive-disc-relationships'
+import {
+  requireCompleteSelectedSetup,
+  selectedDiscSource,
+} from '../content/agent-sources/equipment'
+import { equipmentProviderRelationship } from '../content/agent-sources/equipment-provider'
 import { providerDefenseProfileFor } from '../content/agent-sources/provider-defense'
 import {
   actionProjection,
@@ -22,7 +28,7 @@ import {
 } from './profile-harness'
 import { evaluateRelationships, type ProfileRelationship } from './relationships'
 import { selectSource, type SelectedSourceInstance } from './source-instance'
-import { composeStat, type StatId } from './stat-composer'
+import { type StatId } from './stat-composer'
 
 const atkMetric: MetricProjection = {
   id: 'atk', statId: 'atk', label: 'ATK', unit: '', decimals: 0,
@@ -66,6 +72,62 @@ function baseStat(
   }
 }
 
+function selectedFourPieceRelationships(
+  state: WorkbenchState,
+  agentId: AgentId,
+  appliedPartySlot: 0 | 1 | 2,
+  fourPieceId: DiscId,
+): ProfileRelationship[] {
+  const setup = {
+    ...requireCompleteSelectedSetup(state.slots[appliedPartySlot].setup),
+    fourPieceId,
+    twoPieceId: 'woodpecker' as const,
+  }
+  return selectedDriveDiscRelationships({
+    agentId,
+    appliedPartySlot,
+    setup,
+    observation: {
+      baseStats: { critRate: 0 },
+      modifierMetrics: ['dmgBonus'],
+    },
+    source: selectedDiscSource(
+      agentId, appliedPartySlot, setup, fourPieceId, '4-piece',
+    ),
+    sourceFor: (discId, piece) => selectedDiscSource(
+      agentId,
+      appliedPartySlot,
+      setup,
+      discId,
+      piece,
+    ),
+  })
+}
+
+function postDeliveryAftershockProvider(
+  source: SelectedSourceInstance,
+): ProfileRelationship {
+  return {
+    kind: 'post-delivery-linear',
+    source,
+    basis: { statId: 'critDmg', surface: 'fully' },
+    outputs: [{
+      transform: { basisIncrement: 1, outputIncrement: 0.35 },
+      emission: {
+        kind: 'provider',
+        delivery: {
+          recipient: 'all-party',
+          eligibleAgentIds: ['anbySoldier0', 'trigger'],
+        },
+        effect: {
+          kind: 'modifier', metricId: 'critDmg', earliestSurface: 'fully',
+          action: AFTERSHOCK_TARGET,
+        },
+      },
+    }],
+  }
+}
+
 function agentResult(
   result: NonNullable<ReturnType<typeof evaluateProfileParty>>,
   agentId: AgentSourceProfile['agentId'],
@@ -74,45 +136,10 @@ function agentResult(
 }
 
 describe('profile calculation harness', () => {
-  it('clamps Jane Passion ATK and Assault CRIT Rate from completed AP at both boundaries', () => {
-    const core = selectSource(
-      defineAgentSource('jane', 'core', 'Core Passive', 'core'), 'jane', 0,
-    )
-    const mindscape1 = selectSource(
-      defineMindscapeSource('jane', 1, 'Mindscape'), 'jane', 0,
-      { kind: 'mindscape', selectedTier: 1 },
-    )
-    const apSource = selectSource(
-      defineAgentBaseSource('jane', 'Jane AP boundary test'), 'jane', 0,
-    )
-    const completedAp = (value: number) => composeStat('anomalyProficiency', [{
-      statId: 'anomalyProficiency', region: 'base', earliestSurface: 'initial', value, source: apSource,
-    }])
-
-    const belowThreshold = deriveJanePassionAssault(core, undefined, completedAp(119))
-    expect(belowThreshold.localStat.value).toBe(0)
-    expect(belowThreshold.providers[0].effect.value).toBeCloseTo(59.04, 10)
-    expect(belowThreshold.modifiers).toEqual([])
-
-    const mindscape = deriveJanePassionAssault(core, mindscape1, completedAp(214))
-    expect(mindscape.modifiers).toEqual([
-      expect.objectContaining({
-        metricId: 'anomalyBuildupBonus', action: JANE_PASSION_TARGET,
-      }),
-      expect.objectContaining({
-        metricId: 'dmgBonus', action: JANE_PASSION_TARGET,
-      }),
-    ])
-
-    const aboveCaps = deriveJanePassionAssault(core, undefined, completedAp(1000))
-    expect(aboveCaps.localStat.value).toBe(600)
-    expect(aboveCaps.providers[0].effect.value).toBe(100)
-  })
-
-  it('runs Jane Passion and Assault after ordinary Seth AP delivery with scoped CRIT providers', () => {
+  it('runs one post-delivery gauge after ordinary stat delivery and delivers its provider once', () => {
     const state = createPreparedState({}, ['jane', 'piper', 'seth'], 0)
     const janeCore = selectSource(
-      defineAgentSource('jane', 'core', 'Core Passive', 'core'), 'jane', 0,
+      defineAgentSource('jane', 'post-delivery', 'Post-delivery relation', 'core'), 'jane', 0,
     )
     const janePotential = selectSource(
       defineAgentSource('jane', 'potential', 'Potential Awakening', 'identity'), 'jane', 0,
@@ -125,23 +152,71 @@ describe('profile calculation harness', () => {
         agentId: 'jane', appliedPartySlot: 0,
         metrics: [
           atkMetric,
-          { id: 'anomalyProficiency', statId: 'anomalyProficiency', label: 'AP', unit: '', decimals: 0, gaugeId: 'janePassionAssault' },
+          { id: 'anomalyProficiency', statId: 'anomalyProficiency', label: 'AP', unit: '', decimals: 0 },
           { id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1, baseValues: { initial: 0, combat: 0, fully: 0 }, admission: 'action' },
           { id: 'critDmg', label: 'CRIT DMG', unit: '%', decimals: 1, baseValues: { initial: 0, combat: 0, fully: 0 }, admission: 'action' },
         ],
         actions: [
-          actionProjection('critRate', 'janeAssaultCritRate', JANE_ASSAULT_TARGET),
-          actionProjection('critDmg', 'janeAssaultCritDmg', JANE_ASSAULT_TARGET),
+          actionProjection('critRate', 'janeAssaultCritRate', AFTERSHOCK_TARGET),
+          actionProjection('critDmg', 'janeAssaultCritDmg', AFTERSHOCK_TARGET),
         ],
         relationships: [
           baseStat('jane', 0, 'atk', 880),
           baseStat('jane', 0, 'anomalyProficiency', 114),
           { kind: 'modifier', atom: {
             metricId: 'critDmg', earliestSurface: 'fully', value: 30,
-            source: janePotential, action: JANE_ASSAULT_TARGET,
+            source: janePotential, action: AFTERSHOCK_TARGET,
           } },
+          {
+            kind: 'post-delivery-gauge',
+            source: janeCore,
+            basis: { statId: 'anomalyProficiency', surface: 'fully' },
+            basisLabel: 'Fully Enabled Anomaly Proficiency',
+            basisThreshold: 200,
+            basisCap: 420,
+            metricId: 'anomalyProficiency',
+            outputs: [
+              {
+                label: 'Scoped CRIT Rate', unit: '%', cap: 100,
+                transform: { basisIncrement: 1, outputIncrement: 0.5, outputCap: 100 },
+                emission: {
+                  kind: 'provider',
+                  delivery: { recipient: 'all-party', formulas: ['anomaly_damage'] },
+                  effect: {
+                    kind: 'modifier', metricId: 'critRate', earliestSurface: 'fully',
+                    action: AFTERSHOCK_TARGET,
+                  },
+                },
+              },
+              {
+                label: 'Derived flat ATK', unit: '', cap: 600,
+                transform: {
+                  basisThreshold: 120, basisIncrement: 1,
+                  outputIncrement: 2, outputCap: 600,
+                },
+                emission: {
+                  kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully',
+                },
+              },
+            ],
+          },
+          {
+            kind: 'post-delivery-linear',
+            source: janeCore,
+            basis: { statId: 'anomalyProficiency', surface: 'fully' },
+            outputs: [{
+              transform: { basisIncrement: 1, baseOutput: 50, outputIncrement: 0, outputCap: 50 },
+              emission: {
+                kind: 'provider',
+                delivery: { recipient: 'all-party', formulas: ['anomaly_damage'] },
+                effect: {
+                  kind: 'modifier', metricId: 'critDmg', earliestSurface: 'fully',
+                  action: AFTERSHOCK_TARGET,
+                },
+              },
+            }],
+          },
         ],
-        janePassionAssault: { coreSource: janeCore },
       },
       {
         agentId: 'piper', appliedPartySlot: 1,
@@ -150,8 +225,8 @@ describe('profile calculation harness', () => {
           { id: 'critDmg', label: 'CRIT DMG', unit: '%', decimals: 1, baseValues: { initial: 0, combat: 0, fully: 0 }, admission: 'action' },
         ],
         actions: [
-          actionProjection('critRate', 'piperAssaultCritRate', JANE_ASSAULT_TARGET),
-          actionProjection('critDmg', 'piperAssaultCritDmg', JANE_ASSAULT_TARGET),
+          actionProjection('critRate', 'piperAssaultCritRate', AFTERSHOCK_TARGET),
+          actionProjection('critDmg', 'piperAssaultCritDmg', AFTERSHOCK_TARGET),
         ],
         relationships: [],
       },
@@ -176,19 +251,164 @@ describe('profile calculation harness', () => {
     const janeAp = jane.metrics.find(({ id }) => id === 'anomalyProficiency')!
     expect(janeAp.values.fully).toBe(214)
     expect(jane.metrics.find(({ id }) => id === 'atk')!.values.fully).toBe(1068)
-    expect(janeAp.gauge).toEqual(expect.objectContaining({
+    expect(janeAp.gauges[0]).toEqual(expect.objectContaining({
       current: 214,
-      outputLabel: 'Assault CRIT Rate',
-      additionalOutputs: [expect.objectContaining({ label: 'Passion flat ATK', value: 188 })],
+      outputLabel: 'Scoped CRIT Rate',
+      additionalOutputs: [expect.objectContaining({ label: 'Derived flat ATK', value: 188 })],
     }))
-    expect(janeAp.gauge!.outputValue).toBeCloseTo(74.24, 10)
+    expect(janeAp.gauges[0]!.outputValue).toBe(100)
     expect(jane.actionModifiers.find(({ id }) => id === 'janeAssaultCritRate')!.values.fully)
-      .toBeCloseTo(74.24, 10)
+      .toBe(100)
     expect(jane.actionModifiers.find(({ id }) => id === 'janeAssaultCritDmg')!.values.fully).toBe(80)
     expect(piper.actionModifiers.find(({ id }) => id === 'piperAssaultCritRate')!.values.fully)
-      .toBeCloseTo(74.24, 10)
+      .toBe(100)
     expect(piper.actionModifiers.find(({ id }) => id === 'piperAssaultCritDmg')!.values.fully).toBe(50)
     expect(seth.actionModifiers).toEqual([])
+  })
+
+  it('delivers fact-owned focus and squad relationships to different Results', () => {
+    const state = createPreparedState(
+      {},
+      ['seed', 'anbySoldier0', 'trigger'],
+      1,
+    )
+    const focusRelationships = selectedFourPieceRelationships(
+      state, 'seed', 0, 'astralVoice',
+    )
+    const squadRelationships = selectedFourPieceRelationships(
+      state, 'trigger', 2, 'swingJazz',
+    )
+    const focusAmount = equipmentEffectBaseValue(
+      DRIVE_DISC_FACTS.astralVoice.fourPiece.damage,
+    )
+    const squadAmount = equipmentEffectBaseValue(
+      DRIVE_DISC_FACTS.swingJazz.fourPiece.damage,
+    )
+    const profiles: AgentSourceProfile[] = [
+      {
+        agentId: 'seed', appliedPartySlot: 0,
+        metrics: [damageMetric], relationships: focusRelationships,
+      },
+      {
+        agentId: 'anbySoldier0', appliedPartySlot: 1,
+        metrics: [damageMetric], relationships: [],
+      },
+      {
+        agentId: 'trigger', appliedPartySlot: 2,
+        metrics: [damageMetric], relationships: squadRelationships,
+      },
+    ]
+
+    const result = evaluateProfileParty(state, profiles)!
+    expect(agentResult(result, 'seed').metrics[0].values.fully)
+      .toBe(squadAmount)
+    expect(agentResult(result, 'anbySoldier0').metrics[0].values.fully)
+      .toBe(focusAmount + squadAmount)
+    expect(agentResult(result, 'trigger').metrics[0].values.fully)
+      .toBe(squadAmount)
+  })
+
+  it('keeps independent gauges and evaluates each threshold from its owned surface', () => {
+    const state = createPreparedState({}, ['jane', 'piper', 'seth'], 0)
+    const [thresholdGauge] = selectedFourPieceRelationships(
+      state, 'jane', 0, 'king',
+    )
+    if (thresholdGauge?.kind !== 'gauge') {
+      throw new Error('King must materialize its current threshold gauge')
+    }
+    const thresholdOutput = thresholdGauge.outputs[0]
+    if (!thresholdOutput || !('activation' in thresholdOutput)) {
+      throw new Error('King must own the current threshold activation output')
+    }
+    const secondSource = selectSource(
+      defineAgentSource('jane', 'parallel-gauge', 'Parallel gauge', 'additional'),
+      'jane', 0,
+    )
+    const profiles: AgentSourceProfile[] = [{
+      agentId: 'jane',
+      appliedPartySlot: 0,
+      metrics: [critRateMetric, damageMetric, critDmgMetric],
+      relationships: [
+        baseStat('jane', 0, 'critRate', 45),
+        {
+          kind: 'stat',
+          atom: {
+            statId: 'critRate', region: 'flat', earliestSurface: 'combat',
+            value: 20, source: thresholdGauge.source,
+          },
+        },
+        thresholdGauge,
+        {
+          kind: 'gauge',
+          source: secondSource,
+          basis: { statId: 'critRate', surface: 'initial' },
+          basisLabel: 'Initial CRIT Rate',
+          basisCap: 100,
+          metricId: 'critRate',
+          outputs: [{
+            label: 'Parallel output', unit: '%',
+            transform: { basisIncrement: 1, outputIncrement: 0.1 },
+            emission: {
+              kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
+            },
+          }],
+        },
+      ],
+    }, {
+      agentId: 'piper', appliedPartySlot: 1,
+      metrics: [damageMetric, critDmgMetric], relationships: [],
+    }, {
+      agentId: 'seth', appliedPartySlot: 2,
+      metrics: [damageMetric, critDmgMetric], relationships: [],
+    }]
+
+    const metric = agentResult(evaluateProfileParty(state, profiles)!, 'jane')
+      .metrics.find(({ id }) => id === 'critRate')!
+    expect(metric.values).toEqual({ initial: 45, combat: 65, fully: 65 })
+    expect(metric.gauges.map(({ outputLabel, outputValue }) => (
+      [outputLabel, outputValue]
+    ))).toEqual([
+      [thresholdOutput.label, thresholdOutput.activation.inactiveValue],
+      ['Parallel output', 4.5],
+    ])
+  })
+
+  it('admits an optional zero-value metric when a gauge is its visible consumer', () => {
+    const state = createPreparedState({}, ['jane', 'piper', 'seth'], 0)
+    const [thresholdGauge] = selectedFourPieceRelationships(
+      state, 'jane', 0, 'king',
+    )
+    if (thresholdGauge?.kind !== 'gauge') {
+      throw new Error('King must materialize its current threshold gauge')
+    }
+    const thresholdOutput = thresholdGauge.outputs[0]
+    if (!thresholdOutput || !('activation' in thresholdOutput)) {
+      throw new Error('King must own the current threshold activation output')
+    }
+    const profiles: AgentSourceProfile[] = [{
+      agentId: 'jane',
+      appliedPartySlot: 0,
+      metrics: [{ ...critRateMetric, admission: 'nonzero-or-action' }],
+      relationships: [baseStat('jane', 0, 'critRate', 0), thresholdGauge],
+    }, {
+      agentId: 'piper', appliedPartySlot: 1, metrics: [], relationships: [],
+    }, {
+      agentId: 'seth', appliedPartySlot: 2, metrics: [], relationships: [],
+    }]
+
+    const metrics = agentResult(evaluateProfileParty(state, profiles)!, 'jane').metrics
+    expect(metrics).toHaveLength(1)
+    expect(metrics[0]).toMatchObject({
+      id: 'critRate',
+      values: { initial: 0, combat: 0, fully: 0 },
+    })
+    expect(metrics[0]!.gauges).toHaveLength(1)
+    expect(metrics[0]!.gauges[0]).toMatchObject({
+      basisLabel: 'Initial CRIT Rate',
+      current: 0,
+      outputLabel: thresholdOutput.label,
+      outputValue: thresholdOutput.activation.inactiveValue,
+    })
   })
 
   it('recalculates a holder-derived provider from the live setup without preparation', () => {
@@ -255,17 +475,75 @@ describe('profile calculation harness', () => {
     expect(edited.slots[0].setup.engineId).toBe(initial.slots[0].setup.engineId)
   })
 
-  it('resolves explicit non-stacking per reached action consumer and preserves equal origins', () => {
-    const state = createPreparedState({}, ['astraYao', 'anbySoldier0', 'trigger'], 1)
-    const firstKing = selectSource(
-      defineDriveDiscSource('king', '4-piece', 'King of the Summit'),
-      'astraYao', 0,
-      { kind: 'drive-disc', selectedRole: '4-piece', effectPiece: '4-piece' },
+  it('derives an action-local percentage from the selected Initial stat', () => {
+    const state = createPreparedState({}, ['lycaon', 'corin', 'anby'], 0)
+    const initialSupply = selectSource(
+      defineAgentSource('lycaon', 'initial-supply', 'Initial supply', 'special'),
+      'lycaon', 0,
     )
-    const secondKing = selectSource(
-      defineDriveDiscSource('king', '4-piece', 'King of the Summit'),
-      'anbySoldier0', 1,
-      { kind: 'drive-disc', selectedRole: '4-piece', effectPiece: '4-piece' },
+    const actionPercentage = selectSource(
+      defineAgentSource('lycaon', 'action-percentage', 'Action percentage', 'special'),
+      'lycaon', 0,
+    )
+    const profiles: AgentSourceProfile[] = [{
+      agentId: 'lycaon',
+      appliedPartySlot: 0,
+      metrics: [{
+        id: 'impact', statId: 'impact', label: 'Impact', unit: '', decimals: 1,
+      }],
+      actions: [actionProjection('impact', 'initialBasedAction', AFTERSHOCK_TARGET)],
+      relationships: [
+        baseStat('lycaon', 0, 'impact', 100),
+        {
+          kind: 'stat',
+          atom: {
+            statId: 'impact', region: 'percentage', earliestSurface: 'initial',
+            value: 20, source: initialSupply,
+          },
+        },
+        {
+          kind: 'linear',
+          source: actionPercentage,
+          basis: { statId: 'impact', surface: 'initial' },
+          outputs: [{
+            transform: { basisIncrement: 1, outputIncrement: 0.15 },
+            emission: {
+              kind: 'modifier', metricId: 'impact', earliestSurface: 'fully',
+              action: AFTERSHOCK_TARGET,
+              display: { value: 15, unit: '%', decimals: 0 },
+            },
+          }],
+        },
+      ],
+    }, {
+      agentId: 'corin', appliedPartySlot: 1, metrics: [], relationships: [],
+    }, {
+      agentId: 'anby', appliedPartySlot: 2, metrics: [], relationships: [],
+    }]
+
+    const result = agentResult(evaluateProfileParty(state, profiles)!, 'lycaon')
+    expect(result.metrics[0].values).toEqual({ initial: 120, combat: 120, fully: 120 })
+    expect(result.actionModifiers[0].values.fully).toBe(138)
+    expect(result.actionModifiers[0].breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Action percentage',
+        amount: 18,
+        display: { value: 15, unit: '%', decimals: 0 },
+      }))
+  })
+
+  it('reconciles distinct highest-only origins but fails on one duplicated selected relationship', () => {
+    const state = createPreparedState({}, ['astraYao', 'anbySoldier0', 'trigger'], 1)
+    const semanticEffect = {}
+    const firstOrigin = selectSource(
+      defineAgentSource('astraYao', 'first-origin', 'First highest-only origin', 'core'),
+      'astraYao',
+      0,
+    )
+    const secondOrigin = selectSource(
+      defineAgentSource('anbySoldier0', 'second-origin', 'Second highest-only origin', 'core'),
+      'anbySoldier0',
+      1,
     )
     const unrelated = selectSource(
       defineAgentSource('astraYao', 'unrelated-aftershock', 'Unrelated Aftershock bonus', 'core'),
@@ -275,7 +553,8 @@ describe('profile calculation harness', () => {
       source: SelectedSourceInstance,
       recipient: 'all-party' | 'focus',
       value: number,
-      nonstackId?: 'kingOfTheSummit',
+      highestOnly = false,
+      earliestSurface: 'combat' | 'fully' = 'fully',
     ): ProfileRelationship => ({
       kind: 'provider', source,
       delivery: {
@@ -283,23 +562,31 @@ describe('profile calculation harness', () => {
         eligibleAgentIds: ['anbySoldier0', 'trigger'],
       },
       effect: {
-        kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
+        kind: 'modifier', metricId: 'dmgBonus', earliestSurface,
         value, action: AFTERSHOCK_TARGET,
-        ...(nonstackId ? { nonstackId } : {}),
+        ...(highestOnly
+          ? {
+              composition: {
+                kind: 'highest-only',
+                semanticEffect,
+              },
+            }
+          : {}),
       },
     })
     const profiles: AgentSourceProfile[] = [
       {
         agentId: 'astraYao', appliedPartySlot: 0, metrics: [damageMetric],
         relationships: [
-          provider(firstKing, 'all-party', 20, 'kingOfTheSummit'),
+          provider(firstOrigin, 'all-party', 20, true, 'combat'),
+          provider(firstOrigin, 'all-party', 20, true),
           provider(unrelated, 'all-party', 5),
         ],
       },
       {
         agentId: 'anbySoldier0', appliedPartySlot: 1, metrics: [damageMetric],
         actions: [actionProjection('dmgBonus', 'anbyAftershock', AFTERSHOCK_TARGET)],
-        relationships: [provider(secondKing, 'focus', 20, 'kingOfTheSummit')],
+        relationships: [provider(secondOrigin, 'focus', 20, true)],
       },
       {
         agentId: 'trigger', appliedPartySlot: 2, metrics: [damageMetric],
@@ -311,19 +598,90 @@ describe('profile calculation harness', () => {
     const result = evaluateProfileParty(state, profiles)!
     const anbyAction = agentResult(result, 'anbySoldier0').actionModifiers[0]
     const triggerAction = agentResult(result, 'trigger').actionModifiers[0]
-    expect(anbyAction.values.fully).toBe(25)
+    expect(anbyAction.values.fully).toBe(45)
     expect(anbyAction.breakdown.fully.filter(
       ({ notation }) => notation === 'equal-nonstack-origin',
     )).toHaveLength(1)
-    expect(anbyAction.breakdown.fully.map(({ label }) => label)).toEqual([
-      'King of the Summit',
-      'Unrelated Aftershock bonus',
-      'King of the Summit',
-    ])
-    expect(triggerAction.values.fully).toBe(25)
-    expect(triggerAction.breakdown.fully.filter(
-      ({ label }) => label === 'King of the Summit',
-    )).toHaveLength(1)
+    expect(new Set(anbyAction.breakdown.fully.map(({ label }) => label)))
+      .toEqual(new Set([
+        'First highest-only origin',
+        'Second highest-only origin',
+        'Unrelated Aftershock bonus',
+      ]))
+    expect(triggerAction.values.fully).toBe(45)
+    expect(Object.values(triggerAction.breakdown).flat().filter(
+      ({ label }) => label === 'First highest-only origin',
+    )).toHaveLength(2)
+
+    const duplicateRelationship = provider(firstOrigin, 'focus', 20, true)
+    const duplicateProfiles: AgentSourceProfile[] = profiles.map((profile) => ({
+      ...profile,
+      relationships: profile.appliedPartySlot === 0
+        ? [duplicateRelationship, duplicateRelationship]
+        : [],
+    }))
+    expect(() => evaluateProfileParty(state, duplicateProfiles))
+      .toThrowError(
+        'Duplicate highest-only relationship for one selected source instance',
+      )
+  })
+
+  it('filters an enemy-context provider before highest-only composition', () => {
+    const state = createPreparedState({}, ['grace', 'yanagi', 'piper'], 0)
+    const semanticEffect = DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction
+    const discSource = (holder: 'grace' | 'yanagi', slot: 0 | 1) => selectSource(
+      defineDriveDiscSource('freedomBlues', '4-piece', 'Freedom Blues'),
+      holder,
+      slot,
+      { kind: 'drive-disc', selectedRole: '4-piece', effectPiece: '4-piece' },
+    )
+    const provider = (
+      holder: 'grace' | 'yanagi',
+      slot: 0 | 1,
+    ): ProfileRelationship => equipmentProviderRelationship(
+      discSource(holder, slot),
+      semanticEffect,
+      {
+        kind: 'modifier',
+        metricId: 'anomalyBuildupResReduction',
+        earliestSurface: 'fully',
+        value: equipmentEffectBaseValue(semanticEffect),
+      },
+      {
+        attributes: ['Electric'],
+        formulas: ['anomaly_buildup'],
+      },
+    )
+    const buildupResMetric: MetricProjection = {
+      id: 'anomalyBuildupResReduction',
+      label: 'Anomaly Buildup RES Reduction',
+      unit: '%',
+      decimals: 1,
+    }
+    const profiles: AgentSourceProfile[] = [
+      {
+        agentId: 'grace', appliedPartySlot: 0,
+        metrics: [buildupResMetric], relationships: [provider('grace', 0)],
+      },
+      {
+        agentId: 'yanagi', appliedPartySlot: 1,
+        metrics: [buildupResMetric], relationships: [provider('yanagi', 1)],
+      },
+      {
+        agentId: 'piper', appliedPartySlot: 2,
+        metrics: [buildupResMetric], relationships: [],
+      },
+    ]
+
+    const result = evaluateProfileParty(state, profiles)!
+    for (const agentId of ['grace', 'yanagi'] as const) {
+      const metric = agentResult(result, agentId).metrics[0]
+      expect(metric.values.fully).toBe(equipmentEffectBaseValue(semanticEffect))
+      expect(metric.breakdown.fully.filter(
+        ({ notation }) => notation === 'equal-nonstack-origin',
+      )).toHaveLength(1)
+    }
+    expect(agentResult(result, 'piper').metrics[0].values.fully).toBe(0)
   })
 
   it('delivers a source-stated operation by recipient Specialty without an Agent roster', () => {
@@ -341,7 +699,7 @@ describe('profile calculation harness', () => {
             recipient: 'all-party', specialties: ['Stun'], formulas: ['daze_buildup'],
           },
           effect: {
-            kind: 'operation', operationId: 'nextActionDaze',
+            kind: 'operation',
             label: 'Next action Daze',
             earliestSurface: 'fully', value: 50, unit: '%',
           },
@@ -353,7 +711,7 @@ describe('profile calculation harness', () => {
 
     const result = evaluateProfileParty(state, profiles)!
     expect(agentResult(result, 'trigger').operations).toEqual([
-      expect.objectContaining({ id: 'nextActionDaze', value: 50 }),
+      expect.objectContaining({ label: 'Next action Daze', value: 50 }),
     ])
     expect(agentResult(result, 'trigger').operations[0].source.ownerAgentId).toBe('astraYao')
     expect(agentResult(result, 'astraYao').operations).toEqual([])
@@ -378,7 +736,7 @@ describe('profile calculation harness', () => {
             kind: 'provider', source: operationSource,
             delivery: { recipient: 'all-party', formulas: ['daze_buildup'] },
             effect: {
-              kind: 'operation', operationId: 'dazeOperation',
+              kind: 'operation',
               label: 'Daze operation', earliestSurface: 'fully', value: 50, unit: '%',
             },
           },
@@ -386,7 +744,7 @@ describe('profile calculation harness', () => {
             kind: 'provider', source: operationSource,
             delivery: { recipient: 'all-party', formulas: ['general_damage'] },
             effect: {
-              kind: 'operation', operationId: 'generalOperation',
+              kind: 'operation',
               label: 'General operation', earliestSurface: 'fully', value: 25, unit: '%',
             },
           },
@@ -408,7 +766,7 @@ describe('profile calculation harness', () => {
     expect(agentResult(result, 'panYinhu').operations).toEqual([])
     expect(agentResult(result, 'astraYao').operations).toEqual([])
     expect(agentResult(result, 'piper').operations).toEqual([
-      expect.objectContaining({ id: 'generalOperation', value: 25 }),
+      expect.objectContaining({ label: 'General operation', value: 25 }),
     ])
     expect(agentResult(result, 'astraYao').metrics[0].values.fully).toBe(125)
   })
@@ -593,7 +951,11 @@ describe('profile calculation harness', () => {
   it('composes a capped provider, recipient regions, operations, and live edits', () => {
     const initial = createPreparedState({}, ['astraYao', 'ben', 'nicole'], 1)
     const profilesFor = (state: WorkbenchState) => state.slots.map((_, index) => (
-      providerDefenseProfileFor(state, index as 0 | 1 | 2)!
+      providerDefenseProfileFor(
+        state.slots[index].agentId as Parameters<typeof providerDefenseProfileFor>[0],
+        state,
+        index as 0 | 1 | 2,
+      )
     ))
     const edited: WorkbenchState = {
       ...initial,
@@ -615,11 +977,11 @@ describe('profile calculation harness', () => {
     const beforeBen = agentResult(before, 'ben')
     const afterBen = agentResult(after, 'ben')
 
-    expect(beforeAstra.metrics.find(({ id }) => id === 'atk')?.gauge).toEqual(
+    expect(beforeAstra.metrics.find(({ id }) => id === 'atk')?.gauges[0]).toEqual(
       expect.objectContaining({ outputLabel: 'Core flat ATK' }),
     )
-    expect(afterAstra.metrics.find(({ id }) => id === 'atk')?.gauge?.outputValue)
-      .toBeGreaterThan(beforeAstra.metrics.find(({ id }) => id === 'atk')!.gauge!.outputValue)
+    expect(afterAstra.metrics.find(({ id }) => id === 'atk')?.gauges[0]?.outputValue)
+      .toBeGreaterThan(beforeAstra.metrics.find(({ id }) => id === 'atk')!.gauges[0]!.outputValue)
     expect(afterBen.metrics.find(({ id }) => id === 'atk')!.values.fully)
       .toBeGreaterThan(beforeBen.metrics.find(({ id }) => id === 'atk')!.values.fully)
     expect(afterBen.metrics.find(({ id }) => id === 'atk')!.breakdown.fully)
@@ -643,7 +1005,7 @@ describe('profile calculation harness', () => {
     const profiles: AgentSourceProfile[] = [
       {
         agentId: 'astraYao', appliedPartySlot: 0,
-        metrics: [atkMetric, { id: 'impact', statId: 'impact', label: 'Impact', unit: '', decimals: 1, gaugeId: 'surfaceLinear' }],
+        metrics: [atkMetric, { id: 'impact', statId: 'impact', label: 'Impact', unit: '', decimals: 1 }],
         relationships: [
           baseStat('astraYao', 0, 'atk', 1000),
           baseStat('astraYao', 0, 'impact', 100),
@@ -651,7 +1013,7 @@ describe('profile calculation harness', () => {
           { kind: 'stat', atom: { statId: 'impact', region: 'percentage', earliestSurface: 'combat', value: 20, source: impactInput } },
           { kind: 'stat', atom: { statId: 'impact', region: 'percentage', earliestSurface: 'fully', value: 20, source: impactInput } },
           {
-            kind: 'gauge', gaugeId: 'surfaceLinear', source: derived,
+            kind: 'gauge', source: derived,
             basis: { statId: 'impact', surface: 'each' },
             basisLabel: 'Fully Enabled Impact', basisThreshold: 120, basisCap: 220,
             metricId: 'impact',
@@ -672,7 +1034,7 @@ describe('profile calculation harness', () => {
       .toEqual({ initial: 130, combat: 156, fully: 182 })
     expect(result.metrics.find(({ id }) => id === 'atk')?.values)
       .toEqual({ initial: 1060, combat: 1216, fully: 1372 })
-    expect(result.metrics.find(({ id }) => id === 'impact')?.gauge)
+    expect(result.metrics.find(({ id }) => id === 'impact')?.gauges[0])
       .toEqual(expect.objectContaining({ current: 182, outputValue: 372 }))
   })
 
@@ -690,18 +1052,18 @@ describe('profile calculation harness', () => {
       const profiles: AgentSourceProfile[] = [
         {
           agentId: 'evelyn', appliedPartySlot: 0,
-          metrics: [{ ...critRateMetric, gaugeId: 'critActivation' }],
+          metrics: [critRateMetric],
           relationships: [
             baseStat('evelyn', 0, 'critRate', 40),
             { kind: 'stat', atom: { statId: 'critRate', region: 'flat', earliestSurface: 'combat', value: combat, source: input } },
             { kind: 'stat', atom: { statId: 'critRate', region: 'flat', earliestSurface: 'fully', value: fully, source: input } },
             {
-              kind: 'threshold-operation', gaugeId: 'critActivation', source,
+              kind: 'threshold-operation', source,
               basis: { statId: 'critRate' },
               basisLabels: { combat: 'Combat CRIT Rate', fully: 'Fully Enabled CRIT Rate' },
               threshold: 80, metricId: 'critRate',
               outputLabel: 'Action DMG Multiplier', inactiveValue: 1, activeValue: 1.25,
-              unit: '', operationId: 'actionDmgMultiplier', presentation: 'scale',
+              unit: '', presentation: 'scale',
             },
           ],
         },
@@ -712,21 +1074,21 @@ describe('profile calculation harness', () => {
     }
 
     const below = evaluate(20, 10)
-    expect(below.metrics[0].gauge).toEqual(expect.objectContaining({
+    expect(below.metrics[0].gauges[0]).toEqual(expect.objectContaining({
       basisLabel: 'Fully Enabled CRIT Rate', current: 70, outputValue: 1,
     }))
     expect(below.operations).toEqual([])
 
     const fully = evaluate(20, 25)
-    expect(fully.metrics[0].gauge).toEqual(expect.objectContaining({
+    expect(fully.metrics[0].gauges[0]).toEqual(expect.objectContaining({
       basisLabel: 'Fully Enabled CRIT Rate', current: 85, outputValue: 1.25,
     }))
     expect(fully.operations).toEqual([
-      expect.objectContaining({ id: 'actionDmgMultiplier', surface: 'fully', value: 1.25 }),
+      expect.objectContaining({ label: 'Action DMG Multiplier', surface: 'fully', value: 1.25 }),
     ])
 
     const combat = evaluate(45, 10)
-    expect(combat.metrics[0].gauge).toEqual(expect.objectContaining({
+    expect(combat.metrics[0].gauges[0]).toEqual(expect.objectContaining({
       basisLabel: 'Combat CRIT Rate', current: 85, outputValue: 1.25,
     }))
     expect(combat.operations[0]).toEqual(expect.objectContaining({ surface: 'combat' }))
@@ -741,11 +1103,11 @@ describe('profile calculation harness', () => {
     const profiles: AgentSourceProfile[] = [
       {
         agentId: 'astraYao', appliedPartySlot: 0,
-        metrics: [{ ...atkMetric, gaugeId: 'openThreshold' }, damageMetric],
+        metrics: [atkMetric, damageMetric],
         relationships: [
           baseStat('astraYao', 0, 'atk', 125),
           {
-            kind: 'gauge', gaugeId: 'openThreshold', source,
+            kind: 'gauge', source,
             basis: { statId: 'atk', surface: 'initial' }, basisLabel: 'Initial ATK',
             basisThreshold: 100, metricId: 'atk',
             outputs: [{
@@ -760,7 +1122,7 @@ describe('profile calculation harness', () => {
       { agentId: 'zhao', appliedPartySlot: 2, metrics: [], relationships: [] },
     ]
 
-    const gauge = agentResult(evaluateProfileParty(state, profiles)!, 'astraYao').metrics[0].gauge!
+    const gauge = agentResult(evaluateProfileParty(state, profiles)!, 'astraYao').metrics[0].gauges[0]!
     expect(gauge).toEqual(expect.objectContaining({
       basisLabel: 'Initial ATK', current: 125, threshold: 100, outputValue: 25,
     }))
@@ -783,7 +1145,7 @@ describe('profile calculation harness', () => {
         agentId: 'yeShunguang', appliedPartySlot: 0,
         metrics: [{
           id: 'stunDmgMultiplier', label: 'Stun DMG Multiplier', unit: '%', decimals: 1,
-          baseValues: { initial: 0, combat: 0, fully: 0 }, gaugeId: 'veilCap',
+          baseValues: { initial: 0, combat: 0, fully: 0 },
         }],
         relationships: [
           {
@@ -793,7 +1155,7 @@ describe('profile calculation harness', () => {
             },
           },
           {
-            kind: 'projection-gauge', gaugeId: 'veilCap', source: target,
+            kind: 'projection-gauge', source: target,
             metricId: 'stunDmgMultiplier', basisLabel: 'Raw Stun DMG Multiplier bonus',
             basisCap: 110,
             output: {
@@ -820,7 +1182,7 @@ describe('profile calculation harness', () => {
 
     const metric = agentResult(evaluateProfileParty(state, profiles)!, 'yeShunguang').metrics[0]
     expect(metric.values.fully).toBe(130)
-    expect(metric.gauge).toEqual(expect.objectContaining({
+    expect(metric.gauges[0]).toEqual(expect.objectContaining({
       current: 130, cap: 110, outputValue: 110, outputCap: 110,
     }))
     expect(metric.breakdown.fully).toContainEqual(expect.objectContaining({
@@ -841,7 +1203,6 @@ describe('profile calculation harness', () => {
           {
             id: 'anomalyProficiency', statId: 'anomalyProficiency',
             label: 'Anomaly Proficiency', unit: '', decimals: 0,
-            gaugeId: 'timeweaverDisorder',
           },
           { ...anomalyDamageMetric, resultVisibility: 'action-only' },
         ],
@@ -850,7 +1211,7 @@ describe('profile calculation harness', () => {
           baseStat('grace', 0, 'anomalyProficiency', 340),
           {
             kind: 'post-delivery-stat-modifier-gauge',
-            gaugeId: 'timeweaverDisorder', source: timeweaver,
+            source: timeweaver,
             basis: { statId: 'anomalyProficiency', surface: 'fully' },
             basisLabel: 'Fully Enabled Anomaly Proficiency',
             basisCap: 375,
@@ -887,20 +1248,20 @@ describe('profile calculation harness', () => {
 
     const below = agentResult(evaluateProfileParty(state, profilesFor(34))!, 'grace')
     expect(below.metrics[0].values.fully).toBe(374)
-    expect(below.metrics[0].gauge).toEqual(expect.objectContaining({
+    expect(below.metrics[0].gauges[0]).toEqual(expect.objectContaining({
       current: 374, threshold: 375, outputValue: 0,
     }))
     expect(below.actionModifiers).toEqual([])
 
     const at = agentResult(evaluateProfileParty(state, profilesFor(35))!, 'grace')
-    expect(at.metrics[0].gauge).toEqual(expect.objectContaining({
+    expect(at.metrics[0].gauges[0]).toEqual(expect.objectContaining({
       current: 375, threshold: 375, outputValue: 25,
     }))
     expect(at.actionModifiers[0].values.fully).toBe(25)
 
     const above = agentResult(evaluateProfileParty(state, profilesFor(40))!, 'grace')
     expect(above.metrics[0].values.fully).toBe(380)
-    expect(above.metrics[0].gauge).toEqual(expect.objectContaining({
+    expect(above.metrics[0].gauges[0]).toEqual(expect.objectContaining({
       current: 380, threshold: 375, outputValue: 25,
     }))
     expect(above.actionModifiers).toEqual([
@@ -911,7 +1272,71 @@ describe('profile calculation harness', () => {
     )
   })
 
-  it('runs the named Anby post-delivery derivation once and without slot-order feedback', () => {
+  it('caps one completed linear gauge basis and preserves its threshold', () => {
+    const state = createPreparedState({}, ['grace', 'yuzuha', 'zhao'], 0)
+    const source = selectSource(
+      defineAgentSource('grace', 'capped-linear-gauge', 'Capped linear gauge', 'special'),
+      'grace', 0,
+    )
+    const profiles: AgentSourceProfile[] = [
+      {
+        agentId: 'grace', appliedPartySlot: 0,
+        metrics: [
+          { ...critRateMetric, cap: { value: 100, source } },
+          {
+            id: 'dazeBonus', label: 'Daze Bonus', unit: '%', decimals: 1,
+            baseValues: { initial: 0, combat: 0, fully: 0 },
+            admission: 'action', resultVisibility: 'action-only',
+          },
+        ],
+        actions: [actionProjection('dazeBonus', 'cappedLinearGauge', AFTERSHOCK_TARGET)],
+        relationships: [
+          baseStat('grace', 0, 'critRate', 115.4),
+          {
+            kind: 'post-delivery-stat-modifier-gauge',
+            source,
+            basis: { statId: 'critRate', surface: 'fully' },
+            basisLabel: 'Fully Enabled CRIT Rate',
+            basisValueCap: 100,
+            basisCap: 90,
+            gaugeMetricId: 'critRate',
+            modifierMetricId: 'dazeBonus',
+            action: AFTERSHOCK_TARGET,
+            modifierSurface: 'fully',
+            output: {
+              label: 'Action Daze bonus',
+              value: {
+                kind: 'linear',
+                transform: {
+                  basisThreshold: 40,
+                  basisIncrement: 1,
+                  outputIncrement: 0.5,
+                  outputCap: 75,
+                },
+              },
+              cap: 75,
+              unit: '%',
+            },
+          },
+        ],
+      },
+      { agentId: 'yuzuha', appliedPartySlot: 1, metrics: [], relationships: [] },
+      { agentId: 'zhao', appliedPartySlot: 2, metrics: [], relationships: [] },
+    ]
+
+    const result = agentResult(evaluateProfileParty(state, profiles)!, 'grace')
+    expect(result.metrics[0].values.fully).toBe(100)
+    expect(result.metrics[0].gauges[0]).toEqual(expect.objectContaining({
+      current: 100,
+      threshold: 40,
+      cap: 90,
+      outputValue: 30,
+      outputCap: 75,
+    }))
+    expect(result.actionModifiers[0].values.fully).toBe(30)
+  })
+
+  it('delivers one post-delivery linear provider without slot-order feedback', () => {
     const profilesFor = (state: WorkbenchState): AgentSourceProfile[] => state.slots.map(
       ({ agentId }, slotIndex) => {
         const slot = slotIndex as 0 | 1 | 2
@@ -923,8 +1348,10 @@ describe('profile calculation harness', () => {
           return {
             agentId, appliedPartySlot: slot, metrics: [critDmgMetric],
             actions: [actionProjection('critDmg', 'anbyAftershockCrit', AFTERSHOCK_TARGET)],
-            anbyAftershockSource: core,
-            relationships: [baseStat(agentId, slot, 'critDmg', 100)],
+            relationships: [
+              baseStat(agentId, slot, 'critDmg', 100),
+              postDeliveryAftershockProvider(core),
+            ],
           }
         }
         const amount = agentId === 'trigger' ? 20 : 10
@@ -997,30 +1424,55 @@ describe('profile calculation harness', () => {
       agentId: 'lighter', appliedPartySlot: 0,
       metrics: [{
         id: 'impact', statId: 'impact', label: 'Impact', unit: '', decimals: 1,
-        gaugeId: 'lighterElation',
       }],
-      lighterImpactElation: {
-        coreImpactSource: lighterCore,
-        additionalSource: lighterAdditional,
-        active: true,
-        outputMultiplier: 1,
-      },
       relationships: [
         baseStat('lighter', 0, 'impact', 137),
         {
           kind: 'stat',
           atom: {
-            statId: 'impact', region: 'percentage', earliestSurface: 'fully',
+            statId: 'impact', region: 'percentage', earliestSurface: 'initial',
             value: 18, source: lighterEngine,
           },
+        },
+        {
+          kind: 'stat',
+          atom: {
+            statId: 'impact', region: 'percentage', earliestSurface: 'fully',
+            value: 20, source: lighterCore,
+          },
+        },
+        {
+          kind: 'gauge',
+          source: lighterAdditional,
+          basis: { statId: 'impact', surface: 'fully' },
+          basisLabel: 'Fully Enabled Impact',
+          basisThreshold: 170,
+          basisCap: 270,
+          metricId: 'impact',
+          outputs: [{
+            label: 'Elemental DMG Bonus', unit: '%', cap: 75,
+            transform: {
+              basisThreshold: 170, basisIncrement: 10,
+              baseOutput: 25, outputIncrement: 5, outputCap: 75,
+            },
+            emission: {
+              kind: 'provider',
+              delivery: { recipient: 'all-party', formulas: ['general_damage'] },
+              effect: {
+                kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
+              },
+            },
+          }],
         },
       ],
     }, {
       agentId: 'anbySoldier0', appliedPartySlot: 1,
       metrics: [critDmgMetric],
       actions: [actionProjection('critDmg', 'anbyAftershockCrit', AFTERSHOCK_TARGET)],
-      anbyAftershockSource: anbyCore,
-      relationships: [baseStat('anbySoldier0', 1, 'critDmg', 100)],
+      relationships: [
+        baseStat('anbySoldier0', 1, 'critDmg', 100),
+        postDeliveryAftershockProvider(anbyCore),
+      ],
     }, {
       agentId: 'soldier11', appliedPartySlot: 2,
       metrics: [damageMetric],
@@ -1046,14 +1498,17 @@ describe('profile calculation harness', () => {
     const anby = agentResult(result, 'anbySoldier0')
     const soldier = agentResult(result, 'soldier11')
 
-    expect(lighter.metrics[0].values.fully).toBeCloseTo(189.06, 10)
-    expect(lighter.metrics[0].gauge?.outputValue).toBeCloseTo(34.53, 10)
-    expect(soldier.metrics[0].values.fully).toBeCloseTo(34.53, 10)
+    expect(lighter.metrics[0].values.fully).toBeCloseTo(293.992, 10)
+    expect(lighter.metrics[0].gauges[0]?.outputValue).toBeCloseTo(36.996, 10)
+    expect(lighter.metrics[0].breakdown.fully.find(
+      ({ label }) => label === 'Core Passive',
+    )?.display).toEqual({ value: 20, unit: '%', decimals: 0 })
+    expect(soldier.metrics[0].values.fully).toBeCloseTo(36.996, 10)
     expect(anby.metrics[0].values.fully).toBe(130)
     expect(anby.actionModifiers[0].values.fully).toBeCloseTo(175.5, 10)
   })
 
-  it('derives Rupture Sheer Force from each completed ATK and Max HP surface before direct additions', () => {
+  it('derives a visible metric from each completed stat surface before direct additions', () => {
     const state = createPreparedState({}, ['yixuan', 'astraYao', 'zhao'], 0)
     const ruptureSource = selectSource(
       defineAgentSource('yixuan', 'rupture-specialty', 'Rupture specialty', 'identity'),
@@ -1088,7 +1543,6 @@ describe('profile calculation harness', () => {
       {
         agentId: 'yixuan',
         appliedPartySlot: 0,
-        ruptureSheerSource: ruptureSource,
         metrics: [
           atkMetric,
           { id: 'maxHp', statId: 'maxHp', label: 'Max HP', unit: '', decimals: 0 },
@@ -1097,6 +1551,16 @@ describe('profile calculation harness', () => {
         relationships: [
           baseStat('yixuan', 0, 'atk', 1000),
           baseStat('yixuan', 0, 'maxHp', 10_000),
+          {
+            kind: 'surface-stat-derived-metric',
+            source: ruptureSource,
+            metricId: 'sheerForce',
+            terms: [
+              { statId: 'atk', multiplier: 0.3 },
+              { statId: 'maxHp', multiplier: 0.1 },
+            ],
+            sourceDetail: 'Current ATK × 0.3 + Current Max HP × 0.1',
+          },
           {
             kind: 'modifier',
             atom: {
@@ -1120,83 +1584,6 @@ describe('profile calculation harness', () => {
       expect.objectContaining({ label: 'Rupture specialty', amount: 1430 }),
       expect.objectContaining({ label: 'Direct Sheer Force', amount: 200 }),
     ])
-  })
-
-  it('derives qualified Trigger Aftershock Daze from delivered Fully CRIT without emitting a provider', () => {
-    const state = createPreparedState({}, ['trigger', 'astraYao', 'zhao'], 1)
-    const profilesFor = (qualified: boolean): AgentSourceProfile[] => {
-      const additional = selectSource(
-        defineAgentSource('trigger', 'aftershock-daze', 'Additional Ability', 'additional'),
-        'trigger', 0,
-      )
-      const ordinaryDaze = selectSource(
-        defineAgentSource('trigger', 'ordinary-daze', 'Ordinary Daze', 'core'),
-        'trigger', 0,
-      )
-      return [
-        {
-          agentId: 'trigger',
-          appliedPartySlot: 0,
-          ...(qualified ? { triggerAftershockDazeSource: additional } : {}),
-          metrics: [
-            { ...critRateMetric, gaugeId: 'triggerAftershockDaze' },
-            { id: 'dazeBonus', label: 'Daze Bonus', unit: '%', decimals: 1 },
-          ],
-          actions: [actionProjection('dazeBonus', 'triggerBasicAftershock', BASIC_AFTERSHOCK_TARGET)],
-          relationships: [
-            baseStat('trigger', 0, 'critRate', 35),
-            {
-              kind: 'modifier',
-              atom: {
-                metricId: 'dazeBonus', earliestSurface: 'fully', value: 5,
-                source: ordinaryDaze,
-              },
-            },
-            {
-              kind: 'modifier',
-              atom: {
-                metricId: 'dazeBonus', earliestSurface: 'fully', value: 20,
-                source: ordinaryDaze, action: BASIC_AFTERSHOCK_TARGET,
-              },
-            },
-          ],
-        },
-        {
-          agentId: 'astraYao', appliedPartySlot: 1, metrics: [],
-          relationships: [{
-            kind: 'provider',
-            source: selectSource(
-              defineAgentSource('astraYao', 'crit-provider', 'Delivered CRIT', 'core'),
-              'astraYao', 1,
-            ),
-            delivery: { recipient: 'all-party' },
-            effect: {
-              kind: 'stat', statId: 'critRate', region: 'flat',
-              earliestSurface: 'fully', value: 18,
-            },
-          }],
-        },
-        { agentId: 'zhao', appliedPartySlot: 2, metrics: [], relationships: [] },
-      ]
-    }
-
-    const qualified = agentResult(evaluateProfileParty(state, profilesFor(true))!, 'trigger')
-    const unqualified = agentResult(evaluateProfileParty(state, profilesFor(false))!, 'trigger')
-    const crit = qualified.metrics.find(({ id }) => id === 'critRate')!
-    expect(crit.values.fully).toBe(53)
-    expect(crit.gauge).toEqual(expect.objectContaining({
-      current: 53,
-      outputValue: 19.5,
-      outputCap: 75,
-    }))
-    expect(qualified.actionModifiers[0].values.fully).toBe(44.5)
-    expect(qualified.actionModifiers[0].breakdown.fully).toContainEqual(
-      expect.objectContaining({ label: 'Additional Ability', amount: 19.5 }),
-    )
-    expect(unqualified.metrics.find(({ id }) => id === 'critRate')?.gauge).toBeUndefined()
-    expect(unqualified.actionModifiers[0].values.fully).toBe(25)
-    expect(agentResult(evaluateProfileParty(state, profilesFor(true))!, 'astraYao').metrics)
-      .toEqual([])
   })
 
   it('rejects an unrecognized relationship variant', () => {

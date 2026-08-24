@@ -1,5 +1,6 @@
 import type { ActionTarget } from './actions'
-import type { NonstackIdentity } from './calculation/relationships'
+import type { HighestOnlyComposition } from './calculation/relationships'
+import type { SelectedSourceInstance } from './calculation/source-instance'
 import type { SourceDefinitionLocus } from './content/source-definitions'
 import {
   DRIVE_DISC_FACTS,
@@ -43,9 +44,10 @@ export interface ResolvedCurrentEffect {
   earliestSurface: SurfaceKey
   amount: number
   source: ResultSource
+  sourceInstance: SelectedSourceInstance
   action?: ActionTarget
   eligibleAgentIds?: AgentId[]
-  nonstackKey?: NonstackIdentity
+  composition?: HighestOnlyComposition
   display?: { value: number; unit: '%' | '/s'; decimals: number }
   disclose?: boolean
 }

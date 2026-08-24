@@ -36,16 +36,10 @@ export function linearDerivedOutput({
   )
 }
 
-export type NonstackIdentity =
-  | 'kingOfTheSummit'
-  | 'astralVoiceEntrant'
-  | 'moonlightLullaby'
-  | 'etherVeilWellspring'
-  | 'swingJazz'
-  | 'bunnyInWonderland'
-  | 'kaboomTheCannon'
-  | 'iceJadeTeapot'
-  | 'halfSugarBunny'
+export interface HighestOnlyComposition {
+  kind: 'highest-only'
+  semanticEffect: object
+}
 
 export interface RelationshipDisplay {
   value: number
@@ -54,7 +48,7 @@ export interface RelationshipDisplay {
 }
 
 export type ProfileStatAtom = StatAtom & {
-  nonstackId?: NonstackIdentity
+  composition?: HighestOnlyComposition
   display?: RelationshipDisplay
   sourceDetail?: string
 }
@@ -65,13 +59,12 @@ export interface ModifierAtom {
   value: number
   source: SelectedSourceInstance
   action?: ActionTarget
-  nonstackId?: NonstackIdentity
+  composition?: HighestOnlyComposition
   display?: RelationshipDisplay
   sourceDetail?: string
 }
 
 export interface OperationAtom {
-  operationId: string
   label: string
   earliestSurface: Exclude<SurfaceKey, 'initial'>
   value: number
@@ -105,7 +98,7 @@ export type ProviderEffect =
     region: Exclude<StatRegion, 'base'>
     earliestSurface: SurfaceKey
     value: number
-    nonstackId?: NonstackIdentity
+    composition?: HighestOnlyComposition
     display?: RelationshipDisplay
     sourceDetail?: string
   }
@@ -115,13 +108,12 @@ export type ProviderEffect =
     earliestSurface: SurfaceKey
     value: number
     action?: ActionTarget
-    nonstackId?: NonstackIdentity
+    composition?: HighestOnlyComposition
     display?: RelationshipDisplay
     sourceDetail?: string
   }
   | {
     kind: 'operation'
-    operationId: string
     label: string
     earliestSurface: OperationAtom['earliestSurface']
     value: number
@@ -161,7 +153,7 @@ export type LinearEmission =
     statId: StatId
     region: Exclude<StatRegion, 'base'>
     earliestSurface: SurfaceKey
-    nonstackId?: NonstackIdentity
+    composition?: HighestOnlyComposition
     display?: RelationshipDisplay
     sourceDetail?: string
   }
@@ -170,13 +162,12 @@ export type LinearEmission =
     metricId: EffectMetric
     earliestSurface: SurfaceKey
     action?: ActionTarget
-    nonstackId?: NonstackIdentity
+    composition?: HighestOnlyComposition
     display?: RelationshipDisplay
     sourceDetail?: string
   }
   | {
     kind: 'operation'
-    operationId: string
     label: string
     earliestSurface: OperationAtom['earliestSurface']
     unit: string
@@ -201,21 +192,33 @@ export interface LinearRelationship {
   outputs: readonly LinearOutput[]
 }
 
-export interface GaugeOutput extends LinearOutput {
+export type PostDeliveryLinearRelationship = Omit<LinearRelationship, 'kind'> & {
+  kind: 'post-delivery-linear'
+}
+
+interface GaugeOutputPresentation {
   label: string
   unit: string
   cap?: number
   decimals?: number
 }
 
-export type GaugeRelationship = {
+export type LinearGaugeOutput = GaugeOutputPresentation & LinearOutput
+
+export type ThresholdActivationGaugeOutput = GaugeOutputPresentation & {
+  activation: {
+    inactiveValue: number
+    activeValue: number
+  }
+  emission: Extract<LinearEmission, { kind: 'provider' }>
+}
+
+interface GaugeRelationshipBase {
   kind: 'gauge'
-  gaugeId: string
   source: SelectedSourceInstance
   basis: LinearBasis
   basisLabel: string
   metricId: EffectMetric
-  outputs: readonly GaugeOutput[]
   presentation?: 'scale'
   sourceDetail?: string
   decimals?: {
@@ -225,10 +228,33 @@ export type GaugeRelationship = {
     output?: number
     outputCap?: number
   }
+}
+
+export type LinearGaugeRelationship = GaugeRelationshipBase & {
+  outputs: readonly LinearGaugeOutput[]
 } & (
   | { basisCap: number; basisThreshold?: number }
   | { basisCap?: never; basisThreshold: number }
 )
+
+export type ThresholdActivationGaugeRelationship =
+  Omit<GaugeRelationshipBase, 'basis'> & {
+    basis: { statId: StatId; surface: SurfaceKey }
+    basisThreshold: number
+    basisCap: number
+    outputs: readonly [
+      ThresholdActivationGaugeOutput,
+      ...ThresholdActivationGaugeOutput[],
+    ]
+  }
+
+export type GaugeRelationship =
+  | LinearGaugeRelationship
+  | ThresholdActivationGaugeRelationship
+
+export type PostDeliveryGaugeRelationship = Omit<LinearGaugeRelationship, 'kind'> & {
+  kind: 'post-delivery-gauge'
+}
 
 /**
  * A visible activation condition over the completed post-delivery stat.
@@ -237,7 +263,6 @@ export type GaugeRelationship = {
  */
 export interface ThresholdOperationRelationship {
   kind: 'threshold-operation'
-  gaugeId: string
   source: SelectedSourceInstance
   basis: { statId: StatId }
   basisLabels: Record<Exclude<SurfaceKey, 'initial'>, string>
@@ -247,7 +272,6 @@ export interface ThresholdOperationRelationship {
   inactiveValue: number
   activeValue: number
   unit: string
-  operationId: string
   presentation?: 'scale'
   sourceDetail?: string
   decimals?: EvaluatedGauge['decimals']
@@ -256,7 +280,6 @@ export interface ThresholdOperationRelationship {
 /** A Result-only gauge over the completed metric; it emits no calculation atom. */
 export interface ProjectionGaugeRelationship {
   kind: 'projection-gauge'
-  gaugeId: string
   source: SelectedSourceInstance
   metricId: EffectMetric
   basisLabel: string
@@ -280,10 +303,10 @@ export interface ProjectionGaugeRelationship {
  */
 export interface PostDeliveryStatModifierGaugeRelationship {
   kind: 'post-delivery-stat-modifier-gauge'
-  gaugeId: string
   source: SelectedSourceInstance
   basis: { statId: StatId; surface: Exclude<SurfaceKey, 'initial'> }
   basisLabel: string
+  basisValueCap?: number
   basisCap: number
   gaugeMetricId: EffectMetric
   modifierMetricId: EffectMetric
@@ -308,20 +331,37 @@ export interface PostDeliveryStatModifierGaugeRelationship {
   decimals?: EvaluatedGauge['decimals']
 }
 
+/**
+ * A Result metric derived independently on each visible surface from completed
+ * recipient stats. It emits no stat or provider and cannot feed another pass.
+ */
+export interface SurfaceStatDerivedMetricRelationship {
+  kind: 'surface-stat-derived-metric'
+  source: SelectedSourceInstance
+  metricId: EffectMetric
+  terms: readonly {
+    statId: StatId
+    multiplier: number
+  }[]
+  sourceDetail?: string
+}
+
 export type ProfileRelationship =
   | { kind: 'stat'; atom: ProfileStatAtom }
   | { kind: 'modifier'; atom: ModifierAtom }
   | { kind: 'automatic-energy'; atom: AutomaticEnergyAtom }
   | LinearRelationship
   | GaugeRelationship
+  | PostDeliveryLinearRelationship
+  | PostDeliveryGaugeRelationship
   | ThresholdOperationRelationship
   | ProjectionGaugeRelationship
   | PostDeliveryStatModifierGaugeRelationship
+  | SurfaceStatDerivedMetricRelationship
   | { kind: 'operation'; atom: OperationAtom }
   | ProviderRelationship
 
 export interface EvaluatedGauge {
-  gaugeId: string
   source: SelectedSourceInstance
   metricId: EffectMetric
   basisLabel: string
@@ -337,7 +377,7 @@ export interface EvaluatedGauge {
   }>
   presentation?: 'scale'
   sourceDetail?: string
-  decimals?: GaugeRelationship['decimals']
+  decimals?: GaugeRelationshipBase['decimals']
 }
 
 export interface EvaluatedRelationships {
@@ -350,6 +390,9 @@ export interface EvaluatedRelationships {
   thresholdOperations: ThresholdOperationRelationship[]
   projectionGauges: ProjectionGaugeRelationship[]
   postDeliveryStatModifierGauges: PostDeliveryStatModifierGaugeRelationship[]
+  surfaceStatDerivedMetrics: SurfaceStatDerivedMetricRelationship[]
+  postDeliveryLinear: PostDeliveryLinearRelationship[]
+  postDeliveryGauges: PostDeliveryGaugeRelationship[]
 }
 
 const emptyEvaluation = (): EvaluatedRelationships => ({
@@ -362,6 +405,9 @@ const emptyEvaluation = (): EvaluatedRelationships => ({
   thresholdOperations: [],
   projectionGauges: [],
   postDeliveryStatModifierGauges: [],
+  surfaceStatDerivedMetrics: [],
+  postDeliveryLinear: [],
+  postDeliveryGauges: [],
 })
 
 const assertNever = (value: never): never => {
@@ -383,7 +429,7 @@ function basisValue(
 const surfaceOrder: readonly SurfaceKey[] = ['initial', 'combat', 'fully']
 
 function evaluateEachSurfaceOutputs(
-  relationship: LinearRelationship | GaugeRelationship,
+  relationship: LinearRelationship | LinearGaugeRelationship,
   stats: Readonly<Partial<Record<StatId, ComposedStat>>>,
   evaluated: EvaluatedRelationships,
 ): { current: number; values: number[] } {
@@ -391,7 +437,8 @@ function evaluateEachSurfaceOutputs(
   if (!stat) {
     throw new Error(`Missing ${relationship.basis.statId} basis for a linear relationship`)
   }
-  const valuesByOutput = relationship.outputs.map(({ transform, emission }) => {
+  const valuesByOutput = relationship.outputs.map((output) => {
+    const { transform, emission } = output
     if (emission.kind !== 'stat' || emission.earliestSurface !== 'initial') {
       throw new Error('Each-surface relationships require an Initial stat emission')
     }
@@ -427,7 +474,7 @@ function emitLinearValue(
         earliestSurface: emission.earliestSurface,
         value,
         source,
-        ...(emission.nonstackId ? { nonstackId: emission.nonstackId } : {}),
+        ...(emission.composition ? { composition: emission.composition } : {}),
         ...(emission.display ? { display: emission.display } : {}),
         ...(emission.sourceDetail ? { sourceDetail: emission.sourceDetail } : {}),
       })
@@ -439,7 +486,7 @@ function emitLinearValue(
         value,
         source,
         ...(emission.action ? { action: emission.action } : {}),
-        ...(emission.nonstackId ? { nonstackId: emission.nonstackId } : {}),
+        ...(emission.composition ? { composition: emission.composition } : {}),
         ...(emission.display ? { display: emission.display } : {}),
         ...(emission.sourceDetail ? { sourceDetail: emission.sourceDetail } : {}),
       })
@@ -487,6 +534,28 @@ function evaluateOutputs(
   })
 }
 
+function evaluateThresholdActivationOutputs(
+  source: SelectedSourceInstance,
+  basis: number,
+  threshold: number,
+  outputs: readonly ThresholdActivationGaugeOutput[],
+  evaluated: EvaluatedRelationships,
+): number[] {
+  return outputs.map((output) => {
+    const value = basis >= threshold
+      ? output.activation.activeValue
+      : output.activation.inactiveValue
+    emitLinearValue(source, output.emission, value, evaluated)
+    return value
+  })
+}
+
+function isThresholdActivationGauge(
+  relationship: GaugeRelationship,
+): relationship is ThresholdActivationGaugeRelationship {
+  return relationship.outputs.length > 0
+    && relationship.outputs.every((output) => 'activation' in output)
+}
 /**
  * Evaluates only the closed retained relationship vocabulary. Derived outputs
  * read the supplied pre-delivery stat snapshot once; they cannot enqueue a
@@ -523,6 +592,15 @@ export function evaluateRelationships(
       case 'post-delivery-stat-modifier-gauge':
         evaluated.postDeliveryStatModifierGauges.push(relationship)
         break
+      case 'surface-stat-derived-metric':
+        evaluated.surfaceStatDerivedMetrics.push(relationship)
+        break
+      case 'post-delivery-linear':
+        evaluated.postDeliveryLinear.push(relationship)
+        break
+      case 'post-delivery-gauge':
+        evaluated.postDeliveryGauges.push(relationship)
+        break
       case 'linear': {
         if (relationship.basis.surface === 'each') {
           evaluateEachSurfaceOutputs(relationship, stats, evaluated)
@@ -533,19 +611,28 @@ export function evaluateRelationships(
         break
       }
       case 'gauge': {
-        const { current, values } = relationship.basis.surface === 'each'
-          ? evaluateEachSurfaceOutputs(relationship, stats, evaluated)
-          : {
-              current: basisValue(relationship.basis, stats),
-              values: evaluateOutputs(
-                relationship.source,
-                basisValue(relationship.basis, stats),
-                relationship.outputs,
-                evaluated,
-              ),
-            }
+        let current: number
+        let values: number[]
+        if (isThresholdActivationGauge(relationship)) {
+          current = basisValue(relationship.basis, stats)
+          values = evaluateThresholdActivationOutputs(
+            relationship.source,
+            current,
+            relationship.basisThreshold,
+            relationship.outputs,
+            evaluated,
+          )
+        } else if (relationship.basis.surface === 'each') {
+          const each = evaluateEachSurfaceOutputs(relationship, stats, evaluated)
+          current = each.current
+          values = each.values
+        } else {
+          current = basisValue(relationship.basis, stats)
+          values = evaluateOutputs(
+            relationship.source, current, relationship.outputs, evaluated,
+          )
+        }
         evaluated.gauges.push({
-          gaugeId: relationship.gaugeId,
           source: relationship.source,
           metricId: relationship.metricId,
           basisLabel: relationship.basisLabel,
@@ -574,6 +661,49 @@ export function evaluateRelationships(
   return evaluated
 }
 
+/**
+ * Evaluates the bounded one-pass relationships that explicitly read the
+ * completed ordinary-delivery stat snapshot. Their outputs are returned for
+ * one derived-provider delivery pass and cannot enqueue another relationship.
+ */
+export function evaluatePostDeliveryRelationships(
+  relationships: readonly (
+    | PostDeliveryLinearRelationship
+    | PostDeliveryGaugeRelationship
+  )[],
+  stats: Readonly<Partial<Record<StatId, ComposedStat>>>,
+): EvaluatedRelationships {
+  const evaluated = emptyEvaluation()
+  for (const relationship of relationships) {
+    if (relationship.basis.surface === 'each') {
+      throw new Error('Post-delivery relationships require one explicit completed surface')
+    }
+    const current = basisValue(relationship.basis, stats)
+    const values = evaluateOutputs(relationship.source, current, relationship.outputs, evaluated)
+    if (relationship.kind === 'post-delivery-gauge') {
+      evaluated.gauges.push({
+        source: relationship.source,
+        metricId: relationship.metricId,
+        basisLabel: relationship.basisLabel,
+        current,
+        ...(relationship.basisThreshold === undefined ? {} : { threshold: relationship.basisThreshold }),
+        ...(relationship.basisCap === undefined ? {} : { cap: relationship.basisCap }),
+        outputs: relationship.outputs.map((output, index) => ({
+          label: output.label,
+          value: values[index],
+          ...(output.cap === undefined ? {} : { cap: output.cap }),
+          unit: output.unit,
+          ...(output.decimals === undefined ? {} : { decimals: output.decimals }),
+        })),
+        ...(relationship.presentation ? { presentation: relationship.presentation } : {}),
+        ...(relationship.sourceDetail ? { sourceDetail: relationship.sourceDetail } : {}),
+        ...(relationship.decimals ? { decimals: relationship.decimals } : {}),
+      })
+    }
+  }
+  return evaluated
+}
+
 export function evaluateThresholdOperation(
   relationship: ThresholdOperationRelationship,
   stats: Readonly<Partial<Record<StatId, ComposedStat>>>,
@@ -593,7 +723,6 @@ export function evaluateThresholdOperation(
     : relationship.inactiveValue
   return {
     gauge: {
-      gaugeId: relationship.gaugeId,
       source: relationship.source,
       metricId: relationship.metricId,
       basisLabel: relationship.basisLabels[basisSurface],
@@ -611,7 +740,6 @@ export function evaluateThresholdOperation(
     },
     ...(qualifyingSurface ? {
       operation: {
-        operationId: relationship.operationId,
         label: relationship.outputLabel,
         earliestSurface: qualifyingSurface,
         value: relationship.activeValue,
@@ -629,7 +757,6 @@ export function evaluateProjectionGauge(
   current: number,
 ): EvaluatedGauge {
   return {
-    gaugeId: relationship.gaugeId,
     source: relationship.source,
     metricId: relationship.metricId,
     basisLabel: relationship.basisLabel,
@@ -665,7 +792,10 @@ export function evaluatePostDeliveryStatModifierGauge(
       `Missing ${relationship.basis.statId} basis for a post-delivery modifier gauge`,
     )
   }
-  const current = stat.values[relationship.basis.surface]
+  const rawCurrent = stat.values[relationship.basis.surface]
+  const current = relationship.basisValueCap === undefined
+    ? rawCurrent
+    : Math.min(rawCurrent, relationship.basisValueCap)
   const value = relationship.output.value.kind === 'linear'
     ? linearDerivedOutput({
         basisValue: current,
@@ -674,6 +804,9 @@ export function evaluatePostDeliveryStatModifierGauge(
     : current >= relationship.output.value.threshold
       ? relationship.output.value.activeValue
       : relationship.output.value.inactiveValue
+  const threshold = relationship.output.value.kind === 'linear'
+    ? relationship.output.value.transform.basisThreshold
+    : relationship.output.value.threshold
   return {
     modifier: {
       metricId: relationship.modifierMetricId,
@@ -684,14 +817,11 @@ export function evaluatePostDeliveryStatModifierGauge(
       ...(relationship.sourceDetail ? { sourceDetail: relationship.sourceDetail } : {}),
     },
     gauge: {
-      gaugeId: relationship.gaugeId,
       source: relationship.source,
       metricId: relationship.gaugeMetricId,
       basisLabel: relationship.basisLabel,
       current,
-      ...(relationship.output.value.kind === 'activation'
-        ? { threshold: relationship.output.value.threshold }
-        : {}),
+      ...(threshold === undefined ? {} : { threshold }),
       cap: relationship.basisCap,
       outputs: [{
         label: relationship.output.label,

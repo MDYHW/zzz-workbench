@@ -1,4 +1,5 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
+import { defineAgentSource } from '../content/source-definitions'
 import { source, type EffectMetric, type ResolvedCurrentEffect } from '../effects'
 import {
   actionForm,
@@ -19,6 +20,14 @@ import {
 } from './composition'
 import { linearDerivedOutput } from './relationships'
 import type { ActionModifier, ResultMetric } from './result'
+import { selectSource } from './source-instance'
+
+const syntheticSourceInstance = selectSource(
+  defineAgentSource('seed', 'synthetic-action-source', 'Synthetic action source', 'core'),
+  'seed',
+  0,
+)
+
 
 const sharedTarget = actionTarget([
   canonicalAction('Basic Attack'),
@@ -124,6 +133,7 @@ describe('Result composition', () => {
       surfaces(0, 0, 0),
       [{
         metric: 'defIgnore', earliestSurface: 'fully', amount: 15,
+        sourceInstance: syntheticSourceInstance,
         source: source('Semantic action source', 'seed', 'core'),
         action: effectTarget,
       }],
@@ -154,6 +164,7 @@ describe('Result composition', () => {
       surfaces(0, 0, 0),
       [{
         metric: 'defIgnore', earliestSurface: 'fully', amount: 15,
+        sourceInstance: syntheticSourceInstance,
         source: source('Canonical equipment source', 'cissia', 'w-engine'),
         action: equipmentTarget,
       }],
@@ -181,6 +192,7 @@ describe('Result composition', () => {
         metric: 'dmgBonus',
         earliestSurface: 'combat',
         amount: 10,
+        sourceInstance: syntheticSourceInstance,
         source: syntheticSource,
         action: sharedTarget,
       },
@@ -188,6 +200,7 @@ describe('Result composition', () => {
         metric: 'dmgBonus',
         earliestSurface: 'fully',
         amount: 20,
+        sourceInstance: syntheticSourceInstance,
         source: syntheticSource,
         action: canonicalTarget,
       },
@@ -195,6 +208,7 @@ describe('Result composition', () => {
         metric: 'dmgBonus',
         earliestSurface: 'fully',
         amount: 30,
+        sourceInstance: syntheticSourceInstance,
         source: syntheticSource,
         action: leafTarget,
       },
@@ -236,6 +250,7 @@ describe('Result composition', () => {
         metric: 'dmgBonus',
         earliestSurface: 'combat',
         amount: 10,
+        sourceInstance: syntheticSourceInstance,
         source: syntheticSource,
         action: sharedTarget,
       },
@@ -243,6 +258,7 @@ describe('Result composition', () => {
         metric: 'dmgBonus',
         earliestSurface: 'fully',
         amount: 30,
+        sourceInstance: syntheticSourceInstance,
         source: syntheticSource,
         action: leafTarget,
       },

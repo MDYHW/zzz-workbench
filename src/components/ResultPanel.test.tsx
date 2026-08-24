@@ -56,6 +56,7 @@ describe('ResultPanel source breakdown', () => {
             { ...source, detail: '2-piece', amount: 100 },
             { ...source, detail: '4-piece', amount: 250 },
           ], []),
+          gauges: [],
         }],
       }))
 
@@ -85,6 +86,7 @@ describe('ResultPanel action hierarchy', () => {
           ownerAgentId: 'cissia',
           amount: 10,
         }]),
+        gauges: [],
       }],
     })
     const { rerender } = render(
@@ -124,6 +126,7 @@ describe('ResultPanel action hierarchy', () => {
         decimals: 1,
         values: surfaces(0, 10, 20),
         breakdown: emptyBreakdown,
+        gauges: [],
       }],
       actionModifiers: [
         {
@@ -215,7 +218,7 @@ describe('ResultPanel operation presentation', () => {
         decimals: 1,
         values: surfaces(50, 50, 50),
         breakdown: surfaces([], [], []),
-        gauge: {
+        gauges: [{
           source: syntheticSource,
           basisLabel: 'Fully Enabled CRIT Rate',
           current: 50,
@@ -225,11 +228,10 @@ describe('ResultPanel operation presentation', () => {
           outputValue: 15,
           outputCap: 75,
           outputUnit: '%',
-        },
+        }],
       }],
       operations: [
         {
-          id: 'duration',
           label: 'Enemy Stun duration',
           source: syntheticSource,
           surface: 'fully',
@@ -237,7 +239,6 @@ describe('ResultPanel operation presentation', () => {
           unit: 's',
         },
         {
-          id: 'amount',
           label: 'Next Quick Assist Daze',
           source: syntheticSource,
           surface: 'fully',
@@ -273,6 +274,49 @@ describe('ResultPanel operation presentation', () => {
     expect(within(gauge).getByText('Threshold 40.0')).toBeInTheDocument()
   })
 
+  it('renders every gauge attached to one metric as a separate accessible group', async () => {
+    const user = userEvent.setup()
+    renderResult(syntheticResult({
+      metrics: [{
+        id: 'critRate',
+        label: 'CRIT Rate',
+        unit: '%',
+        decimals: 1,
+        values: surfaces(50, 70, 70),
+        breakdown: surfaces([], [], []),
+        gauges: [{
+          source: syntheticSource,
+          basisLabel: 'Initial CRIT Rate',
+          current: 50,
+          threshold: 40,
+          cap: 100,
+          outputLabel: 'First output',
+          outputValue: 10,
+          outputCap: 20,
+          outputUnit: '%',
+        }, {
+          source: { ...syntheticSource, label: 'Second source', locus: 'additional' },
+          basisLabel: 'Fully Enabled CRIT Rate',
+          current: 70,
+          threshold: 60,
+          cap: 90,
+          outputLabel: 'Second output',
+          outputValue: 15,
+          outputCap: 30,
+          outputUnit: '%',
+        }],
+      }],
+    }))
+
+    await user.click(screen.getByRole('button', { name: 'CRIT Rate' }))
+    expect(screen.getByRole('group', {
+      name: 'Initial CRIT Rate: current 50.0, cap 100, threshold 40.0; First output: +10.0%, cap 20%',
+    })).toBeInTheDocument()
+    expect(screen.getByRole('group', {
+      name: 'Fully Enabled CRIT Rate: current 70.0, cap 90, threshold 60.0; Second output: +15.0%, cap 30%',
+    })).toBeInTheDocument()
+  })
+
   it('keeps every quantity changed by one gauge relationship on its own output line', async () => {
     const user = userEvent.setup()
     renderResult(syntheticResult({
@@ -283,7 +327,7 @@ describe('ResultPanel operation presentation', () => {
         decimals: 2,
         values: surfaces(171.12, 201.12, 201.12),
         breakdown: surfaces([], [], []),
-        gauge: {
+        gauges: [{
           source: syntheticSource,
           basisLabel: 'Fully Enabled Anomaly Mastery',
           current: 201.12,
@@ -298,7 +342,7 @@ describe('ResultPanel operation presentation', () => {
             { label: 'Disorder DMG', value: 26, cap: 26, unit: '%' },
           ],
           decimals: { current: 2, threshold: 0, cap: 0, output: 2, outputCap: 0 },
-        },
+        }],
       }],
     }))
 
@@ -317,20 +361,20 @@ describe('ResultPanel operation presentation', () => {
         {
           id: 'atk', label: 'ATK', unit: '', decimals: 0,
           values: surfaces(125, 125, 125), breakdown: surfaces([], [], []),
-          gauge: {
+          gauges: [{
             source: syntheticSource,
             basisLabel: 'Initial ATK', current: 125, threshold: 100,
             outputLabel: 'Squad flat ATK', outputValue: 25, outputUnit: '',
-          },
+          }],
         },
         {
           id: 'critRate', label: 'CRIT Rate', unit: '%', decimals: 1,
           values: surfaces(80, 80, 80), breakdown: surfaces([], [], []),
-          gauge: {
+          gauges: [{
             source: syntheticSource,
             basisLabel: 'Initial CRIT Rate', current: 80, threshold: 50, cap: 100,
             outputLabel: 'Daze Bonus', outputValue: 15, outputCap: 20, outputUnit: '%',
-          },
+          }],
         },
       ],
     }))
@@ -357,7 +401,6 @@ describe('ResultPanel operation presentation', () => {
     renderResult(syntheticResult({
       operations: [
         {
-          id: 'combat-scale',
           label: 'Basic Attack DMG Multiplier',
           source: syntheticSource,
           surface: 'combat',
@@ -366,7 +409,6 @@ describe('ResultPanel operation presentation', () => {
           presentation: 'scale',
         },
         {
-          id: 'fully-scale',
           label: 'Ultimate DMG Multiplier',
           source: syntheticSource,
           surface: 'fully',
@@ -400,7 +442,7 @@ describe('ResultPanel operation presentation', () => {
       decimals: 1,
       values: surfaces(0, 0, 0),
       breakdown: surfaces([], [], []),
-      gauge: {
+      gauges: [{
         source: syntheticSource,
         basisLabel: 'Initial CRIT Rate',
         current,
@@ -411,7 +453,7 @@ describe('ResultPanel operation presentation', () => {
         outputUnit: '',
         presentation: 'scale' as const,
         decimals: { current: 1, threshold: 1 },
-      },
+      }],
     })
     const { rerender } = renderResult(syntheticResult({
       metrics: [scaleMetric(80, 1.25)],

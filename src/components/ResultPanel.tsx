@@ -62,7 +62,7 @@ function hasCurrentConsumer(metric: ResultMetric, actions: ActionModifier[]): bo
     (surface) => metric.breakdown[surface].length > 0,
   )
 
-  return hasValue || hasBreakdown || metric.gauge !== undefined || actions.length > 0
+  return hasValue || hasBreakdown || metric.gauges.length > 0 || actions.length > 0
 }
 
 function currentMetricRows(result: AgentResult) {
@@ -88,6 +88,7 @@ function currentStandaloneActionRows(result: AgentResult) {
         id: action.metricId,
         ...action.standaloneMetric,
         breakdown: { initial: [], combat: [], fully: [] },
+        gauges: [],
       },
       actions: [],
     }
@@ -600,7 +601,7 @@ function Operations({
     <section className="action-differences" aria-label="Agent operations">
       <h5>Operations</h5>
       <ul className="action-source-list">
-        {operations.map((operation) => {
+        {operations.map((operation, operationIndex) => {
           const tone = sourceTone(operation.source, agentId, partyAgentIds)
           const value = formatOperationValue(
             operation.value,
@@ -619,7 +620,7 @@ function Operations({
               aria-label={operationName}
               className={toneClass(tone, activeSourceTone)}
               data-source-tone={tone}
-              key={operation.id}
+              key={`${operation.source.ownerAgentId}:${operation.source.locus}:${operation.label}:${operation.surface}:${operationIndex}`}
               tabIndex={0}
               {...sourceToneEvents(tone, onSourceToneChange)}
             >
@@ -654,9 +655,11 @@ function MetricDetail({
   partyAgentIds: readonly AgentId[]
   targetStunDmgMultiplier?: number
 } & SourceInteractionProps) {
+  const [targetStunGauge] = metric.gauges
   const editsTargetStun = agentId === 'yeShunguang'
     && metric.id === 'stunDmgMultiplier'
-    && metric.gauge
+    && metric.gauges.length === 1
+    && targetStunGauge
     && targetStunDmgMultiplier !== undefined
     && onTargetStunDmgMultiplierChange
 
@@ -676,21 +679,22 @@ function MetricDetail({
         <TargetStunDmgEditor
           activeSourceTone={activeSourceTone}
           agentId={agentId}
-          gauge={metric.gauge!}
+          gauge={targetStunGauge}
           onSourceToneChange={onSourceToneChange}
-          onTargetStunDmgMultiplierChange={onTargetStunDmgMultiplierChange}
+          onTargetStunDmgMultiplierChange={onTargetStunDmgMultiplierChange!}
           partyAgentIds={partyAgentIds}
-          targetStunDmgMultiplier={targetStunDmgMultiplier}
+          targetStunDmgMultiplier={targetStunDmgMultiplier!}
         />
-      ) : metric.gauge && (
+      ) : metric.gauges.map((gauge, index) => (
         <Gauge
           activeSourceTone={activeSourceTone}
           agentId={agentId}
-          gauge={metric.gauge}
+          gauge={gauge}
+          key={`${gauge.source.label}-${gauge.source.detail ?? ''}-${index}`}
           onSourceToneChange={onSourceToneChange}
           partyAgentIds={partyAgentIds}
         />
-      )}
+      ))}
       <ActionRows
         actions={actions}
         activeSourceTone={activeSourceTone}
@@ -766,7 +770,7 @@ export function ResultPanel({
               {metricRows.map(({ metric, actions }) => {
                 const isExpanded = expanded.has(metric.id)
                 const hasDetail = Boolean(
-                  metric.gauge
+                  metric.gauges.length > 0
                     || actions.length
                     || allSurfaces.some((surface) => metric.breakdown[surface].length > 0),
                 )

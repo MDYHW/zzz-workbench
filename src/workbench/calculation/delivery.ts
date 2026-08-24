@@ -1,14 +1,18 @@
 import type { AgentId, AgentSpecialty, FormulaFamily } from '../content/types'
-import type { EffectAttribute, EffectMetric } from '../effects'
+import type { EffectAttribute, EffectMetric, SurfaceKey } from '../effects'
 import { formulaScopeAppliesToMetric } from '../formula-policy'
 import type {
+  HighestOnlyComposition,
   ModifierAtom,
-  NonstackIdentity,
   OperationAtom,
   ProfileStatAtom,
   ProviderEffect,
   ProviderRelationship,
 } from './relationships'
+import {
+  sameSelectedSourceInstance,
+  type SelectedSourceInstance,
+} from './source-instance'
 import type { StatId } from './stat-composer'
 
 export interface DeliveryRecipientContext {
@@ -97,7 +101,7 @@ function deliverEffect(
           earliestSurface: effect.earliestSurface,
           value: effect.value,
           source,
-          ...(effect.nonstackId ? { nonstackId: effect.nonstackId } : {}),
+          ...(effect.composition ? { composition: effect.composition } : {}),
           ...(effect.display ? { display: effect.display } : {}),
           ...(effect.sourceDetail ? { sourceDetail: effect.sourceDetail } : {}),
         },
@@ -113,7 +117,7 @@ function deliverEffect(
           value: effect.value,
           source,
           ...(effect.action ? { action: effect.action } : {}),
-          ...(effect.nonstackId ? { nonstackId: effect.nonstackId } : {}),
+          ...(effect.composition ? { composition: effect.composition } : {}),
           ...(effect.display ? { display: effect.display } : {}),
           ...(effect.sourceDetail ? { sourceDetail: effect.sourceDetail } : {}),
         },
@@ -124,7 +128,6 @@ function deliverEffect(
     case 'operation':
       delivered.operations.push({
         atom: {
-          operationId: effect.operationId,
           label: effect.label,
           earliestSurface: effect.earliestSurface,
           value: effect.value,
@@ -155,43 +158,77 @@ export function deliverProviderRelationships(
   return delivered
 }
 
-export interface NonstackResolvable {
+export interface HighestOnlyResolvable {
   value: number
-  nonstackId?: NonstackIdentity
+  earliestSurface: SurfaceKey
+  sourceInstance: SelectedSourceInstance
+  composition?: HighestOnlyComposition
 }
 
-export interface NonstackResolution<Item extends NonstackResolvable> {
+export interface HighestOnlyResolution<Item extends HighestOnlyResolvable> {
   item: Item
   contributes: boolean
   equalOrigin: boolean
 }
 
 /**
- * Applies one explicit highest-only identity after recipient and consumer
- * filtering. Equal winners retain every origin while contributing once.
+ * Applies highest-only composition after recipient and consumer filtering.
+ * Equal winners retain every distinct selected origin while contributing once;
+ * a duplicate relationship for one selected source instance fails fast.
  */
-export function resolveHighestNonstack<Item extends NonstackResolvable>(
+export function resolveHighestOnly<Item extends HighestOnlyResolvable>(
   items: readonly Item[],
-): NonstackResolution<Item>[] {
-  const resolved: NonstackResolution<Item>[] = []
-  const identities = [...new Set(items.flatMap(
-    (item) => item.nonstackId ? [item.nonstackId] : [],
-  ))]
-  const highest = new Map(identities.map((identity) => [
-    identity,
-    Math.max(...items.filter(({ nonstackId }) => nonstackId === identity)
-      .map(({ value }) => value)),
+): HighestOnlyResolution<Item>[] {
+  const resolved: HighestOnlyResolution<Item>[] = []
+  const groups: Array<{
+    semanticEffect: object
+    earliestSurface: SurfaceKey
+    items: Item[]
+  }> = []
+  for (const item of items) {
+    const semanticEffect = item.composition?.semanticEffect
+    if (!semanticEffect) continue
+    const group = groups.find((candidate) => (
+      candidate.semanticEffect === semanticEffect
+      && candidate.earliestSurface === item.earliestSurface
+    ))
+    if (group) group.items.push(item)
+    else groups.push({
+      semanticEffect,
+      earliestSurface: item.earliestSurface,
+      items: [item],
+    })
+  }
+  for (const group of groups) {
+    group.items.forEach((item, index) => {
+      if (group.items.slice(0, index).some((prior) => (
+        sameSelectedSourceInstance(prior.sourceInstance, item.sourceInstance)
+      ))) {
+        throw new Error(
+          'Duplicate highest-only relationship for one selected source instance',
+        )
+      }
+    })
+  }
+  const highest = new Map(groups.map((group) => [
+    group,
+    Math.max(...group.items.map(({ value }) => value)),
   ]))
-  const accepted = new Set<NonstackIdentity>()
+  const accepted = new Set<(typeof groups)[number]>()
 
   for (const item of items) {
-    if (!item.nonstackId) {
+    const semanticEffect = item.composition?.semanticEffect
+    if (!semanticEffect) {
       resolved.push({ item, contributes: true, equalOrigin: false })
       continue
     }
-    if (Math.abs(item.value - highest.get(item.nonstackId)!) > 0.000_001) continue
-    const equalOrigin = accepted.has(item.nonstackId)
-    accepted.add(item.nonstackId)
+    const group = groups.find((candidate) => (
+      candidate.semanticEffect === semanticEffect
+      && candidate.earliestSurface === item.earliestSurface
+    ))!
+    if (Math.abs(item.value - highest.get(group)!) > 0.000_001) continue
+    const equalOrigin = accepted.has(group)
+    accepted.add(group)
     resolved.push({ item, contributes: !equalOrigin, equalOrigin })
   }
   return resolved

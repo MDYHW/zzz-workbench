@@ -52,6 +52,32 @@ export interface SelectedSourceInstance<
   selection: Selection
 }
 
+function samePrimitiveRecord(
+  left: object,
+  right: object,
+): boolean {
+  const leftRecord = left as Readonly<Record<string, unknown>>
+  const rightRecord = right as Readonly<Record<string, unknown>>
+  const leftEntries = Object.entries(leftRecord)
+  return leftEntries.length === Object.keys(rightRecord).length
+    && leftEntries.every(([key, value]) => rightRecord[key] === value)
+}
+
+export function sameSelectedSourceInstance(
+  left: SelectedSourceInstance,
+  right: SelectedSourceInstance,
+): boolean {
+  return left.holderAgentId === right.holderAgentId
+    && left.appliedPartySlot === right.appliedPartySlot
+    && samePrimitiveRecord(left.definition.key, right.definition.key)
+    && (
+      left.selection === undefined
+        ? right.selection === undefined
+        : right.selection !== undefined
+          && samePrimitiveRecord(left.selection, right.selection)
+    )
+}
+
 export function selectSource<Definition extends UnselectedDefinition>(
   definition: Definition,
   holderAgentId: AgentId,
