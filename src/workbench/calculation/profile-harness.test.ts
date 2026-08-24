@@ -1253,7 +1253,7 @@ describe('profile calculation harness', () => {
                 transform: {
                   basisThreshold: 40,
                   basisIncrement: 1,
-                  outputIncrement: 1.5,
+                  outputIncrement: 0.5,
                   outputCap: 75,
                 },
               },
@@ -1273,10 +1273,10 @@ describe('profile calculation harness', () => {
       current: 100,
       threshold: 40,
       cap: 90,
-      outputValue: 75,
+      outputValue: 30,
       outputCap: 75,
     }))
-    expect(result.actionModifiers[0].values.fully).toBe(75)
+    expect(result.actionModifiers[0].values.fully).toBe(30)
   })
 
   it('delivers one post-delivery linear provider without slot-order feedback', () => {
@@ -1373,15 +1373,16 @@ describe('profile calculation harness', () => {
         {
           kind: 'stat',
           atom: {
-            statId: 'impact', region: 'percentage', earliestSurface: 'fully',
+            statId: 'impact', region: 'percentage', earliestSurface: 'initial',
             value: 18, source: lighterEngine,
           },
         },
         {
           kind: 'stat',
           atom: {
-            statId: 'impact', region: 'percentage', earliestSurface: 'fully',
-            value: 20, source: lighterCore,
+            statId: 'impact', region: 'flat', earliestSurface: 'fully',
+            value: 27.4, source: lighterCore,
+            display: { value: 20, unit: '%', decimals: 0 },
           },
         },
         {
@@ -1443,6 +1444,9 @@ describe('profile calculation harness', () => {
 
     expect(lighter.metrics[0].values.fully).toBeCloseTo(289.06, 10)
     expect(lighter.metrics[0].gauges[0]?.outputValue).toBeCloseTo(34.53, 10)
+    expect(lighter.metrics[0].breakdown.fully.find(
+      ({ label }) => label === 'Core Passive',
+    )?.display).toEqual({ value: 20, unit: '%', decimals: 0 })
     expect(soldier.metrics[0].values.fully).toBeCloseTo(34.53, 10)
     expect(anby.metrics[0].values.fully).toBe(130)
     expect(anby.actionModifiers[0].values.fully).toBeCloseTo(175.5, 10)

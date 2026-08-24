@@ -59,7 +59,7 @@ export const DRIVE_DISC_FACTS = {
       daze: { modifier: 'dazeBonus', unit: '%', value: 6 },
     },
     fourPiece: {
-      critDamage: { modifier: 'critDmg', unit: '%', value: 15, progression: { kind: 'conditions', perCondition: 15, maxConditions: 1 }, scope: { recipient: 'squad' }, composition: 'highest-only' },
+      critDamage: { modifier: 'critDmg', unit: '%', value: 15, progression: { kind: 'conditions', perCondition: 15, maxConditions: 1 }, scope: { recipient: 'squad' }, activation: { kind: 'minimum-stat', statId: 'critRate', threshold: 50 }, composition: 'highest-only' },
     },
   },
   swingJazz: {

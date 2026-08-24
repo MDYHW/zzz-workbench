@@ -259,7 +259,7 @@ export type EquipmentEffectValue = number | RefinementValues
 export type EquipmentEffectActivation =
   | {
     kind: 'minimum-stat'
-    statId: 'anomalyProficiency'
+    statId: 'anomalyProficiency' | 'critRate'
     threshold: number
   }
   | {

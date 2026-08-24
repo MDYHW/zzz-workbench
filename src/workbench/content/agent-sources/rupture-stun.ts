@@ -294,9 +294,9 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
       kind: 'stat',
       atom: {
         statId: 'impact',
-        region: 'percentage',
+        region: 'flat',
         earliestSurface: 'fully',
-        value: VERTICAL_VALUES.lighter.coreCombatImpact,
+        value: VERTICAL_VALUES.lighter.impact * VERTICAL_VALUES.lighter.coreCombatImpact / 100,
         source: core,
         sourceDetail: 'Empowered Basic Attack: 5th hit',
         display: {
