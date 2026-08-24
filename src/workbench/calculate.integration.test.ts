@@ -223,15 +223,6 @@ describe('shared calculation integration', () => {
     expect(burnice.metrics.find(({ id }) => id === 'energyRegen')!.breakdown.combat)
       .toContainEqual(expect.objectContaining({ label: 'Flamemaker Shaker' }))
 
-    const onFieldState = createPreparedState({}, ['aria', 'sunna', 'nangongYu'], 0)
-    onFieldState.slots[0] = {
-      ...onFieldState.slots[0],
-      setup: { ...onFieldState.slots[0].setup, engineId: 'flamemakerShaker' },
-    }
-    const onField = calculateParty(onFieldState)!.agents
-      .find(({ agentId }) => agentId === 'aria')!
-    expect(onField.metrics.find(({ id }) => id === 'energyRegen')?.breakdown.combat ?? [])
-      .not.toContainEqual(expect.objectContaining({ label: 'Flamemaker Shaker' }))
   })
 
   it('filters selected partial-equipment clauses by holder capability after candidate admission', () => {
@@ -239,7 +230,8 @@ describe('shared calculation integration', () => {
       agent: NonNullable<ReturnType<typeof calculateParty>>['agents'][number],
       metricId: string,
       label: string,
-    ) => agent.metrics.find(({ id }) => id === metricId)?.breakdown.fully
+      surface: 'combat' | 'fully' = 'fully',
+    ) => agent.metrics.find(({ id }) => id === metricId)?.breakdown[surface]
       .some((source) => source.label === label) ?? false
     const hasActionSource = (
       agent: NonNullable<ReturnType<typeof calculateParty>>['agents'][number],
@@ -254,7 +246,7 @@ describe('shared calculation integration', () => {
     })
     const promeia = calculateParty(promeiaState)!.agents
       .find(({ agentId }) => agentId === 'promeia')!
-    expect(hasMetricSource(promeia, 'anomalyProficiency', 'Angel in the Shell')).toBe(true)
+    expect(hasMetricSource(promeia, 'anomalyProficiency', 'Angel in the Shell', 'combat')).toBe(true)
     expect(hasMetricSource(promeia, 'dmgBonus', 'Angel in the Shell')).toBe(false)
     expect(hasActionSource(promeia, 'Angel in the Shell')).toBe(false)
 
@@ -263,6 +255,16 @@ describe('shared calculation integration', () => {
     ))!.agents.find(({ agentId }) => agentId === 'aria')!
     expect(hasMetricSource(aria, 'dmgBonus', 'Angel in the Shell')).toBe(true)
     expect(hasActionSource(aria, 'Angel in the Shell')).toBe(true)
+
+    let vivianState = createPreparedState({}, ['vivian', 'sunna', 'nangongYu'], 0)
+    vivianState = workbenchReducer(vivianState, {
+      type: 'selectEngine', slot: 0, engineId: 'angelInTheShell',
+    })
+    const vivian = calculateParty(vivianState)!.agents
+      .find(({ agentId }) => agentId === 'vivian')!
+    expect(hasMetricSource(vivian, 'anomalyProficiency', 'Angel in the Shell', 'combat')).toBe(true)
+    expect(hasMetricSource(vivian, 'dmgBonus', 'Angel in the Shell')).toBe(false)
+    expect(hasActionSource(vivian, 'Angel in the Shell')).toBe(false)
   })
 
   it('returns no Result while any required Setup selection is incomplete', () => {

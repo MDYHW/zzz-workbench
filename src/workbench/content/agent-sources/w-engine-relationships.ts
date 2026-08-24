@@ -462,7 +462,9 @@ export function selectedWEngineRelationships({
       const proficiency = W_ENGINE_FACTS.angelInTheShell.effects.anomalyProficiency
       const damage = W_ENGINE_FACTS.angelInTheShell.effects.damage
       const anomalyDamage = W_ENGINE_FACTS.angelInTheShell.effects.anomalyDamage
-      if (equipmentEffectAppliesInOperatingInterval(proficiency, interval)) add('anomalyProficiency', value(proficiency, setup))
+      if (equipmentEffectAppliesInOperatingInterval(proficiency, interval)) {
+        add('anomalyProficiency', value(proficiency, setup), undefined, 'combat')
+      }
       if (
         equipmentEffectCanBeActivatedByHolder(agent, damage)
         && equipmentEffectAppliesInOperatingInterval(damage, interval)

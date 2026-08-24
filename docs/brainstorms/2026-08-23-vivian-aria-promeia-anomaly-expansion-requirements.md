@@ -164,8 +164,9 @@ registry, or a rule for later Agents.
   duration, and maintenance prose. Angel retains its anomaly-afflicted target
   scope and Shining Aria retains its stunned-target scope because those states
   define what the damage effect affects rather than how the package activates.
-  Flight's broad buildup effect remains separate from its Ether-hit AP trigger,
-  and Angel's Ether-holder gate remains separate from its affected outcomes.
+  Flight's broad buildup effect remains separate from its Ether-hit AP trigger.
+  Angel's unconditional AP projects at Combat baseline, while its Ether-holder
+  gate remains separate from its affected outcomes.
 - R18. Party Apply prepares all three holders simultaneously. Pool or Mindscape
   rebuild prepares only the target using the other two established holder
   snapshots. Direct edits never reprepare; invalid choices clear without a
