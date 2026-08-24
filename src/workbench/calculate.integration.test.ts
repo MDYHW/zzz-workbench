@@ -256,7 +256,7 @@ describe('shared calculation integration', () => {
     expect(hasMetricSource(aria, 'dmgBonus', 'Angel in the Shell')).toBe(true)
     expect(hasActionSource(aria, 'Angel in the Shell')).toBe(true)
 
-    let vivianState = createPreparedState({}, ['vivian', 'sunna', 'nangongYu'], 0)
+    let vivianState = createPreparedState({}, ['vivian', 'aria', 'sunna'], 1)
     vivianState = workbenchReducer(vivianState, {
       type: 'selectEngine', slot: 0, engineId: 'angelInTheShell',
     })
