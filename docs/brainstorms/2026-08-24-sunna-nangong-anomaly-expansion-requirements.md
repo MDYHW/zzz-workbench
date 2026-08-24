@@ -20,8 +20,8 @@ The permanent owners are `SF-001`-`SF-004`, `GV-001`-`GV-003` and
 `GV-005`-`GV-009`, `FM-001`-`FM-004` and `FM-006`-`FM-011`,
 `SW-002`-`SW-016`, and `UI-001`-`UI-004`. This requirement settles only the
 bounded Sunna/Nangong outcomes and the directly encountered shared equipment
-projection correction below. It does not authorize Miyabi, Anton/Rina, or the
-deferred track-closing Freedom Blues correction.
+projection corrections below. It does not authorize Miyabi, Anton/Rina, or
+completion of the separate track-closing audit.
 
 ---
 
@@ -290,6 +290,11 @@ the package to effects consumed by the current holder or party.
   names, face and connected-body balance, control clearance, clipping, and
   horizontal overflow. The later portrait batch remains responsible only for
   previously admitted Agents whose fine calibration was deferred.
+- R23. Freedom Blues derives its affected Attribute from the selected holder,
+  delivers the matching buildup RES Reduction to the enemy for
+  `anomaly_buildup`, and composes duplicate current sources highest-only. This
+  closes the selected-equipment projection encountered by Nangong without
+  changing candidate membership or completing the separate track audit.
 
 ---
 
@@ -343,8 +348,8 @@ the package to effects consumed by the current holder or party.
 - The implementation reuses Support, Stun, preparation, delivery, Result, and
   source-interaction mechanisms without a new Agent calculator, equipment
   registry, runtime scorer, or named-Agent test catalogue.
-- This unit leaves the track ready for its separate integration audit and
-  deferred Freedom Blues correction before Miyabi.
+- This unit leaves the completed Freedom Blues relationship for the separate
+  integration audit before Miyabi.
 
 ---
 
@@ -356,8 +361,8 @@ the package to effects consumed by the current holder or party.
 - No generic Anomaly-party Agent category, second delivery pass, runtime
   equipment optimizer, rejected-item registry, or copied engine/Disc values in
   Agent profiles.
-- No Freedom Blues Result correction, track-closing audit completion, Miyabi,
-  Anton/Rina, or post-2.8 Agent admission.
+- No track-closing audit completion, Miyabi, Anton/Rina, or post-2.8 Agent
+  admission.
 - No fine portrait recalibration for previously admitted Agents; that remains
   in the agreed post-expansion batch. The two new portraits are fully calibrated
   here because their first source metadata cannot be accepted provisionally.

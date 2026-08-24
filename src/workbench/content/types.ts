@@ -266,6 +266,7 @@ export type EquipmentEffectActivation =
     kind: 'trigger'
     actions?: readonly EquipmentEffectAction[]
     attributes?: readonly EquipmentEffectAttribute[]
+    holderAttributes?: readonly EquipmentEffectAttribute[]
     anomalyResult?: 'Abloom' | 'Freeze'
     performer?: 'equipper' | 'squad-member' | 'other-squad-member'
     fieldEntry?: true

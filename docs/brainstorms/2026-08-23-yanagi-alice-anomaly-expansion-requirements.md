@@ -111,8 +111,8 @@ prepared consequence.
   W5. The non-limited candidates are Fusion, Electro, and Weeping. Prepare
   Timeweaver in full and Weeping in non-limited.
   - Timeweaver is the complete Electric/Disorder package. Its ATK advanced
-    stat, Electric buildup, Special/EX AP, and thresholded Disorder bonus are
-    all usable in Yanagi's actual interval.
+    stat, Electric buildup, Special/EX-triggered global AP, and thresholded
+    Disorder bonus are all usable in Yanagi's actual interval.
   - With prepared AP/Freedom-2/AM and zero supplied substats, Timeweaver Yanagi
     remains below its AP threshold. Four AP counts cross it, eight remain above
     it, and M1 instead crosses it at zero counts. The gauge therefore preserves

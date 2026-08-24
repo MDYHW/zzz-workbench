@@ -64,6 +64,7 @@ const OPERATING_INTERVAL_BY_AGENT: Partial<Record<AgentId, OperatingIntervalPoli
   anby: { default: 'off-field' },
   jane: { default: 'on-field' },
   seth: { default: 'off-field' },
+  burnice: { default: 'off-field' },
   yanagi: { default: 'on-field' },
   alice: { default: 'on-field' },
   vivian: { default: 'off-field' },
