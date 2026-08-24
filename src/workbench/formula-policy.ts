@@ -60,6 +60,7 @@ export function effectAttributeForAgent(agentId: AgentId): EffectAttribute {
   const attribute = ADMITTED_AGENTS.find(({ id }) => id === agentId)?.attribute
   if (attribute === 'Auric Ink') return 'Ether'
   if (attribute === 'Honed Edge') return 'Physical'
+  if (attribute === 'Frost') return 'Ice'
   if (
     attribute === 'Physical'
     || attribute === 'Fire'

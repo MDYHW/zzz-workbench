@@ -72,6 +72,7 @@ const OPERATING_INTERVAL_BY_AGENT: Partial<Record<AgentId, OperatingIntervalPoli
   promeia: { default: 'on-field' },
   sunna: { default: 'off-field' },
   nangongYu: { default: 'off-field' },
+  miyabi: { default: 'on-field' },
 }
 
 /**

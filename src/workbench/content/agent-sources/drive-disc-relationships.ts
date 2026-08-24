@@ -96,6 +96,28 @@ export function selectedDriveDiscRelationships(
   const { agentId: agent, setup, observation, source, sourceFor } = context
   const relationships: ProfileRelationship[] = []
   switch (setup.fourPieceId) {
+    case 'branchAndBlade': {
+      const { critDamage, critRate } = DRIVE_DISC_FACTS.branchAndBlade.fourPiece
+      if (critDamage.activation.kind === 'minimum-stat') {
+        relationships.push({
+          kind: 'gauge', source,
+          basis: { statId: 'anomalyMastery', surface: 'initial' },
+          basisLabel: 'Initial Anomaly Mastery', basisThreshold: critDamage.activation.threshold,
+          basisCap: critDamage.activation.threshold, metricId: 'anomalyMastery',
+          outputs: [{
+            label: 'CRIT DMG', unit: '%', cap: equipmentEffectBaseValue(critDamage),
+            activation: { inactiveValue: 0, activeValue: equipmentEffectBaseValue(critDamage) },
+            emission: {
+              kind: 'provider',
+              delivery: { recipient: 'self', formulas: CRIT_DAMAGE_FORMULAS },
+              effect: { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully' },
+            },
+          }],
+        })
+      }
+      relationships.push(stat(source, 'critRate', equipmentEffectBaseValue(critRate), 'flat'))
+      break
+    }
     case 'swingJazz':
       relationships.push(squadDamage(source, DRIVE_DISC_FACTS.swingJazz.fourPiece.damage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage)))
       break

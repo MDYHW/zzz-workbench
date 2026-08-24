@@ -143,8 +143,8 @@ separate Shock-state/general-damage unit.
 ## Testing Delta
 
 - TD1. Frost-to-Ice is a new member of the existing special-Attribute mapping,
-  not a new mechanism. Extend the current table-driven special-Attribute
-  formula-policy assertion; do not create a Miyabi value catalogue.
+  not a new mechanism. Add a small table-driven special-Attribute assertion to
+  the existing formula-policy suite; do not create a Miyabi value catalogue.
 - TD2. The CRIT-derived action modifier, action-scoped party provider,
   qualification, and lifecycle are already proved by shared harness,
   integration, and lifecycle fixtures. No new named Miyabi exact-value,

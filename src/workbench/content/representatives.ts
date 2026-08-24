@@ -343,6 +343,12 @@ const nangongYuRepresentative = (pool: PoolId): SetupSelection => ({
   mains: { slot4: 'anomalyProficiency', slot5: 'etherDmg', slot6: 'anomalyMastery' },
 })
 
+const miyabiRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'hailstormShrine' : 'fusionCompiler',
+  fourPieceId: 'branchAndBlade', twoPieceId: 'polarMetal',
+  mains: { slot4: 'critRate', slot5: 'iceDmg', slot6: 'atkPct' },
+})
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -458,6 +464,7 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   promeia: { full: promeiaRepresentative('full'), nonLimited: promeiaRepresentative('nonLimited') },
   sunna: { full: sunnaRepresentative('full'), nonLimited: sunnaRepresentative('nonLimited') },
   nangongYu: { full: nangongYuRepresentative('full'), nonLimited: nangongYuRepresentative('nonLimited') },
+  miyabi: { full: miyabiRepresentative('full'), nonLimited: miyabiRepresentative('nonLimited') },
 }
 
 export function representativeSetupFor(

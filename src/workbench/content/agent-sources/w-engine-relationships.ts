@@ -478,6 +478,10 @@ export function selectedWEngineRelationships({
       }
       break
     }
+    case 'hailstormShrine':
+      add('critDmg', value(W_ENGINE_FACTS.hailstormShrine.effects.critDamage, setup))
+      add('dmgBonus', value(W_ENGINE_FACTS.hailstormShrine.effects.iceDamage, setup))
+      break
     case 'frostfallSickle':
       add('dmgBonus', maximum(W_ENGINE_FACTS.frostfallSickle.effects.iceDamage, setup))
       add('anomalyDmgBonus', value(W_ENGINE_FACTS.frostfallSickle.effects.abloomDamage, setup), actionTarget([sourceLocalAction('Abloom')]))

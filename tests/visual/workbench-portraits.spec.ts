@@ -45,6 +45,11 @@ const agents = {
     displayName: 'Nangong Yu',
     slug: 'nangong-yu',
   },
+  miyabi: {
+    candidateName: 'Hoshimi Miyabi, Frost, Anomaly',
+    displayName: 'Hoshimi Miyabi',
+    slug: 'miyabi',
+  },
 } satisfies Record<string, PortraitAgent>
 
 const parties: readonly PortraitParty[] = [
@@ -82,6 +87,12 @@ const parties: readonly PortraitParty[] = [
     focus: 'Aria',
     captures: [agents.sunna, agents.nangongYu],
     members: [agents.sunna, agents.nangongYu, agents.aria],
+  },
+  {
+    id: 'portrait-miyabi-frost',
+    focus: 'Hoshimi Miyabi',
+    captures: [agents.miyabi],
+    members: [agents.miyabi, agents.yanagi, agents.sunna],
   },
 ]
 

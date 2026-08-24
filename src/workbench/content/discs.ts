@@ -53,6 +53,10 @@ export const DRIVE_DISC_FACTS = {
     twoPiece: {
       critDamage: { modifier: 'critDmg', unit: '%', value: 16 },
     },
+    fourPiece: {
+      critDamage: { modifier: 'critDmg', unit: '%', value: 30, activation: { kind: 'minimum-stat', statId: 'anomalyMastery', threshold: 115 } },
+      critRate: { modifier: 'critRate', unit: '%', value: 12 },
+    },
   },
   king: {
     twoPiece: {
@@ -295,6 +299,10 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   branchAndBlade: {
     id: 'branchAndBlade', name: 'Branch & Blade Song', image: branchAndBladeImage,
     twoPieceEffect: `CRIT DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)}%`,
+    fourPieceEffects: [
+      `AM ≥ ${DRIVE_DISC_FACTS.branchAndBlade.fourPiece.critDamage.activation.threshold} · CRIT DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.fourPiece.critDamage)}%`,
+      `CRIT Rate +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.fourPiece.critRate)}%`,
+    ],
   },
   king: {
     id: 'king', name: 'King of the Summit', image: kingImage,
@@ -609,4 +617,5 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<
     fourPiece: ['phaethonsMelody', 'freedomBlues'],
     twoPiece: ['phaethonsMelody', 'freedomBlues', 'chaosJazz', 'shiningAria', 'chaoticMetal', 'hormonePunk', 'astralVoice', 'pufferElectro'],
   },
+  miyabi: { fourPiece: ['branchAndBlade', 'woodpecker'], twoPiece: ['polarMetal', 'woodpecker', 'branchAndBlade', 'pufferElectro', 'dawnsBloom', 'hormonePunk'] },
 }

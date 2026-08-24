@@ -53,6 +53,7 @@ export type AgentId =
   | 'promeia'
   | 'sunna'
   | 'nangongYu'
+  | 'miyabi'
 
 export type AgentRank = 'S' | 'A'
 export type AgentAttribute =
@@ -63,6 +64,7 @@ export type AgentAttribute =
   | 'Ether'
   | 'Auric Ink'
   | 'Honed Edge'
+  | 'Frost'
 export type AgentSpecialty =
   | 'Attack'
   | 'Stun'
@@ -259,7 +261,7 @@ export type EquipmentEffectValue = number | RefinementValues
 export type EquipmentEffectActivation =
   | {
     kind: 'minimum-stat'
-    statId: 'anomalyProficiency' | 'critRate'
+    statId: 'anomalyProficiency' | 'anomalyMastery' | 'critRate'
     threshold: number
   }
   | {
