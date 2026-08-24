@@ -14,6 +14,9 @@ type AgentSourceLocus = Extract<
   'identity' | 'core' | 'additional' | 'special' | 'ex-special'
 >
 
+/** One compatibility effect supplied by distinct Agent source instances. */
+export const ETHER_VEIL_WELLSPRING_MAX_HP_EFFECT = {}
+
 export function selectedAgentSource(
   agentId: AgentId,
   appliedPartySlot: AppliedPartySlot,

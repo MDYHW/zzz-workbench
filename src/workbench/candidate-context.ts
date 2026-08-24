@@ -6,24 +6,12 @@ import {
   type AgentId,
   type EquipmentEffectCollection,
 } from './content'
-import type { SourceDefinitionKey } from './content/source-definitions'
 import { initialAtkFor } from './calculation/initial-atk'
 import { directionUsesDefRegion, effectAttributeForAgent } from './formula-policy'
 import type { AppliedSlot, WorkbenchState } from './state'
 
 export type CandidatePressure = 'materialBroadPrePenDefBypass'
 
-type CandidatePressureSourceKey = Extract<SourceDefinitionKey, {
-  kind: 'agent-source' | 'mindscape' | 'w-engine'
-}>
-
-export interface CandidatePressureObservation {
-  pressure: CandidatePressure
-  sourceKey: CandidatePressureSourceKey
-  holderAgentId: AgentId
-  holderSlot: AppliedSlot
-  recipientSlot: AppliedSlot
-}
 
 export interface SeedVanguardObservation {
   agentId: AgentId
@@ -33,23 +21,6 @@ export interface SeedVanguardObservation {
 
 const BROAD_PRE_PEN_PRESSURE: CandidatePressure = 'materialBroadPrePenDefBypass'
 
-const pressureSourceKeys = {
-  cissiaCore: {
-    kind: 'agent-source', agentId: 'cissia', sourceId: 'core',
-  },
-  nicoleCore: {
-    kind: 'agent-source', agentId: 'nicole', sourceId: 'core',
-  },
-  spectralGaze: {
-    kind: 'w-engine', engineId: 'spectralGaze',
-  },
-  seedMindscape2: {
-    kind: 'mindscape', agentId: 'seed', tier: 2,
-  },
-  qingyiMindscape1: {
-    kind: 'mindscape', agentId: 'qingyi', tier: 1,
-  },
-} as const satisfies Record<string, CandidatePressureSourceKey>
 
 function isAttackAgent(agentId: AgentId): boolean {
   return ADMITTED_AGENTS.find(({ id }) => id === agentId)?.specialty === 'Attack'
@@ -141,87 +112,48 @@ export function hasSeedM2CandidatePressure(
   )
 }
 
-function observation(
-  state: WorkbenchState,
-  recipientSlot: AppliedSlot,
-  holderSlot: AppliedSlot,
-  sourceKey: CandidatePressureSourceKey,
-): CandidatePressureObservation {
-  return {
-    pressure: BROAD_PRE_PEN_PRESSURE,
-    sourceKey,
-    holderAgentId: state.slots[holderSlot].agentId,
-    holderSlot,
-    recipientSlot,
-  }
-}
-
 /**
- * Observes the complete current selected-input and party pressure set without
- * invoking provider calculation or delivery.
+ * Resolves only the pressure class consumed by candidate preparation. Source
+ * provenance belongs to selected Agent/equipment relationships, not to a
+ * parallel observation payload.
  */
-export function activeCandidatePressureObservations(
-  state: WorkbenchState,
-  recipientSlot: AppliedSlot,
-): CandidatePressureObservation[] {
-  const recipientAgentId = state.slots[recipientSlot].agentId
-  const observations: CandidatePressureObservation[] = []
-  const slotFor = (agentId: AgentId): AppliedSlot | null => {
-    const index = state.slots.findIndex((slot) => slot.agentId === agentId)
-    return index < 0 ? null : index as AppliedSlot
-  }
-  const add = (
-    holderSlot: AppliedSlot | null,
-    sourceKey: CandidatePressureSourceKey,
-  ) => {
-    if (holderSlot !== null) {
-      observations.push(observation(state, recipientSlot, holderSlot, sourceKey))
-    }
-  }
-
-  const cissiaSlot = slotFor('cissia')
-  if (cissiaSlot !== null && isElectricCandidatePressureAgent(recipientAgentId)) {
-    add(cissiaSlot, pressureSourceKeys.cissiaCore)
-  }
-  const nicoleSlot = slotFor('nicole')
-  if (nicoleSlot !== null && isCandidatePressureAgent(recipientAgentId)) {
-    add(nicoleSlot, pressureSourceKeys.nicoleCore)
-  }
-  const triggerSlot = slotFor('trigger')
-  if (
-    triggerSlot !== null
-    && state.slots[triggerSlot].setup.engineId === 'spectralGaze'
-    && isCandidatePressureAgent(recipientAgentId)
-  ) {
-    add(triggerSlot, pressureSourceKeys.spectralGaze)
-  }
-  const seedSlot = slotFor('seed')
-  if (seedSlot !== null && hasSeedM2CandidatePressure(state, recipientSlot)) {
-    add(seedSlot, pressureSourceKeys.seedMindscape2)
-  }
-  if (selectedEngineHasBroadPrePenPressure(state, recipientSlot)) {
-    const engineId = state.slots[recipientSlot].setup.engineId!
-    add(recipientSlot, { kind: 'w-engine', engineId })
-  }
-  const qingyiSlot = slotFor('qingyi')
-  if (
-    qingyiSlot !== null
-    && state.slots[qingyiSlot].setup.mindscape >= 1
-    && isCandidatePressureAgent(recipientAgentId)
-  ) {
-    add(qingyiSlot, pressureSourceKeys.qingyiMindscape1)
-  }
-  return observations
-}
-
 export function activeCandidatePressures(
   state: WorkbenchState,
   recipientSlot: AppliedSlot,
 ): CandidatePressure[] {
-  return [...new Set(activeCandidatePressureObservations(
-    state,
-    recipientSlot,
-  ).map(({ pressure }) => pressure))]
+  const recipientAgentId = state.slots[recipientSlot].agentId
+  const slotFor = (agentId: AgentId) => (
+    state.slots.find((slot) => slot.agentId === agentId)
+  )
+
+  if (slotFor('cissia') && isElectricCandidatePressureAgent(recipientAgentId)) {
+    return [BROAD_PRE_PEN_PRESSURE]
+  }
+  if (slotFor('nicole') && isCandidatePressureAgent(recipientAgentId)) {
+    return [BROAD_PRE_PEN_PRESSURE]
+  }
+  const trigger = slotFor('trigger')
+  if (
+    trigger?.setup.engineId === 'spectralGaze'
+    && isCandidatePressureAgent(recipientAgentId)
+  ) {
+    return [BROAD_PRE_PEN_PRESSURE]
+  }
+  if (slotFor('seed') && hasSeedM2CandidatePressure(state, recipientSlot)) {
+    return [BROAD_PRE_PEN_PRESSURE]
+  }
+  if (selectedEngineHasBroadPrePenPressure(state, recipientSlot)) {
+    return [BROAD_PRE_PEN_PRESSURE]
+  }
+  const qingyi = slotFor('qingyi')
+  if (
+    qingyi
+    && qingyi.setup.mindscape >= 1
+    && isCandidatePressureAgent(recipientAgentId)
+  ) {
+    return [BROAD_PRE_PEN_PRESSURE]
+  }
+  return []
 }
 
 export function hasDialynUltimateOpportunity(

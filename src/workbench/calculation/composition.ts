@@ -6,7 +6,7 @@ import type {
 } from '../effects'
 import { sameActionTarget, type ActionTarget } from '../actions'
 import type { ActionModifier, Contribution, ResultMetric } from './result'
-import { resolveHighestNonstack } from './delivery'
+import { resolveHighestOnly } from './delivery'
 
 export const surfaces = <T>(
   initial: T,
@@ -56,12 +56,14 @@ function effectsForMetric(
   ))
 }
 
-function highestNonstackEffects(
+function highestOnlyEffects(
   effects: ResolvedCurrentEffect[],
 ): BreakdownEffect[] {
-  const accepted = resolveHighestNonstack(effects.map((effect) => ({
+  const accepted = resolveHighestOnly(effects.map((effect) => ({
     value: effect.amount,
-    nonstackId: effect.nonstackKey,
+    earliestSurface: effect.earliestSurface,
+    sourceInstance: effect.sourceInstance,
+    ...(effect.composition ? { composition: effect.composition } : {}),
     effect,
   }))).map(({ item, equalOrigin }) => equalOrigin
     ? {
@@ -78,12 +80,14 @@ function highestNonstackEffects(
   return accepted
 }
 
-function valueEffectsForNonstack(
+function valueEffectsForHighestOnly(
   effects: ResolvedCurrentEffect[],
 ): ResolvedCurrentEffect[] {
-  return resolveHighestNonstack(effects.map((effect) => ({
+  return resolveHighestOnly(effects.map((effect) => ({
     value: effect.amount,
-    nonstackId: effect.nonstackKey,
+    earliestSurface: effect.earliestSurface,
+    sourceInstance: effect.sourceInstance,
+    ...(effect.composition ? { composition: effect.composition } : {}),
     effect,
   }))).filter(({ contributes }) => contributes).map(({ item }) => item.effect)
 }
@@ -96,8 +100,8 @@ export function composeMetricEffects(
   cap?: { value: number; source: ResultSource },
 ): Pick<ResultMetric, 'values' | 'breakdown'> {
   const allMetricEffects = effectsForMetric(effects, metric)
-  const metricEffects = highestNonstackEffects(allMetricEffects)
-  const valueMetricEffects = valueEffectsForNonstack(allMetricEffects)
+  const metricEffects = highestOnlyEffects(allMetricEffects)
+  const valueMetricEffects = valueEffectsForHighestOnly(allMetricEffects)
   const breakdown = surfaces(
     [...baseBreakdown.initial],
     [...baseBreakdown.combat],

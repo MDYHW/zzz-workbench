@@ -20,11 +20,10 @@ import {
 } from './composition'
 import {
   deliverProviderRelationships,
-  resolveHighestNonstack,
+  resolveHighestOnly,
   type DeliveredProfileEffects,
   type DeliveryRecipientContext,
 } from './delivery'
-import { deriveLighterImpactElation } from './derived/lighter-impact-elation'
 import {
   evaluateProjectionGauge,
   evaluatePostDeliveryStatModifierGauge,
@@ -66,7 +65,6 @@ export interface MetricProjection {
   statId?: StatId
   baseValues?: Record<SurfaceKey, number>
   cap?: { value: number; source: SelectedSourceInstance }
-  gaugeId?: string
   admission?:
     | 'nonzero-or-action'
     | 'action'
@@ -86,13 +84,6 @@ export interface AgentSourceProfile {
   relationships: readonly ProfileRelationship[]
   metrics: readonly MetricProjection[]
   actions?: readonly ActionProjection[]
-  /** Present only on Lighter's action-local Impact and Elation consumer. */
-  lighterImpactElation?: {
-    coreImpactSource: SelectedSourceInstance
-    additionalSource: SelectedSourceInstance
-    active: boolean
-    outputMultiplier: number
-  }
 }
 
 type DerivedMetricBases = Partial<Record<
@@ -140,26 +131,6 @@ function assertProfilesMatchState(
         || source.appliedPartySlot !== profile.appliedPartySlot
       ) {
         throw new Error(`Profile slot ${slot} contains a source from another holder snapshot`)
-      }
-    }
-    if (profile.lighterImpactElation) {
-      if (profile.agentId !== 'lighter') {
-        throw new Error('Lighter Impact and Elation requires Lighter\'s profile')
-      }
-      for (const source of [
-        profile.lighterImpactElation.coreImpactSource,
-        profile.lighterImpactElation.additionalSource,
-      ]) {
-        if (
-          source.holderAgentId !== profile.agentId
-          || source.appliedPartySlot !== profile.appliedPartySlot
-        ) {
-          throw new Error('Lighter Impact and Elation requires the current holder sources')
-        }
-      }
-      const impact = profile.metrics.find(({ id }) => id === 'impact')
-      if (!impact || (profile.lighterImpactElation.active && impact.gaugeId !== 'lighterElation')) {
-        throw new Error('Lighter Impact and Elation requires its Impact consumer')
       }
     }
     return profile
@@ -215,9 +186,11 @@ function resolvedStat(
   statId: StatId,
   atoms: readonly ProfileStatAtom[],
 ): ResolvedStat {
-  const resolutions = resolveHighestNonstack(atoms.map((atom) => ({
+  const resolutions = resolveHighestOnly(atoms.map((atom) => ({
     value: atom.value,
-    nonstackId: atom.nonstackId,
+    earliestSurface: atom.earliestSurface,
+    sourceInstance: atom.source,
+    ...(atom.composition ? { composition: atom.composition } : {}),
     atom,
   })))
   return {
@@ -319,8 +292,9 @@ function modifierEffect(atom: ModifierAtom) {
     earliestSurface: atom.earliestSurface,
     amount: atom.value,
     source: resultSourceFor(atom.source, atom.sourceDetail),
+    sourceInstance: atom.source,
     ...(atom.action ? { action: atom.action } : {}),
-    ...(atom.nonstackId ? { nonstackKey: atom.nonstackId } : {}),
+    ...(atom.composition ? { composition: atom.composition } : {}),
     ...(atom.display ? { display: atom.display } : {}),
     disclose: atom.source.definition.visibility === 'visible',
   }
@@ -328,7 +302,7 @@ function modifierEffect(atom: ModifierAtom) {
 
 function gaugeResult(gauge: EvaluatedGauge): GaugeResult {
   const [first, ...rest] = gauge.outputs
-  if (!first) throw new Error(`Gauge ${gauge.gaugeId} requires an admitted output`)
+  if (!first) throw new Error('A Result gauge requires an admitted output')
   return {
     source: resultSourceFor(gauge.source, gauge.sourceDetail),
     basisLabel: gauge.basisLabel,
@@ -401,42 +375,25 @@ function projectMetrics(
         source: resultSourceFor(projection.cap.source),
       },
     )
-    const matchingGauges = [
-      ...projectionGauges.filter(({ metricId }) => metricId === projection.id),
+    const metricGauges = [
+      ...projectionGauges
+        .filter(({ metricId }) => metricId === projection.id)
+        .map((gauge) => evaluateProjectionGauge(gauge, composed.values.fully)),
       ...gauges.filter(({ metricId }) => metricId === projection.id),
     ]
-    if (!projection.gaugeId && matchingGauges.length > 1) {
-      throw new Error(`Multiple gauges project ${projection.id} for ${profile.agentId}; select one explicitly`)
-    }
-    const inferredGaugeId = projection.gaugeId ?? matchingGauges[0]?.gaugeId
-    const projectionGauge = inferredGaugeId
-      ? projectionGauges.find(({ gaugeId }) => gaugeId === inferredGaugeId)
-      : undefined
-    const evaluatedGauge = inferredGaugeId
-      ? gauges.find(({ gaugeId }) => gaugeId === inferredGaugeId)
-      : undefined
-    for (const candidate of [projectionGauge, evaluatedGauge]) {
-      if (candidate && candidate.metricId !== projection.id) {
-        throw new Error(`Gauge ${candidate.gaugeId} does not project ${projection.id}`)
-      }
-    }
-    const gauge = projectionGauge
-      ? evaluateProjectionGauge(projectionGauge, composed.values.fully)
-      : evaluatedGauge
     return {
       id: projection.id,
       label: projection.label,
       unit: projection.unit,
       decimals: projection.decimals,
       ...composed,
-      ...(gauge ? { gauge: gaugeResult(gauge) } : {}),
+      gauges: metricGauges.map(gaugeResult),
     }
   })
 }
 
 function projectOperations(operations: readonly OperationAtom[]): AgentResult['operations'] {
   return operations.map((operation) => ({
-    id: operation.operationId,
     label: operation.label,
     source: resultSourceFor(operation.source, operation.sourceDetail),
     surface: operation.earliestSurface,
@@ -574,13 +531,14 @@ function projectAgent(
       return metric.breakdown.initial.length > 0
         || metric.breakdown.combat.length > 0
         || metric.breakdown.fully.length > 0
-        || metric.gauge !== undefined
+        || metric.gauges.length > 0
         || actionModifiers.some(({ metricId }) => metricId === metric.id)
     }
     return metric.values.fully !== 0
       || metric.breakdown.initial.length > 0
       || metric.breakdown.combat.length > 0
       || metric.breakdown.fully.length > 0
+      || metric.gauges.length > 0
       || actionModifiers.some(({ metricId }) => metricId === metric.id)
   })
   const visibleMetricIds = new Set(metrics.map(({ id }) => id))
@@ -631,23 +589,8 @@ export function evaluateProfileParty(
   })
 
   const recipients = recipientContexts(state, profiles)
-  const localStats = evaluatedProfiles.map(({ evaluated }) => composeStats(
-    evaluated.statAtoms,
-  ))
-  const lighterDerivations = evaluatedProfiles.map(({ profile }, slot) => (
-    profile.lighterImpactElation
-      ? deriveLighterImpactElation({
-          ...profile.lighterImpactElation,
-          impact: localStats[slot].impact?.composed
-            ?? (() => { throw new Error('Lighter Impact and Elation requires completed Impact') })(),
-        })
-      : undefined
-  ))
   const ordinary = deliverProviderRelationships(
-    stableProviderOrder([
-      ...evaluatedProfiles.flatMap(({ evaluated }) => evaluated.providers),
-      ...lighterDerivations.flatMap((derived) => derived?.provider ? [derived.provider] : []),
-    ]),
+    stableProviderOrder(evaluatedProfiles.flatMap(({ evaluated }) => evaluated.providers)),
     recipients,
     state.focusSlot,
   )
@@ -691,15 +634,9 @@ export function evaluateProfileParty(
         evaluated,
         stats,
         delivered,
-        {
-          ...relationshipDerivedBases,
-          ...(lighterDerivations[slot] ? { impact: lighterDerivations[slot].impact } : {}),
-        },
+        relationshipDerivedBases,
         postDelivery[slot].modifierAtoms,
-        [
-          ...postDelivery[slot].gauges,
-          ...(lighterDerivations[slot]?.gauge ? [lighterDerivations[slot].gauge] : []),
-        ],
+        postDelivery[slot].gauges,
       )
     }),
   }

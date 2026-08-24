@@ -237,7 +237,7 @@ export const W_ENGINE_FACTS = {
     advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
     effects: {
       energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.4) },
-      maxHp: { modifier: 'maxHp', unit: '%', value: scaledRefinementValues(15) },
+      maxHp: { modifier: 'maxHp', unit: '%', value: scaledRefinementValues(15), scope: { recipient: 'squad' } },
       damage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(25), scope: { recipient: 'squad' } },
     },
   },
@@ -272,7 +272,7 @@ export const W_ENGINE_FACTS = {
   kaboom: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
     effects: {
-      atk: { modifier: 'atk', unit: '%', value: scaledRefinementValues(10), scope: { recipient: 'squad' } },
+      atk: { modifier: 'atk', unit: '%', value: scaledRefinementValues(10), scope: { recipient: 'squad' }, composition: 'highest-only' },
     },
   },
   unfetteredGameBall: {
@@ -537,8 +537,8 @@ export const W_ENGINE_FACTS = {
     advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
     effects: {
       automaticEnergy: { modifier: 'energyRegen', unit: '/s', value: [0.46, 0.53, 0.6, 0.67, 0.74] },
-      squadAtk: { modifier: 'atk', unit: '%', value: [10, 11.5, 13, 14.5, 16], scope: { recipient: 'squad' } },
-      squadMaxHp: { modifier: 'maxHp', unit: '%', value: [10, 11.5, 13, 14.5, 16], scope: { recipient: 'squad' } },
+      squadAtk: { modifier: 'atk', unit: '%', value: [10, 11.5, 13, 14.5, 16], scope: { recipient: 'squad' }, composition: 'highest-only' },
+      squadMaxHp: { modifier: 'maxHp', unit: '%', value: [10, 11.5, 13, 14.5, 16], scope: { recipient: 'squad' }, composition: 'highest-only' },
       veilCritDamage: { modifier: 'critDmg', unit: '%', value: [30, 34.5, 39, 43.5, 48], scope: { recipient: 'squad' } },
     },
   },
@@ -846,7 +846,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Support',
     passiveLines: (refinement) => [
       `Energy +${perSecond(W_ENGINE_FACTS.dreamlitHearth.effects.energy, refinement)}`,
-      `Max HP +${percent(W_ENGINE_FACTS.dreamlitHearth.effects.maxHp, refinement)}`,
+      `Squad Max HP +${percent(W_ENGINE_FACTS.dreamlitHearth.effects.maxHp, refinement)}`,
       `Squad DMG +${percent(W_ENGINE_FACTS.dreamlitHearth.effects.damage, refinement)}`,
     ],
   },

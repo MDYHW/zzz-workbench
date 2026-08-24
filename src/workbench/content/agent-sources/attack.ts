@@ -78,7 +78,7 @@ const src = (agent: Agent, slot: Slot, id: string, label: string, locus: 'identi
 const m = (id: EffectMetric, label: string, unit = '', statId?: MetricProjection['statId'], admission?: MetricProjection['admission']): MetricProjection => ({ id, label, unit, decimals: unit === '/s' ? 2 : unit === '%' ? 1 : 0, ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }), ...(admission ? { admission } : {}) })
 function stat(source: ReturnType<typeof selectedAgentSource>, statId: StatId, value: number, region: Exclude<StatRegion, 'base'> = 'flat', earliestSurface: SurfaceKey = 'fully', detail?: string): ProfileRelationship { return { kind: 'stat', atom: { statId, region, value, earliestSurface, source, ...(detail ? { sourceDetail: detail } : {}) } } }
 function mod(source: ReturnType<typeof selectedAgentSource>, metricId: EffectMetric, value: number, action?: ActionTarget, earliestSurface: SurfaceKey = 'fully', detail?: string): ProfileRelationship { return { kind: 'modifier', atom: { metricId, value, earliestSurface, source, ...(action ? { action } : {}), ...(detail ? { sourceDetail: detail } : {}) } } }
-function operation(source: ReturnType<typeof selectedAgentSource>, operationId: string, label: string, value: number, unit = '%', earliestSurface: 'combat' | 'fully' = 'fully', presentation?: 'scale'): ProfileRelationship { return { kind: 'operation', atom: { operationId, label, earliestSurface, value, unit, source, ...(presentation ? { presentation } : {}) } } }
+function operation(source: ReturnType<typeof selectedAgentSource>, label: string, value: number, unit = '%', earliestSurface: 'combat' | 'fully' = 'fully', presentation?: 'scale'): ProfileRelationship { return { kind: 'operation', atom: { label, earliestSurface, value, unit, source, ...(presentation ? { presentation } : {}) } } }
 
 function partyQualification(agent: Agent, ids: readonly AgentId[], slot: Slot): boolean {
   switch (agent) {
@@ -174,7 +174,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
         addMetric('critDmg', VERTICAL_VALUES.cissia.additionalSelfCritDmg, ability, undefined, 'combat')
       }
       add({ kind: 'provider', source: ultimate, delivery: { recipient: 'all-party', formulas: CRIT_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.cissia.ultimateSquadCritDmg } })
-      add({ kind: 'gauge', gaugeId: 'cissiaEnergy', source: core, basis: { statId: 'energyRegen', surface: 'initial' }, basisLabel: 'Initial Energy Regen', basisThreshold: VERTICAL_VALUES.cissia.coreEnergyThreshold, basisCap: 3.68, metricId: 'energyRegen', outputs: [{ label: 'Electric DEF Ignore', unit: '%', cap: VERTICAL_VALUES.cissia.coreDefIgnoreCap * m1Scale, decimals: 3, transform: { basisThreshold: VERTICAL_VALUES.cissia.coreEnergyThreshold, basisIncrement: VERTICAL_VALUES.cissia.coreEnergyIncrement, baseOutput: VERTICAL_VALUES.cissia.coreDefIgnore * m1Scale, outputIncrement: m1Scale, outputCap: VERTICAL_VALUES.cissia.coreDefIgnoreCap * m1Scale }, emission: { kind: 'provider', delivery: { recipient: 'enemy-context', attributes: ['Electric'], formulas: ['general_damage'] }, effect: { kind: 'modifier', metricId: 'defIgnore', earliestSurface: 'combat', sourceDetail: 'Corrosion' } } }] })
+      add({ kind: 'gauge', source: core, basis: { statId: 'energyRegen', surface: 'initial' }, basisLabel: 'Initial Energy Regen', basisThreshold: VERTICAL_VALUES.cissia.coreEnergyThreshold, basisCap: 3.68, metricId: 'energyRegen', outputs: [{ label: 'Electric DEF Ignore', unit: '%', cap: VERTICAL_VALUES.cissia.coreDefIgnoreCap * m1Scale, decimals: 3, transform: { basisThreshold: VERTICAL_VALUES.cissia.coreEnergyThreshold, basisIncrement: VERTICAL_VALUES.cissia.coreEnergyIncrement, baseOutput: VERTICAL_VALUES.cissia.coreDefIgnore * m1Scale, outputIncrement: m1Scale, outputCap: VERTICAL_VALUES.cissia.coreDefIgnoreCap * m1Scale }, emission: { kind: 'provider', delivery: { recipient: 'enemy-context', attributes: ['Electric'], formulas: ['general_damage'] }, effect: { kind: 'modifier', metricId: 'defIgnore', earliestSurface: 'combat', sourceDetail: 'Corrosion' } } }] })
       if (setup.mindscape >= 1) {
         add({ kind: 'provider', source: mind(1), delivery: { recipient: 'enemy-context', attributes: ['Electric'], formulas: ['general_damage'] }, effect: { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'combat', value: VERTICAL_VALUES.cissia.mindscapeBroadElectricResIgnore } })
         add({ kind: 'provider', source: mind(1), delivery: { recipient: 'enemy-context', attributes: ['Electric'], formulas: ['general_damage'], eligibleAgentIds: ['cissia'] }, effect: { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'fully', value: VERTICAL_VALUES.cissia.mindscapeCorrodeElectricResIgnore, action: CISSIA_CORRODE, sourceDetail: 'Corrode Bone' } })
@@ -202,7 +202,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
       addMetric('critRate', VERTICAL_VALUES.evelyn.coreCritRate, core, undefined, 'combat')
       if (qualified) {
         addMetric('dmgBonus', VERTICAL_VALUES.evelyn.additionalChainUltimateDmg, ability, CHAIN_ULT, 'combat')
-        add({ kind: 'threshold-operation', gaugeId: 'evelynChainUltimate', source: ability, basis: { statId: 'critRate' }, basisLabels: { combat: 'Combat CRIT Rate', fully: 'Fully Enabled CRIT Rate' }, threshold: VERTICAL_VALUES.evelyn.additionalCritThreshold, metricId: 'critRate', outputLabel: 'Chain Attack & Ultimate DMG Multiplier', inactiveValue: 1, activeValue: VERTICAL_VALUES.evelyn.additionalMultiplier, unit: '', operationId: 'evelynChainUltimateDmgMultiplier', presentation: 'scale' })
+        add({ kind: 'threshold-operation', source: ability, basis: { statId: 'critRate' }, basisLabels: { combat: 'Combat CRIT Rate', fully: 'Fully Enabled CRIT Rate' }, threshold: VERTICAL_VALUES.evelyn.additionalCritThreshold, metricId: 'critRate', outputLabel: 'Chain Attack & Ultimate DMG Multiplier', inactiveValue: 1, activeValue: VERTICAL_VALUES.evelyn.additionalMultiplier, unit: '', presentation: 'scale' })
       }
       if (setup.mindscape >= 1) addMetric('defIgnore', VERTICAL_VALUES.evelyn.mindscapeDefIgnore, mind(1), undefined, 'combat')
       if (setup.mindscape >= 2) addAtk(VERTICAL_VALUES.evelyn.mindscapeAtk, mind(2), 'combat')
@@ -229,14 +229,14 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
       const stuns = ids.filter((id, index) => index !== slot && ADMITTED_AGENTS.find((summary) => summary.id === id)?.specialty === 'Stun').length
       const stunAtk = stuns >= 2 ? values.coreAtkTwoStun : stuns === 1 ? values.coreAtkOneStun : 0
       if (stunAtk) add(stat(core, 'atk', stunAtk))
-      add(operation(core, 'hugoTotalizeAddedDmgMultiplier', 'Totalize added DMG Multiplier', values.coreTotalizeMultiplier))
-      add(operation(core, 'hugoTotalizeDazeReturn', 'Totalize maximum Daze return', values.coreDazeReturn))
-      add(operation(core, 'hugoExNonStunnedDaze', 'EX Special Daze against non-Stunned enemies', 1 + values.exNonStunnedDaze / 100, '', 'combat', 'scale'))
+      add(operation(core, 'Totalize added DMG Multiplier', values.coreTotalizeMultiplier))
+      add(operation(core, 'Totalize maximum Daze return', values.coreDazeReturn))
+      add(operation(core, 'EX Special Daze against non-Stunned enemies', 1 + values.exNonStunnedDaze / 100, '', 'combat', 'scale'))
       if (qualified) { addMetric('dmgBonus', values.additionalChainDmg, ability, CHAIN); addMetric('dmgBonus', values.additionalTotalizeDmg, ability, HUGO_TOTALIZE) }
       if (setup.mindscape >= 1) { addMetric('critRate', values.mindscapeCritRate, mind(1), undefined, 'combat'); addMetric('critDmg', values.mindscapeCritDmg, mind(1), undefined, 'combat') }
       if (setup.mindscape >= 2) addMetric('defIgnore', values.mindscapeTotalizeDefIgnore, mind(2), HUGO_TOTALIZE)
       if (setup.mindscape >= 4) addMetric('resIgnore', values.mindscapeIceResIgnore, mind(4))
-      if (setup.mindscape >= 6) { addMetric('dmgBonus', values.mindscapeTotalizeDmg, mind(6), HUGO_TOTALIZE); add(operation(mind(6), 'hugoExNonStunnedTotalizeAddedMultiplier', 'EX Special non-Stunned Totalize added DMG Multiplier', values.mindscapeExTotalizeMultiplier)) }
+      if (setup.mindscape >= 6) { addMetric('dmgBonus', values.mindscapeTotalizeDmg, mind(6), HUGO_TOTALIZE); add(operation(mind(6), 'EX Special non-Stunned Totalize added DMG Multiplier', values.mindscapeExTotalizeMultiplier)) }
       const damageScopes = [{ id: 'hugoChain', target: CHAIN }, { id: 'hugoUltimate', target: ULT }, { id: 'hugoTotalize', target: HUGO_TOTALIZE }, { id: 'hugoBackAttack', target: BACK }] satisfies readonly ActionScopeNode[]
       actions.push({ metricId: 'dmgBonus', scopes: damageScopes }, { metricId: 'defIgnore', scopes: [{ id: 'hugoBasicUltimateDefIgnore', target: BASIC_ULT }, { id: 'hugoTotalizeDefIgnore', target: HUGO_TOTALIZE }] })
       break
@@ -254,7 +254,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
       actions.push(
         { metricId: 'dmgBonus', scopes: [{ id: 'ellenCoreActions', target: ELLEN_CORE }, { id: 'ellenEx', target: EX }, { id: 'ellenCharged', target: actionTarget([sourceLocalAction('Charged Arctic Ambush')]) }, { id: 'ellenUltimate', target: ULT }, { id: 'ellenBackAttack', target: BACK }] },
         { metricId: 'critDmg', scopes: [{ id: 'ellenCoreCritDmg', target: ELLEN_CORE }, { id: 'ellenExCritDmg', target: EX }] },
-        actionProjection('defIgnore', 'ellenBasicUltimateDef Ignore', BASIC_ULT),
+        actionProjection('defIgnore', 'ellenBasicUltimateDefIgnore', BASIC_ULT),
       )
       break
     }
@@ -310,7 +310,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
       if (setup.mindscape >= 2) addAtk(VERTICAL_VALUES.orphie.mindscapeAtk, mind(2), 'combat')
       if (setup.mindscape >= 4) addMetric('dmgBonus', VERTICAL_VALUES.orphie.mindscapeActionDmg, mind(4), ORPHIE_HEAT_ULT)
       add({
-        kind: 'gauge', gaugeId: 'orphieEnergy', source: core,
+        kind: 'gauge', source: core,
         basis: { statId: 'energyRegen', surface: 'initial' }, basisLabel: 'Initial Energy Regen',
         basisThreshold: VERTICAL_VALUES.orphie.coreEnergyThreshold, basisCap: 3.7, metricId: 'energyRegen',
         outputs: [{ label: 'Squad ATK', unit: '', cap: VERTICAL_VALUES.orphie.coreSquadAtkCap, transform: { basisThreshold: VERTICAL_VALUES.orphie.coreEnergyThreshold, basisIncrement: VERTICAL_VALUES.orphie.coreEnergyIncrement, baseOutput: VERTICAL_VALUES.orphie.coreSquadAtkBase, outputIncrement: VERTICAL_VALUES.orphie.coreSquadAtkPerIncrement, outputCap: VERTICAL_VALUES.orphie.coreSquadAtkCap }, emission: { kind: 'provider', delivery: all, effect: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully' } } }],
@@ -377,7 +377,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
       const targetStun = calculationContext.targetStunDmgMultiplier ?? 150
       const targetSource = selectedCalculationSource(agent, slot, 'target-stun', 'Target Stun DMG', 'target')
       add(mod(targetSource, 'stunDmgMultiplier', targetStun - 100, undefined, 'fully', 'Above 100%'))
-      add({ kind: 'projection-gauge', gaugeId: 'yeVeil', source: targetSource, metricId: 'stunDmgMultiplier', basisLabel: 'Raw Stun DMG Multiplier bonus', basisCap: veilCap, output: { label: 'Veil Vulnerability', unit: '%', transform: { basisIncrement: 1, outputIncrement: 1, outputCap: veilCap }, cap: veilCap } })
+      add({ kind: 'projection-gauge', source: targetSource, metricId: 'stunDmgMultiplier', basisLabel: 'Raw Stun DMG Multiplier bonus', basisCap: veilCap, output: { label: 'Veil Vulnerability', unit: '%', transform: { basisIncrement: 1, outputIncrement: 1, outputCap: veilCap }, cap: veilCap } })
       actions.push(
         { metricId: 'dmgBonus', scopes: [{ id: 'yeExSpecialDmg', target: YE_EX }, { id: 'yeUltimateDmg', target: YE_ULT }, { id: 'yeBackAttackDmg', target: BACK }] },
         actionProjection('defIgnore', 'yeEnlightenedActionsDefIgnore', YE_M2),
@@ -418,16 +418,16 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
   const critCap = { value: 100, source: selectedCalculationSource(agent, slot, 'crit-rate-cap', 'Displayed CRIT Rate cap') }
   const metrics: MetricProjection[] = [
     m('atk', 'ATK', '', 'atk'),
-    { ...m('critRate', 'CRIT Rate', '%', 'critRate'), cap: critCap, ...(agent === 'evelyn' && qualified ? { gaugeId: 'evelynChainUltimate' } : {}) },
+    { ...m('critRate', 'CRIT Rate', '%', 'critRate'), cap: critCap },
     m('critDmg', 'CRIT DMG', '%', 'critDmg'),
     m('dmgBonus', 'DMG Bonus', '%'),
     m('penRatio', 'PEN Ratio', '%', 'penRatio', 'disclosed-or-action'),
-    ...(baseStats.energyRegen !== undefined ? [{ ...m('energyRegen', 'Energy Regen', '/s', 'energyRegen', agent === 'cissia' || agent === 'orphie' ? undefined : 'disclosed-or-action'), ...(agent === 'cissia' || agent === 'orphie' ? { decimals: 3 } : {}), ...(agent === 'cissia' ? { gaugeId: 'cissiaEnergy' } : agent === 'orphie' ? { gaugeId: 'orphieEnergy' } : {}) }] : []),
+    ...(baseStats.energyRegen !== undefined ? [{ ...m('energyRegen', 'Energy Regen', '/s', 'energyRegen', agent === 'cissia' || agent === 'orphie' ? undefined : 'disclosed-or-action'), ...(agent === 'cissia' || agent === 'orphie' ? { decimals: 3 } : {}) }] : []),
     m('defIgnore', 'DEF Ignore', '%', undefined, 'nonzero-or-action'),
     m('defReduction', 'DEF Reduction', '%', undefined, 'nonzero-or-action'),
     m('resIgnore', 'RES Ignore', '%', undefined, 'nonzero-or-action'),
     m('resReduction', 'RES Reduction', '%', undefined, 'nonzero-or-action'),
-    { ...m('stunDmgMultiplier', 'Stun DMG Multiplier', '%', undefined, 'nonzero-or-action'), ...(agent === 'yeShunguang' ? { gaugeId: 'yeVeil' } : {}) },
+    m('stunDmgMultiplier', 'Stun DMG Multiplier', '%', undefined, 'nonzero-or-action'),
     m('dazeBonus', 'Daze Bonus', '%', undefined, 'nonzero-or-action'),
   ]
   return {
@@ -439,8 +439,11 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
   }
 }
 
-export function attackProfileFor(state: WorkbenchState, slot: Slot, calculationContext: CalculationContext = {}): AgentSourceProfile | null {
-  const agent = state.slots[slot].agentId
-  if (!(['anbySoldier0', 'seed', 'cissia', 'evelyn', 'corin', 'hugo', 'ellen', 'soldier11', 'zhuYuan', 'orphie', 'harumasa', 'nekomata', 'billy', 'yeShunguang'] as readonly string[]).includes(agent)) return null
-  return profile(agent as Agent, state, slot, calculationContext)
+export function attackProfileFor(
+  agent: Agent,
+  state: WorkbenchState,
+  slot: Slot,
+  calculationContext: CalculationContext = {},
+): AgentSourceProfile {
+  return profile(agent, state, slot, calculationContext)
 }

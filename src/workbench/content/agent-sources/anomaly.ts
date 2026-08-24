@@ -230,7 +230,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     if (qualified) add(mod(ability, 'anomalyDmgBonus', VERTICAL_VALUES.grace.additionalShockDmgPerStack * VERTICAL_VALUES.grace.additionalShockDmgStacks, GRACE_SHOCK))
     add(mod(src(agent, slot, 'potential', SOURCE_LABELS.gracePotential, 'identity'), 'dmgBonus', VERTICAL_VALUES.grace.potentialElectricDmg))
     if (setup.mindscape >= 2) { add(provider(mind(2), 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.grace.mindscapeElectricResReduction }, DAMAGE, ['Electric'])); add(provider(mind(2), 'enemy-context', { kind: 'modifier', metricId: 'anomalyBuildupResReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.grace.mindscapeElectricBuildupResReduction }, ['anomaly_buildup'], ['Electric'])) }
-    if (setup.mindscape >= 6) add({ kind: 'operation', atom: { operationId: 'graceGrenadeDmgMultiplier', label: 'Special/EX grenade DMG', earliestSurface: 'fully', value: VERTICAL_VALUES.grace.mindscapeGrenadeDmgMultiplier, unit: '', presentation: 'scale', source: mind(6) } })
+    if (setup.mindscape >= 6) add({ kind: 'operation', atom: { label: 'Special/EX grenade DMG', earliestSurface: 'fully', value: VERTICAL_VALUES.grace.mindscapeGrenadeDmgMultiplier, unit: '', presentation: 'scale', source: mind(6) } })
     actions.push(
       actionProjection('anomalyBuildupBonus', 'graceSpecialExBuildup', GRACE_EX),
       { metricId: 'anomalyDmgBonus', scopes: GRACE_ANOMALY_SCOPES },
@@ -353,7 +353,6 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     }
     add({
       kind: 'post-delivery-gauge',
-      gaugeId: 'janePassionAssault',
       source: core,
       basis: { statId: 'anomalyProficiency', surface: 'fully' },
       basisLabel: 'Fully Enabled Anomaly Proficiency',
@@ -480,7 +479,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
       relationships,
       metrics: [
         m('atk', 'ATK', '', 'atk'),
-        { ...m('anomalyProficiency', 'Anomaly Proficiency', '', 'anomalyProficiency'), gaugeId: 'janePassionAssault' },
+        m('anomalyProficiency', 'Anomaly Proficiency', '', 'anomalyProficiency'),
         m('anomalyMastery', 'Anomaly Mastery', '', 'anomalyMastery', undefined, 1),
         { ...m('critRate', 'CRIT Rate', '%', undefined, 'action'), resultVisibility: 'action-only' },
         { ...m('critDmg', 'CRIT DMG', '%', undefined, 'action'), resultVisibility: 'action-only' },
@@ -515,7 +514,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
       core,
       'all-party',
       {
-        kind: 'operation', operationId: 'yanagiDisorderDmgMultiplier', label: 'Disorder DMG Multiplier',
+        kind: 'operation', label: 'Disorder DMG Multiplier',
         earliestSurface: 'fully', value: VERTICAL_VALUES.yanagi.coreDisorderMultiplier, unit: '%',
       },
       ['anomaly_damage'],
@@ -547,7 +546,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     add({
       kind: 'operation',
       atom: {
-        operationId: 'aliceDisorderDmgMultiplier', label: 'Maximum Disorder DMG Multiplier',
+        label: 'Maximum Disorder DMG Multiplier',
         earliestSurface: 'fully', value: VERTICAL_VALUES.alice.coreDisorderMultiplier, unit: '%', source: core,
       },
     })
@@ -658,7 +657,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
       add({
         kind: 'operation',
         atom: {
-          operationId: 'vivianAbloomAddedMultiplier', label: 'Added Abloom DMG Multiplier',
+          label: 'Added Abloom DMG Multiplier',
           earliestSurface: 'fully', value: VERTICAL_VALUES.vivian.mindscape2AbloomCoefficient,
           unit: '%', source: mind(2),
         },
@@ -769,7 +768,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
       add({
         kind: 'operation',
         atom: {
-          operationId: 'promeiaFrostbiteDuration', label: 'Frostbite duration',
+          label: 'Frostbite duration',
           earliestSurface: 'fully', value: VERTICAL_VALUES.promeia.additionalFrostbiteDuration,
           unit: 's', source: ability,
         },
@@ -800,7 +799,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
       add({
         kind: 'operation',
         atom: {
-          operationId: 'promeiaAbloomAddedMultiplier', label: 'Added Abloom DMG Multiplier',
+          label: 'Added Abloom DMG Multiplier',
           earliestSurface: 'fully', value: VERTICAL_VALUES.promeia.mindscape2AbloomCoefficient,
           unit: '%', source: mind(2),
         },
@@ -823,14 +822,14 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     const flavorAttribute = effectAttributeForAgent(ids[state.focusSlot])
     const flavor = actionTarget([sourceLocalAction(`${flavorAttribute} Anomaly Buildup · Flavor Match`)])
     const outputs = additionalActive ? { anomaly: (setup.mindscape >= 1 ? VERTICAL_VALUES.yuzuha.mindscape1AnomalyPerMastery : VERTICAL_VALUES.yuzuha.additionalAnomalyPerMastery), buildup: VERTICAL_VALUES.yuzuha.additionalBuildupPerMastery } : { anomaly: 0, buildup: 0 }
-    add({ kind: 'gauge', gaugeId: 'yuzuhaTanuki', source: core, basis: { statId: 'atk', surface: 'initial' }, basisLabel: 'Initial ATK', basisCap: VERTICAL_VALUES.yuzuha.tanukiAtkCap / VERTICAL_VALUES.yuzuha.tanukiAtkRatio, metricId: 'atk', outputs: [{ label: 'Squad flat ATK', unit: '', cap: VERTICAL_VALUES.yuzuha.tanukiAtkCap, transform: { basisIncrement: 1, outputIncrement: VERTICAL_VALUES.yuzuha.tanukiAtkRatio, outputCap: VERTICAL_VALUES.yuzuha.tanukiAtkCap }, emission: { kind: 'provider', delivery: { recipient: 'all-party', formulas: DAMAGE }, effect: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully' } } }] })
+    add({ kind: 'gauge', source: core, basis: { statId: 'atk', surface: 'initial' }, basisLabel: 'Initial ATK', basisCap: VERTICAL_VALUES.yuzuha.tanukiAtkCap / VERTICAL_VALUES.yuzuha.tanukiAtkRatio, metricId: 'atk', outputs: [{ label: 'Squad flat ATK', unit: '', cap: VERTICAL_VALUES.yuzuha.tanukiAtkCap, transform: { basisIncrement: 1, outputIncrement: VERTICAL_VALUES.yuzuha.tanukiAtkRatio, outputCap: VERTICAL_VALUES.yuzuha.tanukiAtkCap }, emission: { kind: 'provider', delivery: { recipient: 'all-party', formulas: DAMAGE }, effect: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully' } } }] })
     add(provider(core, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.yuzuha.tanukiDmgBonus }, DAMAGE))
     add(mod(src(agent, slot, 'sugarburst', 'Basic Attack · Sugarburst', 'special'), 'anomalyBuildupBonus', VERTICAL_VALUES.yuzuha.sugarburstBuildupByMindscapeTier[setup.mindscape >= 5 ? 2 : setup.mindscape >= 3 ? 1 : 0], flavor))
-    if (additionalActive) add({ kind: 'gauge', gaugeId: 'yuzuhaAdditional', source: ability, basis: { statId: 'anomalyMastery', surface: 'fully' }, basisLabel: 'Fully Enabled Anomaly Mastery', basisThreshold: VERTICAL_VALUES.yuzuha.additionalMasteryThreshold, basisCap: VERTICAL_VALUES.yuzuha.additionalMasteryCap, metricId: 'anomalyMastery', outputs: [{ label: 'Anomaly Buildup Rate', unit: '%', cap: 20, transform: { basisThreshold: 100, basisIncrement: 1, outputIncrement: outputs.buildup, outputCap: 20 }, emission: { kind: 'provider', delivery: { recipient: 'all-party', formulas: ['anomaly_buildup'] }, effect: { kind: 'modifier', metricId: 'anomalyBuildupBonus', earliestSurface: 'fully' } } }, { label: 'Attribute Anomaly DMG', unit: '%', cap: setup.mindscape >= 1 ? 26 : 20, transform: { basisThreshold: 100, basisIncrement: 1, outputIncrement: outputs.anomaly, outputCap: setup.mindscape >= 1 ? 26 : 20 }, emission: { kind: 'provider', delivery: { recipient: 'all-party', formulas: ['anomaly_damage'] }, effect: { kind: 'modifier', metricId: 'anomalyDmgBonus', earliestSurface: 'fully', action: ATTRIBUTE_ANOMALY_TARGET } } }, { label: 'Disorder DMG', unit: '%', cap: setup.mindscape >= 1 ? 26 : 20, transform: { basisThreshold: 100, basisIncrement: 1, outputIncrement: outputs.anomaly, outputCap: setup.mindscape >= 1 ? 26 : 20 }, emission: { kind: 'provider', delivery: { recipient: 'all-party', formulas: ['anomaly_damage'] }, effect: { kind: 'modifier', metricId: 'anomalyDmgBonus', earliestSurface: 'fully', action: DISORDER_TARGET } } }] })
+    if (additionalActive) add({ kind: 'gauge', source: ability, basis: { statId: 'anomalyMastery', surface: 'fully' }, basisLabel: 'Fully Enabled Anomaly Mastery', basisThreshold: VERTICAL_VALUES.yuzuha.additionalMasteryThreshold, basisCap: VERTICAL_VALUES.yuzuha.additionalMasteryCap, metricId: 'anomalyMastery', outputs: [{ label: 'Anomaly Buildup Rate', unit: '%', cap: 20, transform: { basisThreshold: 100, basisIncrement: 1, outputIncrement: outputs.buildup, outputCap: 20 }, emission: { kind: 'provider', delivery: { recipient: 'all-party', formulas: ['anomaly_buildup'] }, effect: { kind: 'modifier', metricId: 'anomalyBuildupBonus', earliestSurface: 'fully' } } }, { label: 'Attribute Anomaly DMG', unit: '%', cap: setup.mindscape >= 1 ? 26 : 20, transform: { basisThreshold: 100, basisIncrement: 1, outputIncrement: outputs.anomaly, outputCap: setup.mindscape >= 1 ? 26 : 20 }, emission: { kind: 'provider', delivery: { recipient: 'all-party', formulas: ['anomaly_damage'] }, effect: { kind: 'modifier', metricId: 'anomalyDmgBonus', earliestSurface: 'fully', action: ATTRIBUTE_ANOMALY_TARGET } } }, { label: 'Disorder DMG', unit: '%', cap: setup.mindscape >= 1 ? 26 : 20, transform: { basisThreshold: 100, basisIncrement: 1, outputIncrement: outputs.anomaly, outputCap: setup.mindscape >= 1 ? 26 : 20 }, emission: { kind: 'provider', delivery: { recipient: 'all-party', formulas: ['anomaly_damage'] }, effect: { kind: 'modifier', metricId: 'anomalyDmgBonus', earliestSurface: 'fully', action: DISORDER_TARGET } } }] })
     if (setup.mindscape >= 1) add(provider(mind(1), 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.yuzuha.mindscape1ResReduction }, DAMAGE))
     if (setup.mindscape >= 2) { add(provider(mind(2), 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.yuzuha.mindscape2DmgBonus }, DAMAGE)); add(provider(mind(2), 'all-party', { kind: 'modifier', metricId: 'anomalyBuildupBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.yuzuha.mindscape2BuildupBonus }, ['anomaly_buildup'])) }
     if (setup.mindscape >= 4) add(mod(mind(4), 'anomalyBuildupBonus', VERTICAL_VALUES.yuzuha.mindscape4AssistBuildup, YUZUHA_ASSIST))
-    if (setup.mindscape >= 6) add(provider(mind(6), 'all-party', { kind: 'operation', operationId: 'yuzuhaDisorderDmgMultiplier', label: 'Disorder DMG Multiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.yuzuha.mindscape6DisorderMultiplier, unit: '%' }, ['anomaly_damage']))
+    if (setup.mindscape >= 6) add(provider(mind(6), 'all-party', { kind: 'operation', label: 'Disorder DMG Multiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.yuzuha.mindscape6DisorderMultiplier, unit: '%' }, ['anomaly_damage']))
     actions.push(actionProjection('anomalyBuildupBonus', 'yuzuhaFlavorMatch', flavor), actionProjection('anomalyBuildupBonus', 'yuzuhaAssistFollowUp', YUZUHA_ASSIST))
     relationships.push(...selectedEquipmentRelationships(agent, slot, setup, { observation, focusAgentId, partyAgentIds: ids }))
     const metrics = [
@@ -839,17 +838,15 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
       m('energyRegen', 'Energy Regen', '/s', 'energyRegen'),
       m('anomalyBuildupBonus', 'Anomaly Buildup Bonus', '%', undefined, 'nonzero-or-action'),
     ]
-    metrics.find(({ id }) => id === 'atk')!.gaugeId = 'yuzuhaTanuki'
-    if (additionalActive) metrics.find(({ id }) => id === 'anomalyMastery')!.gaugeId = 'yuzuhaAdditional'
     return { agentId: agent, appliedPartySlot: slot, relationships, metrics, actions }
   }
   const additionalActive = anotherAgentHasSpecialty(ids, slot, ['Anomaly']) || anotherAgentSharesFaction(ids, slot)
   add(provider(ability, 'self', { kind: 'modifier', metricId: 'anomalyBuildupBonus', earliestSurface: 'fully', value: additionalActive ? VERTICAL_VALUES.burnice.additionalBuildupRate : 0, action: BURNICE_BUILDUP }, ['anomaly_buildup'], ['Fire']))
-  if (additionalActive) add({ kind: 'operation', atom: { operationId: 'burniceBurnDuration', label: 'Burn duration', earliestSurface: 'fully', value: VERTICAL_VALUES.burnice.burnDurationExtensionSeconds, unit: 's', source: ability } })
+  if (additionalActive) add({ kind: 'operation', atom: { label: 'Burn duration', earliestSurface: 'fully', value: VERTICAL_VALUES.burnice.burnDurationExtensionSeconds, unit: 's', source: ability } })
   const potential = src(agent, slot, 'potential', SOURCE_LABELS.burnicePotential, 'identity')
-  add({ kind: 'post-delivery-stat-modifier-gauge', gaugeId: 'burniceAfterburnAp', source: core, basis: { statId: 'anomalyProficiency', surface: 'fully' }, basisLabel: 'Fully Enabled Anomaly Proficiency', basisCap: VERTICAL_VALUES.burnice.afterburnApCap, gaugeMetricId: 'anomalyProficiency', modifierMetricId: 'dmgBonus', action: BURNICE_AFTERBURN, modifierSurface: 'fully', output: { label: 'Afterburn DMG Bonus', value: { kind: 'linear', transform: { basisIncrement: 10, outputIncrement: VERTICAL_VALUES.burnice.afterburnDmgBonusPerThreshold, outputCap: VERTICAL_VALUES.burnice.afterburnDmgBonusCap } }, cap: VERTICAL_VALUES.burnice.afterburnDmgBonusCap, unit: '%' }, decimals: { current: 0, cap: 0, output: 1, outputCap: 0 } })
-  add({ kind: 'gauge', gaugeId: 'burnicePotential', source: potential, basis: { statId: 'energyRegen', surface: 'initial' }, basisLabel: 'Initial Energy Regen', basisThreshold: VERTICAL_VALUES.burnice.potentialEnergyThreshold, basisCap: VERTICAL_VALUES.burnice.potentialEnergyThreshold + 1, metricId: 'energyRegen', outputs: [{ label: 'Anomaly Mastery', unit: '', cap: VERTICAL_VALUES.burnice.potentialMasteryCap, transform: { basisThreshold: VERTICAL_VALUES.burnice.potentialEnergyThreshold, basisIncrement: 0.1, outputIncrement: VERTICAL_VALUES.burnice.potentialMasteryPerIncrement, outputCap: VERTICAL_VALUES.burnice.potentialMasteryCap }, emission: { kind: 'stat', statId: 'anomalyMastery', region: 'flat', earliestSurface: 'fully' } }, { label: 'DMG Bonus', unit: '%', cap: VERTICAL_VALUES.burnice.potentialDmgCap, transform: { basisThreshold: VERTICAL_VALUES.burnice.potentialEnergyThreshold, basisIncrement: 0.1, outputIncrement: VERTICAL_VALUES.burnice.potentialDmgPerIncrement, outputCap: VERTICAL_VALUES.burnice.potentialDmgCap }, emission: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully' } }], decimals: { current: 3, threshold: 1, cap: 1, output: 1, outputCap: 0 } })
-  if (setup.mindscape >= 1) { add(mod(mind(1), 'anomalyBuildupBonus', VERTICAL_VALUES.burnice.mindscape1BuildupRate, BURNICE_AFTERBURN)); add({ kind: 'operation', atom: { operationId: 'burniceAfterburnAddedMultiplier', label: 'Added Afterburn DMG Multiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.burnice.mindscape1AddedAtkPercent, unit: '% ATK', source: mind(1) } }) }
+  add({ kind: 'post-delivery-stat-modifier-gauge', source: core, basis: { statId: 'anomalyProficiency', surface: 'fully' }, basisLabel: 'Fully Enabled Anomaly Proficiency', basisCap: VERTICAL_VALUES.burnice.afterburnApCap, gaugeMetricId: 'anomalyProficiency', modifierMetricId: 'dmgBonus', action: BURNICE_AFTERBURN, modifierSurface: 'fully', output: { label: 'Afterburn DMG Bonus', value: { kind: 'linear', transform: { basisIncrement: 10, outputIncrement: VERTICAL_VALUES.burnice.afterburnDmgBonusPerThreshold, outputCap: VERTICAL_VALUES.burnice.afterburnDmgBonusCap } }, cap: VERTICAL_VALUES.burnice.afterburnDmgBonusCap, unit: '%' }, decimals: { current: 0, cap: 0, output: 1, outputCap: 0 } })
+  add({ kind: 'gauge', source: potential, basis: { statId: 'energyRegen', surface: 'initial' }, basisLabel: 'Initial Energy Regen', basisThreshold: VERTICAL_VALUES.burnice.potentialEnergyThreshold, basisCap: VERTICAL_VALUES.burnice.potentialEnergyThreshold + 1, metricId: 'energyRegen', outputs: [{ label: 'Anomaly Mastery', unit: '', cap: VERTICAL_VALUES.burnice.potentialMasteryCap, transform: { basisThreshold: VERTICAL_VALUES.burnice.potentialEnergyThreshold, basisIncrement: 0.1, outputIncrement: VERTICAL_VALUES.burnice.potentialMasteryPerIncrement, outputCap: VERTICAL_VALUES.burnice.potentialMasteryCap }, emission: { kind: 'stat', statId: 'anomalyMastery', region: 'flat', earliestSurface: 'fully' } }, { label: 'DMG Bonus', unit: '%', cap: VERTICAL_VALUES.burnice.potentialDmgCap, transform: { basisThreshold: VERTICAL_VALUES.burnice.potentialEnergyThreshold, basisIncrement: 0.1, outputIncrement: VERTICAL_VALUES.burnice.potentialDmgPerIncrement, outputCap: VERTICAL_VALUES.burnice.potentialDmgCap }, emission: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully' } }], decimals: { current: 3, threshold: 1, cap: 1, output: 1, outputCap: 0 } })
+  if (setup.mindscape >= 1) { add(mod(mind(1), 'anomalyBuildupBonus', VERTICAL_VALUES.burnice.mindscape1BuildupRate, BURNICE_AFTERBURN)); add({ kind: 'operation', atom: { label: 'Added Afterburn DMG Multiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.burnice.mindscape1AddedAtkPercent, unit: '% ATK', source: mind(1) } }) }
   if (setup.mindscape >= 2) add(provider(mind(2), 'enemy-context', { kind: 'modifier', metricId: 'penRatio', earliestSurface: 'fully', value: VERTICAL_VALUES.burnice.mindscape2PenRatio }, DEF_DAMAGE_FORMULAS))
   if (setup.mindscape >= 4) add(provider(mind(4), 'self', { kind: 'modifier', metricId: 'critRate', earliestSurface: 'fully', value: VERTICAL_VALUES.burnice.mindscape4CritRate, action: BURNICE_EX_ASSIST }, ['general_damage'], ['Fire']))
   if (setup.mindscape >= 6) {
@@ -883,17 +880,13 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     m('resReduction', 'RES Reduction', '%', undefined, 'nonzero-or-action'),
     m('stunDmgMultiplier', 'Stun DMG Multiplier', '%', undefined, 'nonzero-or-action'),
   ]
-  metrics.find(({ id }) => id === 'energyRegen')!.gaugeId = 'burnicePotential'
-  metrics.find(({ id }) => id === 'anomalyProficiency')!.gaugeId = 'burniceAfterburnAp'
   return { agentId: agent, appliedPartySlot: slot, relationships, metrics, actions }
 }
 
-export function anomalyProfileFor(state: WorkbenchState, slot: Slot): AgentSourceProfile | null {
-  const agent = state.slots[slot].agentId
-  if (!isAnomalyAgent(agent)) return null
+export function anomalyProfileFor(
+  agent: Agent,
+  state: WorkbenchState,
+  slot: Slot,
+): AgentSourceProfile {
   return profile(agent, state, slot)
-}
-
-function isAnomalyAgent(agent: AgentId): agent is Agent {
-  return ANOMALY_AGENTS.some((candidate) => candidate === agent)
 }

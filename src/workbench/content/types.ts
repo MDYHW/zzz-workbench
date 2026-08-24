@@ -253,7 +253,7 @@ export type EquipmentEffectTag = Extract<ActionTag, 'aftershock'>
 export type EquipmentEffectCondition = 'backAttack' | 'offField' | 'shielded' | 'anomalyAfflictedTarget' | 'stunnedTarget'
 export type EquipmentEffectAnomalyResult = 'Attribute Anomaly' | 'Disorder' | 'Abloom'
 
-export type EquipmentEffectRecipient = 'self' | 'squad' | 'enemy'
+export type EquipmentEffectRecipient = 'self' | 'focus' | 'squad' | 'enemy'
 export type EquipmentEffectValue = number | RefinementValues
 
 export type EquipmentEffectActivation =
@@ -312,6 +312,7 @@ export type EquipmentEffectFact = {
   unit: '%' | '' | '/s'
   scope?: EquipmentEffectScope
   activation?: EquipmentEffectActivation
+  composition?: 'highest-only'
 } & EquipmentEffectMagnitude
 
 // Setup-content facts only. Local collection keys are handles for explicit

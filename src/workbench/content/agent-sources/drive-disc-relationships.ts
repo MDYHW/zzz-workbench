@@ -7,7 +7,7 @@ import {
   canonicalAction,
   type ActionTarget,
 } from '../../actions'
-import type { ProfileRelationship, NonstackIdentity } from '../../calculation/relationships'
+import type { ProfileRelationship } from '../../calculation/relationships'
 import type { SelectedSourceInstance } from '../../calculation/source-instance'
 import type { StatId, StatRegion } from '../../calculation/stat-composer'
 import type { EffectMetric, SurfaceKey } from '../../effects'
@@ -17,17 +17,21 @@ import {
   REGULAR_DAMAGE_FORMULAS,
 } from '../../formula-policy'
 import { DRIVE_DISC_FACTS } from '../discs'
-import { W_ENGINES } from '../engines'
-import { EFFECTIVE_SUBSTAT_VALUES, MAIN_STATS } from '../setup-options'
-import { VERTICAL_VALUES } from '../retained-values'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
   equipmentEffectProgressionIncrementValue,
   type AgentId,
   type DiscId,
+  type EquipmentEffectFact,
 } from '../types'
-import type { CompleteSelectedSetup, SelectedSetupObservation } from './equipment'
+import {
+  type CompleteSelectedSetup, type SelectedSetupObservation,
+} from './equipment'
+import {
+  equipmentProviderEmission,
+  equipmentProviderRelationship,
+} from './equipment-provider'
 
 type Slot = 0 | 1 | 2
 
@@ -72,54 +76,13 @@ function modifier(
   }
 }
 
-function provider(
-  source: SelectedSourceInstance,
-  recipient: 'self' | 'all-party' | 'focus' | 'enemy-context',
-  effect: Extract<ProfileRelationship, { kind: 'provider' }>['effect'],
-  delivery: Omit<Extract<ProfileRelationship, { kind: 'provider' }>['delivery'], 'recipient'> = {},
-): ProfileRelationship {
-  return { kind: 'provider', source, delivery: { recipient, ...delivery }, effect }
-}
-
-function initialCritRate({
-  agentId: agent,
-  setup,
-  observation,
-}: SelectedDriveDiscContext): number {
-  const advanced = W_ENGINES[setup.engineId].advancedStat
-  const discCrit = [setup.fourPieceId, setup.twoPieceId].reduce((total, id) => {
-    const twoPiece = DRIVE_DISC_FACTS[id].twoPiece
-    return total + ('critRate' in twoPiece ? equipmentEffectBaseValue(twoPiece.critRate) : 0)
-  }, 0)
-  const substatCrit = (observation.effectiveSubstats ?? []).reduce((total, choice) => (
-    choice.id === 'critRate'
-      ? total + (setup.substats.critRate ?? 0) * EFFECTIVE_SUBSTAT_VALUES.critRate.perHit
-      : total
-  ), 0)
-  const combatMindscape = agent === 'juFufu' && (setup.mindscape ?? 0) >= 1
-    ? VERTICAL_VALUES.juFufu.mindscapeCritRate
-    : agent === 'pulchra' && (setup.mindscape ?? 0) >= 1
-      ? VERTICAL_VALUES.pulchra.mindscapeCritRate
-      : 0
-  return Math.min(
-    (observation.baseStats.critRate ?? 0)
-      + (advanced.id === 'critRate' ? advanced.value : 0)
-      + (setup.mains.slot4 === 'critRate' ? MAIN_STATS.critRate.numericValue : 0)
-      + discCrit
-      + substatCrit
-      + combatMindscape,
-    100,
-  )
-}
-
 function squadDamage(
   source: SelectedSourceInstance,
+  fact: EquipmentEffectFact,
   value: number,
-  nonstackId?: NonstackIdentity,
 ): ProfileRelationship {
-  return provider(source, 'all-party', {
+  return equipmentProviderRelationship(source, fact, {
     kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value,
-    ...(nonstackId ? { nonstackId } : {}),
   }, { formulas: REGULAR_DAMAGE_FORMULAS })
 }
 
@@ -134,20 +97,19 @@ export function selectedDriveDiscRelationships(
   const relationships: ProfileRelationship[] = []
   switch (setup.fourPieceId) {
     case 'swingJazz':
-      relationships.push(squadDamage(source, equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage), 'swingJazz'))
+      relationships.push(squadDamage(source, DRIVE_DISC_FACTS.swingJazz.fourPiece.damage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage)))
       break
     case 'moonlight':
-      relationships.push(squadDamage(source, equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.fourPiece.damage), 'moonlightLullaby'))
+      relationships.push(squadDamage(source, DRIVE_DISC_FACTS.moonlight.fourPiece.damage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.fourPiece.damage)))
       break
     case 'astralVoice':
-      relationships.push(provider(source, 'focus', {
+      relationships.push(equipmentProviderRelationship(source, DRIVE_DISC_FACTS.astralVoice.fourPiece.damage, {
         kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
         value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage),
-        nonstackId: 'astralVoiceEntrant',
       }, { formulas: REGULAR_DAMAGE_FORMULAS }))
       break
     case 'bunnyInWonderland':
-      relationships.push(squadDamage(source, equipmentEffectMaximumValue(DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage), 'bunnyInWonderland'))
+      relationships.push(squadDamage(source, DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage, equipmentEffectMaximumValue(DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage)))
       break
     case 'dawnsBloom':
       relationships.push(
@@ -193,18 +155,13 @@ export function selectedDriveDiscRelationships(
       break
     case 'chaosJazz':
       relationships.push(modifier(source, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.electricFireDamage), undefined, 'combat'))
-      if (agent === 'burnice') relationships.push(provider(source, 'self', {
-        kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
-        value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage),
-        action: EX_ASSIST,
-      }, { formulas: ['general_damage'], attributes: ['Fire'] }))
+      if (agent === 'burnice') relationships.push(modifier(source, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage), EX_ASSIST))
       if (agent === 'yanagi') relationships.push(modifier(source, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage), EX_ASSIST))
       break
     case 'freedomBlues':
-      relationships.push(provider(source, 'enemy-context', {
+      relationships.push(equipmentProviderRelationship(source, DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction, {
         kind: 'modifier', metricId: 'anomalyBuildupResReduction', earliestSurface: 'fully',
         value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction),
-        nonstackId: 'freedomBlues',
       }, {
         attributes: [effectAttributeForAgent(agent)],
         formulas: ['anomaly_buildup'],
@@ -226,12 +183,12 @@ export function selectedDriveDiscRelationships(
     case 'notesFromTheChained':
       relationships.push(
         stat(source, 'anomalyProficiency', equipmentEffectBaseValue(DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.anomalyProficiency), 'flat'),
-        provider(source, 'all-party', {
+        equipmentProviderRelationship(source, DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.squadAnomalyDamage, {
           kind: 'modifier', metricId: 'anomalyDmgBonus', earliestSurface: 'fully',
           value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.squadAnomalyDamage),
           action: ATTRIBUTE_ANOMALY_TARGET,
         }, { formulas: ['anomaly_damage'] }),
-        provider(source, 'all-party', {
+        equipmentProviderRelationship(source, DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.squadAnomalyDamage, {
           kind: 'modifier', metricId: 'anomalyDmgBonus', earliestSurface: 'fully',
           value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.squadAnomalyDamage),
           action: DISORDER_TARGET,
@@ -247,19 +204,19 @@ export function selectedDriveDiscRelationships(
     case 'king': {
       const base = equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.fourPiece.critDamage)
       const max = equipmentEffectMaximumValue(DRIVE_DISC_FACTS.king.fourPiece.critDamage)
-      const output = initialCritRate(context) >= 50 ? max : base
       relationships.push({
-        kind: 'gauge', gaugeId: 'kingOfTheSummit', source,
+        kind: 'gauge', source,
         basis: { statId: 'critRate', surface: 'initial' },
         basisLabel: 'Initial CRIT Rate', basisThreshold: 50, basisCap: 50,
         metricId: 'critRate',
         outputs: [{
           label: 'Squad CRIT DMG', unit: '%', cap: max,
-          transform: { basisIncrement: 1, baseOutput: output, outputIncrement: 0 },
-          emission: {
-            kind: 'provider', delivery: { recipient: 'all-party', formulas: CRIT_DAMAGE_FORMULAS },
-            effect: { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully', nonstackId: 'kingOfTheSummit' },
-          },
+          activation: { inactiveValue: base, activeValue: max },
+          emission: equipmentProviderEmission(
+            DRIVE_DISC_FACTS.king.fourPiece.critDamage,
+            { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully' },
+            { formulas: CRIT_DAMAGE_FORMULAS },
+          ),
         }],
       })
       break

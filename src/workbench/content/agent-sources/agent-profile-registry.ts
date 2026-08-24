@@ -16,85 +16,96 @@ type AgentProfileBuilder = (
   calculationContext: PartyCalculationContext,
 ) => AgentSourceProfile
 
-function requireProfile(
-  agentId: AgentId,
-  profile: AgentSourceProfile | null,
-): AgentSourceProfile {
-  if (!profile || profile.agentId !== agentId) {
-    throw new Error(`Agent source owner did not build ${agentId}`)
-  }
-  return profile
+interface AgentProfileDefinition<A extends AgentId> {
+  agentId: A
+  build: AgentProfileBuilder
 }
 
-const attack = (state: WorkbenchState, slot: Slot, context: PartyCalculationContext) => (
-  requireProfile(state.slots[slot].agentId, attackProfileFor(state, slot, context))
-)
-const anomaly = (state: WorkbenchState, slot: Slot) => (
-  requireProfile(state.slots[slot].agentId, anomalyProfileFor(state, slot))
-)
-const providerDefense = (state: WorkbenchState, slot: Slot) => (
-  requireProfile(state.slots[slot].agentId, providerDefenseProfileFor(state, slot))
-)
-const ruptureStun = (state: WorkbenchState, slot: Slot) => (
-  requireProfile(state.slots[slot].agentId, ruptureStunProfileFor(state, slot))
-)
+type ExactAgentProfileDefinitions = {
+  [A in AgentId]: AgentProfileDefinition<A>
+}
+
+const attack = <A extends Parameters<typeof attackProfileFor>[0]>(
+  agentId: A,
+): AgentProfileDefinition<A> => ({
+  agentId,
+  build: (state, slot, context) => attackProfileFor(agentId, state, slot, context),
+})
+const anomaly = <A extends Parameters<typeof anomalyProfileFor>[0]>(
+  agentId: A,
+): AgentProfileDefinition<A> => ({
+  agentId,
+  build: (state, slot) => anomalyProfileFor(agentId, state, slot),
+})
+const providerDefense = <A extends Parameters<typeof providerDefenseProfileFor>[0]>(
+  agentId: A,
+): AgentProfileDefinition<A> => ({
+  agentId,
+  build: (state, slot) => providerDefenseProfileFor(agentId, state, slot),
+})
+const ruptureStun = <A extends Parameters<typeof ruptureStunProfileFor>[0]>(
+  agentId: A,
+): AgentProfileDefinition<A> => ({
+  agentId,
+  build: (state, slot) => ruptureStunProfileFor(agentId, state, slot),
+})
 
 /**
  * Exact identity dispatch. Specialty remains an eligibility and party metadata
  * input; it never selects a calculator or supplies Agent kit meaning.
  */
 const AGENT_PROFILE_BUILDERS = {
-  yixuan: ruptureStun,
-  dialyn: ruptureStun,
-  lucia: providerDefense,
-  anbySoldier0: attack,
-  trigger: ruptureStun,
-  astraYao: providerDefense,
-  seed: attack,
-  cissia: attack,
-  evelyn: attack,
-  corin: attack,
-  lycaon: ruptureStun,
-  yidhari: ruptureStun,
-  manato: ruptureStun,
-  hugo: attack,
-  juFufu: ruptureStun,
-  panYinhu: providerDefense,
-  banyue: ruptureStun,
-  starlightBilly: ruptureStun,
-  ellen: attack,
-  soukaku: providerDefense,
-  soldier11: attack,
-  lighter: ruptureStun,
-  lucy: providerDefense,
-  zhuYuan: attack,
-  nicole: providerDefense,
-  orphie: attack,
-  pulchra: ruptureStun,
-  harumasa: attack,
-  qingyi: ruptureStun,
-  nekomata: attack,
-  billy: attack,
-  ben: providerDefense,
-  koleda: ruptureStun,
-  anby: ruptureStun,
-  caesar: providerDefense,
-  yeShunguang: attack,
-  zhao: providerDefense,
-  grace: anomaly,
-  piper: anomaly,
-  yuzuha: anomaly,
-  burnice: anomaly,
-  jane: anomaly,
-  seth: providerDefense,
-  yanagi: anomaly,
-  alice: anomaly,
-  vivian: anomaly,
-  aria: anomaly,
-  promeia: anomaly,
-  sunna: providerDefense,
-  nangongYu: ruptureStun,
-} satisfies Record<AgentId, AgentProfileBuilder>
+  yixuan: ruptureStun('yixuan'),
+  dialyn: ruptureStun('dialyn'),
+  lucia: providerDefense('lucia'),
+  anbySoldier0: attack('anbySoldier0'),
+  trigger: ruptureStun('trigger'),
+  astraYao: providerDefense('astraYao'),
+  seed: attack('seed'),
+  cissia: attack('cissia'),
+  evelyn: attack('evelyn'),
+  corin: attack('corin'),
+  lycaon: ruptureStun('lycaon'),
+  yidhari: ruptureStun('yidhari'),
+  manato: ruptureStun('manato'),
+  hugo: attack('hugo'),
+  juFufu: ruptureStun('juFufu'),
+  panYinhu: providerDefense('panYinhu'),
+  banyue: ruptureStun('banyue'),
+  starlightBilly: ruptureStun('starlightBilly'),
+  ellen: attack('ellen'),
+  soukaku: providerDefense('soukaku'),
+  soldier11: attack('soldier11'),
+  lighter: ruptureStun('lighter'),
+  lucy: providerDefense('lucy'),
+  zhuYuan: attack('zhuYuan'),
+  nicole: providerDefense('nicole'),
+  orphie: attack('orphie'),
+  pulchra: ruptureStun('pulchra'),
+  harumasa: attack('harumasa'),
+  qingyi: ruptureStun('qingyi'),
+  nekomata: attack('nekomata'),
+  billy: attack('billy'),
+  ben: providerDefense('ben'),
+  koleda: ruptureStun('koleda'),
+  anby: ruptureStun('anby'),
+  caesar: providerDefense('caesar'),
+  yeShunguang: attack('yeShunguang'),
+  zhao: providerDefense('zhao'),
+  grace: anomaly('grace'),
+  piper: anomaly('piper'),
+  yuzuha: anomaly('yuzuha'),
+  burnice: anomaly('burnice'),
+  jane: anomaly('jane'),
+  seth: providerDefense('seth'),
+  yanagi: anomaly('yanagi'),
+  alice: anomaly('alice'),
+  vivian: anomaly('vivian'),
+  aria: anomaly('aria'),
+  promeia: anomaly('promeia'),
+  sunna: providerDefense('sunna'),
+  nangongYu: ruptureStun('nangongYu'),
+} satisfies ExactAgentProfileDefinitions
 
 export function sourceProfileForSlot(
   state: WorkbenchState,
@@ -102,5 +113,10 @@ export function sourceProfileForSlot(
   calculationContext: PartyCalculationContext,
 ): AgentSourceProfile {
   const agentId = state.slots[slot].agentId
-  return AGENT_PROFILE_BUILDERS[agentId](state, slot, calculationContext)
+  const definition = AGENT_PROFILE_BUILDERS[agentId]
+  const profile = definition.build(state, slot, calculationContext)
+  if (definition.agentId !== agentId || profile.agentId !== agentId) {
+    throw new Error(`Agent profile registry did not build ${agentId}`)
+  }
+  return profile
 }

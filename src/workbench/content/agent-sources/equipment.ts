@@ -1,6 +1,8 @@
 import { effectAttributeForAgent } from '../../formula-policy'
 import type { EffectMetric } from '../../effects'
-import type { ProfileRelationship } from '../../calculation/relationships'
+import type {
+  ProfileRelationship,
+} from '../../calculation/relationships'
 import { selectSource, type SelectedSourceInstance } from '../../calculation/source-instance'
 import type { StatId, StatRegion } from '../../calculation/stat-composer'
 import { ADMITTED_AGENTS } from '../agents'

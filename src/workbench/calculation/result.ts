@@ -82,7 +82,7 @@ export interface ResultMetric {
   decimals: number
   values: Record<SurfaceKey, number>
   breakdown: Record<SurfaceKey, Contribution[]>
-  gauge?: GaugeResult
+  gauges: GaugeResult[]
 }
 
 export interface ActionModifier {
@@ -99,7 +99,6 @@ export interface ActionModifier {
 }
 
 export interface ResultOperation {
-  id: string
   label: string
   source: ResultSource
   surface: 'combat' | 'fully'
