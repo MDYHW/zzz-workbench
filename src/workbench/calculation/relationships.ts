@@ -46,6 +46,7 @@ export type NonstackIdentity =
   | 'kaboomTheCannon'
   | 'iceJadeTeapot'
   | 'halfSugarBunny'
+  | 'freedomBlues'
 
 export interface RelationshipDisplay {
   value: number
@@ -201,6 +202,10 @@ export interface LinearRelationship {
   outputs: readonly LinearOutput[]
 }
 
+export type PostDeliveryLinearRelationship = Omit<LinearRelationship, 'kind'> & {
+  kind: 'post-delivery-linear'
+}
+
 export interface GaugeOutput extends LinearOutput {
   label: string
   unit: string
@@ -229,6 +234,10 @@ export type GaugeRelationship = {
   | { basisCap: number; basisThreshold?: number }
   | { basisCap?: never; basisThreshold: number }
 )
+
+export type PostDeliveryGaugeRelationship = Omit<GaugeRelationship, 'kind'> & {
+  kind: 'post-delivery-gauge'
+}
 
 /**
  * A visible activation condition over the completed post-delivery stat.
@@ -308,15 +317,33 @@ export interface PostDeliveryStatModifierGaugeRelationship {
   decimals?: EvaluatedGauge['decimals']
 }
 
+/**
+ * A Result metric derived independently on each visible surface from completed
+ * recipient stats. It emits no stat or provider and cannot feed another pass.
+ */
+export interface SurfaceStatDerivedMetricRelationship {
+  kind: 'surface-stat-derived-metric'
+  source: SelectedSourceInstance
+  metricId: EffectMetric
+  terms: readonly {
+    statId: StatId
+    multiplier: number
+  }[]
+  sourceDetail?: string
+}
+
 export type ProfileRelationship =
   | { kind: 'stat'; atom: ProfileStatAtom }
   | { kind: 'modifier'; atom: ModifierAtom }
   | { kind: 'automatic-energy'; atom: AutomaticEnergyAtom }
   | LinearRelationship
   | GaugeRelationship
+  | PostDeliveryLinearRelationship
+  | PostDeliveryGaugeRelationship
   | ThresholdOperationRelationship
   | ProjectionGaugeRelationship
   | PostDeliveryStatModifierGaugeRelationship
+  | SurfaceStatDerivedMetricRelationship
   | { kind: 'operation'; atom: OperationAtom }
   | ProviderRelationship
 
@@ -350,6 +377,9 @@ export interface EvaluatedRelationships {
   thresholdOperations: ThresholdOperationRelationship[]
   projectionGauges: ProjectionGaugeRelationship[]
   postDeliveryStatModifierGauges: PostDeliveryStatModifierGaugeRelationship[]
+  surfaceStatDerivedMetrics: SurfaceStatDerivedMetricRelationship[]
+  postDeliveryLinear: PostDeliveryLinearRelationship[]
+  postDeliveryGauges: PostDeliveryGaugeRelationship[]
 }
 
 const emptyEvaluation = (): EvaluatedRelationships => ({
@@ -362,6 +392,9 @@ const emptyEvaluation = (): EvaluatedRelationships => ({
   thresholdOperations: [],
   projectionGauges: [],
   postDeliveryStatModifierGauges: [],
+  surfaceStatDerivedMetrics: [],
+  postDeliveryLinear: [],
+  postDeliveryGauges: [],
 })
 
 const assertNever = (value: never): never => {
@@ -523,6 +556,15 @@ export function evaluateRelationships(
       case 'post-delivery-stat-modifier-gauge':
         evaluated.postDeliveryStatModifierGauges.push(relationship)
         break
+      case 'surface-stat-derived-metric':
+        evaluated.surfaceStatDerivedMetrics.push(relationship)
+        break
+      case 'post-delivery-linear':
+        evaluated.postDeliveryLinear.push(relationship)
+        break
+      case 'post-delivery-gauge':
+        evaluated.postDeliveryGauges.push(relationship)
+        break
       case 'linear': {
         if (relationship.basis.surface === 'each') {
           evaluateEachSurfaceOutputs(relationship, stats, evaluated)
@@ -569,6 +611,50 @@ export function evaluateRelationships(
       }
       default:
         assertNever(relationship)
+    }
+  }
+  return evaluated
+}
+
+/**
+ * Evaluates the bounded one-pass relationships that explicitly read the
+ * completed ordinary-delivery stat snapshot. Their outputs are returned for
+ * one derived-provider delivery pass and cannot enqueue another relationship.
+ */
+export function evaluatePostDeliveryRelationships(
+  relationships: readonly (
+    | PostDeliveryLinearRelationship
+    | PostDeliveryGaugeRelationship
+  )[],
+  stats: Readonly<Partial<Record<StatId, ComposedStat>>>,
+): EvaluatedRelationships {
+  const evaluated = emptyEvaluation()
+  for (const relationship of relationships) {
+    if (relationship.basis.surface === 'each') {
+      throw new Error('Post-delivery relationships require one explicit completed surface')
+    }
+    const current = basisValue(relationship.basis, stats)
+    const values = evaluateOutputs(relationship.source, current, relationship.outputs, evaluated)
+    if (relationship.kind === 'post-delivery-gauge') {
+      evaluated.gauges.push({
+        gaugeId: relationship.gaugeId,
+        source: relationship.source,
+        metricId: relationship.metricId,
+        basisLabel: relationship.basisLabel,
+        current,
+        ...(relationship.basisThreshold === undefined ? {} : { threshold: relationship.basisThreshold }),
+        ...(relationship.basisCap === undefined ? {} : { cap: relationship.basisCap }),
+        outputs: relationship.outputs.map((output, index) => ({
+          label: output.label,
+          value: values[index],
+          ...(output.cap === undefined ? {} : { cap: output.cap }),
+          unit: output.unit,
+          ...(output.decimals === undefined ? {} : { decimals: output.decimals }),
+        })),
+        ...(relationship.presentation ? { presentation: relationship.presentation } : {}),
+        ...(relationship.sourceDetail ? { sourceDetail: relationship.sourceDetail } : {}),
+        ...(relationship.decimals ? { decimals: relationship.decimals } : {}),
+      })
     }
   }
   return evaluated

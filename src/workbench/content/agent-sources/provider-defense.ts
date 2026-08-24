@@ -7,11 +7,11 @@ import type { WorkbenchState } from '../../state'
 import { CRIT_DAMAGE_FORMULAS, DEF_DAMAGE_FORMULAS, REGULAR_DAMAGE_FORMULAS } from '../../formula-policy'
 import { anotherAgentHasSpecialty, anotherAgentSharesAttribute, anotherAgentSharesFaction, caesarAdditionalIsActive } from '../../party-conditions'
 import { DRIVE_DISC_FACTS } from '../discs'
-import { W_ENGINE_FACTS, W_ENGINES } from '../engines'
+import { W_ENGINES } from '../engines'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
 import { defineAgentBaseSource } from '../source-definitions'
-import { equipmentEffectBaseValue, equipmentEffectMaximumValue, type AgentSpecialty, type EquipmentEffectFact } from '../types'
-import { isWEnginePassiveEligible, requireCompleteSelectedSetup, selectedDiscSource, selectedSetupRelationships, selectedWEngineSource, sharedPartyEquipmentRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
+import { type AgentSpecialty } from '../types'
+import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
 
 type Agent = 'lucia' | 'astraYao' | 'soukaku' | 'lucy' | 'nicole' | 'panYinhu' | 'ben' | 'caesar' | 'zhao' | 'seth' | 'sunna'
@@ -46,47 +46,6 @@ const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
 const m = (id: MetricProjection['id'], label: string, unit: string, statId?: MetricProjection['statId'], admission?: MetricProjection['admission']): MetricProjection => ({ id, label, unit, decimals: unit === '/s' ? 2 : unit === '%' ? 1 : id === 'impact' ? 2 : 0, ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }), ...(admission ? { admission } : {}) })
 
 function src(agent: Agent, slot: Slot, id: string, label: string, locus: 'core' | 'additional' | 'special' | 'ex-special' = 'core') { return selectedAgentSource(agent, slot, id, label, locus) }
-function engineValue(effect: EquipmentEffectFact, setup: CompleteSelectedSetup) { return equipmentEffectBaseValue(effect, setup.refinement) }
-function engineMax(effect: EquipmentEffectFact, setup: CompleteSelectedSetup) { return equipmentEffectMaximumValue(effect, setup.refinement) }
-
-function selectedEquipment(agent: Agent, slot: Slot, setup: CompleteSelectedSetup, observation: SelectedSetupObservation): ProfileRelationship[] {
-  const engine = selectedWEngineSource(agent, slot, setup)
-  const disc = selectedDiscSource(agent, slot, setup, setup.fourPieceId, '4-piece')
-  const allDamage = (value: number, source = engine, nonstackId?: 'moonlightLullaby' | 'swingJazz' | 'bunnyInWonderland') => ({ kind: 'provider' as const, source, delivery: { recipient: 'all-party' as const, formulas: DAMAGE }, effect: { kind: 'modifier' as const, metricId: 'dmgBonus' as const, earliestSurface: 'fully' as const, value, ...(nonstackId ? { nonstackId } : {}) } })
-  const energy = (value: number) => ({ kind: 'automatic-energy' as const, atom: { earliestSurface: 'combat' as const, value, source: engine } })
-  const relationships = sharedPartyEquipmentRelationships(agent, slot, setup)
-  const passiveEligible = isWEnginePassiveEligible(agent, setup.engineId)
-  if (passiveEligible) switch (setup.engineId) {
-    case 'peacekeeperSpecialized': relationships.push(
-      { kind: 'automatic-energy', atom: { earliestSurface: 'fully', value: engineValue(W_ENGINE_FACTS.peacekeeperSpecialized.effects.energyRegen, setup), source: engine } },
-      {
-        kind: 'modifier',
-        atom: {
-          metricId: 'anomalyBuildupBonus',
-          earliestSurface: 'fully',
-          value: engineValue(W_ENGINE_FACTS.peacekeeperSpecialized.effects.buildup, setup),
-          source: engine,
-          action: SETH_EX_ASSIST,
-        },
-      },
-    ); break
-    case 'dreamlitHearth': relationships.push({ kind: 'provider', source: engine, delivery: { recipient: 'all-party' }, effect: { kind: 'stat', statId: 'maxHp', region: 'percentage', earliestSurface: 'fully', value: engineValue(W_ENGINE_FACTS.dreamlitHearth.effects.maxHp, setup) } }, allDamage(engineValue(W_ENGINE_FACTS.dreamlitHearth.effects.damage, setup)), energy(engineValue(W_ENGINE_FACTS.dreamlitHearth.effects.energy, setup))); break
-    case 'elegantVanity': relationships.push(allDamage(engineMax(W_ENGINE_FACTS.elegantVanity.effects.damage, setup))); break
-    case 'theVault': relationships.push(allDamage(engineValue(W_ENGINE_FACTS.theVault.effects.targetDamage, setup))); break
-    case 'bashfulDemon': relationships.push({ kind: 'provider', source: engine, delivery: { recipient: 'all-party', formulas: DAMAGE }, effect: { kind: 'stat', statId: 'atk', region: 'percentage', earliestSurface: 'fully', value: engineMax(W_ENGINE_FACTS.bashfulDemon.effects.atk, setup) } }); break
-    case 'tusksOfFury': relationships.push(allDamage(engineValue(W_ENGINE_FACTS.tusksOfFury.effects.damage, setup)), { kind: 'provider', source: engine, delivery: { recipient: 'all-party', formulas: ['daze_buildup'] }, effect: { kind: 'modifier', metricId: 'dazeBonus', earliestSurface: 'fully', value: engineValue(W_ENGINE_FACTS.tusksOfFury.effects.daze, setup) } }); break
-    case 'tremorTrigramVessel': if (agent === 'ben') relationships.push({ kind: 'modifier', atom: { metricId: 'dmgBonus', earliestSurface: 'fully', value: engineValue(W_ENGINE_FACTS.tremorTrigramVessel.effects.damage, setup), source: engine, action: BEN_EX_ULT } }); break
-    case 'originalTransmorpher': if (observation.baseStats.maxHp !== undefined) relationships.push({ kind: 'stat', atom: { statId: 'maxHp', region: 'percentage', earliestSurface: 'combat', value: engineValue(W_ENGINE_FACTS.originalTransmorpher.effects.maxHp, setup), source: engine } }); break
-    case 'halfSugarBunny': relationships.push(energy(engineValue(W_ENGINE_FACTS.halfSugarBunny.effects.automaticEnergy, setup)), { kind: 'provider', source: engine, delivery: { recipient: 'all-party' }, effect: { kind: 'stat', statId: 'atk', region: 'percentage', earliestSurface: 'fully', value: engineValue(W_ENGINE_FACTS.halfSugarBunny.effects.squadAtk, setup), nonstackId: 'halfSugarBunny' } }, { kind: 'provider', source: engine, delivery: { recipient: 'all-party' }, effect: { kind: 'stat', statId: 'maxHp', region: 'percentage', earliestSurface: 'fully', value: engineValue(W_ENGINE_FACTS.halfSugarBunny.effects.squadMaxHp, setup), nonstackId: 'halfSugarBunny' } }, { kind: 'provider', source: engine, delivery: { recipient: 'all-party', formulas: CRIT_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully', value: engineValue(W_ENGINE_FACTS.halfSugarBunny.effects.veilCritDamage, setup) } }); break
-  }
-  switch (setup.fourPieceId) {
-    case 'bunnyInWonderland': relationships.push(allDamage(equipmentEffectMaximumValue(DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage), disc, 'bunnyInWonderland')); break
-    case 'woodpecker': if (observation.baseStats.atk !== undefined) relationships.push({ kind: 'stat', atom: { statId: 'atk', region: 'percentage', earliestSurface: 'fully', value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.fourPiece.atk), source: disc } }); break
-    case 'pufferElectro': if (agent === 'ben') relationships.push({ kind: 'stat', atom: { statId: 'atk', region: 'percentage', earliestSurface: 'fully', value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.atk), source: disc } }, { kind: 'modifier', atom: { metricId: 'dmgBonus', earliestSurface: 'initial', value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.damage), source: disc, action: BEN_ULT } }); break
-  }
-  return relationships
-}
-
 function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourceProfile {
   const setup = { ...requireCompleteSelectedSetup(state.slots[slot].setup), mindscape: state.slots[slot].setup.mindscape }
   const baseStats = {
@@ -336,7 +295,11 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
       actionProjection('anomalyBuildupBonus', 'chainAttackAnomalyBuildup', NANGONG_CHAIN),
     ]
   }
-  relationships.push(...selectedEquipment(agent, slot, setup, observation))
+  relationships.push(...selectedEquipmentRelationships(agent, slot, setup, {
+    observation,
+    focusAgentId: state.slots[state.focusSlot].agentId,
+    partyAgentIds: agentIds,
+  }))
   return { agentId: agent, appliedPartySlot: slot, relationships, metrics, ...(actions ? { actions } : {}) }
 }
 

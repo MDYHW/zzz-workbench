@@ -1,19 +1,14 @@
-import {
-  CRIT_DAMAGE_FORMULAS,
-  effectAttributeForAgent,
-  REGULAR_DAMAGE_FORMULAS,
-} from '../../formula-policy'
+import { effectAttributeForAgent } from '../../formula-policy'
 import type { EffectMetric } from '../../effects'
 import type { ProfileRelationship } from '../../calculation/relationships'
 import { selectSource, type SelectedSourceInstance } from '../../calculation/source-instance'
 import type { StatId, StatRegion } from '../../calculation/stat-composer'
 import { ADMITTED_AGENTS } from '../agents'
-import type { OperatingInterval } from '../setup-policies'
 import {
   DRIVE_DISC_FACTS,
   DRIVE_DISCS,
 } from '../discs'
-import { W_ENGINE_FACTS, W_ENGINES } from '../engines'
+import { W_ENGINES } from '../engines'
 import {
   EFFECTIVE_SUBSTAT_VALUES,
   FIXED_MAIN_STATS,
@@ -32,7 +27,6 @@ import {
 } from '../source-definitions'
 import {
   equipmentEffectBaseValue,
-  equipmentEffectMaximumValue,
   type AgentId,
   type DiscId,
   type EngineId,
@@ -43,6 +37,12 @@ import {
   type SubstatChoice,
   type SubstatId,
 } from '../types'
+import { selectedDriveDiscRelationships } from './drive-disc-relationships'
+export {
+  equipmentEffectAppliesInOperatingInterval,
+  equipmentEffectCanBeActivatedByHolder,
+} from './equipment-eligibility'
+import { selectedWEngineRelationships } from './w-engine-relationships'
 
 export interface CompleteSelectedSetup {
   engineId: EngineId
@@ -59,37 +59,10 @@ export interface SelectedSetupObservation {
   effectiveSubstats?: readonly SubstatChoice[]
 }
 
-/** Resolves only the operating-interval conditions retained by equipment facts. */
-export function equipmentEffectAppliesInOperatingInterval(
-  effect: EquipmentEffectFact,
-  interval: OperatingInterval | null,
-): boolean {
-  if (effect.scope?.condition === 'offField') return interval === 'off-field'
-  return !(
-    effect.activation?.kind === 'trigger'
-    && effect.activation.removedOffField
-    && interval === 'off-field'
-  )
-}
-
-const EQUIPPER_ATTACK_TRIGGER_UNAVAILABLE_IN_PREPARED_INTERVAL = new Set<AgentId>(['sunna'])
-
-/** Resolves holder capability only after the selected equipment fact supplies the trigger meaning. */
-export function equipmentEffectCanBeActivatedByHolder(
-  agentId: AgentId,
-  effect: EquipmentEffectFact,
-): boolean {
-  if (
-    effect.activation?.kind === 'trigger'
-    && effect.activation.performer === 'equipper'
-    && effect.activation.attributes !== undefined
-    && !effect.activation.attributes.includes(effectAttributeForAgent(agentId))
-  ) return false
-  return !(
-    effect.activation?.kind === 'trigger'
-    && effect.activation.performer === 'equipper'
-    && EQUIPPER_ATTACK_TRIGGER_UNAVAILABLE_IN_PREPARED_INTERVAL.has(agentId)
-  )
+export interface SelectedEquipmentContext {
+  observation: SelectedSetupObservation
+  focusAgentId: AgentId
+  partyAgentIds: readonly AgentId[]
 }
 
 interface StatInputMeaning {
@@ -220,139 +193,6 @@ export function selectedDiscSource(
 export function isWEnginePassiveEligible(agentId: AgentId, engineId: EngineId): boolean {
   return W_ENGINES[engineId].passiveSpecialty
     === ADMITTED_AGENTS.find(({ id }) => id === agentId)?.specialty
-}
-
-/** Exact party-facing passives shared unchanged across current profile families. */
-export function sharedPartyEquipmentRelationships(
-  agentId: AgentId,
-  appliedPartySlot: 0 | 1 | 2,
-  setup: CompleteSelectedSetup,
-): ProfileRelationship[] {
-  const relationships: ProfileRelationship[] = []
-  const engine = selectedWEngineSource(agentId, appliedPartySlot, setup)
-  const passiveEligible = isWEnginePassiveEligible(agentId, setup.engineId)
-  if (passiveEligible) switch (setup.engineId) {
-    case 'thoughtbop':
-      relationships.push(
-        {
-          kind: 'provider', source: engine,
-          delivery: { recipient: 'all-party', formulas: REGULAR_DAMAGE_FORMULAS },
-          effect: {
-            kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
-            value: equipmentEffectMaximumValue(W_ENGINE_FACTS.thoughtbop.effects.damage, setup.refinement),
-          },
-        },
-        {
-          kind: 'provider', source: engine,
-          delivery: { recipient: 'all-party', formulas: REGULAR_DAMAGE_FORMULAS },
-          effect: {
-            kind: 'stat', statId: 'atk', region: 'percentage', earliestSurface: 'fully',
-            value: equipmentEffectBaseValue(W_ENGINE_FACTS.thoughtbop.effects.atk, setup.refinement),
-          },
-        },
-        {
-          kind: 'automatic-energy',
-          atom: { earliestSurface: 'combat', value: equipmentEffectBaseValue(W_ENGINE_FACTS.thoughtbop.effects.energy, setup.refinement), source: engine },
-        },
-      )
-      break
-    case 'weepingCradle': {
-      const damage = W_ENGINE_FACTS.weepingCradle.effects.damage
-      relationships.push(
-        ...(equipmentEffectCanBeActivatedByHolder(agentId, damage) ? [{
-          kind: 'provider', source: engine,
-          delivery: { recipient: 'all-party', formulas: REGULAR_DAMAGE_FORMULAS },
-          effect: {
-            kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
-            value: equipmentEffectBaseValue(
-              damage,
-              setup.refinement,
-            ),
-          },
-        } satisfies ProfileRelationship] : []),
-        {
-          kind: 'automatic-energy',
-          atom: {
-            earliestSurface: 'combat',
-            value: equipmentEffectBaseValue(
-              W_ENGINE_FACTS.weepingCradle.effects.energy,
-              setup.refinement,
-            ),
-            source: engine,
-          },
-        },
-      )
-      break
-    }
-    case 'kaboom':
-      relationships.push({
-        kind: 'provider', source: engine,
-        delivery: { recipient: 'all-party', formulas: REGULAR_DAMAGE_FORMULAS },
-        effect: {
-          kind: 'stat', statId: 'atk', region: 'percentage', earliestSurface: 'fully',
-          value: equipmentEffectBaseValue(W_ENGINE_FACTS.kaboom.effects.atk, setup.refinement),
-          nonstackId: 'kaboomTheCannon',
-        },
-      })
-      break
-    case 'unfetteredGameBall':
-      relationships.push({
-        kind: 'provider', source: engine,
-        delivery: { recipient: 'all-party', formulas: CRIT_DAMAGE_FORMULAS },
-        effect: {
-          kind: 'stat', statId: 'critRate', region: 'flat', earliestSurface: 'fully',
-          value: equipmentEffectBaseValue(
-            W_ENGINE_FACTS.unfetteredGameBall.effects.critRate,
-            setup.refinement,
-          ),
-        },
-      })
-      break
-  }
-
-  const disc = selectedDiscSource(
-    agentId,
-    appliedPartySlot,
-    setup,
-    setup.fourPieceId,
-    '4-piece',
-  )
-  switch (setup.fourPieceId) {
-    case 'swingJazz':
-      relationships.push({
-        kind: 'provider', source: disc,
-        delivery: { recipient: 'all-party', formulas: REGULAR_DAMAGE_FORMULAS },
-        effect: {
-          kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
-          value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage),
-          nonstackId: 'swingJazz',
-        },
-      })
-      break
-    case 'moonlight':
-      relationships.push({
-        kind: 'provider', source: disc,
-        delivery: { recipient: 'all-party', formulas: REGULAR_DAMAGE_FORMULAS },
-        effect: {
-          kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
-          value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.fourPiece.damage),
-          nonstackId: 'moonlightLullaby',
-        },
-      })
-      break
-    case 'astralVoice':
-      relationships.push({
-        kind: 'provider', source: disc,
-        delivery: { recipient: 'focus', formulas: REGULAR_DAMAGE_FORMULAS },
-        effect: {
-          kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
-          value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage),
-          nonstackId: 'astralVoiceEntrant',
-        },
-      })
-      break
-  }
-  return relationships
 }
 
 function statRelationship(
@@ -613,5 +453,52 @@ export function selectedSetupRelationships(
     ...mainRelationships(agentId, appliedPartySlot, setup, observation),
     ...substatRelationships(agentId, appliedPartySlot, setup, observation),
     ...discTwoPieceRelationships(agentId, appliedPartySlot, setup, observation),
+  ]
+}
+
+/**
+ * Materializes the selected equipment package after common base, main-stat,
+ * substat, advanced-stat, and ordinary 2-piece inputs have been observed.
+ * Equipment IDs are interpreted only by their owning materializers.
+ */
+export function selectedEquipmentRelationships(
+  agentId: AgentId,
+  appliedPartySlot: 0 | 1 | 2,
+  setup: CompleteSelectedSetup,
+  { observation, focusAgentId, partyAgentIds }: SelectedEquipmentContext,
+): ProfileRelationship[] {
+  const engineSource = selectedWEngineSource(agentId, appliedPartySlot, setup)
+  const discSource = selectedDiscSource(
+    agentId,
+    appliedPartySlot,
+    setup,
+    setup.fourPieceId,
+    '4-piece',
+  )
+  return [
+    ...selectedWEngineRelationships({
+      agentId,
+      appliedPartySlot,
+      setup,
+      observation,
+      focusAgentId,
+      partyAgentIds,
+      source: engineSource,
+      passiveEligible: isWEnginePassiveEligible(agentId, setup.engineId),
+    }),
+    ...selectedDriveDiscRelationships({
+      agentId,
+      appliedPartySlot,
+      setup,
+      observation,
+      source: discSource,
+      sourceFor: (discId, piece) => selectedDiscSource(
+        agentId,
+        appliedPartySlot,
+        setup,
+        discId,
+        piece,
+      ),
+    }),
   ]
 }

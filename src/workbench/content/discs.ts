@@ -210,6 +210,8 @@ export const DRIVE_DISC_FACTS = {
     fourPiece: {
       buildupResReduction: {
         modifier: 'anomalyBuildupResReduction', unit: '%', value: 20,
+        scope: { recipient: 'enemy' },
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
       },
     },
   },

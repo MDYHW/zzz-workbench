@@ -1,8 +1,6 @@
 import {
-  BASIC_AFTERSHOCK_TARGET,
   actionTarget,
   canonicalAction,
-  sameActionTarget,
   type ActionTarget,
   type CanonicalActionKind,
 } from '../actions'
@@ -26,18 +24,11 @@ import {
   type DeliveredProfileEffects,
   type DeliveryRecipientContext,
 } from './delivery'
-import { deriveAnbySoldier0Aftershock } from './derived/anby-soldier-0-aftershock'
-import {
-  deriveJanePassionAssault,
-  JANE_ASSAULT_TARGET,
-  JANE_PASSION_TARGET,
-} from './derived/jane-passion-assault'
 import { deriveLighterImpactElation } from './derived/lighter-impact-elation'
-import { deriveRuptureSheerForce } from './derived/rupture-sheer-force'
-import { deriveTriggerAftershockDaze } from './derived/trigger-aftershock-daze'
 import {
   evaluateProjectionGauge,
   evaluatePostDeliveryStatModifierGauge,
+  evaluatePostDeliveryRelationships,
   evaluateRelationships,
   evaluateThresholdOperation,
   type EvaluatedGauge,
@@ -48,6 +39,7 @@ import {
   type AutomaticEnergyAtom,
   type ProfileRelationship,
   type ProfileStatAtom,
+  type SurfaceStatDerivedMetricRelationship,
 } from './relationships'
 import {
   resultSourceFor,
@@ -94,17 +86,6 @@ export interface AgentSourceProfile {
   relationships: readonly ProfileRelationship[]
   metrics: readonly MetricProjection[]
   actions?: readonly ActionProjection[]
-  /** Present only on Anby: Soldier 0's profile. */
-  anbyAftershockSource?: SelectedSourceInstance
-  /** Present only on Jane's one-pass Passion and Assault derivation. */
-  janePassionAssault?: {
-    coreSource: SelectedSourceInstance
-    mindscape1Source?: SelectedSourceInstance
-  }
-  /** Present only on a Rupture profile with a visible Sheer Force metric. */
-  ruptureSheerSource?: SelectedSourceInstance
-  /** Present only while Trigger's exact Additional Ability predicate is active. */
-  triggerAftershockDazeSource?: SelectedSourceInstance
   /** Present only on Lighter's action-local Impact and Elation consumer. */
   lighterImpactElation?: {
     coreImpactSource: SelectedSourceInstance
@@ -161,91 +142,6 @@ function assertProfilesMatchState(
         throw new Error(`Profile slot ${slot} contains a source from another holder snapshot`)
       }
     }
-    if (
-      profile.anbyAftershockSource
-      && (
-        profile.agentId !== 'anbySoldier0'
-        || profile.anbyAftershockSource.holderAgentId !== profile.agentId
-        || profile.anbyAftershockSource.appliedPartySlot !== profile.appliedPartySlot
-      )
-    ) {
-      throw new Error('The named Anby derivation requires Anby\'s current holder source')
-    }
-    if (profile.janePassionAssault) {
-      const { coreSource, mindscape1Source } = profile.janePassionAssault
-      if (
-        profile.agentId !== 'jane'
-        || coreSource.holderAgentId !== profile.agentId
-        || coreSource.appliedPartySlot !== profile.appliedPartySlot
-        || (mindscape1Source && (
-          mindscape1Source.holderAgentId !== profile.agentId
-          || mindscape1Source.appliedPartySlot !== profile.appliedPartySlot
-        ))
-      ) {
-        throw new Error('Jane Passion and Assault derivation requires Jane\'s current holder sources')
-      }
-      const hasGauge = profile.metrics.some((metric) => (
-        metric.id === 'anomalyProficiency'
-        && metric.gaugeId === 'janePassionAssault'
-      ))
-      const hasAssaultCrit = ['critRate', 'critDmg'].every((metricId) => (
-        profile.actions?.some((projection) => (
-          projection.metricId === metricId
-          && projection.scopes.some(({ target }) => (
-            sameActionTarget(target, JANE_ASSAULT_TARGET)
-          ))
-        ))
-      ))
-      const hasPassionM1 = !mindscape1Source || ['anomalyBuildupBonus', 'dmgBonus'].every(
-        (metricId) => profile.actions?.some((projection) => (
-          projection.metricId === metricId
-          && projection.scopes.some(({ target }) => (
-            sameActionTarget(target, JANE_PASSION_TARGET)
-          ))
-        )),
-      )
-      if (!hasGauge || !hasAssaultCrit || !hasPassionM1) {
-        throw new Error('Jane Passion and Assault derivation requires its gauge and action consumers')
-      }
-    }
-    for (const [source, expectedAgent, label] of [
-      [profile.ruptureSheerSource, profile.agentId, 'Rupture Sheer Force'],
-      [profile.triggerAftershockDazeSource, 'trigger', 'Trigger Aftershock Daze'],
-    ] as const) {
-      if (source && (
-        profile.agentId !== expectedAgent
-        || source.holderAgentId !== profile.agentId
-        || source.appliedPartySlot !== profile.appliedPartySlot
-      )) {
-        throw new Error(`${label} requires its current holder source`)
-      }
-    }
-    if (
-      profile.ruptureSheerSource
-      && ADMITTED_AGENTS.find(({ id }) => id === profile.agentId)?.specialty !== 'Rupture'
-    ) {
-      throw new Error('Rupture Sheer Force requires a Rupture profile')
-    }
-    if (
-      profile.ruptureSheerSource
-      && !profile.metrics.some(({ id }) => id === 'sheerForce')
-    ) {
-      throw new Error('Rupture Sheer Force requires a visible Sheer Force metric')
-    }
-    if (profile.triggerAftershockDazeSource) {
-      const hasGauge = profile.metrics.some((metric) => (
-        metric.id === 'critRate' && metric.gaugeId === 'triggerAftershockDaze'
-      ))
-      const hasAction = profile.actions?.some((projection) => (
-        projection.metricId === 'dazeBonus'
-        && projection.scopes.some(({ target }) => (
-          sameActionTarget(target, BASIC_AFTERSHOCK_TARGET)
-        ))
-      ))
-      if (!hasGauge || !hasAction) {
-        throw new Error('Trigger Aftershock Daze requires its CRIT gauge and action consumer')
-      }
-    }
     if (profile.lighterImpactElation) {
       if (profile.agentId !== 'lighter') {
         throw new Error('Lighter Impact and Elation requires Lighter\'s profile')
@@ -282,8 +178,36 @@ function relationshipSource(relationship: ProfileRelationship): SelectedSourceIn
     case 'threshold-operation':
     case 'projection-gauge':
     case 'post-delivery-stat-modifier-gauge':
+    case 'surface-stat-derived-metric':
+    case 'post-delivery-linear':
+    case 'post-delivery-gauge':
     case 'provider':
       return relationship.source
+  }
+}
+
+function deriveSurfaceStatMetric(
+  relationship: SurfaceStatDerivedMetricRelationship,
+  stats: Partial<Record<StatId, ResolvedStat>>,
+): Pick<ResultMetric, 'values' | 'breakdown'> {
+  const amount = (surface: SurfaceKey) => relationship.terms.reduce((total, term) => {
+    const stat = stats[term.statId]
+    if (!stat) throw new Error(`Missing ${term.statId} basis for ${relationship.metricId}`)
+    return total + stat.composed.values[surface] * term.multiplier
+  }, 0)
+  const values = surfaces(amount('initial'), amount('combat'), amount('fully'))
+  const contribution = (value: number): Contribution => ({
+    ...resultSourceFor(relationship.source, relationship.sourceDetail),
+    amount: value,
+    notation: 'surface-value',
+  })
+  return {
+    values,
+    breakdown: surfaces(
+      [contribution(values.initial)],
+      [contribution(values.combat)],
+      [contribution(values.fully)],
+    ),
   }
 }
 
@@ -477,11 +401,19 @@ function projectMetrics(
         source: resultSourceFor(projection.cap.source),
       },
     )
-    const projectionGauge = projection.gaugeId
-      ? projectionGauges.find(({ gaugeId }) => gaugeId === projection.gaugeId)
+    const matchingGauges = [
+      ...projectionGauges.filter(({ metricId }) => metricId === projection.id),
+      ...gauges.filter(({ metricId }) => metricId === projection.id),
+    ]
+    if (!projection.gaugeId && matchingGauges.length > 1) {
+      throw new Error(`Multiple gauges project ${projection.id} for ${profile.agentId}; select one explicitly`)
+    }
+    const inferredGaugeId = projection.gaugeId ?? matchingGauges[0]?.gaugeId
+    const projectionGauge = inferredGaugeId
+      ? projectionGauges.find(({ gaugeId }) => gaugeId === inferredGaugeId)
       : undefined
-    const evaluatedGauge = projection.gaugeId
-      ? gauges.find(({ gaugeId }) => gaugeId === projection.gaugeId)
+    const evaluatedGauge = inferredGaugeId
+      ? gauges.find(({ gaugeId }) => gaugeId === inferredGaugeId)
       : undefined
     for (const candidate of [projectionGauge, evaluatedGauge]) {
       if (candidate && candidate.metricId !== projection.id) {
@@ -724,26 +656,13 @@ export function evaluateProfileParty(
     ...ordinary[slot].statAtoms.map(({ atom }) => atom),
   ]))
 
-  const janeDerivations = evaluatedProfiles.map(({ profile }, slot) => (
-    profile.janePassionAssault
-      ? deriveJanePassionAssault(
-          profile.janePassionAssault.coreSource,
-          profile.janePassionAssault.mindscape1Source,
-          afterOrdinaryStats[slot].anomalyProficiency?.composed,
-        )
-      : undefined
+  const postDelivery = evaluatedProfiles.map(({ evaluated }, slot) => (
+    evaluatePostDeliveryRelationships(
+      [...evaluated.postDeliveryLinear, ...evaluated.postDeliveryGauges],
+      composedOnly(afterOrdinaryStats[slot]),
+    )
   ))
-  const derivedProviders = [
-    ...deriveAnbySoldier0Aftershock(evaluatedProfiles.map(
-      ({ profile }, slot) => ({
-        agentId: profile.agentId,
-        appliedPartySlot: profile.appliedPartySlot,
-        source: profile.anbyAftershockSource,
-        critDmg: afterOrdinaryStats[slot].critDmg?.composed,
-      }),
-    )),
-    ...janeDerivations.flatMap((derivation) => derivation?.providers ?? []),
-  ]
+  const derivedProviders = postDelivery.flatMap(({ providers }) => providers)
   const derived = deliverProviderRelationships(
     stableProviderOrder(derivedProviders),
     recipients,
@@ -760,37 +679,26 @@ export function evaluateProfileParty(
       const stats = composeStats([
         ...evaluated.evaluated.statAtoms,
         ...delivered.statAtoms.map(({ atom }) => atom),
-        ...(janeDerivations[slot] ? [janeDerivations[slot].localStat] : []),
+        ...postDelivery[slot].statAtoms,
       ])
-      const rupture = evaluated.profile.ruptureSheerSource
-        ? deriveRuptureSheerForce(
-          evaluated.profile.ruptureSheerSource,
-          stats.atk?.composed,
-          stats.maxHp?.composed,
-        )
-        : undefined
-      const trigger = evaluated.profile.triggerAftershockDazeSource
-        ? deriveTriggerAftershockDaze(
-          evaluated.profile.triggerAftershockDazeSource,
-          stats.critRate?.composed,
-        )
-        : undefined
+      const relationshipDerivedBases = Object.fromEntries(
+        evaluated.evaluated.surfaceStatDerivedMetrics.map((relationship) => [
+          relationship.metricId,
+          deriveSurfaceStatMetric(relationship, stats),
+        ]),
+      ) as DerivedMetricBases
       return projectAgent(
         evaluated,
         stats,
         delivered,
         {
-          ...(rupture ? { sheerForce: rupture } : {}),
+          ...relationshipDerivedBases,
           ...(lighterDerivations[slot] ? { impact: lighterDerivations[slot].impact } : {}),
         },
+        postDelivery[slot].modifierAtoms,
         [
-          ...(trigger ? [trigger.modifier] : []),
-          ...(janeDerivations[slot]?.modifiers ?? []),
-        ],
-        [
-          ...(trigger ? [trigger.gauge] : []),
+          ...postDelivery[slot].gauges,
           ...(lighterDerivations[slot]?.gauge ? [lighterDerivations[slot].gauge] : []),
-          ...(janeDerivations[slot] ? [janeDerivations[slot].gauge] : []),
         ],
       )
     }),
