@@ -31,11 +31,6 @@ export interface DerivedStatAtom {
   value: number
   source: SelectedSourceInstance
   sourceDetail?: string
-  display?: {
-    value: number
-    unit: '%' | '/s'
-    decimals: number
-  }
 }
 
 export type StatAtom = BaseStatAtom | DerivedStatAtom

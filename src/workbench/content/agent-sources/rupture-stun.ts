@@ -277,7 +277,30 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
     return { agentId: agent, appliedPartySlot: slot, relationships, metrics, ...(actions.length ? { actions } : {}) }
   } else if (agent === 'lycaon') {
     const potential = source(agent, slot, 'potential', SOURCE_LABELS.lycaonPotential, 'special')
-    relationships.push(mod('dazeBonus', VERTICAL_VALUES.lycaon.coreChargedDaze, core, LYCAON_CHARGED, 'combat'), provider(core, 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.lycaon.coreIceResReduction }, { attributes: ['Ice'] }), provider(core, 'enemy-context', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.lycaon.coreOtherAttributeDmg }, { attributes: ['Physical', 'Fire', 'Electric', 'Ether'], formulas: ['general_damage', 'sheer_damage', 'anomaly_damage'] }), { kind: 'modifier', atom: { metricId: 'impact', earliestSurface: 'fully', value: VERTICAL_VALUES.lycaon.impact * VERTICAL_VALUES.lycaon.potentialImpact / 100, source: potential, action: LYCAON_CHARGED, display: { value: VERTICAL_VALUES.lycaon.potentialImpact, unit: '%', decimals: 0 } } }, mod('dazeBonus', VERTICAL_VALUES.lycaon.glacialWaltzDaze, core, LYCAON_GLACIAL))
+    relationships.push(
+      mod('dazeBonus', VERTICAL_VALUES.lycaon.coreChargedDaze, core, LYCAON_CHARGED, 'combat'),
+      provider(core, 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.lycaon.coreIceResReduction }, { attributes: ['Ice'] }),
+      provider(core, 'enemy-context', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.lycaon.coreOtherAttributeDmg }, { attributes: ['Physical', 'Fire', 'Electric', 'Ether'], formulas: ['general_damage', 'sheer_damage', 'anomaly_damage'] }),
+      {
+        kind: 'linear',
+        source: potential,
+        basis: { statId: 'impact', surface: 'initial' },
+        outputs: [{
+          transform: {
+            basisIncrement: 1,
+            outputIncrement: VERTICAL_VALUES.lycaon.potentialImpact / 100,
+          },
+          emission: {
+            kind: 'modifier',
+            metricId: 'impact',
+            earliestSurface: 'fully',
+            action: LYCAON_CHARGED,
+            display: { value: VERTICAL_VALUES.lycaon.potentialImpact, unit: '%', decimals: 0 },
+          },
+        }],
+      },
+      mod('dazeBonus', VERTICAL_VALUES.lycaon.glacialWaltzDaze, core, LYCAON_GLACIAL),
+    )
     if (another(ids, slot, (id) => partyAgent(id).specialty === 'Anomaly') || anotherAgentSharesAttribute(ids, slot) || anotherAgentSharesFaction(ids, slot)) relationships.push(provider(ability, 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.lycaon.additionalStunMultiplier }))
     if (selected >= 1) relationships.push(mod('dazeBonus', VERTICAL_VALUES.lycaon.mindscapeExDaze, mind(agent, slot, selected, 1), LYCAON_EX), mod('dazeBonus', VERTICAL_VALUES.lycaon.mindscapeFullChargeDaze, mind(agent, slot, selected, 1), LYCAON_FULL_EX))
     actions.push({ metricId: 'dazeBonus', scopes: [{ id: 'lycaonCharged', target: LYCAON_CHARGED, children: [{ id: 'lycaonBasic', target: LYCAON_BASIC }] }, { id: 'lycaonEx', target: LYCAON_EX, children: [{ id: 'lycaonFullChargeEx', target: LYCAON_FULL_EX }] }, { id: 'lycaonAssist', target: LYCAON_ASSIST }, { id: 'lycaonGlacialWaltz', target: LYCAON_GLACIAL }] }, actionProjection('impact', 'lycaonPotential', LYCAON_CHARGED))
@@ -294,16 +317,11 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
       kind: 'stat',
       atom: {
         statId: 'impact',
-        region: 'flat',
+        region: 'percentage',
         earliestSurface: 'fully',
-        value: VERTICAL_VALUES.lighter.impact * VERTICAL_VALUES.lighter.coreCombatImpact / 100,
+        value: VERTICAL_VALUES.lighter.coreCombatImpact,
         source: core,
         sourceDetail: 'Empowered Basic Attack: 5th hit',
-        display: {
-          value: VERTICAL_VALUES.lighter.coreCombatImpact,
-          unit: '%',
-          decimals: 0,
-        },
       },
     })
     if (active) {

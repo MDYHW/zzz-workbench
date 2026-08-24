@@ -475,6 +475,63 @@ describe('profile calculation harness', () => {
     expect(edited.slots[0].setup.engineId).toBe(initial.slots[0].setup.engineId)
   })
 
+  it('derives an action-local percentage from the selected Initial stat', () => {
+    const state = createPreparedState({}, ['lycaon', 'corin', 'anby'], 0)
+    const initialSupply = selectSource(
+      defineAgentSource('lycaon', 'initial-supply', 'Initial supply', 'special'),
+      'lycaon', 0,
+    )
+    const actionPercentage = selectSource(
+      defineAgentSource('lycaon', 'action-percentage', 'Action percentage', 'special'),
+      'lycaon', 0,
+    )
+    const profiles: AgentSourceProfile[] = [{
+      agentId: 'lycaon',
+      appliedPartySlot: 0,
+      metrics: [{
+        id: 'impact', statId: 'impact', label: 'Impact', unit: '', decimals: 1,
+      }],
+      actions: [actionProjection('impact', 'initialBasedAction', AFTERSHOCK_TARGET)],
+      relationships: [
+        baseStat('lycaon', 0, 'impact', 100),
+        {
+          kind: 'stat',
+          atom: {
+            statId: 'impact', region: 'percentage', earliestSurface: 'initial',
+            value: 20, source: initialSupply,
+          },
+        },
+        {
+          kind: 'linear',
+          source: actionPercentage,
+          basis: { statId: 'impact', surface: 'initial' },
+          outputs: [{
+            transform: { basisIncrement: 1, outputIncrement: 0.15 },
+            emission: {
+              kind: 'modifier', metricId: 'impact', earliestSurface: 'fully',
+              action: AFTERSHOCK_TARGET,
+              display: { value: 15, unit: '%', decimals: 0 },
+            },
+          }],
+        },
+      ],
+    }, {
+      agentId: 'corin', appliedPartySlot: 1, metrics: [], relationships: [],
+    }, {
+      agentId: 'anby', appliedPartySlot: 2, metrics: [], relationships: [],
+    }]
+
+    const result = agentResult(evaluateProfileParty(state, profiles)!, 'lycaon')
+    expect(result.metrics[0].values).toEqual({ initial: 120, combat: 120, fully: 120 })
+    expect(result.actionModifiers[0].values.fully).toBe(138)
+    expect(result.actionModifiers[0].breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        label: 'Action percentage',
+        amount: 18,
+        display: { value: 15, unit: '%', decimals: 0 },
+      }))
+  })
+
   it('reconciles distinct highest-only origins but fails on one duplicated selected relationship', () => {
     const state = createPreparedState({}, ['astraYao', 'anbySoldier0', 'trigger'], 1)
     const semanticEffect = {}
@@ -1380,9 +1437,8 @@ describe('profile calculation harness', () => {
         {
           kind: 'stat',
           atom: {
-            statId: 'impact', region: 'flat', earliestSurface: 'fully',
-            value: 27.4, source: lighterCore,
-            display: { value: 20, unit: '%', decimals: 0 },
+            statId: 'impact', region: 'percentage', earliestSurface: 'fully',
+            value: 20, source: lighterCore,
           },
         },
         {
@@ -1442,12 +1498,12 @@ describe('profile calculation harness', () => {
     const anby = agentResult(result, 'anbySoldier0')
     const soldier = agentResult(result, 'soldier11')
 
-    expect(lighter.metrics[0].values.fully).toBeCloseTo(289.06, 10)
-    expect(lighter.metrics[0].gauges[0]?.outputValue).toBeCloseTo(34.53, 10)
+    expect(lighter.metrics[0].values.fully).toBeCloseTo(293.992, 10)
+    expect(lighter.metrics[0].gauges[0]?.outputValue).toBeCloseTo(36.996, 10)
     expect(lighter.metrics[0].breakdown.fully.find(
       ({ label }) => label === 'Core Passive',
     )?.display).toEqual({ value: 20, unit: '%', decimals: 0 })
-    expect(soldier.metrics[0].values.fully).toBeCloseTo(34.53, 10)
+    expect(soldier.metrics[0].values.fully).toBeCloseTo(36.996, 10)
     expect(anby.metrics[0].values.fully).toBe(130)
     expect(anby.actionModifiers[0].values.fully).toBeCloseTo(175.5, 10)
   })

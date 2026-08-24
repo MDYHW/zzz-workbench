@@ -249,15 +249,12 @@ function recipientContexts(
 
 function statContributionResult(contribution: StatContribution): Contribution {
   const { atom, rawValue, derivedValue } = contribution
-  const authoredDisplay = atom.region === 'base' ? undefined : atom.display
   return {
     ...resultSourceFor(atom.source, atom.sourceDetail),
     amount: derivedValue,
-    ...(authoredDisplay
-      ? { display: authoredDisplay }
-      : atom.region === 'percentage'
-        ? { display: { value: rawValue, unit: '%' as const, decimals: Number.isInteger(rawValue) ? 0 : 1 } }
-        : {}),
+    ...(atom.region === 'percentage'
+      ? { display: { value: rawValue, unit: '%' as const, decimals: Number.isInteger(rawValue) ? 0 : 1 } }
+      : {}),
   }
 }
 
