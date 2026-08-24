@@ -551,7 +551,6 @@ export const W_ENGINE_FACTS = {
       },
       anomalyProficiency: {
         modifier: 'anomalyProficiency', unit: '', value: [75, 85, 95, 105, 115],
-        scope: { actions: ['Special Attack', 'EX Special Attack'] },
       },
       disorderDamage: {
         modifier: 'anomalyDmgBonus', unit: '%', value: [25, 27.5, 30, 32.5, 35],
@@ -621,13 +620,12 @@ export const W_ENGINE_FACTS = {
   flamemakerShaker: {
     advancedStat: { id: 'atkPct', label: 'ATK', value: 30, unit: '%' },
     effects: {
-      offFieldEnergy: { modifier: 'energyRegen', unit: '/s', value: [0.6, 0.75, 0.9, 1.05, 1.2] },
+      offFieldEnergy: {
+        modifier: 'energyRegen', unit: '/s', value: [0.6, 0.75, 0.9, 1.05, 1.2],
+        scope: { condition: 'offField' },
+      },
       damage: {
-        modifier: 'dmgBonus', unit: '%',
-        progression: {
-          kind: 'stacks', perStack: [3.5, 4.4, 5.2, 6.1, 7], maxStacks: 10,
-          maximum: [35, 44, 52, 61, 70],
-        },
+        modifier: 'dmgBonus', unit: '%', value: [35, 44, 52, 61, 70],
       },
       anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: [50, 62, 75, 87, 100] },
     },
@@ -636,13 +634,11 @@ export const W_ENGINE_FACTS = {
     advancedStat: { id: 'anomalyProficiency', label: 'Anomaly Proficiency', value: 90, unit: '' },
     effects: {
       anomalyProficiency: {
-        modifier: 'anomalyProficiency', unit: '',
-        progression: { kind: 'stacks', perStack: [20, 23, 26, 29, 32], maxStacks: 6 },
-        activation: { kind: 'trigger', attributes: ['Ether'], durationSeconds: 8 },
+        modifier: 'anomalyProficiency', unit: '', value: [120, 138, 156, 174, 192],
+        activation: { kind: 'trigger', attributes: ['Ether'] },
       },
-      etherBuildup: {
+      buildup: {
         modifier: 'anomalyBuildupBonus', unit: '%', value: [40, 46, 52, 58, 64],
-        scope: { attributes: ['Ether'] },
       },
     },
   },
@@ -655,12 +651,16 @@ export const W_ENGINE_FACTS = {
       damage: {
         modifier: 'dmgBonus', unit: '%', value: [20, 23, 26, 29, 32],
         scope: { condition: 'anomalyAfflictedTarget' },
-        activation: { kind: 'trigger', fieldEntry: true, actions: ['Special Attack', 'EX Special Attack'], durationSeconds: 15, removedOffField: true },
+        activation: {
+          kind: 'trigger', holderAttributes: ['Ether'], removedOffField: true,
+        },
       },
       anomalyDamage: {
         modifier: 'anomalyDmgBonus', unit: '%', value: [10, 11.5, 13, 14.5, 16],
         scope: { anomalyResults: ['Attribute Anomaly', 'Disorder'] },
-        activation: { kind: 'trigger', fieldEntry: true, actions: ['Special Attack', 'EX Special Attack'], durationSeconds: 15, removedOffField: true },
+        activation: {
+          kind: 'trigger', holderAttributes: ['Ether'], removedOffField: true,
+        },
       },
     },
   },
@@ -1175,7 +1175,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.flamemakerShaker.advancedStat, image: flamemakerShakerImage,
     passiveSpecialty: 'Anomaly',
     passiveLines: (refinement) => [
-      `Energy Regen +${perSecond(W_ENGINE_FACTS.flamemakerShaker.effects.offFieldEnergy, refinement)}`,
+      `Off-field Energy Regen +${perSecond(W_ENGINE_FACTS.flamemakerShaker.effects.offFieldEnergy, refinement)}`,
       `DMG +${percent(W_ENGINE_FACTS.flamemakerShaker.effects.damage, refinement, true)}`,
       `Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.flamemakerShaker.effects.anomalyProficiency, refinement)}`,
     ],
@@ -1185,7 +1185,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.flightOfFancy.advancedStat, image: flightOfFancyImage,
     passiveSpecialty: 'Anomaly',
     passiveLines: (refinement) => [
-      `Ether Anomaly Buildup +${percent(W_ENGINE_FACTS.flightOfFancy.effects.etherBuildup, refinement)}`,
+      `Anomaly Buildup +${percent(W_ENGINE_FACTS.flightOfFancy.effects.buildup, refinement)}`,
       `Anomaly Proficiency +${equipmentEffectMaximumValue(W_ENGINE_FACTS.flightOfFancy.effects.anomalyProficiency, refinement)}`,
     ],
   },

@@ -446,20 +446,33 @@ export function selectedWEngineRelationships({
     case 'flamemakerShaker':
       add('dmgBonus', maximum(W_ENGINE_FACTS.flamemakerShaker.effects.damage, setup))
       add('anomalyProficiency', value(W_ENGINE_FACTS.flamemakerShaker.effects.anomalyProficiency, setup))
-      relationships.push(automaticEnergy(source, value(W_ENGINE_FACTS.flamemakerShaker.effects.offFieldEnergy, setup)))
+      if (equipmentEffectAppliesInOperatingInterval(
+        W_ENGINE_FACTS.flamemakerShaker.effects.offFieldEnergy,
+        operatingIntervalFor(agent, focusAgentId),
+      )) {
+        relationships.push(automaticEnergy(source, value(W_ENGINE_FACTS.flamemakerShaker.effects.offFieldEnergy, setup)))
+      }
       break
     case 'flightOfFancy':
       add('anomalyProficiency', maximum(W_ENGINE_FACTS.flightOfFancy.effects.anomalyProficiency, setup))
-      add('anomalyBuildupBonus', value(W_ENGINE_FACTS.flightOfFancy.effects.etherBuildup, setup))
+      add('anomalyBuildupBonus', value(W_ENGINE_FACTS.flightOfFancy.effects.buildup, setup))
       break
     case 'angelInTheShell': {
       const interval = operatingIntervalFor(agent, focusAgentId)
       const proficiency = W_ENGINE_FACTS.angelInTheShell.effects.anomalyProficiency
       const damage = W_ENGINE_FACTS.angelInTheShell.effects.damage
       const anomalyDamage = W_ENGINE_FACTS.angelInTheShell.effects.anomalyDamage
-      if (equipmentEffectAppliesInOperatingInterval(proficiency, interval)) add('anomalyProficiency', value(proficiency, setup))
-      if (equipmentEffectAppliesInOperatingInterval(damage, interval)) add('dmgBonus', value(damage, setup))
-      if (equipmentEffectAppliesInOperatingInterval(anomalyDamage, interval)) {
+      if (equipmentEffectAppliesInOperatingInterval(proficiency, interval)) {
+        add('anomalyProficiency', value(proficiency, setup), undefined, 'combat')
+      }
+      if (
+        equipmentEffectCanBeActivatedByHolder(agent, damage)
+        && equipmentEffectAppliesInOperatingInterval(damage, interval)
+      ) add('dmgBonus', value(damage, setup))
+      if (
+        equipmentEffectCanBeActivatedByHolder(agent, anomalyDamage)
+        && equipmentEffectAppliesInOperatingInterval(anomalyDamage, interval)
+      ) {
         add('anomalyDmgBonus', value(anomalyDamage, setup), ATTRIBUTE_ANOMALY_TARGET)
         add('anomalyDmgBonus', value(anomalyDamage, setup), DISORDER_TARGET)
       }

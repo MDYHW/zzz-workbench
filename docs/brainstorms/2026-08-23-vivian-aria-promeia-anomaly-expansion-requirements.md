@@ -139,6 +139,9 @@ registry, or a rule for later Agents.
   Fusion in non-limited. Frostfall's AM, Ice DMG, and two-stack Abloom bonus are
   all usable. Fusion's PEN/ATK/Special-AP package remains the strongest distinct
   non-limited direction despite overlap with Promeia's DEF-ignore package.
+  Angel is a retained partial alternative: its advanced AM and unconditional AP
+  are usable, while Promeia's Ice Attribute strands both Ether-holder DMG
+  clauses as charged opportunity cost.
 - R15. Notes From the Chained is the prepared and admitted 4-piece direction.
   Its triggered AP and party Attribute Anomaly/Disorder bonus are usable.
   Prepare Phaethon's Melody as the AM 2-piece; admit Freedom Blues/Chaos Jazz
@@ -161,6 +164,9 @@ registry, or a rule for later Agents.
   duration, and maintenance prose. Angel retains its anomaly-afflicted target
   scope and Shining Aria retains its stunned-target scope because those states
   define what the damage effect affects rather than how the package activates.
+  Flight's broad buildup effect remains separate from its Ether-hit AP trigger.
+  Angel's unconditional AP projects at Combat baseline, while its Ether-holder
+  gate remains separate from its affected outcomes.
 - R18. Party Apply prepares all three holders simultaneously. Pool or Mindscape
   rebuild prepares only the target using the other two established holder
   snapshots. Direct edits never reprepare; invalid choices clear without a

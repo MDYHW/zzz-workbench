@@ -36,6 +36,12 @@ describe('shared engine activation and scope facts', () => {
     })
     expect(equipmentEffectCanBeActivatedByHolder('juFufu', roaringDamage)).toBe(true)
     expect(equipmentEffectCanBeActivatedByHolder('nangongYu', roaringDamage)).toBe(false)
+
+    const etherHolderEffect = effect({
+      activation: { kind: 'trigger', holderAttributes: ['Ether'] },
+    })
+    expect(equipmentEffectCanBeActivatedByHolder('aria', etherHolderEffect)).toBe(true)
+    expect(equipmentEffectCanBeActivatedByHolder('promeia', etherHolderEffect)).toBe(false)
   })
 })
 

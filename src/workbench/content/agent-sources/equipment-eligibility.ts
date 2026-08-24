@@ -24,6 +24,11 @@ export function equipmentEffectCanBeActivatedByHolder(
 ): boolean {
   if (
     effect.activation?.kind === 'trigger'
+    && effect.activation.holderAttributes !== undefined
+    && !effect.activation.holderAttributes.includes(effectAttributeForAgent(agentId))
+  ) return false
+  if (
+    effect.activation?.kind === 'trigger'
     && effect.activation.performer === 'equipper'
     && effect.activation.attributes !== undefined
     && !effect.activation.attributes.includes(effectAttributeForAgent(agentId))
