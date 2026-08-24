@@ -1215,6 +1215,70 @@ describe('profile calculation harness', () => {
     )
   })
 
+  it('caps one completed linear gauge basis and preserves its threshold', () => {
+    const state = createPreparedState({}, ['grace', 'yuzuha', 'zhao'], 0)
+    const source = selectSource(
+      defineAgentSource('grace', 'capped-linear-gauge', 'Capped linear gauge', 'special'),
+      'grace', 0,
+    )
+    const profiles: AgentSourceProfile[] = [
+      {
+        agentId: 'grace', appliedPartySlot: 0,
+        metrics: [
+          { ...critRateMetric, cap: { value: 100, source } },
+          {
+            id: 'dazeBonus', label: 'Daze Bonus', unit: '%', decimals: 1,
+            baseValues: { initial: 0, combat: 0, fully: 0 },
+            admission: 'action', resultVisibility: 'action-only',
+          },
+        ],
+        actions: [actionProjection('dazeBonus', 'cappedLinearGauge', AFTERSHOCK_TARGET)],
+        relationships: [
+          baseStat('grace', 0, 'critRate', 115.4),
+          {
+            kind: 'post-delivery-stat-modifier-gauge',
+            source,
+            basis: { statId: 'critRate', surface: 'fully' },
+            basisLabel: 'Fully Enabled CRIT Rate',
+            basisValueCap: 100,
+            basisCap: 90,
+            gaugeMetricId: 'critRate',
+            modifierMetricId: 'dazeBonus',
+            action: AFTERSHOCK_TARGET,
+            modifierSurface: 'fully',
+            output: {
+              label: 'Action Daze bonus',
+              value: {
+                kind: 'linear',
+                transform: {
+                  basisThreshold: 40,
+                  basisIncrement: 1,
+                  outputIncrement: 1.5,
+                  outputCap: 75,
+                },
+              },
+              cap: 75,
+              unit: '%',
+            },
+          },
+        ],
+      },
+      { agentId: 'yuzuha', appliedPartySlot: 1, metrics: [], relationships: [] },
+      { agentId: 'zhao', appliedPartySlot: 2, metrics: [], relationships: [] },
+    ]
+
+    const result = agentResult(evaluateProfileParty(state, profiles)!, 'grace')
+    expect(result.metrics[0].values.fully).toBe(100)
+    expect(result.metrics[0].gauges[0]).toEqual(expect.objectContaining({
+      current: 100,
+      threshold: 40,
+      cap: 90,
+      outputValue: 75,
+      outputCap: 75,
+    }))
+    expect(result.actionModifiers[0].values.fully).toBe(75)
+  })
+
   it('delivers one post-delivery linear provider without slot-order feedback', () => {
     const profilesFor = (state: WorkbenchState): AgentSourceProfile[] => state.slots.map(
       ({ agentId }, slotIndex) => {

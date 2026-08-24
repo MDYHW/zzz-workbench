@@ -251,6 +251,7 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
         source: ability,
         basis: { statId: 'critRate', surface: 'fully' },
         basisLabel: 'Fully Enabled CRIT Rate',
+        basisValueCap: 100,
         basisCap: 90,
         gaugeMetricId: 'critRate',
         modifierMetricId: 'dazeBonus',

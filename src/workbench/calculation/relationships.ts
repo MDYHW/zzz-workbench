@@ -306,6 +306,7 @@ export interface PostDeliveryStatModifierGaugeRelationship {
   source: SelectedSourceInstance
   basis: { statId: StatId; surface: Exclude<SurfaceKey, 'initial'> }
   basisLabel: string
+  basisValueCap?: number
   basisCap: number
   gaugeMetricId: EffectMetric
   modifierMetricId: EffectMetric
@@ -791,7 +792,10 @@ export function evaluatePostDeliveryStatModifierGauge(
       `Missing ${relationship.basis.statId} basis for a post-delivery modifier gauge`,
     )
   }
-  const current = stat.values[relationship.basis.surface]
+  const rawCurrent = stat.values[relationship.basis.surface]
+  const current = relationship.basisValueCap === undefined
+    ? rawCurrent
+    : Math.min(rawCurrent, relationship.basisValueCap)
   const value = relationship.output.value.kind === 'linear'
     ? linearDerivedOutput({
         basisValue: current,
@@ -800,6 +804,9 @@ export function evaluatePostDeliveryStatModifierGauge(
     : current >= relationship.output.value.threshold
       ? relationship.output.value.activeValue
       : relationship.output.value.inactiveValue
+  const threshold = relationship.output.value.kind === 'linear'
+    ? relationship.output.value.transform.basisThreshold
+    : relationship.output.value.threshold
   return {
     modifier: {
       metricId: relationship.modifierMetricId,
@@ -814,9 +821,7 @@ export function evaluatePostDeliveryStatModifierGauge(
       metricId: relationship.gaugeMetricId,
       basisLabel: relationship.basisLabel,
       current,
-      ...(relationship.output.value.kind === 'activation'
-        ? { threshold: relationship.output.value.threshold }
-        : {}),
+      ...(threshold === undefined ? {} : { threshold }),
       cap: relationship.basisCap,
       outputs: [{
         label: relationship.output.label,
