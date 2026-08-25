@@ -432,6 +432,11 @@ main { margin-top: 18px; }
   overflow-wrap: anywhere;
 }
 
+.slot-identity--expanded .slot-name-line {
+  display: block;
+  max-width: calc(var(--identity-track-width) + var(--setup-seam-space) - 28px);
+}
+
 .focus-marker {
   display: inline-flex;
   width: fit-content;
@@ -448,7 +453,7 @@ main { margin-top: 18px; }
 .slot-identity--expanded .focus-marker {
   position: absolute;
   z-index: 5;
-  top: 116px;
+  top: 132px;
   right: auto;
   left: 14px;
   order: initial;
@@ -476,7 +481,7 @@ main { margin-top: 18px; }
 
 .slot-identity--expanded .identity-band {
   position: absolute;
-  top: 74px;
+  top: 90px;
   right: auto;
   bottom: auto;
   left: 14px;
@@ -1845,6 +1850,7 @@ button.main-stat-block:focus-visible {
   .identity-copy { justify-content: flex-end; padding: 14px 14px 14px 47%; }
   .slot-name-line h2 { font-size: var(--agent-identity-name-size); }
   .slot-identity--expanded .identity-name { font-size: var(--agent-expanded-identity-name-size); }
+  .slot-identity--expanded .slot-name-line { max-width: none; }
   .slot-identity--expanded .identity-band { position: static; width: 188px; margin-top: 10px; }
   .expanded-slot__workbench { display: block; }
   .setup-panel { padding: 18px 14px 22px; clip-path: none; background: #22211e; }
