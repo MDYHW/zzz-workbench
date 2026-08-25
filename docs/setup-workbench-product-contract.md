@@ -188,10 +188,8 @@ Candidate authoring follows this order:
    conversions, thresholds, caps, and exclusions;
 3. use recurring role, formula, action, stat-pressure, and Specialty patterns
    to restrict inspection;
-4. compare only the package contributions that Agent can realize, recomposing
-   the Agent's exact kit, activation, finite investment opportunity,
-   availability, acquisition context, and current competitive practice around
-   each package;
+4. compare remaining packages against that Agent's exact kit, activation,
+   opportunity costs, availability, and current competitive practice;
 5. retain only materially distinct authored base candidates;
 6. derive current effective candidates through only authored Mindscape, party,
    focus, pool, or active-effect adjustments in the explicit acyclic order
@@ -206,8 +204,7 @@ axis or formula component. Candidate policy has three ordered stages:
 
 1. the **authored base candidate set** contains the materially distinct choices
    admitted for one candidate-bearing setup input after direction, role,
-   formula, action, operation, realized-package, competitive-range, distinct-
-   direction, and finite-investment review;
+   formula, action, operation, whole-package, and opportunity-cost review;
 2. the **current effective candidate set** for one input applies the current
    Mindscape, party, focus, pool, and effects produced by only already-
    established upstream selections, together with recipient, Attribute,
@@ -224,16 +221,22 @@ Direction-defining output coverage is an authored competitive-practice
 judgment. It is not runtime action share, uptime, rotation, or a reason to keep
 a global action catalogue.
 
-Within one candidate-bearing setup input, use the strongest Agent-appropriate
-recomposed setup to calibrate the material competitive range. A legal or
-positive alternative outside that range is not a candidate. Among alternatives
-inside the range, keep the stronger choice when finite main-stat and substat
-reallocation makes both express the same setup direction. Choices that
-strengthen different role, formula, action, operation, threshold, cap, or
-investment axes remain only while each still creates a competitive setup for
-that Agent. Fixed supply from an earlier selected package may change pressure
-on a later input without merging their candidate sets or ranking arbitrary
-combinations at runtime.
+Within one candidate-bearing setup input, a candidate is dominated only when
+its whole usable package expresses no materially distinct role, formula,
+action, or operation axis beside a stronger candidate. Choices that strengthen
+different axes remain comparable when both materially support the direction;
+their relative preference normally selects the prepared first choice rather
+than changing membership. Fixed supply from an earlier selected package may
+change pressure on a later input without merging their candidate sets or
+ranking arbitrary combinations.
+
+The W-Engine input applies the narrower realized-package comparison owned by
+the inspection and competitive-set rules below. For that input, package
+completeness and unusable source clauses add neither value nor cost; the
+strongest Agent-appropriate recomposed setup calibrates the competitive range,
+and finite main-stat and substat reallocation compresses same-direction
+alternatives within that range. This W-Engine boundary does not replace the
+separate Drive Disc, main-stat, or effective-substat gates.
 
 Patterns order inspection but cannot inherit another Agent's result. New items
 are routed first to roles, formulas, actions, stat pressures, and Specialties
@@ -533,16 +536,15 @@ choices and opportunity costs are applied.
 **Rule ID:** `SW-008`
 
 Candidate membership is product policy, not runtime ranking. A candidate remains
-only when the setup produced by its Agent-realized contributions creates a
-material competitive choice. The strongest Agent-appropriate recomposed setup
-calibrates that range; alternatives whose realized value is too remote are
-excluded even when they are legal, positive, or distinct in name. Limited
-ownership, accessibility, stat or modifier balance, thresholds, caps,
-operation, or a supported preference may distinguish alternatives that remain
-competitive. Reachability, signature association, a different trigger, or an
-isolated clause is insufficient.
+only when its whole usable package creates a material choice. Limited ownership,
+accessibility, stat or modifier balance, thresholds, caps, operation, or a
+supported preference may distinguish it. Reachability, signature association,
+a different trigger, or an isolated clause is insufficient.
 
-Complete and partial W-Engine packages use the same value comparison. Usable
+For W-Engine membership, complete and partial packages use the same value
+comparison. The strongest Agent-appropriate recomposed setup calibrates the
+material competitive range; alternatives whose realized value is too remote
+are excluded even when they are legal, positive, or distinct in name. Usable
 contributions add their realized value, while unusable contributions add zero
 and receive neither a completeness bonus nor a partial-package penalty. Among
 competitive packages, keep only the stronger one when finite main-stat and
