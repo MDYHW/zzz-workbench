@@ -410,7 +410,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
       add({
         kind: 'post-delivery-stat-modifier-gauge', source: core,
         basis: { statId: 'critRate', surface: 'fully' },
-        basisLabel: 'Fully Enabled CRIT Rate', basisValueCap: values.frostBuildupCap,
+        basisLabel: 'Fully Enabled CRIT Rate', basisValueCap: 100,
         basisCap: values.frostBuildupCap,
         gaugeMetricId: 'critRate', modifierMetricId: 'anomalyBuildupBonus', action: MIYABI_ICEFIRE_BUILDUP_TARGET,
         modifierSurface: 'fully',

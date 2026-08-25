@@ -167,6 +167,21 @@ describe('shared calculation integration', () => {
       .toBe(false)
   })
 
+  it('preserves a completed stat basis above a lower derived-output cap', () => {
+    let state = createPreparedState({}, ['miyabi', 'nangongYu', 'sunna'], 0)
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 2 })
+
+    const miyabi = calculateParty(state)!.agents.find(({ agentId }) => agentId === 'miyabi')!
+    const critRate = miyabi.metrics.find(({ id }) => id === 'critRate')!
+    const gauge = critRate.gauges.find(({ basisLabel }) => (
+      basisLabel === 'Fully Enabled CRIT Rate'
+    ))!
+
+    expect(critRate.values.fully).toBeGreaterThan(gauge.cap!)
+    expect(gauge.current).toBe(critRate.values.fully)
+    expect(gauge.outputValue).toBe(gauge.outputCap)
+  })
+
   it('composes Initial-AM-derived flat Impact once around shared equipment regions', () => {
     const impactFor = (pool: 'full' | 'nonLimited') => calculateParty(createPreparedState(
       { nangongYu: pool },
