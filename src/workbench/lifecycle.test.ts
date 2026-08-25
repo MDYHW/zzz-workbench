@@ -291,8 +291,20 @@ describe('shared preparation and edit lifecycle', () => {
     const admitted = createPreparedState({}, ['corin', 'dialyn', 'lycaon'], 0)
     expect(effectiveFourPieceIds(admitted, 0)).toContain('pufferElectro')
 
-    const unadmitted = createPreparedState({}, ['hugo', 'dialyn', 'lycaon'], 0)
-    expect(effectiveFourPieceIds(unadmitted, 0)).not.toContain('pufferElectro')
+    const hugoM0 = createPreparedState({}, ['hugo', 'dialyn', 'lycaon'], 0)
+    expect(effectiveFourPieceIds(hugoM0, 0)).not.toContain('pufferElectro')
+
+    const hugoM2 = workbenchReducer(hugoM0, {
+      type: 'setMindscape', slot: 0, mindscape: 2,
+    })
+    expect(effectiveFourPieceIds(hugoM2, 0)).toContain('pufferElectro')
+    expect(hugoM2.slots[0].setup.fourPieceId).toBe('hormonePunk')
+
+    const hugoM1 = workbenchReducer(hugoM2, {
+      type: 'setMindscape', slot: 0, mindscape: 1,
+    })
+    expect(effectiveFourPieceIds(hugoM1, 0)).not.toContain('pufferElectro')
+    expect(hugoM1.slots[0].setup.fourPieceId).toBe('hormonePunk')
   })
 
   it('rebuilds every holder on Party Apply but only the target on pool or Mindscape changes', () => {

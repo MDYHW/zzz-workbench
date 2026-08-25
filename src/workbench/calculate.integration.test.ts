@@ -216,17 +216,6 @@ describe('shared calculation integration', () => {
     expect(offFieldEnergy.breakdown.combat)
       .toContainEqual(expect.objectContaining({ label: 'Hellfire Gears' }))
 
-    let simmeringState = createPreparedState({}, ['ellen', 'lycaon', 'soukaku'], 0)
-    simmeringState = workbenchReducer(simmeringState, {
-      type: 'selectEngine', slot: 1, engineId: 'simmeringPot',
-    })
-    const lycaon = calculateParty(simmeringState)!.agents
-      .find(({ agentId }) => agentId === 'lycaon')!
-    expect(lycaon.metrics.find(({ id }) => id === 'dazeBonus')!.breakdown.fully)
-      .toContainEqual(expect.objectContaining({ label: 'The Simmering Pot' }))
-    expect(lycaon.metrics.find(({ id }) => id === 'dmgBonus')?.breakdown.fully ?? [])
-      .not.toContainEqual(expect.objectContaining({ label: 'The Simmering Pot' }))
-
     const burnice = calculateParty(createPreparedState(
       {}, ['burnice', 'jane', 'seth'], 1,
     ))!.agents.find(({ agentId }) => agentId === 'burnice')!

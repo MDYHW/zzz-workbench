@@ -204,37 +204,34 @@ and genuine multi-recipient effects keep their actual rules.
 ### Lycaon candidate sets and representatives
 
 - R11. Lycaon's authored W-Engine candidates are Blazing Laurel, Hellfire Gears,
-  The Restrained, Steam Oven, Precious Fossilized Core, and The Simmering Pot.
-  Full pool contains all six; non-limited contains Hellfire, Restrained, and the
-  three A-Rank candidates. Full
+  Steam Oven, and Precious Fossilized Core. Full pool contains all four;
+  non-limited contains Hellfire and the two A-Rank candidates. Full
   prepares Blazing Laurel W1 and non-limited prepares Steam Oven W5. Hellfire's
   off-field Energy clause is unused while Corin's stun-led burst direction keeps
   Lycaon on-field for completed Encircle Prey, but its Impact package remains a
   distinct usable direction beside Steam's Energy/Impact package. Steam's
   prepared priority therefore does not exclude Hellfire
-  from either pool. The Restrained's Basic-only Daze does not cover Lycaon's
-  Assist and EX Daze, but his regular field sequence still activates the full
-  complete Basic-Daze package, making it a competitive distinct action direction
-  without displacing either representative.
+  from either pool. The Restrained is excluded after completed Potential is
+  composed: its charged-Basic edge is too narrow to offset missing Lycaon's
+  defining Assist and EX Daze surfaces or Steam's Energy supply. The Simmering
+  Pot is excluded because Steam provides the stronger reachable Daze package
+  across those visible actions and adds Energy, while Simmering's DMG clause
+  has no Lycaon consumer.
 - R12. Blazing Laurel's Impact and reachable Wilt package is fully compatible
   with Lycaon. Only one Blazing effect is active per party. The Impact clause is
   holder-local; the Fire/Ice CRIT-DMG clause is a genuine multi-recipient effect
   and projects to every eligible current Fire or Ice crit-capable damage
   consumer.
-- R13. Reuse the shared Hellfire Gears, Steam Oven, Precious Fossilized Core,
-  and Simmering Pot facts. Hellfire's Impact package is usable; its off-field
+- R13. Reuse the shared Hellfire Gears, Steam Oven, and Precious Fossilized Core
+  facts. Hellfire's Impact package is usable; its off-field
   Energy clause remains disclosed in Setup and creates a Lycaon Energy Result
   operation only when the current Focus direction leaves Lycaon's authored
   operating interval off-field. The
   same bounded on-field override applies to the current Hugo and Zhu Yuan
   stun-led burst directions. Steam supplies Energy and reachable Impact;
-  Precious supplies Impact and thresholded Daze. Simmering Pot supplies broad
-  holder Daze and DMG rather than an Assist-only action scope. Lycaon consumes the broad Daze
-  clause but has no personal-DMG Result consumer. Simmering Pot remains a
-  distinct candidate beside Steam because it exchanges Energy and broader
-  Impact supply for a broad Daze direction; Steam remains the
-  non-limited first choice because it strengthens repeated EX operation and
-  broad Daze together.
+  Precious supplies Impact and thresholded Daze. Steam remains the non-limited
+  first choice because it strengthens repeated EX operation and broad Daze
+  together.
 - R14. Lycaon's authored base 4-piece candidates are King of the Summit, Astral
   Voice, and Shockstar Disco. Proto Punk is excluded: its Shield Effect
   has no current survival consumer, while its reachable squad DMG occupies
@@ -524,9 +521,10 @@ and genuine multi-recipient effects keep their actual rules.
   reject Myriad's dominated partial package.
 - Extend Dialyn's existing recipient-formula-action predicate to Corin and keep
   Puffer contextual and candidate-only.
-- Retain Blazing Laurel and Steam Oven as Lycaon's pool representatives while
-  keeping Precious Fossilized Core and The Simmering Pot as distinct bounded
-  Daze alternatives.
+- Retain Blazing Laurel and Steam Oven as Lycaon's pool representatives and
+  Precious Fossilized Core as the distinct early-threshold Daze alternative.
+  Exclude The Restrained and The Simmering Pot after composing completed
+  Potential and the visible Assist/EX action surfaces.
 - Reject Moonlight Lullaby 4-piece for Lycaon before numerical comparison because
   its Support-holder activation is incompatible. Compare Proto to usable Astral,
   and exclude Proto because the unused shield clause adds no current axis.

@@ -29,6 +29,7 @@ import {
   type DiscId,
   type DriveDiscChoice,
   type DriveDiscFacts,
+  type MindscapeRank,
 } from './types'
 
 export const DRIVE_DISC_FACTS = {
@@ -459,6 +460,7 @@ export type AgentDiscCandidatePolicy = {
   twoPiece: DiscId[]
   contextualFourPiece?: {
     receivedUltimate: DiscId[]
+    minimumMindscape?: MindscapeRank
   }
 }
 
@@ -469,6 +471,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   hugo: {
     fourPiece: ['hormonePunk'],
     twoPiece: ['polarMetal', 'woodpecker', 'branchAndBlade', 'pufferElectro', 'astralVoice', 'hormonePunk'],
+    contextualFourPiece: { receivedUltimate: ['pufferElectro'], minimumMindscape: 2 },
   },
   juFufu: {
     fourPiece: ['king', 'swingJazz'],

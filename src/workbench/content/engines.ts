@@ -1234,7 +1234,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   cissia: enginePools(['serpentineSeeker', 'bellicoseBlaze', 'drillRigRedAxis', 'cordisGermina']),
   evelyn: enginePools(['heartstringNocturne', 'severedInnocence', 'cordisGermina', 'starlightEngine', 'steelCushion']),
   corin: enginePools(['cordisGermina', 'heartstringNocturne', 'steelCushion', 'housekeeper']),
-  lycaon: enginePools(['blazingLaurel', 'hellfireGears', 'restrained', 'steamOven', 'preciousFossilizedCore', 'simmeringPot']),
+  lycaon: enginePools(['blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   ellen: enginePools(['deepSeaVisitor', 'myriadEclipse', 'cordisGermina', 'steelCushion', 'brimstone', 'starlightEngine']),
   soukaku: enginePools(['weepingCradle', 'kaboom']),
   soldier11: enginePools(['heartstringNocturne', 'cordisGermina', 'severedInnocence', 'brimstone', 'starlightEngine']),
