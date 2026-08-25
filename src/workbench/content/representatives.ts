@@ -343,10 +343,10 @@ const nangongYuRepresentative = (pool: PoolId): SetupSelection => ({
   mains: { slot4: 'anomalyProficiency', slot5: 'etherDmg', slot6: 'anomalyMastery' },
 })
 
-const miyabiRepresentative = (pool: PoolId): SetupSelection => ({
+const miyabiRepresentative = (pool: PoolId, mindscape: number): SetupSelection => ({
   engineId: pool === 'full' ? 'hailstormShrine' : 'fusionCompiler',
   fourPieceId: 'branchAndBlade', twoPieceId: 'woodpecker',
-  mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
+  mains: { slot4: 'critRate', slot5: mindscape >= 1 ? 'iceDmg' : 'penRatio', slot6: 'atkPct' },
 })
 
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
@@ -464,7 +464,7 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   promeia: { full: promeiaRepresentative('full'), nonLimited: promeiaRepresentative('nonLimited') },
   sunna: { full: sunnaRepresentative('full'), nonLimited: sunnaRepresentative('nonLimited') },
   nangongYu: { full: nangongYuRepresentative('full'), nonLimited: nangongYuRepresentative('nonLimited') },
-  miyabi: { full: miyabiRepresentative('full'), nonLimited: miyabiRepresentative('nonLimited') },
+  miyabi: { full: miyabiRepresentative('full', 0), nonLimited: miyabiRepresentative('nonLimited', 0) },
 }
 
 export function representativeSetupFor(
@@ -477,6 +477,7 @@ export function representativeSetupFor(
   if (agentId === 'hugo') return hugoRepresentative(pool, mindscape)
   if (agentId === 'astraYao') return astraRepresentative(pool, mindscape)
   if (agentId === 'juFufu') return juFufuRepresentative(pool, mindscape)
+  if (agentId === 'miyabi') return miyabiRepresentative(pool, mindscape)
   if (agentId === 'ellen') return ellenRepresentative(pool)
   if (agentId === 'zhuYuan') return zhuYuanRepresentative(pool)
   return representative

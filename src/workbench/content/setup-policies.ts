@@ -184,7 +184,7 @@ export const PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE: Partial<
   vivian: 'etherDmg',
   aria: 'etherDmg',
   promeia: 'iceDmg',
-  miyabi: 'atkPct',
+  miyabi: 'iceDmg',
 }
 
 /** Authored whole-package replacement when the selected 2-piece loses its distinct axis. */

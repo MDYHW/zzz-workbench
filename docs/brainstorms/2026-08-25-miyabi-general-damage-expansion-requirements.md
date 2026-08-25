@@ -107,8 +107,12 @@ separate Shock-state/general-damage unit.
   4-piece, and same-value aliases do not create extra choices.
 - R9. Offer CRIT Rate or ATK% in Slot 4; PEN Ratio, ATK%, or Ice DMG in Slot 5;
   and ATK% or Anomaly Mastery in Slot 6. Effective substats are CRIT Rate,
-  CRIT DMG, and ATK%. Prepare CRIT Rate/PEN Ratio/ATK% in both pools with zero
-  supplied effective-substat counts. Hailstorm, Branch, Woodpecker, Slot 4,
+  CRIT DMG, and ATK%. Prepare CRIT Rate/PEN Ratio/ATK% at M0 and
+  CRIT Rate/Ice DMG/ATK% at M1+ in both pools with zero supplied
+  effective-substat counts. M1's Shimotsuki-scoped DEF Ignore lowers PEN's
+  prepared priority without removing its broader editable direction, while
+  Ice DMG avoids repeating the ATK% already prepared in Slot 6. Hailstorm,
+  Branch, Woodpecker, Slot 4,
   and eight reserved future CRIT Rate hits reach 92.2% CRIT Rate, preserving a
   practical stability margin beyond the 80% buildup-conversion cap. CRIT DMG
   Slot 4 repeats abundant Hailstorm/Branch supply and leaves an impractical
@@ -128,9 +132,10 @@ separate Shock-state/general-damage unit.
 - R11. Broad pre-PEN pressure removes Miyabi's optional Slot 5 PEN and Puffer
   directions. An invalid current selection clears without fallback; pressure
   removal does not restore edit history; the user may reselect when it becomes
-  valid again. During authorized preparation under that pressure, Slot 5 ATK%
-  replaces the otherwise prepared PEN choice while Woodpecker 2-piece remains
-  unaffected. Any incomplete required selection keeps the entire Result empty.
+  valid again. At M0, authorized preparation under that pressure uses Slot 5
+  Ice DMG in place of PEN; M1+ already prepares Ice DMG. Woodpecker 2-piece
+  remains unaffected. Any incomplete required selection keeps the entire
+  Result empty.
 - R12. Selected and candidate equipment use the same source-owned compressed
   Setup summaries. Hailstorm and Branch retain only their fully enabled current
   consumer-backed maxima; routine trigger, duration, stack acquisition, and
