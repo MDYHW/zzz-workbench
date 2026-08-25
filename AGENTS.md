@@ -246,6 +246,23 @@ itself establish semantic readiness.
   substats; and selected-pressure on, off, and reselect lifecycle. Do not turn
   these checks into a named-Agent decision tree or a permanent exhaustive
   matrix.
+- Before accepting a new semantic conclusion, decompose it into directly stated
+  facts and the relationship edges required by the conclusion. Every edge must
+  be explicit in the source fact being interpreted or derived from an
+  applicable permanent rule; inspect a current consumer to verify the
+  established application without treating that consumer as authority. Facts
+  that merely coexist or correlate do not create a relationship. For every
+  inferred edge, actively construct a countermodel that preserves the stated
+  facts and applicable owner rules while denying that edge; if the model
+  remains possible, the meaning is unresolved and dependent authoring stops.
+  Keep this proof ephemeral rather than creating a semantic evidence registry
+  or instance catalogue.
+- Authority closure is not a one-time refresh result. A later source fact,
+  contradiction, external recommendation, or reviewer claim that introduces or
+  changes a relationship reopens the applicable permanent owner and current
+  consumer before candidate valuation or product authoring continues. Do not
+  form a conclusion first and attach a Rule ID afterward; the owner constrains
+  the derivation before the conclusion exists.
 - Before requirements close, every newly added or changed candidate membership
   or prepared first choice applies the permanent product contract's Candidate
   Preparation Dependency and applicable W-Engine or Drive Disc inspection
