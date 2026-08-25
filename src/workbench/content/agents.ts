@@ -207,7 +207,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     focusEligible: true, rank: 'S', faction: 'Cunning Hares',
   },
   {
-    id: 'billy', name: 'Billy Kid', attribute: 'Physical', specialty: 'Attack',
+    id: 'billy', name: 'Billy', attribute: 'Physical', specialty: 'Attack',
     focusEligible: true, rank: 'A', faction: 'Cunning Hares',
   },
   {

@@ -20,6 +20,7 @@
   --mono: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
   --compact-slot-width: clamp(96px, 7.5vw, 112px);
   --identity-track-width: clamp(146px, 10.2vw, 162px);
+  --agent-identity-name-size: 22px;
   --setup-track-width: clamp(455px, 36vw, 540px);
 }
 
@@ -417,7 +418,7 @@ main { margin-top: 18px; }
 .slot-name-line h2,
 .slot-identity--expanded .identity-name {
   margin-top: 0;
-  font-size: clamp(38px, 3.4vw, 52px);
+  font-size: var(--agent-identity-name-size);
   line-height: 0.84;
   letter-spacing: -0.045em;
   overflow-wrap: anywhere;
@@ -482,18 +483,6 @@ main { margin-top: 18px; }
 
 .slot-identity--expanded .identity-band::after {
   display: none;
-}
-
-@media (min-width: 761px) {
-  .slot-identity--expanded .identity-name--medium {
-    font-size: clamp(28px, 2.1vw, 30px);
-    white-space: nowrap;
-  }
-
-  .slot-identity--expanded .identity-name--long {
-    font-size: clamp(18px, 1.45vw, 21px);
-    white-space: nowrap;
-  }
 }
 
 .rank-mark img {
@@ -578,9 +567,9 @@ main { margin-top: 18px; }
 
 .party-slot--compact .slot-name-line strong {
   display: block;
-  font-size: clamp(24px, 2.1vw, 30px);
+  font-size: var(--agent-identity-name-size);
   line-height: 0.9;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.045em;
   overflow-wrap: anywhere;
 }
 
@@ -694,22 +683,20 @@ main { margin-top: 18px; }
   .party-slot--compact > .slot-identity {
     z-index: 6;
     inset: 0;
+    display: flex;
     width: auto;
     height: auto;
-  }
-
-  .party-slot--compact .slot-name-line,
-  .party-slot--compact .rank-mark,
-  .party-slot--compact .identity-pair--symbols img {
-    position: absolute;
-    z-index: 6;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px 4px 0 8px;
   }
 
   .party-slot--compact .identity-band,
   .party-slot--compact .identity-pair {
-    display: contents;
-    width: auto;
-    min-height: 0;
+    display: flex;
+    width: fit-content;
+    min-height: 23px;
     margin: 0;
     padding: 0;
     border: 0;
@@ -717,32 +704,16 @@ main { margin-top: 18px; }
   }
 
   .party-slot--compact .slot-name-line strong {
-    max-width: none;
-    font-size: clamp(27px, 2.25vw, 29px);
+    max-width: 100%;
+    font-size: var(--agent-identity-name-size);
     line-height: 0.86;
-    overflow-wrap: normal;
-    white-space: nowrap;
-  }
-
-  .party-slot--compact .slot-name-line .identity-name--medium {
-    font-size: 18px;
-  }
-
-  .party-slot--compact .slot-name-line .identity-name--wide {
-    font-size: 15px;
-  }
-
-  .party-slot--compact .slot-name-line .identity-name--long {
-    font-size: 16px;
-    line-height: 0.9;
     overflow-wrap: normal;
     white-space: normal;
   }
 
-  .party-slot--compact .slot-name-line { top: 18px; right: 4px; left: 8px; }
+  .party-slot--compact .slot-name-line { max-width: 100%; }
+
   .party-slot--compact .rank-mark {
-    top: 58px;
-    left: 7px;
     width: 23px;
     height: 23px;
   }
@@ -750,9 +721,6 @@ main { margin-top: 18px; }
     width: 24px;
     height: 24px;
   }
-  .party-slot--compact .identity-pair--symbols img:nth-child(1) { top: 57px; left: 34px; }
-  .party-slot--compact .identity-pair--symbols img:nth-child(2) { top: 57px; left: 62px; }
-
   .party-slot--compact .identity-band img {
     filter: saturate(0.53) brightness(0.98) contrast(1);
     opacity: 0.88;
@@ -762,6 +730,7 @@ main { margin-top: 18px; }
     z-index: 7;
     top: 98px;
     right: auto;
+    bottom: auto;
     left: 8px;
   }
 }
@@ -1866,7 +1835,7 @@ button.main-stat-block:focus-visible {
     width: calc(110% * var(--portrait-source-scale));
   }
   .identity-copy { justify-content: flex-end; padding: 14px 14px 14px 47%; }
-  .slot-name-line h2, .slot-identity--expanded .identity-name { font-size: 38px; }
+  .slot-name-line h2, .slot-identity--expanded .identity-name { font-size: var(--agent-identity-name-size); }
   .slot-identity--expanded .identity-band { position: static; width: 188px; margin-top: 10px; }
   .expanded-slot__workbench { display: block; }
   .setup-panel { padding: 18px 14px 22px; clip-path: none; background: #22211e; }
