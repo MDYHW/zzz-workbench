@@ -380,6 +380,7 @@ export interface SetupSelection {
 export interface AgentSummary {
   id: AgentId
   name: string
+  displayName?: string
   attribute: AgentAttribute
   specialty: AgentSpecialty
   focusEligible: boolean

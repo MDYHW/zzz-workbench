@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type Dispatch } from 'react'
-import { ADMITTED_AGENTS, type AgentId } from '../workbench/content'
+import { ADMITTED_AGENTS, agentDisplayName, type AgentId } from '../workbench/content'
 import type { AppliedSlot, PartyDraft, WorkbenchAction, WorkbenchState } from '../workbench/state'
 import { AGENT_PORTRAITS, portraitSourceStyle } from './agentPortraits'
 
@@ -36,7 +36,7 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
     ADMITTED_AGENTS.find((agent) => agent.id === agentId)?.focusEligible ? [slot as AppliedSlot] : []
   ))
   const focusStatus = eligible.length === 1
-    ? `${ADMITTED_AGENTS.find((agent) => agent.id === draft.agentIds[eligible[0]])!.name} is Focus automatically.`
+    ? `${agentDisplayName(ADMITTED_AGENTS.find((agent) => agent.id === draft.agentIds[eligible[0]])!)} is Focus automatically.`
     : eligible.length === 0 ? 'No eligible Focus Agent. Choose a different party.' : 'Choose a Focus Agent before applying.'
 
   useEffect(() => { draftSlots.current[0]?.focus() }, [])
@@ -64,6 +64,7 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
       <div className="party-editor__slots" aria-label="Draft party slots">
         {draft.agentIds.map((agentId, slot) => {
           const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
+          const agentName = agentDisplayName(agent)
           const selected = target === slot
           return (
             <button
@@ -72,11 +73,11 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
               type="button"
               className={`draft-slot${selected ? ' is-target' : ''}`}
               aria-pressed={selected}
-              aria-label={`Replace slot ${slot + 1}, ${agent.name}`}
+              aria-label={`Replace slot ${slot + 1}, ${agentName}`}
               onClick={() => setTarget(slot as AppliedSlot)}
             >
               <PartyPortrait agentId={agentId} />
-              <span><small>Slot {slot + 1}</small><strong>{agent.name}</strong><em>{agent.attribute} · {agent.specialty}</em></span>
+              <span><small>Slot {slot + 1}</small><strong>{agentName}</strong><em>{agent.attribute} · {agent.specialty}</em></span>
             </button>
           )
         })}
@@ -85,7 +86,7 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
         <legend>Focus</legend>
         {eligible.length === 1 ? <p>{focusStatus}</p> : eligible.length === 0 ? <p>{focusStatus}</p> : eligible.map((slot) => {
           const agent = ADMITTED_AGENTS.find((item) => item.id === draft.agentIds[slot])!
-          return <label key={slot}><input type="radio" name="draft-focus" checked={draft.focusSlot === slot} onChange={() => dispatch({ type: 'setDraftFocus', slot })} /> {agent.name}</label>
+          return <label key={slot}><input type="radio" name="draft-focus" checked={draft.focusSlot === slot} onChange={() => dispatch({ type: 'setDraftFocus', slot })} /> {agentDisplayName(agent)}</label>
         })}
       </fieldset>
       {target !== null && (
@@ -98,13 +99,14 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
             <p aria-live="polite">{availableCandidates.length ? `${availableCandidates.length} available candidates` : 'No available candidates'}</p>
             <div>{candidates.map((agent) => {
               const occupied = draft.agentIds.includes(agent.id)
-              return <button key={agent.id} type="button" disabled={occupied} aria-label={`${occupied ? 'Unavailable, ' : ''}${agent.name}, ${agent.attribute}, ${agent.specialty}`} onClick={() => {
+              const agentName = agentDisplayName(agent)
+              return <button key={agent.id} type="button" disabled={occupied} aria-label={`${occupied ? 'Unavailable, ' : ''}${agentName}, ${agent.attribute}, ${agent.specialty}`} onClick={() => {
                 dispatch({ type: 'replaceDraftAgent', slot: target, agentId: agent.id })
                 setTarget(null)
                 setAttribute('all')
                 setSpecialty('all')
                 draftSlots.current[target]?.focus()
-              }}><PartyPortrait agentId={agent.id} /><span>{agent.name}<small>{occupied ? 'Occupied' : `${agent.attribute} · ${agent.specialty}`}</small></span></button>
+              }}><PartyPortrait agentId={agent.id} /><span>{agentName}<small>{occupied ? 'Occupied' : `${agent.attribute} · ${agent.specialty}`}</small></span></button>
             })}</div>
           </div>
         </>

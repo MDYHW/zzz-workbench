@@ -14,7 +14,7 @@ import {
   incompleteRequiredSelections,
   type RequiredSetupSelection,
 } from './workbench/candidates'
-import { ADMITTED_AGENTS, type MainSlot } from './workbench/content'
+import { ADMITTED_AGENTS, agentDisplayName, type MainSlot } from './workbench/content'
 import { createPreparedState, isCompleteWorkbench, workbenchReducer, type AppliedSlot } from './workbench/state'
 
 const emptySourceTones: Record<SourceToneChannel, string | null> = {
@@ -62,7 +62,7 @@ export function App() {
   const firstTrio = appliedParty === 'yixuan,dialyn,lucia'
   const secondTrio = appliedParty === 'anbySoldier0,trigger,astraYao'
   const setupIndex = firstTrio ? '01' : secondTrio ? '02' : 'MIX'
-  const partyTitle = secondTrio ? 'ANBY: SOLDIER 0 STRIKE TEAM' : focusedAgent === 'yixuan' ? 'YIXUAN STRIKE TEAM' : `${ADMITTED_AGENTS.find(({ id }) => id === focusedAgent)!.name.toUpperCase()} STRIKE TEAM`
+  const partyTitle = secondTrio ? 'ANBY: SOLDIER 0 STRIKE TEAM' : focusedAgent === 'yixuan' ? 'YIXUAN STRIKE TEAM' : `${agentDisplayName(ADMITTED_AGENTS.find(({ id }) => id === focusedAgent)!).toUpperCase()} STRIKE TEAM`
   const agentResult = viewedSlot === null
     ? null
     : result?.agents[viewedSlot] ?? null
@@ -97,7 +97,7 @@ export function App() {
 
     const selections = incompleteSelections.map((selection) => {
       const { agentId } = selection
-      const agentName = ADMITTED_AGENTS.find(({ id }) => id === agentId)!.name
+      const agentName = agentDisplayName(ADMITTED_AGENTS.find(({ id }) => id === agentId)!)
       return selection.kind === 'disc'
         ? `${agentName} ${selection.piece === 'fourPiece' ? '4-piece' : '2-piece'} Drive Disc`
         : selection.kind === 'mainStat'
