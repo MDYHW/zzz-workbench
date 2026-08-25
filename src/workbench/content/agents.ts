@@ -291,7 +291,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     focusEligible: true, rank: 'S', faction: 'Section 6',
   },
   {
-    id: 'anton', name: 'Anton Ivanov', attribute: 'Electric', specialty: 'Attack',
+    id: 'anton', name: 'Anton', attribute: 'Electric', specialty: 'Attack',
     focusEligible: true, rank: 'A', faction: 'Belobog Heavy Industries',
   },
   {
