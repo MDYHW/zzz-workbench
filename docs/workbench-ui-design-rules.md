@@ -140,10 +140,13 @@ advanced stat, and the competitive passive package. Base ATK remains an
 internal calculation and candidate-authoring fact and is not displayed.
 
 The W-Engine passive summary is source-owned rather than filtered to effects
-the current Agent can consume. It shows every materially distinct effect in the admitted
-W-Engine's competitive passive package so unused clauses remain visible as
-whole-package opportunity cost. Result still projects only effects consumed by
-the current Agent and setup.
+the current Agent can consume. It shows every materially distinct effect in the
+admitted W-Engine's competitive passive package so the complete source-owned
+offering remains available for selected and candidate comparison even when the
+current Agent cannot consume one clause. Visibility assigns that clause no
+positive value, negative value, opportunity cost, or independent candidate
+meaning. Result still projects only effects consumed by the current Agent and
+setup.
 
 W-Engine and Drive Disc Setup summaries use one common semantic compression
 rule. Compress simultaneously reachable clauses with the same metric,
