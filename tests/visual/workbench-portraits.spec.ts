@@ -63,7 +63,7 @@ const parties: readonly PortraitParty[] = [
   },
   {
     id: 'portrait-corrections-b',
-    captures: [agents.koleda, agents.zhao],
+    captures: [agents.koleda, agents.zhao, agents.anbySoldier0],
     members: [agents.koleda, agents.zhao, agents.anbySoldier0],
   },
   {
