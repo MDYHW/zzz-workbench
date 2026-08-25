@@ -164,6 +164,12 @@ const PREPARED_DISC_HOLDER_POLICY_BY_AGENT: Partial<Record<AgentId, PreparedDisc
       authoredKeeperPrecedence: 0.5,
     },
   },
+  rina: {
+    moonlightCollisionAlternative: {
+      patch: { fourPieceId: 'astralVoice', twoPieceId: 'pufferElectro' },
+      authoredKeeperPrecedence: 5,
+    },
+  },
 }
 
 /** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
@@ -185,6 +191,7 @@ export const PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE: Partial<
   aria: 'etherDmg',
   promeia: 'iceDmg',
   miyabi: 'iceDmg',
+  anton: 'electricDmg',
 }
 
 /** Authored whole-package replacement when the selected 2-piece loses its distinct axis. */
@@ -194,6 +201,7 @@ export const PREPARED_TWO_PIECE_BY_BROAD_PRE_PEN_PRESSURE: Partial<
   nekomata: 'branchAndBlade',
   grace: 'freedomBlues',
   jane: 'freedomBlues',
+  anton: 'branchAndBlade',
 }
 
 export type SetupPolicy = {

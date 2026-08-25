@@ -349,6 +349,17 @@ const miyabiRepresentative = (pool: PoolId, mindscape: number): SetupSelection =
   mains: { slot4: 'critRate', slot5: mindscape >= 1 ? 'iceDmg' : 'penRatio', slot6: 'atkPct' },
 })
 
+const antonRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'cordisGermina' : 'brimstone',
+  fourPieceId: 'thunderMetal', twoPieceId: pool === 'full' ? 'woodpecker' : 'branchAndBlade',
+  mains: { slot4: pool === 'full' ? 'critDmg' : 'critRate', slot5: 'electricDmg', slot6: 'atkPct' },
+})
+
+const rinaRepresentative: SetupSelection = {
+  engineId: 'weepingCradle', fourPieceId: 'moonlight', twoPieceId: 'pufferElectro',
+  mains: { slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'energyRegenPct' },
+}
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -465,6 +476,8 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   sunna: { full: sunnaRepresentative('full'), nonLimited: sunnaRepresentative('nonLimited') },
   nangongYu: { full: nangongYuRepresentative('full'), nonLimited: nangongYuRepresentative('nonLimited') },
   miyabi: { full: miyabiRepresentative('full', 0), nonLimited: miyabiRepresentative('nonLimited', 0) },
+  anton: { full: antonRepresentative('full'), nonLimited: antonRepresentative('nonLimited') },
+  rina: { full: rinaRepresentative, nonLimited: rinaRepresentative },
 }
 
 export function representativeSetupFor(

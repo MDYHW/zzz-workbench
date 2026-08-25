@@ -54,6 +54,8 @@ export type AgentId =
   | 'sunna'
   | 'nangongYu'
   | 'miyabi'
+  | 'anton'
+  | 'rina'
 
 export type AgentRank = 'S' | 'A'
 export type AgentAttribute =

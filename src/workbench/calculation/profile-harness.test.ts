@@ -718,8 +718,8 @@ describe('profile calculation harness', () => {
     expect(agentResult(result, 'zhao').operations).toEqual([])
   })
 
-  it('uses Result participation for formula delivery while preserving direct stat projection', () => {
-    const state = createPreparedState({}, ['astraYao', 'panYinhu', 'piper'], 2)
+  it('delivers shared ordinary regions to general and anomaly Result participants only', () => {
+    const state = createPreparedState({}, ['astraYao', 'harumasa', 'grace'], 1)
     const operationSource = selectSource(
       defineAgentSource('astraYao', 'scoped-operation', 'Scoped operation', 'special'),
       'astraYao', 0,
@@ -749,6 +749,13 @@ describe('profile calculation harness', () => {
             },
           },
           {
+            kind: 'provider', source: operationSource,
+            delivery: { recipient: 'all-party', formulas: ['general_damage'] },
+            effect: {
+              kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: 25,
+            },
+          },
+          {
             kind: 'provider', source: atkSource,
             delivery: { recipient: 'all-party', formulas: ['general_damage'] },
             effect: {
@@ -758,16 +765,18 @@ describe('profile calculation harness', () => {
           },
         ],
       },
-      { agentId: 'panYinhu', appliedPartySlot: 1, metrics: [], relationships: [] },
-      { agentId: 'piper', appliedPartySlot: 2, metrics: [], relationships: [] },
+      { agentId: 'harumasa', appliedPartySlot: 1, metrics: [damageMetric], relationships: [] },
+      { agentId: 'grace', appliedPartySlot: 2, metrics: [damageMetric], relationships: [] },
     ]
 
     const result = evaluateProfileParty(state, profiles)!
-    expect(agentResult(result, 'panYinhu').operations).toEqual([])
-    expect(agentResult(result, 'astraYao').operations).toEqual([])
-    expect(agentResult(result, 'piper').operations).toEqual([
+    expect(agentResult(result, 'harumasa').operations).toEqual([
       expect.objectContaining({ label: 'General operation', value: 25 }),
     ])
+    expect(agentResult(result, 'astraYao').operations).toEqual([])
+    expect(agentResult(result, 'grace').operations).toEqual([])
+    expect(agentResult(result, 'harumasa').metrics[0].values.fully).toBe(25)
+    expect(agentResult(result, 'grace').metrics[0].values.fully).toBe(25)
     expect(agentResult(result, 'astraYao').metrics[0].values.fully).toBe(125)
   })
 

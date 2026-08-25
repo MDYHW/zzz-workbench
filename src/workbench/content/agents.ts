@@ -290,6 +290,14 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     id: 'miyabi', name: 'Hoshimi Miyabi', attribute: 'Frost', specialty: 'Anomaly',
     focusEligible: true, rank: 'S', faction: 'Section 6',
   },
+  {
+    id: 'anton', name: 'Anton Ivanov', attribute: 'Electric', specialty: 'Attack',
+    focusEligible: true, rank: 'A', faction: 'Belobog Heavy Industries',
+  },
+  {
+    id: 'rina', name: 'Rina', attribute: 'Electric', specialty: 'Support',
+    focusEligible: false, rank: 'S', faction: 'Victoria Housekeeping Co.',
+  },
 ]
 
 export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>

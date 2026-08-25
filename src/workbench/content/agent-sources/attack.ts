@@ -15,7 +15,7 @@ import type { StatId, StatRegion } from '../../calculation/stat-composer'
 import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
 
-type Agent = 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen' | 'soldier11' | 'zhuYuan' | 'orphie' | 'harumasa' | 'nekomata' | 'billy' | 'yeShunguang' | 'miyabi'
+type Agent = 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen' | 'soldier11' | 'zhuYuan' | 'orphie' | 'harumasa' | 'nekomata' | 'billy' | 'yeShunguang' | 'miyabi' | 'anton'
 type Slot = 0 | 1 | 2
 type CalculationContext = { targetStunDmgMultiplier?: number }
 const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
@@ -26,6 +26,7 @@ const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   soldier11: { atk: VERTICAL_VALUES.soldier11.atk, critRate: VERTICAL_VALUES.soldier11.critRate, critDmg: VERTICAL_VALUES.soldier11.critDmg }, zhuYuan: { atk: VERTICAL_VALUES.zhuYuan.atk, critRate: VERTICAL_VALUES.zhuYuan.critRate, critDmg: VERTICAL_VALUES.zhuYuan.critDmg }, orphie: { atk: VERTICAL_VALUES.orphie.atk, critRate: VERTICAL_VALUES.orphie.critRate, critDmg: VERTICAL_VALUES.orphie.critDmg, energyRegen: VERTICAL_VALUES.orphie.baseEnergyRegen },
   harumasa: { atk: VERTICAL_VALUES.harumasa.atk, critRate: VERTICAL_VALUES.harumasa.critRate, critDmg: VERTICAL_VALUES.harumasa.critDmg }, nekomata: { atk: VERTICAL_VALUES.nekomata.atk, critRate: VERTICAL_VALUES.nekomata.critRate, critDmg: VERTICAL_VALUES.nekomata.critDmg, energyRegen: VERTICAL_VALUES.nekomata.baseEnergyRegen },
   billy: { atk: VERTICAL_VALUES.billy.atk, critRate: VERTICAL_VALUES.billy.critRate, critDmg: VERTICAL_VALUES.billy.critDmg }, yeShunguang: { atk: VERTICAL_VALUES.yeShunguang.atk, critRate: VERTICAL_VALUES.yeShunguang.critRate, critDmg: VERTICAL_VALUES.yeShunguang.critDmg }, miyabi: { atk: VERTICAL_VALUES.miyabi.atk, critRate: VERTICAL_VALUES.miyabi.critRate, critDmg: VERTICAL_VALUES.miyabi.critDmg, anomalyMastery: VERTICAL_VALUES.miyabi.anomalyMastery },
+  anton: { atk: VERTICAL_VALUES.anton.atk, critRate: VERTICAL_VALUES.anton.critRate, critDmg: VERTICAL_VALUES.anton.critDmg, energyRegen: VERTICAL_VALUES.anton.baseEnergyRegen },
 }
 const A = (name: CanonicalActionKind, form?: string) => form ? actionForm(name, form) : canonicalAction(name)
 const BASIC_ULT = actionTarget([A('Basic Attack'), A('Ultimate')])
@@ -78,6 +79,13 @@ const MIYABI_SHIMOTSUKI = actionTarget([sourceLocalAction('Shimotsuki')])
 const MIYABI_SHIMOTSUKI_AFTER_DISORDER = actionTarget([sourceLocalAction('Shimotsuki · After Disorder')])
 const MIYABI_FROSTBURN_BREAK = actionTarget([sourceLocalAction('Frostburn-Break')])
 const MIYABI_KAZAHANA = actionTarget([sourceLocalAction('Kazahana'), A('Dodge Counter')])
+const ANTON_PILEDRIVER = actionTarget([sourceLocalAction('Piledriver')])
+const ANTON_DRILL = actionTarget([sourceLocalAction('Drill')])
+const ANTON_BURST_BASIC = actionTarget([sourceLocalAction('Burst Mode Basic Attack')])
+const ANTON_BURST_DODGE = actionTarget([sourceLocalAction('Burst Mode Dodge Counter')])
+const ANTON_BURST_BASIC_DRILL = actionTarget([sourceLocalAction('Burst Mode Basic Attack · Drill')])
+const ANTON_BURST_BASIC_PILEDRIVER = actionTarget([sourceLocalAction('Burst Mode Basic Attack · Piledriver')])
+const ANTON_BURST_DODGE_DRILL = actionTarget([sourceLocalAction('Burst Mode Dodge Counter · Drill')])
 const src = (agent: Agent, slot: Slot, id: string, label: string, locus: 'identity' | 'core' | 'additional' | 'special' | 'ex-special' = 'core') => selectedAgentSource(agent, slot, id, label, locus)
 const m = (id: EffectMetric, label: string, unit = '', statId?: MetricProjection['statId'], admission?: MetricProjection['admission']): MetricProjection => ({ id, label, unit, decimals: unit === '/s' ? 2 : unit === '%' ? 1 : 0, ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }), ...(admission ? { admission } : {}) })
 function stat(source: ReturnType<typeof selectedAgentSource>, statId: StatId, value: number, region: Exclude<StatRegion, 'base'> = 'flat', earliestSurface: SurfaceKey = 'fully', detail?: string): ProfileRelationship { return { kind: 'stat', atom: { statId, region, value, earliestSurface, source, ...(detail ? { sourceDetail: detail } : {}) } } }
@@ -101,6 +109,7 @@ function partyQualification(agent: Agent, ids: readonly AgentId[], slot: Slot): 
     case 'billy': return billyAdditionalIsActive(ids, slot)
     case 'yeShunguang': return anotherAgentHasSpecialty(ids, slot, ['Support', 'Stun'])
     case 'miyabi': return anotherAgentHasSpecialty(ids, slot, ['Support', 'Anomaly']) || anotherAgentSharesFaction(ids, slot)
+    case 'anton': return anotherAgentSharesAttribute(ids, slot) || anotherAgentSharesFaction(ids, slot)
   }
 }
 
@@ -434,6 +443,38 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
         { metricId: 'anomalyBuildupBonus', scopes: [{ id: 'miyabiIcefireBuildup', target: MIYABI_ICEFIRE_BUILDUP_TARGET }, { id: 'miyabiFrostburnBuildup', target: MIYABI_FROSTBURN_BUILDUP_TARGET }, { id: 'miyabiFrostburnRemovedBuildup', target: MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET }] },
         actionProjection('defIgnore', 'miyabiShimotsukiDefIgnore', MIYABI_SHIMOTSUKI),
         actionProjection('resIgnore', 'miyabiShimotsukiAfterDisorderResIgnore', MIYABI_SHIMOTSUKI_AFTER_DISORDER),
+      )
+      break
+    }
+    case 'anton': {
+      const values = VERTICAL_VALUES.anton
+      addMetric('dmgBonus', values.corePiledriverDmg, core, ANTON_PILEDRIVER)
+      addMetric('dmgBonus', values.coreDrillDmg, core, ANTON_DRILL)
+      if (qualified) add(operation(ability, 'Original Shock DMG', values.additionalShockDmg / 100, '', 'fully', 'scale'))
+      if (setup.mindscape >= 4) add({ kind: 'provider', source: mind(4), delivery: { recipient: 'all-party', formulas: CRIT_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'critRate', region: 'flat', earliestSurface: 'fully', value: values.mindscapeCritRate } })
+      if (setup.mindscape >= 6) {
+        addMetric('dmgBonus', values.mindscapeBurstDmg, mind(6), ANTON_BURST_BASIC)
+        addMetric('dmgBonus', values.mindscapeBurstDmg, mind(6), ANTON_BURST_DODGE)
+      }
+      actions.push(
+        { metricId: 'dmgBonus', scopes: [
+          { id: 'antonPiledriver', target: ANTON_PILEDRIVER },
+          { id: 'antonDrill', target: ANTON_DRILL },
+          { id: 'antonUltimate', target: ULT },
+          {
+            id: 'antonBurstBasicDrill', target: ANTON_BURST_BASIC_DRILL,
+            inheritedEffectTargets: [BASIC, ANTON_BURST_BASIC, ANTON_DRILL],
+          },
+          {
+            id: 'antonBurstBasicPiledriver', target: ANTON_BURST_BASIC_PILEDRIVER,
+            inheritedEffectTargets: [BASIC, ANTON_BURST_BASIC, ANTON_PILEDRIVER],
+          },
+          {
+            id: 'antonBurstDodgeCounterDrill', target: ANTON_BURST_DODGE_DRILL,
+            inheritedEffectTargets: [DODGE, ANTON_BURST_DODGE, ANTON_DRILL],
+          },
+        ] },
+        actionProjection('defIgnore', 'antonBasicUltimateDefIgnore', BASIC_ULT),
       )
       break
     }

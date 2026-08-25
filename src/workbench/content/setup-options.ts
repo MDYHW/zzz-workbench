@@ -70,6 +70,8 @@ export const FORMULA_PARTICIPATION_BY_AGENT: Record<
   sunna: { setup: { primary: [], residual: [] }, result: [] },
   nangongYu: { setup: { primary: ['anomaly_damage', 'anomaly_buildup', 'daze_buildup'], residual: [] }, result: ['anomaly_damage', 'anomaly_buildup', 'daze_buildup'] },
   miyabi: { setup: { primary: ['general_damage'], residual: ['anomaly_buildup'] }, result: ['general_damage', 'anomaly_buildup'] },
+  anton: { setup: { primary: ['general_damage'], residual: [] }, result: ['general_damage'] },
+  rina: { setup: { primary: [], residual: [] }, result: [] },
 }
 
 export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
@@ -310,6 +312,10 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   miyabi: {
     slot4: ['critRate', 'atkPct'], slot5: ['penRatio', 'atkPct', 'iceDmg'], slot6: ['atkPct', 'anomalyMastery'],
   },
+  anton: {
+    slot4: ['critRate', 'critDmg'], slot5: ['electricDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
+  },
+  rina: { slot4: ['anomalyProficiency', 'atkPct'], slot5: ['penRatio'], slot6: ['energyRegenPct'] },
 }
 
 export const EFFECTIVE_SUBSTAT_VALUES: Record<SubstatChoice['id'], SubstatChoice> = {
@@ -336,6 +342,7 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   koleda: [], anby: [], caesar: [], yeShunguang: substats('critRate', 'critDmg', 'atkPct'), zhao: substats('hpPct', 'hpFlat'), grace: substats('anomalyProficiency', 'atkPct'), piper: substats('anomalyProficiency', 'atkPct'), yuzuha: substats('atkPct', 'atkFlat'), burnice: substats('anomalyProficiency', 'atkPct'), jane: substats('anomalyProficiency', 'atkPct'), seth: [], yanagi: substats('anomalyProficiency', 'atkPct'), alice: substats('anomalyProficiency', 'atkPct'),
   vivian: substats('anomalyProficiency', 'atkPct'), aria: substats('anomalyProficiency', 'atkPct'), promeia: substats('anomalyProficiency', 'atkPct'),
   sunna: substats('atkPct', 'atkFlat'), nangongYu: substats('anomalyProficiency', 'atkPct'), miyabi: substats('critRate', 'critDmg', 'atkPct'),
+  anton: substats('critRate', 'critDmg', 'atkPct'), rina: [],
 }
 
 /**

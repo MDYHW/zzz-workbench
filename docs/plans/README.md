@@ -8,8 +8,8 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-Keep at most one active bounded implementation plan. There is no active bounded
-implementation plan.
+Keep at most one active bounded implementation plan. The current active plan is
+[Anton and Rina Shock-state general-damage expansion](2026-08-25-001-feat-anton-rina-shock-plan.md).
 The authority-governance recovery closed after exact-SHA
 finalization, protected `main` promotion, and recovery freeze; its detailed
 execution record remains in Git history and the durable postmortem.

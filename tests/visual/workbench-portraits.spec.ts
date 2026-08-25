@@ -50,6 +50,8 @@ const agents = {
     displayName: 'Hoshimi Miyabi',
     slug: 'miyabi',
   },
+  anton: { candidateName: 'Anton Ivanov, Electric, Attack', displayName: 'Anton Ivanov', slug: 'anton' },
+  rina: { candidateName: 'Rina, Electric, Support', displayName: 'Rina', slug: 'rina' },
 } satisfies Record<string, PortraitAgent>
 
 const parties: readonly PortraitParty[] = [
@@ -93,6 +95,12 @@ const parties: readonly PortraitParty[] = [
     focus: 'Hoshimi Miyabi',
     captures: [agents.miyabi],
     members: [agents.miyabi, agents.yanagi, agents.sunna],
+  },
+  {
+    id: 'portrait-anton-rina-electric',
+    focus: 'Anton Ivanov',
+    captures: [agents.anton, agents.rina],
+    members: [agents.anton, agents.rina, agents.grace],
   },
 ]
 

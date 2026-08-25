@@ -72,6 +72,8 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   sunna: { attribute: physicalMark, specialty: supportMark },
   nangongYu: { attribute: etherMark, specialty: stunMark },
   miyabi: { attribute: frostMark, specialty: anomalyMark },
+  anton: { attribute: electricMark, specialty: attackMark },
+  rina: { attribute: electricMark, specialty: supportMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {
