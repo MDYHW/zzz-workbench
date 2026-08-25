@@ -121,7 +121,7 @@ function IdentityMarks({ agentId, attribute, specialty }: { agentId: AgentId; at
 }
 
 function identityNameClass(name: string): string {
-  if (name.length > 12) return 'identity-name identity-name--long'
+  if (name.length >= 12) return 'identity-name identity-name--long'
   if (name.length > 9) return 'identity-name identity-name--medium identity-name--wide'
   if (name.length > 5) return 'identity-name identity-name--medium'
   return 'identity-name'
