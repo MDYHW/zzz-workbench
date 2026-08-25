@@ -36,9 +36,9 @@ an unused-clause badge, holder-filtered Setup copy, or explanation payload.
 - Owning Rule ID: `UI-001`
 - Conflict: the current rule correctly owns source-package visibility and compressed
   Setup copy, but incorrectly labels an unusable visible clause as whole-package
-  opportunity cost. `SW-004`, `SW-005`, `SW-008`, and `SW-010` now own the
-  Agent-realized candidate comparison and define unusable W-Engine contributions
-  as zero rather than cost.
+  opportunity cost. The current W-Engine package-inspection and competitive-
+  candidate owner defines the Agent-realized comparison and treats unusable
+  contributions as zero rather than cost.
 
 ## Proposed change
 
