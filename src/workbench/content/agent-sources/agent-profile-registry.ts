@@ -106,6 +106,8 @@ const AGENT_PROFILE_BUILDERS = {
   sunna: providerDefense('sunna'),
   nangongYu: ruptureStun('nangongYu'),
   miyabi: attack('miyabi'),
+  anton: attack('anton'),
+  rina: providerDefense('rina'),
 } satisfies ExactAgentProfileDefinitions
 
 export function sourceProfileForSlot(

@@ -19,7 +19,7 @@ import {
   selectedMindscapeSource,
 } from './sources'
 
-type Agent = 'lucia' | 'astraYao' | 'soukaku' | 'lucy' | 'nicole' | 'panYinhu' | 'ben' | 'caesar' | 'zhao' | 'seth' | 'sunna'
+type Agent = 'lucia' | 'astraYao' | 'soukaku' | 'lucy' | 'nicole' | 'panYinhu' | 'ben' | 'caesar' | 'zhao' | 'seth' | 'sunna' | 'rina'
 type Slot = 0 | 1 | 2
 const DAMAGE = REGULAR_DAMAGE_FORMULAS
 const STUN: readonly AgentSpecialty[] = ['Stun']
@@ -47,6 +47,7 @@ const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   zhao: { maxHp: VERTICAL_VALUES.zhao.hp, critRate: VERTICAL_VALUES.zhao.critRate, energyRegen: VERTICAL_VALUES.zhao.baseEnergyRegen },
   seth: { atk: VERTICAL_VALUES.seth.atk, anomalyProficiency: VERTICAL_VALUES.seth.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.seth.anomalyMastery, impact: VERTICAL_VALUES.seth.impact, energyRegen: VERTICAL_VALUES.seth.baseEnergyRegen },
   sunna: { atk: VERTICAL_VALUES.sunna.atk, energyRegen: VERTICAL_VALUES.sunna.baseEnergyRegen },
+  rina: { penRatio: VERTICAL_VALUES.rina.penRatio, energyRegen: VERTICAL_VALUES.rina.baseEnergyRegen },
 }
 const m = (id: MetricProjection['id'], label: string, unit: string, statId?: MetricProjection['statId'], admission?: MetricProjection['admission']): MetricProjection => ({ id, label, unit, decimals: unit === '/s' ? 2 : unit === '%' ? 1 : id === 'impact' ? 2 : 0, ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }), ...(admission ? { admission } : {}) })
 
@@ -258,7 +259,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     add({ kind: 'operation', atom: { label: 'Basic Attack: Final Verdict maximum-charge Max HP', earliestSurface: 'fully', value: setup.mindscape >= 6 ? VERTICAL_VALUES.zhao.mindscapeFinalVerdictMaxHp : VERTICAL_VALUES.zhao.finalVerdictMaxHp, unit: '%', source: setup.mindscape >= 6 ? mind(6) : own('finalVerdict', SOURCE_LABELS.zhaoBasic, 'special'), sourceDetail: 'Final Verdict · Maximum charge' } })
     const critCap = { value: 100, source: calculation('crit-rate-cap', 'Displayed CRIT Rate cap') }
     metrics = [m('maxHp', 'Max HP', '', 'maxHp'), { ...m('critRate', 'CRIT Rate', '%', 'critRate'), cap: critCap }, ...(setup.mindscape >= 4 ? [m('critDmg', 'CRIT DMG', '%', 'critDmg')] : []), m('energyRegen', 'Energy Regen', '/s', 'energyRegen')]; actions = setup.mindscape >= 4 ? [actionProjection('critDmg', 'zhaoM4CritDmg', ZHAO_M4)] : undefined
-  } else {
+  } else if (agent === 'sunna') {
     const core = own('core', SOURCE_LABELS.sunnaCore)
     const ability = own('additional', SOURCE_LABELS.sunnaAbility, 'additional')
     const exSpecial = own('ex-special', 'EX Special Attack', 'ex-special')
@@ -284,6 +285,25 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
       m('atk', 'ATK', '', 'atk'),
       m('energyRegen', 'Energy Regen', '/s', 'energyRegen'),
     ]
+  } else {
+    const values = VERTICAL_VALUES.rina
+    const qualified = anotherAgentSharesAttribute(agentIds, slot) || anotherAgentSharesFaction(agentIds, slot)
+    const m1 = setup.mindscape >= 1
+    const coreRatio = m1 ? values.mindscapeCorePenRatio : values.corePenRatio
+    const coreBase = m1 ? values.mindscapeCorePenBase : values.corePenBase
+    const coreCap = m1 ? values.mindscapeCorePenCap : values.corePenCap
+    const coreSource = m1 ? mind(1) : own('core', SOURCE_LABELS.rinaCore)
+    const potential = selectedAgentSource(agent, slot, 'potential', 'Potential Awakening', 'identity')
+    add({ kind: 'stat', atom: { statId: 'penRatio', region: 'flat', earliestSurface: 'initial', value: values.potentialPenRatio, source: potential } })
+    add({ kind: 'gauge', source: coreSource, basis: { statId: 'penRatio', surface: 'initial' }, basisLabel: 'Initial PEN Ratio', basisCap: (coreCap - coreBase) / (coreRatio / 100), metricId: 'penRatio', outputs: [{ label: 'Other-party PEN Ratio', unit: '%', cap: coreCap, transform: { basisIncrement: 1, baseOutput: coreBase, outputIncrement: coreRatio / 100, outputCap: coreCap }, emission: { kind: 'provider', delivery: { recipient: 'other-party', formulas: DEF_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'penRatio', region: 'flat', earliestSurface: 'fully' } } }] })
+    add({ kind: 'gauge', source: potential, basis: { statId: 'penRatio', surface: 'initial' }, basisLabel: 'Initial PEN Ratio', basisCap: values.potentialAtkCap / values.potentialAtkPerPen, metricId: 'penRatio', outputs: [{ label: 'All-party flat ATK', unit: '', cap: values.potentialAtkCap, transform: { basisIncrement: 1, outputIncrement: values.potentialAtkPerPen, outputCap: values.potentialAtkCap }, emission: { kind: 'provider', delivery: { recipient: 'all-party', formulas: DAMAGE }, effect: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully' } } }] })
+    if (qualified) {
+      add({ kind: 'provider', source: own('additional', SOURCE_LABELS.rinaAbility, 'additional'), delivery: { recipient: 'all-party', attributes: ['Electric'], formulas: DAMAGE }, effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: values.additionalElectricDmg, sourceDetail: 'Against Shocked enemies' } })
+      add({ kind: 'operation', atom: { label: 'Shock duration', earliestSurface: 'fully', value: values.additionalShockDuration, unit: 's', source: own('additional', SOURCE_LABELS.rinaAbility, 'additional') } })
+    }
+    if (setup.mindscape >= 4) add({ kind: 'automatic-energy', atom: { earliestSurface: 'combat', value: values.mindscapeEnergyRegen, source: mind(4) } })
+    if (setup.mindscape >= 6) add({ kind: 'provider', source: mind(6), delivery: { recipient: 'all-party', attributes: ['Electric'], formulas: DAMAGE }, effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: values.mindscapeElectricDmg } })
+    metrics = [m('penRatio', 'PEN Ratio', '%', 'penRatio'), m('energyRegen', 'Energy Regen', '/s', 'energyRegen')]
   }
   const nangongSlot = agentIds.indexOf('nangongYu')
   if (

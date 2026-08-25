@@ -195,7 +195,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     focusEligible: false, rank: 'A', faction: 'Sons of Calydon',
   },
   {
-    id: 'harumasa', name: 'Asaba Harumasa', attribute: 'Electric', specialty: 'Attack',
+    id: 'harumasa', name: 'Asaba Harumasa', displayName: 'Harumasa', attribute: 'Electric', specialty: 'Attack',
     focusEligible: true, rank: 'S', faction: 'Section 6',
   },
   {
@@ -207,23 +207,23 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     focusEligible: true, rank: 'S', faction: 'Cunning Hares',
   },
   {
-    id: 'billy', name: 'Billy Kid', attribute: 'Physical', specialty: 'Attack',
+    id: 'billy', name: 'Billy Kid', displayName: 'Billy', attribute: 'Physical', specialty: 'Attack',
     focusEligible: true, rank: 'A', faction: 'Cunning Hares',
   },
   {
-    id: 'ben', name: 'Ben Bigger', attribute: 'Fire', specialty: 'Defense',
+    id: 'ben', name: 'Ben Bigger', displayName: 'Ben', attribute: 'Fire', specialty: 'Defense',
     focusEligible: true, rank: 'A', faction: 'Belobog Heavy Industries',
   },
   {
-    id: 'koleda', name: 'Koleda Belobog', attribute: 'Fire', specialty: 'Stun',
+    id: 'koleda', name: 'Koleda Belobog', displayName: 'Koleda', attribute: 'Fire', specialty: 'Stun',
     focusEligible: false, rank: 'S', faction: 'Belobog Heavy Industries',
   },
   {
-    id: 'anby', name: 'Anby Demara', attribute: 'Electric', specialty: 'Stun',
+    id: 'anby', name: 'Anby Demara', displayName: 'Anby', attribute: 'Electric', specialty: 'Stun',
     focusEligible: false, rank: 'A', faction: 'Cunning Hares',
   },
   {
-    id: 'caesar', name: 'Caesar King', attribute: 'Physical', specialty: 'Defense',
+    id: 'caesar', name: 'Caesar King', displayName: 'Caesar', attribute: 'Physical', specialty: 'Defense',
     focusEligible: false, rank: 'S', faction: 'Sons of Calydon',
   },
   {
@@ -239,31 +239,31 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     focusEligible: true, rank: 'S', faction: 'Belobog Heavy Industries',
   },
   {
-    id: 'piper', name: 'Piper Wheel', attribute: 'Physical', specialty: 'Anomaly',
+    id: 'piper', name: 'Piper Wheel', displayName: 'Piper', attribute: 'Physical', specialty: 'Anomaly',
     focusEligible: true, rank: 'A', faction: 'Sons of Calydon',
   },
   {
-    id: 'yuzuha', name: 'Ukinami Yuzuha', attribute: 'Physical', specialty: 'Support',
+    id: 'yuzuha', name: 'Ukinami Yuzuha', displayName: 'Yuzuha', attribute: 'Physical', specialty: 'Support',
     focusEligible: false, rank: 'S', faction: 'Spook Shack',
   },
   {
-    id: 'burnice', name: 'Burnice White', attribute: 'Fire', specialty: 'Anomaly',
+    id: 'burnice', name: 'Burnice White', displayName: 'Burnice', attribute: 'Fire', specialty: 'Anomaly',
     focusEligible: false, rank: 'S', faction: 'Sons of Calydon',
   },
   {
-    id: 'jane', name: 'Jane Doe', attribute: 'Physical', specialty: 'Anomaly',
+    id: 'jane', name: 'Jane Doe', displayName: 'Jane', attribute: 'Physical', specialty: 'Anomaly',
     focusEligible: true, rank: 'S', faction: 'Criminal Investigation Special Response Team',
   },
   {
-    id: 'seth', name: 'Seth Lowell', attribute: 'Electric', specialty: 'Defense',
+    id: 'seth', name: 'Seth Lowell', displayName: 'Seth', attribute: 'Electric', specialty: 'Defense',
     focusEligible: false, rank: 'A', faction: 'Criminal Investigation Special Response Team',
   },
   {
-    id: 'yanagi', name: 'Tsukishiro Yanagi', attribute: 'Electric', specialty: 'Anomaly',
+    id: 'yanagi', name: 'Tsukishiro Yanagi', displayName: 'Yanagi', attribute: 'Electric', specialty: 'Anomaly',
     focusEligible: true, rank: 'S', faction: 'Section 6',
   },
   {
-    id: 'alice', name: 'Alice Thymefield', attribute: 'Physical', specialty: 'Anomaly',
+    id: 'alice', name: 'Alice Thymefield', displayName: 'Alice', attribute: 'Physical', specialty: 'Anomaly',
     focusEligible: true, rank: 'S', faction: 'Spook Shack',
   },
   {
@@ -287,10 +287,20 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     focusEligible: false, rank: 'S', faction: 'Angels of Delusion',
   },
   {
-    id: 'miyabi', name: 'Hoshimi Miyabi', attribute: 'Frost', specialty: 'Anomaly',
+    id: 'miyabi', name: 'Hoshimi Miyabi', displayName: 'Miyabi', attribute: 'Frost', specialty: 'Anomaly',
     focusEligible: true, rank: 'S', faction: 'Section 6',
   },
+  {
+    id: 'anton', name: 'Anton Ivanov', displayName: 'Anton', attribute: 'Electric', specialty: 'Attack',
+    focusEligible: true, rank: 'A', faction: 'Belobog Heavy Industries',
+  },
+  {
+    id: 'rina', name: 'Alexandrina Sebastiane', displayName: 'Rina', attribute: 'Electric', specialty: 'Support',
+    focusEligible: false, rank: 'S', faction: 'Victoria Housekeeping Co.',
+  },
 ]
+
+export const agentDisplayName = ({ displayName, name }: AgentSummary): string => displayName ?? name
 
 export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>
   ADMITTED_AGENTS.find(({ id }) => id === agentId)?.rank === 'A' ? 6 : 0

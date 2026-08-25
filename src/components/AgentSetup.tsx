@@ -6,6 +6,7 @@ import {
   MAIN_STATS,
   mainStatDisplay,
   ADMITTED_AGENTS,
+  agentDisplayName,
   SEED_SETUP_PASSIVE_LINES,
   W_ENGINES,
   type AgentAttribute,
@@ -825,12 +826,13 @@ function StatBank({
   setOpenSelector: (value: string | null) => void
 } & SourceInteractionProps) {
   const agent = ADMITTED_AGENTS.find(({ id }) => id === agentId)!
+  const agentName = agentDisplayName(agent)
 
   return (
     <section className="setup-group stat-bank" aria-labelledby={agentId + '-stat-bank-heading'}>
       <h3 id={agentId + '-stat-bank-heading'}><span>04</span> Stat bank</h3>
       <h4 className="stat-bank__group-heading">Main stats</h4>
-      <div className="main-stat-grid" aria-label={agent.name + ' prepared main stats'}>
+      <div className="main-stat-grid" aria-label={agentName + ' prepared main stats'}>
         {(['slot4', 'slot5', 'slot6'] as MainSlot[]).map((mainSlot) => (
           <MainStatSelection
             activeSourceTone={activeSourceTone}
@@ -848,7 +850,7 @@ function StatBank({
         ))}
       </div>
       <h4 className="stat-bank__group-heading">Sub stats</h4>
-      <div className="substat-grid" aria-label={agent.name + ' prepared effective substats'}>
+      <div className="substat-grid" aria-label={agentName + ' prepared effective substats'}>
         {(substatChoices ?? effectiveSubstatChoices(agentId, setup)).map((choice, index) => (
           <SubstatStepper
             activeSourceTone={activeSourceTone}
@@ -899,13 +901,14 @@ export function AgentSetup({
 }: AgentSetupProps) {
   const [openSelector, setOpenSelector] = useState<string | null>(null)
   const agent = ADMITTED_AGENTS.find(({ id }) => id === agentId)!
+  const agentName = agentDisplayName(agent)
 
   useEffect(() => {
     setOpenSelector(null)
   }, [agentId, setup.mindscape, setup.pool])
 
   return (
-    <section className="setup-panel" aria-label={agent.name + ' setup'}>
+    <section className="setup-panel" aria-label={agentName + ' setup'}>
       <div className="setup-chassis">
         <PoolSelection
           activeSourceTone={activeSourceTone}

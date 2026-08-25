@@ -660,4 +660,10 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     fourPiece: ['branchAndBlade'],
     twoPiece: ['polarMetal', 'woodpecker', 'pufferElectro', 'dawnsBloom', 'hormonePunk', 'phaethonsMelody'],
   },
+  anton: {
+    fourPiece: ['thunderMetal', 'dawnsBloom', 'hormonePunk'],
+    twoPiece: ['woodpecker', 'branchAndBlade', 'thunderMetal', 'dawnsBloom', 'pufferElectro', 'hormonePunk'],
+    contextualFourPiece: { receivedUltimate: ['pufferElectro'] },
+  },
+  rina: { fourPiece: ['moonlight', 'astralVoice'], twoPiece: ['pufferElectro'] },
 }

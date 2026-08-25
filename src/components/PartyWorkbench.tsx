@@ -14,7 +14,7 @@ import stunMark from '../assets/game/specialties/stun.webp'
 import supportMark from '../assets/game/specialties/support.webp'
 import defenseMark from '../assets/game/specialties/defense.webp'
 import anomalyMark from '../assets/game/specialties/anomaly.webp'
-import { ADMITTED_AGENTS, type AgentId, type AgentRank } from '../workbench/content'
+import { ADMITTED_AGENTS, agentDisplayName, type AgentId, type AgentRank } from '../workbench/content'
 import type { RequiredSetupSelection } from '../workbench/candidates'
 import type { AppliedAgentSlot, AppliedSlot } from '../workbench/state'
 import { AGENT_PORTRAITS, portraitSourceStyle } from './agentPortraits'
@@ -72,6 +72,8 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   sunna: { attribute: physicalMark, specialty: supportMark },
   nangongYu: { attribute: etherMark, specialty: stunMark },
   miyabi: { attribute: frostMark, specialty: anomalyMark },
+  anton: { attribute: electricMark, specialty: attackMark },
+  rina: { attribute: electricMark, specialty: supportMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {
@@ -118,13 +120,6 @@ function IdentityMarks({ agentId, attribute, specialty }: { agentId: AgentId; at
   )
 }
 
-function identityNameClass(name: string): string {
-  if (name.length > 12) return 'identity-name identity-name--long'
-  if (name.length > 9) return 'identity-name identity-name--medium identity-name--wide'
-  if (name.length > 5) return 'identity-name identity-name--medium'
-  return 'identity-name'
-}
-
 interface SlotControlProps extends SourceInteractionProps {
   slot: AppliedSlot
   agentId: AgentId
@@ -136,6 +131,7 @@ interface SlotControlProps extends SourceInteractionProps {
 
 function ExpandedIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = false, onSourceToneChange, onSelect, onKeyDown, slot }: SlotControlProps) {
   const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
+  const agentName = agentDisplayName(agent)
   const identityTone = agentSlotTone(slot)
   const identityTones = [identityTone, 'core', 'additional', 'special', 'ex-special']
   const matchingTone = identityTones.find((tone) => tone === activeSourceTone)
@@ -153,7 +149,7 @@ function ExpandedIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = f
       tabIndex={0}
       aria-selected="true"
       aria-controls={`party-panel-${slot + 1}`}
-      aria-label={`Close ${agent.name} setup and Result${isIncomplete ? ', setup incomplete' : ''}`}
+      aria-label={`Close ${agentName} setup and Result${isIncomplete ? ', setup incomplete' : ''}`}
       onClick={onSelect}
       onKeyDown={onKeyDown}
       {...sourceToneEvents(identityTone, onSourceToneChange)}
@@ -164,7 +160,7 @@ function ExpandedIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = f
       <span className="identity-copy">
         {isIncomplete && <span className="slot-incomplete-marker">Setup incomplete</span>}
         <strong className={`focus-marker ${isFocus ? '' : 'focus-marker--reserved'}`} aria-hidden={!isFocus}>Focus</strong>
-        <span className="slot-name-line"><strong className={identityNameClass(agent.name)}>{agent.name}</strong></span>
+        <span className="slot-name-line"><strong className="identity-name">{agentName}</strong></span>
         <span className="identity-band">
           <RankMark rank={agent.rank} />
           <IdentityMarks agentId={agent.id} attribute={agent.attribute} specialty={agent.specialty} />
@@ -176,6 +172,7 @@ function ExpandedIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = f
 
 function CompactSlot({ activeSourceTone, agentId, isFocus, isIncomplete = false, isInactive = false, isOverview = false, onSourceToneChange, onSelect, onKeyDown, slot }: SlotControlProps & { isInactive?: boolean; isOverview?: boolean }) {
   const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
+  const agentName = agentDisplayName(agent)
   const tone = agentSlotTone(slot)
   const className = `party-slot party-slot--compact source-target source-tone--${tone}${activeSourceTone === tone ? ' is-source-active' : ''}${isIncomplete ? ' is-setup-incomplete' : ''}`
 
@@ -190,8 +187,8 @@ function CompactSlot({ activeSourceTone, agentId, isFocus, isIncomplete = false,
       aria-selected={isOverview ? undefined : 'false'}
       aria-controls={isOverview ? undefined : `party-panel-${slot + 1}`}
       aria-label={isInactive
-        ? `${agent.name} applied slot, inactive while editing party${isIncomplete ? ', setup incomplete' : ''}`
-        : `View ${agent.name} setup and Result${isIncomplete ? ', setup incomplete' : ''}`}
+        ? `${agentName} applied slot, inactive while editing party${isIncomplete ? ', setup incomplete' : ''}`
+        : `View ${agentName} setup and Result${isIncomplete ? ', setup incomplete' : ''}`}
       onClick={isInactive ? undefined : onSelect}
       onKeyDown={isInactive ? undefined : onKeyDown}
       {...sourceToneEvents(tone, onSourceToneChange)}
@@ -200,7 +197,7 @@ function CompactSlot({ activeSourceTone, agentId, isFocus, isIncomplete = false,
       <span className="identity-shade" aria-hidden="true" />
       <span className="source-tint" aria-hidden="true" />
       <span className="slot-identity">
-        <span className="slot-name-line"><strong className={identityNameClass(agent.name)}>{agent.name}</strong></span>
+        <span className="slot-name-line"><strong className="identity-name">{agentName}</strong></span>
         <span className="identity-band">
           <RankMark rank={agent.rank} />
           <IdentityMarks agentId={agent.id} attribute={agent.attribute} specialty={agent.specialty} />
@@ -258,7 +255,7 @@ export function PartyWorkbench({
     <section className="party-section" aria-labelledby="party-heading">
       <div className="section-kicker">
         <h2 id="party-heading">Applied party</h2>
-        <span>Focus {'\u00B7'} {ADMITTED_AGENTS.find(({ id }) => id === slots[focusSlot].agentId)!.name}</span>
+        <span>Focus {'\u00B7'} {agentDisplayName(ADMITTED_AGENTS.find(({ id }) => id === slots[focusSlot].agentId)!)}</span>
         <button type="button" className="party-edit-trigger" onClick={onEditParty}>Edit party</button>
       </div>
       <ol

@@ -622,6 +622,19 @@ export const VERTICAL_VALUES = {
     mindscape4FrostburnDmg: 30,
     mindscape6ShimotsukiDmg: 30,
   },
+  anton: {
+    atk: 791, critRate: 19.4, critDmg: 50, baseEnergyRegen: 1.2,
+    corePiledriverDmg: 24, coreDrillDmg: 40, additionalShockDmg: 45,
+    mindscapeCritRate: 10, mindscapeBurstDmg: 24,
+  },
+  rina: {
+    penRatio: 14.4, baseEnergyRegen: 1.2,
+    corePenRatio: 25, corePenBase: 12, corePenCap: 30,
+    mindscapeCorePenRatio: 32.5, mindscapeCorePenBase: 15.6, mindscapeCorePenCap: 39,
+    potentialPenRatio: 1.6, potentialAtkPerPen: 8, potentialAtkCap: 576,
+    additionalShockDuration: 3, additionalElectricDmg: 10,
+    mindscapeEnergyRegen: 0.5, mindscapeElectricDmg: 15,
+  },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [
@@ -749,5 +762,9 @@ export const SOURCE_LABELS = {
   nangongYuAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   miyabiCore: SOURCE_CATEGORY_LABELS.corePassive,
   miyabiAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  antonCore: SOURCE_CATEGORY_LABELS.corePassive,
+  antonAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  rinaCore: SOURCE_CATEGORY_LABELS.corePassive,
+  rinaAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const

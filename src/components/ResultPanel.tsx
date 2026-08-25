@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
-import { ADMITTED_AGENTS, type AgentId } from '../workbench/content'
+import { ADMITTED_AGENTS, agentDisplayName, type AgentId } from '../workbench/content'
 import { actionOutcomeLabel, actionTagLabel } from '../workbench/actions'
 import type {
   ActionModifier,
@@ -748,7 +748,7 @@ export function ResultPanel({
     else next.add(metricId)
     return next
   })
-  const agentName = ADMITTED_AGENTS.find((agent) => agent.id === agentResult.agentId)!.name
+  const agentName = agentDisplayName(ADMITTED_AGENTS.find((agent) => agent.id === agentResult.agentId)!)
 
   return (
     <section className="result-panel" aria-labelledby="result-heading">
