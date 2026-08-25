@@ -230,6 +230,14 @@ than changing membership. Fixed supply from an earlier selected package may
 change pressure on a later input without merging their candidate sets or
 ranking arbitrary combinations.
 
+The W-Engine input applies the narrower realized-package comparison owned by
+the inspection and competitive-set rules below. For that input, package
+completeness and unusable source clauses add neither value nor cost; the
+strongest Agent-appropriate recomposed setup calibrates the competitive range,
+and finite main-stat and substat reallocation compresses same-direction
+alternatives within that range. This W-Engine boundary does not replace the
+separate Drive Disc, main-stat, or effective-substat gates.
+
 Patterns order inspection but cannot inherit another Agent's result. New items
 are routed first to roles, formulas, actions, stat pressures, and Specialties
 that can consume them; unrelated Agents do not require full re-derivation.
@@ -245,25 +253,38 @@ could strengthen the exact authored direction. A guide appearance, signature
 association, rarity, Specialty match, or isolated high value neither admits nor
 rejects a package by itself.
 
-For every inspected package, settle the holder's role and formula, action,
-operation, threshold, or cap consumer; exact Specialty eligibility and
+For every inspected legal package, settle the holder's role and formula,
+action, operation, threshold, or cap consumer; exact Specialty eligibility and
 activation compatibility; availability and ownership origin; and the nearest
-usable same-axis competitor in the same pool. Then compare Base ATK, advanced
-stat, and every passive clause together at S-Rank W1 or A-Rank W5. Charge an
-unused advanced stat or passive clause as finite slot or stat-supply opportunity
-cost rather than treating it as an automatic rejection. An off-Specialty
-package remains Agent-local and survives only when its usable whole package is
-competitive for the current direction.
+usable same-direction competitor. At S-Rank W1 or A-Rank W5, derive only the
+Base ATK, advanced stat, passive clauses, conditions, scopes, and operations the
+current Agent can realize. A usable contribution adds its realized value. An
+unusable contribution adds zero and is neither a bonus nor a penalty. Complete
+and partial describe applicability; clause count and package completeness do
+not establish value or priority. An off-Specialty package remains Agent-local
+and survives only when its realized package is competitive for the current
+direction.
 
-Apply that comparison independently to full and non-limited availability, at
-zero currently supplied substats and with only the bounded future opportunity
-owned by [Competitive Candidate Set](#competitive-candidate-set). Set candidate
-membership before authoring one deterministic pool representative. Candidate
-dominance or representative priority does not establish Result projection;
-each retained clause still needs its exact recipient, formula, Attribute,
-action, or operation consumer. Contextual or selected-input-derived changes
-also keep their established contrary and invalid-selection lifecycle. Do not
-turn this authoring order into runtime scoring, a package registry, or a
+At zero currently supplied substats, recompose the complete bounded setup and
+the future opportunity owned by [Competitive Candidate Set](#competitive-candidate-set)
+around each realized package. Use the strongest Agent-appropriate setup to
+calibrate the material competitive range and reject packages too remote to
+remain useful choices. Within that range, retain the stronger package for one
+recomposed setup direction and retain different directions only while each is
+competitive. The opportunity cost of selecting one W-Engine is the realized
+value of the competing setup it displaces, not unusable source text. Limited
+acquisition remains part of the decision: a partial limited S-Rank package must
+justify its realized value and direction beside competitive standard S-Rank
+and A-Rank alternatives without receiving a completeness penalty.
+
+Author one admitted candidate set before applying availability pools, then
+author one deterministic representative from the applicable subset for each
+pool. Candidate membership or representative priority does not establish
+Result projection; each retained clause still needs its exact recipient,
+formula, Attribute, action, or operation consumer. Setup continues to show the
+complete source-owned selected package. Contextual or selected-input-derived
+changes also keep their established contrary and invalid-selection lifecycle.
+Do not turn this authoring order into runtime scoring, a package registry, or a
 named-Agent decision table.
 
 #### Drive Disc Inspection Routing
@@ -520,17 +541,21 @@ accessibility, stat or modifier balance, thresholds, caps, operation, or a
 supported preference may distinguish it. Reachability, signature association,
 a different trigger, or an isolated clause is insufficient.
 
-Compare fully usable W-Engines before partial packages. A partial package may
-remain when its usable portion creates a material alternate setup or operation
-after its unused portion is charged as opportunity cost. Compare fallbacks
-against the nearest package in the same availability and ownership context, and
-compare limited fallbacks with each other. Keep the stronger representative when
-two partial packages express the same direction; keep both only when their
-whole packages create materially different current choices. This applies in
-both pools: a non-limited S-Rank package is not rejected merely because its
-advanced stat is unused when its usable passive remains competitive. Candidate
-count is never a target, and the workbench does not expose every viable
-fallback.
+For W-Engine membership, complete and partial packages use the same value
+comparison. The strongest Agent-appropriate recomposed setup calibrates the
+material competitive range; alternatives whose realized value is too remote
+are excluded even when they are legal, positive, or distinct in name. Usable
+contributions add their realized value, while unusable contributions add zero
+and receive neither a completeness bonus nor a partial-package penalty. Among
+competitive packages, keep only the stronger one when finite main-stat and
+substat reallocation makes both express the same setup direction; keep
+different directions only while each materially changes a competitive setup.
+A limited S-Rank using only part of its source package may remain when that
+realized value and direction justify its acquisition beside competitive
+standard S-Rank and A-Rank alternatives. A non-limited S-Rank likewise is not
+rejected merely because its advanced stat is unused when its realized passive
+package remains competitive. Candidate count is never a target, and the
+workbench does not expose every viable fallback.
 
 Individual viability is not enough. Numerical difference alone creates no
 cutoff. Candidate count is not a target. A direction's valid stat pressure keeps
@@ -652,13 +677,15 @@ incomplete until the user repairs it or authorized preparation rebuilds it.
 - **non-limited pool** excludes limited S-Rank while retaining admitted non-
   limited S-Rank and A-Rank engines.
 
-Author candidate membership in both availability contexts before deriving the
-non-limited subset. Full-pool authoring compares limited alternatives with each
-other while preserving materially distinct accessibility paths; non-limited
-authoring re-compares the remaining standard S-Rank and A-Rank packages without
-using a limited first choice as their benchmark. A non-limited candidate that
-survives that second comparison also appears in full, but its accessibility-
-path meaning need not beat the limited representative head to head.
+Author one admitted candidate set before partitioning it by availability. The
+Agent-realized comparison includes acquisition and accessibility where they
+materially distinguish competitive choices, but availability does not readmit
+a package rejected from that set. Full exposes the whole admitted set;
+non-limited derives its exact subset by removing limited S-Rank identities.
+Author the full representative from the full set and the non-limited
+representative from that derived subset. A non-limited accessibility path need
+not numerically equal the limited representative, but it must still have
+survived the same material competitive-range decision.
 
 Pool defaults to full. Initial preparation selects the authored first choice
 from that pool. Switching pools initializes that Agent with the complete
