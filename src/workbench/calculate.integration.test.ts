@@ -104,6 +104,16 @@ describe('shared calculation integration', () => {
       .toBe(VERTICAL_VALUES.nangongYu.additionalChainBuildup)
     expect(hasSource(anomalyParty, 'aria', 'defReduction', 'sunna')).toBe(true)
 
+    const attackParty = createPreparedState({}, ['miyabi', 'nangongYu', 'sunna'], 0)
+    const miyabi = calculateParty(attackParty)!.agents
+      .find(({ agentId }) => agentId === 'miyabi')!
+    const miyabiBroadBuildup = miyabi.metrics
+      .find(({ id }) => id === 'anomalyBuildupBonus')!
+    const miyabiChainBuildup = miyabi.actionModifiers
+      .find(({ id }) => id === 'chainAttackAnomalyBuildup')!
+    expect(miyabiChainBuildup.values.fully - miyabiBroadBuildup.values.fully)
+      .toBe(VERTICAL_VALUES.nangongYu.additionalChainBuildup)
+
     const nangong = anomalyResult.agents.find(({ agentId }) => agentId === 'nangongYu')!
     expect(nangong.metrics.find(({ id }) => id === 'anomalyProficiency')!.breakdown.fully)
       .toContainEqual(expect.objectContaining({

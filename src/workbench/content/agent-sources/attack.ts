@@ -2,10 +2,10 @@ import { AFTERSHOCK_TARGET, MIYABI_FROSTBURN_BUILDUP_TARGET, MIYABI_FROSTBURN_RE
 import { effectiveSubstatChoicesForSlot } from '../../candidates'
 import { actionProjection, type ActionProjection, type AgentSourceProfile, type MetricProjection } from '../../calculation/profile-harness'
 import type { ActionScopeNode } from '../../calculation/composition'
-import { CRIT_DAMAGE_FORMULAS, REGULAR_DAMAGE_FORMULAS } from '../../formula-policy'
+import { CRIT_DAMAGE_FORMULAS, directionUsesFormula, REGULAR_DAMAGE_FORMULAS } from '../../formula-policy'
 import type { ProfileRelationship } from '../../calculation/relationships'
 import type { WorkbenchState } from '../../state'
-import { anotherAgentHasSpecialty, anotherAgentSharesAttribute, anotherAgentSharesFaction, soldier11AdditionalIsActive, zhuYuanAdditionalIsActive, harumasaAdditionalIsActive, nekomataAdditionalIsActive, billyAdditionalIsActive } from '../../party-conditions'
+import { anotherAgentHasSpecialty, anotherAgentSharesAttribute, anotherAgentSharesFaction, soldier11AdditionalIsActive, zhuYuanAdditionalIsActive, harumasaAdditionalIsActive, nekomataAdditionalIsActive, billyAdditionalIsActive, nangongAdditionalIsActive } from '../../party-conditions'
 import { resolveSeedVanguardForState } from '../../candidate-context'
 import { ADMITTED_AGENTS } from '../agents'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
@@ -110,6 +110,19 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
   const baseStats = { ...BASE[agent], penRatio: 0 }; const observation: SelectedSetupObservation = { baseStats, effectiveSubstats: effectiveSubstatChoicesForSlot(state, slot), modifierMetrics: ['dmgBonus', 'defIgnore', 'defReduction', 'resIgnore', 'resReduction', 'stunDmgMultiplier', 'dazeBonus'] }
   const relationships = selectedSetupRelationships(agent, slot, setup, observation); const add = (r: ProfileRelationship) => relationships.push(r); const core = src(agent, slot, 'core', SOURCE_LABELS[`${agent}Core` as keyof typeof SOURCE_LABELS] ?? 'Core Passive'); const ability = src(agent, slot, 'ability', SOURCE_LABELS[`${agent}Ability` as keyof typeof SOURCE_LABELS] ?? 'Additional Ability', 'additional'); const mind = (tier: 1|2|3|4|5|6) => selectedMindscapeSource(agent, slot, setup.mindscape, tier); const all = { recipient: 'all-party' as const }; const enemy = { recipient: 'enemy-context' as const }
   const actions: ActionProjection[] = []; const basicUlt = BASIC_ULT
+  const nangongSlot = ids.indexOf('nangongYu')
+  if (
+    nangongSlot >= 0
+    && nangongSlot !== slot
+    && directionUsesFormula(agent, 'anomaly_buildup')
+    && nangongAdditionalIsActive(ids, nangongSlot)
+  ) {
+    actions.push(actionProjection(
+      'anomalyBuildupBonus',
+      'chainAttackAnomalyBuildup',
+      CHAIN,
+    ))
+  }
   const addMetric = (metric: EffectMetric, value: number, source = core, action?: ActionTarget, surface: 'combat'|'fully' = 'fully') => {
     if (!value) return
     add(

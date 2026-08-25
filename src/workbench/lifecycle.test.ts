@@ -275,6 +275,7 @@ describe('shared preparation and edit lifecycle', () => {
       ['caesar', 'astraYao', 'yixuan'],
       ['qingyi', 'nicole', 'yixuan'],
       ['trigger', 'anbySoldier0', 'yixuan'],
+      ['corin', 'dialyn', 'lycaon'],
     ]
     for (const agentIds of contextualParties) {
       const focusSlot = agentIds.findIndex(isFocusEligible) as AppliedSlot
@@ -285,6 +286,14 @@ describe('shared preparation and edit lifecycle', () => {
       )
     }
   }, 30_000)
+
+  it('requires local whole-package admission for contextual received-Ultimate discs', () => {
+    const admitted = createPreparedState({}, ['corin', 'dialyn', 'lycaon'], 0)
+    expect(effectiveFourPieceIds(admitted, 0)).toContain('pufferElectro')
+
+    const unadmitted = createPreparedState({}, ['hugo', 'dialyn', 'lycaon'], 0)
+    expect(effectiveFourPieceIds(unadmitted, 0)).not.toContain('pufferElectro')
+  })
 
   it('rebuilds every holder on Party Apply but only the target on pool or Mindscape changes', () => {
     let state = createPreparedState()

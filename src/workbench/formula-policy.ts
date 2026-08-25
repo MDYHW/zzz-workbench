@@ -56,6 +56,14 @@ export function primaryFormulaUsesCrit(agentId: AgentId): boolean {
     .some(formulaUsesCrit)
 }
 
+export function directionUsesFormula(
+  agentId: AgentId,
+  formula: FormulaFamily,
+): boolean {
+  const { primary, residual } = FORMULA_PARTICIPATION_BY_AGENT[agentId].setup
+  return primary.includes(formula) || residual.includes(formula)
+}
+
 export function effectAttributeForAgent(agentId: AgentId): EffectAttribute {
   const attribute = ADMITTED_AGENTS.find(({ id }) => id === agentId)?.attribute
   if (attribute === 'Auric Ink') return 'Ether'

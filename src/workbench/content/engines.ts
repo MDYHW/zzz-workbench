@@ -1225,7 +1225,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   starlightBilly: enginePools(['starlightRiderFaceplate', 'qingming', 'cauldron', 'steelCushion', 'grillOWisp', 'puzzleSphere']),
   dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   nangongYu: enginePools(['neonFantasies', 'hellfireGears', 'simmeringPot', 'preciousFossilizedCore', 'roaringFurnace']),
-  miyabi: enginePools(['hailstormShrine', 'frostfallSickle', 'flamemakerShaker', 'practicedPerfection', 'fusionCompiler', 'electroLipGloss', 'roaringRide', 'marcatoDesire']),
+  miyabi: enginePools(['hailstormShrine', 'fusionCompiler', 'electroLipGloss']),
   lucia: enginePools(['dreamlitHearth', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
   anbySoldier0: enginePools(['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'marcatoDesire', 'starlightEngine']),
   trigger: enginePools(['spectralGaze', 'blazingLaurel', 'iceJadeTeapot', 'restrained', 'hellfireGears', 'preciousFossilizedCore', 'steamOven']),

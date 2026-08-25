@@ -48,6 +48,16 @@ export function anotherAgentSharesFaction(
   ))
 }
 
+/** Nangong Yu's Additional Ability: another Anomaly Agent or matching faction. */
+export function nangongAdditionalIsActive(
+  agentIds: readonly AgentId[],
+  nangongIndex: number,
+): boolean {
+  if (agentIds[nangongIndex] !== 'nangongYu') return false
+  return anotherAgentHasSpecialty(agentIds, nangongIndex, ['Anomaly'])
+    || anotherAgentSharesFaction(agentIds, nangongIndex)
+}
+
 /**
  * Consult only an explicitly opted-in game-recognized qualification group.
  * This deliberately does not alter generic display-faction equality.

@@ -90,7 +90,8 @@ export function effectiveFourPieceIds(
   slot: AppliedSlot,
 ): DiscId[] {
   const agentId = state.slots[slot].agentId
-  const base = setupPolicyFor(agentId).discIdsByPiece.fourPiece
+  const discPolicy = setupPolicyFor(agentId).discIdsByPiece
+  const base = discPolicy.fourPiece
   const contextual = [
     ...((agentId === 'cissia' || agentId === 'evelyn' || agentId === 'caesar')
       && hasRepeatedQuickAssistOpportunity(state.slots.map(({ agentId: id }) => id))
@@ -100,7 +101,9 @@ export function effectiveFourPieceIds(
       && qingyiAstralOpportunity(state.slots.map(({ agentId: id }) => id), slot)
       ? ['astralVoice' as const]
       : []),
-    ...(hasDialynUltimateOpportunity(state, slot) ? ['pufferElectro' as const] : []),
+    ...(hasDialynUltimateOpportunity(state, slot)
+      ? discPolicy.contextualFourPiece?.receivedUltimate ?? []
+      : []),
   ]
   return contextual.length ? [...base, ...contextual] : base
 }

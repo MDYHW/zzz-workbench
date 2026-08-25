@@ -8,7 +8,7 @@ import type { StatId, StatRegion } from '../../calculation/stat-composer'
 import type { EffectAttribute, EffectMetric, SurfaceKey } from '../../effects'
 import type { WorkbenchState } from '../../state'
 import { DEF_DAMAGE_FORMULAS, effectAttributeForAgent, REGULAR_DAMAGE_FORMULAS } from '../../formula-policy'
-import { anotherAgentHasSpecialty, anotherAgentSharesFaction, anotherAgentSharesAttribute, piperAdditionalIsActive } from '../../party-conditions'
+import { anotherAgentHasSpecialty, anotherAgentSharesFaction, anotherAgentSharesAttribute, nangongAdditionalIsActive, piperAdditionalIsActive } from '../../party-conditions'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
 import { type AgentId, type FormulaFamily } from '../types'
 import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from './equipment'
@@ -217,10 +217,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
   if (
     nangongSlot >= 0
     && nangongSlot !== slot
-    && (
-      anotherAgentHasSpecialty(ids, nangongSlot as Slot, ['Anomaly'])
-      || anotherAgentSharesFaction(ids, nangongSlot as Slot)
-    )
+    && nangongAdditionalIsActive(ids, nangongSlot)
   ) {
     actions.push(actionProjection('anomalyBuildupBonus', 'chainAttackAnomalyBuildup', ANOMALY_RECIPIENT_CHAIN))
   }

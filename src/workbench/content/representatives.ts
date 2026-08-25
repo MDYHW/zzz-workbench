@@ -345,8 +345,8 @@ const nangongYuRepresentative = (pool: PoolId): SetupSelection => ({
 
 const miyabiRepresentative = (pool: PoolId): SetupSelection => ({
   engineId: pool === 'full' ? 'hailstormShrine' : 'fusionCompiler',
-  fourPieceId: 'branchAndBlade', twoPieceId: 'polarMetal',
-  mains: { slot4: 'critRate', slot5: 'iceDmg', slot6: 'atkPct' },
+  fourPieceId: 'branchAndBlade', twoPieceId: 'woodpecker',
+  mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
 })
 
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
