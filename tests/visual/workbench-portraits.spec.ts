@@ -16,8 +16,8 @@ type PortraitParty = {
 const agents = {
   pulchra: { candidateName: 'Pulchra, Physical, Stun', displayName: 'Pulchra', slug: 'pulchra' },
   nekomata: { candidateName: 'Nekomata, Physical, Attack', displayName: 'Nekomata', slug: 'nekomata' },
-  ben: { candidateName: 'Ben Bigger, Fire, Defense', displayName: 'Ben Bigger', slug: 'ben' },
-  koleda: { candidateName: 'Koleda Belobog, Fire, Stun', displayName: 'Koleda Belobog', slug: 'koleda' },
+  ben: { candidateName: 'Ben, Fire, Defense', displayName: 'Ben', slug: 'ben' },
+  koleda: { candidateName: 'Koleda, Fire, Stun', displayName: 'Koleda', slug: 'koleda' },
   zhao: { candidateName: 'Zhao, Ice, Defense', displayName: 'Zhao', slug: 'zhao' },
   anbySoldier0: {
     candidateName: 'Anby: Soldier 0, Electric, Attack',
@@ -25,15 +25,15 @@ const agents = {
     slug: 'anby-soldier-0',
   },
   grace: { candidateName: 'Grace Howard, Electric, Anomaly', displayName: 'Grace Howard', slug: 'grace' },
-  piper: { candidateName: 'Piper Wheel, Physical, Anomaly', displayName: 'Piper Wheel', slug: 'piper' },
+  piper: { candidateName: 'Piper, Physical, Anomaly', displayName: 'Piper', slug: 'piper' },
   yanagi: {
-    candidateName: 'Tsukishiro Yanagi, Electric, Anomaly',
-    displayName: 'Tsukishiro Yanagi',
+    candidateName: 'Yanagi, Electric, Anomaly',
+    displayName: 'Yanagi',
     slug: 'yanagi',
   },
   alice: {
-    candidateName: 'Alice Thymefield, Physical, Anomaly',
-    displayName: 'Alice Thymefield',
+    candidateName: 'Alice, Physical, Anomaly',
+    displayName: 'Alice',
     slug: 'alice',
   },
   vivian: { candidateName: 'Vivian, Ether, Anomaly', displayName: 'Vivian', slug: 'vivian' },
@@ -46,8 +46,8 @@ const agents = {
     slug: 'nangong-yu',
   },
   miyabi: {
-    candidateName: 'Hoshimi Miyabi, Frost, Anomaly',
-    displayName: 'Hoshimi Miyabi',
+    candidateName: 'Miyabi, Frost, Anomaly',
+    displayName: 'Miyabi',
     slug: 'miyabi',
   },
   anton: { candidateName: 'Anton, Electric, Attack', displayName: 'Anton', slug: 'anton' },
@@ -68,13 +68,13 @@ const parties: readonly PortraitParty[] = [
   },
   {
     id: 'portrait-piper-anomaly',
-    focus: 'Piper Wheel',
+    focus: 'Piper',
     captures: [agents.piper],
     members: [agents.piper, agents.grace, agents.ben],
   },
   {
     id: 'portrait-yanagi-alice-anomaly',
-    focus: 'Tsukishiro Yanagi',
+    focus: 'Yanagi',
     captures: [agents.yanagi, agents.alice],
     members: [agents.yanagi, agents.alice, agents.piper],
   },
@@ -92,7 +92,7 @@ const parties: readonly PortraitParty[] = [
   },
   {
     id: 'portrait-miyabi-frost',
-    focus: 'Hoshimi Miyabi',
+    focus: 'Miyabi',
     captures: [agents.miyabi],
     members: [agents.miyabi, agents.yanagi, agents.sunna],
   },

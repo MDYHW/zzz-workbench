@@ -73,9 +73,9 @@ describe('workbench UI integration', () => {
 
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
     await user.click(screen.getByRole('button', { name: /Replace slot 2,/ }))
-    await user.click(screen.getByRole('button', { name: /Seth Lowell, Electric, Defense/ }))
+    await user.click(screen.getByRole('button', { name: /Seth, Electric, Defense/ }))
     await user.click(screen.getByRole('button', { name: 'Apply party' }))
-    await user.click(screen.getByRole('tab', { name: 'View Seth Lowell setup and Result' }))
+    await user.click(screen.getByRole('tab', { name: 'View Seth setup and Result' }))
 
     const selectedPeacekeeper = screen.getByRole('button', {
       name: 'Change W-Engine from Peacekeeper - Specialized',
