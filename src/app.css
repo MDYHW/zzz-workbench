@@ -21,6 +21,7 @@
   --compact-slot-width: clamp(96px, 7.5vw, 112px);
   --identity-track-width: clamp(146px, 10.2vw, 162px);
   --agent-identity-name-size: 22px;
+  --agent-expanded-identity-name-size: 38px;
   --setup-track-width: clamp(455px, 36vw, 540px);
 }
 
@@ -415,10 +416,17 @@ main { margin-top: 18px; }
 }
 
 
-.slot-name-line h2,
-.slot-identity--expanded .identity-name {
+.slot-name-line h2 {
   margin-top: 0;
   font-size: var(--agent-identity-name-size);
+  line-height: 0.84;
+  letter-spacing: -0.045em;
+  overflow-wrap: anywhere;
+}
+
+.slot-identity--expanded .identity-name {
+  margin-top: 0;
+  font-size: var(--agent-expanded-identity-name-size);
   line-height: 0.84;
   letter-spacing: -0.045em;
   overflow-wrap: anywhere;
@@ -1835,7 +1843,8 @@ button.main-stat-block:focus-visible {
     width: calc(110% * var(--portrait-source-scale));
   }
   .identity-copy { justify-content: flex-end; padding: 14px 14px 14px 47%; }
-  .slot-name-line h2, .slot-identity--expanded .identity-name { font-size: var(--agent-identity-name-size); }
+  .slot-name-line h2 { font-size: var(--agent-identity-name-size); }
+  .slot-identity--expanded .identity-name { font-size: var(--agent-expanded-identity-name-size); }
   .slot-identity--expanded .identity-band { position: static; width: 188px; margin-top: 10px; }
   .expanded-slot__workbench { display: block; }
   .setup-panel { padding: 18px 14px 22px; clip-path: none; background: #22211e; }
