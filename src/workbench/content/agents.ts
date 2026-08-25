@@ -295,7 +295,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     focusEligible: true, rank: 'A', faction: 'Belobog Heavy Industries',
   },
   {
-    id: 'rina', name: 'Rina', attribute: 'Electric', specialty: 'Support',
+    id: 'rina', name: 'Alexandrina Sebastiane', displayName: 'Rina', attribute: 'Electric', specialty: 'Support',
     focusEligible: false, rank: 'S', faction: 'Victoria Housekeeping Co.',
   },
 ]

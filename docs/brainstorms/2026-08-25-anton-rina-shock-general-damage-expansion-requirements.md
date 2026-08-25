@@ -202,7 +202,20 @@ completed Anomaly-damage track, Miyabi, or existing candidate rosters.
   Calibrate `scale`, `headTopY`, and `faceX` in that order at desktop and
   narrow widths, expanded and compact. Preserve Rina's companion composition
   where it does not obscure the identity mark or controls. No existing
-  portrait metadata or layout is in scope.
+  portrait metadata is in scope. The only shared existing-Agent presentation
+  change in this unit is the accepted identity-label and type-scale outcome in
+  R21a.
+- R21a. Canonical Agent names remain content identity and cross-Agent Result
+  provenance, while familiar visible and accessible labels use `Harumasa`,
+  `Billy`, `Ben`, `Koleda`, `Anby`, `Caesar`, `Piper`, `Yuzuha`, `Burnice`,
+  `Jane`, `Seth`, `Yanagi`, `Alice`, `Miyabi`, `Anton`, and `Rina` for their
+  corresponding full canonical identities. Names whose identity is not
+  preserved by the shortened form remain unshortened. Candidate-pool labels
+  retain their existing 16px density; compact applied slots use one 22px size
+  and expanded identities use one 38px headline size for every Agent. Do not
+  branch type size by Agent or label length. A long expanded desktop label may
+  wrap within the identity track without crossing into Setup; narrow expanded
+  presentation keeps the same 38px size.
 
 ## Testing Delta
 
@@ -231,9 +244,12 @@ completed Anomaly-damage track, Miyabi, or existing candidate rosters.
   observation boundary. There is no reachable contrasting holder and no new
   materializer branch, so Hellfire/Flamemaker interval tests do not justify a
   new Weeping or Rina test.
-- TD5. Portrait metadata changes require the existing visual-baseline job and
-  in-app browser checks. No other semantic content change needs a new visual
-  snapshot.
+- TD5. Portrait metadata and the changed shared compact/expanded identity
+  presentation require the existing visual-baseline job and in-app browser
+  checks. Reuse a current long retained label to prove the common 38px
+  expanded size remains visible at desktop and narrow widths. Candidate-pool
+  typography is unchanged, so its existing 16px density does not require a new
+  visual assertion. Do not add a named display-label catalogue test.
 
 ## Scope Boundaries
 
