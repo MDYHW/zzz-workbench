@@ -169,10 +169,11 @@ The prose requirements govern if this diagram and the text ever differ.
   Red Axis W5. Bellicose Blaze is a partial but material limited-ownership
   alternate: its Energy Regen and CRIT Rate both strengthen Cissia's current
   Core threshold and damage direction, while its Fire Aftershock DEF
-  Ignore is unusable by her Electric Aftershocks and is charged as package
-  opportunity cost. Serpentine remains the stronger full representative because
-  its comparable Energy Regen package supplies more CRIT Rate and a usable
-  Electric DEF Ignore clause. General stat sticks remain excluded when their
+  Ignore is unusable by her Electric Aftershocks and contributes zero.
+  Serpentine remains the stronger full representative because its comparable
+  Energy Regen package supplies more CRIT Rate and a usable Electric DEF Ignore
+  clause. The difference comes from realized usable value, not a penalty for
+  Bellicose's unusable clause. General stat sticks remain excluded when their
   usable whole packages create no distinct current choice.
 - R8. Cissia locally retains Dawn's Bloom as her operation-fitting 4-piece.
   Astra's repeated Quick Assist opportunity adds Astral Voice as a contextual

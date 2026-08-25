@@ -132,12 +132,12 @@ preserving the current three-surface Result grammar.
   representative.
 - R16. Hailstorm Shrine is an eligible Anomaly engine but its CRIT and Ice
   package has no Grace consumer. Frostfall Sickle's usable AM is dominated by
-  the retained AM packages after its Ice and Abloom clauses are charged as
-  unused. Flight of Fancy's AP+Buildup package is locally excluded after
-  inspection against the retained partial for Grace's direction-defining
-  maximum-Zap Special/EX buildup. Sharpened Stinger does not survive that
-  same local comparison, and Flamemaker Shaker cannot sustain a competitive
-  package through Grace's Energy and field-time pattern. Attack-specialty
+  the retained AM packages; its Ice and Abloom clauses contribute zero rather
+  than an additional penalty. Flight of Fancy's AP+Buildup package is locally
+  excluded after inspection against the retained partial for Grace's
+  direction-defining maximum-Zap Special/EX buildup. Sharpened Stinger does
+  not survive that same local comparison, and Flamemaker Shaker cannot sustain
+  a competitive package through Grace's Energy and field-time pattern. Attack-specialty
   engines are passive-inactive for Grace even if their advanced stat is
   numerically positive. Roaring Ride's short random buff and Rainforest
   Gourmet's Energy-spend cadence do not add a competitive role beyond the

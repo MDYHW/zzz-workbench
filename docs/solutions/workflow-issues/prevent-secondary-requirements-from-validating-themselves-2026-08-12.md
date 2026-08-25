@@ -1,7 +1,7 @@
 ---
 title: Prevent secondary requirements from validating themselves
 date: 2026-08-12
-last_updated: 2026-08-23
+last_updated: 2026-08-25
 category: workflow-issues
 module: controller-refresh-and-requirements-authoring
 problem_type: workflow_issue
@@ -120,6 +120,8 @@ choice being added or changed:
 - origin: base, contextual, or selected-input-derived
 - nearest usable same-axis competitor in the same availability pool
 - usable and unused clauses in each complete package
+- realized value from usable clauses only; every unusable clause contributes
+  zero and is never subtracted as a completeness penalty
 - the visible prepared-zero state kept separate from finite future slot and
   substat opportunity costs
 - pool-specific prepared first choice
@@ -158,8 +160,15 @@ prepared Setup and Result
 representative authoring
 = complete legal package at zero supplied counts
 + bounded future opportunity on retained effective axes
-- unused clauses and foreclosed slot or substat opportunities
+- opportunity cost of the competitive setup and finite slot or substat
+  opportunities displaced by selecting that package
 ```
+
+An unusable source clause is not itself an opportunity cost. Record it to keep
+the complete equipment package and applicability boundary intelligible, but
+assign it zero realized value. The comparison cost comes from a usable
+alternative, slot, or finite tuning opportunity that the selected setup gives
+up.
 
 The first expression keeps the current Result honest. Never insert reserved
 future hits into Setup or Result. The second expression keeps the starting
@@ -360,11 +369,12 @@ equivalence registry.
 ### Corin representative authoring
 
 Legality and broad usefulness do not establish a first choice. Compare each
-same-pool package through Base ATK, advanced stat, usable passive, unused-clause
-opportunity cost, finite main/substat supply, and the nearest same-axis
-competitor. If that comparison does not resolve the full-pool representative,
-leave it as an authoring stop. The non-limited choice cannot prove the full-pool
-choice.
+same-pool package through Base ATK, advanced stat, realized usable passive
+value, finite main/substat supply, the competitive setup displaced by that
+package, and the nearest same-axis competitor. Unused clauses contribute zero
+rather than a penalty. If that comparison does not resolve the full-pool
+representative, leave it as an authoring stop. The non-limited choice cannot
+prove the full-pool choice.
 
 ### Lycaon Disc comparison: eligibility before dominance
 

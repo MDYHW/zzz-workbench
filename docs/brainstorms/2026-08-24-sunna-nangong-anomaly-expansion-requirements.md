@@ -41,8 +41,10 @@ effect's action scope, and a holder may legally equip an engine while being
 unable to activate one clause. Selected and candidate Setup copy is
 source-owned: it compresses every materially distinct clause in the admitted
 competitive package, including a clause that is unused by the current holder
-when that clause remains whole-package opportunity cost. Result alone filters
-the package to effects consumed by the current holder or party.
+when that clause is needed to disclose the complete package. An unused clause
+contributes zero to candidate value and is not an opportunity-cost penalty.
+Result alone filters the package to effects consumed by the current holder or
+party.
 
 ---
 
@@ -121,7 +123,8 @@ the package to effects consumed by the current holder or party.
   - Weeping's Energy axis is usable, but its squad-DMG clause has no current
     Sunna trigger route in her prepared interval. Retain Weeping as a distinct
     resource package. Its source-owned Setup summary keeps the unused squad-DMG
-    clause as package opportunity cost; Sunna's Result projects only Energy.
+    clause for complete-package disclosure; that clause contributes zero to
+    candidate value, and Sunna's Result projects only Energy.
   - Kaboom supplies Energy Regen and a reachable all-party ATK package.
     Unfettered supplies Energy Regen and a
     weakness-matched party CRIT direction distinct from ATK and DMG supply.

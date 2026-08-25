@@ -172,9 +172,9 @@ direction, raw damage, raw Daze, or runtime optimizer.
   Hellfire's; A-Rank accessibility alone does not create a material choice.
   Original Transmorpher's HP is unused and its after-attacked Fully Enabled
   Impact package is weaker than Hellfire's always-available Initial Impact. It
-  is excluded
-  from the same Daze direction after charging its unused HP and survival
-  opportunity cost.
+  is excluded from the same Daze direction because that realized Impact
+  package is weaker. Its unused HP and survival clauses contribute zero and do
+  not create an additional penalty.
 - R12. Spring Embrace is admitted to both pools. Its A-Rank W5 package supplies
   ATK and next-holder Energy generation. Damage reduction supplies no
   positive axis, but the transferable resource is a distinct buffer operation
