@@ -226,9 +226,10 @@ optimizer.
   after-attacked Impact clause form the nearest same-axis accessibility
   package. Bunny Band is
   dominated by Original's same-rank, same-Base-ATK HP package and needs an
-  external shield for only personal ATK; Spring Embrace and Tusks do not
-  preserve enough Initial-HP pressure to offset their unused survival/Daze
-  clauses. These are local Zhao judgments, not general Defense exclusions.
+  external shield for only personal ATK; Spring Embrace and Tusks are excluded
+  because their realized Initial-HP and provider packages remain weaker, while
+  their unused survival or Daze clauses contribute zero. These are local Zhao
+  judgments, not general Defense exclusions.
 - R25. Zhao's 4-piece candidates are Bunny in Wonderland and Astral Voice.
   Bunny supplies HP and squad DMG; Astral supplies ATK and a controllable
   entrant-DMG package through Zhao's repeated Quick

@@ -487,8 +487,7 @@ export const W_ENGINE_FACTS = {
     effects: {
       critDamage: { modifier: 'critDmg', unit: '%', value: [50, 57, 65, 72, 80] },
       iceDamage: {
-        modifier: 'dmgBonus', unit: '%',
-        progression: { kind: 'stacks', perStack: scaledRefinementValues(20), maxStacks: 2 },
+        modifier: 'dmgBonus', unit: '%', value: [40, 46, 52, 58, 64],
         scope: { attributes: ['Ice'] },
       },
     },
@@ -1226,6 +1225,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   starlightBilly: enginePools(['starlightRiderFaceplate', 'qingming', 'cauldron', 'steelCushion', 'grillOWisp', 'puzzleSphere']),
   dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   nangongYu: enginePools(['neonFantasies', 'hellfireGears', 'simmeringPot', 'preciousFossilizedCore', 'roaringFurnace']),
+  miyabi: enginePools(['hailstormShrine', 'fusionCompiler', 'electroLipGloss']),
   lucia: enginePools(['dreamlitHearth', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
   anbySoldier0: enginePools(['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'marcatoDesire', 'starlightEngine']),
   trigger: enginePools(['spectralGaze', 'blazingLaurel', 'iceJadeTeapot', 'restrained', 'hellfireGears', 'preciousFossilizedCore', 'steamOven']),
@@ -1234,7 +1234,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   cissia: enginePools(['serpentineSeeker', 'bellicoseBlaze', 'drillRigRedAxis', 'cordisGermina']),
   evelyn: enginePools(['heartstringNocturne', 'severedInnocence', 'cordisGermina', 'starlightEngine', 'steelCushion']),
   corin: enginePools(['cordisGermina', 'heartstringNocturne', 'steelCushion', 'housekeeper']),
-  lycaon: enginePools(['blazingLaurel', 'hellfireGears', 'restrained', 'steamOven', 'preciousFossilizedCore', 'simmeringPot']),
+  lycaon: enginePools(['blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   ellen: enginePools(['deepSeaVisitor', 'myriadEclipse', 'cordisGermina', 'steelCushion', 'brimstone', 'starlightEngine']),
   soukaku: enginePools(['weepingCradle', 'kaboom']),
   soldier11: enginePools(['heartstringNocturne', 'cordisGermina', 'severedInnocence', 'brimstone', 'starlightEngine']),

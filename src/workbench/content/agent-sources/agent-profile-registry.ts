@@ -105,6 +105,7 @@ const AGENT_PROFILE_BUILDERS = {
   promeia: anomaly('promeia'),
   sunna: providerDefense('sunna'),
   nangongYu: ruptureStun('nangongYu'),
+  miyabi: attack('miyabi'),
 } satisfies ExactAgentProfileDefinitions
 
 export function sourceProfileForSlot(

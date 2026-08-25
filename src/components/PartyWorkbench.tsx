@@ -5,6 +5,7 @@ import physicalMark from '../assets/game/attributes/physical.webp'
 import electricMark from '../assets/game/attributes/electric.webp'
 import fireMark from '../assets/game/attributes/fire.webp'
 import iceMark from '../assets/game/attributes/ice.webp'
+import frostMark from '../assets/game/attributes/frost.webp'
 import rankSMark from '../assets/game/ranks/s.webp'
 import rankAMark from '../assets/game/ranks/a.webp'
 import ruptureMark from '../assets/game/specialties/rupture.webp'
@@ -70,6 +71,7 @@ const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> 
   promeia: { attribute: iceMark, specialty: anomalyMark },
   sunna: { attribute: physicalMark, specialty: supportMark },
   nangongYu: { attribute: etherMark, specialty: stunMark },
+  miyabi: { attribute: frostMark, specialty: anomalyMark },
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {

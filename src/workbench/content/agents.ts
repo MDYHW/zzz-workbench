@@ -286,6 +286,10 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     id: 'nangongYu', name: 'Nangong Yu', attribute: 'Ether', specialty: 'Stun',
     focusEligible: false, rank: 'S', faction: 'Angels of Delusion',
   },
+  {
+    id: 'miyabi', name: 'Hoshimi Miyabi', attribute: 'Frost', specialty: 'Anomaly',
+    focusEligible: true, rank: 'S', faction: 'Section 6',
+  },
 ]
 
 export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>

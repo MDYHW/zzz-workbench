@@ -190,9 +190,9 @@ describe('shared preparation and edit lifecycle', () => {
       const exercisedCandidateSets = new Set<string>()
       for (const pool of POOLS) {
         expect(policy.engineIdsByPool[pool].length, `${agent.id}:${pool}`).toBeGreaterThan(0)
+        const state = candidateStateFor(agent.id, pool)
         for (const engineId of policy.engineIdsByPool[pool]) {
           expect(W_ENGINES, `${agent.id}:${engineId}`).toHaveProperty(engineId)
-          const state = candidateStateFor(agent.id, pool)
           const selected = workbenchReducer(state, {
             type: 'selectEngine', slot: 0, engineId,
           })
@@ -275,6 +275,7 @@ describe('shared preparation and edit lifecycle', () => {
       ['caesar', 'astraYao', 'yixuan'],
       ['qingyi', 'nicole', 'yixuan'],
       ['trigger', 'anbySoldier0', 'yixuan'],
+      ['corin', 'dialyn', 'lycaon'],
     ]
     for (const agentIds of contextualParties) {
       const focusSlot = agentIds.findIndex(isFocusEligible) as AppliedSlot
@@ -284,6 +285,26 @@ describe('shared preparation and edit lifecycle', () => {
         `contextual:${agentIds.join('+')}`,
       )
     }
+  }, 30_000)
+
+  it('requires local whole-package admission for contextual received-Ultimate discs', () => {
+    const admitted = createPreparedState({}, ['corin', 'dialyn', 'lycaon'], 0)
+    expect(effectiveFourPieceIds(admitted, 0)).toContain('pufferElectro')
+
+    const hugoM0 = createPreparedState({}, ['hugo', 'dialyn', 'lycaon'], 0)
+    expect(effectiveFourPieceIds(hugoM0, 0)).not.toContain('pufferElectro')
+
+    const hugoM2 = workbenchReducer(hugoM0, {
+      type: 'setMindscape', slot: 0, mindscape: 2,
+    })
+    expect(effectiveFourPieceIds(hugoM2, 0)).toContain('pufferElectro')
+    expect(hugoM2.slots[0].setup.fourPieceId).toBe('hormonePunk')
+
+    const hugoM1 = workbenchReducer(hugoM2, {
+      type: 'setMindscape', slot: 0, mindscape: 1,
+    })
+    expect(effectiveFourPieceIds(hugoM1, 0)).not.toContain('pufferElectro')
+    expect(hugoM1.slots[0].setup.fourPieceId).toBe('hormonePunk')
   })
 
   it('rebuilds every holder on Party Apply but only the target on pool or Mindscape changes', () => {

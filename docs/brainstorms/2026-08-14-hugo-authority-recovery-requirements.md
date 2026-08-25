@@ -10,8 +10,9 @@ topic: hugo-authority-recovery
 Recover a bounded product owner for Hugo, whose current production behavior was
 added without a vertical requirement or completed milestone. The five permanent
 authorities remain the source of meaning; implementation and tests are evidence
-to audit, not authority. The audit supports the current behavior except for one
-bounded Cordis action-scope omission corrected by this recovery.
+to audit, not authority. The audit supports the bounded behavior after
+correcting Cordis action scope and a later candidate recalculation that admits
+Puffer Electro 4-piece only for the Dialyn-created M2+ opportunity.
 
 Hugo is a Focus-eligible Ice Attack damage dealer. He reuses general damage,
 current action scoping, party qualification, pool-specific whole-package
@@ -79,14 +80,22 @@ Basic/Ultimate action effect.
   scopes. Candidate dominance never defines these Result projections.
 - R9. Selected Myriad creates broad DEF-Ignore pressure because its package
   already supplies that axis. It removes the standalone Slot 5 PEN choice and
-  Puffer Electro candidate. Leaving Myriad restores membership only; it does
-  not restore a cleared selection. Reselecting Myriad removes an incompatible
-  current selection again. Corin/Cordis is the contrast: an action-scoped
-  effect does not create broad pre-PEN pressure.
+  standalone Puffer Electro 2-piece candidate. It does not remove an
+  independently admitted complete Puffer 4-piece package. Leaving Myriad
+  restores membership only; it does not restore a cleared selection.
+  Reselecting Myriad removes an incompatible current selection again.
+  Corin/Cordis is the contrast: an action-scoped effect does not create broad
+  pre-PEN pressure.
 
 ### Drive Discs and finite opportunity
 
-- R10. Hugo's 4-piece candidate is Hormone Punk. His 2-piece candidates are
+- R10. Hugo's authored base 4-piece candidate is Hormone Punk. When Dialyn
+  supplies the received-Ultimate opportunity, Puffer Electro becomes a
+  contextual 4-piece candidate only at Hugo M2+. M2 preserves the post-Ultimate
+  Stun interval in which Puffer's ATK clause reaches Hugo's burst; at M0-M1 the
+  whole package does not remain competitive. This is a minimum-tier candidate
+  relationship, not a retained Stun-duration state or rotation model. Hugo's
+  2-piece candidates are
   Polar Metal, Woodpecker Electro, Branch & Blade Song, Puffer Electro, Astral
   Voice, and Hormone Punk, subject to different-set and selected-Myriad pressure.
   Polar remains because Ice DMG reaches his general-damage formula. ATK sets
@@ -114,9 +123,11 @@ Basic/Ultimate action effect.
   according to the shared completeness rule; zero substats are complete.
 - R15. Shared behavior tests must cover Myriad pressure present, absent, and
   reselected; Cordis's broad CRIT plus Basic/Ultimate DEF Ignore and unused
-  Electric clause; M0/M1 pool representatives; one one-Stun/two-Stun/no-Stun
-  party composition; and a contrasting Corin or non-Myriad flow. Tests prove
-  fidelity to these authority-backed outcomes, not the outcomes themselves.
+  Electric clause; M0/M1 pool representatives; Dialyn contextual Puffer absent
+  at M0-M1 and present at M2+ without changing the prepared Hormone choice; one
+  one-Stun/two-Stun/no-Stun party composition; and a contrasting Corin or
+  non-Myriad flow. Tests prove fidelity to these authority-backed outcomes, not
+  the outcomes themselves.
 
 ## Rejected Alternatives And Boundaries
 
@@ -131,9 +142,10 @@ Basic/Ultimate action effect.
 
 ## Status
 
-The recovery audit found one mismatch: Hugo projected Cordis DEF Ignore on
-Ultimate but omitted the same retained Basic Attack scope. The established
-Cordis package, permanent action-consumer rule, and Corin/Ellen/Zhu Yuan
-contrasts settle the correction without a new product decision. No other defect
-was found in the sampled supported Hugo consumers; this is not a repository-wide
-clean bill.
+The recovery audit corrected Hugo's missing Cordis Basic Attack DEF Ignore.
+A later candidate recalculation also found that Dialyn's Puffer opportunity was
+too broadly excluded: M2+ makes the complete post-Ultimate package competitive,
+while M0-M1 remains excluded. The established contextual-candidate flow and a
+recipient-local minimum Mindscape condition settle that correction without an
+Agent-ID branch or runtime Stun model. No other defect was found in the sampled
+supported Hugo consumers; this is not a repository-wide clean bill.

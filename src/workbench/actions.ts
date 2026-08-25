@@ -117,6 +117,19 @@ export const ATTRIBUTE_ANOMALY_TARGET = actionTarget([
 export const ABLOOM_TARGET = actionTarget([sourceLocalAction('Abloom')])
 export const CORRUPTION_TARGET = actionTarget([sourceLocalAction('Corruption')])
 
+// Miyabi's target-state buildup outcomes are shared across her provider and
+// every current anomaly-buildup recipient. They remain separate so the Fully
+// Enabled projection never combines mutually exclusive target conditions.
+export const MIYABI_ICEFIRE_BUILDUP_TARGET = actionTarget([
+  sourceLocalAction('Frost Buildup · Icefire target'),
+])
+export const MIYABI_FROSTBURN_BUILDUP_TARGET = actionTarget([
+  sourceLocalAction('Anomaly Buildup · Frostburn target'),
+])
+export const MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET = actionTarget([
+  sourceLocalAction('Anomaly Buildup · After Frostburn removal'),
+])
+
 export function actionOutcomeLabel(outcome: ActionOutcome): string {
   switch (outcome.kind) {
     case 'canonical':

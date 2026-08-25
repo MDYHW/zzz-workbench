@@ -1,11 +1,11 @@
-import { actionForm, actionTarget, canonicalAction, sourceLocalAction } from '../../actions'
+import { MIYABI_FROSTBURN_BUILDUP_TARGET, MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET, actionForm, actionTarget, canonicalAction, sourceLocalAction } from '../../actions'
 import { effectiveSubstatChoicesForSlot } from '../../candidates'
 import { actionProjection, type AgentSourceProfile, type MetricProjection } from '../../calculation/profile-harness'
 import type { ProfileRelationship } from '../../calculation/relationships'
 import { selectSource } from '../../calculation/source-instance'
 import type { WorkbenchState } from '../../state'
 import { CRIT_DAMAGE_FORMULAS, DEF_DAMAGE_FORMULAS, REGULAR_DAMAGE_FORMULAS } from '../../formula-policy'
-import { anotherAgentHasSpecialty, anotherAgentSharesAttribute, anotherAgentSharesFaction, caesarAdditionalIsActive } from '../../party-conditions'
+import { anotherAgentHasSpecialty, anotherAgentSharesAttribute, anotherAgentSharesFaction, caesarAdditionalIsActive, nangongAdditionalIsActive } from '../../party-conditions'
 import { DRIVE_DISC_FACTS } from '../discs'
 import { W_ENGINES } from '../engines'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
@@ -290,14 +290,21 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     agent === 'seth'
     && nangongSlot >= 0
     && nangongSlot !== slot
-    && (
-      anotherAgentHasSpecialty(agentIds, nangongSlot as Slot, ['Anomaly'])
-      || anotherAgentSharesFaction(agentIds, nangongSlot as Slot)
-    )
+    && nangongAdditionalIsActive(agentIds, nangongSlot)
   ) {
     actions = [
       ...(actions ?? []),
       actionProjection('anomalyBuildupBonus', 'chainAttackAnomalyBuildup', NANGONG_CHAIN),
+    ]
+  }
+  const miyabiSlot = agentIds.indexOf('miyabi')
+  if (agent === 'seth' && miyabiSlot >= 0 && miyabiSlot !== slot) {
+    actions = [
+      ...(actions ?? []),
+      actionProjection('anomalyBuildupBonus', 'miyabiFrostburnBuildup', MIYABI_FROSTBURN_BUILDUP_TARGET),
+      ...(state.slots[miyabiSlot].setup.mindscape >= 1
+        ? [actionProjection('anomalyBuildupBonus', 'miyabiFrostburnRemovedBuildup', MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET)]
+        : []),
     ]
   }
   relationships.push(...selectedEquipmentRelationships(agent, slot, setup, {

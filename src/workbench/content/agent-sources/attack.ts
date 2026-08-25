@@ -1,11 +1,11 @@
-import { AFTERSHOCK_TARGET, actionForm, actionTarget, canonicalAction, sourceLocalAction, type ActionTarget, type CanonicalActionKind } from '../../actions'
+import { AFTERSHOCK_TARGET, MIYABI_FROSTBURN_BUILDUP_TARGET, MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET, MIYABI_ICEFIRE_BUILDUP_TARGET, actionForm, actionTarget, canonicalAction, sourceLocalAction, type ActionTarget, type CanonicalActionKind } from '../../actions'
 import { effectiveSubstatChoicesForSlot } from '../../candidates'
 import { actionProjection, type ActionProjection, type AgentSourceProfile, type MetricProjection } from '../../calculation/profile-harness'
 import type { ActionScopeNode } from '../../calculation/composition'
-import { CRIT_DAMAGE_FORMULAS, REGULAR_DAMAGE_FORMULAS } from '../../formula-policy'
+import { CRIT_DAMAGE_FORMULAS, directionUsesFormula, REGULAR_DAMAGE_FORMULAS } from '../../formula-policy'
 import type { ProfileRelationship } from '../../calculation/relationships'
 import type { WorkbenchState } from '../../state'
-import { anotherAgentHasSpecialty, anotherAgentSharesAttribute, anotherAgentSharesFaction, soldier11AdditionalIsActive, zhuYuanAdditionalIsActive, harumasaAdditionalIsActive, nekomataAdditionalIsActive, billyAdditionalIsActive } from '../../party-conditions'
+import { anotherAgentHasSpecialty, anotherAgentSharesAttribute, anotherAgentSharesFaction, soldier11AdditionalIsActive, zhuYuanAdditionalIsActive, harumasaAdditionalIsActive, nekomataAdditionalIsActive, billyAdditionalIsActive, nangongAdditionalIsActive } from '../../party-conditions'
 import { resolveSeedVanguardForState } from '../../candidate-context'
 import { ADMITTED_AGENTS } from '../agents'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
@@ -15,7 +15,7 @@ import type { StatId, StatRegion } from '../../calculation/stat-composer'
 import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
 
-type Agent = 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen' | 'soldier11' | 'zhuYuan' | 'orphie' | 'harumasa' | 'nekomata' | 'billy' | 'yeShunguang'
+type Agent = 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen' | 'soldier11' | 'zhuYuan' | 'orphie' | 'harumasa' | 'nekomata' | 'billy' | 'yeShunguang' | 'miyabi'
 type Slot = 0 | 1 | 2
 type CalculationContext = { targetStunDmgMultiplier?: number }
 const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
@@ -25,7 +25,7 @@ const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   hugo: { atk: VERTICAL_VALUES.hugo.atk, critRate: VERTICAL_VALUES.hugo.critRate, critDmg: VERTICAL_VALUES.hugo.critDmg }, ellen: { atk: VERTICAL_VALUES.ellen.atk, critRate: VERTICAL_VALUES.ellen.critRate, critDmg: VERTICAL_VALUES.ellen.critDmg },
   soldier11: { atk: VERTICAL_VALUES.soldier11.atk, critRate: VERTICAL_VALUES.soldier11.critRate, critDmg: VERTICAL_VALUES.soldier11.critDmg }, zhuYuan: { atk: VERTICAL_VALUES.zhuYuan.atk, critRate: VERTICAL_VALUES.zhuYuan.critRate, critDmg: VERTICAL_VALUES.zhuYuan.critDmg }, orphie: { atk: VERTICAL_VALUES.orphie.atk, critRate: VERTICAL_VALUES.orphie.critRate, critDmg: VERTICAL_VALUES.orphie.critDmg, energyRegen: VERTICAL_VALUES.orphie.baseEnergyRegen },
   harumasa: { atk: VERTICAL_VALUES.harumasa.atk, critRate: VERTICAL_VALUES.harumasa.critRate, critDmg: VERTICAL_VALUES.harumasa.critDmg }, nekomata: { atk: VERTICAL_VALUES.nekomata.atk, critRate: VERTICAL_VALUES.nekomata.critRate, critDmg: VERTICAL_VALUES.nekomata.critDmg, energyRegen: VERTICAL_VALUES.nekomata.baseEnergyRegen },
-  billy: { atk: VERTICAL_VALUES.billy.atk, critRate: VERTICAL_VALUES.billy.critRate, critDmg: VERTICAL_VALUES.billy.critDmg }, yeShunguang: { atk: VERTICAL_VALUES.yeShunguang.atk, critRate: VERTICAL_VALUES.yeShunguang.critRate, critDmg: VERTICAL_VALUES.yeShunguang.critDmg },
+  billy: { atk: VERTICAL_VALUES.billy.atk, critRate: VERTICAL_VALUES.billy.critRate, critDmg: VERTICAL_VALUES.billy.critDmg }, yeShunguang: { atk: VERTICAL_VALUES.yeShunguang.atk, critRate: VERTICAL_VALUES.yeShunguang.critRate, critDmg: VERTICAL_VALUES.yeShunguang.critDmg }, miyabi: { atk: VERTICAL_VALUES.miyabi.atk, critRate: VERTICAL_VALUES.miyabi.critRate, critDmg: VERTICAL_VALUES.miyabi.critDmg, anomalyMastery: VERTICAL_VALUES.miyabi.anomalyMastery },
 }
 const A = (name: CanonicalActionKind, form?: string) => form ? actionForm(name, form) : canonicalAction(name)
 const BASIC_ULT = actionTarget([A('Basic Attack'), A('Ultimate')])
@@ -74,6 +74,10 @@ const BILLY_CROUCHING = actionTarget([A('Basic Attack'), A('Dash Attack'), A('Do
 const YE_EX = actionTarget([sourceLocalAction('EX Special Attack: Enlightened Mind - Soaring Light')])
 const YE_ULT = actionTarget([sourceLocalAction('Ultimate: Cleaving Heavens')])
 const YE_M2 = actionTarget([...YE_EX.outcomes, ...YE_ULT.outcomes])
+const MIYABI_SHIMOTSUKI = actionTarget([sourceLocalAction('Shimotsuki')])
+const MIYABI_SHIMOTSUKI_AFTER_DISORDER = actionTarget([sourceLocalAction('Shimotsuki · After Disorder')])
+const MIYABI_FROSTBURN_BREAK = actionTarget([sourceLocalAction('Frostburn-Break')])
+const MIYABI_KAZAHANA = actionTarget([sourceLocalAction('Kazahana'), A('Dodge Counter')])
 const src = (agent: Agent, slot: Slot, id: string, label: string, locus: 'identity' | 'core' | 'additional' | 'special' | 'ex-special' = 'core') => selectedAgentSource(agent, slot, id, label, locus)
 const m = (id: EffectMetric, label: string, unit = '', statId?: MetricProjection['statId'], admission?: MetricProjection['admission']): MetricProjection => ({ id, label, unit, decimals: unit === '/s' ? 2 : unit === '%' ? 1 : 0, ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }), ...(admission ? { admission } : {}) })
 function stat(source: ReturnType<typeof selectedAgentSource>, statId: StatId, value: number, region: Exclude<StatRegion, 'base'> = 'flat', earliestSurface: SurfaceKey = 'fully', detail?: string): ProfileRelationship { return { kind: 'stat', atom: { statId, region, value, earliestSurface, source, ...(detail ? { sourceDetail: detail } : {}) } } }
@@ -96,6 +100,7 @@ function partyQualification(agent: Agent, ids: readonly AgentId[], slot: Slot): 
     case 'nekomata': return nekomataAdditionalIsActive(ids, slot)
     case 'billy': return billyAdditionalIsActive(ids, slot)
     case 'yeShunguang': return anotherAgentHasSpecialty(ids, slot, ['Support', 'Stun'])
+    case 'miyabi': return anotherAgentHasSpecialty(ids, slot, ['Support', 'Anomaly']) || anotherAgentSharesFaction(ids, slot)
   }
 }
 
@@ -105,6 +110,19 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
   const baseStats = { ...BASE[agent], penRatio: 0 }; const observation: SelectedSetupObservation = { baseStats, effectiveSubstats: effectiveSubstatChoicesForSlot(state, slot), modifierMetrics: ['dmgBonus', 'defIgnore', 'defReduction', 'resIgnore', 'resReduction', 'stunDmgMultiplier', 'dazeBonus'] }
   const relationships = selectedSetupRelationships(agent, slot, setup, observation); const add = (r: ProfileRelationship) => relationships.push(r); const core = src(agent, slot, 'core', SOURCE_LABELS[`${agent}Core` as keyof typeof SOURCE_LABELS] ?? 'Core Passive'); const ability = src(agent, slot, 'ability', SOURCE_LABELS[`${agent}Ability` as keyof typeof SOURCE_LABELS] ?? 'Additional Ability', 'additional'); const mind = (tier: 1|2|3|4|5|6) => selectedMindscapeSource(agent, slot, setup.mindscape, tier); const all = { recipient: 'all-party' as const }; const enemy = { recipient: 'enemy-context' as const }
   const actions: ActionProjection[] = []; const basicUlt = BASIC_ULT
+  const nangongSlot = ids.indexOf('nangongYu')
+  if (
+    nangongSlot >= 0
+    && nangongSlot !== slot
+    && directionUsesFormula(agent, 'anomaly_buildup')
+    && nangongAdditionalIsActive(ids, nangongSlot)
+  ) {
+    actions.push(actionProjection(
+      'anomalyBuildupBonus',
+      'chainAttackAnomalyBuildup',
+      CHAIN,
+    ))
+  }
   const addMetric = (metric: EffectMetric, value: number, source = core, action?: ActionTarget, surface: 'combat'|'fully' = 'fully') => {
     if (!value) return
     add(
@@ -384,6 +402,41 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
       )
       break
     }
+    case 'miyabi': {
+      const values = VERTICAL_VALUES.miyabi
+      const ultimate = src(agent, slot, 'ultimate', 'Ultimate', 'special')
+      addMetric('dmgBonus', values.ultimateIceDmg, ultimate)
+      add(operation(core, 'Frostburn-Break DMG', values.frostburnBreakDmg, '% ATK'))
+      add({
+        kind: 'post-delivery-stat-modifier-gauge', source: core,
+        basis: { statId: 'critRate', surface: 'fully' },
+        basisLabel: 'Fully Enabled CRIT Rate', basisValueCap: 100,
+        basisCap: values.frostBuildupCap,
+        gaugeMetricId: 'critRate', modifierMetricId: 'anomalyBuildupBonus', action: MIYABI_ICEFIRE_BUILDUP_TARGET,
+        modifierSurface: 'fully',
+        output: { label: 'Frost Anomaly Buildup Bonus', value: { kind: 'linear', transform: { basisIncrement: 1, outputIncrement: values.frostBuildupPerCrit, outputCap: values.frostBuildupCap } }, cap: values.frostBuildupCap, unit: '%' },
+        decimals: { current: 1, cap: 0, output: 1, outputCap: 0 },
+      })
+      if (qualified) {
+        addMetric('dmgBonus', values.additionalShimotsukiDmg, ability, MIYABI_SHIMOTSUKI_AFTER_DISORDER)
+        addMetric('resIgnore', values.additionalIceResIgnore, ability, MIYABI_SHIMOTSUKI_AFTER_DISORDER)
+      }
+      add({ kind: 'provider', source: core, delivery: { recipient: 'all-party', formulas: ['anomaly_buildup'] }, effect: { kind: 'modifier', metricId: 'anomalyBuildupBonus', earliestSurface: 'fully', value: values.frostburnBuildup, action: MIYABI_FROSTBURN_BUILDUP_TARGET } })
+      if (setup.mindscape >= 1) {
+        addMetric('defIgnore', values.mindscape1ShimotsukiDefIgnore, mind(1), MIYABI_SHIMOTSUKI)
+        add({ kind: 'provider', source: mind(1), delivery: { recipient: 'all-party', formulas: ['anomaly_buildup'] }, effect: { kind: 'modifier', metricId: 'anomalyBuildupBonus', earliestSurface: 'fully', value: values.mindscape1Buildup, action: MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET } })
+      }
+      if (setup.mindscape >= 2) { addMetric('dmgBonus', values.mindscape2KazahanaDmg, mind(2), MIYABI_KAZAHANA); addMetric('critRate', values.mindscape2CritRate, mind(2), undefined, 'combat') }
+      if (setup.mindscape >= 4) addMetric('dmgBonus', values.mindscape4FrostburnDmg, mind(4), MIYABI_FROSTBURN_BREAK)
+      if (setup.mindscape >= 6) addMetric('dmgBonus', values.mindscape6ShimotsukiDmg, mind(6), MIYABI_SHIMOTSUKI)
+      actions.push(
+        { metricId: 'dmgBonus', scopes: [{ id: 'miyabiShimotsuki', target: MIYABI_SHIMOTSUKI, children: [{ id: 'miyabiShimotsukiAfterDisorder', target: MIYABI_SHIMOTSUKI_AFTER_DISORDER }] }, { id: 'miyabiFrostburnBreak', target: MIYABI_FROSTBURN_BREAK }, { id: 'miyabiKazahana', target: MIYABI_KAZAHANA }] },
+        { metricId: 'anomalyBuildupBonus', scopes: [{ id: 'miyabiIcefireBuildup', target: MIYABI_ICEFIRE_BUILDUP_TARGET }, { id: 'miyabiFrostburnBuildup', target: MIYABI_FROSTBURN_BUILDUP_TARGET }, { id: 'miyabiFrostburnRemovedBuildup', target: MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET }] },
+        actionProjection('defIgnore', 'miyabiShimotsukiDefIgnore', MIYABI_SHIMOTSUKI),
+        actionProjection('resIgnore', 'miyabiShimotsukiAfterDisorderResIgnore', MIYABI_SHIMOTSUKI_AFTER_DISORDER),
+      )
+      break
+    }
   }
   relationships.push(...selectedEquipmentRelationships(agent, slot, setup, {
     observation,
@@ -420,7 +473,9 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
     m('atk', 'ATK', '', 'atk'),
     { ...m('critRate', 'CRIT Rate', '%', 'critRate'), cap: critCap },
     m('critDmg', 'CRIT DMG', '%', 'critDmg'),
+    ...(agent === 'miyabi' ? [m('anomalyMastery', 'Anomaly Mastery', '', 'anomalyMastery')] : []),
     m('dmgBonus', 'DMG Bonus', '%'),
+    ...(agent === 'miyabi' ? [m('anomalyBuildupBonus', 'Anomaly Buildup Bonus', '%', undefined, 'nonzero-or-action')] : []),
     m('penRatio', 'PEN Ratio', '%', 'penRatio', 'disclosed-or-action'),
     ...(baseStats.energyRegen !== undefined ? [{ ...m('energyRegen', 'Energy Regen', '/s', 'energyRegen', agent === 'cissia' || agent === 'orphie' ? undefined : 'disclosed-or-action'), ...(agent === 'cissia' || agent === 'orphie' ? { decimals: 3 } : {}) }] : []),
     m('defIgnore', 'DEF Ignore', '%', undefined, 'nonzero-or-action'),

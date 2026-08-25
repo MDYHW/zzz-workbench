@@ -230,8 +230,9 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   Daze/resource package remains stronger at the zero-substat start.
 - Do not admit Thunder Metal, Roaring, Spectral, Box Cutter, or every other
   numerically positive Stun package by guide analogy. Exact direction,
-  activation, nearest competitor, unused clauses, and opportunity cost decide
-  each local candidate.
+  activation, nearest competitor, realized usable clauses, and the competitive
+  setup displaced by the selection decide each local candidate. Unused clauses
+  remain part of package disclosure but contribute zero to value.
 - Do not turn Energy, Energy Generation Rate, stacks, cooldowns, Shock, target
   HP time, or action frequency into runtime state. Do not project Demara's
   conditional Energy Generation Rate as Energy Regen.

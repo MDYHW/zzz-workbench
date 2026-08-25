@@ -72,6 +72,7 @@ const OPERATING_INTERVAL_BY_AGENT: Partial<Record<AgentId, OperatingIntervalPoli
   promeia: { default: 'on-field' },
   sunna: { default: 'off-field' },
   nangongYu: { default: 'off-field' },
+  miyabi: { default: 'on-field' },
 }
 
 /**
@@ -183,6 +184,7 @@ export const PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE: Partial<
   vivian: 'etherDmg',
   aria: 'etherDmg',
   promeia: 'iceDmg',
+  miyabi: 'iceDmg',
 }
 
 /** Authored whole-package replacement when the selected 2-piece loses its distinct axis. */

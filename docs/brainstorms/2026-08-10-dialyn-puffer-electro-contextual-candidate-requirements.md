@@ -115,12 +115,17 @@ The prose requirements govern if this diagram and the text ever differ.
 - R3. A recipient gains the contextual Puffer Electro 4-piece case only when it
   is a non-Dialyn applied Agent with a crit-capable `general_damage` direction
   and a damaging canonical Ultimate to which Puffer's 4-piece package applies.
-  Specialty is not the predicate, Focus is not the recipient allocator, and
-  applied slot order does not change membership.
-- R4. Under the currently admitted roster and directions, R3 admits Anby:
-  Soldier 0, Seed, and Cissia. Anby retains the existing rule that her Ultimate
-  is also Aftershock DMG; Puffer changes the Ultimate action without erasing
-  that tag. Seed and Cissia consume their own canonical Ultimate outcomes.
+  These shared conditions do not admit a candidate by themselves: the
+  recipient's current bounded requirement must independently establish that
+  the complete package remains competitive and may retain a local minimum
+  Mindscape condition. Specialty is not the predicate, Focus is not the
+  recipient allocator, and applied slot order does not change membership.
+- R4. Candidate admission is an authored local outcome, not a generated roster
+  from R3. Anby: Soldier 0, Seed, and Cissia are established contrasting
+  examples: Anby's Ultimate also remains Aftershock DMG, while Seed and Cissia
+  consume their own canonical Ultimate outcomes. Later recipient requirements
+  own their additional admissions and local tier conditions; this requirement
+  does not maintain a named-Agent compatibility catalogue.
 - R5. Yixuan is excluded because `sheer_damage` omits Puffer's PEN Ratio axis
   and this closure does not author a separate sheer-direction Puffer package.
   Dialyn, Lucia, Trigger, and Astra Yao are excluded because their current
@@ -171,9 +176,11 @@ The prose requirements govern if this diagram and the text ever differ.
 - R14. A target-only Mindscape or pool preparation rebuilds only that target
   from its existing authored representative. If the target had directly
   selected Puffer, that target preparation may replace it with the representative;
-  other Agents remain untouched. Preparing Dialyn at M0-M6 does not invalidate
-  or overwrite another Agent's current Puffer selection because the opportunity
-  remains reachable across those Mindscapes.
+  other Agents remain untouched. The target's effective candidates are
+  re-evaluated against any recipient-local minimum Mindscape condition.
+  Preparing Dialyn at M0-M6 does not invalidate or overwrite another Agent's
+  current Puffer selection because the opportunity remains reachable across
+  Dialyn's Mindscapes.
 - R15. Directly selecting Puffer changes only the edited recipient's 4-piece and
   any existing same-set piece-role consequence. It does not prepare another
   Agent, rerun Astral/King/Moonlight holder allocation, or choose which ally
@@ -270,8 +277,9 @@ The prose requirements govern if this diagram and the text ever differ.
 
 ## Success Criteria
 
-- The current recipient rule is closed semantically and admits exactly the
-  current Anby, Seed, and Cissia cases without a permanent compatibility matrix.
+- The current recipient rule is closed semantically and admits only recipients
+  with an independently authored competitive package, including any local
+  minimum Mindscape condition, without a permanent compatibility matrix.
 - Puffer's complete 2-piece/4-piece package, Setup compression, calculation
   surfaces, Ultimate scope, and source disclosure can be planned without new
   fact research.

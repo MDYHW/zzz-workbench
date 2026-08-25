@@ -478,6 +478,10 @@ export function selectedWEngineRelationships({
       }
       break
     }
+    case 'hailstormShrine':
+      add('critDmg', value(W_ENGINE_FACTS.hailstormShrine.effects.critDamage, setup))
+      add('dmgBonus', value(W_ENGINE_FACTS.hailstormShrine.effects.iceDamage, setup))
+      break
     case 'frostfallSickle':
       add('dmgBonus', maximum(W_ENGINE_FACTS.frostfallSickle.effects.iceDamage, setup))
       add('anomalyDmgBonus', value(W_ENGINE_FACTS.frostfallSickle.effects.abloomDamage, setup), actionTarget([sourceLocalAction('Abloom')]))
@@ -583,7 +587,7 @@ export function selectedWEngineRelationships({
     case 'restrained':
       add('dazeBonus', maximum(W_ENGINE_FACTS.restrained.effects.daze, setup), agent === 'trigger'
         ? BASIC_AFTERSHOCK_TARGET
-        : ['lycaon', 'lighter', 'qingyi', 'koleda', 'anby'].includes(agent)
+        : ['lighter', 'qingyi', 'koleda', 'anby'].includes(agent)
           ? BASIC
           : undefined)
       if (agent === 'qingyi') add('dmgBonus', maximum(W_ENGINE_FACTS.restrained.effects.damage, setup), BASIC)
@@ -603,9 +607,9 @@ export function selectedWEngineRelationships({
       if (agent === 'pulchra') add('dazeBonus', value(W_ENGINE_FACTS.boxCutter.effects.daze, setup))
       break
     case 'simmeringPot':
-      if (agent === 'lycaon' || agent === 'nangongYu') {
+      if (agent === 'nangongYu') {
         add('dazeBonus', value(W_ENGINE_FACTS.simmeringPot.effects.daze, setup))
-        if (agent === 'nangongYu') add('dmgBonus', value(W_ENGINE_FACTS.simmeringPot.effects.damage, setup))
+        add('dmgBonus', value(W_ENGINE_FACTS.simmeringPot.effects.damage, setup))
       }
       break
     case 'neonFantasies':

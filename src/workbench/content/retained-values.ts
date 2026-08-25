@@ -603,6 +603,25 @@ export const VERTICAL_VALUES = {
     mindscape4Buildup: 35,
     mindscape6Daze: 50,
   },
+  miyabi: {
+    atk: 880,
+    critRate: 5,
+    critDmg: 50,
+    anomalyMastery: 116,
+    frostBuildupCap: 80,
+    frostBuildupPerCrit: 1,
+    frostburnBreakDmg: 1500,
+    frostburnBuildup: 20,
+    additionalShimotsukiDmg: 60,
+    additionalIceResIgnore: 30,
+    ultimateIceDmg: 30,
+    mindscape1ShimotsukiDefIgnore: 36,
+    mindscape1Buildup: 20,
+    mindscape2KazahanaDmg: 30,
+    mindscape2CritRate: 15,
+    mindscape4FrostburnDmg: 30,
+    mindscape6ShimotsukiDmg: 30,
+  },
 } as const
 
 export const SEED_SETUP_PASSIVE_LINES = [
@@ -728,5 +747,7 @@ export const SOURCE_LABELS = {
   sunnaAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   nangongYuCore: SOURCE_CATEGORY_LABELS.corePassive,
   nangongYuAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  miyabiCore: SOURCE_CATEGORY_LABELS.corePassive,
+  miyabiAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   mindscape: SOURCE_CATEGORY_LABELS.mindscape,
 } as const

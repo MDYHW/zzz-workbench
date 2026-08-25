@@ -127,8 +127,9 @@ Slot 4 AP choice into AP substats, damage equipment, or personal Result rows.
   complete contextual contrast even though it is unused in the prepared
   Grace/Piper anomaly party. Elegant Vanity, Dreamlit Casket, Bashful Demon,
   Slice of Time, Vault, and Half Sugar Bunny are excluded where activation is
-  impossible or their personal, HP, pre-filled ATK, or weaker repeated axes are
-  dominated after unused opportunity cost is charged.
+  impossible or their realized usable personal, HP, pre-filled ATK, or repeated
+  axes remain too remote from stronger packages after complete-setup
+  recomposition. Any unusable clause contributes zero and is not a penalty.
 - R9. Full prepares Metanukimorphosis W1. Its Energy and AM axes support Tanuki
   Wish and close Yuzuha's Additional cap with the prepared Disc
   package at Fully Enabled, and its AP reaches only current
@@ -137,10 +138,11 @@ Slot 4 AP choice into AP substats, damage equipment, or personal Result rows.
   regular DMG, and squad ATK; it does not displace Metanukimorphosis's distinct
   AM/AP anomaly package.
 - R10. Non-limited prepares Kaboom the Cannon W5. Its Energy and squad ATK axes
-  are used, while Weeping Cradle charges an unused PEN Ratio axis against its
-  off-field Energy and squad regular-DMG package. Weeping remains the nearest
-  partial same-axis
-  alternative and Unfettered the recipient-dependent CRIT contrast.
+  are used. Weeping Cradle's PEN Ratio is unused and contributes zero rather
+  than counting against its off-field Energy and squad regular-DMG package.
+  Weeping remains the nearest partial same-axis alternative and Unfettered the
+  recipient-dependent CRIT contrast. The prepared identity follows the
+  realized Energy and party-output comparison, not an unused-clause penalty.
   Non-limited exclusion of limited S-Ranks is availability semantics, not a
   lower-rarity pool; all three non-limited choices also appear in full.
 

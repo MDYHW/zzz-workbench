@@ -1,4 +1,4 @@
-import { ABLOOM_TARGET, ATTRIBUTE_ANOMALY_TARGET, actionForm, actionTarget, canonicalAction, CORRUPTION_TARGET, DISORDER_TARGET, sourceLocalAction, type ActionTarget } from '../../actions'
+import { ABLOOM_TARGET, ATTRIBUTE_ANOMALY_TARGET, actionForm, actionTarget, canonicalAction, CORRUPTION_TARGET, DISORDER_TARGET, MIYABI_FROSTBURN_BUILDUP_TARGET, MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET, sourceLocalAction, type ActionTarget } from '../../actions'
 import { effectiveSubstatChoicesForSlot } from '../../candidates'
 import type { ActionScopeNode } from '../../calculation/composition'
 import { actionProjection, type ActionProjection, type AgentSourceProfile, type MetricProjection } from '../../calculation/profile-harness'
@@ -8,7 +8,7 @@ import type { StatId, StatRegion } from '../../calculation/stat-composer'
 import type { EffectAttribute, EffectMetric, SurfaceKey } from '../../effects'
 import type { WorkbenchState } from '../../state'
 import { DEF_DAMAGE_FORMULAS, effectAttributeForAgent, REGULAR_DAMAGE_FORMULAS } from '../../formula-policy'
-import { anotherAgentHasSpecialty, anotherAgentSharesFaction, anotherAgentSharesAttribute, piperAdditionalIsActive } from '../../party-conditions'
+import { anotherAgentHasSpecialty, anotherAgentSharesFaction, anotherAgentSharesAttribute, nangongAdditionalIsActive, piperAdditionalIsActive } from '../../party-conditions'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
 import { type AgentId, type FormulaFamily } from '../types'
 import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from './equipment'
@@ -217,12 +217,22 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
   if (
     nangongSlot >= 0
     && nangongSlot !== slot
-    && (
-      anotherAgentHasSpecialty(ids, nangongSlot as Slot, ['Anomaly'])
-      || anotherAgentSharesFaction(ids, nangongSlot as Slot)
-    )
+    && nangongAdditionalIsActive(ids, nangongSlot)
   ) {
     actions.push(actionProjection('anomalyBuildupBonus', 'chainAttackAnomalyBuildup', ANOMALY_RECIPIENT_CHAIN))
+  }
+  const miyabiSlot = ids.indexOf('miyabi')
+  if (miyabiSlot >= 0 && miyabiSlot !== slot) {
+    actions.push(actionProjection(
+      'anomalyBuildupBonus',
+      'miyabiFrostburnBuildup',
+      MIYABI_FROSTBURN_BUILDUP_TARGET,
+    ))
+    if (state.slots[miyabiSlot].setup.mindscape >= 1) actions.push(actionProjection(
+      'anomalyBuildupBonus',
+      'miyabiFrostburnRemovedBuildup',
+      MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET,
+    ))
   }
   if (agent === 'grace') {
     const qualified = anotherAgentHasSpecialty(ids, slot, ['Anomaly']) || anotherAgentSharesAttribute(ids, slot) || anotherAgentSharesFaction(ids, slot)

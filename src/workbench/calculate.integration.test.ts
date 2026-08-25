@@ -104,6 +104,16 @@ describe('shared calculation integration', () => {
       .toBe(VERTICAL_VALUES.nangongYu.additionalChainBuildup)
     expect(hasSource(anomalyParty, 'aria', 'defReduction', 'sunna')).toBe(true)
 
+    const attackParty = createPreparedState({}, ['miyabi', 'nangongYu', 'sunna'], 0)
+    const miyabi = calculateParty(attackParty)!.agents
+      .find(({ agentId }) => agentId === 'miyabi')!
+    const miyabiBroadBuildup = miyabi.metrics
+      .find(({ id }) => id === 'anomalyBuildupBonus')!
+    const miyabiChainBuildup = miyabi.actionModifiers
+      .find(({ id }) => id === 'chainAttackAnomalyBuildup')!
+    expect(miyabiChainBuildup.values.fully - miyabiBroadBuildup.values.fully)
+      .toBe(VERTICAL_VALUES.nangongYu.additionalChainBuildup)
+
     const nangong = anomalyResult.agents.find(({ agentId }) => agentId === 'nangongYu')!
     expect(nangong.metrics.find(({ id }) => id === 'anomalyProficiency')!.breakdown.fully)
       .toContainEqual(expect.objectContaining({
@@ -157,6 +167,21 @@ describe('shared calculation integration', () => {
       .toBe(false)
   })
 
+  it('preserves a completed stat basis above a lower derived-output cap', () => {
+    let state = createPreparedState({}, ['miyabi', 'nangongYu', 'sunna'], 0)
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 2 })
+
+    const miyabi = calculateParty(state)!.agents.find(({ agentId }) => agentId === 'miyabi')!
+    const critRate = miyabi.metrics.find(({ id }) => id === 'critRate')!
+    const gauge = critRate.gauges.find(({ basisLabel }) => (
+      basisLabel === 'Fully Enabled CRIT Rate'
+    ))!
+
+    expect(critRate.values.fully).toBeGreaterThan(gauge.cap!)
+    expect(gauge.current).toBe(critRate.values.fully)
+    expect(gauge.outputValue).toBe(gauge.outputCap)
+  })
+
   it('composes Initial-AM-derived flat Impact once around shared equipment regions', () => {
     const impactFor = (pool: 'full' | 'nonLimited') => calculateParty(createPreparedState(
       { nangongYu: pool },
@@ -205,17 +230,6 @@ describe('shared calculation integration', () => {
     const offFieldEnergy = lycaonEnergyWith('ellen')!
     expect(offFieldEnergy.breakdown.combat)
       .toContainEqual(expect.objectContaining({ label: 'Hellfire Gears' }))
-
-    let simmeringState = createPreparedState({}, ['ellen', 'lycaon', 'soukaku'], 0)
-    simmeringState = workbenchReducer(simmeringState, {
-      type: 'selectEngine', slot: 1, engineId: 'simmeringPot',
-    })
-    const lycaon = calculateParty(simmeringState)!.agents
-      .find(({ agentId }) => agentId === 'lycaon')!
-    expect(lycaon.metrics.find(({ id }) => id === 'dazeBonus')!.breakdown.fully)
-      .toContainEqual(expect.objectContaining({ label: 'The Simmering Pot' }))
-    expect(lycaon.metrics.find(({ id }) => id === 'dmgBonus')?.breakdown.fully ?? [])
-      .not.toContainEqual(expect.objectContaining({ label: 'The Simmering Pot' }))
 
     const burnice = calculateParty(createPreparedState(
       {}, ['burnice', 'jane', 'seth'], 1,

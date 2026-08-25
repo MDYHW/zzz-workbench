@@ -65,7 +65,9 @@ registry, or a rule for later Agents.
   non-limited. Flight's AP advanced stat, buildup, and reachable Ether-triggered
   AP package are fully usable off field. Angel retains its unconditional AP and
   AM in Vivian's off-field interval; its target DMG and Anomaly DMG clauses are
-  removed off field and remain unused opportunity cost. This usable AP/AM
+  removed from Vivian's Result off field and contribute zero to her candidate
+  value rather than a penalty; Setup still discloses the complete source-owned
+  package. This realized AP/AM
   package is materially stronger for Vivian's AP-scaled Abloom direction than
   Practiced Perfection: Practiced's ATK does not enter Abloom and its remaining
   AM does not establish a separate competitive direction. Practiced, Fusion
@@ -140,8 +142,8 @@ registry, or a rule for later Agents.
   all usable. Fusion's PEN/ATK/Special-AP package remains the strongest distinct
   non-limited direction despite overlap with Promeia's DEF-ignore package.
   Angel is a retained partial alternative: its advanced AM and unconditional AP
-  are usable, while Promeia's Ice Attribute strands both Ether-holder DMG
-  clauses as charged opportunity cost.
+  are usable, while its Ether-holder DMG clauses contribute zero for Promeia's
+  Ice Attribute and are not a partial-package penalty.
 - R15. Notes From the Chained is the prepared and admitted 4-piece direction.
   Its triggered AP and party Attribute Anomaly/Disorder bonus are usable.
   Prepare Phaethon's Melody as the AM 2-piece; admit Freedom Blues/Chaos Jazz
