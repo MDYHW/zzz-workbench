@@ -40,6 +40,8 @@ Apply the permanent owners before interpreting current content:
   setup directions;
 - `SW-009`: deterministic zero-supplied-substat preparation;
 - `SW-010`: one admitted W-Engine set before full/non-limited pool derivation;
+- `SW-014`: fully enabled reachability, including repeatable routes and the
+  distinct-category boundary;
 - `SW-015`: Party Apply, target rebuild, direct edit, reconciliation, and
   incomplete-Result lifecycle;
 - `FM-007`: exact formula-family stat and modifier consumption;
@@ -115,13 +117,26 @@ Before classifying a candidate conclusion as keep, remove, add, unresolved, or
 mismatch, run these gates in order on the ephemeral worksheet. They operationalize
 the cited owners and do not add another admission rule or equipment catalogue.
 
-1. **Complete source extraction.** Read the shared equipment fact and record the
+1. **Owner and relationship-grammar closure.** Resolve every applicable owner
+   default before interpreting a secondary requirement, guide, current
+   structure, or external claim. Normalize each decision-relevant sentence into
+   source or actor, trigger predicate, Boolean connector and quantifier, state
+   transition, accumulation unit, cap or reset, affected scope, and recipient.
+   Keep only edges the grammar or an applicable owner states. Co-occurrence does
+   not create correspondence: a list of alternative predicates beside a count,
+   cap, progression, or second list does not imply one slot per alternative,
+   one-to-one mapping, uniqueness, or exhaustiveness. In particular,
+   `SF-004`/`SW-014` treat repeatable alternative trigger routes as routes to the
+   same cap unless exact game meaning requires distinct categories. A
+   countermodel may deny an inferred edge; it may not introduce an unstated
+   mapping or cardinality and then use that invention as a source gap.
+2. **Complete source extraction.** Read the shared equipment fact and record the
    whole decision-relevant package at the applicable refinement or fully enabled
    maximum. Keep unconditional supply, activation, affected scope, holder,
    recipient, and action as separate relationships. Omitting an applicable
    clause or reading a base value where the current surface consumes a maximum
    is an incomplete audit, not evidence of an authority gap.
-2. **Qualifying consequence.** Name the exact current consumer and state whether
+3. **Qualifying consequence.** Name the exact current consumer and state whether
    it proves eligibility, activation, applicability, candidate membership,
    preparation, or Result projection. Reachability and an existing consumer do
    not prove competitiveness. Current arrays, requirements, tests, and guides
@@ -129,28 +144,47 @@ the cited owners and do not add another admission rule or equipment catalogue.
    product mismatch only when the trace identifies a reachable candidate,
    representative, selected-applicability, Setup, or Result consequence that
    actually changes.
-3. **Bounded competitive value.** Recompose the whole usable package against the
-   representative-calibrated range, the applicable acquisition role or nearest
-   Disc/stat direction, and the remaining finite opportunity. A complete
-   package, different trigger, positive clause, or different direction is not
-   sufficient by itself. Conversely, do not require runtime action share,
-   trigger frequency, uptime, or rotation to close direction-defining action or
-   output coverage: `SW-004` assigns that boundary to bounded authored
-   competitive-practice judgment. A prohibited runtime detail cannot become the
-   missing edge that makes a candidate unresolved.
-4. **Pressure versus selected value.** Distinguish pressure that removes or
+4. **Bounded competitive value.** Before admitting, removing, selecting, or
+   same-direction-compressing a choice, recompose both sides through the exact
+   realized package, zero-supplied-substat setup, fixed Slot 4/5/6 supply,
+   remaining finite main-stat and substat opportunity, representative-calibrated
+   range, and applicable acquisition role. Record which setup input or future
+   allocation changes and why the stronger package dominates or fails to
+   dominate it. A shared broad label such as CRIT, ATK, damage, resource, or
+   DEF-region is only an inspection route; it does not prove the same practical
+   setup direction. Conversely, a different label or changed allocation is not
+   automatic admission. A complete package, different trigger, positive clause,
+   or different direction is likewise insufficient by itself. Do not require
+   runtime action share, trigger frequency, uptime, or rotation to close
+   direction-defining action or output coverage: `SW-004` assigns that boundary
+   to bounded authored competitive-practice judgment. A prohibited runtime
+   detail cannot become the missing edge that makes a candidate unresolved.
+5. **External-conflict admissibility.** Separate a primary mechanics fact or
+   exact source sentence from a guide's interpretation, ranking, silence, or
+   calculation. Record both the page-update date and the actual build or
+   calculation version when they differ. A guide interpretation locates a
+   question but cannot override the source grammar or an applicable permanent
+   owner default. An inaccessible official table, guide omission, stale
+   comparison, or lack of duplicate external wording is not a positive conflict
+   with a retained shared fact. Reopen a source edge only when credible positive
+   evidence states an incompatible relationship and the qualifying-consequence
+   gate shows which current candidate, representative, applicability, Setup, or
+   Result would change.
+6. **Pressure versus selected value.** Distinguish pressure that removes or
    changes a candidate-bearing input from a selected source relationship that
    still enters its formula consumer. Pressure does not turn a retained selected
    stat or modifier into zero unless the applicable permanent formula and exact
    current consumer do so. A clause is zero only because its own holder,
    activation, affected-scope, recipient, action, or formula relationship is
    unusable; zero remains neither a penalty nor an admission bonus.
-5. **Countermodel and classification.** Construct one countermodel that preserves
-   the source facts and owner rules while denying the proposed edge. If it
-   survives, name the exact unresolved owner-eligible relationship. If rejecting
-   it would require a runtime model, future consumer, guide-silence inference,
-   or current-array agreement, the conclusion has not passed the preceding
-   gates.
+7. **Countermodel and classification.** Construct one countermodel that preserves
+   the normalized source grammar and every applicable owner rule while denying
+   the proposed edge. Reject it immediately if it adds an unstated relationship,
+   correspondence, or cardinality, or contradicts an owner-supplied default. If
+   it survives, name the exact unresolved owner-eligible relationship. If
+   rejecting it would require a runtime model, future consumer, guide-silence
+   inference, or current-array agreement, the conclusion has not passed the
+   preceding gates.
 
 For every proposed addition, removal, unresolved edge, or product mismatch, the
 report must preserve the compact output of these gates. An unchanged conclusion
