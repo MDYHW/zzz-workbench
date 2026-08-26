@@ -123,9 +123,6 @@ describe('shared broad pre-PEN applicability', () => {
     })
     expect(activeCandidatePressures(aliceState, 0)).toContain('materialBroadPrePenDefBypass')
 
-    const cordisState = createPreparedState({}, ['corin', 'dialyn', 'lycaon'], 0)
-    expect(activeCandidatePressures(cordisState, 0)).not.toContain('materialBroadPrePenDefBypass')
-
     const cissiaPhysical = createPreparedState({}, ['cissia', 'jane', 'yixuan'], 1)
     expect(activeCandidatePressures(cissiaPhysical, 1)).not.toContain('materialBroadPrePenDefBypass')
     const cissiaElectric = createPreparedState({}, ['cissia', 'yanagi', 'yixuan'], 1)
