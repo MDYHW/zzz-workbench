@@ -406,39 +406,6 @@ function withZhuYuanCritBalance(
     : selection
 }
 
-function withNicolePressureSafePackage(
-  context: PreparationContext,
-  partyAgentIds: readonly AgentId[],
-  partyMindscapes: readonly number[],
-  selection: SetupSelection,
-): SetupSelection {
-  const nicoleIndex = partyAgentIds.indexOf('nicole')
-  if (nicoleIndex < 0) return selection
-  if (context.agentId === 'ellen') {
-    return {
-      ...selection,
-      twoPieceId: 'branchAndBlade',
-      mains: {
-        ...selection.mains,
-        slot4: context.pool === 'full' && partyMindscapes[nicoleIndex] >= 6 ? 'critDmg' : 'critRate',
-        slot5: 'iceDmg',
-      },
-    }
-  }
-  if (context.agentId === 'soldier11') {
-    return {
-      ...selection,
-      twoPieceId: 'infernoMetal',
-      mains: {
-        ...selection.mains,
-        slot4: context.pool === 'full' && partyMindscapes[nicoleIndex] >= 6 ? 'critDmg' : 'critRate',
-        slot5: 'fireDmg',
-      },
-    }
-  }
-  return selection
-}
-
 export function prepareTargetSelection(
   context: PreparationContext,
   focusAgentId: AgentId,
@@ -456,8 +423,7 @@ export function prepareTargetSelection(
     representativeFor(context),
   )
   const zhuBalanced = withZhuYuanCritBalance(context, partyAgentIds, partyMindscapes, 0, balanced)
-  const pressureSafe = withNicolePressureSafePackage(context, partyAgentIds, partyMindscapes, zhuBalanced)
-  const focused = withFocusedEngine(context, focusAgentId, pressureSafe)
+  const focused = withFocusedEngine(context, focusAgentId, zhuBalanced)
   const kingDirected = withEstablishedFocusCritKingPriority(
     context,
     focusAgentId,
@@ -507,18 +473,13 @@ export function preparePartySelections(
 ): SetupSelection[] {
   const partyAgentIds = contexts.map(({ agentId }) => agentId)
   const partyMindscapes = contexts.map(({ mindscape }) => mindscape)
-  const balanced = contexts.map((context, index) => withNicolePressureSafePackage(
-    context,
-    partyAgentIds,
-    partyMindscapes,
-    withZhuYuanCritBalance(
+  const balanced = contexts.map((context, index) => withZhuYuanCritBalance(
       context,
       partyAgentIds,
       partyMindscapes,
       index,
       withQualifiedAnbyCritBalance(context, partyAgentIds, index, representativeFor(context)),
-    ),
-  ))
+    ))
   const focused = contexts.map((context, index) => withFocusedEngine(
     context,
     focusAgentId,

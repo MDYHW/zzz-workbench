@@ -13,6 +13,7 @@ import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
 import { type AgentId, type FormulaFamily } from '../types'
 import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
+import { anomalyBroadPrePenRelationships } from './anomaly-broad-pre-pen'
 
 const ANOMALY_AGENTS = ['grace', 'piper', 'yuzuha', 'burnice', 'jane', 'yanagi', 'alice', 'vivian', 'aria', 'promeia'] as const satisfies readonly AgentId[]
 type Agent = (typeof ANOMALY_AGENTS)[number]
@@ -211,6 +212,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
   const mind = (tier: 1 | 2 | 4 | 6) => selectedMindscapeSource(agent, slot, setup.mindscape, tier)
   const observation: SelectedSetupObservation = { baseStats: BASE[agent], effectiveSubstats: effectiveSubstatChoicesForSlot(state, slot), modifierMetrics: ['dmgBonus', 'anomalyDmgBonus', 'anomalyBuildupBonus', 'anomalyBuildupResReduction', 'resReduction', 'resIgnore'] }
   const relationships = selectedSetupRelationships(agent, slot, setup, observation)
+  relationships.push(...anomalyBroadPrePenRelationships(state, slot))
   const add = (r: ProfileRelationship) => relationships.push(r)
   const actions: ActionProjection[] = []
   const nangongSlot = ids.indexOf('nangongYu')
@@ -573,15 +575,6 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
         emission: { kind: 'stat', statId: 'anomalyProficiency', region: 'flat', earliestSurface: 'fully' },
       }],
     })
-    if (setup.mindscape >= 1) add(provider(
-      mind(1),
-      'enemy-context',
-      {
-        kind: 'modifier', metricId: 'defReduction', earliestSurface: 'fully',
-        value: VERTICAL_VALUES.alice.mindscape1DefReduction,
-      },
-      DEF_DAMAGE_FORMULAS,
-    ))
     if (setup.mindscape >= 2) {
       add(provider(
         mind(2),

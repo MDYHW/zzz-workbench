@@ -172,38 +172,6 @@ const PREPARED_DISC_HOLDER_POLICY_BY_AGENT: Partial<Record<AgentId, PreparedDisc
   },
 }
 
-/** Authored representative adjustment when broad pre-PEN pressure invalidates Slot 5 PEN. */
-export const PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE: Partial<
-  Record<AgentId, Exclude<MainStatId, 'penRatio'>>
-> = {
-  evelyn: 'fireDmg',
-  corin: 'physicalDmg',
-  hugo: 'iceDmg',
-  zhuYuan: 'atkPct',
-  nekomata: 'atkPct',
-  billy: 'atkPct',
-  grace: 'electricDmg',
-  burnice: 'fireDmg',
-  jane: 'physicalDmg',
-  yanagi: 'electricDmg',
-  alice: 'physicalDmg',
-  vivian: 'etherDmg',
-  aria: 'etherDmg',
-  promeia: 'iceDmg',
-  miyabi: 'iceDmg',
-  anton: 'electricDmg',
-}
-
-/** Authored whole-package replacement when the selected 2-piece loses its distinct axis. */
-export const PREPARED_TWO_PIECE_BY_BROAD_PRE_PEN_PRESSURE: Partial<
-  Record<AgentId, DiscId>
-> = {
-  nekomata: 'branchAndBlade',
-  grace: 'freedomBlues',
-  jane: 'freedomBlues',
-  anton: 'branchAndBlade',
-}
-
 export type SetupPolicy = {
   engineIdsByPool: (typeof ENGINE_IDS_BY_AGENT_AND_POOL)[AgentId]
   discIdsByPiece: (typeof DISC_IDS_BY_AGENT_AND_PIECE)[AgentId]
