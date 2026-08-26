@@ -1,9 +1,9 @@
 ---
 id: ACR-2026-08-25-001
 date: 2026-08-25
-status: accepted
+status: superseded
 supersedes: none
-superseded_by: none
+superseded_by: ACR-2026-08-26-002
 ---
 
 # Evaluate W-Engine candidates from Agent-realized value
