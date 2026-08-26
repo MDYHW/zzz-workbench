@@ -14,66 +14,37 @@ import stunMark from '../assets/game/specialties/stun.webp'
 import supportMark from '../assets/game/specialties/support.webp'
 import defenseMark from '../assets/game/specialties/defense.webp'
 import anomalyMark from '../assets/game/specialties/anomaly.webp'
-import { ADMITTED_AGENTS, agentDisplayName, type AgentId, type AgentRank } from '../workbench/content'
+import {
+  ADMITTED_AGENTS,
+  agentDisplayName,
+  type AgentAttribute,
+  type AgentId,
+  type AgentRank,
+  type AgentSpecialty,
+} from '../workbench/content'
 import type { RequiredSetupSelection } from '../workbench/candidates'
 import type { AppliedAgentSlot, AppliedSlot } from '../workbench/state'
 import { AGENT_PORTRAITS, portraitSourceStyle } from './agentPortraits'
 import { agentSlotTone, sourceToneEvents, type SourceInteractionProps } from './sourceInteraction'
 
-const IDENTITY_MARKS: Record<AgentId, { attribute: string; specialty: string }> = {
-  yixuan: { attribute: auricInkMark, specialty: ruptureMark },
-  dialyn: { attribute: physicalMark, specialty: stunMark },
-  lucia: { attribute: etherMark, specialty: supportMark },
-  anbySoldier0: { attribute: electricMark, specialty: attackMark },
-  trigger: { attribute: electricMark, specialty: stunMark },
-  astraYao: { attribute: etherMark, specialty: supportMark },
-  seed: { attribute: electricMark, specialty: attackMark },
-  cissia: { attribute: electricMark, specialty: attackMark },
-  evelyn: { attribute: fireMark, specialty: attackMark },
-  corin: { attribute: physicalMark, specialty: attackMark },
-  lycaon: { attribute: iceMark, specialty: stunMark },
-  yidhari: { attribute: iceMark, specialty: ruptureMark },
-  manato: { attribute: fireMark, specialty: ruptureMark },
-  hugo: { attribute: iceMark, specialty: attackMark },
-  juFufu: { attribute: fireMark, specialty: stunMark },
-  panYinhu: { attribute: physicalMark, specialty: defenseMark },
-  banyue: { attribute: fireMark, specialty: ruptureMark },
-  starlightBilly: { attribute: physicalMark, specialty: ruptureMark },
-  ellen: { attribute: iceMark, specialty: attackMark },
-  soukaku: { attribute: iceMark, specialty: supportMark },
-  soldier11: { attribute: fireMark, specialty: attackMark },
-  lighter: { attribute: fireMark, specialty: stunMark },
-  lucy: { attribute: fireMark, specialty: supportMark },
-  zhuYuan: { attribute: etherMark, specialty: attackMark },
-  nicole: { attribute: etherMark, specialty: supportMark },
-  orphie: { attribute: fireMark, specialty: attackMark },
-  pulchra: { attribute: physicalMark, specialty: stunMark },
-  harumasa: { attribute: electricMark, specialty: attackMark },
-  qingyi: { attribute: electricMark, specialty: stunMark },
-  nekomata: { attribute: physicalMark, specialty: attackMark },
-  billy: { attribute: physicalMark, specialty: attackMark },
-  ben: { attribute: fireMark, specialty: defenseMark },
-  koleda: { attribute: fireMark, specialty: stunMark },
-  anby: { attribute: electricMark, specialty: stunMark },
-  caesar: { attribute: physicalMark, specialty: defenseMark },
-  yeShunguang: { attribute: physicalMark, specialty: attackMark },
-  zhao: { attribute: iceMark, specialty: defenseMark },
-  grace: { attribute: electricMark, specialty: anomalyMark },
-  piper: { attribute: physicalMark, specialty: anomalyMark },
-  yuzuha: { attribute: physicalMark, specialty: supportMark },
-  burnice: { attribute: fireMark, specialty: anomalyMark },
-  jane: { attribute: physicalMark, specialty: anomalyMark },
-  seth: { attribute: electricMark, specialty: defenseMark },
-  yanagi: { attribute: electricMark, specialty: anomalyMark },
-  alice: { attribute: physicalMark, specialty: anomalyMark },
-  vivian: { attribute: etherMark, specialty: anomalyMark },
-  aria: { attribute: etherMark, specialty: anomalyMark },
-  promeia: { attribute: iceMark, specialty: anomalyMark },
-  sunna: { attribute: physicalMark, specialty: supportMark },
-  nangongYu: { attribute: etherMark, specialty: stunMark },
-  miyabi: { attribute: frostMark, specialty: anomalyMark },
-  anton: { attribute: electricMark, specialty: attackMark },
-  rina: { attribute: electricMark, specialty: supportMark },
+const ATTRIBUTE_MARKS: Record<AgentAttribute, string> = {
+  Physical: physicalMark,
+  Fire: fireMark,
+  Ice: iceMark,
+  Electric: electricMark,
+  Ether: etherMark,
+  'Auric Ink': auricInkMark,
+  'Honed Edge': physicalMark,
+  Frost: frostMark,
+}
+
+const SPECIALTY_MARKS: Record<AgentSpecialty, string> = {
+  Attack: attackMark,
+  Stun: stunMark,
+  Support: supportMark,
+  Defense: defenseMark,
+  Rupture: ruptureMark,
+  Anomaly: anomalyMark,
 }
 
 function PortraitArt({ agentId }: { agentId: AgentId }) {
@@ -109,13 +80,11 @@ function RankMark({ rank }: { rank: AgentRank }) {
   return <span className="rank-mark" aria-label={`${rank} Rank`}><img src={RANK_MARKS[rank]} alt="" /></span>
 }
 
-function IdentityMarks({ agentId, attribute, specialty }: { agentId: AgentId; attribute: string; specialty: string }) {
-  const marks = IDENTITY_MARKS[agentId]
-
+function IdentityMarks({ attribute, specialty }: { attribute: AgentAttribute; specialty: AgentSpecialty }) {
   return (
     <span className="identity-pair identity-pair--symbols" aria-label={`${attribute}, ${specialty}`}>
-      <img src={marks.attribute} alt="" />
-      <img src={marks.specialty} alt="" />
+      <img src={ATTRIBUTE_MARKS[attribute]} alt="" />
+      <img src={SPECIALTY_MARKS[specialty]} alt="" />
     </span>
   )
 }
@@ -163,7 +132,7 @@ function ExpandedIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = f
         <span className="slot-name-line"><strong className="identity-name">{agentName}</strong></span>
         <span className="identity-band">
           <RankMark rank={agent.rank} />
-          <IdentityMarks agentId={agent.id} attribute={agent.attribute} specialty={agent.specialty} />
+          <IdentityMarks attribute={agent.attribute} specialty={agent.specialty} />
         </span>
       </span>
     </button>
@@ -200,7 +169,7 @@ function CompactSlot({ activeSourceTone, agentId, isFocus, isIncomplete = false,
         <span className="slot-name-line"><strong className="identity-name">{agentName}</strong></span>
         <span className="identity-band">
           <RankMark rank={agent.rank} />
-          <IdentityMarks agentId={agent.id} attribute={agent.attribute} specialty={agent.specialty} />
+          <IdentityMarks attribute={agent.attribute} specialty={agent.specialty} />
         </span>
       </span>
       <strong className={`focus-marker ${isFocus ? '' : 'focus-marker--reserved'}`} aria-hidden={!isFocus}>Focus</strong>

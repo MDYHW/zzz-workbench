@@ -3,20 +3,17 @@ import {
   setupPolicyFor,
   type AgentId,
   type DiscId,
+  EFFECTIVE_SUBSTAT_VALUES,
   type MainSlot,
   type MainStatId,
   effectiveSubstatChoices,
   type SubstatChoice,
 } from './content'
 import {
+  activeContextualFourPieceCases,
   activeCandidatePressures,
-  hasDialynUltimateOpportunity,
+  activeSourceCandidateInputAdditions,
 } from './candidate-context'
-import {
-  hasRepeatedQuickAssistOpportunity,
-  qingyiAstralOpportunity,
-  triggerAdditionalIsActive,
-} from './party-conditions'
 import type { AppliedSlot, WorkbenchState } from './state'
 
 export type RequiredSetupSelection =
@@ -43,19 +40,6 @@ function recipientHasMaterialBroadPrePenPressure(
 }
 
 const MAIN_SLOTS: MainSlot[] = ['slot4', 'slot5', 'slot6']
-
-function triggerCritPressureIsActive(
-  state: WorkbenchState,
-  slot: AppliedSlot,
-): boolean {
-  const current = state.slots[slot]
-  return current.agentId === 'trigger'
-    && (current.setup.fourPieceId === 'king'
-      || triggerAdditionalIsActive(
-        state.slots.map(({ agentId }) => agentId),
-        slot,
-      ))
-}
 
 function compressSameEffectTwoPieceIds(
   authored: readonly DiscId[],
@@ -92,21 +76,13 @@ export function effectiveFourPieceIds(
   const agentId = state.slots[slot].agentId
   const discPolicy = setupPolicyFor(agentId).discIdsByPiece
   const base = discPolicy.fourPiece
-  const receivedUltimate = discPolicy.contextualFourPiece
-  const contextual = [
-    ...((agentId === 'cissia' || agentId === 'evelyn' || agentId === 'caesar')
-      && hasRepeatedQuickAssistOpportunity(state.slots.map(({ agentId: id }) => id))
-      ? ['astralVoice' as const]
-      : []),
-    ...(agentId === 'qingyi'
-      && qingyiAstralOpportunity(state.slots.map(({ agentId: id }) => id), slot)
-      ? ['astralVoice' as const]
-      : []),
-    ...(hasDialynUltimateOpportunity(state, slot)
-      && state.slots[slot].setup.mindscape >= (receivedUltimate?.minimumMindscape ?? 0)
-      ? receivedUltimate?.receivedUltimate ?? []
-      : []),
-  ]
+  const partyAgentIds = state.slots.map(({ agentId: id }) => id)
+  const contextual = activeContextualFourPieceCases(
+    agentId,
+    state.slots[slot].setup.mindscape,
+    partyAgentIds,
+    slot,
+  ).map(({ discId }) => discId)
   return contextual.length ? [...base, ...contextual] : base
 }
 
@@ -116,14 +92,15 @@ export function effectiveTwoPieceIds(
 ): DiscId[] {
   const agentId = state.slots[slot].agentId
   const authored = setupPolicyFor(agentId).discIdsByPiece.twoPiece
-  const base = agentId === 'trigger' && !triggerCritPressureIsActive(state, slot)
-    ? authored.filter((candidateId) => candidateId !== 'woodpecker')
-    : authored
-  const selectedDerived = (agentId === 'lycaon' || agentId === 'juFufu' || agentId === 'lighter' || agentId === 'pulchra' || agentId === 'qingyi')
-    && state.slots[slot].setup.fourPieceId === 'king'
-    ? ['woodpecker' as const]
+  const base = authored
+  const selectedFourPieceId = state.slots[slot].setup.fourPieceId
+  const selectedDerived = selectedFourPieceId
+    ? setupPolicyFor(agentId).discIdsByPiece.selectedFourPiece
+      ?.[selectedFourPieceId]?.twoPiece ?? []
     : []
-  const candidates = selectedDerived.length ? [...base, ...selectedDerived] : base
+  const sourceDerived = activeSourceCandidateInputAdditions(state, slot)
+    .flatMap(({ twoPiece }) => twoPiece ?? [])
+  const candidates = [...new Set([...base, ...selectedDerived, ...sourceDerived])]
   const pressureFiltered = recipientHasMaterialBroadPrePenPressure(state, slot)
     ? candidates.filter((candidateId) => candidateId !== 'pufferElectro')
     : candidates
@@ -172,13 +149,14 @@ function effectiveMainStatIdsForPressure(
   mainSlot: MainSlot,
   hasMaterialBroadPrePenPressure: boolean,
   selectedFourPieceId: DiscId | null,
+  sourceDerived: readonly MainStatId[],
 ): MainStatId[] {
   const base = setupPolicyFor(agentId).mainStatIdsBySlot[mainSlot]
-  const candidates = (agentId === 'lycaon' || agentId === 'juFufu' || agentId === 'lighter' || agentId === 'pulchra' || agentId === 'qingyi' || agentId === 'koleda' || agentId === 'anby')
-    && mainSlot === 'slot4'
-    && selectedFourPieceId === 'king'
-    ? [...base, 'critRate' as const]
-    : base
+  const selectedDerived = selectedFourPieceId
+    ? setupPolicyFor(agentId).discIdsByPiece.selectedFourPiece
+      ?.[selectedFourPieceId]?.mainStats?.[mainSlot] ?? []
+    : []
+  const candidates = [...new Set([...base, ...selectedDerived, ...sourceDerived])]
   return mainSlot === 'slot5'
     && candidates.includes('penRatio')
     && hasMaterialBroadPrePenPressure
@@ -191,10 +169,16 @@ export function effectiveSubstatChoicesForSlot(
   slot: AppliedSlot,
 ): SubstatChoice[] {
   const current = state.slots[slot]
-  if (current.agentId === 'trigger' && !triggerCritPressureIsActive(state, slot)) {
-    return []
-  }
-  return effectiveSubstatChoices(current.agentId, current.setup)
+  const base = effectiveSubstatChoices(current.agentId, current.setup)
+  const sourceDerived = activeSourceCandidateInputAdditions(state, slot)
+    .flatMap(({ substats }) => substats ?? [])
+  const baseIds = new Set(base.map(({ id }) => id))
+  return [
+    ...base,
+    ...sourceDerived
+      .filter((id) => !baseIds.has(id))
+      .map((id) => EFFECTIVE_SUBSTAT_VALUES[id]),
+  ]
 }
 
 export { effectiveSubstatChoices }
@@ -205,11 +189,14 @@ export function effectiveMainStatIds(
   mainSlot: MainSlot,
 ): MainStatId[] {
   const agentId = state.slots[slot].agentId
+  const sourceDerived = activeSourceCandidateInputAdditions(state, slot)
+    .flatMap(({ mainStats }) => mainStats?.[mainSlot] ?? [])
   return effectiveMainStatIdsForPressure(
     agentId,
     mainSlot,
     recipientHasMaterialBroadPrePenPressure(state, slot),
     state.slots[slot].setup.fourPieceId,
+    sourceDerived,
   )
 }
 
@@ -218,7 +205,6 @@ export function invalidRequiredSelections(
 ): RequiredSetupSelection[] {
   return state.slots.flatMap(({ agentId, setup }, slotIndex) => {
     const slot = slotIndex as AppliedSlot
-    const hasMaterialBroadPrePenPressure = recipientHasMaterialBroadPrePenPressure(state, slot)
     const invalidDiscs: RequiredSetupSelection[] = [
       ...(setup.fourPieceId && !effectiveFourPieceIds(state, slot)
         .includes(setup.fourPieceId)
@@ -231,12 +217,7 @@ export function invalidRequiredSelections(
     ]
     const invalidMains: RequiredSetupSelection[] = MAIN_SLOTS.flatMap((mainSlot) => {
       const selected = setup.mains[mainSlot]
-      return selected && !effectiveMainStatIdsForPressure(
-        agentId,
-        mainSlot,
-        hasMaterialBroadPrePenPressure,
-        setup.fourPieceId,
-      )
+      return selected && !effectiveMainStatIds(state, slot, mainSlot)
         .includes(selected)
         ? [{ kind: 'mainStat' as const, slot, agentId, mainSlot }]
         : []

@@ -1,5 +1,4 @@
 import {
-  AFTERSHOCK_TARGET,
   ATTRIBUTE_ANOMALY_TARGET,
   BASIC_AFTERSHOCK_TARGET,
   DISORDER_TARGET,
@@ -22,7 +21,6 @@ import {
   equipmentEffectMaximumValue,
   equipmentEffectProgressionIncrementValue,
   type AgentId,
-  type DiscId,
   type EquipmentEffectFact,
 } from '../types'
 import {
@@ -41,14 +39,12 @@ export interface SelectedDriveDiscContext {
   setup: CompleteSelectedSetup & { mindscape?: number }
   observation: SelectedSetupObservation
   source: SelectedSourceInstance
-  sourceFor: (discId: DiscId, piece: '2-piece' | '4-piece') => SelectedSourceInstance
 }
 
 const target = (...actions: Parameters<typeof canonicalAction>[0][]) => (
   actionTarget(actions.map(canonicalAction))
 )
 const BASIC = target('Basic Attack')
-const DASH = target('Dash Attack')
 const ULT = target('Ultimate')
 const EX_ASSIST = target('EX Special Attack', 'Assist')
 const BASIC_DASH_DODGE = target('Basic Attack', 'Dash Attack', 'Dodge Counter')
@@ -93,7 +89,7 @@ function squadDamage(
 export function selectedDriveDiscRelationships(
   context: SelectedDriveDiscContext,
 ): ProfileRelationship[] {
-  const { agentId: agent, setup, observation, source, sourceFor } = context
+  const { agentId: agent, setup, observation, source } = context
   const relationships: ProfileRelationship[] = []
   switch (setup.fourPieceId) {
     case 'branchAndBlade': {
@@ -261,22 +257,5 @@ export function selectedDriveDiscRelationships(
     }
   }
 
-  if (setup.fourPieceId === 'shadowHarmony' || setup.twoPieceId === 'shadowHarmony') {
-    const shadow = sourceFor('shadowHarmony', '2-piece')
-    const amount = equipmentEffectBaseValue(DRIVE_DISC_FACTS.shadowHarmony.twoPiece.damage)
-    relationships.push(
-      modifier(shadow, 'dmgBonus', amount, DASH, 'initial'),
-      modifier(shadow, 'dmgBonus', amount, AFTERSHOCK_TARGET, 'initial'),
-    )
-  }
-  if (setup.fourPieceId === 'dawnsBloom' || setup.twoPieceId === 'dawnsBloom') {
-    relationships.push(modifier(
-      sourceFor('dawnsBloom', '2-piece'),
-      'dmgBonus',
-      equipmentEffectBaseValue(DRIVE_DISC_FACTS.dawnsBloom.twoPiece.damage),
-      BASIC,
-      'initial',
-    ))
-  }
   return relationships
 }

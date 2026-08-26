@@ -206,6 +206,30 @@ describe('shared preparation and edit lifecycle', () => {
       ]) {
         expect(DRIVE_DISCS, `${agent.id}:${discId}`).toHaveProperty(discId)
       }
+      for (const contextual of policy.discIdsByPiece.contextualFourPiece ?? []) {
+        expect(DRIVE_DISCS, `${agent.id}:contextual:${contextual.discId}`)
+          .toHaveProperty(contextual.discId)
+      }
+      for (const [selectedId, additions] of Object.entries(
+        policy.discIdsByPiece.selectedFourPiece ?? {},
+      )) {
+        expect(policy.discIdsByPiece.fourPiece, `${agent.id}:selected:${selectedId}`)
+          .toContain(selectedId)
+        for (const discId of additions.twoPiece ?? []) {
+          expect(DRIVE_DISCS, `${agent.id}:selected:${selectedId}:2pc:${discId}`)
+            .toHaveProperty(discId)
+        }
+        for (const [mainSlot, mainStatIds] of Object.entries(additions.mainStats ?? {})) {
+          for (const mainStatId of mainStatIds) {
+            expect(MAIN_STATS, `${agent.id}:selected:${selectedId}:${mainSlot}:${mainStatId}`)
+              .toHaveProperty(mainStatId)
+          }
+        }
+        for (const substatId of additions.substats ?? []) {
+          expect(EFFECTIVE_SUBSTAT_VALUES, `${agent.id}:selected:${selectedId}:substat:${substatId}`)
+            .toHaveProperty(substatId)
+        }
+      }
       const preparedDisc = policy.preparedDisc
       const patches = [
         preparedDisc?.astralCollisionAlternative?.patch,
@@ -235,6 +259,13 @@ describe('shared preparation and edit lifecycle', () => {
       for (const choice of policy.substatChoices) {
         expect(EFFECTIVE_SUBSTAT_VALUES[choice.id], `${agent.id}:${choice.id}`)
           .toBe(choice)
+      }
+      const engineAlternative = policy.preparedEngine?.focusWithoutDefRegionAlternative
+      if (engineAlternative) {
+        expect(W_ENGINES, `${agent.id}:prepared-engine:${engineAlternative.engineId}`)
+          .toHaveProperty(engineAlternative.engineId)
+        expect(policy.engineIdsByPool[engineAlternative.pool], `${agent.id}:prepared-engine-pool`)
+          .toContain(engineAlternative.engineId)
       }
       for (const pool of POOLS) {
         for (const mindscape of [0, 1, 2, 3, 4, 5, 6] as const) {
@@ -305,6 +336,60 @@ describe('shared preparation and edit lifecycle', () => {
     })
     expect(effectiveFourPieceIds(hugoM1, 0)).not.toContain('pufferElectro')
     expect(hugoM1.slots[0].setup.fourPieceId).toBe('hormonePunk')
+  })
+
+  it('keeps repeated and external Quick Assist opportunities distinct', () => {
+    const repeated = createPreparedState({}, ['cissia', 'astraYao', 'yixuan'], 2)
+    expect(effectiveFourPieceIds(repeated, 0)).toContain('astralVoice')
+
+    const externalOnly = createPreparedState({}, ['cissia', 'nicole', 'yixuan'], 2)
+    expect(effectiveFourPieceIds(externalOnly, 0)).not.toContain('astralVoice')
+
+    const external = createPreparedState({}, ['qingyi', 'nicole', 'yixuan'], 2)
+    expect(effectiveFourPieceIds(external, 0)).toContain('astralVoice')
+
+    const repeatedOnly = createPreparedState({}, ['qingyi', 'seth', 'yixuan'], 2)
+    expect(effectiveFourPieceIds(repeatedOnly, 0)).not.toContain('astralVoice')
+  })
+
+  it('projects one Disc effect onto its independent action and tag Result rows', () => {
+    const result = calculateParty(createPreparedState(
+      {}, ['anbySoldier0', 'trigger', 'lucia'], 0,
+    ))!
+    const anby = result.agents.find(({ agentId }) => agentId === 'anbySoldier0')!
+
+    for (const actionId of ['anbyDash', 'anbyAftershock']) {
+      const action = anby.actionModifiers.find(({ id }) => id === actionId)!
+      expect(action.breakdown.initial.some(({ label, amount }) => (
+        label === 'Shadow Harmony' && amount > 0
+      )), actionId).toBe(true)
+    }
+  })
+
+  it('applies a prepared Engine alternative only for its qualifying Focus and pool', () => {
+    const policy = setupPolicyFor('trigger')
+    const alternative = policy.preparedEngine!.focusWithoutDefRegionAlternative!
+    const authoredFull = policy.representativeSetupFor('full', 0).engineId
+
+    let nonDefFocus = createPreparedState({}, ['trigger', 'yixuan', 'lucia'], 1)
+    expect(nonDefFocus.slots[0].setup.engineId).toBe(alternative.engineId)
+
+    const defFocus = createPreparedState({}, ['trigger', 'anbySoldier0', 'lucia'], 1)
+    expect(defFocus.slots[0].setup.engineId).toBe(authoredFull)
+
+    const established = nonDefFocus.slots.slice(1)
+    nonDefFocus = workbenchReducer(nonDefFocus, {
+      type: 'switchPool', slot: 0, pool: 'nonLimited',
+    })
+    expect(nonDefFocus.slots[0].setup.engineId)
+      .toBe(policy.representativeSetupFor('nonLimited', 0).engineId)
+    expect(nonDefFocus.slots.slice(1)).toEqual(established)
+
+    nonDefFocus = workbenchReducer(nonDefFocus, {
+      type: 'switchPool', slot: 0, pool: alternative.pool,
+    })
+    expect(nonDefFocus.slots[0].setup.engineId).toBe(alternative.engineId)
+    expect(nonDefFocus.slots.slice(1)).toEqual(established)
   })
 
   it('rebuilds every holder on Party Apply but only the target on pool or Mindscape changes', () => {
@@ -452,6 +537,39 @@ describe('shared preparation and edit lifecycle', () => {
     expect(state.slots[0].setup.substats).toEqual({ critRate: 0 })
     expect(effectiveMainStatIds(state, 0, 'slot4')).toContain('critRate')
     expect(calculateParty(state)).toBeNull()
+  })
+
+  it('composes selected and source-owned candidate additions without a recipient catalogue', () => {
+    let selectedOnly = createPreparedState({}, ['trigger', 'yixuan', 'lucia'], 1)
+    selectedOnly = workbenchReducer(selectedOnly, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'shockstar',
+    })
+    expect(effectiveTwoPieceIds(selectedOnly, 0)).not.toContain('woodpecker')
+    expect(effectiveSubstatChoicesForSlot(selectedOnly, 0)).toEqual([])
+
+    selectedOnly = workbenchReducer(selectedOnly, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'king',
+    })
+    expect(effectiveTwoPieceIds(selectedOnly, 0)).toContain('woodpecker')
+    expect(effectiveSubstatChoicesForSlot(selectedOnly, 0).map(({ id }) => id))
+      .toEqual(['critRate'])
+
+    let sourceOnly = createPreparedState({}, ['trigger', 'anbySoldier0', 'lucia'], 1)
+    sourceOnly = workbenchReducer(sourceOnly, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'shockstar',
+    })
+    expect(effectiveTwoPieceIds(sourceOnly, 0)).toContain('woodpecker')
+    expect(effectiveSubstatChoicesForSlot(sourceOnly, 0).map(({ id }) => id))
+      .toEqual(['critRate'])
+
+    let composed = createPreparedState({}, ['trigger', 'anbySoldier0', 'lucia'], 1)
+    composed = workbenchReducer(composed, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'king',
+    })
+    expect(effectiveTwoPieceIds(composed, 0).filter((id) => id === 'woodpecker'))
+      .toHaveLength(1)
+    expect(effectiveSubstatChoicesForSlot(composed, 0).map(({ id }) => id))
+      .toEqual(['critRate'])
   })
 
   it('reconciles pressure after the edited source, preserves empty Result, and requires reselection', () => {

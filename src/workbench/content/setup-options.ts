@@ -8,6 +8,7 @@ import type {
   FormulaParticipation,
   SubstatChoice,
 } from './types'
+import { DISC_IDS_BY_AGENT_AND_PIECE } from './discs'
 
 export const FIXED_MAIN_STATS: Record<FixedMainSlot, { slot: FixedMainSlot; stat: 'hpFlat' | 'atkFlat' | 'defFlat'; numericValue: number; unit: '' }> = {
   slot1: { slot: 'slot1', stat: 'hpFlat', numericValue: 2200, unit: '' },
@@ -334,9 +335,9 @@ export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   yixuan: substats('critRate', 'critDmg', 'hpPct'), yidhari: substats('critRate', 'critDmg', 'hpPct'), manato: substats('critRate', 'critDmg', 'hpPct'),
   hugo: substats('critRate', 'critDmg', 'atkPct'), juFufu: substats('atkPct', 'atkFlat'), panYinhu: substats('atkPct', 'atkFlat'),
   banyue: substats('critRate', 'critDmg', 'hpPct'), starlightBilly: substats('critRate', 'critDmg', 'hpPct'), dialyn: substats('critRate'), lucia: substats('hpPct', 'hpFlat'),
-  anbySoldier0: substats('critRate', 'critDmg', 'atkPct'), trigger: substats('critRate'), astraYao: substats('atkPct', 'atkFlat'),
+  anbySoldier0: substats('critRate', 'critDmg', 'atkPct'), trigger: [], astraYao: substats('atkPct', 'atkFlat'),
   seed: substats('critRate', 'critDmg', 'atkPct'), cissia: substats('critRate', 'critDmg', 'atkPct'), evelyn: substats('critRate', 'critDmg', 'atkPct'), corin: substats('critRate', 'critDmg', 'atkPct'),
-  lycaon: substats('critRate'), ellen: substats('critRate', 'critDmg', 'atkPct'), soukaku: substats('atkPct', 'atkFlat'), soldier11: substats('critRate', 'critDmg', 'atkPct'),
+  lycaon: [], ellen: substats('critRate', 'critDmg', 'atkPct'), soukaku: substats('atkPct', 'atkFlat'), soldier11: substats('critRate', 'critDmg', 'atkPct'),
   lighter: [], lucy: [], zhuYuan: substats('critRate', 'critDmg', 'atkPct'), nicole: [], orphie: substats('critRate', 'critDmg', 'atkPct'), pulchra: [],
   harumasa: substats('critRate', 'critDmg', 'atkPct'), qingyi: [], nekomata: substats('critRate', 'critDmg', 'atkPct'), billy: substats('critRate', 'critDmg', 'atkPct'), ben: substats('critRate', 'critDmg', 'atkPct'),
   koleda: [], anby: [], caesar: [], yeShunguang: substats('critRate', 'critDmg', 'atkPct'), zhao: substats('hpPct', 'hpFlat'), grace: substats('anomalyProficiency', 'atkPct'), piper: substats('anomalyProficiency', 'atkPct'), yuzuha: substats('atkPct', 'atkFlat'), burnice: substats('anomalyProficiency', 'atkPct'), jane: substats('anomalyProficiency', 'atkPct'), seth: [], yanagi: substats('anomalyProficiency', 'atkPct'), alice: substats('anomalyProficiency', 'atkPct'),
@@ -354,27 +355,14 @@ export function effectiveSubstatChoices(
   agentId: AgentId,
   setup: { fourPieceId: DiscId | null },
 ): SubstatChoice[] {
-  if ((agentId === 'lycaon' || agentId === 'lighter' || agentId === 'pulchra' || agentId === 'qingyi' || agentId === 'koleda' || agentId === 'anby') && setup.fourPieceId !== 'king') return []
-  if (agentId === 'pulchra' && setup.fourPieceId === 'king') {
-    return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
-  }
-  if (agentId === 'lighter' && setup.fourPieceId === 'king') {
-    return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
-  }
-  if (agentId === 'koleda' && setup.fourPieceId === 'king') {
-    return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
-  }
-  if (agentId === 'anby' && setup.fourPieceId === 'king') {
-    return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
-  }
-  if (agentId === 'qingyi' && setup.fourPieceId === 'king') {
-    return [{ id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' }]
-  }
-  if (agentId === 'juFufu' && setup.fourPieceId === 'king') {
-    return [
-      { id: 'critRate', label: 'CRIT Rate', perHit: 2.4, unit: '%' },
-      ...SUBSTAT_CHOICES_BY_AGENT.juFufu,
-    ]
-  }
-  return SUBSTAT_CHOICES_BY_AGENT[agentId]
+  const base = SUBSTAT_CHOICES_BY_AGENT[agentId]
+  const selectedDerived = setup.fourPieceId
+    ? DISC_IDS_BY_AGENT_AND_PIECE[agentId].selectedFourPiece
+      ?.[setup.fourPieceId]?.substats ?? []
+    : []
+  const selectedIds = new Set(selectedDerived)
+  return [
+    ...selectedDerived.map((id) => EFFECTIVE_SUBSTAT_VALUES[id]),
+    ...base.filter(({ id }) => !selectedIds.has(id)),
+  ]
 }
