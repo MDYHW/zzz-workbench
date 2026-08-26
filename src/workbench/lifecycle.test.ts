@@ -3,7 +3,7 @@ import { calculateParty } from './calculate'
 import {
   resolveSeedVanguard,
   resolveSeedVanguardForState,
-} from './candidate-context'
+} from './content/agent-sources/seed-vanguard'
 import {
   effectiveFourPieceIds,
   effectiveFourPieceRoleSwapIds,
@@ -601,6 +601,12 @@ describe('shared preparation and edit lifecycle', () => {
   })
 
   it('preserves Party Apply allocation and selected-pressure lifecycle across later edits', () => {
+    const spectralEllen = createPreparedState({}, ['ellen', 'trigger', 'seth'], 0)
+    expect(spectralEllen.slots[0].setup).toMatchObject({
+      twoPieceId: 'branchAndBlade', mains: { slot5: 'iceDmg' },
+    })
+    expectPreparedCalculable(spectralEllen, 'non-Nicole Spectral Party Apply for Ellen')
+
     let allocated = createPreparedState({}, ['jane', 'seth', 'cissia'], 0)
     expect(allocated.slots[0].setup).toMatchObject({
       twoPieceId: 'pufferElectro',
@@ -623,6 +629,8 @@ describe('shared preparation and edit lifecycle', () => {
     expectPreparedCalculable(allocated, 'Seth target rebuild around established holders')
 
     let pressure = createPreparedState({}, ['jane', 'trigger', 'seth'], 0)
+    expect(isCompleteWorkbench(pressure)).toBe(true)
+    expect(calculateParty(pressure)).not.toBeNull()
     expect(pressure.slots[0].setup).toMatchObject({
       twoPieceId: 'freedomBlues',
       mains: { slot5: 'physicalDmg' },

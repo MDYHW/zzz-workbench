@@ -18,6 +18,7 @@ import {
   selectedCalculationSource,
   selectedMindscapeSource,
 } from './sources'
+import { providerDefenseBroadPrePenRelationships } from './provider-defense-broad-pre-pen'
 
 type Agent = 'lucia' | 'astraYao' | 'soukaku' | 'lucy' | 'nicole' | 'panYinhu' | 'ben' | 'caesar' | 'zhao' | 'seth' | 'sunna' | 'rina'
 type Slot = 0 | 1 | 2
@@ -80,6 +81,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
         : undefined,
   }
   const relationships = selectedSetupRelationships(agent, slot, setup, observation)
+  relationships.push(...providerDefenseBroadPrePenRelationships(state, slot))
   const agentIds = state.slots.map(({ agentId }) => agentId)
   const add = (r: ProfileRelationship) => relationships.push(r)
   const own = (id: string, label: string, locus: 'core' | 'additional' | 'special' | 'ex-special' = 'core') => src(agent, slot, id, label, locus)
@@ -205,7 +207,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     add({ kind: 'gauge', source: tier === 0 ? own('core', SOURCE_LABELS.lucyCore) : mind(tier === 1 ? 3 : 5), basis: { statId: 'atk', surface: 'initial' }, basisLabel: 'Initial ATK', basisCap: (VERTICAL_VALUES.lucy.coreAtkOutputCap - base) / (ratio / 100), metricId: 'atk', outputs: [{ label: 'Squad flat ATK', unit: '', cap: VERTICAL_VALUES.lucy.coreAtkOutputCap, transform: { basisIncrement: 100, baseOutput: base, outputIncrement: ratio, outputCap: VERTICAL_VALUES.lucy.coreAtkOutputCap }, emission: { kind: 'provider', delivery: all, effect: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully' } } }], ...(tier === 0 ? { sourceDetail: 'Rebellious Assault' } : {}) }); if (setup.mindscape >= 4) add({ kind: 'provider', source: mind(4), delivery: { ...all, formulas: CRIT_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.lucy.mindscapeSquadCritDmg } })
     metrics = [m('atk', 'ATK', '', 'atk'), m('energyRegen', 'Energy Regen', '/s', 'energyRegen')]
   } else if (agent === 'nicole') {
-    add({ kind: 'provider', source: own('core', SOURCE_LABELS.nicoleCore), delivery: { recipient: 'enemy-context', formulas: ['general_damage'] }, effect: { kind: 'modifier', metricId: 'defReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.nicole.coreDefReduction } }); if (anotherAgentSharesAttribute(agentIds, slot) || anotherAgentSharesFaction(agentIds, slot)) add({ kind: 'provider', source: own('additional', SOURCE_LABELS.nicoleAbility, 'additional'), delivery: { recipient: 'all-party', attributes: ['Ether'], formulas: DAMAGE }, effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.nicole.additionalEtherDmg } }); if (setup.mindscape >= 6) add({ kind: 'provider', source: mind(6), delivery: { ...all, formulas: CRIT_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'critRate', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.nicole.mindscapeSquadCritRate, sourceDetail: '10 stacks' } })
+    if (anotherAgentSharesAttribute(agentIds, slot) || anotherAgentSharesFaction(agentIds, slot)) add({ kind: 'provider', source: own('additional', SOURCE_LABELS.nicoleAbility, 'additional'), delivery: { recipient: 'all-party', attributes: ['Ether'], formulas: DAMAGE }, effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.nicole.additionalEtherDmg } }); if (setup.mindscape >= 6) add({ kind: 'provider', source: mind(6), delivery: { ...all, formulas: CRIT_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'critRate', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.nicole.mindscapeSquadCritRate, sourceDetail: '10 stacks' } })
     metrics = [m('energyRegen', 'Energy Regen', '/s', 'energyRegen')]
   } else if (agent === 'panYinhu') {
     const m6 = setup.mindscape >= 6; const ratio = m6 ? VERTICAL_VALUES.panYinhu.mindscapeCoreAtkRatio : VERTICAL_VALUES.panYinhu.coreAtkRatio; const cap = m6 ? VERTICAL_VALUES.panYinhu.mindscapeCoreSheerCap : VERTICAL_VALUES.panYinhu.coreSheerCap
@@ -277,8 +279,6 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     add({ kind: 'provider', source: exSpecial, delivery: { recipient: 'all-party', formulas: DAMAGE }, effect: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.sunna.exSpecialAtk } })
     const additionalActive = anotherAgentHasSpecialty(agentIds, slot, ['Attack']) || anotherAgentSharesFaction(agentIds, slot)
     if (additionalActive) add({ kind: 'provider', source: ability, delivery: { recipient: 'enemy-context', formulas: DAMAGE }, effect: { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.sunna.additionalStunMultiplier } })
-    const triggerPerformer = setup.mindscape >= 6 || anotherAgentHasSpecialty(agentIds, slot, ['Attack', 'Anomaly'])
-    if (setup.mindscape >= 1 && triggerPerformer) add({ kind: 'provider', source: mind(1), delivery: { recipient: 'enemy-context', formulas: DEF_DAMAGE_FORMULAS }, effect: { kind: 'modifier', metricId: 'defReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.sunna.mindscape1DefReduction } })
     if (setup.mindscape >= 2) add({ kind: 'provider', source: mind(2), delivery: { recipient: 'all-party', formulas: DAMAGE }, effect: { kind: 'stat', statId: 'atk', region: 'percentage', earliestSurface: 'fully', value: VERTICAL_VALUES.sunna.mindscape2Atk } })
     if (setup.mindscape >= 4) add({ kind: 'provider', source: mind(4), delivery: { recipient: 'all-party', formulas: DAMAGE }, effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.sunna.mindscape4Dmg } })
     metrics = [

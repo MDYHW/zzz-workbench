@@ -6,7 +6,7 @@ import { CRIT_DAMAGE_FORMULAS, directionUsesFormula, REGULAR_DAMAGE_FORMULAS } f
 import type { ProfileRelationship } from '../../calculation/relationships'
 import type { WorkbenchState } from '../../state'
 import { anotherAgentHasSpecialty, anotherAgentSharesAttribute, anotherAgentSharesFaction, soldier11AdditionalIsActive, zhuYuanAdditionalIsActive, harumasaAdditionalIsActive, nekomataAdditionalIsActive, billyAdditionalIsActive, nangongAdditionalIsActive } from '../../party-conditions'
-import { resolveSeedVanguardForState } from '../../candidate-context'
+import { resolveSeedVanguardForState } from './seed-vanguard'
 import { ADMITTED_AGENTS } from '../agents'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
 import { type AgentId } from '../types'
@@ -14,6 +14,7 @@ import type { EffectMetric, SurfaceKey } from '../../effects'
 import type { StatId, StatRegion } from '../../calculation/stat-composer'
 import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from './equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
+import { attackBroadPrePenRelationships } from './attack-broad-pre-pen'
 
 type Agent = 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen' | 'soldier11' | 'zhuYuan' | 'orphie' | 'harumasa' | 'nekomata' | 'billy' | 'yeShunguang' | 'miyabi' | 'anton'
 type Slot = 0 | 1 | 2
@@ -117,7 +118,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
   const setup = { ...requireCompleteSelectedSetup(state.slots[slot].setup), mindscape: state.slots[slot].setup.mindscape }
   const ids = state.slots.map(({ agentId }) => agentId); const qualified = agent === 'seed' ? resolveSeedVanguardForState(state) !== null : partyQualification(agent, ids, slot)
   const baseStats = { ...BASE[agent], penRatio: 0 }; const observation: SelectedSetupObservation = { baseStats, effectiveSubstats: effectiveSubstatChoicesForSlot(state, slot), modifierMetrics: ['dmgBonus', 'defIgnore', 'defReduction', 'resIgnore', 'resReduction', 'stunDmgMultiplier', 'dazeBonus'] }
-  const relationships = selectedSetupRelationships(agent, slot, setup, observation); const add = (r: ProfileRelationship) => relationships.push(r); const core = src(agent, slot, 'core', SOURCE_LABELS[`${agent}Core` as keyof typeof SOURCE_LABELS] ?? 'Core Passive'); const ability = src(agent, slot, 'ability', SOURCE_LABELS[`${agent}Ability` as keyof typeof SOURCE_LABELS] ?? 'Additional Ability', 'additional'); const mind = (tier: 1|2|3|4|5|6) => selectedMindscapeSource(agent, slot, setup.mindscape, tier); const all = { recipient: 'all-party' as const }; const enemy = { recipient: 'enemy-context' as const }
+  const relationships = selectedSetupRelationships(agent, slot, setup, observation); relationships.push(...attackBroadPrePenRelationships(state, slot)); const add = (r: ProfileRelationship) => relationships.push(r); const core = src(agent, slot, 'core', SOURCE_LABELS[`${agent}Core` as keyof typeof SOURCE_LABELS] ?? 'Core Passive'); const ability = src(agent, slot, 'ability', SOURCE_LABELS[`${agent}Ability` as keyof typeof SOURCE_LABELS] ?? 'Additional Ability', 'additional'); const mind = (tier: 1|2|3|4|5|6) => selectedMindscapeSource(agent, slot, setup.mindscape, tier); const all = { recipient: 'all-party' as const }; const enemy = { recipient: 'enemy-context' as const }
   const actions: ActionProjection[] = []; const basicUlt = BASIC_ULT
   const nangongSlot = ids.indexOf('nangongYu')
   if (
@@ -167,7 +168,6 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
       }
       if (setup.mindscape >= 1) addMetric('critDmg', VERTICAL_VALUES.seed.mindscapeDownfallCritDmg, mind(1), SEED_DOWNFALL)
       if (setup.mindscape >= 2) {
-        if (vanguard) add({ kind: 'provider', source: mind(2), delivery: { recipient: 'enemy-context', formulas: ['general_damage'], eligibleAgentIds: recipients }, effect: { kind: 'modifier', metricId: 'defIgnore', earliestSurface: 'combat', value: VERTICAL_VALUES.seed.mindscapeBesiegeDefIgnore, sourceDetail: 'Besiege' } })
         addMetric('dmgBonus', VERTICAL_VALUES.seed.mindscapeSlaughterDmg, mind(2), SEED_SLAUGHTER)
       }
       if (setup.mindscape >= 4) addMetric('dmgBonus', VERTICAL_VALUES.seed.mindscapeUltimateDmg, mind(4), ULT)
@@ -193,7 +193,6 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
       const electricCount = ids.filter((id) => ADMITTED_AGENTS.find((summary) => summary.id === id)?.attribute === 'Electric').length
       const basic = src(agent, slot, 'basic', SOURCE_LABELS.cissiaBasic, 'special')
       const ultimate = src(agent, slot, 'ultimate', 'Ultimate', 'special')
-      const m1Scale = setup.mindscape >= 1 ? VERTICAL_VALUES.cissia.mindscapeCoreMultiplier : 1
       addMetric('critRate', VERTICAL_VALUES.cissia.coreCritRate, basic)
       addMetric('dazeBonus', electricCount >= 2 ? VERTICAL_VALUES.cissia.coreCorrodeDaze.twoElectric : VERTICAL_VALUES.cissia.coreCorrodeDaze.oneElectric, basic, CISSIA_CORRODE)
       if (qualified) {
@@ -201,7 +200,6 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
         addMetric('critDmg', VERTICAL_VALUES.cissia.additionalSelfCritDmg, ability, undefined, 'combat')
       }
       add({ kind: 'provider', source: ultimate, delivery: { recipient: 'all-party', formulas: CRIT_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.cissia.ultimateSquadCritDmg } })
-      add({ kind: 'gauge', source: core, basis: { statId: 'energyRegen', surface: 'initial' }, basisLabel: 'Initial Energy Regen', basisThreshold: VERTICAL_VALUES.cissia.coreEnergyThreshold, basisCap: 3.68, metricId: 'energyRegen', outputs: [{ label: 'Electric DEF Ignore', unit: '%', cap: VERTICAL_VALUES.cissia.coreDefIgnoreCap * m1Scale, decimals: 3, transform: { basisThreshold: VERTICAL_VALUES.cissia.coreEnergyThreshold, basisIncrement: VERTICAL_VALUES.cissia.coreEnergyIncrement, baseOutput: VERTICAL_VALUES.cissia.coreDefIgnore * m1Scale, outputIncrement: m1Scale, outputCap: VERTICAL_VALUES.cissia.coreDefIgnoreCap * m1Scale }, emission: { kind: 'provider', delivery: { recipient: 'enemy-context', attributes: ['Electric'], formulas: ['general_damage'] }, effect: { kind: 'modifier', metricId: 'defIgnore', earliestSurface: 'combat', sourceDetail: 'Corrosion' } } }] })
       if (setup.mindscape >= 1) {
         add({ kind: 'provider', source: mind(1), delivery: { recipient: 'enemy-context', attributes: ['Electric'], formulas: ['general_damage'] }, effect: { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'combat', value: VERTICAL_VALUES.cissia.mindscapeBroadElectricResIgnore } })
         add({ kind: 'provider', source: mind(1), delivery: { recipient: 'enemy-context', attributes: ['Electric'], formulas: ['general_damage'], eligibleAgentIds: ['cissia'] }, effect: { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'fully', value: VERTICAL_VALUES.cissia.mindscapeCorrodeElectricResIgnore, action: CISSIA_CORRODE, sourceDetail: 'Corrode Bone' } })
@@ -231,7 +229,6 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
         addMetric('dmgBonus', VERTICAL_VALUES.evelyn.additionalChainUltimateDmg, ability, CHAIN_ULT, 'combat')
         add({ kind: 'threshold-operation', source: ability, basis: { statId: 'critRate' }, basisLabels: { combat: 'Combat CRIT Rate', fully: 'Fully Enabled CRIT Rate' }, threshold: VERTICAL_VALUES.evelyn.additionalCritThreshold, metricId: 'critRate', outputLabel: 'Chain Attack & Ultimate DMG Multiplier', inactiveValue: 1, activeValue: VERTICAL_VALUES.evelyn.additionalMultiplier, unit: '', presentation: 'scale' })
       }
-      if (setup.mindscape >= 1) addMetric('defIgnore', VERTICAL_VALUES.evelyn.mindscapeDefIgnore, mind(1), undefined, 'combat')
       if (setup.mindscape >= 2) addAtk(VERTICAL_VALUES.evelyn.mindscapeAtk, mind(2), 'combat')
       if (setup.mindscape >= 4) addMetric('critDmg', VERTICAL_VALUES.evelyn.mindscapeCritDmg, mind(4))
       const chainScopes = [{ id: 'evelynChainUltimate', target: CHAIN_ULT, children: [{ id: 'evelynUltimate', target: ULT }] }] satisfies readonly ActionScopeNode[]
@@ -398,7 +395,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
       const values = VERTICAL_VALUES.yeShunguang
       addMetric('critRate', values.unityCritRate, core, undefined, 'combat')
       addMetric('dmgBonus', values.unityDmg, core, undefined, 'combat')
-      if (setup.mindscape >= 1) { addMetric('dmgBonus', values.mindscapeUnityDmg, mind(1), undefined, 'combat'); addMetric('defIgnore', values.mindscapeDefIgnore, mind(1), undefined, 'combat') }
+      if (setup.mindscape >= 1) addMetric('dmgBonus', values.mindscapeUnityDmg, mind(1), undefined, 'combat')
       if (setup.mindscape >= 2) addMetric('defIgnore', values.mindscapeActionDefIgnore, mind(2), YE_M2)
       const veilCap = setup.mindscape >= 4 ? values.mindscapeVeilVulnerabilityCap : values.veilVulnerabilityCap
       const targetStun = calculationContext.targetStunDmgMultiplier ?? 150

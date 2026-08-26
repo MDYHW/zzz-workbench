@@ -495,3 +495,52 @@ export function representativeSetupFor(
   if (agentId === 'zhuYuan') return zhuYuanRepresentative(pool)
   return representative
 }
+
+/** Applies only authored complete-package changes caused by active broad DEF pressure. */
+export function representativeUnderBroadPrePenPressure(
+  agentId: AgentId,
+  pool: PoolId,
+  mindscape: number,
+  selection: SetupSelection,
+  hasPressure: boolean,
+  hasNicoleM6: boolean,
+): SetupSelection {
+  if (!hasPressure) return selection
+  if (agentId === 'ellen') {
+    return {
+      ...selection,
+      twoPieceId: 'branchAndBlade',
+      mains: {
+        ...selection.mains,
+        slot4: pool === 'full' && hasNicoleM6 ? 'critDmg' : 'critRate',
+        slot5: 'iceDmg',
+      },
+    }
+  }
+  if (agentId === 'soldier11') {
+    return {
+      ...selection,
+      twoPieceId: 'infernoMetal',
+      mains: {
+        ...selection.mains,
+        slot4: pool === 'full' && hasNicoleM6 ? 'critDmg' : 'critRate',
+        slot5: 'fireDmg',
+      },
+    }
+  }
+  switch (agentId) {
+    case 'evelyn': return { ...selection, mains: { ...selection.mains, slot5: 'fireDmg' } }
+    case 'corin': return { ...selection, mains: { ...selection.mains, slot5: 'physicalDmg' } }
+    case 'nekomata': return { ...selection, twoPieceId: 'branchAndBlade', mains: { ...selection.mains, slot5: 'atkPct' } }
+    case 'billy': return { ...selection, mains: { ...selection.mains, slot5: 'atkPct' } }
+    case 'grace': return { ...selection, twoPieceId: 'freedomBlues', mains: { ...selection.mains, slot5: 'electricDmg' } }
+    case 'burnice': return { ...selection, mains: { ...selection.mains, slot5: 'fireDmg' } }
+    case 'jane': return { ...selection, twoPieceId: 'freedomBlues', mains: { ...selection.mains, slot5: 'physicalDmg' } }
+    case 'yanagi': return { ...selection, mains: { ...selection.mains, slot5: 'electricDmg' } }
+    case 'alice': return { ...selection, mains: { ...selection.mains, slot5: 'physicalDmg' } }
+    case 'miyabi': return mindscape === 0
+      ? { ...selection, mains: { ...selection.mains, slot5: 'iceDmg' } }
+      : selection
+    default: return selection
+  }
+}

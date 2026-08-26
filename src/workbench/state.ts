@@ -4,8 +4,7 @@ import {
   isFocusEligible,
   defaultRefinementFor,
   setupPolicyFor,
-  PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE,
-  PREPARED_TWO_PIECE_BY_BROAD_PRE_PEN_PRESSURE,
+  representativeUnderBroadPrePenPressure,
   W_ENGINES,
   type AgentId,
   type DiscId,
@@ -160,47 +159,49 @@ function establishedDiscHolders(
     : [{ agentId, fourPieceId: setup.fourPieceId, mindscape: setup.mindscape }])
 }
 
-function withPreparedBroadPrePenPackage(
+function withPreparedPressurePackage(
   state: WorkbenchState,
   slot: AppliedSlot,
   setup: AgentSetupState,
 ): AgentSetupState {
-  const replacement = PREPARED_SLOT5_MAIN_BY_BROAD_PRE_PEN_PRESSURE[
-    state.slots[slot].agentId
-  ]
-  const twoPieceReplacement = PREPARED_TWO_PIECE_BY_BROAD_PRE_PEN_PRESSURE[
-    state.slots[slot].agentId
-  ]
-  const replacesMain = replacement !== undefined && setup.mains.slot5 === 'penRatio'
-  const replacesTwoPiece = twoPieceReplacement !== undefined
-    && setup.twoPieceId === 'pufferElectro'
-  if (!replacesMain && !replacesTwoPiece) {
-    return setup
-  }
   const slots = [...state.slots] as WorkbenchState['slots']
   slots[slot] = { ...slots[slot], setup }
   const provisional = { ...state, slots }
-  const hasBroadPrePenPressure = activeCandidatePressures(provisional, slot)
+  const hasPressure = activeCandidatePressures(provisional, slot)
     .includes('materialBroadPrePenDefBypass')
-  return hasBroadPrePenPressure
-    ? {
-      ...setup,
-      ...(replacesTwoPiece ? { twoPieceId: twoPieceReplacement } : {}),
-      ...(replacesMain
-        ? { mains: { ...setup.mains, slot5: replacement } }
-        : {}),
-    }
-    : setup
+  const hasNicoleM6 = provisional.slots.some(({ agentId, setup: current }) => (
+    agentId === 'nicole' && current.mindscape >= 6
+  ))
+  const current = provisional.slots[slot]
+  const selection = representativeUnderBroadPrePenPressure(
+    current.agentId,
+    current.setup.pool,
+    current.setup.mindscape,
+    {
+      engineId: current.setup.engineId!,
+      fourPieceId: current.setup.fourPieceId!,
+      twoPieceId: current.setup.twoPieceId!,
+      mains: {
+        slot4: current.setup.mains.slot4!,
+        slot5: current.setup.mains.slot5!,
+        slot6: current.setup.mains.slot6!,
+      },
+    },
+    hasPressure,
+    hasNicoleM6,
+  )
+  return {
+    ...setup,
+    fourPieceId: selection.fourPieceId,
+    twoPieceId: selection.twoPieceId,
+    mains: { ...selection.mains },
+  }
 }
 
 function withPreparedPartyPressurePackages(state: WorkbenchState): WorkbenchState {
   const slots = state.slots.map((current, slotIndex) => ({
     ...current,
-    setup: withPreparedBroadPrePenPackage(
-      state,
-      slotIndex as AppliedSlot,
-      current.setup,
-    ),
+    setup: withPreparedPressurePackage(state, slotIndex as AppliedSlot, current.setup),
   })) as WorkbenchState['slots']
   return { ...state, slots }
 }
@@ -251,7 +252,7 @@ function createTargetPreparedSetup(
     state.slots[state.focusSlot].agentId,
     establishedDiscHolders(state.slots, slot),
   )
-  const prepared = withPreparedBroadPrePenPackage(
+  const prepared = withPreparedPressurePackage(
     state,
     slot,
     setupStateFromSelection(agentId, pool, mindscape, selection),
@@ -277,9 +278,7 @@ function createPartyPreparedState(
     })) as WorkbenchState['slots'],
     focusSlot,
   }
-  return withZeroInitializedEffectiveSubstats(
-    withPreparedPartyPressurePackages(selected),
-  )
+  return withZeroInitializedEffectiveSubstats(withPreparedPartyPressurePackages(selected))
 }
 
 export function createPreparedState(

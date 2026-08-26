@@ -56,8 +56,8 @@ describe('shared calculation integration', () => {
 
   it('projects compatible exact anomaly outcomes across current recipient profiles', () => {
     let state = createPreparedState({}, ['jane', 'alice', 'piper'], 0)
-    state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 2 })
     state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 2 })
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 2 })
     const result = calculateParty(state)!
     const agent = (agentId: AgentId) => result.agents.find((entry) => entry.agentId === agentId)!
     const hasSource = (agentId: AgentId, actionId: string, ownerAgentId: AgentId) => (

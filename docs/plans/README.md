@@ -8,8 +8,8 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-Keep at most one active bounded implementation plan. There is no active bounded
-implementation plan.
+Keep at most one active bounded implementation plan. The active bounded plan is
+[relationship-driven broad pre-PEN preparation refactor](2026-08-26-relationship-driven-broad-pre-pen-refactor-plan.md).
 The authority-governance recovery closed after exact-SHA
 finalization, protected `main` promotion, and recovery freeze; its detailed
 execution record remains in Git history and the durable postmortem.

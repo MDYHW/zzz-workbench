@@ -9,7 +9,7 @@ import {
   type ActionTarget,
 } from '../../actions'
 import type { ProfileRelationship } from '../../calculation/relationships'
-import type { SelectedSourceInstance } from '../../calculation/source-instance'
+import { selectSource, type SelectedSourceInstance } from '../../calculation/source-instance'
 import type { StatId, StatRegion } from '../../calculation/stat-composer'
 import type { EffectMetric, SurfaceKey } from '../../effects'
 import {
@@ -17,7 +17,9 @@ import {
   effectAttributeForAgent,
   REGULAR_DAMAGE_FORMULAS,
 } from '../../formula-policy'
-import { W_ENGINE_FACTS } from '../engines'
+import { W_ENGINE_FACTS, W_ENGINES } from '../engines'
+import { ADMITTED_AGENTS } from '../agents'
+import { defineWEngineSource } from '../source-definitions'
 import { operatingIntervalFor } from '../setup-policies'
 import {
   equipmentEffectAppliesToAttribute,
@@ -27,6 +29,8 @@ import {
   equipmentEffectProgressionValue,
   type AgentId,
   type EquipmentEffectFact,
+  type EngineId,
+  type Refinement,
 } from '../types'
 import {
   type CompleteSelectedSetup, type SelectedSetupObservation,
@@ -48,6 +52,66 @@ export interface SelectedWEngineContext {
   partyAgentIds: readonly AgentId[]
   source: SelectedSourceInstance
   passiveEligible: boolean
+}
+
+interface SelectedWEngineBroadPrePenContext {
+  agentId: AgentId
+  engineId: EngineId
+  refinement: Refinement
+  source: SelectedSourceInstance
+  passiveEligible: boolean
+}
+
+/** Broad DEF relationships are shared by Result and candidate preparation. */
+export function selectedWEngineBroadPrePenRelationships(
+  context: SelectedWEngineBroadPrePenContext,
+): ProfileRelationship[] {
+  const { agentId: agent, engineId, refinement, source, passiveEligible } = context
+  if (!passiveEligible) return []
+  switch (engineId) {
+    case 'myriadEclipse':
+      { const relationship = local(source, 'defIgnore', equipmentEffectBaseValue(
+        W_ENGINE_FACTS.myriadEclipse.effects.defIgnore, refinement,
+      ), undefined, 'combat'); return relationship ? [relationship] : [] }
+    case 'serpentineSeeker':
+      if (effectAttributeForAgent(agent) !== 'Electric') return []
+      { const relationship = local(source, 'defIgnore', equipmentEffectBaseValue(
+        W_ENGINE_FACTS.serpentineSeeker.effects.defIgnore, refinement,
+      ), undefined, 'combat'); return relationship ? [relationship] : [] }
+    case 'spectralGaze':
+      if (agent !== 'trigger') return []
+      return [equipmentProviderRelationship(
+        source,
+        W_ENGINE_FACTS.spectralGaze.effects.defReduction,
+        { kind: 'modifier', metricId: 'defReduction', earliestSurface: 'fully', value: equipmentEffectBaseValue(W_ENGINE_FACTS.spectralGaze.effects.defReduction, refinement) },
+        { formulas: ['general_damage'] },
+      )]
+    default:
+      return []
+  }
+}
+
+export function selectedWEngineBroadPrePenRelationshipsForSlot(
+  state: import('../../state').WorkbenchState,
+  slot: Slot,
+): ProfileRelationship[] {
+  const { agentId, setup } = state.slots[slot]
+  if (!setup.engineId || !setup.refinement) return []
+  const specialty = ADMITTED_AGENTS.find(({ id }) => id === agentId)?.specialty
+  if (W_ENGINES[setup.engineId].passiveSpecialty !== specialty) return []
+  const source = selectSource(
+    defineWEngineSource(setup.engineId, W_ENGINES[setup.engineId].name),
+    agentId,
+    slot,
+    { kind: 'refinement', refinement: setup.refinement },
+  )
+  return selectedWEngineBroadPrePenRelationships({
+    agentId,
+    engineId: setup.engineId,
+    refinement: setup.refinement,
+    source,
+    passiveEligible: true,
+  })
 }
 
 const target = (...actions: Parameters<typeof canonicalAction>[0][]) => (
@@ -171,6 +235,13 @@ export function selectedWEngineRelationships({
 }: SelectedWEngineContext): ProfileRelationship[] {
   if (!passiveEligible) return []
   const relationships: ProfileRelationship[] = []
+  relationships.push(...selectedWEngineBroadPrePenRelationships({
+    agentId: agent,
+    engineId: setup.engineId,
+    refinement: setup.refinement,
+    source,
+    passiveEligible,
+  }))
   const add = (
     metricId: EffectMetric,
     amount: number,
@@ -305,7 +376,6 @@ export function selectedWEngineRelationships({
       break
     case 'myriadEclipse':
       add('critDmg', value(W_ENGINE_FACTS.myriadEclipse.effects.critDamage, setup), undefined, 'combat')
-      add('defIgnore', value(W_ENGINE_FACTS.myriadEclipse.effects.defIgnore, setup), undefined, 'combat')
       break
     case 'steelCushion':
       if (effectAttributeForAgent(agent) === 'Physical') add('dmgBonus', value(W_ENGINE_FACTS.steelCushion.effects.physicalDamage, setup), undefined, 'combat')
@@ -368,7 +438,6 @@ export function selectedWEngineRelationships({
     case 'serpentineSeeker':
       if (effectAttributeForAgent(agent) === 'Electric') {
         add('critRate', value(W_ENGINE_FACTS.serpentineSeeker.effects.critRate, setup), undefined, 'combat')
-        add('defIgnore', value(W_ENGINE_FACTS.serpentineSeeker.effects.defIgnore, setup), undefined, 'combat')
       }
       break
     case 'starlightEngineReplica':
@@ -562,10 +631,6 @@ export function selectedWEngineRelationships({
       break
     case 'spectralGaze':
       if (agent === 'trigger') {
-        relationships.push(equipmentProviderRelationship(source, W_ENGINE_FACTS.spectralGaze.effects.defReduction, {
-          kind: 'modifier', metricId: 'defReduction', earliestSurface: 'fully',
-          value: value(W_ENGINE_FACTS.spectralGaze.effects.defReduction, setup),
-        }, { formulas: ['general_damage'] }))
         add('impact', maximum(W_ENGINE_FACTS.spectralGaze.effects.impact, setup))
       }
       break

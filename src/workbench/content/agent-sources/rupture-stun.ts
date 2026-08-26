@@ -15,6 +15,7 @@ import {
   selectedCalculationSource,
   selectedMindscapeSource,
 } from './sources'
+import { ruptureStunBroadPrePenRelationships } from './rupture-stun-broad-pre-pen'
 
 type Agent = 'yixuan' | 'yidhari' | 'manato' | 'banyue' | 'starlightBilly' | 'dialyn' | 'trigger' | 'lycaon' | 'juFufu' | 'lighter' | 'pulchra' | 'qingyi' | 'koleda' | 'anby' | 'nangongYu'
 type Slot = 0 | 1 | 2
@@ -389,7 +390,7 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
     relationships.push(mod('dmgBonus', VERTICAL_VALUES.qingyi.flashDmg, core, QINGYI_ENCHANTED), mod('dazeBonus', VERTICAL_VALUES.qingyi.flashDaze, core, QINGYI_ENCHANTED), provider(core, 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.qingyi.coreStunMultiplier }), mod('dmgBonus', VERTICAL_VALUES.qingyi.coreChainDmg, core, QINGYI_CHAIN))
     if (qingyiAdditionalIsActive(ids, slot)) relationships.push(mod('dazeBonus', VERTICAL_VALUES.qingyi.additionalBasicDaze, ability, QINGYI_BASIC))
     if (qingyiAdditionalIsActive(ids, slot)) relationships.push({ kind: 'gauge', source: ability, basis: { statId: 'impact', surface: 'each' }, basisLabel: 'Fully Enabled Impact', basisThreshold: VERTICAL_VALUES.qingyi.additionalImpactThreshold, basisCap: VERTICAL_VALUES.qingyi.additionalImpactCap, metricId: 'impact', outputs: [{ label: 'Additional flat ATK', unit: '', cap: VERTICAL_VALUES.qingyi.additionalAtkCap, transform: { basisThreshold: VERTICAL_VALUES.qingyi.additionalImpactThreshold, basisIncrement: 1, outputIncrement: VERTICAL_VALUES.qingyi.additionalAtkPerImpact, outputCap: VERTICAL_VALUES.qingyi.additionalAtkCap }, emission: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'initial' } }] })
-    if (selected >= 1) relationships.push(provider(mind(agent, slot, selected, 1), 'enemy-context', { kind: 'modifier', metricId: 'defReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.qingyi.mindscapeDefReduction }, { formulas: ['general_damage'] }), mod('critRate', VERTICAL_VALUES.qingyi.mindscapeCritRate, mind(agent, slot, selected, 1)))
+    if (selected >= 1) relationships.push(mod('critRate', VERTICAL_VALUES.qingyi.mindscapeCritRate, mind(agent, slot, selected, 1)))
     if (selected >= 2) relationships.push(provider(mind(agent, slot, selected, 2), 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.qingyi.mindscapeStunMultiplier - VERTICAL_VALUES.qingyi.coreStunMultiplier }), mod('dazeBonus', VERTICAL_VALUES.qingyi.mindscapeDaze, mind(agent, slot, selected, 2)))
     if (selected >= 6) relationships.push(mod('critDmg', VERTICAL_VALUES.qingyi.mindscapeEnchantedCritDmg, mind(agent, slot, selected, 6), QINGYI_ENCHANTED), provider(mind(agent, slot, selected, 6), 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.qingyi.mindscapeResReduction }, { formulas: DAMAGE }))
     actions.push({ metricId: 'dmgBonus', scopes: [{ id: 'qingyiBasicDmg', target: QINGYI_BASIC, children: [{ id: 'qingyiEnchantedBasicDmg', target: QINGYI_ENCHANTED }] }, { id: 'qingyiChainDmg', target: QINGYI_CHAIN }] }, { metricId: 'dazeBonus', scopes: [{ id: 'qingyiBasicDaze', target: QINGYI_BASIC, children: [{ id: 'qingyiEnchantedBasicDaze', target: QINGYI_ENCHANTED }] }] })
@@ -466,6 +467,7 @@ export function ruptureStunProfileFor(
     modifierMetrics: ['dmgBonus', 'dazeBonus', 'anomalyDmgBonus', 'anomalyBuildupResReduction'],
   }
   const relationships = selectedSetupRelationships(agent, slot, setup, observation)
+  relationships.push(...ruptureStunBroadPrePenRelationships(state, slot))
   relationships.push(...selectedEquipmentRelationships(agent, slot, setup, {
     observation,
     focusAgentId: state.slots[state.focusSlot].agentId,

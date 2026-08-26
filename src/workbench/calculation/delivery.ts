@@ -57,7 +57,7 @@ function effectMetric(effect: ProviderEffect): EffectMetric | undefined {
   }
 }
 
-function recipientMatches(
+export function providerAppliesToRecipient(
   provider: ProviderRelationship,
   recipient: DeliveryRecipientContext,
   focusSlot: 0 | 1 | 2,
@@ -151,7 +151,7 @@ export function deliverProviderRelationships(
   const delivered: DeliveredBySlot = [emptyDelivered(), emptyDelivered(), emptyDelivered()]
   for (const provider of providers) {
     for (const recipient of recipients) {
-      if (!recipientMatches(provider, recipient, focusSlot)) continue
+      if (!providerAppliesToRecipient(provider, recipient, focusSlot)) continue
       deliverEffect(provider, recipient.appliedPartySlot, delivered[recipient.appliedPartySlot])
     }
   }

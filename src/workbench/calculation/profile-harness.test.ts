@@ -12,7 +12,8 @@ import {
   type AgentId,
   type DiscId,
 } from '../content/types'
-import { createPreparedState, type WorkbenchState } from '../state'
+import { createPreparedState, workbenchReducer, type WorkbenchState } from '../state'
+import { activeCandidatePressures } from '../candidate-context'
 import { selectedDriveDiscRelationships } from '../content/agent-sources/drive-disc-relationships'
 import {
   requireCompleteSelectedSetup,
@@ -27,6 +28,8 @@ import {
   type MetricProjection,
 } from './profile-harness'
 import { evaluateRelationships, type ProfileRelationship } from './relationships'
+import { deliverProviderRelationships } from './delivery'
+import { broadPrePenProviderFor } from './broad-pre-pen'
 import { selectSource, type SelectedSourceInstance } from './source-instance'
 import { type StatId } from './stat-composer'
 
@@ -71,6 +74,64 @@ function baseStat(
     },
   }
 }
+
+describe('shared broad pre-PEN applicability', () => {
+  it('keeps self and party delivery formula-aware while rejecting action-scoped pressure', () => {
+    const source = selectSource(
+      defineAgentSource('alice', 'broad-fixture', 'Broad fixture', 'core'),
+      'alice',
+      0,
+    )
+    const provider: ProfileRelationship = {
+      kind: 'provider',
+      source,
+      delivery: { recipient: 'all-party', formulas: ['general_damage'] },
+      effect: {
+        kind: 'modifier',
+        metricId: 'defReduction',
+        earliestSurface: 'fully',
+        value: 20,
+      },
+    }
+    const selfProvider: ProfileRelationship = {
+      ...provider,
+      delivery: { recipient: 'self', formulas: ['anomaly_damage'] },
+    }
+    const delivered = deliverProviderRelationships(
+      [provider, selfProvider],
+      [
+        { appliedPartySlot: 0, agentId: 'alice', specialty: 'Anomaly', attribute: 'Physical', formulas: ['anomaly_damage'], statIds: [] },
+        { appliedPartySlot: 1, agentId: 'trigger', specialty: 'Rupture', attribute: 'Physical', formulas: ['sheer_damage'], statIds: [] },
+        { appliedPartySlot: 2, agentId: 'rina', specialty: 'Support', attribute: 'Electric', formulas: ['general_damage'], statIds: [] },
+      ],
+      0,
+    )
+    expect(delivered[0].modifierAtoms).toHaveLength(2)
+    expect(delivered[1].modifierAtoms).toHaveLength(0)
+    expect(delivered[2].modifierAtoms).toHaveLength(1)
+    expect(broadPrePenProviderFor({
+      kind: 'modifier',
+      atom: {
+        metricId: 'defIgnore', earliestSurface: 'combat', value: 25, source,
+        action: AFTERSHOCK_TARGET,
+      },
+    })).toBeNull()
+
+    let aliceState = createPreparedState({ trigger: 'nonLimited' }, ['alice', 'trigger', 'yixuan'], 0)
+    aliceState = workbenchReducer(aliceState, {
+      type: 'setMindscape', slot: 0, mindscape: 1,
+    })
+    expect(activeCandidatePressures(aliceState, 0)).toContain('materialBroadPrePenDefBypass')
+
+    const cordisState = createPreparedState({}, ['corin', 'dialyn', 'lycaon'], 0)
+    expect(activeCandidatePressures(cordisState, 0)).not.toContain('materialBroadPrePenDefBypass')
+
+    const cissiaPhysical = createPreparedState({}, ['cissia', 'jane', 'yixuan'], 1)
+    expect(activeCandidatePressures(cissiaPhysical, 1)).not.toContain('materialBroadPrePenDefBypass')
+    const cissiaElectric = createPreparedState({}, ['cissia', 'yanagi', 'yixuan'], 1)
+    expect(activeCandidatePressures(cissiaElectric, 1)).toContain('materialBroadPrePenDefBypass')
+  })
+})
 
 function selectedFourPieceRelationships(
   state: WorkbenchState,
