@@ -1,7 +1,7 @@
 ---
 title: Prevent secondary requirements from validating themselves
 date: 2026-08-12
-last_updated: 2026-08-25
+last_updated: 2026-08-26
 category: workflow-issues
 module: controller-refresh-and-requirements-authoring
 problem_type: workflow_issue
@@ -10,8 +10,8 @@ severity: high
 applies_when:
   - "A refreshed controller will author or review a new vertical"
   - "Secondary requirements add or change candidates, prepared representatives, or selected-input pressure"
+  - "A W-Engine pass compares the representative, other limited S-Ranks, and standard S-Rank or A-Rank alternatives"
   - "Reviewers validate an implementation against requirements written in the same change"
-  - "A completed implementation plan is being consulted or closed"
   - "A zero-substat prepared Result is used to author a candidate or first choice"
 symptoms:
   - "The controller can narrate the permanent contract but cannot apply it to contrasting current consumers"
@@ -31,8 +31,8 @@ tags:
   - candidate-policy
   - representative-setup
   - counterexample-review
-  - semantic-drift
-  - plan-lifecycle
+  - w-engine-authoring
+  - realized-package
   - prepared-zero
 ---
 
@@ -74,6 +74,18 @@ required current-consumer routing, whole-package and opportunity-cost review,
 same-axis dominance, authored first choices, and selected-pressure lifecycle.
 The missing workflow step was an operational proof that the refreshed
 controller could apply those rules and reject an attractive false analogy.
+
+A later W-Engine audit exposed the same workflow failure in a different form.
+The controller treated full clause applicability, release or character
+association, and a modest Base ATK advantage as evidence that the strongest
+package should globally eliminate partial alternatives on the same setup
+direction. That shortcut collapsed three distinct acquisition roles: the
+highest Agent-realized representative, a competitive other limited S-Rank the
+user may already own, and the strongest standard S-Rank or A-Rank route. The
+correct comparison counts only realized value, uses the representative to
+calibrate a material range, and compares another limited S-Rank chiefly with
+the strongest non-limited alternative before compressing redundant choices
+within each role.
 
 ## Guidance
 
@@ -118,8 +130,11 @@ choice being added or changed:
 - exact holder eligibility and activation compatibility
 - exact current formula, action, threshold, or operation consumer
 - origin: base, contextual, or selected-input-derived
-- nearest usable same-axis competitor in the same availability pool
-- usable and unused clauses in each complete package
+- highest Agent-realized representative and the material range it establishes
+- acquisition role: representative, other limited S-Rank, or non-limited
+- nearest usable same-direction competitor within that acquisition role
+- strongest standard S-Rank or A-Rank comparison for another limited S-Rank
+- usable and unused clauses in each complete source-owned package
 - realized value from usable clauses only; every unusable clause contributes
   zero and is never subtracted as a completeness penalty
 - the visible prepared-zero state kept separate from finite future slot and
@@ -148,6 +163,68 @@ Eligibility precedes package comparison. A package with stronger visible values
 cannot dominate for a holder that fails its exact Specialty or activation
 condition. Comparing retained numbers before compatibility can select a false
 same-axis competitor even when the later whole-package arithmetic is correct.
+
+### Compare W-Engine acquisition roles without package-completeness bias
+
+Begin from the Agent's formula, important actions and operations, current stat
+supply, thresholds or caps, and finite Disc, main-stat, and substat
+opportunities. Equipment release or character association may narrow discovery
+but supplies no candidate or representative evidence. Removing that association
+from the item must leave the conclusion unchanged.
+
+For each legal engine, decompose Base ATK, advanced stat, passive clauses,
+activation, action or operation scope, Attribute, recipient, and conditions.
+Usable contributions add their realized value. Unusable contributions are
+exactly zero: they are not penalties. Full clause applicability, clause count,
+or source-package complexity adds no independent value. Base ATK remains part
+of the complete recomposition alongside advanced stats, passives, action
+coverage, and finite investment. Rank or a modest isolated Base ATK difference
+does not independently establish admission, direction, or priority.
+
+Select the representative solely from the highest Agent-realized complete
+setup. Use that setup to reject alternatives that are materially too remote,
+not to eliminate every weaker same-direction engine. Another limited S-Rank
+serves a different ownership role and is compared chiefly with the strongest
+standard S-Rank or A-Rank alternative. It may remain below the representative
+when its realized setup is comparable to or stronger than that non-limited
+route, even when both limited engines produce the same setup direction.
+
+Compress same-direction choices within acquisition roles:
+
+- among other limited S-Ranks, retain the strongest competitive alternative
+  for one recomposed direction;
+- among standard S-Ranks and A-Ranks, retain the strongest useful non-limited
+  alternative for that direction; and
+- do not globally collapse the representative, another limited S-Rank, and the
+  non-limited alternative merely because their final setup direction matches.
+
+A genuinely different direction must materially change Disc, main-stat, or
+substat allocation, action or operation coverage, a threshold or cap, or
+formula consumption, and must still remain inside the material competitive
+range. A different label, trigger, rarity, or positive clause is insufficient.
+Author one admitted set after those comparisons, then derive `full` from the
+entire set and `non-limited` by removing limited S-Ranks. Never rerun admission
+inside each pool or restore a rejected engine merely to populate one.
+
+Use this authoring gate before requirements close:
+
+```text
+Agent consumer model established before equipment labels
+-> association removed without changing the conclusion
+-> usable clauses valued and unusable clauses set to zero
+-> complete zero-substat setup and finite opportunity recomposed
+-> rank or a modest isolated Base ATK difference does not independently
+   establish the outcome
+-> representative material range checked without a fixed cutoff
+-> each other limited S-Rank compared with the strongest standard S/A route
+-> same-direction redundancy compressed within acquisition roles
+-> one admitted set precedes pool derivation
+```
+
+If any edge cannot be supported, stop candidate or representative authoring.
+Keep this proof in the bounded review and Authority trace rather than creating
+an Agent-by-engine matrix, score registry, runtime optimizer, or catalogue
+test.
 
 ### Separate prepared zero from finite future opportunity
 
@@ -185,12 +262,12 @@ inputs with trivial room, reconsider the fixed package instead of removing the
 effective substat or declaring the cap solved.
 
 Do not universalize that ordering. An ordinary damage direction with several
-material axes first chooses the strongest complete W-Engine package in the
-current pool, then balances legal Disc packages, main stats, and retained
+material axes first chooses the strongest Agent-realized W-Engine package in
+the current pool, then balances legal Disc packages, main stats, and retained
 substats around it. Finite opportunity may prevent CRIT overcap or distinguish
 the remaining choices; it does not reopen the W-Engine choice as a runtime
-score. Full and non-limited pools still require separate whole-package
-comparisons.
+score. Pool representatives still require their applicable-subset comparison
+after one admitted set is authored.
 
 A guide ranking proposes packages worth inspecting. It does not establish
 candidate membership or a representative. At zero supplied counts, check the
@@ -305,6 +382,8 @@ locally passing rules in the wrong global order.
 
 - A new controller assumes responsibility after a refresh.
 - A vertical adds or changes candidate membership or a prepared representative.
+- A W-Engine pass compares another limited S-Rank with standard S-Rank or
+  A-Rank alternatives.
 - Selected equipment adds or removes downstream stat or set pressure.
 - Two equipment choices have similar or equal retained numeric effects.
 - Reviewer feedback proposes changing an established mechanism.
@@ -375,6 +454,30 @@ package, and the nearest same-axis competitor. Unused clauses contribute zero
 rather than a penalty. If that comparison does not resolve the full-pool
 representative, leave it as an authoring stop. The non-limited choice cannot
 prove the full-pool choice.
+
+### W-Engine alternatives: compare acquisition roles before compressing direction
+
+Assume one Agent-realized comparison produces these relative outcomes:
+
+```text
+representative: 100
+other limited S-Rank, partial package: 88
+strongest standard S-Rank or A-Rank: 87
+weaker non-limited engine on the same direction: 82
+```
+
+The other limited S-Rank is not removed merely because it is below the
+representative or follows the same setup direction. Its realized package is
+competitive with the strongest non-limited route and therefore remains useful
+to a user who already owns it. The value-82 non-limited engine is removed
+because the value-87 alternative fills the same acquisition role and setup
+direction more strongly.
+
+If two other limited S-Ranks both produce that direction, compare them with
+each other and retain the stronger competitive alternative. Keep the strongest
+non-limited route as a separate pool role. Do not use release association,
+clause count, unused effects, Rank, or a modest isolated Base ATK difference
+as independent evidence for those comparisons.
 
 ### Lycaon Disc comparison: eligibility before dominance
 
