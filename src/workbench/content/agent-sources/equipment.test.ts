@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { W_ENGINE_FACTS, W_ENGINES } from '../engines'
 import { equipmentEffectBaseValue, type EquipmentEffectFact } from '../types'
-import { equipmentEffectAppliesInOperatingInterval, equipmentEffectCanBeActivatedByHolder } from './equipment'
+import {
+  equipmentEffectActionTargets,
+  equipmentEffectAppliesInOperatingInterval,
+  equipmentEffectCanBeActivatedByHolder,
+} from './equipment'
 
 const effect = (overrides: Partial<EquipmentEffectFact>): EquipmentEffectFact => ({
   modifier: 'dmgBonus',
@@ -11,6 +15,19 @@ const effect = (overrides: Partial<EquipmentEffectFact>): EquipmentEffectFact =>
 })
 
 describe('shared engine activation and scope facts', () => {
+  it('derives affected actions and tags without treating trigger actions as scope', () => {
+    expect(equipmentEffectActionTargets(effect({
+      scope: { actions: ['Dash Attack'], tags: ['aftershock'] },
+      activation: { kind: 'trigger', actions: ['EX Special Attack'] },
+    }))).toMatchObject([
+      { outcomes: [{ kind: 'canonical', action: 'Dash Attack' }], tags: [] },
+      { outcomes: [], tags: ['aftershock'] },
+    ])
+    expect(equipmentEffectActionTargets(effect({
+      activation: { kind: 'trigger', actions: ['EX Special Attack'] },
+    }))).toEqual([])
+  })
+
   it('keeps Simmering activation separate from its broad holder effects and compressed Setup copy', () => {
     const { daze, damage } = W_ENGINE_FACTS.simmeringPot.effects
     expect(daze.activation).toMatchObject({ kind: 'trigger', actions: ['Assist Follow-Up'], durationSeconds: 30 })

@@ -1274,16 +1274,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   seth: enginePools(['peacekeeperSpecialized', 'tusksOfFury', 'springEmbrace']),
   yanagi: enginePools(['timeweaver', 'practicedPerfection', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
   alice: enginePools(['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
-  vivian: {
-    full: ['flightOfFancy', 'angelInTheShell', 'weepingGemini'],
-    nonLimited: ['weepingGemini'],
-  },
-  aria: {
-    full: ['angelInTheShell', 'flightOfFancy', 'electroLipGloss', 'weepingGemini', 'fusionCompiler'],
-    nonLimited: ['electroLipGloss', 'weepingGemini', 'fusionCompiler'],
-  },
-  promeia: {
-    full: ['frostfallSickle', 'fusionCompiler', 'angelInTheShell', 'electroLipGloss', 'weepingGemini'],
-    nonLimited: ['fusionCompiler', 'electroLipGloss', 'weepingGemini'],
-  },
+  vivian: enginePools(['flightOfFancy', 'angelInTheShell', 'weepingGemini']),
+  aria: enginePools(['angelInTheShell', 'flightOfFancy', 'electroLipGloss', 'weepingGemini', 'fusionCompiler']),
+  promeia: enginePools(['frostfallSickle', 'fusionCompiler', 'angelInTheShell', 'electroLipGloss', 'weepingGemini']),
 }

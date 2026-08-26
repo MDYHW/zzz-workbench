@@ -8,10 +8,9 @@ import {
   type SetupSelection,
 } from './content'
 import { primaryFormulaUsesCrit, primaryFormulaUsesDefRegion } from './formula-policy'
+import { activeContextualFourPieceCases } from './candidate-context'
 import {
   anotherAgentHasSpecialty,
-  hasRepeatedQuickAssistOpportunity,
-  triggerAdditionalIsActive,
   zhuYuanAdditionalIsActive,
 } from './party-conditions'
 
@@ -32,19 +31,17 @@ function withFocusedEngine(
   focusAgentId: AgentId,
   representative: SetupSelection,
 ): SetupSelection {
-  if (
-    context.agentId === 'trigger'
-    && context.pool === 'full'
+  const alternative = setupPolicyFor(context.agentId).preparedEngine
+    ?.focusWithoutDefRegionAlternative
+  return alternative
+    && context.pool === alternative.pool
     && !primaryFormulaUsesDefRegion(focusAgentId)
-  ) {
-    return { ...representative, engineId: 'iceJadeTeapot' }
-  }
-  return representative
+      ? { ...representative, engineId: alternative.engineId }
+      : representative
 }
 
 function withCompetitiveKingAstralAllocation(
   context: PreparationContext,
-  partyAgentIds: readonly AgentId[],
   establishedHolders: readonly EstablishedDiscHolder[],
   selection: SetupSelection,
 ): SetupSelection {
@@ -55,7 +52,7 @@ function withCompetitiveKingAstralAllocation(
   const anotherHolderKeepsKing = establishedHolders.some((holder) => (
     holder.agentId !== context.agentId
     && holder.fourPieceId === 'king'
-    && kingHolderPrecedes(context.agentId, holder.agentId, partyAgentIds)
+    && kingHolderPrecedes(context.agentId, holder.agentId)
   ))
   const targetRetainsAuthoredCrit = retainsAuthoredCritAfterKingAllocation(
     context.agentId,
@@ -136,16 +133,6 @@ function withEstablishedFocusCritKingPriority(
       : selection
 }
 
-function hasIndependentKingCrit(
-  agentId: AgentId,
-  partyAgentIds: readonly AgentId[],
-): boolean {
-  if (agentId === 'trigger') {
-    return triggerAdditionalIsActive(partyAgentIds, partyAgentIds.indexOf(agentId))
-  }
-  return retainsAuthoredCritAfterKingAllocation(agentId)
-}
-
 function retainsAuthoredCritAfterKingAllocation(agentId: AgentId): boolean {
   return setupPolicyFor(agentId).preparedDisc
     ?.kingAstralAlternative?.preservesCritInvestment ?? false
@@ -167,20 +154,14 @@ function winsCurrentKingTie(holderId: AgentId, targetId: AgentId): boolean {
 
 /**
  * Preserve the less-flexible King holder first. When both holders can take
- * Astral, an independent CRIT consumer wins; the remaining current ties use
- * their bounded authored representative rather than a runtime holder score.
+ * Astral, bounded authoring precedence resolves the allocation rather than a
+ * runtime holder score.
  */
 function kingHolderPrecedes(
   targetId: AgentId,
   holderId: AgentId,
-  partyAgentIds: readonly AgentId[],
 ): boolean {
   if (!canPrepareAstral(holderId)) return true
-  const holderHasIndependentCrit = hasIndependentKingCrit(holderId, partyAgentIds)
-  const targetHasIndependentCrit = hasIndependentKingCrit(targetId, partyAgentIds)
-  if (holderHasIndependentCrit !== targetHasIndependentCrit) {
-    return holderHasIndependentCrit
-  }
   return winsCurrentKingTie(holderId, targetId)
 }
 
@@ -271,11 +252,11 @@ function withNonoverlappingExclusiveDiscAllocation(
 }
 
 /**
- * Cissia's Astral package is contextual rather than her authored base. When
- * two direct Moonlight holders need the Moonlight/Astral pair, keep Cissia's
- * independent Dawn package so the later allocation can preserve both effects.
+ * A contextual Astral package is not the holder's authored base. When two
+ * direct Moonlight holders need the Moonlight/Astral pair, restore the local
+ * representative so the later allocation can preserve both effects.
  */
-function withContextualCissiaCollisionResolved(
+function withContextualAstralCollisionResolved(
   contexts: readonly PreparationContext[],
   selections: readonly SetupSelection[],
 ): SetupSelection[] {
@@ -293,7 +274,7 @@ function withContextualCissiaCollisionResolved(
   ))
 }
 
-function withEstablishedContextualCissiaCollisionResolved(
+function withEstablishedContextualAstralCollisionResolved(
   context: PreparationContext,
   establishedHolders: readonly EstablishedDiscHolder[],
   selection: SetupSelection,
@@ -328,25 +309,32 @@ function withKingCollisionAlternative(
     : selection
 }
 
-function withCissiaAstralOpportunity(
+function withContextualFirstChoice(
   context: PreparationContext,
   partyAgentIds: readonly AgentId[],
   establishedHolders: readonly EstablishedDiscHolder[],
   selection: SetupSelection,
   canReallocateFlexibleHolders: boolean,
 ): SetupSelection {
-  const heldByNonYieldingAgent = establishedHolders.some(({ agentId, fourPieceId }) => (
-    agentId !== context.agentId
-    && fourPieceId === 'astralVoice'
-    && (
-      !canReallocateFlexibleHolders
-      || !exclusiveCollisionAlternative(agentId, ASTRAL_ALLOCATION)
-    )
-  ))
-  return context.agentId === 'cissia'
-    && hasRepeatedQuickAssistOpportunity(partyAgentIds)
-    && !heldByNonYieldingAgent
-    ? { ...selection, fourPieceId: 'astralVoice' }
+  const contextual = activeContextualFourPieceCases(
+    context.agentId,
+    context.mindscape,
+    partyAgentIds,
+    partyAgentIds.indexOf(context.agentId),
+  ).find(({ prepareWhenActive }) => prepareWhenActive)
+  if (!contextual) return selection
+
+  const heldByNonYieldingAgent = contextual.discId === ASTRAL_ALLOCATION.fourPieceId
+    && establishedHolders.some(({ agentId, fourPieceId }) => (
+      agentId !== context.agentId
+      && fourPieceId === contextual.discId
+      && (
+        !canReallocateFlexibleHolders
+        || !exclusiveCollisionAlternative(agentId, ASTRAL_ALLOCATION)
+      )
+    ))
+  return !heldByNonYieldingAgent
+    ? { ...selection, fourPieceId: contextual.discId }
     : selection
 }
 
@@ -432,7 +420,6 @@ export function prepareTargetSelection(
   )
   const allocated = withCompetitiveKingAstralAllocation(
     context,
-    partyAgentIds,
     establishedHolders,
     kingDirected,
   )
@@ -441,14 +428,14 @@ export function prepareTargetSelection(
     establishedHolders,
     allocated,
   )
-  const contextual = withCissiaAstralOpportunity(
+  const contextual = withContextualFirstChoice(
     context,
     partyAgentIds,
     establishedHolders,
     nonoverlapping,
     false,
   )
-  const withoutContextualCollision = withEstablishedContextualCissiaCollisionResolved(
+  const withoutContextualCollision = withEstablishedContextualAstralCollisionResolved(
     context,
     establishedHolders,
     contextual,
@@ -488,7 +475,6 @@ export function preparePartySelections(
   const focusKingDirected = withFocusCritKingPriority(contexts, focusAgentId, focused)
   const withKingAllocation = focusKingDirected.map((selection, index) => withCompetitiveKingAstralAllocation(
     contexts[index],
-    partyAgentIds,
     holderSnapshots(contexts, focusKingDirected),
     selection,
   ))
@@ -496,8 +482,8 @@ export function preparePartySelections(
   const withKingAlternatives = withKingAllocation.map((selection, index) => (
     withKingCollisionAlternative(contexts[index], kingHolders, selection)
   ))
-  const withCissiaAstral = withKingAlternatives.map((selection, index) => (
-    withCissiaAstralOpportunity(
+  const withContextualFirstChoices = withKingAlternatives.map((selection, index) => (
+    withContextualFirstChoice(
       contexts[index],
       partyAgentIds,
       kingHolders,
@@ -507,10 +493,10 @@ export function preparePartySelections(
   ))
   const withAstralAllocation = withNonoverlappingExclusiveDiscAllocation(
     contexts,
-    withCissiaAstral,
+    withContextualFirstChoices,
     ASTRAL_ALLOCATION,
   )
-  const withoutContextualCollision = withContextualCissiaCollisionResolved(
+  const withoutContextualCollision = withContextualAstralCollisionResolved(
     contexts,
     withAstralAllocation,
   )

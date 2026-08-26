@@ -26,6 +26,8 @@ import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
   type AgentId,
+  type CandidateOperationOpportunity,
+  type CandidateInputAdditions,
   type DiscId,
   type DriveDiscChoice,
   type DriveDiscFacts,
@@ -458,10 +460,13 @@ export const SAME_EFFECT_TWO_PIECE_RELATIONSHIPS = [
 export type AgentDiscCandidatePolicy = {
   fourPiece: DiscId[]
   twoPiece: DiscId[]
-  contextualFourPiece?: {
-    receivedUltimate: DiscId[]
+  contextualFourPiece?: readonly {
+    opportunity: CandidateOperationOpportunity
+    discId: DiscId
     minimumMindscape?: MindscapeRank
-  }
+    prepareWhenActive?: true
+  }[]
+  selectedFourPiece?: Partial<Record<DiscId, CandidateInputAdditions>>
 }
 
 export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePolicy> = {
@@ -471,11 +476,20 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   hugo: {
     fourPiece: ['hormonePunk'],
     twoPiece: ['polarMetal', 'woodpecker', 'branchAndBlade', 'pufferElectro', 'astralVoice', 'hormonePunk'],
-    contextualFourPiece: { receivedUltimate: ['pufferElectro'], minimumMindscape: 2 },
+    contextualFourPiece: [{
+      opportunity: 'received-ultimate', discId: 'pufferElectro', minimumMindscape: 2,
+    }],
   },
   juFufu: {
     fourPiece: ['king', 'swingJazz'],
     twoPiece: ['shockstar', 'king', 'hormonePunk', 'astralVoice', 'swingJazz', 'moonlight'],
+    selectedFourPiece: {
+      king: {
+        twoPiece: ['woodpecker'],
+        mainStats: { slot4: ['critRate'] },
+        substats: ['critRate'],
+      },
+    },
   },
   panYinhu: {
     fourPiece: ['astralVoice', 'bunnyInWonderland'],
@@ -494,44 +508,77 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   anbySoldier0: {
     fourPiece: ['shadowHarmony'],
     twoPiece: ['woodpecker', 'branchAndBlade', 'pufferElectro', 'thunderMetal', 'hormonePunk'],
-    contextualFourPiece: { receivedUltimate: ['pufferElectro'] },
+    contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
-  trigger: { fourPiece: ['king', 'astralVoice', 'shockstar'], twoPiece: ['shockstar', 'king', 'woodpecker', 'swingJazz'] },
+  trigger: {
+    fourPiece: ['king', 'astralVoice', 'shockstar'],
+    twoPiece: ['shockstar', 'king', 'swingJazz'],
+    selectedFourPiece: {
+      king: { twoPiece: ['woodpecker'], substats: ['critRate'] },
+    },
+  },
   astraYao: { fourPiece: ['astralVoice', 'moonlight'], twoPiece: ['moonlight', 'swingJazz', 'hormonePunk', 'astralVoice'] },
   seed: {
     fourPiece: ['dawnsBloom', 'woodpecker'],
     twoPiece: ['woodpecker', 'branchAndBlade', 'pufferElectro', 'thunderMetal', 'hormonePunk'],
-    contextualFourPiece: { receivedUltimate: ['pufferElectro'] },
+    contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   cissia: {
     fourPiece: ['dawnsBloom'],
     twoPiece: ['swingJazz', 'woodpecker', 'branchAndBlade', 'thunderMetal', 'hormonePunk', 'astralVoice'],
-    contextualFourPiece: { receivedUltimate: ['pufferElectro'] },
+    contextualFourPiece: [
+      { opportunity: 'received-ultimate', discId: 'pufferElectro' },
+      {
+        opportunity: 'repeated-quick-assist',
+        discId: 'astralVoice',
+        prepareWhenActive: true,
+      },
+    ],
   },
   evelyn: {
     fourPiece: ['hormonePunk', 'woodpecker'],
     twoPiece: ['branchAndBlade', 'infernoMetal', 'woodpecker', 'pufferElectro', 'hormonePunk', 'astralVoice'],
-    contextualFourPiece: { receivedUltimate: ['pufferElectro'] },
+    contextualFourPiece: [
+      { opportunity: 'received-ultimate', discId: 'pufferElectro' },
+      { opportunity: 'repeated-quick-assist', discId: 'astralVoice' },
+    ],
   },
   corin: {
     fourPiece: ['hormonePunk'],
     twoPiece: ['woodpecker', 'branchAndBlade', 'fangedMetal', 'astralVoice', 'hormonePunk'],
-    contextualFourPiece: { receivedUltimate: ['pufferElectro'] },
+    contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
-  lycaon: { fourPiece: ['king', 'astralVoice', 'shockstar'], twoPiece: ['shockstar', 'king', 'swingJazz'] },
+  lycaon: {
+    fourPiece: ['king', 'astralVoice', 'shockstar'],
+    twoPiece: ['shockstar', 'king', 'swingJazz'],
+    selectedFourPiece: {
+      king: {
+        twoPiece: ['woodpecker'],
+        mainStats: { slot4: ['critRate'] },
+        substats: ['critRate'],
+      },
+    },
+  },
   ellen: {
     fourPiece: ['woodpecker'],
     twoPiece: ['pufferElectro', 'polarMetal', 'woodpecker', 'branchAndBlade', 'astralVoice', 'hormonePunk'],
-    contextualFourPiece: { receivedUltimate: ['pufferElectro'] },
+    contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   soukaku: { fourPiece: ['moonlight', 'astralVoice'], twoPiece: ['swingJazz', 'moonlight', 'hormonePunk', 'astralVoice'] },
   soldier11: {
     fourPiece: ['woodpecker', 'dawnsBloom'],
     twoPiece: ['infernoMetal', 'woodpecker', 'branchAndBlade', 'dawnsBloom', 'pufferElectro', 'hormonePunk', 'astralVoice'],
-    contextualFourPiece: { receivedUltimate: ['pufferElectro'] },
+    contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   lighter: {
     fourPiece: ['king', 'astralVoice', 'shockstar'], twoPiece: ['shockstar', 'king', 'swingJazz'],
+    selectedFourPiece: {
+      king: {
+        twoPiece: ['woodpecker'],
+        mainStats: { slot4: ['critRate'] },
+        substats: ['critRate'],
+      },
+    },
   },
   lucy: {
     fourPiece: ['moonlight', 'astralVoice'], twoPiece: ['swingJazz', 'moonlight', 'hormonePunk', 'astralVoice'],
@@ -539,7 +586,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   zhuYuan: {
     fourPiece: ['chaoticMetal', 'woodpecker'],
     twoPiece: ['chaoticMetal', 'woodpecker', 'branchAndBlade', 'dawnsBloom', 'pufferElectro', 'hormonePunk', 'astralVoice'],
-    contextualFourPiece: { receivedUltimate: ['pufferElectro'] },
+    contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   nicole: {
     fourPiece: ['moonlight', 'astralVoice'],
@@ -552,42 +599,64 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   pulchra: {
     fourPiece: ['king', 'astralVoice', 'swingJazz'],
     twoPiece: ['shockstar', 'king', 'swingJazz'],
+    selectedFourPiece: {
+      king: {
+        twoPiece: ['woodpecker'],
+        mainStats: { slot4: ['critRate'] },
+        substats: ['critRate'],
+      },
+    },
   },
   harumasa: {
     fourPiece: ['shadowHarmony', 'thunderMetal', 'woodpecker', 'hormonePunk'],
     twoPiece: ['shadowHarmony', 'thunderMetal', 'woodpecker', 'branchAndBlade', 'hormonePunk', 'astralVoice', 'pufferElectro'],
-    contextualFourPiece: { receivedUltimate: ['pufferElectro'] },
+    contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   qingyi: {
     fourPiece: ['king', 'shockstar', 'swingJazz'],
     twoPiece: ['shockstar', 'king', 'swingJazz'],
+    contextualFourPiece: [{ opportunity: 'external-quick-assist', discId: 'astralVoice' }],
+    selectedFourPiece: {
+      king: {
+        twoPiece: ['woodpecker'],
+        mainStats: { slot4: ['critRate'] },
+        substats: ['critRate'],
+      },
+    },
   },
   nekomata: {
     fourPiece: ['woodpecker'],
     twoPiece: ['woodpecker', 'branchAndBlade', 'fangedMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
-    contextualFourPiece: { receivedUltimate: ['pufferElectro'] },
+    contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   billy: {
     fourPiece: ['woodpecker', 'shadowHarmony'],
     twoPiece: ['shadowHarmony', 'woodpecker', 'branchAndBlade', 'fangedMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
-    contextualFourPiece: { receivedUltimate: ['pufferElectro'] },
+    contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   ben: {
     fourPiece: ['woodpecker', 'astralVoice', 'bunnyInWonderland', 'swingJazz'],
     twoPiece: ['woodpecker', 'branchAndBlade', 'infernoMetal', 'pufferElectro', 'hormonePunk', 'astralVoice', 'swingJazz', 'moonlight'],
-    contextualFourPiece: { receivedUltimate: ['pufferElectro'] },
+    contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   koleda: {
     fourPiece: ['king', 'astralVoice', 'shockstar', 'swingJazz'],
     twoPiece: ['shockstar', 'king', 'swingJazz'],
+    selectedFourPiece: {
+      king: { mainStats: { slot4: ['critRate'] }, substats: ['critRate'] },
+    },
   },
   anby: {
     fourPiece: ['king', 'astralVoice', 'shockstar', 'swingJazz'],
     twoPiece: ['shockstar', 'king', 'swingJazz'],
+    selectedFourPiece: {
+      king: { mainStats: { slot4: ['critRate'] }, substats: ['critRate'] },
+    },
   },
   caesar: {
     fourPiece: ['bunnyInWonderland'],
     twoPiece: ['swingJazz', 'shockstar', 'king'],
+    contextualFourPiece: [{ opportunity: 'repeated-quick-assist', discId: 'astralVoice' }],
   },
   yeShunguang: {
     fourPiece: ['whiteWaterBallad', 'woodpecker', 'hormonePunk'],
@@ -595,7 +664,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
       'whiteWaterBallad', 'fangedMetal', 'woodpecker', 'branchAndBlade',
       'pufferElectro', 'hormonePunk', 'astralVoice',
     ],
-    contextualFourPiece: { receivedUltimate: ['pufferElectro'] },
+    contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   zhao: {
     fourPiece: ['bunnyInWonderland', 'astralVoice'],
@@ -663,7 +732,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   anton: {
     fourPiece: ['thunderMetal', 'dawnsBloom', 'hormonePunk'],
     twoPiece: ['woodpecker', 'branchAndBlade', 'thunderMetal', 'dawnsBloom', 'pufferElectro', 'hormonePunk'],
-    contextualFourPiece: { receivedUltimate: ['pufferElectro'] },
+    contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   rina: { fourPiece: ['moonlight', 'astralVoice'], twoPiece: ['pufferElectro'] },
 }

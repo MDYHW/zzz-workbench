@@ -9,15 +9,6 @@ function summaryFor(agentId: AgentId) {
   return ADMITTED_AGENTS.find(({ id }) => id === agentId)!
 }
 
-export function hasRepeatedQuickAssistOpportunity(
-  agentIds: readonly AgentId[],
-): boolean {
-  return agentIds.includes('astraYao')
-    || agentIds.includes('panYinhu')
-    || agentIds.includes('zhao')
-    || agentIds.includes('seth')
-}
-
 export function anotherAgentHasSpecialty(
   agentIds: readonly AgentId[],
   providerIndex: number,
@@ -203,16 +194,5 @@ export function caesarAdditionalIsActive(
         summaryFor(agentId).faction === caesar.faction
           || !CAESAR_EVASIVE_ASSIST_AGENTS.includes(agentId)
       )
-  ))
-}
-
-/** Local Qingyi buffer-role opportunity; this does not broaden focused-damage helpers. */
-export function qingyiAstralOpportunity(
-  agentIds: readonly AgentId[],
-  qingyiIndex: number,
-): boolean {
-  if (agentIds[qingyiIndex] !== 'qingyi') return false
-  return agentIds.some((agentId, index) => (
-    index !== qingyiIndex && ['nicole', 'astraYao', 'panYinhu', 'zhao'].includes(agentId)
   ))
 }

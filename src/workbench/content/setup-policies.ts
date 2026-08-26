@@ -1,4 +1,12 @@
-import type { AgentId, DiscId, MainSlot, MainStatId, PoolId, SetupSelection } from './types'
+import type {
+  AgentId,
+  DiscId,
+  EngineId,
+  MainSlot,
+  MainStatId,
+  PoolId,
+  SetupSelection,
+} from './types'
 import { DISC_IDS_BY_AGENT_AND_PIECE } from './discs'
 import { ENGINE_IDS_BY_AGENT_AND_POOL } from './engines'
 import { representativeSetupFor } from './representatives'
@@ -37,6 +45,13 @@ export type PreparedDiscHolderPolicy = {
   }
   kingCollisionAlternative?: PreparedKingCollisionAlternative
   restoreRepresentativeOnAstralMoonlightCollision?: true
+}
+
+export type PreparedEngineHolderPolicy = {
+  focusWithoutDefRegionAlternative?: {
+    pool: PoolId
+    engineId: EngineId
+  }
 }
 
 /**
@@ -82,7 +97,10 @@ const OPERATING_INTERVAL_BY_AGENT: Partial<Record<AgentId, OperatingIntervalPoli
  */
 const PREPARED_DISC_HOLDER_POLICY_BY_AGENT: Partial<Record<AgentId, PreparedDiscHolderPolicy>> = {
   trigger: {
-    kingAstralAlternative: { preservesCritInvestment: true, authoredTiePrecedence: 5 },
+    kingAstralAlternative: {
+      preservesCritInvestment: true,
+      authoredTiePrecedence: 5,
+    },
   },
   pulchra: {
     kingAstralAlternative: { preservesCritInvestment: false, authoredTiePrecedence: 4 },
@@ -172,6 +190,12 @@ const PREPARED_DISC_HOLDER_POLICY_BY_AGENT: Partial<Record<AgentId, PreparedDisc
   },
 }
 
+const PREPARED_ENGINE_HOLDER_POLICY_BY_AGENT: Partial<Record<AgentId, PreparedEngineHolderPolicy>> = {
+  trigger: {
+    focusWithoutDefRegionAlternative: { pool: 'full', engineId: 'iceJadeTeapot' },
+  },
+}
+
 export type SetupPolicy = {
   engineIdsByPool: (typeof ENGINE_IDS_BY_AGENT_AND_POOL)[AgentId]
   discIdsByPiece: (typeof DISC_IDS_BY_AGENT_AND_PIECE)[AgentId]
@@ -181,6 +205,7 @@ export type SetupPolicy = {
   focusOperationProfile?: FocusOperationProfile
   operatingInterval?: OperatingIntervalPolicy
   preparedDisc?: PreparedDiscHolderPolicy
+  preparedEngine?: PreparedEngineHolderPolicy
 }
 
 /** Returns the authored setup policy references for one Agent. */
@@ -194,6 +219,7 @@ export function setupPolicyFor(agentId: AgentId): SetupPolicy {
     focusOperationProfile: FOCUS_OPERATION_PROFILE_BY_AGENT[agentId],
     operatingInterval: OPERATING_INTERVAL_BY_AGENT[agentId],
     preparedDisc: PREPARED_DISC_HOLDER_POLICY_BY_AGENT[agentId],
+    preparedEngine: PREPARED_ENGINE_HOLDER_POLICY_BY_AGENT[agentId],
   }
 }
 

@@ -334,7 +334,7 @@ export function selectedWEngineRelationships({
       )
       break
     case 'tremorTrigramVessel':
-      if (agent === 'ben') add('dmgBonus', value(W_ENGINE_FACTS.tremorTrigramVessel.effects.damage, setup), target('EX Special Attack', 'Ultimate'))
+      add('dmgBonus', value(W_ENGINE_FACTS.tremorTrigramVessel.effects.damage, setup), target('EX Special Attack', 'Ultimate'))
       break
     case 'originalTransmorpher':
       if (observation.baseStats.maxHp !== undefined) add('maxHp', value(W_ENGINE_FACTS.originalTransmorpher.effects.maxHp, setup), undefined, 'combat')
@@ -382,31 +382,41 @@ export function selectedWEngineRelationships({
       add('dmgBonus', value(W_ENGINE_FACTS.steelCushion.effects.damage, setup), BACK_ATTACK)
       break
     case 'housekeeper':
-      if (agent === 'corin') {
-        push(relationships, automaticEnergy(source, value(W_ENGINE_FACTS.housekeeper.effects.energy, setup)))
-        add('dmgBonus', maximum(W_ENGINE_FACTS.housekeeper.effects.damage, setup), EX)
-      }
+      push(relationships, automaticEnergy(source, value(W_ENGINE_FACTS.housekeeper.effects.energy, setup)))
+      if (equipmentEffectAppliesToAttribute(
+        W_ENGINE_FACTS.housekeeper.effects.damage,
+        effectAttributeForAgent(agent),
+      )) add('dmgBonus', maximum(W_ENGINE_FACTS.housekeeper.effects.damage, setup), EX)
       break
     case 'deepSeaVisitor':
-      if (agent === 'ellen') {
+      if (equipmentEffectAppliesToAttribute(
+        W_ENGINE_FACTS.deepSeaVisitor.effects.iceDamage,
+        effectAttributeForAgent(agent),
+      )) {
         add('dmgBonus', value(W_ENGINE_FACTS.deepSeaVisitor.effects.iceDamage, setup), undefined, 'combat')
-        add('critRate', value(W_ENGINE_FACTS.deepSeaVisitor.effects.basicCritRate, setup), undefined, 'combat')
-        add('critRate', value(W_ENGINE_FACTS.deepSeaVisitor.effects.dashCritRate, setup), undefined, 'combat')
       }
+      add('critRate', value(W_ENGINE_FACTS.deepSeaVisitor.effects.basicCritRate, setup), undefined, 'combat')
+      add('critRate', value(W_ENGINE_FACTS.deepSeaVisitor.effects.dashCritRate, setup), undefined, 'combat')
       break
     case 'riotSuppressorMarkVI':
-      if (agent === 'zhuYuan') {
-        add('critRate', value(W_ENGINE_FACTS.riotSuppressorMarkVI.effects.critRate, setup), undefined, 'combat')
+      add('critRate', value(W_ENGINE_FACTS.riotSuppressorMarkVI.effects.critRate, setup), undefined, 'combat')
+      if (equipmentEffectAppliesToAttribute(
+        W_ENGINE_FACTS.riotSuppressorMarkVI.effects.chargedEtherDamage,
+        effectAttributeForAgent(agent),
+      )) {
         add('dmgBonus', value(W_ENGINE_FACTS.riotSuppressorMarkVI.effects.chargedEtherDamage, setup), BASIC)
         add('dmgBonus', value(W_ENGINE_FACTS.riotSuppressorMarkVI.effects.chargedEtherDamage, setup), DASH)
       }
       break
     case 'zanshinHerbCase':
-      if (agent === 'harumasa') {
-        add('critRate', value(W_ENGINE_FACTS.zanshinHerbCase.effects.critRate, setup), undefined, 'combat')
+      add('critRate', value(W_ENGINE_FACTS.zanshinHerbCase.effects.critRate, setup), undefined, 'combat')
+      if (equipmentEffectAppliesToAttribute(
+        W_ENGINE_FACTS.zanshinHerbCase.effects.dashDamage,
+        effectAttributeForAgent(agent),
+      )) {
         add('dmgBonus', value(W_ENGINE_FACTS.zanshinHerbCase.effects.dashDamage, setup), DASH)
-        add('critRate', value(W_ENGINE_FACTS.zanshinHerbCase.effects.anomalyStunCritRate, setup))
       }
+      add('critRate', value(W_ENGINE_FACTS.zanshinHerbCase.effects.anomalyStunCritRate, setup))
       break
     case 'cloudcleaveRadiance':
       if (effectAttributeForAgent(agent) === 'Physical') add('resIgnore', value(W_ENGINE_FACTS.cloudcleaveRadiance.effects.physicalResIgnore, setup), undefined, 'combat')
@@ -557,7 +567,10 @@ export function selectedWEngineRelationships({
       break
     case 'qingming':
       add('critRate', value(W_ENGINE_FACTS.qingming.effects.critRate, setup), undefined, 'combat')
-      if (agent === 'yixuan') {
+      if (equipmentEffectAppliesToAttribute(
+        W_ENGINE_FACTS.qingming.effects.damage,
+        effectAttributeForAgent(agent),
+      )) {
         add('dmgBonus', value(W_ENGINE_FACTS.qingming.effects.damage, setup), undefined, 'combat')
         add('sheerDmgBonus', value(W_ENGINE_FACTS.qingming.effects.sheerDamage, setup), target('EX Special Attack', 'Ultimate'), 'combat')
       }
@@ -574,38 +587,48 @@ export function selectedWEngineRelationships({
       add('dmgBonus', value(W_ENGINE_FACTS.puzzleSphere.effects.damage, setup), EX)
       break
     case 'krakensCradle':
-      if (agent === 'yidhari') {
-        add('critRate', value(W_ENGINE_FACTS.krakensCradle.effects.critRate, setup))
+      add('critRate', value(W_ENGINE_FACTS.krakensCradle.effects.critRate, setup))
+      if (equipmentEffectAppliesToAttribute(
+        W_ENGINE_FACTS.krakensCradle.effects.iceSheerDamage,
+        effectAttributeForAgent(agent),
+      )) {
         add('sheerDmgBonus', maximum(W_ENGINE_FACTS.krakensCradle.effects.iceSheerDamage, setup))
       }
       break
     case 'grillOWisp':
-      if (agent === 'manato' || agent === 'banyue') {
-        add('critRate', value(W_ENGINE_FACTS.grillOWisp.effects.critRate, setup))
+      add('critRate', value(W_ENGINE_FACTS.grillOWisp.effects.critRate, setup))
+      if (equipmentEffectAppliesToAttribute(
+        W_ENGINE_FACTS.grillOWisp.effects.fireDamage,
+        effectAttributeForAgent(agent),
+      )) {
         add('dmgBonus', value(W_ENGINE_FACTS.grillOWisp.effects.fireDamage, setup), undefined, 'combat')
-      } else if (agent === 'starlightBilly') add('critRate', value(W_ENGINE_FACTS.grillOWisp.effects.critRate, setup))
+      }
       break
     case 'wrathfulVajra':
-      if (agent === 'manato' || agent === 'banyue') {
-        add('critRate', value(W_ENGINE_FACTS.wrathfulVajra.effects.critRate, setup), undefined, 'combat')
+      add('critRate', value(W_ENGINE_FACTS.wrathfulVajra.effects.critRate, setup), undefined, 'combat')
+      if (equipmentEffectAppliesToAttribute(
+        W_ENGINE_FACTS.wrathfulVajra.effects.fireSheerDamage,
+        effectAttributeForAgent(agent),
+      )) {
         add('sheerDmgBonus', maximum(W_ENGINE_FACTS.wrathfulVajra.effects.fireSheerDamage, setup), EX)
       }
       break
     case 'starlightRiderFaceplate':
-      if (agent === 'starlightBilly') {
-        add('critRate', value(W_ENGINE_FACTS.starlightRiderFaceplate.effects.critRate, setup), undefined, 'combat')
+      add('critRate', value(W_ENGINE_FACTS.starlightRiderFaceplate.effects.critRate, setup), undefined, 'combat')
+      if (equipmentEffectAppliesToAttribute(
+        W_ENGINE_FACTS.starlightRiderFaceplate.effects.physicalSheerDamage,
+        effectAttributeForAgent(agent),
+      )) {
         add('sheerDmgBonus', maximum(W_ENGINE_FACTS.starlightRiderFaceplate.effects.physicalSheerDamage, setup))
       }
       break
     case 'yesterdayCalls':
-      if (agent === 'dialyn') {
-        relationships.push(automaticEnergy(source, value(W_ENGINE_FACTS.yesterdayCalls.effects.energy, setup)))
-        add('dazeBonus', value(W_ENGINE_FACTS.yesterdayCalls.effects.daze, setup))
-        relationships.push(equipmentProviderRelationship(source, W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, {
-          kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully',
-          value: value(W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, setup),
-        }, { formulas: CRIT_DAMAGE_FORMULAS }))
-      }
+      relationships.push(automaticEnergy(source, value(W_ENGINE_FACTS.yesterdayCalls.effects.energy, setup)))
+      add('dazeBonus', value(W_ENGINE_FACTS.yesterdayCalls.effects.daze, setup))
+      relationships.push(equipmentProviderRelationship(source, W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, {
+        kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully',
+        value: value(W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, setup),
+      }, { formulas: CRIT_DAMAGE_FORMULAS }))
       break
     case 'hellfireGears':
       add('impact', ['trigger', 'koleda', 'anby'].includes(agent)
@@ -661,26 +684,26 @@ export function selectedWEngineRelationships({
       add('dazeBonus', maximum(W_ENGINE_FACTS.preciousFossilizedCore.effects.daze, setup))
       break
     case 'roaringFurnace':
-      if (agent === 'juFufu' || agent === 'nangongYu') {
-        add('dazeBonus', value(W_ENGINE_FACTS.roaringFurnace.effects.daze, setup), EX_CHAIN_ULT)
-        if (equipmentEffectCanBeActivatedByHolder(agent, W_ENGINE_FACTS.roaringFurnace.effects.damage)) {
-          relationships.push(allDamage(W_ENGINE_FACTS.roaringFurnace.effects.damage, maximum(W_ENGINE_FACTS.roaringFurnace.effects.damage, setup)))
-        }
+      add('dazeBonus', value(W_ENGINE_FACTS.roaringFurnace.effects.daze, setup), EX_CHAIN_ULT)
+      if (equipmentEffectCanBeActivatedByHolder(agent, W_ENGINE_FACTS.roaringFurnace.effects.damage)) {
+        relationships.push(allDamage(W_ENGINE_FACTS.roaringFurnace.effects.damage, maximum(W_ENGINE_FACTS.roaringFurnace.effects.damage, setup)))
       }
       break
     case 'boxCutter':
-      if (agent === 'pulchra') add('dazeBonus', value(W_ENGINE_FACTS.boxCutter.effects.daze, setup))
+      add('dazeBonus', value(W_ENGINE_FACTS.boxCutter.effects.daze, setup))
       break
     case 'simmeringPot':
-      if (agent === 'nangongYu') {
+      if (equipmentEffectCanBeActivatedByHolder(agent, W_ENGINE_FACTS.simmeringPot.effects.daze)) {
         add('dazeBonus', value(W_ENGINE_FACTS.simmeringPot.effects.daze, setup))
+      }
+      if (equipmentEffectCanBeActivatedByHolder(agent, W_ENGINE_FACTS.simmeringPot.effects.damage)) {
         add('dmgBonus', value(W_ENGINE_FACTS.simmeringPot.effects.damage, setup))
       }
       break
     case 'neonFantasies':
-      if (agent === 'nangongYu') {
-        relationships.push(stat(source, 'anomalyProficiency', value(W_ENGINE_FACTS.neonFantasies.effects.anomalyProficiency, setup), 'flat', 'initial'))
-        relationships.push(stat(source, 'anomalyProficiency', value(W_ENGINE_FACTS.neonFantasies.effects.maximumAnomalyProficiency, setup), 'flat', 'fully', 'At maximum stacks'))
+      relationships.push(stat(source, 'anomalyProficiency', value(W_ENGINE_FACTS.neonFantasies.effects.anomalyProficiency, setup), 'flat', 'initial'))
+      relationships.push(stat(source, 'anomalyProficiency', value(W_ENGINE_FACTS.neonFantasies.effects.maximumAnomalyProficiency, setup), 'flat', 'fully', 'At maximum stacks'))
+      if (equipmentEffectCanBeActivatedByHolder(agent, W_ENGINE_FACTS.neonFantasies.effects.damage)) {
         relationships.push(allDamage(W_ENGINE_FACTS.neonFantasies.effects.damage, maximum(W_ENGINE_FACTS.neonFantasies.effects.damage, setup)))
       }
       break

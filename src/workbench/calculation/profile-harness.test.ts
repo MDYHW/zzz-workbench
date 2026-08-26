@@ -152,13 +152,6 @@ function selectedFourPieceRelationships(
     source: selectedDiscSource(
       agentId, appliedPartySlot, setup, fourPieceId, '4-piece',
     ),
-    sourceFor: (discId, piece) => selectedDiscSource(
-      agentId,
-      appliedPartySlot,
-      setup,
-      discId,
-      piece,
-    ),
   })
 }
 

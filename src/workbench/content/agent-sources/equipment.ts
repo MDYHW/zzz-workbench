@@ -41,10 +41,12 @@ import {
 } from '../types'
 import { selectedDriveDiscRelationships } from './drive-disc-relationships'
 export {
+  equipmentEffectActionTargets,
   equipmentEffectAppliesInOperatingInterval,
   equipmentEffectCanBeActivatedByHolder,
 } from './equipment-eligibility'
 import { selectedWEngineRelationships } from './w-engine-relationships'
+import { equipmentEffectActionTargets } from './equipment-eligibility'
 
 export interface CompleteSelectedSetup {
   engineId: EngineId
@@ -405,7 +407,34 @@ function discTwoPieceRelationships(
   const relationships: ProfileRelationship[] = []
   for (const discId of [setup.fourPieceId, setup.twoPieceId] as const) {
     for (const effect of Object.values(DRIVE_DISC_FACTS[discId].twoPiece) as EquipmentEffectFact[]) {
-      if (!twoPieceEffectIsInitial(effect, agentId)) continue
+      if (!twoPieceEffectIsInitial(effect, agentId)) {
+        const actions = equipmentEffectActionTargets(effect)
+        if (
+          actions.length
+          && (effect.modifier === 'dmgBonus' || effect.modifier === 'dazeBonus')
+          && observation.modifierMetrics?.includes(effect.modifier)
+        ) {
+          for (const action of actions) {
+            relationships.push({
+              kind: 'modifier',
+              atom: {
+                metricId: effect.modifier,
+                earliestSurface: 'initial',
+                value: equipmentEffectBaseValue(effect),
+                source: selectedDiscSource(
+                  agentId,
+                  appliedPartySlot,
+                  setup,
+                  discId,
+                  '2-piece',
+                ),
+                action,
+              },
+            })
+          }
+        }
+        continue
+      }
       if (effect.unit === '/s') {
         throw new Error(`Per-second Disc effect cannot be an Initial stat: ${discId}`)
       }
@@ -494,13 +523,6 @@ export function selectedEquipmentRelationships(
       setup,
       observation,
       source: discSource,
-      sourceFor: (discId, piece) => selectedDiscSource(
-        agentId,
-        appliedPartySlot,
-        setup,
-        discId,
-        piece,
-      ),
     }),
   ]
 }

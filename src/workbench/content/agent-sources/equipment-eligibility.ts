@@ -1,6 +1,23 @@
+import { actionTarget, canonicalAction, sourceLocalAction, type ActionTarget } from '../../actions'
 import { effectAttributeForAgent } from '../../formula-policy'
 import type { OperatingInterval } from '../setup-policies'
 import type { AgentId, EquipmentEffectFact } from '../types'
+
+/** Derives independent source-stated outcome and tag target groups. */
+export function equipmentEffectActionTargets(
+  effect: EquipmentEffectFact,
+): ActionTarget[] {
+  const scope = effect.scope
+  const outcomes = [
+    ...(scope?.actions ?? []).map(canonicalAction),
+    ...(scope?.anomalyResults ?? []).map(sourceLocalAction),
+  ]
+  const tags = [...(scope?.tags ?? [])]
+  return [
+    ...(outcomes.length ? [actionTarget(outcomes)] : []),
+    ...(tags.length ? [actionTarget([], tags)] : []),
+  ]
+}
 
 /** Resolves only the operating-interval conditions retained by equipment facts. */
 export function equipmentEffectAppliesInOperatingInterval(

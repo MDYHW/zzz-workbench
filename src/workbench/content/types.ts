@@ -377,6 +377,22 @@ export interface SetupSelection {
   mains: Record<MainSlot, MainStatId>
 }
 
+/**
+ * Source-provided operations that can activate an already-authored contextual
+ * setup candidate. These describe the operation only; they never imply that a
+ * recipient has admitted a candidate or selected it as its first choice.
+ */
+export type CandidateOperationOpportunity =
+  | 'received-ultimate'
+  | 'repeated-quick-assist'
+  | 'external-quick-assist'
+
+export type CandidateInputAdditions = {
+  twoPiece?: DiscId[]
+  mainStats?: Partial<Record<MainSlot, MainStatId[]>>
+  substats?: SubstatId[]
+}
+
 export interface AgentSummary {
   id: AgentId
   name: string
