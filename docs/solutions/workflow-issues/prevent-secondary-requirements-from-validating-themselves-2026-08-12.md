@@ -177,10 +177,9 @@ activation, action or operation scope, Attribute, recipient, and conditions.
 Usable contributions add their realized value. Unusable contributions are
 exactly zero: they are not penalties. Full clause applicability, clause count,
 or source-package complexity adds no independent value. Base ATK remains part
-of calculation, but the ordinary S-Rank/A-Rank difference is too small to be a
-primary package axis; use it only to refine a genuinely close comparison after
-passives, advanced stats, action coverage, and finite investment have been
-recomposed.
+of the complete recomposition alongside advanced stats, passives, action
+coverage, and finite investment. Rank or a modest isolated Base ATK difference
+does not independently establish admission, direction, or priority.
 
 Select the representative solely from the highest Agent-realized complete
 setup. Use that setup to reject alternatives that are materially too remote,
@@ -214,7 +213,8 @@ Agent consumer model established before equipment labels
 -> association removed without changing the conclusion
 -> usable clauses valued and unusable clauses set to zero
 -> complete zero-substat setup and finite opportunity recomposed
--> Base ATK equalization does not overturn a non-tie
+-> rank or a modest isolated Base ATK difference does not independently
+   establish the outcome
 -> representative material range checked without a fixed cutoff
 -> each other limited S-Rank compared with the strongest standard S/A route
 -> same-direction redundancy compressed within acquisition roles
@@ -476,8 +476,8 @@ direction more strongly.
 If two other limited S-Ranks both produce that direction, compare them with
 each other and retain the stronger competitive alternative. Keep the strongest
 non-limited route as a separate pool role. Do not use release association,
-clause count, unused effects, or a modest Base ATK advantage to change those
-comparisons.
+clause count, unused effects, Rank, or a modest isolated Base ATK difference
+as independent evidence for those comparisons.
 
 ### Lycaon Disc comparison: eligibility before dominance
 
