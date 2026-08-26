@@ -365,20 +365,28 @@ function projectMetrics(
         })))
       }
     }
-    const composed = composeMetricEffects(
+    const preCapComposed = composeMetricEffects(
       baseValues,
       baseBreakdown,
       effects,
       projection.id,
-      projection.cap && {
-        value: projection.cap.value,
-        source: resultSourceFor(projection.cap.source),
-      },
     )
+    const composed = projection.cap
+      ? composeMetricEffects(
+        baseValues,
+        baseBreakdown,
+        effects,
+        projection.id,
+        {
+          value: projection.cap.value,
+          source: resultSourceFor(projection.cap.source),
+        },
+      )
+      : preCapComposed
     const metricGauges = [
       ...projectionGauges
         .filter(({ metricId }) => metricId === projection.id)
-        .map((gauge) => evaluateProjectionGauge(gauge, composed.values.fully)),
+        .map((gauge) => evaluateProjectionGauge(gauge, preCapComposed.values.fully)),
       ...gauges.filter(({ metricId }) => metricId === projection.id),
     ]
     return {

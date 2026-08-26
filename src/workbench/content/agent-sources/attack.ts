@@ -120,6 +120,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
   const baseStats = { ...BASE[agent], penRatio: 0 }; const observation: SelectedSetupObservation = { baseStats, effectiveSubstats: effectiveSubstatChoicesForSlot(state, slot), modifierMetrics: ['dmgBonus', 'defIgnore', 'defReduction', 'resIgnore', 'resReduction', 'stunDmgMultiplier', 'dazeBonus'] }
   const relationships = selectedSetupRelationships(agent, slot, setup, observation); relationships.push(...attackBroadPrePenRelationships(state, slot)); const add = (r: ProfileRelationship) => relationships.push(r); const core = src(agent, slot, 'core', SOURCE_LABELS[`${agent}Core` as keyof typeof SOURCE_LABELS] ?? 'Core Passive'); const ability = src(agent, slot, 'ability', SOURCE_LABELS[`${agent}Ability` as keyof typeof SOURCE_LABELS] ?? 'Additional Ability', 'additional'); const mind = (tier: 1|2|3|4|5|6) => selectedMindscapeSource(agent, slot, setup.mindscape, tier); const all = { recipient: 'all-party' as const }; const enemy = { recipient: 'enemy-context' as const }
   const actions: ActionProjection[] = []; const basicUlt = BASIC_ULT
+  let stunDmgMultiplierCap: MetricProjection['cap']
   const nangongSlot = ids.indexOf('nangongYu')
   if (
     nangongSlot >= 0
@@ -400,6 +401,10 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
       const veilCap = setup.mindscape >= 4 ? values.mindscapeVeilVulnerabilityCap : values.veilVulnerabilityCap
       const targetStun = calculationContext.targetStunDmgMultiplier ?? 150
       const targetSource = selectedCalculationSource(agent, slot, 'target-stun', 'Target Stun DMG', 'target')
+      stunDmgMultiplierCap = {
+        value: veilCap,
+        source: selectedCalculationSource(agent, slot, 'veil-vulnerability-cap', 'Veil Vulnerability cap'),
+      }
       add(mod(targetSource, 'stunDmgMultiplier', targetStun - 100, undefined, 'fully', 'Above 100%'))
       add({ kind: 'projection-gauge', source: targetSource, metricId: 'stunDmgMultiplier', basisLabel: 'Raw Stun DMG Multiplier bonus', basisCap: veilCap, output: { label: 'Veil Vulnerability', unit: '%', transform: { basisIncrement: 1, outputIncrement: 1, outputCap: veilCap }, cap: veilCap } })
       actions.push(
@@ -520,7 +525,10 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
     m('defReduction', 'DEF Reduction', '%', undefined, 'nonzero-or-action'),
     m('resIgnore', 'RES Ignore', '%', undefined, 'nonzero-or-action'),
     m('resReduction', 'RES Reduction', '%', undefined, 'nonzero-or-action'),
-    m('stunDmgMultiplier', 'Stun DMG Multiplier', '%', undefined, 'nonzero-or-action'),
+    {
+      ...m('stunDmgMultiplier', 'Stun DMG Multiplier', '%', undefined, 'nonzero-or-action'),
+      ...(stunDmgMultiplierCap ? { cap: stunDmgMultiplierCap } : {}),
+    },
     m('dazeBonus', 'Daze Bonus', '%', undefined, 'nonzero-or-action'),
   ]
   return {
