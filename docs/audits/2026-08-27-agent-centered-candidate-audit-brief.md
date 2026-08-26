@@ -109,6 +109,54 @@ and main/substat package. A positive stat is not automatically competitive when
 fixed supply or another finite investment opportunity makes the direction
 materially inferior.
 
+### Pre-conclusion adversarial gates
+
+Before classifying a candidate conclusion as keep, remove, add, unresolved, or
+mismatch, run these gates in order on the ephemeral worksheet. They operationalize
+the cited owners and do not add another admission rule or equipment catalogue.
+
+1. **Complete source extraction.** Read the shared equipment fact and record the
+   whole decision-relevant package at the applicable refinement or fully enabled
+   maximum. Keep unconditional supply, activation, affected scope, holder,
+   recipient, and action as separate relationships. Omitting an applicable
+   clause or reading a base value where the current surface consumes a maximum
+   is an incomplete audit, not evidence of an authority gap.
+2. **Qualifying consequence.** Name the exact current consumer and state whether
+   it proves eligibility, activation, applicability, candidate membership,
+   preparation, or Result projection. Reachability and an existing consumer do
+   not prove competitiveness. Current arrays, requirements, tests, and guides
+   remain secondary even when they agree. A source discrepancy is a current
+   product mismatch only when the trace identifies a reachable candidate,
+   representative, selected-applicability, Setup, or Result consequence that
+   actually changes.
+3. **Bounded competitive value.** Recompose the whole usable package against the
+   representative-calibrated range, the applicable acquisition role or nearest
+   Disc/stat direction, and the remaining finite opportunity. A complete
+   package, different trigger, positive clause, or different direction is not
+   sufficient by itself. Conversely, do not require runtime action share,
+   trigger frequency, uptime, or rotation to close direction-defining action or
+   output coverage: `SW-004` assigns that boundary to bounded authored
+   competitive-practice judgment. A prohibited runtime detail cannot become the
+   missing edge that makes a candidate unresolved.
+4. **Pressure versus selected value.** Distinguish pressure that removes or
+   changes a candidate-bearing input from a selected source relationship that
+   still enters its formula consumer. Pressure does not turn a retained selected
+   stat or modifier into zero unless the applicable permanent formula and exact
+   current consumer do so. A clause is zero only because its own holder,
+   activation, affected-scope, recipient, action, or formula relationship is
+   unusable; zero remains neither a penalty nor an admission bonus.
+5. **Countermodel and classification.** Construct one countermodel that preserves
+   the source facts and owner rules while denying the proposed edge. If it
+   survives, name the exact unresolved owner-eligible relationship. If rejecting
+   it would require a runtime model, future consumer, guide-silence inference,
+   or current-array agreement, the conclusion has not passed the preceding
+   gates.
+
+For every proposed addition, removal, unresolved edge, or product mismatch, the
+report must preserve the compact output of these gates. An unchanged conclusion
+may cite the same completed gate once when several local surfaces share that
+exact proof; do not repeat it per item or Agent.
+
 ### Attribute as a conditional structural axis
 
 Do not group Agents merely because they share an Attribute, and do not discard
@@ -312,7 +360,10 @@ It must also prove that every retained choice is a materially distinct user
 decision or an owner-preserved acquisition role, decide whether the nearest
 same-direction competitor compresses away, and produce deterministic full and
 non-limited representatives. Candidate count and removal count are never pass
-targets.
+targets. It also fails when it uses a qualifying consumer as competitiveness
+proof, omits a decision-relevant source clause or fully enabled maximum, turns
+candidate pressure into an unsupported zero selected value, or makes prohibited
+runtime action share, uptime, or rotation a prerequisite for candidate closure.
 
 ### U1 evidence manifest
 
@@ -364,8 +415,12 @@ Stop and return the exact unresolved edge when any of the following appears:
 
 - permanent authority cannot decide a required candidate or representative
   meaning;
-- an external source conflicts with a retained shared fact;
-- the bounded nearest-comparator review cannot support admission or exclusion;
+- an external source conflicts with a retained shared fact and the
+  pre-conclusion trace identifies a changed current candidate, representative,
+  applicability, Setup, or Result consequence;
+- the bounded nearest-comparator review cannot support admission or exclusion
+  after complete source extraction and bounded competitive-practice judgment,
+  without requiring a prohibited runtime model;
 - a proposed result needs a new formula, recipient, interval, action, pressure,
   allocation, or lifecycle mechanism;
 - a candidate correction expands to another primary unit before its dependency
@@ -376,9 +431,11 @@ Stop and return the exact unresolved edge when any of the following appears:
 ## Execution Sequence
 
 1. The dispatch supplies `audit_base_sha`, expected `origin/main`, required
-   ancestry, branch identity, and the path or commit containing this brief. The
-   new isolated task verifies HEAD, origin/main, index, and worktree cleanliness
-   and stops on any mismatch.
+   ancestry, branch identity, the bounded unit and replay scope, mutation
+   boundary, required output, and the path or commit containing this brief. It
+   points to the pre-conclusion gates instead of restating candidate policy or
+   embedding expected named conclusions. The new isolated task verifies HEAD,
+   origin/main, index, and worktree cleanliness and stops on any mismatch.
 2. Run U1 from that verified checkpoint and return only the read-only report.
    U1 executes its scoped D2, D4, and D5 branches before closure.
 3. The supervising controller reviews the derivation, countermodels, source
