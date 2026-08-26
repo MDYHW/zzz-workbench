@@ -29,8 +29,9 @@ optimizer.
    Half-Sugar/Bunny/Yunkui with their authored main stats.
 2. Ye's expanded Stun DMG Multiplier row edits the target total, default `150%`.
    Fully Enabled converts the total above `100%`, adds compatible current party
-   contributions, displays the raw sum against the `+110%` cap, and shows the
-   clamped Veil Vulnerability output. M4 changes only the cap to `+200%`.
+   contributions, displays the applied clamped replacement in the parent row,
+   and preserves the raw sum against the `+110%` cap in the gauge. M4 changes
+   only the cap to `+200%`.
 3. Editing the target total recalculates Result only. Party Apply still
    prepares all three setups; pool or Mindscape changes still prepare only the
    changed Agent; ordinary direct setup edits stay local.
@@ -64,8 +65,9 @@ optimizer.
   Frostbite, Decibels, healing, duration maintenance, and ordinary skill-table
   coefficients remain excluded because they require resource, cadence,
   survival, or raw-damage models.
-- UI rules own one parent Result basis row, inline target input, raw cap gauge,
-  clamped output, source breakdown, and portrait verification. Evelyn's
+- UI rules own one parent Result row with the applied replacement, inline target
+  input, raw cap gauge, clamped output, source-plus-clamp breakdown, and portrait
+  verification. Evelyn's
   threshold gauge is the closest progressing display; ordinary Stun DMG
   Multiplier rows are the contrast with no target editor or cap.
 
@@ -100,12 +102,14 @@ optimizer.
   raw basis as `(Target Stun DMG Multiplier - 100) + compatible current party
   Stun DMG Multiplier additions`. The default target total is `150%`, values are
   whole percentages at or above `100%`, and the M0-M3 cap is `+110%`. The parent
-  Result row shows Initial `0`, Combat `0`, and the raw Fully Enabled bonus; its
-  gauge shows the same raw basis against `110` and the clamped Veil
-  Vulnerability output.
+  Result row shows Initial `0`, Combat `0`, and the applied clamped Fully Enabled
+  replacement. Its breakdown preserves the raw source additions and a neutral
+  calculation clamp; its gauge shows the raw basis against `110` and the same
+  clamped Veil Vulnerability output used by the parent row.
 - R6. Target `125%` with no provider produces raw/output `+25%` and `85%` cap
   room. Target `200%` produces raw/output `+100%` and `10%` room. Target `200%`
-  plus Trigger M0 produces raw `+135%` and output `+110%`; the gauge displays
+  plus Trigger M0 produces raw `+135%`, parent/output `+110%`, and a neutral
+  `-25%` calculation clamp in the expanded breakdown; the gauge displays
   `135 / 110` rather than hiding oversupply. UI does not repeat either numeric
   room value in prose. The editor keeps a local string draft: every whole
   integer at or above `100` commits and recalculates immediately; empty,
@@ -277,7 +281,7 @@ optimizer.
   Shockstar allocation remains unchanged; this vertical does not generalize its
   local tie policy.
 - R31. Ye Result exposes ATK, CRIT, broad and action-scoped DMG, DEF/RES regions,
-  the target-derived raw Stun DMG Multiplier basis and Veil gauge, Cloudcleave,
+  the applied Stun DMG Multiplier replacement with a raw Veil gauge, Cloudcleave,
   White Water, and retained M1/M2/M4 differences. Candidate dominance does not
   broaden exact projection. Non-Ye Results keep ordinary uncapped Stun DMG
   Multiplier rows and no target editor. The external basis is a source row named
@@ -307,18 +311,18 @@ optimizer.
   locality, and preserved Stun allocation.
 - AE3. Ye calculation tests prove Honed Edge/Physical applicability, Unity
   surfaces, Cloudcleave broad activation clauses, M1/M2/M4, excluded M6 raw
-  coefficients, default and
-  edited target totals, Trigger addition, raw oversupply, clamped output, and a
-  contrasting non-Ye uncapped row.
+  coefficients, default and edited target totals, Trigger addition, raw
+  oversupply, applied parent/output clamping with a neutral breakdown clamp,
+  and a contrasting non-Ye uncapped row.
 - AE4. Zhao calculation tests prove Initial HP composition, stepped Core CRIT,
   M6 scaling, Additional inactive/below/reached cap, equal Wellspring origins,
   Half-Sugar package, M1/M2 recipient delivery, M4's exact action-scoped CRIT
   DMG without local ATK or generic damage rows, and the Final Verdict operation.
 - AE5. UI tests prove the accessible whole-percent target input, immediate
   result-only recalculation, invalid-draft retention and blur/Enter restoration,
-  preserved focus, neutral target-source interaction, raw gauge and clamped
-  output, no headroom copy or generic target panel, selected/candidate package
-  parity, and empty Result during incomplete setup.
+  preserved focus, neutral target-source interaction, applied parent value, raw
+  gauge and clamped output, no headroom copy or generic target panel,
+  selected/candidate package parity, and empty Result during incomplete setup.
 - AE6. Full tests, typecheck, production build, original portrait inspection,
   and desktop/narrow expanded/compact Browser verification pass before closure.
 

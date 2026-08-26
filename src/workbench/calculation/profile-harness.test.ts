@@ -1190,7 +1190,7 @@ describe('profile calculation harness', () => {
     expect(gauge).not.toHaveProperty('outputCap')
   })
 
-  it('projects a Result-only cap from target input plus compatible delivered modifiers', () => {
+  it('projects an applied cap while retaining the pre-cap gauge basis', () => {
     const state = createPreparedState({}, ['yeShunguang', 'astraYao', 'zhao'], 1)
     const target = selectSource(
       defineCalculationSource('yeShunguang:target-stun', 'Target Stun DMG Multiplier', 'target'),
@@ -1200,12 +1200,17 @@ describe('profile calculation harness', () => {
       defineAgentSource('astraYao', 'stun-multiplier', 'Delivered Stun multiplier', 'core'),
       'astraYao', 1,
     )
+    const capSource = selectSource(
+      defineCalculationSource('yeShunguang:veil-cap', 'Veil Vulnerability cap'),
+      'yeShunguang', 0,
+    )
     const profiles: AgentSourceProfile[] = [
       {
         agentId: 'yeShunguang', appliedPartySlot: 0,
         metrics: [{
           id: 'stunDmgMultiplier', label: 'Stun DMG Multiplier', unit: '%', decimals: 1,
           baseValues: { initial: 0, combat: 0, fully: 0 },
+          cap: { value: 110, source: capSource },
         }],
         relationships: [
           {
@@ -1241,12 +1246,15 @@ describe('profile calculation harness', () => {
     ]
 
     const metric = agentResult(evaluateProfileParty(state, profiles)!, 'yeShunguang').metrics[0]
-    expect(metric.values.fully).toBe(130)
+    expect(metric.values.fully).toBe(110)
     expect(metric.gauges[0]).toEqual(expect.objectContaining({
       current: 130, cap: 110, outputValue: 110, outputCap: 110,
     }))
     expect(metric.breakdown.fully).toContainEqual(expect.objectContaining({
       locus: 'target', amount: 50,
+    }))
+    expect(metric.breakdown.fully).toContainEqual(expect.objectContaining({
+      locus: 'calculation', amount: -20,
     }))
   })
 
