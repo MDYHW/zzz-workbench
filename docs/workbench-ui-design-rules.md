@@ -280,11 +280,13 @@ contribution changes.
 - Ye Shunguang's Stun DMG Multiplier row is the one current bounded exception
   that also edits an external Result basis. Its expanded detail places the
   `Target Stun DMG Multiplier` whole-percent number input directly with the
-  gauge. The parent row and breakdown show the raw bonus above `100%` plus
-  applicable party additions; the gauge keeps that raw current value even when
-  it exceeds the cap, and its `Veil Vulnerability` output shows the clamped
-  value. Do not add a separate Veil row, headroom sentence, target panel, or
-  setup control.
+  gauge. The parent row shows the applied, clamped `Veil Vulnerability`
+  replacement. Its breakdown preserves the raw bonus above `100%` and
+  applicable party additions, then shows the calculation clamp as one neutral
+  contribution. The gauge keeps the raw current value even when it exceeds the
+  cap, and its `Veil Vulnerability` output shows the same clamped value used by
+  the parent row. Do not add a separate Veil row, headroom sentence, target
+  panel, or setup control.
 - That editor keeps a local text draft while the Result retains the last valid
   whole value. Empty, fractional, non-finite, and below-`100` drafts expose the
   constraint without changing Result, then restore the committed value on blur
