@@ -36,12 +36,13 @@ must extend those meanings instead of inventing parallel Agent-local policy.
 
 Candidate membership and a prepared representative are different decisions.
 Every retained W-Engine must first be legal for the Rupture holder, then be
-compared by its complete usable and unused package, exact current consumer,
-same-pool competitor, and finite slot/substat opportunity cost. A full pool
-does not force a limited S-Rank first choice: Manato's refined A-Rank signature
-may remain first when its whole package is stronger for his current direction.
-Conversely, a partial package can remain a candidate when its usable axes are
-still competitive and distinct.
+compared by its realized package, exact current consumer, representative-
+calibrated range, acquisition-role comparator, and finite slot/substat
+opportunity cost. A full pool does not force a limited S-Rank first choice:
+Manato's refined A-Rank package remains first because its realized package is
+stronger for his current direction. Conversely, a partial package can remain a
+candidate when its usable axes are still competitive and distinct; unusable
+clauses contribute zero rather than a completeness penalty.
 
 Drive Disc comparison follows the same rule. CRIT Rate, CRIT DMG, Attribute
 DMG, HP, and ATK cannot be treated as equal-looking interchangeable values.
@@ -81,7 +82,7 @@ because future substats are finite and other modifiers can become saturated.
     the new pool; the other two setups remain unchanged.
   - **Outcome:** Yidhari changes between Kraken's Cradle W1 and Grill O'Wisp
     W5. Manato keeps Grill O'Wisp W5 in both pools because that conclusion was
-    independently established from the complete packages.
+    independently established from the Agent-realized packages.
   - **Covered by:** R6-R13, R17-R18, R25
 - F3. Party-qualified modifiers
   - **Trigger:** A party gains or loses a qualifying Specialty relationship.
@@ -139,53 +140,60 @@ because future substats are finite and other modifiers can become saturated.
 ### Yidhari W-Engine authoring
 
 - R6. Yidhari's full W-Engine candidates are Kraken's Cradle, Grill O'Wisp,
-  Cauldron of Clarity, Qingming Birdcage, Radiowave Journey, and Puzzle Sphere.
-  Her non-limited candidates are Grill O'Wisp, Cauldron of Clarity, Radiowave
-  Journey, and Puzzle Sphere. All are legal Rupture W-Engines.
+  Cauldron of Clarity, and Qingming Birdcage. Her non-limited candidates are
+  Grill O'Wisp and Cauldron of Clarity. All are legal Rupture W-Engines.
 - R7. Every clause of the selected Kraken's Cradle W1 fact is usable by
   Yidhari, including its Ice Sheer, HP, and reachable CRIT package.
 - R8. Grill O'Wisp W5 supplies a usable HP/CRIT package. Its Fire-DMG clause
   remains part of the equipment package but has no Yidhari Result consumer.
-- R9. Reuse Cauldron of Clarity W5, Qingming Birdcage W1, Radiowave Journey W5,
-  and Puzzle Sphere W5 with their established exact packages. Yidhari can
-  maintain Cauldron through her EX-class tentacle, can use Qingming's HP and
-  CRIT but not its Ether clauses, can use Radiowave's direct Sheer Force, and
-  can use Puzzle's ATK-fed Rupture conversion plus EX Special CRIT DMG and DMG.
+- R9. Reuse Cauldron of Clarity W5 and Qingming Birdcage W1 with their
+  established exact packages. Yidhari can maintain Cauldron through her
+  EX-class tentacle and can use Qingming's HP and CRIT but not its Ether
+  clauses. Grill and Cauldron remain separate non-limited directions because
+  their near-equal realized packages place materially different pressure on
+  CRIT Rate and regular DMG allocation. Radiowave Journey and Puzzle Sphere are
+  excluded despite positive and differently scoped clauses: their realized
+  packages are too remote from those stronger non-limited routes to remain
+  useful setup choices.
 - R10. Wrathful Vajra and Starlight Rider Faceplate are excluded from Yidhari's
-  candidates. Each offers the same usable HP/CRIT axes as Qingming while
-  supplying lower Base ATK and an Attribute-specific passive
-  that Yidhari cannot use. Exact identity therefore does not rescue either
-  dominated package. Kraken is the contrast: its Ice passive is fully usable
-  and materially changes the whole package.
+  candidates. Each realizes the same HP/CRIT direction as Qingming while its
+  Attribute-specific passive contributes zero for Yidhari. Once those realized
+  directions are equal, Qingming's modest Base ATK advantage settles the
+  remaining within-role comparison; that isolated difference does not itself
+  establish admission. Kraken is the contrast: its Ice passive is usable and
+  materially changes the whole package.
 - R11. Yidhari's full representative is Kraken's Cradle W1. Her non-limited
   representative is Grill O'Wisp W5. Kraken's fully usable Ice Sheer package
-  establishes the full choice; Grill narrowly leads the non-limited same-pool
-  alternatives through HP and reachable CRIT despite its unused Fire clause.
+  establishes the full choice; Grill narrowly leads Cauldron while their
+  different CRIT-versus-DMG balance keeps both non-limited packages competitive.
+  Grill's unused Fire clause contributes zero and does not reduce its value.
 
 ### Manato W-Engine authoring
 
-- R12. Manato's full W-Engine candidates are Grill O'Wisp, Wrathful Vajra,
-  Qingming Birdcage, Radiowave Journey, and Puzzle Sphere. His non-limited
-  S-Rank pool candidates are Grill O'Wisp, Radiowave Journey, and Puzzle
-  Sphere. All three retained A-Ranks remain available under SW-010's current
-  non-limited S-Rank boundary.
+- R12. Manato's full W-Engine candidates are Grill O'Wisp, Wrathful Vajra, and
+  Qingming Birdcage. His non-limited pool contains Grill O'Wisp. One admitted
+  set is authored before the non-limited pool removes the two limited S-Ranks.
 - R13. Grill O'Wisp W5 is fully usable by Manato through its Fire-DMG, HP, and
   reachable-CRIT package. Wrathful Vajra W1 supplies a fully usable
   Fire-Sheer/HP/CRIT package. Qingming supplies greater Base ATK plus HP and
-  CRIT while its Ether clauses remain unused. Radiowave and Puzzle retain their
-  distinct direct-Sheer-Force and EX-specialized CRIT packages. Cauldron is
+  CRIT while its Ether clauses contribute zero. Wrathful's EX-specialized Fire
+  Sheer and Qingming's broad stat package produce different action outcomes;
+  neither is removed merely because the other limited S-Rank has more usable
+  clauses. Qingming remains inside the representative-calibrated range when
+  judged chiefly beside Grill as the strongest non-limited route. Cauldron is
   excluded for Manato because it occupies Grill's same usable Fire-DMG/HP/CRIT
-  direction with a weaker complete package and creates no separate formula,
+  direction with a weaker realized package and creates no separate formula,
   action, recipient, or operation choice.
 - R14. Kraken's Cradle and Starlight Rider Faceplate are excluded from Manato's
-  candidates. Qingming is the nearest same-axis usable competitor: it has the
-  same unconditional HP/CRIT package, greater Base ATK, and does not make
-  those benefits conditional on low HP. Kraken's Ice and Starlight's Physical
-  clauses are unusable by Manato. Wrathful is the contrast because its exact
-  Fire clause is usable and keeps it competitive.
+  other-limited comparison. Their realized HP/CRIT direction is already covered
+  while their Ice and Physical clauses contribute zero; Wrathful is the
+  contrast because its Fire EX clause is usable. Radiowave Journey and Puzzle
+  Sphere are excluded from the non-limited role. Their direct-Sheer-Force and
+  EX-specialized CRIT directions are positive, but remain too remote from
+  Grill's broad Fire-DMG/HP/CRIT package to justify additional setup choices.
 - R15. Grill O'Wisp W5 is Manato's representative in both full and non-limited
   pools. This does not collapse the pools: full retains Wrathful and Qingming
-  as additional candidates. Grill's complete Fire DMG, HP, and CRIT package is
+  as additional candidates. Grill's realized Fire DMG, HP, and CRIT package is
   the independently supported first choice; full-pool access alone does not
   force the strongest-rarity item into preparation.
 
@@ -287,9 +295,10 @@ because future substats are finite and other modifiers can become saturated.
   candidates and prepared equipment are unchanged; only the qualified CRIT DMG
   contribution is absent.
 - AE3. Switching Yidhari to non-limited rebuilds only her setup with Grill W5
-  and preserves the remaining Disc package. Her candidate list excludes
-  Kraken, Qingming, Wrathful, and Starlight; direct engine edits do not change
-  Disc membership.
+  and preserves the remaining Disc package. Non-limited exposes Grill and
+  Cauldron; full additionally exposes Kraken and Qingming. Radiowave, Puzzle,
+  Wrathful, and Starlight remain excluded from the admitted set, and direct
+  engine edits do not change Disc membership.
 - AE4. Applying Manato/Lucia/Astra Yao prepares M6 Manato with Grill W5,
   Yunkui/Woodpecker, CRIT DMG / Fire DMG / HP%, and zero effective hits. Lucia's
   Additional is qualified by Manato. Applying Lucia/Astra Yao/Seed instead
@@ -298,9 +307,10 @@ because future substats are finite and other modifiers can become saturated.
   Rupture or Stun party restores qualification through fresh preparation, not
   by restoring an old direct edit.
 - AE5. Switching Manato between full and non-limited retains Grill W5 as the
-  prepared engine while full alone exposes Wrathful and Qingming. Selecting
-  Wrathful projects its usable CRIT and fully reachable Fire Sheer clauses;
-  selecting Qingming projects HP/CRIT but no Ether-only clause.
+  prepared engine. Full additionally exposes Wrathful and Qingming, while
+  non-limited exposes only Grill. Selecting Wrathful projects its usable CRIT
+  and fully reachable Fire Sheer clauses; selecting Qingming projects HP/CRIT
+  but no Ether-only clause.
 - AE6. At Manato M6, Basic Attack and Assist Follow-Up show the Core CRIT DMG
   difference, both show M1 Fire DMG, only Assist Follow-Up shows M6 Fire DMG,
   and M2 Fire RES Ignore affects only Fire Sheer Damage. Changing to M0 removes
@@ -326,7 +336,8 @@ because future substats are finite and other modifiers can become saturated.
 - Treat every legal Rupture W-Engine as a candidate: rejected because the
   workbench retains competitive decisions, not a catalogue.
 - Force a limited S-Rank representative in the full pool: rejected because a
-  pool defines availability, while preparation follows the complete package.
+  pool defines availability, while preparation follows the strongest
+  Agent-realized package.
 - Exclude any partially usable W-Engine: rejected because Qingming remains a
   competitive HP/CRIT package even though its Ether clauses are unused.
 - Add ATK substats or ATK 2-piece sets because Rupture conversion contains ATK:

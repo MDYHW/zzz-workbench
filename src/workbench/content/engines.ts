@@ -1216,8 +1216,8 @@ const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
 
 export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, EngineId[]>> = {
   yixuan: enginePools(['qingming', 'cauldron', 'radiowave', 'puzzleSphere']),
-  yidhari: enginePools(['krakensCradle', 'grillOWisp', 'cauldron', 'qingming', 'radiowave', 'puzzleSphere']),
-  manato: enginePools(['grillOWisp', 'wrathfulVajra', 'qingming', 'radiowave', 'puzzleSphere']),
+  yidhari: enginePools(['krakensCradle', 'grillOWisp', 'cauldron', 'qingming']),
+  manato: enginePools(['grillOWisp', 'wrathfulVajra', 'qingming']),
   hugo: enginePools(['myriadEclipse', 'cordisGermina', 'heartstringNocturne', 'steelCushion', 'marcatoDesire']),
   juFufu: enginePools(['roaringFurnace', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   panYinhu: enginePools(['tusksOfFury', 'tremorTrigramVessel', 'springEmbrace']),
