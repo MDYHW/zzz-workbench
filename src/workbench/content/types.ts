@@ -320,9 +320,9 @@ export type EquipmentEffectFact = {
   composition?: 'highest-only'
 } & EquipmentEffectMagnitude
 
-// Setup-content facts only. Local collection keys are handles for explicit
-// consumers. Retained activation belongs here; holder applicability and Result
-// projection remain decisions of their local consumers.
+// Shared source-backed equipment effect clauses. Local collection keys are
+// handles, not semantic identifiers. Facts own retained effect meaning;
+// holder applicability and Result projection remain consumer decisions.
 export type EquipmentEffectCollection = Readonly<Record<string, EquipmentEffectFact>>
 
 export interface WEngineFacts {
@@ -336,7 +336,6 @@ export interface DriveDiscFacts {
 }
 
 export interface WEngineChoice {
-  id: EngineId
   name: string
   rank: EngineRank
   limited: boolean
@@ -348,7 +347,6 @@ export interface WEngineChoice {
 }
 
 export interface DriveDiscChoice {
-  id: DiscId
   name: string
   image: string
   twoPieceEffect: string
@@ -448,6 +446,7 @@ const resolveEquipmentEffectValue = (
   return value[refinement - 1]
 }
 
+/** The retained non-progression magnitude; this is not a Result surface. */
 export const equipmentEffectBaseValue = (
   effect: EquipmentEffectFact,
   refinement?: Refinement,

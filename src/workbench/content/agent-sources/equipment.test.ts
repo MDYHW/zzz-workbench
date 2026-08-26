@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest'
+import { selectSource } from '../../calculation/source-instance'
 import { W_ENGINE_FACTS, W_ENGINES } from '../engines'
+import { defineCalculationSource } from '../source-definitions'
 import { equipmentEffectBaseValue, type EquipmentEffectFact } from '../types'
 import {
   equipmentEffectActionTargets,
   equipmentEffectAppliesInOperatingInterval,
   equipmentEffectCanBeActivatedByHolder,
 } from './equipment'
+import { projectEquipmentEffectRelationships } from './equipment-effect-relationships'
 
 const effect = (overrides: Partial<EquipmentEffectFact>): EquipmentEffectFact => ({
   modifier: 'dmgBonus',
@@ -76,5 +79,77 @@ describe('equipment operating-interval applicability', () => {
     expect(equipmentEffectAppliesInOperatingInterval(offFieldOnly, 'off-field')).toBe(true)
     expect(equipmentEffectAppliesInOperatingInterval(removedOffField, 'on-field')).toBe(true)
     expect(equipmentEffectAppliesInOperatingInterval(removedOffField, 'off-field')).toBe(false)
+  })
+})
+
+describe('shared equipment effect relationship projection', () => {
+  const source = selectSource(
+    defineCalculationSource('equipment-fixture', 'Equipment fixture'),
+    'aria',
+    0,
+  )
+
+  it('derives stat, action, and recipient meaning from equivalent facts', () => {
+    expect(projectEquipmentEffectRelationships({
+      source,
+      fact: effect({ modifier: 'atk', unit: '%', value: 12 }),
+      amount: 12,
+      earliestSurface: 'fully',
+    })).toMatchObject([{
+      kind: 'stat',
+      atom: { statId: 'atk', region: 'percentage', value: 12 },
+    }])
+
+    expect(projectEquipmentEffectRelationships({
+      source,
+      fact: effect({
+        modifier: 'dmgBonus',
+        value: 18,
+        scope: { actions: ['Basic Attack'] },
+      }),
+      amount: 18,
+      earliestSurface: 'combat',
+    })).toMatchObject([{
+      kind: 'modifier',
+      atom: {
+        metricId: 'dmgBonus',
+        earliestSurface: 'combat',
+        action: { outcomes: [{ kind: 'canonical', action: 'Basic Attack' }] },
+      },
+    }])
+
+    expect(projectEquipmentEffectRelationships({
+      source,
+      fact: effect({
+        modifier: 'critDmg',
+        value: 24,
+        scope: { recipient: 'squad', attributes: ['Ether'] },
+      }),
+      amount: 24,
+      earliestSurface: 'fully',
+      delivery: { formulas: ['general_damage'] },
+    })).toMatchObject([{
+      kind: 'provider',
+      delivery: {
+        recipient: 'all-party',
+        attributes: ['Ether'],
+        formulas: ['general_damage'],
+      },
+      effect: { kind: 'stat', statId: 'critDmg', region: 'flat', value: 24 },
+    }])
+
+    expect(projectEquipmentEffectRelationships({
+      source,
+      fact: effect({
+        modifier: 'defIgnore',
+        value: 20,
+        scope: { recipient: 'enemy' },
+      }),
+      amount: 20,
+      earliestSurface: 'fully',
+    })).toMatchObject([{
+      kind: 'modifier',
+      atom: { metricId: 'defIgnore', value: 20 },
+    }])
   })
 })

@@ -287,7 +287,7 @@ export type DriveDiscEffectField<
 
 export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   yunkui: {
-    id: 'yunkui', name: 'Yunkui Tales', image: yunkuiImage,
+    name: 'Yunkui Tales', image: yunkuiImage,
     twoPieceEffect: `HP +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.twoPiece.maxHp)}%`,
     fourPieceEffects: [
       `CRIT Rate +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.fourPiece.critRate)}%`,
@@ -295,12 +295,12 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     ],
   },
   woodpecker: {
-    id: 'woodpecker', name: 'Woodpecker Electro', image: woodpeckerImage,
+    name: 'Woodpecker Electro', image: woodpeckerImage,
     twoPieceEffect: `CRIT Rate +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.twoPiece.critRate)}%`,
     fourPieceEffects: [`ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.fourPiece.atk)}%`],
   },
   branchAndBlade: {
-    id: 'branchAndBlade', name: 'Branch & Blade Song', image: branchAndBladeImage,
+    name: 'Branch & Blade Song', image: branchAndBladeImage,
     twoPieceEffect: `CRIT DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.twoPiece.critDamage)}%`,
     fourPieceEffects: [
       `AM ≥ ${DRIVE_DISC_FACTS.branchAndBlade.fourPiece.critDamage.activation.threshold} · CRIT DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.branchAndBlade.fourPiece.critDamage)}%`,
@@ -308,24 +308,24 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     ],
   },
   king: {
-    id: 'king', name: 'King of the Summit', image: kingImage,
+    name: 'King of the Summit', image: kingImage,
     twoPieceEffect: `Daze +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.king.twoPiece.daze)}%`,
     fourPieceEffects: [
       `Squad CRIT DMG +${equipmentEffectMaximumValue(DRIVE_DISC_FACTS.king.fourPiece.critDamage)}%`,
     ],
   },
   swingJazz: {
-    id: 'swingJazz', name: 'Swing Jazz', image: swingJazzImage,
+    name: 'Swing Jazz', image: swingJazzImage,
     twoPieceEffect: `Energy Regen +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.twoPiece.energyRegen)}%`,
     fourPieceEffects: [`Squad DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage)}%`],
   },
   moonlight: {
-    id: 'moonlight', name: 'Moonlight Lullaby', image: moonlightImage,
+    name: 'Moonlight Lullaby', image: moonlightImage,
     twoPieceEffect: `Energy Regen +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.twoPiece.energyRegen)}%`,
     fourPieceEffects: [`Squad DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.fourPiece.damage)}%`],
   },
   shadowHarmony: {
-    id: 'shadowHarmony', name: 'Shadow Harmony', image: shadowHarmonyImage,
+    name: 'Shadow Harmony', image: shadowHarmonyImage,
     twoPieceEffect: `Aftershock & Dash Attack DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.shadowHarmony.twoPiece.damage)}%`,
     fourPieceEffects: [
       `ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.shadowHarmony.fourPiece.atk)}%`,
@@ -333,52 +333,52 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     ],
   },
   shockstar: {
-    id: 'shockstar', name: 'Shockstar Disco', image: shockstarImage,
+    name: 'Shockstar Disco', image: shockstarImage,
     twoPieceEffect: `Impact +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.twoPiece.impact)}%`,
     fourPieceEffects: [`Basic Attack, Dash Attack & Dodge Counter Daze +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze)}%`],
   },
   astralVoice: {
-    id: 'astralVoice', name: 'Astral Voice', image: astralVoiceImage,
+    name: 'Astral Voice', image: astralVoiceImage,
     twoPieceEffect: `ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.twoPiece.atk)}%`,
     fourPieceEffects: [`Entrant DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage)}%`],
   },
   hormonePunk: {
-    id: 'hormonePunk', name: 'Hormone Punk', image: hormonePunkImage,
+    name: 'Hormone Punk', image: hormonePunkImage,
     twoPieceEffect: `ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.twoPiece.atk)}%`,
     fourPieceEffects: [`ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.fourPiece.atk)}%`],
   },
   infernoMetal: {
-    id: 'infernoMetal', name: 'Inferno Metal', image: infernoMetalImage,
+    name: 'Inferno Metal', image: infernoMetalImage,
     twoPieceEffect: `Fire DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.infernoMetal.twoPiece.damage)}%`,
   },
   fangedMetal: {
-    id: 'fangedMetal', name: 'Fanged Metal', image: fangedMetalImage,
+    name: 'Fanged Metal', image: fangedMetalImage,
     twoPieceEffect: `Physical DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.twoPiece.damage)}%`,
     fourPieceEffects: [`Assaulted target · Holder DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.fourPiece.assaultDamage)}%`],
   },
   polarMetal: {
-    id: 'polarMetal', name: 'Polar Metal', image: polarMetalImage,
+    name: 'Polar Metal', image: polarMetalImage,
     twoPieceEffect: `Ice DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.polarMetal.twoPiece.damage)}%`,
   },
   thunderMetal: {
-    id: 'thunderMetal', name: 'Thunder Metal', image: thunderMetalImage,
+    name: 'Thunder Metal', image: thunderMetalImage,
     twoPieceEffect: `Electric DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.twoPiece.damage)}%`,
     fourPieceEffects: [`ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.fourPiece.atk)}%`],
   },
   chaoticMetal: {
-    id: 'chaoticMetal', name: 'Chaotic Metal', image: chaoticMetalImage,
+    name: 'Chaotic Metal', image: chaoticMetalImage,
     twoPieceEffect: `Ether DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaoticMetal.twoPiece.damage)}%`,
     fourPieceEffects: [`CRIT DMG +${equipmentEffectMaximumValue(DRIVE_DISC_FACTS.chaoticMetal.fourPiece.critDamage)}%`],
   },
   dawnsBloom: {
-    id: 'dawnsBloom', name: "Dawn's Bloom", image: dawnsBloomImage,
+    name: "Dawn's Bloom", image: dawnsBloomImage,
     twoPieceEffect: `Basic Attack DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.dawnsBloom.twoPiece.damage)}%`,
     fourPieceEffects: [
       `Basic Attack DMG +${equipmentEffectMaximumValue(DRIVE_DISC_FACTS.dawnsBloom.fourPiece.damage)}%`,
     ],
   },
   pufferElectro: {
-    id: 'pufferElectro', name: 'Puffer Electro', image: pufferElectroImage,
+    name: 'Puffer Electro', image: pufferElectroImage,
     twoPieceEffect: `PEN Ratio +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.twoPiece.penRatio)}%`,
     fourPieceEffects: [
       `Ultimate DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.damage)}%`,
@@ -386,14 +386,14 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     ],
   },
   bunnyInWonderland: {
-    id: 'bunnyInWonderland', name: 'Bunny in Wonderland', image: bunnyInWonderlandImage,
+    name: 'Bunny in Wonderland', image: bunnyInWonderlandImage,
     twoPieceEffect: `HP +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.bunnyInWonderland.twoPiece.maxHp)}%`,
     fourPieceEffects: [
       `Squad DMG +${equipmentEffectMaximumValue(DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage)}%`,
     ],
   },
   whiteWaterBallad: {
-    id: 'whiteWaterBallad', name: 'White Water Ballad', image: whiteWaterBalladImage,
+    name: 'White Water Ballad', image: whiteWaterBalladImage,
     twoPieceEffect: `Physical DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.twoPiece.physicalDamage)}%`,
     fourPieceEffects: [
       `CRIT Rate +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.veilCritRate)
@@ -402,7 +402,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     ],
   },
   chaosJazz: {
-    id: 'chaosJazz', name: 'Chaos Jazz', image: chaosJazzImage,
+    name: 'Chaos Jazz', image: chaosJazzImage,
     twoPieceEffect: `Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.twoPiece.anomalyProficiency)}`,
     fourPieceEffects: [
       `Fire & Electric DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.electricFireDamage)}%`,
@@ -410,7 +410,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     ],
   },
   freedomBlues: {
-    id: 'freedomBlues', name: 'Freedom Blues', image: freedomBluesImage,
+    name: 'Freedom Blues', image: freedomBluesImage,
     twoPieceEffect: `Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.twoPiece.anomalyProficiency)}`,
     fourPieceEffects: [
       `Matching-Attribute Anomaly Buildup RES -${equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction)}% · Non-stacking by Attribute`,
@@ -420,7 +420,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     ],
   },
   phaethonsMelody: {
-    id: 'phaethonsMelody', name: "Phaethon's Melody", image: phaethonsMelodyImage,
+    name: "Phaethon's Melody", image: phaethonsMelodyImage,
     twoPieceEffect: `Anomaly Mastery +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.twoPiece.anomalyMastery)}%`,
     fourPieceEffects: [
       `Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.anomalyProficiency)}`,
@@ -428,7 +428,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     ],
   },
   shiningAria: {
-    id: 'shiningAria', name: 'Shining Aria', image: shiningAriaImage,
+    name: 'Shining Aria', image: shiningAriaImage,
     twoPieceEffect: `Ether DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.shiningAria.twoPiece.damage)}%`,
     fourPieceEffects: [
       `Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.shiningAria.fourPiece.anomalyProficiency)}`,
@@ -436,7 +436,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     ],
   },
   notesFromTheChained: {
-    id: 'notesFromTheChained', name: 'Notes From the Chained', image: notesFromTheChainedImage,
+    name: 'Notes From the Chained', image: notesFromTheChainedImage,
     twoPieceEffect: `Ice DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.notesFromTheChained.twoPiece.damage)}%`,
     fourPieceEffects: [
       `Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.anomalyProficiency)}`,

@@ -4,7 +4,7 @@ import type {
   ProfileRelationship,
 } from '../../calculation/relationships'
 import { selectSource, type SelectedSourceInstance } from '../../calculation/source-instance'
-import type { StatId, StatRegion } from '../../calculation/stat-composer'
+import type { StatId } from '../../calculation/stat-composer'
 import { ADMITTED_AGENTS } from '../agents'
 import {
   DRIVE_DISC_FACTS,
@@ -18,6 +18,11 @@ import {
   effectiveSubstatChoices,
 } from '../setup-options'
 import { SOURCE_LABELS } from '../retained-values'
+import {
+  equipmentEffectStatMeaning,
+  setupStatMeaning,
+  type StatInputMeaning,
+} from '../stat-meanings'
 import {
   defineAgentBaseSource,
   defineDriveDiscSource,
@@ -40,6 +45,7 @@ import {
   type SubstatId,
 } from '../types'
 import { selectedDriveDiscRelationships } from './drive-disc-relationships'
+import { projectEquipmentEffectRelationships } from './equipment-effect-relationships'
 export {
   equipmentEffectActionTargets,
   equipmentEffectAppliesInOperatingInterval,
@@ -67,59 +73,6 @@ export interface SelectedEquipmentContext {
   observation: SelectedSetupObservation
   focusAgentId: AgentId
   partyAgentIds: readonly AgentId[]
-}
-
-interface StatInputMeaning {
-  statId: StatId
-  region: Exclude<StatRegion, 'base'>
-}
-
-const mainStatMeanings: Partial<Record<MainStatId, StatInputMeaning>> = {
-  critRate: { statId: 'critRate', region: 'flat' },
-  critDmg: { statId: 'critDmg', region: 'flat' },
-  hpPct: { statId: 'maxHp', region: 'percentage' },
-  atkPct: { statId: 'atk', region: 'percentage' },
-  penRatio: { statId: 'penRatio', region: 'flat' },
-  impact: { statId: 'impact', region: 'percentage' },
-  energyRegenPct: { statId: 'energyRegen', region: 'percentage' },
-  defPct: { statId: 'def', region: 'percentage' },
-  anomalyProficiency: { statId: 'anomalyProficiency', region: 'flat' },
-  anomalyMastery: { statId: 'anomalyMastery', region: 'percentage' },
-}
-
-const advancedStatMeanings = {
-  hpPct: { statId: 'maxHp', region: 'percentage' },
-  atkPct: { statId: 'atk', region: 'percentage' },
-  defPct: { statId: 'def', region: 'percentage' },
-  critRate: { statId: 'critRate', region: 'flat' },
-  critDmg: { statId: 'critDmg', region: 'flat' },
-  impactPct: { statId: 'impact', region: 'percentage' },
-  energyRegenPct: { statId: 'energyRegen', region: 'percentage' },
-  penRatio: { statId: 'penRatio', region: 'flat' },
-  anomalyProficiency: { statId: 'anomalyProficiency', region: 'flat' },
-  anomalyMastery: { statId: 'anomalyMastery', region: 'percentage' },
-} as const satisfies Record<string, StatInputMeaning>
-
-const substatMeanings: Record<SubstatId, StatInputMeaning> = {
-  critRate: { statId: 'critRate', region: 'flat' },
-  critDmg: { statId: 'critDmg', region: 'flat' },
-  hpPct: { statId: 'maxHp', region: 'percentage' },
-  hpFlat: { statId: 'maxHp', region: 'flat' },
-  atkPct: { statId: 'atk', region: 'percentage' },
-  atkFlat: { statId: 'atk', region: 'flat' },
-  anomalyProficiency: { statId: 'anomalyProficiency', region: 'flat' },
-}
-
-const discStatMeanings: Partial<Record<EquipmentEffectFact['modifier'], StatInputMeaning>> = {
-  maxHp: { statId: 'maxHp', region: 'percentage' },
-  atk: { statId: 'atk', region: 'percentage' },
-  impact: { statId: 'impact', region: 'percentage' },
-  critRate: { statId: 'critRate', region: 'flat' },
-  critDmg: { statId: 'critDmg', region: 'flat' },
-  energyRegen: { statId: 'energyRegen', region: 'percentage' },
-  penRatio: { statId: 'penRatio', region: 'flat' },
-  anomalyProficiency: { statId: 'anomalyProficiency', region: 'flat' },
-  anomalyMastery: { statId: 'anomalyMastery', region: 'percentage' },
 }
 
 const elementalMainStats: readonly MainStatId[] = [
@@ -294,12 +247,10 @@ function advancedRelationship(
   observation: SelectedSetupObservation,
 ): ProfileRelationship[] {
   const advanced = W_ENGINES[setup.engineId].advancedStat
-  if (!(advanced.id in advancedStatMeanings)) {
+  const meaning = setupStatMeaning(advanced.id)
+  if (!meaning) {
     throw new Error(`No current stat meaning for ${advanced.id} W-Engine advanced stat`)
   }
-  const meaning = advancedStatMeanings[
-    advanced.id as keyof typeof advancedStatMeanings
-  ]
   if (!admittedStat(observation, meaning)) return []
   return [statRelationship(
     selectedWEngineSource(agentId, appliedPartySlot, setup),
@@ -322,7 +273,7 @@ function mainRelationships(
       appliedPartySlot,
       { kind: 'main-stat', statId },
     )
-    const meaning = mainStatMeanings[statId]
+    const meaning = setupStatMeaning(statId)
     if (meaning && admittedStat(observation, meaning)) {
       return [statRelationship(source, meaning, MAIN_STATS[statId].numericValue)]
     }
@@ -352,7 +303,8 @@ function substatRelationships(
 ): ProfileRelationship[] {
   return (observation.effectiveSubstats ?? effectiveSubstatChoices(agentId, setup))
     .flatMap((choice, index) => {
-    const meaning = substatMeanings[choice.id]
+    const meaning = setupStatMeaning(choice.id)
+    if (!meaning) throw new Error(`No current stat meaning for ${choice.id} substat`)
     if (!admittedStat(observation, meaning)) return []
     const count = setup.substats[choice.id]
     if (!Number.isFinite(count)) {
@@ -414,24 +366,18 @@ function discTwoPieceRelationships(
           && (effect.modifier === 'dmgBonus' || effect.modifier === 'dazeBonus')
           && observation.modifierMetrics?.includes(effect.modifier)
         ) {
-          for (const action of actions) {
-            relationships.push({
-              kind: 'modifier',
-              atom: {
-                metricId: effect.modifier,
-                earliestSurface: 'initial',
-                value: equipmentEffectBaseValue(effect),
-                source: selectedDiscSource(
-                  agentId,
-                  appliedPartySlot,
-                  setup,
-                  discId,
-                  '2-piece',
-                ),
-                action,
-              },
-            })
-          }
+          relationships.push(...projectEquipmentEffectRelationships({
+            source: selectedDiscSource(
+              agentId,
+              appliedPartySlot,
+              setup,
+              discId,
+              '2-piece',
+            ),
+            fact: effect,
+            amount: equipmentEffectBaseValue(effect),
+            earliestSurface: 'initial',
+          }))
         }
         continue
       }
@@ -445,22 +391,24 @@ function discTwoPieceRelationships(
         discId,
         '2-piece',
       )
-      const meaning = discStatMeanings[effect.modifier]
+      const meaning = equipmentEffectStatMeaning(effect)
       if (meaning && admittedStat(observation, meaning)) {
-        relationships.push(statRelationship(source, meaning, equipmentEffectBaseValue(effect)))
+        relationships.push(...projectEquipmentEffectRelationships({
+          source,
+          fact: effect,
+          amount: equipmentEffectBaseValue(effect),
+          earliestSurface: 'initial',
+        }))
       } else if (
         (effect.modifier === 'dmgBonus' || effect.modifier === 'dazeBonus')
         && observation.modifierMetrics?.includes(effect.modifier)
       ) {
-        relationships.push({
-          kind: 'modifier',
-          atom: {
-            metricId: effect.modifier,
-            earliestSurface: 'initial',
-            value: equipmentEffectBaseValue(effect),
-            source,
-          },
-        })
+        relationships.push(...projectEquipmentEffectRelationships({
+          source,
+          fact: effect,
+          amount: equipmentEffectBaseValue(effect),
+          earliestSurface: 'initial',
+        }))
       }
     }
   }
@@ -468,9 +416,9 @@ function discTwoPieceRelationships(
 }
 
 /**
- * Observes only setup inputs with an admitted stat or modifier consumer. W-Engine
- * and 4-piece passives remain explicit profile relationships because their
- * activation and operating interval are not generic equipment selection facts.
+ * Observes setup inputs with an admitted stat or modifier consumer. Shared
+ * effect clauses use one stat/action vocabulary; selected W-Engine and 4-piece
+ * consumers still own activation, delivery, interval, and surface decisions.
  */
 export function selectedSetupRelationships(
   agentId: AgentId,
