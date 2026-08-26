@@ -17,6 +17,16 @@ type EquipmentProviderEffectTemplate = ProviderEffectTemplate extends infer Effe
   ? Effect extends ProviderEffectTemplate ? Omit<Effect, 'composition'> : never
   : never
 
+function equipmentDelivery(
+  fact: EquipmentEffectFact,
+  delivery: EquipmentDelivery,
+): EquipmentDelivery {
+  return {
+    ...(fact.scope?.attributes ? { attributes: fact.scope.attributes } : {}),
+    ...delivery,
+  }
+}
+
 function equipmentRecipient(
   fact: EquipmentEffectFact,
 ): Exclude<ProviderRecipient, 'other-party'> {
@@ -63,7 +73,10 @@ export function equipmentProviderRelationship(
   return {
     kind: 'provider',
     source,
-    delivery: { recipient: equipmentRecipient(fact), ...delivery },
+    delivery: {
+      recipient: equipmentRecipient(fact),
+      ...equipmentDelivery(fact, delivery),
+    },
     effect: providerEffect(fact, effect),
   }
 }
@@ -74,12 +87,22 @@ export function equipmentProviderEmission(
   delivery: EquipmentDelivery = {},
 ): Extract<LinearEmission, { kind: 'provider' }> {
   if (effect.kind === 'operation') {
-    return { kind: 'provider', delivery: { recipient: equipmentRecipient(fact), ...delivery }, effect }
+    return {
+      kind: 'provider',
+      delivery: {
+        recipient: equipmentRecipient(fact),
+        ...equipmentDelivery(fact, delivery),
+      },
+      effect,
+    }
   }
   const composition = equipmentComposition(fact)
   return {
     kind: 'provider',
-    delivery: { recipient: equipmentRecipient(fact), ...delivery },
+    delivery: {
+      recipient: equipmentRecipient(fact),
+      ...equipmentDelivery(fact, delivery),
+    },
     effect: composition ? { ...effect, composition } : effect,
   }
 }

@@ -8,8 +8,7 @@ import {
 } from '../../actions'
 import type { ProfileRelationship } from '../../calculation/relationships'
 import type { SelectedSourceInstance } from '../../calculation/source-instance'
-import type { StatId, StatRegion } from '../../calculation/stat-composer'
-import type { EffectMetric, SurfaceKey } from '../../effects'
+import type { SurfaceKey } from '../../effects'
 import {
   CRIT_DAMAGE_FORMULAS,
   effectAttributeForAgent,
@@ -26,10 +25,8 @@ import {
 import {
   type CompleteSelectedSetup, type SelectedSetupObservation,
 } from './equipment'
-import {
-  equipmentProviderEmission,
-  equipmentProviderRelationship,
-} from './equipment-provider'
+import { projectEquipmentEffectRelationships } from './equipment-effect-relationships'
+import { equipmentProviderEmission } from './equipment-provider'
 
 type Slot = 0 | 1 | 2
 
@@ -51,35 +48,56 @@ const BASIC_DASH_DODGE = target('Basic Attack', 'Dash Attack', 'Dodge Counter')
 
 function stat(
   source: SelectedSourceInstance,
-  statId: StatId,
+  fact: EquipmentEffectFact,
   value: number,
-  region: Exclude<StatRegion, 'base'>,
   earliestSurface: SurfaceKey = 'fully',
 ): ProfileRelationship {
-  return { kind: 'stat', atom: { statId, region, earliestSurface, value, source } }
+  const relationships = projectEquipmentEffectRelationships({
+    source, fact, amount: value, earliestSurface,
+  })
+  if (relationships.length !== 1 || relationships[0].kind !== 'stat') {
+    throw new Error(`Expected one stat relationship for ${fact.modifier}`)
+  }
+  return relationships[0]
 }
 
 function modifier(
   source: SelectedSourceInstance,
-  metricId: EffectMetric,
+  fact: EquipmentEffectFact,
   value: number,
   action?: ActionTarget,
   earliestSurface: SurfaceKey = 'fully',
 ): ProfileRelationship {
-  return {
-    kind: 'modifier',
-    atom: { metricId, earliestSurface, value, source, ...(action ? { action } : {}) },
+  const relationships = projectEquipmentEffectRelationships({
+    source,
+    fact,
+    amount: value,
+    earliestSurface,
+    action: action ?? null,
+    projection: 'modifier',
+  })
+  if (relationships.length !== 1 || relationships[0].kind !== 'modifier') {
+    throw new Error(`Expected one modifier relationship for ${fact.modifier}`)
   }
+  return relationships[0]
 }
 
-function squadDamage(
+function providerDamage(
   source: SelectedSourceInstance,
   fact: EquipmentEffectFact,
   value: number,
 ): ProfileRelationship {
-  return equipmentProviderRelationship(source, fact, {
-    kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value,
-  }, { formulas: REGULAR_DAMAGE_FORMULAS })
+  const relationships = projectEquipmentEffectRelationships({
+    source,
+    fact,
+    amount: value,
+    earliestSurface: 'fully',
+    delivery: { formulas: REGULAR_DAMAGE_FORMULAS },
+  })
+  if (relationships.length !== 1 || relationships[0].kind !== 'provider') {
+    throw new Error(`Expected one provider relationship for ${fact.modifier}`)
+  }
+  return relationships[0]
 }
 
 /**
@@ -111,112 +129,123 @@ export function selectedDriveDiscRelationships(
           }],
         })
       }
-      relationships.push(stat(source, 'critRate', equipmentEffectBaseValue(critRate), 'flat'))
+      relationships.push(stat(source, critRate, equipmentEffectBaseValue(critRate)))
       break
     }
     case 'swingJazz':
-      relationships.push(squadDamage(source, DRIVE_DISC_FACTS.swingJazz.fourPiece.damage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage)))
+      relationships.push(providerDamage(source, DRIVE_DISC_FACTS.swingJazz.fourPiece.damage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.swingJazz.fourPiece.damage)))
       break
     case 'moonlight':
-      relationships.push(squadDamage(source, DRIVE_DISC_FACTS.moonlight.fourPiece.damage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.fourPiece.damage)))
+      relationships.push(providerDamage(source, DRIVE_DISC_FACTS.moonlight.fourPiece.damage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.moonlight.fourPiece.damage)))
       break
     case 'astralVoice':
-      relationships.push(equipmentProviderRelationship(source, DRIVE_DISC_FACTS.astralVoice.fourPiece.damage, {
-        kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
-        value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage),
-      }, { formulas: REGULAR_DAMAGE_FORMULAS }))
+      relationships.push(providerDamage(source, DRIVE_DISC_FACTS.astralVoice.fourPiece.damage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.astralVoice.fourPiece.damage)))
       break
     case 'bunnyInWonderland':
-      relationships.push(squadDamage(source, DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage, equipmentEffectMaximumValue(DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage)))
+      relationships.push(providerDamage(source, DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage, equipmentEffectMaximumValue(DRIVE_DISC_FACTS.bunnyInWonderland.fourPiece.damage)))
       break
     case 'dawnsBloom':
       relationships.push(
-        modifier(source, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.dawnsBloom.fourPiece.damage), BASIC, 'combat'),
-        modifier(source, 'dmgBonus', equipmentEffectProgressionIncrementValue(DRIVE_DISC_FACTS.dawnsBloom.fourPiece.damage), BASIC),
+        modifier(source, DRIVE_DISC_FACTS.dawnsBloom.fourPiece.damage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.dawnsBloom.fourPiece.damage), BASIC, 'combat'),
+        modifier(source, DRIVE_DISC_FACTS.dawnsBloom.fourPiece.damage, equipmentEffectProgressionIncrementValue(DRIVE_DISC_FACTS.dawnsBloom.fourPiece.damage), BASIC),
       )
       break
     case 'woodpecker':
       if (observation.baseStats.atk !== undefined) relationships.push(stat(
         source,
-        'atk',
+        DRIVE_DISC_FACTS.woodpecker.fourPiece.atk,
         agent === 'seed'
           ? equipmentEffectMaximumValue(DRIVE_DISC_FACTS.woodpecker.fourPiece.atk)
           : equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.fourPiece.atk),
-        'percentage',
         agent === 'ellen' ? 'combat' : 'fully',
       ))
       break
     case 'hormonePunk':
-      relationships.push(stat(source, 'atk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.fourPiece.atk), 'percentage', 'combat'))
+      relationships.push(stat(source, DRIVE_DISC_FACTS.hormonePunk.fourPiece.atk, equipmentEffectBaseValue(DRIVE_DISC_FACTS.hormonePunk.fourPiece.atk), 'combat'))
       break
     case 'thunderMetal':
-      if (observation.baseStats.atk !== undefined) relationships.push(stat(source, 'atk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.fourPiece.atk), 'percentage'))
+      if (observation.baseStats.atk !== undefined) relationships.push(stat(source, DRIVE_DISC_FACTS.thunderMetal.fourPiece.atk, equipmentEffectBaseValue(DRIVE_DISC_FACTS.thunderMetal.fourPiece.atk)))
       break
     case 'pufferElectro':
-      if (observation.baseStats.atk !== undefined) relationships.push(stat(source, 'atk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.atk), 'percentage'))
-      relationships.push(modifier(source, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.damage), ULT, 'initial'))
+      if (observation.baseStats.atk !== undefined) relationships.push(stat(source, DRIVE_DISC_FACTS.pufferElectro.fourPiece.atk, equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.atk)))
+      relationships.push(modifier(source, DRIVE_DISC_FACTS.pufferElectro.fourPiece.damage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.pufferElectro.fourPiece.damage), ULT, 'initial'))
       break
     case 'chaoticMetal':
-      relationships.push(modifier(source, 'critDmg', equipmentEffectMaximumValue(DRIVE_DISC_FACTS.chaoticMetal.fourPiece.critDamage)))
+      relationships.push(modifier(source, DRIVE_DISC_FACTS.chaoticMetal.fourPiece.critDamage, equipmentEffectMaximumValue(DRIVE_DISC_FACTS.chaoticMetal.fourPiece.critDamage)))
       break
     case 'shadowHarmony':
       relationships.push(
-        stat(source, 'atk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.shadowHarmony.fourPiece.atk), 'percentage'),
-        modifier(source, 'critRate', equipmentEffectBaseValue(DRIVE_DISC_FACTS.shadowHarmony.fourPiece.critRate)),
+        stat(source, DRIVE_DISC_FACTS.shadowHarmony.fourPiece.atk, equipmentEffectBaseValue(DRIVE_DISC_FACTS.shadowHarmony.fourPiece.atk)),
+        modifier(source, DRIVE_DISC_FACTS.shadowHarmony.fourPiece.critRate, equipmentEffectBaseValue(DRIVE_DISC_FACTS.shadowHarmony.fourPiece.critRate)),
       )
       break
     case 'whiteWaterBallad':
       relationships.push(
-        modifier(source, 'critRate', equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.veilCritRate) + equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.attackVeilCritRate)),
-        stat(source, 'atk', equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.attackVeilAtk), 'percentage'),
+        modifier(source, DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.veilCritRate, equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.veilCritRate) + equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.attackVeilCritRate)),
+        stat(source, DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.attackVeilAtk, equipmentEffectBaseValue(DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece.attackVeilAtk)),
       )
       break
     case 'chaosJazz':
-      relationships.push(modifier(source, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.electricFireDamage), undefined, 'combat'))
-      if (agent === 'burnice') relationships.push(modifier(source, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage), EX_ASSIST))
-      if (agent === 'yanagi') relationships.push(modifier(source, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage), EX_ASSIST))
+      relationships.push(modifier(source, DRIVE_DISC_FACTS.chaosJazz.fourPiece.electricFireDamage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.electricFireDamage), undefined, 'combat'))
+      if (agent === 'burnice') relationships.push(modifier(source, DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage), EX_ASSIST))
+      if (agent === 'yanagi') relationships.push(modifier(source, DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.chaosJazz.fourPiece.offFieldActionDamage), EX_ASSIST))
       break
     case 'freedomBlues':
-      relationships.push(equipmentProviderRelationship(source, DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction, {
-        kind: 'modifier', metricId: 'anomalyBuildupResReduction', earliestSurface: 'fully',
-        value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction),
-      }, {
-        attributes: [effectAttributeForAgent(agent)],
-        formulas: ['anomaly_buildup'],
+      relationships.push(...projectEquipmentEffectRelationships({
+        source,
+        fact: DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction,
+        amount: equipmentEffectBaseValue(
+          DRIVE_DISC_FACTS.freedomBlues.fourPiece.buildupResReduction,
+        ),
+        earliestSurface: 'fully',
+        delivery: {
+          attributes: [effectAttributeForAgent(agent)],
+          formulas: ['anomaly_buildup'],
+        },
       }))
       break
     case 'fangedMetal':
-      relationships.push(modifier(source, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.fourPiece.assaultDamage)))
+      relationships.push(modifier(source, DRIVE_DISC_FACTS.fangedMetal.fourPiece.assaultDamage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.fourPiece.assaultDamage)))
       break
     case 'phaethonsMelody':
-      relationships.push(stat(source, 'anomalyProficiency', equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.anomalyProficiency), 'flat'))
-      if (effectAttributeForAgent(agent) === 'Ether') relationships.push(modifier(source, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.otherHolderEtherDamage)))
+      relationships.push(stat(source, DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.anomalyProficiency, equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.anomalyProficiency)))
+      if (effectAttributeForAgent(agent) === 'Ether') relationships.push(modifier(source, DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.otherHolderEtherDamage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.otherHolderEtherDamage)))
       break
     case 'shiningAria':
       relationships.push(
-        stat(source, 'anomalyProficiency', equipmentEffectBaseValue(DRIVE_DISC_FACTS.shiningAria.fourPiece.anomalyProficiency), 'flat'),
-        modifier(source, 'dmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.shiningAria.fourPiece.stunnedTargetDamage)),
+        stat(source, DRIVE_DISC_FACTS.shiningAria.fourPiece.anomalyProficiency, equipmentEffectBaseValue(DRIVE_DISC_FACTS.shiningAria.fourPiece.anomalyProficiency)),
+        modifier(source, DRIVE_DISC_FACTS.shiningAria.fourPiece.stunnedTargetDamage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.shiningAria.fourPiece.stunnedTargetDamage)),
       )
       break
     case 'notesFromTheChained':
       relationships.push(
-        stat(source, 'anomalyProficiency', equipmentEffectBaseValue(DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.anomalyProficiency), 'flat'),
-        equipmentProviderRelationship(source, DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.squadAnomalyDamage, {
-          kind: 'modifier', metricId: 'anomalyDmgBonus', earliestSurface: 'fully',
-          value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.squadAnomalyDamage),
+        stat(source, DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.anomalyProficiency, equipmentEffectBaseValue(DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.anomalyProficiency)),
+        ...projectEquipmentEffectRelationships({
+          source,
+          fact: DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.squadAnomalyDamage,
+          amount: equipmentEffectBaseValue(
+            DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.squadAnomalyDamage,
+          ),
+          earliestSurface: 'fully',
           action: ATTRIBUTE_ANOMALY_TARGET,
-        }, { formulas: ['anomaly_damage'] }),
-        equipmentProviderRelationship(source, DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.squadAnomalyDamage, {
-          kind: 'modifier', metricId: 'anomalyDmgBonus', earliestSurface: 'fully',
-          value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.squadAnomalyDamage),
+          delivery: { formulas: ['anomaly_damage'] },
+        }),
+        ...projectEquipmentEffectRelationships({
+          source,
+          fact: DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.squadAnomalyDamage,
+          amount: equipmentEffectBaseValue(
+            DRIVE_DISC_FACTS.notesFromTheChained.fourPiece.squadAnomalyDamage,
+          ),
+          earliestSurface: 'fully',
           action: DISORDER_TARGET,
-        }, { formulas: ['anomaly_damage'] }),
+          delivery: { formulas: ['anomaly_damage'] },
+        }),
       )
       break
     case 'yunkui':
       relationships.push(
-        modifier(source, 'critRate', equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.fourPiece.critRate)),
-        modifier(source, 'sheerDmgBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.fourPiece.sheerDamage)),
+        modifier(source, DRIVE_DISC_FACTS.yunkui.fourPiece.critRate, equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.fourPiece.critRate)),
+        modifier(source, DRIVE_DISC_FACTS.yunkui.fourPiece.sheerDamage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.fourPiece.sheerDamage)),
       )
       break
     case 'king': {
@@ -251,8 +280,8 @@ export function selectedDriveDiscRelationships(
           : ['qingyi', 'anby'].includes(agent)
             ? BASIC
             : undefined
-      if (shockstarTarget) relationships.push(modifier(source, 'dazeBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze), shockstarTarget))
-      if (agent === 'anby') relationships.push(modifier(source, 'dazeBonus', equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze), target('Dash Attack', 'Dodge Counter')))
+      if (shockstarTarget) relationships.push(modifier(source, DRIVE_DISC_FACTS.shockstar.fourPiece.daze, equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze), shockstarTarget))
+      if (agent === 'anby') relationships.push(modifier(source, DRIVE_DISC_FACTS.shockstar.fourPiece.daze, equipmentEffectBaseValue(DRIVE_DISC_FACTS.shockstar.fourPiece.daze), target('Dash Attack', 'Dodge Counter')))
       break
     }
   }
