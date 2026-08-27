@@ -102,12 +102,14 @@ registry, or a rule for later Agents.
   Enabled Moment of Delusion snapshot. M6 gives enhanced Basic and Ultimate
   Ether DMG +40%. Exclude local-form resources and base-result multipliers.
 - R9. Full W-Engine candidates are Angel in the Shell W1, Flight of Fancy W1,
-  Weeping Gemini W5, and Fusion Compiler W1. Non-limited offers Weeping and
-  Fusion. Prepare Angel in full and Weeping in non-limited. Angel's AM advanced
-  stat, AP, on-field/Special activation,
+  Electro-Lip Gloss W5, Weeping Gemini W5, and Fusion Compiler W1. Non-limited
+  offers Electro, Weeping, and Fusion. Prepare Angel in full and Electro in
+  non-limited. Angel's AM advanced stat, AP, on-field/Special activation,
   regular DMG, and Attribute Anomaly/Disorder bonus are all usable. Flight is a
-  distinct AP/buildup package; Weeping retains the strongest accumulating
-  AP/ATK package while Fusion retains a separate PEN/ATK allocation direction.
+  distinct AP/buildup package. Electro's stable AP/ATK/DMG package is the
+  strongest non-limited starting direction; Weeping retains a competitive
+  accumulating AP/ATK direction whose stun reset changes its realized
+  operation, while Fusion retains a separate PEN/ATK allocation direction.
 - R10. Admit Phaethon's Melody and Shining Aria as competitive 4-piece
   directions and prepare Phaethon. Prepare Freedom Blues as the AP 2-piece;
   admit Chaos Jazz as its exact same-effect substitute and the applicable AM,
@@ -198,7 +200,9 @@ registry, or a rule for later Agents.
   Attribute Anomaly parent; an Attribute Anomaly modifier remains inherited by
   Abloom.
 - AE3. Aria with Angel/Phaethon/Freedom/AP/Ether/AM exposes Angel's reachable
-  package and M1 Abloom CRIT without a Jane-specific derivation.
+  package and M1 Abloom CRIT without a Jane-specific derivation. Her non-limited
+  pool prepares Electro's stable AP/ATK/DMG package while keeping Weeping's
+  accumulating and Fusion's PEN directions editable.
 - AE4. Promeia's initial AM of 248.64 produces AP +147.96 and squad Abloom DMG
   +34.524% from the same one-pass relationship. Her non-limited Fusion package
   reaches a different AM/AP/ATK/PEN direction without copied engine values.
