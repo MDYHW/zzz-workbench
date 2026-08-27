@@ -686,7 +686,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     fourPiece: ['thunderMetal', 'chaosJazz', 'freedomBlues'],
     twoPiece: [
       'pufferElectro', 'phaethonsMelody', 'freedomBlues', 'chaosJazz',
-      'hormonePunk', 'astralVoice',
+      'hormonePunk', 'astralVoice', 'thunderMetal',
     ],
   },
   piper: {
