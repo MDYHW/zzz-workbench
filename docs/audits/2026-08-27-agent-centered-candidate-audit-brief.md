@@ -1,8 +1,10 @@
 # Agent-Centered Candidate Audit Brief
 
-**Status:** active controller brief  
+**Status:** active controller brief
+
 **Scope:** the 51 admitted Agents not including the completed Yidhari and Manato
-correction  
+correction
+
 **Artifact boundary:** read-only audit sequencing, not product authority, an
 Agent candidate answer catalogue, an active implementation plan, or evidence
 that any current candidate or representative is correct
