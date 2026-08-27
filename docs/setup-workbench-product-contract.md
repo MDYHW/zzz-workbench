@@ -277,7 +277,23 @@ every weaker package; reject packages too remote to remain useful choices.
 Inside that range, compress same-direction alternatives within their
 acquisition role. Among other limited S-Ranks, retain only the strongest
 competitive package for one recomposed direction. Among standard S-Ranks and
-A-Ranks, retain only the strongest useful package for one recomposed direction.
+A-Ranks, normally retain only the strongest useful package for one recomposed
+direction.
+
+That standard-S-Rank/A-Rank compression has one account-use exception for a
+choice-constrained Agent. After ordinary package inspection and material-range
+comparison, also retain the strongest still-competitive same-direction
+substitute only when the stronger W-Engine is a current competitive choice for
+more than one Agent, one owned equipment identity cannot serve simultaneous
+teams, and no other admitted non-limited route materially replaces the
+contested operation or setup direction for this Agent. The substitute must
+survive on its own realized value; an imaginable duplicate conflict cannot
+rescue a remote package. Specialty and candidate count do not establish this
+boundary. The substitute never displaces the stronger package in representative
+comparison, and admission alone changes no authored full or non-limited
+representative. This exception adds no inventory input, duplicate-selection
+validation, or runtime cross-team allocation.
+
 Judge the retained other limited S-Rank chiefly beside that strongest non-
 limited route, so it may coexist below the representative when its realized
 value is comparable to or stronger than the non-limited route. Do not collapse
@@ -573,6 +589,13 @@ stat is unused when its realized passive package remains competitive. Candidate
 count is never a target, and the workbench does not expose every viable
 fallback.
 
+The choice-constrained contention fallback owned by `SW-005` is the only
+same-direction exception inside the standard-S-Rank/A-Rank role. It preserves a
+practical equipment identity after independently surviving the competitive
+range; it does not create a new setup direction or excuse another weaker
+package. Do not apply it when the Agent's other admitted non-limited routes
+already materially absorb the contested operation or direction.
+
 Individual viability is not enough. Numerical difference alone creates no
 cutoff. Candidate count is not a target. A direction's valid stat pressure keeps
 only stats that materially support a role or a stat-derived relationship the
@@ -704,6 +727,12 @@ representative from that derived subset. A non-limited accessibility path need
 not numerically equal the full representative, but it must still have survived
 the same representative-calibrated material range and its acquisition-role
 comparison.
+
+A qualifying choice-constrained contention fallback enters that one admitted
+set during the `SW-005` comparison; pool filtering never readmits it. Because
+the fallback is a standard S-Rank or A-Rank identity, both full and non-limited
+expose it. Its presence does not replace the stronger authored representative
+in either applicable pool.
 
 Pool defaults to full. Initial preparation selects the authored first choice
 from that pool. Switching pools initializes that Agent with the complete
