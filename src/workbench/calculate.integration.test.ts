@@ -182,6 +182,25 @@ describe('shared calculation integration', () => {
     expect(gauge.outputValue).toBe(gauge.outputCap)
   })
 
+  it('inherits canonical Basic effects into Miyabi Basic outcomes without affecting Dodge Counter', () => {
+    let state = createPreparedState({}, ['miyabi', 'nangongYu', 'sunna'], 0)
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 2 })
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'dawnsBloom',
+    })
+
+    const actionModifiers = calculateParty(state)!.agents
+      .find(({ agentId }) => agentId === 'miyabi')!.actionModifiers
+    const dawnSource = expect.objectContaining({ label: "Dawn's Bloom" })
+
+    const breakdown = (id: string) => Object.values(
+      actionModifiers.find((modifier) => modifier.id === id)!.breakdown,
+    ).flat()
+    expect(breakdown('miyabiShimotsuki')).toContainEqual(dawnSource)
+    expect(breakdown('miyabiKazahana')).toContainEqual(dawnSource)
+    expect(breakdown('miyabiDodgeCounter')).not.toContainEqual(dawnSource)
+  })
+
   it('composes Initial-AM-derived flat Impact once around shared equipment regions', () => {
     const impactFor = (pool: 'full' | 'nonLimited') => calculateParty(createPreparedState(
       { nangongYu: pool },
