@@ -171,7 +171,7 @@ const lighterRepresentative = (pool: PoolId): SetupSelection => ({
 })
 
 const lucyRepresentative: SetupSelection = {
-  engineId: 'kaboom', fourPieceId: 'moonlight', twoPieceId: 'astralVoice',
+  engineId: 'kaboom', fourPieceId: 'moonlight', twoPieceId: 'swingJazz',
   mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'energyRegenPct' },
 }
 

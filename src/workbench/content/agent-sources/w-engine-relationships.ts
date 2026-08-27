@@ -283,7 +283,11 @@ export function selectedWEngineRelationships({
       relationships.push(allDamage(W_ENGINE_FACTS.elegantVanity.effects.damage, maximum(W_ENGINE_FACTS.elegantVanity.effects.damage, setup)))
       break
     case 'theVault':
-      relationships.push(allDamage(W_ENGINE_FACTS.theVault.effects.targetDamage, value(W_ENGINE_FACTS.theVault.effects.targetDamage, setup)))
+      push(
+        relationships,
+        allDamage(W_ENGINE_FACTS.theVault.effects.targetDamage, value(W_ENGINE_FACTS.theVault.effects.targetDamage, setup)),
+        automaticEnergy(source, W_ENGINE_FACTS.theVault.effects.holderEnergy, value(W_ENGINE_FACTS.theVault.effects.holderEnergy, setup), 'fully'),
+      )
       break
     case 'bashfulDemon':
       relationships.push(provider(source, W_ENGINE_FACTS.bashfulDemon.effects.atk, maximum(W_ENGINE_FACTS.bashfulDemon.effects.atk, setup), { formulas: REGULAR_DAMAGE_FORMULAS }))

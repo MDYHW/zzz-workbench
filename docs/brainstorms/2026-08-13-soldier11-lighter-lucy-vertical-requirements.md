@@ -161,14 +161,16 @@ faction graph, or guide-backed evidence payload.
 - R15. Lucy's 4-piece candidates are Moonlight Lullaby and Astral Voice. Her
   Support actions satisfy Moonlight; her EX-driven teammate entry makes Astral
   a current one-recipient option without changing its canonical Focus
-  projection. Her 2-piece candidates are Swing Jazz, Moonlight Lullaby,
-  Hormone Punk, and Astral Voice under the same-effect lifecycle.
-- R16. Both Lucy pools prepare Moonlight 4-piece plus Astral Voice 2-piece with
+  projection. Her 2-piece candidates are Swing Jazz and Moonlight Lullaby under
+  the same-effect lifecycle. At completed Potential, every admitted W-Engine
+  with the fixed ATK% Slots 4 and 5 already reaches the highest retained Core
+  basis cap, so the Hormone Punk/Astral Voice ATK direction adds zero rather
+  than creating a second competitive 2-piece choice.
+- R16. Both Lucy pools prepare Moonlight 4-piece plus Swing Jazz 2-piece with
   ATK% / ATK% / Energy Regen mains and zero substats. The selected Kaboom W5
   fact reaches even M0-M2's highest Core requirement at zero supplied substats,
-  so the prepared package spends Slot 6 on Energy Regen. Astral is the exposed
-  ATK 2-piece because Astral is also a current 4-piece candidate; the shared
-  same-effect lifecycle is not bypassed with a hidden Hormone selection.
+  so the prepared package spends Slot 6 and its legal 2-piece complement on
+  Energy Regen rather than zero-value ATK supply.
 
 ### Current Agent and equipment projection
 
@@ -235,7 +237,7 @@ faction graph, or guide-backed evidence payload.
 
 - AE1. Applying Soldier 11 + Lighter + Lucy initializes M0/M0/M6 and prepares
   Heartstring/Woodpecker/Puffer, Blazing/King/Shockstar, and
-  Kaboom/Moonlight/Astral in full pool, with every effective substat at zero.
+  Kaboom/Moonlight/Swing in full pool, with every effective substat at zero.
 - AE2. Soldier 11's Additional is active with Fire Lighter, Obol Trigger, and
   Silver Squad Soldier 0 through their correct relationships, and inactive
   with a non-Fire Agent outside the NEDF group. Display faction is not rewritten

@@ -128,8 +128,9 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
 - R11. Add The Vault as an A-Rank non-limited Support candidate. Its Energy and
   Ether EX/Chain/Ultimate-triggered squad-DMG/holder-Energy package is fully
   usable by Nicole and establishes both pool representatives. The
-  event-conditioned holder Energy remains compressed Setup content but does not
-  project as automatic Energy Regen in Result.
+  source-stated holder recovery rate projects in the Fully Enabled Energy Regen
+  row once that directly observed trigger state holds; it is not a per-event
+  Energy grant normalized through cadence.
   Weeping is the closest same-recipient competitor through off-field Energy and
   squad DMG while its advanced PEN is unused. Kaboom keeps the distinct
   always-reachable four-unit squad-ATK package but supplies less of Nicole's
@@ -190,7 +191,8 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   recipients and non-stacking identities. Moonlight applies to all party
   members once. Astral's steerable single-recipient effect projects once to
   Focus. The Vault remains target-scoped squad DMG plus holder Energy rather
-  than a generic ATK effect; only its squad DMG projects in Result.
+  than a generic ATK effect; its target DMG and temporary holder recovery rate
+  project as separate Result relationships.
 
 ### Candidate lifecycle and visible experience
 
@@ -240,8 +242,9 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   M2 and Riot combine on both, while Cordis applies only to
   Basic and Ultimate. M4 applies Ether RES Ignore only to enhanced Basic/Dash.
 - AE3. With Nicole applied, Zhu Yuan receives Nicole's enemy DEF Reduction,
-  Ether DMG, M6 CRIT Rate, and The Vault's source-owned squad DMG. A non-Ether
-  general-damage teammate receives
+  Ether DMG, M6 CRIT Rate, and The Vault's source-owned squad DMG, while
+  Nicole's Fully Enabled Energy Regen includes The Vault's temporary holder
+  recovery rate. A non-Ether general-damage teammate receives
   DEF Reduction and CRIT Rate but not Ether DMG. Yixuan receives applicable
   Ether DMG and CRIT Rate but no DEF-region value or candidate pressure.
 - AE4. A party without Nicole exposes a general-damage PEN Slot 5 and Puffer

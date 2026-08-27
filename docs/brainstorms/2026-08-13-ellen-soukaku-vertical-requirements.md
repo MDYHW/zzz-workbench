@@ -111,12 +111,16 @@ version switch, named-party table, or guide-backed evidence payload.
   adds Energy nor beats Kaboom's stronger squad ATK after both packages reach
   the same Core cap. No limited engine is forced into full merely because that
   pool permits one.
-- R9. Soukaku's 4-piece candidates are Moonlight Lullaby and Astral Voice.
+- R9. Soukaku's 4-piece candidates are Moonlight Lullaby, Astral Voice, and
+  Freedom Blues.
   Moonlight is exactly Support-holder-compatible and supplies squad DMG
   through her EX/Ultimate operation. Soukaku's own Vortex-consuming Fly the
   Flag supplies the repeated Quick Assist route that makes Astral a base rather
   than contextual candidate; Astral supplies a stronger single entrant value
-  but does not become a squad effect.
+  but does not become a squad effect. Freedom supplies the distinct
+  EX-triggered Ice Anomaly Buildup RES reduction used by matching Ice buildup
+  recipients; its holder AP contributes zero and is not a personal anomaly
+  direction for Soukaku.
   Her 2-piece candidates are Swing Jazz, Moonlight Lullaby, Hormone Punk, and
   Astral Voice, subject to the established same-effect identity lifecycle.
 - R10. Both Soukaku pools prepare Moonlight 4-piece plus Astral Voice 2-piece,
