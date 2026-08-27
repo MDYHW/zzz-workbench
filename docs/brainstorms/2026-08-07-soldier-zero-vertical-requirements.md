@@ -147,11 +147,16 @@ The prose requirements govern if this diagram and the text ever differ.
   supplies less Fully Enabled Impact. Its A-Rank accessibility does not create
   another acquisition role inside the shared standard-S/A comparison.
 - R18. Trigger's full W-Engine candidates are Spectral Gaze, Blazing Laurel,
-  Ice-Jade Teapot, The Restrained, Hellfire Gears, Precious Fossilized Core,
-  and Steam Oven; non-limited retains The Restrained, Hellfire, Precious, and
-  Steam. Hellfire's broad Impact package and automatic off-field Energy remain
-  competitive beside Restrained's aligned Basic/Aftershock direction; neither
-  changes the authored Restrained non-limited first choice.
+  Ice-Jade Teapot, The Restrained, Hellfire Gears, and Precious Fossilized
+  Core; non-limited retains The Restrained, Hellfire, and Precious. Hellfire's
+  broad Impact package and automatic off-field Energy
+  remain competitive beside Restrained's aligned Basic/Aftershock direction;
+  neither changes the authored Restrained non-limited first choice. Steam Oven
+  is excluded after the current Agent-centered comparison: Trigger's off-field
+  interval makes its Energy/Impact package reproduce Hellfire's selected
+  automatic-Energy Result and prepared resource direction with less Fully
+  Enabled Impact. Its A-Rank accessibility does not create another acquisition
+  role inside the shared standard-S/A comparison.
   Blazing Laurel is a full-pool alternate rather than a new representative:
   Trigger can activate and consume its Impact package, and her Basic-category
   Aftershocks can establish the Fire/Ice squad CRIT DMG package. That recipient
