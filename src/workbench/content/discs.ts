@@ -371,7 +371,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   polarMetal: {
     name: 'Polar Metal', image: polarMetalImage,
     twoPieceEffect: `Ice DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.polarMetal.twoPiece.damage)}%`,
-    fourPieceEffects: [`Basic & Dash Attack DMG +${equipmentEffectMaximumValue(DRIVE_DISC_FACTS.polarMetal.fourPiece.damage)}% after Freeze/Shatter`],
+    fourPieceEffects: [`Basic & Dash Attack DMG +${equipmentEffectMaximumValue(DRIVE_DISC_FACTS.polarMetal.fourPiece.damage)}%`],
   },
   thunderMetal: {
     name: 'Thunder Metal', image: thunderMetalImage,
