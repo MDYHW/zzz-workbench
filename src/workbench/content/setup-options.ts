@@ -202,7 +202,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['atkPct'], slot5: ['atkPct'], slot6: ['atkPct', 'energyRegenPct'],
   },
   soldier11: {
-    slot4: ['critRate', 'critDmg'], slot5: ['fireDmg', 'penRatio'], slot6: ['atkPct'],
+    slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['fireDmg', 'penRatio', 'atkPct'], slot6: ['atkPct'],
   },
   lighter: {
     slot4: ['atkPct'], slot5: ['fireDmg'], slot6: ['impact'],

@@ -119,7 +119,7 @@ const cissiaRepresentative: Omit<SetupSelection, 'engineId'> = {
 }
 
 const evelynRepresentative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'heartstringNocturne' : 'starlightEngine',
+  engineId: pool === 'full' ? 'heartstringNocturne' : 'brimstone',
   fourPieceId: 'hormonePunk',
   twoPieceId: pool === 'full' ? 'woodpecker' : 'branchAndBlade',
   mains: {

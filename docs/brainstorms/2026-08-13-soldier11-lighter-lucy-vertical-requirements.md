@@ -79,8 +79,8 @@ faction graph, or guide-backed evidence payload.
 ### Soldier 11 equipment authoring
 
 - R5. Soldier 11's full W-Engine candidates are Heartstring Nocturne, Cordis
-  Germina, Severed Innocence, The Brimstone, and Starlight Engine. Non-limited
-  candidates are The Brimstone and Starlight Engine. Full
+  Germina, Severed Innocence, and The Brimstone. Non-limited
+  candidates are The Brimstone. Full
   prepares Heartstring W1; non-limited prepares The Brimstone W1.
 - R6. Heartstring's complete high-Base-ATK, advanced CRIT Rate, CRIT DMG, and
   Chain/Ultimate Fire RES Ignore package is usable by Soldier 11 and establishes
@@ -90,17 +90,19 @@ faction graph, or guide-backed evidence payload.
   Chain/Ultimate bypass clause. Cordis is the closest retained action/bypass
   contrast: its CRIT clauses and Basic/Ultimate DEF Ignore remain useful while
   Electric-only damage is unused. Severed and Brimstone
-  preserve other competitive CRIT or broadly usable ATK packages. Starlight is
-  the accessible A-Rank contrast. Steel
+  preserve other competitive CRIT or broadly usable ATK packages. Steel
   Cushion is excluded because its Physical clause is unusable and the remaining
   behind-hit clause does not survive the complete-package comparison.
-- R7. Soldier 11's base 4-piece candidates are Woodpecker Electro and Dawn's
-  Bloom. Dialyn adds Puffer Electro contextually through the established
+- R7. Soldier 11's base 4-piece candidates are Woodpecker Electro, Dawn's
+  Bloom, and Inferno Metal. Inferno's local candidate consequence is its
+  Burning-target CRIT Rate direction; its values remain owned by shared Disc
+  facts. Dialyn adds Puffer Electro contextually through the established
   repeated-Ultimate opportunity. Her 2-piece candidates are Inferno Metal,
   Woodpecker Electro, Branch & Blade Song, Dawn's Bloom, Puffer Electro,
   Hormone Punk, and Astral Voice, subject to the same-effect identity lifecycle.
 - R8. Both pools prepare Woodpecker 4-piece plus Puffer 2-piece with CRIT Rate /
-  PEN Ratio / ATK% mains and zero substats. The fixed CRIT/ATK actions and PEN
+  PEN Ratio / ATK% mains and zero substats. Slot 4 and Slot 5 each admit ATK%
+  alongside their existing choices. The fixed CRIT/ATK actions and PEN
   access remain balanced before future substat investment; non-limited does not
   invent a different Disc package merely to compensate for Brimstone's ATK.
 

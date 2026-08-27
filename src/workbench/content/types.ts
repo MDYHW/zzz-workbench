@@ -254,7 +254,7 @@ export type EquipmentEffectAction =
   >
 
 export type EquipmentEffectTag = Extract<ActionTag, 'aftershock'>
-export type EquipmentEffectCondition = 'backAttack' | 'offField' | 'shielded' | 'anomalyAfflictedTarget' | 'stunnedTarget'
+export type EquipmentEffectCondition = 'backAttack' | 'offField' | 'shielded' | 'anomalyAfflictedTarget' | 'burningTarget' | 'stunnedTarget'
 export type EquipmentEffectAnomalyResult = 'Attribute Anomaly' | 'Disorder' | 'Abloom'
 
 export type EquipmentEffectRecipient = 'self' | 'focus' | 'squad' | 'enemy'
@@ -268,6 +268,7 @@ export type EquipmentEffectActivation =
   }
   | {
     kind: 'trigger'
+    targetCondition?: Extract<EquipmentEffectCondition, 'burningTarget'>
     actions?: readonly EquipmentEffectAction[]
     attributes?: readonly EquipmentEffectAttribute[]
     holderAttributes?: readonly EquipmentEffectAttribute[]

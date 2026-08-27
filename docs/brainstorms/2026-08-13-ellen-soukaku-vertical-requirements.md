@@ -64,9 +64,8 @@ version switch, named-party table, or guide-backed evidence payload.
   are current Combat inputs; they are not merged solely because their values
   match.
 - R5. Ellen's full candidates are Deep Sea Visitor, Myriad Eclipse, Cordis
-  Germina, Steel Cushion, The Brimstone, and Starlight Engine. Non-limited
-  candidates are Steel Cushion, The Brimstone, and
-  Starlight Engine. Full
+  Germina, Steel Cushion, and The Brimstone. Non-limited
+  candidates are Steel Cushion and The Brimstone. Full
   prepares Deep Sea Visitor W1; non-limited prepares The Brimstone W1.
   Deep Sea is the full first choice because its entire Ice/CRIT package is
   usable and its two ordinary action triggers are native to Ellen. Myriad is
@@ -78,13 +77,13 @@ version switch, named-party table, or guide-backed evidence payload.
   Cordis retains a distinct CRIT Rate and Basic/Ultimate DEF Ignore package;
   Steel retains a CRIT accessibility path despite unused Physical DMG and
   unreliable behind-hit value. The Brimstone wins the separately authored non-limited
-  comparison through its high Base ATK and broadly usable sustained ATK; the
-  refined Starlight package remains the A-Rank accessibility contrast.
-- R6. Ellen's base 4-piece candidate is Woodpecker Electro. Dialyn's existing
-  repeated-Ultimate opportunity adds Puffer Electro contextually. Shadow
-  Harmony is excluded because its narrower Dash supply and weak 2-piece do not
-  displace Woodpecker's Basic/EX-compatible package; Puffer is not a safe base
-  choice without the current Ultimate opportunity.
+  comparison through its high Base ATK and broadly usable sustained ATK.
+- R6. Ellen's base 4-piece candidates are Woodpecker Electro, Polar Metal, and
+  Shadow Harmony. Polar's local candidate consequence is its Basic/Dash maximum
+  direction after Freeze/Shatter; Shadow Harmony's source facts are reused.
+  Dialyn's existing repeated-Ultimate opportunity adds Puffer Electro
+  contextually. Puffer is not a safe base choice without the current Ultimate
+  opportunity.
 - R7. Ellen's 2-piece candidates are Puffer Electro, Polar Metal, Woodpecker
   Electro, Branch & Blade Song, Astral Voice, and Hormone Punk. The established
   same-effect identity lifecycle compresses the ATK pair. Her prepared Disc
@@ -145,8 +144,8 @@ version switch, named-party table, or guide-backed evidence payload.
   tiers and create no independent modifier row.
 - R14. Deep Sea's advanced CRIT and unconditional Ice DMG project through the
   ordinary equipment consumers; its two action-triggered CRIT clauses appear
-  on Combat. Selected Myriad, Cordis, Heartstring, Steel, Brimstone, and
-  Starlight reuse their existing exact scopes. Puffer 4-piece continues to use
+  on Combat. Selected Myriad, Cordis, Steel, and Brimstone reuse
+  their existing exact scopes. Puffer 4-piece continues to use
   the shared selected-set clauses and Dialyn context; no Ellen-local copy of
   that mechanism is added.
 - R15. Soukaku's completed Core calculates `min(Initial ATK * 40%, 1000)` after

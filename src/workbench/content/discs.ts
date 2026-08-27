@@ -122,6 +122,9 @@ export const DRIVE_DISC_FACTS = {
     twoPiece: {
       damage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Fire'] } },
     },
+    fourPiece: {
+      critRate: { modifier: 'critRate', unit: '%', value: 28, activation: { kind: 'trigger', targetCondition: 'burningTarget' } },
+    },
   },
   fangedMetal: {
     twoPiece: {
@@ -134,6 +137,14 @@ export const DRIVE_DISC_FACTS = {
   polarMetal: {
     twoPiece: {
       damage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Ice'] } },
+    },
+    fourPiece: {
+      damage: {
+        modifier: 'dmgBonus', unit: '%', value: 20,
+        progression: { kind: 'conditions', perCondition: 20, maxConditions: 1 },
+        scope: { actions: ['Basic Attack', 'Dash Attack'] },
+        activation: { kind: 'trigger', anomalyResult: 'Freeze' },
+      },
     },
   },
   thunderMetal: {
@@ -350,6 +361,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   infernoMetal: {
     name: 'Inferno Metal', image: infernoMetalImage,
     twoPieceEffect: `Fire DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.infernoMetal.twoPiece.damage)}%`,
+    fourPieceEffects: [`Burning target · CRIT Rate +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.infernoMetal.fourPiece.critRate)}%`],
   },
   fangedMetal: {
     name: 'Fanged Metal', image: fangedMetalImage,
@@ -359,6 +371,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   polarMetal: {
     name: 'Polar Metal', image: polarMetalImage,
     twoPieceEffect: `Ice DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.polarMetal.twoPiece.damage)}%`,
+    fourPieceEffects: [`Basic & Dash Attack DMG +${equipmentEffectMaximumValue(DRIVE_DISC_FACTS.polarMetal.fourPiece.damage)}% after Freeze/Shatter`],
   },
   thunderMetal: {
     name: 'Thunder Metal', image: thunderMetalImage,
@@ -560,13 +573,13 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     },
   },
   ellen: {
-    fourPiece: ['woodpecker'],
+    fourPiece: ['woodpecker', 'polarMetal', 'shadowHarmony'],
     twoPiece: ['pufferElectro', 'polarMetal', 'woodpecker', 'branchAndBlade', 'astralVoice', 'hormonePunk'],
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   soukaku: { fourPiece: ['moonlight', 'astralVoice'], twoPiece: ['swingJazz', 'moonlight', 'hormonePunk', 'astralVoice'] },
   soldier11: {
-    fourPiece: ['woodpecker', 'dawnsBloom'],
+    fourPiece: ['woodpecker', 'dawnsBloom', 'infernoMetal'],
     twoPiece: ['infernoMetal', 'woodpecker', 'branchAndBlade', 'dawnsBloom', 'pufferElectro', 'hormonePunk', 'astralVoice'],
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
