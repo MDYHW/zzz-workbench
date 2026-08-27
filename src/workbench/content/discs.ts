@@ -514,7 +514,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   },
   starlightBilly: {
     fourPiece: ['yunkui'],
-    twoPiece: ['woodpecker', 'branchAndBlade', 'fangedMetal'],
+    twoPiece: ['woodpecker', 'branchAndBlade', 'whiteWaterBallad'],
   },
   dialyn: { fourPiece: ['king'], twoPiece: ['woodpecker', 'swingJazz'] },
   lucia: { fourPiece: ['moonlight'], twoPiece: ['yunkui', 'swingJazz'] },

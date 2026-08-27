@@ -1222,7 +1222,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   juFufu: enginePools(['roaringFurnace', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   panYinhu: enginePools(['tusksOfFury', 'tremorTrigramVessel', 'springEmbrace']),
   banyue: enginePools(['wrathfulVajra', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere']),
-  starlightBilly: enginePools(['starlightRiderFaceplate', 'qingming', 'cauldron', 'steelCushion', 'grillOWisp', 'puzzleSphere']),
+  starlightBilly: enginePools(['starlightRiderFaceplate', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere']),
   dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   nangongYu: enginePools(['neonFantasies', 'hellfireGears', 'simmeringPot', 'preciousFossilizedCore', 'roaringFurnace']),
   miyabi: enginePools(['hailstormShrine', 'fusionCompiler', 'electroLipGloss']),
