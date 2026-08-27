@@ -599,9 +599,10 @@ export function selectedWEngineRelationships({
       }
       break
     case 'steamOven':
-      if (['lycaon', 'qingyi'].includes(agent)) {
-        add(W_ENGINE_FACTS.steamOven.effects.impact, maximum(W_ENGINE_FACTS.steamOven.effects.impact, setup))
-      }
+      add(
+        W_ENGINE_FACTS.steamOven.effects.impact,
+        value(W_ENGINE_FACTS.steamOven.effects.impact, setup),
+      )
       break
     case 'spectralGaze':
       if (equipmentEffectCanBeActivatedByHolder(

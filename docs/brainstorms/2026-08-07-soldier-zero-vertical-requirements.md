@@ -137,26 +137,23 @@ The prose requirements govern if this diagram and the text ever differ.
   opportunity. M0 or an unqualified M2+ party keeps the base Woodpecker package.
   All effective-substat counts start at zero, and direct party/equipment edits
   do not dynamically reprepare the selection.
-- R17. Dialyn retains Precious Fossilized Core W5 alongside Yesterday Calls and
-  Hellfire Gears. Its advanced Impact and fully enabled thresholded Daze
-  package are usable, while Dialyn's representative remains Yesterday
-  Calls/full and Hellfire/non-limited with King plus Woodpecker, CRIT
-  Rate/ATK%/Energy Regen. Steam Oven is excluded after the current
-  Agent-centered comparison: at W5 its Energy-Regen/Impact package produces the
-  same prepared inputs and practical resource direction as Hellfire W1, but
-  supplies less Fully Enabled Impact. Its A-Rank accessibility does not create
-  another acquisition role inside the shared standard-S/A comparison.
+- R17. Dialyn retains Precious Fossilized Core W5 and Steam Oven W5 alongside
+  Yesterday Calls and Hellfire Gears. Precious's advanced Impact and fully
+  enabled thresholded Daze package are usable. Steam's Energy-Regen/Impact
+  package is weaker than Hellfire W1 on their shared direction but remains the
+  strongest practical non-limited substitute when Hellfire is contested across
+  simultaneous teams; Precious does not replace that sustained resource/Impact
+  operation. Dialyn's representative remains Yesterday Calls/full and
+  Hellfire/non-limited with King plus Woodpecker, CRIT Rate/ATK%/Energy Regen.
 - R18. Trigger's full W-Engine candidates are Spectral Gaze, Blazing Laurel,
-  Ice-Jade Teapot, The Restrained, Hellfire Gears, and Precious Fossilized
-  Core; non-limited retains The Restrained, Hellfire, and Precious. Hellfire's
-  broad Impact package and automatic off-field Energy
-  remain competitive beside Restrained's aligned Basic/Aftershock direction;
-  neither changes the authored Restrained non-limited first choice. Steam Oven
-  is excluded after the current Agent-centered comparison: Trigger's off-field
-  interval makes its Energy/Impact package reproduce Hellfire's selected
-  automatic-Energy Result and prepared resource direction with less Fully
-  Enabled Impact. Its A-Rank accessibility does not create another acquisition
-  role inside the shared standard-S/A comparison.
+  Ice-Jade Teapot, The Restrained, Hellfire Gears, Precious Fossilized Core,
+  and Steam Oven; non-limited retains The Restrained, Hellfire, Precious, and
+  Steam. Hellfire's broad Impact package and automatic off-field Energy remain
+  competitive beside Restrained's aligned Basic/Aftershock direction. Steam's
+  weaker Energy-Regen/Impact package remains the strongest practical
+  non-limited substitute when Hellfire is contested across simultaneous teams;
+  Restrained and Precious do not replace that sustained resource/Impact
+  operation. Neither changes the authored Restrained non-limited first choice.
   Blazing Laurel is a full-pool alternate rather than a new representative:
   Trigger can activate and consume its Impact package, and her Basic-category
   Aftershocks can establish the Fire/Ice squad CRIT DMG package. That recipient

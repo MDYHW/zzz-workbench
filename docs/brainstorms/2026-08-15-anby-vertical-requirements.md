@@ -96,13 +96,16 @@ model, ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
 ### W-Engine authoring
 
 - R6. Anby's full W-Engine candidates are Hellfire Gears, Blazing Laurel, The
-  Restrained, and Precious Fossilized Core. Non-limited candidates are
-  Hellfire, The Restrained, and Precious. Both pools prepare Hellfire W1.
+  Restrained, Steam Oven, and Precious Fossilized Core. Non-limited candidates
+  are Hellfire, The Restrained, Steam, and Precious. Both pools prepare
+  Hellfire W1.
 - R7. Hellfire is the prepared first choice through its broad Impact/off-field-
   Energy package, which serves both Core actions. Blazing retains a
   distinct high-Impact squad package; Restrained retains Basic-only DMG/Daze
-  aligned with Thunderbolt; Precious retains a distinct target-HP Daze
-  package. Ice-Jade is excluded because Anby's ordinary
+  aligned with Thunderbolt; Steam retains the strongest practical
+  non-limited resource/Impact substitute when Hellfire is contested across
+  simultaneous teams; Precious retains a distinct target-HP Daze package.
+  Ice-Jade is excluded because Anby's ordinary
   Basic-to-Thunderbolt sequence does not sustain its 15/30 Basic-hit thresholds
   without displacing the current EX and swap cadence.
 - R8. Demara Battery Mark II is not an Anby candidate. Its Electric DMG is
@@ -111,11 +114,10 @@ model, ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   Hellfire. The realized W5 package is too weak beside Hellfire W1 to survive
   the standard-S/A same-direction comparison; a character association, legal
   activation, and A-Rank accessibility do not independently preserve it.
-  Steam Oven is excluded by the same acquisition-role comparison: it keeps the
-  prepared inputs and resource direction unchanged while supplying less Fully
-  Enabled Impact than Hellfire. Neither excluded item has a selected Setup or
-  Result consumer, and Demara's otherwise unused shared identity and facts are
-  omitted under the source-retention gate.
+  Steam is weaker than Hellfire on their shared direction, but remains within
+  the competitive range and is not replaced by Anby's Basic-Daze or
+  target-HP-Daze alternatives. Demara's otherwise unused shared identity and
+  facts are omitted under the source-retention gate.
 - R9. Spectral Gaze
   and Box Cutter are excluded because their Aftershock activation is inactive
   for Anby. Roaring Fur-nace is excluded because its partial EX/Chain/Ultimate
