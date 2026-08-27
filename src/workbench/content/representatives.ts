@@ -297,7 +297,7 @@ const burniceRepresentative = (pool: PoolId): SetupSelection => ({
 })
 
 const janeRepresentative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'practicedPerfection' : 'weepingGemini',
+  engineId: pool === 'full' ? 'practicedPerfection' : 'fusionCompiler',
   fourPieceId: 'fangedMetal', twoPieceId: 'pufferElectro',
   mains: { slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'anomalyMastery' },
 })

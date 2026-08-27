@@ -1263,7 +1263,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
     'fusionCompiler', 'electroLipGloss', 'weepingGemini',
   ]),
   piper: enginePools([
-    'practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss',
+    'practicedPerfection', 'sharpenedStinger', 'electroLipGloss',
     'weepingGemini', 'roaringRide',
   ]),
   yuzuha: enginePools(['metanukimorphosis', 'thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),

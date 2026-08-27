@@ -66,7 +66,7 @@ bounded Jane/Seth outcomes below; it does not restate those common policies.
 - R6. Jane's full W-Engine candidates are Practiced Perfection W1, Sharpened
   Stinger W1, Fusion Compiler W1, Electro-Lip Gloss W5, and Weeping Gemini W5.
   The non-limited candidates are Fusion, Electro, and Weeping. Prepare
-  Practiced in full and Weeping in non-limited.
+  Practiced in full and Fusion in non-limited.
   - Practiced is the complete Physical package. Its AM overlaps Slot 6, but its
     ATK does not displace Jane's prepared AP/PEN/AM mains; this is the decisive
     advantage over the other legal partial AM/buildup packages. The ATK still
@@ -78,7 +78,10 @@ bounded Jane/Seth outcomes below; it does not restate those common policies.
   - Fusion supplies PEN/ATK/AP; Electro supplies AP/ATK/broad damage; Weeping
     supplies ATK/AP. These remain materially different accessible packages.
     With prepared Slot 4 AP, the selected Weeping fact crosses Jane's
-    Assault-CRIT threshold.
+    Assault-CRIT threshold. Fusion prepares because its reachable three-stack
+    package is the strongest current non-limited complete setup; Weeping stays
+    as the concentrated-AP alternative that reaches Jane's 375/420 AP outcomes
+    with materially less finite investment.
   - Timeweaver is legally selectable and arithmetically positive but rejected:
     its ATK is usable, its AP repeats Slot 4/future AP, its Disorder threshold
     repeats an admitted damage direction, and its Electric buildup is unusable.
@@ -210,8 +213,10 @@ bounded Jane/Seth outcomes below; it does not restate those common policies.
   Seth and Piper, while the enemy buildup-RES contribution disappears. Existing
   Piper/Burnice local effects remain unchanged.
 - AE3. Jane full prepares Practiced/Fanged/Puffer/AP/PEN/AM. Non-limited
-  prepares Weeping/Fanged/Puffer/AP/PEN/AM and derives Weeping's AP Result
-  contribution from the selected shared fact. Broad pre-PEN pressure prepares
+  prepares Fusion/Fanged/Puffer/AP/PEN/AM and derives Fusion's reachable
+  three-stack AP Result contribution from the selected shared fact. Directly
+  selecting Weeping instead preserves its concentrated AP contribution and
+  earlier threshold consequence. Broad pre-PEN pressure prepares
   Freedom/Physical instead. Directly adding that pressure clears selected
   Puffer/PEN without fallback; removing it restores membership but not the
   cleared selection.

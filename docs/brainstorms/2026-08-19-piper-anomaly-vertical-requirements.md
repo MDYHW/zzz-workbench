@@ -116,9 +116,8 @@ only distinctions that change Piper's competitive setup or visible Result.
 **W-Engine authoring**
 
 - R8. Piper's full-pool candidates are Practiced Perfection, Sharpened Stinger,
-  Fusion Compiler, Electro-Lip Gloss, Weeping Gemini, and Roaring Ride. The
-  non-limited pool independently retains Fusion Compiler and the three admitted
-  A-Rank choices. Other through-2.8 Anomaly
+  Electro-Lip Gloss, Weeping Gemini, and Roaring Ride. The non-limited pool
+  independently retains the three admitted A-Rank choices. Other through-2.8 Anomaly
   engines are excluded when their Attribute, off-field, Abloom, CRIT, or other
   unusable clauses leave no materially competitive Piper package.
 - R9. Sharpened Stinger's Physical-DMG and buildup package is fully reachable
@@ -130,7 +129,10 @@ only distinctions that change Piper's competitive setup or visible Result.
   is usable by Piper, but its AP-and-ATK package repeats already-retained axes
   without approaching Roaring Ride's pool-local complete value or adding a
   distinct role, formula, action, or operation axis. Activation suitability is
-  therefore insufficient to admit it in either pool.
+  therefore insufficient to admit it in either pool. Fusion Compiler W1 is
+  likewise outside Piper's competitive non-limited range beside Roaring Ride
+  and Weeping Gemini at their authored W5 defaults; its usable PEN/ATK/AP
+  package does not survive from rank or isolated positive clauses alone.
 - R11. Practiced Perfection is Piper's full-pool representative at W1. Piper
   consumes its complete ATK, AM, and Physical-DMG package;
   it wins as a complete package rather than from signature association or one
@@ -143,9 +145,11 @@ only distinctions that change Piper's competitive setup or visible Result.
 - R13. Sharpened Stinger remains a full-pool alternative because its AP,
   Physical-DMG, and buildup package is fully usable by Piper, but it does not displace Practiced
   Perfection's less conditional complete package for the prepared start.
-  Fusion Compiler, Electro-Lip Gloss, and Weeping Gemini remain distinct
-  accessibility or supply alternatives only while their whole package is
-  retained; no isolated AP or ATK clause establishes membership. Sharpened
+  Electro-Lip Gloss and Weeping Gemini remain distinct accessible supply
+  alternatives: Electro preserves a stable AP/ATK/DMG package while Weeping
+  concentrates AP/ATK, so neither is collapsed into Roaring's repeatable
+  ATK/AP/buildup package merely because all strengthen anomaly output. No
+  isolated AP or ATK clause establishes membership. Sharpened
   Stinger's complete package remains visible in selected and candidate Setup.
 
 **Drive Disc and finite investment authoring**
