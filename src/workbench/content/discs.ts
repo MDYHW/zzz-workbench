@@ -667,7 +667,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     },
   },
   caesar: {
-    fourPiece: ['bunnyInWonderland'],
+    fourPiece: ['bunnyInWonderland', 'freedomBlues'],
     twoPiece: ['swingJazz', 'shockstar', 'king'],
     contextualFourPiece: [{ opportunity: 'repeated-quick-assist', discId: 'astralVoice' }],
   },
@@ -706,7 +706,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     twoPiece: ['pufferElectro', 'phaethonsMelody', 'freedomBlues', 'chaosJazz', 'fangedMetal', 'whiteWaterBallad', 'hormonePunk', 'astralVoice'],
   },
   seth: {
-    fourPiece: ['astralVoice', 'swingJazz', 'freedomBlues'],
+    fourPiece: ['astralVoice', 'swingJazz', 'bunnyInWonderland', 'freedomBlues'],
     twoPiece: ['swingJazz', 'moonlight'],
   },
   yanagi: {

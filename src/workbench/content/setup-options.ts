@@ -287,7 +287,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['anomalyProficiency', 'atkPct'], slot5: ['penRatio', 'physicalDmg', 'atkPct'], slot6: ['anomalyMastery', 'atkPct'],
   },
   seth: {
-    slot4: ['anomalyProficiency', 'atkPct'], slot5: ['electricDmg', 'atkPct'], slot6: ['energyRegenPct'],
+    slot4: ['anomalyProficiency', 'atkPct'], slot5: ['electricDmg', 'atkPct'], slot6: ['energyRegenPct', 'anomalyMastery'],
   },
   yanagi: {
     slot4: ['anomalyProficiency', 'atkPct'], slot5: ['penRatio', 'electricDmg', 'atkPct'], slot6: ['anomalyMastery', 'atkPct'],
