@@ -1274,6 +1274,6 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   yanagi: enginePools(['timeweaver', 'practicedPerfection', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
   alice: enginePools(['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
   vivian: enginePools(['flightOfFancy', 'angelInTheShell', 'weepingGemini']),
-  aria: enginePools(['angelInTheShell', 'flightOfFancy', 'electroLipGloss', 'weepingGemini', 'fusionCompiler']),
-  promeia: enginePools(['frostfallSickle', 'fusionCompiler', 'angelInTheShell', 'electroLipGloss', 'weepingGemini']),
+  aria: enginePools(['angelInTheShell', 'flightOfFancy', 'weepingGemini', 'fusionCompiler']),
+  promeia: enginePools(['frostfallSickle', 'fusionCompiler', 'angelInTheShell', 'weepingGemini']),
 }

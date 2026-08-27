@@ -723,11 +723,11 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   },
   aria: {
     fourPiece: ['phaethonsMelody', 'shiningAria'],
-    twoPiece: ['freedomBlues', 'chaosJazz', 'shiningAria', 'chaoticMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
+    twoPiece: ['phaethonsMelody', 'freedomBlues', 'chaosJazz', 'shiningAria', 'chaoticMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
   },
   promeia: {
     fourPiece: ['notesFromTheChained'],
-    twoPiece: ['phaethonsMelody', 'freedomBlues', 'chaosJazz', 'hormonePunk', 'astralVoice'],
+    twoPiece: ['phaethonsMelody', 'freedomBlues', 'chaosJazz', 'polarMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
   },
   sunna: {
     fourPiece: ['moonlight', 'astralVoice'],

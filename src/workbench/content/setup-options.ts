@@ -299,7 +299,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['anomalyProficiency'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['anomalyMastery'],
   },
   aria: {
-    slot4: ['anomalyProficiency'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['anomalyMastery'],
+    slot4: ['anomalyProficiency', 'atkPct'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['anomalyMastery'],
   },
   promeia: {
     slot4: ['anomalyProficiency'], slot5: ['iceDmg', 'atkPct', 'penRatio'], slot6: ['anomalyMastery'],

@@ -326,7 +326,7 @@ const vivianRepresentative = (pool: PoolId): SetupSelection => ({
 })
 
 const ariaRepresentative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'angelInTheShell' : 'electroLipGloss',
+  engineId: pool === 'full' ? 'angelInTheShell' : 'weepingGemini',
   fourPieceId: 'phaethonsMelody', twoPieceId: 'freedomBlues',
   mains: { slot4: 'anomalyProficiency', slot5: 'etherDmg', slot6: 'anomalyMastery' },
 })
