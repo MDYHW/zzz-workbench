@@ -105,6 +105,15 @@ For every Agent and every equipment or stat surface:
    limited S-Rank items only. Do not re-admit or independently author a second
    pool.
 
+The acquisition roles in this procedure are the roles supplied by the permanent
+owner. Do not invent a second standard-S/A role from craftability, event
+distribution, common pairing, or another availability label. Accessibility may
+distinguish a material user choice only through the owner's normal competitive
+comparison; it does not preserve a same-direction standard-S/A package that a
+stronger package in that role dominates. Do not use `signature`, release
+association, or character association as a value term. Name the realized
+package and the reason it wins the complete-setup comparison instead.
+
 Apply the same user-centered principle to Drive Disc 4-piece, 2-piece, main
 stat, and substat choices. Disc inspection compares a complete legal 4pc+2pc
 and main/substat package. A positive stat is not automatically competitive when
@@ -185,6 +194,35 @@ the cited owners and do not add another admission rule or equipment catalogue.
    rejecting it would require a runtime model, future consumer, guide-silence
    inference, or current-array agreement, the conclusion has not passed the
    preceding gates.
+
+### Conclusion completion contract
+
+A proposed keep, remove, add, same-direction compression, or representative
+change is closed only when its ephemeral comparison records all of the
+following:
+
+1. the representative benchmark and the candidate's exact owner-defined
+   acquisition role;
+2. both realized packages, including usable clauses and zero-valued unusable
+   clauses without a completeness bonus or penalty;
+3. both zero-supplied-substat complete setups, including 4-piece, 2-piece,
+   Slot 4/5/6, fixed supply, and remaining finite main-stat or substat
+   opportunity;
+4. the nearest same-role same-direction competitor and, for a limited
+   challenger other than the representative, the strongest non-limited route
+   required by `SW-005` and `SW-008`;
+5. the exact setup allocation, action or operation coverage, threshold or cap,
+   formula consumption, or other user-visible decision that changes between
+   the two setups; and
+6. the decisive dominance or competitive-range reason plus one contrary case
+   that would reverse or deny the conclusion.
+
+An isolated stat total, guide rank, different label, unique action clause, or
+statement that an allocation changes cannot substitute for this comparison.
+If any required side is absent, classify the edge as `unresolved`; do not infer
+the missing side, preserve the current array by default, count agreement as
+proof, or close the unit. This is a report-completeness gate, not a numeric
+runtime cutoff, optimizer, persisted worksheet, or new candidate rule.
 
 For every proposed addition, removal, unresolved edge, or product mismatch, the
 report must preserve the compact output of these gates. An unchanged conclusion
@@ -324,7 +362,10 @@ For every Agent, use an ephemeral controller worksheet to inspect:
 10. nearest similar Agent and a contrast that denies an invalid inferred edge;
 11. external-guide freshness and assumptions, including an explicit source gap
     when evidence is thin; and
-12. a Testing delta or a conclusion that existing shared coverage is
+12. the completed two-sided comparison required by the conclusion completion
+    contract for every changed membership, compression, or representative
+    conclusion; and
+13. a Testing delta or a conclusion that existing shared coverage is
     sufficient.
 
 Classify every audited conclusion as one of:
