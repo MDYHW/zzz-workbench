@@ -132,8 +132,9 @@ completed Anomaly-damage track, Miyabi, or existing candidate rosters.
 
 ### Rina competitive setup
 
-- R13. Rina's W-Engine candidates in both pools are Weeping Cradle W1 and
-  Kaboom the Cannon W5. Prepare Weeping in both pools.
+- R13. Rina's W-Engine candidates in both pools are Weeping Cradle W1,
+  Kaboom the Cannon W5, and Unfettered Game Ball W5. Prepare Weeping in both
+  pools.
   - Weeping's PEN, off-field automatic Energy, and reachable squad-DMG package
     is Rina's strongest complete provider package. Current legal Weeping
     holders are Support Agents outside Focus; SW-012's fixed Focus observation
@@ -141,12 +142,20 @@ completed Anomaly-damage track, Miyabi, or existing candidate rosters.
     policy. This conclusion must not be generalized from `focusEligible:
     false` to Stun or Defense Agents.
   - Kaboom retains a materially different accessible Energy/party-ATK
-    direction that Rina's friendly-unit attacks can sustain. Slice of Time
+    direction that Rina's friendly-unit attacks can sustain. Unfettered keeps
+    the same Energy advanced stat while replacing that ATK with a
+    weakness-dependent squad-CRIT direction that materially changes Anton-like
+    CRIT investment. Slice of Time
     repeats Weeping's PEN direction at a remote realized value and does not
     become a catalogue entry.
-- R14. Rina's 4-piece candidates are Moonlight Lullaby and Astral Voice.
+- R14. Rina's 4-piece candidates are Moonlight Lullaby, Astral Voice, and
+  Freedom Blues.
   Prepare Moonlight when allocation permits; Astral is the close Quick-Assist
-  party direction. Her sole independent 2-piece direction is Puffer Electro
+  party direction. Freedom's holder-derived Electric Anomaly Buildup RES
+  Reduction is the distinct Shock/buildup party direction for current Electric
+  anomaly recipients, and its AP reinforces Rina's retained residual Shock
+  direction.
+  Her sole independent 2-piece direction is Puffer Electro
   because Initial PEN drives both current capped providers.
 - R15. Offer Anomaly Proficiency or ATK% in Slot 4, PEN Ratio in Slot 5, and
   Energy Regen in Slot 6, with no effective substats. Prepare Anomaly

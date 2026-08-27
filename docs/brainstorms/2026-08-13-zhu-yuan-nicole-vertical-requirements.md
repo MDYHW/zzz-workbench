@@ -119,8 +119,9 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
 ### Nicole equipment authoring
 
 - R10. Nicole's full W-Engine candidates are Elegant Vanity, The Vault,
-  Weeping Cradle, and Kaboom the Cannon. Non-limited candidates are The Vault,
-  Weeping Cradle, and Kaboom. Both pools prepare The Vault W5. Elegant's event
+  Weeping Cradle, Kaboom the Cannon, and Unfettered Game Ball. Non-limited
+  candidates are The Vault, Weeping Cradle, Kaboom, and Unfettered. Both pools
+  prepare The Vault W5. Elegant's event
   Energy and advanced ATK do not project, but Nicole can activate its long
   fully usable squad-DMG package. It therefore remains a legal full-pool
   alternative, while losing The Vault's advanced and temporary holder Energy
@@ -134,17 +135,27 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   Weeping is the closest same-recipient competitor through off-field Energy and
   squad DMG while its advanced PEN is unused. Kaboom keeps the distinct
   always-reachable four-unit squad-ATK package but supplies less of Nicole's
-  current direction than The Vault.
-- R12. Nicole's 4-piece candidates are Moonlight Lullaby and Astral Voice.
+  current direction than The Vault. Unfettered keeps the same Energy advanced
+  stat as Kaboom while replacing party ATK with a weakness-dependent squad
+  CRIT direction that materially changes a CRIT-consuming recipient's finite
+  investment; it remains a candidate rather than displacing The Vault.
+- R12. Nicole's 4-piece candidates are Moonlight Lullaby, Astral Voice, and
+  Freedom Blues.
   Support-holder eligibility makes Moonlight's complete Energy and squad-DMG
   package usable; Nicole's EX/Chain/Ultimate Quick Assist route makes Astral a
-  controllable one-recipient alternative. Swing Jazz 4-piece is excluded after
+  controllable one-recipient alternative. Freedom's holder-derived Ether
+  Anomaly Buildup RES Reduction is a narrower but competitive party direction
+  for a current Ether anomaly recipient, while its AP remains useful to
+  Nicole's residual Ether Anomaly contribution.
+  Swing Jazz 4-piece is excluded after
   the same-recipient comparison because Moonlight is stronger and the current
   three-Agent party has no third competitive non-stacking Support holder.
 - R13. Nicole's 2-piece candidates are Swing Jazz and Moonlight Lullaby, the
   exact-identity pair for the same Energy-Regen effect. Both pools prepare Moonlight
   4-piece plus Swing 2-piece with ATK% / Ether DMG / Energy Regen mains and no
-  substats. The ATK and Ether mains are residual legal completion choices, not
+  substats. Slot 4 offers ATK% first and AP second as distinct residual personal
+  directions when no provider basis consumes that slot. The ATK, AP, and Ether
+  mains are legal completion choices, not
   evidence for a personal-damage Result, substat, or scaling relationship. Selecting
   Astral 4-piece exposes Moonlight as the canonical Energy 2-piece; selecting
   Moonlight 4-piece exposes Swing so the two identities never conflict.

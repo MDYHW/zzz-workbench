@@ -214,7 +214,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['critRate', 'critDmg'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
   },
   nicole: {
-    slot4: ['atkPct'], slot5: ['etherDmg'], slot6: ['energyRegenPct'],
+    slot4: ['atkPct', 'anomalyProficiency'], slot5: ['etherDmg'], slot6: ['energyRegenPct'],
   },
   orphie: {
     slot4: ['critRate', 'critDmg'], slot5: ['fireDmg', 'atkPct'],

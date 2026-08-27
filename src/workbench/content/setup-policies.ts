@@ -166,7 +166,7 @@ const PREPARED_DISC_HOLDER_POLICY_BY_AGENT: Partial<Record<AgentId, PreparedDisc
   },
   yuzuha: {
     moonlightCollisionAlternative: {
-      patch: { fourPieceId: 'astralVoice', twoPieceId: 'moonlight' },
+      patch: { fourPieceId: 'astralVoice', twoPieceId: 'phaethonsMelody' },
       authoredKeeperPrecedence: 4,
     },
   },

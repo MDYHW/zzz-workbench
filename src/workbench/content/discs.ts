@@ -602,7 +602,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   nicole: {
-    fourPiece: ['moonlight', 'astralVoice'],
+    fourPiece: ['moonlight', 'astralVoice', 'freedomBlues'],
     twoPiece: ['swingJazz', 'moonlight'],
   },
   orphie: {
@@ -694,7 +694,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     twoPiece: ['phaethonsMelody', 'freedomBlues', 'chaosJazz', 'fangedMetal', 'whiteWaterBallad', 'pufferElectro', 'hormonePunk', 'astralVoice'],
   },
   yuzuha: {
-    fourPiece: ['moonlight', 'astralVoice'],
+    fourPiece: ['moonlight', 'astralVoice', 'freedomBlues'],
     twoPiece: ['phaethonsMelody', 'hormonePunk', 'astralVoice', 'swingJazz', 'moonlight'],
   },
   burnice: {
@@ -746,5 +746,5 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     twoPiece: ['woodpecker', 'branchAndBlade', 'thunderMetal', 'dawnsBloom', 'pufferElectro', 'hormonePunk'],
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
-  rina: { fourPiece: ['moonlight', 'astralVoice'], twoPiece: ['pufferElectro'] },
+  rina: { fourPiece: ['moonlight', 'astralVoice', 'freedomBlues'], twoPiece: ['pufferElectro'] },
 }
