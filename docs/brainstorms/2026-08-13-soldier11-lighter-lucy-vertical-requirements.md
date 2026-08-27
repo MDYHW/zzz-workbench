@@ -109,9 +109,9 @@ faction graph, or guide-backed evidence payload.
 ### Lighter equipment authoring
 
 - R9. Lighter's full W-Engine candidates are Blazing Laurel, Ice-Jade Teapot,
-  Hellfire Gears, Steam Oven, The Restrained, and Precious Fossilized Core.
-  Non-limited candidates are Hellfire Gears, Steam Oven, The Restrained, and
-  Precious Fossilized Core. Full prepares Blazing Laurel W1 and non-limited
+  Hellfire Gears, The Restrained, and Precious Fossilized Core. Non-limited
+  candidates are Hellfire Gears, The Restrained, and Precious Fossilized Core.
+  Full prepares Blazing Laurel W1 and non-limited
   prepares Hellfire Gears W1.
 - R10. Blazing Laurel's holder-compatible high-Base-ATK, advanced Impact,
   assist-enabled Combat Impact, and Fire/Ice squad CRIT DMG package is fully
@@ -119,9 +119,13 @@ faction graph, or guide-backed evidence payload.
   same-axis competitor: it can reach a similar Elation step and provides squad
   DMG rather than Fire/Ice CRIT DMG, so exact identity remains material.
   Hellfire is the non-limited first choice because its advanced and Combat
-  Impact plus Energy package advances more of Lighter's current direction than
-  Steam's lower-rank Energy/Impact package. Restrained and Precious retain
-  direct Basic-Daze and accessible threshold-Daze contrasts.
+  Impact plus off-field Energy package advances Lighter's current direction.
+  Steam is excluded after the current Agent-centered comparison: Lighter's
+  off-field interval makes its Energy/Impact package reproduce Hellfire's
+  selected automatic-Energy Result and prepared resource direction with less
+  Fully Enabled Impact. Its A-Rank accessibility does not create another
+  acquisition role inside the shared standard-S/A comparison. Restrained and
+  Precious retain direct Basic-Daze and accessible threshold-Daze contrasts.
 - R11. Lighter's 4-piece candidates are King of the Summit, Astral Voice, and
   Shockstar Disco. In the authored Soldier 11 + Lighter + Lucy party, Lighter
   prepares King. Astral remains the usable Quick-Assist party alternative when

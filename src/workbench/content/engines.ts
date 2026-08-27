@@ -317,8 +317,15 @@ export const W_ENGINE_FACTS = {
   spectralGaze: {
     advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
     effects: {
-      defReduction: { modifier: 'defReduction', unit: '%', value: scaledRefinementValues(25), scope: { recipient: 'enemy' } },
-      impact: { modifier: 'impact', unit: '%', progression: { kind: 'stacks', perStack: scaledRefinementValues(4), maxStacks: 3, atMaximum: scaledRefinementValues(8) } },
+      defReduction: {
+        modifier: 'defReduction', unit: '%', value: scaledRefinementValues(25),
+        scope: { recipient: 'enemy' },
+        activation: { kind: 'trigger', performer: 'equipper', attributes: ['Electric'] },
+      },
+      impact: {
+        modifier: 'impact', unit: '%', value: scaledRefinementValues(20),
+        activation: { kind: 'trigger', performer: 'equipper', attributes: ['Electric'] },
+      },
     },
   },
   iceJadeTeapot: {
@@ -1197,7 +1204,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   yidhari: enginePools(['krakensCradle', 'grillOWisp', 'cauldron', 'qingming']),
   manato: enginePools(['grillOWisp', 'wrathfulVajra', 'qingming']),
   hugo: enginePools(['myriadEclipse', 'cordisGermina', 'heartstringNocturne', 'steelCushion', 'marcatoDesire']),
-  juFufu: enginePools(['roaringFurnace', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
+  juFufu: enginePools(['roaringFurnace', 'spectralGaze', 'blazingLaurel', 'hellfireGears', 'preciousFossilizedCore']),
   panYinhu: enginePools(['tusksOfFury', 'tremorTrigramVessel', 'springEmbrace']),
   banyue: enginePools(['wrathfulVajra', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere']),
   starlightBilly: enginePools(['starlightRiderFaceplate', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere']),
@@ -1218,7 +1225,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   ellen: enginePools(['deepSeaVisitor', 'myriadEclipse', 'cordisGermina', 'steelCushion', 'brimstone']),
   soukaku: enginePools(['weepingCradle', 'kaboom']),
   soldier11: enginePools(['heartstringNocturne', 'cordisGermina', 'severedInnocence', 'brimstone']),
-  lighter: enginePools(['blazingLaurel', 'iceJadeTeapot', 'hellfireGears', 'steamOven', 'restrained', 'preciousFossilizedCore']),
+  lighter: enginePools(['blazingLaurel', 'iceJadeTeapot', 'hellfireGears', 'restrained', 'preciousFossilizedCore']),
   lucy: enginePools(['elegantVanity', 'weepingCradle', 'kaboom']),
   zhuYuan: enginePools(['cordisGermina', 'heartstringNocturne', 'brimstone', 'riotSuppressorMarkVI', 'marcatoDesire']),
   nicole: enginePools(['elegantVanity', 'theVault', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),

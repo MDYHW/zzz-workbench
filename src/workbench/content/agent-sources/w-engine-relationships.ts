@@ -87,7 +87,10 @@ export function selectedWEngineBroadPrePenRelationships(
         'combat',
       )
     case 'spectralGaze':
-      if (agent !== 'trigger') return []
+      if (!equipmentEffectCanBeActivatedByHolder(
+        agent,
+        W_ENGINE_FACTS.spectralGaze.effects.defReduction,
+      )) return []
       return projectEquipmentEffectRelationships({
         source,
         fact: W_ENGINE_FACTS.spectralGaze.effects.defReduction,
@@ -596,15 +599,19 @@ export function selectedWEngineRelationships({
       }
       break
     case 'steamOven':
-      if (['dialyn', 'trigger', 'lycaon', 'juFufu', 'pulchra', 'qingyi', 'koleda', 'anby'].includes(agent)) {
-        add(W_ENGINE_FACTS.steamOven.effects.impact, ['lycaon', 'qingyi', 'koleda', 'anby'].includes(agent)
-          ? maximum(W_ENGINE_FACTS.steamOven.effects.impact, setup)
-          : value(W_ENGINE_FACTS.steamOven.effects.impact, setup))
+      if (['lycaon', 'qingyi'].includes(agent)) {
+        add(W_ENGINE_FACTS.steamOven.effects.impact, maximum(W_ENGINE_FACTS.steamOven.effects.impact, setup))
       }
       break
     case 'spectralGaze':
-      if (agent === 'trigger') {
-        add(W_ENGINE_FACTS.spectralGaze.effects.impact, maximum(W_ENGINE_FACTS.spectralGaze.effects.impact, setup))
+      if (equipmentEffectCanBeActivatedByHolder(
+        agent,
+        W_ENGINE_FACTS.spectralGaze.effects.impact,
+      )) {
+        add(
+          W_ENGINE_FACTS.spectralGaze.effects.impact,
+          value(W_ENGINE_FACTS.spectralGaze.effects.impact, setup),
+        )
       }
       break
     case 'iceJadeTeapot':
