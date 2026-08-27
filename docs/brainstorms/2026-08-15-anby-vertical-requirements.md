@@ -13,9 +13,9 @@ selected-King threshold pressure, alternative party Disc packages, and exact
 Core/Mindscape action scopes reuse established Stun, equipment, allocation,
 and lifecycle meanings.
 
-The vertical adds one W-Engine identity, Demara Battery Mark II. It adds no
-rotation, Energy gauge, Energy Generation Rate stat surface, Shock model,
-ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
+The vertical adds no W-Engine identity after the current Agent-centered audit.
+It adds no rotation, Energy gauge, Energy Generation Rate stat surface, Shock
+model, ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
 
 ## Product Flows
 
@@ -45,24 +45,23 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   CRIT hits at default M6; Anby's 29% fixed basis needs nine, so Pulchra keeps
   King when both can take Astral.
 - Formula mechanics owns Impact, Daze Bonus, Energy Regen, general-damage
-  modifiers, and exact action projection. Anby's M1, Additional Ability, M4,
-  and Demara passive change Energy or Energy Generation Rate through events;
-  they do not become Energy Regen or a normalized Result value.
+  modifiers, and exact action projection. Anby's M1, Additional Ability, and
+  M4 change Energy or Energy Generation Rate through events; they do not become
+  Energy Regen or a normalized Result value.
 - The source-fact boundary admits Core and M2's EX-Daze action difference
   because they strengthen Anby's Daze direction. It excludes M2/M6 personal
-  damage, M1/M4 resource cadence, and Demara's Energy Generation Rate from
-  Result while retaining Demara's complete package in Setup. Koleda M2 and
-  Spring Embrace are the closest exclusions.
+  damage and M1/M4 resource cadence from Result. Demara Battery Mark II is the
+  closest W-Engine contrast: after it fails candidate competition, none of its
+  identity, package, or activation remains a current qualifying outcome.
+  Koleda M2 and Spring Embrace are retained contrasts with other current
+  consumers.
 - Game vocabulary owns Stun identity, W-Engine Specialty activation, Daze
   versus Impact, Stunned target state, and Energy Regen versus Energy
   Generation Rate. Anby: Soldier 0 remains a separate S-Rank Attack identity;
   neither internal identifiers nor visible labels may conflate the two.
 - UI rules own compressed selected/candidate equipment copy, Result source
-  disclosure, and portrait calibration. Demara's activation event remains a
-  retained authoring/activation fact for eligibility and applicability, while
-  compressed Setup keeps the materially affected Energy Generation Rate
-  outcome and intentionally omits routine trigger, duration, and rotation
-  prose.
+  disclosure, and portrait calibration. An excluded W-Engine has no Setup copy
+  merely because its package is legal or associated with the holder.
 
 ## Requirements
 
@@ -97,29 +96,27 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
 ### W-Engine authoring
 
 - R6. Anby's full W-Engine candidates are Hellfire Gears, Blazing Laurel, The
-  Restrained, Steam Oven, Precious Fossilized Core, and Demara Battery Mark II.
-  Non-limited candidates are Hellfire, The Restrained, Steam, Precious, and
-  Demara. Both pools prepare Hellfire W1.
+  Restrained, and Precious Fossilized Core. Non-limited candidates are
+  Hellfire, The Restrained, and Precious. Both pools prepare Hellfire W1.
 - R7. Hellfire is the prepared first choice through its broad Impact/off-field-
   Energy package, which serves both Core actions. Blazing retains a
   distinct high-Impact squad package; Restrained retains Basic-only DMG/Daze
-  aligned with Thunderbolt; Steam and Precious retain distinct Energy/Impact
-  and target-HP Daze packages. Ice-Jade is excluded because Anby's ordinary
+  aligned with Thunderbolt; Precious retains a distinct target-HP Daze
+  package. Ice-Jade is excluded because Anby's ordinary
   Basic-to-Thunderbolt sequence does not sustain its 15/30 Basic-hit thresholds
   without displacing the current EX and swap cadence.
-- R8. Add Demara Battery Mark II as an A-Rank non-limited candidate. Its Impact,
-  Electric-DMG, and Dodge-Counter/Assist-activated Energy-generation package is
-  fully usable by Anby. Setup keeps the affected Energy Generation Rate outcome
-  but intentionally
-  omits routine trigger and duration prose. The unconditional Electric DMG
-  remains complete selected/candidate package copy but, like the personal
-  damage clauses excluded by R14, does not create an Anby Result row. The
-  Energy Generation Rate event is neither Energy Regen nor an M4 resource
-  operation.
-- R9. Demara remains a partial but competitive accessibility path because its
-  Impact chassis, Electric damage, and event Energy Generation package are all
-  usable by Anby, including the M4 relationship, but its lower Base ATK and
-  lack of direct Daze passive keep Hellfire as representative. Spectral Gaze
+- R8. Demara Battery Mark II is not an Anby candidate. Its Electric DMG is
+  personal damage outside Anby's authored Daze role, while its Impact and event
+  Energy Generation Rate form the same practical resource/Impact direction as
+  Hellfire. The realized W5 package is too weak beside Hellfire W1 to survive
+  the standard-S/A same-direction comparison; a character association, legal
+  activation, and A-Rank accessibility do not independently preserve it.
+  Steam Oven is excluded by the same acquisition-role comparison: it keeps the
+  prepared inputs and resource direction unchanged while supplying less Fully
+  Enabled Impact than Hellfire. Neither excluded item has a selected Setup or
+  Result consumer, and Demara's otherwise unused shared identity and facts are
+  omitted under the source-retention gate.
+- R9. Spectral Gaze
   and Box Cutter are excluded because their Aftershock activation is inactive
   for Anby. Roaring Fur-nace is excluded because its partial EX/Chain/Ultimate
   Daze does not create a material package advantage over the retained broad
@@ -144,8 +141,8 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   primary direction, and its matching Attribute alone does not admit it.
 - R11. Base main candidates are ATK% in Slot 4, Electric DMG/ATK% in Slot 5,
   and Impact/Energy Regen in Slot 6. Base effective substats are empty. Energy
-  Regen is a distinct resource-direction choice for EX access, while M1,
-  Demara, and M4 use Energy Generation Rate and do not supply that stat.
+  Regen is a distinct resource-direction choice for EX access, while M1 and M4
+  use Energy Generation Rate and do not supply that stat.
   Selected King adds CRIT Rate in Slot 4 and as an effective substat solely for
   its source-owned threshold. It does not add Woodpecker 2-piece.
 - R12. Both pools locally prepare Hellfire, King/Shockstar, CRIT Rate / Electric
@@ -170,8 +167,8 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   CRIT Rate and King gauge when applicable, and exact retained Daze action
   differences. Core, M2's EX-Daze clause, Restrained's Basic Daze, Shockstar,
   and other selected Daze sources retain exact action and target-state scopes.
-  Demara's Electric DMG and Anby's M2/M6 personal damage remain outside Result;
-  candidate dominance and prepared choice do not broaden projection.
+  Anby's M2/M6 personal damage remains outside Result; candidate dominance and
+  prepared choice do not broaden projection.
 - R15. Selecting away from King clears invalid CRIT Rate main and substat
   inputs without fallback. Reselecting King restores membership with its count
   at zero and does not restore prior edits. Qualified Trigger contrasts by
@@ -185,8 +182,8 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
 
 ## Acceptance Evidence
 
-- AE1. Candidate and preparation tests prove both W-Engine pools, Demara's
-  complete package, base versus selected-King candidates, zero-substat
+- AE1. Candidate and preparation tests prove both W-Engine pools, base versus
+  selected-King candidates, zero-substat
   representatives, King present/absent/reselected lifecycle, and one
   unaffected single-Stun contrast.
 - AE2. Composed preparation tests cover Anby with a rigid non-Astral Stun, with
@@ -198,10 +195,9 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   only Anby through pool or Mindscape while preserving the other valid edits.
   Ordinary non-stacking Result policy applies once.
 - AE3. Calculation tests prove Core action forms, M2 target-state EX-Daze,
-  Hellfire/Restrained Daze projection and Demara's absence from personal Result,
-  King threshold below and above its source-owned boundary, and the absence of
-  Additional, M1, M4, and Demara Energy Generation Rate facts from Energy Regen
-  and operations.
+  Hellfire/Restrained Daze projection, King threshold below and above its
+  source-owned boundary, and the absence of Additional, M1, and M4 event facts
+  from Energy Regen and operations.
 - AE4. Shared UI tests prove Anby and Anby: Soldier 0 remain distinct visible
   identities, Setup candidate and selected copy are accessible, Result stays
   empty when incomplete, and no new generic resource surface appears.
@@ -214,28 +210,21 @@ ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
   King threshold opportunity does not otherwise distinguish them. This is an
   authored representative only; it does not claim Lycaon is universally the
   better holder.
-- Demara's activation event remains a retained authoring fact rather than a
-  new generic trigger enum. Compressed Setup retains the affected outcome,
-  not routine trigger or duration prose. Current structured facts already
-  retain the consumed modifier, magnitude, and affected Electric scope; no
-  calculation or applicability consumer needs a reusable
-  Dodge-Counter-or-Assist trigger.
 
 ## Rejected Alternatives And Boundaries
 
 - Do not copy Anby: Soldier 0 content or source labels. Shared names in prose do
   not merge identity, Specialty, formula, portrait, candidates, or Result.
 - Do not prepare The Restrained merely because Thunderbolt is a Basic Attack,
-  or Demara merely because it is Anby's signature. Hellfire's whole broad
-  Daze/resource package remains stronger at the zero-substat start.
+  or retain Demara merely because it is associated with Anby. Hellfire's whole
+  broad Daze/resource package remains stronger at the zero-substat start.
 - Do not admit Thunder Metal, Roaring, Spectral, Box Cutter, or every other
   numerically positive Stun package by guide analogy. Exact direction,
   activation, nearest competitor, realized usable clauses, and the competitive
   setup displaced by the selection decide each local candidate. Unused clauses
   remain part of package disclosure but contribute zero to value.
 - Do not turn Energy, Energy Generation Rate, stacks, cooldowns, Shock, target
-  HP time, or action frequency into runtime state. Do not project Demara's
-  conditional Energy Generation Rate as Energy Regen.
+  HP time, or action frequency into runtime state.
 - Do not add a generic Stun priority table. The bounded one-King allocation
   consumes Astral eligibility, independent CRIT pressure, and the accepted
   deterministic tie only for prepared first choices.

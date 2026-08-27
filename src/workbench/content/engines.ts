@@ -48,7 +48,6 @@ import starlightEngineReplicaImage from '../../assets/equipment/w-engines/starli
 import hailstormShrineImage from '../../assets/equipment/w-engines/hailstorm-shrine.webp'
 import bigCylinderImage from '../../assets/equipment/w-engines/big-cylinder.webp'
 import springEmbraceImage from '../../assets/equipment/w-engines/spring-embrace.webp'
-import demaraBatteryMarkIIImage from '../../assets/equipment/w-engines/demara-battery-mark-ii.webp'
 import originalTransmorpherImage from '../../assets/equipment/w-engines/original-transmorpher.webp'
 import halfSugarBunnyImage from '../../assets/equipment/w-engines/half-sugar-bunny.webp'
 import timeweaverImage from '../../assets/equipment/w-engines/timeweaver.webp'
@@ -511,18 +510,6 @@ export const W_ENGINE_FACTS = {
     advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
     effects: {
       physicalDamage: { modifier: 'dmgBonus', unit: '%', value: [36, 41, 46.5, 52, 57.5], scope: { attributes: ['Physical'] } },
-    },
-  },
-  demaraBatteryMarkII: {
-    advancedStat: { id: 'impactPct', label: 'Impact', value: 15, unit: '%' },
-    effects: {
-      electricDamage: {
-        modifier: 'dmgBonus', unit: '%', value: [15, 17.5, 20, 22, 24],
-        scope: { attributes: ['Electric'] },
-      },
-      energyGeneration: {
-        modifier: 'energyGenerationRate', unit: '%', value: [18, 20.5, 23, 25, 27.5],
-      },
     },
   },
   originalTransmorpher: {
@@ -1068,15 +1055,6 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Attack',
     passiveLines: (refinement) => [`Physical DMG +${percent(W_ENGINE_FACTS.starlightEngineReplica.effects.physicalDamage, refinement)}`],
   },
-  demaraBatteryMarkII: {
-    name: 'Demara Battery Mark II', rank: 'A', limited: false, baseAtk: 624,
-    advancedStat: W_ENGINE_FACTS.demaraBatteryMarkII.advancedStat, image: demaraBatteryMarkIIImage,
-    passiveSpecialty: 'Stun',
-    passiveLines: (refinement) => [
-      `Electric DMG +${percent(W_ENGINE_FACTS.demaraBatteryMarkII.effects.electricDamage, refinement)}`,
-      `Energy Generation Rate +${percent(W_ENGINE_FACTS.demaraBatteryMarkII.effects.energyGeneration, refinement)}`,
-    ],
-  },
   originalTransmorpher: {
     name: 'Original Transmorpher', rank: 'A', limited: false, baseAtk: 594,
     advancedStat: W_ENGINE_FACTS.originalTransmorpher.advancedStat, image: originalTransmorpherImage,
@@ -1223,7 +1201,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   panYinhu: enginePools(['tusksOfFury', 'tremorTrigramVessel', 'springEmbrace']),
   banyue: enginePools(['wrathfulVajra', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere']),
   starlightBilly: enginePools(['starlightRiderFaceplate', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere']),
-  dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
+  dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'preciousFossilizedCore']),
   nangongYu: enginePools(['neonFantasies', 'hellfireGears', 'simmeringPot', 'preciousFossilizedCore', 'roaringFurnace']),
   miyabi: enginePools(['hailstormShrine', 'fusionCompiler']),
   anton: enginePools(['cordisGermina', 'severedInnocence', 'brimstone', 'marcatoDesire', 'drillRigRedAxis']),
@@ -1245,14 +1223,14 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   zhuYuan: enginePools(['cordisGermina', 'heartstringNocturne', 'brimstone', 'riotSuppressorMarkVI', 'marcatoDesire']),
   nicole: enginePools(['elegantVanity', 'theVault', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
   orphie: enginePools(['bellicoseBlaze', 'heartstringNocturne', 'serpentineSeeker', 'gildedBlossom', 'marcatoDesire']),
-  pulchra: enginePools(['blazingLaurel', 'boxCutter', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
+  pulchra: enginePools(['blazingLaurel', 'boxCutter', 'hellfireGears', 'preciousFossilizedCore']),
   harumasa: enginePools(['zanshinHerbCase', 'cordisGermina', 'brimstone', 'heartstringNocturne']),
   qingyi: enginePools(['iceJadeTeapot', 'blazingLaurel', 'restrained', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   nekomata: enginePools(['steelCushion', 'heartstringNocturne', 'cordisGermina', 'cloudcleaveRadiance', 'brimstone']),
   billy: enginePools(['cloudcleaveRadiance', 'heartstringNocturne', 'cordisGermina', 'brimstone', 'steelCushion', 'starlightEngineReplica']),
   ben: enginePools(['tremorTrigramVessel', 'tusksOfFury', 'cloudcleaveRadiance', 'hailstormShrine', 'bigCylinder', 'springEmbrace']),
-  koleda: enginePools(['hellfireGears', 'blazingLaurel', 'restrained', 'steamOven', 'preciousFossilizedCore']),
-  anby: enginePools(['hellfireGears', 'blazingLaurel', 'restrained', 'steamOven', 'preciousFossilizedCore', 'demaraBatteryMarkII']),
+  koleda: enginePools(['hellfireGears', 'blazingLaurel', 'restrained', 'preciousFossilizedCore']),
+  anby: enginePools(['hellfireGears', 'blazingLaurel', 'restrained', 'preciousFossilizedCore']),
   caesar: enginePools(['tusksOfFury', 'hellfireGears', 'springEmbrace']),
   yeShunguang: enginePools([
     'cloudcleaveRadiance', 'severedInnocence', 'brimstone',

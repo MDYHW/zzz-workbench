@@ -147,7 +147,6 @@ export type EngineId =
   | 'hailstormShrine'
   | 'bigCylinder'
   | 'springEmbrace'
-  | 'demaraBatteryMarkII'
   | 'originalTransmorpher'
   | 'halfSugarBunny'
   | 'timeweaver'

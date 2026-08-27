@@ -137,7 +137,15 @@ The prose requirements govern if this diagram and the text ever differ.
   opportunity. M0 or an unqualified M2+ party keeps the base Woodpecker package.
   All effective-substat counts start at zero, and direct party/equipment edits
   do not dynamically reprepare the selection.
-- R17. Dialyn retains Precious Fossilized Core W5 alongside Yesterday Calls, Hellfire Gears, and Steam Oven. Its advanced Impact and fully enabled thresholded Daze package are usable, while Dialyn's representative remains Yesterday Calls/full and Hellfire/non-limited with King plus Woodpecker, CRIT Rate/ATK%/Energy Regen.
+- R17. Dialyn retains Precious Fossilized Core W5 alongside Yesterday Calls and
+  Hellfire Gears. Its advanced Impact and fully enabled thresholded Daze
+  package are usable, while Dialyn's representative remains Yesterday
+  Calls/full and Hellfire/non-limited with King plus Woodpecker, CRIT
+  Rate/ATK%/Energy Regen. Steam Oven is excluded after the current
+  Agent-centered comparison: at W5 its Energy-Regen/Impact package produces the
+  same prepared inputs and practical resource direction as Hellfire W1, but
+  supplies less Fully Enabled Impact. Its A-Rank accessibility does not create
+  another acquisition role inside the shared standard-S/A comparison.
 - R18. Trigger's full W-Engine candidates are Spectral Gaze, Blazing Laurel,
   Ice-Jade Teapot, The Restrained, Hellfire Gears, Precious Fossilized Core,
   and Steam Oven; non-limited retains The Restrained, Hellfire, Precious, and
