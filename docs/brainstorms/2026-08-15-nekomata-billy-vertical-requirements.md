@@ -81,9 +81,9 @@ runtime optimizer, or equipment catalogue.
   compatible activation for its distance-gated Basic/Dash Physical-DMG clause.
   Setup adds no distance validation.
 - R7. Nekomata's full W-Engine candidates are Steel Cushion, Heartstring
-  Nocturne, Cordis Germina, Cloudcleave Radiance, Severed Innocence, and The
-  Brimstone. Non-limited retains Steel Cushion and The Brimstone. Both pools
-  prepare Steel Cushion W1.
+  Nocturne, Cordis Germina, Cloudcleave Radiance, and The Brimstone.
+  Non-limited retains Steel Cushion and The Brimstone. Both pools prepare Steel
+  Cushion W1.
 - R8. Steel Cushion is Nekomata's pool-local first choice because completed
   Pawpad Ambush makes every attack a back attack, so she consumes its full
   CRIT Rate, Physical DMG, and back-attack DMG package. Heartstring retains a
@@ -91,11 +91,12 @@ runtime optimizer, or equipment catalogue.
   CRIT Rate and Basic/Ultimate DEF Ignore while Electric DMG is unused and her
   defining Dodge Counter/EX remains outside the action clause. Cloudcleave
   retains a broad Physical RES axis despite its two inactive Ether Veil clauses.
-  Severed retains a CRIT-DMG-heavy package while Electric DMG is unused.
   Brimstone retains a fully reachable ATK package and independently anchors the
   non-limited ATK alternative. Starlight Engine is excluded because Brimstone
   is the stronger same-pool Base-ATK/ATK package through Nekomata's existing
-  Basic, Dash, and Dodge route.
+  Basic, Dash, and Dodge route. Severed is excluded because Heartstring is the
+  stronger other-limited raw-CRIT direction for Nekomata; Severed's Electric
+  clause adds no usable axis that changes that comparison.
 - R9. Billy's full W-Engine candidates are Cloudcleave Radiance, Heartstring
   Nocturne, Cordis Germina, The Brimstone, Steel Cushion, and Starlight Engine
   Replica. Non-limited retains Brimstone, Steel Cushion, and Replica. Full
@@ -119,18 +120,21 @@ runtime optimizer, or equipment catalogue.
   current effective set. Fanged Metal 4-piece is excluded from current
   competitive practice after completed Potential and does not enter merely
   because Assault can activate it. Billy's authored base 4-piece candidates
-  are Woodpecker Electro and Shadow Harmony; Dialyn likewise adds contextual
-  Puffer. Shadow is Billy-local through his defining repeated Dash route and
-  does not generalize to Nekomata.
+  are Woodpecker Electro, Shadow Harmony, and Dawn's Bloom; Dialyn likewise adds
+  contextual Puffer. Shadow is Billy-local through his defining repeated Dash
+  route, while Dawn preserves a distinct Basic-Attack package. Neither
+  generalizes to Nekomata.
 - R12. Nekomata's 2-piece candidates are Woodpecker Electro, Branch & Blade
   Song, Fanged Metal, Puffer Electro, and Hormone Punk/Astral Voice. Billy
   additionally retains Shadow Harmony because its Dash DMG is a competitive
   defining-action complement beside Woodpecker 4-piece. These candidates follow
   the existing exact-identity exposure rule and preserve CRIT, Physical DMG,
-  DEF-region, defining-action, and ATK axes in legal complete packages. Slot 4
-  offers CRIT Rate, CRIT DMG, and ATK%; Slot 5 offers PEN Ratio, ATK%, and Physical DMG; Slot 6
-  offers ATK%. Effective substats are CRIT Rate, CRIT DMG, and ATK%; all
-  prepared counts remain zero.
+  DEF-region, defining-action, and ATK axes in legal complete packages.
+  Nekomata Slot 4 offers CRIT Rate, CRIT DMG, and ATK%; Billy Slot 4 offers
+  CRIT Rate and CRIT DMG because ATK% gives up too much bounded CRIT stability
+  in both of his prepared engine packages. Slot 5 offers PEN Ratio, ATK%, and
+  Physical DMG; Slot 6 offers ATK%. Effective substats are CRIT Rate, CRIT DMG,
+  and ATK%; all prepared counts remain zero.
 - R13. Nekomata prepares Woodpecker 4-piece plus Puffer 2-piece and CRIT Rate /
   PEN Ratio / ATK% mains in both pools. Steel and Woodpecker supply fixed CRIT
   while completed Potential supplies CRIT DMG; Puffer and PEN therefore retain
@@ -199,9 +203,9 @@ runtime optimizer, or equipment catalogue.
   established surfaces.
 - R25. Selected Disc projection is independent from candidate ranking.
   Woodpecker supplies CRIT and fully enabled ATK; Shadow supplies Billy's Dash
-  DMG plus ATK/CRIT; contextual Puffer supplies Ultimate DMG and ATK; 2-piece
-  Fanged, Puffer, Woodpecker, Branch, and the exposed ATK identity project only
-  their exact current axes.
+  DMG plus ATK/CRIT; Dawn supplies Billy's Basic-Attack package; contextual
+  Puffer supplies Ultimate DMG and ATK; 2-piece Fanged, Puffer, Woodpecker,
+  Branch, and the exposed ATK identity project only their exact current axes.
 
 ### Lifecycle, visible integration, and acceptance
 

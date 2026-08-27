@@ -557,8 +557,8 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     ],
   },
   corin: {
-    fourPiece: ['hormonePunk'],
-    twoPiece: ['woodpecker', 'branchAndBlade', 'fangedMetal', 'astralVoice', 'hormonePunk'],
+    fourPiece: ['hormonePunk', 'woodpecker'],
+    twoPiece: ['woodpecker', 'branchAndBlade', 'fangedMetal', 'pufferElectro', 'astralVoice', 'hormonePunk'],
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   lycaon: {
@@ -643,7 +643,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   billy: {
-    fourPiece: ['woodpecker', 'shadowHarmony'],
+    fourPiece: ['woodpecker', 'shadowHarmony', 'dawnsBloom'],
     twoPiece: ['shadowHarmony', 'woodpecker', 'branchAndBlade', 'fangedMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
@@ -672,12 +672,11 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     contextualFourPiece: [{ opportunity: 'repeated-quick-assist', discId: 'astralVoice' }],
   },
   yeShunguang: {
-    fourPiece: ['whiteWaterBallad', 'woodpecker', 'hormonePunk'],
+    fourPiece: ['whiteWaterBallad'],
     twoPiece: [
       'whiteWaterBallad', 'fangedMetal', 'woodpecker', 'branchAndBlade',
       'pufferElectro', 'hormonePunk', 'astralVoice',
     ],
-    contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   zhao: {
     fourPiece: ['bunnyInWonderland', 'astralVoice'],

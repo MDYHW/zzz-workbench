@@ -234,7 +234,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['physicalDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
   },
   billy: {
-    slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['physicalDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
+    slot4: ['critRate', 'critDmg'], slot5: ['physicalDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
   },
   ben: {
     slot4: ['critRate', 'critDmg', 'atkPct'],
@@ -254,7 +254,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot6: ['impact'],
   },
   yeShunguang: {
-    slot4: ['critRate', 'critDmg'],
+    slot4: ['critDmg', 'atkPct'],
     slot5: ['physicalDmg', 'atkPct', 'penRatio'],
     slot6: ['atkPct'],
   },

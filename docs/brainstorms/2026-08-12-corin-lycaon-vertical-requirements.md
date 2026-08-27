@@ -165,13 +165,17 @@ and genuine multi-recipient effects keep their actual rules.
   Housekeeper's ATK, off-field Energy, and stackable EX-scoped Physical package
   is fully compatible with Corin's burst interval. Its automatic recovery is an
   Energy Regen Result contribution; it is not normalized from an event grant.
-- R7. Corin's authored base 4-piece candidate is Hormone Punk. Dialyn's existing
+- R7. Corin's authored base 4-piece candidates are Hormone Punk and Woodpecker
+  Electro. Woodpecker preserves a materially different CRIT/ATK allocation but
+  does not replace Hormone during preparation. Dialyn's existing
   recipient-applied canonical Ultimate opportunity adds Puffer Electro 4-piece
   to Corin's current effective candidates under the common contextual rule. It
   remains candidate-only and does not replace Hormone during preparation.
   Corin's 2-piece candidates are Woodpecker Electro, Branch & Blade Song,
-  Fanged Metal, and one member of the authored Hormone Punk/Astral Voice ATK%
-  relationship, subject to the different-set rule. Selecting Hormone Punk
+  Fanged Metal, Puffer Electro, and one member of the authored Hormone
+  Punk/Astral Voice ATK% relationship, subject to the different-set rule.
+  Puffer supplies a distinct PEN allocation beside Slot 5 Physical DMG.
+  Selecting Hormone Punk
   4-piece exposes Astral Voice as the legal ATK% complement; selecting
   contextual Puffer Electro exposes Hormone Punk so its 4-piece swap remains
   available. The displayed exact identity keeps its selected artwork, source

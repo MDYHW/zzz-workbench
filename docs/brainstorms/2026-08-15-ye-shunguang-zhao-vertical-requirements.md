@@ -141,51 +141,48 @@ optimizer.
 
 ### Ye W-Engine and Drive Disc authoring
 
-- R11. Ye's full W-Engine candidates are Cloudcleave Radiance, The Brimstone,
-  Steel Cushion, Gilded Blossom, Marcato Desire, and Starlight Engine.
-  Non-limited candidates exclude Cloudcleave and retain the other
-  non-limited packages. Full prepares Cloudcleave W1; non-limited prepares The
-  Brimstone W1. S-Rank choices default to W1 and A-Rank choices to W5 when
-  directly selected.
+- R11. Ye's full W-Engine candidates are Cloudcleave Radiance, Severed
+  Innocence, and The Brimstone. Non-limited retains The Brimstone. Full
+  prepares Cloudcleave W1; non-limited prepares The Brimstone W1. S-Rank
+  choices default to W1 when directly selected.
 - R12. Cloudcleave is a limited S-Rank Attack candidate. Ye consumes its whole
   broad Physical-RES-Ignore and holder-activated Ether-Veil DMG/CRIT-DMG
   package. Billy and Nekomata remain the closest partial-package contrast:
   their broad Physical RES Ignore stays usable, but another Agent's Veil does
   not satisfy the holder-activation clause.
 - R13. Brimstone is the non-limited representative through its S-Rank Base ATK,
-  ATK advanced stat, and reachable broad ATK stacks. Steel supplies a CRIT/
-  Physical/back-attack balance; Gilded supplies accessible ATK and EX damage;
-  Marcato supplies a CRIT chassis and smaller broad ATK route; Starlight supplies
-  accessible broad ATK after its retained Assist route. Street Superstar is
-  excluded because its same-Base-ATK and advanced-ATK chassis gives up those
-  broader packages for an Ultimate-only passive. Ye uses Ultimate, but her
-  damage direction is not concentrated there enough for that narrow clause to
-  remain competitive across the W-Engine slot. Same-rarity limited CRIT packages whose usable clauses
-  are dominated by Cloudcleave add no current accessibility or formula path
-  and remain excluded.
+  ATK advanced stat, and reachable broad ATK stacks. Severed retains the
+  strongest other-limited CRIT alternative despite its unused Electric clause.
+  Ye's Unity and White Water supply already bring the bounded future CRIT Rate
+  opportunity near cap, so Steel's additional CRIT Rate loses too much value
+  beside these packages. Gilded, Marcato, and Starlight are lower-value
+  non-limited routes on Brimstone's already-retained broad damage axis. Street
+  Superstar gives up that broad package for an Ultimate-only passive; Ye's
+  damage direction is not concentrated there enough to preserve it.
 - R14. Add White Water Ballad. Ye reaches its complete Physical-DMG and
   Ether-Veil CRIT/ATK package herself. Another
   Physical Attack Agent merely standing in Zhao's Veil receives only the first
   CRIT clause and does not gain contextual membership because that partial
   package is dominated by current authored personal 4-piece choices.
-- R15. Ye's base 4-piece candidates are White Water Ballad, Woodpecker Electro,
-  and Hormone Punk. Puffer Electro remains the established contextual candidate
-  only when the applied party supplies Dialyn's retained Ultimate opportunity.
-  White Water's complete Physical/CRIT/ATK package is the prepared first choice;
-  Woodpecker and Hormone preserve CRIT-balanced and ATK-heavy alternatives.
+- R15. Ye's only authored 4-piece candidate is White Water Ballad. Its complete
+  Physical/CRIT/ATK package is materially stronger for Ye than Woodpecker,
+  Hormone, or Dialyn's contextual Puffer direction, so those lower-value sets
+  do not remain merely because their activation is legal.
 - R16. Ye's authored 2-piece roles are CRIT Rate, CRIT DMG, Physical DMG, PEN
   Ratio, and one ATK identity. White Water Ballad and Fanged Metal form one
   same-effect identity relationship: selecting White Water 4-piece exposes
   Fanged 2-piece, while selecting another 4-piece exposes White Water so its
   4-piece role remains swappable. Hormone Punk/Astral Voice retain their
   existing ATK identity lifecycle. Prepared White Water uses Branch & Blade.
-- R17. Ye's mains are CRIT Rate/CRIT DMG in Slot 4, Physical DMG/ATK%/PEN Ratio
+- R17. Ye's mains are CRIT DMG/ATK% in Slot 4, Physical DMG/ATK%/PEN Ratio
   in Slot 5, and ATK% in Slot 6. Effective substats are CRIT Rate, CRIT DMG, and
   ATK%. Both pools prepare CRIT DMG / Physical DMG / ATK% with zero counts.
-  Her fixed Unity and White Water CRIT supply makes CRIT DMG the balanced first
-  main while the conservative eight-CRIT-hit authoring check preserves future
-  CRIT Rate opportunity without inserting hidden counts or optimizing Disc
-  lines.
+  Her fixed Unity and White Water CRIT supply plus the conservative
+  eight-CRIT-hit authoring check already approach the CRIT cap, so CRIT Rate
+  does not remain a competitive Slot 4 direction. CRIT DMG is the balanced
+  first main; ATK% remains a distinct party-sensitive alternative because
+  common external ATK supply can change its relative value without changing
+  preparation.
 
 ### Zhao Core, Mindscapes, and equipment authoring
 
