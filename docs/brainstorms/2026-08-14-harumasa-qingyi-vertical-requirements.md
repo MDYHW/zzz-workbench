@@ -82,8 +82,8 @@ output, runtime package score, or catalogue.
 ### Harumasa candidate and prepared setup policy
 
 - R4. Harumasa's full W-Engine candidates are Zanshin Herb Case, Cordis
-  Germina, The Brimstone, Heartstring Nocturne, and Starlight Engine.
-  Non-limited retains The Brimstone and Starlight Engine. Full prepares Zanshin
+  Germina, The Brimstone, and Heartstring Nocturne.
+  Non-limited retains The Brimstone. Full prepares Zanshin
   Herb Case W1; non-limited prepares The Brimstone W1.
 - R5. Add Zanshin Herb Case as a limited S-Rank Attack candidate. Harumasa is
   holder-eligible, his defining Dash action consumes its action/Attribute
@@ -94,12 +94,13 @@ output, runtime package score, or catalogue.
   Cordis supplies its complete CRIT package, Electric DMG, and Basic/Ultimate
   DEF Ignore while its action scope omits defining Dash; Brimstone supplies
   broad ATK through Harumasa's Basic/Dash route; Heartstring retains its strong
-  CRIT package while Fire RES Ignore is unused; Starlight retains its broad ATK
-  package through Harumasa's Dodge Counter or Quick Assist route. Severed
+  CRIT package while Fire RES Ignore is unused. Starlight is excluded because
+  Brimstone is stronger in the same non-limited broad-ATK direction without
+  changing finite allocation or action coverage. Severed
   Innocence is excluded: Harumasa reaches only one current category stack, and
   that partial CRIT package does not survive comparison with the fully usable
   Zanshin and Heartstring packages. The stronger full-pool candidates do not
-  remove the independently authored non-limited Brimstone/Starlight choice set.
+  remove the independently authored non-limited Brimstone route.
 - R7. Harumasa's 4-piece candidates are Shadow Harmony, Thunder Metal,
   Woodpecker Electro, and Hormone Punk. Shadow consumes his defining Dash and
   reaches its three-stack ATK/CRIT package without requiring Shock; Thunder is
@@ -276,7 +277,7 @@ output, runtime package score, or catalogue.
   Additionals are active. Incomplete any required setup input empties all
   Results until repaired.
 - AE2. Harumasa full and non-limited candidates and first choices match R4-R9.
-  Zanshin, Cordis, Brimstone, Heartstring, and Starlight each project only their
+  Zanshin, Cordis, Brimstone, and Heartstring each project only their
   complete usable package; non-limited contains no limited S-Rank.
 - AE3. Harumasa defining action rows compose Core, Potential, Additional,
   Zanshin/Cordis, M2, and M6 scopes without leaking Dash-only, Basic-only,

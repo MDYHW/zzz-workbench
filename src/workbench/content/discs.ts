@@ -487,7 +487,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   yidhari: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade', 'polarMetal'] },
   manato: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade', 'infernoMetal'] },
   hugo: {
-    fourPiece: ['hormonePunk'],
+    fourPiece: ['hormonePunk', 'woodpecker'],
     twoPiece: ['polarMetal', 'woodpecker', 'branchAndBlade', 'pufferElectro', 'astralVoice', 'hormonePunk'],
     contextualFourPiece: [{
       opportunity: 'received-ultimate', discId: 'pufferElectro', minimumMindscape: 2,
@@ -597,7 +597,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     fourPiece: ['moonlight', 'astralVoice'], twoPiece: ['swingJazz', 'moonlight', 'hormonePunk', 'astralVoice'],
   },
   zhuYuan: {
-    fourPiece: ['chaoticMetal', 'woodpecker'],
+    fourPiece: ['chaoticMetal', 'dawnsBloom', 'woodpecker'],
     twoPiece: ['chaoticMetal', 'woodpecker', 'branchAndBlade', 'dawnsBloom', 'pufferElectro', 'hormonePunk', 'astralVoice'],
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },

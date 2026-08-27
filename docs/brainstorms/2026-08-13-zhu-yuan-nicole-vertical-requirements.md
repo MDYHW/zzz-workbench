@@ -63,8 +63,8 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
 
 - R4. Zhu Yuan's full W-Engine candidates are Cordis Germina, Heartstring
   Nocturne, The Brimstone, Riot Suppressor Mark VI, Marcato
-  Desire, and Starlight Engine. Non-limited candidates are The Brimstone,
-  Marcato Desire, and Starlight Engine. Full prepares Cordis Germina W1;
+  Desire. Non-limited candidates are The Brimstone and Marcato Desire. Full
+  prepares Cordis Germina W1;
   non-limited prepares The Brimstone W1.
 - R5. Cordis is the full first choice through its high Base ATK, advanced and
   Combat CRIT Rate, and Basic/Ultimate DEF Ignore. Its Electric DMG clause is
@@ -78,17 +78,23 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   makes its same-axis supply materially less valuable than her retained balanced
   CRIT and action packages. Myriad Eclipse is excluded because Heartstring has
   the same Base ATK and advanced CRIT Rate, higher unconditional CRIT DMG, and
-  both holders leave their Attribute-only bypass clause unused. Marcato and Starlight remain
-  accessible A-Rank CRIT/ATK and broad-ATK contrasts. The Brimstone establishes
+  both holders leave their Attribute-only bypass clause unused. Marcato remains
+  the accessible A-Rank CRIT/ATK contrast. Starlight Engine is excluded because
+  Brimstone is stronger in the same non-limited broad-ATK direction without
+  changing finite allocation or action coverage. The Brimstone establishes
   the non-limited first choice because its high Base ATK and complete
   advanced and fully enabled ATK package surpass
   those A-Rank packages at zero substats.
 - R6. Add Riot Suppressor Mark VI as a limited S-Rank Attack candidate. Its
   mixed-CRIT and charge-enabled Ether Basic/Dash package is fully compatible
-  with Zhu Yuan and determines her full-pool first choice. Its narrower
+  with Zhu Yuan and remains a distinct action-focused alternative below the
+  Cordis first choice. Its narrower
   action/Attribute clauses project only through their admitted consumers.
-- R7. Zhu Yuan's base 4-piece candidates are Chaotic Metal and Woodpecker
-  Electro. Dialyn adds Puffer Electro contextually through the established
+- R7. Zhu Yuan's base 4-piece candidates are Chaotic Metal, Dawn's Bloom, and
+  Woodpecker Electro. Dawn's Bloom concentrates its complete package on her
+  defining enhanced Basic output, while Chaotic and Woodpecker preserve broader
+  Ether/CRIT and CRIT/ATK directions. Dialyn adds Puffer Electro contextually
+  through the established
   repeated-Ultimate opportunity. Her base 2-piece candidates are Chaotic Metal,
   Woodpecker Electro, Branch & Blade Song, Dawn's Bloom, Puffer Electro,
   Hormone Punk, and Astral Voice, subject to the existing formula pressure and
