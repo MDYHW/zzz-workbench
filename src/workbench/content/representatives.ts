@@ -291,9 +291,9 @@ const sunnaRepresentative = (pool: PoolId): SetupSelection => ({
 })
 
 const burniceRepresentative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'flamemakerShaker' : 'electroLipGloss',
+  engineId: pool === 'full' ? 'flamemakerShaker' : 'fusionCompiler',
   fourPieceId: 'chaosJazz', twoPieceId: 'swingJazz',
-  mains: { slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'energyRegenPct' },
+  mains: { slot4: 'anomalyProficiency', slot5: pool === 'full' ? 'penRatio' : 'fireDmg', slot6: 'energyRegenPct' },
 })
 
 const janeRepresentative = (pool: PoolId): SetupSelection => ({

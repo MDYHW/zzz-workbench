@@ -280,7 +280,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   },
   burnice: {
     slot4: ['anomalyProficiency'],
-    slot5: ['penRatio', 'fireDmg'],
+    slot5: ['penRatio', 'fireDmg', 'atkPct'],
     slot6: ['energyRegenPct', 'anomalyMastery'],
   },
   jane: {

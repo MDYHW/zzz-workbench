@@ -699,7 +699,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   },
   burnice: {
     fourPiece: ['chaosJazz', 'freedomBlues'],
-    twoPiece: ['swingJazz', 'moonlight', 'phaethonsMelody', 'pufferElectro', 'freedomBlues', 'chaosJazz', 'infernoMetal'],
+    twoPiece: ['swingJazz', 'moonlight', 'phaethonsMelody', 'pufferElectro', 'freedomBlues', 'chaosJazz', 'infernoMetal', 'hormonePunk', 'astralVoice'],
   },
   jane: {
     fourPiece: ['fangedMetal', 'freedomBlues'],

@@ -239,6 +239,19 @@ describe('shared calculation integration', () => {
 
   })
 
+  it('projects Burnice Afterburn through its retained Assist equipment scope', () => {
+    const burnice = calculateParty(createPreparedState(
+      {}, ['burnice', 'jane', 'seth'], 1,
+    ))!.agents.find(({ agentId }) => agentId === 'burnice')!
+
+    const chaosActionIds = burnice.actionModifiers
+      .filter(({ breakdown }) => breakdown.fully.some(({ label }) => label === 'Chaos Jazz'))
+      .map(({ id }) => id)
+      .sort()
+
+    expect(chaosActionIds).toEqual(['burniceAfterburn', 'burniceExAssistDmg'])
+  })
+
   it('filters selected partial-equipment clauses by holder capability after candidate admission', () => {
     const hasMetricSource = (
       agent: NonNullable<ReturnType<typeof calculateParty>>['agents'][number],

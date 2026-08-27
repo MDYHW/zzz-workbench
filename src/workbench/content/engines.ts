@@ -1268,7 +1268,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   ]),
   yuzuha: enginePools(['metanukimorphosis', 'thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
   sunna: enginePools(['thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
-  burnice: enginePools(['flamemakerShaker', 'practicedPerfection', 'electroLipGloss', 'weepingGemini']),
+  burnice: enginePools(['flamemakerShaker', 'practicedPerfection', 'fusionCompiler', 'weepingGemini']),
   jane: enginePools(['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
   seth: enginePools(['peacekeeperSpecialized', 'tusksOfFury', 'springEmbrace']),
   yanagi: enginePools(['timeweaver', 'practicedPerfection', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
