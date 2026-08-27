@@ -83,20 +83,27 @@ without pool-specific readmission.
 
 - `src/workbench/content/engines.ts` (`ENGINE_IDS_BY_AGENT_AND_POOL` and
   `enginePools`) currently exposes Hellfire Gears and Steam Oven together for
-  Ju Fufu, Lighter, Trigger, Lycaon, and Qingyi. These are independent equipment
-  identities in one admitted set rather than a runtime inventory model.
+  Ju Fufu, Trigger, Lycaon, Qingyi, Koleda, Anby, Dialyn, and other current
+  Stun holders. These are independent equipment identities in one admitted set
+  rather than a runtime inventory model. `AgentSetup.tsx` (`EngineSelection`)
+  reads that set and dispatches manual selection, while `EngineCard` renders
+  the complete selected or candidate source package.
 - `src/workbench/content/representatives.ts`
-  (`REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL`) prepares Hellfire Gears for Ju
-  Fufu and Lighter in non-limited while their current candidate sets still let
-  the user select Steam Oven. Koleda, Anby, Nangong Yu, and Dialyn also prepare
-  Hellfire in current authored contexts, demonstrating real cross-Agent demand
-  rather than a hypothetical name conflict.
+  (`REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL` and `representativeSetupFor`)
+  prepares Hellfire Gears for Ju Fufu, Koleda, Anby, Nangong Yu, and Dialyn in
+  current authored contexts, demonstrating real cross-Agent demand rather than
+  a hypothetical name conflict. Ju Fufu and Koleda can still select Steam, and
+  `selectedWEngineRelationships` projects its current holder-compatible Impact
+  relationship.
 - `docs/brainstorms/2026-08-14-ju-fufu-pan-yinhu-authority-recovery-requirements.md`
   (R5-R6) and
   `docs/brainstorms/2026-08-13-soldier11-lighter-lucy-vertical-requirements.md`
   (R9-R10) preserve Steam as a weaker Energy/Impact route while selecting
-  Hellfire. These requirements are secondary evidence of the current visible
-  product behavior; they do not decide the missing owner boundary.
+  Hellfire. The latter is secondary evidence only: Lighter is present in the
+  current candidate array but absent from `selectedWEngineRelationships`' Steam
+  holder set, so he cannot establish a current end-to-end consumer until a
+  later dependent fidelity correction reconciles that mismatch. Neither
+  requirement decides the missing owner boundary.
 - Product-owner review on 2026-08-27 confirmed that the useful exception is
   limited to Agents without diverse competitive equipment directions. It does
   not preserve redundant same-axis choices for damage dealers merely because
@@ -111,10 +118,10 @@ Hellfire is stronger, but Steam remains a practical second equipment identity
 when Hellfire is committed to another simultaneous team. The candidate changes
 manual Setup choice without changing the prepared first choice.
 
-Lighter is the nearest repeated case. His current non-limited representative is
-also Hellfire and Steam supplies the same lower-valued resource/Impact route.
-The repeated result demonstrates a cross-Agent choice constraint rather than a
-Ju Fufu identity exception.
+Koleda is the nearest repeated case. Her current representative is Hellfire in
+both pools, Steam remains selectable, and the current selected relationship
+consumer projects Steam's Impact. The repeated result demonstrates a
+cross-Agent choice constraint rather than a Ju Fufu identity exception.
 
 ## Contrast
 
@@ -133,9 +140,11 @@ Stun, Support, or Defense Specialty alone.
   (`SW-005`, `SW-008`, `SW-010`).
 - Supporting requirements affected: current and future Agent requirements must
   distinguish ordinary same-direction dominance from the strongest practical
-  contention fallback for a choice-constrained holder. Ju Fufu, Lighter, and
-  Trigger are immediate retained-candidate review cases; no roster follows
-  automatically from this record.
+  contention fallback for a choice-constrained holder. Ju Fufu and Koleda are
+  current retained-candidate cases. Lighter's requirement and candidate array
+  retain Steam while his selected relationship consumer omits it, so a later
+  dependent review must reconcile that fidelity mismatch before using him as
+  candidate proof. No roster follows automatically from this record.
 - Production and tests affected: no shared inventory or allocation mechanism
   is implied. Later bounded Agent-local reviews may retain or restore one
   candidate identity while leaving representatives unchanged. Existing shared
