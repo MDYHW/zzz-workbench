@@ -1229,7 +1229,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   anton: enginePools(['cordisGermina', 'severedInnocence', 'brimstone', 'marcatoDesire', 'drillRigRedAxis']),
   rina: enginePools(['weepingCradle', 'kaboom']),
   lucia: enginePools(['dreamlitHearth', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
-  anbySoldier0: enginePools(['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'marcatoDesire', 'starlightEngine']),
+  anbySoldier0: enginePools(['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'brimstone', 'marcatoDesire']),
   trigger: enginePools(['spectralGaze', 'blazingLaurel', 'iceJadeTeapot', 'restrained', 'hellfireGears', 'preciousFossilizedCore', 'steamOven']),
   astraYao: enginePools(['elegantVanity', 'bashfulDemon', 'theVault', 'kaboom']),
   seed: enginePools(['cordisGermina', 'heartstringNocturne', 'severedInnocence', 'brimstone', 'marcatoDesire']),

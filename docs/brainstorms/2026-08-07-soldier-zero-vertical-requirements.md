@@ -107,7 +107,15 @@ The prose requirements govern if this diagram and the text ever differ.
 ### Candidate and prepared setup policy
 
 - R13. Candidate arrays are competitive bounded choices, not catalogues. Full pool includes every admitted candidate; non-limited excludes limited S-Ranks while retaining admitted standard S-Ranks and A-Ranks. S-Ranks default to W1 and A-Ranks to W5.
-- R14. Anby's full W-Engine candidates are Severed Innocence, Cordis Germina, Heartstring Nocturne, Marcato Desire, and Starlight Engine; non-limited retains Marcato and Starlight. Full prepares Severed Innocence W1 and non-limited prepares Marcato Desire W5. Heartstring's mixed-CRIT package remains distinct at zero supplied substats even though its Fire RES Ignore is unusable by Electric Anby. The CRIT DMG enters Anby's existing received-dependent Aftershock basis; no Fire RES Ignore row is created.
+- R14. Anby's full W-Engine candidates are Severed Innocence, Cordis Germina,
+  Heartstring Nocturne, The Brimstone, and Marcato Desire; non-limited retains
+  The Brimstone and Marcato. Full prepares Severed Innocence W1 and non-limited
+  prepares Marcato Desire W5. Heartstring's mixed-CRIT package remains distinct
+  at zero supplied substats even though its Fire RES Ignore is unusable by
+  Electric Anby. The CRIT DMG enters Anby's existing received-dependent
+  Aftershock basis; no Fire RES Ignore row is created. Brimstone displaces
+  Starlight in the same non-limited broad-ATK role through its stronger usable
+  package; neither changes Marcato's prepared priority.
 - R15. Anby prepares Shadow Harmony 4-piece. Her retained 2-piece candidates are
   Woodpecker Electro, Branch & Blade Song, Puffer Electro, Thunder Metal, and
   Hormone Punk. Puffer preserves the DEF-region alternative while no material

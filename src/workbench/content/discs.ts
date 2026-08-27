@@ -520,7 +520,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   astraYao: { fourPiece: ['astralVoice', 'moonlight'], twoPiece: ['moonlight', 'swingJazz', 'hormonePunk', 'astralVoice'] },
   seed: {
     fourPiece: ['dawnsBloom', 'woodpecker'],
-    twoPiece: ['woodpecker', 'branchAndBlade', 'pufferElectro', 'thunderMetal', 'hormonePunk'],
+    twoPiece: ['woodpecker', 'branchAndBlade', 'dawnsBloom', 'pufferElectro', 'thunderMetal', 'hormonePunk'],
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   cissia: {

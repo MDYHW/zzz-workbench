@@ -152,13 +152,15 @@ The prose requirements govern if this diagram and the text ever differ.
   or cap axis.
 - R5. Seed's retained 4-piece candidates are Dawn's Bloom and Woodpecker
   Electro. Her base 2-piece candidates are Woodpecker Electro, Branch & Blade
-  Song, Puffer Electro, Thunder Metal, and Hormone Punk. Thunder Metal preserves
-  the matching Electric DMG axis, while Hormone Punk is the authored ATK%
-  identity because neither member of the Hormone Punk/Astral Voice pair has a
-  4-piece role for Seed. Slot 4 offers CRIT Rate and CRIT DMG; Slot 5 offers
-  Electric DMG, ATK%, and PEN Ratio before active pressure; Slot 6 offers ATK%;
-  effective substats are CRIT Rate, CRIT DMG, and ATK% with independent zero to
-  36 counts.
+  Song, Dawn's Bloom, Puffer Electro, Thunder Metal, and Hormone Punk. Dawn's
+  Bloom remains a defining Basic Attack complement when Woodpecker occupies the
+  4-piece role; the existing same-set exclusion keeps it out of a Dawn's Bloom
+  4-piece package. Thunder Metal preserves the matching Electric DMG axis,
+  while Hormone Punk is the authored ATK% identity because neither member of
+  the Hormone Punk/Astral Voice pair has a 4-piece role for Seed. Slot 4 offers
+  CRIT Rate and CRIT DMG; Slot 5 offers Electric DMG, ATK%, and PEN Ratio before
+  active pressure; Slot 6 offers ATK%; effective substats are CRIT Rate, CRIT
+  DMG, and ATK% with independent zero to 36 counts.
 - R6. Seed's representative full setup is Cordis Germina W1, Dawn's Bloom
   4-piece, Woodpecker Electro 2-piece, and CRIT Rate / Electric DMG / ATK%.
   Her non-limited representative changes only the W-Engine to Marcato Desire
