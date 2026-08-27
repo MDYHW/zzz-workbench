@@ -175,31 +175,40 @@ The prose requirements govern if this diagram and the text ever differ.
   clause. The difference comes from realized usable value, not a penalty for
   Bellicose's unusable clause. General stat sticks remain excluded when their
   usable whole packages create no distinct current choice.
-- R8. Cissia locally retains Dawn's Bloom as her operation-fitting 4-piece.
-  Astra's repeated Quick Assist opportunity adds Astral Voice as a contextual
-  competitive 4-piece adjustment from that complete local package because
-  Cissia's retained buffer role and off-field direction can materially use its
-  entrant effect. Astra is not represented as the only legal Quick Assist
-  source, and operation activation alone does not admit Astral Voice for every
+- R8. Cissia locally retains Dawn's Bloom, Thunder Metal, and Astral Voice as
+  competitive 4-piece choices. Dawn's Bloom remains the representative because
+  its Basic Attack package matches her concentrated Corrode Bone and Serpent's
+  Kiss damage. Thunder Metal preserves a distinct Electric and Shock-supported
+  ATK direction without requiring runtime uptime simulation. Astral Voice is a
+  base squad direction because Cissia's retained buffer and off-field roles,
+  together with her recurring Serpent's Kiss and Ultimate Quick Assist
+  operations, materially use its entrant effect. A party-supplied repeated
+  Quick Assist opportunity improves reciprocal recipient coverage and changes
+  the prepared first choice to Astral; it does not add Astral membership.
+  Operation activation alone still does not admit Astral Voice for every
   damage contributor.
 - R9. Cissia's 2-piece candidates are Swing Jazz, Woodpecker Electro, Branch &
-  Blade Song, Thunder Metal, and one authored ATK% identity. Outside the Astra
-  context, Hormone Punk is the canonical ATK% identity. In the authored Astra
-  context, Dawn's Bloom 4-piece exposes Astral Voice so its 4-piece swap remains
-  available; selecting contextual Astral Voice 4-piece exposes Hormone Punk as
+  Blade Song, Dawn's Bloom, Thunder Metal, and one authored ATK% identity.
+  Dawn's Bloom remains available beside Thunder Metal or Astral
+  Voice as the Basic Attack complement; the existing same-set exclusion keeps
+  it out of a Dawn's Bloom 4-piece package. Because Astral now has a base
+  4-piece role, its exact ATK% identity is exposed beside Dawn's Bloom or
+  Thunder Metal; selecting Astral Voice 4-piece instead exposes Hormone Punk as
   the legal ATK% complement. Thunder Metal preserves the matching Electric DMG
-  axis. Slot 4 offers CRIT Rate and CRIT DMG; Slot 5 offers Electric DMG and
-  ATK%; Slot 6 offers Energy Regen and ATK%; effective substats are CRIT Rate,
-  CRIT DMG, and ATK% with independent zero to 36 counts. Outside the Astra
-  context, her complete local full representative is Serpentine Seeker W1,
-  Dawn's Bloom 4-piece, Swing Jazz 2-piece, CRIT Rate / Electric DMG / Energy
-  Regen, and zero effective-substat counts. Her local non-limited representative
-  changes only the W-Engine to Drill Rig - Red Axis W5. In the authored Astra
-  context, the bounded preparation adjustment changes only Dawn's Bloom to
-  Astral Voice for either pool.
+  axis.
+  Slot 4 offers CRIT Rate and CRIT DMG; Slot 5 offers Electric DMG and ATK%;
+  Slot 6 offers Energy Regen and ATK%; effective substats are CRIT Rate, CRIT
+  DMG, and ATK% with independent zero to 36 counts. Outside the Astra context,
+  her complete local full representative is Serpentine Seeker W1, Dawn's Bloom
+  4-piece, Swing Jazz 2-piece, CRIT Rate / Electric DMG / Energy Regen, and zero
+  effective-substat counts. Her local non-limited representative changes only
+  the W-Engine to Drill Rig - Red Axis W5. In the authored Astra context, the
+  bounded preparation adjustment changes only Dawn's Bloom to Astral Voice for
+  either pool.
 - R10. On an all-party Party or Focus Apply in the authored Astra context,
   holder allocation prepares Cissia with Astral Voice and Astra with Moonlight
-  Lullaby together without changing either Agent's base candidate membership.
+  Lullaby together without changing either Agent's effective candidate
+  membership.
   Full Astra completes that package with Astral Voice 2-piece; non-limited Astra
   retains Hormone Punk 2-piece. Astra preserves her current W-Engine, main-stat,
   effective-substat, pool, and M0-M1 versus M2-M6 preparation rules. A
@@ -209,7 +218,8 @@ The prose requirements govern if this diagram and the text ever differ.
   her authored Dawn's Bloom package while Astra remains untouched. Direct setup
   edits likewise remain local, rerun no holder allocation, and may create a
   duplicate that existing non-stacking Result behavior resolves. Candidate
-  addition and prepared holder allocation remain separate authored decisions.
+  Base candidate membership and prepared holder allocation remain separate
+  authored decisions.
 
 **Retained facts and Result boundary**
 
@@ -302,7 +312,9 @@ The prose requirements govern if this diagram and the text ever differ.
   and M1 action-specific RES Ignore outcomes; Cissia M2 applies only to
   Serpent's Kiss.
   Serpent's Kiss and Ultimate Quick Assist triggers remain exact activation and
-  preparation facts for Astral Voice, not standalone numeric Result operations.
+  base-authoring facts for Astral Voice; party-supplied repeated Quick Assist is
+  the separate prepared-first-choice fact. None is a standalone numeric Result
+  operation.
   No raw DMG, raw Daze, Venom count, or Serpentine Shadow gauge is admitted.
 - R17. Cissia's Core supplies active pre-PEN candidate pressure only to an
   applied Electric `general_damage` direction whose supported output consumes
@@ -396,12 +408,13 @@ The prose requirements govern if this diagram and the text ever differ.
   Elegant Vanity/Moonlight/Astral with the authored mains and zero substats.
   The equivalent non-limited preparation uses Marcato, Drill Rig, and Kaboom
   the Cannon with the corresponding complete Disc packages.
-- AE3. **Covers R8-R10.** Given Cissia without the authored repeated Quick Assist
-  opportunity, her full local representative is Serpentine/Dawn/Swing with
+- AE3. **Covers R8-R10.** Given Cissia without a party-supplied repeated Quick
+  Assist opportunity, her effective 4-piece candidates include Astral Voice
+  once, but her full local representative remains Serpentine/Dawn/Swing with
   CRIT Rate / Electric DMG / Energy Regen and zero substats; non-limited changes
-  only the W-Engine to Drill Rig. Astral Voice is not added merely because a
-  Quick Assist is mechanically possible. Given the authored Astra context, an
-  all-party Apply prepares Cissia with Astral and Astra with Moonlight together.
+  only the W-Engine to Drill Rig. Given the authored Astra context, the
+  effective candidate set remains unchanged and an all-party Apply prepares
+  Cissia with Astral and Astra with Moonlight together.
   A later target-only Cissia Mindscape or pool preparation leaves Astra
   untouched and treats her current Disc as established: if Astra already holds
   Astral, Cissia prepares Dawn's Bloom rather than another Astral. A direct

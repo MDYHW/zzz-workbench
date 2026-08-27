@@ -149,7 +149,10 @@ function exerciseEffectiveCandidates(
   const setup = state.slots[slot].setup
   const roleSwaps = effectiveFourPieceRoleSwapIds(state, slot)
   const twoPieceCandidates = effectiveTwoPieceIds(state, slot)
-  const visibleFourPieceIds = effectiveFourPieceIds(state, slot).filter((discId) => (
+  const fourPieceCandidates = effectiveFourPieceIds(state, slot)
+  expect(fourPieceCandidates, `${context}:unique 4-piece candidates`)
+    .toEqual([...new Set(fourPieceCandidates)])
+  const visibleFourPieceIds = fourPieceCandidates.filter((discId) => (
     discId === setup.fourPieceId
       || discId !== setup.twoPieceId
       || roleSwaps.includes(discId)
@@ -339,10 +342,10 @@ describe('shared preparation and edit lifecycle', () => {
   })
 
   it('keeps repeated and external Quick Assist opportunities distinct', () => {
-    const repeated = createPreparedState({}, ['cissia', 'astraYao', 'yixuan'], 2)
+    const repeated = createPreparedState({}, ['caesar', 'astraYao', 'yixuan'], 2)
     expect(effectiveFourPieceIds(repeated, 0)).toContain('astralVoice')
 
-    const externalOnly = createPreparedState({}, ['cissia', 'nicole', 'yixuan'], 2)
+    const externalOnly = createPreparedState({}, ['caesar', 'nicole', 'yixuan'], 2)
     expect(effectiveFourPieceIds(externalOnly, 0)).not.toContain('astralVoice')
 
     const external = createPreparedState({}, ['qingyi', 'nicole', 'yixuan'], 2)

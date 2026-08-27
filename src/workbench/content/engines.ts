@@ -1244,7 +1244,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   lucy: enginePools(['elegantVanity', 'weepingCradle', 'kaboom']),
   zhuYuan: enginePools(['cordisGermina', 'heartstringNocturne', 'brimstone', 'riotSuppressorMarkVI', 'marcatoDesire', 'starlightEngine']),
   nicole: enginePools(['elegantVanity', 'theVault', 'weepingCradle', 'kaboom']),
-  orphie: enginePools(['bellicoseBlaze', 'heartstringNocturne', 'severedInnocence', 'cordisGermina', 'gildedBlossom', 'marcatoDesire']),
+  orphie: enginePools(['bellicoseBlaze', 'heartstringNocturne', 'serpentineSeeker', 'gildedBlossom', 'marcatoDesire']),
   pulchra: enginePools(['blazingLaurel', 'boxCutter', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
   harumasa: enginePools(['zanshinHerbCase', 'cordisGermina', 'brimstone', 'heartstringNocturne', 'starlightEngine']),
   qingyi: enginePools(['iceJadeTeapot', 'blazingLaurel', 'restrained', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),

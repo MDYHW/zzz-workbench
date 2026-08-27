@@ -279,6 +279,21 @@ describe('shared calculation integration', () => {
     expect(hasMetricSource(vivian, 'anomalyProficiency', 'Angel in the Shell', 'combat')).toBe(true)
     expect(hasMetricSource(vivian, 'dmgBonus', 'Angel in the Shell')).toBe(false)
     expect(hasActionSource(vivian, 'Angel in the Shell')).toBe(false)
+
+    let orphieState = createPreparedState({}, ['orphie', 'pulchra', 'lucy'], 0)
+    orphieState = workbenchReducer(orphieState, {
+      type: 'selectEngine', slot: 0, engineId: 'serpentineSeeker',
+    })
+    const orphie = calculateParty(orphieState)!.agents
+      .find(({ agentId }) => agentId === 'orphie')!
+    expect(hasMetricSource(orphie, 'critRate', 'Serpentine Seeker', 'combat')).toBe(true)
+    expect(hasMetricSource(orphie, 'defIgnore', 'Serpentine Seeker', 'combat')).toBe(false)
+
+    const cissia = calculateParty(createPreparedState(
+      {}, ['cissia', 'anby', 'lucia'], 0,
+    ))!.agents.find(({ agentId }) => agentId === 'cissia')!
+    expect(hasMetricSource(cissia, 'critRate', 'Serpentine Seeker', 'combat')).toBe(true)
+    expect(hasMetricSource(cissia, 'defIgnore', 'Serpentine Seeker', 'combat')).toBe(true)
   })
 
   it('returns no Result while any required Setup selection is incomplete', () => {

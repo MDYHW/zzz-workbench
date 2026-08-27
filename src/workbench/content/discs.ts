@@ -524,8 +524,8 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   cissia: {
-    fourPiece: ['dawnsBloom'],
-    twoPiece: ['swingJazz', 'woodpecker', 'branchAndBlade', 'thunderMetal', 'hormonePunk', 'astralVoice'],
+    fourPiece: ['dawnsBloom', 'thunderMetal', 'astralVoice'],
+    twoPiece: ['swingJazz', 'woodpecker', 'branchAndBlade', 'dawnsBloom', 'thunderMetal', 'hormonePunk', 'astralVoice'],
     contextualFourPiece: [
       { opportunity: 'received-ultimate', discId: 'pufferElectro' },
       {

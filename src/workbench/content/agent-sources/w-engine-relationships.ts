@@ -399,9 +399,7 @@ export function selectedWEngineRelationships({
       if (agent === 'orphie') add(W_ENGINE_FACTS.bellicoseBlaze.effects.fireAftershockDefIgnore, maximum(W_ENGINE_FACTS.bellicoseBlaze.effects.fireAftershockDefIgnore, setup), AFTERSHOCK_TARGET)
       break
     case 'serpentineSeeker':
-      if (effectAttributeForAgent(agent) === 'Electric') {
-        add(W_ENGINE_FACTS.serpentineSeeker.effects.critRate, value(W_ENGINE_FACTS.serpentineSeeker.effects.critRate, setup), undefined, 'combat')
-      }
+      add(W_ENGINE_FACTS.serpentineSeeker.effects.critRate, value(W_ENGINE_FACTS.serpentineSeeker.effects.critRate, setup), undefined, 'combat')
       break
     case 'starlightEngineReplica':
       if (effectAttributeForAgent(agent) === 'Physical') add(W_ENGINE_FACTS.starlightEngineReplica.effects.physicalDamage, value(W_ENGINE_FACTS.starlightEngineReplica.effects.physicalDamage, setup))

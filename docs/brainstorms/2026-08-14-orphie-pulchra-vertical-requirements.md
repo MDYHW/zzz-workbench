@@ -71,29 +71,34 @@ Aftershock catalogue.
 ### Orphie & Magus equipment authoring
 
 - R4. Orphie's full W-Engine candidates are Bellicose Blaze, Heartstring
-  Nocturne, Severed Innocence, Cordis Germina, Gilded Blossom, and Marcato
-  Desire. Non-limited candidates are Gilded Blossom and Marcato Desire. Full
-  prepares Bellicose Blaze W1; non-limited prepares Gilded Blossom W5.
+  Nocturne, Serpentine Seeker, Gilded Blossom, and Marcato Desire. Non-limited
+  candidates are Gilded Blossom and Marcato Desire. Full prepares Bellicose
+  Blaze W1; non-limited prepares Gilded Blossom W5.
 - R5. Bellicose is the full first choice through its complete Energy Regen,
-  CRIT Rate, and Fire Aftershock DEF Ignore package. Heartstring retains its
-  complete CRIT chassis and Fire Chain/Ultimate RES Ignore; Severed retains a
-  CRIT-DMG-heavy chassis whose Electric clause is unused; Cordis retains broad
-  CRIT Rate and usable Basic/Ultimate DEF Ignore while its Electric clause is
-  unused. Myriad Eclipse is excluded because Heartstring has the same Base ATK
-  and advanced CRIT Rate, more unconditional CRIT DMG, and a usable Fire clause
-  while Myriad's Ice-trigger clause is inactive. Gilded's complete ATK and EX
-  package establishes the non-limited first choice; Marcato remains a distinct
-  CRIT/ATK alternative. Brimstone and Starlight are excluded because their
-  activation-dependent broad ATK packages do not create a material package
-  advantage over Gilded's fully aligned EX/ATK package or Marcato's CRIT/ATK
-  axis at zero supplied substats.
+  CRIT Rate, and Fire Aftershock DEF Ignore package. Heartstring is the retained
+  Energy-Regen-less other-limited alternative: its balanced CRIT package
+  materially recomposes Orphie's zero-substat setup and its Fire
+  Chain/Ultimate RES Ignore is usable. Serpentine is a separate limited Energy
+  Regen direction whose Energy Regen and CRIT Rate remain competitive with the
+  strongest non-limited package while its Electric DEF Ignore contributes zero,
+  without that unused clause becoming a penalty. Parallel other-limited
+  personal-damage packages that do not materially change the recomposed setup
+  beyond Heartstring are excluded. Myriad Eclipse is excluded because
+  Heartstring has the same Base ATK and advanced CRIT Rate, more unconditional
+  CRIT DMG, and a usable Fire clause while Myriad's Ice-trigger clause is
+  inactive. Gilded's complete ATK and EX package establishes the non-limited
+  first choice; Marcato remains a distinct CRIT/ATK alternative. Brimstone and
+  Starlight are excluded because their activation-dependent broad ATK packages
+  do not create a material package advantage over Gilded's fully aligned EX/ATK
+  package or Marcato's CRIT/ATK axis at zero supplied substats.
 - R6. Add Gilded Blossom as an A-Rank non-limited Attack candidate. Its ATK and
   EX-Special-DMG clauses are both usable by Orphie and remain separately visible
   in Setup and Result.
 - R7. Orphie's 4-piece candidates are Shadow Harmony and Astral Voice. Shadow
   is the local self-package through Aftershock/Dash 2-piece identity and its
-  4-piece ATK/CRIT package. Astral is a distinct controllable
-  one-recipient squad alternative, not a numerical duplicate of Shadow.
+  4-piece ATK/CRIT package. Orphie's recurring EX Special and Ultimate Quick
+  Assist operations make Astral's entrant effect a controllable one-recipient
+  squad direction, not a numerical duplicate of Shadow.
   Orphie's 2-piece candidates are Shadow Harmony, Inferno Metal, Woodpecker
   Electro, Branch & Blade Song, Hormone Punk, Astral Voice, Swing Jazz, and
   Moonlight Lullaby. They retain Aftershock, Fire, CRIT, ATK, and Energy axes in
@@ -186,10 +191,10 @@ Aftershock catalogue.
 - R17. Orphie's selected equipment projects only through exact consumers.
   Bellicose supplies broad CRIT and Initial Energy Regen plus Fire Aftershock
   DEF Ignore; Heartstring supplies broad CRIT DMG and Fire Chain/Ultimate RES
-  Ignore; Severed's Electric clause remains unused; Cordis supplies broad CRIT
-  and Basic/Ultimate DEF Ignore while its Electric clause remains unused;
-  Gilded supplies broad ATK and EX-Special DMG. Whole-package candidate choice
-  remains separate from these exact Result rows.
+  Ignore; Serpentine supplies Initial Energy Regen and broad CRIT while its
+  Electric DEF Ignore remains unused; Gilded supplies broad ATK and EX-Special
+  DMG. Whole-package candidate choice remains separate from these exact Result
+  rows.
 - R18. Pulchra's completed Core supplies Daze +30% to EX Special, Assist
   Follow-Up, Chain Attack, and Ultimate while Hunter's Gait is active. Her
   Additional activates with another Attack or Rupture Agent or same-faction
@@ -251,8 +256,8 @@ Aftershock catalogue.
   change rebuilds only Orphie.
 - AE3. Orphie's Result exposes self Aftershock DMG +85%; qualified all-party
   Aftershock DEF Ignore +25%; Bellicose Fire Aftershock DEF Ignore; and the
-  separate Heartstring, Cordis, or Gilded action rows only when selected.
-  Neither qualified DEF Ignore becomes broad candidate pressure, and Severed's
+  separate Heartstring or Gilded action rows only when selected. Neither
+  qualified DEF Ignore becomes broad candidate pressure, and Serpentine's
   Electric clause creates no Fire row.
 - AE4. At M1 Orphie exposes four-action Fire RES Ignore and broad Zeroed In DMG;
   at M2 she adds ATK; at M4 she adds Heat Charge/Ultimate DMG. M6 does not add a
