@@ -13,6 +13,7 @@ import { selectSource, type SelectedSourceInstance } from '../../calculation/sou
 import type { SurfaceKey } from '../../effects'
 import {
   CRIT_DAMAGE_FORMULAS,
+  DEF_DAMAGE_FORMULAS,
   effectAttributeForAgent,
   REGULAR_DAMAGE_FORMULAS,
 } from '../../formula-policy'
@@ -95,7 +96,7 @@ export function selectedWEngineBroadPrePenRelationships(
           refinement,
         ),
         earliestSurface: 'fully',
-        delivery: { formulas: ['general_damage'] },
+        delivery: { formulas: DEF_DAMAGE_FORMULAS },
       })
     default:
       return []

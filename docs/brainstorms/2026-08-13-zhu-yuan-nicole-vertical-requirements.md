@@ -26,7 +26,7 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
 
 - Applying Zhu Yuan and Nicole prepares complete local setups at zero supplied
   substats. Nicole's broad DEF Reduction removes PEN Ratio and standalone
-  Puffer 2-piece choices only from applicable general-damage recipients.
+  Puffer 2-piece choices only from applicable DEF-region damage recipients.
 - Zhu Yuan keeps Basic, Dash, and Ultimate equipment scopes distinct. Exact
   action identity remains visible where totals differ.
 - Nicole's Additional Ability applies only to Ether recipients when another
@@ -177,7 +177,8 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   action hierarchy rather than becoming sibling totals that fail to combine.
 - R16. Nicole's completed Core applies enemy DEF Reduction 40% through enhanced
   bullets or Energy Fields. It is broad pre-PEN pressure for applicable
-  `general_damage`, but not for `sheer_damage`. Her Additional activates with
+  `general_damage` and `anomaly_damage`, but not for `sheer_damage`. Her
+  Additional activates with
   another Ether or same-faction Agent and supplies Ether DMG +25% only to
   current Ether recipients. Her EX Special, Chain Attack, and Ultimate retain
   the reachable Quick Assist route used by Astral Voice authoring, but the
@@ -198,7 +199,8 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
 
 - R19. Nicole's applied broad DEF Reduction removes Slot 5 PEN Ratio and
   standalone Puffer 2-piece from every applicable authored primary or residual
-  `general_damage` setup. It does not remove Puffer 4-piece, action-limited DEF
+  direction that consumes the DEF region. It does not remove Puffer 4-piece,
+  action-limited DEF
   effects, or any Rupture choice. Because Nicole presence changes through Party
   Apply, the authorized flow rebuilds all three setups and prepares a complete
   pressure-safe representative; it does not preserve an invalid PEN edit and

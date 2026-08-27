@@ -15,7 +15,7 @@ export function providerDefenseBroadPrePenRelationships(
     return [{
       kind: 'provider',
       source: selectedAgentSource('nicole', slot, 'core', SOURCE_LABELS.nicoleCore, 'core'),
-      delivery: { recipient: 'enemy-context', formulas: ['general_damage'] },
+      delivery: { recipient: 'enemy-context', formulas: DEF_DAMAGE_FORMULAS },
       effect: {
         kind: 'modifier', metricId: 'defReduction', earliestSurface: 'fully',
         value: VERTICAL_VALUES.nicole.coreDefReduction,

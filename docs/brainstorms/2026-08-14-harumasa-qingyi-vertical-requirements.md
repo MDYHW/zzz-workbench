@@ -40,7 +40,7 @@ output, runtime package score, or catalogue.
     only exact usable clauses to their exact actions and recipients.
 - F3. Qingyi pressure lifecycle
   - Qingyi M1 supplies broad enemy DEF Reduction and therefore the existing
-    general-damage pre-PEN pressure.
+    DEF-region damage pre-PEN pressure.
   - Pressure absent, present, removed, and reintroduced states reconcile every
     affected recipient once, clear invalid selections without fallback, and
     never restore edited history.
@@ -238,7 +238,8 @@ output, runtime package score, or catalogue.
   cooldown-limited Energy fail the current survival/resource Result gate;
   M3/M5 ordinary skill levels do not create base action output.
 - R25. Qingyi M1 broad DEF Reduction emits the existing material broad pre-PEN
-  pressure for `general_damage` recipients. It removes Slot 5 PEN Ratio and
+  pressure for `general_damage` and `anomaly_damage` recipients. It removes
+  Slot 5 PEN Ratio and
   standalone Puffer 2-piece where applicable, but does not remove a separately
   competitive contextual Puffer 4-piece package and never affects
   `sheer_damage`. Harumasa Potential, Cordis, and other action-scoped DEF/RES

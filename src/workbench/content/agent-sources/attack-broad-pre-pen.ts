@@ -4,6 +4,7 @@ import type {
   ProviderRelationship,
 } from '../../calculation/relationships'
 import type { AppliedSlot, WorkbenchState } from '../../state'
+import { DEF_DAMAGE_FORMULAS } from '../../formula-policy'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
 import { selectedAgentSource, selectedMindscapeSource } from './sources'
 import { resolveSeedVanguardForState } from './seed-vanguard'
@@ -46,7 +47,7 @@ function cissiaGauge(
       transform,
       emission: {
         kind: 'provider',
-        delivery: { recipient: 'enemy-context', attributes: ['Electric'], formulas: ['general_damage'] },
+        delivery: { recipient: 'enemy-context', attributes: ['Electric'], formulas: DEF_DAMAGE_FORMULAS },
         effect: { kind: 'modifier', metricId: 'defIgnore', earliestSurface: 'combat', sourceDetail: 'Corrosion' },
       },
     }],

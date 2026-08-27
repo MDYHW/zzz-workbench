@@ -319,8 +319,9 @@ The prose requirements govern if this diagram and the text ever differ.
   operation.
   No raw DMG, raw Daze, Venom count, or Serpentine Shadow gauge is admitted.
 - R17. Cissia's Core supplies active pre-PEN candidate pressure only to an
-  applied Electric `general_damage` direction whose supported output consumes
-  the DEF region. It removes Slot 5 PEN Ratio and Puffer Electro 2-piece when
+  applied Electric direction whose primary or residual formula consumes the
+  DEF region, including `general_damage` and `anomaly_damage`. It removes Slot 5
+  PEN Ratio and Puffer Electro 2-piece when
   those inputs belong to that recipient's base candidates. Candidate pressure
   follows recipient, Attribute, action breadth, formula participation, and
   input component even when the recipient intentionally has no matching DEF
