@@ -261,7 +261,7 @@ const yeShunguangRepresentative = (pool: PoolId): SetupSelection => ({
 const zhaoRepresentative = (pool: PoolId): SetupSelection => ({
   engineId: pool === 'full' ? 'halfSugarBunny' : 'originalTransmorpher',
   fourPieceId: 'bunnyInWonderland', twoPieceId: 'yunkui',
-  mains: { slot4: 'hpPct', slot5: 'hpPct', slot6: 'hpPct' },
+  mains: { slot4: 'hpPct', slot5: 'hpPct', slot6: 'energyRegenPct' },
 })
 
 const graceRepresentative = (pool: PoolId): SetupSelection => ({

@@ -221,16 +221,20 @@ optimizer.
 - R23. Add Half-Sugar Bunny as a limited S-Rank Defense candidate. Zhao is
   holder-eligible and activates its complete automatic-Energy, non-stacking
   squad-ATK/HP, and Ether-Veil squad-CRIT-DMG package.
-- R24. Zhao's full W-Engine candidates are Half-Sugar Bunny and Original
-  Transmorpher; non-limited retains Original. Full prepares Half-Sugar W1 and
-  non-limited prepares Original W5. Original's holder-HP package and inactive
-  after-attacked Impact clause form the nearest same-axis accessibility
-  package. Bunny Band is
+- R24. Zhao's full W-Engine candidates are Half-Sugar Bunny, Tusks of Fury,
+  and Original Transmorpher; non-limited retains Original. Full prepares
+  Half-Sugar W1 and non-limited prepares Original W5. Original's holder-HP
+  package and inactive after-attacked Impact clause form the strongest
+  non-limited threshold route. Tusks is weaker than Half-Sugar within the
+  limited acquisition role, but its usable squad-DMG and squad-Daze package is
+  competitive with Original while materially changing the party-output
+  direction; its unused shield and holder-Impact clauses contribute zero.
+  Bunny Band is
   dominated by Original's same-rank, same-Base-ATK HP package and needs an
-  external shield for only personal ATK; Spring Embrace and Tusks are excluded
-  because their realized Initial-HP and provider packages remain weaker, while
-  their unused survival or Daze clauses contribute zero. These are local Zhao
-  judgments, not general Defense exclusions.
+  external shield for only personal ATK. Spring Embrace is excluded because
+  its event-conditioned resource transfer changes no retained Zhao provider
+  output, while its unused survival clause contributes zero. These are local
+  Zhao judgments, not general Defense exclusions.
 - R25. Zhao's 4-piece candidates are Bunny in Wonderland and Astral Voice.
   Bunny supplies HP and squad DMG; Astral supplies ATK and a controllable
   entrant-DMG package through Zhao's repeated Quick
@@ -246,15 +250,16 @@ optimizer.
   Bunny 4-piece exposes Yunkui 2-piece; selected Astral or Swing exposes Bunny
   so its 4-piece role remains swappable. Swing/Moonlight and Astral/Hormone keep
   their established identity lifecycles. Both pools prepare Bunny/Yunkui.
-- R27. Zhao's mains are HP% in Slot 4, HP% in Slot 5, and HP%/Energy Regen in
+- R27. Zhao's mains are HP% in Slot 4, HP% in Slot 5, and Energy Regen/HP% in
   Slot 6. Effective substats are HP% and flat HP. Her HP-derived CRIT Rate and
   M4 action-scoped CRIT DMG remain visible Result relationships, but they do not
   create a personal damage-contributor direction or admit personal-damage
-  setup inputs. Both pools prepare HP% / HP% / HP% with zero counts. The
-  capped-provider authoring check considers up to eight HP% and eight flat-HP
-  hits: the full and non-limited representatives can reach 27,000 inside that
-  finite opportunity, but initialization does not insert hits or continuously
-  optimize edited values.
+  setup inputs. Both pools prepare HP% / HP% / Energy Regen with zero counts:
+  the resource main changes Ether-Veil access and is the stronger general
+  operating direction, while HP% remains the distinct threshold-maximizing
+  alternative. The capped-provider authoring check considers up to eight HP%
+  and eight flat-HP hits, but initialization does not insert hits or
+  continuously optimize edited values.
 
 ### Preparation, lifecycle, Result, and visible acceptance
 

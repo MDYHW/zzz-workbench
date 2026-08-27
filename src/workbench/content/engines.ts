@@ -1257,7 +1257,7 @@ export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, Engine
   yeShunguang: enginePools([
     'cloudcleaveRadiance', 'severedInnocence', 'brimstone',
   ]),
-  zhao: enginePools(['halfSugarBunny', 'originalTransmorpher']),
+  zhao: enginePools(['halfSugarBunny', 'tusksOfFury', 'originalTransmorpher']),
   grace: enginePools([
     'timeweaver', 'practicedPerfection',
     'fusionCompiler', 'electroLipGloss', 'weepingGemini',
