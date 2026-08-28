@@ -94,10 +94,12 @@ one physical schema, a candidate catalogue, or a semantic evidence registry.
   unsupported candidate or representative requirements. It identifies current
   arrays and zero-substat output as insufficient authoring proof, but remains a
   workflow learning rather than product authority.
-- Accepted `ACR-2026-08-28-001` establishes that a common Agent relationship
-  proves usable value but not competitiveness. The input-specific complete
-  package, finite opportunity, comparator, and reversal boundary therefore
-  remain necessary to explain a settled current product outcome.
+- Accepted `ACR-2026-08-28-001` records the product owner's separate decision
+  that a common Agent relationship proves usable value but not
+  competitiveness. It remains subordinate decision history until its own
+  permanent-owner amendment merges. Current `SW-004` and `SW-008`
+  independently require the input-specific complete package, finite
+  opportunity, comparator, and reversal boundary used by this proposal.
 
 ## Nearest current consumer
 
