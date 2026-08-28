@@ -859,7 +859,10 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
   actions.push(
     { metricId: 'anomalyBuildupBonus', scopes: BURNICE_BUILDUP_SCOPES },
     actionProjection('dmgBonus', 'burniceExAssistDmg', BURNICE_EX_ASSIST),
-    actionProjection('dmgBonus', 'burniceAfterburn', BURNICE_AFTERBURN),
+    { metricId: 'dmgBonus', scopes: [{
+      id: 'burniceAfterburn', target: BURNICE_AFTERBURN,
+      inheritedEffectTargets: [BURNICE_EX_ASSIST],
+    }] },
     { metricId: 'anomalyDmgBonus', scopes: BURNICE_ANOMALY_SCOPES },
     actionProjection('critRate', 'burniceExAssistCrit', BURNICE_EX_ASSIST),
     { metricId: 'resIgnore', scopes: BURNICE_RES_SCOPES },

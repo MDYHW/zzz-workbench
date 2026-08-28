@@ -74,7 +74,9 @@ general-damage build.
   current qualifying consumer and remain excluded. Every 10 AP adds Afterburn
   DMG Bonus +1%, capped at +30% at AP 300. Result shows an AP gauge
   whose output is `Afterburn DMG Bonus` and routes that bonus to Afterburn; it
-  does not show calculated Afterburn DMG.
+  does not show calculated Afterburn DMG. The source classifies Afterburn as
+  Assist Attack damage, so its source-local visible row inherits applicable
+  canonical Assist equipment effects without becoming a generic Assist action.
 - R3. Burnice's Additional Ability is active when another applied Agent is
   Anomaly Specialty or shares Sons of Calydon. It supplies Anomaly Buildup Rate
   +65% to Mixed Flame Basic Attack, EX Special Attack forms, Afterburn, and
@@ -107,7 +109,7 @@ general-damage build.
 - R9. Flamemaker Shaker's off-field Energy, damage, and AP clauses all support
   Burnice's current interval and direction.
 - R10. Burnice's full candidates are Flamemaker Shaker, Practiced Perfection,
-  Electro-Lip Gloss, and Weeping Gemini. Full prepares Flamemaker W1: every
+  Fusion Compiler, and Weeping Gemini. Full prepares Flamemaker W1: every
   retained axis is used and its off-field Energy plus AP/DMG package
   uniquely coordinates with the prepared Energy main. Practiced Perfection is
   the sole retained partial limited package. Its usable ATK and AM axes are
@@ -128,13 +130,16 @@ general-damage build.
   same-axis compression against Practiced after Slot 4/6 and future AP/ATK
   opportunities. Current competitive practice independently retains Practiced
   near Flamemaker and omits all three alternatives.
-- R12. Non-limited candidates are Electro-Lip Gloss and Weeping Gemini, and
-  non-limited prepares Electro-Lip Gloss W5. Electro's AP advanced stat and
-  off-field-compatible ATK/DMG package are all useful; Weeping's persistent
-  party-Anomaly AP stacks and permanent ATK form the distinct accessible
-  accumulating-AP contrast. Fusion Compiler's stable PEN/ATK is useful, but its
-  AP activation cannot competitively cover Burnice's primary off-field interval
-  against Electro or Weeping. Roaring Ride can trigger a random 5-second package
+- R12. Non-limited candidates are Fusion Compiler and Weeping Gemini, and
+  non-limited prepares Fusion Compiler W1. Burnice can establish Fusion's
+  three Special/EX AP stacks before returning off field; the retained maximum
+  does not require an off-field refresh. With Slot 5 Fire DMG, Fusion's
+  PEN/ATK/AP package covers every current Fire output that Electro-Lip Gloss's
+  broad DMG package covers while retaining higher Base ATK and a stronger
+  complete allocation, so Electro is compressed rather than retained as a
+  second version of the same broad package. Weeping's persistent party-Anomaly
+  AP stacks and permanent ATK remain the distinct concentrated-AP contrast.
+  Roaring Ride can trigger a random 5-second package
   during Burnice's brief EX entry but cannot refresh it off field, and Burnice
   cannot inherit Piper's sustained on-field EX pattern. Rainforest Gourmet is
   legally activatable but supplies only a short same-axis ATK window after Energy
@@ -147,29 +152,32 @@ general-damage build.
 
 - R13. Burnice's 4-piece candidates are Chaos Jazz and Freedom Blues. Chaos is
   prepared because its stable Fire/Electric DMG covers Burnice's off-field
-  interval, while its EX/Assist Follow-Up clause rewards her brief entry/exit
-  window without requiring extended field time. Freedom remains the nearest
+  interval, while its EX/Assist clause covers her brief entry EX window and
+  source-classified off-field Afterburn. Freedom remains the nearest
   buildup-resistance alternative. Inferno Metal is legal but excluded: its Burn-
   conditioned CRIT package spends the 4-piece opportunity on an axis outside
   Burnice's authored anomaly directions.
 - R14. Her independent 2-piece roles are Energy Regen through Swing Jazz or
   Moonlight Lullaby, AM through Phaethon's Melody, PEN Ratio through Puffer
   Electro, AP through Freedom Blues or Chaos Jazz, and Fire DMG through Inferno
-  Metal. Chaos 4-piece exposes Freedom as the distinct AP identity and prepares
-  Swing for Energy Regen; another 4-piece exposes canonical Chaos and Moonlight
-  identities. ATK 2-piece is excluded because it loses the finite opportunity
-  to AP, buildup, Energy, PEN, or Fire axes.
+  Metal, and ATK through Hormone Punk or Astral Voice. Chaos 4-piece exposes
+  Freedom as the distinct AP identity and prepares Swing for Energy Regen;
+  another 4-piece exposes canonical Chaos and Moonlight identities. The ATK
+  identity remains competitive across Flamemaker's broad-DMG frame and
+  Fusion's PEN/Fire allocation rather than surviving from positivity alone.
 - R15. Both pools prepare Chaos Jazz 4-piece, Swing Jazz 2-piece, Slot 4 AP,
-  Slot 5 PEN Ratio, and Slot 6 Energy Regen. Slot 5 Fire DMG and Slot 6 AM are
-  retained alternatives; Slot 4 AP is the sole candidate. Effective substats
+  and Slot 6 Energy Regen. Full prepares Slot 5 PEN Ratio; non-limited Fusion
+  prepares Slot 5 Fire DMG because the selected engine already supplies PEN.
+  Slot 5 PEN Ratio, Fire DMG, and ATK% are retained candidates; Slot 6 AM is the
+  retained alternative and Slot 4 AP is the sole candidate. Effective substats
   are AP then ATK%, both initialized to zero. Broad pre-PEN pressure replaces
-  the prepared Slot 5 choice with Fire DMG; a directly selected Puffer/PEN
+  a prepared Slot 5 PEN choice with Fire DMG; a directly selected Puffer/PEN
   combination clears without fallback and is not silently rewritten.
 - R16. Eight future AP and eight future ATK% hits are a conservative opportunity
   comparison, not a maximum, exact distribution, optimizer input, or farming
-  promise. Prepared supplied counts remain zero. Both pool representatives
-  compose their selected shared equipment facts with AP/PEN/Energy mains and
-  no hidden future hits.
+  promise. Prepared supplied counts remain zero. The full representative
+  composes AP/PEN/Energy mains, while non-limited Fusion composes
+  AP/Fire/Energy; neither receives hidden future hits.
 
 ### Composition, lifecycle, and visible boundaries
 
@@ -186,8 +194,9 @@ general-damage build.
   Attribute Anomaly identity, with Burn only as a child where M6 differs.
   Yuzuha's received Disorder source uses the shared `DISORDER_TARGET`.
   Afterburn remains a separate source-
-  local action. Do not create unconditional empty Afterburn, Burn, Fire Anomaly,
-  or Disorder rows; a row exists only when current sources make it differ.
+  local action while inheriting the exact canonical Assist equipment scope
+  stated by its source. Do not create unconditional empty Afterburn, Burn, Fire
+  Anomaly, or Disorder rows; a row exists only when current sources make it differ.
 - R19. Result exposes ATK, AP, AM, Energy Regen, applicable regular/anomaly/
   buildup, PEN, RES, and source-linked action differences. CRIT appears only
   when M4 creates its current EX Special/Assist action difference; the AP gauge,
@@ -210,7 +219,8 @@ general-damage build.
   generic invariant.
 - AE2. Shared calculation-flow checks cover the AP gauge, two-output Initial
   Energy Regen gauge and fixed `/s` exclusion, action/state operations, M2
-  recipient applicability, and Yuzuha Attribute-Anomaly/Disorder delivery.
+  recipient applicability, Afterburn's exact Assist equipment inheritance, and
+  Yuzuha Attribute-Anomaly/Disorder delivery.
 - AE3. One composed state flow covers broad pressure present/absent/reselected,
   invalid clearing without fallback, completeness/null Result, and the
   unaffected Sheer contrast.

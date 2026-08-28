@@ -102,19 +102,19 @@ registry, or a rule for later Agents.
   Enabled Moment of Delusion snapshot. M6 gives enhanced Basic and Ultimate
   Ether DMG +40%. Exclude local-form resources and base-result multipliers.
 - R9. Full W-Engine candidates are Angel in the Shell W1, Flight of Fancy W1,
-  Electro-Lip Gloss W5, Weeping Gemini W5, and Fusion Compiler W1. Non-limited
-  offers Electro, Weeping, and Fusion. Prepare Angel in full and Electro in
-  non-limited. Angel's AM advanced stat, AP, on-field/Special activation,
+  Weeping Gemini W5, and Fusion Compiler W1. Non-limited offers Weeping and
+  Fusion. Prepare Angel in full and Weeping in non-limited. Angel's AM advanced
+  stat, AP, on-field/Special activation,
   regular DMG, and Attribute Anomaly/Disorder bonus are all usable. Flight is a
-  distinct AP/buildup package; the non-limited engines retain distinct stable,
-  accumulating, or PEN/ATK packages.
+  distinct AP/buildup package; Weeping retains the strongest accumulating
+  AP/ATK package while Fusion retains a separate PEN/ATK allocation direction.
 - R10. Admit Phaethon's Melody and Shining Aria as competitive 4-piece
   directions and prepare Phaethon. Prepare Freedom Blues as the AP 2-piece;
-  admit Chaos Jazz as its exact same-effect substitute and the applicable Ether,
-  PEN, and ATK 2-piece directions. Shining Aria is the exposed Ether 2-piece
-  while Phaethon is selected as 4-piece; Chaotic Metal replaces it when Shining
-  itself is selected as 4-piece, so a legal role-swap never becomes a duplicate.
-  Prepare AP/Ether DMG/AM in Slots 4/5/6;
+  admit Chaos Jazz as its exact same-effect substitute and the applicable AM,
+  Ether, PEN, and ATK 2-piece directions. Shining Aria is the exposed Ether
+  2-piece while Phaethon is selected as 4-piece; Chaotic Metal replaces it when
+  Shining itself is selected as 4-piece, so a legal role-swap never becomes a
+  duplicate. Prepare AP/Ether DMG/AM in Slots 4/5/6; Slot 4 also admits ATK%,
   Slot 5 also admits ATK% and PEN Ratio. Effective substats are AP and ATK%.
 
 **Promeia**
@@ -136,19 +136,22 @@ registry, or a rule for later Agents.
   and Disorder 15% RES Ignore. Exclude Embrace of Frost, resource, cadence, and
   special-Abloom base-result prose.
 - R14. Full W-Engine candidates are Frostfall Sickle W1, Fusion Compiler W1,
-  Angel in the Shell W1, Electro-Lip Gloss W5, and Weeping Gemini W5.
-  Non-limited offers Fusion, Electro, and Weeping. Prepare Frostfall in full and
-  Fusion in non-limited. Frostfall's AM, Ice DMG, and two-stack Abloom bonus are
+  Angel in the Shell W1, and Weeping Gemini W5. Non-limited offers Fusion and
+  Weeping. Prepare Frostfall in full and Fusion in non-limited. Frostfall's AM,
+  Ice DMG, and two-stack Abloom bonus are
   all usable. Fusion's PEN/ATK/Special-AP package remains the strongest distinct
   non-limited direction despite overlap with Promeia's DEF-ignore package.
+  Weeping retains a competitive accumulating AP/ATK route whose realized value
+  and stun-reset operation differ from Fusion's PEN allocation.
   Angel is a retained partial alternative: its advanced AM and unconditional AP
   are usable, while its Ether-holder DMG clauses contribute zero for Promeia's
   Ice Attribute and are not a partial-package penalty.
 - R15. Notes From the Chained is the prepared and admitted 4-piece direction.
   Its triggered AP and party Attribute Anomaly/Disorder bonus are usable.
   Prepare Phaethon's Melody as the AM 2-piece; admit Freedom Blues/Chaos Jazz
-  AP and Hormone Punk/Astral Voice ATK as distinct alternatives. Prepare
-  AP/Ice DMG/AM in Slots 4/5/6; Slot 5 also admits ATK% and PEN Ratio.
+  AP, Polar Metal Ice, Puffer Electro PEN, and Hormone Punk/Astral Voice ATK as
+  distinct alternatives. Prepare AP/Ice DMG/AM in Slots 4/5/6; Slot 5 also
+  admits ATK% and PEN Ratio.
   Effective substats are AP and ATK%.
 
 **Shared boundaries and lifecycle**

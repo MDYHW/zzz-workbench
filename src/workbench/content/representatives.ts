@@ -119,7 +119,7 @@ const cissiaRepresentative: Omit<SetupSelection, 'engineId'> = {
 }
 
 const evelynRepresentative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'heartstringNocturne' : 'starlightEngine',
+  engineId: pool === 'full' ? 'heartstringNocturne' : 'brimstone',
   fourPieceId: 'hormonePunk',
   twoPieceId: pool === 'full' ? 'woodpecker' : 'branchAndBlade',
   mains: {
@@ -171,7 +171,7 @@ const lighterRepresentative = (pool: PoolId): SetupSelection => ({
 })
 
 const lucyRepresentative: SetupSelection = {
-  engineId: 'kaboom', fourPieceId: 'moonlight', twoPieceId: 'astralVoice',
+  engineId: 'kaboom', fourPieceId: 'moonlight', twoPieceId: 'swingJazz',
   mains: { slot4: 'atkPct', slot5: 'atkPct', slot6: 'energyRegenPct' },
 }
 
@@ -261,7 +261,7 @@ const yeShunguangRepresentative = (pool: PoolId): SetupSelection => ({
 const zhaoRepresentative = (pool: PoolId): SetupSelection => ({
   engineId: pool === 'full' ? 'halfSugarBunny' : 'originalTransmorpher',
   fourPieceId: 'bunnyInWonderland', twoPieceId: 'yunkui',
-  mains: { slot4: 'hpPct', slot5: 'hpPct', slot6: 'hpPct' },
+  mains: { slot4: 'hpPct', slot5: 'hpPct', slot6: 'energyRegenPct' },
 })
 
 const graceRepresentative = (pool: PoolId): SetupSelection => ({
@@ -291,13 +291,13 @@ const sunnaRepresentative = (pool: PoolId): SetupSelection => ({
 })
 
 const burniceRepresentative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'flamemakerShaker' : 'electroLipGloss',
+  engineId: pool === 'full' ? 'flamemakerShaker' : 'fusionCompiler',
   fourPieceId: 'chaosJazz', twoPieceId: 'swingJazz',
-  mains: { slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'energyRegenPct' },
+  mains: { slot4: 'anomalyProficiency', slot5: pool === 'full' ? 'penRatio' : 'fireDmg', slot6: 'energyRegenPct' },
 })
 
 const janeRepresentative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'practicedPerfection' : 'weepingGemini',
+  engineId: pool === 'full' ? 'practicedPerfection' : 'fusionCompiler',
   fourPieceId: 'fangedMetal', twoPieceId: 'pufferElectro',
   mains: { slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'anomalyMastery' },
 })
@@ -326,7 +326,7 @@ const vivianRepresentative = (pool: PoolId): SetupSelection => ({
 })
 
 const ariaRepresentative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'angelInTheShell' : 'electroLipGloss',
+  engineId: pool === 'full' ? 'angelInTheShell' : 'weepingGemini',
   fourPieceId: 'phaethonsMelody', twoPieceId: 'freedomBlues',
   mains: { slot4: 'anomalyProficiency', slot5: 'etherDmg', slot6: 'anomalyMastery' },
 })

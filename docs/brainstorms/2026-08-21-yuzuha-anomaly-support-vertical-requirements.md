@@ -148,21 +148,27 @@ Slot 4 AP choice into AP substats, damage equipment, or personal Result rows.
 
 ### Drive Disc and finite investment authoring
 
-- R11. Yuzuha's 4-piece candidates are Moonlight Lullaby and Astral Voice at
-  every Mindscape. Moonlight's EX/Ultimate route and all-party regular DMG
+- R11. Yuzuha's 4-piece candidates are Moonlight Lullaby, Astral Voice, and
+  Freedom Blues at every Mindscape. Moonlight's EX/Ultimate route and all-party
+  regular DMG
   package form the prepared off-field Support choice in both pools. Astral's
   Quick Assist entrant relationship is reachable and competitively distinct; M2
   changes practical frequency and uptime without removing membership, and M4's
   added Quick Assist route strengthens activation reliability rather than adding
   membership or displacing Moonlight's Energy Regen plus all-party regular-DMG
   package. Existing non-stacking party allocation may contextually prepare
-  Astral when warranted. Freedom Blues is the nearest valid Physical-buildup/AP
-  contrast and is excluded because its remaining package is narrower and its
-  AP axis unused. Phaethon's Melody 4-piece and personal-damage sets are likewise
+  Astral when warranted. Freedom Blues is the competitive Physical-buildup
+  contrast: its holder-derived Physical Anomaly Buildup RES Reduction reaches
+  current Physical anomaly recipients, while its AP supports Yuzuha's residual
+  Attribute-Anomaly contribution after the Initial-ATK cap is otherwise closed.
+  Phaethon's Melody
+  4-piece and personal-damage sets are likewise
   excluded when their remaining package is not competitive for Yuzuha's
   Support and buildup direction.
   When Yuzuha and Nicole would both prepare Moonlight, Yuzuha keeps Moonlight
-  and Nicole uses her authored Astral plus Moonlight alternative. Yuzuha's
+  and Nicole uses her authored Astral plus Moonlight alternative. If Yuzuha
+  yields Moonlight to a higher-precedence holder, her authored alternative is
+  Astral plus Phaethon's Melody. Yuzuha's
   Phaethon 2-piece AM directly supplies the current Additional Ability gauge
   and threshold direction, while Nicole's alternative retains one Energy Regen
   2-piece and has no comparable holder-local gauge or threshold consumer. This
@@ -172,17 +178,19 @@ Slot 4 AP choice into AP substats, damage equipment, or personal Result rows.
   Hormone Punk/Astral Voice identity, and Energy Regen from the existing Swing
   Jazz/Moonlight Lullaby identity. The selected 2-piece remains independent of
   the selected 4-piece: Moonlight 4-piece exposes Swing Jazz for the same ER
-  role, while a different 4-piece exposes canonical Moonlight. Personal AP,
-  PEN Ratio, and Attribute DMG 2-piece choices are excluded because no Yuzuha
-  damage formula consumes them.
+  role, while a different 4-piece exposes canonical Moonlight. A standalone AP
+  2-piece remains below the AM, ATK, and Energy roles despite AP being usable
+  inside Freedom's competitive 4-piece package. PEN Ratio and Attribute DMG
+  2-piece choices are excluded because no Yuzuha damage formula consumes them.
 - R13. Both pools prepare Moonlight Lullaby 4-piece, Phaethon's Melody 2-piece,
   Slot 4 ATK%, Slot 5 ATK%, and Slot 6 AM. Slot 4 candidates keep ATK% first and
-  add AP second as a competitive residual personal-damage choice: higher
-  investment can preserve the Initial-ATK cap through Slot 5 plus retained ATK%
-  and flat-ATK opportunities while replacing fixed Slot 4 ATK% supply. This
-  variable-main-stat exception does not add AP effective substats, equipment,
-  a personal anomaly-damage direction, or a personal AP Result. Slot 5 ATK%
-  and Slot 6 AM remain the sole candidates in their slots because AM is
+  add AP second as a competitive residual anomaly-party direction: Slot 5,
+  retained equipment, and the finite ATK%/flat-ATK substat opportunity can close
+  the reachable Initial-ATK cap while Slot 4 AP strengthens Yuzuha's share of
+  Attribute Anomaly outcomes. This exception does not add AP effective
+  substats, equipment, a personal anomaly-damage Result formula, or a personal
+  AP Result row. Slot 5 ATK% and Slot 6 AM remain the sole candidates in their
+  slots because AM is
   unavailable from substats and the bounded future ATK opportunities already
   cover the capped Initial-ATK axis. Energy Regen is not retained as a Slot 6
   candidate because it gives up the only fixed main-stat AM opportunity without
@@ -260,8 +268,8 @@ Slot 4 AP choice into AP substats, damage equipment, or personal Result rows.
 ## Rejected Alternatives And Scope Boundaries
 
 - Do not generalize the admitted residual Slot 4 AP choice into AP effective
-  substats, W-Engines, Disc sets, a personal damage direction, or personal
-  Result rows. Competitive-practice discovery does not authorize those axes.
+  substats, W-Engines, a personal damage direction, or personal Result rows.
+  Competitive-practice discovery does not authorize those axes.
 - Do not admit every legally selectable Support W-Engine or Disc set. Whole-
   package competition, finite opportunity, and pool-local representative
   consequence remain required.

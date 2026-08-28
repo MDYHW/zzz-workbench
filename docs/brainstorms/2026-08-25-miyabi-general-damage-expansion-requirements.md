@@ -28,7 +28,7 @@ separate Shock-state/general-damage unit.
 | `GV-004`, `FM-002`, `FM-007` | Display Attribute Frost calculates through Ice for damage, buff, and equipment applicability while remaining a distinct Agent identity | `effectAttributeForAgent`, `FORMULA_PARTICIPATION_BY_AGENT`, and `attackProfileFor` | Ice clauses compete; same-Attribute party qualification still compares the displayed Agent identity; all existing preparation stages remain unchanged | Setup displays Frost identity and source-owned Ice equipment wording; Result projects general damage and buildup, never `anomaly_damage` | Honed Edge to Physical is the nearest mapping; ordinary Ice Agent Ellen is the identity contrast |
 | `SF-001`, `SF-003`, `FM-004`, `SW-013`, `SW-014` | Fully Enabled CRIT Rate converts one-for-one into Frost buildup bonus against an Icefire target, capped at 80% | `post-delivery-stat-modifier-gauge` and the action Result composer | CRIT is a finite setup opportunity for both direct damage and buildup; the prepared package does not add a new runtime Icefire state model | Result exposes the gauge and an action-local Frost-buildup row; resource, cadence, and hidden state remain absent | Burnice's AP-derived Afterburn gauge is nearest; Trigger's CRIT-to-Daze conversion is the different-formula contrast |
 | `FM-002`, `FM-007`, `SW-012` | Frostburn supplies a party buildup outcome; qualified Shimotsuki and Mindscape clauses remain exact local or party outcomes | current provider delivery and action projection | Qualification uses another Support, Anomaly, or Section 6 member; Party Apply and target-only rebuild recalculate it through current state | Separate action rows prevent Icefire and Frostburn target conditions from being summed as one universal snapshot | Nangong's action-scoped party buildup is nearest; Yuzuha's broad AM-derived provider is the contrast |
-| `SW-004`, `SW-005`, `SW-008`, `SW-009`, `UI-001` | Each selected W-Engine and Disc remains a source-owned whole package while candidate value comes only from the package Miyabi realizes | shared equipment facts, selected relationship mappers, candidates, representatives, and Setup descriptions | Full prepares Hailstorm; non-limited prepares Fusion; Electro-Lip remains the close ATK/DMG alternative to Fusion's PEN/ATK, while remote or same-direction packages are excluded after complete-setup recomposition | Setup keeps every clause of each admitted package; Result omits AP that this bounded Miyabi profile cannot consume | Hailstorm is the complete signature case; Fusion and Electro-Lip are the competitive partial-package contrasts |
+| `SW-004`, `SW-005`, `SW-008`, `SW-009`, `UI-001` | Each selected W-Engine and Disc remains a source-owned whole package while candidate value comes only from the package Miyabi realizes | shared equipment facts, selected relationship mappers, candidates, representatives, and Setup descriptions | Full prepares Hailstorm; non-limited prepares Fusion; lower same-role packages and remote other-limited packages are excluded after complete-setup recomposition | Setup keeps every clause of each admitted package; Result omits AP that this bounded Miyabi profile cannot consume | Hailstorm is the complete benchmark; Fusion is the competitive partial-package contrast |
 | `SW-015` | Authored/contextual candidates, pressure, allocation, representative preparation, zero supplied counts, and reconciliation keep their current order | shared lifecycle, preparation, and candidate-context consumers | Party Apply rebuilds all; pool/Mindscape rebuilds only Miyabi; direct edits do not reprepare; invalid PEN clears without fallback and never restores edit history | Incomplete required selection keeps Result empty; an unaffected no-PEN holder is preserved | Existing broad pre-PEN lifecycle is the nearest case; a prepared Ice Slot 5 is the unaffected contrast |
 
 ## Requirements
@@ -68,15 +68,16 @@ separate Shock-state/general-damage unit.
 
 ### Competitive setup
 
-- R6. Miyabi's full W-Engine candidates are Hailstorm Shrine W1, Fusion
-  Compiler W1, and Electro-Lip Gloss W5. Her non-limited candidates are Fusion
-  and Electro-Lip. Prepare Hailstorm in full and Fusion in non-limited.
+- R6. Miyabi's full W-Engine candidates are Hailstorm Shrine W1 and Fusion
+  Compiler W1. Her sole non-limited candidate is Fusion. Prepare Hailstorm in
+  full and Fusion in non-limited.
   - Hailstorm's Base ATK, CRIT Rate, CRIT DMG, and Ice DMG form the complete
     direct-damage/buildup package and the full-pool representative.
   - Fusion's PEN and ATK form the strongest non-limited direction even though
-    its AP clause contributes zero to this bounded profile. Electro-Lip's AP
-    likewise contributes zero, while its ATK and DMG remain a close competitive
-    package whose DMG-axis composition materially differs from Fusion's PEN.
+    its AP clause contributes zero to this bounded profile. After complete main-
+    stat recomposition, Electro-Lip's ATK/DMG route reaches the same PEN plus
+    ordinary-DMG direction at lower realized value, so the stronger Fusion
+    package compresses it within the shared standard/A-Rank acquisition role.
   - Frostfall's realized AM and Ice DMG and Practiced Perfection's realized ATK
     and AM are positive but do not have current Miyabi competitive-practice
     support sufficient to justify a second limited S-Rank acquisition beside
@@ -90,21 +91,25 @@ separate Shock-state/general-damage unit.
     by itself does not preserve membership.
 - R7. Add Branch & Blade Song's minimum current 4-piece relationships: at
   Initial AM 115 or higher, CRIT DMG +30%; in the Fully Enabled snapshot,
-  CRIT Rate +12%. Prepare Branch 4-piece and admit no alternative 4-piece.
-  Woodpecker's CRIT/ATK package is usable but gives up Branch's stronger
-  tailored CRIT package without an acquisition or materially distinct setup
-  advantage because all Disc identities remain editable. Dialyn's received-
-  Ultimate operation does not add contextual Puffer Electro: the action is
-  applicable, but its package is not competitive with Branch's tailored
-  direction. Do not retain Branch's Freeze/Shatter trigger duration because its
-  removal changes neither candidate, representative, applicability, Setup, nor
-  Result when the fully enabled maximum is projected.
+  CRIT Rate +12%. Prepare Branch 4-piece. Also admit Polar Metal as a bounded
+  Basic/Dash-focused alternative: its Ice DMG and fully enabled Basic/Dash DMG
+  remain close enough to Branch while materially concentrating Miyabi's defining
+  Shimotsuki Basic outcome. Woodpecker's CRIT/ATK package is usable but gives up
+  Branch's stronger tailored CRIT package without a materially distinct setup
+  advantage. Dialyn's received-Ultimate operation does not add contextual
+  Puffer Electro: the action is applicable, but its package is not competitive
+  with Branch's tailored direction. Do not retain Branch's Freeze/Shatter
+  trigger duration because its removal changes neither candidate,
+  representative, applicability, Setup, nor Result when the fully enabled
+  maximum is projected.
 - R8. Miyabi's 2-piece directions are Ice DMG through Polar Metal, CRIT Rate
   through Woodpecker, PEN Ratio through Puffer Electro, Basic Attack DMG
   through Dawn's Bloom, ATK through Hormone Punk, and buildup tempo through
   Phaethon's Melody AM, subject to current same-set and same-effect rules.
-  Prepare Woodpecker 2-piece. Branch cannot complement the sole Branch
-  4-piece, and same-value aliases do not create extra choices.
+  Prepare Woodpecker 2-piece. Branch cannot complement the prepared Branch
+  4-piece; with Polar selected, its CRIT DMG complement still cannot preserve
+  the practical 90% CRIT boundary through the bounded eight-hit opportunity, so
+  it remains excluded. Same-value aliases do not create extra choices.
 - R9. Offer CRIT Rate or ATK% in Slot 4; PEN Ratio, ATK%, or Ice DMG in Slot 5;
   and ATK% or Anomaly Mastery in Slot 6. Effective substats are CRIT Rate,
   CRIT DMG, and ATK%. Prepare CRIT Rate/PEN Ratio/ATK% at M0 and
@@ -139,14 +144,16 @@ separate Shock-state/general-damage unit.
 - R12. Selected and candidate equipment use the same source-owned compressed
   Setup summaries. Hailstorm and Branch retain only their fully enabled current
   consumer-backed maxima; routine trigger, duration, stack acquisition, and
-  resource prose stays out. Fusion and Electro-Lip continue to show their
-  complete source-owned packages in Setup, while Result projects only their
-  ATK, PEN, or ordinary DMG clauses and omits AP for this bounded profile.
+  resource prose stays out. Fusion continues to show its complete source-owned
+  package in Setup, while Result projects only its ATK and PEN clauses and omits
+  AP for this bounded profile.
 - R13. Result exposes Initial/Combat/Fully Enabled ATK, CRIT Rate, CRIT DMG,
   AM, ordinary modifier rows, the CRIT-to-buildup gauge, exact local action
   distinctions, the Frostburn-Break operation, and compatible party buildup
-  rows. It adds neither `anomaly_damage`, AP, a generic final-damage row, nor
-  hidden shared Frost state.
+  rows. Shimotsuki and Kazahana retain their local visible identities while
+  inheriting canonical Basic Attack equipment effects; Dodge Counter remains a
+  separate action. Result adds neither `anomaly_damage`, AP, a generic final-
+  damage row, nor hidden shared Frost state.
 - R14. Add Miyabi's original portrait and Frost identity mark. Calibrate
   `scale`, `headTopY`, and `faceX` in that order against a nearby admitted
   portrait at desktop and narrow widths, expanded and compact. No existing
@@ -170,7 +177,12 @@ separate Shock-state/general-damage unit.
   the shared lifecycle fixture with one admitted and one unadmitted recipient;
   this gate remains meaningful with equivalent registered fixtures. Do not add
   a Miyabi candidate-roster assertion.
-- TD4. Portrait metadata changes require the existing visual-baseline job and
+- TD4. The existing action-composition fixture proves canonical effects can be
+  inherited without replacing a local identity, but it cannot prove Miyabi's
+  two Basic outcomes supply that established relationship or keep Dodge Counter
+  separate. Add one integration flow with an equivalent Basic-scoped Disc
+  effect; do not assert the candidate roster or exact effect value.
+- TD5. Portrait metadata changes require the existing visual-baseline job and
   in-app browser checks. No other semantic content change requires a new
   visual snapshot.
 

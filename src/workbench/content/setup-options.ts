@@ -202,7 +202,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['atkPct'], slot5: ['atkPct'], slot6: ['atkPct', 'energyRegenPct'],
   },
   soldier11: {
-    slot4: ['critRate', 'critDmg'], slot5: ['fireDmg', 'penRatio'], slot6: ['atkPct'],
+    slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['fireDmg', 'penRatio', 'atkPct'], slot6: ['atkPct'],
   },
   lighter: {
     slot4: ['atkPct'], slot5: ['fireDmg'], slot6: ['impact'],
@@ -214,7 +214,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['critRate', 'critDmg'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
   },
   nicole: {
-    slot4: ['atkPct'], slot5: ['etherDmg'], slot6: ['energyRegenPct'],
+    slot4: ['atkPct', 'anomalyProficiency'], slot5: ['etherDmg'], slot6: ['energyRegenPct'],
   },
   orphie: {
     slot4: ['critRate', 'critDmg'], slot5: ['fireDmg', 'atkPct'],
@@ -234,7 +234,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['physicalDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
   },
   billy: {
-    slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['physicalDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
+    slot4: ['critRate', 'critDmg'], slot5: ['physicalDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
   },
   ben: {
     slot4: ['critRate', 'critDmg', 'atkPct'],
@@ -254,7 +254,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot6: ['impact'],
   },
   yeShunguang: {
-    slot4: ['critRate', 'critDmg'],
+    slot4: ['critDmg', 'atkPct'],
     slot5: ['physicalDmg', 'atkPct', 'penRatio'],
     slot6: ['atkPct'],
   },
@@ -280,14 +280,14 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   },
   burnice: {
     slot4: ['anomalyProficiency'],
-    slot5: ['penRatio', 'fireDmg'],
+    slot5: ['penRatio', 'fireDmg', 'atkPct'],
     slot6: ['energyRegenPct', 'anomalyMastery'],
   },
   jane: {
     slot4: ['anomalyProficiency', 'atkPct'], slot5: ['penRatio', 'physicalDmg', 'atkPct'], slot6: ['anomalyMastery', 'atkPct'],
   },
   seth: {
-    slot4: ['anomalyProficiency', 'atkPct'], slot5: ['electricDmg', 'atkPct'], slot6: ['energyRegenPct'],
+    slot4: ['anomalyProficiency', 'atkPct'], slot5: ['electricDmg', 'atkPct'], slot6: ['energyRegenPct', 'anomalyMastery'],
   },
   yanagi: {
     slot4: ['anomalyProficiency', 'atkPct'], slot5: ['penRatio', 'electricDmg', 'atkPct'], slot6: ['anomalyMastery', 'atkPct'],
@@ -299,7 +299,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['anomalyProficiency'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['anomalyMastery'],
   },
   aria: {
-    slot4: ['anomalyProficiency'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['anomalyMastery'],
+    slot4: ['anomalyProficiency', 'atkPct'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['anomalyMastery'],
   },
   promeia: {
     slot4: ['anomalyProficiency'], slot5: ['iceDmg', 'atkPct', 'penRatio'], slot6: ['anomalyMastery'],

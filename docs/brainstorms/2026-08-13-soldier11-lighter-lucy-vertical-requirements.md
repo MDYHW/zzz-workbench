@@ -79,8 +79,8 @@ faction graph, or guide-backed evidence payload.
 ### Soldier 11 equipment authoring
 
 - R5. Soldier 11's full W-Engine candidates are Heartstring Nocturne, Cordis
-  Germina, Severed Innocence, The Brimstone, and Starlight Engine. Non-limited
-  candidates are The Brimstone and Starlight Engine. Full
+  Germina, Severed Innocence, and The Brimstone. Non-limited
+  candidates are The Brimstone. Full
   prepares Heartstring W1; non-limited prepares The Brimstone W1.
 - R6. Heartstring's complete high-Base-ATK, advanced CRIT Rate, CRIT DMG, and
   Chain/Ultimate Fire RES Ignore package is usable by Soldier 11 and establishes
@@ -90,17 +90,19 @@ faction graph, or guide-backed evidence payload.
   Chain/Ultimate bypass clause. Cordis is the closest retained action/bypass
   contrast: its CRIT clauses and Basic/Ultimate DEF Ignore remain useful while
   Electric-only damage is unused. Severed and Brimstone
-  preserve other competitive CRIT or broadly usable ATK packages. Starlight is
-  the accessible A-Rank contrast. Steel
+  preserve other competitive CRIT or broadly usable ATK packages. Steel
   Cushion is excluded because its Physical clause is unusable and the remaining
   behind-hit clause does not survive the complete-package comparison.
-- R7. Soldier 11's base 4-piece candidates are Woodpecker Electro and Dawn's
-  Bloom. Dialyn adds Puffer Electro contextually through the established
+- R7. Soldier 11's base 4-piece candidates are Woodpecker Electro, Dawn's
+  Bloom, and Inferno Metal. Inferno's local candidate consequence is its
+  Burning-target CRIT Rate direction; its values remain owned by shared Disc
+  facts. Dialyn adds Puffer Electro contextually through the established
   repeated-Ultimate opportunity. Her 2-piece candidates are Inferno Metal,
   Woodpecker Electro, Branch & Blade Song, Dawn's Bloom, Puffer Electro,
   Hormone Punk, and Astral Voice, subject to the same-effect identity lifecycle.
 - R8. Both pools prepare Woodpecker 4-piece plus Puffer 2-piece with CRIT Rate /
-  PEN Ratio / ATK% mains and zero substats. The fixed CRIT/ATK actions and PEN
+  PEN Ratio / ATK% mains and zero substats. Slot 4 and Slot 5 each admit ATK%
+  alongside their existing choices. The fixed CRIT/ATK actions and PEN
   access remain balanced before future substat investment; non-limited does not
   invent a different Disc package merely to compensate for Brimstone's ATK.
 
@@ -117,9 +119,12 @@ faction graph, or guide-backed evidence payload.
   same-axis competitor: it can reach a similar Elation step and provides squad
   DMG rather than Fire/Ice CRIT DMG, so exact identity remains material.
   Hellfire is the non-limited first choice because its advanced and Combat
-  Impact plus Energy package advances more of Lighter's current direction than
-  Steam's lower-rank Energy/Impact package. Restrained and Precious retain
-  direct Basic-Daze and accessible threshold-Daze contrasts.
+  Impact plus off-field Energy package advances Lighter's current direction.
+  Steam's weaker Energy-Regen/Impact package remains the strongest practical
+  non-limited substitute when Hellfire is contested across simultaneous teams;
+  Restrained and Precious retain direct Basic-Daze and accessible
+  threshold-Daze contrasts rather than replacing that resource/Impact
+  operation.
 - R11. Lighter's 4-piece candidates are King of the Summit, Astral Voice, and
   Shockstar Disco. In the authored Soldier 11 + Lighter + Lucy party, Lighter
   prepares King. Astral remains the usable Quick-Assist party alternative when
@@ -159,14 +164,16 @@ faction graph, or guide-backed evidence payload.
 - R15. Lucy's 4-piece candidates are Moonlight Lullaby and Astral Voice. Her
   Support actions satisfy Moonlight; her EX-driven teammate entry makes Astral
   a current one-recipient option without changing its canonical Focus
-  projection. Her 2-piece candidates are Swing Jazz, Moonlight Lullaby,
-  Hormone Punk, and Astral Voice under the same-effect lifecycle.
-- R16. Both Lucy pools prepare Moonlight 4-piece plus Astral Voice 2-piece with
+  projection. Her 2-piece candidates are Swing Jazz and Moonlight Lullaby under
+  the same-effect lifecycle. At completed Potential, every admitted W-Engine
+  with the fixed ATK% Slots 4 and 5 already reaches the highest retained Core
+  basis cap, so the Hormone Punk/Astral Voice ATK direction adds zero rather
+  than creating a second competitive 2-piece choice.
+- R16. Both Lucy pools prepare Moonlight 4-piece plus Swing Jazz 2-piece with
   ATK% / ATK% / Energy Regen mains and zero substats. The selected Kaboom W5
   fact reaches even M0-M2's highest Core requirement at zero supplied substats,
-  so the prepared package spends Slot 6 on Energy Regen. Astral is the exposed
-  ATK 2-piece because Astral is also a current 4-piece candidate; the shared
-  same-effect lifecycle is not bypassed with a hidden Hormone selection.
+  so the prepared package spends Slot 6 and its legal 2-piece complement on
+  Energy Regen rather than zero-value ATK supply.
 
 ### Current Agent and equipment projection
 
@@ -233,7 +240,7 @@ faction graph, or guide-backed evidence payload.
 
 - AE1. Applying Soldier 11 + Lighter + Lucy initializes M0/M0/M6 and prepares
   Heartstring/Woodpecker/Puffer, Blazing/King/Shockstar, and
-  Kaboom/Moonlight/Astral in full pool, with every effective substat at zero.
+  Kaboom/Moonlight/Swing in full pool, with every effective substat at zero.
 - AE2. Soldier 11's Additional is active with Fire Lighter, Obol Trigger, and
   Silver Squad Soldier 0 through their correct relationships, and inactive
   with a non-Fire Agent outside the NEDF group. Display faction is not rewritten

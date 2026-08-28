@@ -1,5 +1,6 @@
 import type { ProviderRelationship } from '../../calculation/relationships'
 import type { AppliedSlot, WorkbenchState } from '../../state'
+import { DEF_DAMAGE_FORMULAS } from '../../formula-policy'
 import { VERTICAL_VALUES } from '../retained-values'
 import { selectedMindscapeSource } from './sources'
 
@@ -12,7 +13,7 @@ export function ruptureStunBroadPrePenRelationships(
   return [{
     kind: 'provider',
     source: selectedMindscapeSource('qingyi', slot, setup.mindscape, 1),
-    delivery: { recipient: 'enemy-context', formulas: ['general_damage'] },
+    delivery: { recipient: 'enemy-context', formulas: DEF_DAMAGE_FORMULAS },
     effect: {
       kind: 'modifier', metricId: 'defReduction', earliestSurface: 'fully',
       value: VERTICAL_VALUES.qingyi.mindscapeDefReduction,

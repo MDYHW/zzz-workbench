@@ -50,7 +50,7 @@ const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   sunna: { atk: VERTICAL_VALUES.sunna.atk, energyRegen: VERTICAL_VALUES.sunna.baseEnergyRegen },
   rina: { penRatio: VERTICAL_VALUES.rina.penRatio, energyRegen: VERTICAL_VALUES.rina.baseEnergyRegen },
 }
-const m = (id: MetricProjection['id'], label: string, unit: string, statId?: MetricProjection['statId'], admission?: MetricProjection['admission']): MetricProjection => ({ id, label, unit, decimals: unit === '/s' ? 2 : unit === '%' ? 1 : id === 'impact' ? 2 : 0, ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }), ...(admission ? { admission } : {}) })
+const m = (id: MetricProjection['id'], label: string, unit: string, statId?: MetricProjection['statId'], admission?: MetricProjection['admission'], decimals?: number): MetricProjection => ({ id, label, unit, decimals: decimals ?? (unit === '/s' ? 2 : unit === '%' ? 1 : id === 'impact' ? 2 : 0), ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }), ...(admission ? { admission } : {}) })
 
 function src(agent: Agent, slot: Slot, id: string, label: string, locus: 'core' | 'additional' | 'special' | 'ex-special' = 'core') { return selectedAgentSource(agent, slot, id, label, locus) }
 function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourceProfile {
@@ -171,6 +171,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     }
     metrics = [
       m('anomalyProficiency', 'Anomaly Proficiency', '', 'anomalyProficiency'),
+      m('anomalyMastery', 'Anomaly Mastery', '', 'anomalyMastery', undefined, 1),
       m('energyRegen', 'Energy Regen', '/s', 'energyRegen'),
       m('anomalyBuildupBonus', 'Anomaly Buildup Bonus', '%', undefined, 'nonzero-or-action'),
       m('anomalyBuildupResReduction', 'Anomaly Buildup RES Reduction', '%', undefined, 'nonzero-or-action'),

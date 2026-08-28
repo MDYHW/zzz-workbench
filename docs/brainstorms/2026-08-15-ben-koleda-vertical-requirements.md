@@ -190,14 +190,16 @@ Koleda adds no new common mechanism.
   separately retained value.
 - R14. Koleda's full W-Engine candidates are Hellfire Gears, Blazing Laurel,
   The Restrained, Steam Oven, and Precious Fossilized Core. Her non-limited
-  S-Rank pool excludes only Blazing from that admitted set. Both pools prepare
+  pool excludes only Blazing from that admitted set. Both pools prepare
   Hellfire W1: its off-field Energy and fully enabled Impact directly reinforce
   Koleda's EX-driven Core Daze.
   Blazing exchanges that resource package for higher Assist-enabled Impact and
   Fire/Ice squad CRIT DMG. The Restrained is a separate enhanced-Basic DMG/Daze
-  direction. Steam remains the accessible A-Rank resource/Impact package, and
-  Precious remains the target-high-HP Daze package; their timing and ownership
-  paths do not duplicate Hellfire's EX package. Ice-Jade is excluded because
+  direction. Steam's weaker Energy-Regen/Impact package remains the strongest
+  practical non-limited substitute when Hellfire is contested across
+  simultaneous teams; Precious remains a distinct target-high-HP Daze package
+  rather than replacing that sustained resource direction.
+  Ice-Jade is excluded because
   Koleda's short Basic-to-EX sequence does not sustain its 15/30 Basic-hit
   thresholds without role-distorting field time. Box Cutter has no Koleda
   Aftershock consumer, while Demara and Simmering Pot do not beat the retained

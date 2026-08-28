@@ -46,7 +46,7 @@ describe('shared engine activation and scope facts', () => {
   it('keeps an equipper-attack trigger in the shared fact and resolves holder capability separately', () => {
     const damage = W_ENGINE_FACTS.weepingCradle.effects.damage
     expect(damage.activation).toEqual({ kind: 'trigger', performer: 'equipper' })
-    expect(equipmentEffectCanBeActivatedByHolder('sunna', damage)).toBe(false)
+    expect(equipmentEffectCanBeActivatedByHolder('sunna', damage)).toBe(true)
     expect(equipmentEffectCanBeActivatedByHolder('yuzuha', damage)).toBe(true)
 
     const roaringDamage = W_ENGINE_FACTS.roaringFurnace.effects.damage

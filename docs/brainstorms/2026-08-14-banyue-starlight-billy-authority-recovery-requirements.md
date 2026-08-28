@@ -87,24 +87,26 @@ projection.
   Ultimate Sheer DMG +18% and a bounded two-stack +100% Sheer Force operation.
   Resource, rotation, and raw final output remain absent.
 - R10. Full W-Engine candidates are Starlight Rider Faceplate, Qingming
-  Birdcage, Cauldron of Clarity, Steel Cushion, Grill O'Wisp, and Puzzle Sphere.
-  Non-limited candidates are Cauldron, Steel, Grill, and Puzzle. Every item can
-  be equipped; the Rupture passives are holder-compatible, while Steel's Attack
-  passive remains inactive even though its advanced stat is usable.
+  Birdcage, Cauldron of Clarity, Grill O'Wisp, and Puzzle Sphere. Non-limited
+  candidates are Cauldron, Grill, and Puzzle. Steel Cushion is legal and its
+  advanced CRIT Rate is usable, but its Attack-holder passive is inactive and
+  the remaining stat-only package is outside the competitive standard/A range.
 - R11. Full prepares Starlight Rider Faceplate W1; non-limited prepares Cauldron
-  W5. Faceplate's HP/CRIT/Physical Sheer package is fully compatible. Steel is
-  the partial-but-competitive contrast: its CRIT advanced stat remains usable,
-  while its Attack-holder Physical passive is inactive and therefore projects
-  no damage clause. An ineligible holder item would not be admitted at all.
-  Qingming remains a competitive partial HP/CRIT package despite unused Ether.
-  Faceplate and Qingming CRIT Rate enter at Combat; the HP-decrease Faceplate
-  Sheer package and Cauldron or Grill post-entry effects enter at Fully Enabled.
+  W5. Faceplate's HP/CRIT/Physical Sheer package is fully compatible. Qingming
+  remains a competitive partial HP/CRIT package despite unused Ether. Grill
+  retains a distinct HP/CRIT allocation through Billy's repeated HP-decrease
+  route while its Fire clause contributes zero; Puzzle retains its EX/CD
+  allocation. Faceplate and Qingming CRIT Rate enter at Combat; the HP-decrease
+  Faceplate Sheer package and Cauldron or Grill post-entry effects enter at
+  Fully Enabled.
 - R12. Candidate membership follows whole-package opportunity cost, while exact
   Result projection follows the selected engine's actual holder and activation
   compatibility. A competitive partial candidate does not gain its unused
   clause, and candidate dominance does not define Result.
 - R13. Starlight Billy's only 4-piece candidate is Yunkui. Two-piece candidates
-  are Woodpecker, Branch & Blade, and Fanged Metal. Main choices are CRIT Rate/
+  are Woodpecker, Branch & Blade, and White Water Ballad. White Water is the
+  authored canonical identity for the same Physical-DMG decision as Fanged
+  Metal when neither set has a current 4-piece role. Main choices are CRIT Rate/
   CRIT DMG/HP% in Slot 4, Physical DMG/HP% in Slot 5, and HP% in Slot 6.
   Effective substats are CRIT Rate, CRIT DMG, and HP%. Full prepares Branch;
   non-limited prepares Woodpecker; both use CRIT Rate/Physical DMG/HP% and zero
@@ -132,10 +134,11 @@ projection.
   regular and Sheer modifiers, exact action differences, applicable RES/Stun
   modifiers, and retained operations. It never reports raw/final damage.
 - R18. Shared tests cover the Rupture conversion beside Yidhari/Manato, full and
-  non-limited zero-substat representatives, Faceplate fully usable versus Steel
-  partial/inactive-passive projection, both Additional predicates, representative
-  Mindscape action scopes, incomplete repair, and target-only rebuilds. Tests
-  prove fidelity only after the permanent-authority trace succeeds.
+  non-limited zero-substat representatives, selected-equipment applicability,
+  same-effect identity reconciliation, both Additional predicates,
+  representative Mindscape action scopes, incomplete repair, and target-only
+  rebuilds. Tests prove fidelity only after the permanent-authority trace
+  succeeds.
 
 ## Rejected Alternatives And Boundaries
 
@@ -150,6 +153,6 @@ projection.
 
 ## Status
 
-The recovery audit retained the sampled candidate memberships and prepared
-representatives while correcting the earliest Result surface of unconditional
-W-Engine clauses. It does not assert repository-wide correctness.
+The recovery audit corrected the sampled candidate memberships while retaining
+the supported prepared representatives and earliest Result surfaces. It does
+not assert repository-wide correctness.

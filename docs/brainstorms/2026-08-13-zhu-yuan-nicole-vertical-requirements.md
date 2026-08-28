@@ -26,7 +26,7 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
 
 - Applying Zhu Yuan and Nicole prepares complete local setups at zero supplied
   substats. Nicole's broad DEF Reduction removes PEN Ratio and standalone
-  Puffer 2-piece choices only from applicable general-damage recipients.
+  Puffer 2-piece choices only from applicable DEF-region damage recipients.
 - Zhu Yuan keeps Basic, Dash, and Ultimate equipment scopes distinct. Exact
   action identity remains visible where totals differ.
 - Nicole's Additional Ability applies only to Ether recipients when another
@@ -63,8 +63,8 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
 
 - R4. Zhu Yuan's full W-Engine candidates are Cordis Germina, Heartstring
   Nocturne, The Brimstone, Riot Suppressor Mark VI, Marcato
-  Desire, and Starlight Engine. Non-limited candidates are The Brimstone,
-  Marcato Desire, and Starlight Engine. Full prepares Cordis Germina W1;
+  Desire. Non-limited candidates are The Brimstone and Marcato Desire. Full
+  prepares Cordis Germina W1;
   non-limited prepares The Brimstone W1.
 - R5. Cordis is the full first choice through its high Base ATK, advanced and
   Combat CRIT Rate, and Basic/Ultimate DEF Ignore. Its Electric DMG clause is
@@ -78,17 +78,23 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   makes its same-axis supply materially less valuable than her retained balanced
   CRIT and action packages. Myriad Eclipse is excluded because Heartstring has
   the same Base ATK and advanced CRIT Rate, higher unconditional CRIT DMG, and
-  both holders leave their Attribute-only bypass clause unused. Marcato and Starlight remain
-  accessible A-Rank CRIT/ATK and broad-ATK contrasts. The Brimstone establishes
+  both holders leave their Attribute-only bypass clause unused. Marcato remains
+  the accessible A-Rank CRIT/ATK contrast. Starlight Engine is excluded because
+  Brimstone is stronger in the same non-limited broad-ATK direction without
+  changing finite allocation or action coverage. The Brimstone establishes
   the non-limited first choice because its high Base ATK and complete
   advanced and fully enabled ATK package surpass
   those A-Rank packages at zero substats.
 - R6. Add Riot Suppressor Mark VI as a limited S-Rank Attack candidate. Its
   mixed-CRIT and charge-enabled Ether Basic/Dash package is fully compatible
-  with Zhu Yuan and determines her full-pool first choice. Its narrower
+  with Zhu Yuan and remains a distinct action-focused alternative below the
+  Cordis first choice. Its narrower
   action/Attribute clauses project only through their admitted consumers.
-- R7. Zhu Yuan's base 4-piece candidates are Chaotic Metal and Woodpecker
-  Electro. Dialyn adds Puffer Electro contextually through the established
+- R7. Zhu Yuan's base 4-piece candidates are Chaotic Metal, Dawn's Bloom, and
+  Woodpecker Electro. Dawn's Bloom concentrates its complete package on her
+  defining enhanced Basic output, while Chaotic and Woodpecker preserve broader
+  Ether/CRIT and CRIT/ATK directions. Dialyn adds Puffer Electro contextually
+  through the established
   repeated-Ultimate opportunity. Her base 2-piece candidates are Chaotic Metal,
   Woodpecker Electro, Branch & Blade Song, Dawn's Bloom, Puffer Electro,
   Hormone Punk, and Astral Voice, subject to the existing formula pressure and
@@ -113,8 +119,9 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
 ### Nicole equipment authoring
 
 - R10. Nicole's full W-Engine candidates are Elegant Vanity, The Vault,
-  Weeping Cradle, and Kaboom the Cannon. Non-limited candidates are The Vault,
-  Weeping Cradle, and Kaboom. Both pools prepare The Vault W5. Elegant's event
+  Weeping Cradle, Kaboom the Cannon, and Unfettered Game Ball. Non-limited
+  candidates are The Vault, Weeping Cradle, Kaboom, and Unfettered. Both pools
+  prepare The Vault W5. Elegant's event
   Energy and advanced ATK do not project, but Nicole can activate its long
   fully usable squad-DMG package. It therefore remains a legal full-pool
   alternative, while losing The Vault's advanced and temporary holder Energy
@@ -122,22 +129,33 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
 - R11. Add The Vault as an A-Rank non-limited Support candidate. Its Energy and
   Ether EX/Chain/Ultimate-triggered squad-DMG/holder-Energy package is fully
   usable by Nicole and establishes both pool representatives. The
-  event-conditioned holder Energy remains compressed Setup content but does not
-  project as automatic Energy Regen in Result.
+  source-stated holder recovery rate projects in the Fully Enabled Energy Regen
+  row once that directly observed trigger state holds; it is not a per-event
+  Energy grant normalized through cadence.
   Weeping is the closest same-recipient competitor through off-field Energy and
   squad DMG while its advanced PEN is unused. Kaboom keeps the distinct
   always-reachable four-unit squad-ATK package but supplies less of Nicole's
-  current direction than The Vault.
-- R12. Nicole's 4-piece candidates are Moonlight Lullaby and Astral Voice.
+  current direction than The Vault. Unfettered keeps the same Energy advanced
+  stat as Kaboom while replacing party ATK with a weakness-dependent squad
+  CRIT direction that materially changes a CRIT-consuming recipient's finite
+  investment; it remains a candidate rather than displacing The Vault.
+- R12. Nicole's 4-piece candidates are Moonlight Lullaby, Astral Voice, and
+  Freedom Blues.
   Support-holder eligibility makes Moonlight's complete Energy and squad-DMG
   package usable; Nicole's EX/Chain/Ultimate Quick Assist route makes Astral a
-  controllable one-recipient alternative. Swing Jazz 4-piece is excluded after
+  controllable one-recipient alternative. Freedom's holder-derived Ether
+  Anomaly Buildup RES Reduction is a narrower but competitive party direction
+  for a current Ether anomaly recipient, while its AP remains useful to
+  Nicole's residual Ether Anomaly contribution.
+  Swing Jazz 4-piece is excluded after
   the same-recipient comparison because Moonlight is stronger and the current
   three-Agent party has no third competitive non-stacking Support holder.
 - R13. Nicole's 2-piece candidates are Swing Jazz and Moonlight Lullaby, the
   exact-identity pair for the same Energy-Regen effect. Both pools prepare Moonlight
   4-piece plus Swing 2-piece with ATK% / Ether DMG / Energy Regen mains and no
-  substats. The ATK and Ether mains are residual legal completion choices, not
+  substats. Slot 4 offers ATK% first and AP second as distinct residual personal
+  directions when no provider basis consumes that slot. The ATK, AP, and Ether
+  mains are legal completion choices, not
   evidence for a personal-damage Result, substat, or scaling relationship. Selecting
   Astral 4-piece exposes Moonlight as the canonical Energy 2-piece; selecting
   Moonlight 4-piece exposes Swing so the two identities never conflict.
@@ -170,7 +188,8 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   action hierarchy rather than becoming sibling totals that fail to combine.
 - R16. Nicole's completed Core applies enemy DEF Reduction 40% through enhanced
   bullets or Energy Fields. It is broad pre-PEN pressure for applicable
-  `general_damage`, but not for `sheer_damage`. Her Additional activates with
+  `general_damage` and `anomaly_damage`, but not for `sheer_damage`. Her
+  Additional activates with
   another Ether or same-faction Agent and supplies Ether DMG +25% only to
   current Ether recipients. Her EX Special, Chain Attack, and Ultimate retain
   the reachable Quick Assist route used by Astral Voice authoring, but the
@@ -184,13 +203,15 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   recipients and non-stacking identities. Moonlight applies to all party
   members once. Astral's steerable single-recipient effect projects once to
   Focus. The Vault remains target-scoped squad DMG plus holder Energy rather
-  than a generic ATK effect; only its squad DMG projects in Result.
+  than a generic ATK effect; its target DMG and temporary holder recovery rate
+  project as separate Result relationships.
 
 ### Candidate lifecycle and visible experience
 
 - R19. Nicole's applied broad DEF Reduction removes Slot 5 PEN Ratio and
   standalone Puffer 2-piece from every applicable authored primary or residual
-  `general_damage` setup. It does not remove Puffer 4-piece, action-limited DEF
+  direction that consumes the DEF region. It does not remove Puffer 4-piece,
+  action-limited DEF
   effects, or any Rupture choice. Because Nicole presence changes through Party
   Apply, the authorized flow rebuilds all three setups and prepares a complete
   pressure-safe representative; it does not preserve an invalid PEN edit and
@@ -234,8 +255,9 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   M2 and Riot combine on both, while Cordis applies only to
   Basic and Ultimate. M4 applies Ether RES Ignore only to enhanced Basic/Dash.
 - AE3. With Nicole applied, Zhu Yuan receives Nicole's enemy DEF Reduction,
-  Ether DMG, M6 CRIT Rate, and The Vault's source-owned squad DMG. A non-Ether
-  general-damage teammate receives
+  Ether DMG, M6 CRIT Rate, and The Vault's source-owned squad DMG, while
+  Nicole's Fully Enabled Energy Regen includes The Vault's temporary holder
+  recovery rate. A non-Ether general-damage teammate receives
   DEF Reduction and CRIT Rate but not Ether DMG. Yixuan receives applicable
   Ether DMG and CRIT Rate but no DEF-region value or candidate pressure.
 - AE4. A party without Nicole exposes a general-damage PEN Slot 5 and Puffer

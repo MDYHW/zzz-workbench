@@ -122,6 +122,9 @@ export const DRIVE_DISC_FACTS = {
     twoPiece: {
       damage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Fire'] } },
     },
+    fourPiece: {
+      critRate: { modifier: 'critRate', unit: '%', value: 28, activation: { kind: 'trigger', targetCondition: 'burningTarget' } },
+    },
   },
   fangedMetal: {
     twoPiece: {
@@ -134,6 +137,14 @@ export const DRIVE_DISC_FACTS = {
   polarMetal: {
     twoPiece: {
       damage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Ice'] } },
+    },
+    fourPiece: {
+      damage: {
+        modifier: 'dmgBonus', unit: '%', value: 20,
+        progression: { kind: 'conditions', perCondition: 20, maxConditions: 1 },
+        scope: { actions: ['Basic Attack', 'Dash Attack'] },
+        activation: { kind: 'trigger', anomalyResult: 'Freeze' },
+      },
     },
   },
   thunderMetal: {
@@ -350,6 +361,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   infernoMetal: {
     name: 'Inferno Metal', image: infernoMetalImage,
     twoPieceEffect: `Fire DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.infernoMetal.twoPiece.damage)}%`,
+    fourPieceEffects: [`Burning target · CRIT Rate +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.infernoMetal.fourPiece.critRate)}%`],
   },
   fangedMetal: {
     name: 'Fanged Metal', image: fangedMetalImage,
@@ -359,6 +371,7 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
   polarMetal: {
     name: 'Polar Metal', image: polarMetalImage,
     twoPieceEffect: `Ice DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.polarMetal.twoPiece.damage)}%`,
+    fourPieceEffects: [`Basic & Dash Attack DMG +${equipmentEffectMaximumValue(DRIVE_DISC_FACTS.polarMetal.fourPiece.damage)}%`],
   },
   thunderMetal: {
     name: 'Thunder Metal', image: thunderMetalImage,
@@ -474,7 +487,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   yidhari: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade', 'polarMetal'] },
   manato: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade', 'infernoMetal'] },
   hugo: {
-    fourPiece: ['hormonePunk'],
+    fourPiece: ['hormonePunk', 'woodpecker'],
     twoPiece: ['polarMetal', 'woodpecker', 'branchAndBlade', 'pufferElectro', 'astralVoice', 'hormonePunk'],
     contextualFourPiece: [{
       opportunity: 'received-ultimate', discId: 'pufferElectro', minimumMindscape: 2,
@@ -501,7 +514,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   },
   starlightBilly: {
     fourPiece: ['yunkui'],
-    twoPiece: ['woodpecker', 'branchAndBlade', 'fangedMetal'],
+    twoPiece: ['woodpecker', 'branchAndBlade', 'whiteWaterBallad'],
   },
   dialyn: { fourPiece: ['king'], twoPiece: ['woodpecker', 'swingJazz'] },
   lucia: { fourPiece: ['moonlight'], twoPiece: ['yunkui', 'swingJazz'] },
@@ -520,12 +533,12 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   astraYao: { fourPiece: ['astralVoice', 'moonlight'], twoPiece: ['moonlight', 'swingJazz', 'hormonePunk', 'astralVoice'] },
   seed: {
     fourPiece: ['dawnsBloom', 'woodpecker'],
-    twoPiece: ['woodpecker', 'branchAndBlade', 'pufferElectro', 'thunderMetal', 'hormonePunk'],
+    twoPiece: ['woodpecker', 'branchAndBlade', 'dawnsBloom', 'pufferElectro', 'thunderMetal', 'hormonePunk'],
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   cissia: {
-    fourPiece: ['dawnsBloom'],
-    twoPiece: ['swingJazz', 'woodpecker', 'branchAndBlade', 'thunderMetal', 'hormonePunk', 'astralVoice'],
+    fourPiece: ['dawnsBloom', 'thunderMetal', 'astralVoice'],
+    twoPiece: ['swingJazz', 'woodpecker', 'branchAndBlade', 'dawnsBloom', 'thunderMetal', 'hormonePunk', 'astralVoice'],
     contextualFourPiece: [
       { opportunity: 'received-ultimate', discId: 'pufferElectro' },
       {
@@ -544,8 +557,8 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     ],
   },
   corin: {
-    fourPiece: ['hormonePunk'],
-    twoPiece: ['woodpecker', 'branchAndBlade', 'fangedMetal', 'astralVoice', 'hormonePunk'],
+    fourPiece: ['hormonePunk', 'woodpecker'],
+    twoPiece: ['woodpecker', 'branchAndBlade', 'fangedMetal', 'pufferElectro', 'astralVoice', 'hormonePunk'],
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   lycaon: {
@@ -560,13 +573,13 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     },
   },
   ellen: {
-    fourPiece: ['woodpecker'],
+    fourPiece: ['woodpecker', 'polarMetal', 'shadowHarmony'],
     twoPiece: ['pufferElectro', 'polarMetal', 'woodpecker', 'branchAndBlade', 'astralVoice', 'hormonePunk'],
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
-  soukaku: { fourPiece: ['moonlight', 'astralVoice'], twoPiece: ['swingJazz', 'moonlight', 'hormonePunk', 'astralVoice'] },
+  soukaku: { fourPiece: ['moonlight', 'astralVoice', 'freedomBlues'], twoPiece: ['swingJazz', 'moonlight', 'hormonePunk', 'astralVoice'] },
   soldier11: {
-    fourPiece: ['woodpecker', 'dawnsBloom'],
+    fourPiece: ['woodpecker', 'dawnsBloom', 'infernoMetal'],
     twoPiece: ['infernoMetal', 'woodpecker', 'branchAndBlade', 'dawnsBloom', 'pufferElectro', 'hormonePunk', 'astralVoice'],
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
@@ -581,15 +594,15 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     },
   },
   lucy: {
-    fourPiece: ['moonlight', 'astralVoice'], twoPiece: ['swingJazz', 'moonlight', 'hormonePunk', 'astralVoice'],
+    fourPiece: ['moonlight', 'astralVoice'], twoPiece: ['swingJazz', 'moonlight'],
   },
   zhuYuan: {
-    fourPiece: ['chaoticMetal', 'woodpecker'],
+    fourPiece: ['chaoticMetal', 'dawnsBloom', 'woodpecker'],
     twoPiece: ['chaoticMetal', 'woodpecker', 'branchAndBlade', 'dawnsBloom', 'pufferElectro', 'hormonePunk', 'astralVoice'],
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   nicole: {
-    fourPiece: ['moonlight', 'astralVoice'],
+    fourPiece: ['moonlight', 'astralVoice', 'freedomBlues'],
     twoPiece: ['swingJazz', 'moonlight'],
   },
   orphie: {
@@ -630,7 +643,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   billy: {
-    fourPiece: ['woodpecker', 'shadowHarmony'],
+    fourPiece: ['woodpecker', 'shadowHarmony', 'dawnsBloom'],
     twoPiece: ['shadowHarmony', 'woodpecker', 'branchAndBlade', 'fangedMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
@@ -654,17 +667,16 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     },
   },
   caesar: {
-    fourPiece: ['bunnyInWonderland'],
+    fourPiece: ['bunnyInWonderland', 'freedomBlues'],
     twoPiece: ['swingJazz', 'shockstar', 'king'],
     contextualFourPiece: [{ opportunity: 'repeated-quick-assist', discId: 'astralVoice' }],
   },
   yeShunguang: {
-    fourPiece: ['whiteWaterBallad', 'woodpecker', 'hormonePunk'],
+    fourPiece: ['whiteWaterBallad'],
     twoPiece: [
       'whiteWaterBallad', 'fangedMetal', 'woodpecker', 'branchAndBlade',
       'pufferElectro', 'hormonePunk', 'astralVoice',
     ],
-    contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   zhao: {
     fourPiece: ['bunnyInWonderland', 'astralVoice'],
@@ -674,7 +686,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     fourPiece: ['thunderMetal', 'chaosJazz', 'freedomBlues'],
     twoPiece: [
       'pufferElectro', 'phaethonsMelody', 'freedomBlues', 'chaosJazz',
-      'hormonePunk', 'astralVoice',
+      'hormonePunk', 'astralVoice', 'thunderMetal',
     ],
   },
   piper: {
@@ -682,19 +694,19 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     twoPiece: ['phaethonsMelody', 'freedomBlues', 'chaosJazz', 'fangedMetal', 'whiteWaterBallad', 'pufferElectro', 'hormonePunk', 'astralVoice'],
   },
   yuzuha: {
-    fourPiece: ['moonlight', 'astralVoice'],
+    fourPiece: ['moonlight', 'astralVoice', 'freedomBlues'],
     twoPiece: ['phaethonsMelody', 'hormonePunk', 'astralVoice', 'swingJazz', 'moonlight'],
   },
   burnice: {
     fourPiece: ['chaosJazz', 'freedomBlues'],
-    twoPiece: ['swingJazz', 'moonlight', 'phaethonsMelody', 'pufferElectro', 'freedomBlues', 'chaosJazz', 'infernoMetal'],
+    twoPiece: ['swingJazz', 'moonlight', 'phaethonsMelody', 'pufferElectro', 'freedomBlues', 'chaosJazz', 'infernoMetal', 'hormonePunk', 'astralVoice'],
   },
   jane: {
     fourPiece: ['fangedMetal', 'freedomBlues'],
     twoPiece: ['pufferElectro', 'phaethonsMelody', 'freedomBlues', 'chaosJazz', 'fangedMetal', 'whiteWaterBallad', 'hormonePunk', 'astralVoice'],
   },
   seth: {
-    fourPiece: ['astralVoice', 'swingJazz', 'freedomBlues'],
+    fourPiece: ['astralVoice', 'swingJazz', 'bunnyInWonderland', 'freedomBlues'],
     twoPiece: ['swingJazz', 'moonlight'],
   },
   yanagi: {
@@ -711,11 +723,11 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   },
   aria: {
     fourPiece: ['phaethonsMelody', 'shiningAria'],
-    twoPiece: ['freedomBlues', 'chaosJazz', 'shiningAria', 'chaoticMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
+    twoPiece: ['phaethonsMelody', 'freedomBlues', 'chaosJazz', 'shiningAria', 'chaoticMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
   },
   promeia: {
     fourPiece: ['notesFromTheChained'],
-    twoPiece: ['phaethonsMelody', 'freedomBlues', 'chaosJazz', 'hormonePunk', 'astralVoice'],
+    twoPiece: ['phaethonsMelody', 'freedomBlues', 'chaosJazz', 'polarMetal', 'pufferElectro', 'hormonePunk', 'astralVoice'],
   },
   sunna: {
     fourPiece: ['moonlight', 'astralVoice'],
@@ -726,7 +738,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     twoPiece: ['phaethonsMelody', 'freedomBlues', 'chaosJazz', 'shiningAria', 'chaoticMetal', 'hormonePunk', 'astralVoice', 'pufferElectro'],
   },
   miyabi: {
-    fourPiece: ['branchAndBlade'],
+    fourPiece: ['branchAndBlade', 'polarMetal'],
     twoPiece: ['polarMetal', 'woodpecker', 'pufferElectro', 'dawnsBloom', 'hormonePunk', 'phaethonsMelody'],
   },
   anton: {
@@ -734,5 +746,5 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     twoPiece: ['woodpecker', 'branchAndBlade', 'thunderMetal', 'dawnsBloom', 'pufferElectro', 'hormonePunk'],
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
-  rina: { fourPiece: ['moonlight', 'astralVoice'], twoPiece: ['pufferElectro'] },
+  rina: { fourPiece: ['moonlight', 'astralVoice', 'freedomBlues'], twoPiece: ['pufferElectro'] },
 }
