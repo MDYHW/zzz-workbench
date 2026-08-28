@@ -66,9 +66,9 @@ A qualifying relationship proves only usable value, not candidate admission.
 The applicable input-surface rule must still compare complete setups, finite
 opportunity, acquisition or allocation role where applicable, the nearest
 usable same-axis comparator, material setup direction, and a reversing
-countercase. Compress an alternative only when another option is at least as
-strong in every usable outcome under the same applicability and opportunity
-context.
+countercase. Candidate admission and compression remain owned by those
+input-surface rules; the common relationships add no cross-surface dominance
+rule.
 
 Keep this an authoring rule rather than a runtime optimizer or equipment
 catalogue. It does not require action-share, uptime, or rotation precision that
@@ -165,4 +165,4 @@ effect graph.
 
 - Product owner: `Min-DongYoung`
 - Result: `accepted`
-- Decided at: `2026-08-28T22:37:46+09:00`
+- Decided at: `2026-08-29T00:23:46+09:00`
