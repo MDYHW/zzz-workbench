@@ -186,15 +186,17 @@ Candidate authoring follows this order:
 1. establish completed Agent facts and Rank-default Mindscape;
 2. establish direction, roles, actions, retained operations, formulas,
    conversions, thresholds, caps, and exclusions;
-3. use recurring role, formula, action, stat-pressure, and Specialty patterns
+3. project candidate-bearing source contributions through the common Agent
+   outcome relationships and clause gates below;
+4. use recurring role, formula, action, stat-pressure, and Specialty patterns
    to restrict inspection;
-4. compare remaining packages against that Agent's exact kit, activation,
+5. compare remaining packages against that Agent's exact kit, activation,
    opportunity costs, availability, and current competitive practice;
-5. retain only materially distinct authored base candidates;
-6. derive current effective candidates through only authored Mindscape, party,
+6. retain only materially distinct authored base candidates;
+7. derive current effective candidates through only authored Mindscape, party,
    focus, pool, or active-effect adjustments in the explicit acyclic order
    below; and
-7. author the deterministic first choices from those effective candidates
+8. author the deterministic first choices from those effective candidates
    needed to prepare one complete setup.
 
 Candidate-bearing setup inputs are W-Engines, 4-piece sets, 2-piece sets,
@@ -211,6 +213,39 @@ axis or formula component. Candidate policy has three ordered stages:
    action, and formula applicability, to that authored base; and
 3. the **prepared first choice** selects one authored representative only from
    the current effective set during an authorized preparation transition.
+
+Every candidate-bearing setup input derives usable source value through the
+same current Agent outcome relationships before applying its input-specific
+competitive rule. A source contribution has usable value only through at least
+one retained relationship:
+
+- a **basis, threshold, or conversion relationship**, where supplied stat value
+  changes another retained outcome or preparation boundary;
+- a **delivery-topology relationship**, where an action or operating interval
+  delivers retained Daze, damage, buff, or another setup outcome;
+- a **role-resource relationship**, where Impact, Energy, or another retained
+  resource materially enables that delivery or outcome; or
+- an **external-outcome relationship**, where a party- or enemy-facing effect
+  reaches an exact current recipient and applicable formula.
+
+Specialty, Attribute, holder, activation, action, recipient, interval, and
+other source-local qualifiers gate each contribution independently. They do
+not create a competitive axis by themselves. A contribution that fails its
+gate adds zero usable value and receives no penalty; complete and partial
+packages use the same relationship test. Passing that test proves only usable
+value. The applicable input rule must still compare complete setups, finite
+opportunity, the nearest usable same-axis alternative, material setup
+direction, acquisition or allocation role where applicable, and a countercase
+that would reverse the conclusion before admission, compression, or
+representative authoring.
+
+Derive these relationships only from retained Agent facts, source facts, and
+applicable formula or recipient consumers. Do not require action share, uptime,
+or rotation precision absent from the retained source condition and current
+consumer. A genuinely new operation that these established relationships
+cannot express requires an explicit common-mechanism or authority decision; do
+not force it into the gate or infer a relationship from item identity or
+analogy.
 
 Each Agent direction settles the role-strengthened formula families, using the
 [Formula-Family Stat Consequences](zzz-formula-mechanics.md#formula-family-stat-consequences),
@@ -239,8 +274,9 @@ alternatives within that range. This W-Engine boundary does not replace the
 separate Drive Disc, main-stat, or effective-substat gates.
 
 Patterns order inspection but cannot inherit another Agent's result. New items
-are routed first to roles, formulas, actions, stat pressures, and Specialties
-that can consume them; unrelated Agents do not require full re-derivation.
+are routed first to current Agent outcome relationships, then through the
+formula, action, stat-pressure, Specialty, and other clause gates that can
+establish an exact consumer. Unrelated Agents do not require full re-derivation.
 
 #### W-Engine Package Inspection
 
@@ -253,19 +289,20 @@ could strengthen the exact authored direction. A guide appearance, release or
 character association, rarity, Specialty match, or isolated high value neither
 admits nor rejects a package by itself.
 
-For every inspected legal package, settle the holder's role and formula,
-action, operation, threshold, or cap consumer; exact Specialty eligibility and
-activation compatibility; availability and ownership origin; and the nearest
-usable same-direction competitor. At S-Rank W1 or A-Rank W5, derive only the
-Base ATK, advanced stat, passive clauses, conditions, scopes, and operations the
-current Agent can realize. A usable contribution adds its realized value. An
-unusable contribution adds zero and is neither a bonus nor a penalty. Complete
-and partial describe applicability; clause count and package completeness do
-not establish value or priority. An off-Specialty package remains Agent-local
-and survives only when its realized package is competitive for the current
-direction. Base ATK remains part of the recomposed setup, but Rank or a modest
-isolated Base ATK difference does not independently establish admission,
-direction, or priority.
+For every inspected legal package, first project Base ATK, advanced stat, and
+each passive contribution through the `SW-004` Agent outcome relationships.
+Settle the holder's role and formula, action, operation, threshold, or cap
+consumer; exact Specialty eligibility and activation compatibility;
+availability and ownership origin; and the nearest usable same-direction
+competitor. At S-Rank W1 or A-Rank W5, derive only the conditions, scopes, and
+operations the current Agent can realize. A usable contribution adds its
+realized value. An unusable contribution adds zero and is neither a bonus nor a
+penalty. Complete and partial describe applicability; clause count and package
+completeness do not establish value or priority. An off-Specialty package
+remains Agent-local and survives only when its realized package is competitive
+for the current direction. Base ATK remains part of the recomposed setup, but
+Rank or a modest isolated Base ATK difference does not independently establish
+admission, direction, or priority.
 
 At zero currently supplied substats, recompose the complete bounded setup and
 the future opportunity owned by [Competitive Candidate Set](#competitive-candidate-set)
@@ -336,6 +373,10 @@ action-scoped DMG, formula-specific modifiers, DEF-region supply, Daze supply,
 resource supply, and party-facing modifiers. Keep only current leaves: do not
 prepopulate unused Attributes, actions, or effects to form a catalogue.
 
+The effect family and leaf route discovery; they do not establish Agent value.
+Project every retained clause through the `SW-004` Agent outcome relationships
+and its independent qualifier gates before recombining an exact Disc package.
+
 Classify each retained 2-piece or 4-piece clause independently, then recombine
 every clause belonging to one exact Disc identity for the whole-package
 comparison. A multi-clause Disc does not belong to only one family. Piece
@@ -345,13 +386,13 @@ exact identity remain orthogonal applicability facts rather than deeper
 classification levels.
 
 For one Agent direction, inspect in this order: establish exact Result and
-setup consumers; select formula-valid effect families and exact leaves; apply
-role priority; reject incompatible holders or activations; match defining
-actions and Attributes; compare complete 4-piece packages; compare legal
-2-piece complements; apply threshold, cap, and bounded future-substat
-opportunity costs; resolve explicitly authored same-effect identity compression;
-then apply contextual candidate and non-stacking holder policy. Candidate
-membership and the zero-substat prepared first choice remain separate outcomes.
+setup consumers; apply the `SW-004` relationship and qualifier gates; select
+formula-valid effect families and exact leaves; apply role priority; compare
+complete 4-piece packages; compare legal 2-piece complements; apply threshold,
+cap, and bounded future-substat opportunity costs; resolve explicitly authored
+same-effect identity compression; then apply contextual candidate and non-
+stacking holder policy. Candidate membership and the zero-substat prepared
+first choice remain separate outcomes.
 
 For a current general-damage Attack contributor, the ordinary 2-piece
 inspection includes both ATK% and the matching Attribute DMG modifier, together
@@ -390,13 +431,16 @@ the separate operation-aware passes defined below.
 **Rule ID:** `SW-007`
 
 Main-stat and effective-substat candidates begin from the Agent's direction,
-roles, formulas, and current Agent sources. Do not re-derive the whole candidate
-set from every party and equipment combination. A selected equipment effect may
-create a bounded stat pressure when that stat changes the direction's current
-choice or Result. In that case, evaluate the competitive setup inputs that can
-supply the stat. A threshold alone does not admit every supplier: main-stat
-slot cost, substat competition, set-piece opportunity cost, and whole-package
-equipment value still apply.
+roles, formulas, and current Agent sources. First project each supplied stat
+through the `SW-004` basis, threshold, conversion, delivery, resource, or
+external-outcome relationship it materially strengthens. Do not re-derive the
+whole candidate set from every party and equipment combination. A selected
+equipment effect may create a bounded stat pressure when that relationship
+changes the direction's current choice or Result. In that case, evaluate the
+competitive setup inputs that can supply the stat. A threshold or positive
+formula contribution alone does not admit every supplier: main-stat slot cost,
+substat competition, set-piece opportunity cost, and whole-package equipment
+value still apply.
 
 Formula participation or a positive numeric contribution does not by itself
 make an effective substat competitive. One additional hit must remain a
@@ -567,6 +611,13 @@ only when its whole usable package creates a material choice. Limited ownership,
 accessibility, stat or modifier balance, thresholds, caps, operation, or a
 supported preference may distinguish it. Reachability, release or character
 association, a different trigger, or an isolated clause is insufficient.
+
+An `SW-004` relationship establishes usable value, not competitiveness. Every
+admission, removal, compression, and representative conclusion still requires
+the applicable input-surface comparison and its complete package, finite
+opportunity, nearest comparator, material user-facing direction, and reversing
+countercase. Do not compare unrelated input surfaces by treating their shared
+relationship label as a common runtime score.
 
 For W-Engine membership, complete and partial packages use the same value
 comparison. The representative benchmark calibrates the material competitive
