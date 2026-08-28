@@ -201,6 +201,38 @@ describe('shared calculation integration', () => {
     expect(breakdown('miyabiDodgeCounter')).not.toContainEqual(dawnSource)
   })
 
+  it('projects selected multi-action equipment scopes into canonical and inherited Result rows', () => {
+    const withPolar = (agentIds: [AgentId, AgentId, AgentId]) => {
+      const state = createPreparedState({}, agentIds, 0)
+      return workbenchReducer(state, {
+        type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'polarMetal',
+      })
+    }
+    const hasPolar = (
+      actionModifiers: NonNullable<ReturnType<typeof calculateParty>>['agents'][number]['actionModifiers'],
+      id: string,
+    ) => Object.values(
+      actionModifiers.find((modifier) => modifier.id === id)!.breakdown,
+    ).flat().some(({ label }) => label === 'Polar Metal')
+
+    const ellenActions = calculateParty(withPolar(['ellen', 'lycaon', 'soukaku']))!.agents
+      .find(({ agentId }) => agentId === 'ellen')!.actionModifiers
+    expect(hasPolar(ellenActions, 'ellenBasicDashDmg')).toBe(true)
+
+    let miyabiState = createPreparedState({}, ['miyabi', 'nangongYu', 'sunna'], 0)
+    miyabiState = workbenchReducer(miyabiState, {
+      type: 'setMindscape', slot: 0, mindscape: 2,
+    })
+    miyabiState = workbenchReducer(miyabiState, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'polarMetal',
+    })
+    const miyabiActions = calculateParty(miyabiState)!.agents
+      .find(({ agentId }) => agentId === 'miyabi')!.actionModifiers
+    expect(hasPolar(miyabiActions, 'miyabiShimotsuki')).toBe(true)
+    expect(hasPolar(miyabiActions, 'miyabiKazahana')).toBe(true)
+    expect(hasPolar(miyabiActions, 'miyabiDodgeCounter')).toBe(false)
+  })
+
   it('composes Initial-AM-derived flat Impact once around shared equipment regions', () => {
     const impactFor = (pool: 'full' | 'nonLimited') => calculateParty(createPreparedState(
       { nangongYu: pool },
