@@ -298,7 +298,7 @@ export function categoryForPath(pathValue) {
   if (path.startsWith('docs/authority-changes/') && path !== 'docs/authority-changes/README.md') return 'acr-instance'
   if (VISUAL_PATHS.has(path) || path.startsWith('tests/visual/') || path.startsWith('src/assets/agents/')) return 'visual-baseline'
   if (GOVERNANCE_FILES.has(path) || path.startsWith('.github/') || path.startsWith('scripts/governance/') || path.startsWith('scripts/github-app/')) return 'governance'
-  if (path.startsWith('docs/brainstorms/') || path.startsWith('docs/plans/') || path.startsWith('docs/roadmaps/') || path.startsWith('docs/solutions/') || path.startsWith('docs/ideation/')) return 'supporting-doc'
+  if (path.startsWith('docs/audits/') || path.startsWith('docs/brainstorms/') || path.startsWith('docs/plans/') || path.startsWith('docs/roadmaps/') || path.startsWith('docs/solutions/') || path.startsWith('docs/ideation/')) return 'supporting-doc'
   if (path === 'index.html' || path.startsWith('src/') || /(?:^|\/)tests?\//.test(path) || /\.test\.[cm]?[jt]sx?$/.test(path)) return 'production-test'
   return 'unknown'
 }
