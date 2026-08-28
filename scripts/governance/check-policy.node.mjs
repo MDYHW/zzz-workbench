@@ -238,6 +238,11 @@ test('ACR transaction accepts one outcome and only reciprocal immutable superses
 
 test('change matrix allows supporting documentation with production but protects governance mixing and unknown paths', () => {
   assert.deepEqual(evaluateChangeMatrix(['docs/brainstorms/a.md', 'src/workbench/a.ts']).categories, ['production-test', 'supporting-doc'])
+  assert.deepEqual(
+    evaluateChangeMatrix(['docs/audits/2026-08-27-agent-centered-candidate-audit-brief.md', 'src/workbench/a.ts']).categories,
+    ['production-test', 'supporting-doc'],
+  )
+  assert.equal(categoryForPath('docs/audits/2026-08-15-existing-vertical-recovery.md'), 'audit-index')
   assert.throws(() => evaluateChangeMatrix(['AGENTS.md', 'src/workbench/a.ts']), /cannot share/)
   assert.throws(() => evaluateChangeMatrix(['mystery.bin']), /Unknown/)
   assert.equal(categoryForPath('src/components/agentPortraits.ts'), 'visual-baseline')
