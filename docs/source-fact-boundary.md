@@ -27,9 +27,16 @@ moves to another owner, or retires, reserve the old identifier under a local
 `Retired Rule IDs` heading as `SF-### -> <successor IDs or none>: <reason>` and
 allocate new owner-prefixed identifiers to every resulting current rule.
 
+## Retired Rule IDs
+
+`SF-001 -> SF-005`: the former rule combined the timeless current-consumer
+retention gate with a fixed Version 2.8 content-admission cohort. The gate
+continues under `SF-005`; finite release or identity admission belongs to the
+applicable bounded supporting requirement and has no permanent Rule ID.
+
 ## The Single Retention Gate
 
-**Rule ID:** `SF-001`
+**Rule ID:** `SF-005`
 
 For every proposed term, value, condition, field, hierarchy, relation, or
 payload, ask one counterfactual question:
@@ -63,21 +70,21 @@ Current qualifying outcomes are limited to:
 Provider paths, revisions, copied wording, guide references, candidate
 rationales, authoring receipts, historical deltas, auditability, completeness,
 symmetry, possible future use, and an existing field or test are not qualifying
-outcomes. They cannot justify retention.
+source-fact outcomes. They cannot justify shared source structure. The smallest
+settled Agent-local candidate or representative outcome required by `SW-008`
+remains product authoring rather than a source-fact retention reason; retaining
+that outcome does not retain its research trail or transfer equipment-fact
+ownership to the Agent.
 
 The gate is evaluated against the current consumer. A speculative later Agent
-or release is not a consumer. When later content is explicitly admitted, apply
-the same gate to that content then.
-
-The initial content-admission cohort contains game entities introduced through
-Version 2.8. This is an identity-admission boundary, not a historical Version
-2.8 ruleset or value snapshot. For an admitted entity, author from its current
-released identity, progression, kit, equipment facts, and values, including a
-later revision or progression extension to that same entity when it changes a
-current qualifying outcome. An entity first introduced after Version 2.8 does
-not enter the initial cohort merely because it is currently compatible with an
-admitted consumer. Admit later entities only through an explicit later content
-decision and reapply this gate then.
+or release is not a consumer. The applicable bounded supporting requirement
+owns the finite release or identity scope it proposes to admit. Once that
+content is approved and lands in the current roster, candidate policy, or
+preparation path, apply this gate to its current consumers. A later revision of
+an already-admitted identity uses the same gate without reopening an earlier
+cohort boundary. Do not retain a release-version field, permanent roster,
+admission registry, or speculative compatible item to represent this authoring
+boundary.
 
 ## Qualifying-Outcome-First Derivation
 
@@ -88,9 +95,14 @@ backward only as far as needed to select, calculate, or apply it.
 
 External sources and setup practice may be inspected during authoring to learn
 the current value, condition, scope, or competitive choice. That investigation
-is ephemeral. Once the decision is made, persist only the minimal current
-meaning that passes the gate; do not copy the research trail into content
-records, UI models, tests, plans, or permanent documentation.
+is ephemeral. Once the decision is made, shared source facts persist only the
+minimal current source meaning that passes `SF-005`. When `SW-008` separately
+requires a settled Agent-local candidate, compression, or representative
+outcome, its bounded supporting requirement may retain that product outcome;
+this does not authorize copied equipment values, the investigated universe,
+guide material, detailed calculations, worksheets, or complete countermodels.
+Do not copy that research trail into shared source facts, runtime or UI models,
+tests, plans, or permanent authorities.
 
 Implementation and tests consume settled meaning. They do not justify keeping
 a distinction that fails the gate.
