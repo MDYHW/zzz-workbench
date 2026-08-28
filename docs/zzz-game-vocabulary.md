@@ -52,9 +52,11 @@ allocate new owner-prefixed identifiers to every resulting current rule.
 
 A W-Engine's Specialty qualification controls whether its passive is available
 to the holder. It does not remove the W-Engine's Base ATK or advanced stat.
-Matching Specialty therefore proves passive availability rather than candidate
-value, while a non-matching W-Engine remains a partial package whose candidate
-value belongs to setup policy.
+Matching Specialty therefore proves only passive availability. It does not
+prove that every passive clause is usable, that the holder has a particular
+setup outcome or formula participation, or that the complete package has
+candidate value. A non-matching W-Engine remains a partial package whose
+candidate value belongs to setup policy.
 
 Agent Rank, W-Engine Rank, and Drive Disc Rank qualify different entity types.
 Their shared S-Rank and A-Rank labels do not make their progression states,
@@ -297,6 +299,15 @@ A source-local condition is a requirement stated with a game identity, action,
 state, resource, mark, stance, action property, enemy condition, stat threshold,
 equipment state, stack count, or local mechanism. Its original name does not
 become a calculation input merely because the source names it.
+
+Where a source states them, holder identity, Specialty, Attribute, activation,
+trigger action, affected action, recipient, and duration or interval remain
+independent qualifiers. Each qualifier establishes only the game applicability
+edge it states; satisfying one does not infer another, establish formula
+participation, create an Agent outcome relationship, or prove candidate value.
+When a retained holder action or state satisfies a source condition, do not add
+an in-combat, uptime, rotation, or timing qualifier that the source condition
+does not state.
 
 Keep the smallest functional condition that changes activation, applicability,
 compatibility, affected scope, value, recipient, or display calculation. If a
