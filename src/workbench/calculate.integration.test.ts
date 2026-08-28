@@ -182,6 +182,57 @@ describe('shared calculation integration', () => {
     expect(gauge.outputValue).toBe(gauge.outputCap)
   })
 
+  it('inherits canonical Basic effects into Miyabi Basic outcomes without affecting Dodge Counter', () => {
+    let state = createPreparedState({}, ['miyabi', 'nangongYu', 'sunna'], 0)
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 2 })
+    state = workbenchReducer(state, {
+      type: 'selectDisc', slot: 0, piece: 'twoPiece', discId: 'dawnsBloom',
+    })
+
+    const actionModifiers = calculateParty(state)!.agents
+      .find(({ agentId }) => agentId === 'miyabi')!.actionModifiers
+    const dawnSource = expect.objectContaining({ label: "Dawn's Bloom" })
+
+    const breakdown = (id: string) => Object.values(
+      actionModifiers.find((modifier) => modifier.id === id)!.breakdown,
+    ).flat()
+    expect(breakdown('miyabiShimotsuki')).toContainEqual(dawnSource)
+    expect(breakdown('miyabiKazahana')).toContainEqual(dawnSource)
+    expect(breakdown('miyabiDodgeCounter')).not.toContainEqual(dawnSource)
+  })
+
+  it('projects selected multi-action equipment scopes into canonical and inherited Result rows', () => {
+    const withPolar = (agentIds: [AgentId, AgentId, AgentId]) => {
+      const state = createPreparedState({}, agentIds, 0)
+      return workbenchReducer(state, {
+        type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'polarMetal',
+      })
+    }
+    const hasPolar = (
+      actionModifiers: NonNullable<ReturnType<typeof calculateParty>>['agents'][number]['actionModifiers'],
+      id: string,
+    ) => Object.values(
+      actionModifiers.find((modifier) => modifier.id === id)!.breakdown,
+    ).flat().some(({ label }) => label === 'Polar Metal')
+
+    const ellenActions = calculateParty(withPolar(['ellen', 'lycaon', 'soukaku']))!.agents
+      .find(({ agentId }) => agentId === 'ellen')!.actionModifiers
+    expect(hasPolar(ellenActions, 'ellenBasicDashDmg')).toBe(true)
+
+    let miyabiState = createPreparedState({}, ['miyabi', 'nangongYu', 'sunna'], 0)
+    miyabiState = workbenchReducer(miyabiState, {
+      type: 'setMindscape', slot: 0, mindscape: 2,
+    })
+    miyabiState = workbenchReducer(miyabiState, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'polarMetal',
+    })
+    const miyabiActions = calculateParty(miyabiState)!.agents
+      .find(({ agentId }) => agentId === 'miyabi')!.actionModifiers
+    expect(hasPolar(miyabiActions, 'miyabiShimotsuki')).toBe(true)
+    expect(hasPolar(miyabiActions, 'miyabiKazahana')).toBe(true)
+    expect(hasPolar(miyabiActions, 'miyabiDodgeCounter')).toBe(false)
+  })
+
   it('composes Initial-AM-derived flat Impact once around shared equipment regions', () => {
     const impactFor = (pool: 'full' | 'nonLimited') => calculateParty(createPreparedState(
       { nangongYu: pool },
@@ -239,6 +290,19 @@ describe('shared calculation integration', () => {
 
   })
 
+  it('projects Burnice Afterburn through its retained Assist equipment scope', () => {
+    const burnice = calculateParty(createPreparedState(
+      {}, ['burnice', 'jane', 'seth'], 1,
+    ))!.agents.find(({ agentId }) => agentId === 'burnice')!
+
+    const chaosActionIds = burnice.actionModifiers
+      .filter(({ breakdown }) => breakdown.fully.some(({ label }) => label === 'Chaos Jazz'))
+      .map(({ id }) => id)
+      .sort()
+
+    expect(chaosActionIds).toEqual(['burniceAfterburn', 'burniceExAssistDmg'])
+  })
+
   it('filters selected partial-equipment clauses by holder capability after candidate admission', () => {
     const hasMetricSource = (
       agent: NonNullable<ReturnType<typeof calculateParty>>['agents'][number],
@@ -279,6 +343,21 @@ describe('shared calculation integration', () => {
     expect(hasMetricSource(vivian, 'anomalyProficiency', 'Angel in the Shell', 'combat')).toBe(true)
     expect(hasMetricSource(vivian, 'dmgBonus', 'Angel in the Shell')).toBe(false)
     expect(hasActionSource(vivian, 'Angel in the Shell')).toBe(false)
+
+    let orphieState = createPreparedState({}, ['orphie', 'pulchra', 'lucy'], 0)
+    orphieState = workbenchReducer(orphieState, {
+      type: 'selectEngine', slot: 0, engineId: 'serpentineSeeker',
+    })
+    const orphie = calculateParty(orphieState)!.agents
+      .find(({ agentId }) => agentId === 'orphie')!
+    expect(hasMetricSource(orphie, 'critRate', 'Serpentine Seeker', 'combat')).toBe(true)
+    expect(hasMetricSource(orphie, 'defIgnore', 'Serpentine Seeker', 'combat')).toBe(false)
+
+    const cissia = calculateParty(createPreparedState(
+      {}, ['cissia', 'anby', 'lucia'], 0,
+    ))!.agents.find(({ agentId }) => agentId === 'cissia')!
+    expect(hasMetricSource(cissia, 'critRate', 'Serpentine Seeker', 'combat')).toBe(true)
+    expect(hasMetricSource(cissia, 'defIgnore', 'Serpentine Seeker', 'combat')).toBe(true)
   })
 
   it('returns no Result while any required Setup selection is incomplete', () => {

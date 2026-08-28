@@ -252,9 +252,10 @@ function withNonoverlappingExclusiveDiscAllocation(
 }
 
 /**
- * A contextual Astral package is not the holder's authored base. When two
- * direct Moonlight holders need the Moonlight/Astral pair, restore the local
- * representative so the later allocation can preserve both effects.
+ * A contextual Astral first choice can displace the holder's authored local
+ * representative. When two direct Moonlight holders need the Moonlight/Astral
+ * pair, restore that representative so later allocation can preserve both
+ * effects.
  */
 function withContextualAstralCollisionResolved(
   contexts: readonly PreparationContext[],

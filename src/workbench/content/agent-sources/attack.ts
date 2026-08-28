@@ -79,7 +79,7 @@ const YE_M2 = actionTarget([...YE_EX.outcomes, ...YE_ULT.outcomes])
 const MIYABI_SHIMOTSUKI = actionTarget([sourceLocalAction('Shimotsuki')])
 const MIYABI_SHIMOTSUKI_AFTER_DISORDER = actionTarget([sourceLocalAction('Shimotsuki · After Disorder')])
 const MIYABI_FROSTBURN_BREAK = actionTarget([sourceLocalAction('Frostburn-Break')])
-const MIYABI_KAZAHANA = actionTarget([sourceLocalAction('Kazahana'), A('Dodge Counter')])
+const MIYABI_KAZAHANA = actionTarget([sourceLocalAction('Kazahana')])
 const ANTON_PILEDRIVER = actionTarget([sourceLocalAction('Piledriver')])
 const ANTON_DRILL = actionTarget([sourceLocalAction('Drill')])
 const ANTON_BURST_BASIC = actionTarget([sourceLocalAction('Burst Mode Basic Attack')])
@@ -277,7 +277,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
       if (setup.mindscape >= 2) addMetric('critDmg', values.mindscapeExCritDmg, mind(2), EX)
       if (setup.mindscape >= 6) { addMetric('penRatio', values.mindscapePenRatio, mind(6)); addMetric('dmgBonus', values.mindscapeChargedDmg, mind(6), actionTarget([sourceLocalAction('Charged Arctic Ambush')])) }
       actions.push(
-        { metricId: 'dmgBonus', scopes: [{ id: 'ellenCoreActions', target: ELLEN_CORE }, { id: 'ellenEx', target: EX }, { id: 'ellenCharged', target: actionTarget([sourceLocalAction('Charged Arctic Ambush')]) }, { id: 'ellenUltimate', target: ULT }, { id: 'ellenBackAttack', target: BACK }] },
+        { metricId: 'dmgBonus', scopes: [{ id: 'ellenBasicDashDmg', target: BASIC_DASH }, { id: 'ellenCoreActions', target: ELLEN_CORE }, { id: 'ellenEx', target: EX }, { id: 'ellenCharged', target: actionTarget([sourceLocalAction('Charged Arctic Ambush')]) }, { id: 'ellenUltimate', target: ULT }, { id: 'ellenBackAttack', target: BACK }] },
         { metricId: 'critDmg', scopes: [{ id: 'ellenCoreCritDmg', target: ELLEN_CORE }, { id: 'ellenExCritDmg', target: EX }] },
         actionProjection('defIgnore', 'ellenBasicUltimateDefIgnore', BASIC_ULT),
       )
@@ -437,11 +437,24 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
         addMetric('defIgnore', values.mindscape1ShimotsukiDefIgnore, mind(1), MIYABI_SHIMOTSUKI)
         add({ kind: 'provider', source: mind(1), delivery: { recipient: 'all-party', formulas: ['anomaly_buildup'] }, effect: { kind: 'modifier', metricId: 'anomalyBuildupBonus', earliestSurface: 'fully', value: values.mindscape1Buildup, action: MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET } })
       }
-      if (setup.mindscape >= 2) { addMetric('dmgBonus', values.mindscape2KazahanaDmg, mind(2), MIYABI_KAZAHANA); addMetric('critRate', values.mindscape2CritRate, mind(2), undefined, 'combat') }
+      if (setup.mindscape >= 2) {
+        addMetric('dmgBonus', values.mindscape2KazahanaDmg, mind(2), MIYABI_KAZAHANA)
+        addMetric('dmgBonus', values.mindscape2KazahanaDmg, mind(2), DODGE)
+        addMetric('critRate', values.mindscape2CritRate, mind(2), undefined, 'combat')
+      }
       if (setup.mindscape >= 4) addMetric('dmgBonus', values.mindscape4FrostburnDmg, mind(4), MIYABI_FROSTBURN_BREAK)
       if (setup.mindscape >= 6) addMetric('dmgBonus', values.mindscape6ShimotsukiDmg, mind(6), MIYABI_SHIMOTSUKI)
       actions.push(
-        { metricId: 'dmgBonus', scopes: [{ id: 'miyabiShimotsuki', target: MIYABI_SHIMOTSUKI, children: [{ id: 'miyabiShimotsukiAfterDisorder', target: MIYABI_SHIMOTSUKI_AFTER_DISORDER }] }, { id: 'miyabiFrostburnBreak', target: MIYABI_FROSTBURN_BREAK }, { id: 'miyabiKazahana', target: MIYABI_KAZAHANA }] },
+        { metricId: 'dmgBonus', scopes: [
+          {
+            id: 'miyabiShimotsuki', target: MIYABI_SHIMOTSUKI,
+            inheritedEffectTargets: [BASIC, BASIC_DASH],
+            children: [{ id: 'miyabiShimotsukiAfterDisorder', target: MIYABI_SHIMOTSUKI_AFTER_DISORDER }],
+          },
+          { id: 'miyabiFrostburnBreak', target: MIYABI_FROSTBURN_BREAK },
+          { id: 'miyabiKazahana', target: MIYABI_KAZAHANA, inheritedEffectTargets: [BASIC, BASIC_DASH] },
+          { id: 'miyabiDodgeCounter', target: DODGE },
+        ] },
         { metricId: 'anomalyBuildupBonus', scopes: [{ id: 'miyabiIcefireBuildup', target: MIYABI_ICEFIRE_BUILDUP_TARGET }, { id: 'miyabiFrostburnBuildup', target: MIYABI_FROSTBURN_BUILDUP_TARGET }, { id: 'miyabiFrostburnRemovedBuildup', target: MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET }] },
         actionProjection('defIgnore', 'miyabiShimotsukiDefIgnore', MIYABI_SHIMOTSUKI),
         actionProjection('resIgnore', 'miyabiShimotsukiAfterDisorderResIgnore', MIYABI_SHIMOTSUKI_AFTER_DISORDER),

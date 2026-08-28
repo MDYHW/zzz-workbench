@@ -207,6 +207,15 @@ export function selectedDriveDiscRelationships(
     case 'fangedMetal':
       relationships.push(modifier(source, DRIVE_DISC_FACTS.fangedMetal.fourPiece.assaultDamage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.fangedMetal.fourPiece.assaultDamage)))
       break
+    case 'infernoMetal':
+      relationships.push(modifier(source, DRIVE_DISC_FACTS.infernoMetal.fourPiece.critRate, equipmentEffectBaseValue(DRIVE_DISC_FACTS.infernoMetal.fourPiece.critRate)))
+      break
+    case 'polarMetal':
+      relationships.push(
+        modifier(source, DRIVE_DISC_FACTS.polarMetal.fourPiece.damage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.polarMetal.fourPiece.damage), target('Basic Attack', 'Dash Attack'), 'combat'),
+        modifier(source, DRIVE_DISC_FACTS.polarMetal.fourPiece.damage, equipmentEffectProgressionIncrementValue(DRIVE_DISC_FACTS.polarMetal.fourPiece.damage), target('Basic Attack', 'Dash Attack')),
+      )
+      break
     case 'phaethonsMelody':
       relationships.push(stat(source, DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.anomalyProficiency, equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.anomalyProficiency)))
       if (effectAttributeForAgent(agent) === 'Ether') relationships.push(modifier(source, DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.otherHolderEtherDamage, equipmentEffectBaseValue(DRIVE_DISC_FACTS.phaethonsMelody.fourPiece.otherHolderEtherDamage)))

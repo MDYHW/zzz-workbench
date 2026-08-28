@@ -58,16 +58,23 @@ and equipment consequences, so no shared named-Agent rule is warranted.
   CRIT DMG +22%. M4 personal CRIT DMG, M6 personal Chain DMG and popcorn damage,
   Decibel/resource, and raw-damage clauses do not strengthen Ju Fufu's retained
   Daze/buffer direction and stay outside Result.
-- R5. Full W-Engine candidates are Roaring Furnace, Blazing Laurel, Hellfire
-  Gears, Steam Oven, and Precious Fossilized Core. Non-limited candidates are
-  Hellfire, Steam, and Precious. All are Stun-holder legal and retain only
-  compatible activations. Full prepares Roaring W1; non-limited prepares
-  Hellfire W1.
+- R5. Full W-Engine candidates are Roaring Furnace, Spectral Gaze, Blazing
+  Laurel, Hellfire Gears, Steam Oven, and Precious Fossilized Core. Non-limited
+  candidates are Hellfire, Steam, and Precious. All are Stun-holder legal and
+  retain only compatible activations. Full prepares Roaring W1; non-limited
+  prepares Hellfire W1.
 - R6. Roaring's complete ATK, EX/Chain/Ultimate-Daze, and squad-DMG package is
-  fully compatible with Ju Fufu. Hellfire supplies a distinct Impact/off-field-
-  Energy package; Steam and Precious retain their Energy/Impact or Daze
-  directions. The rare full pool and the non-limited pool are authored
-  independently.
+  fully compatible with Ju Fufu. Spectral is a competitive partial limited
+  alternate: its high Base ATK and CRIT advanced stat let the recomposed setup
+  move fixed Disc opportunity toward Ju Fufu's Core ATK threshold while still
+  satisfying King's CRIT threshold. Its Electric Aftershock clauses are
+  unusable by a Fire holder and add zero rather than a penalty; Setup still
+  shows the complete source package while Result projects only the usable CRIT
+  stat. Hellfire supplies a distinct Impact/off-field-Energy package, and
+  Precious retains its threshold-Daze direction. Steam's weaker
+  Energy-Regen/Impact package remains the strongest practical non-limited
+  substitute when Hellfire is contested across simultaneous teams; Precious
+  does not replace that sustained resource/Impact operation.
 - R7. Ju Fufu's 4-piece candidates are King of the Summit and Swing Jazz.
   Two-piece candidates are Shockstar, King, Hormone Punk,
   Astral Voice, Swing Jazz, and Moonlight Lullaby, subject to different-set and

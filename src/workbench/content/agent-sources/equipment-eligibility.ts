@@ -32,8 +32,6 @@ export function equipmentEffectAppliesInOperatingInterval(
   )
 }
 
-const EQUIPPER_ATTACK_TRIGGER_UNAVAILABLE_IN_PREPARED_INTERVAL = new Set<AgentId>(['sunna'])
-
 /** Resolves holder capability only after the selected equipment fact supplies the trigger meaning. */
 export function equipmentEffectCanBeActivatedByHolder(
   agentId: AgentId,
@@ -50,9 +48,5 @@ export function equipmentEffectCanBeActivatedByHolder(
     && effect.activation.attributes !== undefined
     && !effect.activation.attributes.includes(effectAttributeForAgent(agentId))
   ) return false
-  return !(
-    effect.activation?.kind === 'trigger'
-    && effect.activation.performer === 'equipper'
-    && EQUIPPER_ATTACK_TRIGGER_UNAVAILABLE_IN_PREPARED_INTERVAL.has(agentId)
-  )
+  return true
 }

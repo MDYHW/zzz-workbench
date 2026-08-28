@@ -158,17 +158,20 @@ preserving the current three-surface Result grammar.
   package. Chaos preserves the broad Electric/AP alternative while its direct
   EX/Assist clause is not projected into the anomaly-only Result. Freedom
   preserves the unique buildup-RES route.
-- R19. Grace's authored 2-piece roles are PEN Ratio, AM, AP, and ATK. Puffer
-  Electro supplies PEN Ratio; Phaethon supplies AM; Freedom Blues and Chaos
-  Jazz form one exact same-effect AP identity; Hormone Punk and Astral Voice
-  keep their existing ATK identity. Selecting Freedom 4-piece exposes Chaos
+- R19. Grace's authored 2-piece roles are PEN Ratio, AM, AP, ATK, and Electric
+  DMG. Puffer Electro supplies PEN Ratio; Phaethon supplies AM; Freedom Blues
+  and Chaos Jazz form one exact same-effect AP identity; Hormone Punk and
+  Astral Voice keep their existing ATK identity; Thunder Metal supplies the
+  matching Electric-DMG modifier. Selecting Freedom 4-piece exposes Chaos
   2-piece, selecting Chaos exposes Freedom, and another 4-piece exposes the
   canonical Freedom identity. Prepared Thunder uses Puffer.
-- R20. Thunder's Electric DMG 2-piece is numerically useful but locally
-  dominated by AP, PEN, AM, and ATK roles after the complete 4-piece choice and
-  future investment opportunity are considered; it is not admitted merely
-  because it contributes positively. This does not generalize to current
-  Electric `general_damage` Agents whose formula and CRIT balance differ.
+- R20. Thunder's Electric DMG 2-piece survives only beside a different
+  4-piece. Chaos/Thunder combines AP and Electric DMG, while Freedom/Thunder
+  combines AP, matching buildup-RES reduction, and Electric DMG. Those complete
+  packages keep a competitive modifier allocation beside the retained PEN, AM,
+  AP, and ATK complements; positive Electric supply alone would not establish
+  membership. Thunder remains unavailable beside Thunder 4-piece through the
+  shared different-set constraint and does not change the prepared first choice.
 - R21. Grace's mains are AP/ATK% in Slot 4, PEN Ratio/Electric DMG/ATK% in Slot
   5, and AM/ATK% in Slot 6. The prepared representative remains AP/PEN
   Ratio/AM; Slot 6 ATK% is an editable damage-vs-buildup choice only. Effective

@@ -113,10 +113,10 @@ The prose requirements govern if this diagram and the text ever differ.
 **W-Engine candidates and prepared outcomes**
 
 - R3. Evelyn's authored full-pool W-Engine candidates are Heartstring Nocturne,
-  Severed Innocence, Cordis Germina, Starlight Engine, and Steel Cushion. Her
-  non-limited candidates are Starlight Engine and Steel Cushion. Full prepares
-  Heartstring Nocturne at W1; non-limited prepares Starlight Engine at W5.
-  Existing source-owned Severed, Cordis, and Starlight facts are reused rather
+  Severed Innocence, Cordis Germina, The Brimstone, and Steel Cushion. Her
+  non-limited candidates are The Brimstone and Steel Cushion. Full prepares
+  Heartstring Nocturne at W1; non-limited prepares The Brimstone at W1.
+  Existing source-owned Severed, Cordis, Brimstone, and Steel facts are reused rather
   than duplicated.
 - R4. Heartstring's mixed-CRIT and Chain/Ultimate Fire-RES-Ignore package is
   fully compatible with Evelyn and determines the full-pool first choice. Setup
@@ -144,8 +144,8 @@ The prose requirements govern if this diagram and the text ever differ.
   full representative is Heartstring W1, Hormone Punk 4-piece, Woodpecker
   2-piece, CRIT DMG / PEN Ratio / ATK% mains, and zero substats. Its bounded
   future CRIT Rate opportunity reaches the defining 80% relationship without
-  overfilling the 100% cap. The non-limited representative is Starlight Engine
-  W5, Hormone Punk 4-piece, Branch & Blade 2-piece, CRIT Rate / PEN Ratio /
+  overfilling the 100% cap. The non-limited representative is The Brimstone
+  W1, Hormone Punk 4-piece, Branch & Blade 2-piece, CRIT Rate / PEN Ratio /
   ATK% mains, and zero substats so the same future opportunity reaches 80%.
 - R8. Applied Astra's repeated Quick Assist opportunity adds Astral Voice
   4-piece to Evelyn's effective candidates; applied Dialyn's Ultimate
@@ -203,7 +203,7 @@ The prose requirements govern if this diagram and the text ever differ.
   substats, and inherent 2-piece effects. Combat adds the Core, Additional
   Ability, entry-established Heartstring and Hormone effects, and M1/M2.
   Fully Enabled adds reachable later stacks, action triggers, Woodpecker,
-  Puffer, Astral Voice, Steel Cushion, Starlight, Cordis, and M4. The ×1.25
+  Puffer, Astral Voice, Steel Cushion, Brimstone, Cordis, and M4. The ×1.25
   operation appears at the earliest current surface whose CRIT Rate reaches the
   threshold. The active gauge names that surface, replaces threshold progress
   with `Active`, and shows `×1.25`. If no surface reaches the threshold, the
@@ -254,7 +254,7 @@ The prose requirements govern if this diagram and the text ever differ.
 
 - AE1. **Covers R1-R7.** Given Evelyn is applied at M0/full, she prepares
   Heartstring W1, Hormone 4-piece, Woodpecker 2-piece, CRIT DMG / PEN Ratio /
-  ATK% mains, and zero substats. Non-limited prepares Starlight W5, Hormone
+  ATK% mains, and zero substats. Non-limited prepares Brimstone W1, Hormone
   4-piece, Branch & Blade 2-piece, CRIT Rate / PEN Ratio / ATK% mains, and zero
   substats. Both preparations are complete and immediately produce Result.
 - AE2. **Covers R2, R4-R7, R10-R11, R15.** Given the full representative, the

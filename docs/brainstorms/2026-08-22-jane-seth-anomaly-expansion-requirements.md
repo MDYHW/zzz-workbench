@@ -66,7 +66,7 @@ bounded Jane/Seth outcomes below; it does not restate those common policies.
 - R6. Jane's full W-Engine candidates are Practiced Perfection W1, Sharpened
   Stinger W1, Fusion Compiler W1, Electro-Lip Gloss W5, and Weeping Gemini W5.
   The non-limited candidates are Fusion, Electro, and Weeping. Prepare
-  Practiced in full and Weeping in non-limited.
+  Practiced in full and Fusion in non-limited.
   - Practiced is the complete Physical package. Its AM overlaps Slot 6, but its
     ATK does not displace Jane's prepared AP/PEN/AM mains; this is the decisive
     advantage over the other legal partial AM/buildup packages. The ATK still
@@ -78,7 +78,10 @@ bounded Jane/Seth outcomes below; it does not restate those common policies.
   - Fusion supplies PEN/ATK/AP; Electro supplies AP/ATK/broad damage; Weeping
     supplies ATK/AP. These remain materially different accessible packages.
     With prepared Slot 4 AP, the selected Weeping fact crosses Jane's
-    Assault-CRIT threshold.
+    Assault-CRIT threshold. Fusion prepares because its reachable three-stack
+    package is the strongest current non-limited complete setup; Weeping stays
+    as the concentrated-AP alternative that reaches Jane's 375/420 AP outcomes
+    with materially less finite investment.
   - Timeweaver is legally selectable and arithmetically positive but rejected:
     its ATK is usable, its AP repeats Slot 4/future AP, its Disorder threshold
     repeats an admitted damage direction, and its Electric buildup is unusable.
@@ -141,19 +144,28 @@ bounded Jane/Seth outcomes below; it does not restate those common policies.
   - Tremor, Big Cylinder, Original Transmorpher, Half-Sugar Bunny, and
     off-Specialty chassis leave only weaker, personal, survival, cadence-bound,
     or inactive remnants after comparison with those three packages.
-- R13. Seth's 4-piece candidates are Astral Voice, Swing Jazz, and Freedom
-  Blues. Prepare Astral: Seth's repeated Quick Assist can reach the Focus DMG
-  package. Swing is the distinct Energy plus reachable party-DMG package.
-  Freedom remains a selected Setup candidate only; its corrected Result behavior
-  is deferred. Seth's only competitive 2-piece axis is Energy Regen through
-  Swing Jazz or Moonlight Lullaby. Prepare Astral/Swing; the authored collision
-  alternative is Swing/Moonlight. Do not admit personal AP, AM, ATK, Electric,
-  Impact, or Daze sets by numerical positivity alone.
+- R13. Seth's 4-piece candidates are Astral Voice, Swing Jazz, Bunny in
+  Wonderland, and Freedom Blues. Prepare Astral: Seth's repeated Quick Assist
+  can reach the Focus DMG package. Swing/Moonlight supplies Energy Regen +40%
+  with reachable squad DMG +15%, while Bunny/Swing supplies Energy Regen +20%
+  with self-activated squad DMG +18%; neither complete package dominates the
+  other's resource-to-buff balance. Bunny's HP remains zero-value survival
+  supply, not part of its admission rationale.
+  Freedom's AP is unused holder supply, while selected Freedom derives Seth's
+  Electric Attribute and projects matching buildup RES reduction to current
+  Electric `anomaly_buildup` recipients. Seth's only competitive 2-piece axis
+  is Energy Regen through Swing Jazz or Moonlight Lullaby. Prepare
+  Astral/Swing; the authored collision alternative is Swing/Moonlight. Do not
+  admit personal AP, AM, ATK, Electric, Impact, or Daze sets by numerical
+  positivity alone.
 - R14. Under the residual variable-main-stat exception, Seth offers AP or ATK%
-  in Slot 4 and Electric DMG or ATK% in Slot 5. Slot 6 offers Energy Regen only.
-  Prepare AP/Electric/Energy Regen. Seth offers no effective substats. These
-  residual choices do not create personal W-Engine, Disc, Mindscape, damage,
-  Daze, or Result policy.
+  in Slot 4 and Electric DMG or ATK% in Slot 5. Slot 6 offers Energy Regen or
+  Anomaly Mastery: Energy Regen supports repeated EX/Assist access, while
+  Anomaly Mastery directly strengthens Seth's retained personal buildup as a
+  materially distinct secondary direction. Prepare AP/Electric/Energy Regen.
+  Seth offers no effective substats. The residual Slot 4/5 choices do not
+  create personal W-Engine, Disc, Mindscape, damage, or Daze policy; selected
+  Anomaly Mastery remains visible only through the retained buildup stat.
 
 ### Shared composition, lifecycle, and visible boundary
 
@@ -184,10 +196,11 @@ bounded Jane/Seth outcomes below; it does not restate those common policies.
   edit history when pressure later disappears.
 - R18. Result exposes Jane/Seth's admitted stats, numeric source breakdowns,
   Jane's AP-derived ATK and Assault CRIT gauge/action, Seth's AP delivery,
-  qualified enemy buildup RES, and only action-level values that differ.
-  Selected sources keep their current hover/focus destination. Spring and
-  deferred Freedom remain accessible Setup descriptions without invented Result
-  destinations. Exclude final Assault/Shock/Disorder damage, buildup share,
+  selected Anomaly Mastery, qualified enemy buildup RES, and only action-level
+  values that differ. Selected sources keep their current hover/focus
+  destination. Spring and other event-conditioned resource clauses remain
+  accessible Setup descriptions without invented Result destinations. Exclude
+  final Assault/Shock/Disorder damage, buildup share,
   application history, rotation, Passion/Resolve meters, shield amount/duration,
   healing, and raw extra-hit coefficients. Any incomplete required selection
   keeps the entire Result empty.
@@ -210,8 +223,10 @@ bounded Jane/Seth outcomes below; it does not restate those common policies.
   Seth and Piper, while the enemy buildup-RES contribution disappears. Existing
   Piper/Burnice local effects remain unchanged.
 - AE3. Jane full prepares Practiced/Fanged/Puffer/AP/PEN/AM. Non-limited
-  prepares Weeping/Fanged/Puffer/AP/PEN/AM and derives Weeping's AP Result
-  contribution from the selected shared fact. Broad pre-PEN pressure prepares
+  prepares Fusion/Fanged/Puffer/AP/PEN/AM and derives Fusion's reachable
+  three-stack AP Result contribution from the selected shared fact. Directly
+  selecting Weeping instead preserves its concentrated AP contribution and
+  earlier threshold consequence. Broad pre-PEN pressure prepares
   Freedom/Physical instead. Directly adding that pressure clears selected
   Puffer/PEN without fallback; removing it restores membership but not the
   cleared selection.
@@ -224,9 +239,9 @@ bounded Jane/Seth outcomes below; it does not restate those common policies.
   selected and is handled only by non-stacking Result reconciliation; a later
   target rebuild uses established holders and never restores prior edit history.
 - AE6. Selecting Spring exposes its complete compressed package in Setup but no
-  cadence-derived Energy Result operation. Selecting Freedom exposes Setup copy
-  but no holder-local or Attribute-scoped Result until the deferred shared
-  correction is separately admitted.
+  cadence-derived Energy Result operation. Selecting Freedom keeps its complete
+  Setup copy and projects only matching Electric buildup RES reduction to a
+  current compatible recipient.
 - AE7. Portrait metadata or DOM tests without original-asset and four-destination
   browser comparison leave the portrait unit incomplete.
 
@@ -237,8 +252,9 @@ bounded Jane/Seth outcomes below; it does not restate those common policies.
 - Do not generalize Jane's Assault CRIT to ordinary anomaly output or CRIT setup
   policy, and do not infer Seth personal investment from Specialty or one
   positive action.
-- Do not implement Freedom Blues Result correction in this vertical. Jane and
-  Seth may expose it only as the settled Setup candidate.
+- Do not turn Freedom Blues into holder AP value or a generic party modifier;
+  its selected relationship remains matching-Attribute `anomaly_buildup` RES
+  reduction for current compatible recipients.
 - Do not include Anton, Rina, post-2.8 Agents, or a general Quick Assist/action
   catalogue.
 - Do not persist raw research payloads, provenance registries, rejected-item

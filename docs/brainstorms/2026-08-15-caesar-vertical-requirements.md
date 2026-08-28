@@ -186,9 +186,14 @@ direction, raw damage, raw Daze, or runtime optimizer.
 
 ### Drive Discs, mains, and prepared setup
 
-- R13. Caesar's base 4-piece roster is Bunny in Wonderland.
+- R13. Caesar's base 4-piece roster is Bunny in Wonderland and Freedom Blues.
   Bunny's HP is unused survival value, while Caesar's own shield is only the
   internal activation condition for its squad-DMG package.
+  Freedom's AP is unused holder supply, while its matching-Physical buildup
+  RES reduction reaches current Physical `anomaly_buildup` recipients as a
+  distinct party-provider direction. Its partial package receives neither a
+  penalty nor a completeness bonus; the material recipient outcome keeps it
+  competitive without displacing Bunny's broader prepared package.
   A repeated Quick Assist opportunity appends
   Astral Voice, whose ATK is unused but whose controllable entrant DMG reaches
   the source-owned partial and maximum states. Proto Punk is excluded: its Shield
@@ -198,7 +203,7 @@ direction, raw damage, raw Daze, or runtime optimizer.
   squad DMG is a weaker same-axis value than Bunny's self-activated package,
   while Swing's Energy Regen can occupy the independent 2-piece slot beside
   Bunny. Shockstar 4-piece does not match Caesar's
-  defining Special/Assist Daze, and Freedom Blues has no current anomaly axis.
+  defining Special/Assist Daze.
 - R14. Caesar's 2-piece roster contains Swing Jazz, Shockstar Disco, and King
   of the Summit. Swing Jazz's Energy Regen is the prepared buffer/resource
   complement beside Bunny 4-piece. Shockstar's Initial Impact feeds the

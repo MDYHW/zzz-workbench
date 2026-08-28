@@ -89,8 +89,11 @@ Basic/Ultimate action effect.
 
 ### Drive Discs and finite opportunity
 
-- R10. Hugo's authored base 4-piece candidate is Hormone Punk. When Dialyn
-  supplies the received-Ultimate opportunity, Puffer Electro becomes a
+- R10. Hugo's authored base 4-piece candidates are Hormone Punk and Woodpecker
+  Electro. Hormone's entry ATK package remains the prepared first choice, while
+  Woodpecker's CRIT Rate and independently reachable ATK package preserves a
+  materially different finite CRIT/ATK allocation. When Dialyn supplies the
+  received-Ultimate opportunity, Puffer Electro becomes a
   contextual 4-piece candidate only at Hugo M2+. M2 preserves the post-Ultimate
   Stun interval in which Puffer's ATK clause reaches Hugo's burst; at M0-M1 the
   whole package does not remain competitive. This is a minimum-tier candidate

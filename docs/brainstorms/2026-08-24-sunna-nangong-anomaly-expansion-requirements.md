@@ -114,25 +114,25 @@ party.
 
 **Sunna candidates and prepared setup**
 
-- R5. Sunna's full W-Engine candidates are Thoughtbop W1, Weeping Cradle W1,
-  Kaboom the Cannon W5, and Unfettered Game Ball W5. Her non-limited pool
-  contains Weeping, Kaboom, and Unfettered. Prepare Thoughtbop in full and
-  Kaboom in non-limited.
+- R5. Sunna's full W-Engine candidates are Thoughtbop W1, Dreamlit Hearth W1,
+  Weeping Cradle W1, Kaboom the Cannon W5, and Unfettered Game Ball W5. Her
+  non-limited pool contains Weeping, Kaboom, and Unfettered. Prepare Thoughtbop
+  in full and Kaboom in non-limited.
   - Thoughtbop's Energy, party DMG, and party ATK axes are usable and form the
     strongest complete full-pool package.
-  - Weeping's Energy axis is usable, but its squad-DMG clause has no current
-    Sunna trigger route in her prepared interval. Retain Weeping as a distinct
-    resource package. Its source-owned Setup summary keeps the unused squad-DMG
-    clause for complete-package disclosure; that clause contributes zero to
-    candidate value, and Sunna's Result projects only Energy.
+  - Weeping's off-field Energy and squad-DMG axes are both usable. Sunna's
+    prepared interval satisfies only the Energy condition; her retained attacks
+    independently satisfy the equipper-attack trigger for squad DMG.
   - Kaboom supplies Energy Regen and a reachable all-party ATK package.
     Unfettered supplies Energy Regen and a
     weakness-matched party CRIT direction distinct from ATK and DMG supply.
-  - Dreamlit Hearth is legally selectable and arithmetically positive, but its
-    reachable package is strictly weaker than Thoughtbop on the same usable
-    axis. Elegant Vanity, Bashful Demon, Vault, and Metanukimorphosis likewise
-    fail complete-package competition or lose their defining trigger or
-    direction. Candidate-count limits do not decide these exclusions.
+  - Dreamlit's automatic Energy and Ether-Veil-triggered squad DMG are usable,
+    and squad Max HP creates a distinct current recipient direction for
+    HP-scaling party damage. It remains below Thoughtbop as representative but
+    competitive with the strongest non-limited package. Elegant Vanity,
+    Bashful Demon, Vault, and Metanukimorphosis fail complete-package
+    competition or lose their defining trigger or direction. Candidate-count
+    limits do not decide these exclusions.
 - R6. Sunna's 4-piece candidates are Moonlight Lullaby and Astral Voice.
   Prepare Moonlight. Swing Jazz is excluded because its reachable squad-DMG
   axis is weaker than Moonlight's sustainable complete package; validity and a
@@ -308,9 +308,8 @@ party.
   Result shows Initial ATK, Energy Regen, cap progress, and delivered effects,
   but no personal Anomaly, Cat's Gaze, or healing row.
 - AE2. Selecting Weeping on Sunna shows its compressed off-field Energy and
-  squad-DMG package, while Result projects only the usable Energy. The same
-  shared engine fact remains able to project the squad-DMG clause for a holder
-  that can actually trigger it.
+  squad-DMG package, while Result projects both clauses through their separate
+  interval and equipper-attack relationships.
 - AE3. Nangong full prepares Neon/Phaethon/Freedom/AP/Ether/AM and
   non-limited prepares Hellfire with the same Disc and main-stat package. Her
   Result derives Impact once from Initial AM, exposes the AM threshold, and

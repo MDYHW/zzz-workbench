@@ -83,7 +83,7 @@ export function effectiveFourPieceIds(
     partyAgentIds,
     slot,
   ).map(({ discId }) => discId)
-  return contextual.length ? [...base, ...contextual] : base
+  return contextual.length ? [...new Set([...base, ...contextual])] : base
 }
 
 export function effectiveTwoPieceIds(
