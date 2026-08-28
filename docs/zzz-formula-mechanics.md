@@ -370,6 +370,17 @@ that time.
 | `daze_buildup` | skill Daze, Impact, Daze Bonus, target Daze resistance, Daze Taken | CRIT, regular DMG Bonus, and damage formula modifiers do not increase Daze unless a source explicitly converts them through an explicit relationship |
 | `anomaly_buildup` | skill buildup, Anomaly Mastery, Buildup Bonus, target buildup resistance | Anomaly Proficiency increases anomaly damage rather than buildup unless a source states another relationship |
 
+This table is a formula-applicability gate for an already authored Agent
+outcome. An exact source scope must reach that outcome before a listed stat or
+modifier can create formula pressure. Passing this gate proves only that the
+contribution can change the formula; it does not establish the Agent's setup
+direction or role, a standalone competitive axis, candidate admission or
+compression, or a prepared representative. A clause that does not reach the
+formula contributes zero through that relationship and does not penalize or
+disqualify the source package's other usable clauses. Setup policy separately
+compares the complete realized package, finite opportunity, and applicable
+input-surface alternatives.
+
 General `dmg_taken_multiplier` remains in each applicable damage frame because
 enemy, stage, or other target mechanics can change it. It is not a direct
 setting pressure: the current outgoing setup-source boundary admits no Agent,
