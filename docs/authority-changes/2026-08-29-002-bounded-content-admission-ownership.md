@@ -1,7 +1,7 @@
 ---
 id: ACR-2026-08-29-002
 date: 2026-08-29
-status: proposed
+status: accepted
 supersedes: none
 superseded_by: none
 ---
@@ -128,5 +128,5 @@ the revised fact material without reopening the historical admission cutoff.
 ## Approval result
 
 - Product owner: `Min-DongYoung`
-- Result: `pending`
-- Decided at:
+- Result: `accepted`
+- Decided at: `2026-08-29T05:35:31+09:00`
