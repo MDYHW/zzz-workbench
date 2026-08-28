@@ -122,9 +122,12 @@ Aftershock catalogue.
   pool retains Box Cutter, Hellfire Gears, Steam Oven, and Precious Fossilized
   Core. Full prepares Blazing Laurel W1; non-limited prepares Box Cutter W5.
 - R10. Blazing establishes the full first choice through high Base ATK,
-  advanced and Fully Enabled Impact, and an activatable Fire/Ice squad CRIT-DMG
-  package. The latter is a usable party clause even though it does not buff
-  Physical Pulchra. Box Cutter is a partial but competitive package: its Base
+  advanced Impact, and Pulchra's frequent Quick/Perfect-Assist route to its
+  Fully Enabled Impact. Her authored operation does not establish the repeated-
+  Basic Wilt package, so the Fire/Ice squad CRIT-DMG clause is a zero-valued
+  unused axis rather than a penalty. Setup still shows that complete source-
+  owned clause, while Result projects only the usable Impact. Box Cutter is a
+  partial but competitive package: its Base
   ATK and advanced Impact serve all Daze, while its Aftershock trigger supplies
   Physical DMG and Daze only after the holder's Aftershock. At W5 that exact
   package establishes the non-limited first choice. Hellfire supplies the
@@ -204,7 +207,8 @@ Aftershock catalogue.
   raw damage do not strengthen her Daze/buffer direction and create no
   normalized Result; M3/M5 skill tiers remain excluded.
 - R19. Pulchra's selected equipment preserves exact projection. Blazing adds
-  Impact and a Fire/Ice squad CRIT-DMG effect; Box's Daze projects while its
+  Impact while its unused repeated-Basic Fire/Ice squad CRIT-DMG clause remains
+  visible only in the complete Setup package; Box's Daze projects while its
   personal Physical DMG remains Setup package copy; Swing applies broad squad formula-compatible DMG once and
   supplies its Energy 2-piece; Astral applies entrant DMG once to Focus; King applies its non-stacking squad
   CRIT DMG once. Candidate membership, local representative, holder allocation,
@@ -313,9 +317,9 @@ Aftershock catalogue.
   preparation framework.
 - No automatic direct-edit repair, history restoration, or cross-Agent rebuild
   after a target-only Mindscape or pool change.
-- No generalization of Proto from its Assist trigger, Blazing from its Pulchra
-  eligibility, or Pulchra's King pressure to a Stun Agent with an independent
-  CRIT consumer.
+- No generalization of Proto from its Assist trigger, Blazing's Wilt clause from
+  Pulchra's candidate admission, or Pulchra's King pressure to a Stun Agent
+  with an independent CRIT consumer.
 
 ## Dependencies / assumptions
 

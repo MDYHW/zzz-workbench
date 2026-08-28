@@ -17,7 +17,11 @@ import {
   effectAttributeForAgent,
   REGULAR_DAMAGE_FORMULAS,
 } from '../../formula-policy'
-import { W_ENGINE_FACTS, W_ENGINES } from '../engines'
+import {
+  selectedWEngineEffectIsUsable,
+  W_ENGINE_FACTS,
+  W_ENGINES,
+} from '../engines'
 import { ADMITTED_AGENTS } from '../agents'
 import { defineWEngineSource } from '../source-definitions'
 import { operatingIntervalFor } from '../setup-policies'
@@ -579,9 +583,25 @@ export function selectedWEngineRelationships({
       }
       break
     case 'yesterdayCalls':
-      relationships.push(automaticEnergy(source, W_ENGINE_FACTS.yesterdayCalls.effects.energy, value(W_ENGINE_FACTS.yesterdayCalls.effects.energy, setup)))
-      add(W_ENGINE_FACTS.yesterdayCalls.effects.daze, value(W_ENGINE_FACTS.yesterdayCalls.effects.daze, setup))
-      relationships.push(provider(source, W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, value(W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, setup), { formulas: CRIT_DAMAGE_FORMULAS }))
+      if (
+        selectedWEngineEffectIsUsable(agent, 'yesterdayCalls', 'energy')
+        && equipmentEffectAppliesInOperatingInterval(
+          W_ENGINE_FACTS.yesterdayCalls.effects.energy,
+          operatingIntervalFor(agent, focusAgentId),
+        )
+      ) {
+        relationships.push(automaticEnergy(
+          source,
+          W_ENGINE_FACTS.yesterdayCalls.effects.energy,
+          value(W_ENGINE_FACTS.yesterdayCalls.effects.energy, setup),
+        ))
+      }
+      if (selectedWEngineEffectIsUsable(agent, 'yesterdayCalls', 'daze')) {
+        add(W_ENGINE_FACTS.yesterdayCalls.effects.daze, maximum(W_ENGINE_FACTS.yesterdayCalls.effects.daze, setup))
+      }
+      if (selectedWEngineEffectIsUsable(agent, 'yesterdayCalls', 'critDamage')) {
+        relationships.push(provider(source, W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, value(W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, setup), { formulas: CRIT_DAMAGE_FORMULAS }))
+      }
       break
     case 'hellfireGears':
       add(W_ENGINE_FACTS.hellfireGears.effects.impact, ['trigger', 'koleda', 'anby'].includes(agent)
@@ -622,8 +642,10 @@ export function selectedWEngineRelationships({
       }
       break
     case 'blazingLaurel':
-      if (['trigger', 'lycaon', 'juFufu', 'lighter', 'pulchra', 'qingyi', 'koleda', 'anby'].includes(agent)) {
+      if (selectedWEngineEffectIsUsable(agent, 'blazingLaurel', 'impact')) {
         add(W_ENGINE_FACTS.blazingLaurel.effects.impact, value(W_ENGINE_FACTS.blazingLaurel.effects.impact, setup))
+      }
+      if (selectedWEngineEffectIsUsable(agent, 'blazingLaurel', 'critDamage')) {
         relationships.push(provider(source, W_ENGINE_FACTS.blazingLaurel.effects.critDamage, maximum(W_ENGINE_FACTS.blazingLaurel.effects.critDamage, setup), { formulas: CRIT_DAMAGE_FORMULAS }))
       }
       break

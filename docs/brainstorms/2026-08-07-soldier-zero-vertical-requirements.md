@@ -143,13 +143,22 @@ The prose requirements govern if this diagram and the text ever differ.
   package is weaker than Hellfire W1 on their shared direction but remains the
   strongest practical non-limited substitute when Hellfire is contested across
   simultaneous teams; Precious does not replace that sustained resource/Impact
-  operation. Dialyn's representative remains Yesterday Calls/full and
-  Hellfire/non-limited with King plus Woodpecker, CRIT Rate/ATK%/Energy Regen.
-- R18. Trigger's full W-Engine candidates are Spectral Gaze, Blazing Laurel,
-  Ice-Jade Teapot, The Restrained, Hellfire Gears, Precious Fossilized Core,
-  and Steam Oven; non-limited retains The Restrained, Hellfire, Precious, and
-  Steam. Hellfire's broad Impact package and automatic off-field Energy remain
-  competitive beside Restrained's aligned Basic/Aftershock direction. Steam's
+  operation. Yesterday's off-field Energy, repeated Physical-EX Daze, and
+  three-stack squad-CRIT-DMG package are fully usable in Dialyn's authored
+  interval and operation; routine durations and resets do not create a
+  separate Setup or Result distinction. Dialyn's representative remains
+  Yesterday Calls/full and Hellfire/non-limited with King plus Woodpecker,
+  CRIT Rate/ATK%/Energy Regen.
+- R18. Trigger's full W-Engine candidates are Spectral Gaze, Yesterday Calls,
+  Blazing Laurel, Ice-Jade Teapot, The Restrained, Hellfire Gears, Precious
+  Fossilized Core, and Steam Oven; non-limited retains The Restrained,
+  Hellfire, Precious, and Steam. Yesterday is a competitive partial limited
+  alternative: advanced CRIT Rate strengthens Trigger's CRIT-to-Aftershock-Daze
+  relation and its off-field Energy supports her low-field operation, while the
+  Physical-EX Daze and three-stack squad-CRIT-DMG clauses are unusable and
+  contribute zero. Hellfire's broad Impact package and automatic off-field
+  Energy remain competitive beside Restrained's aligned Basic/Aftershock
+  direction. Steam's
   weaker Energy-Regen/Impact package remains the strongest practical
   non-limited substitute when Hellfire is contested across simultaneous teams;
   Restrained and Precious do not replace that sustained resource/Impact

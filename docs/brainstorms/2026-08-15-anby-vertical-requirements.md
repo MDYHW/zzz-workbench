@@ -95,19 +95,20 @@ model, ordinary skill multiplier, raw damage, raw Daze, or runtime optimizer.
 
 ### W-Engine authoring
 
-- R6. Anby's full W-Engine candidates are Hellfire Gears, Blazing Laurel, The
-  Restrained, Steam Oven, and Precious Fossilized Core. Non-limited candidates
-  are Hellfire, The Restrained, Steam, and Precious. Both pools prepare
+- R6. Anby's full and non-limited W-Engine candidates are Hellfire Gears, The
+  Restrained, Steam Oven, and Precious Fossilized Core. Both pools prepare
   Hellfire W1.
 - R7. Hellfire is the prepared first choice through its broad Impact/off-field-
-  Energy package, which serves both Core actions. Blazing retains a
-  distinct high-Impact squad package; Restrained retains Basic-only DMG/Daze
-  aligned with Thunderbolt; Steam retains the strongest practical
+  Energy package, which serves both Core actions. Restrained retains Basic-only
+  DMG/Daze aligned with Thunderbolt; Steam retains the strongest practical
   non-limited resource/Impact substitute when Hellfire is contested across
   simultaneous teams; Precious retains a distinct target-HP Daze package.
-  Ice-Jade is excluded because Anby's ordinary
-  Basic-to-Thunderbolt sequence does not sustain its 15/30 Basic-hit thresholds
-  without displacing the current EX and swap cadence.
+  Blazing's Assist-enabled Impact is usable, but Anby's ordinary
+  Basic-to-Thunderbolt sequence does not establish its 20-stack Basic Wilt
+  package; that limited partial direction does not beat the retained standard-
+  S/A aligned packages. Ice-Jade is similarly excluded because the same
+  operation does not sustain its 15/30 Basic-hit thresholds without displacing
+  the current EX and swap cadence.
 - R8. Demara Battery Mark II is not an Anby candidate. Its Electric DMG is
   personal damage outside Anby's authored Daze role, while its Impact and event
   Energy Generation Rate form the same practical resource/Impact direction as

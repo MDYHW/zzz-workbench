@@ -201,9 +201,23 @@ export const W_ENGINE_FACTS = {
   yesterdayCalls: {
     advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
     effects: {
-      energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(1.5) },
-      daze: { modifier: 'dazeBonus', unit: '%', value: scaledRefinementValues(27) },
-      critDamage: { modifier: 'critDmg', unit: '%', value: scaledRefinementValues(30), scope: { recipient: 'squad' } },
+      energy: {
+        modifier: 'energy', unit: '/s', value: [1.5, 1.7, 1.9, 2.1, 2.3],
+        scope: { condition: 'offField' },
+      },
+      daze: {
+        modifier: 'dazeBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: [9, 10.3, 11.7, 13, 14.5], maxStacks: 3 },
+        activation: {
+          kind: 'trigger', performer: 'equipper',
+          actions: ['EX Special Attack'], attributes: ['Physical'],
+        },
+      },
+      critDamage: {
+        modifier: 'critDmg', unit: '%', value: scaledRefinementValues(30),
+        scope: { recipient: 'squad' },
+        activation: { kind: 'trigger', stackThreshold: 3 },
+      },
     },
   },
   hellfireGears: {
@@ -416,8 +430,16 @@ export const W_ENGINE_FACTS = {
   blazingLaurel: {
     advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' },
     effects: {
-      impact: { modifier: 'impact', unit: '%', value: [25, 28.75, 32.5, 36.25, 40] },
-      critDamage: { modifier: 'critDmg', unit: '%', progression: { kind: 'stacks', perStack: [1.5, 1.72, 1.95, 2.17, 2.4], maxStacks: 20 }, scope: { recipient: 'squad', attributes: ['Fire', 'Ice'] } },
+      impact: {
+        modifier: 'impact', unit: '%', value: [25, 28.75, 32.5, 36.25, 40],
+        activation: { kind: 'trigger', actions: ['Assist'] },
+      },
+      critDamage: {
+        modifier: 'critDmg', unit: '%',
+        progression: { kind: 'stacks', perStack: [1.5, 1.72, 1.95, 2.17, 2.4], maxStacks: 20 },
+        scope: { recipient: 'squad', attributes: ['Fire', 'Ice'] },
+        activation: { kind: 'trigger', performer: 'equipper', actions: ['Basic Attack'] },
+      },
     },
   },
   simmeringPot: {
@@ -804,9 +826,9 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.yesterdayCalls.advancedStat, image: yesterdayCallsImage,
     passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [
-      `Energy +${perSecond(W_ENGINE_FACTS.yesterdayCalls.effects.energy, refinement)}`,
-      `Daze +${percent(W_ENGINE_FACTS.yesterdayCalls.effects.daze, refinement)}`,
-      `Squad CRIT DMG +${percent(W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, refinement)}`,
+      `Off-field Energy Regen +${perSecond(W_ENGINE_FACTS.yesterdayCalls.effects.energy, refinement)}`,
+      `Physical EX stacks · Daze +${percent(W_ENGINE_FACTS.yesterdayCalls.effects.daze, refinement, true)}`,
+      `At 3 stacks · Squad CRIT DMG +${percent(W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, refinement)}`,
     ],
   },
   hellfireGears: {
@@ -1194,71 +1216,118 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
   },
 }
 
-const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
-  full,
-  nonLimited: full.filter((engineId) => !W_ENGINES[engineId].limited),
-})
+type EngineCandidateAuthoring = EngineId | {
+  engineId: EngineId
+  usableEffects: readonly string[]
+}
 
-export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, EngineId[]>> = {
-  yixuan: enginePools(['qingming', 'cauldron', 'radiowave', 'puzzleSphere']),
-  yidhari: enginePools(['krakensCradle', 'grillOWisp', 'cauldron', 'qingming']),
-  manato: enginePools(['grillOWisp', 'wrathfulVajra', 'qingming']),
-  hugo: enginePools(['myriadEclipse', 'cordisGermina', 'heartstringNocturne', 'steelCushion', 'marcatoDesire']),
-  juFufu: enginePools(['roaringFurnace', 'spectralGaze', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
-  panYinhu: enginePools(['tusksOfFury', 'tremorTrigramVessel', 'springEmbrace']),
-  banyue: enginePools(['wrathfulVajra', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere']),
-  starlightBilly: enginePools(['starlightRiderFaceplate', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere']),
-  dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
-  nangongYu: enginePools(['neonFantasies', 'hellfireGears', 'simmeringPot', 'preciousFossilizedCore', 'roaringFurnace']),
-  miyabi: enginePools(['hailstormShrine', 'fusionCompiler']),
-  anton: enginePools(['cordisGermina', 'severedInnocence', 'brimstone', 'marcatoDesire', 'drillRigRedAxis']),
-  rina: enginePools(['weepingCradle', 'kaboom', 'unfetteredGameBall']),
-  lucia: enginePools(['dreamlitHearth', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
-  anbySoldier0: enginePools(['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'brimstone', 'marcatoDesire']),
-  trigger: enginePools(['spectralGaze', 'blazingLaurel', 'iceJadeTeapot', 'restrained', 'hellfireGears', 'preciousFossilizedCore', 'steamOven']),
-  astraYao: enginePools(['elegantVanity', 'bashfulDemon', 'theVault', 'kaboom']),
-  seed: enginePools(['cordisGermina', 'heartstringNocturne', 'severedInnocence', 'brimstone', 'marcatoDesire']),
-  cissia: enginePools(['serpentineSeeker', 'bellicoseBlaze', 'drillRigRedAxis', 'cordisGermina']),
-  evelyn: enginePools(['heartstringNocturne', 'severedInnocence', 'cordisGermina', 'brimstone', 'steelCushion']),
-  corin: enginePools(['cordisGermina', 'heartstringNocturne', 'steelCushion', 'housekeeper']),
-  lycaon: enginePools(['blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
-  ellen: enginePools(['deepSeaVisitor', 'myriadEclipse', 'cordisGermina', 'steelCushion', 'brimstone']),
-  soukaku: enginePools(['weepingCradle', 'kaboom']),
-  soldier11: enginePools(['heartstringNocturne', 'cordisGermina', 'severedInnocence', 'brimstone']),
-  lighter: enginePools(['blazingLaurel', 'iceJadeTeapot', 'hellfireGears', 'steamOven', 'restrained', 'preciousFossilizedCore']),
-  lucy: enginePools(['elegantVanity', 'weepingCradle', 'kaboom']),
-  zhuYuan: enginePools(['cordisGermina', 'heartstringNocturne', 'brimstone', 'riotSuppressorMarkVI', 'marcatoDesire']),
-  nicole: enginePools(['elegantVanity', 'theVault', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
-  orphie: enginePools(['bellicoseBlaze', 'heartstringNocturne', 'serpentineSeeker', 'gildedBlossom', 'marcatoDesire']),
-  pulchra: enginePools(['blazingLaurel', 'boxCutter', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
-  harumasa: enginePools(['zanshinHerbCase', 'cordisGermina', 'brimstone', 'heartstringNocturne']),
-  qingyi: enginePools(['iceJadeTeapot', 'blazingLaurel', 'restrained', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
-  nekomata: enginePools(['steelCushion', 'heartstringNocturne', 'cordisGermina', 'cloudcleaveRadiance', 'brimstone']),
-  billy: enginePools(['cloudcleaveRadiance', 'heartstringNocturne', 'cordisGermina', 'brimstone', 'steelCushion', 'starlightEngineReplica']),
-  ben: enginePools(['tremorTrigramVessel', 'tusksOfFury', 'cloudcleaveRadiance', 'hailstormShrine', 'bigCylinder', 'springEmbrace']),
-  koleda: enginePools(['hellfireGears', 'blazingLaurel', 'restrained', 'steamOven', 'preciousFossilizedCore']),
-  anby: enginePools(['hellfireGears', 'blazingLaurel', 'restrained', 'steamOven', 'preciousFossilizedCore']),
-  caesar: enginePools(['tusksOfFury', 'hellfireGears', 'springEmbrace']),
-  yeShunguang: enginePools([
+const partialEngineCandidate = <Engine extends keyof typeof W_ENGINE_FACTS>(
+  engineId: Engine,
+  usableEffects: readonly (keyof (typeof W_ENGINE_FACTS)[Engine]['effects'] & string)[],
+): EngineCandidateAuthoring => ({ engineId, usableEffects })
+
+const candidateEngineId = (candidate: EngineCandidateAuthoring): EngineId => (
+  typeof candidate === 'string' ? candidate : candidate.engineId
+)
+
+const enginePools = (
+  fullCandidates: readonly EngineCandidateAuthoring[],
+): Record<PoolId, EngineId[]> => {
+  const full = fullCandidates.map(candidateEngineId)
+  return {
+    full,
+    nonLimited: full.filter((engineId) => !W_ENGINES[engineId].limited),
+  }
+}
+
+const ENGINE_CANDIDATES_BY_AGENT: Record<AgentId, readonly EngineCandidateAuthoring[]> = {
+  yixuan: ['qingming', 'cauldron', 'radiowave', 'puzzleSphere'],
+  yidhari: ['krakensCradle', 'grillOWisp', 'cauldron', 'qingming'],
+  manato: ['grillOWisp', 'wrathfulVajra', 'qingming'],
+  hugo: ['myriadEclipse', 'cordisGermina', 'heartstringNocturne', 'steelCushion', 'marcatoDesire'],
+  juFufu: ['roaringFurnace', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
+  panYinhu: ['tusksOfFury', 'tremorTrigramVessel', 'springEmbrace'],
+  banyue: ['wrathfulVajra', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere'],
+  starlightBilly: ['starlightRiderFaceplate', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere'],
+  dialyn: ['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
+  nangongYu: ['neonFantasies', 'hellfireGears', 'simmeringPot', 'preciousFossilizedCore', 'roaringFurnace'],
+  miyabi: ['hailstormShrine', 'fusionCompiler'],
+  anton: ['cordisGermina', 'severedInnocence', 'brimstone', 'marcatoDesire', 'drillRigRedAxis'],
+  rina: ['weepingCradle', 'kaboom', 'unfetteredGameBall'],
+  lucia: ['dreamlitHearth', 'weepingCradle', 'kaboom', 'unfetteredGameBall'],
+  anbySoldier0: ['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'brimstone', 'marcatoDesire'],
+  trigger: [
+    'spectralGaze',
+    partialEngineCandidate('yesterdayCalls', ['energy']),
+    'blazingLaurel', 'iceJadeTeapot', 'restrained',
+    'hellfireGears', 'preciousFossilizedCore', 'steamOven',
+  ],
+  astraYao: ['elegantVanity', 'bashfulDemon', 'theVault', 'kaboom'],
+  seed: ['cordisGermina', 'heartstringNocturne', 'severedInnocence', 'brimstone', 'marcatoDesire'],
+  cissia: ['serpentineSeeker', 'bellicoseBlaze', 'drillRigRedAxis', 'cordisGermina'],
+  evelyn: ['heartstringNocturne', 'severedInnocence', 'cordisGermina', 'brimstone', 'steelCushion'],
+  corin: ['cordisGermina', 'heartstringNocturne', 'steelCushion', 'housekeeper'],
+  lycaon: ['blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
+  ellen: ['deepSeaVisitor', 'myriadEclipse', 'cordisGermina', 'steelCushion', 'brimstone'],
+  soukaku: ['weepingCradle', 'kaboom'],
+  soldier11: ['heartstringNocturne', 'cordisGermina', 'severedInnocence', 'brimstone'],
+  lighter: ['blazingLaurel', 'iceJadeTeapot', 'hellfireGears', 'steamOven', 'restrained', 'preciousFossilizedCore'],
+  lucy: ['elegantVanity', 'weepingCradle', 'kaboom'],
+  zhuYuan: ['cordisGermina', 'heartstringNocturne', 'brimstone', 'riotSuppressorMarkVI', 'marcatoDesire'],
+  nicole: ['elegantVanity', 'theVault', 'weepingCradle', 'kaboom', 'unfetteredGameBall'],
+  orphie: ['bellicoseBlaze', 'heartstringNocturne', 'serpentineSeeker', 'gildedBlossom', 'marcatoDesire'],
+  pulchra: [
+    partialEngineCandidate('blazingLaurel', ['impact']),
+    'boxCutter', 'hellfireGears', 'steamOven', 'preciousFossilizedCore',
+  ],
+  harumasa: ['zanshinHerbCase', 'cordisGermina', 'brimstone', 'heartstringNocturne'],
+  qingyi: ['iceJadeTeapot', 'blazingLaurel', 'restrained', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
+  nekomata: ['steelCushion', 'heartstringNocturne', 'cordisGermina', 'cloudcleaveRadiance', 'brimstone'],
+  billy: ['cloudcleaveRadiance', 'heartstringNocturne', 'cordisGermina', 'brimstone', 'steelCushion', 'starlightEngineReplica'],
+  ben: ['tremorTrigramVessel', 'tusksOfFury', 'cloudcleaveRadiance', 'hailstormShrine', 'bigCylinder', 'springEmbrace'],
+  koleda: ['hellfireGears', 'restrained', 'steamOven', 'preciousFossilizedCore'],
+  anby: ['hellfireGears', 'restrained', 'steamOven', 'preciousFossilizedCore'],
+  caesar: ['tusksOfFury', 'hellfireGears', 'springEmbrace'],
+  yeShunguang: [
     'cloudcleaveRadiance', 'severedInnocence', 'brimstone',
-  ]),
-  zhao: enginePools(['halfSugarBunny', 'tusksOfFury', 'originalTransmorpher']),
-  grace: enginePools([
+  ],
+  zhao: ['halfSugarBunny', 'tusksOfFury', 'originalTransmorpher'],
+  grace: [
     'timeweaver', 'practicedPerfection',
     'fusionCompiler', 'electroLipGloss', 'weepingGemini',
-  ]),
-  piper: enginePools([
+  ],
+  piper: [
     'practicedPerfection', 'sharpenedStinger', 'electroLipGloss',
     'weepingGemini', 'roaringRide',
-  ]),
-  yuzuha: enginePools(['metanukimorphosis', 'thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
-  sunna: enginePools(['thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
-  burnice: enginePools(['flamemakerShaker', 'practicedPerfection', 'fusionCompiler', 'weepingGemini']),
-  jane: enginePools(['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
-  seth: enginePools(['peacekeeperSpecialized', 'tusksOfFury', 'springEmbrace']),
-  yanagi: enginePools(['timeweaver', 'practicedPerfection', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
-  alice: enginePools(['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
-  vivian: enginePools(['flightOfFancy', 'angelInTheShell', 'weepingGemini']),
-  aria: enginePools(['angelInTheShell', 'flightOfFancy', 'electroLipGloss', 'weepingGemini', 'fusionCompiler']),
-  promeia: enginePools(['frostfallSickle', 'fusionCompiler', 'angelInTheShell', 'weepingGemini']),
+  ],
+  yuzuha: ['metanukimorphosis', 'thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall'],
+  sunna: ['thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall'],
+  burnice: ['flamemakerShaker', 'practicedPerfection', 'fusionCompiler', 'weepingGemini'],
+  jane: ['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini'],
+  seth: ['peacekeeperSpecialized', 'tusksOfFury', 'springEmbrace'],
+  yanagi: ['timeweaver', 'practicedPerfection', 'fusionCompiler', 'electroLipGloss', 'weepingGemini'],
+  alice: ['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini'],
+  vivian: ['flightOfFancy', 'angelInTheShell', 'weepingGemini'],
+  aria: ['angelInTheShell', 'flightOfFancy', 'electroLipGloss', 'weepingGemini', 'fusionCompiler'],
+  promeia: ['frostfallSickle', 'fusionCompiler', 'angelInTheShell', 'weepingGemini'],
+}
+
+export const ENGINE_IDS_BY_AGENT_AND_POOL = Object.fromEntries(
+  (Object.entries(ENGINE_CANDIDATES_BY_AGENT) as Array<[
+    AgentId,
+    readonly EngineCandidateAuthoring[],
+  ]>).map(([agentId, candidates]) => [agentId, enginePools(candidates)]),
+) as Record<AgentId, Record<PoolId, EngineId[]>>
+
+/** Returns the locally authored usable clause set for one admitted W-Engine candidate. */
+export function selectedWEngineEffectIsUsable(
+  agentId: AgentId,
+  engineId: EngineId,
+  effectKey: string,
+): boolean {
+  const candidate = ENGINE_CANDIDATES_BY_AGENT[agentId]
+    .find((entry) => candidateEngineId(entry) === engineId)
+  return candidate !== undefined && (
+    typeof candidate === 'string' || candidate.usableEffects.includes(effectKey)
+  )
 }

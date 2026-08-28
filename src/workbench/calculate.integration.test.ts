@@ -303,7 +303,7 @@ describe('shared calculation integration', () => {
     expect(chaosActionIds).toEqual(['burniceAfterburn', 'burniceExAssistDmg'])
   })
 
-  it('filters selected partial-equipment clauses by holder capability after candidate admission', () => {
+  it('filters selected partial-equipment clauses after candidate admission', () => {
     const hasMetricSource = (
       agent: NonNullable<ReturnType<typeof calculateParty>>['agents'][number],
       metricId: string,
@@ -358,6 +358,42 @@ describe('shared calculation integration', () => {
     ))!.agents.find(({ agentId }) => agentId === 'cissia')!
     expect(hasMetricSource(cissia, 'critRate', 'Serpentine Seeker', 'combat')).toBe(true)
     expect(hasMetricSource(cissia, 'defIgnore', 'Serpentine Seeker', 'combat')).toBe(true)
+
+    const pulchraParty = calculateParty(createPreparedState(
+      {}, ['pulchra', 'lucy', 'soldier11'], 2,
+    ))!
+    const pulchra = pulchraParty.agents.find(({ agentId }) => agentId === 'pulchra')!
+    const soldier11 = pulchraParty.agents.find(({ agentId }) => agentId === 'soldier11')!
+    expect(hasMetricSource(pulchra, 'impact', 'Blazing Laurel')).toBe(true)
+    expect(hasMetricSource(soldier11, 'critDmg', 'Blazing Laurel')).toBe(false)
+
+    let juFufuState = createPreparedState({}, ['juFufu', 'soldier11', 'lucy'], 1)
+    juFufuState = workbenchReducer(juFufuState, {
+      type: 'selectEngine', slot: 0, engineId: 'blazingLaurel',
+    })
+    const juFufuParty = calculateParty(juFufuState)!
+    const juFufu = juFufuParty.agents.find(({ agentId }) => agentId === 'juFufu')!
+    const juFufuSoldier11 = juFufuParty.agents.find(({ agentId }) => agentId === 'soldier11')!
+    expect(hasMetricSource(juFufu, 'impact', 'Blazing Laurel')).toBe(true)
+    expect(hasMetricSource(juFufuSoldier11, 'critDmg', 'Blazing Laurel')).toBe(true)
+
+    let triggerState = createPreparedState({}, ['trigger', 'soldier11', 'lucy'], 1)
+    triggerState = workbenchReducer(triggerState, {
+      type: 'selectEngine', slot: 0, engineId: 'yesterdayCalls',
+    })
+    const triggerParty = calculateParty(triggerState)!
+    const trigger = triggerParty.agents.find(({ agentId }) => agentId === 'trigger')!
+    const triggerSoldier11 = triggerParty.agents.find(({ agentId }) => agentId === 'soldier11')!
+    expect(hasMetricSource(trigger, 'dazeBonus', 'Yesterday Calls')).toBe(false)
+    expect(hasMetricSource(triggerSoldier11, 'critDmg', 'Yesterday Calls')).toBe(false)
+
+    const dialynParty = calculateParty(createPreparedState(
+      {}, ['dialyn', 'soldier11', 'lucy'], 1,
+    ))!
+    const dialyn = dialynParty.agents.find(({ agentId }) => agentId === 'dialyn')!
+    const dialynSoldier11 = dialynParty.agents.find(({ agentId }) => agentId === 'soldier11')!
+    expect(hasMetricSource(dialyn, 'dazeBonus', 'Yesterday Calls')).toBe(true)
+    expect(hasMetricSource(dialynSoldier11, 'critDmg', 'Yesterday Calls')).toBe(true)
   })
 
   it('returns no Result while any required Setup selection is incomplete', () => {
