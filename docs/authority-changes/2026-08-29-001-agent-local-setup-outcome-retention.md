@@ -1,7 +1,7 @@
 ---
 id: ACR-2026-08-29-001
 date: 2026-08-29
-status: proposed
+status: accepted
 supersedes: none
 superseded_by: none
 ---
@@ -143,5 +143,5 @@ the shared equipment fact rather than in Manato's local comparison boundary.
 ## Approval result
 
 - Product owner: `Min-DongYoung`
-- Result: `pending`
-- Decided at:
+- Result: `accepted`
+- Decided at: `2026-08-29T02:14:21+09:00`
