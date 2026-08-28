@@ -42,6 +42,12 @@ moves to another owner, or retires, reserve the old identifier under a local
 `Retired Rule IDs` heading as `SW-### -> <successor IDs or none>: <reason>` and
 allocate new owner-prefixed identifiers to every resulting current rule.
 
+## Retired Rule IDs
+
+`SW-007 -> SW-018, SW-019, SW-020`: the former rule combined variable-main-
+stat opportunity, effective-substat opportunity, and context-effective
+candidate changes in one meaning boundary.
+
 ## Workbench Dependency
 
 **Rule ID:** `SW-001`
@@ -177,7 +183,46 @@ stats. It does not admit a personal-damage W-Engine, 4-piece, 2-piece,
 effective substat, or Mindscape case for a direction without the damage-
 contributor role.
 
-### Candidate Preparation Dependency
+### Candidate Authoring
+
+#### Agent Outcome Relationship Gate
+
+**Rule ID:** `SW-017`
+
+Every candidate-bearing setup input derives usable source value through the
+same current Agent outcome relationships before applying its surface-specific
+competitive rule. A source contribution has usable value only through at least
+one retained relationship:
+
+- a **basis, threshold, or conversion relationship**, where supplied stat
+  value changes another retained outcome or preparation boundary;
+- a **delivery-topology relationship**, where an action or operating interval
+  delivers retained Daze, damage, buff, or another setup outcome;
+- a **role-resource relationship**, where Impact, Energy, or another retained
+  resource materially enables that delivery or outcome; or
+- an **external-outcome relationship**, where a party- or enemy-facing effect
+  reaches an exact current recipient and applicable formula.
+
+Specialty, Attribute, holder, activation, action, recipient, interval, and
+other source-local qualifiers gate each contribution independently. They do
+not create a competitive axis by themselves. A contribution that fails its
+gate adds zero usable value and receives no penalty; complete and partial
+packages use the same relationship test. Passing that test proves only usable
+value. The applicable input rule must still compare its complete setup, finite
+opportunity, nearest usable same-axis alternative, material setup direction,
+acquisition or allocation role where applicable, and a countercase that would
+reverse the conclusion before admission, compression, or representative
+authoring.
+
+Derive these relationships only from retained Agent facts, source facts, and
+applicable formula, action, operation, or recipient consumers. Do not require
+action share, uptime, or rotation precision absent from the retained source
+condition and current consumer. A genuinely new operation that these
+established relationships cannot express requires an explicit common-
+mechanism or authority decision; do not force it into the gate or infer a
+relationship from item identity or analogy.
+
+#### Candidate Preparation Dependency
 
 **Rule ID:** `SW-004`
 
@@ -186,14 +231,13 @@ Candidate authoring follows this order:
 1. establish completed Agent facts and Rank-default Mindscape;
 2. establish direction, roles, actions, retained operations, formulas,
    conversions, thresholds, caps, and exclusions;
-3. use recurring role, formula, action, stat-pressure, and Specialty patterns
-   to restrict inspection;
-4. compare remaining packages against that Agent's exact kit, activation,
-   opportunity costs, availability, and current competitive practice;
-5. retain only materially distinct authored base candidates;
-6. derive current effective candidates through only authored Mindscape, party,
-   focus, pool, or active-effect adjustments in the explicit acyclic order
-   below; and
+3. establish usable contribution through `SW-017`, then use recurring outcome
+   relationships and exact clause gates to restrict inspection;
+4. apply the W-Engine, Drive Disc, variable-main-stat, or effective-substat
+   surface rule and its own opportunity topology;
+5. close the materially distinct authored base candidates under `SW-008`;
+6. derive current effective candidates through only the bounded adjustments in
+   `SW-020`, in the explicit acyclic order below; and
 7. author the deterministic first choices from those effective candidates
    needed to prepare one complete setup.
 
@@ -239,33 +283,38 @@ alternatives within that range. This W-Engine boundary does not replace the
 separate Drive Disc, main-stat, or effective-substat gates.
 
 Patterns order inspection but cannot inherit another Agent's result. New items
-are routed first to roles, formulas, actions, stat pressures, and Specialties
-that can consume them; unrelated Agents do not require full re-derivation.
+are routed first to current Agent outcome relationships, then through the
+formula, action, stat-pressure, Specialty, and other clause gates that can
+establish an exact consumer. Unrelated Agents do not require full re-derivation.
 
-#### W-Engine Package Inspection
+#### Surface-Specific Inspection
+
+##### W-Engine Package Inspection
 
 **Rule ID:** `SW-005`
 
 For W-Engines, begin with current competitive-practice shortlists as discovery
 input rather than a final answer. Inspect matching-Specialty packages first,
-then perform a bounded omission pass through other current-cohort packages that
-could strengthen the exact authored direction. A guide appearance, release or
+then perform a bounded omission pass through other currently admitted packages
+that could strengthen the exact authored direction. The applicable supporting
+content requirement owns any finite release or identity admission scope; this
+rule does not imply a permanent version cohort. A guide appearance, release or
 character association, rarity, Specialty match, or isolated high value neither
 admits nor rejects a package by itself.
 
-For every inspected legal package, settle the holder's role and formula,
-action, operation, threshold, or cap consumer; exact Specialty eligibility and
-activation compatibility; availability and ownership origin; and the nearest
-usable same-direction competitor. At S-Rank W1 or A-Rank W5, derive only the
-Base ATK, advanced stat, passive clauses, conditions, scopes, and operations the
-current Agent can realize. A usable contribution adds its realized value. An
-unusable contribution adds zero and is neither a bonus nor a penalty. Complete
-and partial describe applicability; clause count and package completeness do
-not establish value or priority. An off-Specialty package remains Agent-local
-and survives only when its realized package is competitive for the current
-direction. Base ATK remains part of the recomposed setup, but Rank or a modest
-isolated Base ATK difference does not independently establish admission,
-direction, or priority.
+For every inspected legal package, project Base ATK, advanced stat, and every
+passive clause independently through `SW-017`. Settle the exact holder role and
+formula, action, operation, threshold, or cap consumer; Specialty eligibility
+and activation compatibility; availability and ownership origin; and the
+nearest usable same-direction competitor. At S-Rank W1 or A-Rank W5, derive
+only the conditions, scopes, and operations the current Agent can realize. A
+usable contribution adds its realized value. An unusable contribution adds
+zero and is neither a bonus nor a penalty. Complete and partial describe
+applicability; clause count and package completeness do not establish value or
+priority. An off-Specialty package remains Agent-local and survives only when
+its realized package is competitive for the current direction. Base ATK
+remains part of the recomposed setup, but Rank or a modest isolated Base ATK
+difference does not independently establish admission, direction, or priority.
 
 At zero currently supplied substats, recompose the complete bounded setup and
 the future opportunity owned by [Competitive Candidate Set](#competitive-candidate-set)
@@ -314,7 +363,7 @@ changes also keep their established contrary and invalid-selection lifecycle.
 Do not turn this authoring order into runtime scoring, a package registry, or a
 named-Agent decision table.
 
-#### Drive Disc Inspection Routing
+##### Drive Disc Package Inspection
 
 **Rule ID:** `SW-006`
 
@@ -336,6 +385,10 @@ action-scoped DMG, formula-specific modifiers, DEF-region supply, Daze supply,
 resource supply, and party-facing modifiers. Keep only current leaves: do not
 prepopulate unused Attributes, actions, or effects to form a catalogue.
 
+The family and leaf route discovery; they do not establish Agent value.
+Project every retained clause through `SW-017` and its independent qualifier
+gates before recombining an exact Disc package.
+
 Classify each retained 2-piece or 4-piece clause independently, then recombine
 every clause belonging to one exact Disc identity for the whole-package
 comparison. A multi-clause Disc does not belong to only one family. Piece
@@ -345,13 +398,13 @@ exact identity remain orthogonal applicability facts rather than deeper
 classification levels.
 
 For one Agent direction, inspect in this order: establish exact Result and
-setup consumers; select formula-valid effect families and exact leaves; apply
-role priority; reject incompatible holders or activations; match defining
-actions and Attributes; compare complete 4-piece packages; compare legal
-2-piece complements; apply threshold, cap, and bounded future-substat
-opportunity costs; resolve explicitly authored same-effect identity compression;
-then apply contextual candidate and non-stacking holder policy. Candidate
-membership and the zero-substat prepared first choice remain separate outcomes.
+setup consumers; apply the `SW-017` relationship and qualifier gates; select
+formula-valid effect families and exact leaves; apply role priority; compare
+complete 4-piece packages; compare legal 2-piece complements; apply threshold,
+cap, and bounded future-substat opportunity costs; resolve explicitly authored
+same-effect identity compression; then apply contextual candidate and non-
+stacking holder policy. Candidate membership and the zero-substat prepared
+first choice remain separate outcomes.
 
 For a current general-damage Attack contributor, the ordinary 2-piece
 inspection includes both ATK% and the matching Attribute DMG modifier, together
@@ -385,180 +438,132 @@ resource and party-facing packages for the remaining axes. Contextual Puffer
 Electro and Astral Voice admission and non-stacking holder allocation remain
 the separate operation-aware passes defined below.
 
-#### Effective Substat Candidate Gate
+##### Variable Main-Stat Inspection
 
-**Rule ID:** `SW-007`
+**Rule ID:** `SW-018`
 
-Main-stat and effective-substat candidates begin from the Agent's direction,
-roles, formulas, and current Agent sources. Do not re-derive the whole candidate
-set from every party and equipment combination. A selected equipment effect may
-create a bounded stat pressure when that stat changes the direction's current
-choice or Result. In that case, evaluate the competitive setup inputs that can
-supply the stat. A threshold alone does not admit every supplier: main-stat
-slot cost, substat competition, set-piece opportunity cost, and whole-package
-equipment value still apply.
+Variable main-stat candidates begin from the Agent direction and only the
+relationships that pass `SW-017`. Each candidate must be legal for its exact
+Slot 4, 5, or 6 and must justify consuming that slot beside the other legal
+relationships available there. Formula participation, a positive contribution,
+or a threshold alone does not establish competitiveness. Compare the fixed
+supply created by the complete current package, the distinct outcome axis, and
+the finite main-stat and future-substat opportunity displaced by the choice.
 
-Formula participation or a positive numeric contribution does not by itself
-make an effective substat competitive. One additional hit must remain a
-material use of the same finite tuning opportunity after the current package's
-fixed stat supply, thresholds, caps, conversions, and stronger alternatives are
-considered. A materially weaker supplier may therefore be excluded even though
-it still increases a formula, unless it keeps a distinct threshold, cap,
-operation, or relationship that matters to the direction. This is an authored
-candidate decision, not a runtime score or an automatic comparison of every
-positive stat.
+Different slots do not make one common value class, and a W-Engine or Disc
+relationship does not admit the same stat here automatically. A resource main
+and a direct scaling main remain distinct only when they materially strengthen
+different retained delivery, threshold, conversion, or formula outcomes. A
+formula-invalid stat has no value through that formula. The residual personal-
+damage exception for a direction with no role-strengthening variable-main
+choice remains limited to this surface and creates no damage role or Result
+relationship.
 
-For example, Yixuan's HP% and ATK% each feed the same current Sheer Force
-direction, but the current base-stat magnitudes and Rupture conversion make an
-HP% hit materially stronger, so only HP% is retained. By contrast, percentage
-and flat supply may both remain competitive for a capped provider whose few
-material substats serve one scarce scaling axis. Distinct axes such as Dialyn's
-Slot 6 Energy Regen and Impact remain separately comparable as resource-
-operation and direct-Daze investments. A generic personal-damage increase or
-ordinary Attribute buildup likewise does not admit CRIT or Anomaly Proficiency
-for a direction that lacks a materially competitive current use for that
-investment.
+Candidate membership is itself a user-visible Setup outcome and does not need a
+paired calculated row. Do not invent personal-damage, raw-damage, or raw-Daze
+Result merely to retain a competitive main-stat choice.
 
-Judge this membership against the authored direction, representative package
-alternatives, and bounded selected-input pressure, not against the user's
-current edited hit counts or a Result value. Approaching a cap through direct
-editing does not continuously remove a retained substat. If an authored
-starting representative leaves only trivial useful room on its scarce tuning
-axis, reconsider that representative's fixed supply instead of shrinking the
-candidate set around the mistake.
+##### Effective-Substat Inspection
 
-Competitive candidates are choices still worth comparing in the current setup
-context, not every stat whose numerical contribution remains positive. An
-active provider effect may therefore carry an authored candidate-pressure
-meaning after recipient, action, formula, and current competitive practice are
-resolved. Candidate policy consumes that meaning rather than the provider's
-Agent, W-Engine, or Disc identity, its Result row, or a runtime score.
+**Rule ID:** `SW-019`
 
-Every researched current setup pressure ends in exactly one setup-policy
-outcome: no setup change, a prepared-choice-only adjustment, or a candidate-
-membership adjustment. A prepared-choice-only adjustment is consumed only
-during an authorized preparation transition and never overwrites a direct edit.
-A membership adjustment is reevaluated for the current session and may
-invalidate an edited selection under the lifecycle below. Persist only the
-bounded settled predicate and choice needed by the current consumer, never a
-score, ranking, research receipt, or provider-identity branch.
+Effective-substat candidates likewise begin from `SW-017`, but their opportunity
+is one additional hit from the shared finite tuning input. That hit must remain
+a material use after the complete package's fixed supply, thresholds, caps,
+conversions, and stronger retained alternatives are considered. A materially
+weaker supplier may be excluded even while it increases a formula, unless it
+preserves a distinct threshold, cap, operation, or relationship that matters to
+the direction. Percentage and flat supply may both remain only when each is a
+material use of the same scarce axis.
 
-The current candidate-membership adjustment admits material **broad** pre-PEN
-DEF Reduction or DEF Ignore as pressure that may remove an admitted PEN Ratio
-supplier from an applied setup whose authored primary or residual damage
-direction uses an applicable formula frame that consumes the DEF region. This
-can affect a Slot 5 PEN Ratio main stat or a PEN Ratio 2-piece Disc when each
-is otherwise a competitive candidate. Resolve the pressure through its actual
+Judge membership against the authored direction, representative package
+alternatives, and bounded context pressure, not the user's current edited hit
+counts or a Result value. Approaching a cap through direct editing does not
+continuously remove a retained substat. If the authored starting representative
+leaves only trivial future room on a scarce tuning axis, reconsider that
+representative's fixed supply instead of shrinking the candidate set around it.
+A generic personal-damage increase or ordinary Attribute buildup does not admit
+CRIT or Anomaly Proficiency without a materially competitive retained use.
+
+A stat-derived threshold can establish a basis relationship without creating a
+personal-damage role. It may therefore admit a main stat, effective substat, or
+Disc supplier independently on each surface. A W-Engine supplying the same stat
+still passes its complete-package, acquisition, and availability comparison and
+does not enter automatically.
+
+#### Context-Effective Candidate Policy
+
+**Rule ID:** `SW-020`
+
+Author base candidates before evaluating Mindscape, party, Focus, pool, active
+provider, or selected-equipment context. Do not re-derive the whole candidate
+set from every combination. Context may consume only an authored bounded
+predicate whose exact relationship, recipient, formula, action, operation, and
+surface consequence are already settled.
+
+Every researched current pressure ends in exactly one product outcome: no setup
+change, a prepared-choice-only adjustment, or a candidate-membership adjustment.
+A prepared-choice-only adjustment is consumed only during authorized
+preparation and never overwrites a direct edit. A membership adjustment is
+reevaluated in the current session and may invalidate an edited selection under
+`SW-009` and `SW-011`. Persist only the bounded predicate and choice needed by
+the current consumer, never a score, ranking, research receipt, or provider-
+identity branch.
+
+The current membership adjustment admits material **broad** pre-PEN DEF
+Reduction or DEF Ignore as pressure that may remove an otherwise competitive
+PEN Ratio supplier when the applied setup's authored primary or residual damage
+direction consumes `def_multiplier`. Resolve the pressure through its actual
 recipient, Attribute, action, and formula applicability; do not turn one
-provider's clause into a global party flag.
+provider's clause into a global party flag. It can affect Slot 5 PEN Ratio and a
+PEN Ratio 2-piece Disc independently. It does not remove a competitive 4-piece
+whose complete package contains that 2-piece effect.
 
-Breadth is the current admission boundary, not a universal proof of
-materiality. A limited action-scoped pre-PEN modifier does not remove PEN Ratio
-merely because it precedes PEN in the formula; it may affect an explicitly
-authored prepared preference when it covers direction-defining output, but a
-future scoped membership adjustment requires a new current consumer and
-product decision before the qualifier is expanded. A broad or numerically
-large modifier likewise does not establish exclusion without that authored
-policy. A direction whose damage family omits the DEF region never admits PEN
-Ratio from this rule. The current broad Spectral Gaze pressure removes Slot 5
-PEN Ratio for every applicable setup whose authored primary or residual damage
-direction consumes `def_multiplier`; Agent identity, Specialty, and Attribute
-are not additional predicates. Its enemy DEF Reduction reaches the same
-formula-applicable Result consumers rather than a separately named Agent set.
-A representative that would otherwise start with invalid PEN requires its own
-authored pressure-safe prepared choice rather than a runtime fallback. A broad
-party Electric DEF Ignore can remove both Slot 5 PEN Ratio and a Puffer
-Electro 2-piece candidate for an applicable Electric setup whose authored
-primary or residual damage direction consumes `def_multiplier`. It does not by
-itself remove a separately authored competitive Puffer Electro 4-piece case;
-that complete package is evaluated through its inherent 2-piece and 4-piece
-effects under the whole-package rule. Cordis Germina's Basic/Ultimate-only DEF
-Ignore does not remove either PEN Ratio input by itself. This is authored
-candidate policy, not a numerical threshold or action-share calculation
-inferred at runtime.
+Breadth is the current authored boundary, not universal proof of materiality.
+A limited action-scoped pre-PEN modifier does not remove PEN Ratio merely
+because it precedes PEN in the formula, and a broad or numerically large effect
+does not establish exclusion without this policy. A formula omitting
+`def_multiplier` is unaffected. Spectral Gaze's broad pressure therefore uses
+the formula relationship rather than Agent, Specialty, or Attribute identity;
+Cordis Germina's Basic/Ultimate-only DEF Ignore does not create the same
+membership removal. A pressure-safe prepared package must be authored rather
+than selected by runtime fallback.
 
-For example, under the legal main-stat and substat pools owned by
-`docs/zzz-game-vocabulary.md`, a Stun direction can exhaust its direct Daze
-stat supply without using every editable investment position: Impact is
-available as a Slot 6 main stat, while Impact and Daze Bonus are not Drive Disc
-substats and Daze Bonus is not a main stat. A 4-piece package that retains a
-Daze 2-piece effect and links the holder's CRIT Rate threshold to a party-
-facing modifier can therefore strengthen both daze-contributor and buffer
-roles. Current candidates may then
-include Slot 4 CRIT Rate, CRIT Rate effective-substat hits, and a competitive
-2-piece CRIT Rate set because they supply the buffer threshold or another
-retained CRIT-derived relationship, not because they provide residual personal
-damage. The 2-piece identity is a result of supplying that pressure, not a named
-exception. A W-Engine that supplies CRIT Rate still passes the normal Base ATK,
-advanced stat, passive, and availability comparison rather than entering
-automatically.
+Most Mindscape and party changes narrow candidates. Addition is exceptional
+and requires a newly material external contribution or operation. The current
+recipient-applied Ultimate opportunity may add an authored Puffer Electro
+4-piece case for an applicable crit-capable general-damage direction. The
+current provider-applied Quick Assist opportunity may add an authored Astral
+Voice 4-piece case when its entrant effect becomes materially usable for the
+recipient's direction. Newly usable activation is necessary but not sufficient:
+the complete package must remain competitive after holder role, Focus
+responsibility, role-fitting alternatives, and opportunity cost. A focused
+damage contributor with a stronger operation-fitting package does not gain the
+contextual case merely because activation is reachable. These are operation-
+and recipient-applicability rules, not Named-Agent branches, and they neither
+select the case nor continuously rank it.
 
-Candidate membership is itself a user-visible setup outcome. It does not need a
-paired calculated output merely to justify its presence. Do not invent a
-personal-damage or raw-Daze Result to retain an otherwise competitive residual
-main-stat choice.
+Candidate addition remains distinct from prepared holder allocation. When a
+non-stacking competitive effect fits more than one applied holder, preparation
+prefers a legal non-overlapping package and allocates the less-flexible fit
+first. Use only current independent role or Result consumers, complete package
+preservation, current main-stat and effective-substat directions, zero-substat
+threshold opportunity, and the material loss from giving up the effect. If
+those consumers still do not distinguish the holders, author one bounded
+deterministic party representative. Do not return `null`, use slot or Agent
+identity as a hidden tiebreaker, duplicate the prepared effect, or create a
+runtime holder score. Direct edits may still create duplicate holders, with
+ordinary non-stacking Result composition.
 
-Most Mindscape and party changes narrow candidates. Addition is exceptional and
-requires a newly material external contribution or operation. A recipient-
-applied Ultimate opportunity can add an authored Puffer Electro 4-piece case
-for an applicable crit-capable general-damage direction. A provider-applied
-Quick Assist opportunity can likewise add an authored Astral Voice 4-piece case
-when that operation makes its entrant effect materially usable for the
-recipient's direction. Newly usable effect activation is necessary but not
-sufficient. Before the contextual case enters the effective set, its complete
-package must remain materially competitive after the holder's authored roles,
-current Focus responsibility, role-fitting 4-piece alternatives, and opportunity
-costs are applied. Astral Voice can survive this comparison when it materially
-strengthens a retained buffer role, or when the holder lacks a materially
-stronger operation-fitting 4-piece and Astral Voice's whole package remains a
-competitive alternate. A focused damage contributor with a strong personal
-operation-fitting 4-piece does not gain Astral Voice merely because the party
-can supply Quick Assists. The absence of a stronger operation-fitting case is
-authored competitive-practice policy, not a runtime absence check or score.
+Allocation passes compose in dependency order: a later holder tie-break
+consumes already-resolved Focus/formula and earlier package allocation. A
+changed pass requires one flow through adjacent passes together and one
+contrast. New equipment normally competes first on its own surface and may
+change a prepared main stat through its fixed package. Reconsider an effective
+substat only when the new equipment creates material pressure after existing
+stat supply and finite opportunity are applied.
 
-These are operation- and recipient-applicability rules, not Dialyn-, Astra Yao-,
-or equipment-identity branches. They admit an already-authored contextual
-candidate case; they do not select it, continuously rank it, or overwrite a
-direct setup edit.
-
-Candidate addition is distinct from holder allocation. When an equipment case
-is already competitive for more than one applied Agent, a non-stacking party
-effect or a more suitable holder may change the prepared first choices without
-changing candidate membership. For example, allocating Astral Voice to another
-eligible holder may prepare Astra Yao with Moonlight Lullaby, while an Astral
-Voice case made usable only by an externally supplied Quick Assist is a
-candidate-membership addition. Persist these as separate authored policy
-outcomes even when both occur in the same party.
-
-When two applied holders can each prepare one of two non-stacking competitive
-effects, preparation prefers a legal non-overlapping package. Allocate the
-effect with the less flexible holder fit first, using only current independent
-role or Result consumers, complete 4-piece/2-piece package preservation,
-current authored main-stat and effective-substat directions, threshold
-investment at the zero-substat start, and the material role or Result loss
-from giving up that effect. Allocate the other
-effect to the holder that remains competitively flexible. If those current
-consumers still do not distinguish the holders, author one bounded deterministic
-party representative. Do not return `null`, duplicate a non-stacking effect,
-use slot order or Agent identity as a hidden tiebreaker, or create a runtime
-holder score. This allocation changes only authorized prepared first choices;
-direct edits may create duplicate holders and Result still applies the ordinary
-non-stacking rule.
-
-These allocation rules compose in dependency order. A later Support-holder
-tie-break must consume the already-resolved Focus/formula and Stun/King package;
-it cannot treat an earlier flexible Astral representative as final and thereby
-displace the Stun package. Acceptance for a changed allocation pass includes one
-party that traverses the adjacent passes together, not only isolated examples
-for each pass.
-
-New equipment normally enters as a competing W-Engine, 4-piece, or 2-piece
-candidate and may change the prepared main-stat choice through its stat package.
-Reconsider an effective-substat candidate only when the new equipment creates a
-competitive stat pressure after the Agent's existing retained stat-supply
-choices and opportunity costs are applied.
-
-### Competitive Candidate Set
+#### Competitive Candidate Set
 
 **Rule ID:** `SW-008`
 
@@ -568,40 +573,47 @@ accessibility, stat or modifier balance, thresholds, caps, operation, or a
 supported preference may distinguish it. Reachability, release or character
 association, a different trigger, or an isolated clause is insufficient.
 
-For W-Engine membership, complete and partial packages use the same value
-comparison. The representative benchmark calibrates the material competitive
-range; alternatives whose realized value is too remote are excluded even when
-they are legal, positive, or distinct in name. Usable contributions add their
-realized value, while unusable contributions add zero and receive neither a
-completeness bonus nor a partial-package penalty.
+An `SW-017` relationship establishes usable value, not competitiveness. Every
+admission, removal, compression, and representative conclusion still requires
+the applicable surface comparison: complete package, finite opportunity,
+nearest comparator, material user-facing direction, and reversing countercase.
+Do not compare unrelated surfaces by treating a shared relationship label as a
+common score.
 
-For alternatives inside that range, same-direction dominance is acquisition-
-role-local rather than global. Retain the strongest other limited S-Rank per
-recomposed direction and the strongest standard S-Rank or A-Rank per recomposed
-direction. The other limited alternative remains only when it is competitive
-with the strongest non-limited route, even though it may remain weaker than the
-representative. Do not collapse those three roles solely because they reach the
-same final direction. A different direction must materially change finite stat
-allocation, action or operation coverage, threshold or cap use, or formula
-consumption; a different label, trigger, rarity, or positive clause is
-insufficient. A non-limited S-Rank is not rejected merely because its advanced
-stat is unused when its realized passive package remains competitive. Candidate
-count is never a target, and the workbench does not expose every viable
-fallback.
-
-The choice-constrained contention fallback owned by `SW-005` is the only
-same-direction exception inside the standard-S-Rank/A-Rank role. It preserves a
-practical equipment identity after independently surviving the competitive
-range; it does not create a new setup direction or excuse another weaker
-package. Do not apply it when the Agent's other admitted non-limited routes
-already materially absorb the contested operation or direction.
+`SW-005` owns W-Engine representative-range and acquisition-role comparison,
+including complete and partial packages, other limited and non-limited routes,
+and the choice-constrained contention fallback. This rule consumes the closed
+W-Engine outcome without repeating those item-specific opportunity semantics.
+For every surface, a different direction must materially change finite
+allocation, action or operation coverage, threshold or cap use, formula
+consumption, acquisition, or allocation. A different label, trigger, rarity,
+or positive clause is insufficient. Candidate count is never a target, and the
+workbench does not expose every viable fallback.
 
 Individual viability is not enough. Numerical difference alone creates no
 cutoff. Candidate count is not a target. A direction's valid stat pressure keeps
-only stats that materially support a role or a stat-derived relationship the
-Result actually exposes. Formula participation alone is insufficient. Flat PEN
-is not current valid stat pressure, an effective substat, or a Result row; PEN
-Ratio is separate.
+only stats that materially support a role or retained relationship. Formula
+participation alone is insufficient. Flat PEN is not current valid stat
+pressure, an effective substat, or a Result row; PEN Ratio is separate.
+
+For every current candidate admission, removal, compression, and deterministic
+representative, retain the smallest Agent-local outcome that preserves the
+material decision and its reversal boundary: identity; realized outcome axis;
+usable or unused clause only when it changes the comparison; nearest comparator;
+finite opportunity; any acquisition- or allocation-role reason for coexistence
+or compression; and the contrary condition, lifecycle, or visible consequence
+that changes the result. Shared equipment facts continue to own source values,
+progression, conditions, scopes, and Setup copy. Keep guide material, the full
+investigated equipment set, detailed arithmetic, worksheets, and complete
+countermodels transient. Do not persist every rejection, a candidate registry,
+an explanation payload, or a runtime score.
+
+The applicable current Agent supporting requirement owns that settled local
+outcome, while production consumes its candidate and representative identities
+as Agent-centered setup policy. Shared equipment facts do not own the candidate
+because an item can realize different relationships and competitive boundaries
+for different holders. This ownership does not require one file per Agent, one
+physical rationale schema, or rationale in the consumer UI.
 
 Equal retained numeric effects do not by themselves collapse or admit exact
 equipment identity. Each identity first passes the normal competitive-candidate
@@ -657,6 +669,10 @@ candidates for the Agent, Mindscape, party, focus, and availability pool. It
 chooses a W-Engine and Rank-default refinement, a 4-piece set, a different
 2-piece set, legal Slot 4/5/6 main stats, and zero for every offered effective-
 substat hit count.
+
+Preparation is downstream of `SW-008` candidate closure and `SW-020` context
+resolution. It cannot choose a representative, backfill a missing candidate,
+or use a prepared Result to resolve an unfinished admission or compression.
 
 The first choice is authored competitive policy, not a runtime score. Use the
 direction-specific ordering above: an ordinary damage direction resolves its
