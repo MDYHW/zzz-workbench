@@ -114,10 +114,10 @@ party.
 
 **Sunna candidates and prepared setup**
 
-- R5. Sunna's full W-Engine candidates are Thoughtbop W1, Dreamlit Hearth W1,
-  Weeping Cradle W1, Kaboom the Cannon W5, and Unfettered Game Ball W5. Her
-  non-limited pool contains Weeping, Kaboom, and Unfettered. Prepare Thoughtbop
-  in full and Kaboom in non-limited.
+- R5. Sunna's full W-Engine candidates are Thoughtbop W1, Weeping Cradle W1,
+  Kaboom the Cannon W5, and Unfettered Game Ball W5. Her non-limited pool
+  contains Weeping, Kaboom, and Unfettered. Prepare Thoughtbop in full and
+  Kaboom in non-limited.
   - Thoughtbop's Energy, party DMG, and party ATK axes are usable and form the
     strongest complete full-pool package.
   - Weeping's off-field Energy and squad-DMG axes are both usable. Sunna's
@@ -127,12 +127,14 @@ party.
     Unfettered supplies Energy Regen and a
     weakness-matched party CRIT direction distinct from ATK and DMG supply.
   - Dreamlit's automatic Energy and Ether-Veil-triggered squad DMG are usable,
-    and squad Max HP creates a distinct current recipient direction for
-    HP-scaling party damage. It remains below Thoughtbop as representative but
-    competitive with the strongest non-limited package. Elegant Vanity,
-    Bashful Demon, Vault, and Metanukimorphosis fail complete-package
-    competition or lose their defining trigger or direction. Candidate-count
-    limits do not decide these exclusions.
+    and its squad Max HP has current HP-scaling recipients. Those isolated
+    positives do not preserve the package: its holder HP supply contributes
+    zero for Sunna, its common Energy/DMG direction is too remote from
+    Thoughtbop's complete benchmark, and the recipient-only HP distinction does
+    not establish a competitive alternative beside the strongest non-limited
+    packages. Elegant Vanity, Bashful Demon, Vault, and Metanukimorphosis
+    likewise fail complete-package competition or lose their defining trigger
+    or direction. Candidate-count limits do not decide these exclusions.
 - R6. Sunna's 4-piece candidates are Moonlight Lullaby and Astral Voice.
   Prepare Moonlight. Swing Jazz is excluded because its reachable squad-DMG
   axis is weaker than Moonlight's sustainable complete package; validity and a
@@ -224,8 +226,10 @@ party.
     supplies a distinct early/high-HP threshold direction.
   - Roaring supplies ATK and EX/Chain/Ultimate Daze, but Nangong cannot trigger
     its Fire Chain/Ultimate squad-DMG clause. Retain the hybrid action package:
-    source-owned Setup still discloses the inactive party-DMG clause as whole-
-    package opportunity cost, while Nangong's Result omits it.
+    its realized ATK/action-Daze value remains in the same competitive range as
+    the strongest non-limited routes. Source-owned Setup still discloses the
+    inactive party-DMG clause, while that clause contributes zero without a
+    partial-package penalty and Nangong's Result omits it.
   - The Restrained, Steam Oven, Blazing Laurel, Ice-Jade Teapot, Yesterday
     Calls, Spectral Gaze, Box Cutter, and Demara Battery fail whole-package
     competition, cadence, Attribute, or trigger applicability. Positive
@@ -233,10 +237,9 @@ party.
     package.
 - R15. Correct the shared Simmering Pot relationship encountered by this unit.
   Its retained trigger activates broad holder Daze and DMG rather than scoping
-  either outcome to Assist. Lycaon's existing personal-DMG boundary therefore
-  keeps only broad Daze visible, while Nangong can consume both outcomes.
-  Re-inspection preserves Lycaon's admission and the Anby and Koleda exclusions:
-  their stronger retained resource, defining-action, or broad packages still
+  either outcome to Assist. Nangong can consume both outcomes. Re-inspection
+  preserves the Anby and Koleda exclusions: their stronger retained resource,
+  defining-action, or broad packages still
   win the local comparison. The equipment fact remains the sole activation,
   scope, and value owner.
 - R16. Nangong's 4-piece candidates are Phaethon's Melody and Freedom Blues.

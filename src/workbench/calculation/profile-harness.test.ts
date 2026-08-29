@@ -20,7 +20,7 @@ import {
   selectedDiscSource,
 } from '../content/agent-sources/equipment'
 import { equipmentProviderRelationship } from '../content/agent-sources/equipment-provider'
-import { providerDefenseProfileFor } from '../content/agent-sources/provider-defense'
+import { partyOutcomeProfileFor } from '../content/agent-profiles/party-outcomes'
 import {
   actionProjection,
   evaluateProfileParty,
@@ -149,6 +149,8 @@ function selectedFourPieceRelationships(
       baseStats: { critRate: 0 },
       modifierMetrics: ['dmgBonus'],
     },
+    focusAgentId: state.slots[state.focusSlot].agentId,
+    partyAgentIds: state.slots.map(({ agentId: partyAgentId }) => partyAgentId),
     source: selectedDiscSource(
       agentId, appliedPartySlot, setup, fourPieceId, '4-piece',
     ),
@@ -1011,8 +1013,8 @@ describe('profile calculation harness', () => {
   it('composes a capped provider, recipient regions, operations, and live edits', () => {
     const initial = createPreparedState({}, ['astraYao', 'ben', 'nicole'], 1)
     const profilesFor = (state: WorkbenchState) => state.slots.map((_, index) => (
-      providerDefenseProfileFor(
-        state.slots[index].agentId as Parameters<typeof providerDefenseProfileFor>[0],
+      partyOutcomeProfileFor(
+        state.slots[index].agentId as Parameters<typeof partyOutcomeProfileFor>[0],
         state,
         index as 0 | 1 | 2,
       )

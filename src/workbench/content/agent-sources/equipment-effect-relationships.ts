@@ -14,7 +14,7 @@ import { equipmentProviderRelationship } from './equipment-provider'
 type EquipmentDelivery = Omit<DeliveryRule, 'recipient'>
 type ProjectableEffect = Exclude<ProviderEffect, { kind: 'operation' }>
 
-function projectableModifier(fact: EquipmentEffectFact): EffectMetric {
+export function equipmentEffectModifierMeaning(fact: EquipmentEffectFact): EffectMetric {
   switch (fact.modifier) {
     case 'energy':
     case 'shieldEffect':
@@ -113,7 +113,7 @@ export function projectEquipmentEffectRelationships({
       }]
     : actions.map((target) => ({
         kind: 'modifier' as const,
-        metricId: projectableModifier(fact),
+        metricId: equipmentEffectModifierMeaning(fact),
         earliestSurface,
         value: amount,
         ...(target ? { action: target } : {}),

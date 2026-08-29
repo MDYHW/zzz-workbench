@@ -70,10 +70,8 @@ import {
   equipmentEffectProgressionIncrementValue,
   fixedRefinementValues,
   scaledRefinementValues,
-  type AgentId,
   type EngineId,
   type EquipmentEffectFact,
-  type PoolId,
   type Refinement,
   type WEngineChoice,
   type WEngineFacts,
@@ -135,21 +133,35 @@ export const W_ENGINE_FACTS = {
     advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
     effects: {
       critDamage: { modifier: 'critDmg', unit: '%', value: [45, 51.75, 58.5, 65.25, 72] },
-      defIgnore: { modifier: 'defIgnore', unit: '%', value: [25, 28.75, 32.5, 36.25, 40], scope: { recipient: 'enemy' } },
+      defIgnore: { modifier: 'defIgnore', unit: '%', value: [25, 28.75, 32.5, 36.25, 40] },
     },
   },
   krakensCradle: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
     effects: {
-      iceSheerDamage: { modifier: 'sheerDmgBonus', unit: '%', progression: { kind: 'stacks', perStack: [6, 7.5, 9, 10.5, 12], maxStacks: 3 }, scope: { attributes: ['Ice'] } },
-      critRate: { modifier: 'critRate', unit: '%', value: [20, 23, 26, 29, 32] },
+      iceSheerDamage: {
+        modifier: 'sheerDmgBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: [6, 7.5, 9, 10.5, 12], maxStacks: 3 },
+        scope: { attributes: ['Ice'] },
+        activation: { kind: 'trigger', operation: 'hpDecrease', performer: 'equipper' },
+      },
+      critRate: {
+        modifier: 'critRate', unit: '%', value: [20, 23, 26, 29, 32],
+        activation: {
+          kind: 'trigger', operation: 'hpDecrease', performer: 'equipper',
+          holderHpAtOrBelowPercent: 50,
+        },
+      },
     },
   },
   grillOWisp: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 25, unit: '%' },
     effects: {
       fireDamage: { modifier: 'dmgBonus', unit: '%', value: [15, 17.25, 19.5, 21.75, 24], scope: { attributes: ['Fire'] } },
-      critRate: { modifier: 'critRate', unit: '%', value: [15, 17.25, 19.5, 21.75, 24] },
+      critRate: {
+        modifier: 'critRate', unit: '%', value: [15, 17.25, 19.5, 21.75, 24],
+        activation: { kind: 'trigger', operation: 'hpDecrease', performer: 'equipper' },
+      },
     },
   },
   wrathfulVajra: {
@@ -167,6 +179,7 @@ export const W_ENGINE_FACTS = {
         modifier: 'sheerDmgBonus', unit: '%',
         progression: { kind: 'stacks', perStack: [10, 11.5, 13, 14.5, 16], maxStacks: 2 },
         scope: { attributes: ['Physical'] },
+        activation: { kind: 'trigger', operation: 'hpDecrease', performer: 'equipper' },
       },
     },
   },
@@ -181,36 +194,73 @@ export const W_ENGINE_FACTS = {
   cauldron: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 25, unit: '%' },
     effects: {
-      damage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(12) },
-      critRate: { modifier: 'critRate', unit: '%', value: scaledRefinementValues(6.5) },
+      damage: {
+        modifier: 'dmgBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: scaledRefinementValues(4), maxStacks: 3 },
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
+      },
+      critRate: {
+        modifier: 'critRate', unit: '%', value: scaledRefinementValues(6.5),
+        activation: { kind: 'trigger', actions: ['EX Special Attack'], stackThreshold: 3 },
+      },
     },
   },
   radiowave: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 25, unit: '%' },
     effects: {
-      sheerForce: { modifier: 'sheerForce', unit: '', value: scaledRefinementValues(240) },
+      sheerForce: {
+        modifier: 'sheerForce', unit: '',
+        progression: { kind: 'stacks', perStack: scaledRefinementValues(80), maxStacks: 3 },
+        activation: { kind: 'trigger', actions: ['Chain Attack', 'Ultimate'] },
+      },
     },
   },
   puzzleSphere: {
     advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
     effects: {
       critDamage: { modifier: 'critDmg', unit: '%', value: scaledRefinementValues(16) },
-      damage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(20), scope: { actions: ['EX Special Attack'] } },
+      damage: {
+        modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(20),
+        scope: {
+          actions: ['EX Special Attack'], condition: 'lowHpTarget', targetHpBelowPercent: 50,
+        },
+      },
     },
   },
   yesterdayCalls: {
     advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
     effects: {
-      energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(1.5) },
-      daze: { modifier: 'dazeBonus', unit: '%', value: scaledRefinementValues(27) },
-      critDamage: { modifier: 'critDmg', unit: '%', value: scaledRefinementValues(30), scope: { recipient: 'squad' } },
+      energy: {
+        modifier: 'energy', unit: '/s', value: [1.5, 1.7, 1.9, 2.1, 2.3],
+        scope: { condition: 'offField' },
+      },
+      daze: {
+        modifier: 'dazeBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: [9, 10.3, 11.7, 13, 14.5], maxStacks: 3 },
+        activation: {
+          kind: 'trigger', performer: 'equipper',
+          actions: ['EX Special Attack'], attributes: ['Physical'],
+        },
+      },
+      critDamage: {
+        modifier: 'critDmg', unit: '%', value: scaledRefinementValues(30),
+        scope: { recipient: 'squad' },
+        activation: {
+          kind: 'trigger', performer: 'equipper',
+          actions: ['EX Special Attack'], attributes: ['Physical'], stackThreshold: 3,
+        },
+      },
     },
   },
   hellfireGears: {
     advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' },
     effects: {
       energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.6), scope: { condition: 'offField' } },
-      impact: { modifier: 'impact', unit: '%', value: scaledRefinementValues(20) },
+      impact: {
+        modifier: 'impact', unit: '%',
+        progression: { kind: 'stacks', perStack: scaledRefinementValues(10), maxStacks: 2 },
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
+      },
     },
   },
   neonFantasies: {
@@ -229,7 +279,11 @@ export const W_ENGINE_FACTS = {
   steamOven: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
     effects: {
-      impact: { modifier: 'impact', unit: '%', value: scaledRefinementValues(16) },
+      impact: {
+        modifier: 'impact', unit: '%',
+        progression: { kind: 'stacks', perStack: scaledRefinementValues(2), maxStacks: 8 },
+        activation: { kind: 'trigger', energySpent: 10 },
+      },
     },
   },
   dreamlitHearth: {
@@ -283,8 +337,18 @@ export const W_ENGINE_FACTS = {
   metanukimorphosis: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 60, unit: '%' },
     effects: {
-      anomalyMastery: { modifier: 'anomalyMastery', unit: '', value: [30, 34, 39, 43, 48] },
-      anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: [60, 69, 78, 87, 96], scope: { recipient: 'squad' } },
+      anomalyMastery: {
+        modifier: 'anomalyMastery', unit: '', value: [30, 34, 39, 43, 48],
+        activation: {
+          kind: 'trigger', performer: 'equipper',
+          actions: ['EX Special Attack', 'Ultimate'], attributes: ['Physical'],
+        },
+      },
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '', value: [60, 69, 78, 87, 96],
+        scope: { recipient: 'squad' },
+        activation: { kind: 'trigger', performer: 'equipper', tags: ['aftershock'] },
+      },
     },
   },
   severedInnocence: {
@@ -299,7 +363,7 @@ export const W_ENGINE_FACTS = {
     effects: {
       critRate: { modifier: 'critRate', unit: '%', value: scaledRefinementValues(15) },
       damage: { modifier: 'dmgBonus', unit: '%', progression: { kind: 'stacks', perStack: scaledRefinementValues(12.5), maxStacks: 2, maximum: scaledRefinementValues(25) }, scope: { attributes: ['Electric'] } },
-      defIgnore: { modifier: 'defIgnore', unit: '%', value: scaledRefinementValues(20), scope: { recipient: 'enemy', actions: ['Basic Attack', 'Ultimate'] } },
+      defIgnore: { modifier: 'defIgnore', unit: '%', value: scaledRefinementValues(20), scope: { actions: ['Basic Attack', 'Ultimate'] } },
     },
   },
   marcatoDesire: {
@@ -371,7 +435,7 @@ export const W_ENGINE_FACTS = {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 60, unit: '%' },
     effects: {
       critRate: { modifier: 'critRate', unit: '%', value: [25, 28.8, 32.5, 36.3, 40] },
-      defIgnore: { modifier: 'defIgnore', unit: '%', value: [28, 31.5, 35, 38.5, 42], scope: { recipient: 'enemy', attributes: ['Electric'] } },
+      defIgnore: { modifier: 'defIgnore', unit: '%', value: [28, 31.5, 35, 38.5, 42], scope: { attributes: ['Electric'] } },
     },
   },
   bellicoseBlaze: {
@@ -382,21 +446,32 @@ export const W_ENGINE_FACTS = {
         modifier: 'defIgnore',
         unit: '%',
         progression: { kind: 'stacks', perStack: [15, 17.2, 19.5, 21.7, 24], maxStacks: 2 },
-        scope: { recipient: 'enemy', tags: ['aftershock'], attributes: ['Fire'] },
+        scope: { tags: ['aftershock'], attributes: ['Fire'] },
       },
     },
   },
   drillRigRedAxis: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
     effects: {
-      damage: { modifier: 'dmgBonus', unit: '%', value: [50, 57.5, 65, 72.5, 80], scope: { actions: ['Basic Attack', 'Dash Attack'], attributes: ['Electric'] } },
+      damage: {
+        modifier: 'dmgBonus', unit: '%', value: [50, 57.5, 65, 72.5, 80],
+        scope: { actions: ['Basic Attack', 'Dash Attack'], attributes: ['Electric'] },
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
+      },
     },
   },
   heartstringNocturne: {
     advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
     effects: {
       critDamage: { modifier: 'critDmg', unit: '%', value: [50, 57.5, 65, 72.5, 80] },
-      fireResIgnore: { modifier: 'resIgnore', unit: '%', progression: { kind: 'stacks', perStack: [12.5, 14.5, 16.5, 18.5, 20], maxStacks: 2 }, scope: { recipient: 'enemy', actions: ['Chain Attack', 'Ultimate'], attributes: ['Fire'] } },
+      fireResIgnore: {
+        modifier: 'resIgnore', unit: '%',
+        progression: { kind: 'stacks', perStack: [12.5, 14.5, 16.5, 18.5, 20], maxStacks: 2 },
+        scope: { actions: ['Chain Attack', 'Ultimate'], attributes: ['Fire'] },
+        activation: {
+          kind: 'trigger', fieldEntry: true, actions: ['Chain Attack', 'Ultimate'],
+        },
+      },
     },
   },
   steelCushion: {
@@ -416,8 +491,16 @@ export const W_ENGINE_FACTS = {
   blazingLaurel: {
     advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' },
     effects: {
-      impact: { modifier: 'impact', unit: '%', value: [25, 28.75, 32.5, 36.25, 40] },
-      critDamage: { modifier: 'critDmg', unit: '%', progression: { kind: 'stacks', perStack: [1.5, 1.72, 1.95, 2.17, 2.4], maxStacks: 20 }, scope: { recipient: 'squad', attributes: ['Fire', 'Ice'] } },
+      impact: {
+        modifier: 'impact', unit: '%', value: [25, 28.75, 32.5, 36.25, 40],
+        activation: { kind: 'trigger', actions: ['Assist'] },
+      },
+      critDamage: {
+        modifier: 'critDmg', unit: '%',
+        progression: { kind: 'stacks', perStack: [1.5, 1.72, 1.95, 2.17, 2.4], maxStacks: 20 },
+        scope: { recipient: 'squad', attributes: ['Fire', 'Ice'] },
+        activation: { kind: 'trigger', performer: 'equipper', actions: ['Basic Attack'] },
+      },
     },
   },
   simmeringPot: {
@@ -442,14 +525,30 @@ export const W_ENGINE_FACTS = {
       chargedEtherDamage: {
         modifier: 'dmgBonus', unit: '%', value: [35, 43.75, 52.5, 61.25, 70],
         scope: { actions: ['Basic Attack', 'Dash Attack'], attributes: ['Ether'] },
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
       },
     },
   },
   theVault: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
     effects: {
-      targetDamage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(15), scope: { recipient: 'squad' } },
-      holderEnergy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.5) },
+      targetDamage: {
+        modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(15),
+        scope: { recipient: 'squad' },
+        activation: {
+          kind: 'trigger', performer: 'equipper',
+          actions: ['EX Special Attack', 'Chain Attack', 'Ultimate'], attributes: ['Ether'],
+          durationSeconds: 2,
+        },
+      },
+      holderEnergy: {
+        modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.5),
+        activation: {
+          kind: 'trigger', performer: 'equipper',
+          actions: ['EX Special Attack', 'Chain Attack', 'Ultimate'], attributes: ['Ether'],
+          durationSeconds: 2,
+        },
+      },
     },
   },
   gildedBlossom: {
@@ -468,8 +567,12 @@ export const W_ENGINE_FACTS = {
       physicalDamage: {
         modifier: 'dmgBonus', unit: '%', value: [15, 17.3, 19.5, 21.8, 24],
         scope: { attributes: ['Physical'] },
+        activation: { kind: 'trigger', tags: ['aftershock'] },
       },
-      daze: { modifier: 'dazeBonus', unit: '%', value: [10, 11.5, 13, 14.5, 16] },
+      daze: {
+        modifier: 'dazeBonus', unit: '%', value: [10, 11.5, 13, 14.5, 16],
+        activation: { kind: 'trigger', tags: ['aftershock'] },
+      },
     },
   },
   zanshinHerbCase: {
@@ -477,15 +580,24 @@ export const W_ENGINE_FACTS = {
     effects: {
       critRate: { modifier: 'critRate', unit: '%', value: [10, 11.5, 13, 14.5, 16] },
       dashDamage: { modifier: 'dmgBonus', unit: '%', value: [40, 46, 52, 58, 64], scope: { actions: ['Dash Attack'], attributes: ['Electric'] } },
-      anomalyStunCritRate: { modifier: 'critRate', unit: '%', value: [10, 11.5, 13, 14.5, 16] },
+      anomalyStunCritRate: {
+        modifier: 'critRate', unit: '%', value: [10, 11.5, 13, 14.5, 16],
+        activation: { kind: 'trigger', anomalyResult: 'Attribute Anomaly' },
+      },
     },
   },
   cloudcleaveRadiance: {
     advancedStat: { id: 'critDmg', label: 'CRIT DMG', value: 48, unit: '%' },
     effects: {
       physicalResIgnore: { modifier: 'resIgnore', unit: '%', value: [20, 22, 24, 26, 28], scope: { attributes: ['Physical'] } },
-      etherVeilDamage: { modifier: 'dmgBonus', unit: '%', value: [25, 28.7, 32.5, 36.2, 40] },
-      etherVeilCritDamage: { modifier: 'critDmg', unit: '%', value: [25, 28.7, 32.5, 36.2, 40] },
+      etherVeilDamage: {
+        modifier: 'dmgBonus', unit: '%', value: [25, 28.7, 32.5, 36.2, 40],
+        activation: { kind: 'trigger', operation: 'etherVeil', performer: 'equipper' },
+      },
+      etherVeilCritDamage: {
+        modifier: 'critDmg', unit: '%', value: [25, 28.7, 32.5, 36.2, 40],
+        activation: { kind: 'trigger', operation: 'etherVeil', performer: 'equipper' },
+      },
     },
   },
   hailstormShrine: {
@@ -493,8 +605,10 @@ export const W_ENGINE_FACTS = {
     effects: {
       critDamage: { modifier: 'critDmg', unit: '%', value: [50, 57, 65, 72, 80] },
       iceDamage: {
-        modifier: 'dmgBonus', unit: '%', value: [40, 46, 52, 58, 64],
+        modifier: 'dmgBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: [20, 23, 26, 29, 32], maxStacks: 2 },
         scope: { attributes: ['Ice'] },
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
       },
     },
   },
@@ -516,7 +630,10 @@ export const W_ENGINE_FACTS = {
   starlightEngineReplica: {
     advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
     effects: {
-      physicalDamage: { modifier: 'dmgBonus', unit: '%', value: [36, 41, 46.5, 52, 57.5], scope: { attributes: ['Physical'] } },
+      physicalDamage: {
+        modifier: 'dmgBonus', unit: '%', value: [36, 41, 46.5, 52, 57.5],
+        scope: { attributes: ['Physical'], condition: 'distantTarget' },
+      },
     },
   },
   originalTransmorpher: {
@@ -532,7 +649,11 @@ export const W_ENGINE_FACTS = {
       automaticEnergy: { modifier: 'energyRegen', unit: '/s', value: [0.46, 0.53, 0.6, 0.67, 0.74] },
       squadAtk: { modifier: 'atk', unit: '%', value: [10, 11.5, 13, 14.5, 16], scope: { recipient: 'squad' }, composition: 'highest-only' },
       squadMaxHp: { modifier: 'maxHp', unit: '%', value: [10, 11.5, 13, 14.5, 16], scope: { recipient: 'squad' }, composition: 'highest-only' },
-      veilCritDamage: { modifier: 'critDmg', unit: '%', value: [30, 34.5, 39, 43.5, 48], scope: { recipient: 'squad' } },
+      veilCritDamage: {
+        modifier: 'critDmg', unit: '%', value: [30, 34.5, 39, 43.5, 48],
+        scope: { recipient: 'squad' },
+        activation: { kind: 'trigger', operation: 'etherVeil', performer: 'equipper' },
+      },
     },
   },
   timeweaver: {
@@ -544,9 +665,15 @@ export const W_ENGINE_FACTS = {
       },
       anomalyProficiency: {
         modifier: 'anomalyProficiency', unit: '', value: [75, 85, 95, 105, 115],
+        activation: {
+          kind: 'trigger', performer: 'equipper',
+          actions: ['Special Attack', 'EX Special Attack'],
+          targetCondition: 'anomalyAfflictedTarget', durationSeconds: 15,
+        },
       },
       disorderDamage: {
         modifier: 'anomalyDmgBonus', unit: '%', value: [25, 27.5, 30, 32.5, 35],
+        scope: { anomalyResults: ['Disorder'] },
         activation: { kind: 'minimum-stat', statId: 'anomalyProficiency', threshold: 375 },
       },
     },
@@ -571,15 +698,21 @@ export const W_ENGINE_FACTS = {
       anomalyProficiency: {
         modifier: 'anomalyProficiency', unit: '',
         progression: { kind: 'stacks', perStack: [25, 31, 37, 43, 50], maxStacks: 3 },
-        scope: { actions: ['Special Attack', 'EX Special Attack'] },
+        activation: { kind: 'trigger', actions: ['Special Attack', 'EX Special Attack'] },
       },
     },
   },
   electroLipGloss: {
     advancedStat: { id: 'anomalyProficiency', label: 'Anomaly Proficiency', value: 75, unit: '' },
     effects: {
-      atk: { modifier: 'atk', unit: '%', value: [10, 11.5, 13, 14.5, 16] },
-      damage: { modifier: 'dmgBonus', unit: '%', value: [15, 17.5, 20, 22.5, 25] },
+      atk: {
+        modifier: 'atk', unit: '%', value: [10, 11.5, 13, 14.5, 16],
+        scope: { condition: 'anomalyAfflictedTarget' },
+      },
+      damage: {
+        modifier: 'dmgBonus', unit: '%', value: [15, 17.5, 20, 22.5, 25],
+        scope: { condition: 'anomalyAfflictedTarget' },
+      },
     },
   },
   weepingGemini: {
@@ -598,16 +731,30 @@ export const W_ENGINE_FACTS = {
         modifier: 'dmgBonus', unit: '%',
         progression: { kind: 'stacks', perStack: [12, 15, 18, 21, 24], maxStacks: 3 },
         scope: { attributes: ['Physical'] },
+        activation: { kind: 'trigger', actions: ['Dash Attack'] },
       },
-      buildup: { modifier: 'anomalyBuildupBonus', unit: '%', value: [40, 50, 60, 70, 80], scope: { attributes: ['Physical'] } },
+      buildup: {
+        modifier: 'anomalyBuildupBonus', unit: '%', value: [40, 50, 60, 70, 80],
+        scope: { attributes: ['Physical'] },
+        activation: { kind: 'trigger', actions: ['Dash Attack'], stackThreshold: 3 },
+      },
     },
   },
   roaringRide: {
     advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
     effects: {
-      atk: { modifier: 'atk', unit: '%', value: [8, 9.2, 10.4, 11.6, 12.8] },
-      anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: [40, 46, 52, 58, 64] },
-      buildup: { modifier: 'anomalyBuildupBonus', unit: '%', value: [25, 28, 32, 36, 40] },
+      atk: {
+        modifier: 'atk', unit: '%', value: [8, 9.2, 10.4, 11.6, 12.8],
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
+      },
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '', value: [40, 46, 52, 58, 64],
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
+      },
+      buildup: {
+        modifier: 'anomalyBuildupBonus', unit: '%', value: [25, 28, 32, 36, 40],
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
+      },
     },
   },
   flamemakerShaker: {
@@ -618,9 +765,16 @@ export const W_ENGINE_FACTS = {
         scope: { condition: 'offField' },
       },
       damage: {
-        modifier: 'dmgBonus', unit: '%', value: [35, 44, 52, 61, 70],
+        modifier: 'dmgBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: [3.5, 4.4, 5.2, 6.1, 7], maxStacks: 10 },
+        activation: { kind: 'trigger', actions: ['EX Special Attack', 'Assist'] },
       },
-      anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: [50, 62, 75, 87, 100] },
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '', value: [50, 62, 75, 87, 100],
+        activation: {
+          kind: 'trigger', actions: ['EX Special Attack', 'Assist'], stackThreshold: 5,
+        },
+      },
     },
   },
   flightOfFancy: {
@@ -632,6 +786,7 @@ export const W_ENGINE_FACTS = {
       },
       buildup: {
         modifier: 'anomalyBuildupBonus', unit: '%', value: [40, 46, 52, 58, 64],
+        activation: { kind: 'trigger', anomalyResult: 'Attribute Anomaly' },
       },
     },
   },
@@ -732,7 +887,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Rupture',
     passiveLines: (refinement) => [
       `Ice Sheer DMG +${percent(W_ENGINE_FACTS.krakensCradle.effects.iceSheerDamage, refinement, true)}`,
-      `≤50% Max HP · CRIT Rate +${percent(W_ENGINE_FACTS.krakensCradle.effects.critRate, refinement)}`,
+      `≤${W_ENGINE_FACTS.krakensCradle.effects.critRate.activation.holderHpAtOrBelowPercent}% Max HP · CRIT Rate +${percent(W_ENGINE_FACTS.krakensCradle.effects.critRate, refinement)}`,
     ],
   },
   grillOWisp: {
@@ -778,7 +933,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.cauldron.advancedStat, image: cauldronImage,
     passiveSpecialty: 'Rupture',
     passiveLines: (refinement) => [
-      `DMG +${percent(W_ENGINE_FACTS.cauldron.effects.damage, refinement)}`,
+      `DMG +${percent(W_ENGINE_FACTS.cauldron.effects.damage, refinement, true)}`,
       `CRIT Rate +${percent(W_ENGINE_FACTS.cauldron.effects.critRate, refinement)}`,
     ],
   },
@@ -787,7 +942,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.radiowave.advancedStat, image: radiowaveImage,
     passiveSpecialty: 'Rupture',
     passiveLines: (refinement) => [
-      `Sheer Force +${equipmentEffectBaseValue(W_ENGINE_FACTS.radiowave.effects.sheerForce, refinement)}`,
+      `Sheer Force +${equipmentEffectMaximumValue(W_ENGINE_FACTS.radiowave.effects.sheerForce, refinement)}`,
     ],
   },
   puzzleSphere: {
@@ -796,7 +951,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Rupture',
     passiveLines: (refinement) => [
       `CRIT DMG +${percent(W_ENGINE_FACTS.puzzleSphere.effects.critDamage, refinement)}`,
-      `Target HP <50% \u00B7 EX Special Attack DMG +${percent(W_ENGINE_FACTS.puzzleSphere.effects.damage, refinement)}`,
+      `Target HP <${W_ENGINE_FACTS.puzzleSphere.effects.damage.scope.targetHpBelowPercent}% \u00B7 EX Special Attack DMG +${percent(W_ENGINE_FACTS.puzzleSphere.effects.damage, refinement)}`,
     ],
   },
   yesterdayCalls: {
@@ -804,9 +959,9 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.yesterdayCalls.advancedStat, image: yesterdayCallsImage,
     passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [
-      `Energy +${perSecond(W_ENGINE_FACTS.yesterdayCalls.effects.energy, refinement)}`,
-      `Daze +${percent(W_ENGINE_FACTS.yesterdayCalls.effects.daze, refinement)}`,
-      `Squad CRIT DMG +${percent(W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, refinement)}`,
+      `Off-field Energy Regen +${perSecond(W_ENGINE_FACTS.yesterdayCalls.effects.energy, refinement)}`,
+      `Physical EX stacks · Daze +${percent(W_ENGINE_FACTS.yesterdayCalls.effects.daze, refinement, true)}`,
+      `At 3 stacks · Squad CRIT DMG +${percent(W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, refinement)}`,
     ],
   },
   hellfireGears: {
@@ -815,7 +970,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [
       `Off-field Energy +${perSecond(W_ENGINE_FACTS.hellfireGears.effects.energy, refinement)}`,
-      `Impact +${percent(W_ENGINE_FACTS.hellfireGears.effects.impact, refinement)}`,
+      `Impact +${percent(W_ENGINE_FACTS.hellfireGears.effects.impact, refinement, true)}`,
     ],
   },
   neonFantasies: {
@@ -831,7 +986,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     name: 'Steam Oven', rank: 'A', limited: false, baseAtk: 594,
     advancedStat: W_ENGINE_FACTS.steamOven.advancedStat, image: steamOvenImage,
     passiveSpecialty: 'Stun',
-    passiveLines: (refinement) => [`Impact +${percent(W_ENGINE_FACTS.steamOven.effects.impact, refinement)}`],
+    passiveLines: (refinement) => [`Impact +${percent(W_ENGINE_FACTS.steamOven.effects.impact, refinement, true)}`],
   },
   dreamlitHearth: {
     name: 'Dreamlit Hearth', rank: 'S', limited: true, baseAtk: 713,
@@ -1192,73 +1347,4 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `Abloom DMG +${percent(W_ENGINE_FACTS.frostfallSickle.effects.abloomDamage, refinement)}`,
     ],
   },
-}
-
-const enginePools = (full: EngineId[]): Record<PoolId, EngineId[]> => ({
-  full,
-  nonLimited: full.filter((engineId) => !W_ENGINES[engineId].limited),
-})
-
-export const ENGINE_IDS_BY_AGENT_AND_POOL: Record<AgentId, Record<PoolId, EngineId[]>> = {
-  yixuan: enginePools(['qingming', 'cauldron', 'radiowave', 'puzzleSphere']),
-  yidhari: enginePools(['krakensCradle', 'grillOWisp', 'cauldron', 'qingming']),
-  manato: enginePools(['grillOWisp', 'wrathfulVajra', 'qingming']),
-  hugo: enginePools(['myriadEclipse', 'cordisGermina', 'heartstringNocturne', 'steelCushion', 'marcatoDesire']),
-  juFufu: enginePools(['roaringFurnace', 'spectralGaze', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
-  panYinhu: enginePools(['tusksOfFury', 'tremorTrigramVessel', 'springEmbrace']),
-  banyue: enginePools(['wrathfulVajra', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere']),
-  starlightBilly: enginePools(['starlightRiderFaceplate', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere']),
-  dialyn: enginePools(['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
-  nangongYu: enginePools(['neonFantasies', 'hellfireGears', 'simmeringPot', 'preciousFossilizedCore', 'roaringFurnace']),
-  miyabi: enginePools(['hailstormShrine', 'fusionCompiler']),
-  anton: enginePools(['cordisGermina', 'severedInnocence', 'brimstone', 'marcatoDesire', 'drillRigRedAxis']),
-  rina: enginePools(['weepingCradle', 'kaboom', 'unfetteredGameBall']),
-  lucia: enginePools(['dreamlitHearth', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
-  anbySoldier0: enginePools(['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'brimstone', 'marcatoDesire']),
-  trigger: enginePools(['spectralGaze', 'blazingLaurel', 'iceJadeTeapot', 'restrained', 'hellfireGears', 'preciousFossilizedCore', 'steamOven']),
-  astraYao: enginePools(['elegantVanity', 'bashfulDemon', 'theVault', 'kaboom']),
-  seed: enginePools(['cordisGermina', 'heartstringNocturne', 'severedInnocence', 'brimstone', 'marcatoDesire']),
-  cissia: enginePools(['serpentineSeeker', 'bellicoseBlaze', 'drillRigRedAxis', 'cordisGermina']),
-  evelyn: enginePools(['heartstringNocturne', 'severedInnocence', 'cordisGermina', 'brimstone', 'steelCushion']),
-  corin: enginePools(['cordisGermina', 'heartstringNocturne', 'steelCushion', 'housekeeper']),
-  lycaon: enginePools(['blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
-  ellen: enginePools(['deepSeaVisitor', 'myriadEclipse', 'cordisGermina', 'steelCushion', 'brimstone']),
-  soukaku: enginePools(['weepingCradle', 'kaboom']),
-  soldier11: enginePools(['heartstringNocturne', 'cordisGermina', 'severedInnocence', 'brimstone']),
-  lighter: enginePools(['blazingLaurel', 'iceJadeTeapot', 'hellfireGears', 'steamOven', 'restrained', 'preciousFossilizedCore']),
-  lucy: enginePools(['elegantVanity', 'weepingCradle', 'kaboom']),
-  zhuYuan: enginePools(['cordisGermina', 'heartstringNocturne', 'brimstone', 'riotSuppressorMarkVI', 'marcatoDesire']),
-  nicole: enginePools(['elegantVanity', 'theVault', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
-  orphie: enginePools(['bellicoseBlaze', 'heartstringNocturne', 'serpentineSeeker', 'gildedBlossom', 'marcatoDesire']),
-  pulchra: enginePools(['blazingLaurel', 'boxCutter', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
-  harumasa: enginePools(['zanshinHerbCase', 'cordisGermina', 'brimstone', 'heartstringNocturne']),
-  qingyi: enginePools(['iceJadeTeapot', 'blazingLaurel', 'restrained', 'hellfireGears', 'steamOven', 'preciousFossilizedCore']),
-  nekomata: enginePools(['steelCushion', 'heartstringNocturne', 'cordisGermina', 'cloudcleaveRadiance', 'brimstone']),
-  billy: enginePools(['cloudcleaveRadiance', 'heartstringNocturne', 'cordisGermina', 'brimstone', 'steelCushion', 'starlightEngineReplica']),
-  ben: enginePools(['tremorTrigramVessel', 'tusksOfFury', 'cloudcleaveRadiance', 'hailstormShrine', 'bigCylinder', 'springEmbrace']),
-  koleda: enginePools(['hellfireGears', 'blazingLaurel', 'restrained', 'steamOven', 'preciousFossilizedCore']),
-  anby: enginePools(['hellfireGears', 'blazingLaurel', 'restrained', 'steamOven', 'preciousFossilizedCore']),
-  caesar: enginePools(['tusksOfFury', 'hellfireGears', 'springEmbrace']),
-  yeShunguang: enginePools([
-    'cloudcleaveRadiance', 'severedInnocence', 'brimstone',
-  ]),
-  zhao: enginePools(['halfSugarBunny', 'tusksOfFury', 'originalTransmorpher']),
-  grace: enginePools([
-    'timeweaver', 'practicedPerfection',
-    'fusionCompiler', 'electroLipGloss', 'weepingGemini',
-  ]),
-  piper: enginePools([
-    'practicedPerfection', 'sharpenedStinger', 'electroLipGloss',
-    'weepingGemini', 'roaringRide',
-  ]),
-  yuzuha: enginePools(['metanukimorphosis', 'thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
-  sunna: enginePools(['thoughtbop', 'dreamlitHearth', 'weepingCradle', 'kaboom', 'unfetteredGameBall']),
-  burnice: enginePools(['flamemakerShaker', 'practicedPerfection', 'fusionCompiler', 'weepingGemini']),
-  jane: enginePools(['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
-  seth: enginePools(['peacekeeperSpecialized', 'tusksOfFury', 'springEmbrace']),
-  yanagi: enginePools(['timeweaver', 'practicedPerfection', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
-  alice: enginePools(['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini']),
-  vivian: enginePools(['flightOfFancy', 'angelInTheShell', 'weepingGemini']),
-  aria: enginePools(['angelInTheShell', 'flightOfFancy', 'weepingGemini', 'fusionCompiler']),
-  promeia: enginePools(['frostfallSickle', 'fusionCompiler', 'angelInTheShell', 'weepingGemini']),
 }

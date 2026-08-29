@@ -91,25 +91,24 @@ separate Shock-state/general-damage unit.
     by itself does not preserve membership.
 - R7. Add Branch & Blade Song's minimum current 4-piece relationships: at
   Initial AM 115 or higher, CRIT DMG +30%; in the Fully Enabled snapshot,
-  CRIT Rate +12%. Prepare Branch 4-piece. Also admit Polar Metal as a bounded
-  Basic/Dash-focused alternative: its Ice DMG and fully enabled Basic/Dash DMG
-  remain close enough to Branch while materially concentrating Miyabi's defining
-  Shimotsuki Basic outcome. Woodpecker's CRIT/ATK package is usable but gives up
-  Branch's stronger tailored CRIT package without a materially distinct setup
-  advantage. Dialyn's received-Ultimate operation does not add contextual
-  Puffer Electro: the action is applicable, but its package is not competitive
-  with Branch's tailored direction. Do not retain Branch's Freeze/Shatter
-  trigger duration because its removal changes neither candidate,
-  representative, applicability, Setup, nor Result when the fully enabled
-  maximum is projected.
+  CRIT Rate +12%. Prepare Branch 4-piece and admit no alternative 4-piece.
+  Polar Metal's Ice DMG and fully enabled Basic/Dash DMG are usable, but its
+  single ordinary-DMG modifier family gives up Branch's CRIT Rate and CRIT DMG
+  package and cannot preserve the practical 90% CRIT boundary through the
+  bounded eight-hit opportunity. Woodpecker's CRIT/ATK package is likewise
+  usable but gives up Branch's stronger tailored CRIT package without a
+  materially distinct setup advantage. Dialyn's received-Ultimate operation
+  does not add contextual Puffer Electro: the action is applicable, but its
+  package is not competitive with Branch's tailored direction. Do not retain
+  Branch's Freeze/Shatter trigger duration because its removal changes neither
+  candidate, representative, applicability, Setup, nor Result when the fully
+  enabled maximum is projected.
 - R8. Miyabi's 2-piece directions are Ice DMG through Polar Metal, CRIT Rate
   through Woodpecker, PEN Ratio through Puffer Electro, Basic Attack DMG
   through Dawn's Bloom, ATK through Hormone Punk, and buildup tempo through
   Phaethon's Melody AM, subject to current same-set and same-effect rules.
-  Prepare Woodpecker 2-piece. Branch cannot complement the prepared Branch
-  4-piece; with Polar selected, its CRIT DMG complement still cannot preserve
-  the practical 90% CRIT boundary through the bounded eight-hit opportunity, so
-  it remains excluded. Same-value aliases do not create extra choices.
+  Prepare Woodpecker 2-piece. Branch cannot complement the sole Branch
+  4-piece, and same-value aliases do not create extra choices.
 - R9. Offer CRIT Rate or ATK% in Slot 4; PEN Ratio, ATK%, or Ice DMG in Slot 5;
   and ATK% or Anomaly Mastery in Slot 6. Effective substats are CRIT Rate,
   CRIT DMG, and ATK%. Prepare CRIT Rate/PEN Ratio/ATK% at M0 and

@@ -1,4 +1,5 @@
 import type { ActionTag, CanonicalActionKind } from '../actions'
+import type { SurfaceKey } from '../effects'
 
 export type PoolId = 'full' | 'nonLimited'
 
@@ -253,8 +254,9 @@ export type EquipmentEffectAction =
   >
 
 export type EquipmentEffectTag = Extract<ActionTag, 'aftershock'>
-export type EquipmentEffectCondition = 'backAttack' | 'offField' | 'shielded' | 'anomalyAfflictedTarget' | 'burningTarget' | 'stunnedTarget'
+export type EquipmentEffectCondition = 'backAttack' | 'offField' | 'shielded' | 'anomalyAfflictedTarget' | 'burningTarget' | 'stunnedTarget' | 'distantTarget' | 'lowHpTarget'
 export type EquipmentEffectAnomalyResult = 'Attribute Anomaly' | 'Disorder' | 'Abloom'
+export type AgentOperation = 'etherVeil' | 'hpDecrease'
 
 export type EquipmentEffectRecipient = 'self' | 'focus' | 'squad' | 'enemy'
 export type EquipmentEffectValue = number | RefinementValues
@@ -267,16 +269,21 @@ export type EquipmentEffectActivation =
   }
   | {
     kind: 'trigger'
-    targetCondition?: Extract<EquipmentEffectCondition, 'burningTarget'>
+    targetCondition?: Extract<EquipmentEffectCondition, 'anomalyAfflictedTarget' | 'burningTarget'>
     actions?: readonly EquipmentEffectAction[]
+    tags?: readonly EquipmentEffectTag[]
+    operation?: AgentOperation
     attributes?: readonly EquipmentEffectAttribute[]
     holderAttributes?: readonly EquipmentEffectAttribute[]
-    anomalyResult?: 'Abloom' | 'Freeze'
+    holderSpecialties?: readonly AgentSpecialty[]
+    anomalyResult?: EquipmentEffectAnomalyResult | 'Freeze'
     performer?: 'equipper' | 'squad-member' | 'other-squad-member'
     fieldEntry?: true
     durationSeconds?: number
     removedOffField?: true
     stackThreshold?: number
+    energySpent?: number
+    holderHpAtOrBelowPercent?: number
   }
 
 export interface EquipmentEffectScope {
@@ -286,6 +293,7 @@ export interface EquipmentEffectScope {
   tags?: readonly EquipmentEffectTag[]
   attributes?: readonly EquipmentEffectAttribute[]
   condition?: EquipmentEffectCondition
+  targetHpBelowPercent?: number
 }
 
 export type EquipmentEffectProgression =
@@ -315,6 +323,8 @@ type EquipmentEffectMagnitude =
 export type EquipmentEffectFact = {
   modifier: EquipmentEffectModifier
   unit: '%' | '' | '/s'
+  /** Earliest retained Result surface when activation alone cannot derive it. */
+  earliestSurface?: SurfaceKey
   scope?: EquipmentEffectScope
   activation?: EquipmentEffectActivation
   composition?: 'highest-only'
@@ -401,6 +411,7 @@ export interface AgentSummary {
   rank: AgentRank
   faction?: AgentFaction
   partyQualificationGroup?: PartyQualificationGroup
+  operations?: readonly AgentOperation[]
 }
 
 export type FormulaFamily =

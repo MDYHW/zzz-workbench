@@ -8,6 +8,7 @@ import {
   W_ENGINE_FACTS,
   W_ENGINES,
   equipmentEffectBaseValue,
+  equipmentEffectMaximumValue,
   isFocusEligible,
   type AgentId,
 } from './content'
@@ -201,7 +202,7 @@ describe('shared calculation integration', () => {
     expect(breakdown('miyabiDodgeCounter')).not.toContainEqual(dawnSource)
   })
 
-  it('projects selected multi-action equipment scopes into canonical and inherited Result rows', () => {
+  it('projects a selected multi-action equipment scope into its canonical Result row', () => {
     const withPolar = (agentIds: [AgentId, AgentId, AgentId]) => {
       const state = createPreparedState({}, agentIds, 0)
       return workbenchReducer(state, {
@@ -218,19 +219,6 @@ describe('shared calculation integration', () => {
     const ellenActions = calculateParty(withPolar(['ellen', 'lycaon', 'soukaku']))!.agents
       .find(({ agentId }) => agentId === 'ellen')!.actionModifiers
     expect(hasPolar(ellenActions, 'ellenBasicDashDmg')).toBe(true)
-
-    let miyabiState = createPreparedState({}, ['miyabi', 'nangongYu', 'sunna'], 0)
-    miyabiState = workbenchReducer(miyabiState, {
-      type: 'setMindscape', slot: 0, mindscape: 2,
-    })
-    miyabiState = workbenchReducer(miyabiState, {
-      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'polarMetal',
-    })
-    const miyabiActions = calculateParty(miyabiState)!.agents
-      .find(({ agentId }) => agentId === 'miyabi')!.actionModifiers
-    expect(hasPolar(miyabiActions, 'miyabiShimotsuki')).toBe(true)
-    expect(hasPolar(miyabiActions, 'miyabiKazahana')).toBe(true)
-    expect(hasPolar(miyabiActions, 'miyabiDodgeCounter')).toBe(false)
   })
 
   it('composes Initial-AM-derived flat Impact once around shared equipment regions', () => {
@@ -259,7 +247,7 @@ describe('shared calculation integration', () => {
       1 + (slot6Am + phaethonAm) / 100
     )
     const hellfireExpected = hellfireInitialImpact * (
-      1 + equipmentEffectBaseValue(W_ENGINE_FACTS.hellfireGears.effects.impact, 1) / 100
+      1 + equipmentEffectMaximumValue(W_ENGINE_FACTS.hellfireGears.effects.impact, 1) / 100
     ) + hellfireInitialAm - VERTICAL_VALUES.nangongYu.coreImpactThreshold
     expect(impactFor('nonLimited').values.fully).toBeCloseTo(hellfireExpected, 10)
   })
@@ -303,7 +291,71 @@ describe('shared calculation integration', () => {
     expect(chaosActionIds).toEqual(['burniceAfterburn', 'burniceExAssistDmg'])
   })
 
-  it('filters selected partial-equipment clauses by holder capability after candidate admission', () => {
+  it('projects ordinary Disc effects through source capability and exact action consumers', () => {
+    let graceState = createPreparedState({}, ['grace', 'rina', 'nicole'], 0)
+    graceState = workbenchReducer(graceState, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'chaosJazz',
+    })
+    const grace = calculateParty(graceState)!.agents
+      .find(({ agentId }) => agentId === 'grace')!
+    expect(grace.actionModifiers
+      .find(({ id }) => id === 'graceExAssistDmg')!.breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Chaos Jazz' }))
+
+    let triggerState = createPreparedState({}, ['trigger', 'soldier11', 'lucy'], 1)
+    triggerState = workbenchReducer(triggerState, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'shockstar',
+    })
+    const trigger = calculateParty(triggerState)!.agents
+      .find(({ agentId }) => agentId === 'trigger')!
+    const harmonizing = trigger.actionModifiers
+      .find(({ id }) => id === 'triggerHarmonizingShot')!
+    expect(harmonizing.target?.outcomes).toEqual([
+      { kind: 'source-local', label: 'Harmonizing Shot' },
+    ])
+    expect(harmonizing.breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Shockstar Disco' }))
+
+    const ye = calculateParty(createPreparedState(
+      {}, ['yeShunguang', 'zhao', 'sunna'], 0,
+    ))!.agents.find(({ agentId }) => agentId === 'yeShunguang')!
+    expect(ye.metrics.find(({ id }) => id === 'critRate')!.breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'White Water Ballad' }))
+    expect(ye.metrics.find(({ id }) => id === 'atk')!.breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'White Water Ballad' }))
+    expect(ye.metrics.find(({ id }) => id === 'dmgBonus')!.breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Cloudcleave Radiance' }))
+  })
+
+  it('keeps Woodpecker maximum ATK on Fully Enabled for every holder', () => {
+    const woodpeckerAtk = (agentId: 'ellen' | 'seed') => {
+      const companions = agentId === 'ellen'
+        ? ['ellen', 'lycaon', 'soukaku'] as const
+        : ['seed', 'trigger', 'lucy'] as const
+      let state = createPreparedState({}, [...companions], 0)
+      state = workbenchReducer(state, {
+        type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'woodpecker',
+      })
+      return calculateParty(state)!.agents
+        .find(({ agentId: resultAgentId }) => resultAgentId === agentId)!
+        .metrics.find(({ id }) => id === 'atk')!
+    }
+
+    for (const agentId of ['ellen', 'seed'] as const) {
+      const atk = woodpeckerAtk(agentId)
+      expect(atk.breakdown.combat.some(({ label }) => label === 'Woodpecker Electro'))
+        .toBe(false)
+      expect(atk.breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Woodpecker Electro',
+          display: expect.objectContaining({
+            value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.fourPiece.atk),
+          }),
+        }))
+    }
+  })
+
+  it('filters selected partial-equipment clauses after candidate admission', () => {
     const hasMetricSource = (
       agent: NonNullable<ReturnType<typeof calculateParty>>['agents'][number],
       metricId: string,
@@ -358,6 +410,90 @@ describe('shared calculation integration', () => {
     ))!.agents.find(({ agentId }) => agentId === 'cissia')!
     expect(hasMetricSource(cissia, 'critRate', 'Serpentine Seeker', 'combat')).toBe(true)
     expect(hasMetricSource(cissia, 'defIgnore', 'Serpentine Seeker', 'combat')).toBe(true)
+
+    const pulchraParty = calculateParty(createPreparedState(
+      {}, ['pulchra', 'lucy', 'soldier11'], 2,
+    ))!
+    const pulchra = pulchraParty.agents.find(({ agentId }) => agentId === 'pulchra')!
+    const soldier11 = pulchraParty.agents.find(({ agentId }) => agentId === 'soldier11')!
+    expect(hasMetricSource(pulchra, 'impact', 'Blazing Laurel')).toBe(true)
+    expect(hasMetricSource(soldier11, 'critDmg', 'Blazing Laurel')).toBe(false)
+
+    let boxCutterState = createPreparedState({}, ['pulchra', 'lucy', 'soldier11'], 2)
+    boxCutterState = workbenchReducer(boxCutterState, {
+      type: 'selectEngine', slot: 0, engineId: 'boxCutter',
+    })
+    const boxCutterPulchra = calculateParty(boxCutterState)!.agents
+      .find(({ agentId }) => agentId === 'pulchra')!
+    expect(hasMetricSource(boxCutterPulchra, 'dazeBonus', 'Box Cutter')).toBe(true)
+    expect(hasMetricSource(boxCutterPulchra, 'dmgBonus', 'Box Cutter')).toBe(false)
+
+    let simmeringState = createPreparedState({}, ['nangongYu', 'sunna', 'promeia'], 2)
+    simmeringState = workbenchReducer(simmeringState, {
+      type: 'selectEngine', slot: 0, engineId: 'simmeringPot',
+    })
+    const simmeringNangong = calculateParty(simmeringState)!.agents
+      .find(({ agentId }) => agentId === 'nangongYu')!
+    expect(hasMetricSource(simmeringNangong, 'dazeBonus', 'The Simmering Pot')).toBe(true)
+    expect(hasMetricSource(simmeringNangong, 'dmgBonus', 'The Simmering Pot')).toBe(true)
+
+    let juFufuState = createPreparedState({}, ['juFufu', 'soldier11', 'lucy'], 1)
+    juFufuState = workbenchReducer(juFufuState, {
+      type: 'selectEngine', slot: 0, engineId: 'blazingLaurel',
+    })
+    const juFufuParty = calculateParty(juFufuState)!
+    const juFufu = juFufuParty.agents.find(({ agentId }) => agentId === 'juFufu')!
+    const juFufuSoldier11 = juFufuParty.agents.find(({ agentId }) => agentId === 'soldier11')!
+    expect(hasMetricSource(juFufu, 'impact', 'Blazing Laurel')).toBe(true)
+    expect(hasMetricSource(juFufuSoldier11, 'critDmg', 'Blazing Laurel')).toBe(true)
+
+    let triggerState = createPreparedState({}, ['trigger', 'soldier11', 'lucy'], 1)
+    triggerState = workbenchReducer(triggerState, {
+      type: 'selectEngine', slot: 0, engineId: 'yesterdayCalls',
+    })
+    const triggerParty = calculateParty(triggerState)!
+    const trigger = triggerParty.agents.find(({ agentId }) => agentId === 'trigger')!
+    const triggerSoldier11 = triggerParty.agents.find(({ agentId }) => agentId === 'soldier11')!
+    expect(hasMetricSource(trigger, 'dazeBonus', 'Yesterday Calls')).toBe(false)
+    expect(hasMetricSource(triggerSoldier11, 'critDmg', 'Yesterday Calls')).toBe(false)
+
+    let restrainedState = createPreparedState({}, ['trigger', 'soldier11', 'lucy'], 1)
+    restrainedState = workbenchReducer(restrainedState, {
+      type: 'selectEngine', slot: 0, engineId: 'restrained',
+    })
+    const restrainedTrigger = calculateParty(restrainedState)!.agents
+      .find(({ agentId }) => agentId === 'trigger')!
+    const basicAftershockSources = Object.values(
+      restrainedTrigger.actionModifiers
+        .find(({ id }) => id === 'triggerHarmonizingShot')!.breakdown,
+    ).flat()
+    expect(basicAftershockSources.some(({ label }) => label === 'The Restrained')).toBe(true)
+    expect(hasMetricSource(restrainedTrigger, 'dazeBonus', 'The Restrained')).toBe(false)
+
+    const dialynParty = calculateParty(createPreparedState(
+      {}, ['dialyn', 'soldier11', 'lucy'], 1,
+    ))!
+    const dialyn = dialynParty.agents.find(({ agentId }) => agentId === 'dialyn')!
+    const dialynSoldier11 = dialynParty.agents.find(({ agentId }) => agentId === 'soldier11')!
+    expect(hasMetricSource(dialyn, 'dazeBonus', 'Yesterday Calls')).toBe(true)
+    expect(hasMetricSource(dialynSoldier11, 'critDmg', 'Yesterday Calls')).toBe(true)
+  })
+
+  it('projects Timeweaver Disorder only for an exact retained opportunity', () => {
+    const timeweaverDisorderGauge = (agentIds: [AgentId, AgentId, AgentId]) => {
+      const agent = calculateParty(createPreparedState({}, agentIds, 0))!.agents
+        .find(({ agentId }) => agentId === agentIds[0])!
+      return agent.metrics.find(({ id }) => id === 'anomalyProficiency')?.gauges
+        .find(({ source, outputLabel }) => (
+          source.label === 'Timeweaver' && outputLabel === 'Disorder DMG Bonus'
+        ))
+    }
+
+    expect(timeweaverDisorderGauge(['grace', 'trigger', 'rina'])).toBeUndefined()
+    expect(timeweaverDisorderGauge(['grace', 'rina', 'nicole']))
+      .toEqual(expect.objectContaining({ basisLabel: 'Fully Enabled Anomaly Proficiency' }))
+    expect(timeweaverDisorderGauge(['yanagi', 'trigger', 'rina']))
+      .toEqual(expect.objectContaining({ basisLabel: 'Fully Enabled Anomaly Proficiency' }))
   })
 
   it('returns no Result while any required Setup selection is incomplete', () => {

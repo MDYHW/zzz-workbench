@@ -7,14 +7,15 @@ import {
 import { providerAppliesToRecipient } from './calculation/delivery'
 import { broadPrePenProviderFor, BROAD_PRE_PEN_PRESSURE } from './calculation/broad-pre-pen'
 import type { ProfileRelationship } from './calculation/relationships'
-import { attackBroadPrePenPressureRelationships, attackBroadPrePenRelationships } from './content/agent-sources/attack-broad-pre-pen'
-import { anomalyBroadPrePenRelationships } from './content/agent-sources/anomaly-broad-pre-pen'
-import { providerDefenseBroadPrePenRelationships } from './content/agent-sources/provider-defense-broad-pre-pen'
-import { ruptureStunBroadPrePenRelationships } from './content/agent-sources/rupture-stun-broad-pre-pen'
+import {
+  agentBroadPrePenPressureRelationships,
+  agentBroadPrePenRelationships,
+} from './content/agent-broad-pre-pen-relationships'
 import { selectedWEngineBroadPrePenRelationshipsForSlot } from './content/agent-sources/w-engine-relationships'
-import { providerDefenseCandidateOpportunities } from './content/agent-sources/provider-defense-candidate-opportunities'
-import { ruptureStunCandidateOpportunities } from './content/agent-sources/rupture-stun-candidate-opportunities'
-import { ruptureStunCandidateInputAdditionsForParty } from './content/agent-sources/rupture-stun-candidate-inputs'
+import {
+  candidateOpportunitiesForAgent,
+  sourceCandidateInputAdditionsForParty as sourcePolicyCandidateInputAdditionsForParty,
+} from './content/setup-source-policy'
 import { directionUsesDefRegion, effectAttributeForAgent } from './formula-policy'
 import type { CandidateOperationOpportunity } from './content/types'
 import type { AppliedSlot, WorkbenchState } from './state'
@@ -26,11 +27,8 @@ function activeBroadPrePenRelationships(
   slot: AppliedSlot,
 ) {
   const relationships: ProfileRelationship[] = [
-    ...attackBroadPrePenPressureRelationships(state, slot),
-    ...attackBroadPrePenRelationships(state, slot),
-    ...anomalyBroadPrePenRelationships(state, slot),
-    ...providerDefenseBroadPrePenRelationships(state, slot),
-    ...ruptureStunBroadPrePenRelationships(state, slot),
+    ...agentBroadPrePenPressureRelationships(state, slot),
+    ...agentBroadPrePenRelationships(state, slot),
     ...selectedWEngineBroadPrePenRelationshipsForSlot(state, slot),
   ]
   return relationships.flatMap((relationship) => {
@@ -75,10 +73,7 @@ export function partySuppliesCandidateOpportunity(
 ): boolean {
   return agentIds.some((agentId, index) => (
     index !== recipientIndex
-      && [
-        ...providerDefenseCandidateOpportunities(agentId),
-        ...ruptureStunCandidateOpportunities(agentId),
-      ].includes(opportunity)
+      && candidateOpportunitiesForAgent(agentId).includes(opportunity)
   ))
 }
 
@@ -87,7 +82,7 @@ export function sourceCandidateInputAdditionsForParty(
   agentIds: readonly AgentId[],
   slot: number,
 ) {
-  return ruptureStunCandidateInputAdditionsForParty(agentIds, slot)
+  return sourcePolicyCandidateInputAdditionsForParty(agentIds, slot)
 }
 
 /** Resolves activation only; candidate and prepared outcomes stay authored. */

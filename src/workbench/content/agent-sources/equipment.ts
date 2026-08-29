@@ -49,7 +49,7 @@ import { projectEquipmentEffectRelationships } from './equipment-effect-relation
 export {
   equipmentEffectActionTargets,
   equipmentEffectAppliesInOperatingInterval,
-  equipmentEffectCanBeActivatedByHolder,
+  equipmentEffectCanBeActivated,
 } from './equipment-eligibility'
 import { selectedWEngineRelationships } from './w-engine-relationships'
 import { equipmentEffectActionTargets } from './equipment-eligibility'
@@ -417,8 +417,8 @@ function discTwoPieceRelationships(
 
 /**
  * Observes setup inputs with an admitted stat or modifier consumer. Shared
- * effect clauses use one stat/action vocabulary; selected W-Engine and 4-piece
- * consumers still own activation, delivery, interval, and surface decisions.
+ * effect clauses use one stat/action vocabulary. Selected equipment
+ * materializers resolve later activation, delivery, interval, and surfaces.
  */
 export function selectedSetupRelationships(
   agentId: AgentId,
@@ -457,7 +457,6 @@ export function selectedEquipmentRelationships(
   return [
     ...selectedWEngineRelationships({
       agentId,
-      appliedPartySlot,
       setup,
       observation,
       focusAgentId,
@@ -470,6 +469,8 @@ export function selectedEquipmentRelationships(
       appliedPartySlot,
       setup,
       observation,
+      focusAgentId,
+      partyAgentIds,
       source: discSource,
     }),
   ]

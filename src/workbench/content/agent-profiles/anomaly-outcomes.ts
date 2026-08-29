@@ -11,9 +11,9 @@ import { DEF_DAMAGE_FORMULAS, effectAttributeForAgent, REGULAR_DAMAGE_FORMULAS }
 import { anotherAgentHasSpecialty, anotherAgentSharesFaction, anotherAgentSharesAttribute, nangongAdditionalIsActive, piperAdditionalIsActive } from '../../party-conditions'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
 import { type AgentId, type FormulaFamily } from '../types'
-import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from './equipment'
-import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
-import { anomalyBroadPrePenRelationships } from './anomaly-broad-pre-pen'
+import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from '../agent-sources/equipment'
+import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from '../agent-sources/sources'
+import { agentBroadPrePenRelationships } from '../agent-broad-pre-pen-relationships'
 
 const ANOMALY_AGENTS = ['grace', 'piper', 'yuzuha', 'burnice', 'jane', 'yanagi', 'alice', 'vivian', 'aria', 'promeia'] as const satisfies readonly AgentId[]
 type Agent = (typeof ANOMALY_AGENTS)[number]
@@ -41,13 +41,14 @@ const PIPER_ULT = actionTarget([A('Ultimate')])
 const JANE_ASSAULT_TARGET = actionTarget([sourceLocalAction('Assault')])
 const JANE_PASSION_TARGET = actionTarget([sourceLocalAction('Passion State')])
 const YUZUHA_ASSIST = actionTarget([canonicalAction('Assist Follow-Up')])
+const EX_ASSIST = actionTarget([A('EX Special Attack'), A('Assist')])
 const BURNICE_AFTERBURN = actionTarget([sourceLocalAction('Afterburn')])
 const BURNICE_BUILDUP = actionTarget([actionForm('Basic Attack', 'Mixed Flame'), A('EX Special Attack'), sourceLocalAction('Afterburn'), sourceLocalAction('Tossing')])
-const BURNICE_EX_ASSIST = actionTarget([A('EX Special Attack'), A('Assist')])
+const BURNICE_EX_ASSIST = EX_ASSIST
 const BURNICE_DOUBLE = actionTarget([sourceLocalAction('Double Shot'), sourceLocalAction('Special Afterburn')])
 const BURNICE_BURN = actionTarget([sourceLocalAction('Burn')])
 const YANAGI_EX_RAPID_THRUST = actionTarget([actionForm('EX Special Attack', 'Rapid thrust')])
-const YANAGI_EX_ASSIST = actionTarget([A('EX Special Attack'), A('Assist')])
+const YANAGI_EX_ASSIST = EX_ASSIST
 const YANAGI_EX = actionTarget([A('EX Special Attack')])
 const ALICE_ENHANCED_BASIC = actionTarget([actionForm('Basic Attack', 'Celestial Overture')])
 const ARIA_BUILDUP = actionTarget([A('Basic Attack'), A('Special Attack'), A('EX Special Attack')])
@@ -201,7 +202,7 @@ const provider = (
   attributes?: readonly EffectAttribute[],
 ): ProfileRelationship => ({ kind: 'provider', source, delivery: { recipient, ...(formulas ? { formulas } : {}), ...(attributes ? { attributes } : {}) }, effect })
 
-function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourceProfile {
+function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourceProfile {
   const setup = { ...requireCompleteSelectedSetup(state.slots[slot].setup), mindscape: state.slots[slot].setup.mindscape }
   const ids = state.slots.map(({ agentId }) => agentId)
   const focusAgentId = ids[state.focusSlot]
@@ -212,7 +213,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
   const mind = (tier: 1 | 2 | 4 | 6) => selectedMindscapeSource(agent, slot, setup.mindscape, tier)
   const observation: SelectedSetupObservation = { baseStats: BASE[agent], effectiveSubstats: effectiveSubstatChoicesForSlot(state, slot), modifierMetrics: ['dmgBonus', 'anomalyDmgBonus', 'anomalyBuildupBonus', 'anomalyBuildupResReduction', 'resReduction', 'resIgnore'] }
   const relationships = selectedSetupRelationships(agent, slot, setup, observation)
-  relationships.push(...anomalyBroadPrePenRelationships(state, slot))
+  relationships.push(...agentBroadPrePenRelationships(state, slot))
   const add = (r: ProfileRelationship) => relationships.push(r)
   const actions: ActionProjection[] = []
   const nangongSlot = ids.indexOf('nangongYu')
@@ -245,6 +246,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     if (setup.mindscape >= 6) add({ kind: 'operation', atom: { label: 'Special/EX grenade DMG', earliestSurface: 'fully', value: VERTICAL_VALUES.grace.mindscapeGrenadeDmgMultiplier, unit: '', presentation: 'scale', source: mind(6) } })
     actions.push(
       actionProjection('anomalyBuildupBonus', 'graceSpecialExBuildup', GRACE_EX),
+      actionProjection('dmgBonus', 'graceExAssistDmg', EX_ASSIST),
       { metricId: 'anomalyDmgBonus', scopes: GRACE_ANOMALY_SCOPES },
     )
     relationships.push(...selectedEquipmentRelationships(agent, slot, setup, { observation, focusAgentId, partyAgentIds: ids }))
@@ -889,10 +891,10 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
   return { agentId: agent, appliedPartySlot: slot, relationships, metrics, actions }
 }
 
-export function anomalyProfileFor(
+export function anomalyOutcomeProfileFor(
   agent: Agent,
   state: WorkbenchState,
   slot: Slot,
 ): AgentSourceProfile {
-  return profile(agent, state, slot)
+  return buildAnomalyOutcomeProfile(agent, state, slot)
 }

@@ -188,20 +188,21 @@ Koleda adds no new common mechanism.
   explosion damage do not strengthen Koleda's retained Daze/Chain-buffer
   direction and create no Result modifier or operation. M3 and M5 change no
   separately retained value.
-- R14. Koleda's full W-Engine candidates are Hellfire Gears, Blazing Laurel,
-  The Restrained, Steam Oven, and Precious Fossilized Core. Her non-limited
-  pool excludes only Blazing from that admitted set. Both pools prepare
+- R14. Koleda's full and non-limited W-Engine candidates are Hellfire Gears,
+  The Restrained, Steam Oven, and Precious Fossilized Core. Both pools prepare
   Hellfire W1: its off-field Energy and fully enabled Impact directly reinforce
   Koleda's EX-driven Core Daze.
-  Blazing exchanges that resource package for higher Assist-enabled Impact and
-  Fire/Ice squad CRIT DMG. The Restrained is a separate enhanced-Basic DMG/Daze
-  direction. Steam's weaker Energy-Regen/Impact package remains the strongest
+  Blazing's Assist-enabled Impact is usable, but Koleda's short enhanced-Basic-
+  to-EX direction does not establish its 20-stack Basic Wilt package. That
+  limited partial direction does not beat the retained standard-S/A aligned
+  packages. The Restrained is a separate enhanced-Basic DMG/Daze direction.
+  Steam's weaker Energy-Regen/Impact package remains the strongest
   practical non-limited substitute when Hellfire is contested across
   simultaneous teams; Precious remains a distinct target-high-HP Daze package
   rather than replacing that sustained resource direction.
-  Ice-Jade is excluded because
-  Koleda's short Basic-to-EX sequence does not sustain its 15/30 Basic-hit
-  thresholds without role-distorting field time. Box Cutter has no Koleda
+  Ice-Jade is likewise excluded because Koleda's short Basic-to-EX sequence
+  does not sustain its 15/30 Basic-hit thresholds without role-distorting
+  field time. Box Cutter has no Koleda
   Aftershock consumer, while Demara and Simmering Pot do not beat the retained
   resource or action packages. Simmering's Daze/DMG outcome is broad, but its
   complete package remains less aligned than Koleda's retained resource and

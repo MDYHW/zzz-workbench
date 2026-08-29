@@ -143,13 +143,22 @@ The prose requirements govern if this diagram and the text ever differ.
   package is weaker than Hellfire W1 on their shared direction but remains the
   strongest practical non-limited substitute when Hellfire is contested across
   simultaneous teams; Precious does not replace that sustained resource/Impact
-  operation. Dialyn's representative remains Yesterday Calls/full and
-  Hellfire/non-limited with King plus Woodpecker, CRIT Rate/ATK%/Energy Regen.
-- R18. Trigger's full W-Engine candidates are Spectral Gaze, Blazing Laurel,
-  Ice-Jade Teapot, The Restrained, Hellfire Gears, Precious Fossilized Core,
-  and Steam Oven; non-limited retains The Restrained, Hellfire, Precious, and
-  Steam. Hellfire's broad Impact package and automatic off-field Energy remain
-  competitive beside Restrained's aligned Basic/Aftershock direction. Steam's
+  operation. Yesterday's off-field Energy, repeated Physical-EX Daze, and
+  three-stack squad-CRIT-DMG package are fully usable in Dialyn's authored
+  interval and operation; routine durations and resets do not create a
+  separate Setup or Result distinction. Dialyn's representative remains
+  Yesterday Calls/full and Hellfire/non-limited with King plus Woodpecker,
+  CRIT Rate/ATK%/Energy Regen.
+- R18. Trigger's full W-Engine candidates are Spectral Gaze, Yesterday Calls,
+  Blazing Laurel, Ice-Jade Teapot, The Restrained, Hellfire Gears, Precious
+  Fossilized Core, and Steam Oven; non-limited retains The Restrained,
+  Hellfire, Precious, and Steam. Yesterday is a competitive partial limited
+  alternative: advanced CRIT Rate strengthens Trigger's CRIT-to-Aftershock-Daze
+  relation and its off-field Energy supports her low-field operation, while the
+  Physical-EX Daze and three-stack squad-CRIT-DMG clauses are unusable and
+  contribute zero. Hellfire's broad Impact package and automatic off-field
+  Energy remain competitive beside Restrained's aligned Basic/Aftershock
+  direction. Steam's
   weaker Energy-Regen/Impact package remains the strongest practical
   non-limited substitute when Hellfire is contested across simultaneous teams;
   Restrained and Precious do not replace that sustained resource/Impact
@@ -304,8 +313,8 @@ the authored finite future opportunity.
 | Anby Aftershock | `AFTERSHOCK` tag outcome | Anby allied-Aftershock and current-CRIT-DMG relationships; Shadow Harmony and applicable current general regions |
 | Anby Dash | Dash Attack | Shadow Harmony and applicable current general regions; no Anby Aftershock-only clause |
 | Anby Basic/Ultimate | Basic Attack; Ultimate | Cordis Germina DEF Ignore |
-| Trigger Aftershock | `AFTERSHOCK` tag outcome | Anby allied-Aftershock and current-CRIT-DMG relationships; regular Daze, Basic-scoped Daze, and Trigger CRIT-to-Daze relationship |
-| Trigger Basic category | internal Basic Attack scope within the `AFTERSHOCK` aggregate | The Restrained and Shockstar Disco Basic Attack Daze; neither retains a personal Trigger DMG Result |
+| Trigger Aftershock | `AFTERSHOCK` tag outcome | Anby allied-Aftershock and current-CRIT-DMG relationships; no implication that every Trigger Basic Attack is an Aftershock |
+| Trigger Harmonizing Shot | source-local action inheriting canonical Basic Attack and `AFTERSHOCK` | Trigger CRIT-to-Daze, The Restrained's Basic Attack Daze, and Shockstar Disco's source-owned Basic/Dash/Dodge-Counter Daze; neither engine nor Disc gains a Trigger-specific affected scope |
 | Trigger Quick Assist | Quick Assist | Astra M4 next-Quick-Assist Daze scale at Astra M4+ |
 
 Every Anby-derived Aftershock clause additionally requires Anby to be applied and the target's reachable Silver Star state. Result displays Aftershock as a tag-scoped aggregate, not an action-membership catalogue. Canonical actions appear only when they additionally differ from that aggregate.

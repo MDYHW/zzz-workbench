@@ -6,15 +6,15 @@ import { CRIT_DAMAGE_FORMULAS, directionUsesFormula, REGULAR_DAMAGE_FORMULAS } f
 import type { ProfileRelationship } from '../../calculation/relationships'
 import type { WorkbenchState } from '../../state'
 import { anotherAgentHasSpecialty, anotherAgentSharesAttribute, anotherAgentSharesFaction, soldier11AdditionalIsActive, zhuYuanAdditionalIsActive, harumasaAdditionalIsActive, nekomataAdditionalIsActive, billyAdditionalIsActive, nangongAdditionalIsActive } from '../../party-conditions'
-import { resolveSeedVanguardForState } from './seed-vanguard'
+import { resolveSeedVanguardForState } from '../agent-sources/seed-vanguard'
 import { ADMITTED_AGENTS } from '../agents'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
 import { type AgentId } from '../types'
 import type { EffectMetric, SurfaceKey } from '../../effects'
 import type { StatId, StatRegion } from '../../calculation/stat-composer'
-import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from './equipment'
-import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from './sources'
-import { attackBroadPrePenRelationships } from './attack-broad-pre-pen'
+import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from '../agent-sources/equipment'
+import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from '../agent-sources/sources'
+import { agentBroadPrePenRelationships } from '../agent-broad-pre-pen-relationships'
 
 type Agent = 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen' | 'soldier11' | 'zhuYuan' | 'orphie' | 'harumasa' | 'nekomata' | 'billy' | 'yeShunguang' | 'miyabi' | 'anton'
 type Slot = 0 | 1 | 2
@@ -114,11 +114,11 @@ function partyQualification(agent: Agent, ids: readonly AgentId[], slot: Slot): 
   }
 }
 
-function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationContext: CalculationContext): AgentSourceProfile {
+function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot, calculationContext: CalculationContext): AgentSourceProfile {
   const setup = { ...requireCompleteSelectedSetup(state.slots[slot].setup), mindscape: state.slots[slot].setup.mindscape }
   const ids = state.slots.map(({ agentId }) => agentId); const qualified = agent === 'seed' ? resolveSeedVanguardForState(state) !== null : partyQualification(agent, ids, slot)
   const baseStats = { ...BASE[agent], penRatio: 0 }; const observation: SelectedSetupObservation = { baseStats, effectiveSubstats: effectiveSubstatChoicesForSlot(state, slot), modifierMetrics: ['dmgBonus', 'defIgnore', 'defReduction', 'resIgnore', 'resReduction', 'stunDmgMultiplier', 'dazeBonus'] }
-  const relationships = selectedSetupRelationships(agent, slot, setup, observation); relationships.push(...attackBroadPrePenRelationships(state, slot)); const add = (r: ProfileRelationship) => relationships.push(r); const core = src(agent, slot, 'core', SOURCE_LABELS[`${agent}Core` as keyof typeof SOURCE_LABELS] ?? 'Core Passive'); const ability = src(agent, slot, 'ability', SOURCE_LABELS[`${agent}Ability` as keyof typeof SOURCE_LABELS] ?? 'Additional Ability', 'additional'); const mind = (tier: 1|2|3|4|5|6) => selectedMindscapeSource(agent, slot, setup.mindscape, tier); const all = { recipient: 'all-party' as const }; const enemy = { recipient: 'enemy-context' as const }
+  const relationships = selectedSetupRelationships(agent, slot, setup, observation); relationships.push(...agentBroadPrePenRelationships(state, slot)); const add = (r: ProfileRelationship) => relationships.push(r); const core = src(agent, slot, 'core', SOURCE_LABELS[`${agent}Core` as keyof typeof SOURCE_LABELS] ?? 'Core Passive'); const ability = src(agent, slot, 'ability', SOURCE_LABELS[`${agent}Ability` as keyof typeof SOURCE_LABELS] ?? 'Additional Ability', 'additional'); const mind = (tier: 1|2|3|4|5|6) => selectedMindscapeSource(agent, slot, setup.mindscape, tier); const all = { recipient: 'all-party' as const }; const enemy = { recipient: 'enemy-context' as const }
   const actions: ActionProjection[] = []; const basicUlt = BASIC_ULT
   let stunDmgMultiplierCap: MetricProjection['cap']
   const nangongSlot = ids.indexOf('nangongYu')
@@ -448,11 +448,11 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
         { metricId: 'dmgBonus', scopes: [
           {
             id: 'miyabiShimotsuki', target: MIYABI_SHIMOTSUKI,
-            inheritedEffectTargets: [BASIC, BASIC_DASH],
+            inheritedEffectTargets: [BASIC],
             children: [{ id: 'miyabiShimotsukiAfterDisorder', target: MIYABI_SHIMOTSUKI_AFTER_DISORDER }],
           },
           { id: 'miyabiFrostburnBreak', target: MIYABI_FROSTBURN_BREAK },
-          { id: 'miyabiKazahana', target: MIYABI_KAZAHANA, inheritedEffectTargets: [BASIC, BASIC_DASH] },
+          { id: 'miyabiKazahana', target: MIYABI_KAZAHANA, inheritedEffectTargets: [BASIC] },
           { id: 'miyabiDodgeCounter', target: DODGE },
         ] },
         { metricId: 'anomalyBuildupBonus', scopes: [{ id: 'miyabiIcefireBuildup', target: MIYABI_ICEFIRE_BUILDUP_TARGET }, { id: 'miyabiFrostburnBuildup', target: MIYABI_FROSTBURN_BUILDUP_TARGET }, { id: 'miyabiFrostburnRemovedBuildup', target: MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET }] },
@@ -553,11 +553,11 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
   }
 }
 
-export function attackProfileFor(
+export function generalDamageOutcomeProfileFor(
   agent: Agent,
   state: WorkbenchState,
   slot: Slot,
   calculationContext: CalculationContext = {},
 ): AgentSourceProfile {
-  return profile(agent, state, slot, calculationContext)
+  return buildGeneralDamageOutcomeProfile(agent, state, slot, calculationContext)
 }
