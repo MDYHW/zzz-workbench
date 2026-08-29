@@ -479,6 +479,23 @@ describe('shared calculation integration', () => {
     expect(hasMetricSource(dialynSoldier11, 'critDmg', 'Yesterday Calls')).toBe(true)
   })
 
+  it('projects Timeweaver Disorder only for an exact retained opportunity', () => {
+    const timeweaverDisorderGauge = (agentIds: [AgentId, AgentId, AgentId]) => {
+      const agent = calculateParty(createPreparedState({}, agentIds, 0))!.agents
+        .find(({ agentId }) => agentId === agentIds[0])!
+      return agent.metrics.find(({ id }) => id === 'anomalyProficiency')?.gauges
+        .find(({ source, outputLabel }) => (
+          source.label === 'Timeweaver' && outputLabel === 'Disorder DMG Bonus'
+        ))
+    }
+
+    expect(timeweaverDisorderGauge(['grace', 'trigger', 'rina'])).toBeUndefined()
+    expect(timeweaverDisorderGauge(['grace', 'rina', 'nicole']))
+      .toEqual(expect.objectContaining({ basisLabel: 'Fully Enabled Anomaly Proficiency' }))
+    expect(timeweaverDisorderGauge(['yanagi', 'trigger', 'rina']))
+      .toEqual(expect.objectContaining({ basisLabel: 'Fully Enabled Anomaly Proficiency' }))
+  })
+
   it('returns no Result while any required Setup selection is incomplete', () => {
     const state = createPreparedState()
     const incomplete = {

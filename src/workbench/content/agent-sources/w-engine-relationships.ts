@@ -1,5 +1,6 @@
 import type { ProfileRelationship } from '../../calculation/relationships'
 import { selectSource, type SelectedSourceInstance } from '../../calculation/source-instance'
+import { effectAttributeForAgent } from '../../formula-policy'
 import {
   W_ENGINE_FACTS,
   W_ENGINES,
@@ -26,6 +27,20 @@ export interface SelectedWEngineContext {
   partyAgentIds: readonly AgentId[]
   source: SelectedSourceInstance
   passiveEligible: boolean
+}
+
+function selectedWEngineEffectIsContextApplicable(
+  agentId: AgentId,
+  partyAgentIds: readonly AgentId[],
+  engineId: EngineId,
+  effectKey: string,
+): boolean {
+  if (engineId !== 'timeweaver' || effectKey !== 'disorderDamage') return true
+  if (agentId === 'yanagi') return true
+  if (agentId !== 'grace') return false
+  return partyAgentIds.some((candidateId) => (
+    candidateId !== agentId && effectAttributeForAgent(candidateId) !== 'Electric'
+  ))
 }
 
 interface SelectedWEngineBroadPrePenContext {
@@ -121,6 +136,12 @@ export function selectedWEngineRelationships({
       observation,
       effectIsHolderApplicable: (effectKey) => selectedWEngineEffectIsHolderApplicable(
         agent,
+        setup.engineId,
+        effectKey,
+      ),
+      includeEffect: (effectKey) => selectedWEngineEffectIsContextApplicable(
+        agent,
+        partyAgentIds,
         setup.engineId,
         effectKey,
       ),
