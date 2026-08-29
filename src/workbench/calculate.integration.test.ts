@@ -201,7 +201,7 @@ describe('shared calculation integration', () => {
     expect(breakdown('miyabiDodgeCounter')).not.toContainEqual(dawnSource)
   })
 
-  it('projects selected multi-action equipment scopes into canonical and inherited Result rows', () => {
+  it('projects a selected multi-action equipment scope into its canonical Result row', () => {
     const withPolar = (agentIds: [AgentId, AgentId, AgentId]) => {
       const state = createPreparedState({}, agentIds, 0)
       return workbenchReducer(state, {
@@ -218,19 +218,6 @@ describe('shared calculation integration', () => {
     const ellenActions = calculateParty(withPolar(['ellen', 'lycaon', 'soukaku']))!.agents
       .find(({ agentId }) => agentId === 'ellen')!.actionModifiers
     expect(hasPolar(ellenActions, 'ellenBasicDashDmg')).toBe(true)
-
-    let miyabiState = createPreparedState({}, ['miyabi', 'nangongYu', 'sunna'], 0)
-    miyabiState = workbenchReducer(miyabiState, {
-      type: 'setMindscape', slot: 0, mindscape: 2,
-    })
-    miyabiState = workbenchReducer(miyabiState, {
-      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'polarMetal',
-    })
-    const miyabiActions = calculateParty(miyabiState)!.agents
-      .find(({ agentId }) => agentId === 'miyabi')!.actionModifiers
-    expect(hasPolar(miyabiActions, 'miyabiShimotsuki')).toBe(true)
-    expect(hasPolar(miyabiActions, 'miyabiKazahana')).toBe(true)
-    expect(hasPolar(miyabiActions, 'miyabiDodgeCounter')).toBe(false)
   })
 
   it('composes Initial-AM-derived flat Impact once around shared equipment regions', () => {
@@ -367,6 +354,24 @@ describe('shared calculation integration', () => {
     expect(hasMetricSource(pulchra, 'impact', 'Blazing Laurel')).toBe(true)
     expect(hasMetricSource(soldier11, 'critDmg', 'Blazing Laurel')).toBe(false)
 
+    let boxCutterState = createPreparedState({}, ['pulchra', 'lucy', 'soldier11'], 2)
+    boxCutterState = workbenchReducer(boxCutterState, {
+      type: 'selectEngine', slot: 0, engineId: 'boxCutter',
+    })
+    const boxCutterPulchra = calculateParty(boxCutterState)!.agents
+      .find(({ agentId }) => agentId === 'pulchra')!
+    expect(hasMetricSource(boxCutterPulchra, 'dazeBonus', 'Box Cutter')).toBe(true)
+    expect(hasMetricSource(boxCutterPulchra, 'dmgBonus', 'Box Cutter')).toBe(false)
+
+    let simmeringState = createPreparedState({}, ['nangongYu', 'sunna', 'promeia'], 2)
+    simmeringState = workbenchReducer(simmeringState, {
+      type: 'selectEngine', slot: 0, engineId: 'simmeringPot',
+    })
+    const simmeringNangong = calculateParty(simmeringState)!.agents
+      .find(({ agentId }) => agentId === 'nangongYu')!
+    expect(hasMetricSource(simmeringNangong, 'dazeBonus', 'The Simmering Pot')).toBe(true)
+    expect(hasMetricSource(simmeringNangong, 'dmgBonus', 'The Simmering Pot')).toBe(true)
+
     let juFufuState = createPreparedState({}, ['juFufu', 'soldier11', 'lucy'], 1)
     juFufuState = workbenchReducer(juFufuState, {
       type: 'selectEngine', slot: 0, engineId: 'blazingLaurel',
@@ -386,6 +391,19 @@ describe('shared calculation integration', () => {
     const triggerSoldier11 = triggerParty.agents.find(({ agentId }) => agentId === 'soldier11')!
     expect(hasMetricSource(trigger, 'dazeBonus', 'Yesterday Calls')).toBe(false)
     expect(hasMetricSource(triggerSoldier11, 'critDmg', 'Yesterday Calls')).toBe(false)
+
+    let restrainedState = createPreparedState({}, ['trigger', 'soldier11', 'lucy'], 1)
+    restrainedState = workbenchReducer(restrainedState, {
+      type: 'selectEngine', slot: 0, engineId: 'restrained',
+    })
+    const restrainedTrigger = calculateParty(restrainedState)!.agents
+      .find(({ agentId }) => agentId === 'trigger')!
+    const basicAftershockSources = Object.values(
+      restrainedTrigger.actionModifiers
+        .find(({ id }) => id === 'triggerBasicAftershock')!.breakdown,
+    ).flat()
+    expect(basicAftershockSources.some(({ label }) => label === 'The Restrained')).toBe(true)
+    expect(hasMetricSource(restrainedTrigger, 'dazeBonus', 'The Restrained')).toBe(false)
 
     const dialynParty = calculateParty(createPreparedState(
       {}, ['dialyn', 'soldier11', 'lucy'], 1,

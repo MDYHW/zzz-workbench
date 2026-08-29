@@ -127,10 +127,11 @@ Aftershock catalogue.
   Basic Wilt package, so the Fire/Ice squad CRIT-DMG clause is a zero-valued
   unused axis rather than a penalty. Setup still shows that complete source-
   owned clause, while Result projects only the usable Impact. Box Cutter is a
-  partial but competitive package: its Base
-  ATK and advanced Impact serve all Daze, while its Aftershock trigger supplies
-  Physical DMG and Daze only after the holder's Aftershock. At W5 that exact
-  package establishes the non-limited first choice. Hellfire supplies the
+  partial but competitive package: its advanced Impact serves all Daze, while
+  its Aftershock trigger supplies the retained Daze clause. Its Physical-DMG
+  clause remains complete source-owned Setup copy but contributes zero to
+  Pulchra's non-dealer candidate value and Result. At W5 that realized
+  Impact/Daze package establishes the non-limited first choice. Hellfire supplies the
   retained Impact plus off-field Energy route. Steam's weaker banked-Energy/
   Impact package remains the strongest practical non-limited substitute when
   Hellfire is contested across simultaneous teams; Box Cutter and Precious do
@@ -142,8 +143,8 @@ Aftershock catalogue.
   closely enough to beat the retained aligned packages. Support W-Engines are
   ineligible and never enter numerical comparison.
 - R11. Add Box Cutter as an A-Rank non-limited Stun candidate. Pulchra can
-  activate its Aftershock-conditioned Physical-DMG/Daze package, and both
-  clauses retain their separate consumers.
+  activate its Aftershock-conditioned Daze package. The Physical-DMG clause
+  has no Pulchra Result consumer and remains complete source-owned Setup copy.
 - R12. Pulchra's four-piece candidates are King of the Summit, Astral Voice,
   and Swing Jazz. Her two-piece candidates are Shockstar,
   King, and Swing; selected King additionally exposes Woodpecker as the current

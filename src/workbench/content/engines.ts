@@ -70,10 +70,8 @@ import {
   equipmentEffectProgressionIncrementValue,
   fixedRefinementValues,
   scaledRefinementValues,
-  type AgentId,
   type EngineId,
   type EquipmentEffectFact,
-  type PoolId,
   type Refinement,
   type WEngineChoice,
   type WEngineFacts,
@@ -135,7 +133,7 @@ export const W_ENGINE_FACTS = {
     advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
     effects: {
       critDamage: { modifier: 'critDmg', unit: '%', value: [45, 51.75, 58.5, 65.25, 72] },
-      defIgnore: { modifier: 'defIgnore', unit: '%', value: [25, 28.75, 32.5, 36.25, 40], scope: { recipient: 'enemy' } },
+      defIgnore: { modifier: 'defIgnore', unit: '%', value: [25, 28.75, 32.5, 36.25, 40] },
     },
   },
   krakensCradle: {
@@ -313,7 +311,7 @@ export const W_ENGINE_FACTS = {
     effects: {
       critRate: { modifier: 'critRate', unit: '%', value: scaledRefinementValues(15) },
       damage: { modifier: 'dmgBonus', unit: '%', progression: { kind: 'stacks', perStack: scaledRefinementValues(12.5), maxStacks: 2, maximum: scaledRefinementValues(25) }, scope: { attributes: ['Electric'] } },
-      defIgnore: { modifier: 'defIgnore', unit: '%', value: scaledRefinementValues(20), scope: { recipient: 'enemy', actions: ['Basic Attack', 'Ultimate'] } },
+      defIgnore: { modifier: 'defIgnore', unit: '%', value: scaledRefinementValues(20), scope: { actions: ['Basic Attack', 'Ultimate'] } },
     },
   },
   marcatoDesire: {
@@ -385,7 +383,7 @@ export const W_ENGINE_FACTS = {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 60, unit: '%' },
     effects: {
       critRate: { modifier: 'critRate', unit: '%', value: [25, 28.8, 32.5, 36.3, 40] },
-      defIgnore: { modifier: 'defIgnore', unit: '%', value: [28, 31.5, 35, 38.5, 42], scope: { recipient: 'enemy', attributes: ['Electric'] } },
+      defIgnore: { modifier: 'defIgnore', unit: '%', value: [28, 31.5, 35, 38.5, 42], scope: { attributes: ['Electric'] } },
     },
   },
   bellicoseBlaze: {
@@ -396,7 +394,7 @@ export const W_ENGINE_FACTS = {
         modifier: 'defIgnore',
         unit: '%',
         progression: { kind: 'stacks', perStack: [15, 17.2, 19.5, 21.7, 24], maxStacks: 2 },
-        scope: { recipient: 'enemy', tags: ['aftershock'], attributes: ['Fire'] },
+        scope: { tags: ['aftershock'], attributes: ['Fire'] },
       },
     },
   },
@@ -410,7 +408,7 @@ export const W_ENGINE_FACTS = {
     advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
     effects: {
       critDamage: { modifier: 'critDmg', unit: '%', value: [50, 57.5, 65, 72.5, 80] },
-      fireResIgnore: { modifier: 'resIgnore', unit: '%', progression: { kind: 'stacks', perStack: [12.5, 14.5, 16.5, 18.5, 20], maxStacks: 2 }, scope: { recipient: 'enemy', actions: ['Chain Attack', 'Ultimate'], attributes: ['Fire'] } },
+      fireResIgnore: { modifier: 'resIgnore', unit: '%', progression: { kind: 'stacks', perStack: [12.5, 14.5, 16.5, 18.5, 20], maxStacks: 2 }, scope: { actions: ['Chain Attack', 'Ultimate'], attributes: ['Fire'] } },
     },
   },
   steelCushion: {
@@ -490,8 +488,12 @@ export const W_ENGINE_FACTS = {
       physicalDamage: {
         modifier: 'dmgBonus', unit: '%', value: [15, 17.3, 19.5, 21.8, 24],
         scope: { attributes: ['Physical'] },
+        activation: { kind: 'trigger', tags: ['aftershock'] },
       },
-      daze: { modifier: 'dazeBonus', unit: '%', value: [10, 11.5, 13, 14.5, 16] },
+      daze: {
+        modifier: 'dazeBonus', unit: '%', value: [10, 11.5, 13, 14.5, 16],
+        activation: { kind: 'trigger', tags: ['aftershock'] },
+      },
     },
   },
   zanshinHerbCase: {
@@ -506,8 +508,14 @@ export const W_ENGINE_FACTS = {
     advancedStat: { id: 'critDmg', label: 'CRIT DMG', value: 48, unit: '%' },
     effects: {
       physicalResIgnore: { modifier: 'resIgnore', unit: '%', value: [20, 22, 24, 26, 28], scope: { attributes: ['Physical'] } },
-      etherVeilDamage: { modifier: 'dmgBonus', unit: '%', value: [25, 28.7, 32.5, 36.2, 40] },
-      etherVeilCritDamage: { modifier: 'critDmg', unit: '%', value: [25, 28.7, 32.5, 36.2, 40] },
+      etherVeilDamage: {
+        modifier: 'dmgBonus', unit: '%', value: [25, 28.7, 32.5, 36.2, 40],
+        activation: { kind: 'trigger', operation: 'etherVeil' },
+      },
+      etherVeilCritDamage: {
+        modifier: 'critDmg', unit: '%', value: [25, 28.7, 32.5, 36.2, 40],
+        activation: { kind: 'trigger', operation: 'etherVeil' },
+      },
     },
   },
   hailstormShrine: {
@@ -593,7 +601,7 @@ export const W_ENGINE_FACTS = {
       anomalyProficiency: {
         modifier: 'anomalyProficiency', unit: '',
         progression: { kind: 'stacks', perStack: [25, 31, 37, 43, 50], maxStacks: 3 },
-        scope: { actions: ['Special Attack', 'EX Special Attack'] },
+        activation: { kind: 'trigger', actions: ['Special Attack', 'EX Special Attack'] },
       },
     },
   },
@@ -1214,120 +1222,4 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
       `Abloom DMG +${percent(W_ENGINE_FACTS.frostfallSickle.effects.abloomDamage, refinement)}`,
     ],
   },
-}
-
-type EngineCandidateAuthoring = EngineId | {
-  engineId: EngineId
-  usableEffects: readonly string[]
-}
-
-const partialEngineCandidate = <Engine extends keyof typeof W_ENGINE_FACTS>(
-  engineId: Engine,
-  usableEffects: readonly (keyof (typeof W_ENGINE_FACTS)[Engine]['effects'] & string)[],
-): EngineCandidateAuthoring => ({ engineId, usableEffects })
-
-const candidateEngineId = (candidate: EngineCandidateAuthoring): EngineId => (
-  typeof candidate === 'string' ? candidate : candidate.engineId
-)
-
-const enginePools = (
-  fullCandidates: readonly EngineCandidateAuthoring[],
-): Record<PoolId, EngineId[]> => {
-  const full = fullCandidates.map(candidateEngineId)
-  return {
-    full,
-    nonLimited: full.filter((engineId) => !W_ENGINES[engineId].limited),
-  }
-}
-
-const ENGINE_CANDIDATES_BY_AGENT: Record<AgentId, readonly EngineCandidateAuthoring[]> = {
-  yixuan: ['qingming', 'cauldron', 'radiowave', 'puzzleSphere'],
-  yidhari: ['krakensCradle', 'grillOWisp', 'cauldron', 'qingming'],
-  manato: ['grillOWisp', 'wrathfulVajra', 'qingming'],
-  hugo: ['myriadEclipse', 'cordisGermina', 'heartstringNocturne', 'steelCushion', 'marcatoDesire'],
-  juFufu: ['roaringFurnace', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
-  panYinhu: ['tusksOfFury', 'tremorTrigramVessel', 'springEmbrace'],
-  banyue: ['wrathfulVajra', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere'],
-  starlightBilly: ['starlightRiderFaceplate', 'qingming', 'cauldron', 'grillOWisp', 'puzzleSphere'],
-  dialyn: ['yesterdayCalls', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
-  nangongYu: ['neonFantasies', 'hellfireGears', 'simmeringPot', 'preciousFossilizedCore', 'roaringFurnace'],
-  miyabi: ['hailstormShrine', 'fusionCompiler'],
-  anton: ['cordisGermina', 'severedInnocence', 'brimstone', 'marcatoDesire', 'drillRigRedAxis'],
-  rina: ['weepingCradle', 'kaboom', 'unfetteredGameBall'],
-  lucia: ['dreamlitHearth', 'weepingCradle', 'kaboom', 'unfetteredGameBall'],
-  anbySoldier0: ['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'brimstone', 'marcatoDesire'],
-  trigger: [
-    'spectralGaze',
-    partialEngineCandidate('yesterdayCalls', ['energy']),
-    'blazingLaurel', 'iceJadeTeapot', 'restrained',
-    'hellfireGears', 'preciousFossilizedCore', 'steamOven',
-  ],
-  astraYao: ['elegantVanity', 'bashfulDemon', 'theVault', 'kaboom'],
-  seed: ['cordisGermina', 'heartstringNocturne', 'severedInnocence', 'brimstone', 'marcatoDesire'],
-  cissia: ['serpentineSeeker', 'bellicoseBlaze', 'drillRigRedAxis', 'cordisGermina'],
-  evelyn: ['heartstringNocturne', 'severedInnocence', 'cordisGermina', 'brimstone', 'steelCushion'],
-  corin: ['cordisGermina', 'heartstringNocturne', 'steelCushion', 'housekeeper'],
-  lycaon: ['blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
-  ellen: ['deepSeaVisitor', 'myriadEclipse', 'cordisGermina', 'steelCushion', 'brimstone'],
-  soukaku: ['weepingCradle', 'kaboom'],
-  soldier11: ['heartstringNocturne', 'cordisGermina', 'severedInnocence', 'brimstone'],
-  lighter: ['blazingLaurel', 'iceJadeTeapot', 'hellfireGears', 'steamOven', 'restrained', 'preciousFossilizedCore'],
-  lucy: ['elegantVanity', 'weepingCradle', 'kaboom'],
-  zhuYuan: ['cordisGermina', 'heartstringNocturne', 'brimstone', 'riotSuppressorMarkVI', 'marcatoDesire'],
-  nicole: ['elegantVanity', 'theVault', 'weepingCradle', 'kaboom', 'unfetteredGameBall'],
-  orphie: ['bellicoseBlaze', 'heartstringNocturne', 'serpentineSeeker', 'gildedBlossom', 'marcatoDesire'],
-  pulchra: [
-    partialEngineCandidate('blazingLaurel', ['impact']),
-    'boxCutter', 'hellfireGears', 'steamOven', 'preciousFossilizedCore',
-  ],
-  harumasa: ['zanshinHerbCase', 'cordisGermina', 'brimstone', 'heartstringNocturne'],
-  qingyi: ['iceJadeTeapot', 'blazingLaurel', 'restrained', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
-  nekomata: ['steelCushion', 'heartstringNocturne', 'cordisGermina', 'cloudcleaveRadiance', 'brimstone'],
-  billy: ['cloudcleaveRadiance', 'heartstringNocturne', 'cordisGermina', 'brimstone', 'steelCushion', 'starlightEngineReplica'],
-  ben: ['tremorTrigramVessel', 'tusksOfFury', 'cloudcleaveRadiance', 'hailstormShrine', 'bigCylinder', 'springEmbrace'],
-  koleda: ['hellfireGears', 'restrained', 'steamOven', 'preciousFossilizedCore'],
-  anby: ['hellfireGears', 'restrained', 'steamOven', 'preciousFossilizedCore'],
-  caesar: ['tusksOfFury', 'hellfireGears', 'springEmbrace'],
-  yeShunguang: [
-    'cloudcleaveRadiance', 'severedInnocence', 'brimstone',
-  ],
-  zhao: ['halfSugarBunny', 'tusksOfFury', 'originalTransmorpher'],
-  grace: [
-    'timeweaver', 'practicedPerfection',
-    'fusionCompiler', 'electroLipGloss', 'weepingGemini',
-  ],
-  piper: [
-    'practicedPerfection', 'sharpenedStinger', 'electroLipGloss',
-    'weepingGemini', 'roaringRide',
-  ],
-  yuzuha: ['metanukimorphosis', 'thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall'],
-  sunna: ['thoughtbop', 'weepingCradle', 'kaboom', 'unfetteredGameBall'],
-  burnice: ['flamemakerShaker', 'practicedPerfection', 'fusionCompiler', 'weepingGemini'],
-  jane: ['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini'],
-  seth: ['peacekeeperSpecialized', 'tusksOfFury', 'springEmbrace'],
-  yanagi: ['timeweaver', 'practicedPerfection', 'fusionCompiler', 'electroLipGloss', 'weepingGemini'],
-  alice: ['practicedPerfection', 'sharpenedStinger', 'fusionCompiler', 'electroLipGloss', 'weepingGemini'],
-  vivian: ['flightOfFancy', 'angelInTheShell', 'weepingGemini'],
-  aria: ['angelInTheShell', 'flightOfFancy', 'electroLipGloss', 'weepingGemini', 'fusionCompiler'],
-  promeia: ['frostfallSickle', 'fusionCompiler', 'angelInTheShell', 'weepingGemini'],
-}
-
-export const ENGINE_IDS_BY_AGENT_AND_POOL = Object.fromEntries(
-  (Object.entries(ENGINE_CANDIDATES_BY_AGENT) as Array<[
-    AgentId,
-    readonly EngineCandidateAuthoring[],
-  ]>).map(([agentId, candidates]) => [agentId, enginePools(candidates)]),
-) as Record<AgentId, Record<PoolId, EngineId[]>>
-
-/** Returns the locally authored usable clause set for one admitted W-Engine candidate. */
-export function selectedWEngineEffectIsUsable(
-  agentId: AgentId,
-  engineId: EngineId,
-  effectKey: string,
-): boolean {
-  const candidate = ENGINE_CANDIDATES_BY_AGENT[agentId]
-    .find((entry) => candidateEngineId(entry) === engineId)
-  return candidate !== undefined && (
-    typeof candidate === 'string' || candidate.usableEffects.includes(effectKey)
-  )
 }

@@ -8,7 +8,7 @@ import type {
   FormulaParticipation,
   SubstatChoice,
 } from './types'
-import { DISC_IDS_BY_AGENT_AND_PIECE } from './discs'
+import { DISC_IDS_BY_AGENT_AND_PIECE } from './agent-setup-candidates'
 
 export const FIXED_MAIN_STATS: Record<FixedMainSlot, { slot: FixedMainSlot; stat: 'hpFlat' | 'atkFlat' | 'defFlat'; numericValue: number; unit: '' }> = {
   slot1: { slot: 'slot1', stat: 'hpFlat', numericValue: 2200, unit: '' },

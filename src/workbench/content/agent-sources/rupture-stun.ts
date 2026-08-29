@@ -8,6 +8,7 @@ import { CRIT_DAMAGE_FORMULAS, REGULAR_DAMAGE_FORMULAS } from '../../formula-pol
 import { anotherAgentSharesAttribute, anotherAgentSharesFaction, qingyiAdditionalIsActive, triggerAdditionalIsActive } from '../../party-conditions'
 import { ADMITTED_AGENTS } from '../agents'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
+import { FORMULA_PARTICIPATION_BY_AGENT } from '../setup-options'
 import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type CompleteSelectedSetup, type SelectedSetupObservation } from './equipment'
 import {
   ETHER_VEIL_WELLSPRING_MAX_HP_EFFECT,
@@ -79,6 +80,7 @@ const BILLY_WHEELIE = actionTarget([BILLY_WHEELIE_OUTCOME])
 const BILLY_ULT = actionTarget([BILLY_ULT_OUTCOME])
 const BILLY_M6 = actionTarget([BILLY_FULL_OUTCOME, BILLY_ULT_OUTCOME])
 const LYCAON_CHARGED = actionTarget([canonicalAction('Basic Attack'), canonicalAction('Dash Attack'), canonicalAction('Dodge Counter')])
+const BASIC = actionTarget([canonicalAction('Basic Attack')])
 const LYCAON_BASIC = actionTarget([canonicalAction('Basic Attack')])
 const LYCAON_EX = actionTarget([canonicalAction('EX Special Attack')])
 const LYCAON_GLACIAL = actionTarget([sourceLocalAction('Glacial Waltz')])
@@ -287,7 +289,19 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
         },
       })
     }
-    actions.push(actionProjection('dazeBonus', 'triggerBasicAftershock', BASIC_AFTERSHOCK_TARGET), actionProjection('dmgBonus', 'triggerAftershockDmg', AFTERSHOCK_TARGET), actionProjection('critDmg', 'triggerAftershockCritDmg', AFTERSHOCK_TARGET), actionProjection('defIgnore', 'triggerAftershockDefIgnore', AFTERSHOCK_TARGET))
+    actions.push(
+      {
+        metricId: 'dazeBonus',
+        scopes: [{
+          id: 'triggerBasicAftershock',
+          target: BASIC_AFTERSHOCK_TARGET,
+          inheritedEffectTargets: [BASIC],
+        }],
+      },
+      actionProjection('dmgBonus', 'triggerAftershockDmg', AFTERSHOCK_TARGET),
+      actionProjection('critDmg', 'triggerAftershockCritDmg', AFTERSHOCK_TARGET),
+      actionProjection('defIgnore', 'triggerAftershockDefIgnore', AFTERSHOCK_TARGET),
+    )
     return { agentId: agent, appliedPartySlot: slot, relationships, metrics, ...(actions.length ? { actions } : {}) }
   } else if (agent === 'lycaon') {
     const potential = source(agent, slot, 'potential', SOURCE_LABELS.lycaonPotential, 'special')
@@ -461,10 +475,17 @@ export function ruptureStunProfileFor(
   slot: Slot,
 ): AgentSourceProfile {
   const setup = { ...requireCompleteSelectedSetup(state.slots[slot].setup), mindscape: state.slots[slot].setup.mindscape }
+  const projectsDamageResult = FORMULA_PARTICIPATION_BY_AGENT[agent].result
+    .some((formula) => DAMAGE.some((damageFormula) => damageFormula === formula))
   const observation: SelectedSetupObservation = {
     baseStats: BASE[agent],
     effectiveSubstats: effectiveSubstatChoicesForSlot(state, slot),
-    modifierMetrics: ['dmgBonus', 'dazeBonus', 'anomalyDmgBonus', 'anomalyBuildupResReduction'],
+    modifierMetrics: [
+      ...(projectsDamageResult ? ['dmgBonus'] as const : []),
+      'dazeBonus', 'sheerDmgBonus', 'sheerForce',
+      'anomalyDmgBonus', 'anomalyBuildupBonus', 'anomalyBuildupResReduction',
+      'defIgnore', 'defReduction', 'resIgnore', 'resReduction',
+    ],
   }
   const relationships = selectedSetupRelationships(agent, slot, setup, observation)
   relationships.push(...ruptureStunBroadPrePenRelationships(state, slot))

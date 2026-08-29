@@ -237,10 +237,9 @@ party.
     package.
 - R15. Correct the shared Simmering Pot relationship encountered by this unit.
   Its retained trigger activates broad holder Daze and DMG rather than scoping
-  either outcome to Assist. Lycaon's existing personal-DMG boundary therefore
-  keeps only broad Daze visible, while Nangong can consume both outcomes.
-  Re-inspection preserves Lycaon's admission and the Anby and Koleda exclusions:
-  their stronger retained resource, defining-action, or broad packages still
+  either outcome to Assist. Nangong can consume both outcomes. Re-inspection
+  preserves the Anby and Koleda exclusions: their stronger retained resource,
+  defining-action, or broad packages still
   win the local comparison. The equipment fact remains the sole activation,
   scope, and value owner.
 - R16. Nangong's 4-piece candidates are Phaethon's Melody and Freedom Blues.

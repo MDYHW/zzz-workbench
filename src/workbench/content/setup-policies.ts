@@ -7,8 +7,11 @@ import type {
   PoolId,
   SetupSelection,
 } from './types'
-import { DISC_IDS_BY_AGENT_AND_PIECE } from './discs'
-import { ENGINE_IDS_BY_AGENT_AND_POOL } from './engines'
+import {
+  DISC_IDS_BY_AGENT_AND_PIECE,
+  ENGINE_IDS_BY_AGENT_AND_POOL,
+} from './agent-setup-candidates'
+import { ADMITTED_AGENTS } from './agents'
 import { representativeSetupFor } from './representatives'
 import { MAIN_STAT_IDS_BY_AGENT_AND_SLOT, SUBSTAT_CHOICES_BY_AGENT } from './setup-options'
 
@@ -242,7 +245,14 @@ export function operatingIntervalFor(
   focusAgentId: AgentId,
 ): OperatingInterval | null {
   const holderPolicy = setupPolicyFor(holderAgentId).operatingInterval
-  if (!holderPolicy) return null
+  if (!holderPolicy) {
+    const holder = ADMITTED_AGENTS.find(({ id }) => id === holderAgentId)
+    return holderAgentId !== focusAgentId
+      && holder?.specialty === 'Support'
+      && !holder.focusEligible
+      ? 'off-field'
+      : null
+  }
   const focusOperation = setupPolicyFor(focusAgentId).focusOperationProfile
   return focusOperation
     ? holderPolicy.byFocusOperation?.[focusOperation] ?? holderPolicy.default

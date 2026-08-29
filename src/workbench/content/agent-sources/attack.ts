@@ -448,11 +448,11 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot, calculationCon
         { metricId: 'dmgBonus', scopes: [
           {
             id: 'miyabiShimotsuki', target: MIYABI_SHIMOTSUKI,
-            inheritedEffectTargets: [BASIC, BASIC_DASH],
+            inheritedEffectTargets: [BASIC],
             children: [{ id: 'miyabiShimotsukiAfterDisorder', target: MIYABI_SHIMOTSUKI_AFTER_DISORDER }],
           },
           { id: 'miyabiFrostburnBreak', target: MIYABI_FROSTBURN_BREAK },
-          { id: 'miyabiKazahana', target: MIYABI_KAZAHANA, inheritedEffectTargets: [BASIC, BASIC_DASH] },
+          { id: 'miyabiKazahana', target: MIYABI_KAZAHANA, inheritedEffectTargets: [BASIC] },
           { id: 'miyabiDodgeCounter', target: DODGE },
         ] },
         { metricId: 'anomalyBuildupBonus', scopes: [{ id: 'miyabiIcefireBuildup', target: MIYABI_ICEFIRE_BUILDUP_TARGET }, { id: 'miyabiFrostburnBuildup', target: MIYABI_FROSTBURN_BUILDUP_TARGET }, { id: 'miyabiFrostburnRemovedBuildup', target: MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET }] },

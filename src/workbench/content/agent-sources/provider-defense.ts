@@ -74,11 +74,12 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
         }
       : baseStats,
     effectiveSubstats: effectiveSubstatChoicesForSlot(state, slot),
-    modifierMetrics: agent === 'ben' || agent === 'caesar'
-      ? ['dmgBonus', 'dazeBonus']
-      : agent === 'seth'
-        ? ['anomalyBuildupBonus', 'anomalyBuildupResReduction', 'dazeBonus']
-        : undefined,
+    modifierMetrics: [
+      'dmgBonus', 'dazeBonus',
+      ...(agent === 'seth'
+        ? ['anomalyBuildupBonus', 'anomalyBuildupResReduction'] as const
+        : []),
+    ],
   }
   const relationships = selectedSetupRelationships(agent, slot, setup, observation)
   relationships.push(...providerDefenseBroadPrePenRelationships(state, slot))

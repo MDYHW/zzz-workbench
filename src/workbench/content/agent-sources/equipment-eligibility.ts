@@ -8,13 +8,18 @@ export function equipmentEffectActionTargets(
   effect: EquipmentEffectFact,
 ): ActionTarget[] {
   const scope = effect.scope
-  const outcomes = [
-    ...(scope?.actions ?? []).map(canonicalAction),
-    ...(scope?.anomalyResults ?? []).map(sourceLocalAction),
-  ]
+  const actions = (scope?.actions ?? []).map(canonicalAction)
+  const anomalyResults = (scope?.anomalyResults ?? []).map((result) => (
+    actionTarget([sourceLocalAction(result)])
+  ))
+  const conditions = scope?.condition === 'backAttack'
+    ? [actionTarget([sourceLocalAction('Back attacks')])]
+    : []
   const tags = [...(scope?.tags ?? [])]
   return [
-    ...(outcomes.length ? [actionTarget(outcomes)] : []),
+    ...(actions.length ? [actionTarget(actions)] : []),
+    ...anomalyResults,
+    ...conditions,
     ...(tags.length ? [actionTarget([], tags)] : []),
   ]
 }

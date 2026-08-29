@@ -269,6 +269,8 @@ export type EquipmentEffectActivation =
     kind: 'trigger'
     targetCondition?: Extract<EquipmentEffectCondition, 'burningTarget'>
     actions?: readonly EquipmentEffectAction[]
+    tags?: readonly EquipmentEffectTag[]
+    operation?: 'etherVeil'
     attributes?: readonly EquipmentEffectAttribute[]
     holderAttributes?: readonly EquipmentEffectAttribute[]
     anomalyResult?: 'Abloom' | 'Freeze'
