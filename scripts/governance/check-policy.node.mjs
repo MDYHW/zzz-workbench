@@ -54,6 +54,7 @@ function localFacts() {
   return {
     newAgentId: 'testAgent',
     agentSlug: 'test-agent',
+    existingEquipmentIds: ['discA', 'engineA'],
     files: [
       { path: 'src/workbench/content/types.ts', kind: 'agent-id-union-addition', operation: 'additive', agentIds: ['testAgent'] },
       { path: 'src/workbench/content/agents.ts', kind: 'agent-summary-addition', operation: 'additive', agentIds: ['testAgent'] },
@@ -62,13 +63,15 @@ function localFacts() {
       { path: 'src/workbench/content/retained-values.ts', kind: 'agent-owned-record-entry', operation: 'additive', agentIds: ['testAgent'] },
       { path: 'src/workbench/calculate.ts', kind: 'agent-import-and-switch-addition', operation: 'additive', agentIds: ['testAgent'] },
       { path: 'src/workbench/provider-effects.ts', kind: 'agent-import-and-switch-addition', operation: 'additive', agentIds: ['testAgent'] },
+      { path: 'src/workbench/content/agent-setup-candidates.ts', kind: 'agent-equipment-membership-addition', operation: 'additive', agentIds: ['testAgent'], equipmentIds: ['engineA'] },
+      { path: 'src/workbench/content/agent-setup-candidates.ts', kind: 'agent-equipment-membership-addition', operation: 'additive', agentIds: ['testAgent'], equipmentIds: ['discA'] },
       { path: 'src/workbench/calculation/agents/test-agent.ts', kind: 'agent-calculation-module-addition', operation: 'additive', agentIds: ['testAgent'] },
       { path: 'src/workbench/calculate.flows.test.ts', kind: 'test-additions-only', operation: 'additive', agentIds: ['testAgent'] },
     ],
   }
 }
 
-const LOCAL_PATHS = localFacts().files.map(({ path }) => path)
+const LOCAL_PATHS = [...new Set(localFacts().files.map(({ path }) => path))]
 
 function traceBody(classification = 'agent-local', overrides = {}) {
   const fields = {
@@ -345,7 +348,7 @@ test('new equipment stays local only when fact, choice, type, and membership are
     { path: 'src/workbench/content/engines.ts', kind: 'equipment-fact-addition', operation: 'additive', equipmentIds: ['testEngine'] },
     { path: 'src/workbench/content/engines.ts', kind: 'equipment-choice-addition', operation: 'additive', equipmentIds: ['testEngine'] },
     { path: 'src/assets/equipment/w-engines/test-engine.webp', kind: 'equipment-asset-addition', operation: 'additive', equipmentIds: ['testEngine'] },
-    { path: 'src/workbench/content/engines.ts', kind: 'agent-equipment-membership-addition', operation: 'additive', equipmentIds: ['testEngine'], agentIds: ['testAgent'] },
+    { path: 'src/workbench/content/agent-setup-candidates.ts', kind: 'agent-equipment-membership-addition', operation: 'additive', equipmentIds: ['engineA', 'testEngine'], agentIds: ['testAgent'] },
   )
   assert.equal(proveAgentLocal(facts).local, true)
   facts.files.at(-1).agentIds = ['existingAgent']

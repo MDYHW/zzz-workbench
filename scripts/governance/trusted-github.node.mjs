@@ -549,7 +549,7 @@ test('trusted adapter contains no PR-code execution or artifact-download primiti
   assert.doesNotMatch(source, /node:child_process|execFile|spawn\(|artifacts\//)
 })
 
-test('trusted structural parser proves the narrow real Agent seams and rejects a shared helper contrast', async () => {
+test('trusted structural parser proves narrow Agent seams and rejects unproved structure', async () => {
   const base = {
     'src/workbench/content/types.ts': `export type AgentId =\n  | 'alpha'\n\nexport type EngineId =\n  | 'engineA'\n\nexport type DiscId =\n  | 'discA'\n\nexport type End = string\n`,
     'src/workbench/content/agents.ts': `export const ADMITTED_AGENTS = [\n  {\n    id: 'alpha', name: 'Alpha',\n  },\n]\n`,
@@ -558,8 +558,8 @@ test('trusted structural parser proves the narrow real Agent seams and rejects a
     'src/workbench/content/setup-options.ts': `export const OPTIONS = {\n  alpha: { primary: [] },\n}\n`,
     'src/workbench/content/representatives.ts': `const alphaRepresentative = () => ({\n  engineId: 'engineA',\n})\nexport const REPS = {\n  alpha: alphaRepresentative(),\n}\n`,
     'src/workbench/content/retained-values.ts': `export const VALUES = {\n  alpha: { atk: 1 },\n}\nexport const LABELS = {\n  alphaCore: 'Core',\n}\n`,
-    'src/workbench/content/engines.ts': `export const FACTS = {\n}\nexport const CHOICES = {\n}\nexport const ENGINE_IDS_BY_AGENT_AND_POOL = {\n  alpha: enginePools(['engineA']),\n}\n`,
-    'src/workbench/content/discs.ts': `export const DISC_IDS_BY_AGENT_AND_PIECE = {\n  alpha: { fourPiece: ['discA'], twoPiece: ['discA'] },\n}\n`,
+    'src/workbench/content/engines.ts': `export const FACTS = {\n}\nexport const CHOICES = {\n}\n`,
+    'src/workbench/content/agent-setup-candidates.ts': `const ENGINE_CANDIDATES_BY_AGENT = {\n  alpha: ['engineA'],\n}\nexport const DISC_IDS_BY_AGENT_AND_PIECE = {\n  alpha: { fourPiece: ['discA'], twoPiece: ['discA'] },\n}\n`,
     'src/workbench/flow.test.ts': `test('alpha', () => {})\n`,
   }
   const head = {
@@ -571,8 +571,8 @@ test('trusted structural parser proves the narrow real Agent seams and rejects a
     'src/workbench/content/setup-options.ts': `export const OPTIONS = {\n  alpha: { primary: [] },\n  testAgent: { primary: [] },\n}\n`,
     'src/workbench/content/representatives.ts': `const alphaRepresentative = () => ({\n  engineId: 'engineA',\n})\nconst testAgentRepresentative = () => ({\n  engineId: 'engineA',\n})\nexport const REPS = {\n  alpha: alphaRepresentative(),\n  testAgent: testAgentRepresentative(),\n}\n`,
     'src/workbench/content/retained-values.ts': `export const VALUES = {\n  alpha: { atk: 1 },\n  testAgent: { atk: 1 },\n}\nexport const LABELS = {\n  alphaCore: 'Core',\n  testAgentCore: 'Core',\n}\n`,
-    'src/workbench/content/engines.ts': `import testEngineImage from '../../assets/equipment/w-engines/test-engine.webp'\nexport const FACTS = {\n  testEngine: { effect: 1 },\n}\nexport const CHOICES = {\n  testEngine: { id: 'testEngine', image: testEngineImage },\n}\nexport const ENGINE_IDS_BY_AGENT_AND_POOL = {\n  alpha: enginePools(['engineA']),\n  testAgent: enginePools(['engineA', 'testEngine']),\n}\n`,
-    'src/workbench/content/discs.ts': `export const DISC_IDS_BY_AGENT_AND_PIECE = {\n  alpha: { fourPiece: ['discA'], twoPiece: ['discA'] },\n  testAgent: { fourPiece: ['discA'], twoPiece: ['discA'] },\n}\n`,
+    'src/workbench/content/engines.ts': `import testEngineImage from '../../assets/equipment/w-engines/test-engine.webp'\nexport const FACTS = {\n  testEngine: { effect: 1 },\n}\nexport const CHOICES = {\n  testEngine: { id: 'testEngine', image: testEngineImage },\n}\n`,
+    'src/workbench/content/agent-setup-candidates.ts': `const ENGINE_CANDIDATES_BY_AGENT = {\n  alpha: ['engineA'],\n  testAgent: ['engineA', 'testEngine'],\n}\nexport const DISC_IDS_BY_AGENT_AND_PIECE = {\n  alpha: { fourPiece: ['discA'], twoPiece: ['discA'] },\n  testAgent: { fourPiece: ['discA'], twoPiece: ['discA'] },\n}\n`,
     'src/workbench/flow.test.ts': `test('alpha', () => {})\ntest('test Agent', () => {})\n`,
     'src/workbench/calculation/agents/test-agent.ts': `export function calculateTestAgent() { return null }\nexport function observeTestAgent() { return null }\n`,
     'src/assets/equipment/w-engines/test-engine.webp': 'binary fixture',
@@ -595,14 +595,70 @@ test('trusted structural parser proves the narrow real Agent seams and rejects a
   const proof = proveAgentLocal(facts, entries.map(({ path: filePath }) => filePath))
   assert.equal(proof.local, true, JSON.stringify({ facts, proof }))
 
-  const engineEntry = entries.find(({ path: filePath }) => filePath === 'src/workbench/content/engines.ts')
-  const engineHead = texts.get(engineEntry.head.sha)
-  texts.set(engineEntry.head.sha, engineHead.replace(
-    "testAgent: enginePools(['engineA', 'testEngine'])",
-    "testAgent: enginePools(['engineA']), // 'testEngine' is not membership",
+  const candidateEntry = entries.find(({ path: filePath }) => filePath === 'src/workbench/content/agent-setup-candidates.ts')
+  const candidateHead = texts.get(candidateEntry.head.sha)
+  texts.set(candidateEntry.head.sha, candidateHead.replace(
+    "testAgent: ['engineA', 'testEngine']",
+    "testAgent: ['engineA']",
   ))
   assert.equal(await deriveStructuralFacts({ treeDiff: { entries }, readText: async ({ sha }) => texts.get(sha) }), undefined)
-  texts.set(engineEntry.head.sha, engineHead)
+  texts.set(candidateEntry.head.sha, candidateHead)
+
+  texts.set(candidateEntry.head.sha, candidateHead.replace(
+    "testAgent: ['engineA', 'testEngine']",
+    "testAgent: ['engineA', partialEngineCandidate('testEngine', [])]",
+  ))
+  assert.equal(await deriveStructuralFacts({ treeDiff: { entries }, readText: async ({ sha }) => texts.get(sha) }), undefined)
+  texts.set(candidateEntry.head.sha, candidateHead)
+
+  texts.set(candidateEntry.head.sha, candidateHead.replace(
+    "testAgent: ['engineA', 'testEngine']",
+    "testAgent: ['engineA', partialEngineCandidate('testEngine', ['notAnEffect'])]",
+  ))
+  assert.equal(await deriveStructuralFacts({ treeDiff: { entries }, readText: async ({ sha }) => texts.get(sha) }), undefined)
+  texts.set(candidateEntry.head.sha, candidateHead)
+
+  texts.set(candidateEntry.head.sha, candidateHead.replace(
+    "testAgent: ['engineA', 'testEngine']",
+    "testAgent: ['engineA', 'testEngine', 'unknownEngine']",
+  ))
+  assert.equal(await deriveStructuralFacts({ treeDiff: { entries }, readText: async ({ sha }) => texts.get(sha) }), undefined)
+  texts.set(candidateEntry.head.sha, candidateHead)
+
+  texts.set(candidateEntry.head.sha, candidateHead.replace(
+    "testAgent: ['engineA', 'testEngine']",
+    "testAgent: ['discA', 'testEngine']",
+  ))
+  assert.equal(await deriveStructuralFacts({ treeDiff: { entries }, readText: async ({ sha }) => texts.get(sha) }), undefined)
+  texts.set(candidateEntry.head.sha, candidateHead)
+
+  texts.set(candidateEntry.head.sha, candidateHead.replace(
+    "testAgent: { fourPiece: ['discA'], twoPiece: ['discA'] }",
+    "testAgent: { fourPiece: ['engineA'], twoPiece: ['discA'] }",
+  ))
+  assert.equal(await deriveStructuralFacts({ treeDiff: { entries }, readText: async ({ sha }) => texts.get(sha) }), undefined)
+  texts.set(candidateEntry.head.sha, candidateHead)
+
+  texts.set(candidateEntry.head.sha, candidateHead.replace(
+    'export const DISC_IDS_BY_AGENT_AND_PIECE',
+    "  testAgent: fetch('https://example.invalid')\nexport const DISC_IDS_BY_AGENT_AND_PIECE",
+  ))
+  assert.equal(await deriveStructuralFacts({ treeDiff: { entries }, readText: async ({ sha }) => texts.get(sha) }), undefined)
+  texts.set(candidateEntry.head.sha, candidateHead)
+
+  texts.set(candidateEntry.head.sha, candidateHead.replace(
+    "testAgent: ['engineA', 'testEngine']",
+    "testAgent: ['engineA', 'testEngine'], [fetch('https://example.invalid')]: ['engineA']",
+  ))
+  assert.equal(await deriveStructuralFacts({ treeDiff: { entries }, readText: async ({ sha }) => texts.get(sha) }), undefined)
+  texts.set(candidateEntry.head.sha, candidateHead)
+
+  texts.set(candidateEntry.head.sha, candidateHead.replace(
+    "testAgent: { fourPiece: ['discA'], twoPiece: ['discA'] }",
+    "testAgent: { fourPiece: ['discA'], twoPiece: ['discA'], ...fetch('https://example.invalid') }",
+  ))
+  assert.equal(await deriveStructuralFacts({ treeDiff: { entries }, readText: async ({ sha }) => texts.get(sha) }), undefined)
+  texts.set(candidateEntry.head.sha, candidateHead)
 
   const moduleEntry = entries.find(({ path: filePath }) => filePath === 'src/workbench/calculation/agents/test-agent.ts')
   const moduleHead = texts.get(moduleEntry.head.sha)

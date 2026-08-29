@@ -842,36 +842,110 @@ function stringArray(node) {
   return node.elements.map(({ value }) => value)
 }
 
-function agentEquipmentIdsFromSource(source, filePath, agentId) {
-  let program
-  try {
-    program = parseAst(source, { lang: 'ts' })
-  } catch {
-    return undefined
-  }
-  const ownerName = filePath.endsWith('engines.ts') ? 'ENGINE_IDS_BY_AGENT_AND_POOL' : 'DISC_IDS_BY_AGENT_AND_PIECE'
+function variableDeclaratorByName(program, name) {
   const declarations = []
   const visit = (node) => {
     if (!node || typeof node !== 'object') return
-    if (node.type === 'VariableDeclarator' && node.id?.type === 'Identifier' && node.id.name === ownerName) declarations.push(node)
+    if (node.type === 'VariableDeclarator' && node.id?.type === 'Identifier' && node.id.name === name) declarations.push(node)
     for (const value of Object.values(node)) {
       if (Array.isArray(value)) value.forEach(visit)
       else if (value && typeof value === 'object') visit(value)
     }
   }
   visit(program)
-  if (declarations.length !== 1 || declarations[0].init?.type !== 'ObjectExpression') return undefined
-  const agentProperties = declarations[0].init.properties.filter((item) => item.type === 'Property' && propertyKey(item) === agentId)
-  if (agentProperties.length !== 1) return undefined
-  const value = agentProperties[0].value
-  if (ownerName === 'ENGINE_IDS_BY_AGENT_AND_POOL') {
-    if (value?.type !== 'CallExpression' || value.callee?.type !== 'Identifier' || value.callee.name !== 'enginePools'
-      || value.arguments.length !== 1) return undefined
-    return stringArray(value.arguments[0])
+  return declarations.length === 1 ? declarations[0] : null
+}
+
+function objectPropertyValue(objectExpression, property) {
+  return objectPropertyNode(objectExpression, property)?.value
+}
+
+function objectPropertyNode(objectExpression, property) {
+  if (objectExpression?.type !== 'ObjectExpression') return undefined
+  const matches = objectExpression.properties.filter((item) => item.type === 'Property' && propertyKey(item) === property)
+  return matches.length === 1 ? matches[0] : undefined
+}
+
+function agentSetupCandidatePropertyNodes(source, agentId) {
+  let program
+  try {
+    program = parseAst(source, { lang: 'ts' })
+  } catch {
+    return undefined
   }
+  const owners = ['ENGINE_CANDIDATES_BY_AGENT', 'DISC_IDS_BY_AGENT_AND_PIECE']
+  const nodes = owners.map((owner) => {
+    const declaration = variableDeclaratorByName(program, owner)
+    return objectPropertyNode(declaration?.init, agentId)
+  })
+  return nodes.every((node) => Number.isInteger(node?.start) && Number.isInteger(node?.end))
+    ? nodes
+    : undefined
+}
+
+function addedLinesStayInsideNodes(source, addedLineIndexes, nodes) {
+  const lines = source.split('\n')
+  const lineStarts = []
+  let offset = 0
+  for (const line of lines) {
+    lineStarts.push(offset)
+    offset += line.length + 1
+  }
+  return addedLineIndexes.every((lineIndex) => {
+    const start = lineStarts[lineIndex]
+    if (!Number.isInteger(start)) return false
+    const end = start + lines[lineIndex].length
+    for (let index = start; index < end; index += 1) {
+      const character = source[index]
+      if (/\s/.test(character) || character === ',') continue
+      if (!nodes.some((node) => index >= node.start && index < node.end)) return false
+    }
+    return true
+  })
+}
+
+function engineCandidateIds(node) {
+  if (node?.type !== 'ArrayExpression') return undefined
+  const engineIds = []
+  for (const element of node.elements) {
+    if (element?.type === 'Literal' && typeof element.value === 'string') {
+      engineIds.push(element.value)
+      continue
+    }
+    return undefined
+  }
+  return engineIds
+}
+
+function agentEngineMembershipIdsFromCandidatesSource(source, agentId) {
+  let program
+  try {
+    program = parseAst(source, { lang: 'ts' })
+  } catch {
+    return undefined
+  }
+  const declaration = variableDeclaratorByName(program, 'ENGINE_CANDIDATES_BY_AGENT')
+  return engineCandidateIds(objectPropertyValue(declaration?.init, agentId))
+}
+
+function agentDiscMembershipIdsFromCandidatesSource(source, agentId) {
+  let program
+  try {
+    program = parseAst(source, { lang: 'ts' })
+  } catch {
+    return undefined
+  }
+  const declaration = variableDeclaratorByName(program, 'DISC_IDS_BY_AGENT_AND_PIECE')
+  const value = objectPropertyValue(declaration?.init, agentId)
   if (value?.type !== 'ObjectExpression') return undefined
-  const pieces = new Map(value.properties.filter((item) => item.type === 'Property')
-    .map((item) => [propertyKey(item), stringArray(item.value)]))
+  if (value.properties.length !== 2 || value.properties.some((item) => (
+    item.type !== 'Property'
+    || item.computed
+    || item.kind !== 'init'
+    || item.method
+    || item.shorthand
+  ))) return undefined
+  const pieces = new Map(value.properties.map((item) => [propertyKey(item), stringArray(item.value)]))
   if (pieces.size !== 2 || !pieces.has('fourPiece') || !pieces.has('twoPiece')
     || !pieces.get('fourPiece') || !pieces.get('twoPiece')) return undefined
   return [...pieces.get('fourPiece'), ...pieces.get('twoPiece')]
@@ -896,8 +970,14 @@ export async function deriveStructuralFacts({ treeDiff, readText }) {
   if (production.length === 0) return undefined
   const byPath = new Map(treeDiff.entries.map((entry) => [entry.path, entry]))
   const typesEntry = byPath.get('src/workbench/content/types.ts')
+  const candidatesEntry = byPath.get('src/workbench/content/agent-setup-candidates.ts')
   if (!typesEntry?.base || !typesEntry.head) return undefined
-  const [baseTypes, headTypes] = await Promise.all([readText(typesEntry.base), readText(typesEntry.head)])
+  if (!candidatesEntry?.base || !candidatesEntry.head) return undefined
+  const [baseTypes, headTypes, candidateHeadSource] = await Promise.all([
+    readText(typesEntry.base),
+    readText(typesEntry.head),
+    readText(candidatesEntry.head),
+  ])
   const baseAgents = unionMembers(baseTypes, 'AgentId')
   const headAgents = unionMembers(headTypes, 'AgentId')
   if (!baseAgents || !headAgents) return undefined
@@ -920,6 +1000,15 @@ export async function deriveStructuralFacts({ treeDiff, readText }) {
     ...headDiscIds.filter((id) => !baseDiscIds.includes(id)).map((id) => ({ id, kind: 'drive-discs' })),
   ]
   if (baseEngineIds.some((id) => !headEngineIds.includes(id)) || baseDiscIds.some((id) => !headDiscIds.includes(id))) return undefined
+  const candidateEngineMembership = agentEngineMembershipIdsFromCandidatesSource(candidateHeadSource, newAgentId)
+  const candidateDiscMembership = agentDiscMembershipIdsFromCandidatesSource(candidateHeadSource, newAgentId)
+  if (!candidateEngineMembership || !candidateDiscMembership) return undefined
+  const verifiedEngineMembership = [...new Set(candidateEngineMembership)]
+  const verifiedDiscMembership = [...new Set(candidateDiscMembership)]
+  if (verifiedEngineMembership.length !== candidateEngineMembership.length
+    || verifiedEngineMembership.some((id) => !headEngineIds.includes(id))
+    || candidateDiscMembership.some((id) => !headDiscIds.includes(id))) return undefined
+  if (verifiedEngineMembership.length === 0 || verifiedDiscMembership.length === 0) return undefined
 
   for (const entry of production) {
     const { path: filePath, base, head } = entry
@@ -971,10 +1060,24 @@ export async function deriveStructuralFacts({ treeDiff, readText }) {
       facts.push({ path: filePath, kind: 'agent-import-and-switch-addition', operation: 'additive', agentIds: [newAgentId] })
       continue
     }
+    if (filePath === 'src/workbench/content/agent-setup-candidates.ts') {
+      const nodes = agentSetupCandidatePropertyNodes(headSource, newAgentId)
+      if (!nodes || !addedLinesStayInsideNodes(headSource, added, nodes)) return undefined
+      facts.push({
+        path: filePath, kind: 'agent-equipment-membership-addition', operation: 'additive',
+        agentIds: [newAgentId],
+        equipmentIds: verifiedEngineMembership,
+      })
+      facts.push({
+        path: filePath, kind: 'agent-equipment-membership-addition', operation: 'additive',
+        agentIds: [newAgentId],
+        equipmentIds: verifiedDiscMembership,
+      })
+      continue
+    }
     if (filePath === 'src/workbench/content/engines.ts' || filePath === 'src/workbench/content/discs.ts') {
       const localEquipment = addedEquipment.filter(({ kind }) => filePath.includes(kind === 'w-engines' ? 'engines' : 'discs'))
-      const agentRanges = propertyRanges(lines, newAgentId)
-      const ranges = [...agentRanges]
+      const ranges = []
       for (const { id } of localEquipment) ranges.push(...propertyRanges(lines, id))
       for (let index = 0; index < lines.length; index += 1) {
         for (const { id, kind } of localEquipment) {
@@ -982,17 +1085,12 @@ export async function deriveStructuralFacts({ treeDiff, readText }) {
           if (lines[index].includes(`../../assets/equipment/${kind}/${slug}.webp`)) ranges.push([index, index])
         }
       }
-      if (ranges.length === 0 || !additionsStayInside(added, ranges, (index) => lines[index].trim() === '')) return undefined
-      const membership = agentEquipmentIdsFromSource(headSource, filePath, newAgentId)
-      if (!membership) return undefined
-      const equipmentIds = [...new Set(membership
-        .filter((id) => existingEquipmentIds.includes(id) || addedEquipment.some((item) => item.id === id)))]
-      if (equipmentIds.length === 0) return undefined
-      if (localEquipment.some(({ id }) => !equipmentIds.includes(id))) return undefined
-      facts.push({
-        path: filePath, kind: 'agent-equipment-membership-addition', operation: 'additive',
-        agentIds: [newAgentId], equipmentIds,
-      })
+      if (localEquipment.length === 0) return undefined
+      if (!additionsStayInside(added, ranges, (index) => lines[index].trim() === '')) return undefined
+      const candidateMembership = filePath.endsWith('engines.ts')
+        ? verifiedEngineMembership
+        : verifiedDiscMembership
+      if (localEquipment.some(({ id }) => !candidateMembership.includes(id))) return undefined
       for (const { id } of localEquipment) {
         const occurrences = propertyRanges(lines, id)
         if (occurrences.length < 2) return undefined

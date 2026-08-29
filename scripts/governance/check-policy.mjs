@@ -148,12 +148,9 @@ const LOCAL_STRUCTURAL_KINDS = new Set([
 const STRICT_AGENT_SHARED_PATHS = new Map([
   ['src/workbench/content/types.ts', new Set(['agent-id-union-addition', 'equipment-id-addition'])],
   ['src/workbench/content/agents.ts', new Set(['agent-summary-addition'])],
-  ['src/workbench/content/engines.ts', new Set([
-    'equipment-fact-addition', 'equipment-choice-addition', 'agent-equipment-membership-addition',
-  ])],
-  ['src/workbench/content/discs.ts', new Set([
-    'equipment-fact-addition', 'equipment-choice-addition', 'agent-equipment-membership-addition',
-  ])],
+  ['src/workbench/content/engines.ts', new Set(['equipment-fact-addition', 'equipment-choice-addition'])],
+  ['src/workbench/content/discs.ts', new Set(['equipment-fact-addition', 'equipment-choice-addition'])],
+  ['src/workbench/content/agent-setup-candidates.ts', new Set(['agent-equipment-membership-addition'])],
   ['src/workbench/content/setup-options.ts', new Set(['agent-owned-record-entry'])],
   ['src/workbench/content/representatives.ts', new Set(['agent-owned-record-entry'])],
   ['src/workbench/content/retained-values.ts', new Set(['agent-owned-record-entry'])],
