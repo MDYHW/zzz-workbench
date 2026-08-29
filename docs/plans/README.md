@@ -8,8 +8,9 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-Keep at most one active bounded implementation plan. There is no active bounded
-implementation plan.
+Keep at most one active bounded implementation plan. The active bounded plan is
+[Through-3.1 Content Expansion Preflight](2026-08-30-001-feat-through-3-1-content-preflight-plan.md),
+a read-only research-execution plan that stops before any Agent vertical.
 The authority-governance recovery closed after exact-SHA
 finalization, protected `main` promotion, and recovery freeze; its detailed
 execution record remains in Git history and the durable postmortem.
