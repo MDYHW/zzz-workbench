@@ -415,7 +415,7 @@ identity-specific branch.
 **Goal:** Derive each Agent's exact retained setup and Result demands without
 settling its future setup candidates.
 
-**Requirements:** R9-R13, R16; covers AE5-AE6
+**Requirements:** R2, R9-R13, R16; covers AE5-AE6
 
 **Dependencies:** U2
 
@@ -615,7 +615,8 @@ authorizing or starting the first vertical.
 | Origin requirement | Execution owner |
 | --- | --- |
 | R1 | U1 |
-| R2-R5 | U2 |
+| R2 | U2, U4 |
+| R3-R5 | U2 |
 | R6-R8 | U3 |
 | R9-R10 | U3-U4 |
 | R11-R13 | U1, U4, U6 |
