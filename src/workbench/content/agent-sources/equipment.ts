@@ -457,7 +457,6 @@ export function selectedEquipmentRelationships(
   return [
     ...selectedWEngineRelationships({
       agentId,
-      appliedPartySlot,
       setup,
       observation,
       focusAgentId,

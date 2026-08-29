@@ -8,6 +8,7 @@ import {
   W_ENGINE_FACTS,
   W_ENGINES,
   equipmentEffectBaseValue,
+  equipmentEffectMaximumValue,
   isFocusEligible,
   type AgentId,
 } from './content'
@@ -246,7 +247,7 @@ describe('shared calculation integration', () => {
       1 + (slot6Am + phaethonAm) / 100
     )
     const hellfireExpected = hellfireInitialImpact * (
-      1 + equipmentEffectBaseValue(W_ENGINE_FACTS.hellfireGears.effects.impact, 1) / 100
+      1 + equipmentEffectMaximumValue(W_ENGINE_FACTS.hellfireGears.effects.impact, 1) / 100
     ) + hellfireInitialAm - VERTICAL_VALUES.nangongYu.coreImpactThreshold
     expect(impactFor('nonLimited').values.fully).toBeCloseTo(hellfireExpected, 10)
   })

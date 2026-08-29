@@ -107,7 +107,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     specialty: 'Rupture',
     focusEligible: true,
     rank: 'S',
-    operations: ['etherVeil'],
+    operations: ['etherVeil', 'hpDecrease'],
   },
   {
     id: 'manato',
@@ -116,6 +116,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     specialty: 'Rupture',
     focusEligible: true,
     rank: 'A',
+    operations: ['hpDecrease'],
   },
   {
     id: 'hugo',
@@ -150,6 +151,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     specialty: 'Rupture',
     focusEligible: true,
     rank: 'S',
+    operations: ['hpDecrease'],
   },
   {
     id: 'starlightBilly',
@@ -158,6 +160,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     specialty: 'Rupture',
     focusEligible: true,
     rank: 'S',
+    operations: ['hpDecrease'],
   },
   {
     id: 'ellen', name: 'Ellen', attribute: 'Ice', specialty: 'Attack',

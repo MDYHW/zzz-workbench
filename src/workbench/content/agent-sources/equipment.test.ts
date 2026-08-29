@@ -284,7 +284,7 @@ describe('ordinary W-Engine effect materialization', () => {
       {
         kind: 'modifier',
         atom: {
-          metricId: 'dmgBonus', earliestSurface: 'fully', value: 18,
+          metricId: 'dmgBonus', earliestSurface: 'combat', value: 18,
           action: { outcomes: [{ kind: 'canonical', action: 'Basic Attack' }] },
         },
       },
@@ -294,9 +294,74 @@ describe('ordinary W-Engine effect materialization', () => {
           recipient: 'all-party',
           formulas: ['general_damage', 'sheer_damage', 'anomaly_damage'],
         },
-        effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: 20 },
+        effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'combat', value: 20 },
       },
       { kind: 'automatic-energy', atom: { earliestSurface: 'combat', value: 0.6 } },
+    ])
+  })
+
+  it('extends ordinary W-Engines from source relationships without an identity branch', () => {
+    const relationships = materializeSelectedWEngineEffects({
+      actionScoped: effect({
+        modifier: 'dmgBonus', value: 18,
+        scope: { actions: ['Basic Attack'] },
+      }),
+      triggeredSquad: effect({
+        modifier: 'critDmg', value: 24,
+        scope: { recipient: 'squad' },
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
+      }),
+      entryStack: effect({
+        modifier: 'resIgnore',
+        progression: { kind: 'stacks', perStack: 12.5, maxStacks: 2 },
+        scope: { actions: ['Chain Attack', 'Ultimate'], attributes: ['Electric'] },
+        activation: {
+          kind: 'trigger', fieldEntry: true, actions: ['Chain Attack', 'Ultimate'],
+        },
+      }),
+      thresholdOutcome: effect({
+        modifier: 'anomalyDmgBonus', value: 25,
+        scope: { anomalyResults: ['Disorder'] },
+        activation: { kind: 'minimum-stat', statId: 'anomalyProficiency', threshold: 375 },
+      }),
+    }, {
+      agentId: 'trigger',
+      focusAgentId: 'anbySoldier0',
+      partyAgentIds: ['trigger', 'anbySoldier0'],
+      refinement: 1,
+      source,
+      observation: {
+        baseStats: { anomalyProficiency: 100 },
+        modifierMetrics: ['dmgBonus', 'resIgnore', 'anomalyDmgBonus'],
+      },
+      effectIsHolderApplicable: () => true,
+    })
+
+    expect(relationships).toMatchObject([
+      {
+        kind: 'modifier',
+        atom: { metricId: 'dmgBonus', earliestSurface: 'combat', value: 18 },
+      },
+      {
+        kind: 'provider',
+        effect: { kind: 'stat', statId: 'critDmg', earliestSurface: 'fully', value: 24 },
+      },
+      {
+        kind: 'modifier',
+        atom: { metricId: 'resIgnore', earliestSurface: 'combat', value: 12.5 },
+      },
+      {
+        kind: 'modifier',
+        atom: { metricId: 'resIgnore', earliestSurface: 'fully', value: 12.5 },
+      },
+      {
+        kind: 'post-delivery-stat-modifier-gauge',
+        basis: { statId: 'anomalyProficiency', surface: 'fully' },
+        basisLabel: 'Fully Enabled Anomaly Proficiency',
+        modifierMetricId: 'anomalyDmgBonus',
+        action: { outcomes: [{ kind: 'source-local', label: 'Disorder' }] },
+        output: { label: 'Disorder DMG Bonus', cap: 25, unit: '%' },
+      },
     ])
   })
 
@@ -489,7 +554,6 @@ describe('ordinary W-Engine effect materialization', () => {
 
     const selectedRelationships = selectedWEngineRelationships({
       agentId: 'grace',
-      appliedPartySlot: 0,
       setup: {
         engineId: 'fusionCompiler',
         refinement: 1,
@@ -654,7 +718,7 @@ describe('ordinary Drive Disc effect materialization', () => {
   })
 })
 
-describe('selected W-Engine relationship gaps', () => {
+describe('selected W-Engine source relationships', () => {
   const source = selectSource(
     defineCalculationSource('selected-engine-gap-fixture', 'Selected engine gap fixture'),
     'zhuYuan',
@@ -669,10 +733,9 @@ describe('selected W-Engine relationship gaps', () => {
     substats: {},
   })
 
-  it('keeps Riot Suppressor Mark VI charged Ether damage split between Basic and Dash Attack', () => {
+  it('keeps Riot Suppressor Mark VI charged Ether damage scoped to Basic and Dash Attack', () => {
     const relationships = selectedWEngineRelationships({
       agentId: 'zhuYuan',
-      appliedPartySlot: 0,
       setup: setup('riotSuppressorMarkVI'),
       observation: {
         baseStats: { critRate: 1 },
@@ -692,16 +755,22 @@ describe('selected W-Engine relationship gaps', () => {
         1,
       )
     ))
-    expect(charged).toMatchObject([
-      { atom: { action: { outcomes: [{ kind: 'canonical', action: 'Basic Attack' }] }, earliestSurface: 'fully' } },
-      { atom: { action: { outcomes: [{ kind: 'canonical', action: 'Dash Attack' }] }, earliestSurface: 'fully' } },
-    ])
+    expect(charged).toMatchObject([{
+      atom: {
+        action: {
+          outcomes: [
+            { kind: 'canonical', action: 'Basic Attack' },
+            { kind: 'canonical', action: 'Dash Attack' },
+          ],
+        },
+        earliestSurface: 'fully',
+      },
+    }])
   })
 
   it('keeps Metanukimorphosis holder Anomaly Mastery at Fully Enabled only', () => {
     const relationships = selectedWEngineRelationships({
       agentId: 'yuzuha',
-      appliedPartySlot: 0,
       setup: setup('metanukimorphosis'),
       observation: {
         baseStats: { anomalyMastery: 1 },

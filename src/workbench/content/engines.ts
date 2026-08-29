@@ -139,15 +139,29 @@ export const W_ENGINE_FACTS = {
   krakensCradle: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 30, unit: '%' },
     effects: {
-      iceSheerDamage: { modifier: 'sheerDmgBonus', unit: '%', progression: { kind: 'stacks', perStack: [6, 7.5, 9, 10.5, 12], maxStacks: 3 }, scope: { attributes: ['Ice'] } },
-      critRate: { modifier: 'critRate', unit: '%', value: [20, 23, 26, 29, 32] },
+      iceSheerDamage: {
+        modifier: 'sheerDmgBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: [6, 7.5, 9, 10.5, 12], maxStacks: 3 },
+        scope: { attributes: ['Ice'] },
+        activation: { kind: 'trigger', operation: 'hpDecrease', performer: 'equipper' },
+      },
+      critRate: {
+        modifier: 'critRate', unit: '%', value: [20, 23, 26, 29, 32],
+        activation: {
+          kind: 'trigger', operation: 'hpDecrease', performer: 'equipper',
+          holderHpAtOrBelowPercent: 50,
+        },
+      },
     },
   },
   grillOWisp: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 25, unit: '%' },
     effects: {
       fireDamage: { modifier: 'dmgBonus', unit: '%', value: [15, 17.25, 19.5, 21.75, 24], scope: { attributes: ['Fire'] } },
-      critRate: { modifier: 'critRate', unit: '%', value: [15, 17.25, 19.5, 21.75, 24] },
+      critRate: {
+        modifier: 'critRate', unit: '%', value: [15, 17.25, 19.5, 21.75, 24],
+        activation: { kind: 'trigger', operation: 'hpDecrease', performer: 'equipper' },
+      },
     },
   },
   wrathfulVajra: {
@@ -165,6 +179,7 @@ export const W_ENGINE_FACTS = {
         modifier: 'sheerDmgBonus', unit: '%',
         progression: { kind: 'stacks', perStack: [10, 11.5, 13, 14.5, 16], maxStacks: 2 },
         scope: { attributes: ['Physical'] },
+        activation: { kind: 'trigger', operation: 'hpDecrease', performer: 'equipper' },
       },
     },
   },
@@ -179,21 +194,37 @@ export const W_ENGINE_FACTS = {
   cauldron: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 25, unit: '%' },
     effects: {
-      damage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(12) },
-      critRate: { modifier: 'critRate', unit: '%', value: scaledRefinementValues(6.5) },
+      damage: {
+        modifier: 'dmgBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: scaledRefinementValues(4), maxStacks: 3 },
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
+      },
+      critRate: {
+        modifier: 'critRate', unit: '%', value: scaledRefinementValues(6.5),
+        activation: { kind: 'trigger', actions: ['EX Special Attack'], stackThreshold: 3 },
+      },
     },
   },
   radiowave: {
     advancedStat: { id: 'hpPct', label: 'HP', value: 25, unit: '%' },
     effects: {
-      sheerForce: { modifier: 'sheerForce', unit: '', value: scaledRefinementValues(240) },
+      sheerForce: {
+        modifier: 'sheerForce', unit: '',
+        progression: { kind: 'stacks', perStack: scaledRefinementValues(80), maxStacks: 3 },
+        activation: { kind: 'trigger', actions: ['Chain Attack', 'Ultimate'] },
+      },
     },
   },
   puzzleSphere: {
     advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
     effects: {
       critDamage: { modifier: 'critDmg', unit: '%', value: scaledRefinementValues(16) },
-      damage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(20), scope: { actions: ['EX Special Attack'] } },
+      damage: {
+        modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(20),
+        scope: {
+          actions: ['EX Special Attack'], condition: 'lowHpTarget', targetHpBelowPercent: 50,
+        },
+      },
     },
   },
   yesterdayCalls: {
@@ -222,7 +253,11 @@ export const W_ENGINE_FACTS = {
     advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' },
     effects: {
       energy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.6), scope: { condition: 'offField' } },
-      impact: { modifier: 'impact', unit: '%', value: scaledRefinementValues(20) },
+      impact: {
+        modifier: 'impact', unit: '%',
+        progression: { kind: 'stacks', perStack: scaledRefinementValues(10), maxStacks: 2 },
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
+      },
     },
   },
   neonFantasies: {
@@ -241,7 +276,11 @@ export const W_ENGINE_FACTS = {
   steamOven: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
     effects: {
-      impact: { modifier: 'impact', unit: '%', value: scaledRefinementValues(16) },
+      impact: {
+        modifier: 'impact', unit: '%',
+        progression: { kind: 'stacks', perStack: scaledRefinementValues(2), maxStacks: 8 },
+        activation: { kind: 'trigger', energySpent: 10 },
+      },
     },
   },
   dreamlitHearth: {
@@ -295,8 +334,18 @@ export const W_ENGINE_FACTS = {
   metanukimorphosis: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 60, unit: '%' },
     effects: {
-      anomalyMastery: { modifier: 'anomalyMastery', unit: '', value: [30, 34, 39, 43, 48] },
-      anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: [60, 69, 78, 87, 96], scope: { recipient: 'squad' } },
+      anomalyMastery: {
+        modifier: 'anomalyMastery', unit: '', value: [30, 34, 39, 43, 48],
+        activation: {
+          kind: 'trigger', performer: 'equipper',
+          actions: ['EX Special Attack', 'Ultimate'], attributes: ['Physical'],
+        },
+      },
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '', value: [60, 69, 78, 87, 96],
+        scope: { recipient: 'squad' },
+        activation: { kind: 'trigger', performer: 'equipper', tags: ['aftershock'] },
+      },
     },
   },
   severedInnocence: {
@@ -401,14 +450,25 @@ export const W_ENGINE_FACTS = {
   drillRigRedAxis: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
     effects: {
-      damage: { modifier: 'dmgBonus', unit: '%', value: [50, 57.5, 65, 72.5, 80], scope: { actions: ['Basic Attack', 'Dash Attack'], attributes: ['Electric'] } },
+      damage: {
+        modifier: 'dmgBonus', unit: '%', value: [50, 57.5, 65, 72.5, 80],
+        scope: { actions: ['Basic Attack', 'Dash Attack'], attributes: ['Electric'] },
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
+      },
     },
   },
   heartstringNocturne: {
     advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
     effects: {
       critDamage: { modifier: 'critDmg', unit: '%', value: [50, 57.5, 65, 72.5, 80] },
-      fireResIgnore: { modifier: 'resIgnore', unit: '%', progression: { kind: 'stacks', perStack: [12.5, 14.5, 16.5, 18.5, 20], maxStacks: 2 }, scope: { actions: ['Chain Attack', 'Ultimate'], attributes: ['Fire'] } },
+      fireResIgnore: {
+        modifier: 'resIgnore', unit: '%',
+        progression: { kind: 'stacks', perStack: [12.5, 14.5, 16.5, 18.5, 20], maxStacks: 2 },
+        scope: { actions: ['Chain Attack', 'Ultimate'], attributes: ['Fire'] },
+        activation: {
+          kind: 'trigger', fieldEntry: true, actions: ['Chain Attack', 'Ultimate'],
+        },
+      },
     },
   },
   steelCushion: {
@@ -462,14 +522,30 @@ export const W_ENGINE_FACTS = {
       chargedEtherDamage: {
         modifier: 'dmgBonus', unit: '%', value: [35, 43.75, 52.5, 61.25, 70],
         scope: { actions: ['Basic Attack', 'Dash Attack'], attributes: ['Ether'] },
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
       },
     },
   },
   theVault: {
     advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 50, unit: '%' },
     effects: {
-      targetDamage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(15), scope: { recipient: 'squad' } },
-      holderEnergy: { modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.5) },
+      targetDamage: {
+        modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(15),
+        scope: { recipient: 'squad' },
+        activation: {
+          kind: 'trigger', performer: 'equipper',
+          actions: ['EX Special Attack', 'Chain Attack', 'Ultimate'], attributes: ['Ether'],
+          durationSeconds: 2,
+        },
+      },
+      holderEnergy: {
+        modifier: 'energy', unit: '/s', value: scaledRefinementValues(0.5),
+        activation: {
+          kind: 'trigger', performer: 'equipper',
+          actions: ['EX Special Attack', 'Chain Attack', 'Ultimate'], attributes: ['Ether'],
+          durationSeconds: 2,
+        },
+      },
     },
   },
   gildedBlossom: {
@@ -501,7 +577,10 @@ export const W_ENGINE_FACTS = {
     effects: {
       critRate: { modifier: 'critRate', unit: '%', value: [10, 11.5, 13, 14.5, 16] },
       dashDamage: { modifier: 'dmgBonus', unit: '%', value: [40, 46, 52, 58, 64], scope: { actions: ['Dash Attack'], attributes: ['Electric'] } },
-      anomalyStunCritRate: { modifier: 'critRate', unit: '%', value: [10, 11.5, 13, 14.5, 16] },
+      anomalyStunCritRate: {
+        modifier: 'critRate', unit: '%', value: [10, 11.5, 13, 14.5, 16],
+        activation: { kind: 'trigger', anomalyResult: 'Attribute Anomaly' },
+      },
     },
   },
   cloudcleaveRadiance: {
@@ -523,8 +602,10 @@ export const W_ENGINE_FACTS = {
     effects: {
       critDamage: { modifier: 'critDmg', unit: '%', value: [50, 57, 65, 72, 80] },
       iceDamage: {
-        modifier: 'dmgBonus', unit: '%', value: [40, 46, 52, 58, 64],
+        modifier: 'dmgBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: [20, 23, 26, 29, 32], maxStacks: 2 },
         scope: { attributes: ['Ice'] },
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
       },
     },
   },
@@ -546,7 +627,10 @@ export const W_ENGINE_FACTS = {
   starlightEngineReplica: {
     advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
     effects: {
-      physicalDamage: { modifier: 'dmgBonus', unit: '%', value: [36, 41, 46.5, 52, 57.5], scope: { attributes: ['Physical'] } },
+      physicalDamage: {
+        modifier: 'dmgBonus', unit: '%', value: [36, 41, 46.5, 52, 57.5],
+        scope: { attributes: ['Physical'], condition: 'distantTarget' },
+      },
     },
   },
   originalTransmorpher: {
@@ -578,9 +662,15 @@ export const W_ENGINE_FACTS = {
       },
       anomalyProficiency: {
         modifier: 'anomalyProficiency', unit: '', value: [75, 85, 95, 105, 115],
+        activation: {
+          kind: 'trigger', performer: 'equipper',
+          actions: ['Special Attack', 'EX Special Attack'],
+          targetCondition: 'anomalyAfflictedTarget', durationSeconds: 15,
+        },
       },
       disorderDamage: {
         modifier: 'anomalyDmgBonus', unit: '%', value: [25, 27.5, 30, 32.5, 35],
+        scope: { anomalyResults: ['Disorder'] },
         activation: { kind: 'minimum-stat', statId: 'anomalyProficiency', threshold: 375 },
       },
     },
@@ -612,8 +702,14 @@ export const W_ENGINE_FACTS = {
   electroLipGloss: {
     advancedStat: { id: 'anomalyProficiency', label: 'Anomaly Proficiency', value: 75, unit: '' },
     effects: {
-      atk: { modifier: 'atk', unit: '%', value: [10, 11.5, 13, 14.5, 16] },
-      damage: { modifier: 'dmgBonus', unit: '%', value: [15, 17.5, 20, 22.5, 25] },
+      atk: {
+        modifier: 'atk', unit: '%', value: [10, 11.5, 13, 14.5, 16],
+        scope: { condition: 'anomalyAfflictedTarget' },
+      },
+      damage: {
+        modifier: 'dmgBonus', unit: '%', value: [15, 17.5, 20, 22.5, 25],
+        scope: { condition: 'anomalyAfflictedTarget' },
+      },
     },
   },
   weepingGemini: {
@@ -632,16 +728,30 @@ export const W_ENGINE_FACTS = {
         modifier: 'dmgBonus', unit: '%',
         progression: { kind: 'stacks', perStack: [12, 15, 18, 21, 24], maxStacks: 3 },
         scope: { attributes: ['Physical'] },
+        activation: { kind: 'trigger', actions: ['Dash Attack'] },
       },
-      buildup: { modifier: 'anomalyBuildupBonus', unit: '%', value: [40, 50, 60, 70, 80], scope: { attributes: ['Physical'] } },
+      buildup: {
+        modifier: 'anomalyBuildupBonus', unit: '%', value: [40, 50, 60, 70, 80],
+        scope: { attributes: ['Physical'] },
+        activation: { kind: 'trigger', actions: ['Dash Attack'], stackThreshold: 3 },
+      },
     },
   },
   roaringRide: {
     advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
     effects: {
-      atk: { modifier: 'atk', unit: '%', value: [8, 9.2, 10.4, 11.6, 12.8] },
-      anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: [40, 46, 52, 58, 64] },
-      buildup: { modifier: 'anomalyBuildupBonus', unit: '%', value: [25, 28, 32, 36, 40] },
+      atk: {
+        modifier: 'atk', unit: '%', value: [8, 9.2, 10.4, 11.6, 12.8],
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
+      },
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '', value: [40, 46, 52, 58, 64],
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
+      },
+      buildup: {
+        modifier: 'anomalyBuildupBonus', unit: '%', value: [25, 28, 32, 36, 40],
+        activation: { kind: 'trigger', actions: ['EX Special Attack'] },
+      },
     },
   },
   flamemakerShaker: {
@@ -652,9 +762,16 @@ export const W_ENGINE_FACTS = {
         scope: { condition: 'offField' },
       },
       damage: {
-        modifier: 'dmgBonus', unit: '%', value: [35, 44, 52, 61, 70],
+        modifier: 'dmgBonus', unit: '%',
+        progression: { kind: 'stacks', perStack: [3.5, 4.4, 5.2, 6.1, 7], maxStacks: 10 },
+        activation: { kind: 'trigger', actions: ['EX Special Attack', 'Assist'] },
       },
-      anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: [50, 62, 75, 87, 100] },
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '', value: [50, 62, 75, 87, 100],
+        activation: {
+          kind: 'trigger', actions: ['EX Special Attack', 'Assist'], stackThreshold: 5,
+        },
+      },
     },
   },
   flightOfFancy: {
@@ -666,6 +783,7 @@ export const W_ENGINE_FACTS = {
       },
       buildup: {
         modifier: 'anomalyBuildupBonus', unit: '%', value: [40, 46, 52, 58, 64],
+        activation: { kind: 'trigger', anomalyResult: 'Attribute Anomaly' },
       },
     },
   },
@@ -766,7 +884,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Rupture',
     passiveLines: (refinement) => [
       `Ice Sheer DMG +${percent(W_ENGINE_FACTS.krakensCradle.effects.iceSheerDamage, refinement, true)}`,
-      `≤50% Max HP · CRIT Rate +${percent(W_ENGINE_FACTS.krakensCradle.effects.critRate, refinement)}`,
+      `≤${W_ENGINE_FACTS.krakensCradle.effects.critRate.activation.holderHpAtOrBelowPercent}% Max HP · CRIT Rate +${percent(W_ENGINE_FACTS.krakensCradle.effects.critRate, refinement)}`,
     ],
   },
   grillOWisp: {
@@ -812,7 +930,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.cauldron.advancedStat, image: cauldronImage,
     passiveSpecialty: 'Rupture',
     passiveLines: (refinement) => [
-      `DMG +${percent(W_ENGINE_FACTS.cauldron.effects.damage, refinement)}`,
+      `DMG +${percent(W_ENGINE_FACTS.cauldron.effects.damage, refinement, true)}`,
       `CRIT Rate +${percent(W_ENGINE_FACTS.cauldron.effects.critRate, refinement)}`,
     ],
   },
@@ -821,7 +939,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     advancedStat: W_ENGINE_FACTS.radiowave.advancedStat, image: radiowaveImage,
     passiveSpecialty: 'Rupture',
     passiveLines: (refinement) => [
-      `Sheer Force +${equipmentEffectBaseValue(W_ENGINE_FACTS.radiowave.effects.sheerForce, refinement)}`,
+      `Sheer Force +${equipmentEffectMaximumValue(W_ENGINE_FACTS.radiowave.effects.sheerForce, refinement)}`,
     ],
   },
   puzzleSphere: {
@@ -830,7 +948,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Rupture',
     passiveLines: (refinement) => [
       `CRIT DMG +${percent(W_ENGINE_FACTS.puzzleSphere.effects.critDamage, refinement)}`,
-      `Target HP <50% \u00B7 EX Special Attack DMG +${percent(W_ENGINE_FACTS.puzzleSphere.effects.damage, refinement)}`,
+      `Target HP <${W_ENGINE_FACTS.puzzleSphere.effects.damage.scope.targetHpBelowPercent}% \u00B7 EX Special Attack DMG +${percent(W_ENGINE_FACTS.puzzleSphere.effects.damage, refinement)}`,
     ],
   },
   yesterdayCalls: {
@@ -849,7 +967,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [
       `Off-field Energy +${perSecond(W_ENGINE_FACTS.hellfireGears.effects.energy, refinement)}`,
-      `Impact +${percent(W_ENGINE_FACTS.hellfireGears.effects.impact, refinement)}`,
+      `Impact +${percent(W_ENGINE_FACTS.hellfireGears.effects.impact, refinement, true)}`,
     ],
   },
   neonFantasies: {
@@ -865,7 +983,7 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     name: 'Steam Oven', rank: 'A', limited: false, baseAtk: 594,
     advancedStat: W_ENGINE_FACTS.steamOven.advancedStat, image: steamOvenImage,
     passiveSpecialty: 'Stun',
-    passiveLines: (refinement) => [`Impact +${percent(W_ENGINE_FACTS.steamOven.effects.impact, refinement)}`],
+    passiveLines: (refinement) => [`Impact +${percent(W_ENGINE_FACTS.steamOven.effects.impact, refinement, true)}`],
   },
   dreamlitHearth: {
     name: 'Dreamlit Hearth', rank: 'S', limited: true, baseAtk: 713,

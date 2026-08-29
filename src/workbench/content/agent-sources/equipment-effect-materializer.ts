@@ -131,6 +131,13 @@ export interface EquipmentEffectMaterializationContext {
   effectIsHolderApplicable?: (effectKey: string) => boolean
   omitEffectKeys?: ReadonlySet<string>
   includeEffect?: (effectKey: string, fact: EquipmentEffectFact) => boolean
+  projectEffect?: (input: {
+    effectKey: string
+    fact: EquipmentEffectFact
+    amount: number
+    earliestSurface: SurfaceKey
+    delivery?: EquipmentDelivery
+  }) => ProfileRelationship[]
 }
 
 /**
@@ -151,6 +158,7 @@ export function materializeEquipmentEffects(
     effectIsHolderApplicable = () => true,
     omitEffectKeys = new Set<string>(),
     includeEffect = () => true,
+    projectEffect,
   } = context
   const interval = operatingIntervalFor(agentId, focusAgentId)
   const holderAttribute = effectAttributeForAgent(agentId)
@@ -172,14 +180,17 @@ export function materializeEquipmentEffects(
     ) return []
     if (!recipient && !hasLocalConsumer(fact, observation)) return []
 
+    const delivery = recipient ? providerDelivery(fact, holderAttribute) : undefined
     return amountsForEffect(effectKey, fact).flatMap(({ amount, earliestSurface }) => (
-      projectEquipmentEffectRelationships({
-        source,
-        fact,
-        amount,
-        earliestSurface,
-        ...(recipient ? { delivery: providerDelivery(fact, holderAttribute) } : {}),
-      })
+      projectEffect
+        ? projectEffect({ effectKey, fact, amount, earliestSurface, ...(delivery ? { delivery } : {}) })
+        : projectEquipmentEffectRelationships({
+            source,
+            fact,
+            amount,
+            earliestSurface,
+            ...(delivery ? { delivery } : {}),
+          })
     ))
   })
 }
