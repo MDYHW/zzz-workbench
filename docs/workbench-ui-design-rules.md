@@ -148,6 +148,27 @@ positive value, negative value, opportunity cost, or independent candidate
 meaning. Result still projects only effects consumed by the current Agent and
 setup.
 
+Setup and Result are presentation destinations rather than semantic filters.
+Source-fact and setup policy establish the admitted equipment identity and its
+complete package before Setup copy is compressed. Holder, Specialty,
+Attribute, activation, action, recipient, interval, and formula consumers
+establish applicable relationships before Result presentation. The UI must not
+materialize every legal or source-stated effect and then use Agent role,
+identity, Specialty, or visible-row policy to hide an inapplicable relationship.
+Conversely, it cannot create candidate value or a Result relationship from a
+visible clause. Correct a mismatch at the owning upstream fact, policy, or
+relationship boundary instead of adding holder-filtered Setup copy, a
+role-specific presentation branch, or an explanation payload.
+
+Result may omit an aggregate only when the delivered aggregate has no current
+value, numeric breakdown, gauge, or action outcome. That empty-row pruning is
+presentation density, not an applicability decision, and cannot remove an
+otherwise retained relationship. W-Engine and Drive Disc selected and candidate
+surfaces preserve every retained source-owned clause for the equipment choice
+they present, while the combined Setup continues to show the complete selected
+package. Disc role-exchange, complement, and row geometry differences do not
+create holder-specific effect filtering.
+
 W-Engine and Drive Disc Setup summaries use one common semantic compression
 rule. Compress simultaneously reachable clauses with the same metric,
 recipient, and effect scope into their total value. Omit calculation surfaces,
