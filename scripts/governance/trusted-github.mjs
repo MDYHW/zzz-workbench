@@ -912,18 +912,6 @@ function engineCandidateIds(node) {
       engineIds.push(element.value)
       continue
     }
-    if (
-      element?.type === 'CallExpression'
-      && element.callee?.type === 'Identifier'
-      && element.callee.name === 'partialEngineCandidate'
-      && element.arguments.length === 2
-      && element.arguments[0]?.type === 'Literal'
-      && typeof element.arguments[0].value === 'string'
-      && stringArray(element.arguments[1])
-    ) {
-      engineIds.push(element.arguments[0].value)
-      continue
-    }
     return undefined
   }
   return engineIds
@@ -1015,13 +1003,12 @@ export async function deriveStructuralFacts({ treeDiff, readText }) {
   const candidateEngineMembership = agentEngineMembershipIdsFromCandidatesSource(candidateHeadSource, newAgentId)
   const candidateDiscMembership = agentDiscMembershipIdsFromCandidatesSource(candidateHeadSource, newAgentId)
   if (!candidateEngineMembership || !candidateDiscMembership) return undefined
-  const filteredEngineMembership = [...new Set(candidateEngineMembership.filter((id) => (
-    existingEquipmentIds.includes(id) || addedEquipment.some((item) => item.id === id)
-  )))]
-  const filteredDiscMembership = [...new Set(candidateDiscMembership.filter((id) => (
-    existingEquipmentIds.includes(id) || addedEquipment.some((item) => item.id === id)
-  )))]
-  if (filteredEngineMembership.length === 0 || filteredDiscMembership.length === 0) return undefined
+  const verifiedEngineMembership = [...new Set(candidateEngineMembership)]
+  const verifiedDiscMembership = [...new Set(candidateDiscMembership)]
+  if (verifiedEngineMembership.length !== candidateEngineMembership.length
+    || verifiedEngineMembership.some((id) => !headEngineIds.includes(id))
+    || candidateDiscMembership.some((id) => !headDiscIds.includes(id))) return undefined
+  if (verifiedEngineMembership.length === 0 || verifiedDiscMembership.length === 0) return undefined
 
   for (const entry of production) {
     const { path: filePath, base, head } = entry
@@ -1079,12 +1066,12 @@ export async function deriveStructuralFacts({ treeDiff, readText }) {
       facts.push({
         path: filePath, kind: 'agent-equipment-membership-addition', operation: 'additive',
         agentIds: [newAgentId],
-        equipmentIds: filteredEngineMembership,
+        equipmentIds: verifiedEngineMembership,
       })
       facts.push({
         path: filePath, kind: 'agent-equipment-membership-addition', operation: 'additive',
         agentIds: [newAgentId],
-        equipmentIds: filteredDiscMembership,
+        equipmentIds: verifiedDiscMembership,
       })
       continue
     }
@@ -1101,8 +1088,8 @@ export async function deriveStructuralFacts({ treeDiff, readText }) {
       if (localEquipment.length === 0) return undefined
       if (!additionsStayInside(added, ranges, (index) => lines[index].trim() === '')) return undefined
       const candidateMembership = filePath.endsWith('engines.ts')
-        ? filteredEngineMembership
-        : filteredDiscMembership
+        ? verifiedEngineMembership
+        : verifiedDiscMembership
       if (localEquipment.some(({ id }) => !candidateMembership.includes(id))) return undefined
       for (const { id } of localEquipment) {
         const occurrences = propertyRanges(lines, id)
