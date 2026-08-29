@@ -10,7 +10,7 @@ import {
   type Refinement,
 } from '../types'
 import type { SelectedSetupObservation } from './equipment'
-import { equipmentEffectActionTargets } from './equipment-eligibility'
+import { projectMinimumStatEquipmentEffect } from './minimum-stat-effect-projector'
 import { materializeEquipmentEffects } from './equipment-effect-materializer'
 
 function baseSurface(fact: EquipmentEffectFact): SurfaceKey {
@@ -53,71 +53,12 @@ function effectAmounts(
   ]
 }
 
-function minimumStatLabel(
-  statId: Extract<EquipmentEffectFact['activation'], { kind: 'minimum-stat' }>['statId'],
-): string {
-  switch (statId) {
-    case 'anomalyProficiency': return 'Anomaly Proficiency'
-    case 'anomalyMastery': return 'Anomaly Mastery'
-    case 'critRate': return 'CRIT Rate'
-  }
-}
-
-function targetLabel(target: ReturnType<typeof equipmentEffectActionTargets>[number]): string {
-  return target.outcomes.map((outcome) => {
-    switch (outcome.kind) {
-      case 'canonical': return outcome.action
-      case 'form': return `${outcome.action}: ${outcome.form}`
-      case 'source-local': return outcome.label
-    }
-  }).join(' & ')
-}
-
-function materializeMinimumStatEffect(
-  source: SelectedSourceInstance,
+function minimumStatEffectAmounts(
   fact: EquipmentEffectFact,
-  amount: number,
-): ProfileRelationship[] {
-  const activation = fact.activation
-  if (activation?.kind !== 'minimum-stat') return []
-  if (fact.modifier !== 'anomalyDmgBonus') {
-    throw new Error(`Unsupported minimum-stat W-Engine modifier: ${fact.modifier}`)
-  }
-  if (fact.scope?.recipient && fact.scope.recipient !== 'self') {
-    throw new Error('A delivered minimum-stat W-Engine effect requires an explicit consumer')
-  }
-  const actions = equipmentEffectActionTargets(fact)
-  if (actions.length !== 1) {
-    throw new Error('A minimum-stat W-Engine effect requires exactly one affected outcome')
-  }
-  const action = actions[0]
-  const label = targetLabel(action)
-  if (!label) {
-    throw new Error('A minimum-stat W-Engine effect requires a named affected outcome')
-  }
-  return [{
-    kind: 'post-delivery-stat-modifier-gauge',
-    source,
-    basis: { statId: activation.statId, surface: 'fully' },
-    basisLabel: `Fully Enabled ${minimumStatLabel(activation.statId)}`,
-    basisCap: activation.threshold,
-    gaugeMetricId: activation.statId,
-    modifierMetricId: fact.modifier,
-    action,
-    modifierSurface: 'fully',
-    output: {
-      label: `${label} DMG Bonus`,
-      value: {
-        kind: 'activation',
-        threshold: activation.threshold,
-        inactiveValue: 0,
-        activeValue: amount,
-      },
-      unit: fact.unit,
-      cap: amount,
-    },
-    decimals: { current: 0, threshold: 0, cap: 0, output: 1 },
-  }]
+  refinement: Refinement,
+): readonly { amount: number; earliestSurface: SurfaceKey }[] {
+  const amount = equipmentEffectMaximumValue(fact, refinement)
+  return amount ? [{ amount, earliestSurface: 'fully' }] : []
 }
 
 export interface SelectedWEngineEffectMaterializationContext {
@@ -152,7 +93,7 @@ export function materializeSelectedWEngineEffects(
   })
   const thresholds = materializeEquipmentEffects(effects, {
     ...context,
-    amountsForEffect: (_effectKey, fact) => effectAmounts(fact, context.refinement),
+    amountsForEffect: (_effectKey, fact) => minimumStatEffectAmounts(fact, context.refinement),
     includeEffect: (effectKey, fact) => (
       fact.activation?.kind === 'minimum-stat'
       && (
@@ -161,11 +102,12 @@ export function materializeSelectedWEngineEffects(
       )
       && (context.includeEffect?.(effectKey, fact) ?? true)
     ),
-    projectEffect: ({ fact, amount }) => materializeMinimumStatEffect(
-      context.source,
+    projectEffect: ({ fact }) => projectMinimumStatEquipmentEffect({
+      source: context.source,
       fact,
-      amount,
-    ),
+      baseAmount: equipmentEffectBaseValue(fact, context.refinement),
+      maximumAmount: equipmentEffectMaximumValue(fact, context.refinement),
+    }),
   })
   return [...ordinary, ...thresholds]
 }

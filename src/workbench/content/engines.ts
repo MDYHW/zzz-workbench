@@ -245,7 +245,10 @@ export const W_ENGINE_FACTS = {
       critDamage: {
         modifier: 'critDmg', unit: '%', value: scaledRefinementValues(30),
         scope: { recipient: 'squad' },
-        activation: { kind: 'trigger', stackThreshold: 3 },
+        activation: {
+          kind: 'trigger', performer: 'equipper',
+          actions: ['EX Special Attack'], attributes: ['Physical'], stackThreshold: 3,
+        },
       },
     },
   },

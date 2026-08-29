@@ -1,4 +1,4 @@
-import { W_ENGINE_FACTS, W_ENGINES } from './engines'
+import { W_ENGINES } from './engines'
 import type {
   AgentId,
   CandidateInputAdditions,
@@ -9,31 +9,17 @@ import type {
   PoolId,
 } from './types'
 
-type EngineCandidateAuthoring = EngineId | {
-  engineId: EngineId
-  holderApplicableEffects: readonly string[]
-}
-
-const partialEngineCandidate = <Engine extends keyof typeof W_ENGINE_FACTS>(
-  engineId: Engine,
-  holderApplicableEffects: readonly (keyof (typeof W_ENGINE_FACTS)[Engine]['effects'] & string)[],
-): EngineCandidateAuthoring => ({ engineId, holderApplicableEffects })
-
-const candidateEngineId = (candidate: EngineCandidateAuthoring): EngineId => (
-  typeof candidate === 'string' ? candidate : candidate.engineId
-)
-
 const enginePools = (
-  fullCandidates: readonly EngineCandidateAuthoring[],
+  fullCandidates: readonly EngineId[],
 ): Record<PoolId, EngineId[]> => {
-  const full = fullCandidates.map(candidateEngineId)
+  const full = [...fullCandidates]
   return {
     full,
     nonLimited: full.filter((engineId) => !W_ENGINES[engineId].limited),
   }
 }
 
-const ENGINE_CANDIDATES_BY_AGENT: Record<AgentId, readonly EngineCandidateAuthoring[]> = {
+const ENGINE_CANDIDATES_BY_AGENT: Record<AgentId, readonly EngineId[]> = {
   yixuan: ['qingming', 'cauldron', 'radiowave', 'puzzleSphere'],
   yidhari: ['krakensCradle', 'grillOWisp', 'cauldron', 'qingming'],
   manato: ['grillOWisp', 'wrathfulVajra', 'qingming'],
@@ -47,8 +33,7 @@ const ENGINE_CANDIDATES_BY_AGENT: Record<AgentId, readonly EngineCandidateAuthor
   anbySoldier0: ['severedInnocence', 'cordisGermina', 'heartstringNocturne', 'brimstone', 'marcatoDesire'],
   trigger: [
     'spectralGaze',
-    partialEngineCandidate('yesterdayCalls', ['energy']),
-    'blazingLaurel', 'iceJadeTeapot', partialEngineCandidate('restrained', ['daze']),
+    'yesterdayCalls', 'blazingLaurel', 'iceJadeTeapot', 'restrained',
     'hellfireGears', 'preciousFossilizedCore', 'steamOven',
   ],
   astraYao: ['elegantVanity', 'bashfulDemon', 'theVault', 'kaboom'],
@@ -60,22 +45,22 @@ const ENGINE_CANDIDATES_BY_AGENT: Record<AgentId, readonly EngineCandidateAuthor
   ellen: ['deepSeaVisitor', 'myriadEclipse', 'cordisGermina', 'steelCushion', 'brimstone'],
   soukaku: ['weepingCradle', 'kaboom'],
   soldier11: ['heartstringNocturne', 'cordisGermina', 'severedInnocence', 'brimstone'],
-  lighter: ['blazingLaurel', 'iceJadeTeapot', 'hellfireGears', 'steamOven', partialEngineCandidate('restrained', ['daze']), 'preciousFossilizedCore'],
+  lighter: ['blazingLaurel', 'iceJadeTeapot', 'hellfireGears', 'steamOven', 'restrained', 'preciousFossilizedCore'],
   lucy: ['elegantVanity', 'weepingCradle', 'kaboom'],
   zhuYuan: ['cordisGermina', 'heartstringNocturne', 'brimstone', 'riotSuppressorMarkVI', 'marcatoDesire'],
   nicole: ['elegantVanity', 'theVault', 'weepingCradle', 'kaboom', 'unfetteredGameBall'],
   orphie: ['bellicoseBlaze', 'heartstringNocturne', 'serpentineSeeker', 'gildedBlossom', 'marcatoDesire'],
   pulchra: [
-    partialEngineCandidate('blazingLaurel', ['impact']),
+    'blazingLaurel',
     'boxCutter', 'hellfireGears', 'steamOven', 'preciousFossilizedCore',
   ],
   harumasa: ['zanshinHerbCase', 'cordisGermina', 'brimstone', 'heartstringNocturne'],
   qingyi: ['iceJadeTeapot', 'blazingLaurel', 'restrained', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
-  nekomata: ['steelCushion', 'heartstringNocturne', 'cordisGermina', partialEngineCandidate('cloudcleaveRadiance', ['physicalResIgnore']), 'brimstone'],
-  billy: [partialEngineCandidate('cloudcleaveRadiance', ['physicalResIgnore']), 'heartstringNocturne', 'cordisGermina', 'brimstone', 'steelCushion', 'starlightEngineReplica'],
+  nekomata: ['steelCushion', 'heartstringNocturne', 'cordisGermina', 'cloudcleaveRadiance', 'brimstone'],
+  billy: ['cloudcleaveRadiance', 'heartstringNocturne', 'cordisGermina', 'brimstone', 'steelCushion', 'starlightEngineReplica'],
   ben: ['tremorTrigramVessel', 'tusksOfFury', 'cloudcleaveRadiance', 'hailstormShrine', 'bigCylinder', 'springEmbrace'],
-  koleda: ['hellfireGears', partialEngineCandidate('restrained', ['daze']), 'steamOven', 'preciousFossilizedCore'],
-  anby: ['hellfireGears', partialEngineCandidate('restrained', ['daze']), 'steamOven', 'preciousFossilizedCore'],
+  koleda: ['hellfireGears', 'restrained', 'steamOven', 'preciousFossilizedCore'],
+  anby: ['hellfireGears', 'restrained', 'steamOven', 'preciousFossilizedCore'],
   caesar: ['tusksOfFury', 'hellfireGears', 'springEmbrace'],
   yeShunguang: [
     'cloudcleaveRadiance', 'severedInnocence', 'brimstone',
@@ -108,22 +93,9 @@ const ENGINE_CANDIDATES_BY_AGENT: Record<AgentId, readonly EngineCandidateAuthor
 export const ENGINE_IDS_BY_AGENT_AND_POOL = Object.fromEntries(
   (Object.entries(ENGINE_CANDIDATES_BY_AGENT) as Array<[
     AgentId,
-    readonly EngineCandidateAuthoring[],
+    readonly EngineId[],
   ]>).map(([agentId, candidates]) => [agentId, enginePools(candidates)]),
 ) as Record<AgentId, Record<PoolId, EngineId[]>>
-
-/** Returns the locally authored holder-applicable clause set for one admitted candidate. */
-export function selectedWEngineEffectIsHolderApplicable(
-  agentId: AgentId,
-  engineId: EngineId,
-  effectKey: string,
-): boolean {
-  const candidate = ENGINE_CANDIDATES_BY_AGENT[agentId]
-    .find((entry) => candidateEngineId(entry) === engineId)
-  return candidate !== undefined && (
-    typeof candidate === 'string' || candidate.holderApplicableEffects.includes(effectKey)
-  )
-}
 
 export type AgentDiscCandidatePolicy = {
   fourPiece: DiscId[]

@@ -11,14 +11,14 @@ import { W_ENGINES } from '../engines'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
 import { defineAgentBaseSource } from '../source-definitions'
 import { type AgentSpecialty } from '../types'
-import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from './equipment'
+import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from '../agent-sources/equipment'
 import {
   ETHER_VEIL_WELLSPRING_MAX_HP_EFFECT,
   selectedAgentSource,
   selectedCalculationSource,
   selectedMindscapeSource,
-} from './sources'
-import { providerDefenseBroadPrePenRelationships } from './provider-defense-broad-pre-pen'
+} from '../agent-sources/sources'
+import { agentBroadPrePenRelationships } from '../agent-broad-pre-pen-relationships'
 
 type Agent = 'lucia' | 'astraYao' | 'soukaku' | 'lucy' | 'nicole' | 'panYinhu' | 'ben' | 'caesar' | 'zhao' | 'seth' | 'sunna' | 'rina'
 type Slot = 0 | 1 | 2
@@ -53,7 +53,7 @@ const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
 const m = (id: MetricProjection['id'], label: string, unit: string, statId?: MetricProjection['statId'], admission?: MetricProjection['admission'], decimals?: number): MetricProjection => ({ id, label, unit, decimals: decimals ?? (unit === '/s' ? 2 : unit === '%' ? 1 : id === 'impact' ? 2 : 0), ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }), ...(admission ? { admission } : {}) })
 
 function src(agent: Agent, slot: Slot, id: string, label: string, locus: 'core' | 'additional' | 'special' | 'ex-special' = 'core') { return selectedAgentSource(agent, slot, id, label, locus) }
-function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourceProfile {
+function buildPartyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourceProfile {
   const setup = { ...requireCompleteSelectedSetup(state.slots[slot].setup), mindscape: state.slots[slot].setup.mindscape }
   const baseStats = {
     ...BASE[agent],
@@ -82,7 +82,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     ],
   }
   const relationships = selectedSetupRelationships(agent, slot, setup, observation)
-  relationships.push(...providerDefenseBroadPrePenRelationships(state, slot))
+  relationships.push(...agentBroadPrePenRelationships(state, slot))
   const agentIds = state.slots.map(({ agentId }) => agentId)
   const add = (r: ProfileRelationship) => relationships.push(r)
   const own = (id: string, label: string, locus: 'core' | 'additional' | 'special' | 'ex-special' = 'core') => src(agent, slot, id, label, locus)
@@ -337,10 +337,10 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
   return { agentId: agent, appliedPartySlot: slot, relationships, metrics, ...(actions ? { actions } : {}) }
 }
 
-export function providerDefenseProfileFor(
+export function partyOutcomeProfileFor(
   agent: Agent,
   state: WorkbenchState,
   slot: Slot,
 ): AgentSourceProfile {
-  return profile(agent, state, slot)
+  return buildPartyOutcomeProfile(agent, state, slot)
 }

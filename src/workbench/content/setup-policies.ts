@@ -11,7 +11,6 @@ import {
   DISC_IDS_BY_AGENT_AND_PIECE,
   ENGINE_IDS_BY_AGENT_AND_POOL,
 } from './agent-setup-candidates'
-import { ADMITTED_AGENTS } from './agents'
 import { representativeSetupFor } from './representatives'
 import { MAIN_STAT_IDS_BY_AGENT_AND_SLOT, SUBSTAT_CHOICES_BY_AGENT } from './setup-options'
 
@@ -89,6 +88,12 @@ const OPERATING_INTERVAL_BY_AGENT: Partial<Record<AgentId, OperatingIntervalPoli
   aria: { default: 'on-field' },
   promeia: { default: 'on-field' },
   sunna: { default: 'off-field' },
+  lucia: { default: 'off-field' },
+  soukaku: { default: 'off-field' },
+  lucy: { default: 'off-field' },
+  nicole: { default: 'off-field' },
+  yuzuha: { default: 'off-field' },
+  rina: { default: 'off-field' },
   nangongYu: { default: 'off-field' },
   miyabi: { default: 'on-field' },
 }
@@ -245,14 +250,7 @@ export function operatingIntervalFor(
   focusAgentId: AgentId,
 ): OperatingInterval | null {
   const holderPolicy = setupPolicyFor(holderAgentId).operatingInterval
-  if (!holderPolicy) {
-    const holder = ADMITTED_AGENTS.find(({ id }) => id === holderAgentId)
-    return holderAgentId !== focusAgentId
-      && holder?.specialty === 'Support'
-      && !holder.focusEligible
-      ? 'off-field'
-      : null
-  }
+  if (!holderPolicy) return null
   const focusOperation = setupPolicyFor(focusAgentId).focusOperationProfile
   return focusOperation
     ? holderPolicy.byFocusOperation?.[focusOperation] ?? holderPolicy.default

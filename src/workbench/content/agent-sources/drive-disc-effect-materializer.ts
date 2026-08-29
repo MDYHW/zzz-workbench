@@ -8,6 +8,7 @@ import {
 } from '../types'
 import type { SelectedSetupObservation } from './equipment'
 import { materializeEquipmentEffects } from './equipment-effect-materializer'
+import { projectMinimumStatEquipmentEffect } from './minimum-stat-effect-projector'
 
 function effectAmounts(fact: EquipmentEffectFact) {
   const base = equipmentEffectBaseValue(fact)
@@ -40,8 +41,29 @@ export function materializeSelectedDriveDiscEffects(
   effects: Readonly<Record<string, EquipmentEffectFact>>,
   context: SelectedDriveDiscEffectMaterializationContext,
 ): ProfileRelationship[] {
-  return materializeEquipmentEffects(effects, {
+  const ordinary = materializeEquipmentEffects(effects, {
     ...context,
     amountsForEffect: (_effectKey, fact) => effectAmounts(fact),
+    includeEffect: (effectKey, fact) => (
+      fact.activation?.kind !== 'minimum-stat'
+      && (context.includeEffect?.(effectKey, fact) ?? true)
+    ),
   })
+  const thresholds = materializeEquipmentEffects(effects, {
+    ...context,
+    amountsForEffect: (_effectKey, fact) => fact.activation?.kind === 'minimum-stat'
+      ? [{ amount: equipmentEffectMaximumValue(fact), earliestSurface: 'fully' as const }]
+      : effectAmounts(fact),
+    includeEffect: (effectKey, fact) => (
+      fact.activation?.kind === 'minimum-stat'
+      && (context.includeEffect?.(effectKey, fact) ?? true)
+    ),
+    projectEffect: ({ fact }) => projectMinimumStatEquipmentEffect({
+      source: context.source,
+      fact,
+      baseAmount: equipmentEffectBaseValue(fact),
+      maximumAmount: equipmentEffectMaximumValue(fact),
+    }),
+  })
+  return [...ordinary, ...thresholds]
 }

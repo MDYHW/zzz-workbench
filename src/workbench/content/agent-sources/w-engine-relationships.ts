@@ -4,7 +4,7 @@ import {
   W_ENGINE_FACTS,
   W_ENGINES,
 } from '../engines'
-import { selectedWEngineEffectIsHolderApplicable } from '../agent-setup-candidates'
+import { selectedWEngineEffectIsHolderApplicable } from '../agent-equipment-effect-applicability'
 import { ADMITTED_AGENTS } from '../agents'
 import { defineWEngineSource } from '../source-definitions'
 import {

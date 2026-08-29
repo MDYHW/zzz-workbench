@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { selectSource } from '../../calculation/source-instance'
 import { DRIVE_DISC_FACTS } from '../discs'
+import { selectedWEngineEffectIsHolderApplicable } from '../agent-equipment-effect-applicability'
 import { W_ENGINE_FACTS, W_ENGINES } from '../engines'
 import { defineCalculationSource } from '../source-definitions'
 import { equipmentEffectBaseValue, equipmentEffectMaximumValue, type EquipmentEffectFact } from '../types'
@@ -14,6 +15,7 @@ import {
 import { projectEquipmentEffectRelationships } from './equipment-effect-relationships'
 import { materializeSelectedDriveDiscEffects } from './drive-disc-effect-materializer'
 import { materializeSelectedWEngineEffects } from './w-engine-effect-materializer'
+import { projectMinimumStatEquipmentEffect } from './minimum-stat-effect-projector'
 import {
   selectedWEngineBroadPrePenRelationships,
   selectedWEngineRelationships,
@@ -27,6 +29,85 @@ const effect = (overrides: Partial<EquipmentEffectFact>): EquipmentEffectFact =>
 })
 
 describe('shared engine activation and scope facts', () => {
+  it('projects an identity-free minimum-stat effect through the common projector', () => {
+    const syntheticSource = selectSource(
+      defineCalculationSource('minimum-stat-fixture', 'Minimum-stat fixture'),
+      'trigger',
+      0,
+    )
+    const relationships = projectMinimumStatEquipmentEffect({
+      source: syntheticSource,
+      fact: effect({
+        modifier: 'critDmg', value: 15,
+        activation: { kind: 'minimum-stat', statId: 'critRate', threshold: 50 },
+        scope: { recipient: 'squad' },
+      }),
+      baseAmount: 15,
+      maximumAmount: 15,
+    })
+    expect(relationships).toMatchObject([{
+      kind: 'gauge', basis: { statId: 'critRate' },
+      outputs: [{
+        label: 'Squad CRIT DMG',
+        activation: { inactiveValue: 0, activeValue: 15 },
+        emission: { kind: 'provider', delivery: { recipient: 'all-party' } },
+      }],
+    }])
+  })
+
+  it('retains a minimum-stat progression base in the inactive gauge state', () => {
+    const syntheticSource = selectSource(
+      defineCalculationSource('minimum-stat-progression-fixture', 'Minimum-stat progression fixture'),
+      'trigger',
+      0,
+    )
+    const [relationship] = projectMinimumStatEquipmentEffect({
+      source: syntheticSource,
+      fact: effect({
+        modifier: 'critDmg', value: 15,
+        progression: { kind: 'conditions', perCondition: 15, maxConditions: 1 },
+        activation: { kind: 'minimum-stat', statId: 'critRate', threshold: 50 },
+        scope: { recipient: 'squad' },
+      }),
+      baseAmount: 15,
+      maximumAmount: 30,
+    })
+    expect(relationship).toMatchObject({
+      kind: 'gauge',
+      outputs: [{ activation: { inactiveValue: 15, activeValue: 30 } }],
+    })
+  })
+
+  it('fails closed for an unproven action-local minimum-stat output', () => {
+    const syntheticSource = selectSource(
+      defineCalculationSource('minimum-stat-action-fixture', 'Minimum-stat action fixture'),
+      'trigger',
+      0,
+    )
+    expect(() => projectMinimumStatEquipmentEffect({
+      source: syntheticSource,
+      fact: effect({
+        modifier: 'dazeBonus', value: 20,
+        activation: { kind: 'minimum-stat', statId: 'critRate', threshold: 50 },
+        scope: { actions: ['Basic Attack'] },
+      }),
+      baseAmount: 20,
+      maximumAmount: 20,
+    })).toThrow('Unsupported minimum-stat action output: dazeBonus')
+  })
+
+  it('keeps local outcome applicability independent of candidate membership', () => {
+    expect(selectedWEngineEffectIsHolderApplicable(
+      'trigger', 'cloudcleaveRadiance', 'physicalResIgnore',
+    )).toBe(true)
+    expect(selectedWEngineEffectIsHolderApplicable(
+      'trigger', 'restrained', 'damage',
+    )).toBe(false)
+    expect(selectedWEngineEffectIsHolderApplicable(
+      'trigger', 'restrained', 'daze',
+    )).toBe(true)
+  })
+
   it('derives affected actions and tags without treating trigger actions as scope', () => {
     expect(equipmentEffectActionTargets(effect({
       scope: { actions: ['Dash Attack'], tags: ['aftershock'] },
@@ -365,6 +446,41 @@ describe('ordinary W-Engine effect materialization', () => {
     ])
   })
 
+  it('projects a progression minimum-stat W-Engine gauge exactly once', () => {
+    const relationships = materializeSelectedWEngineEffects({
+      thresholdOutcome: effect({
+        modifier: 'anomalyDmgBonus',
+        value: 15,
+        progression: { kind: 'conditions', perCondition: 15, maxConditions: 1 },
+        scope: { anomalyResults: ['Disorder'] },
+        activation: { kind: 'minimum-stat', statId: 'anomalyProficiency', threshold: 375 },
+      }),
+    }, {
+      agentId: 'trigger',
+      focusAgentId: 'anbySoldier0',
+      partyAgentIds: ['trigger', 'anbySoldier0'],
+      refinement: 1,
+      source,
+      observation: {
+        baseStats: { anomalyProficiency: 100 },
+        modifierMetrics: ['anomalyDmgBonus'],
+      },
+      effectIsHolderApplicable: () => true,
+    })
+
+    expect(relationships).toMatchObject([{
+      kind: 'post-delivery-stat-modifier-gauge',
+      basis: { statId: 'anomalyProficiency', surface: 'fully' },
+      output: { cap: 30, unit: '%' },
+      action: { outcomes: [{ kind: 'source-local', label: 'Disorder' }] },
+    }])
+    expect(relationships).toHaveLength(1)
+    expect(relationships[0]).toMatchObject({
+      kind: 'post-delivery-stat-modifier-gauge',
+      output: { value: { inactiveValue: 15, activeValue: 30 } },
+    })
+  })
+
   it('applies each exclusion gate independently before materializing a shared effect', () => {
     const sharedDamage = effect({ modifier: 'dmgBonus', value: 18 })
     const cases: readonly MaterializerCase[] = [
@@ -417,12 +533,12 @@ describe('ordinary W-Engine effect materialization', () => {
     }
   })
 
-  it('derives the fixed non-Focus Support interval without generalizing off-field recovery', () => {
+  it('uses explicit off-field policies without generalizing from Support metadata', () => {
     const automaticOffFieldEnergy = effect({
       modifier: 'energy', unit: '/s', value: 0.6,
       scope: { condition: 'offField' },
     })
-    const materializeFor = (agentId: 'rina' | 'yuzuha' | 'aria', focusAgentId: 'anton' | 'jane' | 'aria') => (
+    const materializeFor = (agentId: 'rina' | 'yuzuha' | 'astraYao', focusAgentId: 'anton' | 'jane' | 'astraYao') => (
       materializeSelectedWEngineEffects(
         { energy: automaticOffFieldEnergy },
         {
@@ -442,7 +558,7 @@ describe('ordinary W-Engine effect materialization', () => {
     expect(materializeFor('yuzuha', 'jane')).toMatchObject([
       { kind: 'automatic-energy', atom: { earliestSurface: 'combat', value: 0.6 } },
     ])
-    expect(materializeFor('aria', 'aria')).toEqual([])
+    expect(materializeFor('astraYao', 'anton')).toEqual([])
   })
 
   it('projects broad no-action defense pressure from selected W-Engines only when the shared fact stays generic', () => {

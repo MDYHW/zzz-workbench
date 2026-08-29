@@ -1,6 +1,6 @@
 import { evaluateProfileParty } from './calculation/profile-harness'
 import type { PartyResult } from './calculation/result'
-import { sourceProfileForSlot } from './content/agent-sources/agent-profile-registry'
+import { sourceProfileForSlot } from './content/agent-profiles/registry'
 import { isCompleteWorkbench, type WorkbenchState } from './state'
 
 export type { ResultSource, SourceLocus, SurfaceKey } from './effects'
