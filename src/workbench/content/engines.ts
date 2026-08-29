@@ -510,11 +510,11 @@ export const W_ENGINE_FACTS = {
       physicalResIgnore: { modifier: 'resIgnore', unit: '%', value: [20, 22, 24, 26, 28], scope: { attributes: ['Physical'] } },
       etherVeilDamage: {
         modifier: 'dmgBonus', unit: '%', value: [25, 28.7, 32.5, 36.2, 40],
-        activation: { kind: 'trigger', operation: 'etherVeil' },
+        activation: { kind: 'trigger', operation: 'etherVeil', performer: 'equipper' },
       },
       etherVeilCritDamage: {
         modifier: 'critDmg', unit: '%', value: [25, 28.7, 32.5, 36.2, 40],
-        activation: { kind: 'trigger', operation: 'etherVeil' },
+        activation: { kind: 'trigger', operation: 'etherVeil', performer: 'equipper' },
       },
     },
   },
@@ -562,7 +562,11 @@ export const W_ENGINE_FACTS = {
       automaticEnergy: { modifier: 'energyRegen', unit: '/s', value: [0.46, 0.53, 0.6, 0.67, 0.74] },
       squadAtk: { modifier: 'atk', unit: '%', value: [10, 11.5, 13, 14.5, 16], scope: { recipient: 'squad' }, composition: 'highest-only' },
       squadMaxHp: { modifier: 'maxHp', unit: '%', value: [10, 11.5, 13, 14.5, 16], scope: { recipient: 'squad' }, composition: 'highest-only' },
-      veilCritDamage: { modifier: 'critDmg', unit: '%', value: [30, 34.5, 39, 43.5, 48], scope: { recipient: 'squad' } },
+      veilCritDamage: {
+        modifier: 'critDmg', unit: '%', value: [30, 34.5, 39, 43.5, 48],
+        scope: { recipient: 'squad' },
+        activation: { kind: 'trigger', operation: 'etherVeil', performer: 'equipper' },
+      },
     },
   },
   timeweaver: {

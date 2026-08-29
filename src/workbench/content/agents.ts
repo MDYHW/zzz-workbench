@@ -1,4 +1,4 @@
-import type { AgentId, AgentSummary } from './types'
+import type { AgentId, AgentOperation, AgentSummary } from './types'
 
 export const ADMITTED_AGENTS: AgentSummary[] = [
   {
@@ -25,6 +25,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     specialty: 'Support',
     focusEligible: false,
     rank: 'S',
+    operations: ['etherVeil'],
   },
   {
     id: 'anbySoldier0',
@@ -71,6 +72,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     specialty: 'Attack',
     focusEligible: false,
     rank: 'S',
+    operations: ['etherVeil'],
   },
   {
     id: 'evelyn',
@@ -105,6 +107,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     specialty: 'Rupture',
     focusEligible: true,
     rank: 'S',
+    operations: ['etherVeil'],
   },
   {
     id: 'manato',
@@ -228,11 +231,11 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
   },
   {
     id: 'yeShunguang', name: 'Ye Shunguang', attribute: 'Honed Edge', specialty: 'Attack',
-    focusEligible: true, rank: 'S', faction: 'Yunkui Summit',
+    focusEligible: true, rank: 'S', faction: 'Yunkui Summit', operations: ['etherVeil'],
   },
   {
     id: 'zhao', name: 'Zhao', attribute: 'Ice', specialty: 'Defense',
-    focusEligible: false, rank: 'S', faction: 'Krampus Compliance Authority',
+    focusEligible: false, rank: 'S', faction: 'Krampus Compliance Authority', operations: ['etherVeil'],
   },
   {
     id: 'grace', name: 'Grace Howard', attribute: 'Electric', specialty: 'Anomaly',
@@ -280,7 +283,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
   },
   {
     id: 'sunna', name: 'Sunna', attribute: 'Physical', specialty: 'Support',
-    focusEligible: false, rank: 'S', faction: 'Angels of Delusion',
+    focusEligible: false, rank: 'S', faction: 'Angels of Delusion', operations: ['etherVeil'],
   },
   {
     id: 'nangongYu', name: 'Nangong Yu', attribute: 'Ether', specialty: 'Stun',
@@ -301,6 +304,13 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
 ]
 
 export const agentDisplayName = ({ displayName, name }: AgentSummary): string => displayName ?? name
+
+/** Source-owned capability used only when a retained consumer names the operation. */
+export const agentCanPerformOperation = (
+  agentId: AgentId,
+  operation: AgentOperation,
+): boolean => ADMITTED_AGENTS.find(({ id }) => id === agentId)
+  ?.operations?.includes(operation) === true
 
 export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>
   ADMITTED_AGENTS.find(({ id }) => id === agentId)?.rank === 'A' ? 6 : 0

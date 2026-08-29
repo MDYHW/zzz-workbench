@@ -290,6 +290,70 @@ describe('shared calculation integration', () => {
     expect(chaosActionIds).toEqual(['burniceAfterburn', 'burniceExAssistDmg'])
   })
 
+  it('projects ordinary Disc effects through source capability and exact action consumers', () => {
+    let graceState = createPreparedState({}, ['grace', 'rina', 'nicole'], 0)
+    graceState = workbenchReducer(graceState, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'chaosJazz',
+    })
+    const grace = calculateParty(graceState)!.agents
+      .find(({ agentId }) => agentId === 'grace')!
+    expect(grace.actionModifiers
+      .find(({ id }) => id === 'graceExAssistDmg')!.breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Chaos Jazz' }))
+
+    let triggerState = createPreparedState({}, ['trigger', 'soldier11', 'lucy'], 1)
+    triggerState = workbenchReducer(triggerState, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'shockstar',
+    })
+    const trigger = calculateParty(triggerState)!.agents
+      .find(({ agentId }) => agentId === 'trigger')!
+    const harmonizing = trigger.actionModifiers
+      .find(({ id }) => id === 'triggerHarmonizingShot')!
+    expect(harmonizing.target?.outcomes).toEqual([
+      { kind: 'source-local', label: 'Harmonizing Shot' },
+    ])
+    expect(harmonizing.breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Shockstar Disco' }))
+
+    const ye = calculateParty(createPreparedState(
+      {}, ['yeShunguang', 'zhao', 'sunna'], 0,
+    ))!.agents.find(({ agentId }) => agentId === 'yeShunguang')!
+    expect(ye.metrics.find(({ id }) => id === 'critRate')!.breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'White Water Ballad' }))
+    expect(ye.metrics.find(({ id }) => id === 'atk')!.breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'White Water Ballad' }))
+    expect(ye.metrics.find(({ id }) => id === 'dmgBonus')!.breakdown.fully)
+      .toContainEqual(expect.objectContaining({ label: 'Cloudcleave Radiance' }))
+  })
+
+  it('keeps Woodpecker maximum ATK on Fully Enabled for every holder', () => {
+    const woodpeckerAtk = (agentId: 'ellen' | 'seed') => {
+      const companions = agentId === 'ellen'
+        ? ['ellen', 'lycaon', 'soukaku'] as const
+        : ['seed', 'trigger', 'lucy'] as const
+      let state = createPreparedState({}, [...companions], 0)
+      state = workbenchReducer(state, {
+        type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'woodpecker',
+      })
+      return calculateParty(state)!.agents
+        .find(({ agentId: resultAgentId }) => resultAgentId === agentId)!
+        .metrics.find(({ id }) => id === 'atk')!
+    }
+
+    for (const agentId of ['ellen', 'seed'] as const) {
+      const atk = woodpeckerAtk(agentId)
+      expect(atk.breakdown.combat.some(({ label }) => label === 'Woodpecker Electro'))
+        .toBe(false)
+      expect(atk.breakdown.fully)
+        .toContainEqual(expect.objectContaining({
+          label: 'Woodpecker Electro',
+          display: expect.objectContaining({
+            value: equipmentEffectBaseValue(DRIVE_DISC_FACTS.woodpecker.fourPiece.atk),
+          }),
+        }))
+    }
+  })
+
   it('filters selected partial-equipment clauses after candidate admission', () => {
     const hasMetricSource = (
       agent: NonNullable<ReturnType<typeof calculateParty>>['agents'][number],
@@ -400,7 +464,7 @@ describe('shared calculation integration', () => {
       .find(({ agentId }) => agentId === 'trigger')!
     const basicAftershockSources = Object.values(
       restrainedTrigger.actionModifiers
-        .find(({ id }) => id === 'triggerBasicAftershock')!.breakdown,
+        .find(({ id }) => id === 'triggerHarmonizingShot')!.breakdown,
     ).flat()
     expect(basicAftershockSources.some(({ label }) => label === 'The Restrained')).toBe(true)
     expect(hasMetricSource(restrainedTrigger, 'dazeBonus', 'The Restrained')).toBe(false)

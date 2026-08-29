@@ -149,6 +149,8 @@ function selectedFourPieceRelationships(
       baseStats: { critRate: 0 },
       modifierMetrics: ['dmgBonus'],
     },
+    focusAgentId: state.slots[state.focusSlot].agentId,
+    partyAgentIds: state.slots.map(({ agentId: partyAgentId }) => partyAgentId),
     source: selectedDiscSource(
       agentId, appliedPartySlot, setup, fourPieceId, '4-piece',
     ),

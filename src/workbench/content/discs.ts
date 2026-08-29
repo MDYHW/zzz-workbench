@@ -111,7 +111,7 @@ export const DRIVE_DISC_FACTS = {
       atk: { modifier: 'atk', unit: '%', value: 10 },
     },
     fourPiece: {
-      atk: { modifier: 'atk', unit: '%', value: 25 },
+      atk: { modifier: 'atk', unit: '%', value: 25, earliestSurface: 'combat' },
     },
   },
   infernoMetal: {
@@ -137,6 +137,7 @@ export const DRIVE_DISC_FACTS = {
     fourPiece: {
       damage: {
         modifier: 'dmgBonus', unit: '%', value: 20,
+        earliestSurface: 'combat',
         progression: { kind: 'conditions', perCondition: 20, maxConditions: 1 },
         scope: { actions: ['Basic Attack', 'Dash Attack'] },
         activation: { kind: 'trigger', anomalyResult: 'Freeze' },
@@ -158,6 +159,7 @@ export const DRIVE_DISC_FACTS = {
     fourPiece: {
       critDamage: {
         modifier: 'critDmg', unit: '%', value: 20,
+        earliestSurface: 'fully',
         progression: { kind: 'stacks', perStack: 5.5, maxStacks: 6 },
       },
     },
@@ -175,7 +177,7 @@ export const DRIVE_DISC_FACTS = {
       penRatio: { modifier: 'penRatio', unit: '%', value: 8 },
     },
     fourPiece: {
-      damage: { modifier: 'dmgBonus', unit: '%', value: 20, scope: { actions: ['Ultimate'] } },
+      damage: { modifier: 'dmgBonus', unit: '%', value: 20, earliestSurface: 'initial', scope: { actions: ['Ultimate'] } },
       atk: { modifier: 'atk', unit: '%', value: 15 },
     },
   },
@@ -198,9 +200,24 @@ export const DRIVE_DISC_FACTS = {
       physicalDamage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Physical'] } },
     },
     fourPiece: {
-      veilCritRate: { modifier: 'critRate', unit: '%', value: 10 },
-      attackVeilCritRate: { modifier: 'critRate', unit: '%', value: 10 },
-      attackVeilAtk: { modifier: 'atk', unit: '%', value: 10 },
+      veilCritRate: {
+        modifier: 'critRate', unit: '%', value: 10,
+        activation: { kind: 'trigger', operation: 'etherVeil', performer: 'squad-member' },
+      },
+      attackVeilCritRate: {
+        modifier: 'critRate', unit: '%', value: 10,
+        activation: {
+          kind: 'trigger', operation: 'etherVeil', performer: 'equipper',
+          holderSpecialties: ['Attack'],
+        },
+      },
+      attackVeilAtk: {
+        modifier: 'atk', unit: '%', value: 10,
+        activation: {
+          kind: 'trigger', operation: 'etherVeil', performer: 'equipper',
+          holderSpecialties: ['Attack'],
+        },
+      },
     },
   },
   chaosJazz: {
@@ -210,6 +227,7 @@ export const DRIVE_DISC_FACTS = {
     fourPiece: {
       electricFireDamage: {
         modifier: 'dmgBonus', unit: '%', value: 15,
+        earliestSurface: 'combat',
         scope: { attributes: ['Electric', 'Fire'] },
       },
       offFieldActionDamage: {

@@ -156,8 +156,9 @@ preserving the current three-surface Result grammar.
   Blues. Thunder's matching ATK package is the prepared first choice; Grace
   satisfies its activation herself and consumes the full ATK
   package. Chaos preserves the broad Electric/AP alternative while its direct
-  EX/Assist clause is not projected into the anomaly-only Result. Freedom
-  preserves the unique buildup-RES route.
+  EX/Assist clause projects through Grace's exact general-damage action
+  consumer; it does not become Anomaly DMG or alter her anomaly-formula
+  relationships. Freedom preserves the unique buildup-RES route.
 - R19. Grace's authored 2-piece roles are PEN Ratio, AM, AP, ATK, and Electric
   DMG. Puffer Electro supplies PEN Ratio; Phaethon supplies AM; Freedom Blues
   and Chaos Jazz form one exact same-effect AP identity; Hormone Punk and

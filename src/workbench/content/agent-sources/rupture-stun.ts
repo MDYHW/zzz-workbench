@@ -1,4 +1,4 @@
-import { ABLOOM_TARGET, AFTERSHOCK_TARGET, ATTRIBUTE_ANOMALY_TARGET, BASIC_AFTERSHOCK_TARGET, DISORDER_TARGET, MIYABI_FROSTBURN_BUILDUP_TARGET, MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET, actionForm, actionTarget, canonicalAction, sourceLocalAction } from '../../actions'
+import { ABLOOM_TARGET, AFTERSHOCK_TARGET, ATTRIBUTE_ANOMALY_TARGET, DISORDER_TARGET, MIYABI_FROSTBURN_BUILDUP_TARGET, MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET, actionForm, actionTarget, canonicalAction, sourceLocalAction } from '../../actions'
 import { effectiveSubstatChoicesForSlot } from '../../candidates'
 import type { ActionScopeNode } from '../../calculation/composition'
 import { actionProjection, type ActionProjection, type AgentSourceProfile, type MetricProjection } from '../../calculation/profile-harness'
@@ -79,20 +79,22 @@ const BILLY_EX = actionTarget([canonicalAction('EX Special Attack')])
 const BILLY_WHEELIE = actionTarget([BILLY_WHEELIE_OUTCOME])
 const BILLY_ULT = actionTarget([BILLY_ULT_OUTCOME])
 const BILLY_M6 = actionTarget([BILLY_FULL_OUTCOME, BILLY_ULT_OUTCOME])
-const LYCAON_CHARGED = actionTarget([canonicalAction('Basic Attack'), canonicalAction('Dash Attack'), canonicalAction('Dodge Counter')])
+const BASIC_DASH_DODGE = actionTarget([canonicalAction('Basic Attack'), canonicalAction('Dash Attack'), canonicalAction('Dodge Counter')])
+const LYCAON_CHARGED = BASIC_DASH_DODGE
 const BASIC = actionTarget([canonicalAction('Basic Attack')])
+const TRIGGER_HARMONIZING_SHOT = actionTarget([sourceLocalAction('Harmonizing Shot')])
 const LYCAON_BASIC = actionTarget([canonicalAction('Basic Attack')])
 const LYCAON_EX = actionTarget([canonicalAction('EX Special Attack')])
 const LYCAON_GLACIAL = actionTarget([sourceLocalAction('Glacial Waltz')])
 const EX_CHAIN_ULT = actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Chain Attack'), canonicalAction('Ultimate')])
 const LIGHTER_FIVE = actionTarget([sourceLocalAction('Empowered Basic Attack: 5th hit')])
-const LIGHTER_BASIC_DASH_DODGE = actionTarget([canonicalAction('Basic Attack'), canonicalAction('Dash Attack'), canonicalAction('Dodge Counter')])
+const LIGHTER_BASIC_DASH_DODGE = BASIC_DASH_DODGE
 const LIGHTER_BASIC = actionTarget([canonicalAction('Basic Attack')])
 const QINGYI_BASIC = actionTarget([canonicalAction('Basic Attack')])
 const QINGYI_ENCHANTED = actionTarget([actionForm('Basic Attack', 'Enchanted Moonlit Blossoms')])
 const QINGYI_CHAIN = actionTarget([canonicalAction('Chain Attack')])
 const KOLEDA_ENHANCED = actionTarget([actionForm('Basic Attack', 'Enhanced Furnace Fire')])
-const KOLEDA_BASIC_DASH_DODGE = actionTarget([canonicalAction('Basic Attack'), canonicalAction('Dash Attack'), canonicalAction('Dodge Counter')])
+const KOLEDA_BASIC_DASH_DODGE = BASIC_DASH_DODGE
 const KOLEDA_BASIC = actionTarget([canonicalAction('Basic Attack')])
 const KOLEDA_SPECIAL = actionTarget([canonicalAction('Special Attack')])
 const KOLEDA_EX = actionTarget([canonicalAction('EX Special Attack')])
@@ -271,7 +273,7 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
         basisCap: 90,
         gaugeMetricId: 'critRate',
         modifierMetricId: 'dazeBonus',
-        action: BASIC_AFTERSHOCK_TARGET,
+        action: TRIGGER_HARMONIZING_SHOT,
         modifierSurface: 'fully',
         output: {
           label: 'Aftershock Daze bonus',
@@ -293,9 +295,9 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
       {
         metricId: 'dazeBonus',
         scopes: [{
-          id: 'triggerBasicAftershock',
-          target: BASIC_AFTERSHOCK_TARGET,
-          inheritedEffectTargets: [BASIC],
+          id: 'triggerHarmonizingShot',
+          target: TRIGGER_HARMONIZING_SHOT,
+          inheritedEffectTargets: [BASIC, AFTERSHOCK_TARGET, BASIC_DASH_DODGE],
         }],
       },
       actionProjection('dmgBonus', 'triggerAftershockDmg', AFTERSHOCK_TARGET),
@@ -407,7 +409,7 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
     if (selected >= 1) relationships.push(mod('critRate', VERTICAL_VALUES.qingyi.mindscapeCritRate, mind(agent, slot, selected, 1)))
     if (selected >= 2) relationships.push(provider(mind(agent, slot, selected, 2), 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.qingyi.mindscapeStunMultiplier - VERTICAL_VALUES.qingyi.coreStunMultiplier }), mod('dazeBonus', VERTICAL_VALUES.qingyi.mindscapeDaze, mind(agent, slot, selected, 2)))
     if (selected >= 6) relationships.push(mod('critDmg', VERTICAL_VALUES.qingyi.mindscapeEnchantedCritDmg, mind(agent, slot, selected, 6), QINGYI_ENCHANTED), provider(mind(agent, slot, selected, 6), 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.qingyi.mindscapeResReduction }, { formulas: DAMAGE }))
-    actions.push({ metricId: 'dmgBonus', scopes: [{ id: 'qingyiBasicDmg', target: QINGYI_BASIC, children: [{ id: 'qingyiEnchantedBasicDmg', target: QINGYI_ENCHANTED }] }, { id: 'qingyiChainDmg', target: QINGYI_CHAIN }] }, { metricId: 'dazeBonus', scopes: [{ id: 'qingyiBasicDaze', target: QINGYI_BASIC, children: [{ id: 'qingyiEnchantedBasicDaze', target: QINGYI_ENCHANTED }] }] })
+    actions.push({ metricId: 'dmgBonus', scopes: [{ id: 'qingyiBasicDmg', target: QINGYI_BASIC, children: [{ id: 'qingyiEnchantedBasicDmg', target: QINGYI_ENCHANTED }] }, { id: 'qingyiChainDmg', target: QINGYI_CHAIN }] }, { metricId: 'dazeBonus', scopes: [{ id: 'qingyiBasicDashDodgeDaze', target: BASIC_DASH_DODGE }, { id: 'qingyiBasicDaze', target: QINGYI_BASIC, children: [{ id: 'qingyiEnchantedBasicDaze', target: QINGYI_ENCHANTED }] }] })
     if (selected >= 6) actions.push(actionProjection('critDmg', 'qingyiEnchantedCritDmg', QINGYI_ENCHANTED))
   } else if (agent === 'koleda') {
     relationships.push(mod('dazeBonus', VERTICAL_VALUES.koleda.coreDaze, core, KOLEDA_ENHANCED), mod('dazeBonus', VERTICAL_VALUES.koleda.coreDaze, core, KOLEDA_EX))
@@ -458,7 +460,7 @@ function stun(agent: Exclude<Agent, 'yixuan' | 'yidhari' | 'manato' | 'banyue' |
   } else {
     relationships.push(mod('dazeBonus', VERTICAL_VALUES.anby.coreActionDaze, core, ANBY_THUNDERBOLT), mod('dazeBonus', VERTICAL_VALUES.anby.coreActionDaze, core, ANBY_SPECIAL), mod('dazeBonus', VERTICAL_VALUES.anby.coreActionDaze, core, ANBY_EX))
     if (selected >= 2) relationships.push(mod('dazeBonus', VERTICAL_VALUES.anby.mindscapeExNonStunnedDaze, mind(agent, slot, selected, 2), ANBY_EX))
-    actions.push({ metricId: 'dazeBonus', scopes: [{ id: 'anbyBasic', target: ANBY_BASIC, children: [{ id: 'anbyThunderbolt', target: ANBY_THUNDERBOLT }] }, { id: 'anbySpecial', target: ANBY_SPECIAL }, { id: 'anbyExSpecial', target: ANBY_EX }, { id: 'anbyDashDodge', target: ANBY_DASH_DODGE }] })
+    actions.push({ metricId: 'dazeBonus', scopes: [{ id: 'anbyBasicDashDodge', target: BASIC_DASH_DODGE }, { id: 'anbyBasic', target: ANBY_BASIC, children: [{ id: 'anbyThunderbolt', target: ANBY_THUNDERBOLT }] }, { id: 'anbySpecial', target: ANBY_SPECIAL }, { id: 'anbyExSpecial', target: ANBY_EX }, { id: 'anbyDashDodge', target: ANBY_DASH_DODGE }] })
   }
   return {
     agentId: agent,

@@ -1,16 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import { selectSource } from '../../calculation/source-instance'
+import { DRIVE_DISC_FACTS } from '../discs'
 import { W_ENGINE_FACTS, W_ENGINES } from '../engines'
 import { defineCalculationSource } from '../source-definitions'
 import { equipmentEffectBaseValue, equipmentEffectMaximumValue, type EquipmentEffectFact } from '../types'
 import {
   equipmentEffectActionTargets,
   equipmentEffectAppliesInOperatingInterval,
-  equipmentEffectCanBeActivatedByHolder,
+  equipmentEffectCanBeActivated,
   isWEnginePassiveEligible,
   type CompleteSelectedSetup,
 } from './equipment'
 import { projectEquipmentEffectRelationships } from './equipment-effect-relationships'
+import { materializeSelectedDriveDiscEffects } from './drive-disc-effect-materializer'
 import { materializeSelectedWEngineEffects } from './w-engine-effect-materializer'
 import {
   selectedWEngineBroadPrePenRelationships,
@@ -62,22 +64,41 @@ describe('shared engine activation and scope facts', () => {
   it('keeps an equipper-attack trigger in the shared fact and resolves holder capability separately', () => {
     const damage = W_ENGINE_FACTS.weepingCradle.effects.damage
     expect(damage.activation).toEqual({ kind: 'trigger', performer: 'equipper' })
-    expect(equipmentEffectCanBeActivatedByHolder('sunna', damage)).toBe(true)
-    expect(equipmentEffectCanBeActivatedByHolder('yuzuha', damage)).toBe(true)
+    expect(equipmentEffectCanBeActivated('sunna', ['sunna'], damage)).toBe(true)
+    expect(equipmentEffectCanBeActivated('yuzuha', ['yuzuha'], damage)).toBe(true)
 
     const roaringDamage = W_ENGINE_FACTS.roaringFurnace.effects.damage
     expect(roaringDamage.activation).toEqual({
       kind: 'trigger', performer: 'equipper',
       actions: ['Chain Attack', 'Ultimate'], attributes: ['Fire'],
     })
-    expect(equipmentEffectCanBeActivatedByHolder('juFufu', roaringDamage)).toBe(true)
-    expect(equipmentEffectCanBeActivatedByHolder('nangongYu', roaringDamage)).toBe(false)
+    expect(equipmentEffectCanBeActivated('juFufu', ['juFufu'], roaringDamage)).toBe(true)
+    expect(equipmentEffectCanBeActivated('nangongYu', ['nangongYu'], roaringDamage)).toBe(false)
 
     const etherHolderEffect = effect({
       activation: { kind: 'trigger', holderAttributes: ['Ether'] },
     })
-    expect(equipmentEffectCanBeActivatedByHolder('aria', etherHolderEffect)).toBe(true)
-    expect(equipmentEffectCanBeActivatedByHolder('promeia', etherHolderEffect)).toBe(false)
+    expect(equipmentEffectCanBeActivated('aria', ['aria'], etherHolderEffect)).toBe(true)
+    expect(equipmentEffectCanBeActivated('promeia', ['promeia'], etherHolderEffect)).toBe(false)
+  })
+
+  it('resolves Ether Veil operation, performer, and holder Specialty independently', () => {
+    const { veilCritRate, attackVeilCritRate } = DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece
+    expect(equipmentEffectCanBeActivated(
+      'starlightBilly', ['starlightBilly'], veilCritRate,
+    )).toBe(false)
+    expect(equipmentEffectCanBeActivated(
+      'starlightBilly', ['starlightBilly', 'cissia'], veilCritRate,
+    )).toBe(true)
+    expect(equipmentEffectCanBeActivated(
+      'cissia', ['cissia'], attackVeilCritRate,
+    )).toBe(true)
+    expect(equipmentEffectCanBeActivated(
+      'yidhari', ['yidhari'], attackVeilCritRate,
+    )).toBe(false)
+    expect(equipmentEffectCanBeActivated(
+      'starlightBilly', ['starlightBilly', 'cissia'], attackVeilCritRate,
+    )).toBe(false)
   })
 })
 
@@ -246,6 +267,7 @@ describe('ordinary W-Engine effect materialization', () => {
     }, {
       agentId: 'trigger',
       focusAgentId: 'anbySoldier0',
+      partyAgentIds: ['trigger', 'anbySoldier0'],
       refinement: 1,
       source,
       observation: {
@@ -315,6 +337,7 @@ describe('ordinary W-Engine effect materialization', () => {
         {
           agentId: 'trigger',
           focusAgentId: 'anbySoldier0',
+          partyAgentIds: ['trigger', 'anbySoldier0'],
           refinement: 1,
           source,
           observation: {
@@ -340,6 +363,7 @@ describe('ordinary W-Engine effect materialization', () => {
         {
           agentId,
           focusAgentId,
+          partyAgentIds: [agentId, focusAgentId],
           refinement: 1,
           source,
           effectIsHolderApplicable: () => true,
@@ -422,6 +446,7 @@ describe('ordinary W-Engine effect materialization', () => {
     }, {
       agentId: 'grace',
       focusAgentId: 'grace',
+      partyAgentIds: ['grace'],
       refinement: 1,
       source,
       observation: {
@@ -499,6 +524,133 @@ describe('ordinary W-Engine effect materialization', () => {
       && 'metricId' in relationship.atom
       && relationship.atom.metricId === 'anomalyProficiency'
     ))).toBe(false)
+  })
+})
+
+describe('ordinary Drive Disc effect materialization', () => {
+  const source = selectSource(
+    defineCalculationSource('disc-materialization-fixture', 'Disc materialization fixture'),
+    'aria',
+    0,
+  )
+
+  it('derives ordinary surfaces, progression, action, and recipient delivery without Disc identity', () => {
+    const relationships = materializeSelectedDriveDiscEffects({
+      fullyAtk: effect({ modifier: 'atk', unit: '%', value: 12 }),
+      conditionalCrit: effect({
+        modifier: 'critRate', value: 28,
+        activation: { kind: 'trigger', targetCondition: 'burningTarget' },
+      }),
+      progressiveBasic: effect({
+        modifier: 'dmgBonus', value: 10,
+        progression: { kind: 'conditions', perCondition: 5, maxConditions: 2 },
+        scope: { actions: ['Basic Attack'] },
+      }),
+      squadAnomaly: effect({
+        modifier: 'anomalyDmgBonus', value: 16,
+        scope: {
+          recipient: 'squad',
+          anomalyResults: ['Attribute Anomaly', 'Disorder'],
+        },
+      }),
+      matchingBuildupRes: effect({
+        modifier: 'anomalyBuildupResReduction', value: 20,
+        scope: { recipient: 'enemy' },
+      }),
+    }, {
+      agentId: 'aria',
+      focusAgentId: 'aria',
+      partyAgentIds: ['aria'],
+      source,
+      observation: {
+        baseStats: { atk: 100, critRate: 5 },
+        modifierMetrics: ['dmgBonus', 'anomalyDmgBonus'],
+      },
+    })
+
+    expect(relationships).toMatchObject([
+      { kind: 'stat', atom: { statId: 'atk', earliestSurface: 'fully', value: 12 } },
+      { kind: 'stat', atom: { statId: 'critRate', earliestSurface: 'fully', value: 28 } },
+      {
+        kind: 'modifier',
+        atom: { metricId: 'dmgBonus', earliestSurface: 'combat', value: 10 },
+      },
+      {
+        kind: 'modifier',
+        atom: { metricId: 'dmgBonus', earliestSurface: 'fully', value: 10 },
+      },
+      {
+        kind: 'provider',
+        delivery: { recipient: 'all-party', formulas: ['anomaly_damage'] },
+        effect: { kind: 'modifier', metricId: 'anomalyDmgBonus', value: 16 },
+      },
+      {
+        kind: 'provider',
+        delivery: { recipient: 'all-party', formulas: ['anomaly_damage'] },
+        effect: { kind: 'modifier', metricId: 'anomalyDmgBonus', value: 16 },
+      },
+      {
+        kind: 'provider',
+        delivery: {
+          recipient: 'enemy-context', attributes: ['Ether'], formulas: ['anomaly_buildup'],
+        },
+        effect: { kind: 'modifier', metricId: 'anomalyBuildupResReduction', value: 20 },
+      },
+    ])
+  })
+
+  it('materializes White Water Ballad from party and holder Ether Veil capabilities', () => {
+    const materializeFor = (
+      agentId: 'yeShunguang' | 'starlightBilly',
+      partyAgentIds: readonly ('yeShunguang' | 'starlightBilly' | 'cissia')[],
+    ) => materializeSelectedDriveDiscEffects(
+      DRIVE_DISC_FACTS.whiteWaterBallad.fourPiece,
+      {
+        agentId,
+        focusAgentId: agentId,
+        partyAgentIds,
+        source,
+        observation: { baseStats: { atk: 1, critRate: 1 } },
+      },
+    )
+
+    expect(materializeFor('starlightBilly', ['starlightBilly'])).toEqual([])
+    expect(materializeFor('starlightBilly', ['starlightBilly', 'cissia']))
+      .toMatchObject([
+        { kind: 'stat', atom: { statId: 'critRate', value: 10 } },
+      ])
+    expect(materializeFor('yeShunguang', ['yeShunguang'])).toMatchObject([
+      { kind: 'stat', atom: { statId: 'critRate', value: 10 } },
+      { kind: 'stat', atom: { statId: 'critRate', value: 10 } },
+      { kind: 'stat', atom: { statId: 'atk', value: 10 } },
+    ])
+  })
+
+  it('retains Shockstar source action scope without holder-specific narrowing', () => {
+    const relationships = materializeSelectedDriveDiscEffects(
+      DRIVE_DISC_FACTS.shockstar.fourPiece,
+      {
+        agentId: 'trigger',
+        focusAgentId: 'anbySoldier0',
+        partyAgentIds: ['trigger', 'anbySoldier0'],
+        source,
+        observation: { baseStats: {}, modifierMetrics: ['dazeBonus'] },
+      },
+    )
+
+    expect(relationships).toMatchObject([{
+      kind: 'modifier',
+      atom: {
+        metricId: 'dazeBonus',
+        action: {
+          outcomes: [
+            { kind: 'canonical', action: 'Basic Attack' },
+            { kind: 'canonical', action: 'Dash Attack' },
+            { kind: 'canonical', action: 'Dodge Counter' },
+          ],
+        },
+      },
+    }])
   })
 })
 

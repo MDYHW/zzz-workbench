@@ -41,13 +41,14 @@ const PIPER_ULT = actionTarget([A('Ultimate')])
 const JANE_ASSAULT_TARGET = actionTarget([sourceLocalAction('Assault')])
 const JANE_PASSION_TARGET = actionTarget([sourceLocalAction('Passion State')])
 const YUZUHA_ASSIST = actionTarget([canonicalAction('Assist Follow-Up')])
+const EX_ASSIST = actionTarget([A('EX Special Attack'), A('Assist')])
 const BURNICE_AFTERBURN = actionTarget([sourceLocalAction('Afterburn')])
 const BURNICE_BUILDUP = actionTarget([actionForm('Basic Attack', 'Mixed Flame'), A('EX Special Attack'), sourceLocalAction('Afterburn'), sourceLocalAction('Tossing')])
-const BURNICE_EX_ASSIST = actionTarget([A('EX Special Attack'), A('Assist')])
+const BURNICE_EX_ASSIST = EX_ASSIST
 const BURNICE_DOUBLE = actionTarget([sourceLocalAction('Double Shot'), sourceLocalAction('Special Afterburn')])
 const BURNICE_BURN = actionTarget([sourceLocalAction('Burn')])
 const YANAGI_EX_RAPID_THRUST = actionTarget([actionForm('EX Special Attack', 'Rapid thrust')])
-const YANAGI_EX_ASSIST = actionTarget([A('EX Special Attack'), A('Assist')])
+const YANAGI_EX_ASSIST = EX_ASSIST
 const YANAGI_EX = actionTarget([A('EX Special Attack')])
 const ALICE_ENHANCED_BASIC = actionTarget([actionForm('Basic Attack', 'Celestial Overture')])
 const ARIA_BUILDUP = actionTarget([A('Basic Attack'), A('Special Attack'), A('EX Special Attack')])
@@ -245,6 +246,7 @@ function profile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourcePr
     if (setup.mindscape >= 6) add({ kind: 'operation', atom: { label: 'Special/EX grenade DMG', earliestSurface: 'fully', value: VERTICAL_VALUES.grace.mindscapeGrenadeDmgMultiplier, unit: '', presentation: 'scale', source: mind(6) } })
     actions.push(
       actionProjection('anomalyBuildupBonus', 'graceSpecialExBuildup', GRACE_EX),
+      actionProjection('dmgBonus', 'graceExAssistDmg', EX_ASSIST),
       { metricId: 'anomalyDmgBonus', scopes: GRACE_ANOMALY_SCOPES },
     )
     relationships.push(...selectedEquipmentRelationships(agent, slot, setup, { observation, focusAgentId, partyAgentIds: ids }))

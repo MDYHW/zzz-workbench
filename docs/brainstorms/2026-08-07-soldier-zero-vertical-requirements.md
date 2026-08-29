@@ -313,8 +313,8 @@ the authored finite future opportunity.
 | Anby Aftershock | `AFTERSHOCK` tag outcome | Anby allied-Aftershock and current-CRIT-DMG relationships; Shadow Harmony and applicable current general regions |
 | Anby Dash | Dash Attack | Shadow Harmony and applicable current general regions; no Anby Aftershock-only clause |
 | Anby Basic/Ultimate | Basic Attack; Ultimate | Cordis Germina DEF Ignore |
-| Trigger Aftershock | `AFTERSHOCK` tag outcome | Anby allied-Aftershock and current-CRIT-DMG relationships; regular Daze, Basic-scoped Daze, and Trigger CRIT-to-Daze relationship |
-| Trigger Basic category | internal Basic Attack scope within the `AFTERSHOCK` aggregate | The Restrained and Shockstar Disco Basic Attack Daze; neither retains a personal Trigger DMG Result |
+| Trigger Aftershock | `AFTERSHOCK` tag outcome | Anby allied-Aftershock and current-CRIT-DMG relationships; no implication that every Trigger Basic Attack is an Aftershock |
+| Trigger Harmonizing Shot | source-local action inheriting canonical Basic Attack and `AFTERSHOCK` | Trigger CRIT-to-Daze, The Restrained's Basic Attack Daze, and Shockstar Disco's source-owned Basic/Dash/Dodge-Counter Daze; neither engine nor Disc gains a Trigger-specific affected scope |
 | Trigger Quick Assist | Quick Assist | Astra M4 next-Quick-Assist Daze scale at Astra M4+ |
 
 Every Anby-derived Aftershock clause additionally requires Anby to be applied and the target's reachable Silver Star state. Result displays Aftershock as a tag-scoped aggregate, not an action-membership catalogue. Canonical actions appear only when they additionally differ from that aggregate.

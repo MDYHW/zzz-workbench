@@ -69,6 +69,7 @@ export function selectedWEngineBroadPrePenRelationships(
     W_ENGINE_FACTS[engineId].effects,
     {
       agentId,
+      partyAgentIds: [agentId],
       focusAgentId,
       refinement,
       source,
@@ -350,6 +351,7 @@ export function selectedWEngineRelationships({
       W_ENGINE_FACTS[setup.engineId].effects,
       {
         agentId: agent,
+        partyAgentIds,
         focusAgentId,
         refinement: setup.refinement,
         source,
