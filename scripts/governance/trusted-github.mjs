@@ -3,7 +3,9 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseAst } from 'rolldown/parseAst'
 import {
+  EVIDENCE_MARKER,
   PolicyError,
+  REVIEW_APP_AUTHOR,
   REQUIRED_CONTEXTS,
   REQUIRED_CONTEXT_NAMES,
   REQUIRED_WORKFLOWS,
@@ -1200,7 +1202,7 @@ export function evaluateSnapshot(snapshot) {
   return trustedDecision(snapshot)
 }
 
-export function evaluateEvidenceSnapshot(snapshot) {
+function evaluateEvidence(snapshot, comments) {
   if (snapshot.classificationError) throw new PolicyError(snapshot.classificationError)
   if (snapshot.declarationMismatch) throw new PolicyError('Pull request classification attempts to lower trusted protection.')
   if (snapshot.changeCategories?.includes('acr-instance')) {
@@ -1217,7 +1219,7 @@ export function evaluateEvidenceSnapshot(snapshot) {
     acceptedAcrRecords: snapshot.acceptedAcrRecords,
     changedPaths: snapshot.changedPaths,
   })
-  const evidence = validateReviewEvidence(snapshot.comments, {
+  const evidence = validateReviewEvidence(comments, {
     prNumber: snapshot.prNumber,
     baseSha: snapshot.baseSha,
     headSha: snapshot.headSha,
@@ -1228,12 +1230,39 @@ export function evaluateEvidenceSnapshot(snapshot) {
     ruleIds: trace.ruleIds,
     consumers: trace.consumers,
   })
+  return { trace, evidence, targetSha: snapshot.headSha }
+}
+
+export function evaluateProposedEvidenceSnapshot(snapshot, { body, publishedAt }) {
+  return evaluateEvidence(snapshot, [{
+    id: 'proposed',
+    author: REVIEW_APP_AUTHOR,
+    body,
+    createdAt: publishedAt,
+    updatedAt: publishedAt,
+  }])
+}
+
+export function evaluatePublishedEvidenceSnapshot(snapshot, { body, publishedAt, commentId }) {
+  const marked = snapshot.comments.filter(({ body: commentBody }) => (
+    typeof commentBody === 'string' && commentBody.includes(EVIDENCE_MARKER)
+  ))
+  const actualPublishedAt = marked[0]?.updatedAt ?? marked[0]?.createdAt
+  if (marked.length !== 1 || marked[0].id !== commentId || marked[0].author !== REVIEW_APP_AUTHOR
+    || marked[0].body !== body || actualPublishedAt !== publishedAt) {
+    fail('Published review evidence does not match the verified mutation result.')
+  }
+  return evaluateEvidence(snapshot, snapshot.comments)
+}
+
+export function evaluateEvidenceSnapshot(snapshot) {
+  const { trace, evidence, targetSha } = evaluateEvidence(snapshot, snapshot.comments)
   const approval = validateProtectedApproval(snapshot.reviews, {
     classification: snapshot.classification,
     headSha: snapshot.headSha,
     evidenceUpdatedAt: evidence.updatedAt,
   })
-  return { trace, evidence, approval, targetSha: snapshot.headSha }
+  return { trace, evidence, approval, targetSha }
 }
 
 export async function postCommitStatus(api, { sha, context, state, description, targetUrl }) {
@@ -1348,6 +1377,39 @@ export async function evaluateMergePreflight({ prNumber, token, fetchImpl = fetc
     fail('Governance state changed during merge preflight.')
   }
   evaluateEvidenceSnapshot(current)
+  return { snapshot: current, version, decision }
+}
+
+export async function evaluateEvidenceUpsertPreflight({
+  prNumber,
+  proposedBody,
+  token,
+  fetchImpl = fetch,
+  root,
+  readFile,
+  trustedBaseSha,
+  publishedAt,
+  publishedCommentId,
+}) {
+  const api = createApi({ token, fetchImpl })
+  const proposedPublishedAt = publishedAt ?? new Date().toISOString()
+  const evaluateCandidate = (snapshot) => publishedAt === undefined
+    ? evaluateProposedEvidenceSnapshot(snapshot, { body: proposedBody, publishedAt: proposedPublishedAt })
+    : evaluatePublishedEvidenceSnapshot(snapshot, {
+      body: proposedBody, publishedAt, commentId: publishedCommentId,
+    })
+  const first = await buildCurrentSnapshot({
+    api, prNumber, root, readFile, includeWorkflows: false, expectedBaseSha: trustedBaseSha,
+  })
+  const version = governanceSnapshotVersion(first)
+  const decision = evaluateCandidate(first)
+  const current = await buildCurrentSnapshot({
+    api, prNumber, root, readFile, includeWorkflows: false, expectedBaseSha: trustedBaseSha,
+  })
+  if (governanceSnapshotVersion(current) !== version || current.headSha !== decision.targetSha) {
+    fail('Governance state changed during evidence preflight.')
+  }
+  evaluateCandidate(current)
   return { snapshot: current, version, decision }
 }
 

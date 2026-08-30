@@ -142,6 +142,12 @@ function validateEvidenceBody(value) {
   return body;
 }
 
+function validatePreflightReason(value) {
+  return typeof value === 'string' && /^[\x20-\x7e]{1,160}$/.test(value)
+    ? value
+    : 'Trusted evidence policy rejected the current pull request state.';
+}
+
 function requireExactKeys(operation, keys) {
   const actualKeys = Object.keys(operation).sort();
   const expectedKeys = [...keys].sort();
@@ -798,17 +804,12 @@ async function reconcileMergeFailure({ runChild, ghExecutable, ghEnvironment, op
   return null;
 }
 
-async function upsertEvidenceComment({ fetchImpl, token, operation, timeoutMs = 15_000 }) {
+async function upsertEvidenceComment({ fetchImpl, token, operation, binding, timeoutMs = 15_000 }) {
   const request = async (pathname, init = {}) => githubJson(fetchImpl, pathname, {
     ...init,
     headers: { ...installationHeaders(token), ...(init.headers ?? {}) },
     signal: init.signal ?? AbortSignal.timeout(timeoutMs),
   });
-  const pull = await request(`/repos/${REPOSITORY}/pulls/${operation.number}`);
-  if (pull?.state !== 'open' || pull?.base?.ref !== PROTECTED_BASE || pull?.base?.repo?.full_name !== REPOSITORY
-    || pull?.head?.repo?.full_name !== REPOSITORY || !CODEx_BRANCH.test(pull?.head?.ref ?? '')) {
-    fail('Review evidence target is outside the allowlisted pull request flow.');
-  }
   const listMarked = async () => {
     const comments = [];
     for (let page = 1; page <= 100; page += 1) {
@@ -824,6 +825,20 @@ async function upsertEvidenceComment({ fetchImpl, token, operation, timeoutMs = 
     return marked;
   };
   const marked = await listMarked();
+  const normalizedMarkers = marked.map((comment) => ({
+    id: comment.id,
+    author: comment.user?.login,
+    body: comment.body,
+    updatedAt: comment.updated_at ?? comment.created_at,
+  })).sort((left, right) => Number(left.id) - Number(right.id));
+  const pull = await request(`/repos/${REPOSITORY}/pulls/${operation.number}`);
+  if (pull?.state !== 'open' || pull?.base?.ref !== PROTECTED_BASE || pull?.base?.repo?.full_name !== REPOSITORY
+    || pull?.head?.repo?.full_name !== REPOSITORY || !CODEx_BRANCH.test(pull?.head?.ref ?? '')
+    || pull?.base?.sha !== binding.baseSha || pull?.head?.sha !== binding.headSha
+    || (pull?.body ?? '') !== binding.body || pull?.updated_at !== binding.updatedAt
+    || JSON.stringify(normalizedMarkers) !== JSON.stringify(binding.markers)) {
+    fail('Review evidence target changed after canonical preflight.');
+  }
   const payload = { body: operation.body };
   let comment;
   try {
@@ -839,15 +854,48 @@ async function upsertEvidenceComment({ fetchImpl, token, operation, timeoutMs = 
     try {
       const reconciled = await listMarked();
       if (reconciled.length === 1 && reconciled[0].body === operation.body) {
-        return { commentId: reconciled[0].id, url: reconciled[0].html_url, reconciled: true };
+        const publishedAt = reconciled[0].updated_at ?? reconciled[0].created_at;
+        if (!isNonEmptyString(publishedAt)) fail('Reconciled review evidence timestamp is invalid.');
+        return {
+          commentId: reconciled[0].id,
+          url: reconciled[0].html_url,
+          publishedAt,
+          reconciled: true,
+        };
       }
     } catch {}
     throw new LauncherError('Review evidence mutation result is unknown.', {
       code: failure.code, retryable: true, mutationCompleted: null, resource: { pullRequest: Number(operation.number) },
     });
   }
-  if (!Number.isInteger(comment?.id) || typeof comment?.html_url !== 'string') fail('Review evidence result is invalid.');
-  return { commentId: comment.id, url: comment.html_url };
+  const returnedCommentId = Number.isInteger(comment?.id) ? comment.id : null;
+  if (returnedCommentId === null || typeof comment?.html_url !== 'string') {
+    throw new LauncherError('Published review evidence could not be verified.', {
+      code: 'evidence_publish_unverified',
+      mutationCompleted: true,
+      resource: { pullRequest: Number(operation.number), commentId: returnedCommentId },
+    });
+  }
+  let published;
+  try {
+    published = await listMarked();
+    if (published.length !== 1 || published[0].id !== returnedCommentId || published[0].body !== operation.body
+      || published[0].user?.login !== REVIEW_APP_AUTHOR
+      || !isNonEmptyString(published[0].updated_at ?? published[0].created_at)) {
+      throw new Error('Published marker mismatch.');
+    }
+  } catch {
+    throw new LauncherError('Published review evidence could not be verified.', {
+      code: 'evidence_publish_unverified',
+      mutationCompleted: true,
+      resource: { pullRequest: Number(operation.number), commentId: returnedCommentId },
+    });
+  }
+  return {
+    commentId: returnedCommentId,
+    url: comment.html_url,
+    publishedAt: published[0].updated_at ?? published[0].created_at,
+  };
 }
 
 export async function runAsInstallation(operationInput, options = {}) {
@@ -871,6 +919,7 @@ export async function runAsInstallation(operationInput, options = {}) {
   let operationError;
   let mutationResult;
   let mergeGovernanceBinding;
+  let evidenceBinding;
 
   try {
     const sourceProof = options.trustedSourceProof
@@ -883,6 +932,9 @@ export async function runAsInstallation(operationInput, options = {}) {
 
     if (operation.kind === 'pr-merge' && typeof options.currentStatePreflight !== 'function') {
       fail('Immediate merge requires a current GitHub-state preflight.');
+    }
+    if (operation.kind === 'evidence-upsert' && typeof options.evidenceStatePreflight !== 'function') {
+      fail('Evidence upsert requires a canonical current-state preflight.');
     }
 
     let privateKey;
@@ -897,6 +949,37 @@ export async function runAsInstallation(operationInput, options = {}) {
       ? await options.operationCheckoutProof({ runChild, gitExecutable, operation, cwd: operationCwd })
       : await verifyOperationCheckout({ runChild, gitExecutable, operation, cwd: operationCwd });
     if (JSON.stringify(currentCheckoutProof) !== JSON.stringify(checkoutProof)) fail('Repository checkout changed after credential minting.');
+
+    if (operation.kind === 'evidence-upsert') {
+      let currentEvidence;
+      try {
+        currentEvidence = await options.evidenceStatePreflight({
+          repository: REPOSITORY,
+          base: PROTECTED_BASE,
+          number: operation.number,
+          proposedBody: operation.body,
+          headSha: checkoutProof.headSha,
+          token,
+          sourceRoot,
+          trustedBaseSha: sourceProof.headSha,
+        });
+      } catch {
+        currentEvidence = { approved: false };
+      }
+      if (!currentEvidence?.approved || currentEvidence.prNumber !== Number(operation.number)
+        || currentEvidence.baseSha !== sourceProof.headSha || currentEvidence.headSha !== checkoutProof.headSha
+        || !isNonEmptyString(currentEvidence.version) || typeof currentEvidence.body !== 'string'
+        || !isNonEmptyString(currentEvidence.updatedAt) || !Array.isArray(currentEvidence.markers)) {
+        throw new LauncherError('Review evidence current-state preflight failed.', {
+          code: 'evidence_preflight_failed',
+          resource: {
+            pullRequest: Number(operation.number),
+            reason: validatePreflightReason(currentEvidence?.reason),
+          },
+        });
+      }
+      evidenceBinding = currentEvidence;
+    }
 
     if (operation.kind === 'pr-merge') {
       let currentApproved
@@ -937,7 +1020,36 @@ export async function runAsInstallation(operationInput, options = {}) {
     }
 
     if (operation.kind === 'evidence-upsert') {
-      const resource = await upsertEvidenceComment({ fetchImpl, token, operation, timeoutMs });
+      const resource = await upsertEvidenceComment({ fetchImpl, token, operation, binding: evidenceBinding, timeoutMs });
+      let publishedEvidence;
+      try {
+        publishedEvidence = await options.evidenceStatePreflight({
+          repository: REPOSITORY,
+          base: PROTECTED_BASE,
+          number: operation.number,
+          proposedBody: operation.body,
+          publishedAt: resource.publishedAt,
+          publishedCommentId: resource.commentId,
+          headSha: checkoutProof.headSha,
+          token,
+          sourceRoot,
+          trustedBaseSha: sourceProof.headSha,
+        });
+      } catch {
+        publishedEvidence = { approved: false };
+      }
+      if (!publishedEvidence?.approved || publishedEvidence.prNumber !== Number(operation.number)
+        || publishedEvidence.baseSha !== sourceProof.headSha || publishedEvidence.headSha !== checkoutProof.headSha) {
+        throw new LauncherError('Published review evidence failed canonical verification.', {
+          code: 'evidence_postflight_failed',
+          mutationCompleted: true,
+          resource: {
+            pullRequest: Number(operation.number),
+            commentId: resource.commentId,
+            reason: validatePreflightReason(publishedEvidence?.reason),
+          },
+        });
+      }
       mutationResult = { ok: true, kind: operation.kind, repository: REPOSITORY, pullRequest: Number(operation.number), ...resource };
       return mutationResult;
     }
@@ -1055,6 +1167,42 @@ export async function runAsInstallation(operationInput, options = {}) {
   }
 }
 
+export function buildEvidenceStatePreflight({
+  loadTrustedGithub = () => import('../governance/trusted-github.mjs'),
+  loadPolicy = () => import('../governance/check-policy.mjs'),
+} = {}) {
+  return async ({ number, proposedBody, publishedAt, publishedCommentId, headSha, token, sourceRoot, trustedBaseSha }) => {
+    try {
+      const { evaluateEvidenceUpsertPreflight } = await loadTrustedGithub()
+      const { snapshot, version } = await evaluateEvidenceUpsertPreflight({
+        prNumber: Number(number), proposedBody, token, root: sourceRoot, trustedBaseSha,
+        publishedAt, publishedCommentId,
+      })
+      if (snapshot.baseSha !== trustedBaseSha || snapshot.headSha !== headSha) return { approved: false }
+      const markers = snapshot.comments
+        .filter(({ body }) => typeof body === 'string' && body.includes(EVIDENCE_MARKER))
+        .map(({ id, author, body, updatedAt, createdAt }) => ({
+          id, author, body, updatedAt: updatedAt ?? createdAt,
+        }))
+        .sort((left, right) => Number(left.id) - Number(right.id))
+      return {
+        approved: true,
+        prNumber: snapshot.prNumber,
+        baseSha: snapshot.baseSha,
+        headSha: snapshot.headSha,
+        version,
+        body: snapshot.body,
+        updatedAt: snapshot.updatedAt,
+        markers,
+      }
+    } catch (error) {
+      const { PolicyError } = await loadPolicy()
+      if (error instanceof PolicyError) return { approved: false, reason: error.message }
+      throw error
+    }
+  }
+}
+
 async function main() {
   try {
     const operation = await parseCliOperationFromFiles(process.argv.slice(2))
@@ -1067,7 +1215,9 @@ async function main() {
         if (snapshot.baseSha !== trustedBaseSha || snapshot.headSha !== headSha) return false
         return { prNumber: snapshot.prNumber, baseSha: snapshot.baseSha, headSha: snapshot.headSha }
       },
-    } : {}
+    } : operation.kind === 'evidence-upsert'
+      ? { evidenceStatePreflight: buildEvidenceStatePreflight() }
+      : {}
     const result = await runAsInstallation(operation, options)
     process.stdout.write(`${JSON.stringify(result)}\n`);
   } catch (error) {
