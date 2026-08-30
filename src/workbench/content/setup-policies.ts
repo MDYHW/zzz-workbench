@@ -67,6 +67,7 @@ const FOCUS_OPERATION_PROFILE_BY_AGENT: Partial<Record<AgentId, FocusOperationPr
 }
 
 const OPERATING_INTERVAL_BY_AGENT: Partial<Record<AgentId, OperatingIntervalPolicy>> = {
+  norma: { default: 'off-field' },
   dialyn: { default: 'off-field' },
   trigger: { default: 'off-field' },
   lycaon: {

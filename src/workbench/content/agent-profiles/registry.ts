@@ -115,6 +115,7 @@ const AGENT_PROFILE_BUILDERS = {
   miyabi: generalDamageOutcome('miyabi'),
   anton: generalDamageOutcome('anton'),
   rina: partyOutcome('rina'),
+  norma: dazeOutcome('norma'),
 } satisfies ExactAgentProfileDefinitions
 
 export function sourceProfileForSlot(

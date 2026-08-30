@@ -189,6 +189,67 @@ function agentResult(
 }
 
 describe('profile calculation harness', () => {
+  it('converts one completed delivered metric into a holder stat without feeding another recipient', () => {
+    const state = createPreparedState({}, ['norma', 'lucia', 'yixuan'], 2)
+    const normaCore = selectSource(
+      defineAgentSource('norma', 'received-metric', 'Received metric conversion', 'core'),
+      'norma', 0,
+    )
+    const luciaCore = selectSource(
+      defineAgentSource('lucia', 'metric-provider', 'Delivered metric', 'core'),
+      'lucia', 1,
+    )
+    const profiles: AgentSourceProfile[] = [
+      {
+        agentId: 'norma', appliedPartySlot: 0,
+        metrics: [
+          atkMetric,
+          {
+            id: 'sheerForce', label: 'Sheer Force', unit: '', decimals: 1,
+            baseValues: { initial: 0, combat: 0, fully: 0 },
+          },
+        ],
+        relationships: [
+          baseStat('norma', 0, 'atk', 1_000),
+          {
+            kind: 'post-delivery-metric-stat-gauge',
+            source: normaCore,
+            basis: { metricId: 'sheerForce', surface: 'fully' },
+            basisLabel: 'Fully Enabled Sheer Force',
+            basisCap: 960,
+            output: {
+              label: 'Additional flat ATK', statId: 'atk', region: 'flat',
+              transform: { basisIncrement: 1, outputIncrement: 1.25, outputCap: 1_200 },
+              cap: 1_200, unit: '',
+            },
+          },
+        ],
+      },
+      {
+        agentId: 'lucia', appliedPartySlot: 1, metrics: [],
+        relationships: [{
+          kind: 'provider', source: luciaCore,
+          delivery: { recipient: 'all-party', eligibleAgentIds: ['norma'] },
+          effect: {
+            kind: 'modifier', metricId: 'sheerForce', earliestSurface: 'fully', value: 400,
+          },
+        }],
+      },
+      {
+        agentId: 'yixuan', appliedPartySlot: 2, metrics: [atkMetric],
+        relationships: [baseStat('yixuan', 2, 'atk', 1_000)],
+      },
+    ]
+
+    const result = evaluateProfileParty(state, profiles)!
+    const norma = agentResult(result, 'norma')
+    expect(norma.metrics.find(({ id }) => id === 'sheerForce')!.values.fully).toBe(400)
+    expect(norma.metrics.find(({ id }) => id === 'sheerForce')!.gauges[0])
+      .toEqual(expect.objectContaining({ current: 400, outputValue: 500 }))
+    expect(norma.metrics.find(({ id }) => id === 'atk')!.values.fully).toBe(1_500)
+    expect(agentResult(result, 'yixuan').metrics[0].values.fully).toBe(1_000)
+  })
+
   it('runs one post-delivery gauge after ordinary stat delivery and delivers its provider once', () => {
     const state = createPreparedState({}, ['jane', 'piper', 'seth'], 0)
     const janeCore = selectSource(

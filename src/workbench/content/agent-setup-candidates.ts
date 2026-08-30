@@ -20,6 +20,7 @@ const enginePools = (
 }
 
 const ENGINE_CANDIDATES_BY_AGENT: Record<AgentId, readonly EngineId[]> = {
+  norma: ['chiefSidekick', 'yesterdayCalls', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
   yixuan: ['qingming', 'cauldron', 'radiowave', 'puzzleSphere'],
   yidhari: ['krakensCradle', 'grillOWisp', 'cauldron', 'qingming'],
   manato: ['grillOWisp', 'wrathfulVajra', 'qingming'],
@@ -110,6 +111,7 @@ export type AgentDiscCandidatePolicy = {
 }
 
 export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePolicy> = {
+  norma: { fourPiece: ['king'], twoPiece: ['woodpecker', 'swingJazz'] },
   yixuan: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade', 'chaoticMetal'] },
   yidhari: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade', 'polarMetal'] },
   manato: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade', 'infernoMetal'] },

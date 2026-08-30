@@ -9,9 +9,9 @@ remains subordinate to them.
 ## Plan lifecycle
 
 Keep at most one active bounded implementation plan. There is currently no
-active bounded plan. The completed through-3.1 research preflight is recorded
-in the milestone index below; any later Agent vertical requires its own bounded
-requirement and plan after its meaning is settled.
+active bounded plan. The completed through-3.1 research preflight and Norma
+vertical are recorded in the milestone index below; later Agent verticals still
+require their own bounded requirement and plan after their meaning is settled.
 The authority-governance recovery closed after exact-SHA
 finalization, protected `main` promotion, and recovery freeze; its detailed
 execution record remains in Git history and the durable postmortem.
@@ -91,6 +91,7 @@ and author the new local outcome from current consumers instead.
 | 2026-08-25 | Added Anton and Rina through Shock-state general-damage and provider relationships, competitive whole-package setup choices, Dialyn-context Puffer admission, exact action and recipient projection, shared lifecycle behavior, and calibrated portraits, closing the through-2.8 expansion cohort | [Anton/Rina requirements](../brainstorms/2026-08-25-anton-rina-shock-general-damage-expansion-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [source-fact boundary](../source-fact-boundary.md), [UI design rules](../workbench-ui-design-rules.md), current content and calculation consumers |
 | 2026-08-26 | Replaced Agent and equipment identity catalogues for broad pre-PEN pressure with shared source relationships and delivery applicability, while preserving authored pressure-safe representatives and the established Party Apply, target-rebuild, direct-edit, and incomplete-Result lifecycle | [relationship-driven broad pre-PEN requirements](../brainstorms/2026-08-26-relationship-driven-broad-pre-pen-refactor-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [source-fact boundary](../source-fact-boundary.md), current candidate, relationship, preparation, and lifecycle consumers |
 | 2026-08-30 | Completed the read-only through-3.1 expansion preflight by bounding five Agents, six S/A W-Engines, and four Drive Discs; separating ordinary extension paths from exact Wind and Lumiflux authority stops; and producing a dependency-aware advisory order without admitting content | [through-3.1 preflight requirements](../brainstorms/2026-08-30-through-3-1-content-expansion-preflight-requirements.md), current permanent owners and behavior-bearing consumers |
+| 2026-08-31 | Added Norma Hollowell and Chief Sidekick through competitive pool packages, compressed Setup copy, exact Stun and party outcomes, and a bounded one-way conversion from delivered Sheer Force to self ATK | [Norma requirements](../brainstorms/2026-08-31-norma-hollowell-vertical-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [source-fact boundary](../source-fact-boundary.md), [UI design rules](../workbench-ui-design-rules.md), current content and calculation consumers |
 
 For removed plan detail, use Git history for `docs/plans/`. The milestone index
 does not validate current product behavior; the linked owners and current

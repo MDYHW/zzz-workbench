@@ -304,6 +304,10 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     id: 'rina', name: 'Alexandrina Sebastiane', displayName: 'Rina', attribute: 'Electric', specialty: 'Support',
     focusEligible: false, rank: 'S', faction: 'Victoria Housekeeping Co.',
   },
+  {
+    id: 'norma', name: 'Norma Hollowell', attribute: 'Fire', specialty: 'Stun',
+    focusEligible: false, rank: 'S', faction: 'External Strategy Department',
+  },
 ]
 
 export const agentDisplayName = ({ displayName, name }: AgentSummary): string => displayName ?? name

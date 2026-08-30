@@ -53,6 +53,7 @@ import nangongYuPortrait from '../assets/agents/portraits/nangong-yu.webp'
 import miyabiPortrait from '../assets/agents/portraits/miyabi.webp'
 import antonPortrait from '../assets/agents/portraits/anton.webp'
 import rinaPortrait from '../assets/agents/portraits/rina.webp'
+import normaPortrait from '../assets/agents/portraits/norma.webp'
 
 export const AGENT_PORTRAITS: Record<AgentId, string> = {
   yixuan: yixuanPortrait,
@@ -108,6 +109,7 @@ export const AGENT_PORTRAITS: Record<AgentId, string> = {
   miyabi: miyabiPortrait,
   anton: antonPortrait,
   rina: rinaPortrait,
+  norma: normaPortrait,
 }
 
 interface PortraitSource {
@@ -180,6 +182,7 @@ const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   miyabi: { faceX: 50, headTopY: 15, scale: 1.1 },
   anton: { faceX: 50, headTopY: 5, scale: 1.1 },
   rina: { faceX: 47.5, headTopY: 8, scale: 1.1 },
+  norma: { faceX: 40, headTopY: 12, scale: 1.2 },
 }
 
 export function portraitSourceStyle(agentId: AgentId): PortraitSourceStyle {

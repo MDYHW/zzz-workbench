@@ -26,6 +26,7 @@ import {
 } from './delivery'
 import {
   evaluateProjectionGauge,
+  evaluatePostDeliveryMetricStatGauge,
   evaluatePostDeliveryStatModifierGauge,
   evaluatePostDeliveryRelationships,
   evaluateRelationships,
@@ -149,6 +150,7 @@ function relationshipSource(relationship: ProfileRelationship): SelectedSourceIn
     case 'threshold-operation':
     case 'projection-gauge':
     case 'post-delivery-stat-modifier-gauge':
+    case 'post-delivery-metric-stat-gauge':
     case 'surface-stat-derived-metric':
     case 'post-delivery-linear':
     case 'post-delivery-gauge':
@@ -627,10 +629,30 @@ export function evaluateProfileParty(
         modifierAtoms: [...ordinary[slot].modifierAtoms, ...derived[slot].modifierAtoms],
         operations: [...ordinary[slot].operations, ...derived[slot].operations],
       }
+      const completedModifierAtoms = [
+        ...evaluated.evaluated.modifierAtoms,
+        ...delivered.modifierAtoms.map(({ atom }) => atom),
+        ...postDelivery[slot].modifierAtoms,
+      ]
+      const metricStatGauges = evaluated.evaluated.postDeliveryMetricStatGauges.map(
+        (relationship) => {
+          const completedMetric = composeMetricEffects(
+            surfaces(0, 0, 0),
+            surfaces([], [], []),
+            completedModifierAtoms.map(modifierEffect),
+            relationship.basis.metricId,
+          )
+          return evaluatePostDeliveryMetricStatGauge(
+            relationship,
+            completedMetric.values[relationship.basis.surface],
+          )
+        },
+      )
       const stats = composeStats([
         ...evaluated.evaluated.statAtoms,
         ...delivered.statAtoms.map(({ atom }) => atom),
         ...postDelivery[slot].statAtoms,
+        ...metricStatGauges.map(({ stat }) => stat),
       ])
       const relationshipDerivedBases = Object.fromEntries(
         evaluated.evaluated.surfaceStatDerivedMetrics.map((relationship) => [
@@ -644,7 +666,10 @@ export function evaluateProfileParty(
         delivered,
         relationshipDerivedBases,
         postDelivery[slot].modifierAtoms,
-        postDelivery[slot].gauges,
+        [
+          ...postDelivery[slot].gauges,
+          ...metricStatGauges.map(({ gauge }) => gauge),
+        ],
       )
     }),
   }

@@ -29,6 +29,7 @@ test('relationship topology inspection classifies every current derived family',
     ["{ kind: 'threshold-operation', source, basis: { statId: 'impact' } }", 'completed-stat', 'stat', 'combat/fully', ['gauge', 'operation']],
     ["{ kind: 'projection-gauge', source, metricId: 'dmgBonus' }", 'terminal', 'metric', 'fully', ['gauge']],
     ["{ kind: 'post-delivery-stat-modifier-gauge', source, basis: { statId: 'critRate', surface: 'fully' }, output: { value: { kind: 'linear' } } }", 'post-delivery', 'stat', 'fully', ['gauge', 'modifier']],
+    ["{ kind: 'post-delivery-metric-stat-gauge', source, basis: { metricId: 'sheerForce', surface: 'fully' }, output: { statId: 'atk' } }", 'post-delivery', 'metric', 'fully', ['gauge', 'stat']],
     ["{ kind: 'surface-stat-derived-metric', source, metricId: 'sheerForce', terms: [{ statId: 'atk' }] }", 'terminal', 'stat', 'each', ['metric']],
   ]
   for (const [source, stage, basis, surface, outputs] of cases) {
