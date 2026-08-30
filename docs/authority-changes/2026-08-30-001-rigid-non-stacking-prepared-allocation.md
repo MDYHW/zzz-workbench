@@ -85,9 +85,11 @@ the effect stack or change its source compatibility.
 - `src/workbench/calculation/delivery.ts` (`resolveHighestOnly`) filters after
   recipient and consumer applicability, preserves distinct equal selected
   origins, and lets only one equal origin contribute to the aggregate.
-- `src/workbench/lifecycle.test.ts` currently verifies the Trigger, Ju Fufu,
-  and Qingyi authored-alternative cases. It does not establish that one of two
-  rigid local representatives must be replaced.
+- `src/workbench/lifecycle.test.ts` currently verifies the Ju Fufu and Qingyi
+  authored-alternative cases through party and target rebuilds. Trigger's
+  authored King-to-Astral path is retained by the current preparation consumer
+  but is not asserted by that shared lifecycle case. The test does not
+  establish that one of two rigid local representatives must be replaced.
 
 ## Nearest current consumer
 
