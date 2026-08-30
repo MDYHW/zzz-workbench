@@ -214,6 +214,30 @@ acquisition or allocation role where applicable, and a countercase that would
 reverse the conclusion before admission, compression, or representative
 authoring.
 
+For a W-Engine passive or Drive Disc 4-piece clause whose realized value
+depends on activation, affected action, interval, or operation, source
+reachability and operation-aligned candidate value are separate gates. An
+exact retained holder action or state, or an intentionally controllable party
+operation, establishes source reachability when it satisfies the source-local
+qualifiers. Do not add an in-combat, duration, frequency, action-share,
+rotation, or uptime condition that the source does not state.
+
+The reachable route contributes candidate value only when it belongs to the
+Agent's authored delivery topology or an intentionally controlled party
+operation used by the current direction, without inserting, repeating, or
+displacing a material core action solely to activate the equipment. A reachable
+but operation-misaligned clause adds zero usable value, establishes no
+competitive axis, and cannot preserve a same-direction alternative or decide a
+representative. It receives no penalty and remains part of the complete
+source-owned Setup package when that equipment is admitted.
+
+This additional operation-alignment question does not apply to W-Engine Base
+ATK or advanced stats, Drive Disc 2-piece effects, main stats, effective
+substats, or unconditional supply. Their existing relationships and surface-
+specific opportunity gates still decide value. Selected Result projection is
+also independent: candidate admission cannot create a Result relationship, and
+Fully Enabled reachability under `SW-014` cannot create candidate value.
+
 Derive these relationships only from retained Agent facts, source facts, and
 applicable formula, action, operation, or recipient consumers. Do not require
 action share, uptime, or rotation precision absent from the retained source
@@ -231,7 +255,8 @@ Candidate authoring follows this order:
 1. establish completed Agent facts and Rank-default Mindscape;
 2. establish direction, roles, actions, retained operations, formulas,
    conversions, thresholds, caps, and exclusions;
-3. establish usable contribution through `SW-017`, then use recurring outcome
+3. establish exact source reachability and, where required, operation-aligned
+   usable contribution through `SW-017`, then use recurring outcome
    relationships and exact clause gates to restrict inspection;
 4. apply the W-Engine, Drive Disc, variable-main-stat, or effective-substat
    surface rule and its own opportunity topology;
@@ -303,18 +328,20 @@ character association, rarity, Specialty match, or isolated high value neither
 admits nor rejects a package by itself.
 
 For every inspected legal package, project Base ATK, advanced stat, and every
-passive clause independently through `SW-017`. Settle the exact holder role and
-formula, action, operation, threshold, or cap consumer; Specialty eligibility
-and activation compatibility; availability and ownership origin; and the
-nearest usable same-direction competitor. At S-Rank W1 or A-Rank W5, derive
-only the conditions, scopes, and operations the current Agent can realize. A
-usable contribution adds its realized value. An unusable contribution adds
-zero and is neither a bonus nor a penalty. Complete and partial describe
-applicability; clause count and package completeness do not establish value or
-priority. An off-Specialty package remains Agent-local and survives only when
-its realized package is competitive for the current direction. Base ATK
-remains part of the recomposed setup, but Rank or a modest isolated Base ATK
-difference does not independently establish admission, direction, or priority.
+passive clause independently through `SW-017`, including its separate source-
+reachability and operation-alignment gates where applicable. Settle the exact
+holder role and formula, action, operation, threshold, or cap consumer;
+Specialty eligibility and activation compatibility; availability and ownership
+origin; and the nearest usable same-direction competitor. At S-Rank W1 or
+A-Rank W5, derive only the conditions, scopes, and operations the current Agent
+can realize. A usable contribution adds its realized value. An unusable
+contribution adds zero and is neither a bonus nor a penalty. Complete and
+partial describe applicability; clause count and package completeness do not
+establish value or priority. An off-Specialty package remains Agent-local and
+survives only when its realized package is competitive for the current
+direction. Base ATK remains part of the recomposed setup, but Rank or a modest
+isolated Base ATK difference does not independently establish admission,
+direction, or priority.
 
 At zero currently supplied substats, recompose the complete bounded setup and
 the future opportunity owned by [Competitive Candidate Set](#competitive-candidate-set)
@@ -387,7 +414,10 @@ prepopulate unused Attributes, actions, or effects to form a catalogue.
 
 The family and leaf route discovery; they do not establish Agent value.
 Project every retained clause through `SW-017` and its independent qualifier
-gates before recombining an exact Disc package.
+gates before recombining an exact Disc package. An activation-, action-,
+interval-, or operation-dependent 4-piece clause also passes the separate
+source-reachability and operation-alignment gates; a 2-piece clause does not
+acquire that extra question merely because it belongs to the same set.
 
 Classify each retained 2-piece or 4-piece clause independently, then recombine
 every clause belonging to one exact Disc identity for the whole-package
@@ -584,12 +614,13 @@ accessibility, stat or modifier balance, thresholds, caps, operation, or a
 supported preference may distinguish it. Reachability, release or character
 association, a different trigger, or an isolated clause is insufficient.
 
-An `SW-017` relationship establishes usable value, not competitiveness. Every
-admission, removal, compression, and representative conclusion still requires
-the applicable surface comparison: complete package, finite opportunity,
-nearest comparator, material user-facing direction, and reversing countercase.
-Do not compare unrelated surfaces by treating a shared relationship label as a
-common score.
+Source reachability alone establishes no candidate value. For a clause that
+requires the additional gate, operation alignment under `SW-017` establishes
+usable value, not competitiveness. Every admission, removal, compression, and
+representative conclusion still requires the applicable surface comparison:
+complete package, finite opportunity, nearest comparator, material user-facing
+direction, and reversing countercase. Do not compare unrelated surfaces by
+treating a shared relationship label as a common score.
 
 `SW-005` owns W-Engine representative-range and acquisition-role comparison,
 including complete and partial packages, other limited and non-limited routes,
@@ -978,6 +1009,13 @@ share do not reduce the enabled value.
 A legal repeatable trigger route reaches the stack cap unless exact mechanics
 require distinct categories. Do not infer partial stacks from listed action
 count, uptime, or frequency. Leave unresolved reachability unimplemented.
+
+This reachability rule decides the Fully Enabled value of an independently
+retained selected relationship. It does not establish operation-aligned
+candidate value. A source-reachable W-Engine passive or Drive Disc 4-piece
+clause may therefore reach its full selected Result value while contributing
+zero to candidate comparison under `SW-017`, and candidate admission cannot
+create the selected Result relationship in the opposite direction.
 
 Bangboo is not an input or fourth Agent. A Bangboo action may satisfy
 reachability only when the resulting value is independent of Bangboo choice.
