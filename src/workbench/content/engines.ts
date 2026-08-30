@@ -395,8 +395,18 @@ export const W_ENGINE_FACTS = {
   iceJadeTeapot: {
     advancedStat: { id: 'impactPct', label: 'Impact', value: 18, unit: '%' },
     effects: {
-      impact: { modifier: 'impact', unit: '%', progression: { kind: 'stacks', perStack: scaledRefinementValues(0.7), maxStacks: 30, maximum: scaledRefinementValues(21) } },
-      damage: { modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(20), scope: { recipient: 'squad' } },
+      impact: {
+        modifier: 'impact', unit: '%',
+        progression: { kind: 'stacks', perStack: scaledRefinementValues(0.7), maxStacks: 30, maximum: scaledRefinementValues(21) },
+        activation: { kind: 'trigger', performer: 'equipper', actions: ['Basic Attack'] },
+      },
+      damage: {
+        modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(20),
+        scope: { recipient: 'squad' },
+        activation: {
+          kind: 'trigger', performer: 'equipper', actions: ['Basic Attack'], stackThreshold: 15,
+        },
+      },
     },
   },
   restrained: {

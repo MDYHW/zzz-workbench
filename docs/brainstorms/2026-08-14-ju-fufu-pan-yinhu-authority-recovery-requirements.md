@@ -66,7 +66,10 @@ and equipment consequences, so no shared named-Agent rule is warranted.
 - R6. Roaring's complete ATK, EX/Chain/Ultimate-Daze, and squad-DMG package is
   fully compatible with Ju Fufu. Blazing's Assist-enabled Impact and reachable
   repeated-Basic Wilt package remain a competitive limited alternate for her
-  Daze and Fire/Ice party direction. Spectral leaves only its advanced CRIT
+  Daze and Fire/Ice party direction. Her compact Basic sequence is an authored
+  Energy route into the Might-generating EX operation, so this conclusion does
+  not require sustained field time or a runtime cadence estimate. Spectral
+  leaves only its advanced CRIT
   stat after its incompatible Electric Aftershock triggers; Yesterday retains
   CRIT and off-field Energy but not its Physical-EX Daze and squad-CRIT-DMG
   chain. King's threshold is already reachable through the authored Slot 4 and
@@ -85,6 +88,8 @@ and equipment consequences, so no shared named-Agent rule is warranted.
   King exposes Swing. Shockstar's Basic/Dash/Dodge Daze does not align closely
   enough with Ju Fufu's low-field-time EX/Chain/Ultimate direction to remain a
   competitive four-piece package, while its Impact two-piece remains useful.
+  The compact Basic route that activates Blazing does not turn this broader
+  action-scoped Daze package into a second authored delivery direction.
 - R8. Base main choices are ATK% in Slot 4, ATK%/Fire DMG in Slot 5, and ATK%/
   Impact in Slot 6. Base effective substats are ATK% and flat ATK. Selecting
   King additionally exposes CRIT Rate Slot 4, Woodpecker 2-piece, and CRIT Rate

@@ -884,6 +884,55 @@ describe('selected W-Engine source relationships', () => {
     }])
   })
 
+  it('keeps Ice-Jade stack acquisition separate from its affected outcomes', () => {
+    const { impact, damage } = W_ENGINE_FACTS.iceJadeTeapot.effects
+    expect(impact.activation).toEqual({
+      kind: 'trigger', performer: 'equipper', actions: ['Basic Attack'],
+    })
+    expect(damage.activation).toEqual({
+      kind: 'trigger', performer: 'equipper', actions: ['Basic Attack'], stackThreshold: 15,
+    })
+
+    const qingyiSource = selectSource(
+      defineCalculationSource('ice-jade-source-fixture', 'Ice-Jade source fixture'),
+      'qingyi',
+      0,
+    )
+    const relationships = selectedWEngineRelationships({
+      agentId: 'qingyi',
+      setup: setup('iceJadeTeapot'),
+      observation: {
+        baseStats: { impact: 1 },
+        modifierMetrics: ['dmgBonus'],
+      },
+      focusAgentId: 'harumasa',
+      partyAgentIds: ['qingyi', 'harumasa', 'nicole'],
+      source: qingyiSource,
+      passiveEligible: true,
+    })
+
+    expect(relationships.filter((relationship) => (
+      relationship.kind === 'stat'
+      && relationship.atom.statId === 'impact'
+    ))).toMatchObject([{
+      atom: {
+        earliestSurface: 'fully',
+        value: equipmentEffectMaximumValue(impact, 1),
+      },
+    }])
+    expect(relationships.filter((relationship) => (
+      relationship.kind === 'provider'
+      && relationship.effect.kind === 'modifier'
+      && relationship.effect.metricId === 'dmgBonus'
+    ))).toMatchObject([{
+      delivery: { recipient: 'all-party' },
+      effect: {
+        earliestSurface: 'fully',
+        value: equipmentEffectBaseValue(damage, 1),
+      },
+    }])
+  })
+
   it('keeps Metanukimorphosis holder Anomaly Mastery at Fully Enabled only', () => {
     const relationships = selectedWEngineRelationships({
       agentId: 'yuzuha',

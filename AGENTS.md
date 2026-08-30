@@ -357,6 +357,14 @@ itself establish semantic readiness.
   applicable authority and bounded supported preference cannot resolve a true
   tie, stop unresolved.
 
+  Do not turn every repeated activation into a cadence model. An exact retained
+  action that occurs in the Agent's ordinary authored operation normally passes
+  operation alignment without estimating uptime or action share. Add a bounded
+  qualitative field-responsibility check only when realizing the competitive
+  magnitude requires repeated accumulation that could materially displace the
+  Agent's core delivery. The deciding question is whether a compact role-native
+  route exists, not how many seconds or rotation inputs a simulator would assign.
+
   Drive Disc, variable-main-stat, and effective-substat reviews apply the same
   qualifier-versus-affected-outcome distinction, but `SW-006`, `SW-018`, and
   `SW-019` keep ownership of their own opportunity and exact identity, piece,
