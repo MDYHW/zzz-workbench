@@ -403,6 +403,7 @@ export const W_ENGINE_FACTS = {
       damage: {
         modifier: 'dmgBonus', unit: '%', value: scaledRefinementValues(20),
         scope: { recipient: 'squad' },
+        composition: 'highest-only',
         activation: {
           kind: 'trigger', performer: 'equipper', actions: ['Basic Attack'], stackThreshold: 15,
         },

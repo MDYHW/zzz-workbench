@@ -892,6 +892,7 @@ describe('selected W-Engine source relationships', () => {
     expect(damage.activation).toEqual({
       kind: 'trigger', performer: 'equipper', actions: ['Basic Attack'], stackThreshold: 15,
     })
+    expect(damage.composition).toBe('highest-only')
 
     const qingyiSource = selectSource(
       defineCalculationSource('ice-jade-source-fixture', 'Ice-Jade source fixture'),
@@ -920,17 +921,23 @@ describe('selected W-Engine source relationships', () => {
         value: equipmentEffectMaximumValue(impact, 1),
       },
     }])
-    expect(relationships.filter((relationship) => (
+    const squadDamage = relationships.filter((relationship) => (
       relationship.kind === 'provider'
       && relationship.effect.kind === 'modifier'
       && relationship.effect.metricId === 'dmgBonus'
-    ))).toMatchObject([{
+    ))
+    expect(squadDamage).toMatchObject([{
       delivery: { recipient: 'all-party' },
       effect: {
         earliestSurface: 'fully',
         value: equipmentEffectBaseValue(damage, 1),
+        composition: {
+          kind: 'highest-only',
+          semanticEffect: damage,
+        },
       },
     }])
+    expect(squadDamage[0]?.effect).not.toHaveProperty('action')
   })
 
   it('keeps Metanukimorphosis holder Anomaly Mastery at Fully Enabled only', () => {
