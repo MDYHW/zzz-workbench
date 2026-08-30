@@ -266,6 +266,16 @@ itself establish semantic readiness.
      while denying the edge. A consumer verifies the established application;
      it is not authority. Coexisting or correlated facts do not create a
      relationship.
+
+     Before declaring that a behavior-bearing consumer or common calculation
+     mechanism is absent, reverse-discover current relationships by calculation
+     stage, basis kind and surface, and output kind rather than by Agent,
+     equipment, file, or remembered label. Inspect the complete current
+     `ProfileRelationship` family and run the transient projection described in
+     the applicable workflow learning. The projection is navigation only: each
+     returned declaration still requires owner-constrained semantic inspection,
+     helper- or dynamically-created relationships require direct source tracing,
+     and an empty projection cannot prove absence.
   3. **Candidate and preparation closure:** apply the Candidate Preparation
      Dependency and the applicable equipment-inspection rule before changing a
      candidate, representative, or prepared first choice; record an explicit
