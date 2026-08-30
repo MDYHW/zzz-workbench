@@ -48,7 +48,7 @@ adding a rotation model.
   surface-derived Sheer Force metric are the nearest delivery and metric
   consumers. Norma requires one bounded completed-metric-to-self-stat relation,
   not a second formula family.
-- `SF-001` and `SF-003` retain source identity and only current setup or Result
+- `SF-005` and `SF-003` retain source identity and only current setup or Result
   consequences. Setup and Result remain independent sinks under `UI-001` and
   the source-fact boundary.
 - The current generic W-Engine materializer already owns holder, Attribute,
