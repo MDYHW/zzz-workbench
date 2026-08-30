@@ -12,6 +12,7 @@ applies_when:
   - "A controller is about to declare a behavior-bearing consumer or common calculation mechanism absent"
   - "Secondary requirements add or change candidates, prepared representatives, or selected-input pressure"
   - "A W-Engine pass compares the representative, other limited S-Ranks, and standard S-Rank or A-Rank alternatives"
+  - "Similar equipment packages differ mainly by activation trigger or possible recipient scope"
   - "Reviewers validate an implementation against requirements written in the same change"
   - "A zero-substat prepared Result is used to author a candidate or first choice"
 symptoms:
@@ -19,6 +20,7 @@ symptoms:
   - "Inspection of one narrow relationship variant hides a broader existing family with the required stage or output"
   - "A secondary requirement becomes the oracle that plans, code, tests, and browser checks merely confirm"
   - "A clean build and passing review stack create confidence in incorrect candidate or representative authoring"
+  - "Source trigger or possible recipient differences are restated as material setup directions without an exact changed user decision"
   - "Completed plans are copied forward or retained as competing current policy"
   - "Visible zero counts are mistaken for the absence of finite future tuning opportunity"
 root_cause: missing_workflow_step
@@ -196,8 +198,11 @@ choice being added or changed:
 - exact current formula, action, threshold, or operation consumer
 - origin: base, contextual, or selected-input-derived
 - highest Agent-realized representative and the material range it establishes
-- acquisition role: representative, other limited S-Rank, or non-limited
-- nearest usable same-direction competitor within that acquisition role
+- for W-Engines, acquisition role: representative, other limited S-Rank, or
+  non-limited; for other surfaces, the exact legal opportunity topology owned
+  by their surface rule
+- nearest usable same-direction competitor within that W-Engine acquisition
+  role or applicable surface topology
 - strongest standard S-Rank or A-Rank comparison for another limited S-Rank
 - usable and unused clauses in each complete source-owned package
 - realized value from usable clauses only; every unusable clause contributes
@@ -228,6 +233,61 @@ Eligibility precedes package comparison. A package with stronger visible values
 cannot dominate for a holder that fails its exact Specialty or activation
 condition. Comparing retained numbers before compatibility can select a false
 same-axis competitor even when the later whole-package arithmetic is correct.
+
+### Normalize qualifier differences before surface comparison
+
+Applicability and competitiveness are consecutive gates, not interchangeable
+proofs. Specialty, Attribute, holder, activation, action, recipient, interval,
+and source-local conditions decide whether each clause contributes usable value.
+They do not become candidate directions merely because their labels differ. In
+particular, an **activation action** proves that a clause can turn on; it is not
+the **affected action or operation coverage** that can distinguish a candidate
+unless the retained delivered output, Result difference, threshold, or setup
+operation itself changes.
+
+Preserve the base/context order while applying those gates. An exact authored
+recipient and formula direction may support `SW-008` base admission without a
+currently selected party. A merely possible recipient class does not establish
+that direction, and party- or Focus-only differences belong later in a bounded
+`SW-020` evaluation against the already-authored base. Do not enumerate party
+combinations or re-derive base candidates during contextual review.
+
+For W-Engines, normalize the still-competitive frontier into Agent-realized
+outcomes without equipment identity, trigger labels, or qualifier wording, then
+partition it by direction inside each `SW-005` acquisition role. Compare each
+package with the bucket incumbent or nearest same-role competitor; reserve an
+exhaustive complete-setup A/B for an ambiguous boundary rather than building an
+all-equipment matrix. An exact retained holder action, state, or operation may
+inform the existing Agent-appropriate complete-package competitive-practice
+comparison, but trigger difference alone neither retains both packages nor
+creates a generic tiebreaker. If existing authority and bounded supported
+preference cannot resolve a true tie, stop unresolved. The next section owns
+the W-Engine whole-package and acquisition-role comparison details.
+
+Drive Disc, variable-main-stat, and effective-substat reviews reuse the
+qualifier-versus-affected-outcome distinction without importing W-Engine
+limited/non-limited roles. Their own `SW-006`, `SW-018`, and `SW-019` opportunity
+and exact identity, piece, set, or slot topology remain controlling.
+
+Test a claimed material choice with an active countermodel that preserves the
+completed Agent facts, authored direction, applicable surface and, for
+W-Engines, acquisition role, current applicability context, source facts, and
+owner rules while denying the claimed changed user decision. If the countermodel
+survives, the boundary remains unresolved. If evidence is complete and no exact
+changed decision remains, compress. Retain both only when a changed decision
+survives countermodel testing.
+
+Do not confuse that current countermodel with a future reversal condition.
+Changing party or Focus under an unchanged qualifier may reverse an effective
+outcome only through the `SW-020` lifecycle. A different holder starts a
+separate Agent-local closure and is not a reversal of the current conclusion.
+Deleting or rewriting a source trigger, recipient qualifier, clause, or other
+source fact is neither a current competitiveness countermodel nor a substitute
+for the proof.
+
+Keep this normalization as a transient controller worksheet. Do not persist an
+Agent-by-equipment matrix, rejected-item catalogue, semantic evidence registry,
+score, or runtime validator.
 
 ### Compare W-Engine acquisition roles without package-completeness bias
 
@@ -452,6 +512,8 @@ locally passing rules in the wrong global order.
 - Selected equipment adds or removes downstream stat or set pressure.
 - Two equipment choices have similar or equal retained numeric effects.
 - Reviewer feedback proposes changing an established mechanism.
+- Similar candidates are being preserved because their activation triggers or
+  possible recipient scopes differ.
 - Full and non-limited representatives match without a pool-specific
   whole-package comparison.
 - Tests and reviews pass but share requirements authored in the same change.
@@ -559,6 +621,9 @@ consumer question.
 
 - [Setup Workbench Product Contract](../../setup-workbench-product-contract.md)
 - [Source-Fact Boundary](../../source-fact-boundary.md)
+- [ZZZ Game Vocabulary](../../zzz-game-vocabulary.md)
+- [ZZZ Formula Mechanics](../../zzz-formula-mechanics.md)
+- [Workbench UI Design Rules](../../workbench-ui-design-rules.md)
 - [First Vertical Completion Review Requirements](../../brainstorms/2026-08-06-first-vertical-completion-review-requirements.md)
 - [Preserve Interaction Fidelity in UI Explorations](preserve-interaction-fidelity-in-ui-explorations-2026-08-05.md)
 - [Soldier Zero Vertical Requirements](../../brainstorms/2026-08-07-soldier-zero-vertical-requirements.md)

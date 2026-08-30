@@ -336,6 +336,48 @@ itself establish semantic readiness.
   contrary condition, and selected-input lifecycle when applicable. Keep this
   analysis ephemeral and persist only the settled local outcome; do not restate
   the common policy in the requirement.
+- Preserve the `SW-004` and `SW-020` authoring order when qualifier differences
+  affect candidate review. An exact authored recipient and formula direction
+  may support base admission without a currently selected party, but a merely
+  possible recipient class does not. Evaluate party- or Focus-only distinctions
+  later as bounded `SW-020` context against the already-authored base; do not
+  enumerate party combinations or re-derive the base candidate set.
+
+  For W-Engines, after source applicability is closed and before base admission,
+  partition the still-competitive frontier by normalized setup direction inside
+  each `SW-005` acquisition role. Compare each package with the bucket incumbent
+  or nearest same-role competitor, and perform an exhaustive complete-setup A/B
+  only at an ambiguous boundary. Omit equipment identity, trigger labels, and
+  qualifier wording from that transient normalization while preserving the
+  source facts in their owner. An activation action proves that a clause is
+  usable; it is not affected action or operation coverage. An exact retained
+  holder action, state, or operation may inform the existing Agent-appropriate
+  complete-package competitive-practice comparison, but a different trigger
+  alone neither retains both packages nor supplies a generic tiebreaker. If the
+  applicable authority and bounded supported preference cannot resolve a true
+  tie, stop unresolved.
+
+  Drive Disc, variable-main-stat, and effective-substat reviews apply the same
+  qualifier-versus-affected-outcome distinction, but `SW-006`, `SW-018`, and
+  `SW-019` keep ownership of their own opportunity and exact identity, piece,
+  set, or slot topology. Do not import W-Engine limited/non-limited acquisition
+  roles into those surfaces.
+
+  An active competitiveness countermodel preserves completed Agent facts, the
+  authored direction, the applicable surface and, for W-Engines, acquisition
+  role, current applicability context, source facts, and owner rules while
+  denying the claimed material user choice. A surviving countermodel leaves the
+  boundary unresolved. When evidence is complete and no exact changed user
+  decision remains, compress; retain both only when that changed decision
+  survives the countermodel. Keep a stated future reversal condition separate.
+  Changing party or Focus under an unchanged qualifier may reverse an effective
+  outcome only through the `SW-020` lifecycle. A different holder starts a
+  separate Agent-local closure and is not a reversal of the current conclusion.
+  Deleting or rewriting a source trigger, recipient qualifier, clause, or other
+  fact is not a current competitiveness countermodel. Complete this checkpoint
+  before a secondary requirement records the roster or implementation begins,
+  and keep it transient rather than creating a candidate matrix, evidence
+  registry, score, or runtime validator.
 - Shared W-Engine and Drive Disc facts exclusively own equipment rank and pool
   identity, Base ATK or fixed supply, advanced stats, exact effects, refinement
   progression, activation, stack, duration, action, Attribute, holder and
