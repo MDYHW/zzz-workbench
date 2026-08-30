@@ -790,6 +790,24 @@ export function extractCurrentRuleIds(ownerTexts) {
   return extractRuleIdState(ownerTexts).currentRuleIds
 }
 
+export function validateSupportingRequirementRuleIds(changes, ruleState) {
+  if (!Array.isArray(changes)) fail('Supporting requirement changes must be an array.')
+  const current = new Set(ruleState?.currentRuleIds ?? [])
+  const retired = new Set(ruleState?.retiredRuleIds ?? [])
+  if (current.size === 0) fail('Current Rule IDs are unavailable for supporting requirement validation.')
+  for (const change of changes) {
+    const filePath = normalizePath(change?.path ?? '')
+    if (!filePath.startsWith('docs/brainstorms/') || !filePath.endsWith('.md') || change.source === null) continue
+    if (typeof change.source !== 'string') fail('Changed supporting requirement text is unavailable.')
+    const ruleIds = new Set(change.source.match(/\b(?:SW|SF|UI|FM|GV|GOV)-\d{3}\b/g) ?? [])
+    for (const ruleId of ruleIds) {
+      if (retired.has(ruleId)) fail(`Changed supporting requirement ${filePath} references retired Rule ID ${ruleId}.`)
+      if (!current.has(ruleId)) fail(`Changed supporting requirement ${filePath} references unknown Rule ID ${ruleId}.`)
+    }
+  }
+  return true
+}
+
 function normalizeAgentRoster(entries, label) {
   if (!Array.isArray(entries)) fail(`${label} must be an array.`)
   const normalized = entries.map((entry) => {

@@ -22,7 +22,7 @@ const DERIVED_RELATIONSHIP_TOPOLOGY = Object.freeze({
     implicitOutputs: ['modifier', 'gauge'],
   },
   'post-delivery-metric-stat-gauge': {
-    stage: 'post-delivery',
+    stage: 'completed-metric',
     implicitOutputs: ['stat', 'gauge'],
   },
   'surface-stat-derived-metric': {

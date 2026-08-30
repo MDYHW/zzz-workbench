@@ -145,6 +145,7 @@ The current derived relationship families provide this navigation map:
 | `linear`, `gauge` | ordinary stat surface | stat, modifier, operation, or provider emission |
 | `post-delivery-linear`, `post-delivery-gauge` | completed ordinary-delivery stat surface | one-pass stat, modifier, operation, or derived-provider emission |
 | `post-delivery-stat-modifier-gauge` | completed Combat/Fully stat | one action-local modifier and its visible gauge |
+| `post-delivery-metric-stat-gauge` | completed modifier metric after ordinary and derived-provider delivery | one holder stat and its visible gauge |
 | `threshold-operation` | completed stat | qualifying operation plus visible gauge |
 | `surface-stat-derived-metric` | completed stats at every visible surface | terminal Result metric; no calculation atom |
 | `projection-gauge` | completed projected metric | terminal visible gauge; no calculation atom |
@@ -164,6 +165,9 @@ equipment matrix:
 ```powershell
 node scripts/governance/inspect-relationship-topology.mjs `
   --stage post-delivery --basis stat --output stat
+
+node scripts/governance/inspect-relationship-topology.mjs `
+  --stage completed-metric --basis metric --output stat
 ```
 
 When `node` is unavailable in sandboxed PowerShell, load the Codex workspace

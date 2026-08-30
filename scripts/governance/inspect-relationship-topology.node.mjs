@@ -29,7 +29,7 @@ test('relationship topology inspection classifies every current derived family',
     ["{ kind: 'threshold-operation', source, basis: { statId: 'impact' } }", 'completed-stat', 'stat', 'combat/fully', ['gauge', 'operation']],
     ["{ kind: 'projection-gauge', source, metricId: 'dmgBonus' }", 'terminal', 'metric', 'fully', ['gauge']],
     ["{ kind: 'post-delivery-stat-modifier-gauge', source, basis: { statId: 'critRate', surface: 'fully' }, output: { value: { kind: 'linear' } } }", 'post-delivery', 'stat', 'fully', ['gauge', 'modifier']],
-    ["{ kind: 'post-delivery-metric-stat-gauge', source, basis: { metricId: 'sheerForce', surface: 'fully' }, output: { statId: 'atk' } }", 'post-delivery', 'metric', 'fully', ['gauge', 'stat']],
+    ["{ kind: 'post-delivery-metric-stat-gauge', source, basis: { metricId: 'sheerForce', surface: 'fully' }, output: { statId: 'atk' } }", 'completed-metric', 'metric', 'fully', ['gauge', 'stat']],
     ["{ kind: 'surface-stat-derived-metric', source, metricId: 'sheerForce', terms: [{ statId: 'atk' }] }", 'terminal', 'stat', 'each', ['metric']],
   ]
   for (const [source, stage, basis, surface, outputs] of cases) {
@@ -64,12 +64,17 @@ test('topology coverage fails closed when the ProfileRelationship union changes'
 test('relationship topology filters by shape rather than Agent or equipment identity', () => {
   const rows = [
     { stage: 'post-delivery', basis: 'stat', outputs: ['stat'], kind: 'post-delivery-gauge' },
+    { stage: 'completed-metric', basis: 'metric', outputs: ['stat'], kind: 'post-delivery-metric-stat-gauge' },
     { stage: 'post-delivery', basis: 'stat', outputs: ['provider'], kind: 'post-delivery-linear' },
     { stage: 'ordinary', basis: 'stat', outputs: ['stat'], kind: 'linear' },
   ]
   assert.deepEqual(
     filterRelationshipRows(rows, { stage: 'post-delivery', output: 'stat' }),
     [rows[0]],
+  )
+  assert.deepEqual(
+    filterRelationshipRows(rows, { stage: 'completed-metric', basis: 'metric', output: 'stat' }),
+    [rows[1]],
   )
 })
 
@@ -87,6 +92,12 @@ test('current source projection retrieves post-delivery output topologies withou
     && row.basis === 'stat'
     && row.outputs.includes('provider')
   )))
+  assert.ok(rows.some((row) => (
+    row.kind === 'post-delivery-metric-stat-gauge'
+    && row.stage === 'completed-metric'
+    && row.basis === 'metric'
+    && row.outputs.includes('stat')
+  )))
 })
 
 test('formatted projection warns that generated discovery is not semantic proof', () => {
@@ -103,6 +114,10 @@ test('CLI accepts split and inline filters and rejects malformed invocations', (
   const inline = spawnSync(process.execPath, [SCRIPT, '--kind=projection-gauge', '--basis=metric'], { encoding: 'utf8' })
   assert.equal(inline.status, 0)
   assert.match(inline.stdout, /terminal \| metric \| fully \| gauge \| projection-gauge/)
+
+  const completedMetric = spawnSync(process.execPath, [SCRIPT, '--stage=completed-metric', '--basis=metric', '--output=stat'], { encoding: 'utf8' })
+  assert.equal(completedMetric.status, 0)
+  assert.match(completedMetric.stdout, /completed-metric \| metric \| fully \| gauge,stat \| post-delivery-metric-stat-gauge/)
 
   for (const [arguments_, error] of [
     [['value'], /Unexpected argument/],

@@ -1,10 +1,10 @@
-import { configDefaults, defineConfig } from 'vitest/config'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
-    exclude: [...configDefaults.exclude, 'tests/visual/**'],
+    include: ['src/**/*.test.{ts,tsx}'],
     testTimeout: 10_000,
     css: true,
     restoreMocks: true,

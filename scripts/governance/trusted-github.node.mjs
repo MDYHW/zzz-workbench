@@ -300,6 +300,7 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
   const headBlob = '7'.repeat(40)
   const runQueries = []
   let duplicateLifecycle = false
+  let requirementSource = 'Current requirement cites `SF-005`.'
   const api = {
     json: async (pathname) => {
       if (pathname.endsWith('/pulls/4')) return {
@@ -311,6 +312,9 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
       if (pathname.endsWith(`/git/commits/${HEAD}`)) return { tree: { sha: headTreeSha } }
       if (pathname.includes(baseTreeSha)) return { truncated: false, tree: [{ path: 'docs/brainstorms/x.md', type: 'blob', mode: '100644', sha: baseBlob }] }
       if (pathname.includes(headTreeSha)) return { truncated: false, tree: [{ path: 'docs/brainstorms/x.md', type: 'blob', mode: '100644', sha: headBlob }] }
+      if (pathname.endsWith(`/git/blobs/${headBlob}`)) {
+        return { encoding: 'base64', size: Buffer.byteLength(requirementSource), content: Buffer.from(requirementSource).toString('base64') }
+      }
       if (pathname.endsWith('/actions/workflows/pr-validation.yml')) return { id: 101 }
       if (pathname.endsWith('/actions/workflows/visual-baseline.yml')) return { id: 102 }
       throw new Error(`unexpected json ${pathname}`)
@@ -341,7 +345,7 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
     if (normalized.endsWith('docs/audits/2026-08-15-existing-vertical-recovery.md')) return 'no accepted rows'
     if (normalized.endsWith('AGENTS.md')) return '**Governance Rule ID:** `GOV-001`'
     if (normalized.endsWith('docs/setup-workbench-product-contract.md')) return '**Rule ID:** `SW-001`'
-    if (normalized.endsWith('docs/source-fact-boundary.md')) return '**Rule ID:** `SF-001`'
+    if (normalized.endsWith('docs/source-fact-boundary.md')) return '**Rule ID:** `SF-005`\n\n## Retired Rule IDs\n\n`SF-001` -> `SF-005`: replacement'
     if (normalized.endsWith('docs/workbench-ui-design-rules.md')) return '**Rule ID:** `UI-001`'
     if (normalized.endsWith('docs/zzz-formula-mechanics.md')) return '**Rule ID:** `FM-001`'
     if (normalized.endsWith('docs/zzz-game-vocabulary.md')) return '**Rule ID:** `GV-001`'
@@ -357,6 +361,12 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
   assert.equal(runQueries.length, 2)
   assert.ok(runQueries.every((pathname) => pathname.includes(`head_sha=${HEAD}`)))
   assert.ok(runQueries.every((pathname) => !pathname.includes(`head_sha=${OTHER}`)))
+  requirementSource = 'Stale requirement cites `SF-001`.'
+  await assert.rejects(
+    () => buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile }),
+    /retired Rule ID SF-001/,
+  )
+  requirementSource = 'Current requirement cites `SF-005`.'
   duplicateLifecycle = true
   await assert.rejects(
     () => buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile }),

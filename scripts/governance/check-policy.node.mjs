@@ -32,6 +32,7 @@ import {
   validateVisualWorkflow,
   validateReviewEvidence,
   validateRepository,
+  validateSupportingRequirementRuleIds,
   validateTrustedWorkflowConcurrency,
 } from './check-policy.mjs'
 
@@ -539,6 +540,26 @@ test('stable Rule IDs come only from five permanent owners plus AGENTS and rejec
     retiredRuleIds: ['SW-001'],
     knownRuleIds: ['FM-001', 'GOV-001', 'GV-001', 'SF-001', 'SW-001', 'SW-002', 'UI-001'],
   })
+})
+
+test('changed supporting requirements cite only current Rule IDs', () => {
+  const ruleState = {
+    currentRuleIds: ['SF-005', 'SW-001'],
+    retiredRuleIds: ['SF-001'],
+  }
+  assert.equal(validateSupportingRequirementRuleIds([
+    { path: 'docs/brainstorms/current.md', source: 'Apply `SF-005` and `SW-001`.' },
+  ], ruleState), true)
+  assert.throws(() => validateSupportingRequirementRuleIds([
+    { path: 'docs/brainstorms/retired.md', source: 'Apply `SF-001`.' },
+  ], ruleState), /retired Rule ID SF-001/)
+  assert.throws(() => validateSupportingRequirementRuleIds([
+    { path: 'docs/brainstorms/unknown.md', source: 'Apply `SF-999`.' },
+  ], ruleState), /unknown Rule ID SF-999/)
+  assert.equal(validateSupportingRequirementRuleIds([
+    { path: 'docs/solutions/history.md', source: 'Historical `SF-001`.' },
+    { path: 'docs/brainstorms/deleted.md', source: null },
+  ], ruleState), true)
 })
 
 test('AE6 frozen roster and finalization fail until exact complete recovery state exists', () => {
