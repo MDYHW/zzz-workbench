@@ -884,6 +884,66 @@ describe('selected W-Engine source relationships', () => {
     }])
   })
 
+  it('keeps Ice-Jade stack acquisition separate from its affected outcomes', () => {
+    const { impact, damage } = W_ENGINE_FACTS.iceJadeTeapot.effects
+    expect(impact.activation).toEqual({
+      kind: 'trigger', performer: 'equipper', actions: ['Basic Attack'],
+    })
+    expect(damage.activation).toEqual({
+      kind: 'trigger', performer: 'equipper', actions: ['Basic Attack'], stackThreshold: 15,
+    })
+    expect(damage.composition).toBe('highest-only')
+
+    const qingyiSource = selectSource(
+      defineCalculationSource('ice-jade-source-fixture', 'Ice-Jade source fixture'),
+      'qingyi',
+      0,
+    )
+    const relationships = selectedWEngineRelationships({
+      agentId: 'qingyi',
+      setup: setup('iceJadeTeapot'),
+      observation: {
+        baseStats: { impact: 1 },
+        modifierMetrics: ['dmgBonus'],
+      },
+      focusAgentId: 'harumasa',
+      partyAgentIds: ['qingyi', 'harumasa', 'nicole'],
+      source: qingyiSource,
+      passiveEligible: true,
+    })
+
+    expect(relationships.filter((relationship) => (
+      relationship.kind === 'stat'
+      && relationship.atom.statId === 'impact'
+    ))).toMatchObject([{
+      atom: {
+        earliestSurface: 'fully',
+        value: equipmentEffectMaximumValue(impact, 1),
+      },
+    }])
+    const squadDamage = relationships.filter((relationship) => (
+      relationship.kind === 'provider'
+      && relationship.effect.kind === 'modifier'
+      && relationship.effect.metricId === 'dmgBonus'
+    ))
+    expect(squadDamage).toMatchObject([{
+      delivery: { recipient: 'all-party' },
+      effect: {
+        earliestSurface: 'fully',
+        value: equipmentEffectBaseValue(damage, 1),
+        composition: {
+          kind: 'highest-only',
+          semanticEffect: damage,
+        },
+      },
+    }])
+    const [squadDamageRelationship] = squadDamage
+    if (squadDamageRelationship?.kind !== 'provider') {
+      throw new Error('Expected the Ice-Jade squad DMG provider relationship.')
+    }
+    expect(squadDamageRelationship.effect).not.toHaveProperty('action')
+  })
+
   it('keeps Metanukimorphosis holder Anomaly Mastery at Fully Enabled only', () => {
     const relationships = selectedWEngineRelationships({
       agentId: 'yuzuha',
