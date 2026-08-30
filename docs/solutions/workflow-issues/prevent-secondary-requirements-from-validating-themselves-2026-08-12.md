@@ -1,7 +1,7 @@
 ---
 title: Prevent secondary requirements from validating themselves
 date: 2026-08-12
-last_updated: 2026-08-26
+last_updated: 2026-08-30
 category: workflow-issues
 module: controller-refresh-and-requirements-authoring
 problem_type: workflow_issue
@@ -9,12 +9,14 @@ component: development_workflow
 severity: high
 applies_when:
   - "A refreshed controller will author or review a new vertical"
+  - "A controller is about to declare a behavior-bearing consumer or common calculation mechanism absent"
   - "Secondary requirements add or change candidates, prepared representatives, or selected-input pressure"
   - "A W-Engine pass compares the representative, other limited S-Ranks, and standard S-Rank or A-Rank alternatives"
   - "Reviewers validate an implementation against requirements written in the same change"
   - "A zero-substat prepared Result is used to author a candidate or first choice"
 symptoms:
   - "The controller can narrate the permanent contract but cannot apply it to contrasting current consumers"
+  - "Inspection of one narrow relationship variant hides a broader existing family with the required stage or output"
   - "A secondary requirement becomes the oracle that plans, code, tests, and browser checks merely confirm"
   - "A clean build and passing review stack create confidence in incorrect candidate or representative authoring"
   - "Completed plans are copied forward or retained as competing current policy"
@@ -34,6 +36,8 @@ tags:
   - w-engine-authoring
   - realized-package
   - prepared-zero
+  - relationship-topology
+  - reverse-discovery
 ---
 
 # Prevent secondary requirements from validating themselves
@@ -116,6 +120,67 @@ boundaries include:
   finite future tuning opportunity may produce different whole-package choices;
   and
 - selected-pressure present, absent, and reselected states.
+
+### Reverse-discover current mechanisms by topology
+
+Knowing that a nearest consumer is required does not make that consumer
+discoverable. Before declaring a current calculation mechanism absent, search
+by the relationship shape required by the proposed meaning rather than by a
+remembered Agent, equipment identity, or source label:
+
+```text
+calculation stage
+-> basis kind and surface
+-> output kind
+-> literal current relationship declarations
+-> owner-constrained inspection of the nearest returned consumers
+```
+
+The current derived relationship families provide this navigation map:
+
+| Family | Basis and stage | Possible result of the relationship |
+| --- | --- | --- |
+| `linear`, `gauge` | ordinary stat surface | stat, modifier, operation, or provider emission |
+| `post-delivery-linear`, `post-delivery-gauge` | completed ordinary-delivery stat surface | one-pass stat, modifier, operation, or derived-provider emission |
+| `post-delivery-stat-modifier-gauge` | completed Combat/Fully stat | one action-local modifier and its visible gauge |
+| `threshold-operation` | completed stat | qualifying operation plus visible gauge |
+| `surface-stat-derived-metric` | completed stats at every visible surface | terminal Result metric; no calculation atom |
+| `projection-gauge` | completed projected metric | terminal visible gauge; no calculation atom |
+
+Route the question to its permanent owner before accepting any returned
+consumer: game identities and action or eligibility terms belong to
+`zzz-game-vocabulary.md`; retained source meaning belongs to
+`source-fact-boundary.md`; calculation and formula relationships belong to
+`zzz-formula-mechanics.md`; candidates, preparation, recipients, surfaces, and
+lifecycle belong to `setup-workbench-product-contract.md`; and visible
+presentation belongs to `workbench-ui-design-rules.md`. This is a navigation
+order, not a replacement statement of any owner's Rule IDs.
+
+Generate the current use-site view instead of preserving a manual Agent or
+equipment matrix:
+
+```powershell
+node scripts/governance/inspect-relationship-topology.mjs `
+  --stage post-delivery --basis stat --output stat
+```
+
+When `node` is unavailable in sandboxed PowerShell, load the Codex workspace
+dependency paths and invoke the same repository script with the bundled Node
+executable as required by `AGENTS.md`.
+
+Use `--kind`, `--stage`, `--basis`, and `--output` independently or together.
+The command prints source locations for current literal relationship
+declarations. Its output is transient and deliberately omits semantic
+conclusions. Inspect every returned consumer, the applicable owner, and a
+contrast before accepting an analogy. Helper-created or dynamic relationships
+may require direct source tracing, and no matching literal declaration is not
+proof that the mechanism is absent.
+
+This lookup prevents a narrow known variant from hiding a broader existing
+family. It does not determine whether two source facts have the same meaning,
+whether a candidate is competitive, whether Setup compresses a condition, or
+whether Result should retain a relationship. Those remain owner-constrained
+controller decisions.
 
 A product-thesis summary, clean Git status, test count, browser pass, or reviewer
 count cannot substitute for these derivations.
