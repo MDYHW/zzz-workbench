@@ -937,7 +937,11 @@ describe('selected W-Engine source relationships', () => {
         },
       },
     }])
-    expect(squadDamage[0]?.effect).not.toHaveProperty('action')
+    const [squadDamageRelationship] = squadDamage
+    if (squadDamageRelationship?.kind !== 'provider') {
+      throw new Error('Expected the Ice-Jade squad DMG provider relationship.')
+    }
+    expect(squadDamageRelationship.effect).not.toHaveProperty('action')
   })
 
   it('keeps Metanukimorphosis holder Anomaly Mastery at Fully Enabled only', () => {
