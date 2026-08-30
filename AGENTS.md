@@ -190,6 +190,13 @@ Routine non-protected work does not require the product owner to submit a
 review on every PR. Protected work requires a fresh exact-head owner approval
 after the latest independent evidence. Global blanket approval remains zero;
 CODEOWNERS and `Protected Approval` supply the conditional owner boundary.
+Before requesting that approval, the controller reads the current exact-head
+rollup and requires `Trusted Governance` plus all four behavior, type, build,
+and visual jobs to be successful. `Protected Approval` must be the only
+remaining failed required context and must report the expected current-owner
+approval requirement. A failed `Trusted Governance` status is diagnosed and
+repaired before involving the owner; approval cannot cure an invalid trace,
+stale evidence, or mismatched canonical identity.
 
 Recovery finalization repeats the semantic-evidence boundary after merge. It
 reconstructs the historical base/head tree pair used by the successful PR

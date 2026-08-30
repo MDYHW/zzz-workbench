@@ -9,6 +9,8 @@ import {
   buildCurrentSnapshot,
   deriveStructuralFacts,
   evaluateAndPublish,
+  evaluatePublishedEvidenceSnapshot,
+  evaluateProposedEvidenceSnapshot,
   evaluatePullRequestBatch,
   evaluateSnapshot,
   publishEvaluationFailure,
@@ -112,6 +114,80 @@ function snapshot(overrides = {}) {
     ...overrides,
   }
 }
+
+test('proposed evidence closes canonical trace identity before approval or mutation', () => {
+  const protectedSnapshot = snapshot({
+    body: body('protected'),
+    classification: 'protected',
+    classificationReason: 'A governance path changed.',
+    changeCategories: ['governance'],
+    comments: [],
+  })
+  const proposedBody = evidence('protected').body
+  const result = evaluateProposedEvidenceSnapshot(protectedSnapshot, {
+    body: proposedBody,
+    publishedAt: '2026-08-15T01:01:00.000Z',
+  })
+  assert.equal(result.targetSha, HEAD)
+  assert.deepEqual(result.trace.ruleIds, ['SW-001'])
+
+  assert.throws(() => evaluateProposedEvidenceSnapshot({
+    ...protectedSnapshot,
+    knownRuleIds: ['SF-005'],
+  }, {
+    body: proposedBody,
+    publishedAt: '2026-08-15T01:01:00.000Z',
+  }), /unknown Rule ID/)
+
+  const wrongMechanism = evidence('protected', {
+    mechanismDigest: `sha256:${'f'.repeat(64)}`,
+  }).body
+  assert.throws(() => evaluateProposedEvidenceSnapshot(protectedSnapshot, {
+    body: wrongMechanism,
+    publishedAt: '2026-08-15T01:01:00.000Z',
+  }), /stale or targets another change/)
+
+  assert.throws(() => evaluateProposedEvidenceSnapshot(protectedSnapshot, {
+    body: proposedBody,
+    publishedAt: '2026-08-15T00:59:59.000Z',
+  }), /time is invalid/)
+})
+
+test('published evidence postflight binds the actual App comment body and server timestamp', () => {
+  const protectedEvidence = evidence('protected')
+  const protectedSnapshot = snapshot({
+    body: body('protected'),
+    classification: 'protected',
+    classificationReason: 'A governance path changed.',
+    changeCategories: ['governance'],
+    comments: [protectedEvidence],
+  })
+  const result = evaluatePublishedEvidenceSnapshot(protectedSnapshot, {
+    body: protectedEvidence.body,
+    publishedAt: protectedEvidence.updatedAt,
+    commentId: protectedEvidence.id,
+  })
+  assert.equal(result.targetSha, HEAD)
+
+  assert.throws(() => evaluatePublishedEvidenceSnapshot(protectedSnapshot, {
+    body: `${protectedEvidence.body}\nchanged`,
+    publishedAt: protectedEvidence.updatedAt,
+    commentId: protectedEvidence.id,
+  }), /does not match/)
+  assert.throws(() => evaluatePublishedEvidenceSnapshot(protectedSnapshot, {
+    body: protectedEvidence.body,
+    publishedAt: '2026-08-15T01:01:01.000Z',
+    commentId: protectedEvidence.id,
+  }), /does not match/)
+  assert.throws(() => evaluatePublishedEvidenceSnapshot({
+    ...protectedSnapshot,
+    comments: [{ ...protectedEvidence, id: 56 }],
+  }, {
+    body: protectedEvidence.body,
+    publishedAt: protectedEvidence.updatedAt,
+    commentId: protectedEvidence.id,
+  }), /does not match/)
+})
 
 test('API pagination follows current pages without exposing the token in URLs', async () => {
   const urls = []

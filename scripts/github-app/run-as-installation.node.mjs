@@ -9,6 +9,7 @@ import {
   EVIDENCE_MARKER,
   LauncherError,
   assertPullRequestTarget,
+  buildEvidenceStatePreflight,
   buildChildCommand,
   buildGhEnvironment,
   createAppJwt,
@@ -27,6 +28,55 @@ import {
 
 const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
 const PEM = privateKey.export({ type: 'pkcs8', format: 'pem' });
+const EVIDENCE_PR_BODY = 'Current protected pull request body.';
+const EVIDENCE_PR_UPDATED_AT = '2026-08-30T01:00:00.000Z';
+const EVIDENCE_PUBLISHED_AT = '2026-08-30T01:01:00.000Z';
+
+function evidencePull(overrides = {}) {
+  return {
+    state: 'open',
+    body: EVIDENCE_PR_BODY,
+    updated_at: EVIDENCE_PR_UPDATED_AT,
+    base: { ref: 'main', sha: 'b'.repeat(40), repo: { full_name: REPOSITORY } },
+    head: { ref: 'codex/launcher-test', sha: 'a'.repeat(40), repo: { full_name: REPOSITORY } },
+    ...overrides,
+  };
+}
+
+function evidencePreflight(markers = []) {
+  return async ({ number, headSha, trustedBaseSha, publishedAt }) => ({
+    approved: true,
+    prNumber: Number(number),
+    baseSha: trustedBaseSha,
+    headSha,
+    ...(publishedAt ? {} : {
+      version: `sha256:${'c'.repeat(64)}`,
+      body: EVIDENCE_PR_BODY,
+      updatedAt: EVIDENCE_PR_UPDATED_AT,
+      markers,
+    }),
+  });
+}
+
+function evidenceComment(id, body, updatedAt = EVIDENCE_PR_UPDATED_AT) {
+  return {
+    id,
+    body,
+    html_url: `https://github.com/comment/${id}`,
+    user: { login: 'zzz-workbench-agent-mdy[bot]' },
+    created_at: updatedAt,
+    updated_at: updatedAt,
+  };
+}
+
+function evidenceMarker(comment) {
+  return {
+    id: comment.id,
+    author: comment.user.login,
+    body: comment.body,
+    updatedAt: comment.updated_at,
+  };
+}
 
 function ok(body, status = 200) {
   return { ok: status >= 200 && status < 300, status, json: async () => body };
@@ -86,6 +136,7 @@ function runtimeOptions(overrides = {}) {
     currentStatePreflight: async ({ number, headSha, trustedBaseSha }) => ({
       prNumber: Number(number), baseSha: trustedBaseSha, headSha,
     }),
+    evidenceStatePreflight: evidencePreflight(),
     trustedSourceProof: async () => ({ headSha: 'b'.repeat(40) }),
     operationCheckoutProof: async ({ operation }) => ({
       branch: operation.branch ?? operation.head ?? 'codex/launcher-test', headSha: 'a'.repeat(40), config: '',
@@ -480,26 +531,69 @@ test('redacts failures and revokes an already minted token', async () => {
 
 test('evidence upsert creates or replaces the single marker comment and returns its identity', async () => {
   const body = `${EVIDENCE_MARKER}\n\`\`\`json\n${JSON.stringify({ schema: 'zzz-workbench-authority-review/v1', kind: 'authority-review' })}\n\`\`\``;
-  for (const existing of [[], [{ id: 77, body: `${EVIDENCE_MARKER}\nold`, user: { login: 'zzz-workbench-agent-mdy[bot]' } }]]) {
+  for (const existing of [[], [evidenceComment(77, `${EVIDENCE_MARKER}\nold`)]]) {
     const { fetchImpl: baseFetch } = appFetch();
     const calls = [];
+    let comments = structuredClone(existing);
     const fetchImpl = async (url, init = {}) => {
       calls.push({ url, init });
-      if (url.endsWith('/pulls/42')) return ok({
-        state: 'open',
-        base: { ref: 'main', repo: { full_name: REPOSITORY } },
-        head: { ref: 'codex/launcher-test', repo: { full_name: REPOSITORY } },
-      });
-      if (url.endsWith('/issues/42/comments?per_page=100&page=1')) return ok(existing);
-      if (url.endsWith('/issues/42/comments') && init.method === 'POST') return ok({ id: 88, html_url: 'https://github.com/comment/88' }, 201);
-      if (url.endsWith('/issues/comments/77') && init.method === 'PATCH') return ok({ id: 77, html_url: 'https://github.com/comment/77' });
+      if (url.endsWith('/pulls/42')) return ok(evidencePull());
+      if (url.endsWith('/issues/42/comments?per_page=100&page=1')) return ok(comments);
+      if (url.endsWith('/issues/42/comments') && init.method === 'POST') {
+        comments = [evidenceComment(88, JSON.parse(init.body).body, EVIDENCE_PUBLISHED_AT)];
+        return ok(comments[0], 201);
+      }
+      if (url.endsWith('/issues/comments/77') && init.method === 'PATCH') {
+        comments = [evidenceComment(77, JSON.parse(init.body).body, EVIDENCE_PUBLISHED_AT)];
+        return ok(comments[0]);
+      }
       return baseFetch(url, init);
     };
-    const result = await runAsInstallation({ kind: 'evidence-upsert', number: '42', body }, runtimeOptions({ fetchImpl }));
+    const result = await runAsInstallation({ kind: 'evidence-upsert', number: '42', body }, runtimeOptions({
+      fetchImpl,
+      evidenceStatePreflight: evidencePreflight(existing.map(evidenceMarker)),
+    }));
     assert.equal(result.kind, 'evidence-upsert');
     assert.equal(result.commentId, existing.length === 0 ? 88 : 77);
     assert.equal(calls.filter(({ init }) => ['POST', 'PATCH'].includes(init.method)).length, 2);
+    assert.equal(result.publishedAt, EVIDENCE_PUBLISHED_AT);
   }
+});
+
+test('evidence upsert requires canonical current-state preflight before any evidence mutation', async () => {
+  const body = `${EVIDENCE_MARKER}\n\`\`\`json\n${JSON.stringify({ schema: 'zzz-workbench-authority-review/v1', kind: 'authority-review' })}\n\`\`\``;
+  let keyReads = 0;
+  await assert.rejects(
+    () => runAsInstallation({ kind: 'evidence-upsert', number: '42', body }, runtimeOptions({
+      evidenceStatePreflight: undefined,
+      readFile: async () => {
+        keyReads += 1;
+        return PEM;
+      },
+    })),
+    /preflight/,
+  );
+  assert.equal(keyReads, 0);
+
+  const reason = 'Authority trace references an unknown Rule ID.';
+  const { calls, fetchImpl } = appFetch();
+  await assert.rejects(
+    () => runAsInstallation({ kind: 'evidence-upsert', number: '42', body }, runtimeOptions({
+      fetchImpl,
+      evidenceStatePreflight: async ({ number, proposedBody, headSha, trustedBaseSha }) => {
+        assert.equal(number, '42');
+        assert.equal(proposedBody, body);
+        assert.equal(headSha, 'a'.repeat(40));
+        assert.equal(trustedBaseSha, 'b'.repeat(40));
+        return { approved: false, reason };
+      },
+    })),
+    (error) => error instanceof LauncherError
+      && error.code === 'evidence_preflight_failed'
+      && error.resource?.reason === reason,
+  );
+  assert.equal(calls.some(({ url, init }) => url.includes('/issues/') && ['POST', 'PATCH'].includes(init.method)), false);
+  assert.ok(calls.some(({ url, init }) => url.endsWith('/installation/token') && init.method === 'DELETE'));
 });
 
 test('evidence upsert rejects a foreign target and reconciles an ambiguous mutation', async () => {
@@ -509,33 +603,25 @@ test('evidence upsert rejects a foreign target and reconciles an ambiguous mutat
   await assert.rejects(
     () => runAsInstallation({ kind: 'evidence-upsert', number: '42', body }, runtimeOptions({
       fetchImpl: async (url, init = {}) => {
-        if (url.endsWith('/pulls/42')) return ok({
-          state: 'open',
-          base: { ref: 'recovery', repo: { full_name: REPOSITORY } },
-          head: { ref: 'codex/launcher-test', repo: { full_name: REPOSITORY } },
-        });
+        if (url.endsWith('/pulls/42')) return ok(evidencePull({
+          base: { ref: 'recovery', sha: 'b'.repeat(40), repo: { full_name: REPOSITORY } },
+        }));
+        if (url.endsWith('/issues/42/comments?per_page=100&page=1')) return ok([]);
         if (url.includes('/issues/') && ['POST', 'PATCH'].includes(init.method)) mutations += 1;
         return baseFetch(url, init);
       },
     })),
-    /outside the allowlisted/,
+    /changed after canonical preflight/,
   );
   assert.equal(mutations, 0);
 
   let listCount = 0;
   const reconciled = await runAsInstallation({ kind: 'evidence-upsert', number: '42', body }, runtimeOptions({
     fetchImpl: async (url, init = {}) => {
-      if (url.endsWith('/pulls/42')) return ok({
-        state: 'open',
-        base: { ref: 'main', repo: { full_name: REPOSITORY } },
-        head: { ref: 'codex/launcher-test', repo: { full_name: REPOSITORY } },
-      });
+      if (url.endsWith('/pulls/42')) return ok(evidencePull());
       if (url.endsWith('/issues/42/comments?per_page=100&page=1')) {
         listCount += 1;
-        return ok(listCount === 1 ? [] : [{
-          id: 88, body, html_url: 'https://github.com/comment/88',
-          user: { login: 'zzz-workbench-agent-mdy[bot]' },
-        }]);
+        return ok(listCount === 1 ? [] : [evidenceComment(88, body, EVIDENCE_PUBLISHED_AT)]);
       }
       if (url.endsWith('/issues/42/comments') && init.method === 'POST') throw new Error('ambiguous network failure');
       return baseFetch(url, init);
@@ -543,6 +629,156 @@ test('evidence upsert rejects a foreign target and reconciles an ambiguous mutat
   }));
   assert.equal(reconciled.reconciled, true);
   assert.equal(reconciled.commentId, 88);
+});
+
+test('evidence upsert blocks a body, timestamp, or marker race immediately before mutation', async () => {
+  const body = `${EVIDENCE_MARKER}\n\`\`\`json\n${JSON.stringify({ schema: 'zzz-workbench-authority-review/v1', kind: 'authority-review' })}\n\`\`\``;
+  for (const changedPull of [
+    evidencePull({ body: `${EVIDENCE_PR_BODY}\nchanged` }),
+    evidencePull({ updated_at: '2026-08-30T01:00:01.000Z' }),
+  ]) {
+    const { fetchImpl: baseFetch } = appFetch();
+    let mutations = 0;
+    await assert.rejects(
+      () => runAsInstallation({ kind: 'evidence-upsert', number: '42', body }, runtimeOptions({
+        fetchImpl: async (url, init = {}) => {
+          if (url.endsWith('/pulls/42')) return ok(changedPull);
+          if (url.endsWith('/issues/42/comments?per_page=100&page=1')) return ok([]);
+          if (url.includes('/issues/') && ['POST', 'PATCH'].includes(init.method)) mutations += 1;
+          return baseFetch(url, init);
+        },
+      })),
+      /changed after canonical preflight/,
+    );
+    assert.equal(mutations, 0);
+  }
+
+  const existing = evidenceComment(77, `${EVIDENCE_MARKER}\nold`);
+  const { fetchImpl: baseFetch } = appFetch();
+  let mutations = 0;
+  await assert.rejects(
+    () => runAsInstallation({ kind: 'evidence-upsert', number: '42', body }, runtimeOptions({
+      fetchImpl: async (url, init = {}) => {
+        if (url.endsWith('/pulls/42')) return ok(evidencePull());
+        if (url.endsWith('/issues/42/comments?per_page=100&page=1')) return ok([existing]);
+        if (url.includes('/issues/') && ['POST', 'PATCH'].includes(init.method)) mutations += 1;
+        return baseFetch(url, init);
+      },
+    })),
+    /changed after canonical preflight/,
+  );
+  assert.equal(mutations, 0);
+});
+
+test('evidence upsert reports a completed mutation when canonical postflight fails', async () => {
+  const body = `${EVIDENCE_MARKER}\n\`\`\`json\n${JSON.stringify({ schema: 'zzz-workbench-authority-review/v1', kind: 'authority-review' })}\n\`\`\``;
+  const { fetchImpl: baseFetch } = appFetch();
+  let comments = [];
+  const preflight = evidencePreflight();
+  await assert.rejects(
+    () => runAsInstallation({ kind: 'evidence-upsert', number: '42', body }, runtimeOptions({
+      fetchImpl: async (url, init = {}) => {
+        if (url.endsWith('/pulls/42')) return ok(evidencePull());
+        if (url.endsWith('/issues/42/comments?per_page=100&page=1')) return ok(comments);
+        if (url.endsWith('/issues/42/comments') && init.method === 'POST') {
+          comments = [evidenceComment(88, JSON.parse(init.body).body, EVIDENCE_PUBLISHED_AT)];
+          return ok(comments[0], 201);
+        }
+        return baseFetch(url, init);
+      },
+      evidenceStatePreflight: async (input) => input.publishedAt
+        ? { approved: false, reason: 'Published timestamp is stale.' }
+        : preflight(input),
+    })),
+    (error) => error instanceof LauncherError
+      && error.code === 'evidence_postflight_failed'
+      && error.mutationCompleted === true
+      && error.resource?.commentId === 88
+      && error.resource?.reason === 'Published timestamp is stale.',
+  );
+});
+
+test('evidence upsert reports a completed mutation when post-write markers race', async () => {
+  const body = `${EVIDENCE_MARKER}\n\`\`\`json\n${JSON.stringify({ schema: 'zzz-workbench-authority-review/v1', kind: 'authority-review' })}\n\`\`\``;
+  const { fetchImpl: baseFetch } = appFetch();
+  let listCount = 0;
+  await assert.rejects(
+    () => runAsInstallation({ kind: 'evidence-upsert', number: '42', body }, runtimeOptions({
+      fetchImpl: async (url, init = {}) => {
+        if (url.endsWith('/pulls/42')) return ok(evidencePull());
+        if (url.endsWith('/issues/42/comments?per_page=100&page=1')) {
+          listCount += 1;
+          return ok(listCount === 1 ? [] : [
+            evidenceComment(88, body, EVIDENCE_PUBLISHED_AT),
+            evidenceComment(89, body, EVIDENCE_PUBLISHED_AT),
+          ]);
+        }
+        if (url.endsWith('/issues/42/comments') && init.method === 'POST') {
+          return ok(evidenceComment(88, body, EVIDENCE_PUBLISHED_AT), 201);
+        }
+        return baseFetch(url, init);
+      },
+    })),
+    (error) => error instanceof LauncherError
+      && error.code === 'evidence_publish_unverified'
+      && error.mutationCompleted === true
+      && error.resource?.commentId === 88,
+  );
+});
+
+test('CLI evidence preflight wiring forwards canonical input and returns the live binding', async () => {
+  const marker = {
+    id: 77,
+    author: 'zzz-workbench-agent-mdy[bot]',
+    body: `${EVIDENCE_MARKER}\nold`,
+    createdAt: EVIDENCE_PR_UPDATED_AT,
+    updatedAt: EVIDENCE_PR_UPDATED_AT,
+  };
+  const calls = [];
+  const preflight = buildEvidenceStatePreflight({
+    loadTrustedGithub: async () => ({
+      evaluateEvidenceUpsertPreflight: async (input) => {
+        calls.push(input);
+        return {
+          version: `sha256:${'c'.repeat(64)}`,
+          snapshot: {
+            prNumber: 42,
+            baseSha: 'b'.repeat(40),
+            headSha: 'a'.repeat(40),
+            body: EVIDENCE_PR_BODY,
+            updatedAt: EVIDENCE_PR_UPDATED_AT,
+            comments: [marker],
+          },
+        };
+      },
+    }),
+  });
+  const result = await preflight({
+    number: '42',
+    proposedBody: 'proposed evidence',
+    publishedAt: EVIDENCE_PUBLISHED_AT,
+    publishedCommentId: 77,
+    headSha: 'a'.repeat(40),
+    token: 'installation-token',
+    sourceRoot: '/trusted',
+    trustedBaseSha: 'b'.repeat(40),
+  });
+  assert.equal(result.approved, true);
+  assert.deepEqual(result.markers, [{
+    id: marker.id,
+    author: marker.author,
+    body: marker.body,
+    updatedAt: marker.updatedAt,
+  }]);
+  assert.deepEqual(calls, [{
+    prNumber: 42,
+    proposedBody: 'proposed evidence',
+    token: 'installation-token',
+    root: '/trusted',
+    trustedBaseSha: 'b'.repeat(40),
+    publishedAt: EVIDENCE_PUBLISHED_AT,
+    publishedCommentId: 77,
+  }]);
 });
 
 test('merge reports pending checks and reconciles an ambiguous successful mutation', async () => {
