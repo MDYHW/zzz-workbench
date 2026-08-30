@@ -332,6 +332,34 @@ export interface PostDeliveryStatModifierGaugeRelationship {
 }
 
 /**
+ * A bounded one-way conversion from a completed delivered metric into one
+ * holder stat and a visible gauge. It cannot emit a provider, modifier,
+ * operation, or another derived relationship.
+ */
+export interface PostDeliveryMetricStatGaugeRelationship {
+  kind: 'post-delivery-metric-stat-gauge'
+  source: SelectedSourceInstance
+  basis: {
+    metricId: EffectMetric
+    surface: Exclude<SurfaceKey, 'initial'>
+  }
+  basisLabel: string
+  basisCap?: number
+  output: {
+    label: string
+    statId: StatId
+    region: Exclude<StatRegion, 'base'>
+    transform: LinearTransform
+    cap?: number
+    unit: string
+    decimals?: number
+  }
+  presentation?: 'scale'
+  sourceDetail?: string
+  decimals?: EvaluatedGauge['decimals']
+}
+
+/**
  * A Result metric derived independently on each visible surface from completed
  * recipient stats. It emits no stat or provider and cannot feed another pass.
  */
@@ -357,6 +385,7 @@ export type ProfileRelationship =
   | ThresholdOperationRelationship
   | ProjectionGaugeRelationship
   | PostDeliveryStatModifierGaugeRelationship
+  | PostDeliveryMetricStatGaugeRelationship
   | SurfaceStatDerivedMetricRelationship
   | { kind: 'operation'; atom: OperationAtom }
   | ProviderRelationship
@@ -390,6 +419,7 @@ export interface EvaluatedRelationships {
   thresholdOperations: ThresholdOperationRelationship[]
   projectionGauges: ProjectionGaugeRelationship[]
   postDeliveryStatModifierGauges: PostDeliveryStatModifierGaugeRelationship[]
+  postDeliveryMetricStatGauges: PostDeliveryMetricStatGaugeRelationship[]
   surfaceStatDerivedMetrics: SurfaceStatDerivedMetricRelationship[]
   postDeliveryLinear: PostDeliveryLinearRelationship[]
   postDeliveryGauges: PostDeliveryGaugeRelationship[]
@@ -405,6 +435,7 @@ const emptyEvaluation = (): EvaluatedRelationships => ({
   thresholdOperations: [],
   projectionGauges: [],
   postDeliveryStatModifierGauges: [],
+  postDeliveryMetricStatGauges: [],
   surfaceStatDerivedMetrics: [],
   postDeliveryLinear: [],
   postDeliveryGauges: [],
@@ -592,6 +623,9 @@ export function evaluateRelationships(
       case 'post-delivery-stat-modifier-gauge':
         evaluated.postDeliveryStatModifierGauges.push(relationship)
         break
+      case 'post-delivery-metric-stat-gauge':
+        evaluated.postDeliveryMetricStatGauges.push(relationship)
+        break
       case 'surface-stat-derived-metric':
         evaluated.surfaceStatDerivedMetrics.push(relationship)
         break
@@ -659,6 +693,55 @@ export function evaluateRelationships(
     }
   }
   return evaluated
+}
+
+export function evaluatePostDeliveryMetricStatGauge(
+  relationship: PostDeliveryMetricStatGaugeRelationship,
+  current: number,
+): { stat: ProfileStatAtom; gauge: EvaluatedGauge } {
+  const value = linearDerivedOutput({
+    basisValue: current,
+    ...relationship.output.transform,
+  })
+  return {
+    stat: {
+      statId: relationship.output.statId,
+      region: relationship.output.region,
+      earliestSurface: relationship.basis.surface,
+      value,
+      source: relationship.source,
+      ...(relationship.sourceDetail
+        ? { sourceDetail: relationship.sourceDetail }
+        : {}),
+    },
+    gauge: {
+      source: relationship.source,
+      metricId: relationship.basis.metricId,
+      basisLabel: relationship.basisLabel,
+      current,
+      ...(relationship.basisCap === undefined
+        ? {}
+        : { cap: relationship.basisCap }),
+      outputs: [{
+        label: relationship.output.label,
+        value,
+        ...(relationship.output.cap === undefined
+          ? {}
+          : { cap: relationship.output.cap }),
+        unit: relationship.output.unit,
+        ...(relationship.output.decimals === undefined
+          ? {}
+          : { decimals: relationship.output.decimals }),
+      }],
+      ...(relationship.presentation
+        ? { presentation: relationship.presentation }
+        : {}),
+      ...(relationship.sourceDetail
+        ? { sourceDetail: relationship.sourceDetail }
+        : {}),
+      ...(relationship.decimals ? { decimals: relationship.decimals } : {}),
+    },
+  }
 }
 
 /**

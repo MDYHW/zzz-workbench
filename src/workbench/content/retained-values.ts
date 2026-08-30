@@ -1,4 +1,11 @@
 export const VERTICAL_VALUES = {
+  norma: {
+    atk: 762, critRate: 19.4, critDmg: 50, impact: 106, baseEnergyRegen: 1.2,
+    coreCritDmgPerCrit: 1.7, coreCritDmgCap: 85, coreDazePerCrit: 0.8, coreDazeCap: 40, coreCritThreshold: 50,
+    sheerAtkPerPoint: 1.25, sheerAtkCap: 1200, additionalTechDivide: 3, additionalTechDivideM2: 6, additionalStacks: 10,
+    additionalStunDuration: 2, additionalAtk: 870, additionalDmg: 20,
+    mindscape1ResReduction: 15, mindscape6Daze: 30, mindscape6Dmg: 30,
+  },
   rupture: {
     currentAtkToSheer: 0.3,
     currentHpToSheer: 0.1,
@@ -649,6 +656,8 @@ const SOURCE_CATEGORY_LABELS = {
 } as const
 
 export const SOURCE_LABELS = {
+  normaCore: SOURCE_CATEGORY_LABELS.corePassive,
+  normaAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   slot4: 'Drive Disc \u00B7 Slot 4',
   slot5: 'Drive Disc \u00B7 Slot 5',
   slot6: 'Drive Disc \u00B7 Slot 6',

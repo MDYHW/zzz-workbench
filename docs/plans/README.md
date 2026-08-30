@@ -8,10 +8,11 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-Keep at most one active bounded implementation plan. There is currently no
-active bounded plan. The completed through-3.1 research preflight is recorded
-in the milestone index below; any later Agent vertical requires its own bounded
-requirement and plan after its meaning is settled.
+Keep at most one active bounded implementation plan. The current active plan is
+[Norma Hollowell Vertical Implementation Plan](2026-08-31-norma-hollowell-vertical.md).
+The completed through-3.1 research preflight is recorded in the milestone index
+below; later Agent verticals still require their own bounded requirement and
+plan after their meaning is settled.
 The authority-governance recovery closed after exact-SHA
 finalization, protected `main` promotion, and recovery freeze; its detailed
 execution record remains in Git history and the durable postmortem.

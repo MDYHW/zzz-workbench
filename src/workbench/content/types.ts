@@ -57,6 +57,7 @@ export type AgentId =
   | 'miyabi'
   | 'anton'
   | 'rina'
+  | 'norma'
 
 export type AgentRank = 'S' | 'A'
 export type AgentAttribute =
@@ -89,6 +90,7 @@ export type AgentFaction =
   | 'Spook Shack'
   | 'Mockingbird'
   | 'Angels of Delusion'
+  | 'External Strategy Department'
 
 /** Game-recognized teammate qualification that does not replace display faction. */
 export type PartyQualificationGroup = 'New Eridu Defense Force'
@@ -97,6 +99,7 @@ export type Refinement = 1 | 2 | 3 | 4 | 5
 export type EngineRank = 'S' | 'A'
 
 export type EngineId =
+  | 'chiefSidekick'
   | 'peacekeeperSpecialized'
   | 'qingming'
   | 'cauldron'

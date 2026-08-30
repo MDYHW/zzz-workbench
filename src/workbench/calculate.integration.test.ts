@@ -55,6 +55,43 @@ describe('shared calculation integration', () => {
       .not.toContain('power')
   })
 
+  it('converts Lucia-delivered Sheer Force into Norma ATK only while the provider is present', () => {
+    const withResult = calculateParty(createPreparedState(
+      {}, ['norma', 'lucia', 'yixuan'], 2,
+    ))!
+    const withoutResult = calculateParty(createPreparedState(
+      {}, ['norma', 'dialyn', 'yixuan'], 2,
+    ))!
+    const withLucia = withResult.agents.find(({ agentId }) => agentId === 'norma')!
+    const withoutLucia = withoutResult.agents.find(({ agentId }) => agentId === 'norma')!
+    const lucia = withResult.agents.find(({ agentId }) => agentId === 'lucia')!
+    const deliveredSheer = lucia.metrics.find(({ id }) => id === 'maxHp')!.gauges
+      .find(({ outputLabel }) => outputLabel === 'Squad Sheer Force')!.outputValue
+    const withSheer = withLucia.metrics.find(({ id }) => id === 'sheerForce')!
+    const withoutSheer = withoutLucia.metrics.find(({ id }) => id === 'sheerForce')!
+    const withAtk = withLucia.metrics.find(({ id }) => id === 'atk')!
+    const withoutAtk = withoutLucia.metrics.find(({ id }) => id === 'atk')!
+
+    expect(withSheer.values.fully).toBe(deliveredSheer)
+    expect(withSheer.gauges[0]).toEqual(expect.objectContaining({
+      current: deliveredSheer,
+      outputValue: Math.min(
+        deliveredSheer * VERTICAL_VALUES.norma.sheerAtkPerPoint,
+        VERTICAL_VALUES.norma.sheerAtkCap,
+      ),
+    }))
+    expect(withAtk.values.fully - withoutAtk.values.fully).toBe(
+      Math.min(
+        deliveredSheer * VERTICAL_VALUES.norma.sheerAtkPerPoint,
+        VERTICAL_VALUES.norma.sheerAtkCap,
+      ),
+    )
+    expect(withoutSheer.values.fully).toBe(0)
+    expect(withoutSheer.gauges[0]).toEqual(expect.objectContaining({
+      current: 0, outputValue: 0,
+    }))
+  })
+
   it('projects compatible exact anomaly outcomes across current recipient profiles', () => {
     let state = createPreparedState({}, ['jane', 'alice', 'piper'], 0)
     state = workbenchReducer(state, { type: 'setMindscape', slot: 1, mindscape: 2 })

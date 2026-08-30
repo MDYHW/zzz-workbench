@@ -17,7 +17,7 @@ import {
 } from '../agent-sources/sources'
 import { agentBroadPrePenRelationships } from '../agent-broad-pre-pen-relationships'
 
-type Agent = 'dialyn' | 'trigger' | 'lycaon' | 'juFufu' | 'lighter' | 'pulchra' | 'qingyi' | 'koleda' | 'anby' | 'nangongYu'
+type Agent = 'dialyn' | 'trigger' | 'lycaon' | 'juFufu' | 'lighter' | 'pulchra' | 'qingyi' | 'koleda' | 'anby' | 'nangongYu' | 'norma'
 type Slot = 0 | 1 | 2
 type Locus = 'identity' | 'core' | 'additional' | 'special' | 'ex-special'
 type ProfileSetup = CompleteSelectedSetup & {
@@ -36,6 +36,7 @@ const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   koleda: { critRate: VERTICAL_VALUES.koleda.critRate, impact: VERTICAL_VALUES.koleda.impact, energyRegen: VERTICAL_VALUES.koleda.baseEnergyRegen },
   anby: { critRate: VERTICAL_VALUES.anby.critRate, impact: VERTICAL_VALUES.anby.impact, energyRegen: VERTICAL_VALUES.anby.baseEnergyRegen },
   nangongYu: { atk: VERTICAL_VALUES.nangongYu.atk, anomalyProficiency: VERTICAL_VALUES.nangongYu.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.nangongYu.anomalyMastery, impact: VERTICAL_VALUES.nangongYu.impact, energyRegen: VERTICAL_VALUES.nangongYu.baseEnergyRegen, penRatio: 0 },
+  norma: { atk: VERTICAL_VALUES.norma.atk, critRate: VERTICAL_VALUES.norma.critRate, critDmg: VERTICAL_VALUES.norma.critDmg, impact: VERTICAL_VALUES.norma.impact, energyRegen: VERTICAL_VALUES.norma.baseEnergyRegen, penRatio: 0 },
 }
 
 const m = (id: MetricProjection['id'], label: string, unit: string, statId?: MetricProjection['statId'], admission?: MetricProjection['admission']): MetricProjection => ({
@@ -91,6 +92,9 @@ const NANGONG_ANOMALY_SCOPES = [
   { id: 'nangongDisorder', target: DISORDER_TARGET },
 ] satisfies readonly ActionScopeNode[]
 const PULCHRA_CORE_COMPLETE = actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Assist Follow-Up'), canonicalAction('Chain Attack'), canonicalAction('Ultimate')])
+const NORMA_CORE_DAZE = actionTarget([canonicalAction('Special Attack'), canonicalAction('EX Special Attack'), canonicalAction('Ultimate')])
+const NORMA_ARMOR_PIERCING = actionTarget([sourceLocalAction('Armor-Piercing Warhead')])
+const NORMA_HIGH_EXPLOSIVE = actionTarget([sourceLocalAction('High-Explosive Warhead')])
 
 function partyAgent(agentId: string) { return ADMITTED_AGENTS.find(({ id }) => id === agentId)! }
 function another(ids: readonly string[], slot: Slot, predicate: (id: string) => boolean) {
@@ -107,7 +111,7 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
   const core = source(agent, slot, 'core', SOURCE_LABELS[`${agent}Core`])
   const abilityKey = `${agent}Ability` as keyof typeof SOURCE_LABELS
   const ability = abilityKey in SOURCE_LABELS ? source(agent, slot, 'additional', SOURCE_LABELS[abilityKey], 'additional') : core
-  const alwaysProjectsCrit = ['dialyn', 'trigger', 'juFufu', 'qingyi'].includes(agent)
+  const alwaysProjectsCrit = ['dialyn', 'trigger', 'juFufu', 'qingyi', 'norma'].includes(agent)
   const projectsConditionalCrit = setup.fourPieceId === 'king' || ['koleda', 'anby'].includes(agent)
   const metrics: MetricProjection[] = [
     ...(BASE[agent].atk !== undefined ? [m('atk', 'ATK', '', 'atk')] : []),
@@ -116,7 +120,7 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
       : []),
     ...(agent === 'trigger'
       ? [m('critDmg', 'CRIT DMG', '%', 'critDmg', 'action')]
-      : agent === 'qingyi'
+      : agent === 'qingyi' || agent === 'norma'
         ? [m('critDmg', 'CRIT DMG', '%', 'critDmg')]
         : []),
     ...(agent === 'nangongYu' ? [
@@ -128,6 +132,8 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
     ] : []),
     m('impact', 'Impact', '', 'impact'),
     ...(BASE[agent].energyRegen !== undefined ? [m('energyRegen', 'Energy Regen', '/s', 'energyRegen', agent === 'dialyn' ? undefined : 'disclosed-or-action')] : []),
+    ...(agent === 'norma' ? [m('sheerForce', 'Sheer Force', '', undefined, 'nonzero-or-action')] : []),
+    ...(agent === 'norma' ? [m('penRatio', 'PEN Ratio', '%', 'penRatio', 'disclosed-or-action')] : []),
     ...(agent === 'nangongYu' ? [m('anomalyBuildupBonus', 'Anomaly Buildup Bonus', '%', undefined, 'nonzero-or-action')] : []),
     m('dazeBonus', 'Daze Bonus', '%', undefined, 'nonzero-or-action'), m('dmgBonus', 'DMG Bonus', '%', undefined, 'nonzero-or-action'), m('stunDmgMultiplier', 'Stun DMG Multiplier', '%', undefined, 'nonzero-or-action'), m('resReduction', 'RES Reduction', '%', undefined, 'nonzero-or-action'), m('resIgnore', 'RES Ignore', '%', undefined, 'nonzero-or-action'), m('defReduction', 'DEF Reduction', '%', undefined, 'nonzero-or-action'),
     ...(agent === 'trigger' ? [m('defIgnore', 'DEF Ignore', '%', undefined, 'nonzero-or-action')] : []),
@@ -147,7 +153,100 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
     ))
   }
   const add = (relationship: ProfileRelationship) => relationships.push(relationship)
-  if (agent === 'dialyn') {
+  if (agent === 'norma') {
+    relationships.push({
+      kind: 'gauge',
+      source: core,
+      basis: { statId: 'critRate', surface: 'initial' },
+      basisLabel: 'Initial CRIT Rate',
+      basisThreshold: VERTICAL_VALUES.norma.coreCritThreshold,
+      basisCap: 100,
+      metricId: 'critRate',
+      outputs: [
+        {
+          label: 'Combat CRIT DMG bonus', unit: '%',
+          cap: VERTICAL_VALUES.norma.coreCritDmgCap,
+          transform: {
+            basisThreshold: VERTICAL_VALUES.norma.coreCritThreshold,
+            basisIncrement: 1,
+            outputIncrement: VERTICAL_VALUES.norma.coreCritDmgPerCrit,
+            outputCap: VERTICAL_VALUES.norma.coreCritDmgCap,
+          },
+          emission: { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'combat' },
+        },
+        {
+          label: 'Special/EX/Ultimate Daze bonus', unit: '%',
+          cap: VERTICAL_VALUES.norma.coreDazeCap,
+          transform: {
+            basisThreshold: VERTICAL_VALUES.norma.coreCritThreshold,
+            basisIncrement: 1,
+            outputIncrement: VERTICAL_VALUES.norma.coreDazePerCrit,
+            outputCap: VERTICAL_VALUES.norma.coreDazeCap,
+          },
+          emission: { kind: 'modifier', metricId: 'dazeBonus', earliestSurface: 'combat', action: NORMA_CORE_DAZE },
+        },
+      ],
+    })
+    relationships.push({
+      kind: 'post-delivery-metric-stat-gauge',
+      source: core,
+      basis: { metricId: 'sheerForce', surface: 'fully' },
+      basisLabel: 'Fully Enabled Sheer Force',
+      basisCap: VERTICAL_VALUES.norma.sheerAtkCap / VERTICAL_VALUES.norma.sheerAtkPerPoint,
+      output: {
+        label: 'Additional flat ATK',
+        statId: 'atk',
+        region: 'flat',
+        transform: {
+          basisIncrement: 1,
+          outputIncrement: VERTICAL_VALUES.norma.sheerAtkPerPoint,
+          outputCap: VERTICAL_VALUES.norma.sheerAtkCap,
+        },
+        cap: VERTICAL_VALUES.norma.sheerAtkCap,
+        unit: '',
+      },
+    })
+    const additionalActive = another(ids, slot, (id) => (
+      ['Attack', 'Rupture'].includes(partyAgent(id).specialty)
+    )) || sameFaction(ids, slot)
+    if (additionalActive) {
+      relationships.push(
+        provider(ability, 'enemy-context', {
+          kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully',
+          value: VERTICAL_VALUES.norma.additionalTechDivide
+            * VERTICAL_VALUES.norma.additionalStacks,
+        }),
+        { kind: 'operation', atom: { label: 'Enemy Stun duration', earliestSurface: 'fully', value: VERTICAL_VALUES.norma.additionalStunDuration, unit: 's', source: ability } },
+        stat('atk', 'flat', VERTICAL_VALUES.norma.additionalAtk, ability),
+        provider(ability, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.norma.additionalDmg }, { formulas: DAMAGE }),
+      )
+      if (selected >= 2) relationships.push(provider(
+        mind(agent, slot, selected, 2),
+        'enemy-context',
+        {
+          kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully',
+          value: (VERTICAL_VALUES.norma.additionalTechDivideM2
+            - VERTICAL_VALUES.norma.additionalTechDivide)
+            * VERTICAL_VALUES.norma.additionalStacks,
+        },
+      ))
+    }
+    if (selected >= 1) relationships.push(provider(
+      mind(agent, slot, selected, 1),
+      'enemy-context',
+      { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.norma.mindscape1ResReduction, sourceDetail: 'Armor-Piercing or High-Explosive Warhead hit' },
+      { formulas: DAMAGE },
+    ))
+    if (selected >= 6) relationships.push(
+      mod('dazeBonus', VERTICAL_VALUES.norma.mindscape6Daze, mind(agent, slot, selected, 6), NORMA_ARMOR_PIERCING),
+      mod('dmgBonus', VERTICAL_VALUES.norma.mindscape6Dmg, mind(agent, slot, selected, 6), NORMA_HIGH_EXPLOSIVE),
+    )
+    actions.push(
+      actionProjection('dazeBonus', 'normaCoreDaze', NORMA_CORE_DAZE),
+      actionProjection('dazeBonus', 'normaArmorPiercingDaze', NORMA_ARMOR_PIERCING),
+      actionProjection('dmgBonus', 'normaHighExplosiveDmg', NORMA_HIGH_EXPLOSIVE),
+    )
+  } else if (agent === 'dialyn') {
     relationships.push({ kind: 'gauge', source: core, basis: { statId: 'critRate', surface: 'initial' }, basisLabel: 'Initial CRIT Rate', basisThreshold: VERTICAL_VALUES.dialyn.critThreshold, basisCap: 100, metricId: 'critRate', outputs: [{ label: 'Combat Impact bonus', unit: '', transform: { basisThreshold: VERTICAL_VALUES.dialyn.critThreshold, basisIncrement: 1, outputIncrement: VERTICAL_VALUES.dialyn.impactPerCrit, outputCap: VERTICAL_VALUES.dialyn.impactBonusCap }, emission: { kind: 'stat', statId: 'impact', region: 'flat', earliestSurface: 'combat' } }] } as ProfileRelationship)
     relationships.push(provider(ability, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.party.dialynDmg }, { formulas: DAMAGE }), provider(core, 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.party.dialynStunMultiplier }), { kind: 'operation', atom: { label: 'Enemy Stun duration', earliestSurface: 'fully', value: VERTICAL_VALUES.party.dialynStunExtension, unit: 's', source: core } })
     if (selected >= 1) relationships.push(provider(mind(agent, slot, selected, 1), 'enemy-context', { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'fully', value: VERTICAL_VALUES.dialyn.mindscapeResIgnore }))

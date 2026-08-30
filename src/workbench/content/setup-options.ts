@@ -20,6 +20,7 @@ export const FORMULA_PARTICIPATION_BY_AGENT: Record<
   AgentId,
   FormulaParticipation
 > = {
+  norma: { setup: { primary: ['daze_buildup'], residual: ['general_damage'] }, result: ['daze_buildup', 'general_damage'] },
   yixuan: { setup: { primary: ['sheer_damage'], residual: [] }, result: ['sheer_damage'] },
   yidhari: { setup: { primary: ['sheer_damage'], residual: [] }, result: ['sheer_damage'] },
   manato: { setup: { primary: ['sheer_damage'], residual: [] }, result: ['sheer_damage'] },
@@ -105,6 +106,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   AgentId,
   Record<MainSlot, MainStatId[]>
 > = {
+  norma: { slot4: ['critRate'], slot5: ['fireDmg', 'atkPct', 'penRatio'], slot6: ['energyRegenPct', 'impact'] },
   yixuan: {
     slot4: ['critRate', 'critDmg'],
     slot5: ['etherDmg', 'hpPct'],
@@ -332,6 +334,7 @@ export const EFFECTIVE_SUBSTAT_VALUES: Record<SubstatChoice['id'], SubstatChoice
 const substats = (...ids: SubstatChoice['id'][]): SubstatChoice[] => ids.map((id) => EFFECTIVE_SUBSTAT_VALUES[id])
 
 export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
+  norma: substats('critRate', 'critDmg', 'atkPct'),
   yixuan: substats('critRate', 'critDmg', 'hpPct'), yidhari: substats('critRate', 'critDmg', 'hpPct'), manato: substats('critRate', 'critDmg', 'hpPct'),
   hugo: substats('critRate', 'critDmg', 'atkPct'), juFufu: substats('atkPct', 'atkFlat'), panYinhu: substats('atkPct', 'atkFlat'),
   banyue: substats('critRate', 'critDmg', 'hpPct'), starlightBilly: substats('critRate', 'critDmg', 'hpPct'), dialyn: substats('critRate'), lucia: substats('hpPct', 'hpFlat'),

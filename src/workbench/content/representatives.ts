@@ -75,6 +75,12 @@ const dialynRepresentative: Omit<SetupSelection, 'engineId'> = {
   twoPieceId: 'woodpecker',
   mains: { slot4: 'critRate', slot5: 'atkPct', slot6: 'energyRegenPct' },
 }
+const normaRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'chiefSidekick' : 'hellfireGears',
+  fourPieceId: 'king',
+  twoPieceId: 'woodpecker',
+  mains: { slot4: 'critRate', slot5: 'fireDmg', slot6: 'energyRegenPct' },
+})
 
 const luciaRepresentative: Omit<SetupSelection, 'engineId'> = {
   fourPieceId: 'moonlight',
@@ -364,6 +370,10 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
 > = {
+  norma: {
+    full: normaRepresentative('full'),
+    nonLimited: normaRepresentative('nonLimited'),
+  },
   yixuan: {
     full: yixuanRepresentative('full', 0),
     nonLimited: yixuanRepresentative('nonLimited', 0),

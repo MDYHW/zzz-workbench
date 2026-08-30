@@ -64,6 +64,7 @@ import angelInTheShellImage from '../../assets/equipment/w-engines/angel-in-the-
 import frostfallSickleImage from '../../assets/equipment/w-engines/frostfall-sickle.webp'
 import peacekeeperSpecializedImage from '../../assets/equipment/w-engines/peacekeeper-specialized.webp'
 import neonFantasiesImage from '../../assets/equipment/w-engines/neon-fantasies.webp'
+import chiefSidekickImage from '../../assets/equipment/w-engines/chief-sidekick.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -89,6 +90,15 @@ const perSecond = (effect: EquipmentEffectFact, refinement: Refinement): string 
   `${equipmentEffectBaseValue(effect, refinement)}/s`
 
 export const W_ENGINE_FACTS = {
+  chiefSidekick: {
+    advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
+    effects: {
+      impact: { modifier: 'impact', unit: '', value: [30, 33, 36, 39, 42] },
+      fireResIgnore: { modifier: 'resIgnore', unit: '%', value: [15, 16.5, 18, 19.5, 21], scope: { recipient: 'self', attributes: ['Fire'] } },
+      energy: { modifier: 'energyRegen', unit: '/s', value: [0.4, 0.46, 0.52, 0.58, 0.64], scope: { condition: 'offField' } },
+      damage: { modifier: 'dmgBonus', unit: '%', progression: { kind: 'stacks', perStack: [12.5, 14, 15.5, 17, 18.5], maxStacks: 2 }, scope: { recipient: 'squad' }, activation: { kind: 'trigger', actions: ['EX Special Attack'], performer: 'equipper', attributes: ['Fire'] } },
+    },
+  },
   peacekeeperSpecialized: {
     advancedStat: { id: 'atkPct', label: 'ATK', value: 25, unit: '%' },
     effects: {
@@ -846,6 +856,17 @@ export type WEngineFactContract<Id extends EngineId> = (typeof W_ENGINE_FACTS)[I
 export type WEngineEffectField<Id extends EngineId> = keyof WEngineFactContract<Id>['effects']
 
 export const W_ENGINES: Record<EngineId, WEngineChoice> = {
+  chiefSidekick: {
+    name: 'Chief Sidekick', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.chiefSidekick.advancedStat, image: chiefSidekickImage,
+    passiveSpecialty: 'Stun',
+    passiveLines: (refinement) => [
+      `Impact +${equipmentEffectBaseValue(W_ENGINE_FACTS.chiefSidekick.effects.impact, refinement)}`,
+      `Fire RES Ignore +${percent(W_ENGINE_FACTS.chiefSidekick.effects.fireResIgnore, refinement)}`,
+      `Off-field Energy Regen +${perSecond(W_ENGINE_FACTS.chiefSidekick.effects.energy, refinement)}`,
+      `Squad DMG +${equipmentEffectMaximumValue(W_ENGINE_FACTS.chiefSidekick.effects.damage, refinement)}%`,
+    ],
+  },
   peacekeeperSpecialized: {
     name: 'Peacekeeper - Specialized', rank: 'A', limited: false, baseAtk: 624,
     advancedStat: W_ENGINE_FACTS.peacekeeperSpecialized.advancedStat, image: peacekeeperSpecializedImage,
@@ -971,8 +992,8 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveSpecialty: 'Stun',
     passiveLines: (refinement) => [
       `Off-field Energy Regen +${perSecond(W_ENGINE_FACTS.yesterdayCalls.effects.energy, refinement)}`,
-      `Physical EX stacks · Daze +${percent(W_ENGINE_FACTS.yesterdayCalls.effects.daze, refinement, true)}`,
-      `At 3 stacks · Squad CRIT DMG +${percent(W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, refinement)}`,
+      `Daze +${percent(W_ENGINE_FACTS.yesterdayCalls.effects.daze, refinement, true)}`,
+      `Squad CRIT DMG +${percent(W_ENGINE_FACTS.yesterdayCalls.effects.critDamage, refinement)}`,
     ],
   },
   hellfireGears: {
