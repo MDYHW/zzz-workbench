@@ -245,24 +245,71 @@ itself establish semantic readiness.
   pool-specific whole-package representative authoring at zero supplied
   substats; and selected-pressure on, off, and reselect lifecycle. Do not turn
   these checks into a named-Agent decision tree or a permanent exhaustive
-  matrix.
-- Before accepting a new semantic conclusion, decompose it into directly stated
-  facts and the relationship edges required by the conclusion. Every edge must
-  be explicit in the source fact being interpreted or derived from an
-  applicable permanent rule; inspect a current consumer to verify the
-  established application without treating that consumer as authority. Facts
-  that merely coexist or correlate do not create a relationship. For every
-  inferred edge, actively construct a countermodel that preserves the stated
-  facts and applicable owner rules while denying that edge; if the model
-  remains possible, the meaning is unresolved and dependent authoring stops.
-  Keep this proof ephemeral rather than creating a semantic evidence registry
-  or instance catalogue.
-- Authority closure is not a one-time refresh result. A later source fact,
-  contradiction, external recommendation, or reviewer claim that introduces or
-  changes a relationship reopens the applicable permanent owner and current
-  consumer before candidate valuation or product authoring continues. Do not
-  form a conclusion first and attach a Rule ID afterward; the owner constrains
-  the derivation before the conclusion exists.
+  matrix. State the observation that would falsify each sentinel. The bounded
+  set must include, when applicable, one case that stops before candidate
+  valuation because an exact operation or consumer is absent, and one case that
+  distinguishes Setup compression from Result projection: omitting routine
+  activation or duration from Setup under its current owner must not erase
+  holder eligibility, affected action, a material threshold, or a Result-only
+  relationship governed independently by another applicable rule.
+- Before calling any new or changed source-backed meaning `settled`, the
+  controller completes this ordered, ephemeral closure through stages 1–4 and
+  completes stage 5 whenever the proposed meaning has lifecycle consequences:
+  1. **Source closure:** retain the exact source facts, conditions, progression,
+     and ownership needed by the proposed meaning.
+  2. **Relationship and consumer closure:** decompose the conclusion into
+     directly stated facts and required relationship edges. Every edge is
+     explicit in the source or derived from a current permanent rule. For every
+     claimed relationship, name the exact current consumer that demonstrates
+     the already-established application, then inspect the nearest similar case,
+     a contrast, and a countermodel that preserves the facts and owner rules
+     while denying the edge. A consumer verifies the established application;
+     it is not authority. Coexisting or correlated facts do not create a
+     relationship.
+  3. **Candidate and preparation closure:** apply the Candidate Preparation
+     Dependency and the applicable equipment-inspection rule before changing a
+     candidate, representative, or prepared first choice; record an explicit
+     no-change conclusion when the inspected source does not alter them.
+  4. **Sink closure:** evaluate Setup and Result independently under their
+     current owners. Bind Setup compression for selected and candidate equipment
+     separately from every Result relationship, formula, recipient, action,
+     interval, operation, surface, or intentional omission that the change can
+     affect. For each sink, record an owner-backed `changed`, `no change`, or
+     `intentional omission` outcome; declaring a sink inapplicable does not close
+     it. A sink may close without a current consumer only when its owner permits
+     that no-consumer or intentional-omission outcome, and that absence cannot
+     supply an operation or consumer required by candidate or preparation
+     meaning. Correctness or reachability in one sink does not close the other.
+  5. **Lifecycle closure:** when selected input, preparation, allocation, or
+     contextual state is involved, close every applicable rebuild, direct-edit,
+     invalidation, incomplete, pressure, and reselect transition.
+
+  Across the closure, name each distinct current owning Rule ID, consumer or
+  owner-authorized absence, nearest similar and contrasting case, countermodel
+  result, changed user decision, and visible consequence once at the stage that
+  first consumes it. A surviving countermodel leaves that stage open. A closed
+  stage supplies input to later stages but cannot close them: source meaning may
+  be settled while candidate, Setup, Result, or lifecycle meaning remains
+  unresolved. Keep the proof transient; do not create a semantic evidence
+  registry, instance catalogue, permanent decision table, explanation payload,
+  or runtime validator.
+- `Meaning settled` is a controller execution gate, not a product state or a
+  new authority. Requirements, implementation planning, delegation with settled
+  semantics, production changes, and tests may begin only after stages 1–4 and
+  any required lifecycle closure succeed and the controller independently
+  validates the derived meaning. Stop dependent work when a countermodel
+  survives, a claimed relationship lacks an owner-required exact operation or
+  behavior-bearing consumer, a new common mechanism appears, a sink remains
+  undecided, or candidate, preparation, or lifecycle behavior lacks owner
+  support. A later source fact, contradiction, external recommendation, or
+  reviewer claim that changes an edge reopens the affected stage and every
+  dependent stage. Do not form a conclusion first and attach a Rule ID
+  afterward; the owner constrains the derivation before the conclusion exists.
+  Candidate arrays, representatives, Setup strings, planned downstream work,
+  expected outcomes, tests, builds, browser checks, and reviewer agreement
+  cannot supply a missing owner or exact behavior-bearing consumer and cannot
+  settle meaning. A current consumer may demonstrate an already-established
+  application only within the owner-constrained relationship review above.
 - Before requirements close, every newly added or changed candidate membership
   or prepared first choice applies the permanent product contract's Candidate
   Preparation Dependency and applicable W-Engine or Drive Disc inspection
@@ -284,11 +331,9 @@ itself establish semantic readiness.
   requirement. When a shared equipment fact changes, inspect every referencing
   candidate and representative for a changed local outcome; do not add a
   dependency registry, duplicate value, or item-specific catalogue test.
-- Secondary requirements cannot validate themselves. Review their new product
-  conclusions against the owning permanent authority and established current
-  consumers before writing an implementation plan. Tests, build, browser
-  checks, and reviewer agreement prove implementation fidelity only after that
-  authoring review succeeds.
+- Secondary requirements cannot validate themselves. They and all downstream
+  verification remain subject to the ordered closure and `Meaning settled` gate
+  above.
 - When a new preparation or allocation pass runs beside an existing pass,
   acceptance includes one shared flow that traverses both passes in their
   permanent-authority order and one contrasting flow. Isolated unit examples
