@@ -422,21 +422,27 @@ because `sheer_damage` omits the DEF region.
 
 Stun and provider directions reuse the same routing rather than inheriting a
 named-Agent list. When the current Focus's primary damage direction is
-crit-capable, preparation first assigns one legal competitive King of the
-Summit package to a Stun holder whose Daze and buffer roles consume it. The
-zero-substat start may remain below King's CRIT threshold: Slot 4 and effective
-substat positions are finite future investment opportunity, not absent supply.
-If one legal competitive prepared representative already holds King, preserve
-that holder unless a current independent consumer establishes another holder's
-priority; do not duplicate the non-stacking package merely because another Stun
-holder also becomes eligible. Only after this pass does preparation
-allocate other compatible party-facing packages, and only then Shockstar Disco
-unless sufficient authored field time makes its Basic, Dash, and Dodge Counter
-scope competitive. A capped provider reserves its scarce
-future substat opportunity before committing fixed supply, then inspects
-resource and party-facing packages for the remaining axes. Contextual Puffer
-Electro and Astral Voice admission and non-stacking holder allocation remain
-the separate operation-aware passes defined below.
+crit-capable, Agent-local preparation may assign a legal competitive King of
+the Summit package to each Stun holder whose Daze and buffer roles consume it.
+The zero-substat start may remain below King's CRIT threshold: Slot 4 and
+effective substat positions are finite future investment opportunity, not
+absent supply.
+When one legal competitive prepared representative already holds King,
+allocation may move another eligible holder only to an already-authored,
+legal, independently competitive non-overlapping complete package. Preserve
+the less-flexible competitive fit first and use a current independent consumer
+to resolve any supported priority. When every colliding holder lacks such an
+alternative, preserve each independently closed local representative even
+though King is duplicated. That duplication admits no fallback, reopens no
+candidate, recommends no party, and does not make the highest-only effect
+stack. Only after this pass does preparation allocate other compatible party-
+facing packages, and only then Shockstar Disco unless sufficient authored
+field time makes its Basic, Dash, and Dodge Counter scope competitive. A
+capped provider reserves its scarce future substat opportunity before
+committing fixed supply, then inspects resource and party-facing packages for
+the remaining axes. Contextual Puffer Electro and Astral Voice admission and
+non-stacking holder allocation remain the separate operation-aware passes
+defined below.
 
 ##### Variable Main-Stat Inspection
 
@@ -545,15 +551,20 @@ select the case nor continuously rank it.
 
 Candidate addition remains distinct from prepared holder allocation. When a
 non-stacking competitive effect fits more than one applied holder, preparation
-prefers a legal non-overlapping package and allocates the less-flexible fit
-first. Use only current independent role or Result consumers, complete package
-preservation, current main-stat and effective-substat directions, zero-substat
-threshold opportunity, and the material loss from giving up the effect. If
-those consumers still do not distinguish the holders, author one bounded
-deterministic party representative. Do not return `null`, use slot or Agent
-identity as a hidden tiebreaker, duplicate the prepared effect, or create a
-runtime holder score. Direct edits may still create duplicate holders, with
-ordinary non-stacking Result composition.
+prefers a legal non-overlapping allocation only by moving a holder to an
+already-authored, legal, independently competitive complete package. Allocate
+the less-flexible fit first. Use only current independent role or Result
+consumers, complete package preservation, current main-stat and effective-
+substat directions, zero-substat threshold opportunity, and the material loss
+from giving up the effect. If those consumers still do not distinguish
+otherwise supported non-overlapping allocations, author one bounded
+deterministic party representative. When every colliding holder lacks an
+authored competitive non-overlapping alternative, preserve each local
+representative even though the prepared effect is duplicated. Do not return
+`null`, use slot or Agent identity as a hidden tiebreaker, invent a fallback,
+reopen candidate membership, or create a runtime holder score. Direct edits
+may likewise create duplicate holders; ordinary highest-only Result
+composition keeps either prepared or edited duplication from stacking.
 
 Allocation passes compose in dependency order: a later holder tie-break
 consumes already-resolved Focus/formula and earlier package allocation. A
@@ -589,6 +600,13 @@ allocation, action or operation coverage, threshold or cap use, formula
 consumption, acquisition, or allocation. A different label, trigger, rarity,
 or positive clause is insufficient. Candidate count is never a target, and the
 workbench does not expose every viable fallback.
+
+A legal party composition or non-stacking allocation collision does not by
+itself establish a material candidate direction, admit a fallback, or reopen an
+Agent-local compression conclusion. Allocation consumes only candidates and
+representatives that already survived this rule. When no authored competitive
+non-overlapping alternative exists, `SW-020` preserves the independently
+closed local representatives instead of changing membership.
 
 Individual viability is not enough. Numerical difference alone creates no
 cutoff. Candidate count is not a target. A direction's valid stat pressure keeps
