@@ -63,15 +63,24 @@ version switch, named-party table, or guide-backed evidence payload.
   two independently activated CRIT clauses are fully compatible with Ellen and
   are current Combat inputs; they are not merged solely because their values
   match.
-- R5. Ellen's full candidates are Deep Sea Visitor, Myriad Eclipse, Cordis
-  Germina, Sol Exuvia, The Brimstone, and Marcato Desire. Non-limited
-  candidates are Sol, The Brimstone, and Marcato. Full
-  prepares Deep Sea Visitor W1; non-limited prepares Sol W1.
+- R5. Ellen's full candidates are Deep Sea Visitor, Knight's Extolment,
+  Myriad Eclipse, Cordis Germina, Sol Exuvia, The Brimstone, and Marcato Desire.
+  Non-limited candidates are Sol, The Brimstone, and Marcato. Full prepares Deep
+  Sea Visitor W1; non-limited prepares Sol W1.
   Deep Sea is the full first choice because its entire Ice/CRIT package is
-  usable and its two ordinary action triggers are native to Ellen. Myriad is
-  the closest full same-axis competitor: the same Base/advanced-CRIT chassis
-  replaces Ice DMG and two CRIT clauses with CRIT DMG and short post-action DEF
-  Ignore. Exact identity and scope therefore remain material. Heartstring's
+  usable, its two ordinary action triggers are native to Ellen, and its fixed
+  CRIT supply preserves substantially more of the finite substat opportunity
+  for CRIT DMG while approaching Ellen's practical CRIT stability range.
+  Knight's Basic-3 and EX-Special Heavy hits independently establish both
+  source-owned stacks in Ellen's retained operation. Its high CRIT-DMG and Ice
+  RES-Ignore package remains a competitive full-pool direction, but shifts Slot
+  4 and future finite allocation toward CRIT Rate, so it does not replace Deep
+  Sea as the deterministic first choice. Myriad is the nearest full mixed-CRIT
+  competitor: the same Base/advanced-CRIT chassis replaces Ice DMG and two CRIT
+  clauses with CRIT DMG and short post-action DEF Ignore. Myriad's fixed CRIT
+  supply and broad DEF axis remain materially distinct from Knight's higher
+  CRIT DMG and Ice-only RES axis. Exact identity and scope therefore remain
+  material. Heartstring's
   slightly higher CRIT DMG does not preserve a separate choice against Myriad's
   same CRIT direction and usable DEF Ignore, so it is excluded for Ellen.
   Cordis retains a distinct CRIT Rate and Basic/Ultimate DEF Ignore package.

@@ -84,6 +84,15 @@ Basic/Ultimate action effect.
   Marcato's same-direction A-Rank package; Marcato is retained only as the
   strongest same-direction account-use substitute when Sol is contested and
   Steel preserves the separate back-attack route.
+  Knight's Extolment is the nearest new Ice-Attack omission check rather than
+  another candidate. Hugo's retained burst uses Chain Attacks followed by an
+  EX Special or Ultimate, while his EX Special and Ultimate are not Heavy
+  Attacks. Even granting the strongest reachable one-stack Basic partial
+  package, Knight supplies no two-stack Ice RES Ignore and gives up too much
+  fixed CRIT Rate beside Myriad and Heartstring at the same zero-substat finite
+  opportunity. Myriad therefore remains the full representative and Knight
+  remains excluded. Reversal requires a second retained qualifying action-type
+  route or a package change that survives those same-role comparisons.
   Candidate dominance never defines these Result projections.
 - R9. Selected Myriad creates broad DEF-Ignore pressure because its package
   already supplies that axis. It removes the standalone Slot 5 PEN choice and

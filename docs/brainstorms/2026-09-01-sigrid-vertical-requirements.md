@@ -62,10 +62,11 @@ damage, rotation, block-cadence, or Heavy-Attack capability model.
   fact. Shared equipment facts own Base ATK, advanced CRIT DMG, per-stack CRIT
   DMG, the two-stack Ice RES Ignore outcome, refinement progression, retained
   Basic/EX Special activation, duration, compressed Setup copy, and image. The
-  Heavy Attack qualifier, per-action stack restriction, and refresh were checked
-  to prove Sigrid's exact applicability but do not change a current selected
-  consumer after roster reverse-routing, so they do not justify new runtime
-  fields. Agent authoring stores no copied equipment values.
+  Heavy Attack qualifier, per-action stack restriction, and refresh are checked
+  at Agent authoring before candidate valuation. Every admitted Knight holder
+  has both retained action-type routes and therefore reaches the same two-stack
+  selected Result, so those source details do not justify a runtime Heavy-Attack
+  capability model. Agent authoring stores no copied equipment values.
 - R3. Completed Core supplies Fully Enabled CRIT Rate and Stun DMG Multiplier.
   Aerial Patrol Spear establishes Fully Enabled reachability, while the Stunned
   target condition is intrinsic to the Stun DMG Multiplier formula region; neither
@@ -211,10 +212,10 @@ damage, rotation, block-cadence, or Heavy-Attack capability model.
 - No Potential Awakening, Sigrid-only equipment handler, Heavy-Attack capability
   registry, runtime equipment score, explanation payload, or source catalogue.
 - Knight's fixed supply and each passive clause were reverse-routed independently
-  across the current Attack roster. Existing Agents without a retained exact
-  Heavy Attack route stop before passive valuation; the fixed-supply-only package
-  does not beat their current same-role complete packages, so no existing
-  candidate or representative changes.
+  across the current Attack roster. Candidate and representative consequences
+  outside Sigrid remain owned by each affected Agent requirement; this vertical
+  retains only the completed roster-impact gate and adds no cross-Agent policy,
+  runtime Heavy-Attack capability model, or candidate catalogue.
 
 ## Resolve Before Implementation
 
