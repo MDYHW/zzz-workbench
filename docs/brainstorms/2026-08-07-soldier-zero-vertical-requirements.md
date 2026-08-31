@@ -144,8 +144,16 @@ The prose requirements govern if this diagram and the text ever differ.
   opportunity. M0 or an unqualified M2+ party keeps the base Woodpecker package.
   All effective-substat counts start at zero, and direct party/equipment edits
   do not dynamically reprepare the selection.
-- R17. Dialyn retains Precious Fossilized Core W5 and Steam Oven W5 alongside
-  Yesterday Calls and Hellfire Gears. Precious's advanced Impact and fully
+- R17. Dialyn retains Chief Sidekick alongside Precious Fossilized Core W5,
+  Steam Oven W5, Yesterday Calls, and Hellfire Gears. Chief's fixed CRIT supply
+  remains material after King's threshold because Dialyn's independent Core
+  conversion continues turning that supply into Combat Impact; its flat Impact
+  and off-field Energy make the complete package competitive with Hellfire
+  without displacing Yesterday's more operation-aligned Physical-EX, resource,
+  and squad package. Chief's Fire-only clauses are unused and contribute zero.
+  The contrary case is a holder whose CRIT supply has no retained use after the
+  King threshold; that case cannot inherit Dialyn's admission. Precious's
+  advanced Impact and fully
   enabled thresholded Daze package are usable. Steam's Energy-Regen/Impact
   package is weaker than Hellfire W1 on their shared direction but remains the
   strongest practical non-limited substitute when Hellfire is contested across
@@ -156,17 +164,23 @@ The prose requirements govern if this diagram and the text ever differ.
   separate Setup or Result distinction. Dialyn's representative remains
   Yesterday Calls/full and Hellfire/non-limited with King plus Woodpecker,
   CRIT Rate/ATK%/Energy Regen.
-- R18. Trigger's full W-Engine candidates are Spectral Gaze, Yesterday Calls,
+- R18. Trigger's full W-Engine candidates are Spectral Gaze, Chief Sidekick,
   Blazing Laurel, Ice-Jade Teapot, The Restrained, Hellfire Gears, Precious
   Fossilized Core, and Steam Oven; non-limited retains The Restrained,
-  Hellfire, Precious, and Steam. Yesterday is a competitive partial limited
-  alternative: advanced CRIT Rate strengthens Trigger's CRIT-to-Aftershock-Daze
-  relation and its off-field Energy supports her low-field operation, while the
-  Physical-EX Daze and three-stack squad-CRIT-DMG clauses are unusable and
-  contribute zero. Hellfire's broad Impact package and automatic off-field
-  Energy remain competitive beside Restrained's aligned Basic/Aftershock
-  direction. Steam's
-  weaker Energy-Regen/Impact package remains the strongest practical
+  Hellfire, Precious, and Steam. Chief is the retained partial limited CRIT
+  direction: its fixed CRIT supply continues through Trigger's independent
+  CRIT-to-Aftershock-Daze relation after King activates, while its flat Impact
+  and off-field Energy directly strengthen her low-field Daze operation. Its
+  Fire-only clauses are unusable and contribute zero. Yesterday supplies the
+  same Base ATK and fixed CRIT direction with stronger off-field Energy, but its
+  Physical-EX Daze and squad-CRIT-DMG clauses are unusable; the additional
+  resource alone does not preserve a second same-role partial package beside
+  Chief's broader operation-aligned Daze package. Reversal requires a retained
+  Trigger operation in which Yesterday's additional Energy materially changes
+  delivery rather than only cadence. Hellfire's broad Impact package and
+  automatic off-field Energy remain competitive beside Restrained's aligned
+  Basic/Aftershock direction. Steam's weaker Energy-Regen/Impact package remains
+  the strongest practical
   non-limited substitute when Hellfire is contested across simultaneous teams;
   Restrained and Precious do not replace that sustained resource/Impact
   operation. Neither changes the authored Restrained non-limited first choice.
@@ -279,9 +293,10 @@ package reach their narrower current consumers.
 | Additional Ability | each Fully CRIT point above 40 grants Aftershock Daze +1.5%, capped at +75% when Fully CRIT reaches 90 | Fully Enabled / Phase 3 | Trigger Aftershock Daze gauge |
 | Mindscape · M2 | party CRIT DMG +6% per stack, 4 stacks, maximum +24% | Fully Enabled | all current applicable damage contributors |
 
-Selected Spectral, Blazing, Ice-Jade, Restrained, Precious, and Steam facts
+Selected Spectral, Chief, Blazing, Ice-Jade, Restrained, Precious, and Steam facts
 supply Trigger's admitted CRIT, Impact, Daze, Energy, and applicable party
-packages; Blazing's Fire-only portion remains recipient-conditional.
+packages; Chief's Fire-only clauses are unused while Blazing's Fire-only
+portion remains recipient-conditional.
 
 #### Astra retained sources
 

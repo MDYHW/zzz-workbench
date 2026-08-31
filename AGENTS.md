@@ -336,6 +336,16 @@ itself establish semantic readiness.
   contrary condition, and selected-input lifecycle when applicable. Keep this
   analysis ephemeral and persist only the settled local outcome; do not restate
   the common policy in the requirement.
+- For every W-Engine comparison, close the unconditional fixed-supply baseline
+  before valuing passive clauses. Recompose Base ATK and the advanced stat at
+  zero supplied substats and under the bounded future opportunity; record the
+  exact threshold or cap use and the main-stat or substat allocation displaced
+  by that supply. This baseline proves neither admission nor priority. Only then
+  add each usable passive clause at its owner-authorized surface and reachable
+  magnitude, with unusable clauses at zero, before making the complete-package
+  decision. A Fully Enabled passive maximum cannot erase or discount the
+  Initial fixed-supply consequence. If the fixed-supply recomposition is absent,
+  candidate and representative closure is incomplete.
 - Preserve the `SW-004` and `SW-020` authoring order when qualifier differences
   affect candidate review. An exact authored recipient and formula direction
   may support base admission without a currently selected party, but a merely
@@ -356,6 +366,14 @@ itself establish semantic readiness.
   alone neither retains both packages nor supplies a generic tiebreaker. If the
   applicable authority and bounded supported preference cannot resolve a true
   tie, stop unresolved.
+
+  Partial applicability is not a separate direction or a candidate-count rule.
+  When two other limited S-Ranks have the same fixed-supply direction and
+  acquisition role, compare only their Agent-realized usable remainders after
+  zeroing unavailable clauses and retain the stronger operation-aligned package
+  unless a material allocation, action, operation, formula, threshold, cap, or
+  recipient consequence survives. Different unused clauses, trigger labels, or
+  amounts of source-package completeness do not preserve both.
 
   Do not turn every repeated activation into a cadence model. An exact retained
   action that occurs in the Agent's ordinary authored operation normally passes
