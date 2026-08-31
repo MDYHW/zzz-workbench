@@ -544,11 +544,11 @@ test('stable Rule IDs come only from five permanent owners plus AGENTS and rejec
 
 test('changed supporting requirements cite only current Rule IDs', () => {
   const ruleState = {
-    currentRuleIds: ['SF-005', 'SW-001'],
-    retiredRuleIds: ['SF-001'],
+    currentRuleIds: ['SF-005', 'SW-001', 'SW-002', 'SW-004'],
+    retiredRuleIds: ['SF-001', 'SW-003'],
   }
   assert.equal(validateSupportingRequirementRuleIds([
-    { path: 'docs/brainstorms/current.md', source: 'Apply `SF-005` and `SW-001`.' },
+    { path: 'docs/brainstorms/current.md', source: 'Apply `SF-005` and `SW-001`-`SW-002`.' },
   ], ruleState), true)
   assert.throws(() => validateSupportingRequirementRuleIds([
     { path: 'docs/brainstorms/retired.md', source: 'Apply `SF-001`.' },
@@ -556,6 +556,12 @@ test('changed supporting requirements cite only current Rule IDs', () => {
   assert.throws(() => validateSupportingRequirementRuleIds([
     { path: 'docs/brainstorms/unknown.md', source: 'Apply `SF-999`.' },
   ], ruleState), /unknown Rule ID SF-999/)
+  assert.throws(() => validateSupportingRequirementRuleIds([
+    { path: 'docs/brainstorms/range.md', source: 'Apply `SW-002`-`SW-004`.' },
+  ], ruleState), /retired Rule ID SW-003/)
+  assert.throws(() => validateSupportingRequirementRuleIds([
+    { path: 'docs/brainstorms/descending.md', source: 'Apply `SW-004`-`SW-002`.' },
+  ], ruleState), /descending Rule ID range SW-004 to SW-002/)
   assert.equal(validateSupportingRequirementRuleIds([
     { path: 'docs/solutions/history.md', source: 'Historical `SF-001`.' },
     { path: 'docs/brainstorms/deleted.md', source: null },

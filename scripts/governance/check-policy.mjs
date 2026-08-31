@@ -800,6 +800,15 @@ export function validateSupportingRequirementRuleIds(changes, ruleState) {
     if (!filePath.startsWith('docs/brainstorms/') || !filePath.endsWith('.md') || change.source === null) continue
     if (typeof change.source !== 'string') fail('Changed supporting requirement text is unavailable.')
     const ruleIds = new Set(change.source.match(/\b(?:SW|SF|UI|FM|GV|GOV)-\d{3}\b/g) ?? [])
+    for (const match of change.source.matchAll(/\b(SW|SF|UI|FM|GV|GOV)-(\d{3})\b`?\s*[-–—]\s*`?\b\1-(\d{3})\b/g)) {
+      const [, namespace, startText, endText] = match
+      const start = Number(startText)
+      const end = Number(endText)
+      if (start > end) fail(`Changed supporting requirement ${filePath} contains descending Rule ID range ${namespace}-${startText} to ${namespace}-${endText}.`)
+      for (let value = start; value <= end; value += 1) {
+        ruleIds.add(`${namespace}-${String(value).padStart(3, '0')}`)
+      }
+    }
     for (const ruleId of ruleIds) {
       if (retired.has(ruleId)) fail(`Changed supporting requirement ${filePath} references retired Rule ID ${ruleId}.`)
       if (!current.has(ruleId)) fail(`Changed supporting requirement ${filePath} references unknown Rule ID ${ruleId}.`)

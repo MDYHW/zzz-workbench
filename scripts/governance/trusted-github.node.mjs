@@ -344,7 +344,7 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
     const normalized = String(filePath).replaceAll('\\', '/')
     if (normalized.endsWith('docs/audits/2026-08-15-existing-vertical-recovery.md')) return 'no accepted rows'
     if (normalized.endsWith('AGENTS.md')) return '**Governance Rule ID:** `GOV-001`'
-    if (normalized.endsWith('docs/setup-workbench-product-contract.md')) return '**Rule ID:** `SW-001`'
+    if (normalized.endsWith('docs/setup-workbench-product-contract.md')) return '**Rule ID:** `SW-001`\n\n**Rule ID:** `SW-003`\n\n## Retired Rule IDs\n\n`SW-002` -> `SW-003`: replacement'
     if (normalized.endsWith('docs/source-fact-boundary.md')) return '**Rule ID:** `SF-005`\n\n## Retired Rule IDs\n\n`SF-001` -> `SF-005`: replacement'
     if (normalized.endsWith('docs/workbench-ui-design-rules.md')) return '**Rule ID:** `UI-001`'
     if (normalized.endsWith('docs/zzz-formula-mechanics.md')) return '**Rule ID:** `FM-001`'
@@ -365,6 +365,11 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
   await assert.rejects(
     () => buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile }),
     /retired Rule ID SF-001/,
+  )
+  requirementSource = 'Range cites `SW-001`-`SW-003`.'
+  await assert.rejects(
+    () => buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile }),
+    /retired Rule ID SW-002/,
   )
   requirementSource = 'Current requirement cites `SF-005`.'
   duplicateLifecycle = true
