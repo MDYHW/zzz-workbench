@@ -108,14 +108,21 @@ The prose requirements govern if this diagram and the text ever differ.
 
 - R13. Candidate arrays are competitive bounded choices, not catalogues. Full pool includes every admitted candidate; non-limited excludes limited S-Ranks while retaining admitted standard S-Ranks and A-Ranks. S-Ranks default to W1 and A-Ranks to W5.
 - R14. Anby's full W-Engine candidates are Severed Innocence, Cordis Germina,
-  Heartstring Nocturne, The Brimstone, and Marcato Desire; non-limited retains
-  The Brimstone and Marcato. Full prepares Severed Innocence W1 and non-limited
-  prepares Marcato Desire W5. Heartstring's mixed-CRIT package remains distinct
+  Heartstring Nocturne, Sol Exuvia, The Brimstone, and Marcato Desire;
+  non-limited retains Sol, The Brimstone, and Marcato. Full prepares Severed
+  Innocence W1 and non-limited prepares Sol W1. Sol's high-Base-ATK ATK/CRIT
+  package strictly replaces Marcato as the strongest standard CRIT/ATK route
+  while its Ether-only RES Ignore contributes zero. Marcato remains only as
+  the strongest still-competitive same-direction account-use substitute when
+  Sol is contested across simultaneous teams; Brimstone's broad ATK package
+  does not replace that fixed-CRIT allocation. Heartstring's mixed-CRIT package remains distinct
   at zero supplied substats even though its Fire RES Ignore is unusable by
   Electric Anby. The CRIT DMG enters Anby's existing received-dependent
   Aftershock basis; no Fire RES Ignore row is created. Brimstone displaces
   Starlight in the same non-limited broad-ATK role through its stronger usable
-  package; neither changes Marcato's prepared priority.
+  package. Sol preserves the existing non-limited CRIT-DMG Slot 4 package
+  because it supplies the same fixed CRIT Rate that made Marcato's allocation
+  competitive; its S-Rank Base ATK and Initial ATK instead settle priority.
 - R15. Anby prepares Shadow Harmony 4-piece. Her retained 2-piece candidates are
   Woodpecker Electro, Branch & Blade Song, Puffer Electro, Thunder Metal, and
   Hormone Punk. Puffer preserves the DEF-region alternative while no material
@@ -260,8 +267,8 @@ relationship one hierarchy.
 | Mindscape · M2 | CRIT Rate +12% | Combat | Anby |
 | Mindscape · M4 | Electric RES Ignore +12% against Silver Star | Fully Enabled | Anby Electric general damage |
 
-Selected Severed, Cordis, Marcato, and Starlight facts supply Anby's admitted
-CRIT/ATK packages; Cordis's Basic/Ultimate DEF Ignore and Severed's Aftershock
+Selected Severed, Cordis, Sol, Brimstone, and Marcato facts supply Anby's
+admitted CRIT/ATK packages; Cordis's Basic/Ultimate DEF Ignore and Severed's Aftershock
 package reach their narrower current consumers.
 
 #### Trigger retained sources

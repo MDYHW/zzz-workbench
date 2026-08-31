@@ -398,6 +398,19 @@ itself establish semantic readiness.
   requirement. When a shared equipment fact changes, inspect every referencing
   candidate and representative for a changed local outcome; do not add a
   dependency registry, duplicate value, or item-specific catalogue test.
+  When a vertical introduces a new shared equipment package, reverse-route its
+  advanced stat and each effect clause across the current roster before that
+  vertical closes. Form one bounded cohort by conjunctively applying the
+  existing holder, Attribute, action or operation, recipient, interval,
+  formula, role, and current-consumer gates; do not begin from guide lists or
+  current candidate arrays. Classify each surviving Agent-local outcome as
+  changed, no change, or unresolved, and give every bounded-out path an exact
+  contradiction. Only survivors and the nearest same-axis or same-role
+  comparator receive a complete-package and finite-opportunity comparison.
+  Persist settled local outcomes in their current Agent requirements and keep
+  the eliminated roster and working comparison transient. This reciprocal
+  inspection is an authoring gate, not a runtime validator, equipment
+  catalogue, dependency registry, or automatic candidate mutation.
 - Secondary requirements cannot validate themselves. They and all downstream
   verification remain subject to the ordered closure and `Meaning settled` gate
   above.

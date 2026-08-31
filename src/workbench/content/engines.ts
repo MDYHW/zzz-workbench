@@ -65,6 +65,7 @@ import frostfallSickleImage from '../../assets/equipment/w-engines/frostfall-sic
 import peacekeeperSpecializedImage from '../../assets/equipment/w-engines/peacekeeper-specialized.webp'
 import neonFantasiesImage from '../../assets/equipment/w-engines/neon-fantasies.webp'
 import chiefSidekickImage from '../../assets/equipment/w-engines/chief-sidekick.webp'
+import solExuviaImage from '../../assets/equipment/w-engines/sol-exuvia.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -90,6 +91,20 @@ const perSecond = (effect: EquipmentEffectFact, refinement: Refinement): string 
   `${equipmentEffectBaseValue(effect, refinement)}/s`
 
 export const W_ENGINE_FACTS = {
+  solExuvia: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 30, unit: '%' },
+    effects: {
+      critRate: { modifier: 'critRate', unit: '%', value: fixedRefinementValues(20) },
+      eclipseEtherResIgnore: {
+        modifier: 'resIgnore',
+        unit: '%',
+        value: [16, 17.5, 19, 20.5, 22],
+        earliestSurface: 'combat',
+        scope: { attributes: ['Ether'] },
+        activation: { kind: 'trigger', fieldEntry: true, durationSeconds: 45 },
+      },
+    },
+  },
   chiefSidekick: {
     advancedStat: { id: 'critRate', label: 'CRIT Rate', value: 24, unit: '%' },
     effects: {
@@ -856,6 +871,15 @@ export type WEngineFactContract<Id extends EngineId> = (typeof W_ENGINE_FACTS)[I
 export type WEngineEffectField<Id extends EngineId> = keyof WEngineFactContract<Id>['effects']
 
 export const W_ENGINES: Record<EngineId, WEngineChoice> = {
+  solExuvia: {
+    name: 'Sol Exuvia', rank: 'S', limited: false, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.solExuvia.advancedStat, image: solExuviaImage,
+    passiveSpecialty: 'Attack',
+    passiveLines: (refinement) => [
+      `CRIT Rate +${percent(W_ENGINE_FACTS.solExuvia.effects.critRate, refinement)}`,
+      `Ether RES Ignore +${percent(W_ENGINE_FACTS.solExuvia.effects.eclipseEtherResIgnore, refinement)}`,
+    ],
+  },
   chiefSidekick: {
     name: 'Chief Sidekick', rank: 'S', limited: true, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.chiefSidekick.advancedStat, image: chiefSidekickImage,
