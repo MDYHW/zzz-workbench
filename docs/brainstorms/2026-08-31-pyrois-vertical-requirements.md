@@ -84,8 +84,9 @@ differences without adding a resource, cadence, Contamination, or raw-damage mod
   Metal already preserves the legal different-set Ether complement.
 - R6a. Close The Sky Ablaze's reciprocal current-roster impact through the
   existing Agent-local owners. Zhu Yuan replaces Woodpecker Electro 4-piece
-  with Sky as the stronger Ether/CRIT/ATK broad package while retaining Chaotic
-  Metal as representative and Dawn's Bloom as the Basic-focused alternative.
+  with Sky as the stronger Ether/CRIT/ATK broad package and new representative,
+  while retaining Chaotic Metal as the maximum-stack alternative and Dawn's
+  Bloom as the Basic-focused alternative.
   Yixuan keeps Yunkui Tales alone: Sky is fully applicable but its recomposed
   CRIT/ATK package does not create a material setup direction beyond Yunkui's
   more role-native HP/CRIT/Sheer package and existing Slot 4 and 2-piece

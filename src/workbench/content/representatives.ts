@@ -188,7 +188,7 @@ const lucyRepresentative: SetupSelection = {
 
 const zhuYuanRepresentative = (pool: PoolId): SetupSelection => ({
   engineId: pool === 'full' ? 'cordisGermina' : 'solExuvia',
-  fourPieceId: 'chaoticMetal',
+  fourPieceId: 'skyAblaze',
   twoPieceId: pool === 'full' ? 'branchAndBlade' : 'woodpecker',
   mains: { slot4: 'critRate', slot5: 'atkPct', slot6: 'atkPct' },
 })

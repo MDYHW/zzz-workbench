@@ -98,11 +98,16 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   usable by Zhu Yuan and is a local candidate. The package does not require an
   Anomaly Result or make Nicole a hidden setup dependency. Sky's holder,
   Attribute, CRIT-formula, and EX Special/Ultimate activation gates are all
-  satisfied. Its complete broad package remains competitive with Chaotic while
-  displacing Woodpecker's weaker same-role 4-piece package; trigger wording
-  alone is not the retained distinction.
-- R9. Full prepares Chaotic Metal 4-piece plus Branch & Blade 2-piece;
-  non-limited prepares Chaotic Metal plus Woodpecker 2-piece. Both use ATK% in
+  satisfied. Zhu Yuan's naturally high CRIT DMG supply, Sky's direct trigger on
+  her retained burst actions, and its 30-second ATK package make Sky the stable
+  zero-substat first choice. Chaotic remains competitive because one active
+  Corruption state lets Zhu Yuan's repeated Ether hits build its CRIT-DMG
+  stacks, and its four-to-six-stack package can match or exceed Sky; that
+  reversal preserves Chaotic without turning exact stack uptime into a runtime
+  input. Both broad packages displace Woodpecker's weaker same-role 4-piece
+  package.
+- R9. Full prepares The Sky Ablaze 4-piece plus Branch & Blade 2-piece;
+  non-limited prepares The Sky Ablaze plus Woodpecker 2-piece. Both use ATK% in
   Slots 5 and 6 and zero substats. Slot 4 follows only already-applied fixed
   CRIT supply rather than runtime scoring. Full uses CRIT DMG while Zhu Yuan's
   Additional is active and CRIT Rate otherwise because Cordis closes the
@@ -240,7 +245,7 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
 ## Acceptance examples
 
 - AE1. Applying Zhu Yuan + Nicole + Dialyn in full pool initializes M0/M6/M0
-  and prepares Cordis/Chaotic/Branch & Blade and
+  and prepares Cordis/Sky Ablaze/Branch & Blade and
   Vault/Moonlight/Swing with all effective substats at zero. Dialyn adds
   Puffer 4-piece for Zhu Yuan while Nicole pressure keeps Puffer 2-piece and
   PEN Ratio absent.
