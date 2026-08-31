@@ -61,12 +61,12 @@ damage, rotation, block-cadence, or Heavy-Attack capability model.
 - R2. Add Knight's Extolment once as a limited S-Rank Attack W-Engine source
   fact. Shared equipment facts own Base ATK, advanced CRIT DMG, per-stack CRIT
   DMG, the two-stack Ice RES Ignore outcome, refinement progression, retained
-  Basic/EX Special activation, duration, compressed Setup copy, and image. The
-  Heavy Attack qualifier, per-action stack restriction, and refresh are checked
-  at Agent authoring before candidate valuation. Every admitted Knight holder
-  has both retained action-type routes and therefore reaches the same two-stack
-  selected Result, so those source details do not justify a runtime Heavy-Attack
-  capability model. Agent authoring stores no copied equipment values.
+  Basic/EX Special activation, Heavy Attack qualifier, distinct action-category
+  stack restriction, duration, compressed Setup copy, and image. Agent authoring
+  checks those source-owned qualifiers before candidate valuation. Every admitted
+  Knight holder has both retained action-type routes and therefore reaches the
+  same two-stack selected Result, so those source details do not justify a runtime
+  Heavy-Attack capability model. Agent authoring stores no copied equipment values.
 - R3. Completed Core supplies Fully Enabled CRIT Rate and Stun DMG Multiplier.
   Aerial Patrol Spear establishes Fully Enabled reachability, while the Stunned
   target condition is intrinsic to the Stun DMG Multiplier formula region; neither

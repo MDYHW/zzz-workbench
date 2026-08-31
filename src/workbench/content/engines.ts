@@ -118,7 +118,9 @@ export const W_ENGINE_FACTS = {
         },
         activation: {
           kind: 'trigger', performer: 'equipper',
-          actions: ['Basic Attack', 'EX Special Attack'], durationSeconds: 25,
+          actions: ['Basic Attack', 'EX Special Attack'],
+          actionQualifier: 'heavyAttack', distinctActionStacks: true,
+          durationSeconds: 25,
         },
       },
       iceResIgnore: {
@@ -126,7 +128,9 @@ export const W_ENGINE_FACTS = {
         scope: { attributes: ['Ice'] },
         activation: {
           kind: 'trigger', performer: 'equipper',
-          actions: ['Basic Attack', 'EX Special Attack'], durationSeconds: 25,
+          actions: ['Basic Attack', 'EX Special Attack'],
+          actionQualifier: 'heavyAttack', distinctActionStacks: true,
+          durationSeconds: 25,
           stackThreshold: 2,
         },
       },

@@ -280,6 +280,9 @@ export type EquipmentEffectActivation =
     kind: 'trigger'
     targetCondition?: Extract<EquipmentEffectCondition, 'anomalyAfflictedTarget' | 'burningTarget'>
     actions?: readonly EquipmentEffectAction[]
+    actionQualifier?: 'heavyAttack'
+    /** Each listed action category can supply at most one progression stack. */
+    distinctActionStacks?: true
     tags?: readonly EquipmentEffectTag[]
     operation?: AgentOperation
     attributes?: readonly EquipmentEffectAttribute[]
