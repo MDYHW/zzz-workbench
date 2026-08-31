@@ -300,6 +300,9 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
   const headBlob = '7'.repeat(40)
   const runQueries = []
   let duplicateLifecycle = false
+  let requirementPath = 'docs/brainstorms/x.md'
+  let requirementHead = { type: 'blob', mode: '100644' }
+  let requirementSource = 'Current requirement cites `SF-005`.'
   const api = {
     json: async (pathname) => {
       if (pathname.endsWith('/pulls/4')) return {
@@ -309,8 +312,14 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
       }
       if (pathname.endsWith(`/git/commits/${BASE}`)) return { tree: { sha: baseTreeSha } }
       if (pathname.endsWith(`/git/commits/${HEAD}`)) return { tree: { sha: headTreeSha } }
-      if (pathname.includes(baseTreeSha)) return { truncated: false, tree: [{ path: 'docs/brainstorms/x.md', type: 'blob', mode: '100644', sha: baseBlob }] }
-      if (pathname.includes(headTreeSha)) return { truncated: false, tree: [{ path: 'docs/brainstorms/x.md', type: 'blob', mode: '100644', sha: headBlob }] }
+      if (pathname.includes(baseTreeSha)) return { truncated: false, tree: [{ path: requirementPath, type: 'blob', mode: '100644', sha: baseBlob }] }
+      if (pathname.includes(headTreeSha)) return {
+        truncated: false,
+        tree: requirementHead ? [{ path: requirementPath, ...requirementHead, sha: headBlob }] : [],
+      }
+      if (pathname.endsWith(`/git/blobs/${headBlob}`)) {
+        return { encoding: 'base64', size: Buffer.byteLength(requirementSource), content: Buffer.from(requirementSource).toString('base64') }
+      }
       if (pathname.endsWith('/actions/workflows/pr-validation.yml')) return { id: 101 }
       if (pathname.endsWith('/actions/workflows/visual-baseline.yml')) return { id: 102 }
       throw new Error(`unexpected json ${pathname}`)
@@ -340,8 +349,8 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
     const normalized = String(filePath).replaceAll('\\', '/')
     if (normalized.endsWith('docs/audits/2026-08-15-existing-vertical-recovery.md')) return 'no accepted rows'
     if (normalized.endsWith('AGENTS.md')) return '**Governance Rule ID:** `GOV-001`'
-    if (normalized.endsWith('docs/setup-workbench-product-contract.md')) return '**Rule ID:** `SW-001`'
-    if (normalized.endsWith('docs/source-fact-boundary.md')) return '**Rule ID:** `SF-001`'
+    if (normalized.endsWith('docs/setup-workbench-product-contract.md')) return '**Rule ID:** `SW-001`\n\n**Rule ID:** `SW-003`\n\n## Retired Rule IDs\n\n`SW-002` -> `SW-003`: replacement'
+    if (normalized.endsWith('docs/source-fact-boundary.md')) return '**Rule ID:** `SF-005`\n\n## Retired Rule IDs\n\n`SF-001` -> `SF-005`: replacement'
     if (normalized.endsWith('docs/workbench-ui-design-rules.md')) return '**Rule ID:** `UI-001`'
     if (normalized.endsWith('docs/zzz-formula-mechanics.md')) return '**Rule ID:** `FM-001`'
     if (normalized.endsWith('docs/zzz-game-vocabulary.md')) return '**Rule ID:** `GV-001`'
@@ -357,6 +366,38 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
   assert.equal(runQueries.length, 2)
   assert.ok(runQueries.every((pathname) => pathname.includes(`head_sha=${HEAD}`)))
   assert.ok(runQueries.every((pathname) => !pathname.includes(`head_sha=${OTHER}`)))
+  requirementSource = 'Stale requirement cites `SF-001`.'
+  await assert.rejects(
+    () => buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile }),
+    /retired Rule ID SF-001/,
+  )
+  requirementSource = 'Range cites `SW-001`-`SW-003`.'
+  await assert.rejects(
+    () => buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile }),
+    /retired Rule ID SW-002/,
+  )
+  for (const head of [
+    { type: 'blob', mode: '120000' },
+    { type: 'blob', mode: '100755' },
+    { type: 'commit', mode: '160000' },
+  ]) {
+    requirementHead = head
+    await assert.rejects(
+      () => buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile }),
+      /must be a regular 100644 blob/,
+    )
+  }
+  requirementHead = null
+  const deleted = await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })
+  assert.deepEqual(deleted.changeCategories, ['supporting-doc'])
+  requirementPath = 'docs/solutions/history.md'
+  requirementHead = { type: 'blob', mode: '100644' }
+  requirementSource = 'Historical text cites `SF-001`.'
+  const historical = await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })
+  assert.deepEqual(historical.changeCategories, ['supporting-doc'])
+  requirementPath = 'docs/brainstorms/x.md'
+  requirementHead = { type: 'blob', mode: '100644' }
+  requirementSource = 'Current requirement cites `SF-005`.'
   duplicateLifecycle = true
   await assert.rejects(
     () => buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile }),

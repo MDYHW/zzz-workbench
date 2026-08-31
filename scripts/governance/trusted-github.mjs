@@ -26,6 +26,7 @@ import {
   validateReviewEvidence,
   validateAcrTransaction,
   validateAcrStates,
+  validateSupportingRequirementRuleIds,
   createGovernanceStatusBinding,
   isActionRunTargetUrl,
   parseGovernanceStatusBinding,
@@ -361,6 +362,18 @@ async function readMechanismDigestFromTree(baseTree, readText) {
 
 async function derivePolicyState({ treeDiff, body, readText, baseTree, ruleState }) {
   const paths = treeDiff.entries.map(({ path: filePath }) => filePath)
+  const changedSupportingRequirements = treeDiff.entries.filter(({ path: filePath }) => (
+    filePath.startsWith('docs/brainstorms/') && filePath.endsWith('.md')
+  ))
+  for (const { path: filePath, head } of changedSupportingRequirements) {
+    if (head && (head.type !== 'blob' || head.mode !== '100644')) {
+      fail(`Changed supporting requirement ${filePath} must be a regular 100644 blob.`)
+    }
+  }
+  const supportingRequirements = await Promise.all(changedSupportingRequirements
+    .filter(({ head }) => head)
+    .map(async ({ path: filePath, head }) => ({ path: filePath, source: await readText(head) })))
+  validateSupportingRequirementRuleIds(supportingRequirements, ruleState)
   const declaration = declaredClassification(body)
   let structuralFacts
   try {
