@@ -5,6 +5,7 @@ export type PoolId = 'full' | 'nonLimited'
 
 export type AgentId =
   | 'pyrois'
+  | 'sigrid'
   | 'yixuan'
   | 'dialyn'
   | 'lucia'
@@ -102,6 +103,7 @@ export type EngineRank = 'S' | 'A'
 
 export type EngineId =
   | 'solExuvia'
+  | 'knightsExtolment'
   | 'chiefSidekick'
   | 'peacekeeperSpecialized'
   | 'qingming'

@@ -304,6 +304,7 @@ describe('shared preparation and edit lifecycle', () => {
     }
 
     const contextualParties: readonly [AgentId, AgentId, AgentId][] = [
+      ['sigrid', 'dialyn', 'lucia'],
       ['cissia', 'astraYao', 'yixuan'],
       ['evelyn', 'astraYao', 'yixuan'],
       ['caesar', 'astraYao', 'yixuan'],
@@ -324,6 +325,38 @@ describe('shared preparation and edit lifecycle', () => {
   it('requires local whole-package admission for contextual received-Ultimate discs', () => {
     const admitted = createPreparedState({}, ['corin', 'dialyn', 'lycaon'], 0)
     expect(effectiveFourPieceIds(admitted, 0)).toContain('pufferElectro')
+
+    let sigrid = createPreparedState({}, ['sigrid', 'dialyn', 'lucia'], 0)
+    sigrid = workbenchReducer(sigrid, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'pufferElectro',
+    })
+    expect(sigrid.slots[0].setup).toMatchObject({
+      fourPieceId: 'pufferElectro', twoPieceId: 'dawnsBloom',
+    })
+
+    sigrid = workbenchReducer(sigrid, { type: 'openPartyEdit' })
+    sigrid = workbenchReducer(sigrid, {
+      type: 'replaceDraftAgent', slot: 1, agentId: 'yuzuha',
+    })
+    expect(sigrid.slots[0].setup.fourPieceId).toBe('pufferElectro')
+    expect(effectiveFourPieceIds(sigrid, 0)).toContain('pufferElectro')
+    expect(calculateParty(sigrid)).not.toBeNull()
+
+    sigrid = workbenchReducer(sigrid, { type: 'applyPartyEdit' })
+    expect(sigrid.slots[0].setup).toMatchObject({
+      fourPieceId: 'dawnsBloom', twoPieceId: 'pufferElectro',
+    })
+    expect(effectiveFourPieceIds(sigrid, 0)).not.toContain('pufferElectro')
+    expect(calculateParty(sigrid)).not.toBeNull()
+
+    sigrid = workbenchReducer(sigrid, { type: 'openPartyEdit' })
+    sigrid = workbenchReducer(sigrid, {
+      type: 'replaceDraftAgent', slot: 1, agentId: 'dialyn',
+    })
+    sigrid = workbenchReducer(sigrid, { type: 'applyPartyEdit' })
+    expect(effectiveFourPieceIds(sigrid, 0)).toContain('pufferElectro')
+    expect(sigrid.slots[0].setup.fourPieceId).toBe('dawnsBloom')
+    expect(calculateParty(sigrid)).not.toBeNull()
 
     const hugoM0 = createPreparedState({}, ['hugo', 'dialyn', 'lycaon'], 0)
     expect(effectiveFourPieceIds(hugoM0, 0)).not.toContain('pufferElectro')

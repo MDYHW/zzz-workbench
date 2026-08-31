@@ -16,11 +16,12 @@ import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedS
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from '../agent-sources/sources'
 import { agentBroadPrePenRelationships } from '../agent-broad-pre-pen-relationships'
 
-type Agent = 'pyrois' | 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen' | 'soldier11' | 'zhuYuan' | 'orphie' | 'harumasa' | 'nekomata' | 'billy' | 'yeShunguang' | 'miyabi' | 'anton'
+type Agent = 'pyrois' | 'sigrid' | 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen' | 'soldier11' | 'zhuYuan' | 'orphie' | 'harumasa' | 'nekomata' | 'billy' | 'yeShunguang' | 'miyabi' | 'anton'
 type Slot = 0 | 1 | 2
 type CalculationContext = { targetStunDmgMultiplier?: number }
 const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   pyrois: { atk: VERTICAL_VALUES.pyrois.atk, critRate: VERTICAL_VALUES.pyrois.critRate, critDmg: VERTICAL_VALUES.pyrois.critDmg },
+  sigrid: { atk: VERTICAL_VALUES.sigrid.atk, critRate: VERTICAL_VALUES.sigrid.critRate, critDmg: VERTICAL_VALUES.sigrid.critDmg },
   anbySoldier0: { atk: VERTICAL_VALUES.anbySoldier0.atk, critRate: VERTICAL_VALUES.anbySoldier0.critRate, critDmg: VERTICAL_VALUES.anbySoldier0.critDmg }, seed: { atk: VERTICAL_VALUES.seed.atk, critRate: VERTICAL_VALUES.seed.critRate, critDmg: VERTICAL_VALUES.seed.critDmg },
   cissia: { atk: VERTICAL_VALUES.cissia.atk, critRate: VERTICAL_VALUES.cissia.critRate, critDmg: VERTICAL_VALUES.cissia.critDmg, energyRegen: VERTICAL_VALUES.cissia.baseEnergyRegen },
   evelyn: { atk: VERTICAL_VALUES.evelyn.atk, critRate: VERTICAL_VALUES.evelyn.critRate, critDmg: VERTICAL_VALUES.evelyn.critDmg }, corin: { atk: VERTICAL_VALUES.corin.atk, critRate: VERTICAL_VALUES.corin.critRate, critDmg: VERTICAL_VALUES.corin.critDmg, energyRegen: VERTICAL_VALUES.corin.baseEnergyRegen },
@@ -50,6 +51,11 @@ const PYROIS_ULTIMATE_SCOPES = [{
   id: 'pyroisUltimate',
   target: ULT,
 }] satisfies readonly ActionScopeNode[]
+const SIGRID_CONVERGING = actionTarget([actionForm('Basic Attack', 'Converging Spear')])
+const SIGRID_UNBRIDLED_AND_CONVERGING = actionTarget([
+  sourceLocalAction('Unbridled Spear attacks'),
+  ...SIGRID_CONVERGING.outcomes,
+])
 const CHAIN_ULT = actionTarget([A('Chain Attack'), A('Ultimate')])
 const BACK = actionTarget([sourceLocalAction('Back attacks')])
 const SEED_SLAUGHTER = actionTarget([actionForm('Basic Attack', 'Falling Petals - Slaughter')])
@@ -101,6 +107,7 @@ function operation(source: ReturnType<typeof selectedAgentSource>, label: string
 function partyQualification(agent: Agent, ids: readonly AgentId[], slot: Slot): boolean {
   switch (agent) {
     case 'pyrois': return anotherAgentHasSpecialty(ids, slot, ['Stun', 'Support'])
+    case 'sigrid': return anotherAgentHasSpecialty(ids, slot, ['Stun', 'Support'])
     case 'anbySoldier0': return anotherAgentHasSpecialty(ids, slot, ['Stun', 'Support'])
     case 'seed': return false
     case 'cissia': return anotherAgentHasSpecialty(ids, slot, ['Stun']) || anotherAgentSharesAttribute(ids, slot)
@@ -162,6 +169,34 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
         actionProjection('dmgBonus', 'pyroisUltimateDmg', ULT),
       )
       break
+    case 'sigrid': {
+      const values = VERTICAL_VALUES.sigrid
+      const chain = src(agent, slot, 'chain', 'Chain Attack', 'special')
+      addMetric('critRate', values.coreCritRate, core)
+      addMetric('stunDmgMultiplier', values.coreStunDmgMultiplier, core)
+      addMetric('dmgBonus', values.chainConvergingDmg, chain, SIGRID_CONVERGING)
+      if (qualified) add(stat(ability, 'atk', values.additionalAtk))
+      if (setup.mindscape >= 1) addAtk(values.mindscape1Atk, mind(1), 'combat')
+      if (setup.mindscape >= 2) {
+        addMetric(
+          'penRatio', values.mindscape2PenRatio, mind(2),
+          SIGRID_UNBRIDLED_AND_CONVERGING,
+        )
+      }
+      if (setup.mindscape >= 4) addMetric('dmgBonus', values.mindscape4Dmg, mind(4))
+      actions.push(
+        {
+          metricId: 'dmgBonus',
+          scopes: [{
+            id: 'sigridConvergingSpearDmg',
+            target: SIGRID_CONVERGING,
+            inheritedEffectTargets: [BASIC],
+          }],
+        },
+        actionProjection('penRatio', 'sigridUnbridledConvergingPen', SIGRID_UNBRIDLED_AND_CONVERGING),
+      )
+      break
+    }
     case 'anbySoldier0':
       addMetric('dmgBonus', VERTICAL_VALUES.anbySoldier0.coreDmg, core)
       addMetric('critRate', qualified ? VERTICAL_VALUES.anbySoldier0.additionalCritRate : 0, ability)

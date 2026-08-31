@@ -66,6 +66,7 @@ import peacekeeperSpecializedImage from '../../assets/equipment/w-engines/peacek
 import neonFantasiesImage from '../../assets/equipment/w-engines/neon-fantasies.webp'
 import chiefSidekickImage from '../../assets/equipment/w-engines/chief-sidekick.webp'
 import solExuviaImage from '../../assets/equipment/w-engines/sol-exuvia.webp'
+import knightsExtolmentImage from '../../assets/equipment/w-engines/knights-extolment.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -102,6 +103,32 @@ export const W_ENGINE_FACTS = {
         earliestSurface: 'combat',
         scope: { attributes: ['Ether'] },
         activation: { kind: 'trigger', fieldEntry: true, durationSeconds: 45 },
+      },
+    },
+  },
+  knightsExtolment: {
+    advancedStat: { id: 'critDmg', label: 'CRIT DMG', value: 48, unit: '%' },
+    effects: {
+      critDamage: {
+        modifier: 'critDmg', unit: '%',
+        progression: {
+          kind: 'stacks',
+          perStack: [32, 36.8, 41.6, 46.4, 51.2],
+          maxStacks: 2,
+        },
+        activation: {
+          kind: 'trigger', performer: 'equipper',
+          actions: ['Basic Attack', 'EX Special Attack'], durationSeconds: 25,
+        },
+      },
+      iceResIgnore: {
+        modifier: 'resIgnore', unit: '%', value: [20, 23, 26, 29, 32],
+        scope: { attributes: ['Ice'] },
+        activation: {
+          kind: 'trigger', performer: 'equipper',
+          actions: ['Basic Attack', 'EX Special Attack'], durationSeconds: 25,
+          stackThreshold: 2,
+        },
       },
     },
   },
@@ -878,6 +905,16 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveLines: (refinement) => [
       `CRIT Rate +${percent(W_ENGINE_FACTS.solExuvia.effects.critRate, refinement)}`,
       `Ether RES Ignore +${percent(W_ENGINE_FACTS.solExuvia.effects.eclipseEtherResIgnore, refinement)}`,
+    ],
+  },
+  knightsExtolment: {
+    name: "Knight's Extolment", rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.knightsExtolment.advancedStat,
+    image: knightsExtolmentImage,
+    passiveSpecialty: 'Attack',
+    passiveLines: (refinement) => [
+      `CRIT DMG +${percent(W_ENGINE_FACTS.knightsExtolment.effects.critDamage, refinement, true)}`,
+      `Ice RES Ignore +${percent(W_ENGINE_FACTS.knightsExtolment.effects.iceResIgnore, refinement)}`,
     ],
   },
   chiefSidekick: {

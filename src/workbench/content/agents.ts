@@ -11,6 +11,15 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     faction: 'Phaethon',
   },
   {
+    id: 'sigrid',
+    name: "Sigrid de L'Azur",
+    displayName: 'Sigrid',
+    attribute: 'Ice',
+    specialty: 'Attack',
+    focusEligible: true,
+    rank: 'S',
+  },
+  {
     id: 'yixuan',
     name: 'Yixuan',
     attribute: 'Auric Ink',

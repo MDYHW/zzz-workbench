@@ -59,6 +59,80 @@ describe('shared calculation integration', () => {
     expect(eclipse.values.fully).toBe(eclipse.values.combat)
   })
 
+  it('projects Sigrid through broad, qualified, and exact action relationships', () => {
+    const state = workbenchReducer(
+      createPreparedState({}, ['sigrid', 'dialyn', 'lucia'], 0),
+      { type: 'setMindscape', slot: 0, mindscape: 4 },
+    )
+    const sigrid = calculateParty(state)!.agents
+      .find(({ agentId }) => agentId === 'sigrid')!
+    const metric = (id: string) => sigrid.metrics.find((entry) => entry.id === id)!
+    const action = (id: string) => sigrid.actionModifiers.find((entry) => entry.id === id)!
+    const hasSource = (
+      breakdown: { fully: readonly { label: string }[] },
+      label: string,
+    ) => breakdown.fully.some((source) => source.label === label)
+
+    expect(metric('critRate').values.fully).toBe(
+      VERTICAL_VALUES.sigrid.critRate + VERTICAL_VALUES.sigrid.coreCritRate,
+    )
+    expect(metric('critDmg').breakdown.initial).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        label: "Knight's Extolment",
+        amount: W_ENGINES.knightsExtolment.advancedStat.value,
+      }),
+      expect.objectContaining({
+        label: 'Drive Disc · Slot 4',
+        amount: MAIN_STATS.critDmg.numericValue,
+      }),
+    ]))
+    expect(metric('critDmg').breakdown.fully).toContainEqual(expect.objectContaining({
+      label: "Knight's Extolment",
+      amount: equipmentEffectMaximumValue(
+        W_ENGINE_FACTS.knightsExtolment.effects.critDamage,
+        1,
+      ),
+    }))
+    expect(metric('resIgnore').values.fully).toBe(
+      equipmentEffectBaseValue(W_ENGINE_FACTS.knightsExtolment.effects.iceResIgnore, 1),
+    )
+    expect(hasSource(metric('atk').breakdown, 'Additional Ability')).toBe(true)
+    expect(metric('atk').breakdown.combat).toContainEqual(expect.objectContaining({
+      label: 'Mindscape',
+      display: expect.objectContaining({ value: VERTICAL_VALUES.sigrid.mindscape1Atk }),
+    }))
+    expect(hasSource(metric('dmgBonus').breakdown, 'Mindscape')).toBe(true)
+    expect(metric('stunDmgMultiplier').breakdown.fully).toContainEqual(
+      expect.objectContaining({
+        label: 'Core Passive',
+        amount: VERTICAL_VALUES.sigrid.coreStunDmgMultiplier,
+      }),
+    )
+    expect(sigrid.metrics.some(({ id }) => id === 'dazeBonus')).toBe(false)
+    expect(sigrid.actionModifiers.some(({ metricId }) => metricId === 'dazeBonus')).toBe(false)
+    expect(sigrid.actionModifiers.some(
+      ({ metricId }) => metricId === 'stunDmgMultiplier',
+    )).toBe(false)
+    expect(action('sigridConvergingSpearDmg')).toMatchObject({
+      outcomes: [{ kind: 'form', action: 'Basic Attack', form: 'Converging Spear' }],
+    })
+    expect(hasSource(action('sigridConvergingSpearDmg').breakdown, 'Chain Attack')).toBe(true)
+    expect(action('sigridUnbridledConvergingPen')).toMatchObject({
+      outcomes: [
+        { kind: 'source-local', label: 'Unbridled Spear attacks' },
+        { kind: 'form', action: 'Basic Attack', form: 'Converging Spear' },
+      ],
+    })
+    expect(hasSource(action('sigridUnbridledConvergingPen').breakdown, 'Mindscape')).toBe(true)
+    const unqualified = calculateParty(createPreparedState(
+      {}, ['sigrid', 'yixuan', 'manato'], 0,
+    ))!.agents.find(({ agentId }) => agentId === 'sigrid')!
+    expect(hasSource(
+      unqualified.metrics.find(({ id }) => id === 'atk')!.breakdown,
+      'Additional Ability',
+    )).toBe(false)
+  })
+
   it('projects one composed cross-holder flow without exposing undeclared shared rows', () => {
     const result = calculateParty(createPreparedState())!
     expect(result.agents).toHaveLength(3)

@@ -21,6 +21,7 @@ const enginePools = (
 
 const ENGINE_CANDIDATES_BY_AGENT: Record<AgentId, readonly EngineId[]> = {
   pyrois: ['solExuvia', 'cordisGermina'],
+  sigrid: ['knightsExtolment', 'severedInnocence', 'brimstone', 'starlightEngine'],
   norma: ['chiefSidekick', 'yesterdayCalls', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
   yixuan: ['qingming', 'cauldron', 'radiowave', 'puzzleSphere'],
   yidhari: ['krakensCradle', 'grillOWisp', 'cauldron', 'qingming'],
@@ -115,6 +116,11 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   pyrois: {
     fourPiece: ['skyAblaze', 'pufferElectro'],
     twoPiece: ['pufferElectro', 'woodpecker', 'branchAndBlade', 'chaoticMetal', 'hormonePunk'],
+  },
+  sigrid: {
+    fourPiece: ['dawnsBloom', 'hormonePunk'],
+    twoPiece: ['pufferElectro', 'branchAndBlade', 'polarMetal', 'hormonePunk', 'dawnsBloom', 'woodpecker'],
+    contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   norma: { fourPiece: ['king'], twoPiece: ['woodpecker', 'swingJazz'] },
   yixuan: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade', 'chaoticMetal'] },
