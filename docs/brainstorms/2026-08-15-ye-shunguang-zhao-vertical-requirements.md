@@ -141,8 +141,8 @@ optimizer.
 
 ### Ye W-Engine and Drive Disc authoring
 
-- R11. Ye's full W-Engine candidates are Cloudcleave Radiance, Severed
-  Innocence, and The Brimstone. Non-limited retains The Brimstone. Full
+- R11. Ye's full W-Engine candidates are Cloudcleave Radiance, Knight's
+  Extolment, and The Brimstone. Non-limited retains The Brimstone. Full
   prepares Cloudcleave W1; non-limited prepares The Brimstone W1. S-Rank
   choices default to W1 when directly selected.
 - R12. Cloudcleave is a limited S-Rank Attack candidate. Ye consumes its whole
@@ -151,8 +151,13 @@ optimizer.
   their broad Physical RES Ignore stays usable, but another Agent's Veil does
   not satisfy the holder-activation clause.
 - R13. Brimstone is the non-limited representative through its S-Rank Base ATK,
-  ATK advanced stat, and reachable broad ATK stacks. Severed retains the
-  strongest other-limited CRIT alternative despite its unused Electric clause.
+  ATK advanced stat, and reachable broad ATK stacks. Knight retains the
+  strongest other-limited pure-CRIT-DMG alternative: Ye's Enlightened-Mind
+  Basic and EX Special supply both Heavy action types, and Knight replaces
+  Severed within that acquisition role through the stronger realized package
+  under the same zero-substat allocation. Cloudcleave remains representative
+  through its complete Veil and Physical package. Reversal requires either
+  Heavy route to cease being current or a usable Severed-only Electric outcome.
   Ye's Unity and White Water supply already bring the bounded future CRIT Rate
   opportunity near cap, so Steel's additional CRIT Rate loses too much value
   beside these packages. Gilded, Marcato, and Starlight are lower-value

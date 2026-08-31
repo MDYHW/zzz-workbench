@@ -113,16 +113,22 @@ The prose requirements govern if this diagram and the text ever differ.
 **W-Engine candidates and prepared outcomes**
 
 - R3. Evelyn's authored full-pool W-Engine candidates are Heartstring Nocturne,
-  Severed Innocence, Cordis Germina, Sol Exuvia, The Brimstone, and Steel
+  Knight's Extolment, Cordis Germina, Sol Exuvia, The Brimstone, and Steel
   Cushion. Her non-limited candidates are Sol, The Brimstone, and Steel
   Cushion. Full prepares Heartstring Nocturne at W1; non-limited prepares Sol
   at W1.
-  Existing source-owned Sol, Severed, Cordis, Brimstone, and Steel facts are reused rather
+  Existing source-owned Knight, Sol, Cordis, Brimstone, and Steel facts are reused rather
   than duplicated.
 - R4. Heartstring's mixed-CRIT and Chain/Ultimate Fire-RES-Ignore package is
   fully compatible with Evelyn and determines the full-pool first choice. Setup
   uses the shared W-Engine fact's compressed package rather than exposing
-  entry, stack-acquisition, refresh, or duration prose.
+  entry, stack-acquisition, refresh, or duration prose. Knight replaces Severed
+  as the one retained pure-CRIT-DMG other-limited direction: Evelyn's Garrote
+  Basic and completed EX Special provide the two Heavy action-type routes, and
+  Knight supplies the stronger realized package without changing the same
+  zero-substat CRIT allocation. Heartstring remains representative through its
+  usable Fire recipient and mixed-CRIT package. Reversal requires either Heavy
+  route to cease being current or a usable Severed-only Attribute outcome.
 - R5. Steel Cushion retains a legally selectable mixed-CRIT package whose
   back-attack clause has a current Evelyn projector. Its Physical-DMG clause is
   unused by Evelyn but remains visible through the shared complete equipment

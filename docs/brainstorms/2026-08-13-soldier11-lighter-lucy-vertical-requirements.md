@@ -79,7 +79,7 @@ faction graph, or guide-backed evidence payload.
 ### Soldier 11 equipment authoring
 
 - R5. Soldier 11's full W-Engine candidates are Heartstring Nocturne, Cordis
-  Germina, Severed Innocence, Sol Exuvia, The Brimstone, and Marcato Desire.
+  Germina, Knight's Extolment, Sol Exuvia, The Brimstone, and Marcato Desire.
   Non-limited candidates are Sol, The Brimstone, and Marcato. Full
   prepares Heartstring W1; non-limited prepares Sol W1.
 - R6. Heartstring's complete high-Base-ATK, advanced CRIT Rate, CRIT DMG, and
@@ -89,9 +89,13 @@ faction graph, or guide-backed evidence payload.
   activation for Soldier 11, while Heartstring also retains its Fire
   Chain/Ultimate bypass clause. Cordis is the closest retained action/bypass
   contrast: its CRIT clauses and Basic/Ultimate DEF Ignore remain useful while
-  Electric-only damage is unused. Severed and Brimstone preserve other
-  competitive CRIT or broadly usable ATK packages. Sol establishes the
-  strongest standard mixed ATK/CRIT package while its Ether-only clause is
+  Electric-only damage is unused. Knight replaces Severed as the one retained
+  pure-CRIT-DMG other-limited direction because Soldier 11's repeated Basic
+  combo and EX Special supply both Heavy action types and its realized package
+  is stronger under the same zero-substat CRIT allocation. Reversal requires
+  either route to cease being current or a usable Severed-only Electric outcome.
+  Brimstone preserves the competitive broadly usable ATK package. Sol
+  establishes the strongest standard mixed ATK/CRIT package while its Ether-only clause is
   unused. Recomposition with Soldier 11's Burning-target Disc direction lets
   Sol keep a CRIT DMG main while preserving the practical CRIT-stability
   boundary, so it displaces Brimstone as the non-limited first choice.

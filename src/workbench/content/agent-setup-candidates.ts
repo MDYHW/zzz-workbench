@@ -21,6 +21,7 @@ const enginePools = (
 
 const ENGINE_CANDIDATES_BY_AGENT: Record<AgentId, readonly EngineId[]> = {
   pyrois: ['solExuvia', 'cordisGermina'],
+  sigrid: ['knightsExtolment', 'severedInnocence', 'brimstone', 'starlightEngine'],
   norma: ['chiefSidekick', 'yesterdayCalls', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
   yixuan: ['qingming', 'cauldron', 'radiowave', 'puzzleSphere'],
   yidhari: ['krakensCradle', 'grillOWisp', 'cauldron', 'qingming'],
@@ -41,12 +42,12 @@ const ENGINE_CANDIDATES_BY_AGENT: Record<AgentId, readonly EngineId[]> = {
   astraYao: ['elegantVanity', 'bashfulDemon', 'theVault', 'kaboom'],
   seed: ['cordisGermina', 'heartstringNocturne', 'severedInnocence', 'solExuvia', 'brimstone', 'marcatoDesire'],
   cissia: ['serpentineSeeker', 'bellicoseBlaze', 'drillRigRedAxis', 'cordisGermina'],
-  evelyn: ['heartstringNocturne', 'severedInnocence', 'cordisGermina', 'solExuvia', 'brimstone', 'steelCushion'],
+  evelyn: ['heartstringNocturne', 'knightsExtolment', 'cordisGermina', 'solExuvia', 'brimstone', 'steelCushion'],
   corin: ['cordisGermina', 'heartstringNocturne', 'steelCushion', 'solExuvia', 'housekeeper'],
   lycaon: ['blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
-  ellen: ['deepSeaVisitor', 'myriadEclipse', 'cordisGermina', 'solExuvia', 'brimstone', 'marcatoDesire'],
+  ellen: ['deepSeaVisitor', 'knightsExtolment', 'myriadEclipse', 'cordisGermina', 'solExuvia', 'brimstone', 'marcatoDesire'],
   soukaku: ['weepingCradle', 'kaboom'],
-  soldier11: ['heartstringNocturne', 'cordisGermina', 'severedInnocence', 'solExuvia', 'brimstone', 'marcatoDesire'],
+  soldier11: ['heartstringNocturne', 'cordisGermina', 'knightsExtolment', 'solExuvia', 'brimstone', 'marcatoDesire'],
   lighter: ['blazingLaurel', 'iceJadeTeapot', 'hellfireGears', 'steamOven', 'restrained', 'preciousFossilizedCore'],
   lucy: ['elegantVanity', 'weepingCradle', 'kaboom'],
   zhuYuan: ['solExuvia', 'cordisGermina', 'heartstringNocturne', 'riotSuppressorMarkVI', 'brimstone', 'marcatoDesire'],
@@ -65,7 +66,7 @@ const ENGINE_CANDIDATES_BY_AGENT: Record<AgentId, readonly EngineId[]> = {
   anby: ['hellfireGears', 'restrained', 'steamOven', 'preciousFossilizedCore'],
   caesar: ['tusksOfFury', 'hellfireGears', 'springEmbrace'],
   yeShunguang: [
-    'cloudcleaveRadiance', 'severedInnocence', 'brimstone',
+    'cloudcleaveRadiance', 'knightsExtolment', 'brimstone',
   ],
   zhao: ['halfSugarBunny', 'tusksOfFury', 'originalTransmorpher'],
   grace: [
@@ -115,6 +116,11 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   pyrois: {
     fourPiece: ['skyAblaze', 'pufferElectro'],
     twoPiece: ['pufferElectro', 'woodpecker', 'branchAndBlade', 'chaoticMetal', 'hormonePunk'],
+  },
+  sigrid: {
+    fourPiece: ['dawnsBloom', 'hormonePunk'],
+    twoPiece: ['pufferElectro', 'branchAndBlade', 'polarMetal', 'hormonePunk', 'dawnsBloom', 'woodpecker'],
+    contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
   norma: { fourPiece: ['king'], twoPiece: ['woodpecker', 'swingJazz'] },
   yixuan: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade', 'chaoticMetal'] },

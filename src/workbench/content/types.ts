@@ -5,6 +5,7 @@ export type PoolId = 'full' | 'nonLimited'
 
 export type AgentId =
   | 'pyrois'
+  | 'sigrid'
   | 'yixuan'
   | 'dialyn'
   | 'lucia'
@@ -102,6 +103,7 @@ export type EngineRank = 'S' | 'A'
 
 export type EngineId =
   | 'solExuvia'
+  | 'knightsExtolment'
   | 'chiefSidekick'
   | 'peacekeeperSpecialized'
   | 'qingming'
@@ -278,6 +280,9 @@ export type EquipmentEffectActivation =
     kind: 'trigger'
     targetCondition?: Extract<EquipmentEffectCondition, 'anomalyAfflictedTarget' | 'burningTarget'>
     actions?: readonly EquipmentEffectAction[]
+    actionQualifier?: 'heavyAttack'
+    /** Each listed action category can supply at most one progression stack. */
+    distinctActionStacks?: true
     tags?: readonly EquipmentEffectTag[]
     operation?: AgentOperation
     attributes?: readonly EquipmentEffectAttribute[]

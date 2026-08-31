@@ -1,7 +1,7 @@
 ---
 title: Prevent secondary requirements from validating themselves
 date: 2026-08-12
-last_updated: 2026-08-30
+last_updated: 2026-09-01
 category: workflow-issues
 module: controller-refresh-and-requirements-authoring
 problem_type: workflow_issue
@@ -12,6 +12,7 @@ applies_when:
   - "A controller is about to declare a behavior-bearing consumer or common calculation mechanism absent"
   - "Secondary requirements add or change candidates, prepared representatives, or selected-input pressure"
   - "A W-Engine pass compares the representative, other limited S-Ranks, and standard S-Rank or A-Rank alternatives"
+  - "A new W-Engine or Drive Disc can affect equipment candidates owned by existing Agents"
   - "Similar equipment packages differ mainly by activation trigger or possible recipient scope"
   - "Reviewers validate an implementation against requirements written in the same change"
   - "A zero-substat prepared Result is used to author a candidate or first choice"
@@ -21,6 +22,7 @@ symptoms:
   - "A secondary requirement becomes the oracle that plans, code, tests, and browser checks merely confirm"
   - "A clean build and passing review stack create confidence in incorrect candidate or representative authoring"
   - "Source trigger or possible recipient differences are restated as material setup directions without an exact changed user decision"
+  - "A roster-impact pass starts from current candidate arrays and silently omits an eligible existing holder"
   - "Completed plans are copied forward or retained as competing current policy"
   - "Visible zero counts are mistaken for the absence of finite future tuning opportunity"
 root_cause: missing_workflow_step
@@ -190,6 +192,40 @@ controller decisions.
 
 A product-thesis summary, clean Git status, test count, browser pass, or reviewer
 count cannot substitute for these derivations.
+
+### Close the source-first target cohort before valuation
+
+When a new W-Engine or Drive Disc can affect existing Agents, classify its
+source clauses before reading current candidate arrays. Use the clauses to
+enumerate the current source-eligible holders, then assign every holder exactly
+once to one of two transient outcomes:
+
+```text
+source-eligible holder
+-> bounded out by an exact relationship, qualifier, operation, or consumer
+   contradiction
+or
+-> conjunctive survivor requiring complete-package comparison
+
+eligible holder count
+= bounded-out count + conjunctive-survivor count
+```
+
+Only after that partition closes may candidate arrays identify current
+comparators. A current omission, current membership, representative, guide
+list, or item association cannot remove a holder from the source-first cohort.
+For a survivor, evaluate every usable clause and set every unusable clause to
+zero before applying material range, finite opportunity, acquisition or
+allocation role, and same-direction compression. A partial package cannot be
+discarded merely because it does not reach the source maximum.
+
+Keep the holder partition and counts in the transient worksheet. Persist only
+each affected Agent's changed or no-change local outcome and its nearest
+boundary comparator. Do not create a roster snapshot, Agent-by-equipment
+matrix, rejected-item catalogue, dependency registry, or exact-candidate test.
+If any eligible holder is unclassified, the roster-impact gate is incomplete
+even when every changed implementation and test agrees with the proposed
+candidate arrays.
 
 ### Gate only new or changed authoring decisions
 

@@ -7,6 +7,13 @@ const pyroisRepresentative: SetupSelection = {
   mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
 }
 
+const sigridRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'knightsExtolment' : 'brimstone',
+  fourPieceId: 'dawnsBloom',
+  twoPieceId: 'pufferElectro',
+  mains: { slot4: 'critDmg', slot5: 'penRatio', slot6: 'atkPct' },
+})
+
 const yixuanRepresentative = (pool: PoolId, mindscape: number): SetupSelection => ({
   engineId: pool === 'full' ? 'qingming' : 'cauldron',
   fourPieceId: 'yunkui',
@@ -376,6 +383,10 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   Record<PoolId, SetupSelection>
 > = {
   pyrois: { full: pyroisRepresentative, nonLimited: pyroisRepresentative },
+  sigrid: {
+    full: sigridRepresentative('full'),
+    nonLimited: sigridRepresentative('nonLimited'),
+  },
   norma: {
     full: normaRepresentative('full'),
     nonLimited: normaRepresentative('nonLimited'),
@@ -545,6 +556,11 @@ export function representativeUnderBroadPrePenPressure(
     }
   }
   switch (agentId) {
+    case 'sigrid': return {
+      ...selection,
+      twoPieceId: 'polarMetal',
+      mains: { ...selection.mains, slot5: 'iceDmg' },
+    }
     case 'pyrois': {
       const useNicoleM6CritPackage = mindscape >= 1 && hasNicoleM6
       return {
