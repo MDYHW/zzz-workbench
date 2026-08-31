@@ -4,6 +4,7 @@ import type { SurfaceKey } from '../effects'
 export type PoolId = 'full' | 'nonLimited'
 
 export type AgentId =
+  | 'pyrois'
   | 'yixuan'
   | 'dialyn'
   | 'lucia'
@@ -77,6 +78,7 @@ export type AgentSpecialty =
   | 'Rupture'
   | 'Anomaly'
 export type AgentFaction =
+  | 'Phaethon'
   | 'Victoria Housekeeping Co.'
   | 'Yunkui Summit'
   | 'Section 6'
@@ -99,6 +101,7 @@ export type Refinement = 1 | 2 | 3 | 4 | 5
 export type EngineRank = 'S' | 'A'
 
 export type EngineId =
+  | 'solExuvia'
   | 'chiefSidekick'
   | 'peacekeeperSpecialized'
   | 'qingming'
@@ -168,6 +171,7 @@ export type EngineId =
   | 'neonFantasies'
 
 export type DiscId =
+  | 'skyAblaze'
   | 'yunkui'
   | 'woodpecker'
   | 'branchAndBlade'

@@ -61,39 +61,34 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
 
 ### Zhu Yuan equipment authoring
 
-- R4. Zhu Yuan's full W-Engine candidates are Cordis Germina, Heartstring
-  Nocturne, The Brimstone, Riot Suppressor Mark VI, Marcato
-  Desire. Non-limited candidates are The Brimstone and Marcato Desire. Full
-  prepares Cordis Germina W1;
-  non-limited prepares The Brimstone W1.
-- R5. Cordis is the full first choice through its high Base ATK, advanced and
-  Combat CRIT Rate, and Basic/Ultimate DEF Ignore. Its Electric DMG clause is
-  unused but does not prevent the remaining package from narrowly surpassing
-  the fully usable Brimstone ATK package. Riot's high Base ATK, advanced CRIT
-  DMG, fixed CRIT Rate, and charged Ether Basic/Dash-DMG package remains a distinct
-  exact-identity candidate. Heartstring's advanced CRIT Rate and unconditional
-  CRIT DMG remain a competitive raw-CRIT chassis even though its Fire-only
-  clause is unused. Severed's CRIT-DMG-heavy package can be competitive for a
-  holder that needs that distribution, but Zhu Yuan's high existing CRIT DMG
-  makes its same-axis supply materially less valuable than her retained balanced
-  CRIT and action packages. Myriad Eclipse is excluded because Heartstring has
-  the same Base ATK and advanced CRIT Rate, higher unconditional CRIT DMG, and
-  both holders leave their Attribute-only bypass clause unused. Marcato remains
-  the accessible A-Rank CRIT/ATK contrast. Starlight Engine is excluded because
-  Brimstone is stronger in the same non-limited broad-ATK direction without
-  changing finite allocation or action coverage. The Brimstone establishes
-  the non-limited first choice because its high Base ATK and complete
-  advanced and fully enabled ATK package surpass
-  those A-Rank packages at zero substats.
+- R4. Zhu Yuan's full W-Engine candidates are Sol Exuvia, Cordis Germina,
+  Heartstring Nocturne, Riot Suppressor Mark VI, The Brimstone, and Marcato
+  Desire. Non-limited candidates are Sol, The Brimstone, and Marcato. Full
+  prepares Cordis W1 and non-limited prepares Sol W1.
+- R5. Cordis is the full first choice through its sustained high-CRIT and
+  Basic/Ultimate DEF-region package; Electric DMG is unused. Sol's high Base
+  ATK, ATK advanced stat, and fixed CRIT Rate establish the non-limited first
+  choice. Its Ether RES Ignore is realized only during its non-refreshing
+  field-entry interval and therefore cannot displace Cordis by being treated
+  as sustained across the whole combat. Riot's high Base ATK, mixed CRIT, and charged
+  Ether Basic/Dash package remains a distinct action-focused alternative.
+  Heartstring remains the competitive raw-CRIT chassis despite its unused Fire
+  clause. Severed and Myriad remain excluded behind those stronger retained
+  CRIT directions. Brimstone preserves the higher-ATK/lower-fixed-CRIT route.
+  Marcato remains only as the strongest still-competitive same-direction
+  account-use substitute when Sol is contested across simultaneous teams;
+  Starlight remains compressed behind Brimstone's stronger broad-ATK package.
 - R6. Add Riot Suppressor Mark VI as a limited S-Rank Attack candidate. Its
   mixed-CRIT and charge-enabled Ether Basic/Dash package is fully compatible
   with Zhu Yuan and remains a distinct action-focused alternative below the
-  Cordis first choice. Its narrower
+  leading Cordis and Sol packages. Its narrower
   action/Attribute clauses project only through their admitted consumers.
-- R7. Zhu Yuan's base 4-piece candidates are Chaotic Metal, Dawn's Bloom, and
-  Woodpecker Electro. Dawn's Bloom concentrates its complete package on her
-  defining enhanced Basic output, while Chaotic and Woodpecker preserve broader
-  Ether/CRIT and CRIT/ATK directions. Dialyn adds Puffer Electro contextually
+- R7. Zhu Yuan's base 4-piece candidates are Chaotic Metal, The Sky Ablaze, and
+  Dawn's Bloom. Dawn's Bloom concentrates its complete package on her defining
+  enhanced Basic output, while Chaotic and Sky preserve broader Ether/CRIT and
+  Ether/CRIT/ATK directions. Sky replaces Woodpecker Electro 4-piece as the
+  stronger role-native broad package; Woodpecker remains a legal 2-piece CRIT
+  identity. Dialyn adds Puffer Electro contextually
   through the established
   repeated-Ultimate opportunity. Her base 2-piece candidates are Chaotic Metal,
   Woodpecker Electro, Branch & Blade Song, Dawn's Bloom, Puffer Electro,
@@ -101,17 +96,24 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   same-effect exact-identity lifecycle.
 - R8. Chaotic Metal's Ether-DMG and Corruption-enabled CRIT-DMG package is fully
   usable by Zhu Yuan and is a local candidate. The package does not require an
-  Anomaly Result or make Nicole a hidden setup dependency.
-- R9. Full prepares Chaotic Metal 4-piece plus Branch & Blade Song 2-piece;
-  non-limited prepares Chaotic Metal 4-piece plus Woodpecker 2-piece. Both use
-  ATK% in Slots 5 and 6 and zero substats. Slot 4 follows only already-applied
-  fixed CRIT supply rather than runtime scoring. Full uses CRIT DMG while Zhu
-  Yuan's Additional is active and CRIT Rate otherwise: Cordis's fixed CRIT plus
-  the active Additional leaves the bounded future CRIT opportunity useful
-  without another fixed main, while its absence makes the CRIT main competitive.
-  Non-limited uses CRIT DMG only while default-M6 Nicole supplies her fixed CRIT
-  on top of the Additional and Woodpecker;
-  otherwise it uses CRIT Rate because Brimstone supplies no fixed CRIT. Direct
+  Anomaly Result or make Nicole a hidden setup dependency. Sky's holder,
+  Attribute, CRIT-formula, and EX Special/Ultimate activation gates are all
+  satisfied. Zhu Yuan's naturally high CRIT DMG supply, Sky's direct trigger on
+  her retained burst actions, and its 30-second ATK package make Sky the stable
+  zero-substat first choice. Chaotic remains competitive because one active
+  Corruption state lets Zhu Yuan's repeated Ether hits build its CRIT-DMG
+  stacks, and its four-to-six-stack package can match or exceed Sky; that
+  reversal preserves Chaotic without turning exact stack uptime into a runtime
+  input. Both broad packages displace Woodpecker's weaker same-role 4-piece
+  package.
+- R9. Full prepares The Sky Ablaze 4-piece plus Branch & Blade 2-piece;
+  non-limited prepares The Sky Ablaze plus Woodpecker 2-piece. Both use ATK% in
+  Slots 5 and 6 and zero substats. Slot 4 follows only already-applied fixed
+  CRIT supply rather than runtime scoring. Full uses CRIT DMG while Zhu Yuan's
+  Additional is active and CRIT Rate otherwise because Cordis closes the
+  stronger fixed-CRIT package. Non-limited uses CRIT DMG only while default-M6
+  Nicole supplies her fixed CRIT on top of the Additional, Sol, and Woodpecker;
+  otherwise it uses CRIT Rate. Direct
   later Mindscape edits do not silently retune Zhu Yuan, while a Party Apply
   prepares from the current applied context. Nicole's broad DEF Reduction
   makes Slot 5 ATK% pressure-safe without inventing a PEN repair.
@@ -221,10 +223,11 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   recipients too. With Nicole applied, Ellen replaces Puffer 2-piece with
   Branch & Blade and PEN with Ice DMG; full Deep Sea also changes Slot 4 to
   CRIT DMG because its fixed CRIT package plus default-M6 Nicole leaves the
-  bounded future opportunity near the cap, while non-limited Brimstone keeps
-  CRIT Rate. Soldier 11 replaces Puffer with Inferno Metal and PEN with Fire
-  DMG; full Heartstring changes Slot 4 to CRIT DMG for the same bounded-CRIT
-  reason, while non-limited Brimstone keeps CRIT Rate. Evelyn, Corin, and Hugo
+  bounded future opportunity near the cap, while non-limited Sol keeps CRIT
+  Rate. Soldier 11 keeps Inferno 4-piece, replaces Puffer with Branch & Blade,
+  and replaces PEN with Fire DMG; both Heartstring and Sol keep CRIT DMG Slot 4
+  through their bounded complete packages. Evelyn's Sol package keeps its
+  prepared CRIT DMG; Corin and Hugo
   retain their established Disc packages and use their existing Attribute Slot
   5 replacements because none prepares a standalone Puffer 2-piece. Without
   Nicole, every established pressure-absent representative remains unchanged.
@@ -242,13 +245,13 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
 ## Acceptance examples
 
 - AE1. Applying Zhu Yuan + Nicole + Dialyn in full pool initializes M0/M6/M0
-  and prepares Cordis/Chaotic/Branch & Blade and
+  and prepares Cordis/Sky Ablaze/Branch & Blade and
   Vault/Moonlight/Swing with all effective substats at zero. Dialyn adds
   Puffer 4-piece for Zhu Yuan while Nicole pressure keeps Puffer 2-piece and
   PEN Ratio absent.
-- AE1a. Zhu Yuan's full Slot 4 prepares CRIT DMG with a qualifying Support and
-  CRIT Rate when her Additional is inactive. Non-limited prepares CRIT DMG with
-  default-M6 Nicole and CRIT Rate without that fixed squad source. Changing
+- AE1a. Zhu Yuan's Slot 4 prepares CRIT DMG in full with an active Additional,
+  and in non-limited only when Nicole M6 also supplies fixed CRIT; the other
+  prepared contexts use CRIT Rate. Changing
   Nicole's Mindscape directly rebuilds only Nicole and preserves Zhu Yuan's
   current direct-edit lifecycle; reapplying the party uses the new context.
 - AE2. Zhu Yuan Result distinguishes enhanced Basic and Dash totals: Core and
@@ -266,12 +269,13 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   the old edit. Removing and reselecting Nicole repeats the corresponding fresh
   membership and preparation without automatic restoration.
 - AE4a. Nicole + Ellen + Soldier 11 prepares complete pressure-safe packages in
-  both pools: Ellen uses Branch & Blade and Ice DMG, Soldier 11 uses Inferno
-  Metal and Fire DMG, and only the full-pool fixed-CRIT packages use CRIT DMG
-  Slot 4. Removing Nicole restores each Agent's existing pressure-absent
+  both pools: Ellen uses Branch & Blade and Ice DMG, while Soldier 11 keeps
+  Inferno 4-piece, replaces Puffer with Branch & Blade, and uses Fire DMG.
+  Ellen uses CRIT DMG only in full, and Soldier 11 keeps CRIT DMG in both
+  pools. Removing Nicole restores each Agent's existing pressure-absent
   Puffer/PEN representative through Party Apply rather than hidden fallback.
-- AE5. Switching Zhu Yuan to non-limited prepares Brimstone while Nicole stays
-  on Vault. Switching Nicole's pool rebuilds only Nicole and retains Vault
+- AE5. Switching Zhu Yuan to non-limited replaces Cordis with Sol while Nicole
+  stays on Vault. Switching Nicole's pool rebuilds only Nicole and retains Vault
   because the first choice is legal in both pools.
 - AE5a. Party preparation is permutation-independent for the admitted
   Moonlight collisions: Lucia keeps Moonlight over Nicole; Nicole keeps it

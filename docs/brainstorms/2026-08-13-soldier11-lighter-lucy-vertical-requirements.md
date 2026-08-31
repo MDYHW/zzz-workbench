@@ -79,9 +79,9 @@ faction graph, or guide-backed evidence payload.
 ### Soldier 11 equipment authoring
 
 - R5. Soldier 11's full W-Engine candidates are Heartstring Nocturne, Cordis
-  Germina, Severed Innocence, and The Brimstone. Non-limited
-  candidates are The Brimstone. Full
-  prepares Heartstring W1; non-limited prepares The Brimstone W1.
+  Germina, Severed Innocence, Sol Exuvia, The Brimstone, and Marcato Desire.
+  Non-limited candidates are Sol, The Brimstone, and Marcato. Full
+  prepares Heartstring W1; non-limited prepares Sol W1.
 - R6. Heartstring's complete high-Base-ATK, advanced CRIT Rate, CRIT DMG, and
   Chain/Ultimate Fire RES Ignore package is usable by Soldier 11 and establishes
   the full first choice. Myriad is excluded because it has the same Base ATK and
@@ -89,8 +89,15 @@ faction graph, or guide-backed evidence payload.
   activation for Soldier 11, while Heartstring also retains its Fire
   Chain/Ultimate bypass clause. Cordis is the closest retained action/bypass
   contrast: its CRIT clauses and Basic/Ultimate DEF Ignore remain useful while
-  Electric-only damage is unused. Severed and Brimstone
-  preserve other competitive CRIT or broadly usable ATK packages. Steel
+  Electric-only damage is unused. Severed and Brimstone preserve other
+  competitive CRIT or broadly usable ATK packages. Sol establishes the
+  strongest standard mixed ATK/CRIT package while its Ether-only clause is
+  unused. Recomposition with Soldier 11's Burning-target Disc direction lets
+  Sol keep a CRIT DMG main while preserving the practical CRIT-stability
+  boundary, so it displaces Brimstone as the non-limited first choice.
+  Brimstone remains the high-ATK alternative. Marcato remains only as the
+  strongest same-direction account-use substitute when Sol is contested.
+  Steel
   Cushion is excluded because its Physical clause is unusable and the remaining
   behind-hit clause does not survive the complete-package comparison.
 - R7. Soldier 11's base 4-piece candidates are Woodpecker Electro, Dawn's
@@ -100,11 +107,13 @@ faction graph, or guide-backed evidence payload.
   repeated-Ultimate opportunity. Her 2-piece candidates are Inferno Metal,
   Woodpecker Electro, Branch & Blade Song, Dawn's Bloom, Puffer Electro,
   Hormone Punk, and Astral Voice, subject to the same-effect identity lifecycle.
-- R8. Both pools prepare Woodpecker 4-piece plus Puffer 2-piece with CRIT Rate /
-  PEN Ratio / ATK% mains and zero substats. Slot 4 and Slot 5 each admit ATK%
-  alongside their existing choices. The fixed CRIT/ATK actions and PEN
-  access remain balanced before future substat investment; non-limited does not
-  invent a different Disc package merely to compensate for Brimstone's ATK.
+- R8. Both pools prepare Inferno Metal 4-piece plus Puffer 2-piece with CRIT
+  DMG / PEN Ratio / ATK% mains and zero substats. Inferno's reachable
+  Burning-target CRIT supply belongs to Soldier 11's authored Fire delivery
+  topology; together with each representative W-Engine and the finite future
+  opportunity it preserves the practical CRIT-stability boundary without a
+  CRIT Rate main. Slot 4 and Slot 5 each continue to admit ATK% alongside their
+  existing choices.
 
 ### Lighter equipment authoring
 
@@ -239,7 +248,7 @@ faction graph, or guide-backed evidence payload.
 ## Acceptance examples
 
 - AE1. Applying Soldier 11 + Lighter + Lucy initializes M0/M0/M6 and prepares
-  Heartstring/Woodpecker/Puffer, Blazing/King/Shockstar, and
+  Heartstring/Inferno/Puffer, Blazing/King/Shockstar, and
   Kaboom/Moonlight/Swing in full pool, with every effective substat at zero.
 - AE2. Soldier 11's Additional is active with Fire Lighter, Obol Trigger, and
   Silver Squad Soldier 0 through their correct relationships, and inactive
@@ -264,7 +273,7 @@ faction graph, or guide-backed evidence payload.
   add squad ATK only once. Replacing one holder or changing refinement keeps the
   highest current value without changing the other holder's setup.
 - AE6. Switching one Agent's pool rebuilds only that Agent: Soldier 11 prepares
-  Brimstone, Lighter Hellfire, and Lucy remains Kaboom. Direct edits preserve
+  Sol, Lighter Hellfire, and Lucy remains Kaboom. Direct edits preserve
   unrelated selections and never become hidden first-choice fallback.
 - AE7. Dialyn's contextual Puffer membership on Soldier 11 and Astral/King
   allocation reuse shared mechanisms. Tests preserve the nearest contrasting

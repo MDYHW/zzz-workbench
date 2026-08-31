@@ -38,6 +38,27 @@ describe('shared calculation integration', () => {
     }
   })
 
+  it('projects Pyrois Mirage once without neutral Ultimate-form rows', () => {
+    const pyrois = calculateParty(createPreparedState(
+      {}, ['pyrois', 'dialyn', 'lucia'], 0,
+    ))!.agents.find(({ agentId }) => agentId === 'pyrois')!
+    const ultimateRows = pyrois.actionModifiers.filter(({ id }) => id.startsWith('pyrois'))
+    const [parent] = ultimateRows
+
+    expect(ultimateRows).toHaveLength(1)
+    expect(parent.id).toBe('pyroisUltimate')
+    expect(parent.outcomes).toEqual([{ kind: 'canonical', action: 'Ultimate' }])
+    expect(parent.breakdown.fully).toContainEqual(expect.objectContaining({
+      ownerAgentId: 'pyrois',
+      detail: 'Mirage · Against Stunned enemies',
+    }))
+    const eclipse = pyrois.metrics.find(({ id }) => id === 'resIgnore')!
+    expect(eclipse.values.combat).toBe(
+      equipmentEffectBaseValue(W_ENGINE_FACTS.solExuvia.effects.eclipseEtherResIgnore, 1),
+    )
+    expect(eclipse.values.fully).toBe(eclipse.values.combat)
+  })
+
   it('projects one composed cross-holder flow without exposing undeclared shared rows', () => {
     const result = calculateParty(createPreparedState())!
     expect(result.agents).toHaveLength(3)

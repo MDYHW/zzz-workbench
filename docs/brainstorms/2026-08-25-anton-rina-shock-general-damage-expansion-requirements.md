@@ -17,9 +17,10 @@ Potential, Shock interaction, and Electric buffs deliver party outcomes to
 compatible recipients. Neither relationship authorizes an `anomaly_damage`
 profile for either Agent.
 
-This unit applies `SF-001`-`SF-004`, `GV-001`-`GV-004` and `GV-009`,
-`FM-001`-`FM-004` and `FM-006`-`FM-011`, `SW-002`-`SW-016`, and
-`UI-001`-`UI-004`. It settles Anton and Rina only. It does not reopen the
+This unit applies `SF-002`-`SF-005`, `GV-001`-`GV-004` and `GV-009`,
+`FM-001`-`FM-004` and `FM-006`-`FM-011`, `SW-002`-`SW-006`,
+`SW-008`-`SW-016`, `SW-018`-`SW-020`, and `UI-001`-`UI-004`. It settles Anton
+and Rina only. It does not reopen the
 completed Anomaly-damage track, Miyabi, or existing candidate rosters.
 
 ## Authority And Consumer Decision Map
@@ -27,8 +28,8 @@ completed Anomaly-damage track, Miyabi, or existing candidate rosters.
 | Rule | Retained relationship | Exact current consumer | Candidate/prepared and lifecycle consequence | Setup/Result consequence | Similar / contrast |
 | --- | --- | --- | --- | --- | --- |
 | `GV-002`, `FM-002`, `FM-007`, `SW-012` | Electric identity and Shock state condition do not replace Anton's ordinary direct-damage formula | `FORMULA_PARTICIPATION_BY_AGENT`, `attackProfileFor`, action projection, and operation projection | CRIT, ATK, Electric DMG, PEN, and defining-action supply compete; Shock-dependent party changes recalculate without changing formula family | Result exposes general-damage rows and one Original Shock DMG scale, never AP, AM, or `anomaly_damage` | Harumasa is the nearest Electric Attack case; Grace is the contrasting Electric Agent whose own anomaly outcome consumes `anomaly_damage` |
-| `SF-001`, `SF-003`, `FM-004`, `SW-013`, `SW-014`, `UI-002` | Anton's completed Core and M6 retain only exact action-local maximum modifiers, while the qualified Shock clause remains one scale operation | `attackProfileFor`, canonical action targets, scale-operation presentation, and current Result admission | Action scopes affect W-Engine and Disc package value; no rotation, hit counter, or Shock history enters preparation | Result keeps Piledriver, Drill, Burst Basic/Dodge Counter, and `Original Shock DMG · Additional Ability · ×0.45` without prose in the numeric value or a generic final-damage row | Soldier 11's exact Basic/Dash action modifiers are nearest; Alice's anomaly/Disorder operations are the different-formula contrast |
-| `SW-004`, `SW-005`, `SW-008`, `SW-009`, `UI-001` | Anton realizes only usable clauses from each complete source-owned W-Engine or Disc package | shared equipment facts, selected relationship mappers, candidate authoring, representatives, and Setup descriptions | Full prepares Cordis; non-limited prepares Brimstone; close crit, ATK, resource, Basic, and operating-pattern directions remain while remote same-axis packages are excluded | Setup keeps the complete admitted package; Result projects only holder-compatible global and action clauses | Cordis is the complete Electric Basic-led package; Drill Rig is the retained partial Basic/resource contrast, while Heartstring is an excluded repeated crit direction |
+| `SF-005`, `SF-003`, `FM-004`, `SW-013`, `SW-014`, `UI-002` | Anton's completed Core and M6 retain only exact action-local maximum modifiers, while the qualified Shock clause remains one scale operation | `attackProfileFor`, canonical action targets, scale-operation presentation, and current Result admission | Action scopes affect W-Engine and Disc package value; no rotation, hit counter, or Shock history enters preparation | Result keeps Piledriver, Drill, Burst Basic/Dodge Counter, and `Original Shock DMG · Additional Ability · ×0.45` without prose in the numeric value or a generic final-damage row | Soldier 11's exact Basic/Dash action modifiers are nearest; Alice's anomaly/Disorder operations are the different-formula contrast |
+| `SW-004`, `SW-005`, `SW-008`, `SW-009`, `UI-001` | Anton realizes only usable clauses from each complete source-owned W-Engine or Disc package | shared equipment facts, selected relationship mappers, candidate authoring, representatives, and Setup descriptions | Full prepares Cordis; non-limited prepares Sol; close crit, ATK, resource, Basic, and operating-pattern directions remain while remote same-axis packages are excluded | Setup keeps the complete admitted package; Result projects only holder-compatible global and action clauses | Cordis is the complete Electric Basic-led package; Sol is the strongest standard CRIT/ATK package; Drill Rig is the retained partial Basic/resource contrast, while Heartstring is an excluded repeated crit direction |
 | `SW-004`, `SW-008`, `SW-015` | Dialyn's received-Ultimate opportunity makes Puffer's PEN, ATK, and Ultimate package a competitive local Anton alternate | `hasDialynUltimateOpportunity`, `DISC_IDS_BY_AGENT_AND_PIECE.anton.contextualFourPiece`, `effectiveFourPieceIds`, selected Puffer relationships, and Anton's canonical Ultimate projection | Applying Dialyn adds Puffer without changing Thunder's prepared first choice; removing Dialyn clears an invalid direct selection without fallback through the shared lifecycle | Setup shows Puffer's complete package; selected Result projects PEN, ATK, and only the canonical Ultimate DMG difference | Harumasa is nearest; Miyabi remains excluded, while Hugo's M0/M2 boundary is the conditional contrast |
 | `FM-001`, `FM-002`, `FM-007`, `SW-003`, `SW-012` | Rina's Initial PEN is the basis for capped Core PEN and Potential ATK providers, while Slot 4 may retain residual personal-damage directions without a personal Result formula | `providerDefenseProfileFor`, gauge emission, delivery filtering, surface composition, main-stat candidates, and representative preparation | PEN equipment, Slot 5, and Puffer form the provider package; Slot 4 prepares AP while retaining ATK% as the distinct residual alternate; empty personal formula participation must not trigger broad pre-PEN removal | Result shows PEN gauges and Energy while compatible recipients receive PEN or ATK; AP/ATK remain Setup choices without inventing a personal damage row | Yuzuha's residual Slot 4 AP is nearest; Nicole's empty personal formula profile is the pressure contrast |
 | `FM-002`, `FM-007`, `SW-012`, `SW-014` | Qualified Shock duration and Electric ordinary-DMG providers are party outcomes independent of Anton's and Rina's Specialties | `providerDefenseProfileFor`, party qualification, formula/Attribute delivery, and operation projection | Party Apply and target-only rebuild recalculate qualification and recipients; Anton can receive ordinary Electric DMG while Grace can receive the same shared ordinary region without changing either formula identity | Result exposes one Shock-duration operation and compatible Electric DMG sources; no hidden Shock state or anomaly row is created | Promeia's Frostbite-duration operation is nearest; Grace's anomaly formula is the cross-formula recipient contrast |
@@ -62,16 +63,18 @@ completed Anomaly-damage track, Miyabi, or existing candidate rosters.
 ### Anton competitive setup
 
 - R4. Anton's full W-Engine candidates are Cordis Germina W1, Severed
-  Innocence W1, The Brimstone W1, Marcato Desire W5, and Drill Rig - Red Axis
-  W5. His non-limited candidates are Brimstone, Marcato, and Drill Rig.
-  Prepare Cordis in full and Brimstone in non-limited.
+  Innocence W1, Sol Exuvia W1, The Brimstone W1, Marcato Desire W5, and Drill
+  Rig - Red Axis W5. His non-limited candidates are Sol, Brimstone, Marcato,
+  and Drill Rig. Prepare Cordis in full and Sol in non-limited.
   - Cordis realizes CRIT Rate, Electric DMG, and Anton's defining Basic/
     Ultimate DEF-Ignore direction and is the strongest complete full package.
     Severed preserves a close CRIT-DMG/Electric alternative that materially
     recomposes the setup rather than duplicating Cordis's supply.
-  - Brimstone is the strongest standard ATK direction. Marcato's accessible
-    CRIT/ATK package and Drill Rig's Energy plus Basic/Dash Electric package
-    remain close, materially different directions. Anton consumes Drill
+  - Sol is the strongest standard CRIT/ATK direction; its Ether RES Ignore is
+    unused. Brimstone keeps the higher-ATK/lower-fixed-CRIT route. Marcato
+    remains only as the strongest still-competitive same-direction account-use
+    substitute when Sol is contested, while Drill Rig's Energy plus Basic/Dash
+    Electric package remains a materially different direction. Anton consumes Drill
     Rig's Basic clause; its unused Dash contribution is zero rather than a
     penalty.
   - Heartstring's usable CRIT supply repeats the stronger admitted crit
@@ -88,12 +91,13 @@ completed Anomaly-damage track, Miyabi, or existing candidate rosters.
   CRIT DMG through Branch & Blade, Electric DMG through Thunder, Basic DMG
   through Dawn, PEN Ratio through Puffer, and ATK through Hormone. Do not add
   Astral as a second equal ATK alias. Prepare Woodpecker with Cordis and
-  Branch & Blade with Brimstone so each pool recomposes around its fixed
+  Branch & Blade with Sol so each pool recomposes around its fixed
   engine supply.
 - R7. Offer CRIT Rate or CRIT DMG in Slot 4; Electric DMG, ATK%, or PEN Ratio
   in Slot 5; and ATK% in Slot 6. Effective substats are CRIT Rate, CRIT DMG,
   and ATK%. Prepare CRIT DMG/Electric DMG/ATK% in full and CRIT Rate/Electric
-  DMG/ATK% in non-limited, with zero supplied counts. CRIT stability matters
+  DMG/ATK% in non-limited, with zero supplied counts. Sol's fixed CRIT improves
+  the finite future allocation without forcing another main-stat change; CRIT stability matters
   for Anton's concentrated and M6-critical outcomes only while preserving a
   competitive CRIT Rate x CRIT DMG balance; it is not a universal 90% target.
   Slot 6 Energy Regen is positive but gives up the full ATK main without a

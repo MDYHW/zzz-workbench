@@ -141,9 +141,14 @@ The prose requirements govern if this diagram and the text ever differ.
 **Candidate sets and representative preparation**
 
 - R4. Seed's full W-Engine candidates are Cordis Germina, Heartstring Nocturne,
-  Severed Innocence, The Brimstone, and Marcato Desire; non-limited candidates
-  are The Brimstone and Marcato Desire. Full prepares Cordis Germina W1 and
-  non-limited prepares Marcato Desire W5. Heartstring's mixed-CRIT package is
+  Severed Innocence, Sol Exuvia, The Brimstone, and Marcato Desire;
+  non-limited candidates are Sol, The Brimstone, and Marcato. Full prepares
+  Cordis Germina W1 and non-limited prepares Sol W1. Sol's high-Base-ATK
+  ATK/CRIT package is the strongest standard CRIT/ATK route while its
+  Ether-only RES Ignore contributes zero. Marcato remains only as the strongest
+  still-competitive same-direction account-use substitute when Sol is contested
+  across simultaneous teams; Brimstone's broad ATK package does not replace
+  that fixed-CRIT allocation. Heartstring's mixed-CRIT package is
   distinct at zero supplied substats even though its Fire RES Ignore is
   unusable by Electric Seed. Cordis remains the full first choice after the
   finite stat-supply comparison; candidate admission does not imply
@@ -163,8 +168,11 @@ The prose requirements govern if this diagram and the text ever differ.
   DMG, and ATK% with independent zero to 36 counts.
 - R6. Seed's representative full setup is Cordis Germina W1, Dawn's Bloom
   4-piece, Woodpecker Electro 2-piece, and CRIT Rate / Electric DMG / ATK%.
-  Her non-limited representative changes only the W-Engine to Marcato Desire
-  W5. Every effective-substat count starts at zero.
+  Her non-limited representative changes only the W-Engine to Sol Exuvia W1.
+  Sol and Marcato supply the same fixed CRIT Rate, so the existing complete
+  zero-substat Disc and main-stat allocation remains balanced; Sol wins through
+  its stronger Base/ATK package rather than a newly invented setup direction.
+  Every effective-substat count starts at zero.
 - R7. Cissia's full W-Engine candidates are Serpentine Seeker, Bellicose Blaze,
   Drill Rig - Red Axis, and Cordis Germina; non-limited retains Drill Rig - Red
   Axis. Full prepares Serpentine Seeker W1 and non-limited prepares Drill Rig -
@@ -409,7 +417,7 @@ The prose requirements govern if this diagram and the text ever differ.
 - AE2. **Covers R4-R10.** Given M0/full Party Apply, Seed prepares Cordis/Dawn/
   Woodpecker, Cissia prepares Serpentine/Astral/Swing, and Astra prepares
   Elegant Vanity/Moonlight/Astral with the authored mains and zero substats.
-  The equivalent non-limited preparation uses Marcato, Drill Rig, and Kaboom
+  The equivalent non-limited preparation uses Sol, Drill Rig, and Kaboom
   the Cannon with the corresponding complete Disc packages.
 - AE3. **Covers R8-R10.** Given Cissia without a party-supplied repeated Quick
   Assist opportunity, her effective 4-piece candidates include Astral Voice

@@ -55,7 +55,11 @@ copies.
 - R2. Yixuan adds Chaotic Metal as a 2-piece candidate because matching Ether
   DMG modifies completed Sheer damage. It does not replace her authored
   zero-substat representative. She gains neither a standalone Max HP% 2-piece
-  nor PEN Ratio 2-piece.
+  nor PEN Ratio 2-piece. The later Sky Ablaze 4-piece is fully applicable
+  through Auric Ink's Ether mapping and Yixuan's CRIT-consuming Sheer formula,
+  but remains compressed behind Yunkui Tales: recomposition leaves no material
+  setup direction beyond Yunkui's role-native HP/CRIT/Sheer package and the
+  already-authored Slot 4 and 2-piece allocation choices.
 - R3. Dialyn exposes Swing Jazz as her one Energy Regen 2-piece identity because
   neither Swing Jazz nor Moonlight Lullaby has a current 4-piece role for her.
   Exact source facts remain distinct without presenting a duplicate choice.

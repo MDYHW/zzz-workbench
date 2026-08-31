@@ -80,10 +80,10 @@ runtime optimizer, or equipment catalogue.
   defining route activates it, while Nekomata's melee route does not establish
   compatible activation for its distance-gated Basic/Dash Physical-DMG clause.
   Setup adds no distance validation.
-- R7. Nekomata's full W-Engine candidates are Steel Cushion, Heartstring
-  Nocturne, Cordis Germina, Cloudcleave Radiance, and The Brimstone.
-  Non-limited retains Steel Cushion and The Brimstone. Both pools prepare Steel
-  Cushion W1.
+- R7. Nekomata's full W-Engine candidates are Steel Cushion, Sol Exuvia,
+  Heartstring Nocturne, Cordis Germina, Cloudcleave Radiance, and The
+  Brimstone. Non-limited retains Steel Cushion, Sol, and The Brimstone. Both
+  pools prepare Steel Cushion W1.
 - R8. Steel Cushion is Nekomata's pool-local first choice because completed
   Pawpad Ambush makes every attack a back attack, so she consumes its full
   CRIT Rate, Physical DMG, and back-attack DMG package. Heartstring retains a
@@ -91,27 +91,39 @@ runtime optimizer, or equipment catalogue.
   CRIT Rate and Basic/Ultimate DEF Ignore while Electric DMG is unused and her
   defining Dodge Counter/EX remains outside the action clause. Cloudcleave
   retains a broad Physical RES axis despite its two inactive Ether Veil clauses.
-  Brimstone retains a fully reachable ATK package and independently anchors the
+  Sol retains a materially distinct unconditional ATK/CRIT package beside
+  Steel's Physical/back-attack package; its Ether RES Ignore is unusable.
+  Completed Pawpad Ambush makes Steel the representative without making Sol's
+  different stat-region allocation disappear. Brimstone retains a fully
+  reachable ATK package and independently anchors the
   non-limited ATK alternative. Starlight Engine is excluded because Brimstone
   is the stronger same-pool Base-ATK/ATK package through Nekomata's existing
   Basic, Dash, and Dodge route. Severed is excluded because Heartstring is the
   stronger other-limited raw-CRIT direction for Nekomata; Severed's Electric
-  clause adds no usable axis that changes that comparison.
-- R9. Billy's full W-Engine candidates are Cloudcleave Radiance, Heartstring
-  Nocturne, Cordis Germina, The Brimstone, Steel Cushion, and Starlight Engine
-  Replica. Non-limited retains Brimstone, Steel Cushion, and Replica. Full
-  prepares Cloudcleave W1; non-limited prepares Brimstone W1.
+  clause adds no usable axis that changes that comparison. Marcato Desire is
+  excluded because Sol supplies the same fixed CRIT Rate with higher Base ATK
+  and a stronger broad ATK package; Steel and Brimstone already preserve
+  non-limited alternatives if Sol is allocated elsewhere.
+- R9. Billy's full W-Engine candidates are Cloudcleave Radiance, Sol Exuvia,
+  Heartstring Nocturne, Cordis Germina, The Brimstone, Steel Cushion, and
+  Starlight Engine Replica. Non-limited retains Sol, Brimstone, Steel Cushion,
+  and Replica. Full prepares Cloudcleave W1; non-limited prepares Sol W1.
 - R10. Cloudcleave's high Base ATK, CRIT DMG, and always-usable broad Physical
   RES Ignore select Billy's full representative even though both Ether Veil
   clauses are inactive. Heartstring retains unconditional CRIT while its Fire
   clause is unused. Cordis retains high CRIT Rate and Basic/Ultimate DEF Ignore
-  while Electric DMG is unused. Brimstone consumes Billy's repeated Basic,
-  Dash, and Dodge route and selects the non-limited representative. Steel
-  Cushion retains CRIT Rate, Physical DMG, and reachable back-attack DMG.
+  while Electric DMG is unused. Sol's higher Base ATK, ATK, and fixed CRIT Rate
+  provide the strongest stable non-limited first choice while its Ether RES
+  Ignore is unusable. Brimstone consumes Billy's repeated Basic, Dash, and
+  Dodge route as the stronger broad-ATK alternative. Steel Cushion retains a
+  distinct CRIT Rate, Physical DMG, and reachable back-attack package rather
+  than being compressed into Sol's ATK region.
   Replica remains a lower-Base-ATK but fully usable Physical-DMG A-Rank package.
   Starlight Engine is excluded because Brimstone dominates the same broad ATK
-  axis in the non-limited pool; Severed is excluded because Cloudcleave is the
-  stronger full-pool CRIT-DMG package with a usable Physical RES clause.
+  axis in the non-limited pool; Marcato is excluded because Sol supplies its
+  fixed CRIT axis through a stronger same-direction package; Severed is excluded
+  because Cloudcleave is the stronger full-pool CRIT-DMG package with a usable
+  Physical RES clause.
 
 ### Drive Disc, mains, substats, and preparation
 
@@ -143,9 +155,10 @@ runtime optimizer, or equipment catalogue.
   visible zero counts as absent investment or injecting future hits into Result.
 - R14. Billy prepares Woodpecker 4-piece plus Branch & Blade 2-piece and CRIT
   Rate / PEN Ratio / ATK% mains in both pools. Cloudcleave supplies fixed CRIT
-  DMG in full while Brimstone supplies ATK in non-limited, but the same CRIT-
-  Rate main remains the conservative zero-substat balance for his three
-  material axes. This is authored pool-local balance, not runtime scoring.
+  DMG in full while Sol supplies fixed CRIT Rate and ATK in non-limited. The
+  CRIT-Rate main remains necessary to preserve the bounded future stability
+  direction rather than treating Sol's 20% as sufficient by itself. This is
+  authored pool-local balance, not runtime scoring.
 - R15. Material broad pre-PEN DEF Reduction or DEF Ignore removes Puffer
   2-piece and Slot 5 PEN from each affected current effective set. Directly
   selected inputs clear without fallback and do not return from history.
@@ -232,6 +245,8 @@ runtime optimizer, or equipment catalogue.
 
 - AE1. Full and non-limited representatives are independently authored,
   complete, zero-substat setups; non-limited contains no limited S-Rank.
+  Nekomata keeps Steel while Billy prepares Sol, and both expose Steel and Sol
+  as distinct selectable packages without admitting Marcato.
 - AE2. Cloudcleave and Replica selected/candidate descriptions expose complete
   compressed packages while Nekomata/Billy Result omits inactive clauses.
 - AE3. Nekomata Potential, Core, Additional, and Mindscapes reach exact
@@ -253,9 +268,10 @@ runtime optimizer, or equipment catalogue.
   runtime stacks, or uptime. Fully Enabled retains only reachable current
   effects and exact action applicability.
 - Do not admit every legal Attack W-Engine. Starlight loses the same-axis
-  non-limited comparison to Brimstone; Nekomata cannot establish Replica's
-  distance activation; inactive Ether/Electric/Fire clauses remain package
-  costs rather than invented Result effects.
+  non-limited comparison to Brimstone, and Marcato loses the same-axis
+  comparison to Sol; Nekomata cannot establish Replica's distance activation;
+  inactive Ether/Electric/Fire clauses contribute zero rather than becoming
+  invented Result effects or penalties.
 - Do not admit Fanged Metal 4-piece for Nekomata by Attribute analogy or copy
   Billy's Shadow package. Current practice and defining actions settle different
   local 4-piece memberships.

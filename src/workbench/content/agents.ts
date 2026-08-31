@@ -2,6 +2,15 @@ import type { AgentId, AgentOperation, AgentSummary } from './types'
 
 export const ADMITTED_AGENTS: AgentSummary[] = [
   {
+    id: 'pyrois',
+    name: 'Pyrois',
+    attribute: 'Ether',
+    specialty: 'Attack',
+    focusEligible: true,
+    rank: 'S',
+    faction: 'Phaethon',
+  },
+  {
     id: 'yixuan',
     name: 'Yixuan',
     attribute: 'Auric Ink',

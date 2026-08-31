@@ -124,6 +124,15 @@ consequences must be reconstructed before dependent vertical planning begins.
   relationship, complete-package competitiveness, acquisition or allocation
   role, and finite opportunity. Do not add existing equipment to the new-release
   inventory or rebuild a legal-item catalogue.
+- R10a. Apply the reciprocal boundary when a vertical introduces a new
+  W-Engine or Drive Disc. Reverse-route its independently classified source
+  clauses through the current roster's existing holder, Attribute, action or
+  operation, recipient, interval, formula, role, and current-consumer gates.
+  Deeply compare only the conjunctive survivors and their nearest same-axis or
+  same-role comparators, then record each affected Agent-local changed or
+  no-change outcome in its current requirement. Guide lists and current
+  candidate arrays are not the starting cohort, and the transient eliminated
+  roster does not become an equipment catalogue.
 
 **Agent and semantic readiness**
 

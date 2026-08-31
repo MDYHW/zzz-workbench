@@ -154,8 +154,17 @@ and genuine multi-recipient effects keep their actual rules.
 ### Corin candidate sets and representatives
 
 - R5. Corin's authored W-Engine candidates are Cordis Germina, Heartstring
-  Nocturne, Steel Cushion, and Housekeeper. Full pool contains all four;
-  non-limited contains Steel Cushion and Housekeeper. Myriad Eclipse is excluded:
+  Nocturne, Steel Cushion, Sol Exuvia, and Housekeeper. Full pool contains all
+  five; non-limited contains Steel Cushion, Sol, and Housekeeper. Steel and Sol
+  remain distinct competitive standard-S packages rather than being compressed
+  by their shared CRIT axis: Steel supplies the Physical and controllable
+  back-attack direction, while Sol trades 4% fixed CRIT Rate for higher Base ATK
+  and unconditional ATK. Corin's existing DMG Bonus supply makes that ATK region
+  materially valuable, while Sol's Ether RES Ignore is unusable and contributes
+  zero. Marcato Desire is excluded because Sol supplies the same fixed CRIT Rate
+  with higher Base ATK and a stronger broad ATK package; Corin's retained Steel
+  and Housekeeper routes leave no choice-constrained account-use gap. Myriad
+  Eclipse is excluded:
   beside Heartstring it has the same Base ATK and advanced CRIT axis, a weaker
   W1 CRIT-DMG clause, and an Ice-only DEF Ignore clause Corin cannot use, so it
   adds no distinct usable axis. Starlight Engine and other generic
@@ -195,7 +204,9 @@ and genuine multi-recipient effects keep their actual rules.
   the full representative because its CR/CD distribution has the stronger whole
   expected-crit consequence, rather than by a false cap claim. The non-limited first choice uses
   Steel's higher-base, broad Physical, and back-attack package rather than
-  defaulting to an A-Rank fallback.
+  defaulting to an A-Rank fallback. Sol remains a selectable unconditional
+  ATK/CRIT alternative; its admission does not displace the operation-fitting
+  Steel representative.
 - R10. Material broad pre-PEN pressure applies to Corin through her
   `general_damage` DEF region. Spectral Gaze removes Slot 5 PEN Ratio when its
   enemy DEF Reduction reaches Corin. Seed M2 removes PEN Ratio only when Corin
@@ -411,7 +422,9 @@ and genuine multi-recipient effects keep their actual rules.
 - AE2. **Covers R5-R9.** Corin's full representative composes the selected
   Cordis and Disc facts with Corin's retained CRIT/ATK inputs. Her
   non-limited Steel representative composes its distinct CRIT/Physical package.
-  All effective-substat counts are zero.
+  Sol remains selectable in both pools and composes higher Base ATK, ATK, and
+  CRIT Rate without an Ether RES Ignore Result row. All effective-substat counts
+  are zero.
 - AE3. **Covers R5-R6, R23.** Selecting Heartstring retains its higher broad
   CRIT package but no Fire RES Ignore on Physical Corin. Selecting Housekeeper
   W5 adds its ATK, automatic off-field Energy, and EX-scoped Physical-DMG
@@ -497,9 +510,10 @@ and genuine multi-recipient effects keep their actual rules.
 
 ## Scope Boundaries
 
-- No Agent, W-Engine, Drive Disc, or other entity first introduced after Version
-  2.8. Later revisions and completed progression for Corin or Lycaon are current
-  facts of already-admitted entities, not later entity admission.
+- The initial Version-2.8 entity-admission boundary does not admit another Agent
+  or Disc through this requirement. Later shared W-Engine facts may reopen only
+  Corin's bounded candidate and representative comparison under the current
+  permanent equipment rules.
 - No implementation plan, production or test change, UI redesign, asset work,
   staging, commit, deployment, or external evidence record in this closure.
 - No Quick Assist rotation graph, party-slot combat-direction model, Decibel or
@@ -521,8 +535,9 @@ and genuine multi-recipient effects keep their actual rules.
 - Treat Version 2.8 as the initial entity-admission boundary and use current
   facts for every admitted entity.
 - Prepare Corin with Cordis in full pool and Steel Cushion in non-limited pool;
-  retain Heartstring and Housekeeper as materially distinct alternatives and
-  reject Myriad's dominated partial package.
+  retain Heartstring, Sol, and Housekeeper as materially distinct alternatives,
+  reject Marcato's Sol-dominated broad package, and reject Myriad's dominated
+  partial package.
 - Extend Dialyn's existing recipient-formula-action predicate to Corin and keep
   Puffer contextual and candidate-only.
 - Retain Blazing Laurel and Steam Oven as Lycaon's pool representatives and

@@ -22,6 +22,7 @@ import freedomBluesImage from '../../assets/equipment/drive-discs/freedom-blues.
 import phaethonsMelodyImage from '../../assets/equipment/drive-discs/phaethons-melody.webp'
 import shiningAriaImage from '../../assets/equipment/drive-discs/shining-aria.webp'
 import notesFromTheChainedImage from '../../assets/equipment/drive-discs/notes-from-the-chained.webp'
+import skyAblazeImage from '../../assets/equipment/drive-discs/the-sky-ablaze.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -31,6 +32,18 @@ import {
 } from './types'
 
 export const DRIVE_DISC_FACTS = {
+  skyAblaze: {
+    twoPiece: {
+      etherDamage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Ether'] } },
+    },
+    fourPiece: {
+      critDamage: { modifier: 'critDmg', unit: '%', value: 30, scope: { attributes: ['Ether'] } },
+      atk: {
+        modifier: 'atk', unit: '%', value: 10,
+        activation: { kind: 'trigger', actions: ['EX Special Attack', 'Ultimate'], durationSeconds: 30 },
+      },
+    },
+  },
   yunkui: {
     twoPiece: {
       maxHp: { modifier: 'maxHp', unit: '%', value: 10 },
@@ -311,6 +324,14 @@ export type DriveDiscEffectField<
 > = keyof DriveDiscFactContract<Id>[Piece]
 
 export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
+  skyAblaze: {
+    name: 'The Sky Ablaze', image: skyAblazeImage,
+    twoPieceEffect: `Ether DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.skyAblaze.twoPiece.etherDamage)}%`,
+    fourPieceEffects: [
+      `CRIT DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.skyAblaze.fourPiece.critDamage)}%`,
+      `ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.skyAblaze.fourPiece.atk)}%`,
+    ],
+  },
   yunkui: {
     name: 'Yunkui Tales', image: yunkuiImage,
     twoPieceEffect: `HP +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.yunkui.twoPiece.maxHp)}%`,

@@ -64,9 +64,9 @@ version switch, named-party table, or guide-backed evidence payload.
   are current Combat inputs; they are not merged solely because their values
   match.
 - R5. Ellen's full candidates are Deep Sea Visitor, Myriad Eclipse, Cordis
-  Germina, Steel Cushion, and The Brimstone. Non-limited
-  candidates are Steel Cushion and The Brimstone. Full
-  prepares Deep Sea Visitor W1; non-limited prepares The Brimstone W1.
+  Germina, Sol Exuvia, The Brimstone, and Marcato Desire. Non-limited
+  candidates are Sol, The Brimstone, and Marcato. Full
+  prepares Deep Sea Visitor W1; non-limited prepares Sol W1.
   Deep Sea is the full first choice because its entire Ice/CRIT package is
   usable and its two ordinary action triggers are native to Ellen. Myriad is
   the closest full same-axis competitor: the same Base/advanced-CRIT chassis
@@ -74,10 +74,16 @@ version switch, named-party table, or guide-backed evidence payload.
   Ignore. Exact identity and scope therefore remain material. Heartstring's
   slightly higher CRIT DMG does not preserve a separate choice against Myriad's
   same CRIT direction and usable DEF Ignore, so it is excluded for Ellen.
-  Cordis retains a distinct CRIT Rate and Basic/Ultimate DEF Ignore package;
-  Steel retains a CRIT accessibility path despite unused Physical DMG and
-  unreliable behind-hit value. The Brimstone wins the separately authored non-limited
-  comparison through its high Base ATK and broadly usable sustained ATK.
+  Cordis retains a distinct CRIT Rate and Basic/Ultimate DEF Ignore package.
+  Sol retains the strongest broad standard CRIT/ATK alternative while its
+  Ether-only clause contributes zero. Its fixed CRIT supply keeps the bounded
+  future allocation inside Ellen's practical stability range and therefore
+  displaces The Brimstone as the non-limited first choice. The Brimstone keeps
+  its separately competitive high-ATK direction. Marcato is the strongest
+  same-direction account-use substitute when Sol is contested across
+  simultaneous teams. Steel is excluded: Physical DMG is unused, Ellen has no
+  retained back-attack operation, and its remaining CRIT chassis does not beat
+  Marcato's recomposed fallback package.
 - R6. Ellen's base 4-piece candidates are Woodpecker Electro, Polar Metal, and
   Shadow Harmony. Polar's local candidate consequence is its Basic/Dash maximum
   direction after Freeze/Shatter; Shadow Harmony's source facts are reused.
@@ -92,9 +98,9 @@ version switch, named-party table, or guide-backed evidence payload.
   non-limited. Full Deep Sea keeps finite CRIT Rate headroom at M0 after its
   complete zero-substat package and the conservative eight-hit opportunity;
   the opportunity remains useful rather than displacing Deep Sea's native
-  supply. Non-limited Brimstone keeps the same legal Disc package with CRIT
-  Rate Slot 4 rather than manufacturing a different set to compensate for
-  future substats.
+  supply. Non-limited Sol keeps the same legal Disc package with CRIT Rate Slot
+  4; its fixed supply and the finite opportunity establish the stability
+  advantage that selects Sol over the higher-ATK alternative.
 
 ### Soukaku equipment authoring
 
@@ -148,7 +154,7 @@ version switch, named-party table, or guide-backed evidence payload.
   tiers and create no independent modifier row.
 - R14. Deep Sea's advanced CRIT and unconditional Ice DMG project through the
   ordinary equipment consumers; its two action-triggered CRIT clauses appear
-  on Combat. Selected Myriad, Cordis, Steel, and Brimstone reuse
+  on Combat. Selected Myriad, Cordis, Sol, Brimstone, and Marcato reuse
   their existing exact scopes. Puffer 4-piece continues to use
   the shared selected-set clauses and Dialyn context; no Ellen-local copy of
   that mechanism is added.
@@ -184,7 +190,7 @@ version switch, named-party table, or guide-backed evidence payload.
 - AE1. Applying Ellen + Soukaku initializes Ellen M0 and Soukaku M6, prepares
   Deep Sea/Woodpecker/Puffer and Kaboom/Moonlight/Astral in full pool, uses
   the stated mains, and initializes every effective substat to zero.
-- AE2. Switching only Ellen to non-limited prepares Brimstone W1 and leaves
+- AE2. Switching only Ellen to non-limited prepares Sol W1 and leaves
   Soukaku unchanged. Switching Soukaku pools preserves the same Kaboom W5
   package because its independently authored representative is legal in both.
 - AE3. Full Ellen at M0 begins below the CRIT Rate cap and retains useful

@@ -20,6 +20,7 @@ export const FORMULA_PARTICIPATION_BY_AGENT: Record<
   AgentId,
   FormulaParticipation
 > = {
+  pyrois: { setup: { primary: ['general_damage'], residual: [] }, result: ['general_damage', 'daze_buildup'] },
   norma: { setup: { primary: ['daze_buildup'], residual: ['general_damage'] }, result: ['daze_buildup', 'general_damage'] },
   yixuan: { setup: { primary: ['sheer_damage'], residual: [] }, result: ['sheer_damage'] },
   yidhari: { setup: { primary: ['sheer_damage'], residual: [] }, result: ['sheer_damage'] },
@@ -106,6 +107,11 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   AgentId,
   Record<MainSlot, MainStatId[]>
 > = {
+  pyrois: {
+    slot4: ['critRate', 'critDmg', 'atkPct'],
+    slot5: ['penRatio', 'etherDmg', 'atkPct'],
+    slot6: ['atkPct'],
+  },
   norma: { slot4: ['critRate'], slot5: ['fireDmg', 'atkPct', 'penRatio'], slot6: ['energyRegenPct', 'impact'] },
   yixuan: {
     slot4: ['critRate', 'critDmg'],
@@ -334,6 +340,7 @@ export const EFFECTIVE_SUBSTAT_VALUES: Record<SubstatChoice['id'], SubstatChoice
 const substats = (...ids: SubstatChoice['id'][]): SubstatChoice[] => ids.map((id) => EFFECTIVE_SUBSTAT_VALUES[id])
 
 export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
+  pyrois: substats('critRate', 'critDmg', 'atkPct'),
   norma: substats('critRate', 'critDmg', 'atkPct'),
   yixuan: substats('critRate', 'critDmg', 'hpPct'), yidhari: substats('critRate', 'critDmg', 'hpPct'), manato: substats('critRate', 'critDmg', 'hpPct'),
   hugo: substats('critRate', 'critDmg', 'atkPct'), juFufu: substats('atkPct', 'atkFlat'), panYinhu: substats('atkPct', 'atkFlat'),
