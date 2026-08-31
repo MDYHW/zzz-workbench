@@ -800,7 +800,7 @@ export function validateSupportingRequirementRuleIds(changes, ruleState) {
     if (!filePath.startsWith('docs/brainstorms/') || !filePath.endsWith('.md') || change.source === null) continue
     if (typeof change.source !== 'string') fail('Changed supporting requirement text is unavailable.')
     const ruleIds = new Set(change.source.match(/\b(?:SW|SF|UI|FM|GV|GOV)-\d{3}\b/g) ?? [])
-    for (const match of change.source.matchAll(/\b(SW|SF|UI|FM|GV|GOV)-(\d{3})\b`?\s*[-–—]\s*`?\b\1-(\d{3})\b/g)) {
+    for (const match of change.source.matchAll(/\b(SW|SF|UI|FM|GV|GOV)-(\d{3})\b`?[ \t]*[-–—][ \t]*`?\b\1-(\d{3})\b/g)) {
       const [, namespace, startText, endText] = match
       const start = Number(startText)
       const end = Number(endText)

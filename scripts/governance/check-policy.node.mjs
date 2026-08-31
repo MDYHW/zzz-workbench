@@ -563,6 +563,9 @@ test('changed supporting requirements cite only current Rule IDs', () => {
     { path: 'docs/brainstorms/descending.md', source: 'Apply `SW-004`-`SW-002`.' },
   ], ruleState), /descending Rule ID range SW-004 to SW-002/)
   assert.equal(validateSupportingRequirementRuleIds([
+    { path: 'docs/brainstorms/list.md', source: 'Apply:\n- `SW-002`\n- `SW-004`' },
+  ], ruleState), true)
+  assert.equal(validateSupportingRequirementRuleIds([
     { path: 'docs/solutions/history.md', source: 'Historical `SF-001`.' },
     { path: 'docs/brainstorms/deleted.md', source: null },
   ], ruleState), true)
