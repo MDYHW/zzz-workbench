@@ -300,6 +300,8 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
   const headBlob = '7'.repeat(40)
   const runQueries = []
   let duplicateLifecycle = false
+  let requirementPath = 'docs/brainstorms/x.md'
+  let requirementHead = { type: 'blob', mode: '100644' }
   let requirementSource = 'Current requirement cites `SF-005`.'
   const api = {
     json: async (pathname) => {
@@ -310,8 +312,11 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
       }
       if (pathname.endsWith(`/git/commits/${BASE}`)) return { tree: { sha: baseTreeSha } }
       if (pathname.endsWith(`/git/commits/${HEAD}`)) return { tree: { sha: headTreeSha } }
-      if (pathname.includes(baseTreeSha)) return { truncated: false, tree: [{ path: 'docs/brainstorms/x.md', type: 'blob', mode: '100644', sha: baseBlob }] }
-      if (pathname.includes(headTreeSha)) return { truncated: false, tree: [{ path: 'docs/brainstorms/x.md', type: 'blob', mode: '100644', sha: headBlob }] }
+      if (pathname.includes(baseTreeSha)) return { truncated: false, tree: [{ path: requirementPath, type: 'blob', mode: '100644', sha: baseBlob }] }
+      if (pathname.includes(headTreeSha)) return {
+        truncated: false,
+        tree: requirementHead ? [{ path: requirementPath, ...requirementHead, sha: headBlob }] : [],
+      }
       if (pathname.endsWith(`/git/blobs/${headBlob}`)) {
         return { encoding: 'base64', size: Buffer.byteLength(requirementSource), content: Buffer.from(requirementSource).toString('base64') }
       }
@@ -371,6 +376,27 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
     () => buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile }),
     /retired Rule ID SW-002/,
   )
+  for (const head of [
+    { type: 'blob', mode: '120000' },
+    { type: 'blob', mode: '100755' },
+    { type: 'commit', mode: '160000' },
+  ]) {
+    requirementHead = head
+    await assert.rejects(
+      () => buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile }),
+      /must be a regular 100644 blob/,
+    )
+  }
+  requirementHead = null
+  const deleted = await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })
+  assert.deepEqual(deleted.changeCategories, ['supporting-doc'])
+  requirementPath = 'docs/solutions/history.md'
+  requirementHead = { type: 'blob', mode: '100644' }
+  requirementSource = 'Historical text cites `SF-001`.'
+  const historical = await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })
+  assert.deepEqual(historical.changeCategories, ['supporting-doc'])
+  requirementPath = 'docs/brainstorms/x.md'
+  requirementHead = { type: 'blob', mode: '100644' }
   requirementSource = 'Current requirement cites `SF-005`.'
   duplicateLifecycle = true
   await assert.rejects(
