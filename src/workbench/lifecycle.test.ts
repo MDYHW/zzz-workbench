@@ -619,7 +619,7 @@ describe('shared preparation and edit lifecycle', () => {
   it('allocates a non-stacking prepared package through holder policy in party and target rebuilds', () => {
     let state = createPreparedState({}, ['nicole', 'lucy', 'zhuYuan'], 2)
     expect(state.slots.map(({ setup }) => setup.fourPieceId))
-      .toEqual(['moonlight', 'astralVoice', 'chaoticMetal'])
+      .toEqual(['moonlight', 'astralVoice', 'skyAblaze'])
 
     const establishedNicole = state.slots[0]
     state = workbenchReducer(state, { type: 'switchPool', slot: 1, pool: 'nonLimited' })

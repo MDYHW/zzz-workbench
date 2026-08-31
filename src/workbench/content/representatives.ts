@@ -1,5 +1,12 @@
 import type { AgentId, PoolId, SetupSelection } from './types'
 
+const pyroisRepresentative: SetupSelection = {
+  engineId: 'solExuvia',
+  fourPieceId: 'skyAblaze',
+  twoPieceId: 'pufferElectro',
+  mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
+}
+
 const yixuanRepresentative = (pool: PoolId, mindscape: number): SetupSelection => ({
   engineId: pool === 'full' ? 'qingming' : 'cauldron',
   fourPieceId: 'yunkui',
@@ -26,13 +33,11 @@ const manatoRepresentative: Omit<SetupSelection, 'engineId'> = {
 }
 
 const hugoRepresentative = (pool: PoolId, mindscape: number): SetupSelection => ({
-  engineId: pool === 'full' ? 'myriadEclipse' : 'steelCushion',
+  engineId: pool === 'full' ? 'myriadEclipse' : 'solExuvia',
   fourPieceId: 'hormonePunk',
-  twoPieceId: pool === 'full' && mindscape === 0
-    ? 'branchAndBlade'
-    : 'woodpecker',
+  twoPieceId: mindscape === 0 ? 'branchAndBlade' : 'woodpecker',
   mains: {
-    slot4: pool === 'full' && mindscape === 0 ? 'critRate' : 'critDmg',
+    slot4: mindscape === 0 ? 'critRate' : 'critDmg',
     slot5: 'iceDmg',
     slot6: 'atkPct',
   },
@@ -125,11 +130,11 @@ const cissiaRepresentative: Omit<SetupSelection, 'engineId'> = {
 }
 
 const evelynRepresentative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'heartstringNocturne' : 'brimstone',
+  engineId: pool === 'full' ? 'heartstringNocturne' : 'solExuvia',
   fourPieceId: 'hormonePunk',
-  twoPieceId: pool === 'full' ? 'woodpecker' : 'branchAndBlade',
+  twoPieceId: 'woodpecker',
   mains: {
-    slot4: pool === 'full' ? 'critDmg' : 'critRate',
+    slot4: 'critDmg',
     slot5: 'penRatio',
     slot6: 'atkPct',
   },
@@ -154,7 +159,7 @@ const lycaonRepresentative = (pool: PoolId): SetupSelection => ({
 })
 
 const ellenRepresentative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'deepSeaVisitor' : 'brimstone',
+  engineId: pool === 'full' ? 'deepSeaVisitor' : 'solExuvia',
   fourPieceId: 'woodpecker', twoPieceId: 'pufferElectro',
   mains: { slot4: pool === 'full' ? 'critDmg' : 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
 })
@@ -165,9 +170,9 @@ const soukakuRepresentative: SetupSelection = {
 }
 
 const soldier11Representative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'heartstringNocturne' : 'brimstone',
-  fourPieceId: 'woodpecker', twoPieceId: 'pufferElectro',
-  mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
+  engineId: pool === 'full' ? 'heartstringNocturne' : 'solExuvia',
+  fourPieceId: 'infernoMetal', twoPieceId: 'pufferElectro',
+  mains: { slot4: 'critDmg', slot5: 'penRatio', slot6: 'atkPct' },
 })
 
 const lighterRepresentative = (pool: PoolId): SetupSelection => ({
@@ -182,8 +187,8 @@ const lucyRepresentative: SetupSelection = {
 }
 
 const zhuYuanRepresentative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'cordisGermina' : 'brimstone',
-  fourPieceId: 'chaoticMetal',
+  engineId: pool === 'full' ? 'cordisGermina' : 'solExuvia',
+  fourPieceId: 'skyAblaze',
   twoPieceId: pool === 'full' ? 'branchAndBlade' : 'woodpecker',
   mains: { slot4: 'critRate', slot5: 'atkPct', slot6: 'atkPct' },
 })
@@ -194,10 +199,10 @@ const nicoleRepresentative: SetupSelection = {
 }
 
 const orphieRepresentative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'bellicoseBlaze' : 'gildedBlossom',
+  engineId: pool === 'full' ? 'bellicoseBlaze' : 'solExuvia',
   fourPieceId: 'shadowHarmony', twoPieceId: 'swingJazz',
   mains: {
-    slot4: pool === 'full' ? 'critDmg' : 'critRate',
+    slot4: 'critDmg',
     slot5: 'fireDmg', slot6: 'energyRegenPct',
   },
 })
@@ -209,11 +214,11 @@ const pulchraRepresentative = (pool: PoolId): SetupSelection => ({
 })
 
 const harumasaRepresentative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'zanshinHerbCase' : 'brimstone',
+  engineId: pool === 'full' ? 'zanshinHerbCase' : 'solExuvia',
   fourPieceId: 'shadowHarmony', twoPieceId: 'branchAndBlade',
   mains: pool === 'full'
     ? { slot4: 'atkPct', slot5: 'atkPct', slot6: 'atkPct' }
-    : { slot4: 'critRate', slot5: 'electricDmg', slot6: 'atkPct' },
+    : { slot4: 'atkPct', slot5: 'electricDmg', slot6: 'atkPct' },
 })
 
 const qingyiRepresentative = (pool: PoolId): SetupSelection => ({
@@ -229,7 +234,7 @@ const nekomataRepresentative = (): SetupSelection => ({
 })
 
 const billyRepresentative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'cloudcleaveRadiance' : 'brimstone',
+  engineId: pool === 'full' ? 'cloudcleaveRadiance' : 'solExuvia',
   fourPieceId: 'woodpecker', twoPieceId: 'branchAndBlade',
   mains: { slot4: 'critRate', slot5: 'penRatio', slot6: 'atkPct' },
 })
@@ -356,7 +361,7 @@ const miyabiRepresentative = (pool: PoolId, mindscape: number): SetupSelection =
 })
 
 const antonRepresentative = (pool: PoolId): SetupSelection => ({
-  engineId: pool === 'full' ? 'cordisGermina' : 'brimstone',
+  engineId: pool === 'full' ? 'cordisGermina' : 'solExuvia',
   fourPieceId: 'thunderMetal', twoPieceId: pool === 'full' ? 'woodpecker' : 'branchAndBlade',
   mains: { slot4: pool === 'full' ? 'critDmg' : 'critRate', slot5: 'electricDmg', slot6: 'atkPct' },
 })
@@ -370,6 +375,7 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
 > = {
+  pyrois: { full: pyroisRepresentative, nonLimited: pyroisRepresentative },
   norma: {
     full: normaRepresentative('full'),
     nonLimited: normaRepresentative('nonLimited'),
@@ -418,7 +424,7 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
     full: { ...anbySoldier0Representative, engineId: 'severedInnocence' },
     nonLimited: {
       ...anbySoldier0Representative,
-      engineId: 'marcatoDesire',
+      engineId: 'solExuvia',
       mains: { ...anbySoldier0Representative.mains, slot4: 'critDmg' },
     },
   },
@@ -432,7 +438,7 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   },
   seed: {
     full: { ...seedRepresentative, engineId: 'cordisGermina' },
-    nonLimited: { ...seedRepresentative, engineId: 'marcatoDesire' },
+    nonLimited: { ...seedRepresentative, engineId: 'solExuvia' },
   },
   cissia: {
     full: { ...cissiaRepresentative, engineId: 'serpentineSeeker' },
@@ -530,15 +536,27 @@ export function representativeUnderBroadPrePenPressure(
   if (agentId === 'soldier11') {
     return {
       ...selection,
-      twoPieceId: 'infernoMetal',
+      twoPieceId: 'branchAndBlade',
       mains: {
         ...selection.mains,
-        slot4: pool === 'full' && hasNicoleM6 ? 'critDmg' : 'critRate',
+        slot4: 'critDmg',
         slot5: 'fireDmg',
       },
     }
   }
   switch (agentId) {
+    case 'pyrois': {
+      const useNicoleM6CritPackage = mindscape >= 1 && hasNicoleM6
+      return {
+        ...selection,
+        twoPieceId: useNicoleM6CritPackage ? 'woodpecker' : 'branchAndBlade',
+        mains: {
+          ...selection.mains,
+          slot4: useNicoleM6CritPackage ? 'critDmg' : 'critRate',
+          slot5: 'etherDmg',
+        },
+      }
+    }
     case 'evelyn': return { ...selection, mains: { ...selection.mains, slot5: 'fireDmg' } }
     case 'corin': return { ...selection, mains: { ...selection.mains, slot5: 'physicalDmg' } }
     case 'nekomata': return { ...selection, twoPieceId: 'branchAndBlade', mains: { ...selection.mains, slot5: 'atkPct' } }

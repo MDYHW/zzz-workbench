@@ -1,4 +1,14 @@
 export const VERTICAL_VALUES = {
+  pyrois: {
+    atk: 924,
+    critRate: 19.4,
+    critDmg: 50,
+    coreUltimateCritDmg: 40,
+    coreDmg: 40,
+    additionalCritDmg: 40,
+    mindscapeCritRate: 8,
+    mindscapeDaze: 10,
+  },
   norma: {
     atk: 762, critRate: 19.4, critDmg: 50, impact: 106, baseEnergyRegen: 1.2,
     coreCritDmgPerCrit: 1.7, coreCritDmgCap: 85, coreDazePerCrit: 0.8, coreDazeCap: 40, coreCritThreshold: 50,
@@ -656,6 +666,8 @@ const SOURCE_CATEGORY_LABELS = {
 } as const
 
 export const SOURCE_LABELS = {
+  pyroisCore: SOURCE_CATEGORY_LABELS.corePassive,
+  pyroisAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   normaCore: SOURCE_CATEGORY_LABELS.corePassive,
   normaAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   slot4: 'Drive Disc \u00B7 Slot 4',

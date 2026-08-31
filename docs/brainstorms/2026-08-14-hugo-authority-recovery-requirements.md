@@ -63,21 +63,28 @@ Basic/Ultimate action effect.
 ### W-Engine gate and exact projection
 
 - R6. Hugo's full candidates are Myriad Eclipse, Cordis Germina, Heartstring
-  Nocturne, Steel Cushion, and Marcato Desire. Non-limited candidates are Steel
-  Cushion and Marcato Desire. Every candidate is an Attack W-Engine whose
+  Nocturne, Sol Exuvia, Steel Cushion, and Marcato Desire. Non-limited
+  candidates are Sol, Steel Cushion, and Marcato. Every candidate is an Attack W-Engine whose
   retained activation is usable enough to remain competitive for Hugo.
-- R7. Author Myriad Eclipse W1 as the full representative and Steel Cushion W1
-  as the non-limited representative. Myriad's whole package supplies its broad
-  pre-PEN DEF Ignore and CRIT package; Steel supplies its Physical-conditional
-  package only to the exact compatible axes. Independent pool authoring, not a
-  filtered copy of the full ranking, establishes the two choices.
+- R7. Author Myriad Eclipse W1 as the full representative and Sol Exuvia W1 as
+  the non-limited representative. Myriad's whole package supplies its broad
+  pre-PEN DEF Ignore and CRIT package. Sol's unconditional mixed ATK/CRIT
+  package selects the non-limited first choice over Steel's repeated
+  positioning condition. Independent pool authoring, not a filtered copy of
+  the full ranking, establishes the two choices.
 - R8. Retain each candidate's complete usable and unused package. Cordis CRIT
   applies broadly and its compatible DEF Ignore appears as a Basic/Ultimate
   action modifier at its source-owned value; Electric DMG is unused. The
   aggregate/headline DEF-Ignore basis remains zero. Heartstring's Fire-only
   clause is unused;
   Steel's back-attack and Marcato's activation remain on their exact current
-  scopes. Candidate dominance never defines these Result projections.
+  scopes. Hugo can realize Steel's back-attack operation, so Steel remains a
+  distinct conditional candidate, but repeatedly satisfying its position does
+  not outrank Sol's comparable unconditional package. Sol is stronger than
+  Marcato's same-direction A-Rank package; Marcato is retained only as the
+  strongest same-direction account-use substitute when Sol is contested and
+  Steel preserves the separate back-attack route.
+  Candidate dominance never defines these Result projections.
 - R9. Selected Myriad creates broad DEF-Ignore pressure because its package
   already supplies that axis. It removes the standalone Slot 5 PEN choice and
   standalone Puffer Electro 2-piece candidate. It does not remove an
@@ -112,9 +119,9 @@ Basic/Ultimate action effect.
   Ratio in Slot 5, and ATK% in Slot 6. Effective substats are CRIT Rate, CRIT
   DMG, and ATK%. Prepared counts are zero while the authored comparison reserves
   the conservative finite eight-hit opportunity on each retained axis.
-- R13. At M0, full prepares Hormone/Branch & Blade with CRIT Rate/Ice DMG/ATK%;
-  non-limited prepares Hormone/Woodpecker with CRIT DMG/Ice DMG/ATK%. At M1+
-  both pools prepare Woodpecker plus CRIT DMG. The fixed package and finite
+- R13. At M0, both pools prepare Hormone/Branch & Blade with CRIT
+  Rate/Ice DMG/ATK%. At M1+ both pools prepare Hormone/Woodpecker with CRIT
+  DMG/Ice DMG/ATK%. The fixed package and finite
   CRIT opportunity establish balance without optimizing the user's Disc lines.
   Pool or Mindscape changes rebuild only Hugo and initialize counts at zero.
 
@@ -126,7 +133,7 @@ Basic/Ultimate action effect.
   according to the shared completeness rule; zero substats are complete.
 - R15. Shared behavior tests must cover Myriad pressure present, absent, and
   reselected; Cordis's broad CRIT plus Basic/Ultimate DEF Ignore and unused
-  Electric clause; M0/M1 pool representatives; Dialyn contextual Puffer absent
+  Electric clause; Myriad/Sol M0/M1 pool representatives; Dialyn contextual Puffer absent
   at M0-M1 and present at M2+ without changing the prepared Hormone choice; one
   one-Stun/two-Stun/no-Stun party composition; and a contrasting Corin or
   non-Myriad flow. Tests prove fidelity to these authority-backed outcomes, not

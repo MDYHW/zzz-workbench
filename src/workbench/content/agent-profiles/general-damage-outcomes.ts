@@ -16,10 +16,11 @@ import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedS
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from '../agent-sources/sources'
 import { agentBroadPrePenRelationships } from '../agent-broad-pre-pen-relationships'
 
-type Agent = 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen' | 'soldier11' | 'zhuYuan' | 'orphie' | 'harumasa' | 'nekomata' | 'billy' | 'yeShunguang' | 'miyabi' | 'anton'
+type Agent = 'pyrois' | 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen' | 'soldier11' | 'zhuYuan' | 'orphie' | 'harumasa' | 'nekomata' | 'billy' | 'yeShunguang' | 'miyabi' | 'anton'
 type Slot = 0 | 1 | 2
 type CalculationContext = { targetStunDmgMultiplier?: number }
 const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
+  pyrois: { atk: VERTICAL_VALUES.pyrois.atk, critRate: VERTICAL_VALUES.pyrois.critRate, critDmg: VERTICAL_VALUES.pyrois.critDmg },
   anbySoldier0: { atk: VERTICAL_VALUES.anbySoldier0.atk, critRate: VERTICAL_VALUES.anbySoldier0.critRate, critDmg: VERTICAL_VALUES.anbySoldier0.critDmg }, seed: { atk: VERTICAL_VALUES.seed.atk, critRate: VERTICAL_VALUES.seed.critRate, critDmg: VERTICAL_VALUES.seed.critDmg },
   cissia: { atk: VERTICAL_VALUES.cissia.atk, critRate: VERTICAL_VALUES.cissia.critRate, critDmg: VERTICAL_VALUES.cissia.critDmg, energyRegen: VERTICAL_VALUES.cissia.baseEnergyRegen },
   evelyn: { atk: VERTICAL_VALUES.evelyn.atk, critRate: VERTICAL_VALUES.evelyn.critRate, critDmg: VERTICAL_VALUES.evelyn.critDmg }, corin: { atk: VERTICAL_VALUES.corin.atk, critRate: VERTICAL_VALUES.corin.critRate, critDmg: VERTICAL_VALUES.corin.critDmg, energyRegen: VERTICAL_VALUES.corin.baseEnergyRegen },
@@ -45,6 +46,10 @@ const DODGE = actionTarget([A('Dodge Counter')])
 const EX = actionTarget([A('EX Special Attack')])
 const CHAIN = actionTarget([A('Chain Attack')])
 const ULT = actionTarget([A('Ultimate')])
+const PYROIS_ULTIMATE_SCOPES = [{
+  id: 'pyroisUltimate',
+  target: ULT,
+}] satisfies readonly ActionScopeNode[]
 const CHAIN_ULT = actionTarget([A('Chain Attack'), A('Ultimate')])
 const BACK = actionTarget([sourceLocalAction('Back attacks')])
 const SEED_SLAUGHTER = actionTarget([actionForm('Basic Attack', 'Falling Petals - Slaughter')])
@@ -95,6 +100,7 @@ function operation(source: ReturnType<typeof selectedAgentSource>, label: string
 
 function partyQualification(agent: Agent, ids: readonly AgentId[], slot: Slot): boolean {
   switch (agent) {
+    case 'pyrois': return anotherAgentHasSpecialty(ids, slot, ['Stun', 'Support'])
     case 'anbySoldier0': return anotherAgentHasSpecialty(ids, slot, ['Stun', 'Support'])
     case 'seed': return false
     case 'cissia': return anotherAgentHasSpecialty(ids, slot, ['Stun']) || anotherAgentSharesAttribute(ids, slot)
@@ -134,16 +140,28 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
       CHAIN,
     ))
   }
-  const addMetric = (metric: EffectMetric, value: number, source = core, action?: ActionTarget, surface: 'combat'|'fully' = 'fully') => {
+  const addMetric = (metric: EffectMetric, value: number, source = core, action?: ActionTarget, surface: 'combat'|'fully' = 'fully', detail?: string) => {
     if (!value) return
     add(
       !action && (metric === 'critRate' || metric === 'critDmg' || metric === 'penRatio')
         ? stat(source, metric, value, 'flat', surface)
-        : mod(source, metric, value, action, surface),
+        : mod(source, metric, value, action, surface, detail),
     )
   }
   const addAtk = (value: number, source = core, surface: 'initial'|'combat'|'fully' = 'fully') => { if (value) add(stat(source, 'atk', value, 'percentage', surface)) }
   switch (agent) {
+    case 'pyrois':
+      addMetric('critDmg', VERTICAL_VALUES.pyrois.coreUltimateCritDmg, core, ULT, 'fully', 'Mirage · Against Stunned enemies')
+      addMetric('dmgBonus', VERTICAL_VALUES.pyrois.coreDmg, core, undefined, 'fully', 'Sunflare')
+      addMetric('critDmg', qualified ? VERTICAL_VALUES.pyrois.additionalCritDmg : 0, ability)
+      if (setup.mindscape >= 1) addMetric('critRate', VERTICAL_VALUES.pyrois.mindscapeCritRate, mind(1))
+      if (setup.mindscape >= 4) addMetric('dazeBonus', VERTICAL_VALUES.pyrois.mindscapeDaze, mind(4), undefined, 'fully', 'Shielded after EX Special Attack Perfect Block')
+      actions.push(
+        { metricId: 'critDmg', scopes: PYROIS_ULTIMATE_SCOPES },
+        actionProjection('defIgnore', 'pyroisBasicUltimateDefIgnore', BASIC_ULT),
+        actionProjection('dmgBonus', 'pyroisUltimateDmg', ULT),
+      )
+      break
     case 'anbySoldier0':
       addMetric('dmgBonus', VERTICAL_VALUES.anbySoldier0.coreDmg, core)
       addMetric('critRate', qualified ? VERTICAL_VALUES.anbySoldier0.additionalCritRate : 0, ability)

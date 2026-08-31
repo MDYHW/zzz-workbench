@@ -82,9 +82,9 @@ output, runtime package score, or catalogue.
 ### Harumasa candidate and prepared setup policy
 
 - R4. Harumasa's full W-Engine candidates are Zanshin Herb Case, Cordis
-  Germina, The Brimstone, and Heartstring Nocturne.
-  Non-limited retains The Brimstone. Full prepares Zanshin
-  Herb Case W1; non-limited prepares The Brimstone W1.
+  Germina, Heartstring Nocturne, Sol Exuvia, and The Brimstone.
+  Non-limited retains Sol and The Brimstone. Full prepares Zanshin
+  Herb Case W1; non-limited prepares Sol W1.
 - R5. Add Zanshin Herb Case as a limited S-Rank Attack candidate. Harumasa is
   holder-eligible, his defining Dash action consumes its action/Attribute
   clause, and the repeated party route reaches its conditional CRIT clause.
@@ -94,7 +94,9 @@ output, runtime package score, or catalogue.
   Cordis supplies its complete CRIT package, Electric DMG, and Basic/Ultimate
   DEF Ignore while its action scope omits defining Dash; Brimstone supplies
   broad ATK through Harumasa's Basic/Dash route; Heartstring retains its strong
-  CRIT package while Fire RES Ignore is unused. Starlight is excluded because
+  CRIT package while Fire RES Ignore is unused. Sol's broad ATK/CRIT package is
+  the strongest standard route while Ether RES Ignore is unused; its fixed CRIT
+  changes Slot 4 opportunity rather than copying Brimstone's package. Starlight is excluded because
   Brimstone is stronger in the same non-limited broad-ATK direction without
   changing finite allocation or action coverage. Severed
   Innocence is excluded: Harumasa reaches only one current category stack, and
@@ -118,10 +120,11 @@ output, runtime package score, or catalogue.
   2-piece, and ATK% / ATK% / ATK% mains. For defining Dash/Chasing Thunder,
   completed fixed CRIT Rate supply plus eight future CRIT Rate hits reaches
   95.6% without a CRIT main, so another fixed CRIT source would overspend the
-  bounded opportunity while ATK remains material. Non-limited prepares
-  Brimstone with Shadow plus Branch & Blade and CRIT Rate / Electric DMG / ATK%
-  mains; its lower fixed CRIT supply plus the same future opportunity reaches
-  75.6%, and the CRIT main brings the defining action to 99.6%. This is authored
+  bounded opportunity while ATK remains material. Non-limited prepares Sol
+  with Shadow plus Branch & Blade and ATK% / Electric DMG / ATK% mains. Sol's
+  additional fixed CRIT supply replaces the prior CRIT main with ATK while
+  retaining matching Attribute DMG in Slot 5. Removing Sol returns Brimstone's
+  CRIT Rate / Electric DMG / ATK% allocation. This is authored
   pool balance, not a runtime optimizer or an applied eight-hit Result.
 
 ### Qingyi candidate and prepared setup policy
@@ -278,7 +281,7 @@ output, runtime package score, or catalogue.
   Additionals are active. Incomplete any required setup input empties all
   Results until repaired.
 - AE2. Harumasa full and non-limited candidates and first choices match R4-R9.
-  Zanshin, Cordis, Brimstone, and Heartstring each project only their
+  Zanshin, Cordis, Heartstring, Sol, and Brimstone each project only their
   complete usable package; non-limited contains no limited S-Rank.
 - AE3. Harumasa defining action rows compose Core, Potential, Additional,
   Zanshin/Cordis, M2, and M6 scopes without leaking Dash-only, Basic-only,

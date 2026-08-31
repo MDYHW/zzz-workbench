@@ -113,10 +113,11 @@ The prose requirements govern if this diagram and the text ever differ.
 **W-Engine candidates and prepared outcomes**
 
 - R3. Evelyn's authored full-pool W-Engine candidates are Heartstring Nocturne,
-  Severed Innocence, Cordis Germina, The Brimstone, and Steel Cushion. Her
-  non-limited candidates are The Brimstone and Steel Cushion. Full prepares
-  Heartstring Nocturne at W1; non-limited prepares The Brimstone at W1.
-  Existing source-owned Severed, Cordis, Brimstone, and Steel facts are reused rather
+  Severed Innocence, Cordis Germina, Sol Exuvia, The Brimstone, and Steel
+  Cushion. Her non-limited candidates are Sol, The Brimstone, and Steel
+  Cushion. Full prepares Heartstring Nocturne at W1; non-limited prepares Sol
+  at W1.
+  Existing source-owned Sol, Severed, Cordis, Brimstone, and Steel facts are reused rather
   than duplicated.
 - R4. Heartstring's mixed-CRIT and Chain/Ultimate Fire-RES-Ignore package is
   fully compatible with Evelyn and determines the full-pool first choice. Setup
@@ -125,7 +126,10 @@ The prose requirements govern if this diagram and the text ever differ.
 - R5. Steel Cushion retains a legally selectable mixed-CRIT package whose
   back-attack clause has a current Evelyn projector. Its Physical-DMG clause is
   unused by Evelyn but remains visible through the shared complete equipment
-  package.
+  package. Sol is the stronger broad standard CRIT/ATK package and supplies no
+  Ether RES Ignore to Fire Evelyn; Steel remains the strongest competitive
+  account-use substitute when Sol is contested, while Brimstone preserves the
+  distinct higher-ATK/lower-fixed-CRIT allocation.
 
 **Drive Discs, main stats, and preparation**
 
@@ -144,9 +148,11 @@ The prose requirements govern if this diagram and the text ever differ.
   full representative is Heartstring W1, Hormone Punk 4-piece, Woodpecker
   2-piece, CRIT DMG / PEN Ratio / ATK% mains, and zero substats. Its bounded
   future CRIT Rate opportunity reaches the defining 80% relationship without
-  overfilling the 100% cap. The non-limited representative is The Brimstone
-  W1, Hormone Punk 4-piece, Branch & Blade 2-piece, CRIT Rate / PEN Ratio /
-  ATK% mains, and zero substats so the same future opportunity reaches 80%.
+  overfilling the 100% cap. The non-limited representative uses Sol W1,
+  Hormone Punk 4-piece, Woodpecker 2-piece, CRIT DMG / PEN Ratio / ATK% mains,
+  and zero substats. Sol's fixed CRIT Rate preserves the full-pool finite
+  allocation while its ATK advanced stat makes the complete standard package
+  stronger; removing Sol returns the Brimstone allocation as the contrary case.
 - R8. Applied Astra's repeated Quick Assist opportunity adds Astral Voice
   4-piece to Evelyn's effective candidates; applied Dialyn's Ultimate
   opportunity adds Puffer Electro 4-piece. Neither opportunity changes her
@@ -254,16 +260,16 @@ The prose requirements govern if this diagram and the text ever differ.
 
 - AE1. **Covers R1-R7.** Given Evelyn is applied at M0/full, she prepares
   Heartstring W1, Hormone 4-piece, Woodpecker 2-piece, CRIT DMG / PEN Ratio /
-  ATK% mains, and zero substats. Non-limited prepares Brimstone W1, Hormone
-  4-piece, Branch & Blade 2-piece, CRIT Rate / PEN Ratio / ATK% mains, and zero
+  ATK% mains, and zero substats. Non-limited prepares Sol W1, Hormone
+  4-piece, Woodpecker 2-piece, CRIT DMG / PEN Ratio / ATK% mains, and zero
   substats. Both preparations are complete and immediately produce Result.
 - AE2. **Covers R2, R4-R7, R10-R11, R15.** Given the full representative, the
   selected W-Engine and 2-piece facts compose Initial CRIT with Evelyn's
   retained CRIT. The zero-substat Additional Ability gauge is inactive; two
   CRIT Rate hits cross its threshold and expose the Chain/Ultimate scale
   operation when another Stun or Support Agent is applied. The zero-substat
-  non-limited representative remains below the threshold, while the bounded
-  future opportunity crosses it without exceeding the formula cap.
+  non-limited Sol representative uses its fixed CRIT supply and bounded future
+  opportunity to cross the threshold without exceeding the formula cap.
 - AE3. **Covers R3-R5, R14-R15.** Given Heartstring W1, its selected shared fact
   contributes the entry-established CRIT-DMG and Chain/Ultimate Fire-RES-Ignore
   clauses at their owned surfaces and reaches the complete package at Fully

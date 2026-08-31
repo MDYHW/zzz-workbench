@@ -71,9 +71,9 @@ Aftershock catalogue.
 ### Orphie & Magus equipment authoring
 
 - R4. Orphie's full W-Engine candidates are Bellicose Blaze, Heartstring
-  Nocturne, Serpentine Seeker, Gilded Blossom, and Marcato Desire. Non-limited
-  candidates are Gilded Blossom and Marcato Desire. Full prepares Bellicose
-  Blaze W1; non-limited prepares Gilded Blossom W5.
+  Nocturne, Serpentine Seeker, Sol Exuvia, Gilded Blossom, and Marcato Desire.
+  Non-limited candidates are Sol, Gilded Blossom, and Marcato. Full prepares
+  Bellicose Blaze W1; non-limited prepares Sol W1.
 - R5. Bellicose is the full first choice through its complete Energy Regen,
   CRIT Rate, and Fire Aftershock DEF Ignore package. Heartstring is the retained
   Energy-Regen-less other-limited alternative: its balanced CRIT package
@@ -86,11 +86,14 @@ Aftershock catalogue.
   beyond Heartstring are excluded. Myriad Eclipse is excluded because
   Heartstring has the same Base ATK and advanced CRIT Rate, more unconditional
   CRIT DMG, and a usable Fire clause while Myriad's Ice-trigger clause is
-  inactive. Gilded's complete ATK and EX package establishes the non-limited
-  first choice; Marcato remains a distinct CRIT/ATK alternative. Brimstone and
+  inactive. Sol's high-Base-ATK ATK/CRIT package establishes the non-limited
+  first choice while its Ether-only clause contributes zero. Gilded preserves
+  the distinct fully aligned EX/ATK route. Marcato remains only as the strongest
+  still-competitive same-direction account-use substitute when Sol is
+  contested. Brimstone and
   Starlight are excluded because their activation-dependent broad ATK packages
   do not create a material package advantage over Gilded's fully aligned EX/ATK
-  package or Marcato's CRIT/ATK axis at zero supplied substats.
+  package or Sol's stronger CRIT/ATK axis at zero supplied substats.
 - R6. Add Gilded Blossom as an A-Rank non-limited Attack candidate. Its ATK and
   EX-Special-DMG clauses are both usable by Orphie and remain separately visible
   in Setup and Result.
@@ -109,10 +112,11 @@ Aftershock catalogue.
   Shadow, and Agent-local Core supply leave too little of the conservative
   eight-hit CRIT opportunity for another fixed CRIT-Rate main, so CRIT DMG
   precedes it. The selected Energy package reaches Orphie's Core ATK cap.
-  Non-limited prepares Gilded Blossom W5, Shadow Harmony 4-piece plus Swing
-  Jazz 2-piece, CRIT Rate / Fire DMG / Energy Regen mains, and zero substats.
-  Its lower fixed CRIT supply makes the CRIT Rate main precede CRIT DMG before
-  future substat allocation. The prepared difference is a
+  Non-limited prepares Sol W1, Shadow Harmony 4-piece plus Swing Jazz 2-piece,
+  CRIT DMG / Fire DMG / Energy Regen mains, and zero substats. Sol supplies the
+  same fixed CRIT Rate as Bellicose, so the finite opportunity keeps the
+  CRIT-DMG main even though Sol does not replace Bellicose's Energy direction.
+  The prepared difference is a
   bounded authored representative, not runtime scoring.
 
 ### Pulchra equipment authoring
@@ -195,8 +199,9 @@ Aftershock catalogue.
   Bellicose supplies broad CRIT and Initial Energy Regen plus Fire Aftershock
   DEF Ignore; Heartstring supplies broad CRIT DMG and Fire Chain/Ultimate RES
   Ignore; Serpentine supplies Initial Energy Regen and broad CRIT while its
-  Electric DEF Ignore remains unused; Gilded supplies broad ATK and EX-Special
-  DMG. Whole-package candidate choice remains separate from these exact Result
+  Electric DEF Ignore remains unused; Sol supplies broad ATK and CRIT while its
+  Ether clause is unused; Gilded supplies broad ATK and EX-Special DMG.
+  Whole-package candidate choice remains separate from these exact Result
   rows.
 - R18. Pulchra's completed Core supplies Daze +30% to EX Special, Assist
   Follow-Up, Chain Attack, and Ultimate while Hunter's Gait is active. Her
@@ -255,8 +260,8 @@ Aftershock catalogue.
   CRIT Rate/Physical/Impact. Every offered effective-substat count starts at
   zero and all three Results are complete.
 - AE2. Orphie's full representative reaches Zeroed In's ATK cap. The
-  non-limited Gilded/Shadow/Swing package remains below it through the same
-  continuous relation and prepares CRIT Rate rather than CRIT DMG. Direct pool
+  non-limited Sol/Shadow/Swing package remains below it through the same
+  continuous relation and prepares CRIT DMG from Sol's fixed CRIT supply. Direct pool
   change rebuilds only Orphie.
 - AE3. Orphie's Result exposes self Aftershock DMG +85%; qualified all-party
   Aftershock DEF Ignore +25%; Bellicose Fire Aftershock DEF Ignore; and the
@@ -326,7 +331,7 @@ Aftershock catalogue.
 
 - The five permanent Markdown authorities own product behavior, source
   retention, formula meaning, vocabulary, and visual behavior.
-- Existing Bellicose, Heartstring, Severed, Cordis, Marcato, Blazing, Hellfire,
+- Existing Bellicose, Heartstring, Severed, Cordis, Sol, Marcato, Blazing, Hellfire,
   Steam, Precious, Shadow, King, Astral, Shockstar, Swing, Moonlight, Inferno,
   Woodpecker, Branch & Blade, Hormone, and same-effect meanings remain current.
 - Existing typed NEDF qualification, formula/action applicability, capped
