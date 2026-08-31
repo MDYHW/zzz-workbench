@@ -369,11 +369,13 @@ itself establish semantic readiness.
 
   Partial applicability is not a separate direction or a candidate-count rule.
   When two other limited S-Ranks have the same fixed-supply direction and
-  acquisition role, compare only their Agent-realized usable remainders after
-  zeroing unavailable clauses and retain the stronger operation-aligned package
-  unless a material allocation, action, operation, formula, threshold, cap, or
-  recipient consequence survives. Different unused clauses, trigger labels, or
-  amounts of source-package completeness do not preserve both.
+  acquisition role, compare their complete Agent-realized recomposed packages
+  after zeroing unavailable clauses. Apply operation alignment only to each
+  clause for which `SW-017` requires that additional gate; it does not qualify
+  Base ATK, the advanced stat, or unconditional supply. Retain the stronger
+  package unless a material allocation, action, operation, formula, threshold,
+  cap, or recipient consequence survives. Different unused clauses, trigger
+  labels, or amounts of source-package completeness do not preserve both.
 
   Do not turn every repeated activation into a cadence model. An exact retained
   action that occurs in the Agent's ordinary authored operation normally passes
@@ -417,18 +419,22 @@ itself establish semantic readiness.
   candidate and representative for a changed local outcome; do not add a
   dependency registry, duplicate value, or item-specific catalogue test.
   When a vertical introduces a new shared equipment package, reverse-route its
-  advanced stat and each effect clause across the current roster before that
-  vertical closes. Form one bounded cohort by conjunctively applying the
-  existing holder, Attribute, action or operation, recipient, interval,
-  formula, role, and current-consumer gates; do not begin from guide lists or
-  current candidate arrays. Classify each surviving Agent-local outcome as
-  changed, no change, or unresolved, and give every bounded-out path an exact
-  contradiction. Only survivors and the nearest same-axis or same-role
-  comparator receive a complete-package and finite-opportunity comparison.
-  Persist settled local outcomes in their current Agent requirements and keep
-  the eliminated roster and working comparison transient. This reciprocal
-  inspection is an authoring gate, not a runtime validator, equipment
-  catalogue, dependency registry, or automatic candidate mutation.
+  Base ATK, advanced stat, and each effect clause independently across the
+  current authored Agent roster before that vertical closes. For each
+  contribution, conjunctively apply only the existing holder, Attribute, action
+  or operation, recipient, interval, formula, role, and current-consumer gates
+  that qualify that contribution; union the surviving contributions per Agent.
+  Do not begin from guide lists or current candidate arrays. Bound an Agent out
+  only when every contribution has an exact contradiction. Classify each
+  surviving Agent-local package outcome as changed, no change, or unresolved.
+  Every surviving W-Engine outcome then completes the full `SW-005` chain:
+  representative benchmark and material range, same-role compression and, for
+  another limited S-Rank, comparison with the strongest non-limited route before
+  pool derivation. Inspect only that benchmark and the required nearest
+  comparators. Persist settled local outcomes in their current Agent
+  requirements and keep the eliminated roster and working comparison transient.
+  This reciprocal inspection is an authoring gate, not a runtime validator,
+  equipment catalogue, dependency registry, or automatic candidate mutation.
 - Secondary requirements cannot validate themselves. They and all downstream
   verification remain subject to the ordered closure and `Meaning settled` gate
   above.
