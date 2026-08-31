@@ -18,8 +18,9 @@ compatible recipients. Neither relationship authorizes an `anomaly_damage`
 profile for either Agent.
 
 This unit applies `SF-002`-`SF-005`, `GV-001`-`GV-004` and `GV-009`,
-`FM-001`-`FM-004` and `FM-006`-`FM-011`, `SW-002`-`SW-016`, and
-`UI-001`-`UI-004`. It settles Anton and Rina only. It does not reopen the
+`FM-001`-`FM-004` and `FM-006`-`FM-011`, `SW-002`-`SW-006`,
+`SW-008`-`SW-016`, `SW-018`-`SW-020`, and `UI-001`-`UI-004`. It settles Anton
+and Rina only. It does not reopen the
 completed Anomaly-damage track, Miyabi, or existing candidate rosters.
 
 ## Authority And Consumer Decision Map
