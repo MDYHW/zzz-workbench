@@ -381,10 +381,15 @@ effects can scope their conditions or bonuses to them.
 | Ice and Frost | Freeze, Shatter, and Frostbite |
 | Electric | Shock |
 | Ether and Auric Ink | Corruption |
+| Wind | Windswept |
 
 Repeatable attacks that deal an Attribute can build and establish that
 Attribute's matching anomaly. A same-Attribute teammate may accelerate that
 process without being inherently required.
+
+During one Windswept instance, the first direct Physical, Fire, Ice, Electric,
+or Ether damage establishes Contamination for that Attribute. Contamination is
+a target state, not an Attribute Anomaly result or Disorder.
 
 The [product contract](setup-workbench-product-contract.md#fully-enabled-party-window)
 owns enabled-window treatment.
@@ -398,6 +403,7 @@ setting result needs them.
 | Term | Game meaning needed by the workbench | Boundary |
 | --- | --- | --- |
 | Disorder | result produced when a different attribute anomaly overwrites an existing anomaly, subject to source-specific exceptions | formula mechanics owns its damage calculation; source facts may affect Disorder without affecting the underlying anomaly |
+| Vortex | result produced instead of ordinary Disorder when a non-Wind Attribute Anomaly completes while Windswept is active; Contamination aligns to that non-Wind Attribute | distinct from Disorder; an exact Disorder condition or bonus does not apply unless its source independently includes Vortex; formula mechanics owns any damage calculation |
 
 The same word `Anomaly` can appear in a specialty, a stat relationship, a gauge,
 a damage family, or a named result. Each occurrence keeps its stated semantic
