@@ -1,4 +1,4 @@
-import { ABLOOM_TARGET, ATTRIBUTE_ANOMALY_TARGET, actionForm, actionTarget, canonicalAction, CORRUPTION_TARGET, DISORDER_TARGET, MIYABI_FROSTBURN_BUILDUP_TARGET, MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET, sourceLocalAction, type ActionTarget } from '../../actions'
+import { ABLOOM_TARGET, ATTRIBUTE_ANOMALY_TARGET, actionForm, actionTarget, canonicalAction, CORRUPTION_TARGET, DISORDER_TARGET, MIYABI_FROSTBURN_BUILDUP_TARGET, MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET, sourceLocalAction, VORTEX_TARGET, WINDSWEPT_TARGET, type ActionTarget } from '../../actions'
 import { effectiveSubstatChoicesForSlot } from '../../candidates'
 import type { ActionScopeNode } from '../../calculation/composition'
 import { actionProjection, type ActionProjection, type AgentSourceProfile, type MetricProjection } from '../../calculation/profile-harness'
@@ -15,7 +15,7 @@ import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedS
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from '../agent-sources/sources'
 import { agentBroadPrePenRelationships } from '../agent-broad-pre-pen-relationships'
 
-const ANOMALY_AGENTS = ['grace', 'piper', 'yuzuha', 'burnice', 'jane', 'yanagi', 'alice', 'vivian', 'aria', 'promeia'] as const satisfies readonly AgentId[]
+const ANOMALY_AGENTS = ['grace', 'piper', 'yuzuha', 'burnice', 'jane', 'yanagi', 'alice', 'vivian', 'aria', 'promeia', 'velina'] as const satisfies readonly AgentId[]
 type Agent = (typeof ANOMALY_AGENTS)[number]
 type Slot = 0 | 1 | 2
 const DAMAGE = REGULAR_DAMAGE_FORMULAS
@@ -31,6 +31,7 @@ const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   vivian: { atk: VERTICAL_VALUES.vivian.atk, anomalyProficiency: VERTICAL_VALUES.vivian.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.vivian.anomalyMastery, penRatio: 0 },
   aria: { atk: VERTICAL_VALUES.aria.atk, anomalyProficiency: VERTICAL_VALUES.aria.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.aria.anomalyMastery, penRatio: 0 },
   promeia: { atk: VERTICAL_VALUES.promeia.atk, anomalyProficiency: VERTICAL_VALUES.promeia.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.promeia.anomalyMastery, penRatio: 0 },
+  velina: { atk: VERTICAL_VALUES.velina.atk, anomalyProficiency: VERTICAL_VALUES.velina.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.velina.anomalyMastery, energyRegen: VERTICAL_VALUES.velina.baseEnergyRegen, penRatio: 0 },
 }
 
 const A = (action: Parameters<typeof canonicalAction>[0], form?: string) => form ? actionForm(action, form) : canonicalAction(action)
@@ -65,6 +66,22 @@ const ARIA_ATTACKS = actionTarget([
 ])
 const ARIA_M6_DAMAGE = actionTarget([actionForm('Basic Attack', 'Enhanced'), A('Ultimate')])
 const ANOMALY_RECIPIENT_CHAIN = actionTarget([A('Chain Attack')])
+const VELINA_SWEEPING_CYCLONE = actionTarget([sourceLocalAction('Sweeping Cyclone')])
+const VELINA_WIND_TARGET_BUILDUP = actionTarget([
+  sourceLocalAction('Wind Anomaly Buildup · Wind Anomaly target'),
+])
+const VELINA_CONDENSED_CYCLONE_ABLOOM = actionTarget([
+  sourceLocalAction('Condensed Cyclone'),
+  sourceLocalAction('Abloom'),
+])
+const VELINA_SWEEPING_CYCLONE_ABLOOM = actionTarget([
+  sourceLocalAction('Sweeping Cyclone'),
+  sourceLocalAction('Abloom'),
+])
+const VELINA_ULTIMATE_ABLOOM = actionTarget([
+  A('Ultimate'),
+  sourceLocalAction('Abloom'),
+])
 
 const GRACE_ANOMALY_SCOPES = [
   { id: 'graceAttributeAnomaly', target: ATTRIBUTE_ANOMALY_TARGET, children: [{ id: 'graceShock', target: GRACE_SHOCK }] },
@@ -149,6 +166,30 @@ const PROMEIA_ANOMALY_SCOPES = [
   { id: 'promeiaDisorder', target: DISORDER_TARGET },
 ] satisfies readonly ActionScopeNode[]
 
+const VELINA_ANOMALY_SCOPES = [
+  {
+    id: 'velinaAttributeAnomaly', target: ATTRIBUTE_ANOMALY_TARGET,
+    children: [{
+      id: 'velinaWindswept', target: WINDSWEPT_TARGET,
+      children: [
+        {
+          id: 'velinaCondensedCycloneAbloom', target: VELINA_CONDENSED_CYCLONE_ABLOOM,
+          inheritedEffectTargets: [ABLOOM_TARGET],
+        },
+        {
+          id: 'velinaSweepingCycloneAbloom', target: VELINA_SWEEPING_CYCLONE_ABLOOM,
+          inheritedEffectTargets: [ABLOOM_TARGET],
+        },
+        {
+          id: 'velinaUltimateAbloom', target: VELINA_ULTIMATE_ABLOOM,
+          inheritedEffectTargets: [ABLOOM_TARGET],
+        },
+      ],
+    }],
+  },
+  { id: 'velinaVortex', target: VORTEX_TARGET },
+] satisfies readonly ActionScopeNode[]
+
 const src = (agent: Agent, slot: Slot, id: string, label: string, locus: 'identity' | 'core' | 'additional' | 'special' = 'core') => selectedAgentSource(agent, slot, id, label, locus)
 const m = (
   id: MetricProjection['id'],
@@ -211,7 +252,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
   const core = src(agent, slot, 'core', SOURCE_LABELS[coreKey])
   const ability = src(agent, slot, 'additional', SOURCE_LABELS[abilityKey], 'additional')
   const mind = (tier: 1 | 2 | 4 | 6) => selectedMindscapeSource(agent, slot, setup.mindscape, tier)
-  const observation: SelectedSetupObservation = { baseStats: BASE[agent], effectiveSubstats: effectiveSubstatChoicesForSlot(state, slot), modifierMetrics: ['dmgBonus', 'anomalyDmgBonus', 'anomalyBuildupBonus', 'anomalyBuildupResReduction', 'resReduction', 'resIgnore'] }
+  const observation: SelectedSetupObservation = { baseStats: BASE[agent], effectiveSubstats: effectiveSubstatChoicesForSlot(state, slot), modifierMetrics: ['dmgBonus', 'dazeBonus', 'anomalyDmgBonus', 'anomalyBuildupBonus', 'anomalyBuildupResReduction', 'resReduction', 'resIgnore'] }
   const relationships = selectedSetupRelationships(agent, slot, setup, observation)
   relationships.push(...agentBroadPrePenRelationships(state, slot))
   const add = (r: ProfileRelationship) => relationships.push(r)
@@ -821,6 +862,226 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
       { metricId: 'resIgnore', scopes: PROMEIA_ANOMALY_SCOPES },
     )
     return { agentId: agent, appliedPartySlot: slot, relationships, metrics: anomalyDealerMetrics(), actions }
+  }
+  if (agent === 'velina') {
+    const contaminationAttribute = effectAttributeForAgent(focusAgentId)
+    add({
+      kind: 'gauge',
+      source: core,
+      basis: { statId: 'energyRegen', surface: 'initial' },
+      basisLabel: 'Initial Energy Regen',
+      basisThreshold: VERTICAL_VALUES.velina.coreEnergyThreshold,
+      basisCap: VERTICAL_VALUES.velina.coreEnergyCap,
+      metricId: 'energyRegen',
+      outputs: [
+        {
+          label: 'DMG Bonus', unit: '%', cap: VERTICAL_VALUES.velina.coreDmgCap,
+          transform: {
+            basisThreshold: VERTICAL_VALUES.velina.coreEnergyThreshold,
+            basisIncrement: 0.01,
+            outputIncrement: VERTICAL_VALUES.velina.coreDmgPerEnergy,
+            outputCap: VERTICAL_VALUES.velina.coreDmgCap,
+          },
+          emission: {
+            kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
+          },
+        },
+        {
+          label: 'Anomaly Mastery', unit: '', cap: VERTICAL_VALUES.velina.coreMasteryCap,
+          transform: {
+            basisThreshold: VERTICAL_VALUES.velina.coreEnergyThreshold,
+            basisIncrement: 0.01,
+            outputIncrement: VERTICAL_VALUES.velina.coreMasteryPerEnergy,
+            outputCap: VERTICAL_VALUES.velina.coreMasteryCap,
+          },
+          emission: {
+            kind: 'stat', statId: 'anomalyMastery', region: 'flat', earliestSurface: 'fully',
+          },
+        },
+      ],
+      decimals: { current: 2, threshold: 2, cap: 2, output: 2, outputCap: 0 },
+    })
+    add({
+      kind: 'operation',
+      atom: {
+        label: 'Added Vortex DMG Multiplier', earliestSurface: 'fully',
+        value: VERTICAL_VALUES.velina.coreVortexMultiplier,
+        unit: '%', source: core,
+      },
+    })
+    add(provider(
+      core,
+      'enemy-context',
+      {
+        kind: 'modifier', metricId: 'anomalyBuildupResReduction', earliestSurface: 'fully',
+        value: VERTICAL_VALUES.velina.coreBuildupResReduction,
+        sourceDetail: 'Sweeping Cyclone · Wind Anomaly Buildup RES',
+      },
+      ['anomaly_buildup'],
+      ['Wind'],
+    ))
+    add(provider(
+      core,
+      'enemy-context',
+      {
+        kind: 'modifier', metricId: 'anomalyBuildupResReduction', earliestSurface: 'fully',
+        value: VERTICAL_VALUES.velina.coreBuildupResReduction,
+        sourceDetail: 'Contamination Attribute · selected by Focus',
+      },
+      ['anomaly_buildup'],
+      [contaminationAttribute],
+    ))
+
+    const additionalActive = anotherAgentHasSpecialty(ids, slot, ['Anomaly'])
+      || anotherAgentSharesAttribute(ids, slot)
+    if (additionalActive) {
+      for (const action of [WINDSWEPT_TARGET, VORTEX_TARGET]) {
+        add(mod(
+          ability,
+          'anomalyDmgBonus',
+          VERTICAL_VALUES.velina.additionalAnomalyDmg,
+          action,
+        ))
+      }
+      add(provider(
+        ability,
+        'enemy-context',
+        {
+          kind: 'modifier', metricId: 'anomalyBuildupResReduction', earliestSurface: 'fully',
+          value: VERTICAL_VALUES.velina.additionalBuildupResReduction,
+          sourceDetail: 'Sweeping Cyclone · Wind Anomaly Buildup RES',
+        },
+        ['anomaly_buildup'],
+        ['Wind'],
+      ))
+      add(provider(
+        ability,
+        'enemy-context',
+        {
+          kind: 'modifier', metricId: 'anomalyBuildupResReduction', earliestSurface: 'fully',
+          value: VERTICAL_VALUES.velina.additionalBuildupResReduction,
+          sourceDetail: 'Contamination Attribute · selected by Focus',
+        },
+        ['anomaly_buildup'],
+        [contaminationAttribute],
+      ))
+      add(mod(
+        ability,
+        'dazeBonus',
+        VERTICAL_VALUES.velina.additionalDaze,
+        VELINA_SWEEPING_CYCLONE,
+      ))
+      add(mod(
+        ability,
+        'anomalyBuildupBonus',
+        VERTICAL_VALUES.velina.additionalBuildup,
+        VELINA_SWEEPING_CYCLONE,
+      ))
+    }
+
+    if (setup.mindscape >= 1) {
+      add(mod(
+        mind(1),
+        'dazeBonus',
+        VERTICAL_VALUES.velina.mindscape1Daze,
+        VELINA_SWEEPING_CYCLONE,
+      ))
+      add(mod(
+        mind(1),
+        'resIgnore',
+        VERTICAL_VALUES.velina.mindscape1VortexResIgnore,
+        VORTEX_TARGET,
+      ))
+      add(provider(
+        mind(1),
+        'all-party',
+        {
+          kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'fully',
+          value: VERTICAL_VALUES.velina.mindscape1WindsweptResIgnore,
+          action: WINDSWEPT_TARGET,
+        },
+        ['anomaly_damage'],
+      ))
+    }
+    if (setup.mindscape >= 2) {
+      if (additionalActive) {
+        for (const action of [WINDSWEPT_TARGET, VORTEX_TARGET]) {
+          add(mod(
+            mind(2),
+            'anomalyDmgBonus',
+            VERTICAL_VALUES.velina.mindscape2AnomalyDmg,
+            action,
+          ))
+        }
+      }
+      add({
+        kind: 'operation',
+        atom: {
+          label: 'Chromatic Tint buildup contribution to Anomaly DMG',
+          earliestSurface: 'fully', value: 0, unit: '%', source: mind(2),
+        },
+      })
+    }
+    if (setup.mindscape >= 4) {
+      add(stat(mind(4), 'atk', VERTICAL_VALUES.velina.mindscape4Atk, 'percentage'))
+    }
+    if (setup.mindscape >= 6) {
+      add(mod(
+        mind(6),
+        'anomalyBuildupBonus',
+        VERTICAL_VALUES.velina.mindscape6WindBuildup,
+        VELINA_WIND_TARGET_BUILDUP,
+      ))
+      add(mod(
+        mind(6),
+        'anomalyDmgBonus',
+        VERTICAL_VALUES.velina.mindscape6WindsweptDmg,
+        WINDSWEPT_TARGET,
+      ))
+    }
+
+    relationships.push(...selectedEquipmentRelationships(
+      agent,
+      slot,
+      setup,
+      { observation, focusAgentId, partyAgentIds: ids },
+    ))
+    actions.push(
+      { metricId: 'anomalyDmgBonus', scopes: VELINA_ANOMALY_SCOPES },
+      actionProjection('dazeBonus', 'velinaSweepingCycloneDaze', VELINA_SWEEPING_CYCLONE),
+      {
+        metricId: 'anomalyBuildupBonus',
+        scopes: [
+          { id: 'velinaSweepingCycloneBuildup', target: VELINA_SWEEPING_CYCLONE },
+          { id: 'velinaWindTargetBuildup', target: VELINA_WIND_TARGET_BUILDUP },
+        ],
+      },
+      {
+        metricId: 'resIgnore',
+        scopes: [
+          { id: 'velinaWindsweptResIgnore', target: WINDSWEPT_TARGET },
+          { id: 'velinaVortexResIgnore', target: VORTEX_TARGET },
+        ],
+      },
+    )
+    const metrics = [
+      m('atk', 'ATK', '', 'atk'),
+      m('anomalyProficiency', 'Anomaly Proficiency', '', 'anomalyProficiency'),
+      m('anomalyMastery', 'Anomaly Mastery', '', 'anomalyMastery', undefined, 2),
+      m('energyRegen', 'Energy Regen', '/s', 'energyRegen', undefined, 2),
+      m('dmgBonus', 'DMG Bonus', '%', undefined, 'nonzero-or-action'),
+      m('anomalyDmgBonus', 'Anomaly DMG Bonus', '%', undefined, 'nonzero-or-action'),
+      m('dazeBonus', 'Daze Bonus', '%', undefined, 'nonzero-or-action'),
+      m('anomalyBuildupBonus', 'Anomaly Buildup Bonus', '%', undefined, 'nonzero-or-action'),
+      m('penRatio', 'PEN Ratio', '%', 'penRatio', 'disclosed-or-action'),
+      m('anomalyBuildupResReduction', 'Anomaly Buildup RES Reduction', '%', undefined, 'nonzero-or-action'),
+      m('defIgnore', 'DEF Ignore', '%', undefined, 'nonzero-or-action'),
+      m('defReduction', 'DEF Reduction', '%', undefined, 'nonzero-or-action'),
+      m('resIgnore', 'RES Ignore', '%', undefined, 'nonzero-or-action'),
+      m('resReduction', 'RES Reduction', '%', undefined, 'nonzero-or-action'),
+      m('stunDmgMultiplier', 'Stun DMG Multiplier', '%', undefined, 'nonzero-or-action'),
+    ]
+    return { agentId: agent, appliedPartySlot: slot, relationships, metrics, actions }
   }
   if (agent === 'yuzuha') {
     const additionalActive = anotherAgentHasSpecialty(ids, slot, ['Anomaly']) || anotherAgentSharesFaction(ids, slot)

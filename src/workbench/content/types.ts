@@ -6,6 +6,7 @@ export type PoolId = 'full' | 'nonLimited'
 export type AgentId =
   | 'pyrois'
   | 'sigrid'
+  | 'velina'
   | 'yixuan'
   | 'dialyn'
   | 'lucia'
@@ -68,6 +69,7 @@ export type AgentAttribute =
   | 'Ice'
   | 'Electric'
   | 'Ether'
+  | 'Wind'
   | 'Auric Ink'
   | 'Honed Edge'
   | 'Frost'
@@ -104,6 +106,8 @@ export type EngineRank = 'S' | 'A'
 export type EngineId =
   | 'solExuvia'
   | 'knightsExtolment'
+  | 'joyauDore'
+  | 'boisterousEchoes'
   | 'chiefSidekick'
   | 'peacekeeperSpecialized'
   | 'qingming'
@@ -174,6 +178,7 @@ export type EngineId =
 
 export type DiscId =
   | 'skyAblaze'
+  | 'wutheringSalon'
   | 'yunkui'
   | 'woodpecker'
   | 'branchAndBlade'
@@ -216,6 +221,7 @@ export type MainStatId =
   | 'electricDmg'
   | 'fireDmg'
   | 'iceDmg'
+  | 'windDmg'
   | 'defPct'
   | 'anomalyProficiency'
   | 'anomalyMastery'
@@ -246,7 +252,7 @@ export type EquipmentEffectModifier =
   | 'anomalyProficiency' | 'anomalyMastery' | 'anomalyDmgBonus'
   | 'anomalyBuildupBonus' | 'anomalyBuildupResReduction'
 
-export type EquipmentEffectAttribute = 'Electric' | 'Ether' | 'Fire' | 'Ice' | 'Physical'
+export type EquipmentEffectAttribute = 'Electric' | 'Ether' | 'Fire' | 'Ice' | 'Physical' | 'Wind'
 
 export type EquipmentEffectAction =
   Extract<
@@ -264,7 +270,7 @@ export type EquipmentEffectAction =
 
 export type EquipmentEffectTag = Extract<ActionTag, 'aftershock'>
 export type EquipmentEffectCondition = 'backAttack' | 'offField' | 'shielded' | 'anomalyAfflictedTarget' | 'burningTarget' | 'stunnedTarget' | 'distantTarget' | 'lowHpTarget'
-export type EquipmentEffectAnomalyResult = 'Attribute Anomaly' | 'Disorder' | 'Abloom'
+export type EquipmentEffectAnomalyResult = 'Attribute Anomaly' | 'Disorder' | 'Windswept' | 'Vortex' | 'Abloom'
 export type AgentOperation = 'etherVeil' | 'hpDecrease'
 
 export type EquipmentEffectRecipient = 'self' | 'focus' | 'squad' | 'enemy'

@@ -302,7 +302,7 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
     relationships.push(
       mod('dazeBonus', VERTICAL_VALUES.lycaon.coreChargedDaze, core, LYCAON_CHARGED, 'combat'),
       provider(core, 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.lycaon.coreIceResReduction }, { attributes: ['Ice'] }),
-      provider(core, 'enemy-context', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.lycaon.coreOtherAttributeDmg }, { attributes: ['Physical', 'Fire', 'Electric', 'Ether'], formulas: ['general_damage', 'sheer_damage', 'anomaly_damage'] }),
+      provider(core, 'enemy-context', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.lycaon.coreOtherAttributeDmg }, { attributes: ['Physical', 'Fire', 'Electric', 'Ether', 'Wind'], formulas: ['general_damage', 'sheer_damage', 'anomaly_damage'] }),
       {
         kind: 'linear',
         source: potential,

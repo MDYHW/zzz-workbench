@@ -22,6 +22,10 @@ const enginePools = (
 const ENGINE_CANDIDATES_BY_AGENT: Record<AgentId, readonly EngineId[]> = {
   pyrois: ['solExuvia', 'cordisGermina'],
   sigrid: ['knightsExtolment', 'severedInnocence', 'brimstone', 'starlightEngine'],
+  velina: [
+    'joyauDore', 'serpentineSeeker', 'flamemakerShaker', 'fusionCompiler',
+    'weepingGemini', 'boisterousEchoes', 'kaboom',
+  ],
   norma: ['chiefSidekick', 'yesterdayCalls', 'blazingLaurel', 'hellfireGears', 'steamOven', 'preciousFossilizedCore'],
   yixuan: ['qingming', 'cauldron', 'radiowave', 'puzzleSphere'],
   yidhari: ['krakensCradle', 'grillOWisp', 'cauldron', 'qingming'],
@@ -121,6 +125,14 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     fourPiece: ['dawnsBloom', 'hormonePunk'],
     twoPiece: ['pufferElectro', 'branchAndBlade', 'polarMetal', 'hormonePunk', 'dawnsBloom', 'woodpecker'],
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
+  },
+  velina: {
+    fourPiece: ['wutheringSalon', 'astralVoice'],
+    twoPiece: [
+      'swingJazz', 'moonlight', 'freedomBlues', 'chaosJazz',
+      'phaethonsMelody', 'pufferElectro', 'hormonePunk', 'astralVoice',
+      'wutheringSalon',
+    ],
   },
   norma: { fourPiece: ['king'], twoPiece: ['woodpecker', 'swingJazz'] },
   yixuan: { fourPiece: ['yunkui'], twoPiece: ['woodpecker', 'branchAndBlade', 'chaoticMetal'] },

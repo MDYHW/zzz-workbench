@@ -111,6 +111,59 @@ describe('workbench UI integration', () => {
     expect(screen.getByRole('button', {
       name: 'Select Astral Voice as fourPiece',
     })).toHaveAccessibleDescription(compressedDiscPackage)
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    const replace = async (slot: number, agent: RegExp) => {
+      await user.click(screen.getByRole('button', { name: new RegExp(`Replace slot ${slot},`) }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+    await replace(1, /Velina, Wind, Anomaly/)
+    await replace(2, /Promeia, Ice, Anomaly/)
+    await replace(3, /Lucia, Ether, Support/)
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+    await user.click(screen.getByRole('tab', { name: 'View Velina setup and Result' }))
+
+    const selectedJoyau = screen.getByRole('button', { name: 'Change W-Engine from Joyau Dore' })
+    const joyauDescription = document.getElementById(selectedJoyau.getAttribute('aria-describedby')!)!
+      .textContent!
+    expect(joyauDescription).not.toBe('')
+    await user.click(selectedJoyau)
+    for (const candidateName of [
+      'Select Weeping Gemini W5',
+      'Select Kaboom the Cannon W5',
+    ]) {
+      expect(screen.getByRole('button', { name: candidateName }))
+        .toHaveAccessibleDescription(expect.any(String))
+      expect(screen.getByRole('button', { name: candidateName }))
+        .not.toHaveAccessibleDescription('')
+    }
+    const boisterousCandidate = screen.getByRole('button', { name: 'Select Boisterous Echoes W5' })
+    expect(boisterousCandidate).toHaveAccessibleDescription(expect.any(String))
+    expect(boisterousCandidate).not.toHaveAccessibleDescription('')
+    await user.click(boisterousCandidate)
+    await user.click(screen.getByRole('button', { name: 'Change W-Engine from Boisterous Echoes' }))
+    expect(screen.getByRole('button', { name: 'Select Joyau Dore W1' }))
+      .toHaveAccessibleDescription(joyauDescription)
+
+    const selectedWuthering = screen.getByRole('button', {
+      name: 'Change 4-piece Drive Disc from Wuthering Salon',
+    })
+    expect(selectedWuthering).toHaveAccessibleDescription(expect.any(String))
+    expect(selectedWuthering).not.toHaveAccessibleDescription('')
+    await user.click(selectedWuthering)
+    const astralCandidate = screen.getByRole('button', {
+      name: 'Select Astral Voice as fourPiece',
+    })
+    expect(astralCandidate).toHaveAccessibleDescription(expect.any(String))
+    expect(astralCandidate).not.toHaveAccessibleDescription('')
+    await user.click(astralCandidate)
+    await user.click(screen.getByRole('button', {
+      name: 'Change 2-piece Drive Disc from Swing Jazz',
+    }))
+    expect(screen.getByRole('button', { name: 'Select Freedom Blues as twoPiece' }))
+      .toHaveAccessibleDescription(expect.any(String))
+    expect(screen.getByRole('button', { name: 'Select Wuthering Salon as twoPiece' }))
+      .toHaveAccessibleDescription(expect.any(String))
   })
 
   it('clears a stale source link when direct selection replaces its source identity', async () => {

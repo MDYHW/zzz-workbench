@@ -15,6 +15,7 @@ const CANDIDATE_OPPORTUNITIES_BY_AGENT: Partial<Record<
   seth: ['repeated-quick-assist'],
   nicole: ['external-quick-assist'],
   dialyn: ['received-ultimate'],
+  velina: ['repeated-quick-assist', 'external-quick-assist'],
 }
 
 /** Exact source-owned operations used by contextual setup policy. */

@@ -76,7 +76,7 @@ export interface SelectedEquipmentContext {
 }
 
 const elementalMainStats: readonly MainStatId[] = [
-  'etherDmg', 'physicalDmg', 'electricDmg', 'fireDmg', 'iceDmg',
+  'etherDmg', 'physicalDmg', 'electricDmg', 'fireDmg', 'iceDmg', 'windDmg',
 ]
 
 export function requireCompleteSelectedSetup(

@@ -23,6 +23,7 @@ import phaethonsMelodyImage from '../../assets/equipment/drive-discs/phaethons-m
 import shiningAriaImage from '../../assets/equipment/drive-discs/shining-aria.webp'
 import notesFromTheChainedImage from '../../assets/equipment/drive-discs/notes-from-the-chained.webp'
 import skyAblazeImage from '../../assets/equipment/drive-discs/the-sky-ablaze.webp'
+import wutheringSalonImage from '../../assets/equipment/drive-discs/wuthering-salon.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -41,6 +42,22 @@ export const DRIVE_DISC_FACTS = {
       atk: {
         modifier: 'atk', unit: '%', value: 10,
         activation: { kind: 'trigger', actions: ['EX Special Attack', 'Ultimate'], durationSeconds: 30 },
+      },
+    },
+  },
+  wutheringSalon: {
+    twoPiece: {
+      windDamage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Wind'] } },
+    },
+    fourPiece: {
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '',
+        progression: { kind: 'stacks', perStack: 25, maxStacks: 2 },
+        activation: { kind: 'trigger', performer: 'equipper', actions: ['EX Special Attack'], durationSeconds: 40 },
+      },
+      damage: {
+        modifier: 'dmgBonus', unit: '%', value: 18,
+        activation: { kind: 'trigger', performer: 'equipper', anomalyResult: 'Windswept', durationSeconds: 40 },
       },
     },
   },
@@ -330,6 +347,14 @@ export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
     fourPieceEffects: [
       `CRIT DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.skyAblaze.fourPiece.critDamage)}%`,
       `ATK +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.skyAblaze.fourPiece.atk)}%`,
+    ],
+  },
+  wutheringSalon: {
+    name: 'Wuthering Salon', image: wutheringSalonImage,
+    twoPieceEffect: `Wind DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.wutheringSalon.twoPiece.windDamage)}%`,
+    fourPieceEffects: [
+      `Anomaly Proficiency +${equipmentEffectMaximumValue(DRIVE_DISC_FACTS.wutheringSalon.fourPiece.anomalyProficiency)}`,
+      `DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.wutheringSalon.fourPiece.damage)}%`,
     ],
   },
   yunkui: {

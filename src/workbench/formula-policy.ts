@@ -75,6 +75,7 @@ export function effectAttributeForAgent(agentId: AgentId): EffectAttribute {
     || attribute === 'Ice'
     || attribute === 'Electric'
     || attribute === 'Ether'
+    || attribute === 'Wind'
   ) return attribute
   throw new Error(`Unsupported Attribute for effect applicability: ${String(attribute)}`)
 }

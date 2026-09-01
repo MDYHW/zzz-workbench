@@ -161,6 +161,12 @@ describe('shared engine activation and scope facts', () => {
     })
     expect(equipmentEffectCanBeActivated('aria', ['aria'], etherHolderEffect)).toBe(true)
     expect(equipmentEffectCanBeActivated('promeia', ['promeia'], etherHolderEffect)).toBe(false)
+
+    const windEquipperEffect = effect({
+      activation: { kind: 'trigger', performer: 'equipper', attributes: ['Wind'] },
+    })
+    expect(equipmentEffectCanBeActivated('velina', ['velina'], windEquipperEffect)).toBe(true)
+    expect(equipmentEffectCanBeActivated('promeia', ['promeia'], windEquipperEffect)).toBe(false)
   })
 
   it('resolves Ether Veil operation, performer, and holder Specialty independently', () => {
@@ -276,11 +282,13 @@ describe('shared equipment effect relationship projection', () => {
       modifier: 'anomalyDmgBonus',
       unit: '%',
       value: 10,
-      scope: { anomalyResults: ['Attribute Anomaly', 'Disorder'] },
+      scope: { anomalyResults: ['Attribute Anomaly', 'Windswept', 'Vortex', 'Disorder'] },
     })
 
     expect(equipmentEffectActionTargets(anomalyScoped)).toMatchObject([
       { outcomes: [{ kind: 'source-local', label: 'Attribute Anomaly' }] },
+      { outcomes: [{ kind: 'source-local', label: 'Windswept' }] },
+      { outcomes: [{ kind: 'source-local', label: 'Vortex' }] },
       { outcomes: [{ kind: 'source-local', label: 'Disorder' }] },
     ])
     expect(projectEquipmentEffectRelationships({
@@ -294,6 +302,20 @@ describe('shared equipment effect relationship projection', () => {
         atom: {
           metricId: 'anomalyDmgBonus',
           action: { outcomes: [{ kind: 'source-local', label: 'Attribute Anomaly' }] },
+        },
+      },
+      {
+        kind: 'modifier',
+        atom: {
+          metricId: 'anomalyDmgBonus',
+          action: { outcomes: [{ kind: 'source-local', label: 'Windswept' }] },
+        },
+      },
+      {
+        kind: 'modifier',
+        atom: {
+          metricId: 'anomalyDmgBonus',
+          action: { outcomes: [{ kind: 'source-local', label: 'Vortex' }] },
         },
       },
       {

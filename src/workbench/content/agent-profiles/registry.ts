@@ -64,6 +64,7 @@ const sheerOutcome = <A extends Parameters<typeof sheerOutcomeProfileFor>[0]>(
 const AGENT_PROFILE_BUILDERS = {
   pyrois: generalDamageOutcome('pyrois'),
   sigrid: generalDamageOutcome('sigrid'),
+  velina: anomalyOutcome('velina'),
   yixuan: sheerOutcome('yixuan'),
   dialyn: dazeOutcome('dialyn'),
   lucia: partyOutcome('lucia'),

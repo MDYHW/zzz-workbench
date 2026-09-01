@@ -67,6 +67,8 @@ import neonFantasiesImage from '../../assets/equipment/w-engines/neon-fantasies.
 import chiefSidekickImage from '../../assets/equipment/w-engines/chief-sidekick.webp'
 import solExuviaImage from '../../assets/equipment/w-engines/sol-exuvia.webp'
 import knightsExtolmentImage from '../../assets/equipment/w-engines/knights-extolment.webp'
+import joyauDoreImage from '../../assets/equipment/w-engines/joyau-dore.webp'
+import boisterousEchoesImage from '../../assets/equipment/w-engines/boisterous-echoes.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -133,6 +135,46 @@ export const W_ENGINE_FACTS = {
           durationSeconds: 25,
           stackThreshold: 2,
         },
+      },
+    },
+  },
+  joyauDore: {
+    advancedStat: { id: 'energyRegenPct', label: 'Energy Regen', value: 60, unit: '%' },
+    effects: {
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '', value: [70, 80, 90, 100, 110],
+      },
+      vortexWindsweptDamage: {
+        modifier: 'anomalyDmgBonus', unit: '%',
+        progression: {
+          kind: 'stacks', perStack: [7, 8, 9, 10, 11], maxStacks: 2,
+        },
+        scope: { anomalyResults: ['Vortex', 'Windswept'] },
+        activation: {
+          kind: 'trigger', performer: 'equipper', actions: ['EX Special Attack'], attributes: ['Wind'],
+          durationSeconds: 40,
+        },
+      },
+      squadAnomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '', value: [60, 69, 78, 87, 96],
+        scope: { recipient: 'squad' },
+        activation: {
+          kind: 'trigger', performer: 'equipper', actions: ['EX Special Attack'], attributes: ['Wind'],
+          stackThreshold: 2, durationSeconds: 40,
+        },
+      },
+    },
+  },
+  boisterousEchoes: {
+    advancedStat: { id: 'anomalyProficiency', label: 'Anomaly Proficiency', value: 75, unit: '' },
+    effects: {
+      vortexEnergy: {
+        modifier: 'energy', unit: '', value: [2, 2.3, 2.6, 2.9, 3.2],
+        activation: { kind: 'trigger', performer: 'equipper', anomalyResult: 'Vortex' },
+      },
+      anomalyTargetDamage: {
+        modifier: 'dmgBonus', unit: '%', value: [11.5, 13.2, 15, 16.7, 18.4],
+        scope: { condition: 'anomalyAfflictedTarget' },
       },
     },
   },
@@ -919,6 +961,25 @@ export const W_ENGINES: Record<EngineId, WEngineChoice> = {
     passiveLines: (refinement) => [
       `CRIT DMG +${percent(W_ENGINE_FACTS.knightsExtolment.effects.critDamage, refinement, true)}`,
       `Ice RES Ignore +${percent(W_ENGINE_FACTS.knightsExtolment.effects.iceResIgnore, refinement)}`,
+    ],
+  },
+  joyauDore: {
+    name: 'Joyau Dore', rank: 'S', limited: true, baseAtk: 713,
+    advancedStat: W_ENGINE_FACTS.joyauDore.advancedStat, image: joyauDoreImage,
+    passiveSpecialty: 'Anomaly',
+    passiveLines: (refinement) => [
+      `Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.joyauDore.effects.anomalyProficiency, refinement)}`,
+      `Vortex & Windswept DMG +${equipmentEffectMaximumValue(W_ENGINE_FACTS.joyauDore.effects.vortexWindsweptDamage, refinement)}%`,
+      `Squad Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.joyauDore.effects.squadAnomalyProficiency, refinement)}`,
+    ],
+  },
+  boisterousEchoes: {
+    name: 'Boisterous Echoes', rank: 'A', limited: false, baseAtk: 594,
+    advancedStat: W_ENGINE_FACTS.boisterousEchoes.advancedStat, image: boisterousEchoesImage,
+    passiveSpecialty: 'Anomaly',
+    passiveLines: (refinement) => [
+      `Energy +${equipmentEffectBaseValue(W_ENGINE_FACTS.boisterousEchoes.effects.vortexEnergy, refinement)}`,
+      `Anomaly-afflicted target DMG +${percent(W_ENGINE_FACTS.boisterousEchoes.effects.anomalyTargetDamage, refinement)}`,
     ],
   },
   chiefSidekick: {

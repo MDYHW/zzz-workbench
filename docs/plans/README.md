@@ -9,8 +9,10 @@ remains subordinate to them.
 ## Plan lifecycle
 
 Keep at most one active bounded implementation plan. There is currently no
-active bounded plan. The completed through-3.1 research preflight and Norma
-vertical are recorded in the milestone index below; later Agent verticals still
+active plan. The completed [Velina Airgid vertical](2026-09-01-velina-airgid-vertical-plan.md)
+is retained only through its first checkpoint commit because its plan body has
+not yet been committed; remove it in a follow-up commit. Completed verticals
+are recorded in the milestone index below, and later Agent verticals still
 require their own bounded requirement and plan after their meaning is settled.
 The authority-governance recovery closed after exact-SHA
 finalization, protected `main` promotion, and recovery freeze; its detailed
@@ -93,6 +95,7 @@ and author the new local outcome from current consumers instead.
 | 2026-08-30 | Completed the read-only through-3.1 expansion preflight by bounding five Agents, six S/A W-Engines, and four Drive Discs; separating ordinary extension paths from exact Wind and Lumiflux authority stops; and producing a dependency-aware advisory order without admitting content | [through-3.1 preflight requirements](../brainstorms/2026-08-30-through-3-1-content-expansion-preflight-requirements.md), current permanent owners and behavior-bearing consumers |
 | 2026-08-31 | Added Norma Hollowell and Chief Sidekick through competitive pool packages, compressed Setup copy, exact Stun and party outcomes, and a bounded one-way conversion from delivered Sheer Force to self ATK | [Norma requirements](../brainstorms/2026-08-31-norma-hollowell-vertical-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [source-fact boundary](../source-fact-boundary.md), [UI design rules](../workbench-ui-design-rules.md), current content and calculation consumers |
 | 2026-09-01 | Added Sigrid de L'Azur and Knight's Extolment through competitive full and non-limited packages, source-owned refinement progression, exact action and party-condition outcomes, pressure-safe representatives, composed selected-input lifecycle behavior, and calibrated portrait geometry | [Sigrid requirements](../brainstorms/2026-09-01-sigrid-vertical-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [source-fact boundary](../source-fact-boundary.md), [UI design rules](../workbench-ui-design-rules.md), current content and calculation consumers |
+| 2026-09-01 | Added Velina Airgid through Wind, Windswept, Vortex, Focus-selected Contamination, distinct Abloom routes, competitive full and non-limited setup packages, source-owned Joyau Dore, Boisterous Echoes, and Wuthering Salon facts, and calibrated portrait geometry | [Velina requirements](../brainstorms/2026-09-01-velina-airgid-vertical-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [source-fact boundary](../source-fact-boundary.md), [UI design rules](../workbench-ui-design-rules.md), current content and calculation consumers |
 
 For removed plan detail, use Git history for `docs/plans/`. The milestone index
 does not validate current product behavior; the linked owners and current

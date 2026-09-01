@@ -111,6 +111,11 @@ export const ATTRIBUTE_ANOMALY_TARGET = actionTarget([
   sourceLocalAction('Attribute Anomaly'),
 ])
 
+// Windswept is Wind's Attribute Anomaly. Vortex has a separate coefficient and
+// never inherits Disorder or the generic Attribute Anomaly target by default.
+export const WINDSWEPT_TARGET = actionTarget([sourceLocalAction('Windswept')])
+export const VORTEX_TARGET = actionTarget([sourceLocalAction('Vortex')])
+
 // Abloom and Corruption are exact current anomaly outcomes. They remain action
 // identities inside the existing anomaly formula family rather than becoming
 // formula families or reaction registries.

@@ -22,6 +22,10 @@ export const FORMULA_PARTICIPATION_BY_AGENT: Record<
 > = {
   pyrois: { setup: { primary: ['general_damage'], residual: [] }, result: ['general_damage', 'daze_buildup'] },
   sigrid: { setup: { primary: ['general_damage'], residual: [] }, result: ['general_damage', 'daze_buildup'] },
+  velina: {
+    setup: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: ['daze_buildup'] },
+    result: ['anomaly_damage', 'anomaly_buildup', 'daze_buildup'],
+  },
   norma: { setup: { primary: ['daze_buildup'], residual: ['general_damage'] }, result: ['daze_buildup', 'general_damage'] },
   yixuan: { setup: { primary: ['sheer_damage'], residual: [] }, result: ['sheer_damage'] },
   yidhari: { setup: { primary: ['sheer_damage'], residual: [] }, result: ['sheer_damage'] },
@@ -95,6 +99,7 @@ export const MAIN_STATS: Record<MainStatId, MainStatChoice> = {
   electricDmg: { id: 'electricDmg', label: 'Electric DMG', numericValue: 30 },
   fireDmg: { id: 'fireDmg', label: 'Fire DMG', numericValue: 30 },
   iceDmg: { id: 'iceDmg', label: 'Ice DMG', numericValue: 30 },
+  windDmg: { id: 'windDmg', label: 'Wind DMG', numericValue: 30 },
   defPct: { id: 'defPct', label: 'DEF%', numericValue: 48 },
   anomalyProficiency: {
     id: 'anomalyProficiency', label: 'Anomaly Proficiency', numericValue: 92, unit: '',
@@ -117,6 +122,11 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['critDmg', 'atkPct'],
     slot5: ['penRatio', 'iceDmg', 'atkPct'],
     slot6: ['atkPct'],
+  },
+  velina: {
+    slot4: ['anomalyProficiency'],
+    slot5: ['windDmg', 'atkPct', 'penRatio'],
+    slot6: ['energyRegenPct'],
   },
   norma: { slot4: ['critRate'], slot5: ['fireDmg', 'atkPct', 'penRatio'], slot6: ['energyRegenPct', 'impact'] },
   yixuan: {
@@ -348,6 +358,7 @@ const substats = (...ids: SubstatChoice['id'][]): SubstatChoice[] => ids.map((id
 export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
   pyrois: substats('critRate', 'critDmg', 'atkPct'),
   sigrid: substats('critRate', 'critDmg', 'atkPct'),
+  velina: substats('anomalyProficiency', 'atkPct'),
   norma: substats('critRate', 'critDmg', 'atkPct'),
   yixuan: substats('critRate', 'critDmg', 'hpPct'), yidhari: substats('critRate', 'critDmg', 'hpPct'), manato: substats('critRate', 'critDmg', 'hpPct'),
   hugo: substats('critRate', 'critDmg', 'atkPct'), juFufu: substats('atkPct', 'atkFlat'), panYinhu: substats('atkPct', 'atkFlat'),

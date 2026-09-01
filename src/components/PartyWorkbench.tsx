@@ -6,6 +6,7 @@ import electricMark from '../assets/game/attributes/electric.webp'
 import fireMark from '../assets/game/attributes/fire.webp'
 import iceMark from '../assets/game/attributes/ice.webp'
 import frostMark from '../assets/game/attributes/frost.webp'
+import windMark from '../assets/game/attributes/wind.webp'
 import rankSMark from '../assets/game/ranks/s.webp'
 import rankAMark from '../assets/game/ranks/a.webp'
 import ruptureMark from '../assets/game/specialties/rupture.webp'
@@ -33,6 +34,7 @@ const ATTRIBUTE_MARKS: Record<AgentAttribute, string> = {
   Ice: iceMark,
   Electric: electricMark,
   Ether: etherMark,
+  Wind: windMark,
   'Auric Ink': auricInkMark,
   'Honed Edge': physicalMark,
   Frost: frostMark,
