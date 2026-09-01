@@ -61,9 +61,10 @@ Sigrid's previously deferred Contamination clauses in this bounded vertical.
 ### Source, identity, and exact outcomes
 
 - R1. Admit Velina Airgid as an S-Rank Wind Anomaly Agent in the External
-  Strategy Department, with M0 as the default and off-field as her authored
-  operating interval. Retain level-60 completed-Core base ATK 872, Anomaly
-  Proficiency 165, Anomaly Mastery 112, and base Energy Regen 1.2 because the
+  Strategy Department, with M0 as the default, off-field as her authored
+  operating interval, and Focus eligibility. Retain level-60 completed-Core
+  base ATK 872, Anomaly Proficiency 165, Anomaly Mastery 112, and base Energy
+  Regen 1.2 because the
   current selected-source and Result consumers use them. Current released data
   contains no Velina Potential Awakening entries, so full released Potential is
   the empty default. Core and Mindscape outcomes remain separate and neither is

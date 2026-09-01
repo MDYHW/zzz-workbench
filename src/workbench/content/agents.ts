@@ -338,7 +338,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
   },
   {
     id: 'velina', name: 'Velina Airgid', displayName: 'Velina', attribute: 'Wind', specialty: 'Anomaly',
-    focusEligible: false, rank: 'S', faction: 'External Strategy Department',
+    focusEligible: true, rank: 'S', faction: 'External Strategy Department',
   },
 ]
 
