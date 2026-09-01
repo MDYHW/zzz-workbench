@@ -52,6 +52,7 @@ const agents = {
   },
   anton: { candidateName: 'Anton, Electric, Attack', displayName: 'Anton', slug: 'anton' },
   rina: { candidateName: 'Rina, Electric, Support', displayName: 'Rina', slug: 'rina' },
+  velina: { candidateName: 'Velina, Wind, Anomaly', displayName: 'Velina', slug: 'velina' },
 } satisfies Record<string, PortraitAgent>
 
 const parties: readonly PortraitParty[] = [
@@ -102,12 +103,20 @@ const parties: readonly PortraitParty[] = [
     captures: [agents.anton, agents.rina],
     members: [agents.anton, agents.rina, agents.grace],
   },
+  {
+    id: 'portrait-velina-wind',
+    focus: 'Yanagi',
+    captures: [agents.velina],
+    members: [agents.velina, agents.yanagi, agents.sunna],
+  },
 ]
 
 const destinations = [
   { id: 'desktop', viewport: { width: 1440, height: 1000 } },
   { id: 'narrow', viewport: { width: 750, height: 900 } },
 ] as const
+
+const runtimeFailures = new WeakMap<Page, string[]>()
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -193,6 +202,12 @@ async function captureDestinations(page: Page, party: PortraitParty): Promise<vo
 }
 
 test.beforeEach(async ({ page }) => {
+  const failures: string[] = []
+  runtimeFailures.set(page, failures)
+  page.on('console', (message) => {
+    if (message.type() === 'error') failures.push(`console.error: ${message.text()}`)
+  })
+  page.on('pageerror', (error) => failures.push(`pageerror: ${error.message}`))
   await page.goto('/')
   await waitForPortraits(page)
 })
@@ -201,6 +216,7 @@ for (const party of parties) {
   test(`${party.id} preserves the four shared portrait destinations`, async ({ page }) => {
     await applyParty(page, party)
     await captureDestinations(page, party)
+    expect(runtimeFailures.get(page)).toEqual([])
   })
 }
 
@@ -219,4 +235,5 @@ test('the real party surface keeps pointer and keyboard destination changes acce
   expect(await page.evaluate(() => (
     document.documentElement.scrollWidth <= document.documentElement.clientWidth
   ))).toBe(true)
+  expect(runtimeFailures.get(page)).toEqual([])
 })
