@@ -50,11 +50,12 @@ Sigrid's previously deferred Contamination clauses in this bounded vertical.
   anomaly-damage formula participation, and Vortex coefficient placement. The
   Burnice Initial Energy Regen gauge is the nearest multi-output consumer;
   Cissia's provider gauge and automatic off-field Energy Regen are contrasts.
-- `SW-004` through `SW-010`, `SW-017` through `SW-020`, `SF-003`, `SF-005`,
-  and `UI-001` own candidate preparation, exact applicability, equipment source
-  ownership, Potential/Mindscape separation, Setup compression, Result
-  projection, and selected-input lifecycle. Existing shared equipment
-  materializers and Focus delivery are the current consumers.
+- `SW-004` through `SW-006`, `SW-008` through `SW-010`, `SW-012`, `SW-017`
+  through `SW-020`, `SF-003`, `SF-005`, and `UI-001` own candidate preparation,
+  Focus eligibility, exact applicability, equipment source ownership,
+  Potential/Mindscape separation, Setup compression, Result projection, and
+  selected-input lifecycle. Existing shared equipment materializers and Focus
+  delivery are the current consumers.
 
 ## Requirements
 
