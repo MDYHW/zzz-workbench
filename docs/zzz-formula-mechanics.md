@@ -166,7 +166,7 @@ anomaly_buildup
   * buildup_res_multiplier
 ```
 
-Attribute Anomaly and Disorder use the `anomaly_damage` family for the
+Attribute Anomaly, Disorder, and Vortex use the `anomaly_damage` family for the
 setting distinctions defined here. Their `anomaly_base_damage` calculation and
 applicable anomaly bonus can differ by game result and attribute. Sharing the
 frame does not make those results interchangeable.
@@ -186,7 +186,7 @@ they read different scaling relationships.
 | --- | --- | --- |
 | `base_damage` | `general_damage` | applicable skill multiplier times ATK |
 | `sheer_base_damage` | `sheer_damage` | applicable skill multiplier times Sheer Force |
-| `anomaly_base_damage` | `anomaly_damage` | applicable anomaly coefficient times ATK; Disorder can use the source result's stated remaining-duration or result-specific basis to determine that coefficient |
+| `anomaly_base_damage` | `anomaly_damage` | applicable anomaly coefficient times ATK; Disorder can use the source result's stated remaining-duration or result-specific basis to determine that coefficient, and Vortex keeps its result-specific coefficient inside this component |
 
 At the setting-mechanics abstraction, the core scaling relations are explicit:
 
@@ -204,16 +204,18 @@ ordinary coefficient. When a current source independently modifies a retained
 action's DMG Multiplier, the Result may expose only that operation and its action
 applicability without calculating the base multiplier or `base_damage`.
 
-The anomaly coefficient remains specific to the applicable attribute result.
-Disorder can determine that coefficient from remaining duration or
-another result-specific basis. This does not change the `ATK` scaling stat.
+The anomaly coefficient remains specific to the applicable anomaly result.
+Disorder can determine that coefficient from remaining duration or another
+result-specific basis, while Vortex keeps its own result-specific coefficient.
+This does not change the `ATK` scaling stat.
 
-A source-stated additive increase to an Attribute Anomaly or Disorder DMG
-Multiplier changes the applicable coefficient inside `anomaly_base_damage`; it
-is not an `anomaly_buff_multiplier` bonus. A result-specific percentage of an
-original Disorder likewise belongs to that result's `anomaly_base_damage`
-basis. By contrast, a source that increases Attribute Anomaly or Disorder DMG
-without changing the source result's multiplier contributes to
+A source-stated additive increase to an Attribute Anomaly, Disorder, or Vortex
+DMG Multiplier changes the applicable coefficient inside
+`anomaly_base_damage`; it is not an `anomaly_buff_multiplier` bonus. A
+result-specific percentage of an original Disorder likewise belongs to that
+result's `anomaly_base_damage` basis. By contrast, a source that increases
+Attribute Anomaly, Disorder, or Vortex DMG without changing the source result's
+multiplier contributes to
 `anomaly_buff_multiplier` when current mechanics establish that bonus
 region.
 
@@ -241,7 +243,7 @@ displayed modifier regions remain unchanged.
 | `dmg_taken_multiplier` | general target-side region after applicable DMG Taken Increase and incoming DMG Reduction; not a synonym for an attacker dealing more damage to or against a target |
 | `sheer_dmg_bonus_multiplier` | `1 +` the sum of applicable Sheer DMG bonuses; separate from regular DMG Bonus |
 | `anomaly_proficiency_multiplier` | damage scaling contributed by Anomaly Proficiency to applicable anomaly damage |
-| `anomaly_buff_multiplier` | `1 +` applicable Attribute Anomaly or Disorder bonus that the source and result rules include; multiplicative with regular DMG Bonus |
+| `anomaly_buff_multiplier` | `1 +` applicable Attribute Anomaly, Disorder, or Vortex bonus that the source and result rules include; multiplicative with regular DMG Bonus |
 | `skill_daze` | source skill's Daze value; its base value is not a current Result row |
 | `impact_multiplier` | Daze scaling contributed by Impact |
 | `daze_bonus_multiplier` | `1 +` applicable Daze bonuses |
