@@ -242,6 +242,28 @@ Attribute can keep its own anomaly buildup and source-local behavior while
 using the base Attribute for the defined damage and buff relationship.
 It does not create a formula family or setup role.
 
+## Declared And Contextual Attributes
+
+**Rule ID:** `GV-011`
+
+Lumiflux is a declared Agent Attribute whose damage and Attribute-scoped effect
+applicability use a party-contextual Attribute. The Agent remains Lumiflux for
+an exact holder condition or another source that names the holder's declared
+Attribute. For damage and Attribute-scoped effect applicability, use the
+declared Attribute of the next Agent in party order.
+
+When that next Agent has a special Attribute with a relationship defined by
+`GV-004`, apply that relationship only to the damage or buff scope already
+owned by that rule. The next Agent's declared identity remains unchanged. The
+product contract owns how the three-Agent party resolves `next Agent`,
+including its terminal slot.
+
+This contextual relationship replaces neither Agent's declared Attribute,
+creates no new base Attribute, and makes no Attribute names synonyms. It does
+not transfer the next Agent's Specialty, stats, anomaly result, action
+identity, holder eligibility, or source-local mechanics. It also does not
+define a formula family, Lumiflux buildup, or another Lumiflux-local result.
+
 ## Stats
 
 A stat is a named game value on an Agent, W-Engine, Drive Disc, enemy, or
