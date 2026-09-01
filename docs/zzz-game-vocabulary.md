@@ -92,6 +92,7 @@ below. The amount is the fixed main-stat value on a level 15 S-Rank Drive Disc.
 | Slot 5 | Ice DMG Bonus | 30% |
 | Slot 5 | Electric DMG Bonus | 30% |
 | Slot 5 | Ether DMG Bonus | 30% |
+| Slot 5 | Wind DMG Bonus | 30% |
 | Slot 6 | HP% | 30% |
 | Slot 6 | ATK% | 30% |
 | Slot 6 | DEF% | 48% |
