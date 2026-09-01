@@ -19,7 +19,7 @@ export interface DeliveryRecipientContext {
   appliedPartySlot: 0 | 1 | 2
   agentId: AgentId
   specialty: AgentSpecialty
-  attribute: EffectAttribute | null
+  attribute: EffectAttribute
   formulas: readonly FormulaFamily[]
   statIds: readonly StatId[]
 }
@@ -74,10 +74,7 @@ export function providerAppliesToRecipient(
     return false
   }
   if (delivery.specialties && !delivery.specialties.includes(recipient.specialty)) return false
-  if (
-    delivery.attributes
-    && (recipient.attribute === null || !delivery.attributes.includes(recipient.attribute))
-  ) return false
+  if (delivery.attributes && !delivery.attributes.includes(recipient.attribute)) return false
   if (!delivery.formulas) return true
   if (provider.effect.kind === 'stat' && recipient.statIds.includes(provider.effect.statId)) {
     return true

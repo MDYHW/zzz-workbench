@@ -84,18 +84,6 @@ export function effectAttributeForAgent(agentId: AgentId): EffectAttribute {
   throw new Error(`Unsupported Attribute for effect applicability: ${String(attribute)}`)
 }
 
-/**
- * Resolves the shared Attribute used when another source targets this Agent.
- * Lumiflux stays distinct here; only explicit holder-local consumers may
- * borrow the next applied Agent's Attribute.
- */
-export function declaredEffectAttributeForAgent(
-  agentId: AgentId,
-): EffectAttribute | null {
-  const attribute = ADMITTED_AGENTS.find(({ id }) => id === agentId)?.attribute
-  return attribute === 'Lumiflux' ? null : effectAttributeForAgent(agentId)
-}
-
 /** Resolves special display Attributes at their exact current calculation scope. */
 export function effectAttributeForPartySlot(
   agentIds: readonly AgentId[],

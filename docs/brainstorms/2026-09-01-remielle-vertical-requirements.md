@@ -52,8 +52,9 @@ under Anomaly Proficiency because AP is their shared visible basis.
   Burnice's AP-derived exact action modifier is the nearest similar mechanism;
   ordinary Anomaly DMG Bonus and Promeia's independent Abloom operation are the
   required contrasts.
-- `GV-002`, `GV-009`, `FM-001` through `FM-003`, `SW-004` through `SW-010`,
-  `SW-017` through `SW-020`, `SF-003`, `SF-005`, and `UI-001` own Attribute
+- `GV-002`, `GV-009`, `FM-001` through `FM-003`, `SW-004` through `SW-006`,
+  `SW-008` through `SW-010`, `SW-017` through `SW-020`, `SF-003`, `SF-005`,
+  and `UI-001` own Attribute
   Anomaly placement, stat composition, candidate preparation, source-owned
   equipment, exact applicability, Potential/Mindscape separation, Setup
   compression, Result projection, and selected-input lifecycle.

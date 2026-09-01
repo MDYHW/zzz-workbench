@@ -568,12 +568,23 @@ describe('shared calculation integration', () => {
       .breakdown.fully.some(({ label, ownerAgentId }) => (
         label === 'Additional Ability' && ownerAgentId === 'rina'
       )))
-      .toBe(false)
+      .toBe(true)
     expect(electricContrast.metrics.find(({ id }) => id === 'dmgBonus')!
       .breakdown.fully.some(({ label, ownerAgentId }) => (
         label === 'Additional Ability' && ownerAgentId === 'rina'
       )))
       .toBe(true)
+    const mismatchedAttributeParty = calculateParty(createPreparedState(
+      {}, ['rina', 'remielle', 'promeia'], 2,
+    ))!
+    const mismatchedRemielle = mismatchedAttributeParty.agents.find(({ agentId }) => (
+      agentId === 'remielle'
+    ))!
+    expect(mismatchedRemielle.metrics.find(({ id }) => id === 'dmgBonus')!
+      .breakdown.fully.some(({ label, ownerAgentId }) => (
+        label === 'Additional Ability' && ownerAgentId === 'rina'
+      )))
+      .toBe(false)
     expect(remielle.operations).toEqual(expect.arrayContaining([
       expect.objectContaining({
         label: 'Stun duration extension · Flower & Feather Dance',
@@ -622,6 +633,25 @@ describe('shared calculation integration', () => {
 
     const wrapped = withTimeweaver(['grace', 'promeia', 'remielle'], 2, 0)
     expect(hasTimeweaverBuildup(wrapped)).toBe(true)
+  })
+
+  it('keeps Velina as the eligible Focus beside Remielle and Yuzuha', () => {
+    const result = calculateParty(createPreparedState(
+      {}, ['remielle', 'velina', 'yuzuha'], 1,
+    ))!
+    const velina = result.agents.find(({ agentId }) => agentId === 'velina')!
+    const yuzuha = result.agents.find(({ agentId }) => agentId === 'yuzuha')!
+
+    expect(velina.metrics.find(({ id }) => id === 'anomalyBuildupResReduction')!
+      .breakdown.fully).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'velina',
+        detail: 'Contamination Attribute · selected by Focus',
+      }))
+    expect(yuzuha.actionModifiers.find(({ id }) => id === 'yuzuhaFlavorMatch')!
+      .outcomes).toContainEqual(expect.objectContaining({
+        kind: 'source-local',
+        label: 'Wind Anomaly Buildup · Flavor Match',
+      }))
   })
 
   it('projects one composed cross-holder flow without exposing undeclared shared rows', () => {
