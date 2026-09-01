@@ -300,38 +300,4 @@ describe('Result composition', () => {
     )).toEqual([])
   })
 
-  it('retains an exact authored outcome when it equals its visible parent', () => {
-    const retainedScopes: readonly ActionScopeNode[] = [{
-      id: 'seedActions',
-      target: sharedTarget,
-      children: [{
-        id: 'seedUltimate',
-        target: sourceLocalTarget,
-        retainExactOutcome: true,
-      }],
-    }]
-    const rootEffect: ResolvedCurrentEffect = {
-      metric: 'dmgBonus',
-      earliestSurface: 'combat',
-      amount: 10,
-      sourceInstance: syntheticSourceInstance,
-      source: source('Synthetic action source', 'seed', 'core'),
-      action: sharedTarget,
-    }
-
-    expect(composeActionHierarchy(
-      surfaces(0, 0, 0),
-      [rootEffect],
-      'dmgBonus',
-      retainedScopes,
-    )).toMatchObject([
-      { id: 'seedActions', values: { initial: 0, combat: 10, fully: 10 } },
-      {
-        id: 'seedUltimate',
-        baseActionId: 'seedActions',
-        values: { initial: 0, combat: 10, fully: 10 },
-      },
-    ])
-  })
-
 })

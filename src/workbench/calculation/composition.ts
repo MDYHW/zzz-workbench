@@ -180,8 +180,6 @@ export interface ActionScopeNode {
   target: ActionTarget
   /** Broader canonical scopes whose effects apply without replacing this visible identity. */
   inheritedEffectTargets?: readonly ActionTarget[]
-  /** Keep an exact authored outcome visible even when it currently equals its parent. */
-  retainExactOutcome?: boolean
   children?: readonly ActionScopeNode[]
 }
 
@@ -216,9 +214,8 @@ export function composeActionHierarchy(
       cap,
     )
     const id = `${node.id}${idSuffix}`
-    const visible = surfaceValuesDiffer(composed.values, parentValues)
-      || node.retainExactOutcome === true
-    if (visible) rows.push({
+    const changed = surfaceValuesDiffer(composed.values, parentValues)
+    if (changed) rows.push({
       id,
       target: node.target,
       outcomes: [...node.target.outcomes],
@@ -228,7 +225,7 @@ export function composeActionHierarchy(
       ...composed,
     })
 
-    const visibleParentId = visible ? id : nearestVisibleParentId
+    const visibleParentId = changed ? id : nearestVisibleParentId
     for (const child of node.children ?? []) {
       visit(child, composed.values, visibleParentId)
     }

@@ -171,27 +171,23 @@ const velinaAnomalyScopes = (includeUltimateAbloom: boolean) => [
     id: 'velinaAttributeAnomaly', target: ATTRIBUTE_ANOMALY_TARGET,
     children: [{
       id: 'velinaWindswept', target: WINDSWEPT_TARGET,
-      retainExactOutcome: true,
       children: [
         {
           id: 'velinaCondensedCycloneAbloom', target: VELINA_CONDENSED_CYCLONE_ABLOOM,
           inheritedEffectTargets: [ABLOOM_TARGET],
-          retainExactOutcome: true,
         },
         {
           id: 'velinaSweepingCycloneAbloom', target: VELINA_SWEEPING_CYCLONE_ABLOOM,
           inheritedEffectTargets: [ABLOOM_TARGET],
-          retainExactOutcome: true,
         },
         ...(includeUltimateAbloom ? [{
           id: 'velinaUltimateAbloom', target: VELINA_ULTIMATE_ABLOOM,
           inheritedEffectTargets: [ABLOOM_TARGET],
-          retainExactOutcome: true,
         }] : []),
       ],
     }],
   },
-  { id: 'velinaVortex', target: VORTEX_TARGET, retainExactOutcome: true },
+  { id: 'velinaVortex', target: VORTEX_TARGET },
 ] satisfies readonly ActionScopeNode[]
 
 const src = (agent: Agent, slot: Slot, id: string, label: string, locus: 'identity' | 'core' | 'additional' | 'special' = 'core') => selectedAgentSource(agent, slot, id, label, locus)
@@ -1018,13 +1014,6 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
           ))
         }
       }
-      add({
-        kind: 'operation',
-        atom: {
-          label: 'Chromatic Tint buildup contribution to Anomaly DMG',
-          earliestSurface: 'fully', value: 0, unit: '%', source: mind(2),
-        },
-      })
     }
     if (setup.mindscape >= 4) {
       add(stat(mind(4), 'atk', VERTICAL_VALUES.velina.mindscape4Atk, 'percentage'))

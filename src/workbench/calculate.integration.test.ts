@@ -155,10 +155,9 @@ describe('shared calculation integration', () => {
       label: 'Added Vortex DMG Multiplier',
       source: expect.objectContaining({ label: 'Core Passive' }),
     }))
-    expect(velina.operations).toContainEqual(expect.objectContaining({
-      label: 'Chromatic Tint buildup contribution to Anomaly DMG',
-      value: 0,
-    }))
+    expect(velina.operations.some(
+      ({ label }) => label === 'Chromatic Tint buildup contribution to Anomaly DMG',
+    )).toBe(false)
 
     const energyRegen = metric('energyRegen')
     const coreGauge = energyRegen.gauges.find(({ source }) => source.label === 'Core Passive')!
@@ -268,27 +267,24 @@ describe('shared calculation integration', () => {
       'velinaCondensedCycloneAbloom',
       'velinaSweepingCycloneAbloom',
       'velinaUltimateAbloom',
-    ]) expect(ordinaryVelina.actionModifiers).toContainEqual(expect.objectContaining({
-      id,
-      baseActionId: 'velinaWindswept',
-    }))
+    ]) expect(ordinaryVelina.actionModifiers.some((entry) => entry.id === id)).toBe(false)
+    expect(ordinaryVelina.actionModifiers.some(
+      ({ id }) => id === 'velinaWindswept',
+    )).toBe(true)
+    expect(ordinaryVelina.actionModifiers.some(
+      ({ id }) => id === 'velinaVortex',
+    )).toBe(true)
 
     const unqualifiedM0 = calculateParty(createPreparedState(
       { velina: 'nonLimited' }, ['velina', 'pyrois', 'lucia'], 1,
     ))!.agents.find(({ agentId }) => agentId === 'velina')!
     for (const id of [
+      'velinaWindswept',
+      'velinaVortex',
       'velinaCondensedCycloneAbloom',
       'velinaSweepingCycloneAbloom',
-    ]) expect(unqualifiedM0.actionModifiers).toContainEqual(expect.objectContaining({
-      id,
-      baseActionId: 'velinaWindswept',
-    }))
-    expect(unqualifiedM0.actionModifiers).toContainEqual(expect.objectContaining({
-      id: 'velinaVortex',
-    }))
-    expect(unqualifiedM0.actionModifiers.some(
-      ({ id }) => id === 'velinaUltimateAbloom',
-    )).toBe(false)
+      'velinaUltimateAbloom',
+    ]) expect(unqualifiedM0.actionModifiers.some((entry) => entry.id === id)).toBe(false)
 
     const contamination = promeia.metrics.find(
       ({ id }) => id === 'anomalyBuildupResReduction',

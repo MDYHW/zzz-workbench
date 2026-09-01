@@ -27,12 +27,14 @@ Sigrid's previously deferred Contamination clauses in this bounded vertical.
    effective-substat choices. Setup discloses each selected source package in
    compressed source-owned copy, including direct event Energy or routine
    trigger details that do not become a Result relationship.
-3. Result shows the Initial Energy Regen conversion, Windswept and Vortex as
-   distinct actions, Abloom under Windswept, Sweeping Cyclone Daze and buildup,
-   Wind and Contamination-Attribute buildup RES reduction, and current
-   Mindscape differences. Focus selects the controllable Contamination
-   Attribute in Fully Enabled; only exact eligible current recipients project
-   it, rather than forcing it onto Focus or exposing a new editor.
+3. Result shows the Initial Energy Regen conversion, differing Windswept,
+   Vortex, and exact Abloom action aggregates, Sweeping Cyclone Daze and
+   buildup, Wind and Contamination-Attribute buildup RES reduction, and current
+   Mindscape differences. Exact action scopes remain internal when their
+   aggregate equals its visible parent. Focus selects the controllable
+   Contamination Attribute in Fully Enabled; only exact eligible current
+   recipients project it, rather than forcing it onto Focus or exposing a new
+   editor.
 4. Party Apply, pool changes, and Velina Mindscape changes reuse current
    rebuilding. Direct setup edits do not rerun preparation; incomplete setup
    remains incomplete and receives no fallback.
@@ -76,7 +78,9 @@ Sigrid's previously deferred Contamination clauses in this bounded vertical.
   separate anomaly result: it occurs instead of Disorder only when a completed
   non-Wind Attribute Anomaly aligns with Contamination while Windswept is
   active. Vortex inherits neither Disorder nor generic Attribute Anomaly
-  modifiers without exact source coverage.
+  modifiers without exact source coverage. These exact scopes govern internal
+  applicability; Result exposes an action aggregate only when its calculated
+  value differs from its visible parent.
 - R4. Velina's completed Core retains Condensed Cyclone and Sweeping Cyclone as
   source routes. At two Windbite, the next Vortex gains +150% Vortex DMG
   Multiplier and summons Sweeping Cyclone. This is a Vortex base-coefficient
@@ -100,8 +104,9 @@ Sigrid's previously deferred Contamination clauses in this bounded vertical.
   retained buildup-RES reductions to 14%, increases Sweeping Cyclone Daze by
   30%, and increases its Attribute Anomaly Buildup by 15%. Velina's Ultimate
   against a Wind Anomaly triggers exact Abloom at a fixed 680% coefficient; the
-  exact Ultimate/Abloom action is retained while the raw base coefficient is
-  intentionally omitted from Result calculation.
+  exact Ultimate/Abloom scope is retained for internal applicability while the
+  raw base coefficient is intentionally omitted from Result calculation. Its
+  action row appears only when an applicable contribution makes it differ.
 - R7. M1 adds 20% Sweeping Cyclone Daze, gives Velina's Vortex 20% all-Attribute
   RES Ignore, and gives squad Windswept 20% Wind RES Ignore. M2 lets Windswept
   grant Windbite, permits converted Cyclone to build the corresponding
@@ -109,7 +114,8 @@ Sigrid's previously deferred Contamination clauses in this bounded vertical.
   raises the Additional Windswept/Vortex bonus by 15% to 25%. M4 adds 15% ATK
   after EX Special. M6 retains Windbite recovery only as source reachability,
   adds 20% Wind buildup against a Wind Anomaly, and adds up to 40% Windswept
-  DMG on reapplication. M3/M5 skill levels add no normalized Result row.
+  DMG on reapplication. The M2 exclusion emits no zero-valued operation or
+  explanation row. M3/M5 skill levels add no normalized Result row.
 
 ### Source-owned equipment and candidate closure
 
@@ -175,9 +181,10 @@ Sigrid's previously deferred Contamination clauses in this bounded vertical.
   relationship, or test is mutated.
 - R14. Setup separately verifies selected and candidate equipment copy, including
   shared accessible descriptions. Result separately projects only current exact
-  consumers. Routine activation, duration, and cooldown may be compressed, but
-  affected outcome, holder eligibility, recipient, Attribute, target, and
-  material threshold/cap consequences remain.
+  consumers and action aggregates that differ from their visible parent.
+  Routine activation, duration, and cooldown may be compressed, but affected
+  outcome, holder eligibility, recipient, Attribute, target, and material
+  threshold/cap consequences remain internally where required for applicability.
 - R15. Party Apply rebuilds all three setups. Velina pool and Mindscape changes
   rebuild only Velina. Direct edits do not rerun preparation. Candidate
   membership, invalid-selection clearing without fallback, completeness, and
@@ -193,13 +200,16 @@ Sigrid's previously deferred Contamination clauses in this bounded vertical.
   Condensed Cyclone, Sweeping Cyclone, and Ultimate Abloom routes beneath it,
   while Vortex remains a separate action and does not inherit Disorder or
   Attribute Anomaly. The nearest action-composition tests prove child
-  inheritance but cannot prove those routes or this split. Extend shared
-  composition/profile coverage once; the assertion remains meaningful if
-  source-local labels or numeric values change.
+  inheritance but cannot prove those routes, this split, or difference-only
+  disclosure. Extend shared composition/profile coverage once: an exact
+  Abloom modifier reveals the applicable child, an equal child remains hidden,
+  and Additional Ability off omits the Ultimate route. The assertion remains
+  meaningful if source-local labels or numeric values change.
 - The new formula placement is a Vortex DMG Multiplier operation in the Vortex
   base coefficient rather than `anomalyDmgBonus`. Existing Abloom operations do
   not prove that boundary. The same representative profile flow must distinguish
-  the operation from ordinary Windswept/Vortex DMG modifiers.
+  the operation from ordinary Windswept/Vortex DMG modifiers and prove that
+  M2's excluded converted buildup produces no zero-valued Result operation.
 - Wind, Windswept, and Vortex are new shared equipment applicability values. The
   nearest generic materializer tests cover Attribute and anomaly-result gates
   but cannot prove these members. Extend one shared equipment test with a Wind
