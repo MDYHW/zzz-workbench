@@ -892,6 +892,25 @@ keeps its current Mindscape and pool before its setup is prepared for the new
 context. A departed Agent has no hidden working copy. Derived Results are
 discarded and recalculated from the three new current setups.
 
+### Lumiflux Next-Agent Resolution
+
+**Rule ID:** `SW-021`
+
+When `GV-011` requires the next Agent for Lumiflux's party-contextual
+Attribute, resolve that Agent cyclically in the applied three-Agent party:
+the first slot uses the second, the second uses the third, and the third uses
+the first. This is a product-authored deterministic fallback for the terminal
+slot because the retained current source does not state that case. It is not
+an exact game fact and does not define a general next-recipient or party-order
+relationship.
+
+This resolution supplies only the adjacent Agent identity consumed by
+`GV-011`. It does not transfer another property, replace either declared
+Attribute, or broaden the contextual relationship beyond Lumiflux damage and
+Attribute-scoped effect applicability. Draft party edits do not change the
+applied resolution. Applying a changed party or order creates the new context,
+prepares all three Agents, and recalculates Result under `SW-012` and `SW-016`.
+
 ## Display Surfaces
 
 | Display surface | Meaning |
