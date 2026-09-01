@@ -378,6 +378,12 @@ const rinaRepresentative: SetupSelection = {
   mains: { slot4: 'anomalyProficiency', slot5: 'penRatio', slot6: 'energyRegenPct' },
 }
 
+const velinaRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'joyauDore' : 'weepingGemini',
+  fourPieceId: 'wutheringSalon', twoPieceId: 'swingJazz',
+  mains: { slot4: 'anomalyProficiency', slot5: 'windDmg', slot6: 'energyRegenPct' },
+})
+
 export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
@@ -386,6 +392,10 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   sigrid: {
     full: sigridRepresentative('full'),
     nonLimited: sigridRepresentative('nonLimited'),
+  },
+  velina: {
+    full: velinaRepresentative('full'),
+    nonLimited: velinaRepresentative('nonLimited'),
   },
   norma: {
     full: normaRepresentative('full'),

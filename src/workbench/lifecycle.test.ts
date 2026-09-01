@@ -386,6 +386,30 @@ describe('shared preparation and edit lifecycle', () => {
 
     const repeatedOnly = createPreparedState({}, ['qingyi', 'seth', 'yixuan'], 2)
     expect(effectiveFourPieceIds(repeatedOnly, 0)).not.toContain('astralVoice')
+
+    let velinaRepeated = createPreparedState({}, ['caesar', 'velina', 'yixuan'], 2)
+    expect(effectiveFourPieceIds(velinaRepeated, 0)).toContain('astralVoice')
+    velinaRepeated = workbenchReducer(velinaRepeated, {
+      type: 'selectDisc', slot: 0, piece: 'fourPiece', discId: 'astralVoice',
+    })
+    expect(velinaRepeated.slots[0].setup.fourPieceId).toBe('astralVoice')
+
+    velinaRepeated = workbenchReducer(velinaRepeated, { type: 'openPartyEdit' })
+    velinaRepeated = workbenchReducer(velinaRepeated, {
+      type: 'replaceDraftAgent', slot: 1, agentId: 'nicole',
+    })
+    velinaRepeated = workbenchReducer(velinaRepeated, { type: 'applyPartyEdit' })
+    expect(effectiveFourPieceIds(velinaRepeated, 0)).not.toContain('astralVoice')
+
+    velinaRepeated = workbenchReducer(velinaRepeated, { type: 'openPartyEdit' })
+    velinaRepeated = workbenchReducer(velinaRepeated, {
+      type: 'replaceDraftAgent', slot: 1, agentId: 'velina',
+    })
+    velinaRepeated = workbenchReducer(velinaRepeated, { type: 'applyPartyEdit' })
+    expect(effectiveFourPieceIds(velinaRepeated, 0)).toContain('astralVoice')
+
+    const velinaExternal = createPreparedState({}, ['qingyi', 'velina', 'yixuan'], 2)
+    expect(effectiveFourPieceIds(velinaExternal, 0)).toContain('astralVoice')
   })
 
   it('projects one Disc effect onto its independent action and tag Result rows', () => {

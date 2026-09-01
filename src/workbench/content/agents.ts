@@ -326,6 +326,10 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     id: 'norma', name: 'Norma Hollowell', attribute: 'Fire', specialty: 'Stun',
     focusEligible: false, rank: 'S', faction: 'External Strategy Department',
   },
+  {
+    id: 'velina', name: 'Velina Airgid', displayName: 'Velina', attribute: 'Wind', specialty: 'Anomaly',
+    focusEligible: false, rank: 'S', faction: 'External Strategy Department',
+  },
 ]
 
 export const agentDisplayName = ({ displayName, name }: AgentSummary): string => displayName ?? name

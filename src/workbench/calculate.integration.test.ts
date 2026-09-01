@@ -72,7 +72,6 @@ describe('shared calculation integration', () => {
       breakdown: { fully: readonly { label: string }[] },
       label: string,
     ) => breakdown.fully.some((source) => source.label === label)
-
     expect(metric('critRate').values.fully).toBe(
       VERTICAL_VALUES.sigrid.critRate + VERTICAL_VALUES.sigrid.coreCritRate,
     )
@@ -131,6 +130,215 @@ describe('shared calculation integration', () => {
       unqualified.metrics.find(({ id }) => id === 'atk')!.breakdown,
       'Additional Ability',
     )).toBe(false)
+  })
+
+  it('keeps Velina Windswept inheritance, Vortex coefficient, and Focus Contamination distinct', () => {
+    const state = workbenchReducer(
+      createPreparedState({}, ['velina', 'promeia', 'aria'], 1),
+      { type: 'setMindscape', slot: 0, mindscape: 2 },
+    )
+    const result = calculateParty(state)!
+    const velina = result.agents.find(({ agentId }) => agentId === 'velina')!
+    const promeia = result.agents.find(({ agentId }) => agentId === 'promeia')!
+    const metric = (id: string) => velina.metrics.find((entry) => entry.id === id)!
+    const action = (id: string) => velina.actionModifiers.find((entry) => entry.id === id)!
+    const hasSource = (
+      breakdown: { fully: readonly { label: string }[] },
+      label: string,
+    ) => breakdown.fully.some((source) => source.label === label)
+    const hasOwner = (
+      breakdown: { fully: readonly { ownerAgentId?: string }[] },
+      ownerAgentId: string,
+    ) => breakdown.fully.some((source) => source.ownerAgentId === ownerAgentId)
+
+    expect(velina.operations).toContainEqual(expect.objectContaining({
+      label: 'Added Vortex DMG Multiplier',
+      source: expect.objectContaining({ label: 'Core Passive' }),
+    }))
+    expect(velina.operations.some(
+      ({ label }) => label === 'Chromatic Tint buildup contribution to Anomaly DMG',
+    )).toBe(false)
+
+    const energyRegen = metric('energyRegen')
+    const coreGauge = energyRegen.gauges.find(({ source }) => source.label === 'Core Passive')!
+    expect(energyRegen.values.initial).toBeCloseTo(VERTICAL_VALUES.velina.coreEnergyCap, 10)
+    expect(coreGauge.current).toBeCloseTo(VERTICAL_VALUES.velina.coreEnergyCap, 10)
+    expect(coreGauge).toMatchObject({
+      basisLabel: 'Initial Energy Regen',
+      threshold: VERTICAL_VALUES.velina.coreEnergyThreshold,
+      cap: VERTICAL_VALUES.velina.coreEnergyCap,
+      outputLabel: 'DMG Bonus',
+      outputValue: VERTICAL_VALUES.velina.coreDmgCap,
+      outputCap: VERTICAL_VALUES.velina.coreDmgCap,
+      additionalOutputs: [{
+        label: 'Anomaly Mastery',
+        value: VERTICAL_VALUES.velina.coreMasteryCap,
+        cap: VERTICAL_VALUES.velina.coreMasteryCap,
+      }],
+    })
+    expect(metric('dmgBonus').breakdown.fully).toContainEqual(expect.objectContaining({
+      label: 'Core Passive',
+      amount: VERTICAL_VALUES.velina.coreDmgCap,
+    }))
+    expect(metric('anomalyMastery').breakdown.fully).toContainEqual(expect.objectContaining({
+      label: 'Core Passive',
+      amount: VERTICAL_VALUES.velina.coreMasteryCap,
+    }))
+
+    const underCapState = createPreparedState(
+      { velina: 'nonLimited' }, ['velina', 'promeia', 'aria'], 1,
+    )
+    expect(underCapState.slots[0].setup.engineId).toBe('weepingGemini')
+    const underCapVelina = calculateParty(underCapState)!.agents
+      .find(({ agentId }) => agentId === 'velina')!
+    const underCapMetric = (id: string) => underCapVelina.metrics
+      .find((entry) => entry.id === id)!
+    const underCapEnergy = underCapMetric('energyRegen')
+    const underCapGauge = underCapEnergy.gauges
+      .find(({ source }) => source.label === 'Core Passive')!
+    const eligibleEnergy = Math.max(
+      underCapEnergy.values.initial - VERTICAL_VALUES.velina.coreEnergyThreshold,
+      0,
+    )
+    const expectedDmg = eligibleEnergy / 0.01 * VERTICAL_VALUES.velina.coreDmgPerEnergy
+    const expectedMastery = eligibleEnergy / 0.01
+      * VERTICAL_VALUES.velina.coreMasteryPerEnergy
+    expect(underCapEnergy.values.initial).toBeLessThan(VERTICAL_VALUES.velina.coreEnergyCap)
+    expect(underCapGauge.current).toBeCloseTo(underCapEnergy.values.initial, 10)
+    expect(underCapGauge.outputValue).toBeCloseTo(expectedDmg, 10)
+    expect(underCapGauge.outputValue).toBeLessThan(VERTICAL_VALUES.velina.coreDmgCap)
+    expect(underCapGauge.additionalOutputs?.[0]?.value).toBeCloseTo(expectedMastery, 10)
+    expect(underCapGauge.additionalOutputs?.[0]?.value)
+      .toBeLessThan(VERTICAL_VALUES.velina.coreMasteryCap)
+    expect(underCapMetric('dmgBonus').breakdown.fully).toContainEqual(
+      expect.objectContaining({ label: 'Core Passive', amount: expectedDmg }),
+    )
+    expect(underCapMetric('anomalyMastery').breakdown.fully).toContainEqual(
+      expect.objectContaining({ label: 'Core Passive', amount: expectedMastery }),
+    )
+
+    expect(action('velinaWindswept').outcomes).toEqual([
+      { kind: 'source-local', label: 'Windswept' },
+    ])
+    for (const [id, outcomes] of [
+      ['velinaCondensedCycloneAbloom', [
+        { kind: 'source-local', label: 'Condensed Cyclone' },
+        { kind: 'source-local', label: 'Abloom' },
+      ]],
+      ['velinaSweepingCycloneAbloom', [
+        { kind: 'source-local', label: 'Sweeping Cyclone' },
+        { kind: 'source-local', label: 'Abloom' },
+      ]],
+      ['velinaUltimateAbloom', [
+        { kind: 'canonical', action: 'Ultimate' },
+        { kind: 'source-local', label: 'Abloom' },
+      ]],
+    ] as const) {
+      expect(action(id)).toMatchObject({ outcomes, baseActionId: 'velinaWindswept' })
+    }
+    expect(action('velinaVortex').outcomes).toEqual([
+      { kind: 'source-local', label: 'Vortex' },
+    ])
+    expect(action('velinaVortex').baseActionId).toBeUndefined()
+    for (const [id, amount] of [
+      ['velinaWindswept', VERTICAL_VALUES.velina.additionalAnomalyDmg],
+      ['velinaVortex', VERTICAL_VALUES.velina.additionalAnomalyDmg],
+      ['velinaSweepingCycloneDaze', VERTICAL_VALUES.velina.additionalDaze],
+      ['velinaSweepingCycloneBuildup', VERTICAL_VALUES.velina.additionalBuildup],
+    ] as const) {
+      expect(action(id).breakdown.fully).toContainEqual(expect.objectContaining({
+        label: 'Additional Ability', amount,
+      }))
+    }
+    expect(velina.actionModifiers.some(({ outcomes }) => (
+      outcomes.some((outcome) => outcome.kind === 'source-local' && outcome.label === 'Disorder')
+    ))).toBe(false)
+    for (const id of [
+      'velinaCondensedCycloneAbloom',
+      'velinaSweepingCycloneAbloom',
+      'velinaUltimateAbloom',
+    ]) expect(hasOwner(action(id).breakdown, 'promeia')).toBe(true)
+    expect(hasOwner(action('velinaVortex').breakdown, 'promeia')).toBe(false)
+
+    const ordinaryVelina = calculateParty(createPreparedState(
+      {}, ['velina', 'yanagi', 'lucia'], 1,
+    ))!.agents.find(({ agentId }) => agentId === 'velina')!
+    for (const id of [
+      'velinaCondensedCycloneAbloom',
+      'velinaSweepingCycloneAbloom',
+      'velinaUltimateAbloom',
+    ]) expect(ordinaryVelina.actionModifiers.some((entry) => entry.id === id)).toBe(false)
+    expect(ordinaryVelina.actionModifiers.some(
+      ({ id }) => id === 'velinaWindswept',
+    )).toBe(true)
+    expect(ordinaryVelina.actionModifiers.some(
+      ({ id }) => id === 'velinaVortex',
+    )).toBe(true)
+
+    const unqualifiedM0 = calculateParty(createPreparedState(
+      { velina: 'nonLimited' }, ['velina', 'pyrois', 'lucia'], 1,
+    ))!.agents.find(({ agentId }) => agentId === 'velina')!
+    for (const id of [
+      'velinaWindswept',
+      'velinaVortex',
+      'velinaCondensedCycloneAbloom',
+      'velinaSweepingCycloneAbloom',
+      'velinaUltimateAbloom',
+    ]) expect(unqualifiedM0.actionModifiers.some((entry) => entry.id === id)).toBe(false)
+
+    const contamination = promeia.metrics.find(
+      ({ id }) => id === 'anomalyBuildupResReduction',
+    )!
+    expect(contamination.breakdown.fully).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        label: 'Additional Ability',
+        amount: VERTICAL_VALUES.velina.additionalBuildupResReduction,
+        ownerAgentId: 'velina',
+        detail: 'Contamination Attribute · selected by Focus',
+      }),
+    ]))
+
+    const windParty = calculateParty(createPreparedState(
+      {}, ['velina', 'lycaon', 'aria'], 2,
+    ))!
+    const windRecipient = windParty.agents.find(({ agentId }) => agentId === 'velina')!
+    expect(windRecipient.metrics.find(({ id }) => id === 'dmgBonus')!.breakdown.fully)
+      .toContainEqual(expect.objectContaining({
+        ownerAgentId: 'lycaon',
+        amount: VERTICAL_VALUES.lycaon.coreOtherAttributeDmg,
+      }))
+
+    const iceParty = calculateParty(createPreparedState(
+      {}, ['ellen', 'lycaon', 'soukaku'], 0,
+    ))!
+    const iceRecipient = iceParty.agents.find(({ agentId }) => agentId === 'ellen')!
+    expect(iceRecipient.metrics.find(({ id }) => id === 'dmgBonus')!.breakdown.fully
+      .some(({ ownerAgentId }) => ownerAgentId === 'lycaon')).toBe(false)
+    expect(iceRecipient.metrics.find(({ id }) => id === 'resReduction')!.breakdown.fully
+      .some(({ ownerAgentId }) => ownerAgentId === 'lycaon')).toBe(true)
+
+    const unqualifiedState = workbenchReducer(
+      createPreparedState({}, ['velina', 'pyrois', 'lucia'], 1),
+      { type: 'setMindscape', slot: 0, mindscape: 6 },
+    )
+    const unqualifiedResult = calculateParty(unqualifiedState)!
+    const unqualifiedVelina = unqualifiedResult.agents.find(({ agentId }) => agentId === 'velina')!
+    const unqualifiedAction = (id: string) => unqualifiedVelina.actionModifiers
+      .find((entry) => entry.id === id)!
+    const unqualifiedMetric = (id: string) => unqualifiedVelina.metrics
+      .find((entry) => entry.id === id)!
+
+    for (const entry of [
+      unqualifiedAction('velinaVortex'),
+      unqualifiedAction('velinaWindswept'),
+      unqualifiedAction('velinaSweepingCycloneDaze'),
+    ]) expect(hasSource(entry.breakdown, 'Additional Ability')).toBe(false)
+    expect(hasSource(unqualifiedAction('velinaSweepingCycloneDaze').breakdown, 'Mindscape')).toBe(true)
+    expect(hasSource(unqualifiedMetric('atk').breakdown, 'Mindscape')).toBe(true)
+    expect(hasSource(unqualifiedAction('velinaWindTargetBuildup').breakdown, 'Mindscape')).toBe(true)
+    expect(hasSource(unqualifiedAction('velinaWindswept').breakdown, 'Mindscape')).toBe(true)
+    expect(unqualifiedResult.agents.find(({ agentId }) => agentId === 'pyrois')!.metrics
+      .some(({ id }) => id === 'anomalyBuildupResReduction')).toBe(false)
   })
 
   it('projects one composed cross-holder flow without exposing undeclared shared rows', () => {

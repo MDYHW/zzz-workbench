@@ -37,7 +37,7 @@ export type EffectMetric =
   | 'anomalyProficiency' | 'anomalyMastery' | 'anomalyDmgBonus'
   | 'anomalyBuildupBonus' | 'anomalyBuildupResReduction'
 
-export type EffectAttribute = 'Physical' | 'Fire' | 'Ice' | 'Electric' | 'Ether'
+export type EffectAttribute = 'Physical' | 'Fire' | 'Ice' | 'Electric' | 'Ether' | 'Wind'
 
 export interface ResolvedCurrentEffect {
   metric: EffectMetric
