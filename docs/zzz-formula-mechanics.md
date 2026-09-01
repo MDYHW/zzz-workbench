@@ -261,6 +261,39 @@ Ultimate-scoped contribution therefore remain separate atomic inputs even
 though both occupy the same modifier region. Their applicable total is a
 derived result for that output, not a stored source fact.
 
+### Refringe Factor
+
+**Rule ID:** `FM-012`
+
+Refringe Coefficient is a distinct source-scoped multiplicative factor over
+the exact Attribute Anomaly effect to which Refringe applies:
+
+```text
+refringed_anomaly_damage
+  = anomaly_damage
+  * (1 + applicable Refringe Coefficient)
+```
+
+It is not regular DMG Bonus, an `anomaly_buff_multiplier` contribution, or an
+additive change to the source anomaly's DMG Multiplier inside
+`anomaly_base_damage`. This factor does not create another formula family or
+make Refringe a generic component required by every `anomaly_damage` result.
+
+Resolve each source-stated contribution and its conditions independently. An
+Anomaly-Proficiency-derived portion uses `FM-009`; an applicable fixed party
+addition and an applicable Mindscape addition retain their own party and
+Mindscape conditions. Compose those current contributions into one Refringe
+Coefficient before applying the factor. Preserve the exact affected result,
+holder, recipient, party, Mindscape, and other source-local conditions.
+
+Abloom, Vortex, Luminize, or another result receives this factor only through
+an independently retained source relationship that derives it from, inherits
+it from, or otherwise scales it from the Refringed Attribute Anomaly effect.
+Sharing `anomaly_damage`, an Attribute, or an Anomaly label does not establish
+that relationship. Retaining the coefficient requires neither raw or final
+anomaly damage nor Voidflare storage, anomaly history, trigger cadence,
+rotation, or a universal derived-anomaly graph.
+
 ### Stun DMG Multiplier And Veil Replacement
 
 **Rule ID:** `FM-005`
