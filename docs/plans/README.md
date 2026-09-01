@@ -9,11 +9,9 @@ remains subordinate to them.
 ## Plan lifecycle
 
 Keep at most one active bounded implementation plan. There is currently no
-active plan. The completed [Velina Airgid vertical](2026-09-01-velina-airgid-vertical-plan.md)
-is retained only through its first checkpoint commit because its plan body has
-not yet been committed; remove it in a follow-up commit. Completed verticals
-are recorded in the milestone index below, and later Agent verticals still
-require their own bounded requirement and plan after their meaning is settled.
+active plan. Completed verticals are recorded in the milestone index below,
+and later Agent verticals still require their own bounded requirement and plan
+after their meaning is settled.
 The authority-governance recovery closed after exact-SHA
 finalization, protected `main` promotion, and recovery freeze; its detailed
 execution record remains in Git history and the durable postmortem.
