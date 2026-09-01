@@ -166,28 +166,32 @@ const PROMEIA_ANOMALY_SCOPES = [
   { id: 'promeiaDisorder', target: DISORDER_TARGET },
 ] satisfies readonly ActionScopeNode[]
 
-const VELINA_ANOMALY_SCOPES = [
+const velinaAnomalyScopes = (includeUltimateAbloom: boolean) => [
   {
     id: 'velinaAttributeAnomaly', target: ATTRIBUTE_ANOMALY_TARGET,
     children: [{
       id: 'velinaWindswept', target: WINDSWEPT_TARGET,
+      retainExactOutcome: true,
       children: [
         {
           id: 'velinaCondensedCycloneAbloom', target: VELINA_CONDENSED_CYCLONE_ABLOOM,
           inheritedEffectTargets: [ABLOOM_TARGET],
+          retainExactOutcome: true,
         },
         {
           id: 'velinaSweepingCycloneAbloom', target: VELINA_SWEEPING_CYCLONE_ABLOOM,
           inheritedEffectTargets: [ABLOOM_TARGET],
+          retainExactOutcome: true,
         },
-        {
+        ...(includeUltimateAbloom ? [{
           id: 'velinaUltimateAbloom', target: VELINA_ULTIMATE_ABLOOM,
           inheritedEffectTargets: [ABLOOM_TARGET],
-        },
+          retainExactOutcome: true,
+        }] : []),
       ],
     }],
   },
-  { id: 'velinaVortex', target: VORTEX_TARGET },
+  { id: 'velinaVortex', target: VORTEX_TARGET, retainExactOutcome: true },
 ] satisfies readonly ActionScopeNode[]
 
 const src = (agent: Agent, slot: Slot, id: string, label: string, locus: 'identity' | 'core' | 'additional' | 'special' = 'core') => selectedAgentSource(agent, slot, id, label, locus)
@@ -1047,7 +1051,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
       { observation, focusAgentId, partyAgentIds: ids },
     ))
     actions.push(
-      { metricId: 'anomalyDmgBonus', scopes: VELINA_ANOMALY_SCOPES },
+      { metricId: 'anomalyDmgBonus', scopes: velinaAnomalyScopes(additionalActive) },
       actionProjection('dazeBonus', 'velinaSweepingCycloneDaze', VELINA_SWEEPING_CYCLONE),
       {
         metricId: 'anomalyBuildupBonus',

@@ -261,6 +261,35 @@ describe('shared calculation integration', () => {
     ]) expect(hasOwner(action(id).breakdown, 'promeia')).toBe(true)
     expect(hasOwner(action('velinaVortex').breakdown, 'promeia')).toBe(false)
 
+    const ordinaryVelina = calculateParty(createPreparedState(
+      {}, ['velina', 'yanagi', 'lucia'], 1,
+    ))!.agents.find(({ agentId }) => agentId === 'velina')!
+    for (const id of [
+      'velinaCondensedCycloneAbloom',
+      'velinaSweepingCycloneAbloom',
+      'velinaUltimateAbloom',
+    ]) expect(ordinaryVelina.actionModifiers).toContainEqual(expect.objectContaining({
+      id,
+      baseActionId: 'velinaWindswept',
+    }))
+
+    const unqualifiedM0 = calculateParty(createPreparedState(
+      { velina: 'nonLimited' }, ['velina', 'pyrois', 'lucia'], 1,
+    ))!.agents.find(({ agentId }) => agentId === 'velina')!
+    for (const id of [
+      'velinaCondensedCycloneAbloom',
+      'velinaSweepingCycloneAbloom',
+    ]) expect(unqualifiedM0.actionModifiers).toContainEqual(expect.objectContaining({
+      id,
+      baseActionId: 'velinaWindswept',
+    }))
+    expect(unqualifiedM0.actionModifiers).toContainEqual(expect.objectContaining({
+      id: 'velinaVortex',
+    }))
+    expect(unqualifiedM0.actionModifiers.some(
+      ({ id }) => id === 'velinaUltimateAbloom',
+    )).toBe(false)
+
     const contamination = promeia.metrics.find(
       ({ id }) => id === 'anomalyBuildupResReduction',
     )!
