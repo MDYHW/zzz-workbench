@@ -10,7 +10,7 @@ import {
   type AgentId,
 } from '../content'
 import type { EffectMetric, SurfaceKey } from '../effects'
-import { effectAttributeForAgent } from '../formula-policy'
+import { effectAttributeForPartySlot } from '../formula-policy'
 import { isCompleteWorkbench, type WorkbenchState } from '../state'
 import {
   composeActionHierarchy,
@@ -71,6 +71,7 @@ export interface MetricProjection {
     | 'action'
     | 'disclosed-or-action'
   resultVisibility?: 'visible' | 'action-only'
+  resultParentMetricId?: EffectMetric
 }
 
 export interface ActionProjection {
@@ -234,13 +235,17 @@ function recipientContexts(
   state: WorkbenchState,
   profiles: readonly AgentSourceProfile[],
 ): DeliveryRecipientContext[] {
+  const agentIds = state.slots.map(({ agentId }) => agentId)
   return state.slots.map(({ agentId }, appliedPartySlot) => {
     const formulas = FORMULA_PARTICIPATION_BY_AGENT[agentId]
     return {
       agentId,
       appliedPartySlot: appliedPartySlot as 0 | 1 | 2,
       specialty: ADMITTED_AGENTS.find(({ id }) => id === agentId)!.specialty,
-      attribute: effectAttributeForAgent(agentId),
+      attribute: effectAttributeForPartySlot(
+        agentIds,
+        appliedPartySlot as 0 | 1 | 2,
+      ),
       formulas: formulas.result,
       statIds: profiles[appliedPartySlot].metrics.flatMap(({ statId }) => (
         statId ? [statId] : []
@@ -556,9 +561,13 @@ function projectAgent(
     if (visibleMetricIds.has(action.metricId)) return action
     const metric = projectedMetrics.find(({ id }) => id === action.metricId)
     if (!metric) throw new Error(`Scoped Result requires projected ${action.metricId}`)
+    const projection = evaluated.profile.metrics.find(({ id }) => id === action.metricId)
     return {
       ...action,
       standaloneMetric: {
+        ...(projection?.resultParentMetricId
+          ? { parentMetricId: projection.resultParentMetricId }
+          : {}),
         label: metric.label,
         unit: metric.unit,
         decimals: metric.decimals,

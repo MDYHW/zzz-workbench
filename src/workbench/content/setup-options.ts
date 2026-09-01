@@ -20,11 +20,15 @@ export const FORMULA_PARTICIPATION_BY_AGENT: Record<
   AgentId,
   FormulaParticipation
 > = {
+  remielle: {
+    setup: { primary: ['anomaly_damage'], residual: ['anomaly_buildup'] },
+    result: ['anomaly_damage', 'anomaly_buildup'],
+  },
   pyrois: { setup: { primary: ['general_damage'], residual: [] }, result: ['general_damage', 'daze_buildup'] },
   sigrid: { setup: { primary: ['general_damage'], residual: [] }, result: ['general_damage', 'daze_buildup'] },
   velina: {
-    setup: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: ['daze_buildup'] },
-    result: ['anomaly_damage', 'anomaly_buildup', 'daze_buildup'],
+    setup: { primary: ['anomaly_damage', 'anomaly_buildup'], residual: [] },
+    result: ['anomaly_damage', 'anomaly_buildup'],
   },
   norma: { setup: { primary: ['daze_buildup'], residual: ['general_damage'] }, result: ['daze_buildup', 'general_damage'] },
   yixuan: { setup: { primary: ['sheer_damage'], residual: [] }, result: ['sheer_damage'] },
@@ -113,6 +117,11 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   AgentId,
   Record<MainSlot, MainStatId[]>
 > = {
+  remielle: {
+    slot4: ['anomalyProficiency', 'atkPct'],
+    slot5: ['atkPct'],
+    slot6: ['atkPct'],
+  },
   pyrois: {
     slot4: ['critRate', 'critDmg', 'atkPct'],
     slot5: ['penRatio', 'etherDmg', 'atkPct'],
@@ -356,6 +365,7 @@ export const EFFECTIVE_SUBSTAT_VALUES: Record<SubstatChoice['id'], SubstatChoice
 const substats = (...ids: SubstatChoice['id'][]): SubstatChoice[] => ids.map((id) => EFFECTIVE_SUBSTAT_VALUES[id])
 
 export const SUBSTAT_CHOICES_BY_AGENT: Record<AgentId, SubstatChoice[]> = {
+  remielle: substats('atkPct', 'anomalyProficiency', 'atkFlat'),
   pyrois: substats('critRate', 'critDmg', 'atkPct'),
   sigrid: substats('critRate', 'critDmg', 'atkPct'),
   velina: substats('anomalyProficiency', 'atkPct'),

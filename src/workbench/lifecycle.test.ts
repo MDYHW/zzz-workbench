@@ -405,6 +405,9 @@ describe('shared preparation and edit lifecycle', () => {
     velinaRepeated = workbenchReducer(velinaRepeated, {
       type: 'replaceDraftAgent', slot: 1, agentId: 'velina',
     })
+    velinaRepeated = workbenchReducer(velinaRepeated, {
+      type: 'setDraftFocus', slot: 1,
+    })
     velinaRepeated = workbenchReducer(velinaRepeated, { type: 'applyPartyEdit' })
     expect(effectiveFourPieceIds(velinaRepeated, 0)).toContain('astralVoice')
 

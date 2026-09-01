@@ -24,6 +24,7 @@ import shiningAriaImage from '../../assets/equipment/drive-discs/shining-aria.we
 import notesFromTheChainedImage from '../../assets/equipment/drive-discs/notes-from-the-chained.webp'
 import skyAblazeImage from '../../assets/equipment/drive-discs/the-sky-ablaze.webp'
 import wutheringSalonImage from '../../assets/equipment/drive-discs/wuthering-salon.webp'
+import featheredFateImage from '../../assets/equipment/drive-discs/feathered-fate.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -33,6 +34,25 @@ import {
 } from './types'
 
 export const DRIVE_DISC_FACTS = {
+  featheredFate: {
+    twoPiece: {
+      anomalyProficiency: { modifier: 'anomalyProficiency', unit: '', value: 30 },
+    },
+    fourPiece: {
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '', value: 50,
+        activation: { kind: 'trigger', fieldEntry: true, durationSeconds: 15 },
+      },
+      lumifluxAnomalyDamage: {
+        modifier: 'anomalyDmgBonus', unit: '%', value: 15,
+        scope: { anomalyResults: ['Attribute Anomaly'] },
+        activation: {
+          kind: 'trigger', fieldEntry: true, durationSeconds: 15,
+          holderAttributes: ['Lumiflux'],
+        },
+      },
+    },
+  },
   skyAblaze: {
     twoPiece: {
       etherDamage: { modifier: 'dmgBonus', unit: '%', value: 10, scope: { attributes: ['Ether'] } },
@@ -341,6 +361,14 @@ export type DriveDiscEffectField<
 > = keyof DriveDiscFactContract<Id>[Piece]
 
 export const DRIVE_DISCS: Record<DiscId, DriveDiscChoice> = {
+  featheredFate: {
+    name: 'Feathered Fate', image: featheredFateImage,
+    twoPieceEffect: `Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.featheredFate.twoPiece.anomalyProficiency)}`,
+    fourPieceEffects: [
+      `Anomaly Proficiency +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.featheredFate.fourPiece.anomalyProficiency)}`,
+      `Attribute Anomaly DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.featheredFate.fourPiece.lumifluxAnomalyDamage)}%`,
+    ],
+  },
   skyAblaze: {
     name: 'The Sky Ablaze', image: skyAblazeImage,
     twoPieceEffect: `Ether DMG +${equipmentEffectBaseValue(DRIVE_DISC_FACTS.skyAblaze.twoPiece.etherDamage)}%`,

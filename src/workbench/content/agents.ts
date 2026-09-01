@@ -2,6 +2,16 @@ import type { AgentId, AgentOperation, AgentSummary } from './types'
 
 export const ADMITTED_AGENTS: AgentSummary[] = [
   {
+    id: 'remielle',
+    name: 'Remielle Dan',
+    displayName: 'Remielle',
+    attribute: 'Lumiflux',
+    specialty: 'Anomaly',
+    focusEligible: false,
+    rank: 'S',
+    faction: 'Covenant of Dayat',
+  },
+  {
     id: 'pyrois',
     name: 'Pyrois',
     attribute: 'Ether',
@@ -328,7 +338,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
   },
   {
     id: 'velina', name: 'Velina Airgid', displayName: 'Velina', attribute: 'Wind', specialty: 'Anomaly',
-    focusEligible: false, rank: 'S', faction: 'External Strategy Department',
+    focusEligible: true, rank: 'S', faction: 'External Strategy Department',
   },
 ]
 

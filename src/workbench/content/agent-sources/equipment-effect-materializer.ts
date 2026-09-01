@@ -5,6 +5,7 @@ import {
   CRIT_DAMAGE_FORMULAS,
   DEF_DAMAGE_FORMULAS,
   effectAttributeForAgent,
+  effectAttributeForPartySlot,
   REGULAR_DAMAGE_FORMULAS,
 } from '../../formula-policy'
 import { operatingIntervalFor } from '../setup-policies'
@@ -68,7 +69,7 @@ function isObservedModifier(
 
 function providerDelivery(
   fact: EquipmentEffectFact,
-  holderAttribute: ReturnType<typeof effectAttributeForAgent>,
+  holderAttribute: ReturnType<typeof effectAttributeForPartySlot>,
 ): EquipmentDelivery {
   switch (fact.modifier) {
     case 'dmgBonus':
@@ -161,14 +162,21 @@ export function materializeEquipmentEffects(
     projectEffect,
   } = context
   const interval = operatingIntervalFor(agentId, focusAgentId)
-  const holderAttribute = effectAttributeForAgent(agentId)
+  const holderAttribute = partyAgentIds.length === 3
+    ? effectAttributeForPartySlot(partyAgentIds, source.appliedPartySlot)
+    : effectAttributeForAgent(agentId)
 
   return Object.entries(effects).flatMap(([effectKey, fact]) => {
     if (
       omitEffectKeys.has(effectKey)
       || !includeEffect(effectKey, fact)
       || !effectIsHolderApplicable(effectKey)
-      || !equipmentEffectCanBeActivated(agentId, partyAgentIds, fact)
+      || !equipmentEffectCanBeActivated(
+        agentId,
+        partyAgentIds,
+        fact,
+        source.appliedPartySlot,
+      )
       || !equipmentEffectAppliesInOperatingInterval(fact, interval)
       || requiresExplicitConsumer(fact)
     ) return []

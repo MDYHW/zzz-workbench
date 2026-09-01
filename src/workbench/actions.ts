@@ -122,6 +122,11 @@ export const VORTEX_TARGET = actionTarget([sourceLocalAction('Vortex')])
 export const ABLOOM_TARGET = actionTarget([sourceLocalAction('Abloom')])
 export const CORRUPTION_TARGET = actionTarget([sourceLocalAction('Corruption')])
 
+// Remielle's two formula-local outcomes stay distinct from ordinary Attribute
+// Anomaly and from each other. Neither target inherits another anomaly family.
+export const LUMINIZE_TARGET = actionTarget([sourceLocalAction('Luminize')])
+export const REFRINGE_TARGET = actionTarget([sourceLocalAction('Refringe')])
+
 // Miyabi's target-state buildup outcomes are shared across her provider and
 // every current anomaly-buildup recipient. They remain separate so the Fully
 // Enabled projection never combines mutually exclusive target conditions.

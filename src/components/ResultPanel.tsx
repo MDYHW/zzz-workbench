@@ -66,27 +66,37 @@ function hasCurrentConsumer(metric: ResultMetric, actions: ActionModifier[]): bo
 }
 
 function currentMetricRows(result: AgentResult) {
+  const derivedRows = (parentMetricId: ResultMetric['id']) => groupStandaloneActionRows(
+    result.actionModifiers.filter((action) => (
+      action.standaloneMetric?.parentMetricId === parentMetricId
+    )),
+  )
+
   return result.metrics
-    .map((metric) => ({
+    .map((metric) => {
+      const actions = result.actionModifiers.filter((row) => row.metricId === metric.id)
+      const derivedActionRows = derivedRows(metric.id)
+      return { metric, actions, derivedActionRows }
+    })
+    .filter(({ metric, actions, derivedActionRows }) => hasCurrentConsumer(
       metric,
-      actions: result.actionModifiers.filter((row) => row.metricId === metric.id),
-    }))
-    .filter(({ metric, actions }) => hasCurrentConsumer(metric, actions))
+      [...actions, ...derivedActionRows.flatMap(({ actions: rows }) => rows)],
+    ))
 }
 
-function currentStandaloneActionRows(result: AgentResult) {
-  const visibleMetricIds = new Set(result.metrics.map(({ id }) => id))
+function groupStandaloneActionRows(actions: ActionModifier[]) {
   const grouped = new Map<ResultMetric['id'], {
     metric: ResultMetric
     actions: ActionModifier[]
   }>()
 
-  for (const action of result.actionModifiers) {
-    if (visibleMetricIds.has(action.metricId) || !action.standaloneMetric) continue
+  for (const action of actions) {
+    if (!action.standaloneMetric) continue
+    const { parentMetricId: _parentMetricId, ...standaloneMetric } = action.standaloneMetric
     const current = grouped.get(action.metricId) ?? {
       metric: {
         id: action.metricId,
-        ...action.standaloneMetric,
+        ...standaloneMetric,
         breakdown: { initial: [], combat: [], fully: [] },
         gauges: [],
       },
@@ -97,6 +107,16 @@ function currentStandaloneActionRows(result: AgentResult) {
   }
 
   return [...grouped.values()]
+}
+
+function currentStandaloneActionRows(result: AgentResult) {
+  const visibleMetricIds = new Set(result.metrics.map(({ id }) => id))
+  return groupStandaloneActionRows(result.actionModifiers.filter((action) => (
+    !visibleMetricIds.has(action.metricId)
+    && action.standaloneMetric
+    && (!action.standaloneMetric.parentMetricId
+      || !visibleMetricIds.has(action.standaloneMetric.parentMetricId))
+  )))
 }
 
 function formatContributionValue(
@@ -642,6 +662,7 @@ function MetricDetail({
   actions,
   activeSourceTone,
   agentId,
+  derivedActionRows,
   metric,
   onSourceToneChange,
   onTargetStunDmgMultiplierChange,
@@ -650,6 +671,7 @@ function MetricDetail({
 }: {
   actions: ActionModifier[]
   agentId: AgentResult['agentId']
+  derivedActionRows: ReturnType<typeof groupStandaloneActionRows>
   metric: ResultMetric
   onTargetStunDmgMultiplierChange?: (value: number) => void
   partyAgentIds: readonly AgentId[]
@@ -703,6 +725,18 @@ function MetricDetail({
         onSourceToneChange={onSourceToneChange}
         partyAgentIds={partyAgentIds}
       />
+      {derivedActionRows.map(({ metric: derivedMetric, actions: derivedActions }) => (
+        <ActionRows
+          actions={derivedActions}
+          activeSourceTone={activeSourceTone}
+          agentId={agentId}
+          key={derivedMetric.id}
+          metric={derivedMetric}
+          onSourceToneChange={onSourceToneChange}
+          partyAgentIds={partyAgentIds}
+          standalone
+        />
+      ))}
     </div>
   )
 }
@@ -767,11 +801,12 @@ export function ResultPanel({
               <tr><th scope="col">Quantity</th><th scope="col">Initial</th><th scope="col">Combat</th><th scope="col">Fully enabled</th></tr>
             </thead>
             <tbody>
-              {metricRows.map(({ metric, actions }) => {
+              {metricRows.map(({ metric, actions, derivedActionRows }) => {
                 const isExpanded = expanded.has(metric.id)
                 const hasDetail = Boolean(
                   metric.gauges.length > 0
                     || actions.length
+                    || derivedActionRows.length
                     || allSurfaces.some((surface) => metric.breakdown[surface].length > 0),
                 )
 
@@ -807,6 +842,7 @@ export function ResultPanel({
                             actions={actions}
                             activeSourceTone={activeSourceTone}
                             agentId={agentResult.agentId}
+                            derivedActionRows={derivedActionRows}
                             metric={metric}
                             onSourceToneChange={onSourceToneChange}
                             onTargetStunDmgMultiplierChange={onTargetStunDmgMultiplierChange}

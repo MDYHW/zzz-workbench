@@ -5,6 +5,7 @@ import {
   type FormulaFamily,
 } from './content'
 import type { EffectAttribute, EffectMetric } from './effects'
+import { nextAppliedAgentId } from './party-conditions'
 
 export const REGULAR_DAMAGE_FORMULAS = [
   'general_damage',
@@ -69,6 +70,9 @@ export function effectAttributeForAgent(agentId: AgentId): EffectAttribute {
   if (attribute === 'Auric Ink') return 'Ether'
   if (attribute === 'Honed Edge') return 'Physical'
   if (attribute === 'Frost') return 'Ice'
+  if (attribute === 'Lumiflux') {
+    throw new Error('Lumiflux calculation Attribute requires the applied party slot')
+  }
   if (
     attribute === 'Physical'
     || attribute === 'Fire'
@@ -78,6 +82,18 @@ export function effectAttributeForAgent(agentId: AgentId): EffectAttribute {
     || attribute === 'Wind'
   ) return attribute
   throw new Error(`Unsupported Attribute for effect applicability: ${String(attribute)}`)
+}
+
+/** Resolves special display Attributes at their exact current calculation scope. */
+export function effectAttributeForPartySlot(
+  agentIds: readonly AgentId[],
+  appliedPartySlot: 0 | 1 | 2,
+): EffectAttribute {
+  const agentId = agentIds[appliedPartySlot]
+  const attribute = ADMITTED_AGENTS.find(({ id }) => id === agentId)?.attribute
+  return attribute === 'Lumiflux'
+    ? effectAttributeForAgent(nextAppliedAgentId(agentIds, appliedPartySlot))
+    : effectAttributeForAgent(agentId)
 }
 
 /**

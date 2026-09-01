@@ -20,6 +20,9 @@ const enginePools = (
 }
 
 const ENGINE_CANDIDATES_BY_AGENT: Record<AgentId, readonly EngineId[]> = {
+  remielle: [
+    'odeOfResurrectedWings', 'timeweaver', 'weepingGemini',
+  ],
   pyrois: ['solExuvia', 'cordisGermina'],
   sigrid: ['knightsExtolment', 'severedInnocence', 'brimstone', 'starlightEngine'],
   velina: [
@@ -117,6 +120,10 @@ export type AgentDiscCandidatePolicy = {
 }
 
 export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePolicy> = {
+  remielle: {
+    fourPiece: ['featheredFate'],
+    twoPiece: ['freedomBlues', 'chaosJazz', 'hormonePunk', 'astralVoice'],
+  },
   pyrois: {
     fourPiece: ['skyAblaze', 'pufferElectro'],
     twoPiece: ['pufferElectro', 'woodpecker', 'branchAndBlade', 'chaoticMetal', 'hormonePunk'],

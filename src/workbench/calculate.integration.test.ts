@@ -243,13 +243,16 @@ describe('shared calculation integration', () => {
     for (const [id, amount] of [
       ['velinaWindswept', VERTICAL_VALUES.velina.additionalAnomalyDmg],
       ['velinaVortex', VERTICAL_VALUES.velina.additionalAnomalyDmg],
-      ['velinaSweepingCycloneDaze', VERTICAL_VALUES.velina.additionalDaze],
       ['velinaSweepingCycloneBuildup', VERTICAL_VALUES.velina.additionalBuildup],
     ] as const) {
       expect(action(id).breakdown.fully).toContainEqual(expect.objectContaining({
         label: 'Additional Ability', amount,
       }))
     }
+    expect(velina.metrics.some(({ id }) => id === 'dazeBonus')).toBe(false)
+    expect(velina.actionModifiers.some(
+      ({ id }) => id === 'velinaSweepingCycloneDaze',
+    )).toBe(false)
     expect(velina.actionModifiers.some(({ outcomes }) => (
       outcomes.some((outcome) => outcome.kind === 'source-local' && outcome.label === 'Disorder')
     ))).toBe(false)
@@ -331,14 +334,324 @@ describe('shared calculation integration', () => {
     for (const entry of [
       unqualifiedAction('velinaVortex'),
       unqualifiedAction('velinaWindswept'),
-      unqualifiedAction('velinaSweepingCycloneDaze'),
     ]) expect(hasSource(entry.breakdown, 'Additional Ability')).toBe(false)
-    expect(hasSource(unqualifiedAction('velinaSweepingCycloneDaze').breakdown, 'Mindscape')).toBe(true)
+    expect(unqualifiedVelina.metrics.some(({ id }) => id === 'dazeBonus')).toBe(false)
+    expect(unqualifiedVelina.actionModifiers.some(
+      ({ id }) => id === 'velinaSweepingCycloneDaze',
+    )).toBe(false)
     expect(hasSource(unqualifiedMetric('atk').breakdown, 'Mindscape')).toBe(true)
     expect(hasSource(unqualifiedAction('velinaWindTargetBuildup').breakdown, 'Mindscape')).toBe(true)
     expect(hasSource(unqualifiedAction('velinaWindswept').breakdown, 'Mindscape')).toBe(true)
     expect(unqualifiedResult.agents.find(({ agentId }) => agentId === 'pyrois')!.metrics
       .some(({ id }) => id === 'anomalyBuildupResReduction')).toBe(false)
+  })
+
+  it('keeps Remielle Refringe, Luminize, ordinary anomaly bonuses, and Mindscape effects distinct', () => {
+    const m0State = createPreparedState({}, ['remielle', 'promeia', 'velina'], 1)
+    const m0Remielle = calculateParty(m0State)!.agents
+      .find(({ agentId }) => agentId === 'remielle')!
+    const m0Action = (id: string) => m0Remielle.actionModifiers
+      .find((entry) => entry.id === id)
+    const m0Ap = m0Remielle.metrics
+      .find(({ id }) => id === 'anomalyProficiency')!.values.fully
+
+    expect(m0Action('remielleRefringe')!.values.fully).toBeCloseTo(
+      m0Ap * VERTICAL_VALUES.remielle.refringePerAnomalyProficiency
+        + VERTICAL_VALUES.remielle.tripleAnomalyRefringe,
+      10,
+    )
+    expect(m0Action('remielleRefringe')!.standaloneMetric?.parentMetricId)
+      .toBe('anomalyProficiency')
+    expect(m0Action('remielleLuminize')!.values.fully).toBeCloseTo(
+      m0Ap * VERTICAL_VALUES.remielle.luminizePerAnomalyProficiency,
+      10,
+    )
+    expect(m0Action('remielleLuminize')!.standaloneMetric?.parentMetricId)
+      .toBe('anomalyProficiency')
+    expect(m0Remielle.metrics.find(({ id }) => id === 'dmgBonus')!
+      .breakdown.fully).toContainEqual(expect.objectContaining({
+        label: 'Special Attack',
+        detail: 'Phase Flow',
+        amount: VERTICAL_VALUES.remielle.phaseFlowDmgBySkillTier[0],
+      }))
+    expect(m0Action('remielleLuminizeResIgnore')).toBeUndefined()
+    expect(m0Remielle.operations.some(({ label }) => (
+      label === 'Rainbow’s End / Fleeting Grace · Luminize triggers'
+    ))).toBe(false)
+
+    const state = workbenchReducer(
+      m0State,
+      { type: 'setMindscape', slot: 0, mindscape: 6 },
+    )
+    const result = calculateParty(state)!
+    const remielle = result.agents.find(({ agentId }) => agentId === 'remielle')!
+    const action = (id: string) => remielle.actionModifiers.find((entry) => entry.id === id)!
+    const metric = (id: string) => remielle.metrics.find((entry) => entry.id === id)!
+    const ap = metric('anomalyProficiency').values.fully
+    const refringe = action('remielleRefringe')
+    const luminize = action('remielleLuminize')
+    const attributeAnomaly = action('remielleAttributeAnomaly')
+
+    expect(refringe.metricId).toBe('refringeFactor')
+    expect(refringe.values.fully).toBeCloseTo(
+      ap * VERTICAL_VALUES.remielle.refringePerAnomalyProficiency
+        + VERTICAL_VALUES.remielle.tripleAnomalyRefringe
+        + VERTICAL_VALUES.remielle.mindscape2Refringe,
+      10,
+    )
+    expect(refringe.breakdown.fully.map(({ label }) => label)).toEqual([
+      'Core Passive',
+      'Mindscape',
+      'Core Passive',
+    ])
+    expect(luminize.metricId).toBe('luminizeMultiplier')
+    expect(luminize.values.fully).toBeCloseTo(
+      ap * VERTICAL_VALUES.remielle.luminizePerAnomalyProficiency
+        + VERTICAL_VALUES.remielle.mindscape4LuminizeMultiplier,
+      10,
+    )
+    expect(attributeAnomaly.metricId).toBe('anomalyDmgBonus')
+    const attributeAnomalySources = attributeAnomaly.breakdown.fully
+      .map(({ label }) => label)
+    expect(attributeAnomalySources.filter((label) => (
+      label === 'Ode of Resurrected Wings'
+    ))).toHaveLength(1)
+    expect(attributeAnomalySources.filter((label) => (
+      label === 'Feathered Fate'
+    ))).toHaveLength(1)
+    expect(remielle.actionModifiers.some(({ id }) => (
+      id === 'remielleLuminizeAnomaly'
+    ))).toBe(false)
+    expect(remielle.actionModifiers.filter(({ id }) => id === 'remielleRefringe'))
+      .toHaveLength(1)
+    expect(action('remielleLuminizeResIgnore').values.fully).toBe(
+      VERTICAL_VALUES.remielle.mindscape1LuminizeResIgnore,
+    )
+    expect(remielle.metrics.some(({ id }) => id === 'anomalyMastery')).toBe(false)
+    expect(remielle.metrics.some(({ id }) => id === 'energyRegen')).toBe(false)
+    expect(remielle.metrics.some(({ id }) => id === 'dazeBonus')).toBe(false)
+    expect(remielle.actionModifiers.some(
+      ({ id }) => id === 'remiellePhaseFlowDaze',
+    )).toBe(false)
+    expect(metric('dmgBonus').breakdown.fully).toContainEqual(expect.objectContaining({
+      label: 'Special Attack',
+      detail: 'Phase Flow',
+      amount: VERTICAL_VALUES.remielle.phaseFlowDmgBySkillTier[2],
+    }))
+    expect(metric('anomalyBuildupBonus').breakdown.fully).toContainEqual(
+      expect.objectContaining({
+        label: 'Additional Ability',
+        detail: 'Prismatic target',
+        amount: VERTICAL_VALUES.remielle.additionalBuildup,
+      }),
+    )
+    const threeAnomalyAtkGauge = metric('atk').gauges.find(({ outputLabel }) => (
+      outputLabel === 'Squad flat ATK'
+    ))!
+    expect(threeAnomalyAtkGauge).toEqual(expect.objectContaining({
+      basisLabel: 'Initial ATK',
+      current: metric('atk').values.initial,
+      outputLabel: 'Squad flat ATK',
+      outputValue: Math.min(
+        metric('atk').values.initial
+          * VERTICAL_VALUES.remielle.additionalAtkRatioByAnomalyCount[2] / 100,
+        VERTICAL_VALUES.remielle.additionalAtkCap,
+      ),
+      outputCap: VERTICAL_VALUES.remielle.additionalAtkCap,
+    }))
+    const threeAnomalyRecipient = result.agents.find(({ agentId }) => (
+      agentId === 'promeia'
+    ))!
+    expect(threeAnomalyRecipient.metrics.find(({ id }) => id === 'atk')!
+      .breakdown.fully).toContainEqual(expect.objectContaining({
+      label: 'Additional Ability',
+      ownerAgentId: 'remielle',
+      amount: threeAnomalyAtkGauge.outputValue,
+    }))
+
+    const twoAnomalyResult = calculateParty(createPreparedState(
+      {}, ['remielle', 'promeia', 'lucia'], 1,
+    ))!
+    const twoAnomalyRemielle = twoAnomalyResult.agents.find(({ agentId }) => (
+      agentId === 'remielle'
+    ))!
+    const twoAnomalyAtk = twoAnomalyRemielle.metrics.find(({ id }) => id === 'atk')!
+    const twoAnomalyAtkGauge = twoAnomalyAtk.gauges.find(({ outputLabel }) => (
+      outputLabel === 'Squad flat ATK'
+    ))!
+    expect(twoAnomalyAtkGauge).toEqual(expect.objectContaining({
+      current: twoAnomalyAtk.values.initial,
+      outputValue: Math.min(
+        twoAnomalyAtk.values.initial
+          * VERTICAL_VALUES.remielle.additionalAtkRatioByAnomalyCount[1] / 100,
+        VERTICAL_VALUES.remielle.additionalAtkCap,
+      ),
+      outputCap: VERTICAL_VALUES.remielle.additionalAtkCap,
+    }))
+    expect(twoAnomalyAtkGauge.outputValue).toBeLessThan(threeAnomalyAtkGauge.outputValue)
+    const twoAnomalyRecipient = twoAnomalyResult.agents.find(({ agentId }) => (
+      agentId === 'promeia'
+    ))!
+    expect(twoAnomalyRecipient.metrics.find(({ id }) => id === 'atk')!
+      .breakdown.fully).toContainEqual(expect.objectContaining({
+        label: 'Additional Ability',
+      ownerAgentId: 'remielle',
+      amount: twoAnomalyAtkGauge.outputValue,
+      }))
+
+    const m3Remielle = calculateParty(workbenchReducer(
+      m0State,
+      { type: 'setMindscape', slot: 0, mindscape: 3 },
+    ))!.agents.find(({ agentId }) => agentId === 'remielle')!
+    expect(m3Remielle.metrics.find(({ id }) => id === 'dmgBonus')!
+      .breakdown.fully).toContainEqual(expect.objectContaining({
+        label: 'Special Attack',
+        detail: 'Phase Flow',
+        amount: VERTICAL_VALUES.remielle.phaseFlowDmgBySkillTier[1],
+      }))
+
+    const mindscapeRecipients = calculateParty(workbenchReducer(
+      createPreparedState({}, ['remielle', 'promeia', 'lucia'], 1),
+      { type: 'setMindscape', slot: 0, mindscape: 2 },
+    ))!
+    const mindscapePromeia = mindscapeRecipients.agents.find(({ agentId }) => (
+      agentId === 'promeia'
+    ))!
+    const mindscapeLucia = mindscapeRecipients.agents.find(({ agentId }) => (
+      agentId === 'lucia'
+    ))!
+    expect(mindscapePromeia.actionModifiers.find(({ id }) => (
+      id === 'promeiaAttributeAnomaly'
+    ))!.breakdown.fully).toContainEqual(expect.objectContaining({
+      label: 'Mindscape',
+      ownerAgentId: 'remielle',
+      amount: VERTICAL_VALUES.remielle.mindscape1OtherAnomalyDmg,
+    }))
+    expect(mindscapePromeia.metrics.find(({ id }) => id === 'defIgnore')!
+      .breakdown.fully).toContainEqual(expect.objectContaining({
+        label: 'Mindscape',
+        ownerAgentId: 'remielle',
+        amount: VERTICAL_VALUES.remielle.mindscape2AnomalyDefIgnore,
+      }))
+    expect(mindscapeLucia.metrics.some(({ id, breakdown }) => (
+      (id === 'anomalyDmgBonus' || id === 'defIgnore')
+      && breakdown.fully.some(({ ownerAgentId }) => ownerAgentId === 'remielle')
+    ))).toBe(false)
+
+    const inactiveResult = calculateParty(createPreparedState(
+      {}, ['remielle', 'sigrid', 'lucia'], 1,
+    ))!
+    const inactiveRemielle = inactiveResult.agents.find(({ agentId }) => (
+      agentId === 'remielle'
+    ))!
+    expect(inactiveRemielle.metrics.find(({ id }) => id === 'atk')!.gauges
+      .some(({ source }) => source.label === 'Additional Ability')).toBe(false)
+    expect(inactiveRemielle.metrics.some(({ id }) => id === 'anomalyBuildupBonus'))
+      .toBe(false)
+    for (const recipient of inactiveResult.agents) {
+      expect(recipient.metrics.find(({ id }) => id === 'atk')?.breakdown.fully
+        .some(({ label, ownerAgentId }) => (
+          label === 'Additional Ability' && ownerAgentId === 'remielle'
+        )) ?? false).toBe(false)
+    }
+
+    const declaredAttributeParty = calculateParty(createPreparedState(
+      {}, ['rina', 'remielle', 'anbySoldier0'], 2,
+    ))!
+    const declaredRemielle = declaredAttributeParty.agents.find(({ agentId }) => (
+      agentId === 'remielle'
+    ))!
+    const electricContrast = declaredAttributeParty.agents.find(({ agentId }) => (
+      agentId === 'anbySoldier0'
+    ))!
+    expect(declaredRemielle.metrics.find(({ id }) => id === 'dmgBonus')!
+      .breakdown.fully.some(({ label, ownerAgentId }) => (
+        label === 'Additional Ability' && ownerAgentId === 'rina'
+      )))
+      .toBe(true)
+    expect(electricContrast.metrics.find(({ id }) => id === 'dmgBonus')!
+      .breakdown.fully.some(({ label, ownerAgentId }) => (
+        label === 'Additional Ability' && ownerAgentId === 'rina'
+      )))
+      .toBe(true)
+    const mismatchedAttributeParty = calculateParty(createPreparedState(
+      {}, ['rina', 'remielle', 'promeia'], 2,
+    ))!
+    const mismatchedRemielle = mismatchedAttributeParty.agents.find(({ agentId }) => (
+      agentId === 'remielle'
+    ))!
+    expect(mismatchedRemielle.metrics.find(({ id }) => id === 'dmgBonus')!
+      .breakdown.fully.some(({ label, ownerAgentId }) => (
+        label === 'Additional Ability' && ownerAgentId === 'rina'
+      )))
+      .toBe(false)
+    expect(remielle.operations).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        label: 'Stun duration extension · Flower & Feather Dance',
+        value: VERTICAL_VALUES.remielle.assistStunExtension,
+      }),
+      expect.objectContaining({
+        label: 'Rainbow’s End / Fleeting Grace · Luminize triggers',
+        value: VERTICAL_VALUES.remielle.mindscape6LuminizeTriggers,
+      }),
+    ]))
+  })
+
+  it('uses Remielle next-Agent Attribute only after Party Apply and wraps slot 3 to slot 1', () => {
+    const withTimeweaver = (
+      agentIds: [AgentId, AgentId, AgentId],
+      remielleSlot: AppliedSlot,
+      focusSlot: AppliedSlot,
+    ) => workbenchReducer(
+      createPreparedState({}, agentIds, focusSlot),
+      { type: 'selectEngine', slot: remielleSlot, engineId: 'timeweaver' },
+    )
+    const hasTimeweaverBuildup = (state: ReturnType<typeof createPreparedState>) => {
+      const remielle = calculateParty(state)!.agents
+        .find(({ agentId }) => agentId === 'remielle')!
+      return remielle.metrics.find(({ id }) => id === 'anomalyBuildupBonus')!
+        .breakdown.combat.some(({ label }) => label === 'Timeweaver')
+    }
+
+    let state = withTimeweaver(['remielle', 'grace', 'yixuan'], 0, 1)
+    expect(hasTimeweaverBuildup(state)).toBe(true)
+    state = workbenchReducer(state, { type: 'openPartyEdit' })
+    state = workbenchReducer(state, {
+      type: 'replaceDraftAgent', slot: 1, agentId: 'promeia',
+    })
+    expect(hasTimeweaverBuildup(state)).toBe(true)
+    state = workbenchReducer(state, { type: 'setDraftFocus', slot: 1 })
+    state = workbenchReducer(state, { type: 'applyPartyEdit' })
+    expect(state.slots.map(({ agentId }) => agentId)).toEqual([
+      'remielle', 'promeia', 'yixuan',
+    ])
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 0, engineId: 'timeweaver',
+    })
+    expect(state.slots[0].setup.engineId).toBe('timeweaver')
+    expect(hasTimeweaverBuildup(state)).toBe(false)
+
+    const wrapped = withTimeweaver(['grace', 'promeia', 'remielle'], 2, 0)
+    expect(hasTimeweaverBuildup(wrapped)).toBe(true)
+  })
+
+  it('keeps Velina as the eligible Focus beside Remielle and Yuzuha', () => {
+    const result = calculateParty(createPreparedState(
+      {}, ['remielle', 'velina', 'yuzuha'], 1,
+    ))!
+    const velina = result.agents.find(({ agentId }) => agentId === 'velina')!
+    const yuzuha = result.agents.find(({ agentId }) => agentId === 'yuzuha')!
+
+    expect(velina.metrics.find(({ id }) => id === 'anomalyBuildupResReduction')!
+      .breakdown.fully).toContainEqual(expect.objectContaining({
+        ownerAgentId: 'velina',
+        detail: 'Contamination Attribute · selected by Focus',
+      }))
+    expect(yuzuha.actionModifiers.find(({ id }) => id === 'yuzuhaFlavorMatch')!
+      .outcomes).toContainEqual(expect.objectContaining({
+        kind: 'source-local',
+        label: 'Wind Anomaly Buildup · Flavor Match',
+      }))
   })
 
   it('projects one composed cross-holder flow without exposing undeclared shared rows', () => {
@@ -830,6 +1143,8 @@ describe('shared calculation integration', () => {
     }
 
     expect(timeweaverDisorderGauge(['grace', 'trigger', 'rina'])).toBeUndefined()
+    expect(timeweaverDisorderGauge(['grace', 'remielle', 'anbySoldier0']))
+      .toBeUndefined()
     expect(timeweaverDisorderGauge(['grace', 'rina', 'nicole']))
       .toEqual(expect.objectContaining({ basisLabel: 'Fully Enabled Anomaly Proficiency' }))
     expect(timeweaverDisorderGauge(['yanagi', 'trigger', 'rina']))

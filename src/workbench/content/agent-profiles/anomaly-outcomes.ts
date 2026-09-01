@@ -1,4 +1,4 @@
-import { ABLOOM_TARGET, ATTRIBUTE_ANOMALY_TARGET, actionForm, actionTarget, canonicalAction, CORRUPTION_TARGET, DISORDER_TARGET, MIYABI_FROSTBURN_BUILDUP_TARGET, MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET, sourceLocalAction, VORTEX_TARGET, WINDSWEPT_TARGET, type ActionTarget } from '../../actions'
+import { ABLOOM_TARGET, ATTRIBUTE_ANOMALY_TARGET, actionForm, actionTarget, canonicalAction, CORRUPTION_TARGET, DISORDER_TARGET, LUMINIZE_TARGET, MIYABI_FROSTBURN_BUILDUP_TARGET, MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET, REFRINGE_TARGET, sourceLocalAction, VORTEX_TARGET, WINDSWEPT_TARGET, type ActionTarget } from '../../actions'
 import { effectiveSubstatChoicesForSlot } from '../../candidates'
 import type { ActionScopeNode } from '../../calculation/composition'
 import { actionProjection, type ActionProjection, type AgentSourceProfile, type MetricProjection } from '../../calculation/profile-harness'
@@ -14,13 +14,15 @@ import { type AgentId, type FormulaFamily } from '../types'
 import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from '../agent-sources/equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from '../agent-sources/sources'
 import { agentBroadPrePenRelationships } from '../agent-broad-pre-pen-relationships'
+import { ADMITTED_AGENTS } from '../agents'
 
-const ANOMALY_AGENTS = ['grace', 'piper', 'yuzuha', 'burnice', 'jane', 'yanagi', 'alice', 'vivian', 'aria', 'promeia', 'velina'] as const satisfies readonly AgentId[]
+const ANOMALY_AGENTS = ['remielle', 'grace', 'piper', 'yuzuha', 'burnice', 'jane', 'yanagi', 'alice', 'vivian', 'aria', 'promeia', 'velina'] as const satisfies readonly AgentId[]
 type Agent = (typeof ANOMALY_AGENTS)[number]
 type Slot = 0 | 1 | 2
 const DAMAGE = REGULAR_DAMAGE_FORMULAS
 
 const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
+  remielle: { atk: VERTICAL_VALUES.remielle.atk, anomalyProficiency: VERTICAL_VALUES.remielle.anomalyProficiency, penRatio: 0 },
   grace: { atk: VERTICAL_VALUES.grace.atk, anomalyProficiency: VERTICAL_VALUES.grace.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.grace.anomalyMastery, penRatio: 0 },
   piper: { atk: VERTICAL_VALUES.piper.atk, anomalyProficiency: VERTICAL_VALUES.piper.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.piper.anomalyMastery, penRatio: 0 },
   yuzuha: { atk: VERTICAL_VALUES.yuzuha.atk, anomalyMastery: VERTICAL_VALUES.yuzuha.anomalyMastery, energyRegen: VERTICAL_VALUES.yuzuha.baseEnergyRegen },
@@ -251,7 +253,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
   const abilityKey = `${agent}Ability` as const
   const core = src(agent, slot, 'core', SOURCE_LABELS[coreKey])
   const ability = src(agent, slot, 'additional', SOURCE_LABELS[abilityKey], 'additional')
-  const mind = (tier: 1 | 2 | 4 | 6) => selectedMindscapeSource(agent, slot, setup.mindscape, tier)
+  const mind = (tier: 1 | 2 | 3 | 4 | 5 | 6) => selectedMindscapeSource(agent, slot, setup.mindscape, tier)
   const observation: SelectedSetupObservation = { baseStats: BASE[agent], effectiveSubstats: effectiveSubstatChoicesForSlot(state, slot), modifierMetrics: ['dmgBonus', 'dazeBonus', 'anomalyDmgBonus', 'anomalyBuildupBonus', 'anomalyBuildupResReduction', 'resReduction', 'resIgnore'] }
   const relationships = selectedSetupRelationships(agent, slot, setup, observation)
   relationships.push(...agentBroadPrePenRelationships(state, slot))
@@ -277,6 +279,249 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
       'miyabiFrostburnRemovedBuildup',
       MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET,
     ))
+  }
+  if (agent === 'remielle') {
+    const anomalyCount = ids.filter((agentId) => (
+      ADMITTED_AGENTS.find(({ id }) => id === agentId)?.specialty === 'Anomaly'
+    )).length
+    const additionalActive = anotherAgentHasSpecialty(ids, slot, ['Anomaly'])
+      || anotherAgentSharesFaction(ids, slot)
+    const phaseFlow = src(
+      agent,
+      slot,
+      'phaseFlow',
+      SOURCE_LABELS.remiellePhaseFlow,
+      'special',
+    )
+    const assist = src(
+      agent,
+      slot,
+      'flowerFeatherDance',
+      SOURCE_LABELS.remielleAssist,
+      'special',
+    )
+    const skillTier = setup.mindscape >= 5 ? 2 : setup.mindscape >= 3 ? 1 : 0
+
+    add({
+      kind: 'post-delivery-linear',
+      source: core,
+      basis: { statId: 'anomalyProficiency', surface: 'fully' },
+      outputs: [{
+        transform: {
+          basisIncrement: 1,
+          outputIncrement: VERTICAL_VALUES.remielle.refringePerAnomalyProficiency,
+        },
+        emission: {
+          kind: 'modifier',
+          metricId: 'refringeFactor',
+          earliestSurface: 'fully',
+          action: REFRINGE_TARGET,
+          sourceDetail: 'Distinct Refringe formula factor',
+        },
+      }],
+    })
+    add({
+      kind: 'post-delivery-linear',
+      source: core,
+      basis: { statId: 'anomalyProficiency', surface: 'fully' },
+      outputs: [{
+        transform: {
+          basisIncrement: 1,
+          outputIncrement: VERTICAL_VALUES.remielle.luminizePerAnomalyProficiency,
+        },
+        emission: {
+          kind: 'modifier',
+          metricId: 'luminizeMultiplier',
+          earliestSurface: 'fully',
+          action: LUMINIZE_TARGET,
+          sourceDetail: 'Added Luminize DMG multiplier',
+        },
+      }],
+    })
+    if (anomalyCount === 3) add(mod(
+      core,
+      'refringeFactor',
+      VERTICAL_VALUES.remielle.tripleAnomalyRefringe,
+      REFRINGE_TARGET,
+    ))
+    add(provider(
+      phaseFlow,
+      'all-party',
+      {
+        kind: 'modifier',
+        metricId: 'dmgBonus',
+        earliestSurface: 'fully',
+        value: VERTICAL_VALUES.remielle.phaseFlowDmgBySkillTier[skillTier],
+        sourceDetail: 'Phase Flow',
+      },
+      DAMAGE,
+    ))
+    add({
+      kind: 'operation',
+      atom: {
+        label: 'Stun duration extension · Flower & Feather Dance',
+        earliestSurface: 'fully',
+        value: VERTICAL_VALUES.remielle.assistStunExtension,
+        unit: 's',
+        source: assist,
+      },
+    })
+
+    if (additionalActive) {
+      const atkRatio = VERTICAL_VALUES.remielle.additionalAtkRatioByAnomalyCount[
+        Math.max(1, anomalyCount) - 1
+      ]
+      add({
+        kind: 'gauge',
+        source: ability,
+        basis: { statId: 'atk', surface: 'initial' },
+        basisLabel: 'Initial ATK',
+        basisCap: VERTICAL_VALUES.remielle.additionalAtkCap / (atkRatio / 100),
+        metricId: 'atk',
+        outputs: [{
+          label: 'Squad flat ATK',
+          unit: '',
+          cap: VERTICAL_VALUES.remielle.additionalAtkCap,
+          transform: {
+            basisIncrement: 100,
+            outputIncrement: atkRatio,
+            outputCap: VERTICAL_VALUES.remielle.additionalAtkCap,
+          },
+          emission: {
+            kind: 'provider',
+            delivery: { recipient: 'all-party', formulas: DAMAGE },
+            effect: {
+              kind: 'stat',
+              statId: 'atk',
+              region: 'flat',
+              earliestSurface: 'fully',
+            },
+          },
+        }],
+        decimals: { current: 0, cap: 0, output: 0, outputCap: 0 },
+      })
+      add(provider(
+        ability,
+        'enemy-context',
+        {
+          kind: 'modifier',
+          metricId: 'anomalyBuildupBonus',
+          earliestSurface: 'fully',
+          value: VERTICAL_VALUES.remielle.additionalBuildup,
+          sourceDetail: 'Prismatic target',
+        },
+        ['anomaly_buildup'],
+      ))
+    }
+
+    if (setup.mindscape >= 1) {
+      add(mod(
+        mind(1),
+        'resIgnore',
+        VERTICAL_VALUES.remielle.mindscape1LuminizeResIgnore,
+        LUMINIZE_TARGET,
+      ))
+      add(provider(
+        mind(1),
+        'other-party',
+        {
+          kind: 'modifier',
+          metricId: 'anomalyDmgBonus',
+          earliestSurface: 'fully',
+          value: VERTICAL_VALUES.remielle.mindscape1OtherAnomalyDmg,
+          action: ATTRIBUTE_ANOMALY_TARGET,
+          sourceDetail: 'Phase Flow',
+        },
+        ['anomaly_damage'],
+      ))
+    }
+    if (setup.mindscape >= 2) {
+      add(mod(
+        mind(2),
+        'refringeFactor',
+        VERTICAL_VALUES.remielle.mindscape2Refringe,
+        REFRINGE_TARGET,
+      ))
+      add({
+        kind: 'provider',
+        source: mind(2),
+        delivery: {
+          recipient: 'all-party',
+          specialties: ['Anomaly'],
+          formulas: ['anomaly_damage'],
+        },
+        effect: {
+          kind: 'modifier',
+          metricId: 'defIgnore',
+          earliestSurface: 'fully',
+          value: VERTICAL_VALUES.remielle.mindscape2AnomalyDefIgnore,
+          sourceDetail: 'Prismatic target',
+        },
+      })
+    }
+    if (setup.mindscape >= 4) add(mod(
+      mind(4),
+      'luminizeMultiplier',
+      VERTICAL_VALUES.remielle.mindscape4LuminizeMultiplier,
+      LUMINIZE_TARGET,
+    ))
+    if (setup.mindscape >= 6) add({
+      kind: 'operation',
+      atom: {
+        label: 'Rainbow’s End / Fleeting Grace · Luminize triggers',
+        earliestSurface: 'fully',
+        value: VERTICAL_VALUES.remielle.mindscape6LuminizeTriggers,
+        unit: '×',
+        presentation: 'scale',
+        source: mind(6),
+      },
+    })
+
+    actions.push(
+      actionProjection('refringeFactor', 'remielleRefringe', REFRINGE_TARGET),
+      actionProjection('luminizeMultiplier', 'remielleLuminize', LUMINIZE_TARGET),
+      {
+        metricId: 'anomalyDmgBonus',
+        scopes: [{
+          id: 'remielleAttributeAnomaly',
+          target: ATTRIBUTE_ANOMALY_TARGET,
+          children: [{
+            id: 'remielleLuminizeAnomaly',
+            target: LUMINIZE_TARGET,
+          }],
+        }],
+      },
+      actionProjection('resIgnore', 'remielleLuminizeResIgnore', LUMINIZE_TARGET),
+    )
+    relationships.push(...selectedEquipmentRelationships(
+      agent,
+      slot,
+      setup,
+      { observation, focusAgentId, partyAgentIds: ids },
+    ))
+    const metrics: MetricProjection[] = [
+      m('atk', 'ATK', '', 'atk'),
+      m('anomalyProficiency', 'Anomaly Proficiency', '', 'anomalyProficiency'),
+      m('dmgBonus', 'DMG Bonus', '%', undefined, 'nonzero-or-action'),
+      m('anomalyDmgBonus', 'Anomaly DMG Bonus', '%', undefined, 'nonzero-or-action'),
+      m('anomalyBuildupBonus', 'Anomaly Buildup Bonus', '%', undefined, 'nonzero-or-action'),
+      m('penRatio', 'PEN Ratio', '%', 'penRatio', 'disclosed-or-action'),
+      m('defIgnore', 'DEF Ignore', '%', undefined, 'nonzero-or-action'),
+      m('defReduction', 'DEF Reduction', '%', undefined, 'nonzero-or-action'),
+      m('resIgnore', 'RES Ignore', '%', undefined, 'nonzero-or-action'),
+      m('resReduction', 'RES Reduction', '%', undefined, 'nonzero-or-action'),
+      {
+        ...m('refringeFactor', 'Refringe Factor', '%', undefined, 'action'),
+        resultVisibility: 'action-only',
+        resultParentMetricId: 'anomalyProficiency',
+      },
+      {
+        ...m('luminizeMultiplier', 'Added Luminize DMG Multiplier', '%', undefined, 'action'),
+        resultVisibility: 'action-only',
+        resultParentMetricId: 'anomalyProficiency',
+      },
+    ]
+    return { agentId: agent, appliedPartySlot: slot, relationships, metrics, actions }
   }
   if (agent === 'grace') {
     const qualified = anotherAgentHasSpecialty(ids, slot, ['Anomaly']) || anotherAgentSharesAttribute(ids, slot) || anotherAgentSharesFaction(ids, slot)
@@ -967,12 +1212,6 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
       ))
       add(mod(
         ability,
-        'dazeBonus',
-        VERTICAL_VALUES.velina.additionalDaze,
-        VELINA_SWEEPING_CYCLONE,
-      ))
-      add(mod(
-        ability,
         'anomalyBuildupBonus',
         VERTICAL_VALUES.velina.additionalBuildup,
         VELINA_SWEEPING_CYCLONE,
@@ -980,12 +1219,6 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
     }
 
     if (setup.mindscape >= 1) {
-      add(mod(
-        mind(1),
-        'dazeBonus',
-        VERTICAL_VALUES.velina.mindscape1Daze,
-        VELINA_SWEEPING_CYCLONE,
-      ))
       add(mod(
         mind(1),
         'resIgnore',
@@ -1041,7 +1274,6 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
     ))
     actions.push(
       { metricId: 'anomalyDmgBonus', scopes: velinaAnomalyScopes(additionalActive) },
-      actionProjection('dazeBonus', 'velinaSweepingCycloneDaze', VELINA_SWEEPING_CYCLONE),
       {
         metricId: 'anomalyBuildupBonus',
         scopes: [
@@ -1064,7 +1296,6 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
       m('energyRegen', 'Energy Regen', '/s', 'energyRegen', undefined, 2),
       m('dmgBonus', 'DMG Bonus', '%', undefined, 'nonzero-or-action'),
       m('anomalyDmgBonus', 'Anomaly DMG Bonus', '%', undefined, 'nonzero-or-action'),
-      m('dazeBonus', 'Daze Bonus', '%', undefined, 'nonzero-or-action'),
       m('anomalyBuildupBonus', 'Anomaly Buildup Bonus', '%', undefined, 'nonzero-or-action'),
       m('penRatio', 'PEN Ratio', '%', 'penRatio', 'disclosed-or-action'),
       m('anomalyBuildupResReduction', 'Anomaly Buildup RES Reduction', '%', undefined, 'nonzero-or-action'),

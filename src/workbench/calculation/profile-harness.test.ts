@@ -127,6 +127,17 @@ describe('shared broad pre-PEN applicability', () => {
     expect(activeCandidatePressures(cissiaPhysical, 1)).not.toContain('materialBroadPrePenDefBypass')
     const cissiaElectric = createPreparedState({}, ['cissia', 'yanagi', 'yixuan'], 1)
     expect(activeCandidatePressures(cissiaElectric, 1)).toContain('materialBroadPrePenDefBypass')
+
+    const remielleElectric = createPreparedState(
+      {}, ['cissia', 'remielle', 'anbySoldier0'], 2,
+    )
+    expect(activeCandidatePressures(remielleElectric, 1))
+      .toContain('materialBroadPrePenDefBypass')
+    const remielleIce = createPreparedState(
+      {}, ['cissia', 'remielle', 'promeia'], 2,
+    )
+    expect(activeCandidatePressures(remielleIce, 1))
+      .not.toContain('materialBroadPrePenDefBypass')
   })
 })
 
@@ -798,6 +809,50 @@ describe('profile calculation harness', () => {
     expect(agentResult(result, 'piper').metrics[0].values.fully).toBe(0)
   })
 
+  it('uses a Lumiflux recipient next-slot Attribute for shared provider delivery', () => {
+    const evaluateRemielle = (agentIds: readonly [AgentId, AgentId, AgentId]) => {
+      const state = createPreparedState({}, [...agentIds], 2)
+      const source = selectSource(
+        defineAgentSource(
+          'rina',
+          'lumiflux-attribute-provider',
+          'Lumiflux Attribute provider',
+          'additional',
+        ),
+        'rina',
+        0,
+      )
+      const provider: ProfileRelationship = {
+        kind: 'provider',
+        source,
+        delivery: {
+          recipient: 'all-party',
+          attributes: ['Electric'],
+          formulas: ['general_damage'],
+        },
+        effect: {
+          kind: 'modifier',
+          metricId: 'dmgBonus',
+          earliestSurface: 'fully',
+          value: 20,
+        },
+      }
+      const profiles: AgentSourceProfile[] = agentIds.map((agentId, slot) => ({
+        agentId,
+        appliedPartySlot: slot as 0 | 1 | 2,
+        metrics: [damageMetric],
+        relationships: slot === 0 ? [provider] : [],
+      }))
+      return agentResult(evaluateProfileParty(state, profiles)!, 'remielle')
+        .metrics[0]
+    }
+
+    expect(evaluateRemielle(['rina', 'remielle', 'anbySoldier0']).values.fully)
+      .toBe(20)
+    expect(evaluateRemielle(['rina', 'remielle', 'promeia']).values.fully)
+      .toBe(0)
+  })
+
   it('delivers a source-stated operation by recipient Specialty without an Agent roster', () => {
     const state = createPreparedState({}, ['astraYao', 'trigger', 'zhao'], 1)
     const source = selectSource(
@@ -1016,6 +1071,48 @@ describe('profile calculation harness', () => {
         },
       }),
     ])
+  })
+
+  it('preserves a visible parent for a derived action-only metric', () => {
+    const state = createPreparedState({}, ['astraYao', 'trigger', 'zhao'], 1)
+    const source = selectSource(
+      defineAgentSource('astraYao', 'derived-factor', 'Derived factor', 'core'),
+      'astraYao', 0,
+    )
+    const profiles: AgentSourceProfile[] = [
+      {
+        agentId: 'astraYao', appliedPartySlot: 0,
+        metrics: [
+          {
+            id: 'anomalyProficiency', label: 'Anomaly Proficiency', unit: '',
+            decimals: 0, baseValues: { initial: 300, combat: 300, fully: 470 },
+          },
+          {
+            ...damageMetric,
+            resultVisibility: 'action-only',
+            resultParentMetricId: 'anomalyProficiency',
+          },
+        ],
+        actions: [actionProjection('dmgBonus', 'derivedFactor', AFTERSHOCK_TARGET)],
+        relationships: [{
+          kind: 'modifier',
+          atom: {
+            metricId: 'dmgBonus', earliestSurface: 'fully', value: 50,
+            source, action: AFTERSHOCK_TARGET,
+          },
+        }],
+      },
+      { agentId: 'trigger', appliedPartySlot: 1, metrics: [], relationships: [] },
+      { agentId: 'zhao', appliedPartySlot: 2, metrics: [], relationships: [] },
+    ]
+
+    const result = agentResult(evaluateProfileParty(state, profiles)!, 'astraYao')
+    expect(result.metrics.map(({ id }) => id)).toEqual(['anomalyProficiency'])
+    expect(result.actionModifiers[0].standaloneMetric).toEqual(expect.objectContaining({
+      parentMetricId: 'anomalyProficiency',
+      label: 'DMG Bonus',
+      unit: '%',
+    }))
   })
 
   it('adds automatic Energy after percentage composition inside the Energy Result row', () => {

@@ -36,6 +36,7 @@ export type EffectMetric =
   | 'penRatio' | 'defIgnore' | 'resReduction' | 'defReduction'
   | 'anomalyProficiency' | 'anomalyMastery' | 'anomalyDmgBonus'
   | 'anomalyBuildupBonus' | 'anomalyBuildupResReduction'
+  | 'luminizeMultiplier' | 'refringeFactor'
 
 export type EffectAttribute = 'Physical' | 'Fire' | 'Ice' | 'Electric' | 'Ether' | 'Wind'
 
@@ -71,13 +72,13 @@ type InitialDiscInputQuery =
 function matchesInitialDiscInput(
   effect: EquipmentEffectFact,
   query: InitialDiscInputQuery,
-  attribute: EffectAttribute,
+  attribute: EffectAttribute | null,
 ): boolean {
   if (effect.modifier !== query.modifier) return false
   const scope = effect.scope
   if (scope?.recipient || scope?.actions || scope?.tags || scope?.condition) return false
   return query.modifier === 'dmgBonus'
-    ? scope?.attributes?.includes(attribute) === true
+    ? attribute !== null && scope?.attributes?.includes(attribute) === true
     : !scope?.attributes
 }
 
@@ -107,7 +108,9 @@ export function selectedDiscTwoPieceInputs(
   agentId: AgentId,
   query: InitialDiscInputQuery,
 ): ResolvedSetupInput[] {
-  const attribute = effectAttributeForAgent(agentId)
+  const attribute = query.modifier === 'dmgBonus'
+    ? effectAttributeForAgent(agentId)
+    : null
   return ([
     { ownerPiece: '4-piece' as const, discId: setup.fourPieceId },
     { ownerPiece: '2-piece' as const, discId: setup.twoPieceId },

@@ -120,6 +120,7 @@ describe('workbench UI integration', () => {
     await replace(1, /Velina, Wind, Anomaly/)
     await replace(2, /Promeia, Ice, Anomaly/)
     await replace(3, /Lucia, Ether, Support/)
+    await user.click(screen.getByRole('radio', { name: 'Velina' }))
     await user.click(screen.getByRole('button', { name: 'Apply party' }))
     await user.click(screen.getByRole('tab', { name: 'View Velina setup and Result' }))
 

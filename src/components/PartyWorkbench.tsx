@@ -7,6 +7,7 @@ import fireMark from '../assets/game/attributes/fire.webp'
 import iceMark from '../assets/game/attributes/ice.webp'
 import frostMark from '../assets/game/attributes/frost.webp'
 import windMark from '../assets/game/attributes/wind.webp'
+import lumifluxMark from '../assets/game/attributes/lumiflux.webp'
 import rankSMark from '../assets/game/ranks/s.webp'
 import rankAMark from '../assets/game/ranks/a.webp'
 import ruptureMark from '../assets/game/specialties/rupture.webp'
@@ -29,6 +30,7 @@ import { AGENT_PORTRAITS, portraitSourceStyle } from './agentPortraits'
 import { agentSlotTone, sourceToneEvents, type SourceInteractionProps } from './sourceInteraction'
 
 const ATTRIBUTE_MARKS: Record<AgentAttribute, string> = {
+  Lumiflux: lumifluxMark,
   Physical: physicalMark,
   Fire: fireMark,
   Ice: iceMark,

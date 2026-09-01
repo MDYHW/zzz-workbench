@@ -1,12 +1,25 @@
 import {
   ADMITTED_AGENTS,
-  type AgentId,
-  type AgentSpecialty,
-  type PartyQualificationGroup,
-} from './content'
+} from './content/agents'
+import type {
+  AgentId,
+  AgentSpecialty,
+  PartyQualificationGroup,
+} from './content/types'
 
 function summaryFor(agentId: AgentId) {
   return ADMITTED_AGENTS.find(({ id }) => id === agentId)!
+}
+
+/** The source-stated next Agent is cyclic over the applied three-slot party. */
+export function nextAppliedAgentId(
+  agentIds: readonly [AgentId, AgentId, AgentId] | readonly AgentId[],
+  providerIndex: number,
+): AgentId {
+  if (agentIds.length !== 3 || providerIndex < 0 || providerIndex > 2) {
+    throw new Error('Next-Agent relationships require one applied three-slot party')
+  }
+  return agentIds[(providerIndex + 1) % 3]
 }
 
 export function anotherAgentHasSpecialty(

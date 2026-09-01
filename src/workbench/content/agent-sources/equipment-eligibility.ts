@@ -1,5 +1,5 @@
 import { actionTarget, canonicalAction, sourceLocalAction, type ActionTarget } from '../../actions'
-import { effectAttributeForAgent } from '../../formula-policy'
+import { effectAttributeForAgent, effectAttributeForPartySlot } from '../../formula-policy'
 import { ADMITTED_AGENTS, agentCanPerformOperation } from '../agents'
 import type { OperatingInterval } from '../setup-policies'
 import type { AgentId, EquipmentEffectFact } from '../types'
@@ -43,13 +43,14 @@ export function equipmentEffectCanBeActivated(
   agentId: AgentId,
   partyAgentIds: readonly AgentId[],
   effect: EquipmentEffectFact,
+  appliedPartySlot: 0 | 1 | 2 = partyAgentIds.indexOf(agentId) as 0 | 1 | 2,
 ): boolean {
   const activation = effect.activation
   if (activation?.kind !== 'trigger') return true
   const holder = ADMITTED_AGENTS.find(({ id }) => id === agentId)
   if (
     activation.holderAttributes !== undefined
-    && !activation.holderAttributes.includes(effectAttributeForAgent(agentId))
+    && (!holder || !activation.holderAttributes.includes(holder.attribute))
   ) return false
   if (
     activation.holderSpecialties !== undefined
@@ -58,7 +59,11 @@ export function equipmentEffectCanBeActivated(
   if (
     activation.performer === 'equipper'
     && activation.attributes !== undefined
-    && !activation.attributes.includes(effectAttributeForAgent(agentId))
+    && !activation.attributes.includes(
+      partyAgentIds.length === 3
+        ? effectAttributeForPartySlot(partyAgentIds, appliedPartySlot)
+        : effectAttributeForAgent(agentId),
+    )
   ) return false
   if (activation.operation) {
     const operation = activation.operation

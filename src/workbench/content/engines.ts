@@ -69,6 +69,7 @@ import solExuviaImage from '../../assets/equipment/w-engines/sol-exuvia.webp'
 import knightsExtolmentImage from '../../assets/equipment/w-engines/knights-extolment.webp'
 import joyauDoreImage from '../../assets/equipment/w-engines/joyau-dore.webp'
 import boisterousEchoesImage from '../../assets/equipment/w-engines/boisterous-echoes.webp'
+import odeOfResurrectedWingsImage from '../../assets/equipment/w-engines/ode-of-resurrected-wings.webp'
 import {
   equipmentEffectBaseValue,
   equipmentEffectMaximumValue,
@@ -94,6 +95,24 @@ const perSecond = (effect: EquipmentEffectFact, refinement: Refinement): string 
   `${equipmentEffectBaseValue(effect, refinement)}/s`
 
 export const W_ENGINE_FACTS = {
+  odeOfResurrectedWings: {
+    advancedStat: { id: 'atkPct', label: 'ATK', value: 36, unit: '%' },
+    effects: {
+      anomalyProficiency: {
+        modifier: 'anomalyProficiency', unit: '', value: [96, 105, 115, 125, 135],
+      },
+      holderAnomalyDamage: {
+        modifier: 'anomalyDmgBonus', unit: '%', value: [20, 23, 26, 29, 32],
+        scope: { anomalyResults: ['Attribute Anomaly'] },
+        activation: { kind: 'trigger', performer: 'equipper', anomalyResult: 'Refringe', durationSeconds: 30 },
+      },
+      squadDamage: {
+        modifier: 'dmgBonus', unit: '%', value: [30, 34.5, 39, 43.5, 48],
+        scope: { recipient: 'squad' },
+        activation: { kind: 'trigger', performer: 'equipper', anomalyResult: 'Refringe', durationSeconds: 30 },
+      },
+    },
+  },
   solExuvia: {
     advancedStat: { id: 'atkPct', label: 'ATK', value: 30, unit: '%' },
     effects: {
@@ -944,6 +963,17 @@ export type WEngineFactContract<Id extends EngineId> = (typeof W_ENGINE_FACTS)[I
 export type WEngineEffectField<Id extends EngineId> = keyof WEngineFactContract<Id>['effects']
 
 export const W_ENGINES: Record<EngineId, WEngineChoice> = {
+  odeOfResurrectedWings: {
+    name: 'Ode of Resurrected Wings', rank: 'S', limited: true, baseAtk: 743,
+    advancedStat: W_ENGINE_FACTS.odeOfResurrectedWings.advancedStat,
+    image: odeOfResurrectedWingsImage,
+    passiveSpecialty: 'Anomaly',
+    passiveLines: (refinement) => [
+      `Anomaly Proficiency +${equipmentEffectBaseValue(W_ENGINE_FACTS.odeOfResurrectedWings.effects.anomalyProficiency, refinement)}`,
+      `Attribute Anomaly DMG +${percent(W_ENGINE_FACTS.odeOfResurrectedWings.effects.holderAnomalyDamage, refinement)}`,
+      `Squad DMG +${percent(W_ENGINE_FACTS.odeOfResurrectedWings.effects.squadDamage, refinement)}`,
+    ],
+  },
   solExuvia: {
     name: 'Sol Exuvia', rank: 'S', limited: false, baseAtk: 713,
     advancedStat: W_ENGINE_FACTS.solExuvia.advancedStat, image: solExuviaImage,
