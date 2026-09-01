@@ -16,7 +16,7 @@ import {
   candidateOpportunitiesForAgent,
   sourceCandidateInputAdditionsForParty as sourcePolicyCandidateInputAdditionsForParty,
 } from './content/setup-source-policy'
-import { declaredEffectAttributeForAgent, directionUsesDefRegion } from './formula-policy'
+import { directionUsesDefRegion, effectAttributeForPartySlot } from './formula-policy'
 import type { CandidateOperationOpportunity } from './content/types'
 import type { AppliedSlot, WorkbenchState } from './state'
 
@@ -39,13 +39,14 @@ function activeBroadPrePenRelationships(
 
 function recipientContext(state: WorkbenchState, recipientSlot: AppliedSlot) {
   const { agentId } = state.slots[recipientSlot]
+  const agentIds = state.slots.map(({ agentId: partyAgentId }) => partyAgentId)
   const summary = ADMITTED_AGENTS.find(({ id }) => id === agentId)
   const participation = FORMULA_PARTICIPATION_BY_AGENT[agentId].setup
   return {
     appliedPartySlot: recipientSlot,
     agentId,
     specialty: summary!.specialty,
-    attribute: declaredEffectAttributeForAgent(agentId),
+    attribute: effectAttributeForPartySlot(agentIds, recipientSlot),
     formulas: [...participation.primary, ...participation.residual],
     statIds: [],
   } as const
