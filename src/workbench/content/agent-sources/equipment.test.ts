@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { selectSource } from '../../calculation/source-instance'
-import { DRIVE_DISC_FACTS } from '../discs'
+import { DRIVE_DISC_FACTS, DRIVE_DISCS } from '../discs'
 import { selectedWEngineEffectIsHolderApplicable } from '../agent-equipment-effect-applicability'
 import { W_ENGINE_FACTS, W_ENGINES } from '../engines'
 import { defineCalculationSource } from '../source-definitions'
@@ -139,6 +139,36 @@ describe('shared engine activation and scope facts', () => {
     expect(W_ENGINES.simmeringPot.passiveLines(5)).toEqual([
       `Daze +${equipmentEffectBaseValue(daze, 5)}%`,
       `DMG +${equipmentEffectBaseValue(damage, 5)}%`,
+    ])
+  })
+
+  it('compresses Ode and Feathered activation without erasing affected anomaly scope', () => {
+    const ode = W_ENGINE_FACTS.odeOfResurrectedWings.effects
+    expect(ode.holderAnomalyDamage.activation).toMatchObject({
+      kind: 'trigger', anomalyResult: 'Refringe', durationSeconds: 30,
+    })
+    expect(ode.holderAnomalyDamage.scope).toEqual({
+      anomalyResults: ['Attribute Anomaly'],
+    })
+    expect(W_ENGINES.odeOfResurrectedWings.passiveLines(1)).toEqual([
+      `Anomaly Proficiency +${equipmentEffectBaseValue(ode.anomalyProficiency, 1)}`,
+      `Attribute Anomaly DMG +${equipmentEffectBaseValue(ode.holderAnomalyDamage, 1)}%`,
+      `Squad DMG +${equipmentEffectBaseValue(ode.squadDamage, 1)}%`,
+    ])
+
+    const feathered = DRIVE_DISC_FACTS.featheredFate.fourPiece
+    expect(feathered.anomalyProficiency.activation).toMatchObject({
+      kind: 'trigger', fieldEntry: true, durationSeconds: 15,
+    })
+    expect(feathered.lumifluxAnomalyDamage.activation).toMatchObject({
+      holderAttributes: ['Lumiflux'],
+    })
+    expect(feathered.lumifluxAnomalyDamage.scope).toEqual({
+      anomalyResults: ['Attribute Anomaly'],
+    })
+    expect(DRIVE_DISCS.featheredFate.fourPieceEffects).toEqual([
+      `Anomaly Proficiency +${equipmentEffectBaseValue(feathered.anomalyProficiency)}`,
+      `Attribute Anomaly DMG +${equipmentEffectBaseValue(feathered.lumifluxAnomalyDamage)}%`,
     ])
   })
 

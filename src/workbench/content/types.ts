@@ -4,6 +4,7 @@ import type { SurfaceKey } from '../effects'
 export type PoolId = 'full' | 'nonLimited'
 
 export type AgentId =
+  | 'remielle'
   | 'pyrois'
   | 'sigrid'
   | 'velina'
@@ -64,6 +65,7 @@ export type AgentId =
 
 export type AgentRank = 'S' | 'A'
 export type AgentAttribute =
+  | 'Lumiflux'
   | 'Physical'
   | 'Fire'
   | 'Ice'
@@ -81,6 +83,7 @@ export type AgentSpecialty =
   | 'Rupture'
   | 'Anomaly'
 export type AgentFaction =
+  | 'Covenant of Dayat'
   | 'Phaethon'
   | 'Victoria Housekeeping Co.'
   | 'Yunkui Summit'
@@ -104,6 +107,7 @@ export type Refinement = 1 | 2 | 3 | 4 | 5
 export type EngineRank = 'S' | 'A'
 
 export type EngineId =
+  | 'odeOfResurrectedWings'
   | 'solExuvia'
   | 'knightsExtolment'
   | 'joyauDore'
@@ -177,6 +181,7 @@ export type EngineId =
   | 'neonFantasies'
 
 export type DiscId =
+  | 'featheredFate'
   | 'skyAblaze'
   | 'wutheringSalon'
   | 'yunkui'
@@ -270,7 +275,7 @@ export type EquipmentEffectAction =
 
 export type EquipmentEffectTag = Extract<ActionTag, 'aftershock'>
 export type EquipmentEffectCondition = 'backAttack' | 'offField' | 'shielded' | 'anomalyAfflictedTarget' | 'burningTarget' | 'stunnedTarget' | 'distantTarget' | 'lowHpTarget'
-export type EquipmentEffectAnomalyResult = 'Attribute Anomaly' | 'Disorder' | 'Windswept' | 'Vortex' | 'Abloom'
+export type EquipmentEffectAnomalyResult = 'Attribute Anomaly' | 'Disorder' | 'Windswept' | 'Vortex' | 'Abloom' | 'Refringe'
 export type AgentOperation = 'etherVeil' | 'hpDecrease'
 
 export type EquipmentEffectRecipient = 'self' | 'focus' | 'squad' | 'enemy'
@@ -292,7 +297,7 @@ export type EquipmentEffectActivation =
     tags?: readonly EquipmentEffectTag[]
     operation?: AgentOperation
     attributes?: readonly EquipmentEffectAttribute[]
-    holderAttributes?: readonly EquipmentEffectAttribute[]
+    holderAttributes?: readonly AgentAttribute[]
     holderSpecialties?: readonly AgentSpecialty[]
     anomalyResult?: EquipmentEffectAnomalyResult | 'Freeze'
     performer?: 'equipper' | 'squad-member' | 'other-squad-member'

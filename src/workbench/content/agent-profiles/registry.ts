@@ -62,6 +62,7 @@ const sheerOutcome = <A extends Parameters<typeof sheerOutcomeProfileFor>[0]>(
  * input; it never selects a calculator or supplies Agent kit meaning.
  */
 const AGENT_PROFILE_BUILDERS = {
+  remielle: anomalyOutcome('remielle'),
   pyrois: generalDamageOutcome('pyrois'),
   sigrid: generalDamageOutcome('sigrid'),
   velina: anomalyOutcome('velina'),

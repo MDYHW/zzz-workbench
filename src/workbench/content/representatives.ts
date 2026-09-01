@@ -1,5 +1,16 @@
 import type { AgentId, PoolId, SetupSelection } from './types'
 
+const remielleRepresentative = (pool: PoolId): SetupSelection => ({
+  engineId: pool === 'full' ? 'odeOfResurrectedWings' : 'weepingGemini',
+  fourPieceId: 'featheredFate',
+  twoPieceId: 'freedomBlues',
+  mains: {
+    slot4: pool === 'full' ? 'anomalyProficiency' : 'atkPct',
+    slot5: 'atkPct',
+    slot6: 'atkPct',
+  },
+})
+
 const pyroisRepresentative: SetupSelection = {
   engineId: 'solExuvia',
   fourPieceId: 'skyAblaze',
@@ -388,6 +399,10 @@ export const REPRESENTATIVE_SETUP_BY_AGENT_AND_POOL: Record<
   AgentId,
   Record<PoolId, SetupSelection>
 > = {
+  remielle: {
+    full: remielleRepresentative('full'),
+    nonLimited: remielleRepresentative('nonLimited'),
+  },
   pyrois: { full: pyroisRepresentative, nonLimited: pyroisRepresentative },
   sigrid: {
     full: sigridRepresentative('full'),

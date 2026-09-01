@@ -13,7 +13,7 @@ the current Agent-centered setup and source-owned equipment flows. Preserve
 Wind as its own Attribute, Windswept as its Attribute Anomaly, Vortex as a
 separate anomaly result with its own coefficient operation, Contamination's
 one-Attribute target consequence, exact Abloom actions, Initial Energy Regen
-conversion, off-field delivery, Daze, party qualification, current Mindscapes,
+conversion, off-field delivery, party qualification, current Mindscapes,
 and the absence of a released Potential Awakening. Do not reopen Pyrois or
 Sigrid's previously deferred Contamination clauses in this bounded vertical.
 
@@ -28,8 +28,8 @@ Sigrid's previously deferred Contamination clauses in this bounded vertical.
    compressed source-owned copy, including direct event Energy or routine
    trigger details that do not become a Result relationship.
 3. Result shows the Initial Energy Regen conversion, differing Windswept,
-   Vortex, and exact Abloom action aggregates, Sweeping Cyclone Daze and
-   buildup, Wind and Contamination-Attribute buildup RES reduction, and current
+   Vortex, and exact Abloom action aggregates, Sweeping Cyclone buildup, Wind
+   and Contamination-Attribute buildup RES reduction, and current
    Mindscape differences. Exact action scopes remain internal when their
    aggregate equals its visible parent. Focus selects the controllable
    Contamination Attribute in Fully Enabled; only exact eligible current
@@ -101,14 +101,17 @@ Sigrid's previously deferred Contamination clauses in this bounded vertical.
   consequences remain.
 - R6. Additional Ability activates when another applied Agent is Anomaly or
   Wind. It increases Velina's Windswept and Vortex DMG by 10%, raises the two
-  retained buildup-RES reductions to 14%, increases Sweeping Cyclone Daze by
-  30%, and increases its Attribute Anomaly Buildup by 15%. Velina's Ultimate
+  retained buildup-RES reductions to 14%, and increases Sweeping Cyclone
+  Attribute Anomaly Buildup by 15%. Velina's Ultimate
   against a Wind Anomaly triggers exact Abloom at a fixed 680% coefficient; the
   exact Ultimate/Abloom scope is retained for internal applicability while the
   raw base coefficient is intentionally omitted from Result calculation. Its
-  action row appears only when an applicable contribution makes it differ.
-- R7. M1 adds 20% Sweeping Cyclone Daze, gives Velina's Vortex 20% all-Attribute
-  RES Ignore, and gives squad Windswept 20% Wind RES Ignore. M2 lets Windswept
+  action row appears only when an applicable contribution makes it differ. The
+  source-stated Sweeping Cyclone Daze clause does not enter Result because
+  Velina's authored direction strengthens anomaly delivery rather than Daze.
+- R7. M1 gives Velina's Vortex 20% all-Attribute RES Ignore and gives squad
+  Windswept 20% Wind RES Ignore. Its source-stated Sweeping Cyclone Daze clause
+  is omitted under the same role boundary as R6. M2 lets Windswept
   grant Windbite, permits converted Cyclone to build the corresponding
   Attribute while excluding that buildup from Anomaly DMG calculation, and
   raises the Additional Windswept/Vortex bonus by 15% to 25%. M4 adds 15% ATK

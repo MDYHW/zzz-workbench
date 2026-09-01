@@ -204,6 +204,51 @@ describe('ResultPanel action hierarchy', () => {
     expect(within(outcomes).getByRole('rowheader', { name: 'Assault' })).toBeInTheDocument()
     expect(within(outcomes).getByText('98.6%')).toBeInTheDocument()
   })
+
+  it('nests a derived action-only outcome under its visible basis metric', async () => {
+    const user = userEvent.setup()
+    const emptyBreakdown = surfaces([], [], [])
+    const result: AgentResult = {
+      agentId: 'seed',
+      metrics: [{
+        id: 'anomalyProficiency',
+        label: 'Anomaly Proficiency',
+        unit: '',
+        decimals: 0,
+        values: surfaces(300, 300, 470),
+        breakdown: emptyBreakdown,
+        gauges: [],
+      }],
+      actionModifiers: [{
+        id: 'derivedFactor',
+        outcomes: [sourceLocalAction('Derived anomaly')],
+        tags: [],
+        metricId: 'refringeFactor',
+        values: surfaces(0, 0, 9.4),
+        breakdown: surfaces([], [], [{ ...syntheticSource, amount: 9.4 }]),
+        standaloneMetric: {
+          parentMetricId: 'anomalyProficiency',
+          label: 'Refringe Factor',
+          unit: '%',
+          decimals: 1,
+          values: surfaces(0, 0, 0),
+        },
+      }],
+      operations: [],
+    }
+
+    renderResult(result)
+
+    expect(screen.queryByRole('heading', { name: 'Refringe Factor outcomes' }))
+      .not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Anomaly Proficiency' }))
+    expect(screen.getByRole('heading', { name: 'Refringe Factor outcomes' }))
+      .toBeInTheDocument()
+    const outcomes = screen.getByRole('table', { name: 'Refringe Factor outcome values' })
+    expect(within(outcomes).getByRole('rowheader', { name: 'Derived anomaly' }))
+      .toBeInTheDocument()
+    expect(within(outcomes).getByText('9.4%')).toBeInTheDocument()
+  })
 })
 
 describe('ResultPanel operation presentation', () => {

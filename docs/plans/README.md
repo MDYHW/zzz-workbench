@@ -8,10 +8,10 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-Keep at most one active bounded implementation plan. There is currently no
-active plan. Completed verticals are recorded in the milestone index below,
-and later Agent verticals still require their own bounded requirement and plan
-after their meaning is settled.
+Keep at most one active bounded implementation plan. The current active plan is
+[Remielle vertical](2026-09-01-remielle-vertical-plan.md). Completed verticals
+are recorded in the milestone index below, and later Agent verticals still
+require their own bounded requirement and plan after their meaning is settled.
 The authority-governance recovery closed after exact-SHA
 finalization, protected `main` promotion, and recovery freeze; its detailed
 execution record remains in Git history and the durable postmortem.

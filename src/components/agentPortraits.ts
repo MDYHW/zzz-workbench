@@ -57,8 +57,10 @@ import normaPortrait from '../assets/agents/portraits/norma.webp'
 import pyroisPortrait from '../assets/agents/portraits/pyrois.webp'
 import sigridPortrait from '../assets/agents/portraits/sigrid.webp'
 import velinaPortrait from '../assets/agents/portraits/velina.webp'
+import remiellePortrait from '../assets/agents/portraits/remielle.webp'
 
 export const AGENT_PORTRAITS: Record<AgentId, string> = {
+  remielle: remiellePortrait,
   pyrois: pyroisPortrait,
   sigrid: sigridPortrait,
   velina: velinaPortrait,
@@ -135,6 +137,7 @@ export type PortraitSourceStyle = CSSProperties & {
 // readable continuous composition, not a literal hair top. Surface frames remain
 // shared CSS geometry so an asset cannot introduce a local placement rule.
 const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
+  remielle: { faceX: 52, headTopY: 1, scale: 1.1 },
   pyrois: { faceX: 50, headTopY: 1, scale: 1 },
   sigrid: { faceX: 34, headTopY: 6, scale: 1.1 },
   velina: { faceX: 52, headTopY: 3, scale: 1.1 },

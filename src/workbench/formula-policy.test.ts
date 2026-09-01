@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
+  declaredEffectAttributeForAgent,
   effectAttributeForAgent,
+  effectAttributeForPartySlot,
   formulaUsesCrit,
   formulaUsesDefRegion,
 } from './formula-policy'
@@ -28,5 +30,21 @@ describe('formula policy', () => {
     ['miyabi', 'Ice'],
   ] as const)('maps special display Attribute %s to calculation Attribute %s', (agentId, attribute) => {
     expect(effectAttributeForAgent(agentId)).toBe(attribute)
+  })
+
+  it('resolves Lumiflux from the next applied slot, including slot 3 to slot 1', () => {
+    expect(effectAttributeForPartySlot(
+      ['remielle', 'grace', 'yixuan'],
+      0,
+    )).toBe('Electric')
+    expect(effectAttributeForPartySlot(
+      ['grace', 'promeia', 'remielle'],
+      2,
+    )).toBe('Electric')
+    expect(() => effectAttributeForAgent('remielle')).toThrow(
+      'Lumiflux calculation Attribute requires the applied party slot',
+    )
+    expect(declaredEffectAttributeForAgent('remielle')).toBeNull()
+    expect(declaredEffectAttributeForAgent('miyabi')).toBe('Ice')
   })
 })

@@ -1,6 +1,6 @@
 import type { ProfileRelationship } from '../../calculation/relationships'
 import { selectSource, type SelectedSourceInstance } from '../../calculation/source-instance'
-import { effectAttributeForAgent } from '../../formula-policy'
+import { effectAttributeForPartySlot } from '../../formula-policy'
 import {
   W_ENGINE_FACTS,
   W_ENGINES,
@@ -35,11 +35,18 @@ function selectedWEngineEffectIsContextApplicable(
   engineId: EngineId,
   effectKey: string,
 ): boolean {
+  if (
+    engineId === 'odeOfResurrectedWings'
+    && (effectKey === 'holderAnomalyDamage' || effectKey === 'squadDamage')
+  ) return agentId === 'remielle'
   if (engineId !== 'timeweaver' || effectKey !== 'disorderDamage') return true
   if (agentId === 'yanagi') return true
   if (agentId !== 'grace') return false
-  return partyAgentIds.some((candidateId) => (
-    candidateId !== agentId && effectAttributeForAgent(candidateId) !== 'Electric'
+  return partyAgentIds.some((candidateId, index) => (
+    candidateId !== agentId && effectAttributeForPartySlot(
+      partyAgentIds,
+      index as 0 | 1 | 2,
+    ) !== 'Electric'
   ))
 }
 
@@ -65,8 +72,12 @@ export function selectedWEngineBroadPrePenRelationships(
     passiveEligible,
   } = context
   if (!passiveEligible) return []
+  const effects = W_ENGINE_FACTS[engineId].effects
+  if (!Object.values(effects).some((fact) => (
+    fact.modifier === 'defIgnore' || fact.modifier === 'defReduction'
+  ))) return []
   return materializeSelectedWEngineEffects(
-    W_ENGINE_FACTS[engineId].effects,
+    effects,
     {
       agentId,
       partyAgentIds: [agentId],

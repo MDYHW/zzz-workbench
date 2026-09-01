@@ -95,7 +95,9 @@ export interface ActionModifier {
   baseActionId?: string
   values: Record<SurfaceKey, number>
   breakdown: Record<SurfaceKey, Contribution[]>
-  standaloneMetric?: Pick<ResultMetric, 'label' | 'unit' | 'decimals' | 'values'>
+  standaloneMetric?: Pick<ResultMetric, 'label' | 'unit' | 'decimals' | 'values'> & {
+    parentMetricId?: EffectMetric
+  }
 }
 
 export interface ResultOperation {

@@ -1018,6 +1018,48 @@ describe('profile calculation harness', () => {
     ])
   })
 
+  it('preserves a visible parent for a derived action-only metric', () => {
+    const state = createPreparedState({}, ['astraYao', 'trigger', 'zhao'], 1)
+    const source = selectSource(
+      defineAgentSource('astraYao', 'derived-factor', 'Derived factor', 'core'),
+      'astraYao', 0,
+    )
+    const profiles: AgentSourceProfile[] = [
+      {
+        agentId: 'astraYao', appliedPartySlot: 0,
+        metrics: [
+          {
+            id: 'anomalyProficiency', label: 'Anomaly Proficiency', unit: '',
+            decimals: 0, baseValues: { initial: 300, combat: 300, fully: 470 },
+          },
+          {
+            ...damageMetric,
+            resultVisibility: 'action-only',
+            resultParentMetricId: 'anomalyProficiency',
+          },
+        ],
+        actions: [actionProjection('dmgBonus', 'derivedFactor', AFTERSHOCK_TARGET)],
+        relationships: [{
+          kind: 'modifier',
+          atom: {
+            metricId: 'dmgBonus', earliestSurface: 'fully', value: 50,
+            source, action: AFTERSHOCK_TARGET,
+          },
+        }],
+      },
+      { agentId: 'trigger', appliedPartySlot: 1, metrics: [], relationships: [] },
+      { agentId: 'zhao', appliedPartySlot: 2, metrics: [], relationships: [] },
+    ]
+
+    const result = agentResult(evaluateProfileParty(state, profiles)!, 'astraYao')
+    expect(result.metrics.map(({ id }) => id)).toEqual(['anomalyProficiency'])
+    expect(result.actionModifiers[0].standaloneMetric).toEqual(expect.objectContaining({
+      parentMetricId: 'anomalyProficiency',
+      label: 'DMG Bonus',
+      unit: '%',
+    }))
+  })
+
   it('adds automatic Energy after percentage composition inside the Energy Result row', () => {
     const state = createPreparedState({}, ['astraYao', 'trigger', 'zhao'], 1)
     const baseSource = selectSource(

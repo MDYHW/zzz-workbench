@@ -1,4 +1,22 @@
 export const VERTICAL_VALUES = {
+  remielle: {
+    atk: 823,
+    anomalyProficiency: 170,
+    refringePerAnomalyProficiency: 0.02,
+    tripleAnomalyRefringe: 10,
+    luminizePerAnomalyProficiency: 0.2,
+    phaseFlowDmgBySkillTier: [18, 21, 24],
+    assistStunExtension: 3,
+    additionalAtkRatioByAnomalyCount: [6, 12, 40],
+    additionalAtkCap: 1600,
+    additionalBuildup: 15,
+    mindscape1LuminizeResIgnore: 50,
+    mindscape1OtherAnomalyDmg: 10,
+    mindscape2Refringe: 20,
+    mindscape2AnomalyDefIgnore: 15,
+    mindscape4LuminizeMultiplier: 12,
+    mindscape6LuminizeTriggers: 2,
+  },
   pyrois: {
     atk: 924,
     critRate: 19.4,
@@ -36,9 +54,7 @@ export const VERTICAL_VALUES = {
     coreBuildupResReduction: 7,
     additionalAnomalyDmg: 10,
     additionalBuildupResReduction: 7,
-    additionalDaze: 30,
     additionalBuildup: 15,
-    mindscape1Daze: 20,
     mindscape1VortexResIgnore: 20,
     mindscape1WindsweptResIgnore: 20,
     mindscape2AnomalyDmg: 15,
@@ -703,6 +719,10 @@ const SOURCE_CATEGORY_LABELS = {
 } as const
 
 export const SOURCE_LABELS = {
+  remielleCore: SOURCE_CATEGORY_LABELS.corePassive,
+  remielleAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
+  remiellePhaseFlow: 'Special Attack',
+  remielleAssist: 'Assist',
   pyroisCore: SOURCE_CATEGORY_LABELS.corePassive,
   pyroisAbility: SOURCE_CATEGORY_LABELS.additionalAbility,
   sigridCore: SOURCE_CATEGORY_LABELS.corePassive,

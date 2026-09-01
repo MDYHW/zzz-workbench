@@ -67,6 +67,7 @@ const FOCUS_OPERATION_PROFILE_BY_AGENT: Partial<Record<AgentId, FocusOperationPr
 }
 
 const OPERATING_INTERVAL_BY_AGENT: Partial<Record<AgentId, OperatingIntervalPolicy>> = {
+  remielle: { default: 'off-field' },
   velina: { default: 'off-field' },
   norma: { default: 'off-field' },
   dialyn: { default: 'off-field' },

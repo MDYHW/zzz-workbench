@@ -16,7 +16,7 @@ import {
   candidateOpportunitiesForAgent,
   sourceCandidateInputAdditionsForParty as sourcePolicyCandidateInputAdditionsForParty,
 } from './content/setup-source-policy'
-import { directionUsesDefRegion, effectAttributeForAgent } from './formula-policy'
+import { declaredEffectAttributeForAgent, directionUsesDefRegion } from './formula-policy'
 import type { CandidateOperationOpportunity } from './content/types'
 import type { AppliedSlot, WorkbenchState } from './state'
 
@@ -45,7 +45,7 @@ function recipientContext(state: WorkbenchState, recipientSlot: AppliedSlot) {
     appliedPartySlot: recipientSlot,
     agentId,
     specialty: summary!.specialty,
-    attribute: effectAttributeForAgent(agentId),
+    attribute: declaredEffectAttributeForAgent(agentId),
     formulas: [...participation.primary, ...participation.residual],
     statIds: [],
   } as const
