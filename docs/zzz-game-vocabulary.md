@@ -191,6 +191,8 @@ position, or stat priority. Those relationships require separate setup policy an
 
 ### Attribute
 
+**Rule ID:** `GV-010`
+
 Attribute is the elemental context used for damage, anomaly buildup, anomaly
 results, party qualifications, weaknesses, resistances, and attribute-scoped
 effects.
@@ -201,7 +203,13 @@ Current base attributes used by the workbench are:
 - Fire;
 - Ice;
 - Electric;
-- Ether.
+- Ether; and
+- Wind.
+
+Wind is a base Attribute in its own right. It has no relationship to another
+base Attribute. This classification alone does not define Wind's Slot 5 main
+stat eligibility, anomaly results, formula applicability, or source-local
+mechanics.
 
 Attribute is not formula family. One attribute can occur in direct damage,
 anomaly damage, anomaly buildup, Daze, or a character-specific formula.
