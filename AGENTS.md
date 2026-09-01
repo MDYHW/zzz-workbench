@@ -424,7 +424,11 @@ itself establish semantic readiness.
   contribution, conjunctively apply only the existing holder, Attribute, action
   or operation, recipient, interval, formula, role, and current-consumer gates
   that qualify that contribution; union the surviving contributions per Agent.
-  Do not begin from guide lists or current candidate arrays. Bound an Agent out
+  Do not begin from guide lists or current candidate arrays. Before valuation,
+  assign every source-eligible holder exactly once to either an exact
+  bounded-out contradiction or the conjunctive-survivor set, and verify the
+  transient count identity `eligible = bounded out + survivor`. An unclassified
+  eligible holder leaves the roster-impact gate incomplete. Bound an Agent out
   only when every contribution has an exact contradiction. Classify each
   surviving Agent-local package outcome as changed, no change, or unresolved.
   Every surviving W-Engine outcome then completes the full `SW-005` chain:
