@@ -33,7 +33,7 @@ calibration.
 ## Existing rule
 
 - Owning Rule IDs: `UI-003`
-- Conflict: `UI-003` gives an arbitrary source asset exactly three normalized
+- Conflict: the current rule gives an arbitrary source asset exactly three normalized
   portrait inputs and says the current square crop does not become an image-
   pipeline requirement. It also correctly rejects transparent bounds, full
   silhouette mass, and detached props as identity anchors. It does not decide
