@@ -124,7 +124,7 @@ function escapeRegExp(value: string): string {
 
 function agentTab(page: Page, agent: PortraitAgent) {
   return page.getByRole('tab', {
-    name: new RegExp(`^(?:View|Close) ${escapeRegExp(agent.displayName)} setup and Result$`),
+    name: new RegExp(`^View ${escapeRegExp(agent.displayName)} setup and Result$`),
   })
 }
 
@@ -185,14 +185,18 @@ async function captureDestinations(page: Page, party: PortraitParty): Promise<vo
 
       await selectAgent(page, agent)
       await clearTransientSourceHighlight(page)
-      await expect.soft(page.locator('.slot-identity--expanded')).toHaveScreenshot(
-        `${agent.slug}-${destination.id}-expanded.png`,
+      await expect.soft(page.locator('.workspace-identity')).toHaveScreenshot(
+        `${agent.slug}-${destination.id}-workspace-identity.png`,
+        { maxDiffPixelRatio: 0.001 },
+      )
+      await expect.soft(agentTab(page, agent)).toHaveAttribute('aria-selected', 'true')
+      await expect.soft(agentTab(page, agent)).toHaveScreenshot(
+        `${agent.slug}-${destination.id}-selector.png`,
+        { maxDiffPixelRatio: 0.001 },
       )
 
       await selectAgent(page, contrast)
-      await clearTransientSourceHighlight(page)
-      await expect.soft(agentTab(page, agent)).toHaveAttribute('aria-label', `View ${agent.displayName} setup and Result`)
-      await expect.soft(agentTab(page, agent)).toHaveScreenshot(`${agent.slug}-${destination.id}-compact.png`)
+      await expect.soft(agentTab(page, agent)).toHaveAttribute('aria-selected', 'false')
     }
 
     expect(await page.evaluate(() => (
@@ -213,7 +217,7 @@ test.beforeEach(async ({ page }) => {
 })
 
 for (const party of parties) {
-  test(`${party.id} preserves the four shared portrait destinations`, async ({ page }) => {
+  test(`${party.id} preserves selector and workspace portrait destinations`, async ({ page }) => {
     await applyParty(page, party)
     await captureDestinations(page, party)
     expect(runtimeFailures.get(page)).toEqual([])
@@ -235,5 +239,45 @@ test('the real party surface keeps pointer and keyboard destination changes acce
   expect(await page.evaluate(() => (
     document.documentElement.scrollWidth <= document.documentElement.clientWidth
   ))).toBe(true)
+  expect(runtimeFailures.get(page)).toEqual([])
+})
+
+test('the selector rail keeps fixed one-row geometry through responsive boundaries', async ({ page }) => {
+  await applyParty(page, parties[1])
+
+  for (const width of [1440, 1280, 1270, 1041, 1040, 761, 760, 520, 320]) {
+    await page.setViewportSize({ width, height: 900 })
+
+    const geometry = await page.locator('.party-selector').evaluateAll((selectors) => selectors.map((selector) => {
+      const rect = selector.getBoundingClientRect()
+      const identity = selector.querySelector('.party-selector__identity')!.getBoundingClientRect()
+      const name = selector.querySelector('.identity-name')!.getBoundingClientRect()
+      const band = selector.querySelector('.identity-band')!.getBoundingClientRect()
+      return {
+        bandBottom: band.bottom,
+        height: rect.height,
+        identityWidth: identity.width,
+        nameBottom: name.bottom,
+        selectorBottom: rect.bottom,
+        top: rect.top,
+        width: rect.width,
+      }
+    }))
+
+    expect(geometry).toHaveLength(3)
+    expect(new Set(geometry.map(({ height }) => height)).size).toBe(1)
+    expect(new Set(geometry.map(({ top }) => top)).size).toBe(1)
+    for (const { bandBottom, height, identityWidth, nameBottom, selectorBottom, width: selectorWidth } of geometry) {
+      expect(height, `selector height at ${width}px`).toBeCloseTo(132, 1)
+      expect(selectorWidth, `selector width at ${width}px`).toBeGreaterThan(0)
+      expect(identityWidth, `identity width at ${width}px`).toBeGreaterThanOrEqual(40)
+      expect(nameBottom, `name-to-band order at ${width}px`).toBeLessThanOrEqual(bandBottom)
+      expect(bandBottom, `identity content at ${width}px`).toBeLessThanOrEqual(selectorBottom)
+    }
+    expect(await page.evaluate(() => (
+      document.documentElement.scrollWidth <= document.documentElement.clientWidth
+    ))).toBe(true)
+  }
+
   expect(runtimeFailures.get(page)).toEqual([])
 })

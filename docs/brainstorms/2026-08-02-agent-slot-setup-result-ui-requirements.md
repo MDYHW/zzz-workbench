@@ -17,9 +17,9 @@ does not select architecture, schema, components, or technology.
 ## Product outcome
 
 The workbench should feel familiar to a Zenless Zone Zero player without
-copying the game's menu depth. Three ordered Agent slots remain visible. One
-expands for work while the other two remain identifiable. The expanded slot
-places the top-to-bottom Setup on the left and Result on the right.
+copying the game's menu depth. Three equal ordered Agent selectors remain
+visible in one row. Exactly one selector identifies the viewed Agent, and a
+separate workspace places that Agent's top-to-bottom Setup beside Result.
 
 Result is not a full stat sheet. It shows only values and modifier regions that
 matter to the Agent's authored direction and formula family. Initial, Combat,
@@ -29,10 +29,9 @@ source-defined thresholds or caps with a linked output.
 ## State and flow
 
 - Focus is the Agent treated as on-field for Combat and Fully Enabled.
-- Viewed Agent is the expanded slot. Changing it is view-only and preserves
-  Focus, party, setups, calculation, and Result meaning.
-- Selecting a compact slot expands it in party position and collapses the prior
-  slot.
+- Viewed Agent is the selected persistent party selector. Changing it replaces
+  only the workspace view and preserves Focus, party, setups, calculation, and
+  Result meaning; reselecting it does not close the workspace.
 - Setup edits use closed selection blocks. A block opens only bounded
   competitive candidates authored for the current context.
 - Result recalculates according to the permanent setup-lifecycle rules.
@@ -40,20 +39,23 @@ source-defined thresholds or caps with a linked output.
 
 ### Party slots
 
-- R-001: Desktop keeps all three slots in one row and stable party order.
-- R-002: Exactly one slot is expanded.
-- R-003: The expanded slot has a stable width sufficient for side-by-side Setup
-  and Result; compact slots split the remaining width.
-- R-004: Compact slots identify and select Agents but do not summarize hidden
-  Setup or Result.
-- R-005: Expanded identity uses a face-and-shoulders artwork crop plus name,
+- R-001: All supported layouts keep three equal selectors in one row and stable
+  party order without horizontal scrolling.
+- R-002: Exactly one selector identifies the viewed Agent and controls one
+  separate workspace below the row.
+- R-003: Selector dimensions remain fixed across viewed, Focus, incomplete,
+  focus, and source-linked states; those states do not reallocate party width.
+- R-004: Selectors identify and select Agents but do not summarize the Setup or
+  Result shown in the separate workspace.
+- R-005: Workspace Identity uses a face-and-shoulders artwork crop plus name,
   Attribute, Specialty, and Focus status. Source art may be full-body because
   the UI owns focal cropping.
-- R-006: Focus remains identifiable while compact.
-- R-007: Narrow layouts may become a vertical accordion without changing party
-  order or state meaning.
-- R-008: The expanded region still reads as one party member, not a detached
-  settings page.
+- R-006: Focus and an external provider source remain identifiable on their
+  owning selectors without changing the viewed Agent.
+- R-007: Narrow layouts retain the same one-row selector order and state
+  meaning; they do not become a vertical accordion.
+- R-008: Identity, Setup, and Result read as one selected-Agent workspace rather
+  than as a detached settings page.
 
 ### Setup
 
@@ -131,10 +133,10 @@ source-defined thresholds or caps with a linked output.
 
 ## Acceptance examples
 
-- Expanding Dialyn while Yixuan is Focus shows Dialyn's Setup and Result but
-  leaves Yixuan as Focus.
-- Expanding any slot preserves desktop workspace width while compact slots split
-  the remainder.
+- Selecting Dialyn while Yixuan is Focus shows Dialyn's workspace but leaves
+  Yixuan as Focus.
+- Selecting any party position preserves the three equal selector widths and
+  replaces only the workspace below them.
 - A one-candidate pool shows its W-Engine without a false list affordance.
 - Directly choosing the other full-pool W-Engine applies its Rank-default,
   preserves downstream setup and counts, and recalculates.
@@ -147,7 +149,7 @@ source-defined thresholds or caps with a linked output.
 
 ## Scope boundary
 
-Included: slot expansion and identity, Setup/Result composition, honest selector
+Included: party selector and workspace Identity, Setup/Result composition, honest selector
 affordance, surface meaning, action/source vocabulary, source compression,
 gauge eligibility, and element-first visual exploration.
 

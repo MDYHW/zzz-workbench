@@ -30,7 +30,7 @@ const requiredSelectionKey = (selection: RequiredSetupSelection) => selection.ki
 
 export function App() {
   const [state, dispatch] = useReducer(workbenchReducer, undefined, () => createPreparedState())
-  const [viewedSlot, setViewedSlot] = useState<AppliedSlot | null>(0)
+  const [viewedSlot, setViewedSlot] = useState<AppliedSlot>(0)
   const [sourceTones, setSourceTones] = useState(emptySourceTones)
   const [targetStunDmgMultiplier, setTargetStunDmgMultiplier] = useState(150)
   const incompleteSelections = incompleteRequiredSelections(state)
@@ -41,9 +41,8 @@ export function App() {
   const [candidateAnnouncement, setCandidateAnnouncement] = useState('')
   const activeSourceTone = sourceTones.pointer ?? sourceTones.focus
   const result = calculateParty(state, { targetStunDmgMultiplier })
-  const viewedSetup = viewedSlot === null ? null : state.slots[viewedSlot]
+  const viewedSetup = state.slots[viewedSlot]
   const focusedAgent = state.slots[state.focusSlot].agentId
-  const appliedParty = state.slots.map(({ agentId }) => agentId).join(',')
   const selectedSourceIdentityKey = JSON.stringify({
     viewedSlot,
     focusSlot: state.focusSlot,
@@ -59,20 +58,16 @@ export function App() {
       effectiveSubstats: Object.keys(setup.substats).sort(),
     })),
   })
-  const firstTrio = appliedParty === 'yixuan,dialyn,lucia'
-  const secondTrio = appliedParty === 'anbySoldier0,trigger,astraYao'
-  const setupIndex = firstTrio ? '01' : secondTrio ? '02' : 'MIX'
-  const partyTitle = secondTrio ? 'ANBY: SOLDIER 0 STRIKE TEAM' : focusedAgent === 'yixuan' ? 'YIXUAN STRIKE TEAM' : `${agentDisplayName(ADMITTED_AGENTS.find(({ id }) => id === focusedAgent)!).toUpperCase()} STRIKE TEAM`
-  const agentResult = viewedSlot === null
-    ? null
-    : result?.agents[viewedSlot] ?? null
-  const viewedMainStatCandidates = viewedSlot === null ? null : Object.fromEntries(
+  const focusIndex = String(state.focusSlot + 1).padStart(2, '0')
+  const partyTitle = `${agentDisplayName(ADMITTED_AGENTS.find(({ id }) => id === focusedAgent)!).toUpperCase()} STRIKE TEAM`
+  const agentResult = result?.agents[viewedSlot] ?? null
+  const viewedMainStatCandidates = Object.fromEntries(
     (['slot4', 'slot5', 'slot6'] as MainSlot[]).map((mainSlot) => [
       mainSlot,
       effectiveMainStatIds(state, viewedSlot, mainSlot),
     ]),
   ) as Record<MainSlot, ReturnType<typeof effectiveMainStatIds>>
-  const viewedDiscCandidates = viewedSlot === null ? null : {
+  const viewedDiscCandidates = {
     fourPiece: effectiveFourPieceIds(state, viewedSlot),
     twoPiece: effectiveTwoPieceIds(state, viewedSlot),
   }
@@ -112,7 +107,7 @@ export function App() {
   return (
     <div className="app-shell">
       <header className="masthead">
-        <div className="masthead__index" aria-hidden="true">SETUP // {setupIndex}</div>
+        <div className="masthead__index" aria-hidden="true">FOCUS // {focusIndex}</div>
         <div className="masthead__title"><span className="eyebrow">{partyTitle}</span><h1>Setup Workbench</h1></div>
         <div className="masthead__status"><span className="status-light" /><span>{isCompleteWorkbench(state) ? 'PREPARED' : 'INCOMPLETE'}</span><strong>{isCompleteWorkbench(state) ? '3 / 3' : '—'}</strong></div>
       </header>
@@ -130,7 +125,7 @@ export function App() {
           onViewSlot={setViewedSlot}
           onEditParty={() => dispatch({ type: 'openPartyEdit' })}
         >
-          {viewedSetup && viewedSlot !== null && viewedMainStatCandidates && viewedDiscCandidates && (
+          {(
             <>
               <AgentSetup
                 activeSourceTone={activeSourceTone}
