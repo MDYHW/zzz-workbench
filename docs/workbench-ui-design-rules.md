@@ -388,7 +388,7 @@ center the visual target. Scale controls perceived identity size, `headTopY`
 registers the readable continuous figure composition vertically, and `faceX`
 registers the optical center of the face and connected upper-body mass
 horizontally. These source inputs belong to the full artwork and are shared by
-the responsive workspace portrait surfaces.
+the responsive workspace and Party Edit portrait surfaces.
 
 The persistent selector uses one dedicated upper-body derivative for every
 admitted Agent. A derivative retains the exact workspace artwork, pose, form,
@@ -402,8 +402,10 @@ desktop and narrow comparison demonstrates that the common selector frame
 cannot preserve readable identity without them.
 
 The same selector derivative remains visible when the applied-party rail is
-inactive during Party Edit. This source rule does not change the separate Party
-Edit draft slots, candidate pool, or replacement interactions.
+inactive during Party Edit. The separate Party Edit draft slots and candidate
+pool retain the workspace full-art source, its normalized inputs, and their own
+shared responsive destination frames. Their replacement interactions do not
+change.
 
 Each portrait surface owns one common destination frame. The frame applies the
 source's horizontal and vertical optical registration, then multiplies its
@@ -415,9 +417,12 @@ asset, surface, and viewport demonstrate that the shared contract cannot
 preserve the identity.
 
 The current shared frames are visual calibration inputs, not game or product
-meaning. The full-art workspace frame uses the actual corridor from Identity
-start to Setup content start. The selector uses its own common shallow frame
-and the same image-aligned diagonal treatment in all three applied slots.
+meaning. Desktop workspace uses the midpoint from Identity start to Setup
+content start, a `100px` head-top line, and a `295%` nominal image width. Mobile
+workspace uses `30%`, `16px`, and `110%`. Party Edit full-art frames apply the
+same source metadata through their own shared responsive destinations. The
+selector uses its own common shallow frame and the same image-aligned diagonal
+treatment in all three applied slots.
 
 Use the authored source metadata deterministically at runtime. Original-canvas
 measurements, transparent bounds, automatic face detection, visible silhouette
@@ -482,10 +487,11 @@ acceptance compares the Agent with nearby admitted portraits on the same
 destination surface for immediate face readability, continuous composition,
 optical identity weight, and name or control clearance. Source inspection alone
 cannot mark a portrait sound, and a controller does not accept a worker's
-workspace metadata change without repeating that rendered comparison for every
-changed Agent. A selector derivative or selector-specific normalized input also
-requires roster-complete desktop and narrow comparison in the persistent
-three-slot rail, including its inactive Party Edit state.
+full-art metadata change without repeating that rendered comparison for every
+changed Agent in the workspace and Party Edit destinations. A selector
+derivative or selector-specific normalized input also requires roster-complete
+desktop and narrow comparison in the persistent three-slot rail, including its
+inactive Party Edit state.
 
 ### Expanded Slot Composition
 
