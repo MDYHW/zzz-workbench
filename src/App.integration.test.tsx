@@ -267,5 +267,17 @@ describe('workbench UI integration', () => {
       .not.toBeInTheDocument())
     expect(screen.queryByRole('table', { name: 'CRIT Rate source contributions' }))
       .not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
+    expect(screen.queryByRole('table', { name: 'CRIT Rate source contributions' }))
+      .not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'CRIT Rate' }))
+    expect(screen.getByRole('table', { name: 'CRIT Rate source contributions' }))
+      .toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(screen.queryByRole('table', { name: 'CRIT Rate source contributions' }))
+      .not.toBeInTheDocument()
   })
 })
