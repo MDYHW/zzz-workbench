@@ -55,6 +55,8 @@ empty swipeable plane around a fixed workbench.
 
 ### Party-Slot Continuity
 
+**Rule ID:** `UI-005`
+
 Presentation must preserve the slot-owned continuity required by
 the [User Flow Contract](setup-workbench-product-contract.md#user-flow-contract):
 the three party slots remain recognizable while one slot exposes its editable
@@ -78,6 +80,8 @@ Responsive presentation may change density and vertical order. It must not
 change the meaning or availability of an input or Result surface.
 
 ### Party Editing
+
+**Rule ID:** `UI-006`
 
 Party editing uses one shared Agent pool rather than a
 separate candidate popup attached to each slot.
