@@ -58,7 +58,7 @@ export function App() {
       effectiveSubstats: Object.keys(setup.substats).sort(),
     })),
   })
-  const setupIndex = String(viewedSlot + 1).padStart(2, '0')
+  const focusIndex = String(state.focusSlot + 1).padStart(2, '0')
   const partyTitle = `${agentDisplayName(ADMITTED_AGENTS.find(({ id }) => id === focusedAgent)!).toUpperCase()} STRIKE TEAM`
   const agentResult = result?.agents[viewedSlot] ?? null
   const viewedMainStatCandidates = Object.fromEntries(
@@ -107,7 +107,7 @@ export function App() {
   return (
     <div className="app-shell">
       <header className="masthead">
-        <div className="masthead__index" aria-hidden="true">SETUP // {setupIndex}</div>
+        <div className="masthead__index" aria-hidden="true">FOCUS // {focusIndex}</div>
         <div className="masthead__title"><span className="eyebrow">{partyTitle}</span><h1>Setup Workbench</h1></div>
         <div className="masthead__status"><span className="status-light" /><span>{isCompleteWorkbench(state) ? 'PREPARED' : 'INCOMPLETE'}</span><strong>{isCompleteWorkbench(state) ? '3 / 3' : '—'}</strong></div>
       </header>
