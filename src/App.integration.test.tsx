@@ -18,6 +18,14 @@ describe('workbench UI integration', () => {
     expect(screen.getAllByRole('heading', { name: /Result$/i })).toHaveLength(1)
     expect(screen.getByRole('tabpanel')).toHaveAttribute('aria-labelledby', yixuan.id)
 
+    const selectorPortrait = yixuan.querySelector<HTMLImageElement>('.selector-agent-art')!
+    const workspacePortrait = document.querySelector<HTMLImageElement>(
+      '.workspace-identity .agent-art',
+    )!
+    expect(selectorPortrait.src).not.toBe(workspacePortrait.src)
+    expect(selectorPortrait.src).toContain('/selector-portraits/')
+    expect(workspacePortrait.src).toContain('/portraits/')
+
     await user.click(yixuan)
     expect(yixuan).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByRole('region', { name: 'Yixuan setup' })).toBeInTheDocument()
@@ -41,6 +49,23 @@ describe('workbench UI integration', () => {
     expect(screen.getByRole('textbox', { name: 'CRIT Rate hit count' })).toHaveValue('1')
     expect(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
       .toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('uses the approved short display names for Grace and Norma', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await user.click(screen.getByRole('button', { name: /Replace slot 1,/ }))
+
+    expect(screen.getByRole('button', { name: 'Grace, Electric, Anomaly' }))
+      .toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Norma, Fire, Stun' }))
+      .toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Grace Howard, Electric, Anomaly' }))
+      .not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Norma Hollowell, Fire, Stun' }))
+      .not.toBeInTheDocument()
   })
 
   it('recalculates a direct Setup edit and keeps its source connected to Result', async () => {
@@ -78,12 +103,22 @@ describe('workbench UI integration', () => {
     render(<App />)
 
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    const fullArtSource = document.querySelector<HTMLImageElement>(
+      '.workspace-identity .agent-art',
+    )!.src
+    const selectorSource = screen.getByRole('tab', { name: 'View Dialyn setup and Result' })
+      .querySelector<HTMLImageElement>('.selector-agent-art')!.src
+
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
     const partyRail = screen.getByRole('list', { name: 'Applied party slots' })
     expect(within(partyRail).queryAllByRole('tab')).toHaveLength(0)
     expect(within(partyRail).getAllByRole('button')).toHaveLength(3)
     expect(within(partyRail).getAllByRole('button').every((slot) => slot.hasAttribute('disabled')))
       .toBe(true)
+    expect(within(partyRail).getByRole('button', { name: /Dialyn applied slot/ })
+      .querySelector<HTMLImageElement>('.selector-agent-art')!.src).toBe(selectorSource)
+    expect(screen.getByRole('button', { name: 'Replace slot 2, Dialyn' })
+      .querySelector<HTMLImageElement>('.party-editor__portrait img')!.src).toBe(fullArtSource)
     await user.click(screen.getByRole('button', { name: /Replace slot 1,/ }))
     await user.click(screen.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ }))
     await user.click(screen.getByRole('button', { name: 'Cancel' }))

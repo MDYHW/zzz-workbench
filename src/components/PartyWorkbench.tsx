@@ -27,6 +27,7 @@ import {
 import type { RequiredSetupSelection } from '../workbench/candidates'
 import type { AppliedAgentSlot, AppliedSlot } from '../workbench/state'
 import { AGENT_PORTRAITS, portraitSourceStyle } from './agentPortraits'
+import { AGENT_SELECTOR_PORTRAITS } from './agentSelectorPortraits'
 import { agentSlotTone, sourceToneEvents, type SourceInteractionProps } from './sourceInteraction'
 
 const ATTRIBUTE_MARKS: Record<AgentAttribute, string> = {
@@ -60,6 +61,14 @@ function PortraitArt({ agentId, className = '' }: { agentId: AgentId; className?
         alt=""
         style={portraitSourceStyle(agentId)}
       />
+    </span>
+  )
+}
+
+function SelectorPortraitArt({ agentId }: { agentId: AgentId }) {
+  return (
+    <span className="identity-art party-selector__portrait" aria-hidden="true">
+      <img className="agent-art selector-agent-art" src={AGENT_SELECTOR_PORTRAITS[agentId]} alt="" />
     </span>
   )
 }
@@ -126,7 +135,7 @@ function PartySelector({ activeSourceTone, agentId, isFocus, isIncomplete = fals
       onKeyDown={isInactive ? undefined : onKeyDown}
       {...sourceToneEvents(tone, onSourceToneChange)}
     >
-      <PortraitArt agentId={agent.id} className="party-selector__portrait" />
+      <SelectorPortraitArt agentId={agent.id} />
       <span className="identity-shade" aria-hidden="true" />
       <span className="source-tint" aria-hidden="true" />
       <span className="party-selector__number" aria-hidden="true">0{slot + 1}</span>

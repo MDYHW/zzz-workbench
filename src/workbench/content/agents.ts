@@ -269,7 +269,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     focusEligible: false, rank: 'S', faction: 'Krampus Compliance Authority', operations: ['etherVeil'],
   },
   {
-    id: 'grace', name: 'Grace Howard', attribute: 'Electric', specialty: 'Anomaly',
+    id: 'grace', name: 'Grace Howard', displayName: 'Grace', attribute: 'Electric', specialty: 'Anomaly',
     focusEligible: true, rank: 'S', faction: 'Belobog Heavy Industries',
   },
   {
@@ -333,7 +333,7 @@ export const ADMITTED_AGENTS: AgentSummary[] = [
     focusEligible: false, rank: 'S', faction: 'Victoria Housekeeping Co.',
   },
   {
-    id: 'norma', name: 'Norma Hollowell', attribute: 'Fire', specialty: 'Stun',
+    id: 'norma', name: 'Norma Hollowell', displayName: 'Norma', attribute: 'Fire', specialty: 'Stun',
     focusEligible: false, rank: 'S', faction: 'External Strategy Department',
   },
   {
