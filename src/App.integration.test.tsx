@@ -4,13 +4,40 @@ import { describe, expect, it } from 'vitest'
 import { App } from './App'
 
 describe('workbench UI integration', () => {
-  it('starts from one complete prepared Setup and one visible Result', () => {
+  it('starts from three persistent selectors and one selected workspace', async () => {
+    const user = userEvent.setup()
     render(<App />)
 
+    const tabs = screen.getAllByRole('tab')
+    const yixuan = screen.getByRole('tab', { name: 'View Yixuan setup and Result' })
+
+    expect(tabs).toHaveLength(3)
+    expect(tabs.filter((tab) => tab.getAttribute('aria-selected') === 'true')).toEqual([yixuan])
     expect(screen.getByRole('region', { name: 'Yixuan setup' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Yixuan Result' })).toBeInTheDocument()
     expect(screen.getAllByRole('heading', { name: /Result$/i })).toHaveLength(1)
-    expect(screen.getByRole('tab', { name: 'Close Yixuan setup and Result' }))
+    expect(screen.getByRole('tabpanel')).toHaveAttribute('aria-labelledby', yixuan.id)
+
+    await user.click(yixuan)
+    expect(yixuan).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('region', { name: 'Yixuan setup' })).toBeInTheDocument()
+  })
+
+  it('changes only the viewed workspace and preserves edited Setup state', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const count = screen.getByRole('textbox', { name: 'CRIT Rate hit count' })
+    expect(count).toHaveValue('0')
+    await user.click(screen.getByRole('button', { name: 'Increase CRIT Rate hits' }))
+    expect(count).toHaveValue('1')
+
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    expect(screen.getByRole('region', { name: 'Dialyn setup' })).toBeInTheDocument()
+    await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
+
+    expect(screen.getByRole('textbox', { name: 'CRIT Rate hit count' })).toHaveValue('1')
+    expect(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
       .toHaveAttribute('aria-selected', 'true')
   })
 
@@ -41,6 +68,29 @@ describe('workbench UI integration', () => {
     await user.hover(source)
     expect(setupTarget).toHaveClass('is-source-active')
     await user.unhover(source)
+    expect(setupTarget).not.toHaveClass('is-source-active')
+  })
+
+  it('cancels a changed party draft into the same viewed workspace', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    const partyRail = screen.getByRole('list', { name: 'Applied party slots' })
+    expect(within(partyRail).queryAllByRole('tab')).toHaveLength(0)
+    expect(within(partyRail).getAllByRole('button')).toHaveLength(3)
+    expect(within(partyRail).getAllByRole('button').every((slot) => slot.hasAttribute('disabled')))
+      .toBe(true)
+    await user.click(screen.getByRole('button', { name: /Replace slot 1,/ }))
+    await user.click(screen.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ }))
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+
+    expect(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+      .toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('region', { name: 'Dialyn setup' })).toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Anby: Soldier 0 setup' })).not.toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'View Yixuan setup and Result' })).toBeInTheDocument()
   })
 
   it('applies a party draft atomically and prepares every new holder', async () => {
@@ -196,5 +246,24 @@ describe('workbench UI integration', () => {
     await waitFor(() => expect(document.querySelector(
       '.disc-selection[data-source-tone="disc-2pc"]',
     )).not.toHaveClass('is-source-active'))
+  })
+
+  it('clears a stale source link when the viewed Agent changes', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'CRIT Rate' }))
+    const source = within(screen.getByRole('table', {
+      name: 'CRIT Rate source contributions',
+    })).getAllByRole('row')[1]
+    fireEvent.mouseEnter(source)
+    expect(document.querySelector('.source-target.is-source-active')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+
+    await waitFor(() => expect(document.querySelector('.source-target.is-source-active'))
+      .not.toBeInTheDocument())
+    expect(screen.queryByRole('table', { name: 'CRIT Rate source contributions' }))
+      .not.toBeInTheDocument()
   })
 })
