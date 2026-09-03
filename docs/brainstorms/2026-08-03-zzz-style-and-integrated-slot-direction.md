@@ -23,12 +23,14 @@ production component contract.
 
 The workbench should feel familiar to a Zenless Zone Zero player while keeping
 Setup and Result, rather than Agent artwork, at the center of the service. Three
-ordered party slots remain recognizable. One slot expands to expose that
-Agent's Identity, Setup, and Result while the other two remain compact.
+equal ordered party selectors remain recognizable in one row. One selected
+Agent's Identity, Setup, and Result occupy a separate workspace below them.
 
 The selected desktop reading order is:
 
-`Identity -> Setup -> Result | Compact slot | Compact slot`
+`Selector | Selector | Selector`
+
+`Selected Identity -> Setup -> Result`
 
 Setup and Result remain adjacent. Identity may create a controlled visual seam
 into the work area, but it must not reduce the readable footprint of Setup or
@@ -58,26 +60,28 @@ collection of game-like decorations.
 
 Identity exists to distinguish the Agent and party position quickly.
 
-- Expanded Identity uses a consistent full-color artwork treatment.
-- Compact Identity uses a consistent neutral artwork treatment.
-- These two treatments are view presentation and do not vary with Mindscape.
+- Workspace Identity uses a consistent full-color artwork treatment.
+- Party selectors use one consistent neutral artwork treatment.
+- These two destinations are view presentation and do not vary with Mindscape.
 - Identity does not display the Agent's current Mindscape.
 - Mindscape remains an editable Setup input from M0 through M6 and is shown only
   at its owning Setup control.
-- The same Agent artwork identity is retained across compact and expanded states;
-  the UI changes focal crop and scale rather than implying a different state.
+- The same Agent artwork identity is retained across selector and workspace
+  destinations; the UI changes focal crop and scale rather than implying a
+  different Agent state.
 - Crop calibration follows the Agent's face and body center, not the source
   image bounds, so different artworks retain comparable perceived scale.
-- Expanded artwork remains large enough to distinguish the Agent but does not
+- Workspace artwork remains large enough to distinguish the Agent but does not
   become the primary content surface.
 
 ## Party-Slot Composition
 
-The three slots stay in one desktop row. Exactly one slot is expanded for work;
-the other two preserve Agent identification in compact form. Compact slots do
-not summarize hidden Setup or Result content.
+The three equal selectors stay in one row at every supported layout. Exactly one
+is selected for viewing, and all three retain fixed geometry as viewed, Focus,
+incomplete, focus, and source-linked states change. Selectors do not summarize
+the Setup or Result shown in the separate workspace.
 
-Inside the expanded slot:
+Inside the selected-Agent workspace:
 
 - Identity is the narrow identification plane.
 - Setup occupies the left work area.
@@ -111,11 +115,11 @@ downward.
 
 A horizontal equipment-core composition was a useful visual idea, but its
 identity depended on showing the W-Engine and both Discs side by side. In the
-current expanded slot it would either reduce images and text, cause excessive
+current Setup surface it would either reduce images and text, cause excessive
 wrapping, or add a competing left-to-right reading path. Stacking that same
 composition would remove the relationship that made it distinct. It should be
 reconsidered only if a later allocation provides enough width without reducing
-Result or compact-slot continuity.
+Result or selector continuity.
 
 The earlier numbered timeline was also not retained. Adding Main Stat and
 substat controls beneath that structure treated remaining space as a footer
@@ -156,7 +160,7 @@ These are causal constraints, not an archive of every explored design.
 The following remain later UI work rather than unresolved product policy:
 
 - exact Identity, Setup, and Result allocation;
-- final expanded-slot and compact-slot dimensions;
+- final fixed selector height and selected workspace dimensions;
 - selector opening geometry and candidate presentation;
 - refinement editing details;
 - pointer, keyboard, focus, and motion treatment;
@@ -169,5 +173,6 @@ The following remain later UI work rather than unresolved product policy:
 
 The permanent presentation baseline is owned by the
 [Workbench UI Design Rules](../workbench-ui-design-rules.md). It retains the selected
-Identity, vertical Setup assembly, Result surface, and two compact party slots;
-exact dimensions, type sizes, colors, and sample data remain calibration inputs.
+Identity, vertical Setup assembly, Result surface, and three persistent party
+selectors; exact dimensions, type sizes, colors, and sample data remain
+calibration inputs.
