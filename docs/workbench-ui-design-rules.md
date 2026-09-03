@@ -57,27 +57,32 @@ empty swipeable plane around a fixed workbench.
 
 **Rule ID:** `UI-005`
 
-Presentation must preserve the slot-owned continuity required by
-the [User Flow Contract](setup-workbench-product-contract.md#user-flow-contract):
-the three party slots remain recognizable while one slot exposes its editable
-preview.
+Presentation must preserve the applied party and the viewed Agent as distinct
+concepts required by the
+[User Flow Contract](setup-workbench-product-contract.md#user-flow-contract).
 
-- When all three slots are compact, they divide the available width equally.
-- When one slot is expanded, it consumes the flexible editing area and the two
-  compact slots divide the remaining width equally.
-- Compact slots use only the width needed to preserve immediate Agent
-  identification. Reclaimed width enlarges the expanded slot; once Identity and
-  Setup retain their admitted readable footprints, that additional width belongs
-  to Result rather than enlarging those two regions.
-- Selecting another compact slot expands that slot without an intermediate
-  all-collapsed state.
-- The focused-character marker uses space reserved by every slot. Adding or
-  removing the marker must not shift the Agent identity.
-- A supported viewport or zoom state must show all three slots without
-  horizontal scrolling.
+- In ordinary applied-party viewing, three equal Agent selector slots remain in
+  one row and in stable party order at every supported viewport or zoom state,
+  without horizontal scrolling.
+- Exactly one selector represents the viewed Agent. A separate workspace below
+  the selector presents that Agent's Identity, Setup, and Result.
+- Selecting another party position changes only the viewed Agent and workspace
+  content. Re-selecting the viewed Agent does not collapse the workspace or
+  create an all-unselected state. Ordered keyboard navigation moves directly
+  between the three positions without an intermediate empty workspace.
+- Every selector reserves stable space for viewed selection, Focus, incomplete
+  Setup, pointer or keyboard focus, and temporary Result-source linkage. Adding
+  or removing any marker must not shift the Agent identity.
+- When an expanded Result source comes from another applied party member, the
+  provider's persistent selector is highlighted without changing the viewed
+  Agent. Agent-local source linkage continues to terminate in the selected
+  workspace.
+- Viewed-Agent selection does not change Focus, party order, applied Setup,
+  calculation, candidates, or Result meaning.
 
-Responsive presentation may change density and vertical order. It must not
-change the meaning or availability of an input or Result surface.
+Responsive presentation may change selector density and workspace order. It
+must not hide a selector or change the meaning or availability of an input or
+Result surface.
 
 ### Party Editing
 
@@ -90,8 +95,9 @@ separate candidate popup attached to each slot.
   pool.
 - While party edit is open, the separate applied-party rail also presents its
   three slots as equal compact inactive identities and does not render Setup or
-  Result. The underlying viewed slot remains unchanged so Cancel restores its
-  previous expansion.
+  Result. The underlying viewed party position remains unchanged so Cancel
+  returns ordinary applied-party viewing to the same selected selector and its
+  separate Identity, Setup, and Result workspace.
 - Selecting one slot marks it as the replacement target and reveals the shared
   pool below all three slots.
 - Selecting an available Agent replaces the target in the draft, closes the
