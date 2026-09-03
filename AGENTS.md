@@ -83,6 +83,39 @@ The ACR state machine and post-merge mutation boundary have one owner:
 `docs/authority-changes/README.md`. This rule owns the transaction ordering but
 does not duplicate or redefine those record transitions.
 
+### Identifier-Only Permanent-Owner Bootstrap
+
+**Governance Rule ID:** `GOV-002`
+
+A permanent owner may receive stable Rule IDs before an ACR only when the
+trusted evaluator proves an identifier-only bootstrap. This is the sole
+exception to the accepted-ACR prerequisite for a permanent-owner transaction.
+It exists so an already-current unnumbered rule can participate in the exact
+same-Rule-ID trace required by `GOV-001`; it does not authorize a product or
+semantic conclusion.
+
+The protected owner-only PR may add one or more `Rule ID` marker blocks and no
+other bytes. The base and head must remain regular non-executable Markdown
+blobs. Each marker must appear directly beneath an existing unnumbered level-
+three through level-six ATX Markdown rule heading outside code fences and HTML
+comments; document-level, identifier-index, and retired-identifier headings are
+not rule headings. Each marker uses the namespace owned
+by that permanent file, allocates a previously unknown number greater than every
+current or retired number in that namespace, and increases monotonically when
+the transaction adds multiple IDs. The trusted evaluator compares the exact base
+and head blobs after removing only those new marker blocks. A text edit, heading
+edit, second identifier on one rule, movement, deletion, replacement,
+renumbering, retirement, split, merge, file-mode change, cross-owner change, or
+mixed artifact fails this exception and remains subject to the ordinary
+`GOV-001` sequence.
+
+An identifier-only bootstrap remains protected and requires independent exact-
+head evidence plus fresh owner approval. Its Authority trace cites `GOV-001`
+and explains the unnumbered current rule, but cites no ACR as a prerequisite.
+After merge, the new IDs are current owner identities and a later ACR may cite
+them. That later ACR and every semantic owner amendment still follow the full
+`GOV-001` transaction order.
+
 Every new or re-audited high-risk conclusion carries this structured trace in
 the PR description rather than in a repository answer catalogue:
 
