@@ -405,8 +405,11 @@ test('identifier-only owner bootstrap proves only monotonic namespaced markers b
   ], ruleState), null)
 })
 
-test('identifier bootstrap proves the two current unnumbered party UI rules without changing their text', () => {
-  const baseSource = readFileSync(new URL('../../docs/workbench-ui-design-rules.md', import.meta.url), 'utf8')
+test('identifier bootstrap proves the two current party UI rules from an unnumbered base', () => {
+  const currentSource = readFileSync(new URL('../../docs/workbench-ui-design-rules.md', import.meta.url), 'utf8')
+  const baseSource = currentSource
+    .replace('**Rule ID:** `UI-005`\n\n', '')
+    .replace('**Rule ID:** `UI-006`\n\n', '')
   const headSource = baseSource
     .replace('### Party-Slot Continuity\n\n', '### Party-Slot Continuity\n\n**Rule ID:** `UI-005`\n\n')
     .replace('### Party Editing\n\n', '### Party Editing\n\n**Rule ID:** `UI-006`\n\n')
