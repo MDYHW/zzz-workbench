@@ -17,6 +17,7 @@ import {
   governanceSnapshotVersion,
   parseAcrDocument,
   parseAuthorityTrace,
+  proveIdentifierOnlyOwnerChange,
   trustedDecision,
   validateChildOutcomes,
   validateFinalization,
@@ -399,6 +400,23 @@ async function derivePolicyState({ treeDiff, body, readText, baseTree, ruleState
     }
   }
   const acrState = await readBaseAcrState(baseTree, readText, ruleState.knownRuleIds)
+  let identifierOnlyOwnerChange = null
+  if (classification.matrix?.categories.includes('permanent-owner')) {
+    const [ownerEntry] = treeDiff.entries
+    if (treeDiff.entries.length === 1 && categoryForPath(ownerEntry.path) === 'permanent-owner'
+      && ownerEntry.base?.type === 'blob' && ownerEntry.base.mode === '100644'
+      && ownerEntry.head?.type === 'blob' && ownerEntry.head.mode === '100644') {
+      identifierOnlyOwnerChange = proveIdentifierOnlyOwnerChange([{
+        path: ownerEntry.path,
+        baseType: ownerEntry.base.type,
+        baseMode: ownerEntry.base.mode,
+        headType: ownerEntry.head.type,
+        headMode: ownerEntry.head.mode,
+        baseSource: await readText(ownerEntry.base),
+        headSource: await readText(ownerEntry.head),
+      }], ruleState)
+    }
+  }
   let acrTransaction
   if (classification.matrix?.categories.includes('acr-instance')) {
     acrTransaction = {
@@ -414,7 +432,14 @@ async function derivePolicyState({ treeDiff, body, readText, baseTree, ruleState
       baseRecords: acrState.records,
     })
   }
-  return { paths, classification, classificationError, acrState, acrTransaction }
+  return {
+    paths,
+    classification,
+    classificationError,
+    acrState,
+    acrTransaction,
+    identifierOnlyOwnerChange,
+  }
 }
 
 async function buildFinalizationEvidenceSnapshot({ api, pr, runSet, candidateSha }) {
@@ -456,6 +481,7 @@ async function buildFinalizationEvidenceSnapshot({ api, pr, runSet, candidateSha
     acceptedAcrRecords: policy.acrState.accepted,
     acrBaseRecords: policy.acrState.records,
     acrTransaction: policy.acrTransaction,
+    identifierOnlyOwnerChange: policy.identifierOnlyOwnerChange,
     mechanismDigest,
     knownRuleIds: ruleState.currentRuleIds,
     acrKnownRuleIds: ruleState.knownRuleIds,
@@ -1197,6 +1223,7 @@ export async function buildCurrentSnapshot({
     acceptedAcrRecords: policy.acrState.accepted,
     acrBaseRecords: policy.acrState.records,
     acrTransaction: policy.acrTransaction,
+    identifierOnlyOwnerChange: policy.identifierOnlyOwnerChange,
     mechanismDigest,
     knownRuleIds: ruleState.currentRuleIds,
     acrKnownRuleIds: ruleState.knownRuleIds,
@@ -1231,6 +1258,7 @@ function evaluateEvidence(snapshot, comments) {
     changeCategories: snapshot.changeCategories,
     acceptedAcrRecords: snapshot.acceptedAcrRecords,
     changedPaths: snapshot.changedPaths,
+    identifierOnlyOwnerChange: snapshot.identifierOnlyOwnerChange,
   })
   const evidence = validateReviewEvidence(comments, {
     prNumber: snapshot.prNumber,

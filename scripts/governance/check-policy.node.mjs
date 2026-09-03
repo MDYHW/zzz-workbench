@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import test from 'node:test'
 import {
@@ -21,6 +22,7 @@ import {
   parseGovernanceStatusBinding,
   parseGovernanceTargetBinding,
   proveAgentLocal,
+  proveIdentifierOnlyOwnerChange,
   trustedDecision,
   validateAcrStates,
   validateAcrTransaction,
@@ -252,6 +254,178 @@ test('change matrix allows supporting documentation with production but protects
   assert.equal(categoryForPath('src/components/agentPortraits.ts'), 'visual-baseline')
 })
 
+test('identifier-only owner bootstrap proves only monotonic namespaced markers beneath existing headings', () => {
+  const baseSource = [
+    '### Party-Slot Continuity',
+    '',
+    'Current continuity rule.',
+    '',
+    '### Party Editing',
+    '',
+    'Current editing rule.',
+    '',
+  ].join('\n')
+  const headSource = [
+    '### Party-Slot Continuity',
+    '',
+    '**Rule ID:** `UI-005`',
+    '',
+    'Current continuity rule.',
+    '',
+    '### Party Editing',
+    '',
+    '**Rule ID:** `UI-006`',
+    '',
+    'Current editing rule.',
+    '',
+  ].join('\n')
+  const ruleState = { knownRuleIds: ['GOV-001', 'UI-001', 'UI-004'] }
+  const change = {
+    path: 'docs/workbench-ui-design-rules.md',
+    baseType: 'blob',
+    baseMode: '100644',
+    headType: 'blob',
+    headMode: '100644',
+    baseSource,
+    headSource,
+  }
+  assert.deepEqual(proveIdentifierOnlyOwnerChange([change], ruleState), {
+    path: 'docs/workbench-ui-design-rules.md',
+    newRuleIds: ['UI-005', 'UI-006'],
+  })
+  assert.equal(proveIdentifierOnlyOwnerChange([{ ...change, headSource: headSource.replace('Current editing rule.', 'Changed editing rule.') }], ruleState), null)
+  assert.equal(proveIdentifierOnlyOwnerChange([{ ...change, headSource: headSource.replace('UI-005', 'SW-005') }], ruleState), null)
+  assert.equal(proveIdentifierOnlyOwnerChange([{ ...change, headSource: headSource.replace('UI-005', 'UI-004') }], ruleState), null)
+  assert.equal(proveIdentifierOnlyOwnerChange([{ ...change, headSource: headSource.replace('UI-005', 'UI-007').replace('UI-006', 'UI-005') }], ruleState), null)
+  assert.equal(proveIdentifierOnlyOwnerChange([{ ...change, headSource: headSource.replace('### Party-Slot Continuity\n\n', '') }], ruleState), null)
+  assert.equal(proveIdentifierOnlyOwnerChange([{ ...change, baseSource: headSource, headSource: headSource.replace('**Rule ID:** `UI-005`\n\n', '') }], {
+    knownRuleIds: [...ruleState.knownRuleIds, 'UI-005', 'UI-006'],
+  }), null)
+  assert.equal(proveIdentifierOnlyOwnerChange([{ ...change, baseSource: headSource, headSource: headSource.replace('UI-005', 'UI-007') }], {
+    knownRuleIds: [...ruleState.knownRuleIds, 'UI-005', 'UI-006'],
+  }), null)
+  const numberedBase = '### Information Density\n\n**Rule ID:** `UI-001`\n\nCurrent density rule.\n'
+  assert.equal(proveIdentifierOnlyOwnerChange([{ ...change,
+    baseSource: numberedBase,
+    headSource: numberedBase.replace('**Rule ID:** `UI-001`', '**Rule ID:** `UI-005`\n\n**Rule ID:** `UI-001`'),
+  }], ruleState), null)
+  for (const [base, head] of [
+    [
+      '```md\n### Example Rule\n\nExample text.\n```\n',
+      '```md\n### Example Rule\n\n**Rule ID:** `UI-005`\n\nExample text.\n```\n',
+    ],
+    [
+      '~~~md\n### Example Rule\n\nExample text.\n~~~\n',
+      '~~~md\n### Example Rule\n\n**Rule ID:** `UI-005`\n\nExample text.\n~~~\n',
+    ],
+    [
+      '<!--\n### Example Rule\n\nExample text.\n-->\n',
+      '<!--\n### Example Rule\n\n**Rule ID:** `UI-005`\n\nExample text.\n-->\n',
+    ],
+    [
+      '```md <!-- descriptive info -->\n### Example Rule\n\nExample text.\n',
+      '```md <!-- descriptive info -->\n### Example Rule\n\n**Rule ID:** `UI-005`\n\nExample text.\n',
+    ],
+    [
+      '```md\n```not-a-close\n### Example Rule\n\nExample text.\n```\n',
+      '```md\n```not-a-close\n### Example Rule\n\n**Rule ID:** `UI-005`\n\nExample text.\n```\n',
+    ],
+    [
+      '<!-- closed --><!-- remains open\n### Example Rule\n\nExample text.\n-->\n',
+      '<!-- closed --><!-- remains open\n### Example Rule\n\n**Rule ID:** `UI-005`\n\nExample text.\n-->\n',
+    ],
+    [
+      '## Stable Rule Identifiers\n\nIdentifier notes.\n',
+      '## Stable Rule Identifiers\n\n**Rule ID:** `UI-005`\n\nIdentifier notes.\n',
+    ],
+    [
+      '## Retired Rule IDs\n\nRetirement notes.\n',
+      '## Retired Rule IDs\n\n**Rule ID:** `UI-005`\n\nRetirement notes.\n',
+    ],
+    [
+      '## Examples\n\nExample text.\n',
+      '## Examples\n\n**Rule ID:** `UI-005`\n\nExample text.\n',
+    ],
+    [
+      '## Purpose\n\nPurpose text.\n',
+      '## Purpose\n\n**Rule ID:** `UI-005`\n\nPurpose text.\n',
+    ],
+    [
+      '## Authority Boundary\n\nBoundary text.\n',
+      '## Authority Boundary\n\n**Rule ID:** `UI-005`\n\nBoundary text.\n',
+    ],
+  ]) {
+    assert.equal(proveIdentifierOnlyOwnerChange([{ ...change, baseSource: base, headSource: head }], ruleState), null)
+  }
+  assert.equal(proveIdentifierOnlyOwnerChange([{ ...change, headMode: '100755' }], ruleState), null)
+  assert.equal(proveIdentifierOnlyOwnerChange([{ ...change, baseType: 'tree' }], ruleState), null)
+  assert.equal(proveIdentifierOnlyOwnerChange([{ ...change, headType: 'commit' }], ruleState), null)
+  assert.equal(proveIdentifierOnlyOwnerChange([change], {
+    knownRuleIds: [...ruleState.knownRuleIds, 'UI-009'],
+  }), null)
+  const movedBase = '### First Rule\n\n**Rule ID:** `UI-001`\n\nFirst text.\n\n### Second Rule\n\nSecond text.\n'
+  const movedHead = '### First Rule\n\nFirst text.\n\n### Second Rule\n\n**Rule ID:** `UI-001`\n\nSecond text.\n'
+  assert.equal(proveIdentifierOnlyOwnerChange([{ ...change,
+    baseSource: movedBase,
+    headSource: movedHead,
+  }], ruleState), null)
+  const duplicateHeadingBase = '### Rule\n\nFirst text.\n\n### Rule\n\nSecond text.\n'
+  const duplicateHeadingHead = '### Rule\n\n**Rule ID:** `UI-005`\n\nFirst text.\n\n### Rule\n\n**Rule ID:** `UI-006`\n\nSecond text.\n'
+  assert.deepEqual(proveIdentifierOnlyOwnerChange([{ ...change,
+    baseSource: duplicateHeadingBase,
+    headSource: duplicateHeadingHead,
+  }], ruleState)?.newRuleIds, ['UI-005', 'UI-006'])
+  const parentChildBase = '### Parent Rule\n\nParent text.\n\n#### Child Rule\n\n**Rule ID:** `UI-001`\n\nChild text.\n'
+  const parentChildHead = '### Parent Rule\n\n**Rule ID:** `UI-005`\n\nParent text.\n\n#### Child Rule\n\n**Rule ID:** `UI-001`\n\nChild text.\n'
+  assert.deepEqual(proveIdentifierOnlyOwnerChange([{ ...change,
+    baseSource: parentChildBase,
+    headSource: parentChildHead,
+  }], ruleState)?.newRuleIds, ['UI-005'])
+  const crlfBase = baseSource.replaceAll('\n', '\r\n')
+  const crlfHead = headSource.replaceAll('\n', '\r\n')
+  assert.deepEqual(proveIdentifierOnlyOwnerChange([{ ...change,
+    baseSource: crlfBase,
+    headSource: crlfHead,
+  }], ruleState)?.newRuleIds, ['UI-005', 'UI-006'])
+  assert.equal(proveIdentifierOnlyOwnerChange([
+    change,
+    { path: 'docs/setup-workbench-product-contract.md', baseSource, headSource },
+  ], ruleState), null)
+  assert.equal(proveIdentifierOnlyOwnerChange([
+    change,
+    {
+      path: 'README.md',
+      baseType: 'blob',
+      baseMode: '100644',
+      headType: 'blob',
+      headMode: '100644',
+      baseSource: 'Old text.\n',
+      headSource: 'New text.\n',
+    },
+  ], ruleState), null)
+})
+
+test('identifier bootstrap proves the two current unnumbered party UI rules without changing their text', () => {
+  const baseSource = readFileSync(new URL('../../docs/workbench-ui-design-rules.md', import.meta.url), 'utf8')
+  const headSource = baseSource
+    .replace('### Party-Slot Continuity\n\n', '### Party-Slot Continuity\n\n**Rule ID:** `UI-005`\n\n')
+    .replace('### Party Editing\n\n', '### Party Editing\n\n**Rule ID:** `UI-006`\n\n')
+  assert.deepEqual(proveIdentifierOnlyOwnerChange([{
+    path: 'docs/workbench-ui-design-rules.md',
+    baseType: 'blob',
+    baseMode: '100644',
+    headType: 'blob',
+    headMode: '100644',
+    baseSource,
+    headSource,
+  }], {
+    knownRuleIds: ['UI-001', 'UI-002', 'UI-003', 'UI-004'],
+  }), {
+    path: 'docs/workbench-ui-design-rules.md',
+    newRuleIds: ['UI-005', 'UI-006'],
+  })
+})
+
 test('U9 visual inputs retain one protected transaction category', () => {
   for (const visualPath of [
     'src/components/agentPortraits.ts',
@@ -388,6 +562,34 @@ test('Authority trace is exact, reasoned, consumer-bound, and cannot de-escalate
     acceptedAcrRecords: [{ id: 'ACR-2026-08-16-001', ruleIds: ['SW-001'] }],
     changedPaths: ['docs/setup-workbench-product-contract.md'],
   }), /do not govern/)
+  const identifierTrace = parseAuthorityTrace(traceBody('protected', {
+    'Owning Rule IDs': 'GOV-001',
+    Prerequisites: 'No accepted authority record applies because the exact owner diff adds identifiers only.',
+  }))
+  const identifierOnlyOwnerChange = {
+    path: 'docs/workbench-ui-design-rules.md',
+    newRuleIds: ['UI-005', 'UI-006'],
+  }
+  assert.equal(validateAuthorityTrace(identifierTrace, {
+    knownRuleIds: KNOWN_RULES,
+    computedClassification: 'protected',
+    changeCategories: ['permanent-owner'],
+    changedPaths: ['docs/workbench-ui-design-rules.md'],
+    identifierOnlyOwnerChange,
+  }).classification, 'protected')
+  assert.throws(() => validateAuthorityTrace(identifierTrace, {
+    knownRuleIds: KNOWN_RULES,
+    computedClassification: 'protected',
+    changeCategories: ['permanent-owner'],
+    changedPaths: ['docs/workbench-ui-design-rules.md'],
+  }), /already-merged accepted/)
+  assert.throws(() => validateAuthorityTrace(identifierTrace, {
+    knownRuleIds: KNOWN_RULES,
+    computedClassification: 'protected',
+    changeCategories: ['permanent-owner'],
+    changedPaths: ['docs/workbench-ui-design-rules.md'],
+    identifierOnlyOwnerChange: { ...identifierOnlyOwnerChange, path: 'docs/setup-workbench-product-contract.md' },
+  }), /Identifier-only/)
 })
 
 test('review evidence requires exactly one current App comment bound to every reviewed identity', () => {
@@ -413,6 +615,38 @@ test('comment edit or deletion and PR body classification edits invalidate a pre
   assert.throws(() => trustedDecision(decisionInput({
     body: traceBody('agent-local', { Lifecycle: 'A materially different lifecycle claim.' }),
   })), /stale/)
+})
+
+test('trusted decision accepts a proven identifier bootstrap and rejects the same owner trace without proof', () => {
+  const identifierBody = traceBody('protected', {
+    'Owning Rule IDs': 'GOV-001',
+    Prerequisites: 'No accepted authority record applies because the exact owner diff adds identifiers only.',
+  })
+  const identifierEvidence = evidenceComment({
+    classification: 'protected',
+    traceDigest: authorityTraceDigest(parseAuthorityTrace(identifierBody)),
+    ruleIds: ['GOV-001'],
+  })
+  const input = decisionInput({
+    body: identifierBody,
+    classification: 'protected',
+    changeCategories: ['permanent-owner'],
+    changedPaths: ['docs/workbench-ui-design-rules.md'],
+    identifierOnlyOwnerChange: {
+      path: 'docs/workbench-ui-design-rules.md',
+      newRuleIds: ['UI-005', 'UI-006'],
+    },
+    knownRuleIds: [...KNOWN_RULES, 'UI-001', 'UI-004'],
+    comments: [identifierEvidence],
+    reviews: [{
+      author: 'Min-DongYoung',
+      state: 'APPROVED',
+      commitId: HEAD,
+      submittedAt: '2026-08-15T01:02:00.000Z',
+    }],
+  })
+  assert.equal(trustedDecision(input).statuses['Trusted Governance'], 'success')
+  assert.throws(() => trustedDecision({ ...input, identifierOnlyOwnerChange: null }), /already-merged accepted/)
 })
 
 test('protected approval is exact-head, latest-state, and newer than review evidence', () => {

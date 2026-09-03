@@ -106,6 +106,10 @@ const PERMANENT_OWNER_BY_RULE_PREFIX = new Map([
   ['GV', 'docs/zzz-game-vocabulary.md'],
 ])
 
+const RULE_PREFIX_BY_PERMANENT_OWNER = new Map(
+  [...PERMANENT_OWNER_BY_RULE_PREFIX].map(([prefix, owner]) => [owner, prefix]),
+)
+
 const VISUAL_PATHS = new Set([
   'src/components/agentPortraits.ts',
   'src/app.css',
@@ -562,6 +566,7 @@ export function validateAuthorityTrace(trace, {
   changeCategories = [],
   acceptedAcrRecords = [],
   changedPaths = [],
+  identifierOnlyOwnerChange = null,
 }) {
   const known = new Set(knownRuleIds)
   if (trace.ruleIds.some((id) => !known.has(id))) fail('Authority trace references an unknown Rule ID.')
@@ -571,8 +576,19 @@ export function validateAuthorityTrace(trace, {
   }
   if (changeCategories.includes('permanent-owner')) {
     const cited = [...trace.fields.Prerequisites.matchAll(/ACR-\d{4}-\d{2}-\d{2}-\d{3}/g)].map((match) => match[0])
-    const records = new Map(acceptedAcrRecords.map((record) => [record.id, record]))
     const changedOwners = changedPaths.filter((filePath) => PERMANENT_OWNERS.has(filePath))
+    if (identifierOnlyOwnerChange) {
+      if (changedOwners.length !== 1
+        || identifierOnlyOwnerChange.path !== changedOwners[0]
+        || !Array.isArray(identifierOnlyOwnerChange.newRuleIds)
+        || identifierOnlyOwnerChange.newRuleIds.length === 0
+        || cited.length !== 0
+        || !trace.ruleIds.includes('GOV-001')) {
+        fail('Identifier-only owner change trace is invalid.')
+      }
+      return trace
+    }
+    const records = new Map(acceptedAcrRecords.map((record) => [record.id, record]))
     if (changedOwners.length !== 1 || cited.length === 0 || cited.some((id) => !records.has(id))) {
       fail('Permanent-owner change lacks an already-merged accepted Authority Change Record prerequisite.')
     }
@@ -689,6 +705,7 @@ export function trustedDecision(input) {
     changeCategories: input.changeCategories,
     acceptedAcrRecords: input.acceptedAcrRecords,
     changedPaths: input.changedPaths,
+    identifierOnlyOwnerChange: input.identifierOnlyOwnerChange,
   })
   if (input.changeCategories?.includes('acr-instance')) {
     validateAcrTransaction(input.acrTransaction, {
@@ -788,6 +805,133 @@ export function extractRuleIdState(ownerTexts) {
 
 export function extractCurrentRuleIds(ownerTexts) {
   return extractRuleIdState(ownerTexts).currentRuleIds
+}
+
+function markdownRuleHeadingInsertions(source) {
+  const headings = []
+  let offset = 0
+  let fence = null
+  let inComment = false
+  for (const rawLine of source.match(/.*(?:\r\n|\n|$)/g) ?? []) {
+    if (rawLine.length === 0) break
+    const line = rawLine.replace(/\r?\n$/, '')
+    const nextOffset = offset + rawLine.length
+    if (fence) {
+      const closingFence = line.match(/^[ \t]{0,3}(`{3,}|~{3,})[ \t]*$/)
+      if (closingFence && closingFence[1][0] === fence.character
+        && closingFence[1].length >= fence.length) fence = null
+      offset = nextOffset
+      continue
+    }
+    if (!inComment) {
+      const openingFence = line.match(/^[ \t]{0,3}(`{3,}|~{3,})(.*)$/)
+      if (openingFence) {
+        if (openingFence[1][0] !== '`' || !openingFence[2].includes('`')) {
+          fence = { character: openingFence[1][0], length: openingFence[1].length }
+        }
+        offset = nextOffset
+        continue
+      }
+    }
+    let cursor = 0
+    let containsComment = inComment
+    while (cursor < line.length) {
+      if (inComment) {
+        const end = line.indexOf('-->', cursor)
+        if (end < 0) break
+        inComment = false
+        cursor = end + 3
+        continue
+      }
+      const start = line.indexOf('<!--', cursor)
+      if (start < 0) break
+      containsComment = true
+      inComment = true
+      cursor = start + 4
+    }
+    if (containsComment) {
+      offset = nextOffset
+      continue
+    }
+    const headingMatch = line.match(/^(#{3,6}) ([^\r\n]+)$/)
+    const blankLine = source.slice(nextOffset).match(/^\r?\n/)
+    if (headingMatch && blankLine) {
+      headings.push({
+        level: headingMatch[1].length,
+        title: headingMatch[2],
+        start: offset,
+        insertionOffset: nextOffset + blankLine[0].length,
+      })
+    }
+    offset = nextOffset
+  }
+  return headings
+}
+
+export function proveIdentifierOnlyOwnerChange(changes, ruleState) {
+  if (!Array.isArray(changes) || changes.length !== 1) return null
+  const change = changes[0]
+  const filePath = normalizePath(change?.path ?? '')
+  const prefix = RULE_PREFIX_BY_PERMANENT_OWNER.get(filePath)
+  const baseSource = change?.baseSource
+  const headSource = change?.headSource
+  if (!prefix || typeof baseSource !== 'string' || typeof headSource !== 'string'
+    || change?.baseType !== 'blob' || change?.headType !== 'blob'
+    || change?.baseMode !== '100644' || change?.headMode !== '100644') return null
+
+  const markerPattern = /^\*\*Rule ID:\*\*\s*`((?:SW|SF|UI|FM|GV)-\d{3})`\r?\n\r?\n/gm
+  const baseIds = [...baseSource.matchAll(markerPattern)].map((match) => match[1])
+  const headMatches = [...headSource.matchAll(markerPattern)]
+  const headIds = headMatches.map((match) => match[1])
+  if (new Set(baseIds).size !== baseIds.length || new Set(headIds).size !== headIds.length) return null
+  if (baseIds.some((id) => !headIds.includes(id))) return null
+
+  const baseSet = new Set(baseIds)
+  const additions = headMatches.filter((match) => !baseSet.has(match[1]))
+  if (additions.length === 0 || headIds.length !== baseIds.length + additions.length) return null
+
+  const knownIds = ruleState?.knownRuleIds
+  if (!Array.isArray(knownIds) || knownIds.length === 0) return null
+  const known = new Set(knownIds)
+  const previousNumbers = knownIds
+    .filter((id) => id.startsWith(`${prefix}-`))
+    .map((id) => Number(id.slice(prefix.length + 1)))
+  const maximum = previousNumbers.length === 0 ? 0 : Math.max(...previousNumbers)
+  const additionNumbers = additions.map((match) => Number(match[1].slice(prefix.length + 1)))
+  if (additions.some((match) => !match[1].startsWith(`${prefix}-`) || known.has(match[1]))
+    || additionNumbers.some((number) => number <= maximum)
+    || additionNumbers.some((number, index) => index > 0 && number <= additionNumbers[index - 1])) {
+    return null
+  }
+
+  let stripped = headSource
+  for (const match of [...additions].reverse()) {
+    const start = match.index
+    if (!Number.isInteger(start)) return null
+    stripped = `${stripped.slice(0, start)}${stripped.slice(start + match[0].length)}`
+  }
+  if (stripped !== baseSource) return null
+
+  const headings = markdownRuleHeadingInsertions(baseSource)
+  const insertionByOffset = new Map(headings.map((heading) => [heading.insertionOffset, heading]))
+  const usedHeadings = new Set()
+  let removedBefore = 0
+  for (const match of additions) {
+    const insertionOffset = match.index - removedBefore
+    removedBefore += match[0].length
+    const heading = insertionByOffset.get(insertionOffset)
+    if (!heading || usedHeadings.has(insertionOffset)
+      || /^(?:stable rule identifiers?|retired (?:governance )?rule ids?)$/i.test(heading.title)
+      || /^\*\*Rule ID:\*\*/.test(baseSource.slice(heading.insertionOffset))) {
+      return null
+    }
+    usedHeadings.add(insertionOffset)
+  }
+
+  return Object.freeze({
+    path: filePath,
+    newRuleIds: Object.freeze(additions.map((match) => match[1])),
+  })
 }
 
 export function validateSupportingRequirementRuleIds(changes, ruleState) {

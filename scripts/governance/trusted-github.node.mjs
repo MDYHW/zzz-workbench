@@ -302,6 +302,7 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
   let duplicateLifecycle = false
   let requirementPath = 'docs/brainstorms/x.md'
   let requirementHead = { type: 'blob', mode: '100644' }
+  let requirementBaseSource = 'Previous requirement text.'
   let requirementSource = 'Current requirement cites `SF-005`.'
   const api = {
     json: async (pathname) => {
@@ -316,6 +317,9 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
       if (pathname.includes(headTreeSha)) return {
         truncated: false,
         tree: requirementHead ? [{ path: requirementPath, ...requirementHead, sha: headBlob }] : [],
+      }
+      if (pathname.endsWith(`/git/blobs/${baseBlob}`)) {
+        return { encoding: 'base64', size: Buffer.byteLength(requirementBaseSource), content: Buffer.from(requirementBaseSource).toString('base64') }
       }
       if (pathname.endsWith(`/git/blobs/${headBlob}`)) {
         return { encoding: 'base64', size: Buffer.byteLength(requirementSource), content: Buffer.from(requirementSource).toString('base64') }
@@ -397,6 +401,25 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
   assert.deepEqual(historical.changeCategories, ['supporting-doc'])
   requirementPath = 'docs/brainstorms/x.md'
   requirementHead = { type: 'blob', mode: '100644' }
+  requirementSource = 'Current requirement cites `SF-005`.'
+  requirementPath = 'docs/workbench-ui-design-rules.md'
+  requirementBaseSource = '### Party-Slot Continuity\n\nCurrent continuity rule.\n'
+  requirementSource = '### Party-Slot Continuity\n\n**Rule ID:** `UI-002`\n\nCurrent continuity rule.\n'
+  const identifierOnly = await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })
+  assert.deepEqual(identifierOnly.identifierOnlyOwnerChange, {
+    path: 'docs/workbench-ui-design-rules.md',
+    newRuleIds: ['UI-002'],
+  })
+  requirementSource = `${requirementSource}Changed meaning.\n`
+  const semanticOwnerChange = await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })
+  assert.equal(semanticOwnerChange.identifierOnlyOwnerChange, null)
+  requirementHead = { type: 'blob', mode: '100755' }
+  requirementSource = '### Party-Slot Continuity\n\n**Rule ID:** `UI-002`\n\nCurrent continuity rule.\n'
+  const executableOwnerChange = await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })
+  assert.equal(executableOwnerChange.identifierOnlyOwnerChange, null)
+  requirementPath = 'docs/brainstorms/x.md'
+  requirementHead = { type: 'blob', mode: '100644' }
+  requirementBaseSource = 'Previous requirement text.'
   requirementSource = 'Current requirement cites `SF-005`.'
   duplicateLifecycle = true
   await assert.rejects(
