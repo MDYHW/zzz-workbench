@@ -380,14 +380,30 @@ owning Setup input.
 
 **Rule ID:** `UI-003`
 
-Compact and expanded states retain the same Agent artwork identity. Each source
-asset records exactly three normalized portrait inputs: optical scale,
-`headTopY`, and `faceX`. Their implementation names do not make a literal head
-top or face center the visual target. Scale controls perceived identity size,
-`headTopY` registers the readable continuous figure composition vertically, and
-`faceX` registers the optical center of the face and connected upper-body mass
-horizontally. The source inputs belong to the asset and are shared by every
-responsive portrait surface.
+The selected-Agent workspace and persistent applied-party selector retain the
+same exact Agent artwork identity. Each workspace full-art source records
+exactly three normalized portrait inputs: optical scale, `headTopY`, and
+`faceX`. Their implementation names do not make a literal head top or face
+center the visual target. Scale controls perceived identity size, `headTopY`
+registers the readable continuous figure composition vertically, and `faceX`
+registers the optical center of the face and connected upper-body mass
+horizontally. These source inputs belong to the full artwork and are shared by
+the responsive workspace portrait surfaces.
+
+The persistent selector uses one dedicated upper-body derivative for every
+admitted Agent. A derivative retains the exact workspace artwork, pose, form,
+and depicted state; only crop framing and asset encoding may change. An
+alternate render of the same Agent is not the same source. All three selector
+slots use one common destination frame and crop treatment, and the admitted
+roster does not mix upper-body derivatives with full-art fallback. The selector
+derivative does not inherit the workspace source's `scale`, `headTopY`, or
+`faceX`. It may retain its own normalized source inputs only after roster-wide
+desktop and narrow comparison demonstrates that the common selector frame
+cannot preserve readable identity without them.
+
+The same selector derivative remains visible when the applied-party rail is
+inactive during Party Edit. This source rule does not change the separate Party
+Edit draft slots, candidate pool, or replacement interactions.
 
 Each portrait surface owns one common destination frame. The frame applies the
 source's horizontal and vertical optical registration, then multiplies its
@@ -399,11 +415,9 @@ asset, surface, and viewport demonstrate that the shared contract cannot
 preserve the identity.
 
 The current shared frames are visual calibration inputs, not game or product
-meaning. Desktop expanded uses the midpoint from Identity start to Setup
-content start, a `100px` head-top line, and a `295%` nominal image width.
-Desktop compact uses `50%`, `78px`, and `727%`; stacked compact uses `50%`,
-`28px`, and `105%`; mobile expanded uses `30%`, `16px`, and `110%`; mobile
-compact uses `55%`, `16px`, and `150%`.
+meaning. The full-art workspace frame uses the actual corridor from Identity
+start to Setup content start. The selector uses its own common shallow frame
+and the same image-aligned diagonal treatment in all three applied slots.
 
 Use the authored source metadata deterministically at runtime. Original-canvas
 measurements, transparent bounds, automatic face detection, visible silhouette
@@ -420,10 +434,10 @@ visual responsibility:
    comparison and identify detached or extended forms that are constraints
    rather than anchors.
 2. Establish optical scale while holding provisional horizontal and vertical
-   registration constant. Compare a small local scale envelope in both expanded
-   and compact rendering. Scale makes the readable identity cluster--head,
+   registration constant. Compare a small local scale envelope in desktop and
+   narrow workspace rendering. Scale makes the readable identity cluster--head,
    face, and connected shoulders or upper body--comparable with its peer. Its
-   lower bound is compact face readability; its upper bound is reached when
+   lower bound is immediate face readability; its upper bound is reached when
    connected body mass or props dominate the frame, or when name and Setup
    clearance fail. A face-only crop, full silhouette, alpha bounds, and body
    height are not scale anchors.
@@ -442,8 +456,8 @@ visual responsibility:
 5. Keep the current value when a candidate improves only one surface or merely
    changes the crop without improving identity balance. Accept a partial move
    when the full candidate over-corrects. Accept the metadata only when the same
-   three inputs survive desktop and narrow rendering, expanded and compact,
-   without a surface-specific correction.
+   three inputs survive desktop and narrow workspace rendering without a
+   surface-specific correction.
 
 Temporary head, face, shoulder, or body measurements are calibration evidence.
 They do not add runtime metadata, define cross-Agent numeric alignment, or
@@ -453,21 +467,25 @@ acceptance boundary, not an Agent-by-Agent coordinate catalogue.
 The accepted desktop crop keeps each face within the corridor from Identity
 start to Setup content start, places the face below the name without a hard
 collision, preserves comparable perceived Agent scale, and keeps meaningful
-artwork clear of Setup controls. Compact, stacked, and mobile frames apply the
-same source metadata through their own shared responsive destinations.
+artwork clear of Setup controls. Narrow workspace frames apply the same
+full-art source metadata through their own shared responsive destination.
+Selector derivatives instead use the common selector frame and only the
+separately justified normalized inputs above.
 
 Source-variable presence proves only structural wiring. A portrait calibration
 is not accepted until the original asset has been inspected and all three
-authored inputs have been compared in the actual workbench at one desktop and
-one narrow viewport, with the Agent shown once expanded and once compact. A
+authored inputs have been compared in the actual workspace at one desktop and
+one narrow viewport. A
 worker report that omits browser verification leaves the portrait unit
 incomplete; passing DOM tests cannot substitute for this visual check. Final
 acceptance compares the Agent with nearby admitted portraits on the same
 destination surface for immediate face readability, continuous composition,
 optical identity weight, and name or control clearance. Source inspection alone
 cannot mark a portrait sound, and a controller does not accept a worker's
-metadata change without repeating that rendered comparison for every changed
-Agent.
+workspace metadata change without repeating that rendered comparison for every
+changed Agent. A selector derivative or selector-specific normalized input also
+requires roster-complete desktop and narrow comparison in the persistent
+three-slot rail, including its inactive Party Edit state.
 
 ### Expanded Slot Composition
 
