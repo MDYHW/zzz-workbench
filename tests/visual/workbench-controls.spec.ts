@@ -63,42 +63,106 @@ test('anchors the desktop portrait and name to the Setup content seam', async ({
   await page.goto('/')
 
   const workspace = page.locator('.party-workspace')
+  const reference = workspace.locator('.workspace-reference')
   const identity = workspace.locator('.workspace-identity')
   const setup = workspace.locator('.setup-panel')
   const result = workspace.locator('.result-panel')
   const setupContent = setup.locator('.setup-chassis')
+  const firstSetupGroup = setupContent.locator(':scope > .setup-group').first()
   const portraitFrame = identity.locator('.workspace-identity__portrait')
   const portrait = portraitFrame.locator('.agent-art')
   const name = identity.locator('.slot-name-line')
+  const identityBand = identity.locator('.identity-band')
 
   const workspaceBox = await workspace.boundingBox()
+  const referenceBox = await reference.boundingBox()
   const identityBox = await identity.boundingBox()
   const setupBox = await setup.boundingBox()
   const resultBox = await result.boundingBox()
   const setupContentBox = await setupContent.boundingBox()
+  const firstSetupGroupBox = await firstSetupGroup.boundingBox()
   const portraitFrameBox = await portraitFrame.boundingBox()
   const nameBox = await name.boundingBox()
+  const identityBandBox = await identityBand.boundingBox()
 
   expect(workspaceBox).not.toBeNull()
+  expect(referenceBox).not.toBeNull()
   expect(identityBox).not.toBeNull()
   expect(setupBox).not.toBeNull()
   expect(resultBox).not.toBeNull()
   expect(setupContentBox).not.toBeNull()
+  expect(firstSetupGroupBox).not.toBeNull()
   expect(portraitFrameBox).not.toBeNull()
   expect(nameBox).not.toBeNull()
+  expect(identityBandBox).not.toBeNull()
 
   expect(identityBox!.width / workspaceBox!.width).toBeCloseTo(0.15, 2)
-  expect(setupBox!.width / workspaceBox!.width).toBeCloseTo(0.47, 2)
+  expect(referenceBox!.width / workspaceBox!.width).toBeCloseTo(0.62, 2)
   expect(resultBox!.width / workspaceBox!.width).toBeCloseTo(0.38, 2)
   expect(portraitFrameBox!.x).toBeCloseTo(identityBox!.x, 0)
   expect(portraitFrameBox!.x + portraitFrameBox!.width).toBeCloseTo(setupContentBox!.x, 0)
   expect(nameBox!.x + nameBox!.width).toBeLessThanOrEqual(setupContentBox!.x)
+  expect(setupBox!.x + setupBox!.width).toBeLessThanOrEqual(referenceBox!.x + referenceBox!.width)
+  expect(identityBandBox!.y - (nameBox!.y + nameBox!.height)).toBeCloseTo(8, 0)
+
+  const nameLineHeight = await identity.locator('.identity-name').evaluate(
+    (element) => Number.parseFloat(getComputedStyle(element).lineHeight),
+  )
+  expect(firstSetupGroupBox!.y).toBeCloseTo(nameBox!.y + nameLineHeight / 2, 0)
 
   const anchor = await portrait.evaluate((image) => ({
     left: image.offsetLeft,
     frameWidth: (image.offsetParent as HTMLElement).clientWidth,
   }))
   expect(anchor.left).toBeCloseTo(anchor.frameWidth / 2, 0)
+})
+
+test('keeps zoomed Identity metadata on the left side of the portrait', async ({ page }) => {
+  await page.setViewportSize({ width: 536, height: 900 })
+  await page.goto('/')
+
+  const identity = page.locator('.workspace-identity')
+  const name = identity.locator('.slot-name-line')
+  const band = identity.locator('.identity-band')
+  const identityBox = await identity.boundingBox()
+  const nameBox = await name.boundingBox()
+  const bandBox = await band.boundingBox()
+  const alignment = await identity.evaluate((element) => ({
+    lineLeft: Number.parseFloat(getComputedStyle(element, '::after').left),
+    copyLeft: Number.parseFloat(getComputedStyle(element.querySelector('.identity-copy')!).paddingLeft),
+  }))
+
+  expect(identityBox).not.toBeNull()
+  expect(nameBox).not.toBeNull()
+  expect(bandBox).not.toBeNull()
+
+  const portraitCenter = identityBox!.x + identityBox!.width / 2
+  expect(nameBox!.x + nameBox!.width).toBeLessThanOrEqual(portraitCenter)
+  expect(bandBox!.x + bandBox!.width).toBeLessThanOrEqual(portraitCenter)
+  expect(alignment.lineLeft).toBe(alignment.copyLeft)
+})
+
+test('scrolls the desktop reference plane and Result independently', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 800 })
+  await page.goto('/')
+
+  await page.locator('.metric-toggle').evaluateAll((toggles) => {
+    for (const toggle of toggles) (toggle as HTMLButtonElement).click()
+  })
+
+  const reference = page.locator('.workspace-reference')
+  const result = page.locator('.result-panel')
+
+  await reference.hover()
+  await page.mouse.wheel(0, 420)
+  await expect.poll(() => reference.evaluate((element) => element.scrollTop)).toBeGreaterThan(0)
+  expect(await result.evaluate((element) => element.scrollTop)).toBe(0)
+
+  const referenceScrollTop = await reference.evaluate((element) => element.scrollTop)
+  await result.hover()
+  await page.mouse.wheel(0, 420)
+  await expect.poll(() => result.evaluate((element) => element.scrollTop)).toBeGreaterThan(0)
+  expect(await reference.evaluate((element) => element.scrollTop)).toBe(referenceScrollTop)
 })
 
 test('keeps primary stat copy readable while per-count detail stays one step quieter', async ({ page }) => {
@@ -111,10 +175,28 @@ test('keeps primary stat copy readable while per-count detail stays one step qui
     )
     const discEffectSize = await fontSize('.disc-effect-rows b')
 
-    expect(await fontSize('.main-stat-block__details > span')).toBeGreaterThanOrEqual(discEffectSize)
-    expect(await fontSize('.substat-copy strong')).toBeGreaterThanOrEqual(discEffectSize)
+    const mainStatSize = await fontSize('.main-stat-block__details > span')
+    const substatSize = await fontSize('.substat-copy strong')
+    expect(mainStatSize).toBeGreaterThanOrEqual(discEffectSize)
+    expect(substatSize).toBeGreaterThanOrEqual(discEffectSize)
+    expect(mainStatSize - substatSize).toBeCloseTo(1, 5)
     const perCountSize = await fontSize('.substat-copy span')
     expect(perCountSize).toBeLessThan(discEffectSize)
     expect(perCountSize).toBeGreaterThanOrEqual(discEffectSize - 2)
+
+    const elementHeight = async (selector: string) => page.locator(selector).first().evaluate(
+      (element) => element.getBoundingClientRect().height,
+    )
+    const discHeight = await elementHeight('.disc-selection .selection-surface')
+    const expectedStatHeight = discHeight * 2 / 3
+
+    expect(await elementHeight('.main-stat-block')).toBeCloseTo(expectedStatHeight, -1)
+    expect(await elementHeight('.substat-control')).toBeCloseTo(expectedStatHeight, -1)
   }
+})
+
+test('keeps the shared Identity background free of a portrait shade layer', async ({ page }) => {
+  await page.goto('/')
+
+  await expect(page.locator('.workspace-identity .identity-shade')).toHaveCount(0)
 })

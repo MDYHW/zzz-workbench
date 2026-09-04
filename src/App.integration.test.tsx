@@ -36,14 +36,13 @@ describe('workbench UI integration', () => {
     render(<App />)
 
     const count = screen.getByRole('textbox', { name: 'CRIT Rate hit count' })
-    const mastheadIndex = document.querySelector('.masthead__index')!.textContent
     expect(count).toHaveValue('0')
     await user.click(screen.getByRole('button', { name: 'Increase CRIT Rate hits' }))
     expect(count).toHaveValue('1')
 
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
     expect(screen.getByRole('region', { name: 'Dialyn setup' })).toBeInTheDocument()
-    expect(document.querySelector('.masthead__index')).toHaveTextContent(mastheadIndex!)
+    expect(screen.getByRole('heading', { name: 'Setup Workbench' })).toBeInTheDocument()
     await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
 
     expect(screen.getByRole('textbox', { name: 'CRIT Rate hit count' })).toHaveValue('1')

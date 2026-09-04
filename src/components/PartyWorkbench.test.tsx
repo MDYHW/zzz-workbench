@@ -40,25 +40,29 @@ function Harness() {
       viewedSlot={viewedSlot}
       onSourceToneChange={changeSourceTone}
       onViewSlot={setViewedSlot}
-    >
-      <button type="button" {...sourceToneEvents(
-        agentToneForParty(
-          prepared.slots[1].agentId,
-          prepared.slots.map((slot) => slot.agentId),
-        ),
-        changeSourceTone,
-        prepared.slots[1].agentId,
-      )}>
-        External provider source
-      </button>
-      <button type="button" {...sourceToneEvents(
-        'core',
-        changeSourceTone,
-        prepared.slots[0].agentId,
-      )}>
-        Agent-local source
-      </button>
-    </PartyWorkbench>
+      setup={<div>Setup fixture</div>}
+      result={(
+        <>
+          <button type="button" {...sourceToneEvents(
+            agentToneForParty(
+              prepared.slots[1].agentId,
+              prepared.slots.map((slot) => slot.agentId),
+            ),
+            changeSourceTone,
+            prepared.slots[1].agentId,
+          )}>
+            External provider source
+          </button>
+          <button type="button" {...sourceToneEvents(
+            'core',
+            changeSourceTone,
+            prepared.slots[0].agentId,
+          )}>
+            Agent-local source
+          </button>
+        </>
+      )}
+    />
   )
 }
 

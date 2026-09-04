@@ -82,7 +82,8 @@ interface PartyWorkbenchProps extends SourceInteractionProps {
   viewedSlot: AppliedSlot
   onViewSlot: (slot: AppliedSlot) => void
   onEditParty?: () => void
-  children: ReactNode
+  setup: ReactNode
+  result: ReactNode
 }
 
 const RANK_MARKS: Record<AgentRank, string> = {
@@ -170,7 +171,6 @@ function WorkspaceIdentity({ agentId, isFocus, isIncomplete = false }: Pick<Slot
       data-agent={agent.id}
     >
       <PortraitArt agentId={agent.id} className="workspace-identity__portrait" />
-      <span className="identity-shade" aria-hidden="true" />
       <span className="identity-copy">
         <span className="slot-name-line"><strong className="identity-name">{agentName}</strong></span>
         <span className="identity-band">
@@ -178,8 +178,8 @@ function WorkspaceIdentity({ agentId, isFocus, isIncomplete = false }: Pick<Slot
           <IdentityMarks attribute={agent.attribute} specialty={agent.specialty} />
         </span>
         <strong className={`focus-marker ${isFocus ? '' : 'focus-marker--reserved'}`} aria-hidden={!isFocus}>Focus</strong>
+        {isIncomplete && <span className="slot-incomplete-marker">Setup incomplete</span>}
       </span>
-      {isIncomplete && <span className="slot-incomplete-marker">Setup incomplete</span>}
     </section>
   )
 }
@@ -195,7 +195,8 @@ export function PartyWorkbench({
   onSourceToneChange,
   onViewSlot,
   onEditParty = () => {},
-  children,
+  setup,
+  result,
 }: PartyWorkbenchProps) {
   const previousViewedSlot = useRef<AppliedSlot>(viewedSlot)
 
@@ -286,12 +287,15 @@ export function PartyWorkbench({
           aria-labelledby={`party-tab-${viewedSlot + 1}`}
           data-agent={slots[viewedSlot].agentId}
         >
-          <WorkspaceIdentity
-            agentId={slots[viewedSlot].agentId}
-            isFocus={viewedSlot === focusSlot}
-            isIncomplete={incompleteSelections.some((selection) => selection.slot === viewedSlot)}
-          />
-          {children}
+          <div className="workspace-reference">
+            <WorkspaceIdentity
+              agentId={slots[viewedSlot].agentId}
+              isFocus={viewedSlot === focusSlot}
+              isIncomplete={incompleteSelections.some((selection) => selection.slot === viewedSlot)}
+            />
+            {setup}
+          </div>
+          {result}
         </div>
       )}
     </section>

@@ -15,7 +15,7 @@ import {
   type RequiredSetupSelection,
 } from './workbench/candidates'
 import { ADMITTED_AGENTS, agentDisplayName, type AgentId, type MainSlot } from './workbench/content'
-import { createPreparedState, isCompleteWorkbench, workbenchReducer, type AppliedSlot } from './workbench/state'
+import { createPreparedState, workbenchReducer, type AppliedSlot } from './workbench/state'
 
 const emptySourceLinks: Record<SourceToneChannel, SourceLink | null> = {
   pointer: null,
@@ -44,7 +44,6 @@ export function App() {
   const activeSourceTargetAgentId = activeSourceLink?.targetAgentId ?? null
   const result = calculateParty(state, { targetStunDmgMultiplier })
   const viewedSetup = state.slots[viewedSlot]
-  const focusedAgent = state.slots[state.focusSlot].agentId
   const selectedSourceIdentityKey = JSON.stringify({
     viewedSlot,
     focusSlot: state.focusSlot,
@@ -60,8 +59,6 @@ export function App() {
       effectiveSubstats: Object.keys(setup.substats).sort(),
     })),
   })
-  const focusIndex = String(state.focusSlot + 1).padStart(2, '0')
-  const partyTitle = `${agentDisplayName(ADMITTED_AGENTS.find(({ id }) => id === focusedAgent)!).toUpperCase()} STRIKE TEAM`
   const agentResult = result?.agents[viewedSlot] ?? null
   const viewedMainStatCandidates = Object.fromEntries(
     (['slot4', 'slot5', 'slot6'] as MainSlot[]).map((mainSlot) => [
@@ -115,9 +112,7 @@ export function App() {
   return (
     <div className="app-shell">
       <header className="masthead">
-        <div className="masthead__index" aria-hidden="true">FOCUS // {focusIndex}</div>
-        <div className="masthead__title"><span className="eyebrow">{partyTitle}</span><h1>Setup Workbench</h1></div>
-        <div className="masthead__status"><span className="status-light" /><span>{isCompleteWorkbench(state) ? 'PREPARED' : 'INCOMPLETE'}</span><strong>{isCompleteWorkbench(state) ? '3 / 3' : '—'}</strong></div>
+        <h1>Setup Workbench</h1>
       </header>
       <main>
         <p className="sr-only" role="status" aria-atomic="true">{candidateAnnouncement}</p>
@@ -133,32 +128,31 @@ export function App() {
           onSourceToneChange={changeSourceTone}
           onViewSlot={setViewedSlot}
           onEditParty={() => dispatch({ type: 'openPartyEdit' })}
-        >
-          {(
-            <>
-              <AgentSetup
-                activeSourceTone={activeSourceTargetAgentId === null ? activeSourceTone : null}
-                slot={viewedSlot}
-                agentId={viewedSetup.agentId}
-                discCandidates={viewedDiscCandidates}
-                fourPieceRoleSwapIds={effectiveFourPieceRoleSwapIds(state, viewedSlot)}
-                mainStatCandidates={viewedMainStatCandidates}
-                substatChoices={effectiveSubstatChoicesForSlot(state, viewedSlot)}
-                setup={viewedSetup.setup}
-                dispatch={dispatch}
-                onSourceToneChange={changeSourceTone}
-              />
-              <ResultPanel
-                activeSourceTone={activeSourceTone}
-                agentResult={agentResult}
-                onSourceToneChange={changeSourceTone}
-                onTargetStunDmgMultiplierChange={setTargetStunDmgMultiplier}
-                partyAgentIds={state.slots.map(({ agentId }) => agentId)}
-                targetStunDmgMultiplier={targetStunDmgMultiplier}
-              />
-            </>
+          setup={(
+            <AgentSetup
+              activeSourceTone={activeSourceTargetAgentId === null ? activeSourceTone : null}
+              slot={viewedSlot}
+              agentId={viewedSetup.agentId}
+              discCandidates={viewedDiscCandidates}
+              fourPieceRoleSwapIds={effectiveFourPieceRoleSwapIds(state, viewedSlot)}
+              mainStatCandidates={viewedMainStatCandidates}
+              substatChoices={effectiveSubstatChoicesForSlot(state, viewedSlot)}
+              setup={viewedSetup.setup}
+              dispatch={dispatch}
+              onSourceToneChange={changeSourceTone}
+            />
           )}
-        </PartyWorkbench>
+          result={(
+            <ResultPanel
+              activeSourceTone={activeSourceTone}
+              agentResult={agentResult}
+              onSourceToneChange={changeSourceTone}
+              onTargetStunDmgMultiplierChange={setTargetStunDmgMultiplier}
+              partyAgentIds={state.slots.map(({ agentId }) => agentId)}
+              targetStunDmgMultiplier={targetStunDmgMultiplier}
+            />
+          )}
+        />
       </main>
       <footer className="workbench-footer"><span>Lv.60 {'\u00B7'} max Core {'\u00B7'} fully enabled compatible window</span><span>No final damage or rotation simulation</span></footer>
     </div>
