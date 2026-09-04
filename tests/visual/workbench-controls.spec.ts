@@ -101,7 +101,7 @@ test('anchors the desktop portrait and name to the Setup content seam', async ({
   expect(anchor.left).toBeCloseTo(anchor.frameWidth / 2, 0)
 })
 
-test('keeps main-stat and substat copy at least as large as Disc effects', async ({ page }) => {
+test('keeps primary stat copy readable while per-count detail stays one step quieter', async ({ page }) => {
   for (const viewport of viewports) {
     await page.setViewportSize(viewport)
     await page.goto('/')
@@ -113,6 +113,8 @@ test('keeps main-stat and substat copy at least as large as Disc effects', async
 
     expect(await fontSize('.main-stat-block__details > span')).toBeGreaterThanOrEqual(discEffectSize)
     expect(await fontSize('.substat-copy strong')).toBeGreaterThanOrEqual(discEffectSize)
-    expect(await fontSize('.substat-copy span')).toBeGreaterThanOrEqual(discEffectSize)
+    const perCountSize = await fontSize('.substat-copy span')
+    expect(perCountSize).toBeLessThan(discEffectSize)
+    expect(perCountSize).toBeGreaterThanOrEqual(discEffectSize - 2)
   }
 })

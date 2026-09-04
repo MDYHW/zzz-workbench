@@ -167,8 +167,12 @@ const AGENT_SELECTOR_SOURCE_LOCI: readonly SourceLocus[] = [
   'identity',
   'core',
   'additional',
+  'basic',
+  'assist',
+  'chain',
   'special',
   'ex-special',
+  'ultimate',
 ]
 
 function sourceTargetAgentId(

@@ -102,6 +102,9 @@ describe('workbench UI integration', () => {
     const user = userEvent.setup()
     render(<App />)
 
+    const partyTabs = screen.getByRole('tablist', { name: 'Applied party slots' })
+    expect(within(partyTabs).getAllByRole('tab')).toHaveLength(3)
+    expect(within(partyTabs).queryByRole('button', { name: 'Edit party' })).not.toBeInTheDocument()
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
     const fullArtSource = document.querySelector<HTMLImageElement>(
       '.workspace-identity .agent-art',
@@ -116,7 +119,8 @@ describe('workbench UI integration', () => {
     expect(inactiveSlots).toHaveLength(3)
     expect(inactiveSlots.every((slot) => slot.hasAttribute('disabled')))
       .toBe(true)
-    expect(within(partyRail).getByRole('button', { name: 'Edit party' })).toBeDisabled()
+    expect(within(partyRail).queryByRole('button', { name: 'Edit party' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Edit party' })).toBeDisabled()
     expect(within(partyRail).getByRole('button', { name: /Dialyn applied slot/ })
       .querySelector<HTMLImageElement>('.selector-agent-art')!.src).toBe(selectorSource)
     expect(screen.getByRole('button', { name: 'Replace slot 2, Dialyn' })

@@ -229,35 +229,37 @@ export function PartyWorkbench({
   return (
     <section className="party-section" aria-labelledby="party-heading">
       <h2 id="party-heading" className="sr-only">Applied party</h2>
-      <ol
-        className="party-rail"
-        role={isPartyEditing ? undefined : 'tablist'}
-        aria-label="Applied party slots"
-      >
-        {slots.map(({ agentId }, slot) => {
-          const slotPosition = slot as AppliedSlot
-          const selected = slotPosition === viewedSlot
-          const isIncomplete = incompleteSelections.some((selection) => selection.slot === slotPosition)
+      <div className="party-rail">
+        <ol
+          className="party-tabs"
+          role={isPartyEditing ? undefined : 'tablist'}
+          aria-label="Applied party slots"
+        >
+          {slots.map(({ agentId }, slot) => {
+            const slotPosition = slot as AppliedSlot
+            const selected = slotPosition === viewedSlot
+            const isIncomplete = incompleteSelections.some((selection) => selection.slot === slotPosition)
 
-          return (
-            <li key={slotPosition} role="presentation">
-              <PartySelector
-                activeSourceTargetAgentId={activeSourceTargetAgentId}
-                activeSourceTone={activeSourceTone}
-                agentId={agentId}
-                isFocus={slotPosition === focusSlot}
-                isIncomplete={isIncomplete}
-                isInactive={isPartyEditing}
-                isSelected={selected}
-                slot={slotPosition}
-                onSourceToneChange={onSourceToneChange}
-                onSelect={() => onViewSlot(slotPosition)}
-                onKeyDown={(event) => navigateSlots(slotPosition, event)}
-              />
-            </li>
-          )
-        })}
-        <li className="party-edit-cell" role="presentation">
+            return (
+              <li key={slotPosition} role="presentation">
+                <PartySelector
+                  activeSourceTargetAgentId={activeSourceTargetAgentId}
+                  activeSourceTone={activeSourceTone}
+                  agentId={agentId}
+                  isFocus={slotPosition === focusSlot}
+                  isIncomplete={isIncomplete}
+                  isInactive={isPartyEditing}
+                  isSelected={selected}
+                  slot={slotPosition}
+                  onSourceToneChange={onSourceToneChange}
+                  onSelect={() => onViewSlot(slotPosition)}
+                  onKeyDown={(event) => navigateSlots(slotPosition, event)}
+                />
+              </li>
+            )
+          })}
+        </ol>
+        <div className="party-edit-cell">
           <button
             type="button"
             className="party-edit-trigger"
@@ -273,8 +275,8 @@ export function PartyWorkbench({
               </span>
             </span>
           </button>
-        </li>
-      </ol>
+        </div>
+      </div>
       {!isPartyEditing && (
         <div
           key={viewedSlot}

@@ -27,8 +27,12 @@ export type SourceDefinitionLocus =
   | 'substat-3'
   | 'core'
   | 'additional'
+  | 'basic'
+  | 'assist'
+  | 'chain'
   | 'special'
   | 'ex-special'
+  | 'ultimate'
   | 'mindscape'
   | 'calculation'
   | 'target'
@@ -73,7 +77,10 @@ export const defineAgentSource = (
   agentId: AgentId,
   sourceId: string,
   label: string,
-  locus: Extract<SourceDefinitionLocus, 'identity' | 'core' | 'additional' | 'special' | 'ex-special'>,
+  locus: Extract<
+    SourceDefinitionLocus,
+    'identity' | 'core' | 'additional' | 'basic' | 'assist' | 'chain' | 'special' | 'ex-special' | 'ultimate'
+  >,
 ): SourceDefinition<Extract<SourceDefinitionKey, { kind: 'agent-source' }>> =>
   defineSource({ kind: 'agent-source', agentId, sourceId }, label, locus, 'visible')
 

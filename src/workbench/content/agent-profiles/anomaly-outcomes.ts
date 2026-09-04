@@ -192,7 +192,7 @@ const velinaAnomalyScopes = (includeUltimateAbloom: boolean) => [
   { id: 'velinaVortex', target: VORTEX_TARGET },
 ] satisfies readonly ActionScopeNode[]
 
-const src = (agent: Agent, slot: Slot, id: string, label: string, locus: 'identity' | 'core' | 'additional' | 'special' = 'core') => selectedAgentSource(agent, slot, id, label, locus)
+const src = (agent: Agent, slot: Slot, id: string, label: string, locus: 'identity' | 'core' | 'additional' | 'basic' | 'assist' | 'chain' | 'special' | 'ultimate' = 'core') => selectedAgentSource(agent, slot, id, label, locus)
 const m = (
   id: MetricProjection['id'],
   label: string,
@@ -298,7 +298,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
       slot,
       'flowerFeatherDance',
       SOURCE_LABELS.remielleAssist,
-      'special',
+      'assist',
     )
     const skillTier = setup.mindscape >= 5 ? 2 : setup.mindscape >= 3 ? 1 : 0
 
@@ -1314,7 +1314,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
     const outputs = additionalActive ? { anomaly: (setup.mindscape >= 1 ? VERTICAL_VALUES.yuzuha.mindscape1AnomalyPerMastery : VERTICAL_VALUES.yuzuha.additionalAnomalyPerMastery), buildup: VERTICAL_VALUES.yuzuha.additionalBuildupPerMastery } : { anomaly: 0, buildup: 0 }
     add({ kind: 'gauge', source: core, basis: { statId: 'atk', surface: 'initial' }, basisLabel: 'Initial ATK', basisCap: VERTICAL_VALUES.yuzuha.tanukiAtkCap / VERTICAL_VALUES.yuzuha.tanukiAtkRatio, metricId: 'atk', outputs: [{ label: 'Squad flat ATK', unit: '', cap: VERTICAL_VALUES.yuzuha.tanukiAtkCap, transform: { basisIncrement: 1, outputIncrement: VERTICAL_VALUES.yuzuha.tanukiAtkRatio, outputCap: VERTICAL_VALUES.yuzuha.tanukiAtkCap }, emission: { kind: 'provider', delivery: { recipient: 'all-party', formulas: DAMAGE }, effect: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully' } } }] })
     add(provider(core, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.yuzuha.tanukiDmgBonus }, DAMAGE))
-    add(mod(src(agent, slot, 'sugarburst', 'Basic Attack · Sugarburst', 'special'), 'anomalyBuildupBonus', VERTICAL_VALUES.yuzuha.sugarburstBuildupByMindscapeTier[setup.mindscape >= 5 ? 2 : setup.mindscape >= 3 ? 1 : 0], flavor))
+    add(mod(src(agent, slot, 'sugarburst', 'Basic Attack · Sugarburst', 'basic'), 'anomalyBuildupBonus', VERTICAL_VALUES.yuzuha.sugarburstBuildupByMindscapeTier[setup.mindscape >= 5 ? 2 : setup.mindscape >= 3 ? 1 : 0], flavor))
     if (additionalActive) add({ kind: 'gauge', source: ability, basis: { statId: 'anomalyMastery', surface: 'fully' }, basisLabel: 'Fully Enabled Anomaly Mastery', basisThreshold: VERTICAL_VALUES.yuzuha.additionalMasteryThreshold, basisCap: VERTICAL_VALUES.yuzuha.additionalMasteryCap, metricId: 'anomalyMastery', outputs: [{ label: 'Anomaly Buildup Rate', unit: '%', cap: 20, transform: { basisThreshold: 100, basisIncrement: 1, outputIncrement: outputs.buildup, outputCap: 20 }, emission: { kind: 'provider', delivery: { recipient: 'all-party', formulas: ['anomaly_buildup'] }, effect: { kind: 'modifier', metricId: 'anomalyBuildupBonus', earliestSurface: 'fully' } } }, { label: 'Attribute Anomaly DMG', unit: '%', cap: setup.mindscape >= 1 ? 26 : 20, transform: { basisThreshold: 100, basisIncrement: 1, outputIncrement: outputs.anomaly, outputCap: setup.mindscape >= 1 ? 26 : 20 }, emission: { kind: 'provider', delivery: { recipient: 'all-party', formulas: ['anomaly_damage'] }, effect: { kind: 'modifier', metricId: 'anomalyDmgBonus', earliestSurface: 'fully', action: ATTRIBUTE_ANOMALY_TARGET } } }, { label: 'Disorder DMG', unit: '%', cap: setup.mindscape >= 1 ? 26 : 20, transform: { basisThreshold: 100, basisIncrement: 1, outputIncrement: outputs.anomaly, outputCap: setup.mindscape >= 1 ? 26 : 20 }, emission: { kind: 'provider', delivery: { recipient: 'all-party', formulas: ['anomaly_damage'] }, effect: { kind: 'modifier', metricId: 'anomalyDmgBonus', earliestSurface: 'fully', action: DISORDER_TARGET } } }] })
     if (setup.mindscape >= 1) add(provider(mind(1), 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.yuzuha.mindscape1ResReduction }, DAMAGE))
     if (setup.mindscape >= 2) { add(provider(mind(2), 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.yuzuha.mindscape2DmgBonus }, DAMAGE)); add(provider(mind(2), 'all-party', { kind: 'modifier', metricId: 'anomalyBuildupBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.yuzuha.mindscape2BuildupBonus }, ['anomaly_buildup'])) }
