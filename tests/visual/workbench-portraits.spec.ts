@@ -319,7 +319,7 @@ test('the selector rail keeps fixed one-row geometry through responsive boundari
     expect(new Set(geometry.map(({ height }) => height)).size).toBe(1)
     expect(new Set(geometry.map(({ top }) => top)).size).toBe(1)
     for (const { bandBottom, height, identityWidth, nameBottom, selectorBottom, width: selectorWidth } of geometry) {
-      expect(height, `selector height at ${width}px`).toBeCloseTo(width <= 760 ? 96 : 108, 1)
+      expect(height, `selector height at ${width}px`).toBeCloseTo(width <= 760 ? 82 : 88, 1)
       expect(selectorWidth, `selector width at ${width}px`).toBeGreaterThan(0)
       expect(identityWidth, `identity width at ${width}px`).toBeGreaterThanOrEqual(40)
       expect(nameBottom, `name-to-band order at ${width}px`).toBeLessThanOrEqual(bandBottom)

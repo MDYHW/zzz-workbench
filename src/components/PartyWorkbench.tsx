@@ -74,6 +74,7 @@ function SelectorPortraitArt({ agentId }: { agentId: AgentId }) {
 }
 
 interface PartyWorkbenchProps extends SourceInteractionProps {
+  activeSourceTargetAgentId: AgentId | null
   slots: [AppliedAgentSlot, AppliedAgentSlot, AppliedAgentSlot]
   focusSlot: AppliedSlot
   isPartyEditing?: boolean
@@ -103,6 +104,7 @@ function IdentityMarks({ attribute, specialty }: { attribute: AgentAttribute; sp
 }
 
 interface SlotControlProps extends SourceInteractionProps {
+  activeSourceTargetAgentId: AgentId | null
   slot: AppliedSlot
   agentId: AgentId
   isFocus: boolean
@@ -111,11 +113,15 @@ interface SlotControlProps extends SourceInteractionProps {
   onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void
 }
 
-function PartySelector({ activeSourceTone, agentId, isFocus, isIncomplete = false, isInactive = false, isSelected, onSourceToneChange, onSelect, onKeyDown, slot }: SlotControlProps & { isInactive?: boolean; isSelected: boolean }) {
+function PartySelector({ activeSourceTargetAgentId, activeSourceTone, agentId, isFocus, isIncomplete = false, isInactive = false, isSelected, onSourceToneChange, onSelect, onKeyDown, slot }: SlotControlProps & { isInactive?: boolean; isSelected: boolean }) {
   const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
   const agentName = agentDisplayName(agent)
-  const tone = agentSlotTone(slot)
-  const className = `party-selector source-target source-tone--${tone}${isSelected ? ' is-viewed' : ''}${isFocus ? ' is-focus' : ''}${activeSourceTone === tone ? ' is-source-active' : ''}${isIncomplete ? ' is-setup-incomplete' : ''}`
+  const slotTone = agentSlotTone(slot)
+  const isTargetedSource = activeSourceTargetAgentId === agentId
+  const tone = isTargetedSource && activeSourceTone ? activeSourceTone : slotTone
+  const isSourceActive = isTargetedSource
+    || (activeSourceTargetAgentId === null && activeSourceTone === slotTone)
+  const className = `party-selector source-target source-tone--${tone}${isSelected ? ' is-viewed' : ''}${isFocus ? ' is-focus' : ''}${isSourceActive ? ' is-source-active' : ''}${isIncomplete ? ' is-setup-incomplete' : ''}`
 
   return (
     <button
@@ -133,7 +139,7 @@ function PartySelector({ activeSourceTone, agentId, isFocus, isIncomplete = fals
         : `View ${agentName} setup and Result${isIncomplete ? ', setup incomplete' : ''}`}
       onClick={isInactive ? undefined : onSelect}
       onKeyDown={isInactive ? undefined : onKeyDown}
-      {...sourceToneEvents(tone, onSourceToneChange)}
+      {...sourceToneEvents(slotTone, onSourceToneChange)}
     >
       <SelectorPortraitArt agentId={agent.id} />
       <span className="identity-shade" aria-hidden="true" />
@@ -152,14 +158,10 @@ function PartySelector({ activeSourceTone, agentId, isFocus, isIncomplete = fals
   )
 }
 
-function WorkspaceIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = false }: Pick<SlotControlProps, 'activeSourceTone' | 'agentId' | 'isFocus' | 'isIncomplete'>) {
+function WorkspaceIdentity({ agentId, isFocus, isIncomplete = false }: Pick<SlotControlProps, 'agentId' | 'isFocus' | 'isIncomplete'>) {
   const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
   const agentName = agentDisplayName(agent)
-  const localTones = ['core', 'additional', 'special', 'ex-special']
-  const matchingTone = localTones.find((tone) => tone === activeSourceTone)
-  const className = matchingTone
-    ? `workspace-identity source-target source-tone--${matchingTone} is-source-active${isIncomplete ? ' is-setup-incomplete' : ''}`
-    : `workspace-identity source-target${isIncomplete ? ' is-setup-incomplete' : ''}`
+  const className = `workspace-identity${isIncomplete ? ' is-setup-incomplete' : ''}`
 
   return (
     <section
@@ -169,7 +171,6 @@ function WorkspaceIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = 
     >
       <PortraitArt agentId={agent.id} className="workspace-identity__portrait" />
       <span className="identity-shade" aria-hidden="true" />
-      <span className="source-tint" aria-hidden="true" />
       <span className="identity-copy">
         <span className="slot-name-line"><strong className="identity-name">{agentName}</strong></span>
         <span className="identity-band">
@@ -184,6 +185,7 @@ function WorkspaceIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = 
 }
 
 export function PartyWorkbench({
+  activeSourceTargetAgentId,
   activeSourceTone,
   slots,
   focusSlot,
@@ -226,11 +228,7 @@ export function PartyWorkbench({
   }
   return (
     <section className="party-section" aria-labelledby="party-heading">
-      <div className="section-kicker">
-        <h2 id="party-heading">Applied party</h2>
-        <span>Focus {'\u00B7'} {agentDisplayName(ADMITTED_AGENTS.find(({ id }) => id === slots[focusSlot].agentId)!)}</span>
-        <button type="button" className="party-edit-trigger" onClick={onEditParty}>Edit party</button>
-      </div>
+      <h2 id="party-heading" className="sr-only">Applied party</h2>
       <ol
         className="party-rail"
         role={isPartyEditing ? undefined : 'tablist'}
@@ -244,6 +242,7 @@ export function PartyWorkbench({
           return (
             <li key={slotPosition} role="presentation">
               <PartySelector
+                activeSourceTargetAgentId={activeSourceTargetAgentId}
                 activeSourceTone={activeSourceTone}
                 agentId={agentId}
                 isFocus={slotPosition === focusSlot}
@@ -258,6 +257,23 @@ export function PartyWorkbench({
             </li>
           )
         })}
+        <li className="party-edit-cell" role="presentation">
+          <button
+            type="button"
+            className="party-edit-trigger"
+            disabled={isPartyEditing}
+            aria-label="Edit party"
+            onClick={isPartyEditing ? undefined : onEditParty}
+          >
+            <span className="party-edit-trigger__content">
+              <span className="party-edit-trigger__mark" aria-hidden="true">+</span>
+              <span>
+                <strong>Edit party</strong>
+                <small>Change formation</small>
+              </span>
+            </span>
+          </button>
+        </li>
       </ol>
       {!isPartyEditing && (
         <div
@@ -269,7 +285,6 @@ export function PartyWorkbench({
           data-agent={slots[viewedSlot].agentId}
         >
           <WorkspaceIdentity
-            activeSourceTone={activeSourceTone}
             agentId={slots[viewedSlot].agentId}
             isFocus={viewedSlot === focusSlot}
             isIncomplete={incompleteSelections.some((selection) => selection.slot === viewedSlot)}

@@ -9,6 +9,7 @@ import type {
   ResultMetric,
   ResultOperation,
   ResultSource,
+  SourceLocus,
   SurfaceKey,
 } from '../workbench/calculate'
 import {
@@ -147,14 +148,31 @@ function sourceLabel(
 
 function sourceTone(
   source: ResultSource,
-  currentAgentId: AgentResult['agentId'],
   partyAgentIds: readonly AgentId[],
 ): string {
-  if (source.locus === 'target') return 'target'
-  if (source.locus === 'identity' || source.ownerAgentId !== currentAgentId) {
+  if (source.locus === 'identity') {
     return agentToneForParty(source.ownerAgentId, partyAgentIds)
   }
   return source.locus
+}
+
+const AGENT_SELECTOR_SOURCE_LOCI: readonly SourceLocus[] = [
+  'identity',
+  'core',
+  'additional',
+  'special',
+  'ex-special',
+]
+
+function sourceTargetAgentId(
+  source: ResultSource,
+  currentAgentId: AgentResult['agentId'],
+): AgentId | undefined {
+  if (source.locus === 'target' || source.locus === 'calculation') return undefined
+  return source.ownerAgentId !== currentAgentId
+    || AGENT_SELECTOR_SOURCE_LOCI.includes(source.locus)
+    ? source.ownerAgentId
+    : undefined
 }
 
 function sourceIdentity(source: ResultSource): string {
@@ -259,13 +277,17 @@ function SourceMatrix({
         </thead>
         <tbody>
           {rows.map((row) => {
-            const tone = sourceTone(row.source, agentId, partyAgentIds)
+            const tone = sourceTone(row.source, partyAgentIds)
             return (
               <tr
                 key={sourceIdentity(row.source)}
                 className={toneClass(tone, activeSourceTone)}
                 data-source-tone={tone}
-                {...sourceToneEvents(tone, onSourceToneChange)}
+                {...sourceToneEvents(
+                  tone,
+                  onSourceToneChange,
+                  sourceTargetAgentId(row.source, agentId),
+                )}
               >
                 <th scope="row" tabIndex={0}>
                   <i aria-hidden="true" />
@@ -340,7 +362,7 @@ function Gauge({
     ? ''
     : `, cap ${formatNumber(gauge.cap, capDecimals)}`
   const description = `${gauge.basisLabel}: current ${formatNumber(gauge.current, currentDecimals)}${capDescription}${thresholdDescription}; ${outputDescription}`
-  const tone = sourceTone(gauge.source, agentId, partyAgentIds)
+  const tone = sourceTone(gauge.source, partyAgentIds)
 
   return (
     <div
@@ -348,7 +370,11 @@ function Gauge({
       data-source-tone={tone}
       role="group"
       aria-label={description}
-      {...sourceToneEvents(tone, onSourceToneChange)}
+      {...sourceToneEvents(
+        tone,
+        onSourceToneChange,
+        sourceTargetAgentId(gauge.source, agentId),
+      )}
     >
       <small className="gauge__source" tabIndex={0}>
         <span>{sourceLabel(gauge.source, agentId)}</span>
@@ -497,7 +523,7 @@ function ActionRows({
 
   return (
     <section className="action-differences" aria-label={`${metric.label} outcomes`}>
-      <h5 className="hierarchy-caption">{standalone ? `${metric.label} outcomes` : 'Action outcomes'}</h5>
+      {standalone && <h5 className="hierarchy-caption">{metric.label} outcomes</h5>}
       <div className="action-matrix-wrap">
         <table className="source-matrix action-matrix" aria-label={`${metric.label} outcome values`}>
           <colgroup>
@@ -567,13 +593,17 @@ function ActionRows({
                 {sourceRows.length > 0 && (
                   <tbody className="action-source-detail" id={sourceRegionId} hidden={!isExpanded}>
                     {sourceRows.map((row) => {
-                      const tone = sourceTone(row.source, agentId, partyAgentIds)
+                      const tone = sourceTone(row.source, partyAgentIds)
                       return (
                         <tr
                           key={sourceIdentity(row.source)}
                           className={toneClass(tone, activeSourceTone)}
                           data-source-tone={tone}
-                          {...sourceToneEvents(tone, onSourceToneChange)}
+                          {...sourceToneEvents(
+                            tone,
+                            onSourceToneChange,
+                            sourceTargetAgentId(row.source, agentId),
+                          )}
                         >
                           <td className="action-hierarchy-cell" aria-hidden="true" />
                           <th scope="row" tabIndex={0}>
@@ -622,7 +652,7 @@ function Operations({
       <h5>Operations</h5>
       <ul className="action-source-list">
         {operations.map((operation, operationIndex) => {
-          const tone = sourceTone(operation.source, agentId, partyAgentIds)
+          const tone = sourceTone(operation.source, partyAgentIds)
           const value = formatOperationValue(
             operation.value,
             operation.unit,
@@ -642,7 +672,11 @@ function Operations({
               data-source-tone={tone}
               key={`${operation.source.ownerAgentId}:${operation.source.locus}:${operation.label}:${operation.surface}:${operationIndex}`}
               tabIndex={0}
-              {...sourceToneEvents(tone, onSourceToneChange)}
+              {...sourceToneEvents(
+                tone,
+                onSourceToneChange,
+                sourceTargetAgentId(operation.source, agentId),
+              )}
             >
               <span>
                 <small>{surfaceLabels[operation.surface]}</small>

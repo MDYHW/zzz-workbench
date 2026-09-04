@@ -72,46 +72,64 @@ describe('ResultPanel source breakdown', () => {
 })
 
 describe('ResultPanel action hierarchy', () => {
-  it('derives an external Agent source tone from the provider current party slot', async () => {
+  it('separates an Agent source locus color from its owning selector target', async () => {
     const user = userEvent.setup()
+    const onSourceToneChange = vi.fn()
     const result = syntheticResult({
       metrics: [{
         id: 'dmgBonus',
         label: 'DMG Bonus',
         unit: '%',
         decimals: 1,
-        values: surfaces(0, 0, 10),
-        breakdown: surfaces([], [], [{
-          ...syntheticSource,
-          ownerAgentId: 'cissia',
-          amount: 10,
-        }]),
+        values: surfaces(0, 0, 25),
+        breakdown: surfaces([], [], [
+          {
+            ...syntheticSource,
+            ownerAgentId: 'cissia',
+            amount: 10,
+          },
+          {
+            ...syntheticSource,
+            label: 'Identity formula',
+            locus: 'identity',
+            ownerAgentId: 'cissia',
+            amount: 10,
+          },
+          {
+            ...syntheticSource,
+            label: 'Target context',
+            locus: 'target',
+            ownerAgentId: 'cissia',
+            amount: 5,
+          },
+        ]),
         gauges: [],
       }],
     })
-    const { rerender } = render(
+    render(
       <ResultPanel
         activeSourceTone={null}
         agentResult={result}
-        onSourceToneChange={() => {}}
+        onSourceToneChange={onSourceToneChange}
         partyAgentIds={['seed', 'cissia', 'astraYao']}
       />,
     )
 
     await user.click(screen.getByRole('button', { name: 'DMG Bonus' }))
-    expect(screen.getByRole('row', { name: /Cissia.*Synthetic source/ }))
+    const agentSource = screen.getByRole('row', { name: /Cissia.*Synthetic source/ })
+    expect(agentSource).toHaveAttribute('data-source-tone', 'core')
+    expect(screen.getByRole('row', { name: /Cissia.*Identity formula/ }))
       .toHaveAttribute('data-source-tone', 'agent-slot-2')
+    const targetSource = screen.getByRole('row', { name: /Cissia.*Target context/ })
+    expect(targetSource).toHaveAttribute('data-source-tone', 'target')
 
-    rerender(
-      <ResultPanel
-        activeSourceTone={null}
-        agentResult={result}
-        onSourceToneChange={() => {}}
-        partyAgentIds={['cissia', 'seed', 'astraYao']}
-      />,
-    )
-    expect(screen.getByRole('row', { name: /Cissia.*Synthetic source/ }))
-      .toHaveAttribute('data-source-tone', 'agent-slot-1')
+    await user.hover(agentSource)
+    expect(onSourceToneChange).toHaveBeenLastCalledWith('pointer', 'core', 'cissia')
+    await user.unhover(agentSource)
+    expect(onSourceToneChange).toHaveBeenLastCalledWith('pointer', null)
+
+    await user.hover(targetSource)
+    expect(onSourceToneChange).toHaveBeenLastCalledWith('pointer', 'target')
   })
 
   it('renders shared and nested scopes from the projected Result structure', async () => {
@@ -303,11 +321,11 @@ describe('ResultPanel operation presentation', () => {
     )
 
     await user.hover(items[0])
-    expect(onSourceToneChange).toHaveBeenLastCalledWith('pointer', 'core')
+    expect(onSourceToneChange).toHaveBeenLastCalledWith('pointer', 'core', 'seed')
     await user.unhover(items[0])
     expect(onSourceToneChange).toHaveBeenLastCalledWith('pointer', null)
     items[0].focus()
-    expect(onSourceToneChange).toHaveBeenLastCalledWith('focus', 'core')
+    expect(onSourceToneChange).toHaveBeenLastCalledWith('focus', 'core', 'seed')
     items[0].blur()
     expect(onSourceToneChange).toHaveBeenLastCalledWith('focus', null)
 

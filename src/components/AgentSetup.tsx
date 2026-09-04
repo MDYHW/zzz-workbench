@@ -759,7 +759,7 @@ function SubstatStepper({
     >
       <div className="substat-copy">
         <strong>{displayLabel}</strong>
-        <span>+{perHit}{unit} / hit</span>
+        <span>+{perHit}{unit}/hit</span>
       </div>
       <div className="stepper">
         <button
@@ -830,7 +830,7 @@ function StatBank({
 
   return (
     <section className="setup-group stat-bank" aria-labelledby={agentId + '-stat-bank-heading'}>
-      <h3 id={agentId + '-stat-bank-heading'}><span>04</span> Main Stats</h3>
+      <h3 id={agentId + '-stat-bank-heading'}><span>04</span> Stat Bank</h3>
       <h4 className="stat-bank__group-heading stat-bank__group-heading--main">Main stats</h4>
       <div className="main-stat-grid" aria-label={agentName + ' prepared main stats'}>
         {(['slot4', 'slot5', 'slot6'] as MainSlot[]).map((mainSlot) => (

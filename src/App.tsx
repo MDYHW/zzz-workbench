@@ -3,7 +3,7 @@ import { AgentSetup } from './components/AgentSetup'
 import { PartyWorkbench } from './components/PartyWorkbench'
 import { PartyEditor } from './components/PartyEditor'
 import { ResultPanel } from './components/ResultPanel'
-import type { SourceToneChannel } from './components/sourceInteraction'
+import type { SourceLink, SourceToneChannel } from './components/sourceInteraction'
 import { calculateParty } from './workbench/calculate'
 import {
   effectiveFourPieceIds,
@@ -14,10 +14,10 @@ import {
   incompleteRequiredSelections,
   type RequiredSetupSelection,
 } from './workbench/candidates'
-import { ADMITTED_AGENTS, agentDisplayName, type MainSlot } from './workbench/content'
+import { ADMITTED_AGENTS, agentDisplayName, type AgentId, type MainSlot } from './workbench/content'
 import { createPreparedState, isCompleteWorkbench, workbenchReducer, type AppliedSlot } from './workbench/state'
 
-const emptySourceTones: Record<SourceToneChannel, string | null> = {
+const emptySourceLinks: Record<SourceToneChannel, SourceLink | null> = {
   pointer: null,
   focus: null,
 }
@@ -31,7 +31,7 @@ const requiredSelectionKey = (selection: RequiredSetupSelection) => selection.ki
 export function App() {
   const [state, dispatch] = useReducer(workbenchReducer, undefined, () => createPreparedState())
   const [viewedSlot, setViewedSlot] = useState<AppliedSlot>(0)
-  const [sourceTones, setSourceTones] = useState(emptySourceTones)
+  const [sourceLinks, setSourceLinks] = useState(emptySourceLinks)
   const [targetStunDmgMultiplier, setTargetStunDmgMultiplier] = useState(150)
   const incompleteSelections = incompleteRequiredSelections(state)
   const incompleteKey = incompleteSelections
@@ -39,7 +39,9 @@ export function App() {
     .join('|')
   const previousIncompleteKeys = useRef(new Set(incompleteKey ? incompleteKey.split('|') : []))
   const [candidateAnnouncement, setCandidateAnnouncement] = useState('')
-  const activeSourceTone = sourceTones.pointer ?? sourceTones.focus
+  const activeSourceLink = sourceLinks.pointer ?? sourceLinks.focus
+  const activeSourceTone = activeSourceLink?.tone ?? null
+  const activeSourceTargetAgentId = activeSourceLink?.targetAgentId ?? null
   const result = calculateParty(state, { targetStunDmgMultiplier })
   const viewedSetup = state.slots[viewedSlot]
   const focusedAgent = state.slots[state.focusSlot].agentId
@@ -71,11 +73,17 @@ export function App() {
     fourPiece: effectiveFourPieceIds(state, viewedSlot),
     twoPiece: effectiveTwoPieceIds(state, viewedSlot),
   }
-  const changeSourceTone = (channel: SourceToneChannel, tone: string | null) =>
-    setSourceTones((current) => ({ ...current, [channel]: tone }))
+  const changeSourceTone = (
+    channel: SourceToneChannel,
+    tone: string | null,
+    targetAgentId?: AgentId,
+  ) => setSourceLinks((current) => ({
+    ...current,
+    [channel]: tone === null ? null : { tone, targetAgentId: targetAgentId ?? null },
+  }))
 
   useEffect(() => {
-    setSourceTones(emptySourceTones)
+    setSourceLinks(emptySourceLinks)
   }, [selectedSourceIdentityKey])
 
   useEffect(() => {
@@ -116,6 +124,7 @@ export function App() {
         {state.draft && <PartyEditor draft={state.draft} state={state} dispatch={dispatch} onClosed={() => requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.party-edit-trigger')?.focus())} />}
         <PartyWorkbench
           activeSourceTone={activeSourceTone}
+          activeSourceTargetAgentId={activeSourceTargetAgentId}
           slots={state.slots}
           focusSlot={state.focusSlot}
           incompleteSelections={incompleteSelections}
@@ -128,7 +137,7 @@ export function App() {
           {(
             <>
               <AgentSetup
-                activeSourceTone={activeSourceTone}
+                activeSourceTone={activeSourceTargetAgentId === null ? activeSourceTone : null}
                 slot={viewedSlot}
                 agentId={viewedSetup.agentId}
                 discCandidates={viewedDiscCandidates}
