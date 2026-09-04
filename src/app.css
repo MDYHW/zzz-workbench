@@ -3878,7 +3878,7 @@ main { margin-top: 12px; }
 .party-rail > li + li { margin-left: -25px; }
 
 .party-selector {
-  grid-template-columns: minmax(112px, 43%) minmax(0, 1fr);
+  grid-template-columns: calc(var(--selector-height) * 1.08) minmax(0, 1fr);
   clip-path: polygon(0 0, calc(100% - 32px) 0, 100% 100%, 32px 100%);
   background: #1b1c18;
 }
@@ -3900,11 +3900,12 @@ main { margin-top: 12px; }
 }
 
 .party-selector .selector-agent-art {
-  inset: 0;
-  width: 100%;
+  inset: 0 auto 0 0;
+  width: auto;
   height: 100%;
-  object-fit: cover;
-  object-position: 50% 0;
+  max-width: none;
+  object-fit: contain;
+  object-position: 0 0;
   transform: none;
   filter: saturate(0.82) brightness(0.91) contrast(1.04);
 }
