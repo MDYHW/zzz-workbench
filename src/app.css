@@ -3952,7 +3952,7 @@ main { margin-top: 12px; }
 .workspace-identity::after {
   top: 12px;
   left: 14px;
-  width: calc(var(--identity-track-width) + var(--setup-seam-space) - 30px);
+  width: calc(100% + var(--setup-seam-space) - 30px);
   height: 5px;
 }
 
@@ -3961,13 +3961,18 @@ main { margin-top: 12px; }
   right: calc(var(--setup-seam-space) * -1);
 }
 
+.workspace-identity .agent-art {
+  left: 50%;
+}
+
 .workspace-identity .identity-copy {
   padding: 27px 16px 58px;
   text-shadow: 0 2px 10px #000;
 }
 
 .workspace-identity .slot-name-line {
-  max-width: calc(var(--identity-track-width) + var(--setup-seam-space) - 32px);
+  width: calc(100% + var(--setup-seam-space) - 32px);
+  max-width: none;
 }
 
 .workspace-identity .identity-name {
@@ -4023,8 +4028,8 @@ main { margin-top: 12px; }
 
 @media (min-width: 1440px) {
   :root {
-    --identity-track-width: clamp(292px, 19.5vw, 320px);
-    --setup-track-width: clamp(620px, 40.6vw, 660px);
+    --identity-track-width: 15%;
+    --setup-track-width: 47%;
   }
 }
 
@@ -4115,6 +4120,7 @@ main { margin-top: 12px; }
 }
 
 .setup-chassis {
+  --setup-primary-copy-size: 16px;
   gap: 7px;
   margin-top: 0;
   padding: 8px;
@@ -4139,7 +4145,7 @@ main { margin-top: 12px; }
   border-bottom: 1px solid #353a33;
   background: transparent;
   color: #eef0e8;
-  font: 900 14px/1 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
+  font: 900 16px/1 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
   letter-spacing: 0.07em;
 }
 
@@ -4161,7 +4167,7 @@ main { margin-top: 12px; }
 .setup-chassis .loadout-control__group-heading,
 .setup-chassis .stat-bank__group-heading {
   color: #d8dbd1;
-  font: 900 14px/1 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
+  font: 900 16px/1 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
@@ -4183,7 +4189,7 @@ main { margin-top: 12px; }
   border: 1px solid #494f45;
   background: #171b17;
   color: #c4c9bd;
-  font: 900 14px/1 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
+  font: 900 16px/1 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
 }
 
 .setup-chassis :is(.mindscape-rail, .segmented-control) button:is([aria-pressed="true"], .is-selected) {
@@ -4242,7 +4248,7 @@ main { margin-top: 12px; }
 }
 
 .setup-chassis .equipment-name-line strong {
-  font-size: 26px;
+  font-size: 28px;
   line-height: 1.02;
   letter-spacing: -0.025em;
 }
@@ -4262,7 +4268,7 @@ main { margin-top: 12px; }
   gap: 8px;
   padding: 3px 8px;
   border-color: #596055;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .setup-chassis .equipment-effects {
@@ -4273,7 +4279,7 @@ main { margin-top: 12px; }
   padding-top: 4px;
   border-top: 1px solid #353a33;
   color: #e3e4de;
-  font: 800 16px/1.22 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
+  font: 800 17px/1.18 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
 }
 
 .setup-chassis .equipment-effects > span { min-height: 18px; }
@@ -4342,18 +4348,24 @@ main { margin-top: 12px; }
   border-color: #494f45;
   background: #171b17;
   color: #c4c9bd;
-  font: 900 14px/1 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
+  font: 900 16px/1 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
+}
+
+.setup-chassis .refinement-control button:is([aria-pressed="true"], .is-selected) {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #111;
 }
 
 .setup-chassis .disc-grid {
-  gap: 8px;
-  padding: 7px 8px 8px;
+  gap: 5px;
+  padding: 4px 6px 6px;
 }
 
 .setup-chassis .disc-selection .selection-surface {
-  min-height: 154px;
+  min-height: 133px;
   grid-template-columns: 114px minmax(0, 1fr);
-  grid-template-rows: 23px 126px;
+  grid-template-rows: 21px 110px;
   gap: 0;
   padding: 0;
   border-color: #454b41;
@@ -4361,7 +4373,7 @@ main { margin-top: 12px; }
 }
 
 .setup-chassis .disc-card__head {
-  min-height: 23px;
+  min-height: 21px;
   border-color: #3c423a;
   color: #b5bbae;
   font: 900 12px/1 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
@@ -4372,13 +4384,15 @@ main { margin-top: 12px; }
   grid-column: 1;
   grid-row: 2;
   width: 114px;
-  height: 126px;
+  height: 110px;
   align-self: center;
 }
 
 .setup-chassis .disc-selection .selection-surface .equipment-art--disc img {
-  width: 112px;
-  height: 122px;
+  width: 88px;
+  height: 88px;
+  justify-self: start;
+  margin-left: 2px;
 }
 
 .setup-chassis .disc-selection .selection-surface .equipment-copy {
@@ -4390,21 +4404,21 @@ main { margin-top: 12px; }
 }
 
 .setup-chassis .disc-effect-rows {
-  height: 126px;
-  min-height: 126px;
-  grid-template-rows: repeat(3, 40px) !important;
+  height: 110px;
+  min-height: 110px;
+  grid-template-rows: repeat(3, 36px) !important;
   align-content: stretch;
-  gap: 3px;
+  gap: 1px;
 }
 
 .setup-chassis .disc-effect-rows > span {
   width: calc(100% - 92px);
-  min-height: 40px;
+  min-height: 36px;
   grid-template-columns: 32px minmax(0, 1fr);
   align-items: center;
   gap: 6px;
   margin-left: 92px;
-  padding: 2px 0;
+  padding: 0;
 }
 
 .setup-chassis .disc-effect-rows--four-piece > span:nth-child(1) { grid-row: 1; }
@@ -4413,12 +4427,12 @@ main { margin-top: 12px; }
 .setup-chassis .disc-effect-rows--two-piece > span { grid-row: 3; }
 
 .setup-chassis .disc-effect-rows small {
-  font: 900 12px/1 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
+  font: 900 14px/1 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
 }
 
 .setup-chassis .disc-effect-rows b {
   color: #e3e4de;
-  font: 800 16px/1.2 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
+  font: 800 var(--setup-primary-copy-size)/1.1 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
   overflow-wrap: normal;
 }
 
@@ -4496,7 +4510,7 @@ main { margin-top: 12px; }
 .setup-chassis .main-stat-block small {
   border-color: #3c423a;
   color: #b8bdb2;
-  font: 900 12px/1 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
+  font: 900 14px/1 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
   letter-spacing: 0.06em;
 }
 
@@ -4507,14 +4521,14 @@ main { margin-top: 12px; }
 
 .setup-chassis .main-stat-block__details > span {
   padding: 0;
-  font-size: 14px;
+  font-size: var(--setup-primary-copy-size);
   line-height: 1.15;
   overflow-wrap: normal;
 }
 
 .setup-chassis .main-stat-block__details > strong {
   color: var(--accent-soft);
-  font-size: 20px;
+  font-size: 22px;
 }
 
 .setup-chassis .stat-bank__group-heading--substats {
@@ -4546,15 +4560,16 @@ main { margin-top: 12px; }
 
 .setup-chassis .substat-copy strong {
   display: block;
-  font-size: 16px;
+  font-size: var(--setup-primary-copy-size);
   line-height: 1.2;
 }
 
 .setup-chassis .substat-copy span {
   display: block;
   color: #aeb4a8;
-  font-size: 12px;
-  white-space: normal;
+  font-size: var(--setup-primary-copy-size);
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .setup-chassis .stepper {
@@ -4575,7 +4590,7 @@ main { margin-top: 12px; }
   border-radius: 50%;
   background: #222620;
   color: #f1eee4;
-  font-size: 13px;
+  font-size: 16px;
 }
 
 .setup-chassis .stepper input {
@@ -4789,11 +4804,10 @@ main { margin-top: 12px; }
 .action-source-list li small { font-size: 11px; }
 
 @media (max-width: 1339px) {
+  .setup-chassis { --setup-primary-copy-size: 14px; }
   .setup-chassis .equipment-name-line strong { font-size: 22px; }
   .setup-chassis .equipment-advanced { font-size: 14px; }
   .setup-chassis .equipment-effects { font-size: 14px; }
-  .setup-chassis .disc-effect-rows b { font-size: 14px; }
-  .setup-chassis .substat-copy strong { font-size: 14px; }
   .agent-result tbody td { font-size: 18px; }
 }
 
@@ -4807,6 +4821,23 @@ main { margin-top: 12px; }
 
   .setup-chassis .equipment-fieldset {
     grid-template-columns: minmax(0, 1fr) 54px;
+  }
+
+  .setup-chassis .equipment-fieldset > .selection-stack {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .setup-chassis .equipment-fieldset > .refinement-control {
+    grid-column: 2;
+    grid-row: 2;
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .setup-chassis .refinement-control > div {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(5, minmax(0, 1fr));
   }
 
   .setup-chassis .equipment-fieldset .selection-surface {
