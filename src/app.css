@@ -4181,7 +4181,7 @@ main { margin-top: 12px; }
   }
 }
 
-@media (min-width: 761px) and (max-width: 1040px) {
+@media (min-width: 761px) and (max-width: 1080px) {
   .party-selector__identity {
     gap: 4px;
     padding-left: 14px;
