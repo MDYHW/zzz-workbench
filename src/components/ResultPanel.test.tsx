@@ -72,7 +72,7 @@ describe('ResultPanel source breakdown', () => {
 })
 
 describe('ResultPanel action hierarchy', () => {
-  it('separates an Agent source locus color from its owning selector target', async () => {
+  it('groups external Agent sources by provider color without collapsing local or neutral loci', async () => {
     const user = userEvent.setup()
     const onSourceToneChange = vi.fn()
     const result = syntheticResult({
@@ -102,6 +102,12 @@ describe('ResultPanel action hierarchy', () => {
             ownerAgentId: 'cissia',
             amount: 5,
           },
+          {
+            ...syntheticSource,
+            label: 'Local source',
+            ownerAgentId: 'seed',
+            amount: 5,
+          },
         ]),
         gauges: [],
       }],
@@ -117,14 +123,16 @@ describe('ResultPanel action hierarchy', () => {
 
     await user.click(screen.getByRole('button', { name: 'DMG Bonus' }))
     const agentSource = screen.getByRole('row', { name: /Cissia.*Synthetic source/ })
-    expect(agentSource).toHaveAttribute('data-source-tone', 'core')
+    expect(agentSource).toHaveAttribute('data-source-tone', 'agent-slot-2')
     expect(screen.getByRole('row', { name: /Cissia.*Identity formula/ }))
       .toHaveAttribute('data-source-tone', 'agent-slot-2')
+    expect(screen.getByRole('row', { name: /Local source/ }))
+      .toHaveAttribute('data-source-tone', 'core')
     const targetSource = screen.getByRole('row', { name: /Cissia.*Target context/ })
     expect(targetSource).toHaveAttribute('data-source-tone', 'target')
 
     await user.hover(agentSource)
-    expect(onSourceToneChange).toHaveBeenLastCalledWith('pointer', 'core', 'cissia')
+    expect(onSourceToneChange).toHaveBeenLastCalledWith('pointer', 'agent-slot-2', 'cissia')
     await user.unhover(agentSource)
     expect(onSourceToneChange).toHaveBeenLastCalledWith('pointer', null)
 

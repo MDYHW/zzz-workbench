@@ -148,8 +148,15 @@ function sourceLabel(
 
 function sourceTone(
   source: ResultSource,
+  currentAgentId: AgentResult['agentId'],
   partyAgentIds: readonly AgentId[],
 ): string {
+  if (source.locus === 'target' || source.locus === 'calculation') {
+    return source.locus
+  }
+  if (source.ownerAgentId !== currentAgentId) {
+    return agentToneForParty(source.ownerAgentId, partyAgentIds)
+  }
   if (source.locus === 'identity') {
     return agentToneForParty(source.ownerAgentId, partyAgentIds)
   }
@@ -277,7 +284,7 @@ function SourceMatrix({
         </thead>
         <tbody>
           {rows.map((row) => {
-            const tone = sourceTone(row.source, partyAgentIds)
+            const tone = sourceTone(row.source, agentId, partyAgentIds)
             return (
               <tr
                 key={sourceIdentity(row.source)}
@@ -362,7 +369,7 @@ function Gauge({
     ? ''
     : `, cap ${formatNumber(gauge.cap, capDecimals)}`
   const description = `${gauge.basisLabel}: current ${formatNumber(gauge.current, currentDecimals)}${capDescription}${thresholdDescription}; ${outputDescription}`
-  const tone = sourceTone(gauge.source, partyAgentIds)
+  const tone = sourceTone(gauge.source, agentId, partyAgentIds)
 
   return (
     <div
@@ -376,40 +383,63 @@ function Gauge({
         sourceTargetAgentId(gauge.source, agentId),
       )}
     >
-      <small className="gauge__source" tabIndex={0}>
-        <span>{sourceLabel(gauge.source, agentId)}</span>
-        {gauge.source.detail && <em>{gauge.source.detail}</em>}
-      </small>
-      <div className="gauge__labels">
-        <span>{gauge.basisLabel}</span>
-        <strong>
-          {formatNumber(gauge.current, currentDecimals)}
-          {gauge.cap === undefined ? '' : ` / ${formatNumber(gauge.cap, capDecimals)}`}
-        </strong>
+      <div className="gauge__source-band">
+        <small className="gauge__source" tabIndex={0}>
+          <span>{sourceLabel(gauge.source, agentId)}</span>
+          {gauge.source.detail && <em>{gauge.source.detail}</em>}
+        </small>
       </div>
-      {gauge.threshold !== undefined && !isThresholdOnlyActive && (
-        <small className="gauge__threshold-copy">Threshold {formatNumber(gauge.threshold, thresholdDecimals)}</small>
-      )}
-      <div className="gauge__track" aria-hidden="true">
-        <span className="gauge__fill" style={{ width: `${isThresholdOnlyActive ? 100 : progress}%` }}>
-          {isThresholdOnlyActive ? 'Active' : null}
-        </span>
-        {threshold !== undefined && !isThresholdOnlyActive && <i className="gauge__threshold" style={{ left: `${threshold}%` }} />}
-      </div>
-      {outputs.map((output) => (
-        <div className="gauge__output" key={output.label}>
-          <span>{output.label}</span>
+      <div className="gauge__measure-deck">
+        <div className="gauge__labels">
+          <span>{gauge.basisLabel}</span>
           <strong>
-            {formatOperationValue(
-              output.value,
-              output.unit,
-              outputDecimals,
-              gauge.presentation,
-            )}
-            {output.cap === undefined ? '' : ` / ${formatNumber(output.cap, outputCapDecimals)}${output.unit}`}
+            {formatNumber(gauge.current, currentDecimals)}
+            {gauge.cap === undefined ? '' : ` / ${formatNumber(gauge.cap, capDecimals)}`}
           </strong>
         </div>
-      ))}
+        <div className="gauge__rail">
+          <div className="gauge__track" aria-hidden="true">
+            <span
+              className={`gauge__fill${isThresholdOnlyActive ? ' is-active' : ''}`}
+              style={{ width: `${isThresholdOnlyActive ? 100 : progress}%` }}
+            >
+              {isThresholdOnlyActive ? 'Active' : null}
+            </span>
+            {threshold !== undefined && !isThresholdOnlyActive && <i className="gauge__threshold" style={{ left: `${threshold}%` }} />}
+          </div>
+          {!isThresholdOnlyActive && (
+            <div className="gauge__scale" aria-hidden="true">
+              {gauge.threshold !== undefined && (
+                <small
+                  className={`gauge__threshold-copy${gauge.cap === undefined || gauge.cap === gauge.threshold ? ' is-terminal' : ''}`}
+                  style={gauge.cap !== undefined && gauge.cap !== gauge.threshold ? { left: `${threshold}%` } : undefined}
+                >
+                  Threshold {formatNumber(gauge.threshold, thresholdDecimals)}
+                </small>
+              )}
+              {gauge.cap !== undefined && gauge.cap !== gauge.threshold && (
+                <small className="gauge__cap-copy">Cap {formatNumber(gauge.cap, capDecimals)}</small>
+              )}
+            </div>
+          )}
+        </div>
+        <div className="gauge__outputs">
+          {outputs.map((output) => (
+            <div className="gauge__output" key={output.label}>
+              <span>{output.label}</span>
+              <strong>
+                {formatOperationValue(
+                  output.value,
+                  output.unit,
+                  outputDecimals,
+                  gauge.presentation,
+                )}
+                {output.cap === undefined ? '' : ` / ${formatNumber(output.cap, outputCapDecimals)}${output.unit}`}
+              </strong>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
@@ -593,7 +623,7 @@ function ActionRows({
                 {sourceRows.length > 0 && (
                   <tbody className="action-source-detail" id={sourceRegionId} hidden={!isExpanded}>
                     {sourceRows.map((row) => {
-                      const tone = sourceTone(row.source, partyAgentIds)
+                      const tone = sourceTone(row.source, agentId, partyAgentIds)
                       return (
                         <tr
                           key={sourceIdentity(row.source)}
@@ -652,7 +682,7 @@ function Operations({
       <h5>Operations</h5>
       <ul className="action-source-list">
         {operations.map((operation, operationIndex) => {
-          const tone = sourceTone(operation.source, partyAgentIds)
+          const tone = sourceTone(operation.source, agentId, partyAgentIds)
           const value = formatOperationValue(
             operation.value,
             operation.unit,

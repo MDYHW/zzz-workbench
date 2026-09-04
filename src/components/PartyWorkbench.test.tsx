@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { createPreparedState, type AppliedSlot } from '../workbench/state'
 import { PartyWorkbench } from './PartyWorkbench'
 import {
+  agentToneForParty,
   sourceToneEvents,
   type SourceLink,
   type SourceToneChannel,
@@ -41,7 +42,10 @@ function Harness() {
       onViewSlot={setViewedSlot}
     >
       <button type="button" {...sourceToneEvents(
-        'w-engine',
+        agentToneForParty(
+          prepared.slots[1].agentId,
+          prepared.slots.map((slot) => slot.agentId),
+        ),
         changeSourceTone,
         prepared.slots[1].agentId,
       )}>
@@ -86,7 +90,7 @@ describe('PartyWorkbench persistent selector mechanism', () => {
 
     await user.hover(source)
     expect(provider).toHaveClass('is-source-active')
-    expect(provider).toHaveClass('source-tone--w-engine')
+    expect(provider).toHaveClass('source-tone--agent-slot-2')
     expect(selected).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByRole('tabpanel')).toHaveAttribute('data-agent', 'yixuan')
     await user.unhover(source)
