@@ -528,11 +528,13 @@ export const equipmentEffectProgressionIncrementValue = (
 export const equipmentEffectMaximumValue = (
   effect: EquipmentEffectFact,
   refinement?: Refinement,
-): number => effect.progression?.kind === 'stacks'
-  && effect.progression.maximum !== undefined
-  ? resolveEquipmentEffectValue(effect.progression.maximum, refinement)
-  : equipmentEffectBaseValue(effect, refinement)
-    + equipmentEffectProgressionValue(effect, refinement)
+): number => round(
+  effect.progression?.kind === 'stacks'
+    && effect.progression.maximum !== undefined
+    ? resolveEquipmentEffectValue(effect.progression.maximum, refinement)
+    : equipmentEffectBaseValue(effect, refinement)
+      + equipmentEffectProgressionValue(effect, refinement),
+)
 
 export const defaultRefinementFor = (rank: EngineRank): Refinement => rank === 'S' ? 1 : 5
 
