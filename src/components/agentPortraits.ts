@@ -138,7 +138,7 @@ export type PortraitSourceStyle = CSSProperties & {
 // shared CSS geometry so an asset cannot introduce a local placement rule.
 const PORTRAIT_SOURCES: Record<AgentId, PortraitSource> = {
   remielle: { faceX: 52, headTopY: 0, scale: 3.2 },
-  pyrois: { faceX: 50, headTopY: 1, scale: 1 },
+  pyrois: { faceX: 56.5, headTopY: 4.5, scale: 2.2 },
   sigrid: { faceX: 34.5, headTopY: 10.5, scale: 1.66 },
   velina: { faceX: 53, headTopY: 6, scale: 1.924 },
   yixuan: { faceX: 55.86, headTopY: 1, scale: 2.1 },
