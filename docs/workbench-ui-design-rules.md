@@ -73,10 +73,12 @@ concepts required by the
 - Every selector reserves stable space for viewed selection, Focus, incomplete
   Setup, pointer or keyboard focus, and temporary Result-source linkage. Adding
   or removing any marker must not shift the Agent identity.
-- When an expanded Result source comes from another applied party member, the
-  provider's persistent selector is highlighted without changing the viewed
-  Agent. Agent-local source linkage continues to terminate in the selected
-  workspace.
+- When an expanded Result source is owned by an applied Agent but has no visible
+  Setup control in the selected workspace, the owning Agent's persistent
+  selector is highlighted with the source's retained linking color. This applies
+  equally to the viewed Agent and another applied party member. A source with an
+  unambiguous visible Setup control continues to terminate at that control.
+  Source linkage does not change the viewed Agent.
 - Viewed-Agent selection does not change Focus, party order, applied Setup,
   calculation, candidates, or Result meaning.
 
@@ -239,12 +241,14 @@ contribution changes.
   not to stat identities. The first effective-substat input therefore keeps the
   same color across Agents even when one Agent shows CRIT Rate there and another
   shows HP.
-- An Agent-identity formula source uses its owning Agent slot's color. A
-  contribution from another party member also uses that provider Agent slot's
-  one color even when its detailed text names that Agent's W-Engine, Drive Disc,
-  Core Passive, or another internal source. Selecting that Agent's slot exposes
-  those local distinctions; source hover or focus must not expand the slot
-  automatically.
+- Source-locus color and temporary link destination are separate. An
+  Agent-identity formula source uses its owning Agent selector's color. Other
+  Agent-owned contributions retain the distinct color of their W-Engine, Drive
+  Disc, effective-substat position, canonical action, Core Passive, Additional
+  Ability, or other retained source locus even when the source links to a party
+  selector. The resolved destination receives that retained linking color for
+  the duration of the link; several sources terminating at one selector do not
+  collapse into one Agent-slot color.
 - Only current, retained source loci consume semantic colors. Calculation clamps
   remain neutral, and absent actions or omitted fixed inputs do not reserve
   speculative colors.
@@ -253,10 +257,16 @@ contribution changes.
   later increments in later surface cells. The parent aggregate remains
   cumulative. Do not insert subtotal pseudo-sources or empty-state copy such as
   `No new contribution`.
-- Pointer hover or keyboard focus on a source highlights its owning Setup locus
-  or provider Agent slot. Hover or focus on an unambiguous Setup locus highlights
-  the matching Result sources. Exact source text remains visible, so color is a
-  linking cue rather than the only carrier of meaning.
+- Pointer hover or keyboard focus on a source highlights its unambiguous visible
+  Setup control when one exists. An Agent-owned source without a visible Setup
+  control highlights the owning Agent's persistent selector, whether that Agent
+  is currently viewed or is another applied party member. A Result-local target
+  or calculation source remains linked to its neutral Result-local destination.
+  Resolve this destination from retained source ownership and visible structure,
+  not displayed source words or a list of skill names. Hover or focus on an
+  unambiguous Setup locus highlights the matching Result sources. Exact source
+  text remains visible, so color is a linking cue rather than the only carrier
+  of meaning.
 - Source color belongs to the locus, not the selected item identity. Direct
   equipment replacement retains the locus color while replacing its source text,
   contributions, and action rows atomically. Removed sources leave no stale
