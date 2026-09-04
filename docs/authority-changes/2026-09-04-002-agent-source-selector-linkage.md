@@ -1,9 +1,9 @@
 ---
 id: ACR-2026-09-04-002
 date: 2026-09-04
-status: accepted
+status: superseded
 supersedes: none
-superseded_by: none
+superseded_by: ACR-2026-09-04-003
 ---
 
 # Route Setup-absent Agent sources to their persistent selector
