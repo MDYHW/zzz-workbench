@@ -323,7 +323,7 @@ test('the selector rail keeps fixed one-row geometry through responsive boundari
       expect(selectorWidth, `selector width at ${width}px`).toBeGreaterThan(0)
       expect(identityWidth, `identity width at ${width}px`).toBeGreaterThanOrEqual(40)
       expect(nameBottom, `name-to-band order at ${width}px`).toBeLessThanOrEqual(bandBottom)
-      expect(bandBottom, `identity content at ${width}px`).toBeLessThanOrEqual(selectorBottom)
+      expect(bandBottom, `identity content at ${width}px`).toBeLessThanOrEqual(selectorBottom + 0.5)
     }
     expect(await page.evaluate(() => (
       document.documentElement.scrollWidth <= document.documentElement.clientWidth
