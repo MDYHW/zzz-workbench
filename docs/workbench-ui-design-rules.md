@@ -75,10 +75,11 @@ concepts required by the
   or removing any marker must not shift the Agent identity.
 - When an expanded Result source is owned by an applied Agent but has no visible
   Setup control in the selected workspace, the owning Agent's persistent
-  selector is highlighted with the source's retained linking color. This applies
-  equally to the viewed Agent and another applied party member. A source with an
-  unambiguous visible Setup control continues to terminate at that control.
-  Source linkage does not change the viewed Agent.
+  selector is highlighted. A source owned by another applied party member uses
+  that provider selector's stable Agent-slot color; a source owned by the viewed
+  Agent retains its source-locus linking color. A source with an unambiguous
+  visible Setup control continues to terminate at that control. Source linkage
+  does not change the viewed Agent.
 - Viewed-Agent selection does not change Focus, party order, applied Setup,
   calculation, candidates, or Result meaning.
 
@@ -242,13 +243,15 @@ contribution changes.
   same color across Agents even when one Agent shows CRIT Rate there and another
   shows HP.
 - Source-locus color and temporary link destination are separate. An
-  Agent-identity formula source uses its owning Agent selector's color. Other
-  Agent-owned contributions retain the distinct color of their W-Engine, Drive
-  Disc, effective-substat position, canonical action, Core Passive, Additional
-  Ability, or other retained source locus even when the source links to a party
-  selector. The resolved destination receives that retained linking color for
-  the duration of the link; several sources terminating at one selector do not
-  collapse into one Agent-slot color.
+  Agent-identity formula source uses its owning Agent selector's color. Every
+  contribution owned by another applied party Agent uses that provider
+  selector's one stable Agent-slot color for its source row, gauge, action
+  source, operation, and temporary selector highlight, regardless of its
+  internal W-Engine, Drive Disc, Core Passive, Additional Ability, canonical
+  action, or other locus. The exact provider-prefixed source label retains that
+  provenance. Contributions owned by the viewed Agent retain their distinct
+  source-locus colors, including when a Setup-absent source links to the viewed
+  Agent's selector.
 - Only current, retained source loci consume semantic colors. Calculation clamps
   remain neutral, and absent actions or omitted fixed inputs do not reserve
   speculative colors.
