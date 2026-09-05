@@ -401,7 +401,7 @@ center the visual target. Scale controls perceived identity size, `headTopY`
 registers the readable continuous figure composition vertically, and `faceX`
 registers the optical center of the face and connected upper-body mass
 horizontally. These source inputs belong to the full artwork and are shared by
-the responsive workspace and Party Edit portrait surfaces.
+the responsive workspace and Party Edit draft slots.
 
 The persistent selector uses one dedicated upper-body derivative for every
 admitted Agent. A derivative retains the exact workspace artwork, pose, form,
@@ -415,10 +415,12 @@ desktop and narrow comparison demonstrates that the common selector frame
 cannot preserve readable identity without them.
 
 The same selector derivative remains visible when the applied-party rail is
-inactive during Party Edit. The separate Party Edit draft slots and candidate
-pool retain the workspace full-art source, its normalized inputs, and their own
-shared responsive destination frames. Their replacement interactions do not
-change.
+inactive during Party Edit. The Party Edit candidate pool may reuse that
+roster-complete derivative in its own common compact destination frame and crop
+treatment; it does not inherit the workspace source's `scale`, `headTopY`, or
+`faceX`. The separate Party Edit draft slots retain the workspace full-art
+source, its normalized inputs, and their own shared responsive destination
+frame. Their replacement interactions do not change.
 
 Each portrait surface owns one common destination frame. The frame applies the
 source's horizontal and vertical optical registration, then multiplies its
@@ -432,10 +434,11 @@ preserve the identity.
 The current shared frames are visual calibration inputs, not game or product
 meaning. Desktop workspace uses the midpoint from Identity start to Setup
 content start, a `100px` head-top line, and a `295%` nominal image width. Mobile
-workspace uses `30%`, `16px`, and `110%`. Party Edit full-art frames apply the
-same source metadata through their own shared responsive destinations. The
-selector uses its own common shallow frame and the same image-aligned diagonal
-treatment in all three applied slots.
+workspace uses `30%`, `16px`, and `110%`. The Party Edit draft-slot full-art
+frame applies the same source metadata through its own shared responsive
+destination. The selector uses its own common shallow frame and the same
+image-aligned diagonal treatment in all three applied slots. The candidate pool
+uses one common compact frame for the reused derivative.
 
 Use the authored source metadata deterministically at runtime. Original-canvas
 measurements, transparent bounds, automatic face detection, visible silhouette
@@ -488,7 +491,8 @@ collision, preserves comparable perceived Agent scale, and keeps meaningful
 artwork clear of Setup controls. Narrow workspace frames apply the same
 full-art source metadata through their own shared responsive destination.
 Selector derivatives instead use the common selector frame and only the
-separately justified normalized inputs above.
+separately justified normalized inputs above; the Party Edit candidate pool
+uses that derivative in its separate common compact frame.
 
 Source-variable presence proves only structural wiring. A portrait calibration
 is not accepted until the original asset has been inspected and all three
@@ -501,10 +505,11 @@ destination surface for immediate face readability, continuous composition,
 optical identity weight, and name or control clearance. Source inspection alone
 cannot mark a portrait sound, and a controller does not accept a worker's
 full-art metadata change without repeating that rendered comparison for every
-changed Agent in the workspace and Party Edit destinations. A selector
+changed Agent in the workspace and Party Edit draft slots. A selector
 derivative or selector-specific normalized input also requires roster-complete
 desktop and narrow comparison in the persistent three-slot rail, including its
-inactive Party Edit state.
+inactive Party Edit state, and in the Party Edit candidate pool that reuses the
+derivative.
 
 ### Expanded Slot Composition
 
