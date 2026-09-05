@@ -1,0 +1,87 @@
+/* Result type scales from the Result surface itself, not from the viewport. */
+.result-panel {
+  container-type: inline-size;
+}
+
+.result-heading h2 {
+  font-size: clamp(36px, 8.5cqw, 44px);
+}
+
+.result-heading .eyebrow {
+  font-size: clamp(12px, 2.8cqw, 14px);
+}
+
+.agent-result thead th {
+  white-space: nowrap;
+}
+
+.metric-toggle,
+.metric-label {
+  gap: 8px;
+}
+
+.metric-toggle > span,
+.metric-label,
+.source-matrix thead th,
+.source-matrix tbody th span {
+  white-space: nowrap;
+}
+
+.source-matrix thead th {
+  letter-spacing: -0.055em;
+}
+
+.source-matrix tbody th {
+  height: 35px;
+  padding: 7px 8px;
+}
+
+.source-matrix tbody td {
+  height: 35px;
+  padding: 7px 8px;
+}
+
+.breakdown-grid h5,
+.action-differences h5 {
+  font-size: clamp(10px, 2.45cqw, 12px);
+}
+
+.gauge__source,
+.gauge__threshold-copy {
+  font-size: clamp(9px, 2.15cqw, 10px);
+}
+
+.gauge__labels,
+.gauge__output {
+  font-size: clamp(11px, 2.45cqw, 12px);
+}
+
+@media (min-width: 521px) {
+  .source-matrix-wrap,
+  .action-matrix-wrap {
+    margin-right: calc(var(--result-detail-inset) * -1);
+    margin-left: calc(var(--result-detail-inset) * -1);
+  }
+
+  .agent-result thead th:not(:first-child),
+  .agent-result tbody td,
+  .source-matrix:not(.action-matrix) thead th:not(:first-child),
+  .source-matrix:not(.action-matrix) tbody td,
+  .action-matrix thead th:nth-child(n + 3),
+  .action-matrix tbody td:nth-child(n + 3) {
+    padding-right: var(--result-surface-edge);
+    padding-left: var(--result-surface-edge);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .agent-result thead th:not(:first-child) {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .source-matrix:not(.action-matrix) thead th:not(:first-child),
+  .action-matrix thead th:nth-child(n + 3) {
+    padding-right: 0;
+    padding-left: 0;
+  }
+}

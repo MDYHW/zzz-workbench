@@ -3,6 +3,11 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ADMITTED_AGENTS, agentDisplayName } from '../../src/workbench/content/agents'
 import type { AgentId } from '../../src/workbench/content/types'
+import {
+  openWorkbench,
+  trackRuntimeFailures,
+  waitForWorkbenchImages,
+} from './support/workbench-page'
 
 type PortraitAgent = {
   candidateName: string
@@ -185,18 +190,6 @@ function agentTab(page: Page, agent: PortraitAgent) {
   })
 }
 
-async function waitForPortraits(page: Page): Promise<void> {
-  await page.locator('img').evaluateAll(async (images) => {
-    await Promise.all(images.map(async (image) => {
-      if (image.complete) return
-      await new Promise<void>((resolve) => {
-        image.addEventListener('load', () => resolve(), { once: true })
-        image.addEventListener('error', () => resolve(), { once: true })
-      })
-    }))
-  })
-}
-
 async function applyParty(page: Page, party: PortraitParty): Promise<void> {
   await page.getByRole('button', { name: 'Edit party' }).click()
 
@@ -222,7 +215,7 @@ async function applyParty(page: Page, party: PortraitParty): Promise<void> {
     }
   }
   await page.getByRole('button', { name: changed ? 'Apply party' : 'Cancel' }).click()
-  await waitForPortraits(page)
+  await waitForWorkbenchImages(page)
 }
 
 async function selectAgent(page: Page, agent: PortraitAgent): Promise<void> {
@@ -409,7 +402,7 @@ test('Party Edit candidate pool preserves every admitted upper-body portrait des
     await page.setViewportSize(destination.viewport)
     await page.getByRole('button', { name: 'Edit party' }).click()
     await page.getByRole('button', { name: /^Replace slot 1,/ }).click()
-    await waitForPortraits(page)
+    await waitForWorkbenchImages(page)
 
     const pool = page.getByRole('region', { name: 'Agent candidate pool' })
     const grid = pool.locator('.party-editor__pool-grid')
@@ -430,14 +423,8 @@ test('Party Edit candidate pool preserves every admitted upper-body portrait des
 })
 
 test.beforeEach(async ({ page }) => {
-  const failures: string[] = []
-  runtimeFailures.set(page, failures)
-  page.on('console', (message) => {
-    if (message.type() === 'error') failures.push(`console.error: ${message.text()}`)
-  })
-  page.on('pageerror', (error) => failures.push(`pageerror: ${error.message}`))
-  await page.goto('/')
-  await waitForPortraits(page)
+  runtimeFailures.set(page, trackRuntimeFailures(page))
+  await openWorkbench(page)
 })
 
 for (const party of parties) {
