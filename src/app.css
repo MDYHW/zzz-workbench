@@ -278,7 +278,7 @@ main { margin-top: 18px; }
   overflow: hidden;
   overflow-wrap: anywhere;
   color: #f3f1e9;
-  font: 900 clamp(22px, 1.8vw, 27px)/.9 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
+  font: 900 clamp(22px, 1.8vw, 27px)/1 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
   letter-spacing: -.04em;
   text-shadow: 0 2px 6px #000;
   text-transform: uppercase;
@@ -624,14 +624,15 @@ main { margin-top: 18px; }
   margin-left: calc(32% + 8px);
   flex-direction: column;
   justify-content: center;
-  padding: 7px 4px 6px 12px;
+  padding: 3px 4px 2px 12px;
 }
 .agent-pool-card__name {
   display: flex;
-  height: 1.84em;
+  height: 2.4em;
+  flex: none;
   min-width: 0;
   align-items: center;
-  margin-bottom: 5px;
+  margin-bottom: 1px;
   overflow: hidden;
   overflow-wrap: anywhere;
   font: 900 20px/.92 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
@@ -5772,7 +5773,7 @@ main { margin-top: 12px; }
   .party-editor__portrait--draft { width: 54px; }
   .party-editor__portrait--draft img { inset: -5px auto auto -1px; width: 66px; height: 66px; }
   .draft-slot__identity { inset: 0 9px 0 29px; gap: 2px; padding: 3px 1px; }
-  .draft-slot__identity > strong { font-size: clamp(7px, 2.25vw, 9px); line-height: .88; }
+  .draft-slot__identity > strong { font-size: clamp(7px, 2.25vw, 9px); line-height: 1; }
   .draft-slot__marks { gap: 1px; }
   .draft-slot__marks img { width: 10px; height: 10px; }
   .draft-slot__replace { width: 43px; height: 12px; padding-left: 4px; font-size: 5px; }
