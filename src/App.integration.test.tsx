@@ -89,6 +89,7 @@ describe('workbench UI integration', () => {
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
     expect(screen.queryByText(/Draft 0[1-3]/)).not.toBeInTheDocument()
     const focusControl = document.querySelector<HTMLButtonElement>('.party-editor__focus-change')!
+    expect(screen.getByRole('button', { name: 'Apply party' })).toBeDisabled()
     expect(focusControl).toBeDisabled()
     expect(screen.queryByRole('group', { name: 'Eligible Focus Agents' })).not.toBeInTheDocument()
 
@@ -98,7 +99,8 @@ describe('workbench UI integration', () => {
     expect(focusControl).toBeEnabled()
     await user.click(focusControl)
     const focusOptions = screen.getByRole('group', { name: 'Eligible Focus Agents' })
-    expect(within(focusOptions).getAllByRole('button')).toHaveLength(2)
+    const eligibleFocusOptions = within(focusOptions).getAllByRole('button')
+    expect(eligibleFocusOptions).toHaveLength(2)
     expect(focusOptions.closest('.party-editor__focus-popup')).toHaveClass('party-editor__focus-popup--2')
     expect(within(focusOptions).queryByText('Focus eligible')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Replace slot 2,/ })).not.toHaveAttribute('aria-pressed', 'true')
@@ -110,6 +112,53 @@ describe('workbench UI integration', () => {
       .toHaveClass('is-focus')
     expect(document.querySelector('.draft-slot.is-focus .draft-slot__focus-marker'))
       .toHaveTextContent('Focus')
+  })
+
+  it('routes an otherwise valid unresolved draft from Apply party into Focus selection', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await user.click(screen.getByRole('button', { name: /Replace slot 2,/ }))
+    await user.click(screen.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ }))
+
+    const applyParty = screen.getByRole('button', { name: 'Apply party' })
+    expect(applyParty).toBeEnabled()
+
+    await user.click(applyParty)
+
+    const focusOptions = screen.getByRole('group', { name: 'Eligible Focus Agents' })
+    const eligibleFocusOptions = within(focusOptions).getAllByRole('button')
+    expect(eligibleFocusOptions).toHaveLength(2)
+    expect(eligibleFocusOptions[0]).toHaveFocus()
+    await user.click(applyParty)
+    expect(eligibleFocusOptions[0]).toHaveFocus()
+    expect(screen.getByRole('heading', { name: 'Editing party' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Dialyn applied slot, inactive/ }))
+      .toBeInTheDocument()
+
+    await user.click(within(focusOptions).getByRole('button', {
+      name: 'Set Anby: Soldier 0 as Focus',
+    }))
+    await user.click(applyParty)
+
+    expect(screen.queryByRole('heading', { name: 'Editing party' })).not.toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'View Anby: Soldier 0 setup and Result' }))
+      .toHaveTextContent('Focus')
+  })
+
+  it('keeps Apply party unavailable when a changed draft has no eligible Focus', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await user.click(screen.getByRole('button', { name: /Replace slot 1,/ }))
+    await user.click(screen.getByRole('button', { name: /Trigger, Electric, Stun/ }))
+
+    expect(screen.getByRole('button', { name: 'Apply party' })).toBeDisabled()
+    expect(screen.queryByRole('group', { name: 'Eligible Focus Agents' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Yixuan applied slot, inactive/ }))
+      .toBeInTheDocument()
   })
 
   it('groups special declared Attributes under their base Party Edit filter families', async () => {

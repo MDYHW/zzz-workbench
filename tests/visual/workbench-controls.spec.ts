@@ -293,14 +293,14 @@ test('keeps Party Edit formation, filters, and candidate cards on their shared g
   }
 })
 
-test('keeps the Focus chooser above the inactive current-party rail', async ({ page }) => {
+test('keeps the Focus chooser opened from Apply above the inactive current-party rail', async ({ page }) => {
   for (const viewport of [{ width: 552, height: 900 }, { width: 320, height: 900 }]) {
     await page.setViewportSize(viewport)
     await page.goto('/')
     await page.getByRole('button', { name: 'Edit party' }).click()
     await page.getByRole('button', { name: /Replace slot 2,/ }).click()
     await page.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ }).click()
-    await page.getByRole('button', { name: 'Change Focus Agent' }).click()
+    await page.getByRole('button', { name: 'Apply party' }).click()
 
     const popup = page.locator('.party-editor__focus-popup')
     const currentRail = page.locator('.party-rail')

@@ -72,6 +72,8 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
   const [specialty, setSpecialty] = useState<'all' | AgentSpecialty>('all')
   const draftSlots = useRef<Array<HTMLButtonElement | null>>([])
   const focusChange = useRef<HTMLButtonElement>(null)
+  const focusOptions = useRef<HTMLDivElement>(null)
+  const focusRequestedByApply = useRef(false)
   const candidatePool = useRef<HTMLDivElement>(null)
   const changed = draft.focusSlot !== state.focusSlot
     || draft.agentIds.some((agentId, index) => agentId !== state.slots[index].agentId)
@@ -84,6 +86,14 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
   const eligible = draft.agentIds.flatMap((agentId, slot) => (
     ADMITTED_AGENTS.find((agent) => agent.id === agentId)?.focusEligible ? [slot as AppliedSlot] : []
   ))
+  const canResolveFocus = changed
+    && distinctParty
+    && eligible.length > 1
+    && draft.focusSlot === null
+  const canApply = changed
+    && distinctParty
+    && eligible.length > 0
+    && draft.focusSlot !== null
   const selectedFocusSlot = draft.focusSlot
   const selectedFocus = selectedFocusSlot === null
     ? null
@@ -105,12 +115,27 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
   useEffect(() => {
     if (eligible.length < 2) setFocusOpen(false)
   }, [eligible.length])
+  useEffect(() => {
+    if (!focusOpen || !focusRequestedByApply.current) return
+    focusRequestedByApply.current = false
+    focusOptions.current?.querySelector<HTMLButtonElement>('button')?.focus()
+  }, [focusOpen])
 
   const close = () => {
     dispatch({ type: 'closePartyEdit' })
     onClosed()
   }
   const apply = () => {
+    if (canResolveFocus) {
+      setTarget(null)
+      if (focusOpen) {
+        focusOptions.current?.querySelector<HTMLButtonElement>('button')?.focus()
+        return
+      }
+      focusRequestedByApply.current = true
+      setFocusOpen(true)
+      return
+    }
     dispatch({ type: 'applyPartyEdit' })
     onClosed()
   }
@@ -183,7 +208,7 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
               <strong>Select Focus</strong>
               <span>Treated as on-field</span>
             </div>
-            <div className="party-editor__focus-options" role="group" aria-label="Eligible Focus Agents">
+            <div ref={focusOptions} className="party-editor__focus-options" role="group" aria-label="Eligible Focus Agents">
               {eligible.map((slot) => {
                 const agent = ADMITTED_AGENTS.find((item) => item.id === draft.agentIds[slot])!
                 const agentName = agentDisplayName(agent)
@@ -275,7 +300,7 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
           </div>
         </>
       )}
-      <div className="party-editor__actions"><button type="button" onClick={close}>Cancel</button><button type="button" disabled={!changed || !distinctParty || draft.focusSlot === null || eligible.length === 0} onClick={apply}>Apply party</button></div>
+      <div className="party-editor__actions"><button type="button" onClick={close}>Cancel</button><button type="button" disabled={!canApply && !canResolveFocus} onClick={apply}>Apply party</button></div>
     </section>
   )
 }
