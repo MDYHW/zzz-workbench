@@ -30,6 +30,10 @@ const emptySourceLinks: Record<SourceToneChannel, SourceLink | null> = {
   focus: null,
 }
 
+const focusPartyEditTrigger = () => requestAnimationFrame(() => (
+  document.querySelector<HTMLButtonElement>('.party-edit-trigger')?.focus()
+))
+
 const requiredSelectionKey = (selection: RequiredSetupSelection) => selection.kind === 'disc'
   ? `${selection.slot}:disc:${selection.piece}`
   : selection.kind === 'mainStat'
@@ -125,7 +129,7 @@ function AppliedWorkbench({
   return (
     <>
       <p className="sr-only" role="status" aria-atomic="true">{candidateAnnouncement}</p>
-      {state.draft && <PartyEditor draft={state.draft} state={state} dispatch={dispatch} onClosed={() => requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.party-edit-trigger')?.focus())} />}
+      {state.draft && <PartyEditor draft={state.draft} state={state} dispatch={dispatch} onClosed={focusPartyEditTrigger} />}
       <PartyWorkbench
           activeSourceTone={activeSourceTone}
           activeSourceTargetAgentId={activeSourceTargetAgentId}
@@ -187,7 +191,7 @@ export function App() {
             draft={state.draft}
             state={state}
             dispatch={dispatch}
-            onClosed={() => {}}
+            onClosed={focusPartyEditTrigger}
           />
         ) : (
           <AppliedWorkbench state={state} dispatch={dispatch} />

@@ -35,6 +35,8 @@ describe('workbench UI integration', () => {
     expect(screen.queryByRole('tablist', { name: 'Applied party slots' })).not.toBeInTheDocument()
     expect(screen.queryByRole('tabpanel')).not.toBeInTheDocument()
 
+    const apply = screen.getByRole('button', { name: 'Apply party' })
+
     for (const [slot, agent] of [
       [1, /Yixuan, Auric Ink, Rupture/],
       [2, /Dialyn, Physical, Stun/],
@@ -42,16 +44,18 @@ describe('workbench UI integration', () => {
     ] as const) {
       await user.click(screen.getByRole('button', { name: `Select Agent for slot ${slot}` }))
       await user.click(screen.getByRole('button', { name: agent }))
+      if (slot < 3) expect(apply).toBeDisabled()
     }
 
-    const apply = screen.getByRole('button', { name: 'Apply party' })
     expect(apply).toBeEnabled()
     await user.click(apply)
 
     const tabs = screen.getAllByRole('tab')
     const yixuan = screen.getByRole('tab', { name: 'View Yixuan setup and Result' })
+    const editParty = screen.getByRole('button', { name: 'Edit party' })
 
     expect(tabs).toHaveLength(3)
+    await waitFor(() => expect(editParty).toHaveFocus())
     expect(tabs.filter((tab) => tab.getAttribute('aria-selected') === 'true')).toEqual([yixuan])
     expect(screen.getByRole('region', { name: 'Yixuan setup' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Yixuan Result' })).toBeInTheDocument()
