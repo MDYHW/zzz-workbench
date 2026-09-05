@@ -344,6 +344,18 @@ async function captureDestinations(page: Page, party: PortraitParty): Promise<vo
       images.every((image) => (image as HTMLImageElement).src.includes('/selector-portraits/'))
     ))).toBe(true)
     await expectDraftIdentityClearance(page, party.id, destination.id)
+    for (let slotIndex = 0; slotIndex < 3; slotIndex += 1) {
+      const slot = draftRail.locator('.draft-slot').nth(slotIndex)
+      await slot.click()
+      await expect.soft(slot).toHaveClass(/\bis-target\b/)
+      await expectDraftIdentityClearance(
+        page,
+        party.id,
+        `${destination.id} target ${slotIndex + 1}`,
+      )
+      await slot.click()
+      await expect.soft(slot).not.toHaveClass(/\bis-target\b/)
+    }
     await expect.soft(draftRail).toHaveScreenshot(
       `${party.id}-${destination.id}-draft-rail.png`,
       { maxDiffPixelRatio: 0.001, stylePath: portraitSnapshotStyle },
