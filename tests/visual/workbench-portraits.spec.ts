@@ -1,13 +1,13 @@
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ADMITTED_AGENTS, agentDisplayName } from '../../src/workbench/content/agents'
 import type { AgentId } from '../../src/workbench/content/types'
 import {
   openWorkbench,
-  trackRuntimeFailures,
-  waitForWorkbenchImages,
+  waitForWorkbenchRender,
 } from './support/workbench-page'
+import { expect, test } from './support/visual-test'
 
 type PortraitAgent = {
   candidateName: string
@@ -178,8 +178,6 @@ const destinations = [
   { id: 'narrow', viewport: { width: 750, height: 900 } },
 ] as const
 
-const runtimeFailures = new WeakMap<Page, string[]>()
-
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
@@ -215,7 +213,7 @@ async function applyParty(page: Page, party: PortraitParty): Promise<void> {
     }
   }
   await page.getByRole('button', { name: changed ? 'Apply party' : 'Cancel' }).click()
-  await waitForWorkbenchImages(page)
+  await waitForWorkbenchRender(page)
 }
 
 async function selectAgent(page: Page, agent: PortraitAgent): Promise<void> {
@@ -402,7 +400,7 @@ test('Party Edit candidate pool preserves every admitted upper-body portrait des
     await page.setViewportSize(destination.viewport)
     await page.getByRole('button', { name: 'Edit party' }).click()
     await page.getByRole('button', { name: /^Replace slot 1,/ }).click()
-    await waitForWorkbenchImages(page)
+    await waitForWorkbenchRender(page)
 
     const pool = page.getByRole('region', { name: 'Agent candidate pool' })
     const grid = pool.locator('.party-editor__pool-grid')
@@ -418,12 +416,9 @@ test('Party Edit candidate pool preserves every admitted upper-body portrait des
     )
     await page.getByRole('button', { name: 'Cancel' }).click()
   }
-
-  expect(runtimeFailures.get(page)).toEqual([])
 })
 
 test.beforeEach(async ({ page }) => {
-  runtimeFailures.set(page, trackRuntimeFailures(page))
   await openWorkbench(page)
 })
 
@@ -431,7 +426,6 @@ for (const party of parties) {
   test(`${party.id} preserves selector and workspace portrait destinations`, async ({ page }) => {
     await applyParty(page, party)
     await captureDestinations(page, party)
-    expect(runtimeFailures.get(page)).toEqual([])
   })
 }
 
@@ -450,7 +444,6 @@ test('the real party surface keeps pointer and keyboard destination changes acce
   expect(await page.evaluate(() => (
     document.documentElement.scrollWidth <= document.documentElement.clientWidth
   ))).toBe(true)
-  expect(runtimeFailures.get(page)).toEqual([])
 })
 
 test('the selector rail keeps fixed one-row geometry through responsive boundaries', async ({ page }) => {
@@ -518,6 +511,4 @@ test('the selector rail keeps fixed one-row geometry through responsive boundari
   })
   expect(stickyEdges.mastheadTop).toBeGreaterThanOrEqual(-1)
   expect(stickyEdges.railTop).toBeGreaterThanOrEqual(stickyEdges.mastheadBottom - 1)
-
-  expect(runtimeFailures.get(page)).toEqual([])
 })

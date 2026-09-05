@@ -5,7 +5,7 @@ export type Viewport = {
   width: number
 }
 
-export async function waitForWorkbenchImages(page: Page): Promise<void> {
+export async function waitForWorkbenchRender(page: Page): Promise<void> {
   await page.locator('img').evaluateAll(async (images) => {
     await Promise.all(images.map(async (image) => {
       if (!(image instanceof HTMLImageElement) || image.complete) return
@@ -15,12 +15,18 @@ export async function waitForWorkbenchImages(page: Page): Promise<void> {
       })
     }))
   })
+  await page.evaluate(async () => {
+    await document.fonts.ready
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+    })
+  })
 }
 
 export async function openWorkbench(page: Page, viewport?: Viewport): Promise<void> {
   if (viewport) await page.setViewportSize(viewport)
   await page.goto('/')
-  await waitForWorkbenchImages(page)
+  await waitForWorkbenchRender(page)
 }
 
 export function trackRuntimeFailures(page: Page): string[] {

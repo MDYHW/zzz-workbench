@@ -1,5 +1,5 @@
-import { expect, test } from '@playwright/test'
 import { openWorkbench } from './support/workbench-page'
+import { expect, test } from './support/visual-test'
 
 const viewports = [
   { width: 1440, height: 900 },
