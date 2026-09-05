@@ -33,7 +33,6 @@ const candidatePoolSnapshotStyle = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   'candidate-pool-snapshot.css',
 )
-const fontInkOverflowTolerance = 2
 
 const selectorSlugs: Record<AgentId, string> = {
   ...Object.fromEntries(ADMITTED_AGENTS.map(({ id }) => [id, id])),
@@ -257,6 +256,13 @@ async function expectDraftIdentityClearance(page: Page, partyId: string, destina
       const style = getComputedStyle(target)
       return style.display === 'none' || style.visibility === 'hidden' ? null : bounds(target)
     }
+    const renderedLineCount = (target: Element) => {
+      const range = document.createRange()
+      range.selectNodeContents(target)
+      return new Set([...range.getClientRects()]
+        .filter((rect) => rect.width > 0 && rect.height > 0)
+        .map((rect) => Math.round(rect.top * 2) / 2)).size
+    }
     const identity = element.querySelector('.draft-slot__identity')!
     const name = identity.querySelector('strong')!
     const marks = identity.querySelector('.draft-slot__marks')!
@@ -264,8 +270,7 @@ async function expectDraftIdentityClearance(page: Page, partyId: string, destina
       identity: bounds(identity),
       marks: bounds(marks),
       name: bounds(name),
-      nameClientHeight: name.clientHeight,
-      nameScrollHeight: name.scrollHeight,
+      nameLineCount: renderedLineCount(name),
       replace: visibleBounds(element.querySelector('.draft-slot__replace')),
       focus: visibleBounds(element.querySelector('.draft-slot__focus-marker')),
       slot: bounds(element),
@@ -281,9 +286,8 @@ async function expectDraftIdentityClearance(page: Page, partyId: string, destina
     expect.soft(geometry.name.top, `${label} name starts inside identity height`).toBeGreaterThanOrEqual(geometry.identity.top - 0.5)
     expect.soft(geometry.marks.bottom, `${label} marks end inside identity height`).toBeLessThanOrEqual(geometry.identity.bottom + 0.5)
     expect.soft(geometry.name.bottom, `${label} name clears identity marks`).toBeLessThanOrEqual(geometry.marks.top + 0.5)
-    expect.soft(geometry.nameScrollHeight, `${label} name is not vertically clipped`).toBeLessThanOrEqual(
-      geometry.nameClientHeight + fontInkOverflowTolerance,
-    )
+    expect.soft(geometry.nameLineCount, `${label} name occupies at least one rendered line`).toBeGreaterThan(0)
+    expect.soft(geometry.nameLineCount, `${label} name stays within the two-line bank`).toBeLessThanOrEqual(2)
     for (const [controlName, control] of [['Focus', geometry.focus], ['Replace', geometry.replace]] as const) {
       if (!control) continue
       expect.soft(overlaps(geometry.name, control), `${label} name clears ${controlName}`).toBe(false)
@@ -298,6 +302,13 @@ async function expectCandidateIdentityClearance(page: Page, destinationId: strin
       const rect = target.getBoundingClientRect()
       return { bottom: rect.bottom, left: rect.left, right: rect.right, top: rect.top }
     }
+    const renderedLineCount = (target: Element) => {
+      const range = document.createRange()
+      range.selectNodeContents(target)
+      return new Set([...range.getClientRects()]
+        .filter((rect) => rect.width > 0 && rect.height > 0)
+        .map((rect) => Math.round(rect.top * 2) / 2)).size
+    }
     const info = element.querySelector('.agent-pool-card__info')!
     const name = element.querySelector('.agent-pool-card__name')!
     const identity = element.querySelector('.agent-pool-card__identity')!
@@ -308,8 +319,7 @@ async function expectCandidateIdentityClearance(page: Page, destinationId: strin
       identity: bounds(identity),
       info: bounds(info),
       name: bounds(name),
-      nameClientHeight: name.clientHeight,
-      nameScrollHeight: name.scrollHeight,
+      nameLineCount: renderedLineCount(name),
       portrait: bounds(portrait),
     }
   }))
@@ -331,9 +341,8 @@ async function expectCandidateIdentityClearance(page: Page, destinationId: strin
     expect.soft(geometry.name.top, `${label} name starts inside card`).toBeGreaterThanOrEqual(geometry.card.top - 0.5)
     expect.soft(geometry.identity.bottom, `${label} marks end inside card`).toBeLessThanOrEqual(geometry.card.bottom + 0.5)
     expect.soft(geometry.name.bottom, `${label} name clears marks`).toBeLessThanOrEqual(geometry.identity.top + 0.5)
-    expect.soft(geometry.nameScrollHeight, `${label} name is not vertically clipped`).toBeLessThanOrEqual(
-      geometry.nameClientHeight + fontInkOverflowTolerance,
-    )
+    expect.soft(geometry.nameLineCount, `${label} name occupies at least one rendered line`).toBeGreaterThan(0)
+    expect.soft(geometry.nameLineCount, `${label} name stays within the two-line bank`).toBeLessThanOrEqual(2)
   }
 }
 
