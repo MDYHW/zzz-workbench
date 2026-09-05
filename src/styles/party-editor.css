@@ -202,7 +202,7 @@
   overflow: hidden;
   overflow-wrap: anywhere;
   color: #f3f1e9;
-  font: 900 clamp(22px, 1.8vw, 27px)/1 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
+  font: 900 clamp(24px, 2vw, 30px)/.9 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
   letter-spacing: -.04em;
   text-shadow: 0 2px 6px #000;
   text-transform: uppercase;
@@ -222,10 +222,10 @@
   top: 0;
   right: 0;
   display: none;
-  width: 82px;
-  height: 18px;
+  width: 86px;
+  height: 20px;
   place-items: center start;
-  padding-left: 8px;
+  padding-left: 9px;
   background: var(--accent);
   color: #111;
   clip-path: polygon(0 0, 100% 0, 100% 100%, 6px 100%);
@@ -241,15 +241,15 @@
   bottom: 9px;
   display: none;
   width: fit-content;
-  min-height: 22px;
+  min-height: 24px;
   align-items: center;
-  padding: 0 7px;
+  padding: 0 8px;
   border: 2px solid #090b09;
   border-radius: 999px;
   background: var(--accent);
   box-shadow: 0 0 0 2px var(--accent);
   color: #111;
-  font: 900 8px/1 var(--mono);
+  font: 900 9px/1 var(--mono);
   letter-spacing: .08em;
   text-transform: uppercase;
 }
@@ -380,9 +380,9 @@
   justify-content: center;
   gap: 6px;
 }
-.party-editor__focus-copy > strong { font: 900 22px/.9 "Bahnschrift Condensed", "Arial Narrow", sans-serif; text-transform: uppercase; text-wrap: balance; }
+.party-editor__focus-copy > strong { font: 900 24px/.9 "Bahnschrift Condensed", "Arial Narrow", sans-serif; text-transform: uppercase; text-wrap: balance; }
 .party-editor__focus-copy > span { display: flex; gap: 5px; }
-.party-editor__focus-copy img { width: 22px; height: 22px; object-fit: contain; }
+.party-editor__focus-copy img { width: 24px; height: 24px; object-fit: contain; }
 .party-editor__focus-invalid {
   margin: 8px 93px 0 0;
   padding: 8px 10px;
@@ -398,15 +398,15 @@
   .party-editor__portrait--draft { width: 100px; }
   .party-editor__portrait--draft img { inset: -10px auto auto -1px; width: 92px; height: 92px; }
   .draft-slot__identity { inset: 0 16px 0 75px; gap: 4px; padding: 4px 2px 4px 10px; }
-  .draft-slot__identity > strong { font-size: clamp(9px, 2.55vw, 13px); }
+  .draft-slot__identity > strong { font-size: clamp(10px, 2.8vw, 15px); }
   .draft-slot__marks { gap: 2px; }
   .draft-slot__marks img { width: 17px; height: 17px; }
-  .draft-slot__replace { width: 60px; height: 15px; padding-left: 6px; font-size: 7px; }
+  .draft-slot__replace { width: 64px; height: 17px; padding-left: 7px; font-size: 7px; }
   .draft-slot__focus-marker {
     right: 17px;
     bottom: 7px;
-    min-height: 18px;
-    padding: 0 5px;
+    min-height: 20px;
+    padding: 0 6px;
     border-width: 1px;
     box-shadow: 0 0 0 1px var(--accent);
     font-size: 7px;
@@ -426,8 +426,8 @@
   .party-editor__focus-option { height: 90px; }
   .party-editor__focus-portrait { left: -7px; bottom: -11px; width: 112px; height: 112px; }
   .party-editor__focus-copy { right: 7px; left: 44%; gap: 5px; }
-  .party-editor__focus-copy > strong { font-size: 18px; }
-  .party-editor__focus-copy img { width: 19px; height: 19px; }
+  .party-editor__focus-copy > strong { font-size: 20px; }
+  .party-editor__focus-copy img { width: 21px; height: 21px; }
   .party-editor__focus-invalid { margin-right: 69px; }
 }
 .party-editor__filters { display: grid; gap: 6px; }
@@ -545,10 +545,10 @@
   display: flex;
   height: 82px;
   min-width: 0;
-  margin-left: calc(32% + 8px);
+  margin-left: calc(44% + 8px);
   flex-direction: column;
   justify-content: center;
-  padding: 3px 4px 2px 8px;
+  padding: 3px 4px 2px 0;
 }
 .agent-pool-card__name {
   display: flex;
@@ -560,7 +560,7 @@
   margin-bottom: 1px;
   overflow: hidden;
   overflow-wrap: anywhere;
-  font: 900 19px/.96 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
+  font: 900 21px/.96 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
   letter-spacing: -.025em;
   transform: scaleX(.9);
   transform-origin: left center;
@@ -576,17 +576,21 @@
 }
 .agent-pool-card__marks img { display: block; width: 19px; height: 19px; object-fit: contain; }
 .agent-pool-card__occupied {
-  position: relative;
+  position: absolute;
   z-index: 7;
+  top: 3px;
+  right: 3px;
   display: inline-flex;
-  min-height: 17px;
+  min-width: max-content;
+  min-height: 15px;
   align-items: center;
-  padding: 3px 5px;
+  padding: 2px 4px;
   background: var(--accent);
   color: #080908;
   font: 900 7px/1 var(--mono);
   letter-spacing: .09em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 .party-editor__empty {
   margin: 0;

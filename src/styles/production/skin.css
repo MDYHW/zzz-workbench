@@ -1057,15 +1057,15 @@
   .party-editor__portrait--draft { width: 54px; }
   .party-editor__portrait--draft img { inset: -5px auto auto -1px; width: 66px; height: 66px; }
   .draft-slot__identity { inset: 0 9px 0 29px; gap: 2px; padding: 3px 1px; }
-  .draft-slot__identity > strong { font-size: clamp(7px, 2.25vw, 9px); line-height: 1; }
+  .draft-slot__identity > strong { font-size: clamp(8px, 2.8vw, 10px); line-height: 0.92; }
   .draft-slot__marks { gap: 1px; }
-  .draft-slot__marks img { width: 10px; height: 10px; }
-  .draft-slot__replace { width: 43px; height: 12px; padding-left: 4px; font-size: 5px; }
+  .draft-slot__marks img { width: 11px; height: 11px; }
+  .draft-slot__replace { width: 47px; height: 14px; padding-left: 5px; font-size: 6px; }
   .draft-slot__focus-marker {
     right: 9px;
     bottom: 5px;
-    min-height: 12px;
-    padding: 0 3px;
+    min-height: 14px;
+    padding: 0 4px;
     font-size: 6px;
   }
   .party-editor__focus-dock { height: 48px; flex-basis: 41px; margin-left: 2px; padding-left: 3px; }
@@ -1079,6 +1079,6 @@
   .party-editor__focus-option { height: 86px; }
   .party-editor__focus-portrait { width: 106px; height: 106px; }
   .party-editor__focus-copy { right: 5px; left: 45%; gap: 4px; }
-  .party-editor__focus-copy > strong { font-size: clamp(13px, 4vw, 16px); }
-  .party-editor__focus-copy img { width: 17px; height: 17px; }
+  .party-editor__focus-copy > strong { font-size: clamp(15px, 4vw, 18px); }
+  .party-editor__focus-copy img { width: 19px; height: 19px; }
 }

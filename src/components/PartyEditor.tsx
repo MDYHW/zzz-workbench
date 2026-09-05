@@ -265,6 +265,7 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
                     <span className="party-editor__focus-copy">
                       <strong>{agentName}</strong>
                       <span aria-hidden="true">
+                        <img src={RANK_MARKS[agent.rank]} alt="" />
                         <img src={ATTRIBUTE_MARKS[agent.attribute]} alt="" />
                         <img src={SPECIALTY_MARKS[agent.specialty]} alt="" />
                       </span>
