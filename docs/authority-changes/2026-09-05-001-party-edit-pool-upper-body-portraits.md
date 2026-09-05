@@ -1,7 +1,7 @@
 ---
 id: ACR-2026-09-05-001
 date: 2026-09-05
-status: proposed
+status: accepted
 supersedes: none
 superseded_by: none
 ---
@@ -59,5 +59,5 @@ This is an impact inventory, not permission to edit those artifacts in this PR.
 ## Approval result
 
 - Product owner: `Min-DongYoung`
-- Result: `pending`
-- Decided at:
+- Result: `accepted`
+- Decided at: `2026-09-05T09:14:11+09:00`
