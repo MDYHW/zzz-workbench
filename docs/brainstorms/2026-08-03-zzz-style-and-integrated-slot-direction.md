@@ -155,20 +155,6 @@ The exploration produced several reusable constraints:
 
 These are causal constraints, not an archive of every explored design.
 
-## Deferred Calibration
-
-The following remain later UI work rather than unresolved product policy:
-
-- exact Identity, Setup, and Result allocation;
-- final fixed selector height and selected workspace dimensions;
-- selector opening geometry and candidate presentation;
-- refinement editing details;
-- pointer, keyboard, focus, and motion treatment;
-- responsive rearrangement;
-- per-Agent production crop calibration;
-- Result disclosure density and source compression; and
-- production component boundaries and asset sourcing.
-
 ## Visual Reference
 
 The permanent presentation baseline is owned by the

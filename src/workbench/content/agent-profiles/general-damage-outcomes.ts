@@ -98,7 +98,7 @@ const ANTON_BURST_DODGE = actionTarget([sourceLocalAction('Burst Mode Dodge Coun
 const ANTON_BURST_BASIC_DRILL = actionTarget([sourceLocalAction('Burst Mode Basic Attack · Drill')])
 const ANTON_BURST_BASIC_PILEDRIVER = actionTarget([sourceLocalAction('Burst Mode Basic Attack · Piledriver')])
 const ANTON_BURST_DODGE_DRILL = actionTarget([sourceLocalAction('Burst Mode Dodge Counter · Drill')])
-const src = (agent: Agent, slot: Slot, id: string, label: string, locus: 'identity' | 'core' | 'additional' | 'special' | 'ex-special' = 'core') => selectedAgentSource(agent, slot, id, label, locus)
+const src = (agent: Agent, slot: Slot, id: string, label: string, locus: 'identity' | 'core' | 'additional' | 'basic' | 'assist' | 'chain' | 'special' | 'ex-special' | 'ultimate' = 'core') => selectedAgentSource(agent, slot, id, label, locus)
 const m = (id: EffectMetric, label: string, unit = '', statId?: MetricProjection['statId'], admission?: MetricProjection['admission']): MetricProjection => ({ id, label, unit, decimals: unit === '/s' ? 2 : unit === '%' ? 1 : 0, ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }), ...(admission ? { admission } : {}) })
 function stat(source: ReturnType<typeof selectedAgentSource>, statId: StatId, value: number, region: Exclude<StatRegion, 'base'> = 'flat', earliestSurface: SurfaceKey = 'fully', detail?: string): ProfileRelationship { return { kind: 'stat', atom: { statId, region, value, earliestSurface, source, ...(detail ? { sourceDetail: detail } : {}) } } }
 function mod(source: ReturnType<typeof selectedAgentSource>, metricId: EffectMetric, value: number, action?: ActionTarget, earliestSurface: SurfaceKey = 'fully', detail?: string): ProfileRelationship { return { kind: 'modifier', atom: { metricId, value, earliestSurface, source, ...(action ? { action } : {}), ...(detail ? { sourceDetail: detail } : {}) } } }
@@ -171,7 +171,7 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
       break
     case 'sigrid': {
       const values = VERTICAL_VALUES.sigrid
-      const chain = src(agent, slot, 'chain', 'Chain Attack', 'special')
+      const chain = src(agent, slot, 'chain', 'Chain Attack', 'chain')
       addMetric('critRate', values.coreCritRate, core)
       addMetric('stunDmgMultiplier', values.coreStunDmgMultiplier, core)
       addMetric('dmgBonus', values.chainConvergingDmg, chain, SIGRID_CONVERGING)
@@ -245,8 +245,8 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
     }
     case 'cissia': {
       const electricCount = ids.filter((id) => ADMITTED_AGENTS.find((summary) => summary.id === id)?.attribute === 'Electric').length
-      const basic = src(agent, slot, 'basic', SOURCE_LABELS.cissiaBasic, 'special')
-      const ultimate = src(agent, slot, 'ultimate', 'Ultimate', 'special')
+      const basic = src(agent, slot, 'basic', SOURCE_LABELS.cissiaBasic, 'basic')
+      const ultimate = src(agent, slot, 'ultimate', 'Ultimate', 'ultimate')
       addMetric('critRate', VERTICAL_VALUES.cissia.coreCritRate, basic)
       addMetric('dazeBonus', electricCount >= 2 ? VERTICAL_VALUES.cissia.coreCorrodeDaze.twoElectric : VERTICAL_VALUES.cissia.coreCorrodeDaze.oneElectric, basic, CISSIA_CORRODE)
       if (qualified) {
@@ -468,7 +468,7 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
     }
     case 'miyabi': {
       const values = VERTICAL_VALUES.miyabi
-      const ultimate = src(agent, slot, 'ultimate', 'Ultimate', 'special')
+      const ultimate = src(agent, slot, 'ultimate', 'Ultimate', 'ultimate')
       addMetric('dmgBonus', values.ultimateIceDmg, ultimate)
       add(operation(core, 'Frostburn-Break DMG', values.frostburnBreakDmg, '% ATK'))
       add({

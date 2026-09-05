@@ -2,12 +2,15 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { App } from './App'
+import { AGENT_SELECTOR_PORTRAITS } from './components/agentSelectorPortraits'
+import { ADMITTED_AGENTS, agentDisplayName, type AgentId } from './workbench/content'
 
 describe('workbench UI integration', () => {
   it('starts from three persistent selectors and one selected workspace', async () => {
     const user = userEvent.setup()
     render(<App />)
 
+    expect(screen.getByRole('img', { name: 'Zenless Zone Zero' })).toBeInTheDocument()
     const tabs = screen.getAllByRole('tab')
     const yixuan = screen.getByRole('tab', { name: 'View Yixuan setup and Result' })
 
@@ -18,9 +21,118 @@ describe('workbench UI integration', () => {
     expect(screen.getAllByRole('heading', { name: /Result$/i })).toHaveLength(1)
     expect(screen.getByRole('tabpanel')).toHaveAttribute('aria-labelledby', yixuan.id)
 
+    const selectorPortrait = yixuan.querySelector<HTMLImageElement>('.selector-agent-art')!
+    const workspacePortrait = document.querySelector<HTMLImageElement>(
+      '.workspace-identity .agent-art',
+    )!
+    expect(selectorPortrait.src).not.toBe(workspacePortrait.src)
+    expect(selectorPortrait.src).toContain('/selector-portraits/')
+    expect(workspacePortrait.src).toContain('/portraits/')
+
     await user.click(yixuan)
     expect(yixuan).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByRole('region', { name: 'Yixuan setup' })).toBeInTheDocument()
+  })
+
+  it('presents one alphabetical, intersectable Party Edit pool with shared upper-body portrait sources', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await user.click(screen.getByRole('button', { name: /Replace slot 1,/ }))
+
+    const pool = screen.getByRole('region', { name: 'Agent candidate pool' })
+    const cards = within(pool).getAllByRole('button')
+    const agentFor = (card: HTMLElement) => ADMITTED_AGENTS.find(
+      ({ id }) => id === card.dataset.agent,
+    )!
+    const names = cards.map((card) => agentDisplayName(agentFor(card)))
+    const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' })
+    expect(names).toEqual([...names].sort(collator.compare))
+
+    const occupiedCard = cards.find((card) => card.hasAttribute('disabled'))!
+    const occupiedAgent = agentFor(occupiedCard)
+    expect(occupiedCard).toHaveAccessibleName(
+      expect.stringContaining(`${occupiedAgent.rank} Rank, Slot`),
+    )
+
+    const available = cards.find((card) => !card.hasAttribute('disabled'))!
+    const availableAgentId = available.dataset.agent as AgentId
+    const expectedSource = new URL(AGENT_SELECTOR_PORTRAITS[availableAgentId], window.location.href).href
+    expect(available.querySelector<HTMLImageElement>('.party-editor__portrait--pool img')!.src)
+      .toBe(expectedSource)
+    const draftAgentId = ADMITTED_AGENTS.find(({ id }) => id === 'yixuan')!.id
+    const expectedDraftSource = new URL(AGENT_SELECTOR_PORTRAITS[draftAgentId], window.location.href).href
+    expect(document.querySelector<HTMLImageElement>('.draft-slot .party-editor__portrait img')!.src)
+      .toBe(expectedDraftSource)
+
+    await user.click(screen.getByRole('button', { name: 'Electric Attribute' }))
+    const attackFilter = screen.getByRole('button', { name: 'Attack Specialty' })
+    await user.click(attackFilter)
+    expect(attackFilter).toHaveFocus()
+    for (const card of within(pool).getAllByRole('button')) {
+      const agent = agentFor(card)
+      expect(agent.attribute).toBe('Electric')
+      expect(agent.specialty).toBe('Attack')
+    }
+
+    const selectedDraftSlot = screen.getByRole('button', { name: /Replace slot 1,/ })
+    await user.click(selectedDraftSlot)
+    expect(selectedDraftSlot).not.toHaveAttribute('aria-pressed', 'true')
+    expect(screen.queryByRole('region', { name: 'Agent candidate pool' })).not.toBeInTheDocument()
+  })
+
+  it('keeps replacement targeting separate from the compact multi-eligible Focus picker', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    expect(screen.queryByText(/Draft 0[1-3]/)).not.toBeInTheDocument()
+    const focusControl = document.querySelector<HTMLButtonElement>('.party-editor__focus-change')!
+    expect(focusControl).toBeDisabled()
+    expect(screen.queryByRole('group', { name: 'Eligible Focus Agents' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /Replace slot 2,/ }))
+    await user.click(screen.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ }))
+
+    expect(focusControl).toBeEnabled()
+    await user.click(focusControl)
+    const focusOptions = screen.getByRole('group', { name: 'Eligible Focus Agents' })
+    expect(within(focusOptions).getAllByRole('button')).toHaveLength(2)
+    expect(focusOptions.closest('.party-editor__focus-popup')).toHaveClass('party-editor__focus-popup--2')
+    expect(within(focusOptions).queryByText('Focus eligible')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Replace slot 2,/ })).not.toHaveAttribute('aria-pressed', 'true')
+
+    await user.click(within(focusOptions).getByRole('button', { name: 'Set Anby: Soldier 0 as Focus' }))
+    expect(screen.queryByRole('group', { name: 'Eligible Focus Agents' })).not.toBeInTheDocument()
+    expect(focusControl).toHaveFocus()
+    expect(screen.getByRole('button', { name: /Replace slot 2, Anby: Soldier 0/ }))
+      .toHaveClass('is-focus')
+    expect(document.querySelector('.draft-slot.is-focus .draft-slot__focus-marker'))
+      .toHaveTextContent('Focus')
+  })
+
+  it('groups special declared Attributes under their base Party Edit filter families', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await user.click(screen.getByRole('button', { name: /Replace slot 1,/ }))
+
+    const pool = screen.getByRole('region', { name: 'Agent candidate pool' })
+    const families = [
+      ['Ether Attribute family, including Auric Ink', ['Auric Ink', 'Ether']],
+      ['Ice Attribute family, including Frost', ['Frost', 'Ice']],
+      ['Physical Attribute family, including Honed Edge', ['Honed Edge', 'Physical']],
+    ] as const
+
+    for (const [filterName, expectedAttributes] of families) {
+      await user.click(screen.getByRole('button', { name: filterName }))
+      const visibleAttributes = within(pool).getAllByRole('button').map((card) => (
+        ADMITTED_AGENTS.find(({ id }) => id === card.dataset.agent)!.attribute
+      ))
+      expect([...new Set(visibleAttributes)].sort()).toEqual([...expectedAttributes].sort())
+    }
   })
 
   it('changes only the viewed workspace and preserves edited Setup state', async () => {
@@ -28,14 +140,13 @@ describe('workbench UI integration', () => {
     render(<App />)
 
     const count = screen.getByRole('textbox', { name: 'CRIT Rate hit count' })
-    const mastheadIndex = document.querySelector('.masthead__index')!.textContent
     expect(count).toHaveValue('0')
     await user.click(screen.getByRole('button', { name: 'Increase CRIT Rate hits' }))
     expect(count).toHaveValue('1')
 
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
     expect(screen.getByRole('region', { name: 'Dialyn setup' })).toBeInTheDocument()
-    expect(document.querySelector('.masthead__index')).toHaveTextContent(mastheadIndex!)
+    expect(screen.getByRole('heading', { name: 'Setup Workbench' })).toBeInTheDocument()
     await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
 
     expect(screen.getByRole('textbox', { name: 'CRIT Rate hit count' })).toHaveValue('1')
@@ -77,17 +188,34 @@ describe('workbench UI integration', () => {
     const user = userEvent.setup()
     render(<App />)
 
+    const partyTabs = screen.getByRole('tablist', { name: 'Applied party slots' })
+    expect(within(partyTabs).getAllByRole('tab')).toHaveLength(3)
+    expect(within(partyTabs).queryByRole('button', { name: 'Edit party' })).not.toBeInTheDocument()
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
+    const selectorSource = screen.getByRole('tab', { name: 'View Dialyn setup and Result' })
+      .querySelector<HTMLImageElement>('.selector-agent-art')!.src
+
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    expect(screen.getByRole('heading', { name: 'Editing party' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Current party' })).toBeInTheDocument()
     const partyRail = screen.getByRole('list', { name: 'Applied party slots' })
     expect(within(partyRail).queryAllByRole('tab')).toHaveLength(0)
-    expect(within(partyRail).getAllByRole('button')).toHaveLength(3)
-    expect(within(partyRail).getAllByRole('button').every((slot) => slot.hasAttribute('disabled')))
+    const inactiveSlots = within(partyRail).getAllByRole('button', { name: /applied slot, inactive/ })
+    expect(inactiveSlots).toHaveLength(3)
+    expect(inactiveSlots.every((slot) => slot.hasAttribute('disabled')))
       .toBe(true)
+    expect(within(partyRail).queryByRole('button', { name: 'Edit party' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Edit party' })).toBeDisabled()
+    expect(within(partyRail).getByRole('button', { name: /Dialyn applied slot/ })
+      .querySelector<HTMLImageElement>('.selector-agent-art')!.src).toBe(selectorSource)
+    expect(screen.getByRole('button', { name: 'Replace slot 2, Dialyn' })
+      .querySelector<HTMLImageElement>('.party-editor__portrait img')!.src).toBe(selectorSource)
     await user.click(screen.getByRole('button', { name: /Replace slot 1,/ }))
     await user.click(screen.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ }))
     await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
+    expect(screen.queryByRole('heading', { name: 'Editing party' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Current party' })).not.toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
       .toHaveAttribute('aria-selected', 'true')
     expect(screen.getByRole('region', { name: 'Dialyn setup' })).toBeInTheDocument()
@@ -172,7 +300,8 @@ describe('workbench UI integration', () => {
     await replace(1, /Velina, Wind, Anomaly/)
     await replace(2, /Promeia, Ice, Anomaly/)
     await replace(3, /Lucia, Ether, Support/)
-    await user.click(screen.getByRole('radio', { name: 'Velina' }))
+    await user.click(screen.getByRole('button', { name: 'Change Focus Agent' }))
+    await user.click(screen.getByRole('button', { name: 'Set Velina as Focus' }))
     await user.click(screen.getByRole('button', { name: 'Apply party' }))
     await user.click(screen.getByRole('tab', { name: 'View Velina setup and Result' }))
 

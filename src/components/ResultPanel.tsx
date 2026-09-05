@@ -9,6 +9,7 @@ import type {
   ResultMetric,
   ResultOperation,
   ResultSource,
+  SourceLocus,
   SurfaceKey,
 } from '../workbench/calculate'
 import {
@@ -150,11 +151,39 @@ function sourceTone(
   currentAgentId: AgentResult['agentId'],
   partyAgentIds: readonly AgentId[],
 ): string {
-  if (source.locus === 'target') return 'target'
-  if (source.locus === 'identity' || source.ownerAgentId !== currentAgentId) {
+  if (source.locus === 'target' || source.locus === 'calculation') {
+    return source.locus
+  }
+  if (source.ownerAgentId !== currentAgentId) {
+    return agentToneForParty(source.ownerAgentId, partyAgentIds)
+  }
+  if (source.locus === 'identity') {
     return agentToneForParty(source.ownerAgentId, partyAgentIds)
   }
   return source.locus
+}
+
+const AGENT_SELECTOR_SOURCE_LOCI: readonly SourceLocus[] = [
+  'identity',
+  'core',
+  'additional',
+  'basic',
+  'assist',
+  'chain',
+  'special',
+  'ex-special',
+  'ultimate',
+]
+
+function sourceTargetAgentId(
+  source: ResultSource,
+  currentAgentId: AgentResult['agentId'],
+): AgentId | undefined {
+  if (source.locus === 'target' || source.locus === 'calculation') return undefined
+  return source.ownerAgentId !== currentAgentId
+    || AGENT_SELECTOR_SOURCE_LOCI.includes(source.locus)
+    ? source.ownerAgentId
+    : undefined
 }
 
 function sourceIdentity(source: ResultSource): string {
@@ -265,7 +294,11 @@ function SourceMatrix({
                 key={sourceIdentity(row.source)}
                 className={toneClass(tone, activeSourceTone)}
                 data-source-tone={tone}
-                {...sourceToneEvents(tone, onSourceToneChange)}
+                {...sourceToneEvents(
+                  tone,
+                  onSourceToneChange,
+                  sourceTargetAgentId(row.source, agentId),
+                )}
               >
                 <th scope="row" tabIndex={0}>
                   <i aria-hidden="true" />
@@ -348,42 +381,69 @@ function Gauge({
       data-source-tone={tone}
       role="group"
       aria-label={description}
-      {...sourceToneEvents(tone, onSourceToneChange)}
-    >
-      <small className="gauge__source" tabIndex={0}>
-        <span>{sourceLabel(gauge.source, agentId)}</span>
-        {gauge.source.detail && <em>{gauge.source.detail}</em>}
-      </small>
-      <div className="gauge__labels">
-        <span>{gauge.basisLabel}</span>
-        <strong>
-          {formatNumber(gauge.current, currentDecimals)}
-          {gauge.cap === undefined ? '' : ` / ${formatNumber(gauge.cap, capDecimals)}`}
-        </strong>
-      </div>
-      {gauge.threshold !== undefined && !isThresholdOnlyActive && (
-        <small className="gauge__threshold-copy">Threshold {formatNumber(gauge.threshold, thresholdDecimals)}</small>
+      {...sourceToneEvents(
+        tone,
+        onSourceToneChange,
+        sourceTargetAgentId(gauge.source, agentId),
       )}
-      <div className="gauge__track" aria-hidden="true">
-        <span className="gauge__fill" style={{ width: `${isThresholdOnlyActive ? 100 : progress}%` }}>
-          {isThresholdOnlyActive ? 'Active' : null}
-        </span>
-        {threshold !== undefined && !isThresholdOnlyActive && <i className="gauge__threshold" style={{ left: `${threshold}%` }} />}
+    >
+      <div className="gauge__source-band">
+        <small className="gauge__source" tabIndex={0}>
+          <span>{sourceLabel(gauge.source, agentId)}</span>
+          {gauge.source.detail && <em>{gauge.source.detail}</em>}
+        </small>
       </div>
-      {outputs.map((output) => (
-        <div className="gauge__output" key={output.label}>
-          <span>{output.label}</span>
+      <div className="gauge__measure-deck">
+        <div className="gauge__labels">
+          <span>{gauge.basisLabel}</span>
           <strong>
-            {formatOperationValue(
-              output.value,
-              output.unit,
-              outputDecimals,
-              gauge.presentation,
-            )}
-            {output.cap === undefined ? '' : ` / ${formatNumber(output.cap, outputCapDecimals)}${output.unit}`}
+            {formatNumber(gauge.current, currentDecimals)}
+            {gauge.cap === undefined ? '' : ` / ${formatNumber(gauge.cap, capDecimals)}`}
           </strong>
         </div>
-      ))}
+        <div className="gauge__rail">
+          <div className="gauge__track" aria-hidden="true">
+            <span
+              className={`gauge__fill${isThresholdOnlyActive ? ' is-active' : ''}`}
+              style={{ width: `${isThresholdOnlyActive ? 100 : progress}%` }}
+            >
+              {isThresholdOnlyActive ? 'Active' : null}
+            </span>
+            {threshold !== undefined && !isThresholdOnlyActive && <i className="gauge__threshold" style={{ left: `${threshold}%` }} />}
+          </div>
+          {!isThresholdOnlyActive && (
+            <div className="gauge__scale" aria-hidden="true">
+              {gauge.threshold !== undefined && (
+                <small
+                  className={`gauge__threshold-copy${gauge.cap === undefined || gauge.cap === gauge.threshold ? ' is-terminal' : ''}`}
+                  style={gauge.cap !== undefined && gauge.cap !== gauge.threshold ? { left: `${threshold}%` } : undefined}
+                >
+                  Threshold {formatNumber(gauge.threshold, thresholdDecimals)}
+                </small>
+              )}
+              {gauge.cap !== undefined && gauge.cap !== gauge.threshold && (
+                <small className="gauge__cap-copy">Cap {formatNumber(gauge.cap, capDecimals)}</small>
+              )}
+            </div>
+          )}
+        </div>
+        <div className="gauge__outputs">
+          {outputs.map((output) => (
+            <div className="gauge__output" key={output.label}>
+              <span>{output.label}</span>
+              <strong>
+                {formatOperationValue(
+                  output.value,
+                  output.unit,
+                  outputDecimals,
+                  gauge.presentation,
+                )}
+                {output.cap === undefined ? '' : ` / ${formatNumber(output.cap, outputCapDecimals)}${output.unit}`}
+              </strong>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
@@ -497,7 +557,7 @@ function ActionRows({
 
   return (
     <section className="action-differences" aria-label={`${metric.label} outcomes`}>
-      <h5 className="hierarchy-caption">{standalone ? `${metric.label} outcomes` : 'Action outcomes'}</h5>
+      {standalone && <h5 className="hierarchy-caption">{metric.label} outcomes</h5>}
       <div className="action-matrix-wrap">
         <table className="source-matrix action-matrix" aria-label={`${metric.label} outcome values`}>
           <colgroup>
@@ -573,7 +633,11 @@ function ActionRows({
                           key={sourceIdentity(row.source)}
                           className={toneClass(tone, activeSourceTone)}
                           data-source-tone={tone}
-                          {...sourceToneEvents(tone, onSourceToneChange)}
+                          {...sourceToneEvents(
+                            tone,
+                            onSourceToneChange,
+                            sourceTargetAgentId(row.source, agentId),
+                          )}
                         >
                           <td className="action-hierarchy-cell" aria-hidden="true" />
                           <th scope="row" tabIndex={0}>
@@ -642,7 +706,11 @@ function Operations({
               data-source-tone={tone}
               key={`${operation.source.ownerAgentId}:${operation.source.locus}:${operation.label}:${operation.surface}:${operationIndex}`}
               tabIndex={0}
-              {...sourceToneEvents(tone, onSourceToneChange)}
+              {...sourceToneEvents(
+                tone,
+                onSourceToneChange,
+                sourceTargetAgentId(operation.source, agentId),
+              )}
             >
               <span>
                 <small>{surfaceLabels[operation.surface]}</small>

@@ -1,21 +1,4 @@
 import { useEffect, useRef, type KeyboardEvent, type ReactNode } from 'react'
-import auricInkMark from '../assets/game/attributes/auric-ink.webp'
-import etherMark from '../assets/game/attributes/ether.webp'
-import physicalMark from '../assets/game/attributes/physical.webp'
-import electricMark from '../assets/game/attributes/electric.webp'
-import fireMark from '../assets/game/attributes/fire.webp'
-import iceMark from '../assets/game/attributes/ice.webp'
-import frostMark from '../assets/game/attributes/frost.webp'
-import windMark from '../assets/game/attributes/wind.webp'
-import lumifluxMark from '../assets/game/attributes/lumiflux.webp'
-import rankSMark from '../assets/game/ranks/s.webp'
-import rankAMark from '../assets/game/ranks/a.webp'
-import ruptureMark from '../assets/game/specialties/rupture.webp'
-import attackMark from '../assets/game/specialties/attack.webp'
-import stunMark from '../assets/game/specialties/stun.webp'
-import supportMark from '../assets/game/specialties/support.webp'
-import defenseMark from '../assets/game/specialties/defense.webp'
-import anomalyMark from '../assets/game/specialties/anomaly.webp'
 import {
   ADMITTED_AGENTS,
   agentDisplayName,
@@ -27,29 +10,9 @@ import {
 import type { RequiredSetupSelection } from '../workbench/candidates'
 import type { AppliedAgentSlot, AppliedSlot } from '../workbench/state'
 import { AGENT_PORTRAITS, portraitSourceStyle } from './agentPortraits'
+import { ATTRIBUTE_MARKS, RANK_MARKS, SPECIALTY_MARKS } from './agentIdentityMarks'
+import { AGENT_SELECTOR_PORTRAITS } from './agentSelectorPortraits'
 import { agentSlotTone, sourceToneEvents, type SourceInteractionProps } from './sourceInteraction'
-
-const ATTRIBUTE_MARKS: Record<AgentAttribute, string> = {
-  Lumiflux: lumifluxMark,
-  Physical: physicalMark,
-  Fire: fireMark,
-  Ice: iceMark,
-  Electric: electricMark,
-  Ether: etherMark,
-  Wind: windMark,
-  'Auric Ink': auricInkMark,
-  'Honed Edge': physicalMark,
-  Frost: frostMark,
-}
-
-const SPECIALTY_MARKS: Record<AgentSpecialty, string> = {
-  Attack: attackMark,
-  Stun: stunMark,
-  Support: supportMark,
-  Defense: defenseMark,
-  Rupture: ruptureMark,
-  Anomaly: anomalyMark,
-}
 
 function PortraitArt({ agentId, className = '' }: { agentId: AgentId; className?: string }) {
   return (
@@ -64,7 +27,16 @@ function PortraitArt({ agentId, className = '' }: { agentId: AgentId; className?
   )
 }
 
+function SelectorPortraitArt({ agentId }: { agentId: AgentId }) {
+  return (
+    <span className="identity-art party-selector__portrait" aria-hidden="true">
+      <img className="agent-art selector-agent-art" src={AGENT_SELECTOR_PORTRAITS[agentId]} alt="" />
+    </span>
+  )
+}
+
 interface PartyWorkbenchProps extends SourceInteractionProps {
+  activeSourceTargetAgentId: AgentId | null
   slots: [AppliedAgentSlot, AppliedAgentSlot, AppliedAgentSlot]
   focusSlot: AppliedSlot
   isPartyEditing?: boolean
@@ -72,12 +44,8 @@ interface PartyWorkbenchProps extends SourceInteractionProps {
   viewedSlot: AppliedSlot
   onViewSlot: (slot: AppliedSlot) => void
   onEditParty?: () => void
-  children: ReactNode
-}
-
-const RANK_MARKS: Record<AgentRank, string> = {
-  S: rankSMark,
-  A: rankAMark,
+  setup: ReactNode
+  result: ReactNode
 }
 
 function RankMark({ rank }: { rank: AgentRank }) {
@@ -94,6 +62,7 @@ function IdentityMarks({ attribute, specialty }: { attribute: AgentAttribute; sp
 }
 
 interface SlotControlProps extends SourceInteractionProps {
+  activeSourceTargetAgentId: AgentId | null
   slot: AppliedSlot
   agentId: AgentId
   isFocus: boolean
@@ -102,11 +71,15 @@ interface SlotControlProps extends SourceInteractionProps {
   onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void
 }
 
-function PartySelector({ activeSourceTone, agentId, isFocus, isIncomplete = false, isInactive = false, isSelected, onSourceToneChange, onSelect, onKeyDown, slot }: SlotControlProps & { isInactive?: boolean; isSelected: boolean }) {
+function PartySelector({ activeSourceTargetAgentId, activeSourceTone, agentId, isFocus, isIncomplete = false, isInactive = false, isSelected, onSourceToneChange, onSelect, onKeyDown, slot }: SlotControlProps & { isInactive?: boolean; isSelected: boolean }) {
   const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
   const agentName = agentDisplayName(agent)
-  const tone = agentSlotTone(slot)
-  const className = `party-selector source-target source-tone--${tone}${isSelected ? ' is-viewed' : ''}${isFocus ? ' is-focus' : ''}${activeSourceTone === tone ? ' is-source-active' : ''}${isIncomplete ? ' is-setup-incomplete' : ''}`
+  const slotTone = agentSlotTone(slot)
+  const isTargetedSource = activeSourceTargetAgentId === agentId
+  const tone = isTargetedSource && activeSourceTone ? activeSourceTone : slotTone
+  const isSourceActive = isTargetedSource
+    || (activeSourceTargetAgentId === null && activeSourceTone === slotTone)
+  const className = `party-selector source-target source-tone--${tone}${isSelected ? ' is-viewed' : ''}${isFocus ? ' is-focus' : ''}${isSourceActive ? ' is-source-active' : ''}${isIncomplete ? ' is-setup-incomplete' : ''}`
 
   return (
     <button
@@ -124,10 +97,9 @@ function PartySelector({ activeSourceTone, agentId, isFocus, isIncomplete = fals
         : `View ${agentName} setup and Result${isIncomplete ? ', setup incomplete' : ''}`}
       onClick={isInactive ? undefined : onSelect}
       onKeyDown={isInactive ? undefined : onKeyDown}
-      {...sourceToneEvents(tone, onSourceToneChange)}
+      {...sourceToneEvents(slotTone, onSourceToneChange)}
     >
-      <PortraitArt agentId={agent.id} className="party-selector__portrait" />
-      <span className="identity-shade" aria-hidden="true" />
+      <SelectorPortraitArt agentId={agent.id} />
       <span className="source-tint" aria-hidden="true" />
       <span className="party-selector__number" aria-hidden="true">0{slot + 1}</span>
       <span className="party-selector__identity">
@@ -143,14 +115,10 @@ function PartySelector({ activeSourceTone, agentId, isFocus, isIncomplete = fals
   )
 }
 
-function WorkspaceIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = false }: Pick<SlotControlProps, 'activeSourceTone' | 'agentId' | 'isFocus' | 'isIncomplete'>) {
+function WorkspaceIdentity({ agentId, isFocus, isIncomplete = false }: Pick<SlotControlProps, 'agentId' | 'isFocus' | 'isIncomplete'>) {
   const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
   const agentName = agentDisplayName(agent)
-  const localTones = ['core', 'additional', 'special', 'ex-special']
-  const matchingTone = localTones.find((tone) => tone === activeSourceTone)
-  const className = matchingTone
-    ? `workspace-identity source-target source-tone--${matchingTone} is-source-active${isIncomplete ? ' is-setup-incomplete' : ''}`
-    : `workspace-identity source-target${isIncomplete ? ' is-setup-incomplete' : ''}`
+  const className = `workspace-identity${isIncomplete ? ' is-setup-incomplete' : ''}`
 
   return (
     <section
@@ -159,8 +127,6 @@ function WorkspaceIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = 
       data-agent={agent.id}
     >
       <PortraitArt agentId={agent.id} className="workspace-identity__portrait" />
-      <span className="identity-shade" aria-hidden="true" />
-      <span className="source-tint" aria-hidden="true" />
       <span className="identity-copy">
         <span className="slot-name-line"><strong className="identity-name">{agentName}</strong></span>
         <span className="identity-band">
@@ -168,13 +134,14 @@ function WorkspaceIdentity({ activeSourceTone, agentId, isFocus, isIncomplete = 
           <IdentityMarks attribute={agent.attribute} specialty={agent.specialty} />
         </span>
         <strong className={`focus-marker ${isFocus ? '' : 'focus-marker--reserved'}`} aria-hidden={!isFocus}>Focus</strong>
+        {isIncomplete && <span className="slot-incomplete-marker">Setup incomplete</span>}
       </span>
-      {isIncomplete && <span className="slot-incomplete-marker">Setup incomplete</span>}
     </section>
   )
 }
 
 export function PartyWorkbench({
+  activeSourceTargetAgentId,
   activeSourceTone,
   slots,
   focusSlot,
@@ -184,7 +151,8 @@ export function PartyWorkbench({
   onSourceToneChange,
   onViewSlot,
   onEditParty = () => {},
-  children,
+  setup,
+  result,
 }: PartyWorkbenchProps) {
   const previousViewedSlot = useRef<AppliedSlot>(viewedSlot)
 
@@ -217,39 +185,60 @@ export function PartyWorkbench({
   }
   return (
     <section className="party-section" aria-labelledby="party-heading">
-      <div className="section-kicker">
-        <h2 id="party-heading">Applied party</h2>
-        <span>Focus {'\u00B7'} {agentDisplayName(ADMITTED_AGENTS.find(({ id }) => id === slots[focusSlot].agentId)!)}</span>
-        <button type="button" className="party-edit-trigger" onClick={onEditParty}>Edit party</button>
-      </div>
-      <ol
-        className="party-rail"
-        role={isPartyEditing ? undefined : 'tablist'}
-        aria-label="Applied party slots"
+      <h2
+        id="party-heading"
+        className={isPartyEditing ? 'party-section__current-label' : 'sr-only'}
       >
-        {slots.map(({ agentId }, slot) => {
-          const slotPosition = slot as AppliedSlot
-          const selected = slotPosition === viewedSlot
-          const isIncomplete = incompleteSelections.some((selection) => selection.slot === slotPosition)
+        {isPartyEditing ? 'Current party' : 'Applied party'}
+      </h2>
+      <div className="party-rail">
+        <ol
+          className="party-tabs"
+          role={isPartyEditing ? undefined : 'tablist'}
+          aria-label="Applied party slots"
+        >
+          {slots.map(({ agentId }, slot) => {
+            const slotPosition = slot as AppliedSlot
+            const selected = slotPosition === viewedSlot
+            const isIncomplete = incompleteSelections.some((selection) => selection.slot === slotPosition)
 
-          return (
-            <li key={slotPosition} role="presentation">
-              <PartySelector
-                activeSourceTone={activeSourceTone}
-                agentId={agentId}
-                isFocus={slotPosition === focusSlot}
-                isIncomplete={isIncomplete}
-                isInactive={isPartyEditing}
-                isSelected={selected}
-                slot={slotPosition}
-                onSourceToneChange={onSourceToneChange}
-                onSelect={() => onViewSlot(slotPosition)}
-                onKeyDown={(event) => navigateSlots(slotPosition, event)}
-              />
-            </li>
-          )
-        })}
-      </ol>
+            return (
+              <li key={slotPosition} role="presentation">
+                <PartySelector
+                  activeSourceTargetAgentId={activeSourceTargetAgentId}
+                  activeSourceTone={activeSourceTone}
+                  agentId={agentId}
+                  isFocus={slotPosition === focusSlot}
+                  isIncomplete={isIncomplete}
+                  isInactive={isPartyEditing}
+                  isSelected={selected}
+                  slot={slotPosition}
+                  onSourceToneChange={onSourceToneChange}
+                  onSelect={() => onViewSlot(slotPosition)}
+                  onKeyDown={(event) => navigateSlots(slotPosition, event)}
+                />
+              </li>
+            )
+          })}
+        </ol>
+        <div className="party-edit-cell">
+          <button
+            type="button"
+            className="party-edit-trigger"
+            disabled={isPartyEditing}
+            aria-label="Edit party"
+            onClick={isPartyEditing ? undefined : onEditParty}
+          >
+            <span className="party-edit-trigger__content">
+              <span className="party-edit-trigger__mark" aria-hidden="true">+</span>
+              <span>
+                <strong>Edit party</strong>
+                <small>Change formation</small>
+              </span>
+            </span>
+          </button>
+        </div>
+      </div>
       {!isPartyEditing && (
         <div
           key={viewedSlot}
@@ -259,13 +248,15 @@ export function PartyWorkbench({
           aria-labelledby={`party-tab-${viewedSlot + 1}`}
           data-agent={slots[viewedSlot].agentId}
         >
-          <WorkspaceIdentity
-            activeSourceTone={activeSourceTone}
-            agentId={slots[viewedSlot].agentId}
-            isFocus={viewedSlot === focusSlot}
-            isIncomplete={incompleteSelections.some((selection) => selection.slot === viewedSlot)}
-          />
-          {children}
+          <div className="workspace-reference">
+            <WorkspaceIdentity
+              agentId={slots[viewedSlot].agentId}
+              isFocus={viewedSlot === focusSlot}
+              isIncomplete={incompleteSelections.some((selection) => selection.slot === viewedSlot)}
+            />
+            {setup}
+          </div>
+          {result}
         </div>
       )}
     </section>

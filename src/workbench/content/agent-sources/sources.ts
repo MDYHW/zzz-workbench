@@ -11,7 +11,15 @@ import type { AgentId, MindscapeRank } from '../types'
 
 type AgentSourceLocus = Extract<
   SourceDefinitionLocus,
-  'identity' | 'core' | 'additional' | 'special' | 'ex-special'
+  | 'identity'
+  | 'core'
+  | 'additional'
+  | 'basic'
+  | 'assist'
+  | 'chain'
+  | 'special'
+  | 'ex-special'
+  | 'ultimate'
 >
 
 /** One compatibility effect supplied by distinct Agent source instances. */

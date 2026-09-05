@@ -59,7 +59,7 @@ function PoolSelection({
 } & SourceInteractionProps) {
   return (
     <section className="setup-group pool-fieldset" aria-labelledby={agentId + '-loadout-heading'}>
-      <h3 id={agentId + '-loadout-heading'}><span>01</span> Loadout control</h3>
+      <h3 id={agentId + '-loadout-heading'}><span>01</span> Loadout</h3>
       <div className="loadout-control-grid">
         <div
           className={targetClass('mindscape-control', 'mindscape', activeSourceTone)}
@@ -244,7 +244,7 @@ function EngineSelection({
       aria-labelledby={agentId + '-engine-heading'}
       {...sourceToneEvents('w-engine', onSourceToneChange)}
     >
-      <h3 id={agentId + '-engine-heading'}><span>02</span> Engine bay</h3>
+      <h3 id={agentId + '-engine-heading'}><span>02</span> W-Engine</h3>
       <div className="selection-stack">
         <SelectionSurface
           ariaLabel={
@@ -666,7 +666,7 @@ function EquipmentSelection({
       className="setup-group prepared-block"
       aria-labelledby={agentId + '-disc-heading'}
     >
-      <h3 id={agentId + '-disc-heading'}><span>03</span> Disc deck</h3>
+      <h3 id={agentId + '-disc-heading'}><span>03</span> Drive Discs</h3>
       <div className="disc-grid">
         <DiscSelection
           activeSourceTone={activeSourceTone}
@@ -759,7 +759,7 @@ function SubstatStepper({
     >
       <div className="substat-copy">
         <strong>{displayLabel}</strong>
-        <span>+{perHit}{unit} / hit</span>
+        <span>+{perHit}{unit}/hit</span>
       </div>
       <div className="stepper">
         <button
@@ -830,8 +830,8 @@ function StatBank({
 
   return (
     <section className="setup-group stat-bank" aria-labelledby={agentId + '-stat-bank-heading'}>
-      <h3 id={agentId + '-stat-bank-heading'}><span>04</span> Stat bank</h3>
-      <h4 className="stat-bank__group-heading">Main stats</h4>
+      <h3 id={agentId + '-stat-bank-heading'}><span>04</span> Stat Bank</h3>
+      <h4 className="stat-bank__group-heading stat-bank__group-heading--main">Main stats</h4>
       <div className="main-stat-grid" aria-label={agentName + ' prepared main stats'}>
         {(['slot4', 'slot5', 'slot6'] as MainSlot[]).map((mainSlot) => (
           <MainStatSelection
@@ -849,7 +849,7 @@ function StatBank({
           />
         ))}
       </div>
-      <h4 className="stat-bank__group-heading">Sub stats</h4>
+      <h4 className="stat-bank__group-heading stat-bank__group-heading--substats">Effective substats</h4>
       <div className="substat-grid" aria-label={agentName + ' prepared effective substats'}>
         {(substatChoices ?? effectiveSubstatChoices(agentId, setup)).map((choice, index) => (
           <SubstatStepper

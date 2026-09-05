@@ -1,0 +1,32 @@
+/*
+ * Portrait calibration is about artwork scale, crop, and placement. Keep its
+ * oracle independent from host font availability and from the variable height
+ * of adjacent Setup and Result copy.
+ */
+.workspace-identity {
+  align-self: start !important;
+  height: 760px !important;
+  min-height: 760px !important;
+}
+
+.workspace-identity .identity-copy,
+.party-selector__identity,
+.draft-slot__identity {
+  display: none !important;
+}
+
+.workspace-identity > .slot-incomplete-marker,
+.party-selector__number,
+.party-selector > .focus-marker,
+.party-selector > .slot-incomplete-marker,
+.draft-slot__focus-marker,
+.party-editor__focus-change > span:last-child {
+  visibility: hidden !important;
+}
+
+@media (max-width: 760px) {
+  .workspace-identity {
+    height: 245px !important;
+    min-height: 245px !important;
+  }
+}

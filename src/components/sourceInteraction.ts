@@ -4,9 +4,18 @@ import type { AppliedSlot } from '../workbench/state'
 
 export type SourceToneChannel = 'pointer' | 'focus'
 
+export interface SourceLink {
+  tone: string
+  targetAgentId: AgentId | null
+}
+
 export interface SourceInteractionProps {
   activeSourceTone: string | null
-  onSourceToneChange: (channel: SourceToneChannel, tone: string | null) => void
+  onSourceToneChange: (
+    channel: SourceToneChannel,
+    tone: string | null,
+    targetAgentId?: AgentId,
+  ) => void
 }
 
 const AGENT_SLOT_TONES = [
@@ -33,11 +42,16 @@ export function agentToneForParty(
 export function sourceToneEvents(
   tone: string,
   onSourceToneChange: SourceInteractionProps['onSourceToneChange'],
+  targetAgentId?: AgentId,
 ) {
+  const activate = (channel: SourceToneChannel) => targetAgentId === undefined
+    ? onSourceToneChange(channel, tone)
+    : onSourceToneChange(channel, tone, targetAgentId)
+
   return {
-    onMouseEnter: () => onSourceToneChange('pointer', tone),
+    onMouseEnter: () => activate('pointer'),
     onMouseLeave: () => onSourceToneChange('pointer', null),
-    onFocus: () => onSourceToneChange('focus', tone),
+    onFocus: () => activate('focus'),
     onBlur: () => onSourceToneChange('focus', null),
   }
 }

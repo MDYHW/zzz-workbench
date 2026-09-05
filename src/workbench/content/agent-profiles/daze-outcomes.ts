@@ -19,7 +19,7 @@ import { agentBroadPrePenRelationships } from '../agent-broad-pre-pen-relationsh
 
 type Agent = 'dialyn' | 'trigger' | 'lycaon' | 'juFufu' | 'lighter' | 'pulchra' | 'qingyi' | 'koleda' | 'anby' | 'nangongYu' | 'norma'
 type Slot = 0 | 1 | 2
-type Locus = 'identity' | 'core' | 'additional' | 'special' | 'ex-special'
+type Locus = 'identity' | 'core' | 'additional' | 'basic' | 'assist' | 'chain' | 'special' | 'ex-special' | 'ultimate'
 type ProfileSetup = CompleteSelectedSetup & {
   mindscape: 0 | 1 | 2 | 3 | 4 | 5 | 6
 }
@@ -409,7 +409,7 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
     if (selected >= 1) relationships.push(mod('dazeBonus', VERTICAL_VALUES.koleda.mindscapeDaze, mind(agent, slot, selected, 1), KOLEDA_SPECIAL))
     actions.push({ metricId: 'dazeBonus', scopes: [{ id: 'koledaBasicDashDodge', target: KOLEDA_BASIC_DASH_DODGE, children: [{ id: 'koledaBasic', target: KOLEDA_BASIC }, { id: 'koledaEnhancedBasic', target: KOLEDA_ENHANCED }] }, { id: 'koledaSpecial', target: KOLEDA_SPECIAL, children: [{ id: 'koledaExSpecial', target: KOLEDA_EX }] }] })
   } else if (agent === 'nangongYu') {
-    const ultimate = source(agent, slot, 'ultimate', 'Ultimate', 'special')
+    const ultimate = source(agent, slot, 'ultimate', 'Ultimate', 'ultimate')
     add({ kind: 'stat', atom: { statId: 'anomalyProficiency', region: 'flat', earliestSurface: 'initial', value: VERTICAL_VALUES.nangongYu.coreAnomalyProficiency, source: core } })
     add({
       kind: 'gauge', source: core,

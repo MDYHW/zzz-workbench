@@ -18,7 +18,7 @@ import { agentBroadPrePenRelationships } from '../agent-broad-pre-pen-relationsh
 
 type Agent = 'yixuan' | 'yidhari' | 'manato' | 'banyue' | 'starlightBilly'
 type Slot = 0 | 1 | 2
-type Locus = 'identity' | 'core' | 'additional' | 'special' | 'ex-special'
+type Locus = 'identity' | 'core' | 'additional' | 'basic' | 'assist' | 'chain' | 'special' | 'ex-special' | 'ultimate'
 const DAMAGE = REGULAR_DAMAGE_FORMULAS
 
 const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {

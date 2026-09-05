@@ -57,6 +57,56 @@ source-defined thresholds or caps with a linked output.
 - R-008: Identity, Setup, and Result read as one selected-Agent workspace rather
   than as a detached settings page.
 
+### Party Edit formation and candidate pool
+
+This bounded presentation applies `UI-003` and `UI-006` to the draft formation,
+Focus choice, and shared candidate pool without changing their product meaning.
+
+- R-040: Attribute and Specialty occupy two separate filter rows. Each row uses
+  its current game symbols, starts at All, and permits one selected value; the
+  two rows continue to combine by intersection. Under `GV-004`, the Attribute
+  row groups Frost with Ice, Auric Ink with Ether, and Honed Edge with Physical,
+  while each candidate retains its declared Attribute symbol. Lumiflux remains
+  separate because its effect Attribute is party-contextual under `GV-011`.
+  Rank is identity information on each candidate rather than a third filter.
+- R-041: The filtered candidate pool remains ordered alphabetically by displayed
+  Agent name. Occupied Agents keep their alphabetical positions, remain
+  unavailable, and identify their current draft position as `Slot 1`, `Slot 2`,
+  or `Slot 3`.
+- R-042: Every candidate uses the roster-complete exact-source upper-body
+  derivative in one shared compact card frame. The card reserves a centered
+  two-line name bank and a fixed Rank, Attribute, and Specialty symbol row;
+  occupied position follows those symbols rather than displacing them.
+- R-043: The three draft slots form one shallow, interlocking rail that reuses
+  the applied selector's trapezoid grammar while remaining a separate Party
+  Edit frame. Every draft portrait uses the roster-complete exact-source
+  upper-body derivative in that common frame. Rank, Attribute, and Specialty
+  symbols follow the Agent name immediately beside the portrait, without a
+  redundant draft-number label. Selecting a slot marks only the replacement
+  target and reveals the shared candidate pool; activating that same target
+  again clears it and closes the pool. Its Focus owner uses the same oval
+  `Focus` marker as the applied selector rather than a separate icon.
+- R-044: Focus remains separate from replacement targeting. A compact control
+  after the three draft slots opens only when at least two current members are
+  Focus-eligible. Its overlapping choice panel identifies eligible members with
+  the same upper-body derivative, gives their names and identity symbols enough
+  size to scan confidently, and sizes its row to the exact eligible-member
+  count without repeating an eligibility label on every option. It closes after
+  selection, leaving the Focus marker on its owning draft slot. One eligible
+  member is automatic; none keeps the draft invalid and states that a member
+  must be replaced.
+- R-045: Party Edit names the upper formation `Editing party` and the inactive
+  applied formation `Current party` at rail level. It does not repeat current,
+  changed, or draft labels on individual Agent slots; the inactive treatment
+  remains a secondary cue rather than the only distinction between formations.
+- R-046: The Party Edit frame and its Cancel and Apply party actions use the
+  same thin-line, clipped-corner, dark-paper grammar as the current workbench.
+  Cancel remains visually secondary, Apply party remains the yellow primary
+  action, and their enabled and disabled meanings remain unchanged.
+- R-047: Fixed setup assumptions and simulation non-goals do not occupy a
+  persistent page footer. The workspace reserves persistent copy for current
+  orientation, state, and available action.
+
 ### Setup
 
 - R-009: Setup order is Mindscape, pool, W-Engine, Disc 4-piece, Disc 2-piece,
@@ -149,13 +199,15 @@ source-defined thresholds or caps with a linked output.
 
 ## Scope boundary
 
-Included: party selector and workspace Identity, Setup/Result composition, honest selector
-affordance, surface meaning, action/source vocabulary, source compression,
-gauge eligibility, and element-first visual exploration.
+Included: party selector and workspace Identity, Setup/Result composition,
+bounded Party Edit candidate-pool presentation, honest selector affordance,
+surface meaning, action/source vocabulary, source compression, gauge
+eligibility, and element-first visual exploration.
 
-Excluded: final style selection, production UI rewrite, catalogue, optimizer,
-ranking, rationale browser, new ZZZ content, persistence, evidence/history,
-simulation, and implementation architecture.
+Excluded: final style selection outside the bounded Party Edit pool, production
+UI rewrite outside the accepted surfaces, catalogue, optimizer, ranking,
+rationale browser, new ZZZ content, persistence, evidence/history, simulation,
+and implementation architecture.
 
 No product-policy decision blocks element samples. Typography, dimensions,
 motion, responsive calibration, and production artwork sourcing are comparison

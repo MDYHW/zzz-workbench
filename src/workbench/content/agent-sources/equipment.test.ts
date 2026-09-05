@@ -78,6 +78,12 @@ describe('shared engine activation and scope facts', () => {
     })
   })
 
+  it('normalizes floating-point residue in composed progression totals', () => {
+    expect(equipmentEffectMaximumValue(effect({
+      progression: { kind: 'stacks', perStack: 5.2, maxStacks: 3 },
+    }))).toBe(15.6)
+  })
+
   it('fails closed for an unproven action-local minimum-stat output', () => {
     const syntheticSource = selectSource(
       defineCalculationSource('minimum-stat-action-fixture', 'Minimum-stat action fixture'),
