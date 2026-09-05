@@ -21,7 +21,7 @@ The product owner compared the draft rail with long Agent names, identity marks,
 ## Existing rule
 
 - Owning Rule IDs: `UI-003`
-- Conflict: `UI-003` assigns the dedicated upper-body derivative to the persistent selector and Party Edit candidate pool, but explicitly requires Party Edit draft slots to retain workspace full art, its normalized `scale`, `headTopY`, and `faceX` inputs, and a separate full-art destination frame.
+- Conflict: the current portrait-source rule assigns the dedicated upper-body derivative to the persistent selector and Party Edit candidate pool, but explicitly requires Party Edit draft slots to retain workspace full art, its normalized `scale`, `headTopY`, and `faceX` inputs, and a separate full-art destination frame.
 
 ## Proposed change
 
