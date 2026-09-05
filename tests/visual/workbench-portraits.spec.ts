@@ -18,9 +18,20 @@ type PortraitParty = {
   members: readonly [PortraitAgent, PortraitAgent, PortraitAgent]
 }
 
+type Bounds = {
+  bottom: number
+  left: number
+  right: number
+  top: number
+}
+
 const portraitSnapshotStyle = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   'portrait-snapshot.css',
+)
+const candidatePoolSnapshotStyle = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  'candidate-pool-snapshot.css',
 )
 
 const selectorSlugs: Record<AgentId, string> = {
@@ -227,6 +238,100 @@ async function clearTransientSourceHighlight(page: Page): Promise<void> {
   await expect(page.locator('.source-target.is-source-active')).toHaveCount(0)
 }
 
+function overlaps(left: Bounds, right: Bounds): boolean {
+  return left.left < right.right - 0.5
+    && left.right > right.left + 0.5
+    && left.top < right.bottom - 0.5
+    && left.bottom > right.top + 0.5
+}
+
+async function expectDraftIdentityClearance(page: Page, partyId: string, destinationId: string): Promise<void> {
+  const slots = await page.locator('.draft-slot').evaluateAll((elements) => elements.map((element) => {
+    const bounds = (target: Element) => {
+      const rect = target.getBoundingClientRect()
+      return { bottom: rect.bottom, left: rect.left, right: rect.right, top: rect.top }
+    }
+    const visibleBounds = (target: Element | null) => {
+      if (!target) return null
+      const style = getComputedStyle(target)
+      return style.display === 'none' || style.visibility === 'hidden' ? null : bounds(target)
+    }
+    const identity = element.querySelector('.draft-slot__identity')!
+    const name = identity.querySelector('strong')!
+    const marks = identity.querySelector('.draft-slot__marks')!
+    return {
+      identity: bounds(identity),
+      marks: bounds(marks),
+      name: bounds(name),
+      nameClientHeight: name.clientHeight,
+      nameScrollHeight: name.scrollHeight,
+      replace: visibleBounds(element.querySelector('.draft-slot__replace')),
+      focus: visibleBounds(element.querySelector('.draft-slot__focus-marker')),
+      slot: bounds(element),
+    }
+  }))
+
+  for (const [index, geometry] of slots.entries()) {
+    const label = `${partyId} ${destinationId} draft slot ${index + 1}`
+    expect.soft(geometry.identity.left, `${label} identity starts inside slot`).toBeGreaterThanOrEqual(geometry.slot.left - 0.5)
+    expect.soft(geometry.identity.right, `${label} identity ends inside slot`).toBeLessThanOrEqual(geometry.slot.right + 0.5)
+    expect.soft(geometry.name.left, `${label} name starts inside identity`).toBeGreaterThanOrEqual(geometry.identity.left - 0.5)
+    expect.soft(geometry.name.right, `${label} name ends inside identity`).toBeLessThanOrEqual(geometry.identity.right + 0.5)
+    expect.soft(geometry.name.top, `${label} name starts inside identity height`).toBeGreaterThanOrEqual(geometry.identity.top - 0.5)
+    expect.soft(geometry.marks.bottom, `${label} marks end inside identity height`).toBeLessThanOrEqual(geometry.identity.bottom + 0.5)
+    expect.soft(geometry.name.bottom, `${label} name clears identity marks`).toBeLessThanOrEqual(geometry.marks.top + 0.5)
+    expect.soft(geometry.nameScrollHeight, `${label} name is not vertically clipped`).toBeLessThanOrEqual(geometry.nameClientHeight + 1)
+    for (const [controlName, control] of [['Focus', geometry.focus], ['Replace', geometry.replace]] as const) {
+      if (!control) continue
+      expect.soft(overlaps(geometry.name, control), `${label} name clears ${controlName}`).toBe(false)
+      expect.soft(overlaps(geometry.marks, control), `${label} marks clear ${controlName}`).toBe(false)
+    }
+  }
+}
+
+async function expectCandidateIdentityClearance(page: Page, destinationId: string): Promise<void> {
+  const cards = await page.locator('.agent-pool-card').evaluateAll((elements) => elements.map((element) => {
+    const bounds = (target: Element) => {
+      const rect = target.getBoundingClientRect()
+      return { bottom: rect.bottom, left: rect.left, right: rect.right, top: rect.top }
+    }
+    const info = element.querySelector('.agent-pool-card__info')!
+    const name = element.querySelector('.agent-pool-card__name')!
+    const identity = element.querySelector('.agent-pool-card__identity')!
+    const portrait = element.querySelector('.party-editor__portrait--pool')!
+    return {
+      agent: (element as HTMLElement).dataset.agent,
+      card: bounds(element),
+      identity: bounds(identity),
+      info: bounds(info),
+      name: bounds(name),
+      nameClientHeight: name.clientHeight,
+      nameScrollHeight: name.scrollHeight,
+      portrait: bounds(portrait),
+    }
+  }))
+
+  expect.soft(cards, `${destinationId} candidate pool covers admitted roster`).toHaveLength(ADMITTED_AGENTS.length)
+  for (const geometry of cards) {
+    const label = `${destinationId} ${geometry.agent} candidate card`
+    expect.soft(geometry.portrait.left, `${label} portrait starts inside card border`).toBeGreaterThanOrEqual(geometry.card.left)
+    expect.soft(geometry.portrait.left, `${label} portrait stays against card edge`).toBeLessThanOrEqual(geometry.card.left + 1.5)
+    expect.soft(geometry.portrait.top, `${label} portrait starts inside card border`).toBeGreaterThanOrEqual(geometry.card.top)
+    expect.soft(geometry.portrait.top, `${label} portrait stays against card top`).toBeLessThanOrEqual(geometry.card.top + 1.5)
+    expect.soft(geometry.portrait.bottom, `${label} portrait ends inside card border`).toBeLessThanOrEqual(geometry.card.bottom)
+    expect.soft(geometry.portrait.bottom, `${label} portrait stays against card bottom`).toBeGreaterThanOrEqual(geometry.card.bottom - 1.5)
+    expect.soft(geometry.info.right, `${label} identity ends inside card`).toBeLessThanOrEqual(geometry.card.right + 0.5)
+    expect.soft(geometry.name.left, `${label} name clears portrait anchor`).toBeGreaterThanOrEqual(
+      geometry.portrait.left + (geometry.portrait.right - geometry.portrait.left) * 0.6,
+    )
+    expect.soft(geometry.name.right, `${label} name ends inside card`).toBeLessThanOrEqual(geometry.card.right + 0.5)
+    expect.soft(geometry.name.top, `${label} name starts inside card`).toBeGreaterThanOrEqual(geometry.card.top - 0.5)
+    expect.soft(geometry.identity.bottom, `${label} marks end inside card`).toBeLessThanOrEqual(geometry.card.bottom + 0.5)
+    expect.soft(geometry.name.bottom, `${label} name clears marks`).toBeLessThanOrEqual(geometry.identity.top + 0.5)
+    expect.soft(geometry.nameScrollHeight, `${label} name is not vertically clipped`).toBeLessThanOrEqual(geometry.nameClientHeight + 1)
+  }
+}
+
 async function captureDestinations(page: Page, party: PortraitParty): Promise<void> {
   for (const destination of destinations) {
     await page.setViewportSize(destination.viewport)
@@ -238,6 +343,7 @@ async function captureDestinations(page: Page, party: PortraitParty): Promise<vo
     expect(await draftRail.locator('.party-editor__portrait--draft img').evaluateAll((images) => (
       images.every((image) => (image as HTMLImageElement).src.includes('/selector-portraits/'))
     ))).toBe(true)
+    await expectDraftIdentityClearance(page, party.id, destination.id)
     await expect.soft(draftRail).toHaveScreenshot(
       `${party.id}-${destination.id}-draft-rail.png`,
       { maxDiffPixelRatio: 0.001, stylePath: portraitSnapshotStyle },
@@ -269,6 +375,33 @@ async function captureDestinations(page: Page, party: PortraitParty): Promise<vo
     ))).toBe(true)
   }
 }
+
+test('Party Edit candidate pool preserves every admitted upper-body portrait destination', async ({ page }) => {
+  await applyParty(page, initiallyAppliedParty)
+
+  for (const destination of destinations) {
+    await page.setViewportSize(destination.viewport)
+    await page.getByRole('button', { name: 'Edit party' }).click()
+    await page.getByRole('button', { name: /^Replace slot 1,/ }).click()
+    await waitForPortraits(page)
+
+    const pool = page.getByRole('region', { name: 'Agent candidate pool' })
+    const grid = pool.locator('.party-editor__pool-grid')
+    await expect.soft(grid.locator('.party-editor__portrait--pool img')).toHaveCount(ADMITTED_AGENTS.length)
+    expect(await grid.locator('.party-editor__portrait--pool img').evaluateAll((images) => (
+      images.every((image) => (image as HTMLImageElement).src.includes('/selector-portraits/'))
+    ))).toBe(true)
+    await expectCandidateIdentityClearance(page, destination.id)
+    await clearTransientSourceHighlight(page)
+    await expect.soft(grid).toHaveScreenshot(
+      `party-edit-candidate-pool-${destination.id}.png`,
+      { maxDiffPixelRatio: 0.001, stylePath: [portraitSnapshotStyle, candidatePoolSnapshotStyle] },
+    )
+    await page.getByRole('button', { name: 'Cancel' }).click()
+  }
+
+  expect(runtimeFailures.get(page)).toEqual([])
+})
 
 test.beforeEach(async ({ page }) => {
   const failures: string[] = []

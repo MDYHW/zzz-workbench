@@ -1,0 +1,13 @@
+/*
+ * Candidate-pool calibration compares the complete portrait roster. Remove
+ * sticky chrome that can cover the first grid row while Playwright captures
+ * the taller-than-viewport pool, and leave copy clearance to geometry checks.
+ */
+.masthead,
+.party-rail {
+  visibility: hidden !important;
+}
+
+.agent-pool-card__info {
+  display: none !important;
+}
