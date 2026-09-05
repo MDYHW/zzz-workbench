@@ -100,7 +100,6 @@ function PartySelector({ activeSourceTargetAgentId, activeSourceTone, agentId, i
       {...sourceToneEvents(slotTone, onSourceToneChange)}
     >
       <SelectorPortraitArt agentId={agent.id} />
-      <span className="identity-shade" aria-hidden="true" />
       <span className="source-tint" aria-hidden="true" />
       <span className="party-selector__number" aria-hidden="true">0{slot + 1}</span>
       <span className="party-selector__identity">

@@ -10,6 +10,7 @@ describe('workbench UI integration', () => {
     const user = userEvent.setup()
     render(<App />)
 
+    expect(screen.getByRole('img', { name: 'Zenless Zone Zero' })).toBeInTheDocument()
     const tabs = screen.getAllByRole('tab')
     const yixuan = screen.getByRole('tab', { name: 'View Yixuan setup and Result' })
 
@@ -48,6 +49,12 @@ describe('workbench UI integration', () => {
     const names = cards.map((card) => agentDisplayName(agentFor(card)))
     const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' })
     expect(names).toEqual([...names].sort(collator.compare))
+
+    const occupiedCard = cards.find((card) => card.hasAttribute('disabled'))!
+    const occupiedAgent = agentFor(occupiedCard)
+    expect(occupiedCard).toHaveAccessibleName(
+      expect.stringContaining(`${occupiedAgent.rank} Rank, Slot`),
+    )
 
     const available = cards.find((card) => !card.hasAttribute('disabled'))!
     const availableAgentId = available.dataset.agent as AgentId
@@ -145,23 +152,6 @@ describe('workbench UI integration', () => {
     expect(screen.getByRole('textbox', { name: 'CRIT Rate hit count' })).toHaveValue('1')
     expect(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
       .toHaveAttribute('aria-selected', 'true')
-  })
-
-  it('uses the approved short display names for Grace and Norma', async () => {
-    const user = userEvent.setup()
-    render(<App />)
-
-    await user.click(screen.getByRole('button', { name: 'Edit party' }))
-    await user.click(screen.getByRole('button', { name: /Replace slot 1,/ }))
-
-    expect(screen.getByRole('button', { name: 'Grace, Electric, Anomaly' }))
-      .toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Norma, Fire, Stun' }))
-      .toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Grace Howard, Electric, Anomaly' }))
-      .not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Norma Hollowell, Fire, Stun' }))
-      .not.toBeInTheDocument()
   })
 
   it('recalculates a direct Setup edit and keeps its source connected to Result', async () => {

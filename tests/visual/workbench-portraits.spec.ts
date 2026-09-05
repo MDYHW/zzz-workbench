@@ -37,7 +37,7 @@ const selectorSlugs: Record<AgentId, string> = {
 } as Record<AgentId, string>
 
 const agents = Object.fromEntries(ADMITTED_AGENTS.map((agent) => [agent.id, {
-  candidateName: `${agentDisplayName(agent)}, ${agent.attribute}, ${agent.specialty}`,
+  candidateName: `${agentDisplayName(agent)}, ${agent.attribute}, ${agent.specialty}, ${agent.rank} Rank`,
   displayName: agentDisplayName(agent),
   focusEligible: agent.focusEligible,
   slug: selectorSlugs[agent.id],

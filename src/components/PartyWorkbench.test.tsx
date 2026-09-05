@@ -67,6 +67,18 @@ function Harness() {
 }
 
 describe('PartyWorkbench persistent selector mechanism', () => {
+  it('derives an external provider tone from the current applied slot order', () => {
+    const partyAgentIds = prepared.slots.map((slot) => slot.agentId)
+    const providerAgentId = partyAgentIds[1]
+
+    expect(agentToneForParty(providerAgentId, partyAgentIds)).toBe('agent-slot-2')
+    expect(agentToneForParty(providerAgentId, [
+      providerAgentId,
+      partyAgentIds[0],
+      partyAgentIds[2],
+    ])).toBe('agent-slot-1')
+  })
+
   it('navigates directly among three tabs without an empty workspace', () => {
     render(<Harness />)
 

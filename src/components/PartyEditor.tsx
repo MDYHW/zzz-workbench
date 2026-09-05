@@ -250,7 +250,7 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
               const occupied = draft.agentIds.includes(agent.id)
               const occupiedSlot = draft.agentIds.indexOf(agent.id)
               const agentName = agentDisplayName(agent)
-              return <button key={agent.id} type="button" className={`agent-pool-card${occupied ? ' is-occupied' : ''}`} data-agent={agent.id} disabled={occupied} aria-label={`${occupied ? 'Unavailable, ' : ''}${agentName}, ${agent.attribute}, ${agent.specialty}`} onClick={() => {
+              return <button key={agent.id} type="button" className={`agent-pool-card${occupied ? ' is-occupied' : ''}`} data-agent={agent.id} disabled={occupied} aria-label={`${occupied ? 'Unavailable, ' : ''}${agentName}, ${agent.attribute}, ${agent.specialty}, ${agent.rank} Rank${occupied ? `, Slot ${occupiedSlot + 1}` : ''}`} onClick={() => {
                 dispatch({ type: 'replaceDraftAgent', slot: target, agentId: agent.id })
                 setTarget(null)
                 setFocusOpen(false)

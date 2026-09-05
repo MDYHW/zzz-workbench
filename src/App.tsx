@@ -1,4 +1,5 @@
 import { useEffect, useReducer, useRef, useState } from 'react'
+import zzzHeaderLockup from './assets/ui/zenless-zone-zero-header-lockup.png'
 import { AgentSetup } from './components/AgentSetup'
 import { PartyWorkbench } from './components/PartyWorkbench'
 import { PartyEditor } from './components/PartyEditor'
@@ -112,6 +113,9 @@ export function App() {
   return (
     <div className="app-shell">
       <header className="masthead">
+        <span className="masthead__logo" role="img" aria-label="Zenless Zone Zero">
+          <img src={zzzHeaderLockup} alt="" aria-hidden="true" />
+        </span>
         <h1>Setup Workbench</h1>
       </header>
       <main>
