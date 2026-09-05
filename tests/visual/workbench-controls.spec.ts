@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test'
+import { openInitialWorkbench, openWorkbench } from './support/workbench-page'
+import { expect, test } from './support/visual-test'
 
 const viewports = [
   { width: 1440, height: 900 },
@@ -12,10 +13,35 @@ const partyEditViewports = [
   { width: 320, height: 900 },
 ] as const
 
+test('starts with three empty Party Edit destinations and no applied workspace', async ({ page }) => {
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 375, height: 900 },
+  ]) {
+    await openInitialWorkbench(page, viewport)
+
+    await expect(page.getByRole('heading', { name: 'Editing party' })).toBeVisible()
+    const emptySlots = page.getByRole('button', { name: /Select Agent for slot/ })
+    await expect(emptySlots).toHaveCount(3)
+    await expect(page.getByRole('button', { name: 'Cancel' })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Apply party' })).toBeDisabled()
+    await expect(page.getByRole('heading', { name: 'Current party' })).toHaveCount(0)
+    await expect(page.getByRole('tablist', { name: 'Applied party slots' })).toHaveCount(0)
+    await expect(page.locator('.party-workspace')).toHaveCount(0)
+
+    const boxes = await emptySlots.evaluateAll((slots) => slots.map((slot) => {
+      const rect = slot.getBoundingClientRect()
+      return { height: rect.height, top: rect.top, width: rect.width }
+    }))
+    expect(new Set(boxes.map(({ height }) => height)).size).toBe(1)
+    expect(new Set(boxes.map(({ top }) => top)).size).toBe(1)
+    expect(boxes.every(({ width }) => width > 0)).toBe(true)
+  }
+})
+
 test('keeps W-Engine refinement beside the selected equipment at every viewport', async ({ page }) => {
   for (const viewport of viewports) {
-    await page.setViewportSize(viewport)
-    await page.goto('/')
+    await openWorkbench(page, viewport)
 
     const equipment = page.locator('.equipment-fieldset').first()
     const selectedEngine = equipment.locator('.selection-stack')
@@ -47,8 +73,7 @@ test('keeps W-Engine refinement beside the selected equipment at every viewport'
 
 test('keeps Drive Disc art clear of piece labels at every viewport', async ({ page }) => {
   for (const viewport of viewports) {
-    await page.setViewportSize(viewport)
-    await page.goto('/')
+    await openWorkbench(page, viewport)
 
     const disc = page.locator('.disc-selection').first()
     const art = disc.locator('.equipment-art--disc img')
@@ -66,8 +91,7 @@ test('keeps Drive Disc art clear of piece labels at every viewport', async ({ pa
 })
 
 test('anchors the desktop portrait and name to the Setup content seam', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/')
+  await openWorkbench(page, { width: 1440, height: 900 })
 
   const workspace = page.locator('.party-workspace')
   const reference = workspace.locator('.workspace-reference')
@@ -125,8 +149,7 @@ test('anchors the desktop portrait and name to the Setup content seam', async ({
 })
 
 test('keeps zoomed Identity metadata on the left side of the portrait', async ({ page }) => {
-  await page.setViewportSize({ width: 536, height: 900 })
-  await page.goto('/')
+  await openWorkbench(page, { width: 536, height: 900 })
 
   const identity = page.locator('.workspace-identity')
   const name = identity.locator('.slot-name-line')
@@ -150,8 +173,7 @@ test('keeps zoomed Identity metadata on the left side of the portrait', async ({
 })
 
 test('scrolls the desktop reference plane and Result independently', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 800 })
-  await page.goto('/')
+  await openWorkbench(page, { width: 1440, height: 800 })
 
   await page.locator('.metric-toggle').evaluateAll((toggles) => {
     for (const toggle of toggles) (toggle as HTMLButtonElement).click()
@@ -174,8 +196,7 @@ test('scrolls the desktop reference plane and Result independently', async ({ pa
 
 test('keeps primary stat copy readable while per-count detail stays one step quieter', async ({ page }) => {
   for (const viewport of viewports) {
-    await page.setViewportSize(viewport)
-    await page.goto('/')
+    await openWorkbench(page, viewport)
 
     const fontSize = async (selector: string) => page.locator(selector).first().evaluate(
       (element) => Number.parseFloat(getComputedStyle(element).fontSize),
@@ -203,15 +224,14 @@ test('keeps primary stat copy readable while per-count detail stays one step qui
 })
 
 test('keeps the shared Identity background free of a portrait shade layer', async ({ page }) => {
-  await page.goto('/')
+  await openWorkbench(page)
 
   await expect(page.locator('.workspace-identity .identity-shade')).toHaveCount(0)
 })
 
 test('keeps Party Edit formation, filters, and candidate cards on their shared geometry', async ({ page }) => {
   for (const viewport of partyEditViewports) {
-    await page.setViewportSize(viewport)
-    await page.goto('/')
+    await openWorkbench(page, viewport)
     await page.getByRole('button', { name: 'Edit party' }).click()
 
     const rail = page.locator('.party-editor__draft-rail')
@@ -295,8 +315,7 @@ test('keeps Party Edit formation, filters, and candidate cards on their shared g
 
 test('keeps the Focus chooser opened from Apply above the inactive current-party rail', async ({ page }) => {
   for (const viewport of [{ width: 552, height: 900 }, { width: 320, height: 900 }]) {
-    await page.setViewportSize(viewport)
-    await page.goto('/')
+    await openWorkbench(page, viewport)
     await page.getByRole('button', { name: 'Edit party' }).click()
     await page.getByRole('button', { name: /Replace slot 2,/ }).click()
     await page.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ }).click()

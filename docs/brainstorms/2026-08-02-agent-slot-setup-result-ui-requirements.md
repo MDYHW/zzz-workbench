@@ -97,10 +97,11 @@ Focus choice, and shared candidate pool without changing their product meaning.
   must be replaced. When an otherwise applicable changed draft has multiple
   eligible members but no resolved Focus, activating Apply party opens this
   same choice panel without changing the applied party.
-- R-045: Party Edit names the upper formation `Editing party` and the inactive
-  applied formation `Current party` at rail level. It does not repeat current,
-  changed, or draft labels on individual Agent slots; the inactive treatment
-  remains a secondary cue rather than the only distinction between formations.
+- R-045: Party Edit names the upper formation `Editing party` and, when an
+  applied party exists, the inactive applied formation `Current party` at rail
+  level. It does not repeat current, changed, or draft labels on individual
+  Agent slots; the inactive treatment remains a secondary cue rather than the
+  only distinction between formations.
 - R-046: The Party Edit frame and its Cancel and Apply party actions use the
   same thin-line, clipped-corner, dark-paper grammar as the current workbench.
   Cancel remains visually secondary, Apply party remains the yellow primary
@@ -111,6 +112,26 @@ Focus choice, and shared candidate pool without changing their product meaning.
 - R-047: Fixed setup assumptions and simulation non-goals do not occupy a
   persistent page footer. The workspace reserves persistent copy for current
   orientation, state, and available action.
+- R-048: Before any party has been applied, the first visit opens Party Edit
+  directly with all three draft slots empty. No applied-party rail, persistent
+  Agent selectors, viewed-Agent workspace, Setup, or Result is shown behind or
+  beside this initial composition state.
+- R-049: Selecting an empty draft slot marks it as the current destination and
+  opens the existing shared Agent pool. Selecting an available Agent fills that
+  slot, and a filled slot subsequently retains the established replacement
+  behavior. Occupied Agents remain unavailable so the draft cannot contain a
+  duplicate.
+- R-050: Initial composition reuses the established Party Edit frame, filters,
+  candidate cards, draft-slot grammar, and Focus resolution. It does not create
+  a separate onboarding page, wizard, or example party.
+- R-051: Cancel remains visible in its established action position but is
+  disabled throughout initial composition because no applied party exists to
+  restore. Apply remains unavailable until the draft contains three distinct
+  Agents and satisfies the established Focus eligibility and resolution rules.
+- R-052: The first successful Apply prepares all three Agents and leaves initial
+  composition for ordinary applied-party viewing. Every later Party Edit opens
+  from the current applied party and retains the established Cancel and Apply
+  behavior.
 
 ### Setup
 
@@ -186,6 +207,22 @@ Focus choice, and shared candidate pool without changing their product meaning.
 - R-039: Manual selection precedes combining elements. Familiarity never
   overrides clarity, accessibility, state meaning, or permanent authorities.
 
+## Testing delta
+
+- The new mechanism is the one-time transition from an incomplete initial
+  three-slot draft to the first complete, prepared party. The nearest existing
+  coverage begins from an already applied party, so it cannot prove that the
+  initial screen omits Current party, Identity, Setup, and Result; keeps Cancel
+  visible but disabled; rejects incomplete or Focus-invalid drafts; or commits
+  the first party only after multi-eligible Focus selection.
+- The materially distinct visible failure is an empty draft destination whose
+  shape or one-row alignment breaks before any Agent art exists. Existing
+  narrow Party Edit checks begin with filled slots and therefore cannot prove
+  the empty presentation at both desktop and narrow widths.
+- The assertions remain meaningful with equivalent Agent fixtures. Named
+  Agents are used only to realize zero-, one-, and multi-eligible Focus states;
+  no exact Agent roster, equipment value, or catalogue membership is frozen.
+
 ## Acceptance examples
 
 - Selecting Dialyn while Yixuan is Focus shows Dialyn's workspace but leaves
@@ -201,13 +238,21 @@ Focus choice, and shared candidate pool without changing their product meaning.
 - An Ultimate-only equipment delta keeps the equipment name under Ultimate.
 - A source-owned threshold with linked bonus may use a gauge; a generic stat
   ceiling remains a number.
+- On a first visit, Party Edit shows three empty draft slots, no Current party
+  rail or workbench workspace, and a visible disabled Cancel action.
+- Filling fewer than three initial slots leaves Apply unavailable. Filling three
+  distinct Agents resolves or requests Focus under the existing rules, and the
+  first valid Apply opens the prepared three-Agent workbench.
+- Reopening Party Edit after the first Apply starts from the applied three-Agent
+  party rather than returning to empty slots.
 
 ## Scope boundary
 
-Included: party selector and workspace Identity, Setup/Result composition,
-bounded Party Edit candidate-pool presentation, honest selector affordance,
-surface meaning, action/source vocabulary, source compression, gauge
-eligibility, and element-first visual exploration.
+Included: initial empty-party composition, party selector and workspace
+Identity, Setup/Result composition, bounded Party Edit candidate-pool
+presentation, honest selector affordance, surface meaning, action/source
+vocabulary, source compression, gauge eligibility, and element-first visual
+exploration.
 
 Excluded: final style selection outside the bounded Party Edit pool, production
 UI rewrite outside the accepted surfaces, catalogue, optimizer, ranking,

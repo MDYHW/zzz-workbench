@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from 'react'
+import { useEffect, useReducer, useRef, useState, type Dispatch } from 'react'
 import zzzHeaderLockup from './assets/ui/zenless-zone-zero-header-lockup.png'
 import { AgentSetup } from './components/AgentSetup'
 import { PartyWorkbench } from './components/PartyWorkbench'
@@ -16,12 +16,23 @@ import {
   type RequiredSetupSelection,
 } from './workbench/candidates'
 import { ADMITTED_AGENTS, agentDisplayName, type AgentId, type MainSlot } from './workbench/content'
-import { createPreparedState, workbenchReducer, type AppliedSlot } from './workbench/state'
+import {
+  createInitialWorkbenchState,
+  isInitialWorkbenchState,
+  workbenchSessionReducer,
+  type AppliedSlot,
+  type WorkbenchAction,
+  type WorkbenchState,
+} from './workbench/state'
 
 const emptySourceLinks: Record<SourceToneChannel, SourceLink | null> = {
   pointer: null,
   focus: null,
 }
+
+const focusPartyEditTrigger = () => requestAnimationFrame(() => (
+  document.querySelector<HTMLButtonElement>('.party-edit-trigger')?.focus()
+))
 
 const requiredSelectionKey = (selection: RequiredSetupSelection) => selection.kind === 'disc'
   ? `${selection.slot}:disc:${selection.piece}`
@@ -29,8 +40,13 @@ const requiredSelectionKey = (selection: RequiredSetupSelection) => selection.ki
     ? `${selection.slot}:main:${selection.mainSlot}`
     : `${selection.slot}:substat:${selection.substatId}`
 
-export function App() {
-  const [state, dispatch] = useReducer(workbenchReducer, undefined, () => createPreparedState())
+function AppliedWorkbench({
+  state,
+  dispatch,
+}: {
+  state: WorkbenchState
+  dispatch: Dispatch<WorkbenchAction>
+}) {
   const [viewedSlot, setViewedSlot] = useState<AppliedSlot>(0)
   const [sourceLinks, setSourceLinks] = useState(emptySourceLinks)
   const [targetStunDmgMultiplier, setTargetStunDmgMultiplier] = useState(150)
@@ -111,17 +127,10 @@ export function App() {
   }, [incompleteKey])
 
   return (
-    <div className="app-shell">
-      <header className="masthead">
-        <span className="masthead__logo" role="img" aria-label="Zenless Zone Zero">
-          <img src={zzzHeaderLockup} alt="" aria-hidden="true" />
-        </span>
-        <h1>Setup Workbench</h1>
-      </header>
-      <main>
-        <p className="sr-only" role="status" aria-atomic="true">{candidateAnnouncement}</p>
-        {state.draft && <PartyEditor draft={state.draft} state={state} dispatch={dispatch} onClosed={() => requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.party-edit-trigger')?.focus())} />}
-        <PartyWorkbench
+    <>
+      <p className="sr-only" role="status" aria-atomic="true">{candidateAnnouncement}</p>
+      {state.draft && <PartyEditor draft={state.draft} state={state} dispatch={dispatch} onClosed={focusPartyEditTrigger} />}
+      <PartyWorkbench
           activeSourceTone={activeSourceTone}
           activeSourceTargetAgentId={activeSourceTargetAgentId}
           slots={state.slots}
@@ -156,7 +165,37 @@ export function App() {
               targetStunDmgMultiplier={targetStunDmgMultiplier}
             />
           )}
-        />
+      />
+    </>
+  )
+}
+
+export function App() {
+  const [state, dispatch] = useReducer(
+    workbenchSessionReducer,
+    undefined,
+    createInitialWorkbenchState,
+  )
+
+  return (
+    <div className="app-shell">
+      <header className="masthead">
+        <span className="masthead__logo" role="img" aria-label="Zenless Zone Zero">
+          <img src={zzzHeaderLockup} alt="" aria-hidden="true" />
+        </span>
+        <h1>Setup Workbench</h1>
+      </header>
+      <main>
+        {isInitialWorkbenchState(state) ? (
+          <PartyEditor
+            draft={state.draft}
+            state={state}
+            dispatch={dispatch}
+            onClosed={focusPartyEditTrigger}
+          />
+        ) : (
+          <AppliedWorkbench state={state} dispatch={dispatch} />
+        )}
       </main>
     </div>
   )

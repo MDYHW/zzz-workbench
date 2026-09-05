@@ -356,9 +356,3 @@ export const defaultMindscapeFor = (agentId: AgentId): 0 | 6 =>
 
 export const isFocusEligible = (agentId: AgentId): boolean =>
   ADMITTED_AGENTS.find((agent) => agent.id === agentId)?.focusEligible ?? false
-
-export const DEFAULT_APPLIED_AGENT_IDS: [AgentId, AgentId, AgentId] = [
-  'yixuan',
-  'dialyn',
-  'lucia',
-]

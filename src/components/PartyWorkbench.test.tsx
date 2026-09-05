@@ -11,7 +11,7 @@ import {
   type SourceToneChannel,
 } from './sourceInteraction'
 
-const prepared = createPreparedState()
+const prepared = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
 
 function Harness() {
   const [viewedSlot, setViewedSlot] = useState<AppliedSlot>(0)

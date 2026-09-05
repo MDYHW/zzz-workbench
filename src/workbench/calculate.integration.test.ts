@@ -655,7 +655,7 @@ describe('shared calculation integration', () => {
   })
 
   it('projects one composed cross-holder flow without exposing undeclared shared rows', () => {
-    const result = calculateParty(createPreparedState())!
+    const result = calculateParty(createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0))!
     expect(result.agents).toHaveLength(3)
     expect(result.agents.every(({ metrics }) => metrics.length > 0)).toBe(true)
 
@@ -1152,7 +1152,7 @@ describe('shared calculation integration', () => {
   })
 
   it('returns no Result while any required Setup selection is incomplete', () => {
-    const state = createPreparedState()
+    const state = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
     const incomplete = {
       ...state,
       slots: [...state.slots] as typeof state.slots,

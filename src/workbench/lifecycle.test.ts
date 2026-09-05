@@ -25,9 +25,12 @@ import {
   type PoolId,
 } from './content'
 import {
+  createInitialWorkbenchState,
   createPreparedState,
   isCompleteWorkbench,
+  isInitialWorkbenchState,
   workbenchReducer,
+  workbenchSessionReducer,
   type AppliedSlot,
   type WorkbenchState,
 } from './state'
@@ -187,6 +190,34 @@ function exerciseEffectiveCandidates(
 }
 
 describe('shared preparation and edit lifecycle', () => {
+  it('builds the first applied party from an empty initial draft', () => {
+    let session = createInitialWorkbenchState()
+    const unchanged = workbenchSessionReducer(session, { type: 'applyPartyEdit' })
+    expect(unchanged).toBe(session)
+    expect(workbenchSessionReducer(session, { type: 'closePartyEdit' })).toBe(session)
+
+    for (const [slot, agentId] of ['yixuan', 'dialyn', 'lucia'].entries()) {
+      session = workbenchSessionReducer(session, {
+        type: 'replaceDraftAgent',
+        slot: slot as AppliedSlot,
+        agentId: agentId as AgentId,
+      }) as typeof session
+    }
+
+    expect(session.draft.focusSlot).toBe(0)
+    const duplicate = workbenchSessionReducer(session, {
+      type: 'replaceDraftAgent', slot: 1, agentId: 'yixuan',
+    })
+    expect(duplicate).toBe(session)
+
+    const applied = workbenchSessionReducer(session, { type: 'applyPartyEdit' })
+    expect(isInitialWorkbenchState(applied)).toBe(false)
+    if (isInitialWorkbenchState(applied)) throw new Error('Initial party did not apply')
+    expect(applied.slots.map(({ agentId }) => agentId)).toEqual(['yixuan', 'dialyn', 'lucia'])
+    expect(isCompleteWorkbench(applied)).toBe(true)
+    expect(calculateParty(applied)?.agents).toHaveLength(3)
+  })
+
   it('keeps authored setup references valid and every exposed candidate calculable', () => {
     for (const agent of ADMITTED_AGENTS) {
       const policy = setupPolicyFor(agent.id)
@@ -456,7 +487,7 @@ describe('shared preparation and edit lifecycle', () => {
   })
 
   it('rebuilds every holder on Party Apply but only the target on pool or Mindscape changes', () => {
-    let state = createPreparedState()
+    let state = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
     const original = state.slots
 
     state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 3 })
@@ -485,7 +516,7 @@ describe('shared preparation and edit lifecycle', () => {
   })
 
   it('keeps direct edits local and never re-prepares unrelated inputs', () => {
-    let state = createPreparedState()
+    let state = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
     state = workbenchReducer(state, {
       type: 'setSubstat', slot: 0, key: 'hpPct', value: 7,
     })
@@ -874,7 +905,7 @@ describe('shared preparation and edit lifecycle', () => {
   })
 
   it('initializes finite substat opportunities at zero and clamps only offered inputs', () => {
-    const prepared = createPreparedState()
+    const prepared = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
     expect(Object.values(prepared.slots[0].setup.substats).every((value) => value === 0))
       .toBe(true)
 
@@ -890,7 +921,7 @@ describe('shared preparation and edit lifecycle', () => {
   })
 
   it('keeps draft changes isolated and requires an explicit Focus before Apply', () => {
-    let state = createPreparedState()
+    let state = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
     const applied = state.slots
     state = workbenchReducer(state, { type: 'openPartyEdit' })
     state = workbenchReducer(state, {
