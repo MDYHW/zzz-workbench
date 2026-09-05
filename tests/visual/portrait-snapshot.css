@@ -10,14 +10,17 @@
 }
 
 .workspace-identity .identity-copy,
-.party-selector__identity {
+.party-selector__identity,
+.draft-slot__identity {
   display: none !important;
 }
 
 .workspace-identity > .slot-incomplete-marker,
 .party-selector__number,
 .party-selector > .focus-marker,
-.party-selector > .slot-incomplete-marker {
+.party-selector > .slot-incomplete-marker,
+.draft-slot__focus-marker,
+.party-editor__focus-change > span:last-child {
   visibility: hidden !important;
 }
 
