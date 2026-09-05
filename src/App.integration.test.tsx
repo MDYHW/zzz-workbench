@@ -5,12 +5,49 @@ import { App } from './App'
 import { AGENT_SELECTOR_PORTRAITS } from './components/agentSelectorPortraits'
 import { ADMITTED_AGENTS, agentDisplayName, type AgentId } from './workbench/content'
 
+async function renderPreparedFixtureParty() {
+  const user = userEvent.setup()
+  render(<App />)
+
+  for (const [slot, agent] of [
+    [1, /Yixuan, Auric Ink, Rupture/],
+    [2, /Dialyn, Physical, Stun/],
+    [3, /Lucia, Ether, Support/],
+  ] as const) {
+    await user.click(screen.getByRole('button', { name: `Select Agent for slot ${slot}` }))
+    await user.click(screen.getByRole('button', { name: agent }))
+  }
+  await user.click(screen.getByRole('button', { name: 'Apply party' }))
+  return user
+}
+
 describe('workbench UI integration', () => {
-  it('starts from three persistent selectors and one selected workspace', async () => {
+  it('starts in empty Party Edit and prepares the first complete party', async () => {
     const user = userEvent.setup()
     render(<App />)
 
     expect(screen.getByRole('img', { name: 'Zenless Zone Zero' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Editing party' })).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: /Select Agent for slot/ })).toHaveLength(3)
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Apply party' })).toBeDisabled()
+    expect(screen.queryByRole('heading', { name: 'Current party' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('tablist', { name: 'Applied party slots' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('tabpanel')).not.toBeInTheDocument()
+
+    for (const [slot, agent] of [
+      [1, /Yixuan, Auric Ink, Rupture/],
+      [2, /Dialyn, Physical, Stun/],
+      [3, /Lucia, Ether, Support/],
+    ] as const) {
+      await user.click(screen.getByRole('button', { name: `Select Agent for slot ${slot}` }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    const apply = screen.getByRole('button', { name: 'Apply party' })
+    expect(apply).toBeEnabled()
+    await user.click(apply)
+
     const tabs = screen.getAllByRole('tab')
     const yixuan = screen.getByRole('tab', { name: 'View Yixuan setup and Result' })
 
@@ -34,9 +71,46 @@ describe('workbench UI integration', () => {
     expect(screen.getByRole('region', { name: 'Yixuan setup' })).toBeInTheDocument()
   })
 
-  it('presents one alphabetical, intersectable Party Edit pool with shared upper-body portrait sources', async () => {
+  it('resolves initial Focus eligibility before the first Apply', async () => {
     const user = userEvent.setup()
     render(<App />)
+
+    for (const [slot, agent] of [
+      [1, /Trigger, Electric, Stun/],
+      [2, /Dialyn, Physical, Stun/],
+      [3, /Lucia, Ether, Support/],
+    ] as const) {
+      await user.click(screen.getByRole('button', { name: `Select Agent for slot ${slot}` }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+
+    const applyParty = screen.getByRole('button', { name: 'Apply party' })
+    expect(applyParty).toBeDisabled()
+
+    await user.click(screen.getByRole('button', { name: /Replace slot 1,/ }))
+    await user.click(screen.getByRole('button', { name: /Yixuan, Auric Ink, Rupture/ }))
+    expect(applyParty).toBeEnabled()
+
+    await user.click(screen.getByRole('button', { name: /Replace slot 2,/ }))
+    await user.click(screen.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ }))
+    await user.click(applyParty)
+
+    const focusOptions = screen.getByRole('group', { name: 'Eligible Focus Agents' })
+    expect(within(focusOptions).getAllByRole('button')).toHaveLength(2)
+    expect(screen.getByRole('heading', { name: 'Editing party' })).toBeInTheDocument()
+
+    await user.click(within(focusOptions).getByRole('button', {
+      name: 'Set Anby: Soldier 0 as Focus',
+    }))
+    await user.click(applyParty)
+
+    expect(screen.queryByRole('heading', { name: 'Editing party' })).not.toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'View Anby: Soldier 0 setup and Result' }))
+      .toHaveTextContent('Focus')
+  })
+
+  it('presents one alphabetical, intersectable Party Edit pool with shared upper-body portrait sources', async () => {
+    const user = await renderPreparedFixtureParty()
 
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
     await user.click(screen.getByRole('button', { name: /Replace slot 1,/ }))
@@ -83,8 +157,7 @@ describe('workbench UI integration', () => {
   })
 
   it('keeps replacement targeting separate from the compact multi-eligible Focus picker', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const user = await renderPreparedFixtureParty()
 
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
     expect(screen.queryByText(/Draft 0[1-3]/)).not.toBeInTheDocument()
@@ -115,8 +188,7 @@ describe('workbench UI integration', () => {
   })
 
   it('routes an otherwise valid unresolved draft from Apply party into Focus selection', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const user = await renderPreparedFixtureParty()
 
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
     await user.click(screen.getByRole('button', { name: /Replace slot 2,/ }))
@@ -148,8 +220,7 @@ describe('workbench UI integration', () => {
   })
 
   it('keeps Apply party unavailable when a changed draft has no eligible Focus', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const user = await renderPreparedFixtureParty()
 
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
     await user.click(screen.getByRole('button', { name: /Replace slot 1,/ }))
@@ -162,8 +233,7 @@ describe('workbench UI integration', () => {
   })
 
   it('groups special declared Attributes under their base Party Edit filter families', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const user = await renderPreparedFixtureParty()
 
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
     await user.click(screen.getByRole('button', { name: /Replace slot 1,/ }))
@@ -185,8 +255,7 @@ describe('workbench UI integration', () => {
   })
 
   it('changes only the viewed workspace and preserves edited Setup state', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const user = await renderPreparedFixtureParty()
 
     const count = screen.getByRole('textbox', { name: 'CRIT Rate hit count' })
     expect(count).toHaveValue('0')
@@ -204,8 +273,7 @@ describe('workbench UI integration', () => {
   })
 
   it('recalculates a direct Setup edit and keeps its source connected to Result', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const user = await renderPreparedFixtureParty()
 
     const before = screen.getByRole('row', { name: /CRIT Rate/ }).textContent
     await user.click(screen.getByRole('button', { name: 'Increase CRIT Rate hits' }))
@@ -234,8 +302,7 @@ describe('workbench UI integration', () => {
   })
 
   it('cancels a changed party draft into the same viewed workspace', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const user = await renderPreparedFixtureParty()
 
     const partyTabs = screen.getByRole('tablist', { name: 'Applied party slots' })
     expect(within(partyTabs).getAllByRole('tab')).toHaveLength(3)
@@ -273,8 +340,7 @@ describe('workbench UI integration', () => {
   })
 
   it('applies a party draft atomically and prepares every new holder', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const user = await renderPreparedFixtureParty()
 
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
     const replace = async (slot: number, agent: RegExp) => {
@@ -297,8 +363,7 @@ describe('workbench UI integration', () => {
   })
 
   it('uses the same compressed equipment package for selected and candidate controls', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const user = await renderPreparedFixtureParty()
 
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
     await user.click(screen.getByRole('button', { name: /Replace slot 2,/ }))
@@ -398,8 +463,7 @@ describe('workbench UI integration', () => {
   })
 
   it('clears a stale source link when direct selection replaces its source identity', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const user = await renderPreparedFixtureParty()
 
     await user.click(screen.getByRole('button', {
       name: 'Change 2-piece Drive Disc from Branch & Blade Song',
@@ -429,8 +493,7 @@ describe('workbench UI integration', () => {
   })
 
   it('clears a stale source link when the viewed Agent changes', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const user = await renderPreparedFixtureParty()
 
     await user.click(screen.getByRole('button', { name: 'CRIT Rate' }))
     const source = within(screen.getByRole('table', {

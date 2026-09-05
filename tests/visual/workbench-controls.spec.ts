@@ -1,4 +1,4 @@
-import { openWorkbench } from './support/workbench-page'
+import { openInitialWorkbench, openWorkbench } from './support/workbench-page'
 import { expect, test } from './support/visual-test'
 
 const viewports = [
@@ -12,6 +12,32 @@ const partyEditViewports = [
   { width: 375, height: 900 },
   { width: 320, height: 900 },
 ] as const
+
+test('starts with three empty Party Edit destinations and no applied workspace', async ({ page }) => {
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 375, height: 900 },
+  ]) {
+    await openInitialWorkbench(page, viewport)
+
+    await expect(page.getByRole('heading', { name: 'Editing party' })).toBeVisible()
+    const emptySlots = page.getByRole('button', { name: /Select Agent for slot/ })
+    await expect(emptySlots).toHaveCount(3)
+    await expect(page.getByRole('button', { name: 'Cancel' })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Apply party' })).toBeDisabled()
+    await expect(page.getByRole('heading', { name: 'Current party' })).toHaveCount(0)
+    await expect(page.getByRole('tablist', { name: 'Applied party slots' })).toHaveCount(0)
+    await expect(page.locator('.party-workspace')).toHaveCount(0)
+
+    const boxes = await emptySlots.evaluateAll((slots) => slots.map((slot) => {
+      const rect = slot.getBoundingClientRect()
+      return { height: rect.height, top: rect.top, width: rect.width }
+    }))
+    expect(new Set(boxes.map(({ height }) => height)).size).toBe(1)
+    expect(new Set(boxes.map(({ top }) => top)).size).toBe(1)
+    expect(boxes.every(({ width }) => width > 0)).toBe(true)
+  }
+})
 
 test('keeps W-Engine refinement beside the selected equipment at every viewport', async ({ page }) => {
   for (const viewport of viewports) {

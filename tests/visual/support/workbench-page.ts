@@ -23,9 +23,23 @@ export async function waitForWorkbenchRender(page: Page): Promise<void> {
   })
 }
 
-export async function openWorkbench(page: Page, viewport?: Viewport): Promise<void> {
+export async function openInitialWorkbench(page: Page, viewport?: Viewport): Promise<void> {
   if (viewport) await page.setViewportSize(viewport)
   await page.goto('/')
+  await waitForWorkbenchRender(page)
+}
+
+export async function openWorkbench(page: Page, viewport?: Viewport): Promise<void> {
+  await openInitialWorkbench(page, viewport)
+  for (const [slot, agent] of [
+    [1, /Yixuan, Auric Ink, Rupture/],
+    [2, /Dialyn, Physical, Stun/],
+    [3, /Lucia, Ether, Support/],
+  ] as const) {
+    await page.getByRole('button', { name: `Select Agent for slot ${slot}` }).click()
+    await page.getByRole('button', { name: agent }).click()
+  }
+  await page.getByRole('button', { name: 'Apply party' }).click()
   await waitForWorkbenchRender(page)
 }
 

@@ -1,5 +1,4 @@
 import {
-  DEFAULT_APPLIED_AGENT_IDS,
   defaultMindscapeFor,
   isFocusEligible,
   defaultRefinementFor,
@@ -64,6 +63,18 @@ export interface PartyDraft {
   focusSlot: AppliedSlot | null
 }
 
+export interface InitialPartyDraft {
+  agentIds: [AgentId | null, AgentId | null, AgentId | null]
+  focusSlot: AppliedSlot | null
+}
+
+export interface InitialWorkbenchState {
+  phase: 'initial-party'
+  draft: InitialPartyDraft
+}
+
+export type WorkbenchSessionState = WorkbenchState | InitialWorkbenchState
+
 export type WorkbenchAction =
   | { type: 'setMindscape'; slot: AppliedSlot; mindscape: Mindscape }
   | { type: 'switchPool'; slot: AppliedSlot; pool: PoolId }
@@ -89,17 +100,44 @@ export type WorkbenchAction =
   | { type: 'setDraftFocus'; slot: AppliedSlot }
   | { type: 'applyPartyEdit' }
 
-function resolvedDraftFocus(agentIds: PartyDraft['agentIds']): AppliedSlot | null {
-  const eligible = agentIds.map((agentId, index) => isFocusEligible(agentId) ? index as AppliedSlot : null)
+function resolvedDraftFocus(
+  agentIds: readonly (AgentId | null)[],
+): AppliedSlot | null {
+  const eligible = agentIds.map((agentId, index) => (
+    agentId !== null && isFocusEligible(agentId) ? index as AppliedSlot : null
+  ))
     .filter((slot): slot is AppliedSlot => slot !== null)
   return eligible.length === 1 ? eligible[0] : null
 }
 
 function sameEligibleAgents(
-  before: PartyDraft['agentIds'],
-  after: PartyDraft['agentIds'],
+  before: readonly (AgentId | null)[],
+  after: readonly (AgentId | null)[],
 ): boolean {
-  return before.filter(isFocusEligible).join(',') === after.filter(isFocusEligible).join(',')
+  const eligibleIds = (agentIds: readonly (AgentId | null)[]) => agentIds
+    .filter((agentId): agentId is AgentId => agentId !== null && isFocusEligible(agentId))
+    .join(',')
+  return eligibleIds(before) === eligibleIds(after)
+}
+
+function completeDraftAgentIds(
+  agentIds: InitialPartyDraft['agentIds'],
+): agentIds is PartyDraft['agentIds'] {
+  return agentIds.every((agentId): agentId is AgentId => agentId !== null)
+    && new Set(agentIds).size === 3
+}
+
+export function createInitialWorkbenchState(): InitialWorkbenchState {
+  return {
+    phase: 'initial-party',
+    draft: { agentIds: [null, null, null], focusSlot: null },
+  }
+}
+
+export function isInitialWorkbenchState(
+  state: WorkbenchSessionState,
+): state is InitialWorkbenchState {
+  return 'phase' in state && state.phase === 'initial-party'
 }
 
 export function zeroSubstats(
@@ -282,8 +320,8 @@ function createPartyPreparedState(
 }
 
 export function createPreparedState(
-  pools: Partial<Record<AgentId, PoolId>> = {},
-  agentIds: [AgentId, AgentId, AgentId] = DEFAULT_APPLIED_AGENT_IDS,
+  pools: Partial<Record<AgentId, PoolId>>,
+  agentIds: readonly [AgentId, AgentId, AgentId],
   focusSlot: AppliedSlot = 0,
 ): WorkbenchState {
   const contexts = agentIds.map((agentId) => preparationContext(
@@ -573,6 +611,51 @@ export function workbenchReducer(
   return next === state || isDraftOnlyAction(action)
     ? next
     : reconcileEffectiveSelections(next)
+}
+
+export function workbenchSessionReducer(
+  state: WorkbenchSessionState,
+  action: WorkbenchAction,
+): WorkbenchSessionState {
+  if (!isInitialWorkbenchState(state)) return workbenchReducer(state, action)
+
+  switch (action.type) {
+    case 'replaceDraftAgent': {
+      if (state.draft.agentIds.includes(action.agentId)) return state
+      const agentIds = [...state.draft.agentIds] as InitialPartyDraft['agentIds']
+      agentIds[action.slot] = action.agentId
+      return {
+        ...state,
+        draft: {
+          agentIds,
+          focusSlot: sameEligibleAgents(state.draft.agentIds, agentIds)
+            ? state.draft.focusSlot
+            : resolvedDraftFocus(agentIds),
+        },
+      }
+    }
+
+    case 'setDraftFocus': {
+      const agentId = state.draft.agentIds[action.slot]
+      return agentId !== null && isFocusEligible(agentId)
+        ? { ...state, draft: { ...state.draft, focusSlot: action.slot } }
+        : state
+    }
+
+    case 'applyPartyEdit': {
+      const { agentIds, focusSlot } = state.draft
+      if (focusSlot === null || !completeDraftAgentIds(agentIds)) return state
+      const contexts = agentIds.map((agentId) => preparationContext(
+        agentId,
+        'full',
+        defaultMindscapeFor(agentId),
+      )) as [PreparationContext, PreparationContext, PreparationContext]
+      return createPartyPreparedState(contexts, focusSlot)
+    }
+
+    default:
+      return state
+  }
 }
 
 export function isCompleteAgentSetup(

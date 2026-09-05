@@ -6,7 +6,14 @@ import {
   type AgentId,
   type AgentSpecialty,
 } from '../workbench/content'
-import type { AppliedSlot, PartyDraft, WorkbenchAction, WorkbenchState } from '../workbench/state'
+import {
+  isInitialWorkbenchState,
+  type AppliedSlot,
+  type InitialPartyDraft,
+  type PartyDraft,
+  type WorkbenchAction,
+  type WorkbenchSessionState,
+} from '../workbench/state'
 import { ATTRIBUTE_MARKS, RANK_MARKS, SPECIALTY_MARKS } from './agentIdentityMarks'
 import { AGENT_SELECTOR_PORTRAITS } from './agentSelectorPortraits'
 
@@ -59,8 +66,8 @@ function PoolPortrait({ agentId }: { agentId: AgentId }) {
 }
 
 interface PartyEditorProps {
-  draft: PartyDraft
-  state: WorkbenchState
+  draft: PartyDraft | InitialPartyDraft
+  state: WorkbenchSessionState
   dispatch: Dispatch<WorkbenchAction>
   onClosed: () => void
 }
@@ -75,30 +82,38 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
   const focusOptions = useRef<HTMLDivElement>(null)
   const focusRequestedByApply = useRef(false)
   const candidatePool = useRef<HTMLDivElement>(null)
-  const changed = draft.focusSlot !== state.focusSlot
+  const isInitialParty = isInitialWorkbenchState(state)
+  const changed = isInitialParty
+    || draft.focusSlot !== state.focusSlot
     || draft.agentIds.some((agentId, index) => agentId !== state.slots[index].agentId)
   const candidates = SORTED_AGENTS.filter((agent) => (
     (attribute === 'all' || PARTY_EDIT_ATTRIBUTE_GROUPS[agent.attribute] === attribute)
     && (specialty === 'all' || agent.specialty === specialty)
   ))
   const availableCandidates = candidates.filter((agent) => !draft.agentIds.includes(agent.id))
-  const distinctParty = new Set(draft.agentIds).size === 3
+  const completeParty = draft.agentIds.every((agentId) => agentId !== null)
+    && new Set(draft.agentIds).size === 3
   const eligible = draft.agentIds.flatMap((agentId, slot) => (
-    ADMITTED_AGENTS.find((agent) => agent.id === agentId)?.focusEligible ? [slot as AppliedSlot] : []
+    agentId !== null && ADMITTED_AGENTS.find((agent) => agent.id === agentId)?.focusEligible
+      ? [slot as AppliedSlot]
+      : []
   ))
   const canResolveFocus = changed
-    && distinctParty
+    && completeParty
     && eligible.length > 1
     && draft.focusSlot === null
   const canApply = changed
-    && distinctParty
+    && completeParty
     && eligible.length > 0
     && draft.focusSlot !== null
   const selectedFocusSlot = draft.focusSlot
   const selectedFocus = selectedFocusSlot === null
     ? null
-    : ADMITTED_AGENTS.find((agent) => agent.id === draft.agentIds[selectedFocusSlot])
-  const focusStatus = eligible.length === 1
+    : ADMITTED_AGENTS.find((agent) => agent.id === draft.agentIds[selectedFocusSlot]) ?? null
+  const selectedAgentCount = draft.agentIds.filter((agentId) => agentId !== null).length
+  const focusStatus = !completeParty
+    ? `${selectedAgentCount} of 3 Agents selected.`
+    : eligible.length === 1
     ? `${agentDisplayName(ADMITTED_AGENTS.find((agent) => agent.id === draft.agentIds[eligible[0]])!)} is Focus automatically.`
     : eligible.length === 0
       ? 'No eligible Focus Agent. Replace one draft member before applying.'
@@ -150,9 +165,30 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
         <div className="party-editor__draft-rail">
           <ol className="party-editor__slots" aria-label="Draft party slots">
             {draft.agentIds.map((agentId, slot) => {
+              const selected = target === slot
+              if (agentId === null) {
+                return (
+                  <li key={slot}>
+                    <button
+                      ref={(element) => { draftSlots.current[slot] = element }}
+                      type="button"
+                      className={`draft-slot draft-slot--empty${selected ? ' is-target' : ''}`}
+                      aria-pressed={selected}
+                      aria-label={`Select Agent for slot ${slot + 1}`}
+                      onClick={() => {
+                        setTarget(selected ? null : (slot as AppliedSlot))
+                        setFocusOpen(false)
+                      }}
+                    >
+                      <span className="draft-slot__empty-mark" aria-hidden="true">+</span>
+                      <strong className="draft-slot__empty-label">Select Agent</strong>
+                      <span className="draft-slot__replace" aria-hidden="true">Select</span>
+                    </button>
+                  </li>
+                )
+              }
               const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
               const agentName = agentDisplayName(agent)
-              const selected = target === slot
               const isFocus = draft.focusSlot === slot
               return (
                 <li key={slot}>
@@ -239,7 +275,7 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
             </div>
           </div>
         )}
-        {eligible.length === 0 && <p className="party-editor__focus-invalid" role="alert">{focusStatus}</p>}
+        {completeParty && eligible.length === 0 && <p className="party-editor__focus-invalid" role="alert">{focusStatus}</p>}
       </div>
       {target !== null && (
         <>
@@ -300,7 +336,7 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
           </div>
         </>
       )}
-      <div className="party-editor__actions"><button type="button" onClick={close}>Cancel</button><button type="button" disabled={!canApply && !canResolveFocus} onClick={apply}>Apply party</button></div>
+      <div className="party-editor__actions"><button type="button" disabled={isInitialParty} onClick={close}>Cancel</button><button type="button" disabled={!canApply && !canResolveFocus} onClick={apply}>Apply party</button></div>
     </section>
   )
 }
