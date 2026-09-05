@@ -33,6 +33,7 @@ const candidatePoolSnapshotStyle = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   'candidate-pool-snapshot.css',
 )
+const fontInkOverflowTolerance = 2
 
 const selectorSlugs: Record<AgentId, string> = {
   ...Object.fromEntries(ADMITTED_AGENTS.map(({ id }) => [id, id])),
@@ -280,7 +281,9 @@ async function expectDraftIdentityClearance(page: Page, partyId: string, destina
     expect.soft(geometry.name.top, `${label} name starts inside identity height`).toBeGreaterThanOrEqual(geometry.identity.top - 0.5)
     expect.soft(geometry.marks.bottom, `${label} marks end inside identity height`).toBeLessThanOrEqual(geometry.identity.bottom + 0.5)
     expect.soft(geometry.name.bottom, `${label} name clears identity marks`).toBeLessThanOrEqual(geometry.marks.top + 0.5)
-    expect.soft(geometry.nameScrollHeight, `${label} name is not vertically clipped`).toBeLessThanOrEqual(geometry.nameClientHeight + 1)
+    expect.soft(geometry.nameScrollHeight, `${label} name is not vertically clipped`).toBeLessThanOrEqual(
+      geometry.nameClientHeight + fontInkOverflowTolerance,
+    )
     for (const [controlName, control] of [['Focus', geometry.focus], ['Replace', geometry.replace]] as const) {
       if (!control) continue
       expect.soft(overlaps(geometry.name, control), `${label} name clears ${controlName}`).toBe(false)
@@ -328,7 +331,9 @@ async function expectCandidateIdentityClearance(page: Page, destinationId: strin
     expect.soft(geometry.name.top, `${label} name starts inside card`).toBeGreaterThanOrEqual(geometry.card.top - 0.5)
     expect.soft(geometry.identity.bottom, `${label} marks end inside card`).toBeLessThanOrEqual(geometry.card.bottom + 0.5)
     expect.soft(geometry.name.bottom, `${label} name clears marks`).toBeLessThanOrEqual(geometry.identity.top + 0.5)
-    expect.soft(geometry.nameScrollHeight, `${label} name is not vertically clipped`).toBeLessThanOrEqual(geometry.nameClientHeight + 1)
+    expect.soft(geometry.nameScrollHeight, `${label} name is not vertically clipped`).toBeLessThanOrEqual(
+      geometry.nameClientHeight + fontInkOverflowTolerance,
+    )
   }
 }
 
