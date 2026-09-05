@@ -33,25 +33,25 @@ This changes only the portrait source and shared framing contract for the draft 
 
 - `docs/workbench-ui-design-rules.md#party-editing` (`UI-006`) requires three equal compact draft slots and treats their selection as replacement-target selection rather than applied-party viewing.
 - `docs/workbench-ui-design-rules.md#portrait-source-calibration-and-acceptance` (`UI-003`) already establishes one roster-complete exact-source upper-body derivative and a common shallow frame for the persistent selector.
-- `src/components/PartyEditor.tsx#DraftPortrait` currently feeds draft slots from `AGENT_PORTRAITS` and `portraitSourceStyle`, coupling a shallow identity surface to workspace full-art metadata.
-- `src/components/PartyWorkbench.tsx#PartySelector` demonstrates the upper-body derivative in three equal persistent party positions with Agent name, Rank, Attribute, and Specialty beside the image.
+- `src/components/PartyEditor.tsx#PartyPortrait` currently feeds both draft slots and candidate cards from `AGENT_PORTRAITS` with `portraitSourceStyle`, coupling both shallow identity surfaces to workspace full-art metadata.
+- `src/components/PartyWorkbench.tsx#PartySelector` presents three equal persistent party positions with Agent name, Rank, Attribute, and Specialty beside `PortraitArt`. `UI-003` assigns the upper-body derivative to this destination, while the protected-base implementation still renders workspace full art pending dependent implementation.
 - The product owner manually reviewed desktop and narrow draft-rail prototypes, selected the selector-matched trapezoid form, required the portrait diagonal and slot geometry to align, retained readable long names and identity marks, and accepted the upper-body portrait source before directing production application.
 
 ## Nearest current consumer
 
-`src/components/PartyWorkbench.tsx#PartySelector` is the nearest similar consumer. It presents three equal party positions in a shallow interlocking rail, uses `AGENT_SELECTOR_PORTRAITS`, and preserves Agent identity beside the portrait. Party Edit draft slots represent the same three-position party composition, but select a replacement target rather than the viewed applied Agent.
+`src/components/PartyWorkbench.tsx#PartySelector` is the nearest similar current destination. It presents three equal party positions in a shallow rail and preserves Agent identity beside the portrait. `UI-003` assigns that surface the exact-source upper-body derivative, but protected-base `PartySelector` still renders full art through `PortraitArt`; it demonstrates the established destination role and geometry, not a completed derivative implementation. Party Edit draft slots represent the same three-position party composition, but select a replacement target rather than the viewed applied Agent.
 
 ## Contrast
 
 `src/components/PartyWorkbench.tsx#WorkspaceIdentity` remains the contrasting full-art consumer. Its portrait intentionally spans the shared Identity and Setup background, uses the accepted workspace `scale`, `headTopY`, and `faceX` metadata, and needs the continuous figure composition that the upper-body derivative would remove.
 
-The Party Edit candidate pool is a second contrast. It already reuses the upper-body derivative under `UI-003`, but repeats up to the full admitted roster in a dense card grid and chooses an Agent candidate. The draft rail has exactly three ordered positions and chooses the replacement target, so this decision does not merge their frame geometry or interactions.
+The Party Edit candidate pool is a second contrast. `UI-003` permits it to reuse the upper-body derivative, while protected-base `PartyEditor` still renders full art through the shared `PartyPortrait` pending dependent implementation. The pool repeats up to the full admitted roster in a dense candidate grid and chooses an Agent candidate; the draft rail has exactly three ordered positions and chooses the replacement target, so this decision does not merge their frame geometry or interactions.
 
 ## Impact
 
 - Permanent owners affected: `docs/workbench-ui-design-rules.md` (`UI-003` only).
 - Supporting requirements affected: the accepted ZZZ-style Party Edit draft-rail direction may be recorded in the current UI supporting requirements after the owner amendment merges.
-- Production and tests affected: later work may change `src/components/PartyEditor.tsx#DraftPortrait` to consume `AGENT_SELECTOR_PORTRAITS` and give the three draft slots the persistent selector's shared shallow portrait treatment; shared Party Edit interaction tests may verify the portrait-source boundary without adding Agent-specific catalogue assertions.
+- Production and tests affected: later work may split `src/components/PartyEditor.tsx#PartyPortrait` by surface, let the draft-slot branch consume the roster-complete selector portrait map, and give the three draft slots one shared shallow portrait treatment; shared Party Edit interaction tests may verify the portrait-source boundary without adding Agent-specific catalogue assertions.
 - Visible Setup or Result consequence: none. The change affects only Agent identification in the Party Edit draft rail; applied Setup, Result, party lifecycle, and calculation remain unchanged.
 
 This is an impact inventory, not permission to edit those artifacts in this PR.
