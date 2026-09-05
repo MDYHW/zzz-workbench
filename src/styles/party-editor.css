@@ -208,6 +208,12 @@
   text-transform: uppercase;
   text-wrap: balance;
 }
+@media (min-width: 761px) {
+  .draft-slot.is-target .draft-slot__identity > strong {
+    transform: scaleX(.75);
+    transform-origin: left center;
+  }
+}
 .draft-slot__marks { display: flex; align-items: center; gap: 5px; }
 .draft-slot__marks img {
   display: block;
@@ -553,7 +559,7 @@
 .agent-pool-card__name {
   display: flex;
   height: 54px;
-  width: 111.111%;
+  width: 125%;
   flex: none;
   min-width: 0;
   align-items: center;
@@ -562,7 +568,7 @@
   overflow-wrap: anywhere;
   font: 900 21px/.96 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
   letter-spacing: -.025em;
-  transform: scaleX(.9);
+  transform: scaleX(.8);
   transform-origin: left center;
   text-transform: uppercase;
   text-wrap: balance;
