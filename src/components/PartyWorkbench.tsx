@@ -1,21 +1,4 @@
 import { useEffect, useRef, type KeyboardEvent, type ReactNode } from 'react'
-import auricInkMark from '../assets/game/attributes/auric-ink.webp'
-import etherMark from '../assets/game/attributes/ether.webp'
-import physicalMark from '../assets/game/attributes/physical.webp'
-import electricMark from '../assets/game/attributes/electric.webp'
-import fireMark from '../assets/game/attributes/fire.webp'
-import iceMark from '../assets/game/attributes/ice.webp'
-import frostMark from '../assets/game/attributes/frost.webp'
-import windMark from '../assets/game/attributes/wind.webp'
-import lumifluxMark from '../assets/game/attributes/lumiflux.webp'
-import rankSMark from '../assets/game/ranks/s.webp'
-import rankAMark from '../assets/game/ranks/a.webp'
-import ruptureMark from '../assets/game/specialties/rupture.webp'
-import attackMark from '../assets/game/specialties/attack.webp'
-import stunMark from '../assets/game/specialties/stun.webp'
-import supportMark from '../assets/game/specialties/support.webp'
-import defenseMark from '../assets/game/specialties/defense.webp'
-import anomalyMark from '../assets/game/specialties/anomaly.webp'
 import {
   ADMITTED_AGENTS,
   agentDisplayName,
@@ -27,30 +10,9 @@ import {
 import type { RequiredSetupSelection } from '../workbench/candidates'
 import type { AppliedAgentSlot, AppliedSlot } from '../workbench/state'
 import { AGENT_PORTRAITS, portraitSourceStyle } from './agentPortraits'
+import { ATTRIBUTE_MARKS, RANK_MARKS, SPECIALTY_MARKS } from './agentIdentityMarks'
 import { AGENT_SELECTOR_PORTRAITS } from './agentSelectorPortraits'
 import { agentSlotTone, sourceToneEvents, type SourceInteractionProps } from './sourceInteraction'
-
-const ATTRIBUTE_MARKS: Record<AgentAttribute, string> = {
-  Lumiflux: lumifluxMark,
-  Physical: physicalMark,
-  Fire: fireMark,
-  Ice: iceMark,
-  Electric: electricMark,
-  Ether: etherMark,
-  Wind: windMark,
-  'Auric Ink': auricInkMark,
-  'Honed Edge': physicalMark,
-  Frost: frostMark,
-}
-
-const SPECIALTY_MARKS: Record<AgentSpecialty, string> = {
-  Attack: attackMark,
-  Stun: stunMark,
-  Support: supportMark,
-  Defense: defenseMark,
-  Rupture: ruptureMark,
-  Anomaly: anomalyMark,
-}
 
 function PortraitArt({ agentId, className = '' }: { agentId: AgentId; className?: string }) {
   return (
@@ -84,11 +46,6 @@ interface PartyWorkbenchProps extends SourceInteractionProps {
   onEditParty?: () => void
   setup: ReactNode
   result: ReactNode
-}
-
-const RANK_MARKS: Record<AgentRank, string> = {
-  S: rankSMark,
-  A: rankAMark,
 }
 
 function RankMark({ rank }: { rank: AgentRank }) {

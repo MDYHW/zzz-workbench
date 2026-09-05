@@ -200,3 +200,39 @@ test('keeps the shared Identity background free of a portrait shade layer', asyn
 
   await expect(page.locator('.workspace-identity .identity-shade')).toHaveCount(0)
 })
+
+test('keeps Party Edit filters compact and candidate cards on the shared geometry', async ({ page }) => {
+  for (const viewport of viewports) {
+    await page.setViewportSize(viewport)
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Edit party' }).click()
+    await page.locator('.draft-slot').first().click()
+
+    const filterRows = page.locator('.party-editor__filter-row')
+    await expect(filterRows).toHaveCount(2)
+
+    for (const filterRow of await filterRows.all()) {
+      const firstButtons = filterRow.getByRole('button')
+      const firstBox = await firstButtons.nth(0).boundingBox()
+      const secondBox = await firstButtons.nth(1).boundingBox()
+      expect(firstBox).not.toBeNull()
+      expect(secondBox).not.toBeNull()
+      expect(secondBox!.y).toBeCloseTo(firstBox!.y, 0)
+    }
+
+    const cards = page.locator('.agent-pool-card')
+    expect(await cards.count()).toBeGreaterThan(0)
+
+    for (const card of await cards.all()) {
+      const cardBox = await card.boundingBox()
+      const nameBox = await card.locator('.agent-pool-card__name').boundingBox()
+      const identityBox = await card.locator('.agent-pool-card__identity').boundingBox()
+      expect(cardBox).not.toBeNull()
+      expect(nameBox).not.toBeNull()
+      expect(identityBox).not.toBeNull()
+      expect(cardBox!.height).toBeCloseTo(82, 0)
+      expect(cardBox!.width).toBeGreaterThanOrEqual(184)
+      expect(nameBox!.y + nameBox!.height).toBeLessThanOrEqual(identityBox!.y)
+    }
+  }
+})

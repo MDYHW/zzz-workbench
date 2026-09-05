@@ -1,12 +1,60 @@
 import { useEffect, useRef, useState, type Dispatch } from 'react'
-import { ADMITTED_AGENTS, agentDisplayName, type AgentId } from '../workbench/content'
+import {
+  ADMITTED_AGENTS,
+  agentDisplayName,
+  type AgentAttribute,
+  type AgentId,
+  type AgentSpecialty,
+} from '../workbench/content'
 import type { AppliedSlot, PartyDraft, WorkbenchAction, WorkbenchState } from '../workbench/state'
+import { ATTRIBUTE_MARKS, RANK_MARKS, SPECIALTY_MARKS } from './agentIdentityMarks'
 import { AGENT_PORTRAITS, portraitSourceStyle } from './agentPortraits'
+import { AGENT_SELECTOR_PORTRAITS } from './agentSelectorPortraits'
 
-function PartyPortrait({ agentId }: { agentId: AgentId }) {
+const AGENT_NAME_COLLATOR = new Intl.Collator('en', { numeric: true, sensitivity: 'base' })
+type PartyEditAttributeFilter = Exclude<AgentAttribute, 'Auric Ink' | 'Honed Edge' | 'Frost'>
+
+const PARTY_EDIT_ATTRIBUTE_GROUPS: Record<AgentAttribute, PartyEditAttributeFilter> = {
+  'Auric Ink': 'Ether',
+  Electric: 'Electric',
+  Ether: 'Ether',
+  Fire: 'Fire',
+  Frost: 'Ice',
+  'Honed Edge': 'Physical',
+  Ice: 'Ice',
+  Lumiflux: 'Lumiflux',
+  Physical: 'Physical',
+  Wind: 'Wind',
+}
+
+const PARTY_EDIT_ATTRIBUTE_LABELS: Partial<Record<PartyEditAttributeFilter, string>> = {
+  Ether: 'Ether Attribute family, including Auric Ink',
+  Ice: 'Ice Attribute family, including Frost',
+  Physical: 'Physical Attribute family, including Honed Edge',
+}
+
+const SORTED_AGENTS = [...ADMITTED_AGENTS].sort((left, right) => (
+  AGENT_NAME_COLLATOR.compare(agentDisplayName(left), agentDisplayName(right))
+))
+const ATTRIBUTE_FILTERS = [...new Set(ADMITTED_AGENTS.map((agent) => (
+  PARTY_EDIT_ATTRIBUTE_GROUPS[agent.attribute]
+)))]
+  .sort((left, right) => AGENT_NAME_COLLATOR.compare(left, right))
+const SPECIALTY_FILTERS = [...new Set(ADMITTED_AGENTS.map((agent) => agent.specialty))]
+  .sort((left, right) => AGENT_NAME_COLLATOR.compare(left, right))
+
+function DraftPortrait({ agentId }: { agentId: AgentId }) {
   return (
-    <span className="party-editor__portrait" aria-hidden="true">
+    <span className="party-editor__portrait party-editor__portrait--draft" aria-hidden="true">
       <img src={AGENT_PORTRAITS[agentId]} alt="" style={portraitSourceStyle(agentId)} />
+    </span>
+  )
+}
+
+function PoolPortrait({ agentId }: { agentId: AgentId }) {
+  return (
+    <span className="party-editor__portrait party-editor__portrait--pool" aria-hidden="true">
+      <img src={AGENT_SELECTOR_PORTRAITS[agentId]} alt="" />
     </span>
   )
 }
@@ -20,14 +68,14 @@ interface PartyEditorProps {
 
 export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorProps) {
   const [target, setTarget] = useState<AppliedSlot | null>(null)
-  const [attribute, setAttribute] = useState('all')
-  const [specialty, setSpecialty] = useState('all')
+  const [attribute, setAttribute] = useState<'all' | PartyEditAttributeFilter>('all')
+  const [specialty, setSpecialty] = useState<'all' | AgentSpecialty>('all')
   const draftSlots = useRef<Array<HTMLButtonElement | null>>([])
   const candidatePool = useRef<HTMLDivElement>(null)
   const changed = draft.focusSlot !== state.focusSlot
     || draft.agentIds.some((agentId, index) => agentId !== state.slots[index].agentId)
-  const candidates = ADMITTED_AGENTS.filter((agent) => (
-    (attribute === 'all' || agent.attribute === attribute)
+  const candidates = SORTED_AGENTS.filter((agent) => (
+    (attribute === 'all' || PARTY_EDIT_ATTRIBUTE_GROUPS[agent.attribute] === attribute)
     && (specialty === 'all' || agent.specialty === specialty)
   ))
   const availableCandidates = candidates.filter((agent) => !draft.agentIds.includes(agent.id))
@@ -44,7 +92,7 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
     if (target === null) return
     const firstAvailable = candidatePool.current?.querySelector<HTMLButtonElement>('button:not(:disabled)')
     firstAvailable?.focus()
-  }, [target, attribute, specialty])
+  }, [target])
 
   const close = () => {
     dispatch({ type: 'closePartyEdit' })
@@ -76,7 +124,7 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
               aria-label={`Replace slot ${slot + 1}, ${agentName}`}
               onClick={() => setTarget(slot as AppliedSlot)}
             >
-              <PartyPortrait agentId={agentId} />
+              <DraftPortrait agentId={agentId} />
               <span><small>Slot {slot + 1}</small><strong>{agentName}</strong><em>{agent.attribute} · {agent.specialty}</em></span>
             </button>
           )
@@ -92,21 +140,57 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
       {target !== null && (
         <>
           <div className="party-editor__filters" aria-label="Agent filters">
-            <label>Attribute<select value={attribute} onChange={(event) => setAttribute(event.target.value)}><option value="all">All Attributes</option>{[...new Set(ADMITTED_AGENTS.map((agent) => agent.attribute))].map((value) => <option key={value}>{value}</option>)}</select></label>
-            <label>Specialty<select value={specialty} onChange={(event) => setSpecialty(event.target.value)}><option value="all">All Specialties</option>{[...new Set(ADMITTED_AGENTS.map((agent) => agent.specialty))].map((value) => <option key={value}>{value}</option>)}</select></label>
+            <fieldset className="party-editor__filter-row">
+              <legend>Attribute</legend>
+              <div>
+                <button type="button" className={attribute === 'all' ? 'is-selected' : ''} aria-pressed={attribute === 'all'} onClick={() => setAttribute('all')}>All</button>
+                {ATTRIBUTE_FILTERS.map((value) => (
+                  <button key={value} type="button" className={attribute === value ? 'is-selected' : ''} aria-pressed={attribute === value} aria-label={PARTY_EDIT_ATTRIBUTE_LABELS[value] ?? `${value} Attribute`} onClick={() => setAttribute(value)}>
+                    <img src={ATTRIBUTE_MARKS[value]} alt="" />
+                    <span>{value}</span>
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset className="party-editor__filter-row">
+              <legend>Specialty</legend>
+              <div>
+                <button type="button" className={specialty === 'all' ? 'is-selected' : ''} aria-pressed={specialty === 'all'} onClick={() => setSpecialty('all')}>All</button>
+                {SPECIALTY_FILTERS.map((value) => (
+                  <button key={value} type="button" className={specialty === value ? 'is-selected' : ''} aria-pressed={specialty === value} aria-label={`${value} Specialty`} onClick={() => setSpecialty(value)}>
+                    <img src={SPECIALTY_MARKS[value]} alt="" />
+                    <span>{value}</span>
+                  </button>
+                ))}
+              </div>
+            </fieldset>
           </div>
-          <div className="party-editor__pool" ref={candidatePool} aria-label="Agent candidate pool">
-            <p aria-live="polite">{availableCandidates.length ? `${availableCandidates.length} available candidates` : 'No available candidates'}</p>
-            <div>{candidates.map((agent) => {
+          <div className="party-editor__pool" ref={candidatePool} role="region" aria-label="Agent candidate pool">
+            {candidates.length === 0 && <p className="party-editor__empty" role="status">No Agents match these filters.</p>}
+            <div className="party-editor__pool-grid">{candidates.map((agent) => {
               const occupied = draft.agentIds.includes(agent.id)
+              const occupiedSlot = draft.agentIds.indexOf(agent.id)
               const agentName = agentDisplayName(agent)
-              return <button key={agent.id} type="button" disabled={occupied} aria-label={`${occupied ? 'Unavailable, ' : ''}${agentName}, ${agent.attribute}, ${agent.specialty}`} onClick={() => {
+              return <button key={agent.id} type="button" className={`agent-pool-card${occupied ? ' is-occupied' : ''}`} data-agent={agent.id} disabled={occupied} aria-label={`${occupied ? 'Unavailable, ' : ''}${agentName}, ${agent.attribute}, ${agent.specialty}`} onClick={() => {
                 dispatch({ type: 'replaceDraftAgent', slot: target, agentId: agent.id })
                 setTarget(null)
                 setAttribute('all')
                 setSpecialty('all')
                 draftSlots.current[target]?.focus()
-              }}><PartyPortrait agentId={agent.id} /><span>{agentName}<small>{occupied ? 'Occupied' : `${agent.attribute} · ${agent.specialty}`}</small></span></button>
+              }}>
+                <PoolPortrait agentId={agent.id} />
+                <span className="agent-pool-card__info">
+                  <strong className="agent-pool-card__name">{agentName}</strong>
+                  <span className="agent-pool-card__identity" aria-hidden="true">
+                    <span className="agent-pool-card__marks">
+                      <img src={RANK_MARKS[agent.rank]} alt="" />
+                      <img src={ATTRIBUTE_MARKS[agent.attribute]} alt="" />
+                      <img src={SPECIALTY_MARKS[agent.specialty]} alt="" />
+                    </span>
+                    {occupied && <small className="agent-pool-card__occupied">Slot {occupiedSlot + 1}</small>}
+                  </span>
+                </span>
+              </button>
             })}</div>
           </div>
         </>

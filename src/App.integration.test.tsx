@@ -2,6 +2,8 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { App } from './App'
+import { AGENT_SELECTOR_PORTRAITS } from './components/agentSelectorPortraits'
+import { ADMITTED_AGENTS, agentDisplayName, type AgentId } from './workbench/content'
 
 describe('workbench UI integration', () => {
   it('starts from three persistent selectors and one selected workspace', async () => {
@@ -29,6 +31,64 @@ describe('workbench UI integration', () => {
     await user.click(yixuan)
     expect(yixuan).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByRole('region', { name: 'Yixuan setup' })).toBeInTheDocument()
+  })
+
+  it('presents one alphabetical, intersectable Party Edit pool with separate portrait sources', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await user.click(screen.getByRole('button', { name: /Replace slot 1,/ }))
+
+    const pool = screen.getByRole('region', { name: 'Agent candidate pool' })
+    const cards = within(pool).getAllByRole('button')
+    const agentFor = (card: HTMLElement) => ADMITTED_AGENTS.find(
+      ({ id }) => id === card.dataset.agent,
+    )!
+    const names = cards.map((card) => agentDisplayName(agentFor(card)))
+    const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' })
+    expect(names).toEqual([...names].sort(collator.compare))
+
+    const available = cards.find((card) => !card.hasAttribute('disabled'))!
+    const availableAgentId = available.dataset.agent as AgentId
+    const expectedSource = new URL(AGENT_SELECTOR_PORTRAITS[availableAgentId], window.location.href).href
+    expect(available.querySelector<HTMLImageElement>('.party-editor__portrait--pool img')!.src)
+      .toBe(expectedSource)
+    expect(document.querySelector<HTMLImageElement>('.draft-slot .party-editor__portrait img')!.src)
+      .not.toContain('/selector-portraits/')
+
+    await user.click(screen.getByRole('button', { name: 'Electric Attribute' }))
+    const attackFilter = screen.getByRole('button', { name: 'Attack Specialty' })
+    await user.click(attackFilter)
+    expect(attackFilter).toHaveFocus()
+    for (const card of within(pool).getAllByRole('button')) {
+      const agent = agentFor(card)
+      expect(agent.attribute).toBe('Electric')
+      expect(agent.specialty).toBe('Attack')
+    }
+  })
+
+  it('groups special declared Attributes under their base Party Edit filter families', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    await user.click(screen.getByRole('button', { name: /Replace slot 1,/ }))
+
+    const pool = screen.getByRole('region', { name: 'Agent candidate pool' })
+    const families = [
+      ['Ether Attribute family, including Auric Ink', ['Auric Ink', 'Ether']],
+      ['Ice Attribute family, including Frost', ['Frost', 'Ice']],
+      ['Physical Attribute family, including Honed Edge', ['Honed Edge', 'Physical']],
+    ] as const
+
+    for (const [filterName, expectedAttributes] of families) {
+      await user.click(screen.getByRole('button', { name: filterName }))
+      const visibleAttributes = within(pool).getAllByRole('button').map((card) => (
+        ADMITTED_AGENTS.find(({ id }) => id === card.dataset.agent)!.attribute
+      ))
+      expect([...new Set(visibleAttributes)].sort()).toEqual([...expectedAttributes].sort())
+    }
   })
 
   it('changes only the viewed workspace and preserves edited Setup state', async () => {

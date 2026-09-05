@@ -57,6 +57,27 @@ source-defined thresholds or caps with a linked output.
 - R-008: Identity, Setup, and Result read as one selected-Agent workspace rather
   than as a detached settings page.
 
+### Party Edit candidate pool
+
+This bounded pool presentation applies `UI-003` and `UI-006` without changing
+the separate draft-slot or Focus designs.
+
+- R-040: Attribute and Specialty occupy two separate filter rows. Each row uses
+  its current game symbols, starts at All, and permits one selected value; the
+  two rows continue to combine by intersection. Under `GV-004`, the Attribute
+  row groups Frost with Ice, Auric Ink with Ether, and Honed Edge with Physical,
+  while each candidate retains its declared Attribute symbol. Lumiflux remains
+  separate because its effect Attribute is party-contextual under `GV-011`.
+  Rank is identity information on each candidate rather than a third filter.
+- R-041: The filtered candidate pool remains ordered alphabetically by displayed
+  Agent name. Occupied Agents keep their alphabetical positions, remain
+  unavailable, and identify their current draft position as `Slot 1`, `Slot 2`,
+  or `Slot 3`.
+- R-042: Every candidate uses the roster-complete exact-source upper-body
+  derivative in one shared compact card frame. The card reserves a centered
+  two-line name bank and a fixed Rank, Attribute, and Specialty symbol row;
+  occupied position follows those symbols rather than displacing them.
+
 ### Setup
 
 - R-009: Setup order is Mindscape, pool, W-Engine, Disc 4-piece, Disc 2-piece,
@@ -149,13 +170,15 @@ source-defined thresholds or caps with a linked output.
 
 ## Scope boundary
 
-Included: party selector and workspace Identity, Setup/Result composition, honest selector
-affordance, surface meaning, action/source vocabulary, source compression,
-gauge eligibility, and element-first visual exploration.
+Included: party selector and workspace Identity, Setup/Result composition,
+bounded Party Edit candidate-pool presentation, honest selector affordance,
+surface meaning, action/source vocabulary, source compression, gauge
+eligibility, and element-first visual exploration.
 
-Excluded: final style selection, production UI rewrite, catalogue, optimizer,
-ranking, rationale browser, new ZZZ content, persistence, evidence/history,
-simulation, and implementation architecture.
+Excluded: final style selection outside the bounded Party Edit pool, production
+UI rewrite outside the accepted surfaces, catalogue, optimizer, ranking,
+rationale browser, new ZZZ content, persistence, evidence/history, simulation,
+and implementation architecture.
 
 No product-policy decision blocks element samples. Typography, dimensions,
 motion, responsive calibration, and production artwork sourcing are comparison

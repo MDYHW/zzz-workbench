@@ -58,8 +58,9 @@ import zhaoSelectorPortrait from '../assets/agents/selector-portraits/zhao.png'
 import zhuYuanSelectorPortrait from '../assets/agents/selector-portraits/zhu-yuan.png'
 import type { AgentId } from '../workbench/content'
 
-// Roster-complete upper-body derivatives used only by the persistent selector.
-// Workspace identity and Party Edit continue to use calibrated full artwork.
+// Roster-complete upper-body derivatives shared by the persistent selector and
+// Party Edit candidate pool. Workspace identity and Party Edit draft slots use
+// calibrated full artwork instead.
 export const AGENT_SELECTOR_PORTRAITS: Record<AgentId, string> = {
   remielle: remielleSelectorPortrait,
   pyrois: pyroisSelectorPortrait,
