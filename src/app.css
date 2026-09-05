@@ -629,6 +629,7 @@ main { margin-top: 18px; }
 .agent-pool-card__name {
   display: flex;
   height: 54px;
+  width: 111.111%;
   flex: none;
   min-width: 0;
   align-items: center;
@@ -637,6 +638,8 @@ main { margin-top: 18px; }
   overflow-wrap: anywhere;
   font: 900 19px/.96 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
   letter-spacing: -.025em;
+  transform: scaleX(.9);
+  transform-origin: left center;
   text-transform: uppercase;
   text-wrap: balance;
 }
