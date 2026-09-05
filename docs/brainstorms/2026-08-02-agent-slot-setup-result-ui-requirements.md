@@ -94,7 +94,9 @@ Focus choice, and shared candidate pool without changing their product meaning.
   count without repeating an eligibility label on every option. It closes after
   selection, leaving the Focus marker on its owning draft slot. One eligible
   member is automatic; none keeps the draft invalid and states that a member
-  must be replaced.
+  must be replaced. When an otherwise applicable changed draft has multiple
+  eligible members but no resolved Focus, activating Apply party opens this
+  same choice panel without changing the applied party.
 - R-045: Party Edit names the upper formation `Editing party` and the inactive
   applied formation `Current party` at rail level. It does not repeat current,
   changed, or draft labels on individual Agent slots; the inactive treatment
@@ -102,7 +104,10 @@ Focus choice, and shared candidate pool without changing their product meaning.
 - R-046: The Party Edit frame and its Cancel and Apply party actions use the
   same thin-line, clipped-corner, dark-paper grammar as the current workbench.
   Cancel remains visually secondary, Apply party remains the yellow primary
-  action, and their enabled and disabled meanings remain unchanged.
+  action. Apply party is unavailable for an unchanged, incomplete, duplicate,
+  or zero-eligible draft. An otherwise applicable changed draft keeps Apply
+  party available when multiple eligible members still require Focus choice;
+  that activation resolves Focus before a later activation can commit.
 - R-047: Fixed setup assumptions and simulation non-goals do not occupy a
   persistent page footer. The workspace reserves persistent copy for current
   orientation, state, and available action.
