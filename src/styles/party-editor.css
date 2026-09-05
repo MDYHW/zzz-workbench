@@ -559,16 +559,16 @@
 .agent-pool-card__name {
   display: flex;
   height: 54px;
-  width: 125%;
+  width: 138.889%;
   flex: none;
   min-width: 0;
   align-items: center;
   margin-bottom: 1px;
   overflow: hidden;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
   font: 900 21px/.96 "Bahnschrift Condensed", "Arial Narrow", sans-serif;
   letter-spacing: -.025em;
-  transform: scaleX(.8);
+  transform: scaleX(.72);
   transform-origin: left center;
   text-transform: uppercase;
   text-wrap: balance;
