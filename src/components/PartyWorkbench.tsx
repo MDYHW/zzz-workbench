@@ -186,7 +186,12 @@ export function PartyWorkbench({
   }
   return (
     <section className="party-section" aria-labelledby="party-heading">
-      <h2 id="party-heading" className="sr-only">Applied party</h2>
+      <h2
+        id="party-heading"
+        className={isPartyEditing ? 'party-section__current-label' : 'sr-only'}
+      >
+        {isPartyEditing ? 'Current party' : 'Applied party'}
+      </h2>
       <div className="party-rail">
         <ol
           className="party-tabs"

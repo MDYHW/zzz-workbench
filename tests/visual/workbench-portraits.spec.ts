@@ -200,9 +200,10 @@ async function applyParty(page: Page, party: PortraitParty): Promise<void> {
   }
 
   if (party.focus) {
-    const focusChoice = page.getByRole('radio', { name: party.focus, exact: true })
-    if (await focusChoice.count()) {
-      await focusChoice.click()
+    const focusChange = page.getByRole('button', { name: 'Change Focus Agent', exact: true })
+    if (await focusChange.count()) {
+      await focusChange.click()
+      await page.getByRole('button', { name: `Set ${party.focus} as Focus`, exact: true }).click()
     } else {
       await expect(
         page.getByText(`${party.focus} is Focus automatically.`, { exact: true }).first(),
@@ -229,6 +230,19 @@ async function clearTransientSourceHighlight(page: Page): Promise<void> {
 async function captureDestinations(page: Page, party: PortraitParty): Promise<void> {
   for (const destination of destinations) {
     await page.setViewportSize(destination.viewport)
+
+    await page.getByRole('button', { name: 'Edit party' }).click()
+    const draftRail = page.locator('.party-editor__draft-rail')
+    await expect.soft(draftRail.locator('.draft-slot')).toHaveCount(3)
+    await expect.soft(draftRail.locator('.party-editor__portrait--draft img')).toHaveCount(3)
+    expect(await draftRail.locator('.party-editor__portrait--draft img').evaluateAll((images) => (
+      images.every((image) => (image as HTMLImageElement).src.includes('/selector-portraits/'))
+    ))).toBe(true)
+    await expect.soft(draftRail).toHaveScreenshot(
+      `${party.id}-${destination.id}-draft-rail.png`,
+      { maxDiffPixelRatio: 0.001, stylePath: portraitSnapshotStyle },
+    )
+    await page.getByRole('button', { name: 'Cancel' }).click()
 
     for (const [memberIndex, agent] of party.members.entries()) {
       if (!party.captures.includes(agent)) continue

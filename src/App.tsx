@@ -154,7 +154,6 @@ export function App() {
           )}
         />
       </main>
-      <footer className="workbench-footer"><span>Lv.60 {'\u00B7'} max Core {'\u00B7'} fully enabled compatible window</span><span>No final damage or rotation simulation</span></footer>
     </div>
   )
 }

@@ -33,7 +33,7 @@ describe('workbench UI integration', () => {
     expect(screen.getByRole('region', { name: 'Yixuan setup' })).toBeInTheDocument()
   })
 
-  it('presents one alphabetical, intersectable Party Edit pool with separate portrait sources', async () => {
+  it('presents one alphabetical, intersectable Party Edit pool with shared upper-body portrait sources', async () => {
     const user = userEvent.setup()
     render(<App />)
 
@@ -54,8 +54,10 @@ describe('workbench UI integration', () => {
     const expectedSource = new URL(AGENT_SELECTOR_PORTRAITS[availableAgentId], window.location.href).href
     expect(available.querySelector<HTMLImageElement>('.party-editor__portrait--pool img')!.src)
       .toBe(expectedSource)
+    const draftAgentId = ADMITTED_AGENTS.find(({ id }) => id === 'yixuan')!.id
+    const expectedDraftSource = new URL(AGENT_SELECTOR_PORTRAITS[draftAgentId], window.location.href).href
     expect(document.querySelector<HTMLImageElement>('.draft-slot .party-editor__portrait img')!.src)
-      .not.toContain('/selector-portraits/')
+      .toBe(expectedDraftSource)
 
     await user.click(screen.getByRole('button', { name: 'Electric Attribute' }))
     const attackFilter = screen.getByRole('button', { name: 'Attack Specialty' })
@@ -66,6 +68,41 @@ describe('workbench UI integration', () => {
       expect(agent.attribute).toBe('Electric')
       expect(agent.specialty).toBe('Attack')
     }
+
+    const selectedDraftSlot = screen.getByRole('button', { name: /Replace slot 1,/ })
+    await user.click(selectedDraftSlot)
+    expect(selectedDraftSlot).not.toHaveAttribute('aria-pressed', 'true')
+    expect(screen.queryByRole('region', { name: 'Agent candidate pool' })).not.toBeInTheDocument()
+  })
+
+  it('keeps replacement targeting separate from the compact multi-eligible Focus picker', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    expect(screen.queryByText(/Draft 0[1-3]/)).not.toBeInTheDocument()
+    const focusControl = document.querySelector<HTMLButtonElement>('.party-editor__focus-change')!
+    expect(focusControl).toBeDisabled()
+    expect(screen.queryByRole('group', { name: 'Eligible Focus Agents' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /Replace slot 2,/ }))
+    await user.click(screen.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ }))
+
+    expect(focusControl).toBeEnabled()
+    await user.click(focusControl)
+    const focusOptions = screen.getByRole('group', { name: 'Eligible Focus Agents' })
+    expect(within(focusOptions).getAllByRole('button')).toHaveLength(2)
+    expect(focusOptions.closest('.party-editor__focus-popup')).toHaveClass('party-editor__focus-popup--2')
+    expect(within(focusOptions).queryByText('Focus eligible')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Replace slot 2,/ })).not.toHaveAttribute('aria-pressed', 'true')
+
+    await user.click(within(focusOptions).getByRole('button', { name: 'Set Anby: Soldier 0 as Focus' }))
+    expect(screen.queryByRole('group', { name: 'Eligible Focus Agents' })).not.toBeInTheDocument()
+    expect(focusControl).toHaveFocus()
+    expect(screen.getByRole('button', { name: /Replace slot 2, Anby: Soldier 0/ }))
+      .toHaveClass('is-focus')
+    expect(document.querySelector('.draft-slot.is-focus .draft-slot__focus-marker'))
+      .toHaveTextContent('Focus')
   })
 
   it('groups special declared Attributes under their base Party Edit filter families', async () => {
@@ -165,13 +202,12 @@ describe('workbench UI integration', () => {
     expect(within(partyTabs).getAllByRole('tab')).toHaveLength(3)
     expect(within(partyTabs).queryByRole('button', { name: 'Edit party' })).not.toBeInTheDocument()
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
-    const fullArtSource = document.querySelector<HTMLImageElement>(
-      '.workspace-identity .agent-art',
-    )!.src
     const selectorSource = screen.getByRole('tab', { name: 'View Dialyn setup and Result' })
       .querySelector<HTMLImageElement>('.selector-agent-art')!.src
 
     await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    expect(screen.getByRole('heading', { name: 'Editing party' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Current party' })).toBeInTheDocument()
     const partyRail = screen.getByRole('list', { name: 'Applied party slots' })
     expect(within(partyRail).queryAllByRole('tab')).toHaveLength(0)
     const inactiveSlots = within(partyRail).getAllByRole('button', { name: /applied slot, inactive/ })
@@ -183,11 +219,13 @@ describe('workbench UI integration', () => {
     expect(within(partyRail).getByRole('button', { name: /Dialyn applied slot/ })
       .querySelector<HTMLImageElement>('.selector-agent-art')!.src).toBe(selectorSource)
     expect(screen.getByRole('button', { name: 'Replace slot 2, Dialyn' })
-      .querySelector<HTMLImageElement>('.party-editor__portrait img')!.src).toBe(fullArtSource)
+      .querySelector<HTMLImageElement>('.party-editor__portrait img')!.src).toBe(selectorSource)
     await user.click(screen.getByRole('button', { name: /Replace slot 1,/ }))
     await user.click(screen.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ }))
     await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
+    expect(screen.queryByRole('heading', { name: 'Editing party' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Current party' })).not.toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
       .toHaveAttribute('aria-selected', 'true')
     expect(screen.getByRole('region', { name: 'Dialyn setup' })).toBeInTheDocument()
@@ -272,7 +310,8 @@ describe('workbench UI integration', () => {
     await replace(1, /Velina, Wind, Anomaly/)
     await replace(2, /Promeia, Ice, Anomaly/)
     await replace(3, /Lucia, Ether, Support/)
-    await user.click(screen.getByRole('radio', { name: 'Velina' }))
+    await user.click(screen.getByRole('button', { name: 'Change Focus Agent' }))
+    await user.click(screen.getByRole('button', { name: 'Set Velina as Focus' }))
     await user.click(screen.getByRole('button', { name: 'Apply party' }))
     await user.click(screen.getByRole('tab', { name: 'View Velina setup and Result' }))
 

@@ -5,6 +5,13 @@ const viewports = [
   { width: 536, height: 900 },
 ] as const
 
+const partyEditViewports = [
+  ...viewports,
+  { width: 414, height: 900 },
+  { width: 375, height: 900 },
+  { width: 320, height: 900 },
+] as const
+
 test('keeps W-Engine refinement beside the selected equipment at every viewport', async ({ page }) => {
   for (const viewport of viewports) {
     await page.setViewportSize(viewport)
@@ -201,22 +208,71 @@ test('keeps the shared Identity background free of a portrait shade layer', asyn
   await expect(page.locator('.workspace-identity .identity-shade')).toHaveCount(0)
 })
 
-test('keeps Party Edit filters compact and candidate cards on the shared geometry', async ({ page }) => {
-  for (const viewport of viewports) {
+test('keeps Party Edit formation, filters, and candidate cards on their shared geometry', async ({ page }) => {
+  for (const viewport of partyEditViewports) {
     await page.setViewportSize(viewport)
     await page.goto('/')
     await page.getByRole('button', { name: 'Edit party' }).click()
+
+    const rail = page.locator('.party-editor__draft-rail')
+    const slots = rail.locator('.draft-slot')
+    await expect(slots).toHaveCount(3)
+    const formationZ = Number(await page.locator('.party-editor__formation').evaluate((element) => (
+      getComputedStyle(element).zIndex
+    )))
+    const appliedRailZ = Number(await page.locator('.party-rail').evaluate((element) => (
+      getComputedStyle(element).zIndex
+    )))
+    expect(formationZ).toBeGreaterThan(appliedRailZ)
+    const slotBoxes = await slots.evaluateAll((elements) => elements.map((element) => {
+      const rect = element.getBoundingClientRect()
+      return { height: rect.height, top: rect.top, width: rect.width }
+    }))
+    expect(new Set(slotBoxes.map(({ height }) => height)).size).toBe(1)
+    expect(new Set(slotBoxes.map(({ top }) => top)).size).toBe(1)
+    expect(slotBoxes[0].height).toBeCloseTo(viewport.width <= 760 ? 82 : 88, 0)
+    expect(slotBoxes.every(({ width }) => width > 0)).toBe(true)
+
+    const identityBoxes = await slots.locator('.draft-slot__identity').evaluateAll((elements) => elements.map((element) => {
+      const name = element.querySelector<HTMLElement>('strong')!.getBoundingClientRect()
+      const marks = element.querySelector<HTMLElement>('.draft-slot__marks')!.getBoundingClientRect()
+      return {
+        name: { left: name.left, right: name.right, top: name.top, bottom: name.bottom },
+        marks: { left: marks.left, right: marks.right, top: marks.top, bottom: marks.bottom },
+      }
+    }))
+    for (const [index, slot] of slotBoxes.entries()) {
+      const slotElementBox = await slots.nth(index).boundingBox()
+      expect(slotElementBox).not.toBeNull()
+      for (const bank of [identityBoxes[index].name, identityBoxes[index].marks]) {
+        expect(bank.left).toBeGreaterThanOrEqual(slotElementBox!.x)
+        expect(bank.right).toBeLessThanOrEqual(slotElementBox!.x + slotElementBox!.width)
+        expect(bank.top).toBeGreaterThanOrEqual(slotElementBox!.y)
+        expect(bank.bottom).toBeLessThanOrEqual(slotElementBox!.y + slotElementBox!.height)
+      }
+    }
+
+    const focusControl = page.locator('.party-editor__focus-change')
+    const focusBox = await focusControl.boundingBox()
+    expect(focusBox).not.toBeNull()
+    expect(focusBox!.height).toBeLessThan(slotBoxes[0].height)
+    expect(focusBox!.width).toBeLessThan(slotBoxes[0].width)
+
     await page.locator('.draft-slot').first().click()
 
     const filterRows = page.locator('.party-editor__filter-row')
     await expect(filterRows).toHaveCount(2)
 
     for (const filterRow of await filterRows.all()) {
+      const rowBox = await filterRow.boundingBox()
       const firstButtons = filterRow.getByRole('button')
       const firstBox = await firstButtons.nth(0).boundingBox()
       const secondBox = await firstButtons.nth(1).boundingBox()
+      expect(rowBox).not.toBeNull()
       expect(firstBox).not.toBeNull()
       expect(secondBox).not.toBeNull()
+      expect(firstBox!.x - rowBox!.x).toBeGreaterThanOrEqual(0)
+      expect(firstBox!.x - rowBox!.x).toBeLessThanOrEqual(24)
       expect(secondBox!.y).toBeCloseTo(firstBox!.y, 0)
     }
 
@@ -233,6 +289,48 @@ test('keeps Party Edit filters compact and candidate cards on the shared geometr
       expect(cardBox!.height).toBeCloseTo(82, 0)
       expect(cardBox!.width).toBeGreaterThanOrEqual(184)
       expect(nameBox!.y + nameBox!.height).toBeLessThanOrEqual(identityBox!.y)
+    }
+  }
+})
+
+test('keeps the Focus chooser above the inactive current-party rail', async ({ page }) => {
+  for (const viewport of [{ width: 552, height: 900 }, { width: 320, height: 900 }]) {
+    await page.setViewportSize(viewport)
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Edit party' }).click()
+    await page.getByRole('button', { name: /Replace slot 2,/ }).click()
+    await page.getByRole('button', { name: /Anby: Soldier 0, Electric, Attack/ }).click()
+    await page.getByRole('button', { name: 'Change Focus Agent' }).click()
+
+    const popup = page.locator('.party-editor__focus-popup')
+    const currentRail = page.locator('.party-rail')
+    const popupBox = await popup.boundingBox()
+    const currentRailBox = await currentRail.boundingBox()
+    expect(popupBox).not.toBeNull()
+    expect(currentRailBox).not.toBeNull()
+    const editorZ = Number(await page.locator('.party-editor').evaluate((element) => (
+      getComputedStyle(element).zIndex
+    )))
+    const currentRailZ = Number(await currentRail.evaluate((element) => (
+      getComputedStyle(element).zIndex
+    )))
+    expect(editorZ).toBeGreaterThan(currentRailZ)
+
+    const overlapTop = Math.max(popupBox!.y, currentRailBox!.y)
+    const overlapBottom = Math.min(
+      popupBox!.y + popupBox!.height,
+      currentRailBox!.y + currentRailBox!.height,
+    )
+    if (overlapBottom > overlapTop) {
+      const popupOwnsOverlap = await page.evaluate(({ x, y }) => {
+        const popupElement = document.querySelector('.party-editor__focus-popup')
+        const topElement = document.elementFromPoint(x, y)
+        return popupElement !== null && topElement !== null && popupElement.contains(topElement)
+      }, {
+        x: popupBox!.x + popupBox!.width / 2,
+        y: overlapTop + (overlapBottom - overlapTop) / 2,
+      })
+      expect(popupOwnsOverlap).toBe(true)
     }
   }
 })
