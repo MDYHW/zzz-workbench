@@ -393,15 +393,15 @@ owning Setup input.
 
 **Rule ID:** `UI-003`
 
-The selected-Agent workspace and persistent applied-party selector retain the
+The selected-Agent workspace and compact Agent portrait surfaces retain the
 same exact Agent artwork identity. Each workspace full-art source records
 exactly three normalized portrait inputs: optical scale, `headTopY`, and
 `faceX`. Their implementation names do not make a literal head top or face
 center the visual target. Scale controls perceived identity size, `headTopY`
 registers the readable continuous figure composition vertically, and `faceX`
 registers the optical center of the face and connected upper-body mass
-horizontally. These source inputs belong to the full artwork and are shared by
-the responsive workspace and Party Edit draft slots.
+horizontally. These source inputs belong only to the responsive workspace full
+art.
 
 The persistent selector uses one dedicated upper-body derivative for every
 admitted Agent. A derivative retains the exact workspace artwork, pose, form,
@@ -417,28 +417,31 @@ cannot preserve readable identity without them.
 The same selector derivative remains visible when the applied-party rail is
 inactive during Party Edit. The Party Edit candidate pool may reuse that
 roster-complete derivative in its own common compact destination frame and crop
-treatment; it does not inherit the workspace source's `scale`, `headTopY`, or
-`faceX`. The separate Party Edit draft slots retain the workspace full-art
-source, its normalized inputs, and their own shared responsive destination
-frame. Their replacement interactions do not change.
+treatment. The three Party Edit draft slots also reuse the derivative in one
+common shallow destination frame and crop treatment. Neither Party Edit surface
+inherits the workspace source's `scale`, `headTopY`, or `faceX`, and their
+replacement interactions do not change.
 
 Each portrait surface owns one common destination frame. The frame applies the
 source's horizontal and vertical optical registration, then multiplies its
 nominal image width by the source optical scale. Agent-specific source inputs
 correct differences in composition and perceived identity weight without
 repeating the same correction as per-Agent desktop, stacked, or mobile
-coordinates. Add a surface-specific Agent exception only after a concrete
+coordinates. An upper-body derivative with no separately retained source
+inputs uses its surface's common frame directly and never falls back to the
+workspace full-art inputs. Any justified derivative-specific inputs adjust that
+common frame. Add a surface-specific Agent exception only after a concrete
 asset, surface, and viewport demonstrate that the shared contract cannot
 preserve the identity.
 
 The current shared frames are visual calibration inputs, not game or product
 meaning. Desktop workspace uses the midpoint from Identity start to Setup
 content start, a `100px` head-top line, and a `295%` nominal image width. Mobile
-workspace uses `30%`, `16px`, and `110%`. The Party Edit draft-slot full-art
-frame applies the same source metadata through its own shared responsive
-destination. The selector uses its own common shallow frame and the same
-image-aligned diagonal treatment in all three applied slots. The candidate pool
-uses one common compact frame for the reused derivative.
+workspace uses `30%`, `16px`, and `110%`. The selector uses its own common
+shallow frame and the same image-aligned diagonal treatment in all three
+applied slots. The Party Edit draft rail uses one common shallow frame for its
+three reused derivatives, while the candidate pool uses its own common compact
+frame.
 
 Use the authored source metadata deterministically at runtime. Original-canvas
 measurements, transparent bounds, automatic face detection, visible silhouette
@@ -490,9 +493,10 @@ start to Setup content start, places the face below the name without a hard
 collision, preserves comparable perceived Agent scale, and keeps meaningful
 artwork clear of Setup controls. Narrow workspace frames apply the same
 full-art source metadata through their own shared responsive destination.
-Selector derivatives instead use the common selector frame and only the
-separately justified normalized inputs above; the Party Edit candidate pool
-uses that derivative in its separate common compact frame.
+Upper-body derivatives instead use the common frame for their exact surface
+and only the separately justified normalized inputs above: the persistent
+selector, Party Edit draft rail, and Party Edit candidate pool keep distinct
+shared destination frames.
 
 Source-variable presence proves only structural wiring. A portrait calibration
 is not accepted until the original asset has been inspected and all three
@@ -505,11 +509,10 @@ destination surface for immediate face readability, continuous composition,
 optical identity weight, and name or control clearance. Source inspection alone
 cannot mark a portrait sound, and a controller does not accept a worker's
 full-art metadata change without repeating that rendered comparison for every
-changed Agent in the workspace and Party Edit draft slots. A selector
-derivative or selector-specific normalized input also requires roster-complete
-desktop and narrow comparison in the persistent three-slot rail, including its
-inactive Party Edit state, and in the Party Edit candidate pool that reuses the
-derivative.
+changed Agent in the workspace. An upper-body derivative or derivative-specific
+normalized input also requires roster-complete desktop and narrow comparison
+in the persistent three-slot rail, including its inactive Party Edit state, and
+in the Party Edit draft rail and candidate pool that reuse the derivative.
 
 ### Expanded Slot Composition
 
