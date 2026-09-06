@@ -85,7 +85,7 @@ does not duplicate or redefine those record transitions.
 
 ### Identifier-Only Permanent-Owner Bootstrap
 
-**Governance Rule ID:** `GOV-002`
+**Governance Rule ID:** `GOV-003`
 
 A permanent owner may receive stable Rule IDs before an ACR only when the
 trusted evaluator proves an identifier-only bootstrap. This is the sole
@@ -98,8 +98,10 @@ The protected owner-only PR may add one or more `Rule ID` marker blocks and no
 other bytes. The base and head must remain regular non-executable Markdown
 blobs. Each marker must appear directly beneath an existing unnumbered level-
 three through level-six ATX Markdown rule heading outside code fences and HTML
-comments; document-level, identifier-index, and retired-identifier headings are
-not rule headings. Each marker uses the namespace owned
+comments. The sole level-two exception is the existing `Current Non-Goals`
+boundary in `docs/setup-workbench-product-contract.md`; no other level-two,
+document-level, identifier-index, or retired-identifier heading is a rule
+heading. Each marker uses the namespace owned
 by that permanent file, allocates a previously unknown number greater than every
 current or retired number in that namespace, and increases monotonically when
 the transaction adds multiple IDs. The trusted evaluator compares the exact base
@@ -259,6 +261,11 @@ disable App mutation and immediate merge, invalidate outstanding evidence, and
 land
 one owner-reviewed repair under the minimal protection boundary. Restore and
 read back the full rules and rejection probes before resuming recovery.
+
+## Retired Governance Rule IDs
+
+- `GOV-002` -> `GOV-003`: replaced the identifier-only bootstrap rule to add
+  the sole legacy level-two `Current Non-Goals` boundary.
 
 ## Controller Re-grounding And Authoring
 
