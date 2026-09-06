@@ -42,11 +42,15 @@ announcement state only.
 - A2. Private release controller: runs from a clean local checkout of exact
   trusted `main`, builds and validates it, then publishes only its accepted
   generated tree.
-- A3. Neutral publisher App: receives short-lived write authority only for the
-  public destination repository and has no access to the private repository.
-- A4. GitHub Pages: serves the public artifact tree and performs provider-level
+- A3. Neutral bootstrap App: receives short-lived elevated authority for the
+  one-time creation and hardening of the public destination, performs the first
+  accepted publication, and is then retired.
+- A4. Neutral publisher App: receives short-lived write authority only for
+  later artifact updates to the public destination and has no access to the
+  private repository.
+- A5. GitHub Pages: serves the public artifact tree and performs provider-level
   transport logging under GitHub's current policy.
-- A5. Public visitor: uses the same fresh-session workbench as the local client
+- A6. Public visitor: uses the same fresh-session workbench as the local client
   without an account, persistence, or application telemetry.
 
 ---
@@ -57,13 +61,17 @@ announcement state only.
   - **Trigger:** The supporting requirement is approved and implementation is
     ready for a destination.
   - **Steps:** The product owner uses the existing personal account to create a
-    neutral GitHub Organization, its initially empty root Pages repository, and
-    a separate publisher App. Organization membership remains private, and the
-    public Organization, repository settings, commit identity, and eventual URL
-    are inspected for personal or private-development disclosure.
+    neutral GitHub Organization and organization-owned bootstrap and publisher
+    Apps while membership remains private. Before any repository is public, the
+    controller verifies the current provider metadata boundary. Using a fresh
+    bootstrap-App key and short-lived installation token, it creates the root
+    Pages repository, writes the first accepted artifact, configures the branch
+    ruleset and Pages, and inspects every public organization, repository,
+    commit, event, deployment, and URL surface for actor or identity disclosure.
+    The bootstrap App and its credentials are then retired.
   - **Outcome:** The destination exposes only a neutral project identity and
     generated-client delivery metadata.
-  - **Covered by:** R1-R4, R16
+  - **Covered by:** R1-R4, R11, R13a-R13b, R16
 - F2. Candidate build and release gate
   - **Trigger:** A trusted private `main` revision is selected for RC delivery.
   - **Steps:** The private controller builds once, inventories every emitted file,
@@ -75,14 +83,15 @@ announcement state only.
   - **Covered by:** R5-R10, R17-R19
 - F3. One-way publication
   - **Trigger:** The exact candidate passes F2.
-  - **Steps:** The private controller mints a destination-only installation token
-    and writes the generated tree through the neutral bot identity. For the
-    initial commit, the owner then enables branch-based Pages. The controller
-    verifies the resulting deployment and attempts immediate token revocation in
-    cleanup.
+  - **Steps:** For the first publication, the private controller uses the
+    one-time bootstrap App to create and harden the destination and write the
+    generated tree through its neutral bot identity. For later publication, it
+    mints a destination-only publisher-App installation token and updates only
+    the generated tree. The controller verifies the resulting commit and Pages
+    deployment and attempts immediate token revocation in cleanup.
   - **Outcome:** One public commit and URL correspond to the accepted artifact;
     no credential or private-source access crosses into the destination.
-  - **Covered by:** R3, R4, R11-R13, R19
+  - **Covered by:** R3, R4, R11-R13b, R19
 - F4. RC verification and Beta announcement
   - **Trigger:** The unannounced URL is live.
   - **Steps:** The product owner verifies the static client, attribution,
@@ -110,22 +119,33 @@ announcement state only.
   account privately administers a neutral-named GitHub Organization, keeps that
   membership private, enables GitHub two-factor authentication, and stores
   recovery material offline and outside both repositories. The personal account
-  performs no public commit, Issue, comment, close, label, or triage activity in
-  the public artifact repository.
+  does not create or mutate the public repository or Pages configuration and
+  performs no public commit, deployment, Issue, comment, close, label, or triage
+  activity there. Private organization or App administration is permitted only
+  while current provider behavior keeps the account absent from every public
+  organization, repository, App, event, deployment, and audit-adjacent surface.
+  If that cannot be established before publication, the neutral-organization
+  path is unsupported and publication stops; there is no manual-account
+  fallback.
 - R2. The destination is the neutral Organization's public root Pages
   repository, `<neutral-organization>.github.io`, and initially uses the
-  corresponding HTTPS root URL without a custom domain. The concrete
-  Organization, repository, and URL names remain operational configuration
-  outside product meaning.
+  corresponding HTTPS root URL without a custom domain. The Organization is
+  dedicated to this delivery surface and contains no other repository, allowing
+  the two Apps to be installed before repository creation without granting them
+  access beyond the one eventual destination. The concrete Organization,
+  repository, and URL names remain operational configuration outside product
+  meaning.
 - R3. The public repository contains only the generated runtime tree and the
   minimum host control file required to serve it. It contains no private source
   tree, source history, project documentation, package metadata, test input,
   development configuration, credential, source map, absolute local path, or
   private-repository identity.
-- R4. Public commits use one neutral bot author and committer with a no-reply
-  address. Their message and public metadata may identify a release stage and
-  artifact digest but do not expose the private repository name, private source
-  commit, personal account, local path, or workflow secret.
+- R4. Public commits use only the neutral bootstrap or publisher App identity as
+  author and committer, with a no-reply address. Their messages and public
+  metadata may identify a release stage and artifact digest but do not expose
+  the private repository name, private source commit, personal account, local
+  path, or workflow secret. Provider-owned service actors may appear only when
+  required by Pages and must not reveal the personal operator.
 
 **Exact candidate and legal release gate**
 
@@ -161,15 +181,22 @@ announcement state only.
   changed operator/use model, changed served-jurisdiction set, or materially
   changed applicable guidance invalidates it and requires a fresh decision.
 
-**One-way publisher and hosting**
+**One-time bootstrap, one-way publisher, and hosting**
 
 - R11. Publication is an owner-initiated local operation that starts only from a
   clean private `main` checkout whose HEAD equals `origin/main`. The controller
   verifies its absolute trusted controller path, expected private repository and
   remote identity, fixed destination repository identity and branch, and that
-  clean exact-head boundary before reading a publisher key or building. A
-  separate neutral GitHub App is installed only on the public destination with
-  the minimum metadata-read and contents-write permissions needed to update it.
+  clean exact-head boundary before reading an App key or building. Before the
+  public repository exists, an organization-owned neutral bootstrap App is
+  installed with the minimum temporary repository-administration, Pages, and
+  contents authority needed to create and harden that destination and perform
+  the first accepted publication. While the dedicated Organization has no
+  repository, a separate neutral publisher App is installed for all of that
+  Organization's current and future repositories with the minimum metadata-read
+  and contents-write permissions needed for later updates. R2 ensures that this
+  resolves to the one public destination when it is created. Neither App has
+  private-repository access.
 - R12. Each publication window uses a fresh App private key at one absolute
   external path outside every repository. The controller completes the build
   and all non-credential preflight checks before a reviewed repository-owned
@@ -197,6 +224,24 @@ announcement state only.
   ruleset blocks force pushes, deletion, and direct updates while granting the
   publisher App the sole normal update bypass; the owner does not use an admin
   bypass for release content.
+- R13a. Bootstrap is a distinct one-time privileged transaction. Its App creates
+  the public root repository, publishes the first R7-R10-accepted artifact,
+  installs the R13 ruleset with the steady-state publisher App as the sole normal
+  content-update bypass, enables branch-based Pages, and verifies the exact
+  public commit, deployment, and actor metadata. The controller then revokes the
+  bootstrap installation token, revokes and deletes every bootstrap key,
+  uninstalls the bootstrap App, and deletes or disables it so its elevated
+  permissions cannot be reused. The personal account performs none of those
+  public mutations. Failure to complete or verify retirement is a release
+  failure and blocks steady-state publication.
+- R13b. Immediately before the first public mutation and again after the first
+  deployment, the controller verifies current provider documentation and
+  inspects unauthenticated public organization, repository, App, event, commit,
+  deployment, Pages, and URL metadata. The acceptable actor set is limited to
+  the neutral organization-owned Apps and necessary provider service identities.
+  Any personal-account identity, private-development identity, unexpected actor,
+  or public path whose actor boundary cannot be inspected stops publication and
+  triggers R23; private membership alone is not treated as proof.
 
 **Shared client and attribution**
 
@@ -251,9 +296,10 @@ announcement state only.
   operator removal, the owner pauses Issues and uses GitHub's private support or
   moderation path rather than exposing the personal account.
 - R23. The release procedure includes a tested stop path: disable further
-  publication, revoke the publisher installation or credential, and restore the
-  last artifact whose R7-R10 decision remains current and supported, or disable
-  Pages when no such artifact exists. Recovery never deletes or publishes the
+  publication, revoke every active bootstrap or publisher installation and
+  credential, and restore the last artifact whose R7-R10 decision remains
+  current and supported, or disable Pages when no such artifact exists.
+  Recovery never deletes or publishes the
   private development repository. If forbidden private data or a credential
   entered any public commit, ordinary rollback is insufficient: immediately
   unpublish and revoke affected credentials, purge all reachable public refs and
@@ -265,7 +311,7 @@ announcement state only.
 
 ## Acceptance Examples
 
-- AE1. **Covers R1-R6.** Given a trusted private `main` build, validation accepts
+- AE1. **Covers R1-R6, R13b.** Given a trusted private `main` build, validation accepts
   `index.html`, hashed same-origin runtime assets, and the required host control
   file, but rejects a `.map`, private repository URL, personal username, local
   `C:\\Users\\...` path, externally loaded resource/request endpoint, or
@@ -277,11 +323,14 @@ announcement state only.
   legal statement, operator/use model, and served jurisdictions. One unresolved
   portrait or excluded jurisdiction blocks the public write even when the
   footer and build tests pass.
-- AE3. **Covers R11-R13.** Given every gate passes, the private controller mints a
-  destination-only App token, publishes one complete tree through the neutral
-  bot, verifies the public commit and deployment, and revokes the token. Given a
-  dirty or stale private checkout, missing owner-controlled key, failed or
-  ambiguous push, it stops before advancing the release.
+- AE3. **Covers R11-R13b.** Given every gate passes and no destination exists, the
+  private controller uses only the temporary bootstrap App to create the public
+  repository, publish one complete accepted tree, configure protection and
+  Pages, verify the public actors, and retire all elevated access. A later
+  update uses only the destination-scoped publisher App. Given a dirty or stale
+  private checkout, missing owner-controlled key, unexpected public actor,
+  failed or ambiguous push, incomplete bootstrap retirement, or provider path
+  that requires a personal public mutation, it stops before advancing release.
 - AE4. **Covers R14-R18.** In clean desktop and narrow browser sessions, Party
   Edit and the applied workbench both end with the same readable footer; it has
   no focusable or clickable descendant. Using the workbench produces only
@@ -331,20 +380,26 @@ resources before the first public write:
 
 - one neutral-named GitHub Organization administered by the existing account
   with private membership;
-- the Organization's initially empty root Pages repository;
 - two-factor authentication and offline recovery for the existing account;
-- one neutral publisher GitHub App installed only on that repository;
-- one fresh publication-window App key stored at one protected absolute path
-  outside every repository and revoked after publication; and
+- one organization-owned neutral bootstrap GitHub App, installed before the
+  public repository exists and restricted to the temporary R11 authority;
+- one organization-owned neutral publisher GitHub App prepared for the eventual
+  public destination and restricted to steady-state R11 authority;
+- separate fresh bootstrap and publication-window App keys stored at protected
+  absolute paths outside every repository and revoked after their transactions;
+- a current provider-capability and public-metadata preflight satisfying R1 and
+  R13b; and
 - one current exact-artifact release decision satisfying R7-R10.
 
-After the first accepted artifact commit creates the destination branch, the
-owner configures Pages to publish that generated root with HTTPS enabled and
-enables the R13 branch ruleset before another content update, then completes the
-live RC checks. The empty/bootstrap state is not an accepted artifact and cannot
-be a rollback target. Concrete names, IDs, keys, URLs, and the review evidence
-stay outside this document. Bootstrap is a one-time operator action; it does not
-create a second client configuration or a runtime account dependency.
+The trusted controller, authenticated only as the bootstrap App, creates the
+Organization's root Pages repository, publishes the first accepted artifact,
+configures the R13 branch ruleset and HTTPS Pages delivery, verifies the public
+actor boundary, and retires the elevated App before live RC checks or any later
+content update. There is no publicly served empty/bootstrap state and no such
+state can be a rollback target. Concrete names, IDs, keys, URLs, capability
+evidence, and review evidence stay outside this document. Bootstrap is a
+one-time operator-authorized App transaction; it does not create a second client
+configuration or runtime account dependency.
 
 ---
 
@@ -384,16 +439,22 @@ create a second client configuration or a runtime account dependency.
 
 ## Key Decisions
 
-- A neutral Organization and its separate root Pages repository keep personal
-  and private-development identities outside the public surface without
-  creating a second personal account, and match the current root-relative Vite
-  asset paths without adding a project-path mode.
+- A neutral Organization whose public repository and Pages surface are created
+  only by a temporary neutral bootstrap App can keep personal and private-
+  development identities outside the public surface without creating a second
+  personal account. Private membership is necessary but not sufficient, so
+  publication also fails closed on current provider capabilities and observed
+  public actor metadata. The root Pages repository matches the current root-
+  relative Vite asset paths without adding a project-path mode.
 - Branch-based artifact hosting keeps the public repository limited to generated
   files; publication intelligence stays in the trusted private repository and
   credentials remain outside both repositories.
-- A separate destination-only GitHub App gives the publisher short-lived,
-  revocable authority without exposing the private repository to the public
-  destination or reusing the personally named development App.
+- A temporary organization-owned bootstrap App isolates the elevated repository
+  and Pages setup authority from the steady-state path and is retired after the
+  first accepted deployment. A separate destination-only publisher App then
+  gives later releases short-lived, revocable contents authority without
+  exposing the private repository or reusing the personally named development
+  App.
 - RC and Beta share one URL because they differ in confidence and announcement,
   not product behavior. The RC is still fully public.
 - GitHub Issues are an intake-only public channel; replies and discussion stay
@@ -412,9 +473,13 @@ create a second client configuration or a runtime account dependency.
   `ACR-2026-09-06-003`, owns public static delivery, fresh-session behavior, the
   single attribution permission, provider metadata, and the fail-closed release
   review.
-- GitHub Pages continues to support static root-site delivery, and GitHub App
-  installation tokens remain short-lived and repository/permission scoped. A
-  material platform change reopens the affected delivery requirement.
+- GitHub Pages continues to support static root-site delivery; an
+  organization-installed GitHub App can create an organization repository and
+  configure repository, ruleset, and Pages settings with explicitly granted
+  temporary permissions; and installation tokens remain short-lived and
+  repository/permission scoped. These capabilities are reverified before
+  bootstrap rather than assumed. A material platform or public-metadata change
+  reopens the affected delivery requirement and may make this path unsupported.
 - The first public release remains blocked until the manual review can support
   every emitted asset and served jurisdiction. This document does not claim
   that current repository ownership or the proposed footer has already closed
