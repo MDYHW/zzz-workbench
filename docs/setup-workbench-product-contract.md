@@ -1130,6 +1130,8 @@ initial draft.
 
 ## Current Non-Goals
 
+**Rule ID:** `SW-022`
+
 - provider ingestion, universal schemas, source registries, or persisted output;
 - API, persistence, authentication, deployment, or hidden build history;
 - multiple setup directions, runtime equipment scoring, universal package
