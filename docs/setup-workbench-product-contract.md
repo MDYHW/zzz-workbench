@@ -1133,10 +1133,30 @@ initial draft.
 **Rule ID:** `SW-022`
 
 - provider ingestion, universal schemas, source registries, or persisted output;
-- API, persistence, authentication, deployment, or hidden build history;
+- API, persistence, authentication, application telemetry, server-side
+  application processing, address-derived or cross-visit session state, or
+  hidden build history;
 - multiple setup directions, runtime equipment scoring, universal package
   optimization, or per-pool edited-setup memory;
 - damage totals, rotations, uptime, action frequency, average stacks, clear time,
   enemy-specific optimization, editable ordinary-skill levels, complete skill
   tables, base action coefficients, or raw action damage and Daze; and
 - a complete catalogue of mechanics, Agents, equipment, or releases.
+
+Generated static client artifacts may be publicly delivered at one stable
+browser URL. This delivery changes only how the current client is reached. It
+does not change Setup, Result, calculation, candidate, preparation, party, or
+in-memory session meaning, and a reload or later visit starts a fresh session.
+The public client payload excludes the private development repository and its
+history, credentials, personal operator information, and files not required by
+the generated client. The browser-delivered bundle itself is public rather
+than secret.
+
+An unannounced Release Candidate at that URL remains publicly reachable and
+safe for immediate discovery. Release Candidate and Public Beta labels express
+release confidence rather than different product behavior or stored state.
+Unavoidable transport request logging under the static host's policy is a
+provider operation rather than application telemetry; it does not authorize
+optional analytics or transmission of Setup or session state. Hosting,
+repository, branch, workflow, and URL identities remain subordinate delivery
+choices rather than permanent product meaning.
