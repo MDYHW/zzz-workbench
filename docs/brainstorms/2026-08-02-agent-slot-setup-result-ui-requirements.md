@@ -184,8 +184,11 @@ Focus choice, and shared candidate pool without changing their product meaning.
 - R-028: Source and action applicability are separate. A W-Engine or Core
   Passive source may apply only to Ultimate.
 - R-029: Hierarchy is metric or modifier region, then a canonical action
-  aggregate only when values differ, then contributing sources.
-- R-030: Absolute aggregate totals remain visible at each surface and action.
+  aggregate only when values differ, then contributing sources. A retained
+  operation is separate: show its mapped source identity, action or state
+  meaning, and scalar value once without a display-surface identity.
+- R-030: Absolute aggregate totals remain visible at each stat or modifier
+  surface and action.
 - R-031: Disclosure is incremental: Initial shows base/setup sources; Combat
   only additions since Initial; Fully Enabled only additions since Combat; an
   action aggregate only additions over its common aggregate.

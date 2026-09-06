@@ -66,7 +66,6 @@ export interface ModifierAtom {
 
 export interface OperationAtom {
   label: string
-  earliestSurface: Exclude<SurfaceKey, 'initial'>
   value: number
   unit: string
   source: SelectedSourceInstance
@@ -115,7 +114,6 @@ export type ProviderEffect =
   | {
     kind: 'operation'
     label: string
-    earliestSurface: OperationAtom['earliestSurface']
     value: number
     unit: string
     presentation?: 'scale'
@@ -169,7 +167,6 @@ export type LinearEmission =
   | {
     kind: 'operation'
     label: string
-    earliestSurface: OperationAtom['earliestSurface']
     unit: string
     presentation?: 'scale'
     sourceDetail?: string
@@ -258,8 +255,8 @@ export type PostDeliveryGaugeRelationship = Omit<LinearGaugeRelationship, 'kind'
 
 /**
  * A visible activation condition over the completed post-delivery stat.
- * The gauge remains visible below threshold; the operation exists only at the
- * earliest qualifying Combat/Fully surface.
+ * The gauge remains visible below threshold; the operation exists once either
+ * the Combat or Fully Enabled input reaches the threshold.
  */
 export interface ThresholdOperationRelationship {
   kind: 'threshold-operation'
@@ -824,7 +821,6 @@ export function evaluateThresholdOperation(
     ...(qualifyingSurface ? {
       operation: {
         label: relationship.outputLabel,
-        earliestSurface: qualifyingSurface,
         value: relationship.activeValue,
         unit: relationship.unit,
         source: relationship.source,

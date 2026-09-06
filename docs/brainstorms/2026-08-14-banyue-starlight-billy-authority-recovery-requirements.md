@@ -84,8 +84,9 @@ projection.
 - R9. Mindscapes apply cumulatively. M1 adds Physical RES Ignore +18%. M2 adds
   +50% DMG to Full-Throttle, Cool Wheelie, and Ultimate plus Cool Wheelie CRIT
   DMG +50%. M4 adds two Core CRIT DMG +8% stacks. M6 adds Full-Throttle and
-  Ultimate Sheer DMG +18% and a bounded two-stack +100% Sheer Force operation.
-  Resource, rotation, and raw final output remain absent.
+  Ultimate Sheer DMG +18%. Its separate two-stack final-hit damage based on
+  Sheer Force creates no Result operation. Resource, rotation, and raw final
+  output remain absent.
 - R10. Full W-Engine candidates are Starlight Rider Faceplate, Qingming
   Birdcage, Cauldron of Clarity, Grill O'Wisp, and Puzzle Sphere. Non-limited
   candidates are Cauldron, Grill, and Puzzle. Steel Cushion is legal and its

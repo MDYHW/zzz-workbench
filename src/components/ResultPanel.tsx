@@ -694,8 +694,8 @@ function Operations({
             operation.presentation,
           )
           const operationName = [
-            surfaceLabels[operation.surface],
-            `${operation.label} \u00B7 ${sourceLabel(operation.source, agentId)}`,
+            sourceLabel(operation.source, agentId),
+            operation.label,
             operation.source.detail,
             value,
           ].filter(Boolean).join(' ')
@@ -704,7 +704,7 @@ function Operations({
               aria-label={operationName}
               className={toneClass(tone, activeSourceTone)}
               data-source-tone={tone}
-              key={`${operation.source.ownerAgentId}:${operation.source.locus}:${operation.label}:${operation.surface}:${operationIndex}`}
+              key={`${operation.source.ownerAgentId}:${operation.source.locus}:${operation.label}:${operationIndex}`}
               tabIndex={0}
               {...sourceToneEvents(
                 tone,
@@ -713,8 +713,8 @@ function Operations({
               )}
             >
               <span>
-                <small>{surfaceLabels[operation.surface]}</small>
-                {operation.label} {'\u00B7'} {sourceLabel(operation.source, agentId)}
+                <small>{sourceLabel(operation.source, agentId)}</small>
+                {operation.label}
                 {operation.source.detail && <em>{operation.source.detail}</em>}
               </span>
               <b>{value}</b>

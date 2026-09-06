@@ -870,7 +870,7 @@ describe('profile calculation harness', () => {
           effect: {
             kind: 'operation',
             label: 'Next action Daze',
-            earliestSurface: 'fully', value: 50, unit: '%',
+            value: 50, unit: '%',
           },
         }],
       },
@@ -906,7 +906,7 @@ describe('profile calculation harness', () => {
             delivery: { recipient: 'all-party', formulas: ['daze_buildup'] },
             effect: {
               kind: 'operation',
-              label: 'Daze operation', earliestSurface: 'fully', value: 50, unit: '%',
+              label: 'Daze operation', value: 50, unit: '%',
             },
           },
           {
@@ -914,7 +914,7 @@ describe('profile calculation harness', () => {
             delivery: { recipient: 'all-party', formulas: ['general_damage'] },
             effect: {
               kind: 'operation',
-              label: 'General operation', earliestSurface: 'fully', value: 25, unit: '%',
+              label: 'General operation', value: 25, unit: '%',
             },
           },
           {
@@ -1304,14 +1304,18 @@ describe('profile calculation harness', () => {
       basisLabel: 'Fully Enabled CRIT Rate', current: 85, outputValue: 1.25,
     }))
     expect(fully.operations).toEqual([
-      expect.objectContaining({ label: 'Action DMG Multiplier', surface: 'fully', value: 1.25 }),
+      expect.objectContaining({ label: 'Action DMG Multiplier', value: 1.25 }),
     ])
+    expect(fully.operations[0]).not.toHaveProperty('surface')
 
     const combat = evaluate(45, 10)
     expect(combat.metrics[0].gauges[0]).toEqual(expect.objectContaining({
       basisLabel: 'Combat CRIT Rate', current: 85, outputValue: 1.25,
     }))
-    expect(combat.operations[0]).toEqual(expect.objectContaining({ surface: 'combat' }))
+    expect(combat.operations[0]).toEqual(expect.objectContaining({
+      label: 'Action DMG Multiplier', value: 1.25,
+    }))
+    expect(combat.operations[0]).not.toHaveProperty('surface')
   })
 
   it('preserves an open-ended gauge threshold and output without synthesizing caps', () => {

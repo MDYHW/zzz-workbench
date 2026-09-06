@@ -103,7 +103,6 @@ export interface ActionModifier {
 export interface ResultOperation {
   label: string
   source: ResultSource
-  surface: 'combat' | 'fully'
   value: number
   unit: string
   presentation?: 'scale'

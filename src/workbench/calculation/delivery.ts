@@ -129,7 +129,6 @@ function deliverEffect(
       delivered.operations.push({
         atom: {
           label: effect.label,
-          earliestSurface: effect.earliestSurface,
           value: effect.value,
           unit: effect.unit,
           source,

@@ -91,9 +91,10 @@ preserving the current three-surface Result grammar.
   resource boundary. M2 supplies Electric RES Reduction +8.5% and Electric
   Anomaly Buildup RES Reduction +8.5% at Fully Enabled after a retained grenade
   hit. M3/M5 change no separately retained relationship.
-- R9. M6 keeps one complete source-stated operation: Special/EX grenade DMG is
-  scaled to `2.00×` at Fully Enabled. Its additional grenade and ordinary skill
-  coefficient remain excluded; the operation does not calculate final damage.
+- R9. M6's additional grenade, direct grenade damage scale, and ordinary skill
+  coefficient remain outside Result. They do not change Grace's authored
+  Anomaly role or another retained action multiplier, and no final damage is
+  calculated.
 
 ### W-Engine authoring
 
@@ -206,8 +207,8 @@ preserving the current three-surface Result grammar.
 - R25. Grace Result exposes ATK, AP, AM, regular DMG Bonus, Shock
   and Disorder Anomaly DMG Bonus outcomes, Anomaly Buildup Bonus with
   Special/EX action outcomes, Anomaly Buildup RES Reduction, PEN Ratio, and
-  applicable DEF/RES/Stun regions. It exposes the M6 grenade scale operation
-  without final damage.
+  applicable DEF/RES/Stun regions. It exposes no M6 grenade damage operation
+  or final damage.
 - R26. `Anomaly DMG Bonus` is one parent modifier row whose source-local Shock
   and Disorder outcomes show only differences from the broad parent. `Anomaly
   Buildup Bonus` likewise uses Special Attack and EX Special Attack action
@@ -229,7 +230,8 @@ preserving the current three-surface Result grammar.
   inputs, same-effect identity lifecycle, and the Thunder-2-piece contrast.
 - AE2. Calculation tests prove AP/AM composition, Core Special/EX buildup,
   qualified/inactive Shock bonus, Potential Electric DMG, M2 RES and buildup
-  RES reductions, M6 scale, and Abloom/resource exclusions.
+  RES reductions, omission of the M6 direct-damage scale, and Abloom/resource
+  exclusions.
 - AE3. Timeweaver tests cover AP below/at/above 375, different-Attribute versus
   all-Electric party, complete package copy, and exact Disorder projection.
   Fusion's full package and an inactive-specialty contrast remain visible

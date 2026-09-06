@@ -305,14 +305,12 @@ describe('ResultPanel operation presentation', () => {
         {
           label: 'Enemy Stun duration',
           source: syntheticSource,
-          surface: 'fully',
           value: 2,
           unit: 's',
         },
         {
           label: 'Next Quick Assist Daze',
           source: syntheticSource,
-          surface: 'fully',
           value: 50,
           unit: '%',
         },
@@ -322,10 +320,10 @@ describe('ResultPanel operation presentation', () => {
     const operations = screen.getByRole('region', { name: 'Agent operations' })
     const items = within(operations).getAllByRole('listitem')
     expect(items[0]).toHaveTextContent(
-      'Fully enabledEnemy Stun duration · Synthetic source+2.0s',
+      'Synthetic sourceEnemy Stun duration+2.0s',
     )
     expect(items[1]).toHaveTextContent(
-      'Fully enabledNext Quick Assist Daze · Synthetic source+50.0%',
+      'Synthetic sourceNext Quick Assist Daze+50.0%',
     )
 
     await user.hover(items[0])
@@ -468,13 +466,12 @@ describe('ResultPanel operation presentation', () => {
     })).toBeInTheDocument()
   })
 
-  it('presents action-local scale operations at Combat and Fully Enabled', () => {
+  it('presents action-local scale operations under their source without a surface', () => {
     renderResult(syntheticResult({
       operations: [
         {
           label: 'Basic Attack DMG Multiplier',
           source: syntheticSource,
-          surface: 'combat',
           value: 1.25,
           unit: '',
           presentation: 'scale',
@@ -482,7 +479,6 @@ describe('ResultPanel operation presentation', () => {
         {
           label: 'Ultimate DMG Multiplier',
           source: syntheticSource,
-          surface: 'fully',
           value: 1.25,
           unit: '',
           presentation: 'scale',
@@ -493,10 +489,10 @@ describe('ResultPanel operation presentation', () => {
     const operations = screen.getByRole('region', { name: 'Agent operations' })
     const items = within(operations).getAllByRole('listitem')
     expect(items[0]).toHaveAccessibleName(
-      'Combat Basic Attack DMG Multiplier · Synthetic source ×1.25',
+      'Synthetic source Basic Attack DMG Multiplier ×1.25',
     )
     expect(items[1]).toHaveAccessibleName(
-      'Fully enabled Ultimate DMG Multiplier · Synthetic source ×1.25',
+      'Synthetic source Ultimate DMG Multiplier ×1.25',
     )
     for (const item of items) {
       expect(item).toHaveTextContent('×1.25')

@@ -16,8 +16,9 @@ Frost buildup relationships participate in `anomaly_buildup`. Attribute
 Anomaly state is therefore a condition and interaction, not permission to add
 `anomaly_damage` or its AP damage surface.
 
-This unit applies `SF-001`-`SF-004`, `GV-001`-`GV-004` and `GV-009`,
-`FM-001`-`FM-004` and `FM-006`-`FM-011`, `SW-002`-`SW-016`, and
+This unit applies `SF-002`-`SF-005`, `GV-001`-`GV-004` and `GV-009`,
+`FM-001`-`FM-004` and `FM-006`-`FM-011`, `SW-002`-`SW-006`,
+`SW-008`-`SW-016`, `SW-018`-`SW-020`, and
 `UI-001`-`UI-004`. It settles Miyabi only. Anton and Rina remain the next
 separate Shock-state/general-damage unit.
 
@@ -26,7 +27,7 @@ separate Shock-state/general-damage unit.
 | Rule | Retained relationship | Exact current consumer | Candidate/prepared and lifecycle consequence | Setup/Result consequence | Similar / contrast |
 | --- | --- | --- | --- | --- | --- |
 | `GV-004`, `FM-002`, `FM-007` | Display Attribute Frost calculates through Ice for damage, buff, and equipment applicability while remaining a distinct Agent identity | `effectAttributeForAgent`, `FORMULA_PARTICIPATION_BY_AGENT`, and `attackProfileFor` | Ice clauses compete; same-Attribute party qualification still compares the displayed Agent identity; all existing preparation stages remain unchanged | Setup displays Frost identity and source-owned Ice equipment wording; Result projects general damage and buildup, never `anomaly_damage` | Honed Edge to Physical is the nearest mapping; ordinary Ice Agent Ellen is the identity contrast |
-| `SF-001`, `SF-003`, `FM-004`, `SW-013`, `SW-014` | Fully Enabled CRIT Rate converts one-for-one into Frost buildup bonus against an Icefire target, capped at 80% | `post-delivery-stat-modifier-gauge` and the action Result composer | CRIT is a finite setup opportunity for both direct damage and buildup; the prepared package does not add a new runtime Icefire state model | Result exposes the gauge and an action-local Frost-buildup row; resource, cadence, and hidden state remain absent | Burnice's AP-derived Afterburn gauge is nearest; Trigger's CRIT-to-Daze conversion is the different-formula contrast |
+| `SF-003`, `SF-005`, `FM-004`, `SW-013`, `SW-014` | Fully Enabled CRIT Rate converts one-for-one into Frost buildup bonus against an Icefire target, capped at 80% | `post-delivery-stat-modifier-gauge` and the action Result composer | CRIT is a finite setup opportunity for both direct damage and buildup; the prepared package does not add a new runtime Icefire state model | Result exposes the gauge and an action-local Frost-buildup row; resource, cadence, and hidden state remain absent | Burnice's AP-derived Afterburn gauge is nearest; Trigger's CRIT-to-Daze conversion is the different-formula contrast |
 | `FM-002`, `FM-007`, `SW-012` | Frostburn supplies a party buildup outcome; qualified Shimotsuki and Mindscape clauses remain exact local or party outcomes | current provider delivery and action projection | Qualification uses another Support, Anomaly, or Section 6 member; Party Apply and target-only rebuild recalculate it through current state | Separate action rows prevent Icefire and Frostburn target conditions from being summed as one universal snapshot | Nangong's action-scoped party buildup is nearest; Yuzuha's broad AM-derived provider is the contrast |
 | `SW-004`, `SW-005`, `SW-008`, `SW-009`, `UI-001` | Each selected W-Engine and Disc remains a source-owned whole package while candidate value comes only from the package Miyabi realizes | shared equipment facts, selected relationship mappers, candidates, representatives, and Setup descriptions | Full prepares Hailstorm; non-limited prepares Fusion; lower same-role packages and remote other-limited packages are excluded after complete-setup recomposition | Setup keeps every clause of each admitted package; Result omits AP that this bounded Miyabi profile cannot consume | Hailstorm is the complete benchmark; Fusion is the competitive partial-package contrast |
 | `SW-015` | Authored/contextual candidates, pressure, allocation, representative preparation, zero supplied counts, and reconciliation keep their current order | shared lifecycle, preparation, and candidate-context consumers | Party Apply rebuilds all; pool/Mindscape rebuilds only Miyabi; direct edits do not reprepare; invalid PEN clears without fallback and never restores edit history | Incomplete required selection keeps Result empty; an unaffected no-PEN holder is preserved | Existing broad pre-PEN lifecycle is the nearest case; a prepared Ice Slot 5 is the unaffected contrast |
@@ -48,9 +49,9 @@ separate Shock-state/general-damage unit.
 - R3. Retain the completed Core's one-for-one Fully Enabled CRIT Rate to Frost
   Anomaly Buildup Bonus conversion against an Icefire target, capped at 80%.
   Expose the current CRIT basis and output through the existing post-delivery
-  stat/modifier gauge and one source-local action row. Also retain
-  Frostburn-Break's exact added damage operation at 1500% ATK and its
-  all-party Anomaly Buildup Bonus +20% against a Frostburn target. Do not add a
+  stat/modifier gauge and one source-local action row. Frostburn-Break's raw
+  1500%-ATK damage amount remains outside Result, while its all-party Anomaly
+  Buildup Bonus +20% against a Frostburn target remains. Do not add a
   Frost gauge, state machine, accumulation history, or base/final damage row.
 - R4. Miyabi's Additional Ability qualifies with another Support Agent,
   another Anomaly Agent, or another Section 6 member. When qualified, maximum
@@ -148,7 +149,7 @@ separate Shock-state/general-damage unit.
   AP for this bounded profile.
 - R13. Result exposes Initial/Combat/Fully Enabled ATK, CRIT Rate, CRIT DMG,
   AM, ordinary modifier rows, the CRIT-to-buildup gauge, exact local action
-  distinctions, the Frostburn-Break operation, and compatible party buildup
+  distinctions, and compatible party buildup
   rows. Shimotsuki and Kazahana retain their local visible identities while
   inheriting canonical Basic Attack equipment effects; Dodge Counter remains a
   separate action. Result adds neither `anomaly_damage`, AP, a generic final-
