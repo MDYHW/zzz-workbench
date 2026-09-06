@@ -48,9 +48,9 @@ separate Shock-state/general-damage unit.
 - R3. Retain the completed Core's one-for-one Fully Enabled CRIT Rate to Frost
   Anomaly Buildup Bonus conversion against an Icefire target, capped at 80%.
   Expose the current CRIT basis and output through the existing post-delivery
-  stat/modifier gauge and one source-local action row. Also retain
-  Frostburn-Break's exact added damage operation at 1500% ATK and its
-  all-party Anomaly Buildup Bonus +20% against a Frostburn target. Do not add a
+  stat/modifier gauge and one source-local action row. Frostburn-Break's raw
+  1500%-ATK damage amount remains outside Result, while its all-party Anomaly
+  Buildup Bonus +20% against a Frostburn target remains. Do not add a
   Frost gauge, state machine, accumulation history, or base/final damage row.
 - R4. Miyabi's Additional Ability qualifies with another Support Agent,
   another Anomaly Agent, or another Section 6 member. When qualified, maximum
@@ -148,7 +148,7 @@ separate Shock-state/general-damage unit.
   AP for this bounded profile.
 - R13. Result exposes Initial/Combat/Fully Enabled ATK, CRIT Rate, CRIT DMG,
   AM, ordinary modifier rows, the CRIT-to-buildup gauge, exact local action
-  distinctions, the Frostburn-Break operation, and compatible party buildup
+  distinctions, and compatible party buildup
   rows. Shimotsuki and Kazahana retain their local visible identities while
   inheriting canonical Basic Attack equipment effects; Dodge Counter remains a
   separate action. Result adds neither `anomaly_damage`, AP, a generic final-

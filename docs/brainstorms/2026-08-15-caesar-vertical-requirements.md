@@ -144,9 +144,9 @@ direction, raw damage, raw Daze, or runtime optimizer.
 - R8. At M6, EX Special: Overpowered Shield Bash and Assist Follow-Up gain
   action CRIT Rate to the 100% displayed cap and DMG Bonus +50%; using either
   also supplies Caesar CRIT Rate +30% and CRIT DMG +60% at Fully Enabled.
-  Expose the separate primary-target follow-up as one source-local operation
-  worth 50% of the original action DMG. Do not translate it into another 50%
-  DMG Bonus or calculate raw damage.
+  The separate primary-target follow-up worth 50% of the original action DMG is
+  a standalone additional attack and creates no Result operation. Do not
+  translate it into another 50% DMG Bonus or calculate raw damage.
 
 ### W-Engine authoring
 
@@ -258,7 +258,8 @@ direction, raw damage, raw Daze, or runtime optimizer.
   Caesar exposes neither Shield Effect nor an
   exact shield amount or operation. Core Passive owns M0-M1 Focus ATK,
   Mindscape 2 owns its replacement value, and the actual Mindscape or action
-  source owns every other shield-conditioned non-survival contribution. A
+  source owns every other shield-conditioned non-survival contribution. The M6
+  primary-target follow-up creates no operation. A
   qualified Caesar contributes `+25%` under `Additional Ability` to each
   eligible recipient's existing Fully Enabled DMG Bonus quantity; Result keeps
   the current contrast of no Agent-supplied generic DMG Taken row. Candidate
@@ -286,7 +287,8 @@ direction, raw damage, raw Daze, or runtime optimizer.
   M0/M2 under its actual Core Passive/Mindscape source, Additional
   active/inactive routes, broad
   regular DMG Bonus projection without a generic DMG Taken row, M1 RES Reduction,
-  skill-tier Daze/Impact values, M6 exact CRIT/action/operation, Tusks,
+  skill-tier Daze/Impact values, M6 exact CRIT/action behavior and omitted
+  standalone follow-up, Tusks,
   and Spring's source-owned package without projecting its transfer operation.
 - AE4. Shared UI tests prove identical source-owned selected/candidate package
   copy without compatibility labels, Result remains empty when

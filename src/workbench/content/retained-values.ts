@@ -195,8 +195,6 @@ export const VERTICAL_VALUES = {
     mindscapeCoreCritDmgPerStack: 8,
     mindscapeCoreCritDmgStacks: 2,
     mindscapeSheerDmg: 18,
-    mindscapeAddedPhysicalDmgPerStack: 100,
-    mindscapeConsumedStacks: 2,
   },
   dialyn: {
     critRate: 19.4,
@@ -412,7 +410,7 @@ export const VERTICAL_VALUES = {
     atk: 867, def: 724, critRate: 5, critDmg: 50, impact: 95, baseEnergyRegen: 1.56,
     coreDefToAtk: 80,
     additionalCritRate: 16,
-    mindscapeCounterDefDamage: 300, mindscapeCounterDmg: 30, mindscapeDaze: 20,
+    mindscapeCounterDmg: 30, mindscapeDaze: 20,
   },
   koleda: {
     critRate: 5, impact: 134, baseEnergyRegen: 1.2,
@@ -435,7 +433,6 @@ export const VERTICAL_VALUES = {
     mindscapeResReduction: 15,
     mindscapeCritRate: 30, mindscapeCritDmg: 60,
     mindscapeActionCritRate: 100, mindscapeActionDmg: 50,
-    mindscapePrimaryTargetFollowup: 50,
   },
   yeShunguang: {
     atk: 938,
@@ -481,7 +478,6 @@ export const VERTICAL_VALUES = {
     potentialElectricDmg: 30,
     mindscapeElectricResReduction: 8.5,
     mindscapeElectricBuildupResReduction: 8.5,
-    mindscapeGrenadeDmgMultiplier: 2,
   },
   piper: {
     atk: 758,
@@ -680,7 +676,6 @@ export const VERTICAL_VALUES = {
     anomalyMastery: 116,
     frostBuildupCap: 80,
     frostBuildupPerCrit: 1,
-    frostburnBreakDmg: 1500,
     frostburnBuildup: 20,
     additionalShimotsukiDmg: 60,
     additionalIceResIgnore: 30,

@@ -38,6 +38,40 @@ describe('shared calculation integration', () => {
     }
   })
 
+  it('omits audited standalone damage operations without removing adjacent outcomes', () => {
+    const atMindscapeSix = (agentId: AgentId) => {
+      const prepared = profileStateFor(agentId)
+      const slot = prepared.slots.findIndex(({ agentId: id }) => id === agentId) as AppliedSlot
+      const state = workbenchReducer(prepared, {
+        type: 'setMindscape', slot, mindscape: 6,
+      })
+      return calculateParty(state)!.agents.find(({ agentId: id }) => id === agentId)!
+    }
+
+    const grace = atMindscapeSix('grace')
+    expect(grace.operations.some(({ label }) => label === 'Special/EX grenade DMG')).toBe(false)
+    expect(grace.metrics.some(({ id }) => id === 'anomalyBuildupBonus')).toBe(true)
+
+    const ben = atMindscapeSix('ben')
+    expect(ben.operations.some(({ label }) => label.includes('Block Counter'))).toBe(false)
+    expect(ben.actionModifiers.some(({ id }) => id === 'benBlockCounter')).toBe(true)
+
+    const caesar = atMindscapeSix('caesar')
+    expect(caesar.operations.some(({ label }) => label.includes('primary-target follow-up')))
+      .toBe(false)
+    expect(caesar.actionModifiers.some(({ id }) => id === 'caesarM6Actions')).toBe(true)
+
+    const miyabi = atMindscapeSix('miyabi')
+    expect(miyabi.operations.some(({ label }) => label === 'Frostburn-Break DMG')).toBe(false)
+    expect(miyabi.metrics.some(({ id }) => id === 'anomalyBuildupBonus')).toBe(true)
+
+    const starlightBilly = atMindscapeSix('starlightBilly')
+    expect(starlightBilly.operations.some(({ label }) => label.includes('final-hit added Physical DMG')))
+      .toBe(false)
+    expect(starlightBilly.actionModifiers.some(({ id }) => id === 'starlightBillyM6Sheer'))
+      .toBe(true)
+  })
+
   it('projects Pyrois Mirage once without neutral Ultimate-form rows', () => {
     const pyrois = calculateParty(createPreparedState(
       {}, ['pyrois', 'dialyn', 'lucia'], 0,

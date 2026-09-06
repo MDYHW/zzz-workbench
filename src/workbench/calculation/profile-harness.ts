@@ -411,7 +411,6 @@ function projectOperations(operations: readonly OperationAtom[]): AgentResult['o
   return operations.map((operation) => ({
     label: operation.label,
     source: resultSourceFor(operation.source, operation.sourceDetail),
-    surface: operation.earliestSurface,
     value: operation.value,
     unit: operation.unit,
     ...(operation.presentation ? { presentation: operation.presentation } : {}),

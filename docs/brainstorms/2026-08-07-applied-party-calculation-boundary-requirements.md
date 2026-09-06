@@ -85,7 +85,7 @@ The prose requirements govern if this diagram and the text ever differ.
 
 **Effect delivery and Result projection**
 
-- R11. Each retained effect must keep its provider, source, recipient, earliest surface, value or conversion relationship, activation, and action scope/outcome meaning needed by the current consumer. Recipient handling must cover only the currently required self, focus-Agent, all-party, other-party, and enemy-context distinctions.
+- R11. Each retained effect must keep its provider, source, recipient, value or conversion relationship, activation, and action scope/outcome meaning needed by the current consumer. Stat and modifier effects also keep their earliest surface. A retained operation keeps one scalar source-owned action or state outcome without a display surface. Recipient handling must cover only the currently required self, focus-Agent, all-party, other-party, and enemy-context distinctions.
 - R12. Delivery and presentation are separate decisions. An effect is delivered according to its recipient, then each Agent-local Result projector consumes it only if it changes that Agent's current setup direction, formula, action difference, visible quantity, breakdown, or gauge.
 - R13. An unconsumed or inactive effect must not create a zero row, generic explanation, evidence payload, or placeholder. Existing source disclosure and highlighting appear only with the Result behavior they explain.
 - R14. Self effects use the same bounded delivery boundary as cross-Agent effects. No Agent calculator may read another Agent's setup merely to reconstruct an outgoing effect that the provider pass can resolve.

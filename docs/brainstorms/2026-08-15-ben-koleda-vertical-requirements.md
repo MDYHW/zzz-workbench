@@ -109,8 +109,8 @@ Koleda adds no new common mechanism.
   follow-up becomes its source, and no shield amount remains visible when the
   Additional Ability is unqualified.
 - R5. Ben's Mindscapes apply cumulatively. M1's enemy damage reduction has no
-  current Result consumer. M2 retains the source-stated added 300% DEF damage
-  for a successful Special/EX Block Counter as one action operation. M4 adds
+  current Result consumer. M2's separate 300% DEF Block Counter damage is a
+  standalone additional-attack amount and creates no Result operation. M4 adds
   30% DMG to a counter after the source-qualified invulnerable block. M6 adds
   Daze +20% to Basic Attack, Dash Attack, and Dodge Counter after the EX attack
   or follow-up. M3 and M5 change no separately retained source value.
@@ -242,7 +242,7 @@ Koleda adds no new common mechanism.
   allocation. An unaffected single-Stun party proves no pass leaks.
 - R19. Ben Result exposes ATK, DEF, CRIT Rate, CRIT DMG, DMG Bonus, PEN Ratio
   when nonzero, Impact, Energy Regen, Daze, retained M4 DMG and M6 Daze action
-  modifiers, and the M2 added-multiplier operation. It exposes no Shield Effect
+  modifiers. It exposes neither the M2 standalone damage nor Shield Effect
   or Core shield amount. The DEF-to-ATK contribution is owned by Core Passive;
   the qualified all-party CRIT contribution is owned by Additional Ability.
   Koleda exposes selected King CRIT and its gauge, Impact, Energy Regen when

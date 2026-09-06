@@ -102,7 +102,7 @@ const src = (agent: Agent, slot: Slot, id: string, label: string, locus: 'identi
 const m = (id: EffectMetric, label: string, unit = '', statId?: MetricProjection['statId'], admission?: MetricProjection['admission']): MetricProjection => ({ id, label, unit, decimals: unit === '/s' ? 2 : unit === '%' ? 1 : 0, ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }), ...(admission ? { admission } : {}) })
 function stat(source: ReturnType<typeof selectedAgentSource>, statId: StatId, value: number, region: Exclude<StatRegion, 'base'> = 'flat', earliestSurface: SurfaceKey = 'fully', detail?: string): ProfileRelationship { return { kind: 'stat', atom: { statId, region, value, earliestSurface, source, ...(detail ? { sourceDetail: detail } : {}) } } }
 function mod(source: ReturnType<typeof selectedAgentSource>, metricId: EffectMetric, value: number, action?: ActionTarget, earliestSurface: SurfaceKey = 'fully', detail?: string): ProfileRelationship { return { kind: 'modifier', atom: { metricId, value, earliestSurface, source, ...(action ? { action } : {}), ...(detail ? { sourceDetail: detail } : {}) } } }
-function operation(source: ReturnType<typeof selectedAgentSource>, label: string, value: number, unit = '%', earliestSurface: 'combat' | 'fully' = 'fully', presentation?: 'scale'): ProfileRelationship { return { kind: 'operation', atom: { label, earliestSurface, value, unit, source, ...(presentation ? { presentation } : {}) } } }
+function operation(source: ReturnType<typeof selectedAgentSource>, label: string, value: number, unit = '%', presentation?: 'scale'): ProfileRelationship { return { kind: 'operation', atom: { label, value, unit, source, ...(presentation ? { presentation } : {}) } } }
 
 function partyQualification(agent: Agent, ids: readonly AgentId[], slot: Slot): boolean {
   switch (agent) {
@@ -309,7 +309,7 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
       if (stunAtk) add(stat(core, 'atk', stunAtk))
       add(operation(core, 'Totalize added DMG Multiplier', values.coreTotalizeMultiplier))
       add(operation(core, 'Totalize maximum Daze return', values.coreDazeReturn))
-      add(operation(core, 'EX Special Daze against non-Stunned enemies', 1 + values.exNonStunnedDaze / 100, '', 'combat', 'scale'))
+      add(operation(core, 'EX Special Daze against non-Stunned enemies', 1 + values.exNonStunnedDaze / 100, '', 'scale'))
       if (qualified) { addMetric('dmgBonus', values.additionalChainDmg, ability, CHAIN); addMetric('dmgBonus', values.additionalTotalizeDmg, ability, HUGO_TOTALIZE) }
       if (setup.mindscape >= 1) { addMetric('critRate', values.mindscapeCritRate, mind(1), undefined, 'combat'); addMetric('critDmg', values.mindscapeCritDmg, mind(1), undefined, 'combat') }
       if (setup.mindscape >= 2) addMetric('defIgnore', values.mindscapeTotalizeDefIgnore, mind(2), HUGO_TOTALIZE)
@@ -470,7 +470,6 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
       const values = VERTICAL_VALUES.miyabi
       const ultimate = src(agent, slot, 'ultimate', 'Ultimate', 'ultimate')
       addMetric('dmgBonus', values.ultimateIceDmg, ultimate)
-      add(operation(core, 'Frostburn-Break DMG', values.frostburnBreakDmg, '% ATK'))
       add({
         kind: 'post-delivery-stat-modifier-gauge', source: core,
         basis: { statId: 'critRate', surface: 'fully' },
@@ -518,7 +517,7 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
       const values = VERTICAL_VALUES.anton
       addMetric('dmgBonus', values.corePiledriverDmg, core, ANTON_PILEDRIVER)
       addMetric('dmgBonus', values.coreDrillDmg, core, ANTON_DRILL)
-      if (qualified) add(operation(ability, 'Original Shock DMG', values.additionalShockDmg / 100, '', 'fully', 'scale'))
+      if (qualified) add(operation(ability, 'Original Shock DMG', values.additionalShockDmg / 100, '', 'scale'))
       if (setup.mindscape >= 4) add({ kind: 'provider', source: mind(4), delivery: { recipient: 'all-party', formulas: CRIT_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'critRate', region: 'flat', earliestSurface: 'fully', value: values.mindscapeCritRate } })
       if (setup.mindscape >= 6) {
         addMetric('dmgBonus', values.mindscapeBurstDmg, mind(6), ANTON_BURST_BASIC)

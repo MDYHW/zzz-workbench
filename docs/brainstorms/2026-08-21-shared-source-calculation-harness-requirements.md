@@ -180,7 +180,8 @@ ever differ.
 - R9. Express current retained effects through a bounded relationship
   vocabulary covering stat contributions, stat-derived linear relationships,
   action modifier contributions, gauges, replacements or complete state
-  operations, and provider delivery. Do not admit arbitrary callbacks, a
+  operations without display surfaces, and provider delivery. Do not admit
+  arbitrary callbacks, a
   general expression language, or a universal dependency graph.
 - R10. Evaluate stat-derived scaling continuously and linearly, including
   fractional progress within a displayed per-increment description. Threshold
@@ -209,8 +210,9 @@ ever differ.
   Rupture Sheer Force reads each surface's current ATK and current Max HP, a
   qualified Trigger reads Fully Enabled CRIT Rate for her Aftershock Daze gauge
   and action output, and qualified Evelyn reads completed Combat then Fully
-  Enabled CRIT Rate for her existing threshold gauge and earliest qualifying
-  action-multiplier operation. Grace's selected Timeweaver reads completed Fully
+  Enabled CRIT Rate for her existing threshold gauge and emits one source-owned
+  action-multiplier operation without copying the qualifying input surface.
+  Grace's selected Timeweaver reads completed Fully
   Enabled Anomaly Proficiency for its existing 375 threshold, Disorder action
   modifier, and gauge; Burnice's Core reads completed Fully Enabled Anomaly
   Proficiency for its continuous capped Afterburn action modifier and gauge.
@@ -227,7 +229,9 @@ ever differ.
   cap gauges. A recipient breakdown shows its directly applied provider source;
   upstream inputs that determined the provider amount remain explained on the
   holder. No-consumer cases create neither hidden shared state nor generic
-  Result rows.
+  Result rows. Each projected operation preserves its mapped source identity
+  and one scalar action or state value, not a Combat or Fully Enabled display
+  field.
 
 **Candidate preparation and lifecycle**
 
