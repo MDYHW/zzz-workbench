@@ -1155,8 +1155,10 @@ than secret.
 An unannounced Release Candidate at that URL remains publicly reachable and
 safe for immediate discovery. Release Candidate and Public Beta labels express
 release confidence rather than different product behavior or stored state.
-Unavoidable transport request logging under the static host's policy is a
-provider operation rather than application telemetry; it does not authorize
-optional analytics or transmission of Setup or session state. Hosting,
+Unavoidable transport request metadata under the static host's policy,
+including requests for state-selected static assets needed to render the
+current client, is a provider operation rather than application telemetry.
+Those requests do not authorize optional analytics or deliberate serialization
+or transmission of Setup or session state as application data. Hosting,
 repository, branch, workflow, and URL identities remain subordinate delivery
 choices rather than permanent product meaning.
