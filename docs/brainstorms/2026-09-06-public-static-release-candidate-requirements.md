@@ -335,11 +335,15 @@ announcement state only.
   If forbidden private data or a credential entered any public commit, ordinary
   rollback is insufficient: the recovery App immediately disables Pages,
   deletes the contaminated artifact repository, and recreates the one fixed
-  empty destination so no reachable repository ref or history is retained. The
-  publisher App may then restore only a still-supported accepted artifact before
-  the recovery App re-establishes protection and Pages. The operator requests
-  cache removal where the provider permits and rescans the clean destination
-  before resuming. Every
+  empty destination so the newly controlled origin retains none of the deleted
+  repository's refs or history. This does not retract public forks, clones,
+  archives, or caches: the operator treats the disclosure as irreversible,
+  inspects the known public fork network, requests provider cache or sensitive-
+  data removal where supported, and explicitly resolves the remaining privacy,
+  credential, and legal risk before publication may resume. The publisher App
+  may then restore only a still-supported accepted artifact before the recovery
+  App re-establishes protection and Pages and the controller rescans the clean
+  controlled destination. Every
   recovery token is revoked and its used key privately rotated afterward; the
   recovery installation returns to R13c unless it was itself affected, in which
   case it is uninstalled and publication remains blocked until a replacement
@@ -384,7 +388,9 @@ announcement state only.
   the publisher credential is revoked and the publisher restores a still-
   supported prior artifact, or the fixed recovery path disables Pages. The used
   recovery token is revoked and its key is privately rotated, with no personal
-  public action or private-source mutation.
+  public action or private-source mutation. A simulated forbidden-data incident
+  rebuilds only the controlled origin and remains blocked rather than claiming
+  to retract an external fork, clone, archive, or cache.
 
 ---
 
