@@ -1152,6 +1152,28 @@ history, credentials, personal operator information, and files not required by
 the generated client. The browser-delivered bundle itself is public rather
 than secret.
 
+The publicly deliverable client, including its local build, may include one
+minimal, persistent, non-interactive legal attribution surface required for
+its game-derived material. The surface identifies the workbench as an
+unofficial non-commercial fan project, places the rights notice and legal
+statement required by the applicable release conditions, and links to no
+application behavior. It creates no Setup or Result meaning, product state,
+input, account, feedback transport, telemetry, analytics, persistence, or
+address state. Further release copy, branding, promotional content, or legal
+surfaces remain outside this permission.
+
+This attribution permission grants no license and establishes no asset's
+eligibility. Before public release, a current manual review must account for
+every publicly emitted asset's provenance and rights basis, the operator and
+use model, the applicable current wording, and every served jurisdiction.
+Assets may share one grouped conclusion only when they share the same
+provenance, rightsholder, and applicable redistribution basis; that transient
+release evidence does not become a permanent asset registry. Publication must
+not proceed while any asset, operator or use model, or served jurisdiction
+remains unsupported. The blocking condition must be removed, replaced,
+changed, restricted under an independently supported basis, or resolved by
+appropriate professional advice before publication.
+
 An unannounced Release Candidate at that URL remains publicly reachable and
 safe for immediate discovery. Release Candidate and Public Beta labels express
 release confidence rather than different product behavior or stored state.
