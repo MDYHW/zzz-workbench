@@ -928,13 +928,21 @@ to different surfaces.
 **Rule ID:** `SW-013`
 
 For each complete setup, Result visually exposes current inputs and candidates;
-setting-relevant stats and modifier regions; atomic amounts with concise source
-identities and earliest surface; action aggregates only when they differ;
-stat-derived bases with linked buff, conversion, threshold, or cap outputs;
-source-stated non-stat operations only when their numeric meaning is complete for
-one canonical action or one state outcome without assuming trigger frequency,
-rotation, field time, resource-spending cadence, incoming damage, or uptime;
-threshold/cap state; and changes caused by visible inputs or party context.
+setting-relevant stats and modifier regions; surface-composed atomic stat and
+modifier contributions with concise source identities and earliest surface;
+action aggregates only when they differ; stat-derived bases with linked buff,
+conversion, threshold, or cap outputs; source-stated non-stat operations shown
+once with their concise source identity and without a display-surface identity,
+only when their numeric meaning is complete for one canonical action or one
+state outcome without assuming trigger frequency, rotation, field time,
+resource-spending cadence, incoming damage, or uptime; threshold/cap state; and
+changes caused by visible inputs or party context.
+
+A retained non-stat operation is one independent numeric action or state
+outcome, not a cumulative surface comparison. A calculation may read a
+particular display surface to determine whether the operation exists or its
+complete value; that surface remains on the input relationship, threshold, or
+gauge and does not become operation presentation.
 
 Result is not a generic ledger for every numeric operation. The governing test
 is whether a value is complete as a setting stat, canonical-action outcome, or
