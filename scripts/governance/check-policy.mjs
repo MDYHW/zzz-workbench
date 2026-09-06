@@ -853,7 +853,7 @@ function markdownRuleHeadingInsertions(source) {
       offset = nextOffset
       continue
     }
-    const headingMatch = line.match(/^(#{3,6}) ([^\r\n]+)$/)
+    const headingMatch = line.match(/^(#{2,6}) ([^\r\n]+)$/)
     const blankLine = source.slice(nextOffset).match(/^\r?\n/)
     if (headingMatch && blankLine) {
       headings.push({
@@ -920,7 +920,11 @@ export function proveIdentifierOnlyOwnerChange(changes, ruleState) {
     const insertionOffset = match.index - removedBefore
     removedBefore += match[0].length
     const heading = insertionByOffset.get(insertionOffset)
+    const eligibleLevelTwoBoundary = heading?.level === 2
+      && filePath === 'docs/setup-workbench-product-contract.md'
+      && heading.title === 'Current Non-Goals'
     if (!heading || usedHeadings.has(insertionOffset)
+      || (heading.level === 2 && !eligibleLevelTwoBoundary)
       || /^(?:stable rule identifiers?|retired (?:governance )?rule ids?)$/i.test(heading.title)
       || /^\*\*Rule ID:\*\*/.test(baseSource.slice(heading.insertionOffset))) {
       return null

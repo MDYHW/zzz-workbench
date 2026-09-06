@@ -429,6 +429,47 @@ test('identifier bootstrap proves the two current party UI rules from an unnumbe
   })
 })
 
+test('identifier bootstrap proves only the legacy product non-goals level-two boundary', () => {
+  const currentSource = readFileSync(new URL('../../docs/setup-workbench-product-contract.md', import.meta.url), 'utf8')
+  const baseSource = currentSource.replace('**Rule ID:** `SW-022`\n\n', '')
+  const headSource = baseSource.replace(
+    '## Current Non-Goals\n\n',
+    '## Current Non-Goals\n\n**Rule ID:** `SW-022`\n\n',
+  )
+  const productChange = {
+    path: 'docs/setup-workbench-product-contract.md',
+    baseType: 'blob',
+    baseMode: '100644',
+    headType: 'blob',
+    headMode: '100644',
+    baseSource,
+    headSource,
+  }
+  const ruleState = { knownRuleIds: ['GOV-001', 'SW-001', 'SW-021'] }
+
+  assert.deepEqual(proveIdentifierOnlyOwnerChange([productChange], ruleState), {
+    path: 'docs/setup-workbench-product-contract.md',
+    newRuleIds: ['SW-022'],
+  })
+  assert.equal(proveIdentifierOnlyOwnerChange([{
+    ...productChange,
+    path: 'docs/workbench-ui-design-rules.md',
+    headSource: headSource.replace('SW-022', 'UI-007'),
+  }], { knownRuleIds: ['GOV-001', 'UI-001', 'UI-006'] }), null)
+  assert.equal(proveIdentifierOnlyOwnerChange([{
+    ...productChange,
+    baseSource: baseSource.replace('Current Non-Goals', 'Purpose'),
+    headSource: headSource.replace('Current Non-Goals', 'Purpose'),
+  }], ruleState), null)
+  assert.equal(proveIdentifierOnlyOwnerChange([{
+    ...productChange,
+    headSource: headSource.replace(
+      '## Purpose\n\n',
+      '## Purpose\n\n**Rule ID:** `SW-023`\n\n',
+    ),
+  }], ruleState), null)
+})
+
 test('U9 visual inputs retain one protected transaction category', () => {
   for (const visualPath of [
     'src/components/agentPortraits.ts',
