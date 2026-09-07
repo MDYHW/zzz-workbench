@@ -23,6 +23,7 @@ import {
   acceptPreparedArtifact,
   buildCandidateArtifact,
   readArtifactTree,
+  runDirectCommand,
   sha256,
   validateImmutableBuildInput,
   validateReleaseDecision,
@@ -116,6 +117,28 @@ function privateBindings() {
       },
     },
   };
+}
+
+async function findGitExecutable() {
+  const executableName = process.platform === 'win32' ? 'git.exe' : 'git';
+  for (const rawDirectory of (process.env.PATH ?? '').split(path.delimiter)) {
+    const directory = rawDirectory.replace(/^"|"$/g, '');
+    if (!directory) continue;
+    const candidate = path.resolve(directory, executableName);
+    try {
+      await fs.access(candidate);
+      return candidate;
+    } catch {
+      // Continue through the bounded process PATH.
+    }
+  }
+  return null;
+}
+
+async function directGit(gitExecutable, cwd, args, { input = null, allowReplacements = false } = {}) {
+  const env = createGitCommandEnvironment(gitExecutable);
+  if (allowReplacements) delete env.GIT_NO_REPLACE_OBJECTS;
+  return runDirectCommand({ executable: gitExecutable, args, cwd, input, shell: false, env });
 }
 
 function releaseExpectation(manifest) {
@@ -649,6 +672,66 @@ test('filesystem walk rejects symlinks before reading output bytes', async () =>
       throw error;
     }
     await assert.rejects(readArtifactTree(temporary), (error) => error instanceof ArtifactValidationError && error.code === 'type_invalid');
+  } finally {
+    await fs.rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('filesystem walk rejects a symlinked artifact root before reading its target', async () => {
+  const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-artifact-root-'));
+  const target = path.join(temporary, 'target');
+  const redirectedRoot = path.join(temporary, 'dist');
+  try {
+    await fs.mkdir(target);
+    await fs.writeFile(path.join(target, 'index.html'), indexHtml());
+    try {
+      await fs.symlink(target, redirectedRoot, process.platform === 'win32' ? 'junction' : 'dir');
+    } catch (error) {
+      if (process.platform === 'win32' && ['EPERM', 'UNKNOWN'].includes(error.code)) return;
+      throw error;
+    }
+    await assert.rejects(readArtifactTree(redirectedRoot), (error) => (
+      error instanceof ArtifactValidationError && error.code === 'type_invalid'
+    ));
+  } finally {
+    await fs.rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('release Git commands ignore replacement refs when proving ancestry', async (t) => {
+  const gitExecutable = await findGitExecutable();
+  if (gitExecutable === null) {
+    t.skip('Git executable is unavailable');
+    return;
+  }
+  const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-git-replace-'));
+  const identity = [
+    '-c', 'user.name=Release Test',
+    '-c', 'user.email=release-test@example.invalid',
+  ];
+  try {
+    await directGit(gitExecutable, temporary, ['init', '--initial-branch=main']);
+    await fs.writeFile(path.join(temporary, 'artifact.txt'), 'current main tree');
+    await directGit(gitExecutable, temporary, ['add', 'artifact.txt']);
+    await directGit(gitExecutable, temporary, [...identity, 'commit', '-m', 'current main']);
+    const head = (await directGit(gitExecutable, temporary, ['rev-parse', 'HEAD'])).stdout.toString('utf8').trim();
+    const tree = (await directGit(gitExecutable, temporary, ['rev-parse', 'HEAD^{tree}'])).stdout.toString('utf8').trim();
+    const candidate = (await directGit(
+      gitExecutable, temporary, [...identity, 'commit-tree', tree], { input: Buffer.from('unreachable candidate\n') },
+    )).stdout.toString('utf8').trim();
+    const replacement = (await directGit(
+      gitExecutable, temporary, [...identity, 'commit-tree', tree, '-p', candidate],
+      { input: Buffer.from('replacement graft\n') },
+    )).stdout.toString('utf8').trim();
+    await directGit(gitExecutable, temporary, ['replace', head, replacement]);
+
+    await directGit(gitExecutable, temporary, ['merge-base', '--is-ancestor', candidate, head], {
+      allowReplacements: true,
+    });
+    await assert.rejects(
+      directGit(gitExecutable, temporary, ['merge-base', '--is-ancestor', candidate, head]),
+      (error) => error instanceof ArtifactValidationError && error.code === 'command_failed',
+    );
   } finally {
     await fs.rm(temporary, { recursive: true, force: true });
   }

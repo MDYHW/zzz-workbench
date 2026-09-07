@@ -539,6 +539,20 @@ export function createArtifactManifest(files, {
 
 export async function readArtifactTree(root, { fsImpl = fs } = {}) {
   if (typeof root !== 'string' || !path.isAbsolute(root)) fail('Artifact root must be absolute.', 'path_invalid');
+  const resolvedRoot = path.resolve(root);
+  let rootStat;
+  try {
+    rootStat = await fsImpl.lstat(resolvedRoot);
+  } catch {
+    fail('Artifact root must exist.', 'path_invalid');
+  }
+  if (!rootStat.isDirectory() || rootStat.isSymbolicLink()) {
+    fail('Artifact root must be a real directory.', 'type_invalid');
+  }
+  const realRoot = await fsImpl.realpath(resolvedRoot);
+  if (!pathsEqual(realRoot, resolvedRoot)) {
+    fail('Artifact root must not redirect elsewhere.', 'type_invalid');
+  }
   const files = [];
   async function walk(directory, prefix = '') {
     const entries = await fsImpl.readdir(directory, { withFileTypes: true });
@@ -553,7 +567,7 @@ export async function readArtifactTree(root, { fsImpl = fs } = {}) {
       else fail(`Unexpected artifact entry type: ${relative}`, 'type_invalid');
     }
   }
-  await walk(path.resolve(root));
+  await walk(resolvedRoot);
   return files;
 }
 
@@ -628,6 +642,7 @@ export function createGitCommandEnvironment(gitExecutable, {
     PATH: platform === 'win32' ? runtimePath.dirname(git) : `${runtimePath.dirname(git)}:/usr/bin:/bin`,
     GIT_CONFIG_NOSYSTEM: '1',
     GIT_CONFIG_GLOBAL: platform === 'win32' ? 'NUL' : '/dev/null',
+    GIT_NO_REPLACE_OBJECTS: '1',
     GIT_TERMINAL_PROMPT: '0',
     GCM_INTERACTIVE: 'Never',
     GIT_OPTIONAL_LOCKS: '0',
