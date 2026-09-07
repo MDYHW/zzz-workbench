@@ -134,10 +134,13 @@ async function verifyExternalOutputPath(value, repositoryRoot, label, fsImpl) {
   return requested
 }
 
-async function verifyGithubKeyPaths(config, dependencies) {
-  for (const [role, app] of Object.entries(config.apps)) {
-    await verifyExternalExistingPath(app.keyPath, dependencies.controllerRoot, `${role} key`, dependencies.fsImpl)
-  }
+async function verifyGithubKeyPath(config, role, dependencies) {
+  await verifyExternalExistingPath(
+    config.apps[role].keyPath,
+    dependencies.controllerRoot,
+    `${role} key`,
+    dependencies.fsImpl,
+  )
 }
 
 function validateExecutable(value, names, label) {
@@ -405,7 +408,7 @@ async function prepareRelease(command, dependencies) {
   const context = validateReleaseContext(await readJsonFile(command.paths.releaseContext, dependencies.readFile))
   const config = await readJsonFile(command.paths.githubConfig, dependencies.readFile)
   validateGithubConfig(config, { forbiddenRoots: [dependencies.controllerRoot] })
-  await verifyGithubKeyPaths(config, dependencies)
+  await verifyGithubKeyPath(config, context.phase === 'bootstrap' ? 'bootstrap' : 'publisher', dependencies)
   const tools = {
     git: await toolIdentity(command.paths.gitExecutable, ['git', 'git.exe'], 'Git', dependencies),
     node: await toolIdentity(dependencies.nodeExecutable, ['node', 'node.exe'], 'Node', dependencies),
@@ -657,7 +660,7 @@ function verifyCandidateDenylist(candidate, config) {
   }
 }
 
-async function readPublicationInputs(command, dependencies) {
+async function readPublicationInputs(command, dependencies, phase) {
   for (const [label, value] of Object.entries(command.paths)) {
     assertExternalPath(value, dependencies.controllerRoot, label)
   }
@@ -672,7 +675,7 @@ async function readPublicationInputs(command, dependencies) {
     readJsonFile(command.paths.githubConfig, dependencies.readFile),
   ])
   validateGithubConfig(config, { forbiddenRoots: [dependencies.controllerRoot] })
-  await verifyGithubKeyPaths(config, dependencies)
+  await verifyGithubKeyPath(config, phase === 'bootstrap' ? 'bootstrap' : 'publisher', dependencies)
   return { candidate: decodeCandidate(candidateValue), decision, config }
 }
 
@@ -700,7 +703,7 @@ async function invokePublishingChild({
 }
 
 async function executePublication(command, dependencies, phase) {
-  const inputs = await readPublicationInputs(command, dependencies)
+  const inputs = await readPublicationInputs(command, dependencies, phase)
   const operationDirectory = await ensureEmptyDirectory(command.paths.operationDirectory, dependencies)
   return dependencies.acceptPreparedArtifact({
     candidate: inputs.candidate,
@@ -752,7 +755,7 @@ async function executeDisablePages(command, dependencies) {
   }
   const config = await readJsonFile(command.paths.githubConfig, dependencies.readFile)
   validateGithubConfig(config, { forbiddenRoots: [dependencies.controllerRoot] })
-  await verifyGithubKeyPaths(config, dependencies)
+  await verifyGithubKeyPath(config, 'bootstrap', dependencies)
   const trusted = await readJsonFile(command.paths.trustedController, dependencies.readFile)
   const confirmation = await readJsonFile(command.paths.incidentConfirmation, dependencies.readFile)
   exactKeys(trusted, ['schema', 'source', 'sourceContext'], 'Trusted controller binding')

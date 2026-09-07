@@ -210,6 +210,20 @@ function emptyDirectoryFs() {
   }
 }
 
+function missingPathFs(missingPath) {
+  return {
+    ...emptyDirectoryFs(),
+    async lstat(value) {
+      if (value === missingPath) {
+        const error = new Error(`ENOENT: ${value}`)
+        error.code = 'ENOENT'
+        throw error
+      }
+      return { isDirectory: () => true, isSymbolicLink: () => false }
+    },
+  }
+}
+
 function trustedGitRunner({ dirty = false, remote = 'git@github.com:private-owner/private-repository.git', head = COMMIT } = {}) {
   return async (request) => {
     assert.equal(request.executable, GIT)
@@ -331,7 +345,7 @@ test('prepare accepts only bootstrap, publish, or restore and binds the extracte
     controllerRoot: ROOT,
     nodeExecutable: NODE,
     now: () => Date.parse('2026-09-07T12:05:00.000Z'),
-    fsImpl: emptyDirectoryFs(),
+    fsImpl: missingPathFs(config().apps.bootstrap.keyPath),
     readFile: async (filePath) => {
       if ([GIT, NODE, NPM].includes(filePath)) return TOOL_BYTES
       if (filePath.endsWith('public-release-github.mjs')) return CHILD_BYTES
@@ -394,6 +408,12 @@ test('prepare accepts only bootstrap, publish, or restore and binds the extracte
       'release-context.json': { ...context, phase: 'rebuild-origin' },
     }),
   }), /phase is invalid/)
+
+  await assert.rejects(dispatchReleaseCommand(command('prepare'), {
+    controllerRoot: ROOT,
+    fsImpl: missingPathFs(config().apps.publisher.keyPath),
+    readFile: jsonReader({ 'release-context.json': context, 'github.json': config() }),
+  }), (error) => error instanceof PublicReleaseError && error.code === 'external_path_required')
 })
 
 test('sealed Node executes an absolute npm-cli.js entry without a command shell', async () => {
@@ -493,6 +513,28 @@ test('bootstrap, publish, and restore revalidate decision-bound clean main befor
     assert.equal(fixedInputs.length, 1)
     assert.equal(fixedInputs[0].operation, phase === 'bootstrap' ? 'bootstrap' : 'publish')
     assert.equal(result.state, phase === 'restore' ? 'restored' : fixedInputs[0].operation === 'bootstrap' ? 'bootstrapped' : 'published')
+  }
+})
+
+test('each release phase requires only its active GitHub App key', async () => {
+  for (const [phase, activeRole, inactiveRole] of [
+    ['bootstrap', 'bootstrap', 'publisher'],
+    ['publish', 'publisher', 'bootstrap'],
+    ['restore', 'publisher', 'bootstrap'],
+  ]) {
+    const githubConfig = config()
+    const inactiveKey = githubConfig.apps[inactiveRole].keyPath
+    const accepted = mutationDependencies({ githubConfig })
+    accepted.dependencies.fsImpl = missingPathFs(inactiveKey)
+    await dispatchReleaseCommand(command(phase), accepted.dependencies)
+
+    const activeKey = githubConfig.apps[activeRole].keyPath
+    const rejected = mutationDependencies({ githubConfig })
+    rejected.dependencies.fsImpl = missingPathFs(activeKey)
+    await assert.rejects(dispatchReleaseCommand(command(phase), rejected.dependencies), (error) => (
+      error instanceof PublicReleaseError && error.code === 'external_path_required'
+    ))
+    assert.equal(rejected.fixedInputs.length, 0)
   }
 })
 
@@ -731,4 +773,43 @@ test('disable-pages rejects stale destination confirmation before child or key a
     runPublishingChild: async () => { childRuns += 1 },
   }), /destination incident confirmation/)
   assert.equal(childRuns, 0)
+})
+
+test('disable-pages requires only its active bootstrap App key', async () => {
+  const identity = githubConfigIdentity(config())
+  const trusted = {
+    schema: 'zzz-workbench-public-release-trusted-controller/v1',
+    source: candidate().expectation.source,
+    sourceContext: candidate().expectation.sourceContext,
+  }
+  const confirmation = {
+    schema: 'zzz-workbench-public-release-disable-confirmation/v1',
+    action: 'disable-pages',
+    confirmedAt: '2026-09-07T12:00:00.000Z',
+    controllerCommit: COMMIT,
+    destination: identity.destination,
+    githubConfigDigest: identity.digest,
+  }
+  const inputs = jsonReader({
+    'github.json': config(), 'trusted-controller.json': trusted, 'incident-confirmation.json': confirmation,
+  })
+  const baseDependencies = {
+    controllerRoot: ROOT,
+    nodeExecutable: NODE,
+    now: () => Date.parse('2026-09-07T12:05:00.000Z'),
+    readFile: async (filePath) => [GIT, NODE, NPM].includes(filePath) ? TOOL_BYTES : inputs(filePath),
+    writeFile: async () => {},
+    gitRunner: trustedGitRunner(),
+    npmPackageIdentity: async () => boundNpmIdentity(),
+    runPublishingChild: async () => ({ disabled: true }),
+  }
+
+  await dispatchReleaseCommand(command('disable-pages'), {
+    ...baseDependencies,
+    fsImpl: missingPathFs(config().apps.publisher.keyPath),
+  })
+  await assert.rejects(dispatchReleaseCommand(command('disable-pages'), {
+    ...baseDependencies,
+    fsImpl: missingPathFs(config().apps.bootstrap.keyPath),
+  }), (error) => error instanceof PublicReleaseError && error.code === 'external_path_required')
 })
