@@ -47,6 +47,7 @@ const boundNpmIdentity = () => ({
 })
 
 const generatedPublicFiles = () => [
+  { path: '.nojekyll', mode: REGULAR_FILE_MODE, bytes: Buffer.alloc(0) },
   {
     path: 'index.html', mode: REGULAR_FILE_MODE,
     bytes: Buffer.from(`<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="${REQUIRED_CSP}"><link rel="stylesheet" href="/assets/app-abcdef12.css"></head><body><div id="root"></div><script type="module" src="/assets/app-abcdef12.js"></script></body></html>`),

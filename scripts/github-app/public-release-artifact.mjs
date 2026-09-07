@@ -1113,13 +1113,11 @@ export async function buildCandidateArtifact({
   await install({ cwd: verifiedBuildInput.extractionRoot, command: 'npm', args: ['ci', '--ignore-scripts'] });
   await build({ cwd: verifiedBuildInput.extractionRoot, command: 'npm', args: ['run', 'build'] });
   const generatedFiles = await readGeneratedFiles({ root: path.join(verifiedBuildInput.extractionRoot, 'dist') });
-  if (!Array.isArray(generatedFiles) || generatedFiles.some((file) => file.path === '.nojekyll')) {
-    fail('Generated output must not supply host control files.', 'tree_invalid');
+  if (!Array.isArray(generatedFiles) || !generatedFiles.some((file) => file.path === '.nojekyll')) {
+    fail('Generated output must include the public host control file.', 'tree_invalid');
   }
-  const files = cloneFiles([
-    ...generatedFiles,
-    { path: '.nojekyll', mode: REGULAR_FILE_MODE, bytes: Buffer.alloc(0) },
-  ]);
+  const files = cloneFiles(generatedFiles)
+    .sort((left, right) => compareCanonicalPath(left.path, right.path));
   const admission = cloneJson({
     forbiddenFragments: boundPrivateFragments(verifiedBuildInput, forbiddenFragments, privateBindings),
     inertExternalUrlExceptions,

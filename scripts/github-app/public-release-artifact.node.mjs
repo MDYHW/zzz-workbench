@@ -726,7 +726,7 @@ test('release decision fails closed on every manual-gate mismatch', async (t) =>
 
 test('candidate build runs once, then later acceptance performs no install or build', async () => {
   const fixture = buildFixture();
-  const generatedFiles = minimalFiles().filter((entry) => entry.path !== '.nojekyll');
+  const generatedFiles = minimalFiles();
   const events = [];
   const candidate = await buildCandidateArtifact({
     buildInput: fixture.input,
@@ -744,6 +744,9 @@ test('candidate build runs once, then later acceptance performs no install or bu
   });
 
   assert.equal(candidate.schema, ARTIFACT_CANDIDATE_SCHEMA);
+  assert.deepEqual(candidate.files.map(({ path: filePath }) => filePath), [
+    ...candidate.files.map(({ path: filePath }) => filePath),
+  ].sort());
   assert.equal(candidate.expectation.artifact.treeDigest, candidate.manifest.treeDigest);
   assert.equal(candidate.expectation.artifact.manifestDigest, candidate.manifest.manifestDigest);
   assert.equal(candidate.template.decision, 'rejected');
@@ -780,7 +783,7 @@ test('a publish-prepared artifact remains eligible for a fresh restore-phase dec
     buildExpectation: fixture.expected,
     install: async () => {},
     build: async () => {},
-    readGeneratedFiles: async () => minimalFiles().filter((entry) => entry.path !== '.nojekyll'),
+    readGeneratedFiles: async () => minimalFiles(),
     releaseContext: releaseContext(),
     phase: 'publish',
     forbiddenFragments: ['private-owner'],
@@ -805,7 +808,7 @@ test('candidate build failure cannot create an accepted candidate', async () => 
     buildExpectation: fixture.expected,
     install: async () => {},
     build: async () => { throw new Error('build failed'); },
-    readGeneratedFiles: async () => minimalFiles().filter((entry) => entry.path !== '.nojekyll'),
+    readGeneratedFiles: async () => minimalFiles(),
     releaseContext: releaseContext(),
     phase: 'rc-publish',
     forbiddenFragments: ['private-owner'],
@@ -820,7 +823,7 @@ test('candidate build rejects a caller footer digest mismatch and bound root lea
     buildExpectation: fixture.expected,
     install: async () => {},
     build: async () => {},
-    readGeneratedFiles: async () => minimalFiles().filter((entry) => entry.path !== '.nojekyll'),
+    readGeneratedFiles: async () => minimalFiles(),
     phase: 'rc-publish',
     forbiddenFragments: ['private-owner'],
     privateBindings: privateBindings(),
@@ -835,7 +838,7 @@ test('candidate build rejects a caller footer digest mismatch and bound root lea
   await assert.rejects(buildCandidateArtifact({
     ...base,
     releaseContext: releaseContext(),
-    readGeneratedFiles: async () => leaked.filter((entry) => entry.path !== '.nojekyll'),
+    readGeneratedFiles: async () => leaked,
   }), (error) => error instanceof ArtifactValidationError && error.code === 'content_forbidden');
 });
 
@@ -846,7 +849,7 @@ test('acceptance rejects changed retained bytes, manifest, template, and decisio
     buildExpectation: fixture.expected,
     install: async () => {},
     build: async () => {},
-    readGeneratedFiles: async () => minimalFiles().filter((entry) => entry.path !== '.nojekyll'),
+    readGeneratedFiles: async () => minimalFiles(),
     releaseContext: releaseContext(),
     phase: 'rc-publish',
     forbiddenFragments: ['private-owner'],

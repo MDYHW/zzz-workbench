@@ -285,6 +285,23 @@ test('an unparseable or structurally invalid successful token response requires 
   }
 })
 
+test('a server failure while issuing a token is unconfirmed and is never retried', async () => {
+  const mock = authTransport()
+  let mintCalls = 0
+  const fetchImpl = async (url, init) => {
+    if (url.endsWith('/access_tokens')) {
+      mintCalls += 1
+      return response({}, 502)
+    }
+    return mock.fetchImpl(url, init)
+  }
+  await assert.rejects(() => mintInstallationToken({
+    fetchImpl, config: mock.current, phase: 'publisher', privateKey: PEM,
+    destinationState: 'present', now: 1_700_000_000_000,
+  }), (error) => error.code === 'github_token_issuance_unconfirmed' && error.state === 'reconcile-required')
+  assert.equal(mintCalls, 1)
+})
+
 test('rate-limited transport serializes mutations and applies bounded Retry-After handling', async () => {
   let clock = 0
   const waits = []
@@ -327,8 +344,30 @@ test('rate-limited transport does not retry ordinary forbidden responses and bou
   assert.deepEqual(waits, [60_000, 120_000])
 })
 
+test('each rate-limit retry receives a fresh per-attempt timeout signal', async () => {
+  const signals = []
+  const abortedAtStart = []
+  let attempts = 0
+  const fetchImpl = createRateLimitedFetch(async (_url, init) => {
+    attempts += 1
+    signals.push(init.signal)
+    abortedAtStart.push(init.signal.aborted)
+    await new Promise((resolve) => setTimeout(resolve, 4))
+    return attempts === 1 ? response({}, 429) : response({}, 204)
+  }, {
+    mutationIntervalMs: 0,
+    maxRetries: 1,
+    wait: async () => { await new Promise((resolve) => setTimeout(resolve, 4)) },
+  })
+  assert.deepEqual(await revokeInstallationToken({ fetchImpl, token: TOKEN, timeoutMs: 2 }), { revoked: true })
+  assert.equal(attempts, 2)
+  assert.notEqual(signals[0], signals[1])
+  assert.deepEqual(abortedAtStart, [false, false])
+})
+
 function publicationTransport({
-  staleOnRecheck = false, refUpdateThrows = false, refUpdateMalformed = false, reconcileToCommit = false,
+  staleOnRecheck = false, refUpdateThrows = false, refUpdateMalformed = false,
+  refUpdateStatus = null, reconcileToCommit = false,
 } = {}) {
   const calls = []
   let refReads = 0
@@ -341,6 +380,10 @@ function publicationTransport({
     calls.push({ url, init })
     if (url.includes('/git/ref/heads/main')) {
       if (init.method === 'PATCH') {
+        if (refUpdateStatus !== null) {
+          if (reconcileToCommit) updated = true
+          return response({}, refUpdateStatus)
+        }
         if (refUpdateMalformed) {
           if (reconcileToCommit) updated = true
           return { ok: true, status: 200, headers: { get: () => null }, async json() { throw new Error('truncated') } }
@@ -413,6 +456,7 @@ test('an unknown ref outcome reconciles only when the exact commit and complete 
   for (const accepted of [
     publicationTransport({ refUpdateThrows: true, reconcileToCommit: true }),
     publicationTransport({ refUpdateMalformed: true, reconcileToCommit: true }),
+    publicationTransport({ refUpdateStatus: 502, reconcileToCommit: true }),
   ]) {
     const result = await publishArtifactTree({
       fetchImpl: accepted.fetchImpl, token: TOKEN, config: config(), files: files(),
@@ -884,6 +928,21 @@ test('fixed child revokes its token in finally after success and known operation
   }
 })
 
+test('fixed child preserves both an unknown operation and unconfirmed token revocation', async () => {
+  const fetchImpl = async (url) => {
+    if (url.endsWith('/installation/token')) return response({}, 502)
+    throw new Error('unknown remote operation result')
+  }
+  const result = await executeFixedChildCommand({
+    command: fixedCommand('disable-pages', 'recovery'), token: TOKEN, fetchImpl,
+  })
+  assert.equal(result.ok, false)
+  assert.equal(result.tokenRevoked, false)
+  assert.equal(result.error.code, 'github_operation_and_revocation_unconfirmed')
+  assert.equal(result.error.state, 'reconcile-required')
+  assert.match(result.error.message, /operation and installation token revocation/)
+})
+
 test('fixed process uses one absolute Node entry, shell false, token-only env, and no token argument', async () => {
   let observed
   const spawnImpl = (executable, args, options) => {
@@ -1023,6 +1082,35 @@ test('parent performs revocation fallback when the fixed child is interrupted', 
   }
 })
 
+test('parent treats signalled or malformed post-spawn output as an unknown remote operation', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('publish', 'publisher', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  try {
+    for (const childProcess of [
+      { exitCode: null, signal: 'SIGINT', stdout: '' },
+      { exitCode: 0, signal: null, stdout: '{truncated' },
+    ]) {
+      const mock = authTransport()
+      await assert.rejects(() => runPublishingChild({
+        nodeExecutable: process.execPath,
+        operationFile,
+        childSource: Buffer.from('sealed-source'),
+        preflight: async () => true,
+        loadPrivateKey: async () => PEM,
+        fetchImpl: mock.fetchImpl,
+        childRunner: async () => childProcess,
+      }), (error) => error.state === 'reconcile-required'
+        && ['github_child_interrupted', 'github_child_output_invalid'].includes(error.code))
+      assert.equal(mock.calls.filter(({ url, init }) => url.endsWith('/installation/token') && init.method === 'DELETE').length, 1)
+    }
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
 test('signal received during mint revokes the returned token before spawning and removes handlers', async () => {
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
   const operationFile = path.join(tempRoot, 'operation.json')
@@ -1044,6 +1132,43 @@ test('signal received during mint revokes the returned token before spawning and
       preflight: async () => true, loadPrivateKey: async () => PEM, fetchImpl,
       childRunner: async () => { childRuns += 1 },
     }), (error) => error.code === 'github_child_interrupted' && error.state === 'reconcile-required')
+    assert.equal(childRuns, 0)
+    assert.equal(mock.calls.filter(({ url, init }) => url.endsWith('/installation/token') && init.method === 'DELETE').length, 1)
+    assert.equal(signals.listenerCount('SIGINT'), 0)
+    assert.equal(signals.listenerCount('SIGTERM'), 0)
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test('an insufficient token lifetime revokes immediately without starting the child', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('publish', 'publisher', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  const now = Date.parse('2026-09-07T00:00:00Z')
+  const mock = authTransport({ overrides: {
+    token: {
+      token: TOKEN,
+      expires_at: '2026-09-07T00:02:00Z',
+      permissions: APP_PERMISSION_PROFILES.publisher,
+    },
+  } })
+  const signals = new EventEmitter()
+  let childRuns = 0
+  try {
+    await assert.rejects(() => runPublishingChild({
+      nodeExecutable: process.execPath,
+      operationFile,
+      childSource: Buffer.from('sealed-source'),
+      signalSource: signals,
+      preflight: async () => true,
+      loadPrivateKey: async () => PEM,
+      fetchImpl: mock.fetchImpl,
+      childRunner: async () => { childRuns += 1 },
+      now: () => now,
+    }), (error) => error.code === 'github_token_lifetime_insufficient' && error.state === 'failed')
     assert.equal(childRuns, 0)
     assert.equal(mock.calls.filter(({ url, init }) => url.endsWith('/installation/token') && init.method === 'DELETE').length, 1)
     assert.equal(signals.listenerCount('SIGINT'), 0)

@@ -16,6 +16,8 @@ export const PUBLICATION_MUTATION_INTERVAL_MS = 1_000
 export const PUBLICATION_MAX_RATE_LIMIT_RETRIES = 2
 export const PUBLICATION_CHILD_TIMEOUT_MS = 15 * 60_000
 
+const REQUEST_TIMEOUT_MS = Symbol('request-timeout-ms')
+
 export const FIXED_CHILD_OPERATIONS = Object.freeze({
   bootstrap: Object.freeze({ role: 'bootstrap', phase: 'bootstrap', destinationState: 'absent' }),
   publish: Object.freeze({ role: 'publisher', phase: 'publisher', destinationState: 'present' }),
@@ -254,6 +256,7 @@ async function request(fetchImpl, pathname, {
       headers,
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
       signal: AbortSignal.timeout(timeoutMs),
+      [REQUEST_TIMEOUT_MS]: timeoutMs,
     })
   } catch {
     throw new PublicReleaseGithubError('GitHub request outcome is unknown.', {
@@ -263,6 +266,12 @@ async function request(fetchImpl, pathname, {
   if (allowNotFound && response.status === 404) return null
   if (allowEmptyRepository && response.status === 409) return null
   if (!response.ok) {
+    const mutation = !['GET', 'HEAD', 'OPTIONS'].includes(method.toUpperCase())
+    if (mutation && response.status >= 500) {
+      throw new PublicReleaseGithubError('GitHub mutation outcome requires reconciliation.', {
+        code: 'github_request_unknown', state: 'reconcile-required', resource: pathname,
+      })
+    }
     fail('GitHub rejected the requested operation.', {
       code: 'github_request_rejected', resource: pathname,
     })
@@ -323,12 +332,18 @@ export function createRateLimitedFetch(fetchImpl, {
   return async (url, init = {}) => {
     const method = String(init.method ?? 'GET').toUpperCase()
     const mutation = !['GET', 'HEAD', 'OPTIONS'].includes(method)
+    const attemptTimeoutMs = init[REQUEST_TIMEOUT_MS]
+    const fetchInit = { ...init }
+    delete fetchInit[REQUEST_TIMEOUT_MS]
     for (let attempt = 0; ; attempt += 1) {
       if (mutation) {
         const remaining = mutationIntervalMs - (now() - lastMutationCompletedAt)
         if (remaining > 0) await wait(remaining)
       }
-      const response = await fetchImpl(url, init)
+      const response = await fetchImpl(url, {
+        ...fetchInit,
+        ...(attemptTimeoutMs === undefined ? {} : { signal: AbortSignal.timeout(attemptTimeoutMs) }),
+      })
       if (mutation) lastMutationCompletedAt = now()
       const retryDelay = await rateLimitDelay(response, attempt, now)
       if (retryDelay === null || attempt >= maxRetries) return response
@@ -1238,6 +1253,15 @@ function childError(error) {
   return { code: safe.code, state: safe.state, message: safe.message }
 }
 
+function combinedReconciliationError(operationError, revocationError) {
+  if (operationError === null) return revocationError
+  return {
+    code: 'github_operation_and_revocation_unconfirmed',
+    state: 'reconcile-required',
+    message: 'The remote operation and installation token revocation both require reconciliation.',
+  }
+}
+
 export function publicationChildTimeoutMs(command, requestTimeoutMs = 15_000) {
   validateFixedChildCommand(command)
   if (!Number.isSafeInteger(requestTimeoutMs) || requestTimeoutMs < 1) {
@@ -1273,7 +1297,7 @@ export async function executeFixedChildCommand({
       await revokeInstallationToken({ fetchImpl, token, timeoutMs })
       tokenRevoked = true
     } catch (error) {
-      operationError = childError(error)
+      operationError = combinedReconciliationError(operationError, childError(error))
     }
   }
   return {
@@ -1335,7 +1359,7 @@ export async function runFixedChildProcess({
         clearTimeout(timer)
         cleanupHandlers()
         reject(new PublicReleaseGithubError('Fixed publishing child output is invalid.', {
-          code: 'github_child_output_invalid',
+          code: 'github_child_output_invalid', state: 'reconcile-required',
         }))
       }
     })
@@ -1418,6 +1442,7 @@ export async function runPublishingChild({
       phase: binding.phase,
       destinationState: binding.destinationState,
       privateKey,
+      now: now(),
       timeoutMs: authTimeoutMs,
       forbiddenRoots,
     })
@@ -1442,17 +1467,26 @@ export async function runPublishingChild({
       timeoutMs: childTimeoutMs,
       signalSource,
     })
+    if (childProcess.signal !== null) {
+      fail('Fixed publishing child did not complete safely.', {
+        code: 'github_child_interrupted', state: 'reconcile-required',
+      })
+    }
     if (typeof childProcess.stdout !== 'string' || childProcess.stdout.includes(minted.token)) {
-      fail('Fixed publishing child output is invalid.', { code: 'github_child_output_invalid' })
+      fail('Fixed publishing child output is invalid.', {
+        code: 'github_child_output_invalid', state: 'reconcile-required',
+      })
     }
     let childResult
     try {
       childResult = validateChildResult(JSON.parse(childProcess.stdout.trim()))
-    } catch (error) {
-      throw sanitizeGithubError(error)
+    } catch {
+      fail('Fixed publishing child output is invalid.', {
+        code: 'github_child_output_invalid', state: 'reconcile-required',
+      })
     }
     childConfirmedRevocation = childResult.tokenRevoked
-    if (childProcess.signal !== null || childProcess.exitCode !== (childResult.ok ? 0 : 1)
+    if (childProcess.exitCode !== (childResult.ok ? 0 : 1)
         || !childResult.tokenRevoked) {
       fail('Fixed publishing child did not complete safely.', {
         code: 'github_child_interrupted', state: 'reconcile-required',
@@ -1497,7 +1531,7 @@ async function fixedChildMain() {
       await revokeInstallationToken({ fetchImpl: rateLimitedFetch, token })
       tokenRevoked = true
     } catch (revokeError) {
-      safe = childError(revokeError)
+      safe = combinedReconciliationError(safe, childError(revokeError))
     }
     output = {
       schema: FIXED_CHILD_RESULT_SCHEMA,
