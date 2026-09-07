@@ -763,16 +763,37 @@ async function verifyTree(fetchImpl, base, treeSha, expectedEntries, token, time
   const tree = await request(fetchImpl, `${base}/git/trees/${treeSha}?recursive=1`, {
     headers: tokenHeaders(token), timeoutMs,
   })
-  if (tree?.truncated !== false || tree?.sha !== treeSha || !Array.isArray(tree.tree)
-      || tree.tree.length !== expectedEntries.length) {
+  if (tree?.truncated !== false || tree?.sha !== treeSha || !Array.isArray(tree.tree)) {
     fail('Published tree could not be verified.', { code: 'github_tree_mismatch' })
   }
-  const actual = [...tree.tree].sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0)
-  for (let index = 0; index < expectedEntries.length; index += 1) {
-    const wanted = expectedEntries[index]
-    const observed = actual[index]
-    if (observed?.path !== wanted.path || observed?.mode !== wanted.mode
-        || observed?.type !== 'blob' || observed?.sha !== wanted.sha) {
+
+  const expectedDirectories = new Set()
+  for (const entry of expectedEntries) {
+    const parts = entry.path.split('/')
+    for (let length = 1; length < parts.length; length += 1) {
+      expectedDirectories.add(parts.slice(0, length).join('/'))
+    }
+  }
+  if (tree.tree.length !== expectedEntries.length + expectedDirectories.size) {
+    fail('Published tree could not be verified.', { code: 'github_tree_mismatch' })
+  }
+
+  const actualByPath = new Map()
+  for (const entry of tree.tree) {
+    if (typeof entry?.path !== 'string' || actualByPath.has(entry.path)) {
+      fail('Published tree does not match the accepted artifact.', { code: 'github_tree_mismatch' })
+    }
+    actualByPath.set(entry.path, entry)
+  }
+  for (const wanted of expectedEntries) {
+    const observed = actualByPath.get(wanted.path)
+    if (observed?.mode !== wanted.mode || observed?.type !== 'blob' || observed?.sha !== wanted.sha) {
+      fail('Published tree does not match the accepted artifact.', { code: 'github_tree_mismatch' })
+    }
+  }
+  for (const directory of expectedDirectories) {
+    const observed = actualByPath.get(directory)
+    if (observed?.mode !== '040000' || observed?.type !== 'tree' || !SHA1.test(observed?.sha ?? '')) {
       fail('Published tree does not match the accepted artifact.', { code: 'github_tree_mismatch' })
     }
   }

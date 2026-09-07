@@ -372,12 +372,17 @@ test('each rate-limit retry receives a fresh per-attempt timeout signal', async 
 function publicationTransport({
   staleOnRecheck = false, refUpdateThrows = false, refUpdateMalformed = false,
   refUpdateStatus = null, reconcileToCommit = false, wrongBlobSha = false,
+  wrongDirectoryEntry = false,
 } = {}) {
   const calls = []
   let refReads = 0
   let updated = false
   const entries = [
     { path: '.nojekyll', mode: '100644', type: 'blob', sha: BLOB_A },
+    {
+      path: 'assets', mode: wrongDirectoryEntry ? '100644' : '040000', type: 'tree', sha: '8'.repeat(40),
+    },
+    { path: 'assets/app.js', mode: '100644', type: 'blob', sha: BLOB_B },
     { path: 'index.html', mode: '100644', type: 'blob', sha: BLOB_B },
   ]
   const fetchImpl = async (url, init) => {
@@ -430,10 +435,11 @@ function publicationTransport({
 
 const files = () => [
   { path: '.nojekyll', mode: '100644', bytes: Buffer.from('') },
+  { path: 'assets/app.js', mode: '100644', bytes: Buffer.from('<!doctype html>') },
   { path: 'index.html', mode: '100644', bytes: Buffer.from('<!doctype html>') },
 ]
 
-test('publication writes complete blobs/tree/commit and performs one non-force expected-tip ref update', async () => {
+test('publication verifies recursive directory entries and performs one non-force expected-tip ref update', async () => {
   const mock = publicationTransport()
   const result = await publishArtifactTree({
     fetchImpl: mock.fetchImpl, token: TOKEN, config: config(), files: files(),
@@ -446,6 +452,15 @@ test('publication writes complete blobs/tree/commit and performs one non-force e
   const updates = mock.calls.filter(({ url, init }) => url.includes('/git/ref/heads/main') && init.method === 'PATCH')
   assert.equal(updates.length, 1)
   assert.deepEqual(JSON.parse(updates[0].init.body), { sha: COMMIT, force: false })
+})
+
+test('publication rejects a recursive directory entry with the wrong Git mode', async () => {
+  const mock = publicationTransport({ wrongDirectoryEntry: true })
+  await assert.rejects(() => publishArtifactTree({
+    fetchImpl: mock.fetchImpl, token: TOKEN, config: config(), files: files(),
+    artifactTreeDigest: ARTIFACT, expectedTip: OLD,
+  }), (error) => error.code === 'github_tree_mismatch')
+  assert.equal(mock.calls.some(({ url }) => url.endsWith('/git/commits')), false)
 })
 
 test('publication rejects a valid blob identity that does not match the uploaded bytes', async () => {
