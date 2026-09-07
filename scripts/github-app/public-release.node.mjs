@@ -409,7 +409,8 @@ test('prepare accepts only bootstrap, publish, or restore and binds the extracte
   assert.ok(toolCalls.every(({ env }) => JSON.stringify(env) === JSON.stringify(createNpmCommandEnvironment(NODE, external('extract')))))
   assert.ok(toolCalls.every(({ env }) => (
     env.NPM_CONFIG_USERCONFIG === (process.platform === 'win32' ? 'NUL' : '/dev/null')
-    && env.NPM_CONFIG_GLOBALCONFIG === (process.platform === 'win32' ? 'NUL.global' : '/dev/null')
+    && env.NPM_CONFIG_GLOBALCONFIG === (process.platform === 'win32' ? 'NUL.global' : '/dev/null.global')
+    && env.NPM_CONFIG_USERCONFIG !== env.NPM_CONFIG_GLOBALCONFIG
   )))
   assert.equal(JSON.parse(writes[2]).schema, 'zzz-workbench-public-release-trusted-controller/v1')
 
@@ -460,6 +461,38 @@ test('sealed Node executes an absolute npm-cli.js entry without a command shell'
     else process.env.NODE_OPTIONS = originalNodeOptions
     if (originalPrivateValue === undefined) delete process.env.ZZZ_WORKBENCH_GITHUB_APP_PEM_PATH
     else process.env.ZZZ_WORKBENCH_GITHUB_APP_PEM_PATH = originalPrivateValue
+    await fs.rm(temporary, { recursive: true, force: true })
+  }
+})
+
+const installedNpmCli = typeof process.env.npm_execpath === 'string'
+  && path.isAbsolute(process.env.npm_execpath)
+  ? path.resolve(process.env.npm_execpath)
+  : null
+
+test('installed npm accepts the sealed environment with distinct suppressed config sources', {
+  skip: installedNpmCli === null,
+}, async () => {
+  const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-npm-config-'))
+  await fs.writeFile(path.join(temporary, 'package.json'), JSON.stringify({
+    name: 'sealed-npm-config-fixture', private: true, version: '1.0.0',
+  }))
+  await fs.writeFile(path.join(temporary, 'package-lock.json'), JSON.stringify({
+    name: 'sealed-npm-config-fixture',
+    version: '1.0.0',
+    lockfileVersion: 3,
+    requires: true,
+    packages: { '': { name: 'sealed-npm-config-fixture', version: '1.0.0' } },
+  }))
+  try {
+    await runDirectCommand({
+      executable: process.execPath,
+      args: [installedNpmCli, 'ci', '--ignore-scripts'],
+      cwd: temporary,
+      shell: false,
+      env: createNpmCommandEnvironment(process.execPath, temporary),
+    })
+  } finally {
     await fs.rm(temporary, { recursive: true, force: true })
   }
 })
