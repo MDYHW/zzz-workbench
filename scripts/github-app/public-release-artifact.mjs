@@ -659,6 +659,10 @@ export function createNpmCommandEnvironment(nodeExecutable, cwd, {
   const root = runtimePath.resolve(cwd);
   const windowsRuntime = platform === 'win32' ? createWindowsRuntimeEnvironment(runtimeEnvironment) : {};
   const shell = platform === 'win32' ? windowsRuntime.ComSpec : '/bin/sh';
+  // npm 11 rejects user and global config when both resolve to the same source.
+  // Keep each source absent while assigning it a distinct identity.
+  const suppressedUserConfig = platform === 'win32' ? 'NUL' : '/dev/null';
+  const suppressedGlobalConfig = platform === 'win32' ? 'NUL.global' : '/dev/null.global';
   return {
     ...windowsRuntime,
     PATH: platform === 'win32' ? runtimePath.dirname(node) : `${runtimePath.dirname(node)}:/usr/bin:/bin`,
@@ -670,12 +674,12 @@ export function createNpmCommandEnvironment(nodeExecutable, cwd, {
     NPM_CONFIG_AUDIT: 'false',
     NPM_CONFIG_CACHE: runtimePath.join(root, '.npm-cache'),
     NPM_CONFIG_FUND: 'false',
-    NPM_CONFIG_GLOBALCONFIG: platform === 'win32' ? 'NUL' : '/dev/null',
+    NPM_CONFIG_GLOBALCONFIG: suppressedGlobalConfig,
     NPM_CONFIG_IGNORE_SCRIPTS: 'true',
     NPM_CONFIG_REGISTRY: 'https://registry.npmjs.org/',
     NPM_CONFIG_SCRIPT_SHELL: shell,
     NPM_CONFIG_UPDATE_NOTIFIER: 'false',
-    NPM_CONFIG_USERCONFIG: platform === 'win32' ? 'NUL' : '/dev/null',
+    NPM_CONFIG_USERCONFIG: suppressedUserConfig,
   };
 }
 
