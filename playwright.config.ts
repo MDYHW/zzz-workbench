@@ -34,7 +34,7 @@ export default defineConfig({
   webServer: {
     command: 'npm run test:visual:server',
     url: 'http://127.0.0.1:5173',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 120_000,
   },
   projects: [

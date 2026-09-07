@@ -984,6 +984,44 @@ test('injected SIGINT kills the child, returns a non-null close signal, and remo
   assert.equal(signals.listenerCount('SIGTERM'), 0)
 })
 
+test('a child stdin pipe failure reaches parent token-revocation fallback', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('publish', 'publisher', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  const signals = new EventEmitter()
+  const mock = authTransport()
+  let killed = 0
+  const spawnImpl = () => {
+    const child = new EventEmitter()
+    child.stdin = new EventEmitter()
+    child.stdin.end = () => queueMicrotask(() => child.stdin.emit('error', new Error('write EOF')))
+    child.stdout = new PassThrough()
+    child.stderr = new PassThrough()
+    child.kill = () => { killed += 1 }
+    return child
+  }
+  try {
+    await assert.rejects(() => runPublishingChild({
+      nodeExecutable: process.execPath,
+      operationFile,
+      childSource: Buffer.from('sealed-source'),
+      signalSource: signals,
+      preflight: async () => true,
+      loadPrivateKey: async () => PEM,
+      fetchImpl: mock.fetchImpl,
+      childRunner: (spec) => runFixedChildProcess({ ...spec, spawnImpl }),
+    }), (error) => error.code === 'github_child_interrupted' && error.state === 'reconcile-required')
+    assert.equal(killed, 1)
+    assert.equal(mock.calls.filter(({ url, init }) => url.endsWith('/installation/token') && init.method === 'DELETE').length, 1)
+    assert.equal(signals.listenerCount('SIGINT'), 0)
+    assert.equal(signals.listenerCount('SIGTERM'), 0)
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
 test('parent preflight precedes key access and minting, and a confirmed child cleanup needs no fallback', async () => {
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
   const operationFile = path.join(tempRoot, 'operation.json')

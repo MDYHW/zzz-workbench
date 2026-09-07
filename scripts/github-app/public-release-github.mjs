@@ -1324,6 +1324,16 @@ export async function runFixedChildProcess({
     }
     signalSource.once('SIGINT', interrupt)
     signalSource.once('SIGTERM', interrupt)
+    const rejectInterrupted = () => {
+      if (settled) return
+      settled = true
+      child.kill()
+      clearTimeout(timer)
+      cleanupHandlers()
+      reject(new PublicReleaseGithubError('Fixed publishing child was interrupted.', {
+        code: 'github_child_interrupted', state: 'reconcile-required',
+      }))
+    }
     const timer = setTimeout(() => {
       if (settled) return
       child.kill()
@@ -1347,14 +1357,9 @@ export async function runFixedChildProcess({
       }
     })
     child.once('error', () => {
-      if (settled) return
-      settled = true
-      clearTimeout(timer)
-      cleanupHandlers()
-      reject(new PublicReleaseGithubError('Fixed publishing child was interrupted.', {
-        code: 'github_child_interrupted', state: 'reconcile-required',
-      }))
+      rejectInterrupted()
     })
+    child.stdin?.on('error', rejectInterrupted)
     child.once('close', (exitCode, signal) => {
       if (settled) return
       settled = true
@@ -1362,7 +1367,11 @@ export async function runFixedChildProcess({
       cleanupHandlers()
       resolve({ exitCode, signal, stdout })
     })
-    child.stdin.end(sourceBytes)
+    try {
+      child.stdin.end(sourceBytes)
+    } catch {
+      rejectInterrupted()
+    }
   })
 }
 
