@@ -619,7 +619,7 @@ async function readPublicationInputs(command, dependencies) {
 async function invokePublishingChild({
   operation, payload, config, operationDirectory, preflight, childSource, nodeExecutable,
 }, dependencies) {
-  const role = operation === 'publish' ? 'publisher' : operation === 'bootstrap' ? 'bootstrap' : 'recovery'
+  const role = operation === 'publish' ? 'publisher' : operation === 'bootstrap' ? 'bootstrap' : 'stop'
   const fixed = { schema: FIXED_CHILD_SCHEMA, operation, role, config, payload }
   const operationFile = path.join(operationDirectory, `${operation}.json`)
   await writeExclusiveJson(operationFile, fixed, dependencies.writeFile)

@@ -161,8 +161,8 @@ test('publisher token is repository-narrow, variable length, exact-permissioned,
   assert.deepEqual(publishingChildEnvironment('x'), { [INSTALLATION_TOKEN_ENV]: 'x' })
 })
 
-test('bootstrap and recovery phases require their distinct exact permission profiles', async () => {
-  for (const phase of ['bootstrap', 'recovery']) {
+test('bootstrap and stop phases require their distinct exact permission profiles', async () => {
+  for (const phase of ['bootstrap', 'stop']) {
     const mock = authTransport({ phase })
     await mintInstallationToken({
       fetchImpl: mock.fetchImpl, config: mock.current, phase, privateKey: PEM,
@@ -190,7 +190,7 @@ test('pre-repository bootstrap mints without a nonexistent repository and verifi
 })
 
 test('an absent destination is rejected for every non-bootstrap phase', async () => {
-  for (const phase of ['publisher', 'recovery']) {
+  for (const phase of ['publisher', 'stop']) {
     const mock = authTransport({ phase })
     await assert.rejects(() => mintInstallationToken({
       fetchImpl: mock.fetchImpl,
@@ -842,14 +842,14 @@ test('fixed child command binds every operation to one non-crossing App role', (
   const cases = [
     fixedCommand('bootstrap', 'bootstrap', { files: encodedFiles(), artifactTreeDigest: ARTIFACT }),
     fixedCommand('publish', 'publisher', { files: encodedFiles(), artifactTreeDigest: ARTIFACT }),
-    fixedCommand('disable-pages', 'recovery'),
+    fixedCommand('disable-pages', 'stop'),
   ]
   for (const command of cases) assert.equal(validateFixedChildCommand(command), command)
   assert.throws(() => validateFixedChildCommand(fixedCommand('publish', 'publisher', {
     files: encodedFiles(), artifactTreeDigest: ARTIFACT, expectedTip: OLD,
   })), /schema is invalid/)
   for (const command of cases) {
-    const foreignRole = command.role === 'publisher' ? 'recovery' : 'publisher'
+    const foreignRole = command.role === 'publisher' ? 'stop' : 'publisher'
     assert.throws(() => validateFixedChildCommand({ ...command, role: foreignRole }), (error) => {
       return error.code === 'github_child_role_invalid'
     })
@@ -896,7 +896,7 @@ test('fixed child revokes its token in finally after success and known operation
       throw new Error(`Unexpected mock URL: ${url}`)
     }
     const result = await executeFixedChildCommand({
-      command: fixedCommand('disable-pages', 'recovery'), token: TOKEN, fetchImpl,
+      command: fixedCommand('disable-pages', 'stop'), token: TOKEN, fetchImpl,
     })
     assert.equal(result.schema, FIXED_CHILD_RESULT_SCHEMA)
     assert.equal(result.ok, !failOperation)
@@ -912,7 +912,7 @@ test('fixed child preserves both an unknown operation and unconfirmed token revo
     throw new Error('unknown remote operation result')
   }
   const result = await executeFixedChildCommand({
-    command: fixedCommand('disable-pages', 'recovery'), token: TOKEN, fetchImpl,
+    command: fixedCommand('disable-pages', 'stop'), token: TOKEN, fetchImpl,
   })
   assert.equal(result.ok, false)
   assert.equal(result.tokenRevoked, false)

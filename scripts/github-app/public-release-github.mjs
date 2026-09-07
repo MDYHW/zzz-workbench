@@ -21,7 +21,7 @@ const REQUEST_TIMEOUT_MS = Symbol('request-timeout-ms')
 export const FIXED_CHILD_OPERATIONS = Object.freeze({
   bootstrap: Object.freeze({ role: 'bootstrap', phase: 'bootstrap', destinationState: 'absent' }),
   publish: Object.freeze({ role: 'publisher', phase: 'publisher', destinationState: 'present' }),
-  'disable-pages': Object.freeze({ role: 'recovery', phase: 'recovery', destinationState: 'present' }),
+  'disable-pages': Object.freeze({ role: 'stop', phase: 'stop', destinationState: 'present' }),
 })
 
 export const APP_PERMISSION_PROFILES = Object.freeze({
@@ -31,7 +31,7 @@ export const APP_PERMISSION_PROFILES = Object.freeze({
     metadata: 'read',
     pages: 'write',
   }),
-  recovery: Object.freeze({
+  stop: Object.freeze({
     metadata: 'read',
     pages: 'write',
   }),
