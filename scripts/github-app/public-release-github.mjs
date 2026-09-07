@@ -33,6 +33,7 @@ export const APP_PERMISSION_PROFILES = Object.freeze({
     pages: 'write',
   }),
   stop: Object.freeze({
+    administration: 'write',
     metadata: 'read',
     pages: 'write',
   }),
@@ -51,7 +52,7 @@ const SAFE_BOT = /^[A-Za-z0-9][A-Za-z0-9-]*\[bot\]$/
 const FILE_MODE = '100644'
 const MAX_INSTALLATION_TOKEN_BYTES = 8 * 1024
 const PUBLICATION_REQUEST_BUDGETS = Object.freeze({
-  bootstrap: Object.freeze({ fixedMutations: 9, reads: 18 }),
+  bootstrap: Object.freeze({ fixedMutations: 10, reads: 18 }),
   publish: Object.freeze({ fixedMutations: 4, reads: 18 }),
   'disable-pages': Object.freeze({ fixedMutations: 2, reads: 18 }),
 })
@@ -576,13 +577,16 @@ export async function createNoJekyllRoot({ fetchImpl, token, config, timeoutMs =
   return { commitSha, treeSha, blobSha }
 }
 
-function expectedRuleset(config) {
+function expectedRuleset(config, bypassRole) {
+  if (!['bootstrap', 'publisher'].includes(bypassRole)) {
+    fail('Destination branch ruleset phase is invalid.', { code: 'github_ruleset_mismatch' })
+  }
   return {
     name: PUBLIC_BRANCH_RULESET_NAME,
     target: 'branch',
     enforcement: 'active',
     bypass_actors: [{
-      actor_id: config.apps.publisher.appId,
+      actor_id: config.apps[bypassRole].appId,
       actor_type: 'Integration',
       bypass_mode: 'always',
     }],
@@ -603,8 +607,8 @@ function canonicalJson(value) {
   return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`
 }
 
-function validateRuleset(ruleset, config) {
-  const expected = expectedRuleset(config)
+function validateRuleset(ruleset, config, bypassRole) {
+  const expected = expectedRuleset(config, bypassRole)
   if (!Number.isSafeInteger(ruleset?.id) || ruleset.id <= 0
       || ruleset?.name !== expected.name
       || ruleset?.target !== expected.target
@@ -617,27 +621,34 @@ function validateRuleset(ruleset, config) {
   return ruleset
 }
 
-export async function createArtifactRuleset({ fetchImpl, token, config, timeoutMs = 15_000 }) {
+export async function createBootstrapArtifactRuleset({ fetchImpl, token, config, timeoutMs = 15_000 }) {
   validateGithubConfig(config)
   const base = repositoryBase(config.destination)
   const created = await mutationRequest(fetchImpl, `${base}/rulesets`, {
     method: 'POST',
     headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
-    body: expectedRuleset(config),
+    body: expectedRuleset(config, 'bootstrap'),
     timeoutMs,
-  }, (ruleset) => validateRuleset(ruleset, config))
+  }, (ruleset) => validateRuleset(ruleset, config, 'bootstrap'))
   const ruleset = created
   return validateRuleset(await request(fetchImpl, `${base}/rulesets/${ruleset.id}`, {
     headers: tokenHeaders(token), timeoutMs,
-  }), config)
+  }), config, 'bootstrap')
 }
 
-export async function verifyArtifactRuleset({ fetchImpl, token, config, rulesetId, timeoutMs = 15_000 }) {
+export async function finalizeArtifactRuleset({ fetchImpl, token, config, rulesetId, timeoutMs = 15_000 }) {
   validateGithubConfig(config)
   requiredPositiveInteger(rulesetId, 'Ruleset ID')
-  return validateRuleset(await request(fetchImpl, `${repositoryBase(config.destination)}/rulesets/${rulesetId}`, {
+  const rulesetPath = `${repositoryBase(config.destination)}/rulesets/${rulesetId}`
+  await mutationRequest(fetchImpl, rulesetPath, {
+    method: 'PUT',
+    headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
+    body: expectedRuleset(config, 'publisher'),
+    timeoutMs,
+  }, (ruleset) => validateRuleset(ruleset, config, 'publisher'))
+  return validateRuleset(await request(fetchImpl, rulesetPath, {
     headers: tokenHeaders(token), timeoutMs,
-  }), config)
+  }), config, 'publisher')
 }
 
 export async function makeDestinationPublic({ fetchImpl, token, config, timeoutMs = 15_000 }) {
@@ -689,6 +700,8 @@ export async function bootstrapPublicDestination({
 }) {
   await createPrivateDestination({ fetchImpl, token, config, timeoutMs })
   const root = await createNoJekyllRoot({ fetchImpl, token, config, timeoutMs })
+  await makeDestinationPublic({ fetchImpl, token, config, timeoutMs })
+  const ruleset = await createBootstrapArtifactRuleset({ fetchImpl, token, config, timeoutMs })
   const publication = await publishArtifactTree({
     fetchImpl,
     token,
@@ -698,9 +711,7 @@ export async function bootstrapPublicDestination({
     expectedTip: root.commitSha,
     timeoutMs,
   })
-  const ruleset = await createArtifactRuleset({ fetchImpl, token, config, timeoutMs })
-  await verifyArtifactRuleset({ fetchImpl, token, config, rulesetId: ruleset.id, timeoutMs })
-  await makeDestinationPublic({ fetchImpl, token, config, timeoutMs })
+  await finalizeArtifactRuleset({ fetchImpl, token, config, rulesetId: ruleset.id, timeoutMs })
   const pages = await configureRootPages({ fetchImpl, token, config, timeoutMs })
   return { state: 'bootstrapped', rootCommitSha: root.commitSha, publication, rulesetId: ruleset.id, pagesUrl: pages.html_url }
 }

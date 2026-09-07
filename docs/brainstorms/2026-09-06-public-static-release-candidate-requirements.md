@@ -44,8 +44,10 @@ announcement state only.
   generated tree.
 - A3. Neutral bootstrap/stop App: receives short-lived elevated authority for
   the one-time creation and hardening of the public destination, performs the
-  first accepted publication, then remains dormant with only the Pages
-  authority required for fail-closed unpublishing. Repository deletion and
+  first accepted publication, then remains dormant with the Pages and repository-
+  administration authority that GitHub's Pages-delete API jointly requires for
+  fail-closed unpublishing. It has no online key or token while dormant, and its
+  fixed controller still permits only Pages deletion. Repository deletion and
   recreation are deliberate owner-run incident actions, not controller commands.
 - A4. Neutral publisher App: receives short-lived write authority only for
   later artifact updates to the public destination and has no access to the
@@ -66,14 +68,16 @@ announcement state only.
     neutral GitHub Organization and organization-owned bootstrap and publisher
     Apps while membership remains private. Before any repository is public, the
     owner completes the current provider and public-metadata checklist. Using a fresh
-    bootstrap-App key and short-lived installation token, it creates the root
-    Pages repository, writes the first accepted artifact, and configures the
-    branch ruleset and Pages. The owner then inspects every public organization,
+    bootstrap-App key and short-lived installation token, it creates the private root
+    Pages repository and its `.nojekyll` placeholder, makes that placeholder-only
+    repository public, installs an active ruleset with only the bootstrap App as
+    its temporary bypass, writes the first accepted artifact, replaces that bypass
+    with the publisher App alone, and only then configures Pages. The owner then inspects every public organization,
     repository, commit, event, deployment, and URL surface for actor or identity disclosure.
     The bootstrap command confirms token revocation before it returns. After the
-    live RC checks, the used key and initial contents and
-    repository-administration permissions are retired and the App enters its
-    dormant stop posture.
+    live RC checks, the used key and contents permission are retired and the App
+    enters its dormant stop posture with the minimum provider-required Pages and
+    repository-administration permissions.
   - **Outcome:** The destination exposes only a neutral project identity and
     generated-client delivery metadata.
   - **Covered by:** R1-R4, R11, R13a-R13b, R16
@@ -89,8 +93,10 @@ announcement state only.
 - F3. One-way publication
   - **Trigger:** The exact candidate passes F2.
   - **Steps:** For the first publication, the private controller uses the
-    one-time bootstrap App to create and harden the destination and write the
-    generated tree through its neutral bot identity. For later publication, it
+    one-time bootstrap App to create the destination, expose only its inert
+    placeholder while installing temporary bootstrap-only protection, write the
+    generated tree through its neutral bot identity, and finalize publisher-only
+    protection before Pages exists. For later publication, it
     mints a destination-only publisher-App installation token and updates only
     the generated tree. The controller verifies the resulting commit and
     complete tree and attempts immediate token revocation in cleanup; Pages and
@@ -104,7 +110,7 @@ announcement state only.
     responsive behavior, fresh-session behavior, asset resolution, and network
     boundary in a clean browser session. Bootstrap completion has already
     confirmed token revocation; the owner privately rotates the used bootstrap
-    key and removes its contents and repository-administration permissions, and
+    key and removes its contents permission, and
     then verifies the dormant stop posture and public metadata with the
     read-only checklist. Only then
     is the same URL announced
@@ -224,6 +230,12 @@ announcement state only.
   and contents-write permissions needed for later updates. R2 ensures that this
   resolves to the one public destination when it is created. Neither App has
   private-repository access.
+  GitHub Free is the selected Organization plan. Because repository rulesets are
+  unavailable to a private repository on that plan, bootstrap may make public only
+  the verified neutral `.nojekyll` placeholder before creating protection. Pages
+  remains disabled, no client artifact is present, and no personal actor performs
+  the transition. The controller must install and verify temporary bootstrap-only
+  protection before publishing artifact files.
 - R12. Each publication or emergency-stop window uses a dedicated fresh App private
   key at one absolute
   external path outside every repository. The controller completes the build
@@ -253,22 +265,29 @@ announcement state only.
   the destination commit and complete tree before reporting content success and must not
   silently treat a partial push, stale deployment, or unknown mutation result as
   a completed content release; Pages and live-client readiness remain open until
-  the owner completes the read-only RC checklist. After the first branch exists, an active public branch
+  the owner completes the read-only RC checklist. Before the accepted artifact enters
+  the public branch, an active public branch
   ruleset blocks force pushes, deletion, and direct updates while granting the
-  publisher App the sole normal update bypass; the owner does not use an admin
-  bypass for release content.
+  currently authorized neutral App the sole update bypass. Bootstrap temporarily
+  grants that bypass only to the bootstrap App, then replaces it with the publisher
+  App as the sole normal update bypass before Pages is enabled; the owner does not
+  use an admin bypass for release content.
 - R13a. Bootstrap is a distinct one-time privileged transaction. Its App creates
-  the public root repository, publishes the first R7-R10-accepted artifact,
-  installs the R13 ruleset with the steady-state publisher App as the sole normal
-  content-update bypass and enables branch-based Pages. The owner then verifies
+  the private root repository and one neutral `.nojekyll` commit, makes that
+  placeholder-only repository public, installs and verifies the R13 ruleset with
+  the bootstrap App as its sole temporary bypass, publishes the first
+  R7-R10-accepted artifact, and then updates and verifies the same ruleset with the
+  steady-state publisher App as the sole normal content-update bypass. Only after
+  that final protection is observed does it enable branch-based Pages. The owner then verifies
   the exact public commit, deployment, and actor metadata through the read-only
   RC checklist. The bootstrap transaction confirms token revocation before it
   returns, while the bootstrap App and its used key remain available through
   the live RC checks so R23 can mint a fresh stop-scoped token if they fail.
   After those checks pass, the product owner uses only private Organization App
   settings to generate the required protected offline replacement key, delete
-  the used bootstrap key, and remove the App's contents and
-  repository-administration permissions. The owner then verifies the resulting installation,
+  the used bootstrap key, and remove the App's contents permission. GitHub's current
+  Pages-delete API requires both Pages-write and repository-administration-write,
+  so those two permissions remain in the dormant stop posture. The owner then verifies the resulting installation,
   permission, credential-file, and public-metadata state through the read-only
   checklist before accepting the
   transition to R13c. The personal account performs no public repository, Pages,
@@ -283,13 +302,15 @@ announcement state only.
   or public path whose actor boundary cannot be inspected stops publication and
   triggers R23; private membership alone is not treated as proof.
 - R13c. After R13a closes, the same organization-owned App remains installed on
-  the dedicated destination as a dormant stop actor with Pages-write authority
-  but no contents or repository-administration permission, no
+  the dedicated destination as a dormant stop actor with Pages-write and repository-
+  administration-write authority, but no contents permission, no
   token, and no private key present in an online or controller environment. Its
   provider-required registration key remains protected offline. The App is
   constrained by a reviewed fixed controller schema that can only disable Pages
   under R23; release-state inspection remains an owner-run read-only checklist.
-  It never performs a routine release,
+  Although its provider permission could reach broader repository administration,
+  the reviewed fixed controller accepts only the exact Pages-delete endpoint and
+  no repository-setting or content mutation. It never performs a routine release,
   content update, repository deletion, or repository recreation.
   A still-supported artifact restore uses the contents-only publisher App. A
   break-glass Pages-disable mutation requires the R12 fresh stop window, exact
@@ -394,9 +415,11 @@ announcement state only.
   portrait or excluded jurisdiction blocks the public write even when the
   footer and build tests pass.
 - AE3. **Covers R11-R13c.** Given every gate passes and no destination exists, the
-  private controller uses only the temporary bootstrap App to create the public
-  repository, publish one complete accepted tree, configure protection and
-  Pages, and reports only the resulting content commit/tree. The owner separately
+  private controller uses only the temporary bootstrap App to create the private
+  repository and placeholder, publicize that neutral placeholder for GitHub Free,
+  install temporary bootstrap-only protection, publish one complete accepted tree,
+  finalize publisher-only protection, and then configure Pages. It reports only
+  the resulting content commit/tree. The owner separately
   verifies public actors, Pages/live bytes, key retirement, and dormant posture.
   It keeps Pages-disable capability through live RC checks. A later update uses only the
   destination-scoped publisher App. Given a dirty or stale private checkout,
@@ -462,7 +485,8 @@ resources before the first public write:
 - two-factor authentication and offline recovery for the existing account;
 - one organization-owned neutral bootstrap/stop GitHub App, installed before
   the public repository exists, initially restricted to the R11 bootstrap
-  authority, and prepared to transition to the dormant R13c authority;
+  authority, and prepared to transition to the dormant R13c Pages-write plus
+  repository-administration-write authority with no contents permission;
 - one organization-owned neutral publisher GitHub App prepared for the eventual
   public destination and restricted to steady-state R11 authority;
 - separate fresh bootstrap and publication-window App keys stored at protected
@@ -474,16 +498,21 @@ resources before the first public write:
 - one current exact-artifact release decision satisfying R7-R10.
 
 The trusted controller, authenticated only as the bootstrap App, creates the
-Organization's root Pages repository, publishes the first accepted artifact,
-configures the R13 branch ruleset and HTTPS Pages delivery, and confirms token
+Organization's private root Pages repository and neutral placeholder, makes only
+that placeholder repository public, installs temporary bootstrap-only protection,
+publishes the first accepted artifact, finalizes publisher-only R13 protection,
+then configures HTTPS Pages delivery and confirms token
 revocation before returning. The owner verifies the public actor boundary
 through the read-only checklist, while the App and used key retain the ability
 to mint a fresh stop-scoped token through the live RC checks. After they pass,
-the product owner rotates the used key and removes contents and
-repository-administration permissions in private Organization settings, and
+the product owner rotates the used key and removes contents permission in private
+Organization settings, retains the provider-required Pages and repository-
+administration permissions, and
 verifies the R13c dormant posture through the read-only checklist before any later update or Beta
-announcement. There is no publicly served empty/bootstrap state and no such
-state can be a rollback target. Concrete names, IDs, keys, URLs, capability
+announcement. A transient public repository state contains only the neutral
+`.nojekyll` placeholder, has Pages disabled, and exists solely to make GitHub Free
+rulesets available. It is not a served client, completed bootstrap, accepted RC,
+or rollback target. Concrete names, IDs, keys, URLs, capability
 evidence, and review evidence stay outside this document. Bootstrap is a
 one-time operator-authorized App transaction; its stop posture does not
 create a second client configuration or runtime account dependency.
@@ -538,9 +567,11 @@ create a second client configuration or runtime account dependency.
   credentials remain outside both repositories.
 - An organization-owned bootstrap/stop App isolates elevated repository and
   Pages authority from the steady-state path. After live RC verification its
-  used key, contents permission, and repository-administration permission are
-  retired, while a dormant, fixed-command stop route remains capable of taking
-  down an unsupported site. Repository
+  used key and contents permission are retired. GitHub requires the dormant App
+  to retain both Pages and repository-administration permission for the fixed-
+  command stop route, while the absence of an online key/token and the controller
+  schema prevent that broader provider permission from becoming a routine mutation
+  path. Repository
   deletion and recreation remain explicitly confirmed manual incident actions.
   A separate
   destination-only publisher App gives later releases short-lived, revocable
@@ -567,7 +598,9 @@ create a second client configuration or runtime account dependency.
 - GitHub Pages continues to support static root-site delivery; an
   organization-installed GitHub App can create an organization repository and
   configure repository, ruleset, and Pages settings with explicitly granted
-  temporary permissions; and installation tokens remain short-lived and
+  temporary permissions; GitHub Free continues to allow repository rulesets once
+  the repository is public; Pages creation and deletion continue to require both
+  Pages-write and repository-administration-write; and installation tokens remain short-lived and
   repository/permission scoped. These capabilities are reverified before
   bootstrap rather than assumed. A material platform or public-metadata change
   reopens the affected delivery requirement and may make this path unsupported.

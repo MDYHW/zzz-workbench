@@ -14,16 +14,18 @@ import {
   FIXED_CHILD_RESULT_SCHEMA,
   FIXED_CHILD_SCHEMA,
   INSTALLATION_TOKEN_ENV,
-  PUBLIC_BRANCH_RULESET_NAME,
+  PUBLICATION_MAX_RATE_LIMIT_RETRIES,
+  PUBLICATION_MUTATION_INTERVAL_MS,
   PublicReleaseGithubError,
   configureRootPages,
-  createArtifactRuleset,
+  createBootstrapArtifactRuleset,
   createNoJekyllRoot,
   createPrivateDestination,
   createGithubAppJwt,
   createRateLimitedFetch,
   disablePages,
   executeFixedChildCommand,
+  finalizeArtifactRuleset,
   makeDestinationPublic,
   mintInstallationToken,
   publishArtifactTree,
@@ -165,7 +167,7 @@ test('publisher token is repository-narrow, variable length, exact-permissioned,
 test('bootstrap and stop phases require their distinct exact permission profiles', async () => {
   const expectedPermissions = {
     bootstrap: { administration: 'write', contents: 'write', metadata: 'read', pages: 'write' },
-    stop: { metadata: 'read', pages: 'write' },
+    stop: { administration: 'write', metadata: 'read', pages: 'write' },
   }
   for (const phase of ['bootstrap', 'stop']) {
     const permissions = expectedPermissions[phase]
@@ -213,7 +215,7 @@ test('a failed live bootstrap check can mint only a stop-scoped token before dor
 test('stop rejects an installation posture that is neither bootstrap nor dormant', async () => {
   const mock = authTransport({
     phase: 'stop',
-    permissions: { administration: 'write', metadata: 'read', pages: 'write' },
+    permissions: { metadata: 'read', pages: 'write' },
   })
   await assert.rejects(() => mintInstallationToken({
     fetchImpl: mock.fetchImpl, config: mock.current, phase: 'stop', privateKey: PEM,
@@ -578,22 +580,6 @@ function repository(privateState, id = 77) {
   }
 }
 
-function rulesetPayload(id = 31) {
-  return {
-    id,
-    name: PUBLIC_BRANCH_RULESET_NAME,
-    target: 'branch',
-    enforcement: 'active',
-    bypass_actors: [{ actor_id: 102, actor_type: 'Integration', bypass_mode: 'always' }],
-    conditions: { ref_name: { include: ['refs/heads/main'], exclude: [] } },
-    rules: [
-      { type: 'deletion' },
-      { type: 'non_fast_forward' },
-      { type: 'update', parameters: { update_allows_fetch_and_merge: false } },
-    ],
-  }
-}
-
 function pagesPayload() {
   return {
     build_type: 'legacy',
@@ -667,18 +653,34 @@ test('empty-repository bootstrap creates and verifies one private .nojekyll root
   assert.equal((await createNoJekyllRoot({ fetchImpl, token: TOKEN, config: config() })).commitSha, ROOT_COMMIT)
 })
 
-test('bootstrap protection has one publisher Integration bypass and blocks deletion, non-fast-forward, and direct updates', async () => {
+test('bootstrap protection starts with the bootstrap App and finalizes with only the publisher App bypass', async () => {
   const calls = []
+  let current = null
   const fetchImpl = async (url, init) => {
     calls.push({ url, init })
-    if (url.endsWith('/rulesets') && init.method === 'POST') return response({ id: 31, ...JSON.parse(init.body) }, 201)
-    if (url.endsWith('/rulesets/31')) return response(rulesetPayload())
+    if (url.endsWith('/rulesets') && init.method === 'POST') {
+      current = { id: 31, ...JSON.parse(init.body) }
+      return response(current, 201)
+    }
+    if (url.endsWith('/rulesets/31') && init.method === 'PUT') {
+      current = { id: 31, ...JSON.parse(init.body) }
+      return response(current)
+    }
+    if (url.endsWith('/rulesets/31')) return response(current)
     throw new Error(`Unexpected mock URL: ${url}`)
   }
-  assert.equal((await createArtifactRuleset({ fetchImpl, token: TOKEN, config: config() })).id, 31)
-  const body = JSON.parse(calls.find(({ url }) => url.endsWith('/rulesets')).init.body)
-  assert.deepEqual(body.bypass_actors, [{ actor_id: 102, actor_type: 'Integration', bypass_mode: 'always' }])
-  assert.deepEqual(body.rules.map(({ type }) => type), ['deletion', 'non_fast_forward', 'update'])
+  const created = await createBootstrapArtifactRuleset({ fetchImpl, token: TOKEN, config: config() })
+  assert.equal(created.id, 31)
+  const initial = JSON.parse(calls.find(({ url }) => url.endsWith('/rulesets')).init.body)
+  assert.deepEqual(initial.bypass_actors, [{ actor_id: 101, actor_type: 'Integration', bypass_mode: 'always' }])
+  assert.deepEqual(initial.rules.map(({ type }) => type), ['deletion', 'non_fast_forward', 'update'])
+
+  const finalized = await finalizeArtifactRuleset({
+    fetchImpl, token: TOKEN, config: config(), rulesetId: created.id,
+  })
+  assert.equal(finalized.id, 31)
+  const final = JSON.parse(calls.find(({ url, init }) => url.endsWith('/rulesets/31') && init.method === 'PUT').init.body)
+  assert.deepEqual(final.bypass_actors, [{ actor_id: 102, actor_type: 'Integration', bypass_mode: 'always' }])
 })
 
 test('public transition and Pages configuration re-read the exact final visibility and root-branch source', async () => {
@@ -717,7 +719,12 @@ function fixedCommand(operation, role, payload = {}) {
   return { schema: FIXED_CHILD_SCHEMA, operation, role, config: config(), payload }
 }
 
-function successfulOperationTransport(operation) {
+function successfulOperationTransport(operation, {
+  rejectTemporaryRuleset = false,
+  rejectFinalRuleset = false,
+  staleTemporaryRulesetReadback = false,
+  staleFinalRulesetReadback = false,
+} = {}) {
   const base = '/repos/neutral-workbench/neutral-workbench.github.io'
   let repositoryExists = operation !== 'bootstrap'
   let privateState = operation === 'bootstrap'
@@ -725,6 +732,8 @@ function successfulOperationTransport(operation) {
   let tip = operation === 'publish' ? OLD : null
   let publishedEntries = []
   let publishedParent = null
+  let currentRuleset = null
+  let rulesetPhase = null
   const calls = []
 
   const recursiveEntries = (entries) => {
@@ -804,8 +813,33 @@ function successfulOperationTransport(operation) {
         parents: publishedParent === null ? [] : [{ sha: publishedParent }],
       })
     }
-    if (requestPath.endsWith('/rulesets') && method === 'POST') return response(rulesetPayload(), 201)
-    if (requestPath.endsWith('/rulesets/31')) return response(rulesetPayload())
+    if (requestPath.endsWith('/rulesets') && method === 'POST') {
+      if (rejectTemporaryRuleset) return response({}, 403)
+      currentRuleset = { id: 31, ...JSON.parse(init.body) }
+      rulesetPhase = 'temporary'
+      return response(currentRuleset, 201)
+    }
+    if (requestPath.endsWith('/rulesets/31') && method === 'PUT') {
+      if (rejectFinalRuleset) return response({}, 403)
+      currentRuleset = { id: 31, ...JSON.parse(init.body) }
+      rulesetPhase = 'final'
+      return response(currentRuleset)
+    }
+    if (requestPath.endsWith('/rulesets/31')) {
+      if (rulesetPhase === 'temporary' && staleTemporaryRulesetReadback) {
+        return response({
+          ...currentRuleset,
+          bypass_actors: [{ actor_id: 102, actor_type: 'Integration', bypass_mode: 'always' }],
+        })
+      }
+      if (rulesetPhase === 'final' && staleFinalRulesetReadback) {
+        return response({
+          ...currentRuleset,
+          bypass_actors: [{ actor_id: 101, actor_type: 'Integration', bypass_mode: 'always' }],
+        })
+      }
+      return response(currentRuleset)
+    }
     if (requestPath.endsWith('/pages')) {
       if (method === 'POST') {
         pagesEnabled = true
@@ -821,6 +855,128 @@ function successfulOperationTransport(operation) {
   }
   return { calls, fetchImpl }
 }
+
+test('GitHub Free bootstrap exposes only the placeholder before protection and enables Pages after final protection', async () => {
+  const transport = successfulOperationTransport('bootstrap')
+  const result = await executeFixedChildCommand({
+    command: fixedCommand('bootstrap', 'bootstrap', {
+      files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+    }),
+    token: TOKEN,
+    fetchImpl: transport.fetchImpl,
+  })
+  assert.deepEqual(result, {
+    schema: FIXED_CHILD_RESULT_SCHEMA,
+    ok: true,
+    tokenRevoked: true,
+    result: {
+      state: 'bootstrapped',
+      rootCommitSha: ROOT_COMMIT,
+      publication: {
+        state: 'published',
+        artifactTreeDigest: ARTIFACT,
+        commitSha: COMMIT,
+        treeSha: TREE,
+        previousTip: ROOT_COMMIT,
+      },
+      rulesetId: 31,
+      pagesUrl: 'https://neutral-workbench.github.io/',
+    },
+    error: null,
+  })
+
+  const mutations = transport.calls
+    .map(({ url, init }, index) => ({
+      index,
+      method: init.method ?? 'GET',
+      path: new URL(url, 'https://api.github.test').pathname,
+      body: init.body === undefined ? null : JSON.parse(init.body),
+    }))
+    .filter(({ method }) => method !== 'GET' && method !== 'DELETE')
+  const findMutation = (predicate) => mutations.find(({ method, path, body }) => predicate({ method, path, body }))
+
+  const publicMutation = findMutation(({ method, path }) => method === 'PATCH' && path.endsWith('/neutral-workbench.github.io'))
+  const temporaryRulesetMutation = findMutation(({ method, path }) => method === 'POST' && path.endsWith('/rulesets'))
+  const artifactMutation = findMutation(({ method, path }) => method === 'PATCH' && path.endsWith('/git/ref/heads/main'))
+  const finalRulesetMutation = findMutation(({ method, path }) => method === 'PUT' && path.endsWith('/rulesets/31'))
+  const pagesMutation = findMutation(({ method, path }) => method === 'POST' && path.endsWith('/pages'))
+
+  assert.ok(publicMutation.index < temporaryRulesetMutation.index)
+  assert.ok(temporaryRulesetMutation.index < artifactMutation.index)
+  assert.ok(artifactMutation.index < finalRulesetMutation.index)
+  assert.ok(finalRulesetMutation.index < pagesMutation.index)
+  assert.deepEqual(temporaryRulesetMutation.body.bypass_actors, [
+    { actor_id: 101, actor_type: 'Integration', bypass_mode: 'always' },
+  ])
+  assert.deepEqual(finalRulesetMutation.body.bypass_actors, [
+    { actor_id: 102, actor_type: 'Integration', bypass_mode: 'always' },
+  ])
+})
+
+test('GitHub Free bootstrap never publishes before temporary protection or enables Pages before final protection', async () => {
+  for (const [failure, expectedArtifactMutation] of [
+    [{ rejectTemporaryRuleset: true }, false],
+    [{ staleTemporaryRulesetReadback: true }, false],
+    [{ rejectFinalRuleset: true }, true],
+    [{ staleFinalRulesetReadback: true }, true],
+  ]) {
+    const transport = successfulOperationTransport('bootstrap', failure)
+    const result = await executeFixedChildCommand({
+      command: fixedCommand('bootstrap', 'bootstrap', {
+        files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+      }),
+      token: TOKEN,
+      fetchImpl: transport.fetchImpl,
+    })
+    assert.equal(result.ok, false)
+    assert.equal(result.tokenRevoked, true)
+    assert.equal(result.result, null)
+    assert.equal(result.error.code, failure.rejectTemporaryRuleset || failure.rejectFinalRuleset
+      ? 'github_request_rejected'
+      : 'github_ruleset_mismatch')
+    const requests = transport.calls.map(({ url, init }) => ({
+      method: init.method ?? 'GET',
+      path: new URL(url, 'https://api.github.test').pathname,
+    }))
+    assert.equal(requests.some(({ method, path }) => method === 'PATCH' && path.endsWith('/git/ref/heads/main')), expectedArtifactMutation)
+    assert.equal(requests.some(({ method, path }) => method === 'POST' && path.endsWith('/pages')), false)
+    assert.equal(requests.at(-1).method, 'DELETE')
+    assert.equal(requests.at(-1).path.endsWith('/installation/token'), true)
+  }
+})
+
+test('bootstrap child timeout covers its observed protocol workload and bounded retries', async () => {
+  const currentFiles = Array.from({ length: 216 }, (_value, index) => ({
+    path: `assets/file-${String(index).padStart(3, '0')}.png`, mode: '100644', contentBase64: '',
+  }))
+  const requestTimeoutMs = 10_000
+  const command = fixedCommand('bootstrap', 'bootstrap', {
+    files: currentFiles, artifactTreeDigest: ARTIFACT,
+  })
+  const transport = successfulOperationTransport('bootstrap')
+  const result = await executeFixedChildCommand({
+    command, token: TOKEN, fetchImpl: transport.fetchImpl, timeoutMs: requestTimeoutMs,
+  })
+  assert.equal(result.ok, true)
+
+  const observedMutationCount = transport.calls.filter(({ init }) => (init.method ?? 'GET') !== 'GET').length
+  const cleanup = transport.calls.at(-1)
+  assert.equal(cleanup.init.method, 'DELETE')
+  assert.equal(cleanup.url.endsWith('/installation/token'), true)
+
+  const boundedRetryWaitMs = Array.from(
+    { length: PUBLICATION_MAX_RATE_LIMIT_RETRIES },
+    (_value, attempt) => 60_000 * (2 ** attempt),
+  ).reduce((total, delay) => total + delay, 0)
+  const cleanupReserveMs = 60_000
+  const boundedWorkloadMs = (
+    (transport.calls.length + PUBLICATION_MAX_RATE_LIMIT_RETRIES) * requestTimeoutMs
+    + (observedMutationCount + PUBLICATION_MAX_RATE_LIMIT_RETRIES) * PUBLICATION_MUTATION_INTERVAL_MS
+    + boundedRetryWaitMs
+    + cleanupReserveMs
+  )
+  assert.ok(publicationChildTimeoutMs(command, requestTimeoutMs) >= boundedWorkloadMs)
+})
 
 test('fixed-child deadlines cover actual slow successful operations through confirmed cleanup', async () => {
   const currentFiles = Array.from({ length: 216 }, (_value, index) => ({
