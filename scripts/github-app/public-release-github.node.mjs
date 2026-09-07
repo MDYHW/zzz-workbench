@@ -28,7 +28,6 @@ import {
   makeDestinationPublic,
   mintInstallationToken,
   publishArtifactTree,
-  publishArtifactTreeAndRevoke,
   publishingChildEnvironment,
   publicationChildTimeoutMs,
   runFixedChildProcess,
@@ -497,27 +496,6 @@ test('revocation succeeds only on confirmed API success and sanitization drops s
   const sanitized = sanitizeGithubError(new Error(`leaked ${TOKEN} ${PEM}`))
   assert.equal(sanitized.message, 'GitHub publication failed.')
   assert.ok(!JSON.stringify(sanitized).includes(TOKEN))
-})
-
-test('the fixed child cleanup wrapper revokes after success and after a known publication failure', async () => {
-  for (const expectedTip of [OLD, '8'.repeat(40)]) {
-    const publication = publicationTransport()
-    let revoked = 0
-    const fetchImpl = async (url, init) => {
-      if (url.endsWith('/installation/token')) {
-        revoked += 1
-        return response({}, 204)
-      }
-      return publication.fetchImpl(url, init)
-    }
-    const operation = publishArtifactTreeAndRevoke({
-      fetchImpl, token: TOKEN, config: config(), files: files(),
-      artifactTreeDigest: ARTIFACT, expectedTip,
-    })
-    if (expectedTip === OLD) assert.equal((await operation).tokenRevoked, true)
-    else await assert.rejects(() => operation, (error) => error.code === 'github_stale_tip')
-    assert.equal(revoked, 1)
-  }
 })
 
 const ROOT_COMMIT = '6'.repeat(40)
@@ -1077,6 +1055,38 @@ test('parent performs revocation fallback when the fixed child is interrupted', 
       },
     }), (error) => error.code === 'github_child_interrupted' && error.state === 'reconcile-required')
     assert.equal(mock.calls.filter(({ url, init }) => url.endsWith('/installation/token') && init.method === 'DELETE').length, 1)
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test('parent preserves both child-operation ambiguity and fallback revocation failure', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('publish', 'publisher', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  const mock = authTransport()
+  const fetchImpl = async (url, init) => {
+    if (url.endsWith('/installation/token')) return response({}, 502)
+    return mock.fetchImpl(url, init)
+  }
+  try {
+    await assert.rejects(() => runPublishingChild({
+      nodeExecutable: process.execPath,
+      operationFile,
+      childSource: Buffer.from('sealed-source'),
+      preflight: async () => true,
+      loadPrivateKey: async () => PEM,
+      fetchImpl,
+      childRunner: async () => {
+        throw new PublicReleaseGithubError('Fixed publishing child was interrupted.', {
+          code: 'github_child_interrupted', state: 'reconcile-required',
+        })
+      },
+    }), (error) => error.code === 'github_operation_and_revocation_unconfirmed'
+      && error.state === 'reconcile-required'
+      && /operation and installation token revocation/.test(error.message))
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true })
   }

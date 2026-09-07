@@ -58,6 +58,11 @@ const RELEASE_EVENT_TYPES = new Set([
   'PushEvent',
   'ReleaseEvent',
 ])
+const PUBLICATION_REQUEST_BUDGETS = Object.freeze({
+  bootstrap: Object.freeze({ fixedMutations: 9, reads: 18 }),
+  publish: Object.freeze({ fixedMutations: 4, reads: 18 }),
+  'disable-pages': Object.freeze({ fixedMutations: 2, reads: 18 }),
+})
 
 export class PublicReleaseGithubError extends Error {
   constructor(message = 'GitHub publication failed.', {
@@ -896,27 +901,6 @@ export async function publishArtifactTree({
   }
 }
 
-export async function publishArtifactTreeAndRevoke(options) {
-  let result
-  let operationError = null
-  try {
-    result = await publishArtifactTree(options)
-  } catch (error) {
-    operationError = sanitizeGithubError(error)
-  }
-  try {
-    await revokeInstallationToken({
-      fetchImpl: options.fetchImpl,
-      token: options.token,
-      timeoutMs: options.timeoutMs,
-    })
-  } catch (error) {
-    throw sanitizeGithubError(error)
-  }
-  if (operationError) throw operationError
-  return { ...result, tokenRevoked: true }
-}
-
 function actorLogin(value) {
   return typeof value?.login === 'string' && value.login.length > 0 ? value.login : null
 }
@@ -1267,12 +1251,11 @@ export function publicationChildTimeoutMs(command, requestTimeoutMs = 15_000) {
   if (!Number.isSafeInteger(requestTimeoutMs) || requestTimeoutMs < 1) {
     fail('Publishing request timeout is invalid.', { code: 'github_child_process_invalid' })
   }
+  const budget = PUBLICATION_REQUEST_BUDGETS[command.operation]
   const fileCount = command.payload.files?.length ?? 0
-  const mutationCount = command.operation === 'bootstrap'
-    ? fileCount + 9
-    : command.operation === 'publish' ? fileCount + 4 : 2
+  const mutationCount = fileCount + budget.fixedMutations
   const mutationPacing = mutationCount * PUBLICATION_MUTATION_INTERVAL_MS
-  const boundedReadBudget = 18 * requestTimeoutMs
+  const boundedReadBudget = budget.reads * requestTimeoutMs
   const boundedRateLimitWait = 60_000 + 120_000
   const cleanupReserve = 60_000
   return Math.max(120_000, mutationPacing + boundedReadBudget + boundedRateLimitWait + cleanupReserve)
@@ -1499,10 +1482,15 @@ export async function runPublishingChild({
     }
     return childResult.result
   } catch (error) {
+    let safe = childError(error)
     if (minted && !childConfirmedRevocation) {
-      await revokeInstallationToken({ fetchImpl, token: minted.token, timeoutMs: authTimeoutMs })
+      try {
+        await revokeInstallationToken({ fetchImpl, token: minted.token, timeoutMs: authTimeoutMs })
+      } catch (revokeError) {
+        safe = combinedReconciliationError(safe, childError(revokeError))
+      }
     }
-    throw sanitizeGithubError(error)
+    throw new PublicReleaseGithubError(safe.message, { code: safe.code, state: safe.state })
   } finally {
     signalSource.removeListener('SIGINT', onInterrupt)
     signalSource.removeListener('SIGTERM', onInterrupt)
