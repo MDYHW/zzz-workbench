@@ -42,10 +42,11 @@ announcement state only.
 - A2. Private release controller: runs from a clean local checkout of exact
   trusted `main`, builds and validates it, then publishes only its accepted
   generated tree.
-- A3. Neutral bootstrap/recovery App: receives short-lived elevated authority
-  for the one-time creation and hardening of the public destination, performs
-  the first accepted publication, then remains dormant with only the authority
-  required for fail-closed unpublishing and destination recovery.
+- A3. Neutral bootstrap/stop App: receives short-lived elevated authority for
+  the one-time creation and hardening of the public destination, performs the
+  first accepted publication, then remains dormant with only the Pages
+  authority required for fail-closed unpublishing. Repository deletion and
+  recreation are deliberate owner-run incident actions, not controller commands.
 - A4. Neutral publisher App: receives short-lived write authority only for
   later artifact updates to the public destination and has no access to the
   private repository.
@@ -64,14 +65,15 @@ announcement state only.
   - **Steps:** The product owner uses the existing personal account to create a
     neutral GitHub Organization and organization-owned bootstrap and publisher
     Apps while membership remains private. Before any repository is public, the
-    controller verifies the current provider metadata boundary. Using a fresh
+    owner completes the current provider and public-metadata checklist. Using a fresh
     bootstrap-App key and short-lived installation token, it creates the root
-    Pages repository, writes the first accepted artifact, configures the branch
-    ruleset and Pages, and inspects every public organization, repository,
-    commit, event, deployment, and URL surface for actor or identity disclosure.
-    The bootstrap token is then revoked; after the live RC checks, its used key
-    and initial contents permission are retired and the App enters its dormant
-    recovery posture.
+    Pages repository, writes the first accepted artifact, and configures the
+    branch ruleset and Pages. The owner then inspects every public organization,
+    repository, commit, event, deployment, and URL surface for actor or identity disclosure.
+    The bootstrap command confirms token revocation before it returns. After the
+    live RC checks, the used key and initial contents and
+    repository-administration permissions are retired and the App enters its
+    dormant stop posture.
   - **Outcome:** The destination exposes only a neutral project identity and
     generated-client delivery metadata.
   - **Covered by:** R1-R4, R11, R13a-R13b, R16
@@ -90,8 +92,9 @@ announcement state only.
     one-time bootstrap App to create and harden the destination and write the
     generated tree through its neutral bot identity. For later publication, it
     mints a destination-only publisher-App installation token and updates only
-    the generated tree. The controller verifies the resulting commit and Pages
-    deployment and attempts immediate token revocation in cleanup.
+    the generated tree. The controller verifies the resulting commit and
+    complete tree and attempts immediate token revocation in cleanup; Pages and
+    live behavior remain open until the owner completes the read-only RC checklist.
   - **Outcome:** One public commit and URL correspond to the accepted artifact;
     no credential or private-source access crosses into the destination.
   - **Covered by:** R3, R4, R11-R13b, R19
@@ -99,10 +102,12 @@ announcement state only.
   - **Trigger:** The unannounced URL is live.
   - **Steps:** The product owner verifies the static client, attribution,
     responsive behavior, fresh-session behavior, asset resolution, and network
-    boundary in a clean browser session. The controller revokes any remaining
-    bootstrap token, the owner privately rotates the used bootstrap key and
-    removes its contents permission, and the controller verifies the dormant
-    recovery posture and public metadata. Only then is the same URL announced
+    boundary in a clean browser session. Bootstrap completion has already
+    confirmed token revocation; the owner privately rotates the used bootstrap
+    key and removes its contents and repository-administration permissions, and
+    then verifies the dormant stop posture and public metadata with the
+    read-only checklist. Only then
+    is the same URL announced
     to the ZZZ community as a Public Beta.
   - **Outcome:** Community members receive one complete client and may provide
     free-form feedback through the public repository's Issues or community chat.
@@ -112,9 +117,10 @@ announcement state only.
     exposed, or the release basis is withdrawn.
   - **Steps:** Stop publication and revoke active publisher access. Use the
     publisher App to restore a still-supported accepted artifact, or use the
-    dormant recovery App through its fixed break-glass controller path to
-    disable Pages or rebuild a compromised destination while the problem is
-    fixed.
+    dormant bootstrap/stop App through its fixed break-glass controller path to
+    disable Pages. If the public repository itself is contaminated, automation
+    stops and the owner follows the confirmed manual incident guide before a
+    later one-time bootstrap.
   - **Outcome:** A known unsupported artifact is not left as the active client.
   - **Covered by:** R12, R13, R13c, R23
 
@@ -130,12 +136,16 @@ announcement state only.
   recovery material offline and outside both repositories. The personal account
   does not create or mutate the public repository or Pages configuration and
   performs no public commit, deployment, Issue, comment, close, label, or triage
-  activity there. Private organization or App administration is permitted only
+  activity there. After Pages is verified disabled, a confirmed contamination
+  incident may require the owner to delete the exact destination through private
+  Organization administration; that exceptional action must leave no personal
+  identity on a surviving public surface, and recreation still uses the neutral
+  bootstrap App. Private organization or App administration is otherwise permitted only
   while current provider behavior keeps the account absent from every public
   organization, repository, App, event, deployment, and audit-adjacent surface.
   If that cannot be established before publication, the neutral-organization
-  path is unsupported and publication stops; there is no manual-account
-  fallback.
+  path is unsupported and publication stops; there is no personal-account
+  fallback for publication or ordinary recovery.
 - R2. The destination is the neutral Organization's public root Pages
   repository, `<neutral-organization>.github.io`, and initially uses the
   corresponding HTTPS root URL without a custom domain. The Organization is
@@ -197,7 +207,15 @@ announcement state only.
   verifies its absolute trusted controller path, expected private repository and
   remote identity, fixed destination repository identity and branch, and that
   clean exact-head boundary before reading an App key or building. Before the
-  public repository exists, an organization-owned neutral bootstrap App is
+  key is read for a restore, a current controller seal independently binds that
+  clean commit/tree, Git and Node identities, the complete regular-file npm
+  package-tree identity, fixed-child bytes, and destination;
+  the historical artifact decision cannot authorize its own privileged code.
+  Every direct Git or npm process receives an operation-specific minimal
+  environment and never inherits repository/config overrides, Node preload
+  options, npm user/global configuration, credentials, or private release values.
+  A project `.npmrc` is not an accepted extracted build input.
+  Before the public repository exists, an organization-owned neutral bootstrap App is
   installed with the minimum temporary repository-administration, Pages, and
   contents authority needed to create and harden that destination and perform
   the first accepted publication. While the dedicated Organization has no
@@ -206,7 +224,7 @@ announcement state only.
   and contents-write permissions needed for later updates. R2 ensures that this
   resolves to the one public destination when it is created. Neither App has
   private-repository access.
-- R12. Each publication or recovery window uses a dedicated fresh App private
+- R12. Each publication or emergency-stop window uses a dedicated fresh App private
   key at one absolute
   external path outside every repository. The controller completes the build
   and all non-credential preflight checks before a reviewed repository-owned
@@ -232,48 +250,54 @@ announcement state only.
   accepted artifact. It binds that update to the inspected destination tip (or
   verified absence for the first commit), serializes release and rollback
   mutations, and rejects a changed tip or non-fast-forward result. It verifies
-  the destination commit and Pages result before reporting success and must not
+  the destination commit and complete tree before reporting content success and must not
   silently treat a partial push, stale deployment, or unknown mutation result as
-  a completed release. After the first branch exists, an active public branch
+  a completed content release; Pages and live-client readiness remain open until
+  the owner completes the read-only RC checklist. After the first branch exists, an active public branch
   ruleset blocks force pushes, deletion, and direct updates while granting the
   publisher App the sole normal update bypass; the owner does not use an admin
   bypass for release content.
 - R13a. Bootstrap is a distinct one-time privileged transaction. Its App creates
   the public root repository, publishes the first R7-R10-accepted artifact,
   installs the R13 ruleset with the steady-state publisher App as the sole normal
-  content-update bypass, enables branch-based Pages, and verifies the exact
-  public commit, deployment, and actor metadata. The bootstrap App remains
-  available through the live RC checks so R23 can run if they fail. After those
-  checks pass, the controller revokes its token; the product owner uses only
-  private Organization App settings to generate the required protected offline
-  replacement key, delete the used bootstrap key, and remove the App's contents
-  permission. The controller then verifies the resulting installation,
-  permission, credential-file, and public-metadata state before accepting the
+  content-update bypass and enables branch-based Pages. The owner then verifies
+  the exact public commit, deployment, and actor metadata through the read-only
+  RC checklist. The bootstrap transaction confirms token revocation before it
+  returns, while the bootstrap App and its used key remain available through
+  the live RC checks so R23 can mint a fresh stop-scoped token if they fail.
+  After those checks pass, the product owner uses only private Organization App
+  settings to generate the required protected offline replacement key, delete
+  the used bootstrap key, and remove the App's contents and
+  repository-administration permissions. The owner then verifies the resulting installation,
+  permission, credential-file, and public-metadata state through the read-only
+  checklist before accepting the
   transition to R13c. The personal account performs no public repository, Pages,
   commit, or deployment mutation. Failure to complete or verify the transition
   is a release failure and blocks steady-state publication and Beta announcement.
 - R13b. Immediately before the first public mutation and again after the first
-  deployment, the controller verifies current provider documentation and
-  inspects unauthenticated public organization, repository, App, event, commit,
+  deployment, the owner completes a read-only checklist against current provider
+  documentation and unauthenticated public organization, repository, App, event, commit,
   deployment, Pages, and URL metadata. The acceptable actor set is limited to
   the neutral organization-owned Apps and necessary provider service identities.
   Any personal-account identity, private-development identity, unexpected actor,
   or public path whose actor boundary cannot be inspected stops publication and
   triggers R23; private membership alone is not treated as proof.
 - R13c. After R13a closes, the same organization-owned App remains installed on
-  the dedicated destination as a dormant recovery actor with Pages-write and
-  repository-administration-write authority but no contents permission, no
+  the dedicated destination as a dormant stop actor with Pages-write authority
+  but no contents or repository-administration permission, no
   token, and no private key present in an online or controller environment. Its
-  provider-required registration key remains protected offline. The App's broad
-  provider permission is constrained by a
-  reviewed fixed controller schema that can only inspect recovery state,
-  disable Pages, or delete, recreate, harden, and verify the one fixed artifact
-  destination under R23. It never performs a routine release or content update.
+  provider-required registration key remains protected offline. The App is
+  constrained by a reviewed fixed controller schema that can only disable Pages
+  under R23; release-state inspection remains an owner-run read-only checklist.
+  It never performs a routine release,
+  content update, repository deletion, or repository recreation.
   A still-supported artifact restore uses the contents-only publisher App. A
-  break-glass mutation requires the R12 fresh recovery window, exact destination
-  and incident preflight, serialized expected-state update, post-mutation public
-  verification, token revocation, and private owner key rotation. Personal-
-  account mutation is not a recovery fallback.
+  break-glass Pages-disable mutation requires the R12 fresh stop window, exact
+  destination and incident preflight, post-mutation public verification, token
+  revocation, and private owner key rotation. Any later repository deletion is
+  a separate manual owner action performed only after Pages is disabled, the
+  exact destination and preservation needs are reconfirmed, and the controller
+  has stopped. Recreation returns to the one-time R13a bootstrap flow.
 
 **Shared client and attribution**
 
@@ -309,8 +333,8 @@ announcement state only.
   access-control, secret-URL, or private-preview assumption.
 - R20. The same URL becomes Public Beta only after all RC acceptance checks pass.
   Beta adds no alternate client mode, end date, formal graduation criterion, or
-  persisted release state. Immediately before announcement, the controller
-  revalidates the expected destination tip, public artifact digest, completed
+  persisted release state. Immediately before announcement, the owner reruns the
+  read-only RC checklist to revalidate the expected destination tip, public artifact digest, completed
   Pages deployment, live manifest URLs, and current R7-R10 release decision; an
   intervening change returns the candidate to RC verification.
 - R21. The Beta targets the whole ZZZ community with the same UI. The public
@@ -331,21 +355,24 @@ announcement state only.
   publication and revokes every active token and affected key. If a prior
   artifact still has a current supported R7-R10 decision, the publisher App
   restores it through R13 and cleans up its publication window. Otherwise the
-  bootstrap/recovery App opens one R12 break-glass window and disables Pages.
+  bootstrap/stop App opens one R12 break-glass window and disables Pages.
   If forbidden private data or a credential entered any public commit, ordinary
-  rollback is insufficient: the recovery App immediately disables Pages,
-  deletes the contaminated artifact repository, and recreates the one fixed
-  empty destination so the newly controlled origin retains none of the deleted
-  repository's refs or history. This does not retract public forks, clones,
+  rollback is insufficient: the stop App immediately disables Pages and the
+  automated controller stops. It reports the exact observed repository, active
+  artifact, and irreversible exposure, then provides a manual incident guide.
+  Only after the owner reconfirms the fixed target and preserves required
+  evidence may the owner delete that repository through private Organization
+  administration. A later recreation uses the one-time R13a bootstrap flow; no
+  controller command deletes or recreates a repository. Deletion does not retract public forks, clones,
   archives, or caches: the operator treats the disclosure as irreversible,
   inspects the known public fork network, requests provider cache or sensitive-
   data removal where supported, and explicitly resolves the remaining privacy,
   credential, and legal risk before publication may resume. The publisher App
-  may then restore only a still-supported accepted artifact before the recovery
-  App re-establishes protection and Pages and the controller rescans the clean
-  controlled destination. Every
-  recovery token is revoked and its used key privately rotated afterward; the
-  recovery installation returns to R13c unless it was itself affected, in which
+  may then restore only a still-supported accepted artifact after a fresh R13a
+  bootstrap transaction re-establishes the destination, protection, and Pages
+  and the owner repeats the full read-only checklist. Every
+  stop token is revoked and its used key privately rotated afterward; the
+  stop installation returns to R13c unless it was itself affected, in which
   case it is uninstalled and publication remains blocked until a replacement
   passes R1 and R13b. Recovery never deletes or publishes the private
   development repository.
@@ -369,9 +396,9 @@ announcement state only.
 - AE3. **Covers R11-R13c.** Given every gate passes and no destination exists, the
   private controller uses only the temporary bootstrap App to create the public
   repository, publish one complete accepted tree, configure protection and
-  Pages, and verify the public actors. It keeps that recovery capability through
-  live RC checks, then proves the private owner key rotation, removal of contents
-  permission, and dormant break-glass posture. A later update uses only the
+  Pages, and reports only the resulting content commit/tree. The owner separately
+  verifies public actors, Pages/live bytes, key retirement, and dormant posture.
+  It keeps Pages-disable capability through live RC checks. A later update uses only the
   destination-scoped publisher App. Given a dirty or stale private checkout,
   missing owner-controlled key, unexpected public actor, failed or ambiguous
   push, incomplete bootstrap transition, or provider path that requires a
@@ -387,10 +414,10 @@ announcement state only.
 - AE6. **Covers R12, R13c, R23.** Given a deliberately failed release rehearsal,
   the publisher credential is revoked and the publisher restores a still-
   supported prior artifact, or the fixed recovery path disables Pages. The used
-  recovery token is revoked and its key is privately rotated, with no personal
+  stop token is revoked and its key is privately rotated, with no personal
   public action or private-source mutation. A simulated forbidden-data incident
-  rebuilds only the controlled origin and remains blocked rather than claiming
-  to retract an external fork, clone, archive, or cache.
+  stops after disabling Pages and emits a manual exact-destination incident
+  guide without claiming to retract an external fork, clone, archive, or cache.
 
 ---
 
@@ -406,11 +433,11 @@ announcement state only.
 - Exercise publication logic with a temporary destination or dry-run transport
   to verify trusted path and repository identities, clean exact-source and locked
   dependency binding, pre-key preflight, token scope, secret redaction, cleanup,
-  expected-tip serialization, complete-tree commits, stale/partial failure, and
-  supported rollback. Exercise the bootstrap-to-dormant permission transition
-  and publisher-restore versus recovery-unpublish split without granting a
-  generic administrator command. Network mutation remains disabled in ordinary
-  tests.
+  child-internal authenticated-tip checks, complete-tree commits, stale/partial
+  failure, supported historical restore, and Pages disable. Keep actor,
+  Pages/live, key-retirement, and dormant-posture conclusions open for the owner
+  checklist rather than simulating them in the controller. Network mutation
+  remains disabled in ordinary tests.
 - Verify the exact Pages URL in a clean unauthenticated browser at one desktop
   and one narrow viewport. Check direct navigation, every manifest URL, footer
   placement and contrast, keyboard traversal, no horizontal overflow, fresh
@@ -433,14 +460,14 @@ resources before the first public write:
 - one neutral-named GitHub Organization administered by the existing account
   with private membership;
 - two-factor authentication and offline recovery for the existing account;
-- one organization-owned neutral bootstrap/recovery GitHub App, installed before
+- one organization-owned neutral bootstrap/stop GitHub App, installed before
   the public repository exists, initially restricted to the R11 bootstrap
   authority, and prepared to transition to the dormant R13c authority;
 - one organization-owned neutral publisher GitHub App prepared for the eventual
   public destination and restricted to steady-state R11 authority;
 - separate fresh bootstrap and publication-window App keys stored at protected
   absolute paths outside every repository, plus the provider-required protected
-  offline replacement key needed for later R13c recovery, with every used key
+  offline replacement key needed for a later R13c emergency stop, with every used key
   privately rotated under R12;
 - a current provider-capability and public-metadata preflight satisfying R1 and
   R13b; and
@@ -448,15 +475,17 @@ resources before the first public write:
 
 The trusted controller, authenticated only as the bootstrap App, creates the
 Organization's root Pages repository, publishes the first accepted artifact,
-configures the R13 branch ruleset and HTTPS Pages delivery, verifies the public
-actor boundary, and retains recovery ability through the live RC checks. After
-they pass, the controller revokes its token, the product owner rotates its used
-key and removes contents permission in private Organization settings, and the
-controller verifies the R13c dormant posture before any later update or Beta
+configures the R13 branch ruleset and HTTPS Pages delivery, and confirms token
+revocation before returning. The owner verifies the public actor boundary
+through the read-only checklist, while the App and used key retain the ability
+to mint a fresh stop-scoped token through the live RC checks. After they pass,
+the product owner rotates the used key and removes contents and
+repository-administration permissions in private Organization settings, and
+verifies the R13c dormant posture through the read-only checklist before any later update or Beta
 announcement. There is no publicly served empty/bootstrap state and no such
 state can be a rollback target. Concrete names, IDs, keys, URLs, capability
 evidence, and review evidence stay outside this document. Bootstrap is a
-one-time operator-authorized App transaction; its recovery posture does not
+one-time operator-authorized App transaction; its stop posture does not
 create a second client configuration or runtime account dependency.
 
 ---
@@ -507,10 +536,13 @@ create a second client configuration or runtime account dependency.
 - Branch-based artifact hosting keeps the public repository limited to generated
   files; publication intelligence stays in the trusted private repository and
   credentials remain outside both repositories.
-- An organization-owned bootstrap/recovery App isolates elevated repository and
+- An organization-owned bootstrap/stop App isolates elevated repository and
   Pages authority from the steady-state path. After live RC verification its
-  used key and contents permission are retired, while a dormant, fixed-command
-  recovery route remains capable of taking down an unsupported site. A separate
+  used key, contents permission, and repository-administration permission are
+  retired, while a dormant, fixed-command stop route remains capable of taking
+  down an unsupported site. Repository
+  deletion and recreation remain explicitly confirmed manual incident actions.
+  A separate
   destination-only publisher App gives later releases short-lived, revocable
   contents authority without exposing the private repository or reusing the
   personally named development App.

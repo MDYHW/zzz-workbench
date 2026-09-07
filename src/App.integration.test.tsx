@@ -22,6 +22,48 @@ async function renderPreparedFixtureParty() {
 }
 
 describe('workbench UI integration', () => {
+  it('keeps one non-interactive legal footer across the initial and applied states', async () => {
+    window.localStorage.clear()
+    window.sessionStorage.clear()
+
+    const user = userEvent.setup()
+    render(<App />)
+
+    const initialFooter = screen.getByRole('contentinfo')
+    const initialCopy = initialFooter.textContent
+    expect(screen.getAllByRole('contentinfo')).toHaveLength(1)
+    expect(initialFooter).toHaveTextContent('unofficial, non-commercial fan-made website')
+    expect(initialFooter).toHaveTextContent('not sponsored, endorsed, or approved by HoYoverse')
+    expect(initialFooter).toHaveTextContent('trademarks and/or copyrighted materials')
+    expect(initialFooter).toHaveTextContent('비공식·비상업적 팬메이드 웹사이트')
+    expect(initialFooter).toHaveTextContent('저작권과 상표권')
+    expect(initialFooter.querySelectorAll('p')).toHaveLength(2)
+    expect(initialFooter.querySelector('p[lang="en"]')).toBeInTheDocument()
+    expect(initialFooter.querySelector('p[lang="ko"]')).toBeInTheDocument()
+    expect(initialFooter.querySelector(
+      'a[href], button, input, select, textarea, summary, [contenteditable="true"], [tabindex]:not([tabindex="-1"])',
+    )).not.toBeInTheDocument()
+    expect(document.querySelector('main')!.compareDocumentPosition(initialFooter))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+
+    for (const [slot, agent] of [
+      [1, /Yixuan, Auric Ink, Rupture/],
+      [2, /Dialyn, Physical, Stun/],
+      [3, /Lucia, Ether, Support/],
+    ] as const) {
+      await user.click(screen.getByRole('button', { name: `Select Agent for slot ${slot}` }))
+      await user.click(screen.getByRole('button', { name: agent }))
+    }
+    await user.click(screen.getByRole('button', { name: 'Apply party' }))
+
+    const appliedFooter = screen.getByRole('contentinfo')
+    expect(screen.getAllByRole('contentinfo')).toHaveLength(1)
+    expect(appliedFooter).toBe(initialFooter)
+    expect(appliedFooter.textContent).toBe(initialCopy)
+    expect(window.localStorage).toHaveLength(0)
+    expect(window.sessionStorage).toHaveLength(0)
+  })
+
   it('starts in empty Party Edit and prepares the first complete party', async () => {
     const user = userEvent.setup()
     render(<App />)
