@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { generateKeyPairSync } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -8,7 +9,15 @@ import {
   REQUIRED_FOOTER_WORDING,
   createGitCommandEnvironment, createNpmCommandEnvironment, runDirectCommand, sha256,
 } from './public-release-artifact.mjs'
-import { GITHUB_API_VERSION, GITHUB_CONFIG_SCHEMA, githubConfigIdentity } from './public-release-github.mjs'
+import {
+  APP_PERMISSION_PROFILES,
+  GITHUB_API_VERSION,
+  GITHUB_CONFIG_SCHEMA,
+  INSTALLATION_TOKEN_ENV,
+  executeFixedChildCommand,
+  githubConfigIdentity,
+  runPublishingChild,
+} from './public-release-github.mjs'
 import {
   PRIVATE_CANDIDATE_SCHEMA,
   PublicReleaseError,
@@ -35,6 +44,9 @@ const CHILD_BYTES = Buffer.from('sealed-child-source')
 const BLOB = 'c'.repeat(40)
 const CURRENT_CHILD_BYTES = Buffer.from('current-security-fixed-child-source')
 const CURRENT_BLOB = 'f'.repeat(40)
+const { privateKey: releasePrivateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 })
+const RELEASE_PEM = releasePrivateKey.export({ type: 'pkcs8', format: 'pem' })
+const RELEASE_TOKEN = `ghs_${'a'.repeat(180)}`
 const external = (name) => path.join(OUTSIDE, name)
 const baseToolIdentity = (toolPath) => ({
   path: toolPath, realPath: toolPath, digest: `sha256:${sha256(TOOL_BYTES)}`,
@@ -780,6 +792,118 @@ test('stop authority can only disable Pages and never dispatch repository deleti
   assert.ok(gitCalls > 0)
   assert.equal(result.state, 'pages-disabled')
   assert.throws(() => validateReleaseCommand(command('rebuild-origin')), PublicReleaseError)
+})
+
+test('disable-pages composes controller routing, both authorized App postures, stop-only minting, and cleanup', async () => {
+  for (const installationPermissions of [APP_PERMISSION_PROFILES.bootstrap, APP_PERMISSION_PROFILES.stop]) {
+    const operationDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-stop-'))
+    const identity = githubConfigIdentity(config())
+    const trusted = {
+      schema: 'zzz-workbench-public-release-trusted-controller/v1',
+      source: candidate().expectation.source,
+      sourceContext: candidate().expectation.sourceContext,
+    }
+    const confirmation = {
+      schema: 'zzz-workbench-public-release-disable-confirmation/v1',
+      action: 'disable-pages',
+      confirmedAt: '2026-09-07T12:00:00.000Z',
+      controllerCommit: COMMIT,
+      destination: identity.destination,
+      githubConfigDigest: identity.digest,
+    }
+    const inputs = jsonReader({
+      'github.json': config(), 'trusted-controller.json': trusted, 'incident-confirmation.json': confirmation,
+    })
+    const calls = []
+    let pagesEnabled = true
+    const response = (body, status = 200) => ({
+      ok: status >= 200 && status < 300,
+      status,
+      headers: { get: () => null },
+      async json() { return body },
+    })
+    const fetchImpl = async (url, init) => {
+      calls.push({ url, method: init.method, body: init.body })
+      if (url.endsWith('/app')) {
+        return response({ id: 101, slug: 'neutral-bootstrap', owner: { login: 'neutral-workbench' } })
+      }
+      if (url.endsWith('/app/installations/201')) {
+        return response({
+          id: 201, app_id: 101, account: { login: 'neutral-workbench' },
+          repository_selection: 'all', permissions: installationPermissions,
+        })
+      }
+      if (url.endsWith('/access_tokens')) {
+        return response({
+          token: RELEASE_TOKEN,
+          expires_at: '2099-09-07T01:00:00Z',
+          permissions: APP_PERMISSION_PROFILES.stop,
+        })
+      }
+      if (url.includes('/installation/repositories')) {
+        return response({
+          total_count: 1,
+          repositories: [{ full_name: 'neutral-workbench/neutral-workbench.github.io' }],
+        })
+      }
+      if (url.endsWith('/repos/neutral-workbench/neutral-workbench.github.io/pages')) {
+        if (init.method === 'DELETE') {
+          pagesEnabled = false
+          return response(null, 204)
+        }
+        return pagesEnabled ? response({ status: 'built' }) : response({}, 404)
+      }
+      if (url.endsWith('/installation/token') && init.method === 'DELETE') return response(null, 204)
+      throw new Error(`unexpected GitHub request: ${init.method} ${url}`)
+    }
+    try {
+      const result = await dispatchReleaseCommand(command('disable-pages', {
+        ...pathsFor('disable-pages'), operationDirectory,
+      }), {
+        controllerRoot: ROOT,
+        nodeExecutable: NODE,
+        now: () => Date.parse('2026-09-07T12:05:00.000Z'),
+        fsImpl: emptyDirectoryFs(),
+        readFile: async (filePath) => {
+          if (filePath === config().apps.bootstrap.keyPath) return RELEASE_PEM
+          if ([GIT, NODE, NPM].includes(filePath)) return TOOL_BYTES
+          return inputs(filePath)
+        },
+        writeFile: fs.writeFile,
+        gitRunner: trustedGitRunner(),
+        npmPackageIdentity: async () => boundNpmIdentity(),
+        fetchImpl,
+        runPublishingChild,
+        childRunner: async (spec) => {
+          const fixed = JSON.parse(await fs.readFile(spec.inputFile, 'utf8'))
+          const childResult = await executeFixedChildCommand({
+            command: fixed,
+            token: spec.env[INSTALLATION_TOKEN_ENV],
+            fetchImpl,
+          })
+          return {
+            exitCode: childResult.ok ? 0 : 1,
+            signal: null,
+            stdout: JSON.stringify(childResult),
+          }
+        },
+      })
+      assert.equal(result.state, 'pages-disabled')
+      const mint = calls.find(({ url }) => url.endsWith('/access_tokens'))
+      assert.deepEqual(JSON.parse(mint.body).permissions, APP_PERMISSION_PROFILES.stop)
+      assert.deepEqual(calls.filter(({ url, method }) => (
+        url.includes('/repos/') && method !== 'GET'
+      )).map(({ url, method }) => ({ url, method })), [{
+        url: 'https://api.github.com/repos/neutral-workbench/neutral-workbench.github.io/pages',
+        method: 'DELETE',
+      }])
+      assert.equal(calls.filter(({ url, method }) => (
+        url.endsWith('/installation/token') && method === 'DELETE'
+      )).length, 1)
+    } finally {
+      await fs.rm(operationDirectory, { recursive: true, force: true })
+    }
+  }
 })
 
 test('disable-pages rejects stale destination confirmation before child or key access', async () => {
