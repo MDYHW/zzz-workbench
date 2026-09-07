@@ -284,6 +284,7 @@ test('admits one canonical static tree and derives stable versioned identities',
 test('rejects non-runtime, ambiguous, colliding, or incomplete output paths', async (t) => {
   const cases = [
     ['source map', [...minimalFiles(), file('assets/app-abcdef12.js.map', '{}')], 'path_not_allowlisted'],
+    ['independently executable SVG document', [...minimalFiles(), file('assets/payload-abcdef12.svg', '<svg xmlns="http://www.w3.org/2000/svg"><script>fetch("/unexpected")</script></svg>')], 'path_not_allowlisted'],
     ['unexpected root', [...minimalFiles(), file('README.md', 'private')], 'path_not_allowlisted'],
     ['traversal', [...minimalFiles(), file('../escape-abcdef12.js', '')], 'path_invalid'],
     ['backslash', [...minimalFiles(), file('assets\\escape-abcdef12.js', '')], 'path_invalid'],

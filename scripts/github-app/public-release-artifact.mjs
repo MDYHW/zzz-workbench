@@ -29,8 +29,8 @@ const SHA1 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 const SHA256_IDENTITY = /^sha256:[0-9a-f]{64}$/;
 const ISO_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
-const HASHED_ASSET = /^assets\/[A-Za-z0-9][A-Za-z0-9._-]*-[A-Za-z0-9_-]{6,}\.(?:css|js|png|svg|webp|woff|woff2)$/;
-const TEXT_OUTPUT = /\.(?:css|html|js|svg)$/;
+const HASHED_ASSET = /^assets\/[A-Za-z0-9][A-Za-z0-9._-]*-[A-Za-z0-9_-]{6,}\.(?:css|js|png|webp|woff|woff2)$/;
+const TEXT_OUTPUT = /\.(?:css|html|js)$/;
 const EXTERNAL_TARGET = /https?:\/\/[A-Za-z0-9][A-Za-z0-9._~:/?#[\]@!$&'*+,;=%-]*|\/\/[A-Za-z0-9](?:[A-Za-z0-9-]*\.)+[A-Za-z]{2,63}(?:[/:?#][A-Za-z0-9._~:/?#[\]@!$&'*+,;=%-]*)?/g;
 const CREDENTIAL_PATTERNS = [
   /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
