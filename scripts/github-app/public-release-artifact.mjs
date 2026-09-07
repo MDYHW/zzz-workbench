@@ -670,7 +670,7 @@ export function createNpmCommandEnvironment(nodeExecutable, cwd, {
     NPM_CONFIG_AUDIT: 'false',
     NPM_CONFIG_CACHE: runtimePath.join(root, '.npm-cache'),
     NPM_CONFIG_FUND: 'false',
-    NPM_CONFIG_GLOBALCONFIG: platform === 'win32' ? 'NUL' : '/dev/null',
+    NPM_CONFIG_GLOBALCONFIG: platform === 'win32' ? 'NUL.global' : '/dev/null',
     NPM_CONFIG_IGNORE_SCRIPTS: 'true',
     NPM_CONFIG_REGISTRY: 'https://registry.npmjs.org/',
     NPM_CONFIG_SCRIPT_SHELL: shell,

@@ -409,7 +409,7 @@ test('prepare accepts only bootstrap, publish, or restore and binds the extracte
   assert.ok(toolCalls.every(({ env }) => JSON.stringify(env) === JSON.stringify(createNpmCommandEnvironment(NODE, external('extract')))))
   assert.ok(toolCalls.every(({ env }) => (
     env.NPM_CONFIG_USERCONFIG === (process.platform === 'win32' ? 'NUL' : '/dev/null')
-    && env.NPM_CONFIG_GLOBALCONFIG === (process.platform === 'win32' ? 'NUL' : '/dev/null')
+    && env.NPM_CONFIG_GLOBALCONFIG === (process.platform === 'win32' ? 'NUL.global' : '/dev/null')
   )))
   assert.equal(JSON.parse(writes[2]).schema, 'zzz-workbench-public-release-trusted-controller/v1')
 
@@ -482,6 +482,9 @@ test('Windows command environments bind the actual runtime root independently of
   assert.equal(npmEnvironment.SystemRoot, 'C:\\Windows')
   assert.equal(npmEnvironment.NPM_CONFIG_SCRIPT_SHELL, 'C:\\Windows\\System32\\cmd.exe')
   assert.equal(npmEnvironment.NPM_CONFIG_CACHE, 'E:\\release\\candidate\\.npm-cache')
+  assert.equal(npmEnvironment.NPM_CONFIG_USERCONFIG, 'NUL')
+  assert.equal(npmEnvironment.NPM_CONFIG_GLOBALCONFIG, 'NUL.global')
+  assert.notEqual(npmEnvironment.NPM_CONFIG_USERCONFIG, npmEnvironment.NPM_CONFIG_GLOBALCONFIG)
 
   const gitEnvironment = createGitCommandEnvironment('F:\\Git\\cmd\\git.exe', options)
   assert.equal(gitEnvironment.PATH, 'F:\\Git\\cmd')
