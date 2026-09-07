@@ -70,9 +70,10 @@ announcement state only.
     Pages repository, writes the first accepted artifact, and configures the
     branch ruleset and Pages. The owner then inspects every public organization,
     repository, commit, event, deployment, and URL surface for actor or identity disclosure.
-    The bootstrap token is then revoked; after the live RC checks, its used key
-    and initial contents and repository-administration permissions are retired
-    and the App enters its dormant stop posture.
+    The bootstrap command confirms token revocation before it returns. After the
+    live RC checks, the used key and initial contents and
+    repository-administration permissions are retired and the App enters its
+    dormant stop posture.
   - **Outcome:** The destination exposes only a neutral project identity and
     generated-client delivery metadata.
   - **Covered by:** R1-R4, R11, R13a-R13b, R16
@@ -101,10 +102,10 @@ announcement state only.
   - **Trigger:** The unannounced URL is live.
   - **Steps:** The product owner verifies the static client, attribution,
     responsive behavior, fresh-session behavior, asset resolution, and network
-    boundary in a clean browser session. The controller revokes any remaining
-    bootstrap token, the owner privately rotates the used bootstrap key and
-    removes its contents and repository-administration permissions, and the
-    owner verifies the dormant stop posture and public metadata with the
+    boundary in a clean browser session. Bootstrap completion has already
+    confirmed token revocation; the owner privately rotates the used bootstrap
+    key and removes its contents and repository-administration permissions, and
+    then verifies the dormant stop posture and public metadata with the
     read-only checklist. Only then
     is the same URL announced
     to the ZZZ community as a Public Beta.
@@ -261,12 +262,13 @@ announcement state only.
   installs the R13 ruleset with the steady-state publisher App as the sole normal
   content-update bypass and enables branch-based Pages. The owner then verifies
   the exact public commit, deployment, and actor metadata through the read-only
-  RC checklist. The bootstrap App remains
-  available through the live RC checks so R23 can run if they fail. After those
-  checks pass, the controller revokes its token; the product owner uses only
-  private Organization App settings to generate the required protected offline
-  replacement key, delete the used bootstrap key, and remove the App's contents
-  and repository-administration permissions. The owner then verifies the resulting installation,
+  RC checklist. The bootstrap transaction confirms token revocation before it
+  returns, while the bootstrap App and its used key remain available through
+  the live RC checks so R23 can mint a fresh stop-scoped token if they fail.
+  After those checks pass, the product owner uses only private Organization App
+  settings to generate the required protected offline replacement key, delete
+  the used bootstrap key, and remove the App's contents and
+  repository-administration permissions. The owner then verifies the resulting installation,
   permission, credential-file, and public-metadata state through the read-only
   checklist before accepting the
   transition to R13c. The personal account performs no public repository, Pages,
@@ -473,12 +475,13 @@ resources before the first public write:
 
 The trusted controller, authenticated only as the bootstrap App, creates the
 Organization's root Pages repository, publishes the first accepted artifact,
-configures the R13 branch ruleset and HTTPS Pages delivery. The owner verifies
-the public actor boundary through the read-only checklist, while the App retains
-Pages-disable ability through the live RC checks. After
-they pass, the controller revokes its token, the product owner rotates its used
-key and removes contents permission in private Organization settings, and the
-owner verifies the R13c dormant posture through the read-only checklist before any later update or Beta
+configures the R13 branch ruleset and HTTPS Pages delivery, and confirms token
+revocation before returning. The owner verifies the public actor boundary
+through the read-only checklist, while the App and used key retain the ability
+to mint a fresh stop-scoped token through the live RC checks. After they pass,
+the product owner rotates the used key and removes contents and
+repository-administration permissions in private Organization settings, and
+verifies the R13c dormant posture through the read-only checklist before any later update or Beta
 announcement. There is no publicly served empty/bootstrap state and no such
 state can be a rollback target. Concrete names, IDs, keys, URLs, capability
 evidence, and review evidence stay outside this document. Bootstrap is a
@@ -535,8 +538,9 @@ create a second client configuration or runtime account dependency.
   credentials remain outside both repositories.
 - An organization-owned bootstrap/stop App isolates elevated repository and
   Pages authority from the steady-state path. After live RC verification its
-  used key and contents permission are retired, while a dormant, fixed-command
-  stop route remains capable of taking down an unsupported site. Repository
+  used key, contents permission, and repository-administration permission are
+  retired, while a dormant, fixed-command stop route remains capable of taking
+  down an unsupported site. Repository
   deletion and recreation remain explicitly confirmed manual incident actions.
   A separate
   destination-only publisher App gives later releases short-lived, revocable

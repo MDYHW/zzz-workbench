@@ -587,10 +587,10 @@ child reads the current authenticated destination tip internally, creates all
 blobs and a complete tree, and performs one non-force ref update. Never widen
 the publisher with Administration or Pages permission.
 
-After live RC verification, revoke the bootstrap token. In private App settings,
-create the required protected offline replacement, delete the used bootstrap
-key, remove bootstrap contents and repository-administration permissions, and
-delete the external key file.
+The bootstrap command confirms token revocation before it returns. After live
+RC verification, use private App settings to create the required protected
+offline replacement, delete the used bootstrap key, remove bootstrap contents
+and repository-administration permissions, and delete the external key file.
 Verify the App and installation permissions and local key absence manually;
 local absence alone is not proof of provider-side deletion.
 
