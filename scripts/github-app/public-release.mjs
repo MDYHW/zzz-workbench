@@ -1,6 +1,7 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { isDeepStrictEqual } from 'node:util'
 import {
   ARTIFACT_CANDIDATE_SCHEMA,
   acceptPreparedArtifact,
@@ -384,7 +385,7 @@ async function verifyToolchain(expected, dependencies) {
     node: await toolIdentity(expected.node.path, ['node', 'node.exe'], 'Node', dependencies),
     npm: await dependencies.npmPackageIdentity(expected.npm.path, dependencies),
   }
-  if (JSON.stringify(observed) !== JSON.stringify(expected)) {
+  if (!isDeepStrictEqual(observed, expected)) {
     fail('Decision-bound tool identity changed.', { code: 'tool_identity_invalid' })
   }
   return observed
@@ -519,7 +520,7 @@ async function verifyHistoricalRestoreSource(candidate, trusted, execution, depe
       || !pathsEqual(context?.controllerRoot, dependencies.controllerRoot)
       || !pathsEqual(context?.repositoryRoot, dependencies.controllerRoot)
       || context?.expectedRemoteUrl !== trusted.sourceContext.expectedRemoteUrl
-      || JSON.stringify(context?.github) !== JSON.stringify(trusted.sourceContext.github)) {
+      || !isDeepStrictEqual(context?.github, trusted.sourceContext.github)) {
     fail('Historical restore source binding is invalid.', { code: 'trusted_source_invalid' })
   }
   const gitExecutable = trusted.sourceContext.tools.git.path
@@ -568,7 +569,7 @@ async function verifyDecisionBoundSource(candidate, dependencies, phase) {
     fail('Candidate does not bind this trusted controller.', { code: 'trusted_source_invalid' })
   }
   const runtimeNode = await toolIdentity(dependencies.nodeExecutable, ['node', 'node.exe'], 'Node', dependencies)
-  if (JSON.stringify(runtimeNode) !== JSON.stringify(context.tools.node)) {
+  if (!isDeepStrictEqual(runtimeNode, context.tools.node)) {
     fail('Controller Node identity differs from the decision-bound tool.', { code: 'tool_identity_invalid' })
   }
   await verifyToolchain(context.tools, dependencies)
@@ -690,7 +691,7 @@ async function invokePublishingChild({
     nodeExecutable,
     operationFile,
     preflight: async (observed) => {
-      if (JSON.stringify(observed) !== JSON.stringify(fixed)) return false
+      if (!isDeepStrictEqual(observed, fixed)) return false
       return preflight ? preflight() : true
     },
     loadPrivateKey: (keyPath) => dependencies.readFile(keyPath, 'utf8'),
@@ -713,7 +714,7 @@ async function executePublication(command, dependencies, phase) {
     onAccepted: async ({ files, manifest }) => {
       const operation = phase === 'bootstrap' ? 'bootstrap' : 'publish'
       verifyCandidateDenylist(inputs.candidate, inputs.config)
-      if (JSON.stringify(githubBinding(inputs.config)) !== JSON.stringify(inputs.candidate.expectation.sourceContext.github)) {
+      if (!isDeepStrictEqual(githubBinding(inputs.config), inputs.candidate.expectation.sourceContext.github)) {
         fail('GitHub operational configuration changed after decision.', { code: 'github_binding_mismatch' })
       }
       let execution
@@ -767,10 +768,10 @@ async function executeDisablePages(command, dependencies) {
   if (confirmation.schema !== DISABLE_CONFIRMATION_SCHEMA || confirmation.action !== 'disable-pages'
       || confirmation.githubConfigDigest !== identity.digest
       || confirmation.controllerCommit !== trusted.source?.commitSha
-      || JSON.stringify(confirmation.destination) !== JSON.stringify(identity.destination)
+      || !isDeepStrictEqual(confirmation.destination, identity.destination)
       || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(confirmation.confirmedAt ?? '')
       || !Number.isFinite(confirmedAt) || confirmedAt > observedNow || observedNow - confirmedAt > 10 * 60_000
-      || JSON.stringify(trusted.sourceContext?.github) !== JSON.stringify(identity)) {
+      || !isDeepStrictEqual(trusted.sourceContext?.github, identity)) {
     fail('Exact destination incident confirmation is invalid.', { code: 'disable_confirmation_invalid' })
   }
   const execution = await verifyDecisionBoundSource({ expectation: trusted }, dependencies, 'disable-pages')

@@ -58,6 +58,14 @@ const boundNpmIdentity = () => ({
   packageTreeDigest: digest('5'),
 })
 
+const reverseObjectKeyOrder = (value) => {
+  if (Array.isArray(value)) return value.map(reverseObjectKeyOrder)
+  if (!value || typeof value !== 'object') return value
+  return Object.fromEntries(Object.entries(value).reverse().map(([key, nested]) => [
+    key, reverseObjectKeyOrder(nested),
+  ]))
+}
+
 const webpImageBytes = () => {
   const image = Buffer.from('pixels')
   const chunk = Buffer.alloc(8 + image.length + (image.length % 2))
@@ -744,6 +752,27 @@ test('tool or canonical GitHub configuration drift fails before key access', asy
   }
 })
 
+test('decision-bound structures compare by value across release operations', async () => {
+  for (const phase of ['bootstrap', 'publish', 'restore']) {
+    const baseline = candidate()
+    const retained = { ...baseline, expectation: reverseObjectKeyOrder(baseline.expectation) }
+    const fixture = mutationDependencies({
+      retained,
+      child: async ({ preflight }) => {
+        const fixed = fixture.fixedInputs.at(-1)
+        const reordered = reverseObjectKeyOrder(fixed)
+        assert.equal(await preflight(reordered), true)
+        assert.equal(await preflight({ ...reordered, role: 1 }), false)
+        return { state: fixed.operation === 'bootstrap' ? 'bootstrapped' : 'published' }
+      },
+    })
+    const result = await dispatchReleaseCommand(command(phase), fixture.dependencies)
+
+    assert.equal(result.state, phase === 'restore' ? 'restored' : phase === 'bootstrap' ? 'bootstrapped' : 'published')
+    assert.deepEqual(fixture.fixedInputs.map(({ operation }) => operation), [phase === 'restore' ? 'publish' : phase])
+  }
+})
+
 test('a controller running under a different Node identity fails before key access', async () => {
   let childRuns = 0
   const fixture = mutationDependencies()
@@ -796,14 +825,14 @@ test('stop authority can only disable Pages and never dispatch repository deleti
   const trusted = {
     schema: 'zzz-workbench-public-release-trusted-controller/v1',
     source: candidate().expectation.source,
-    sourceContext: candidate().expectation.sourceContext,
+    sourceContext: reverseObjectKeyOrder(candidate().expectation.sourceContext),
   }
   const confirmation = {
     schema: 'zzz-workbench-public-release-disable-confirmation/v1',
     action: 'disable-pages',
     confirmedAt: '2026-09-07T12:00:00.000Z',
     controllerCommit: COMMIT,
-    destination: identity.destination,
+    destination: reverseObjectKeyOrder(identity.destination),
     githubConfigDigest: identity.digest,
   }
   const inputs = jsonReader({
@@ -819,7 +848,9 @@ test('stop authority can only disable Pages and never dispatch repository deleti
     gitRunner: async (request) => { gitCalls += 1; return trustedGitRunner()(request) },
     npmPackageIdentity: async () => boundNpmIdentity(),
     runPublishingChild: async ({ preflight, childSource }) => {
-      assert.equal(await preflight(fixedInputs[0]), true)
+      const reordered = reverseObjectKeyOrder(fixedInputs[0])
+      assert.equal(await preflight(reordered), true)
+      assert.equal(await preflight({ ...reordered, role: 1 }), false)
       assert.deepEqual(childSource, CHILD_BYTES)
       return { disabled: true }
     },
