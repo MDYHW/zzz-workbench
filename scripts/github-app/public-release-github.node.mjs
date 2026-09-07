@@ -81,12 +81,11 @@ function response(body, status = 200, link = null) {
   }
 }
 
-function authTransport({ phase = 'publisher', overrides = {} } = {}) {
+function authTransport({ phase = 'publisher', permissions = APP_PERMISSION_PROFILES[phase], overrides = {} } = {}) {
   const calls = []
   const current = config()
   const role = phase === 'publisher' ? 'publisher' : 'bootstrap'
   const app = current.apps[role]
-  const permissions = APP_PERMISSION_PROFILES[phase]
   const fetchImpl = async (url, init) => {
     calls.push({ url, init })
     if (url.endsWith('/app')) return response(overrides.app ?? {
@@ -162,14 +161,19 @@ test('publisher token is repository-narrow, variable length, exact-permissioned,
 })
 
 test('bootstrap and stop phases require their distinct exact permission profiles', async () => {
+  const expectedPermissions = {
+    bootstrap: { administration: 'write', contents: 'write', metadata: 'read', pages: 'write' },
+    stop: { metadata: 'read', pages: 'write' },
+  }
   for (const phase of ['bootstrap', 'stop']) {
-    const mock = authTransport({ phase })
+    const permissions = expectedPermissions[phase]
+    const mock = authTransport({ phase, permissions })
     await mintInstallationToken({
       fetchImpl: mock.fetchImpl, config: mock.current, phase, privateKey: PEM,
       destinationState: 'present', now: 1_700_000_000_000,
     })
     const mint = mock.calls.find(({ url }) => url.endsWith('/access_tokens'))
-    assert.deepEqual(JSON.parse(mint.init.body).permissions, APP_PERMISSION_PROFILES[phase])
+    assert.deepEqual(JSON.parse(mint.init.body).permissions, permissions)
   }
 })
 

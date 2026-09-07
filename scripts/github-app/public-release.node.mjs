@@ -402,6 +402,34 @@ test('sealed Node executes an absolute npm-cli.js entry without a command shell'
   }
 })
 
+test('Windows command environments bind the actual runtime root independently of tool drives', () => {
+  const options = {
+    platform: 'win32',
+    runtimeEnvironment: {
+      SystemRoot: 'C:\\Windows',
+      WINDIR: 'c:\\windows',
+      ComSpec: 'C:\\Windows\\System32\\cmd.exe',
+    },
+  }
+  const npmEnvironment = createNpmCommandEnvironment(
+    'D:\\nodejs\\node.exe',
+    'E:\\release\\candidate',
+    options,
+  )
+  assert.equal(npmEnvironment.PATH, 'D:\\nodejs')
+  assert.equal(npmEnvironment.SystemRoot, 'C:\\Windows')
+  assert.equal(npmEnvironment.NPM_CONFIG_SCRIPT_SHELL, 'C:\\Windows\\System32\\cmd.exe')
+  assert.equal(npmEnvironment.NPM_CONFIG_CACHE, 'E:\\release\\candidate\\.npm-cache')
+
+  const gitEnvironment = createGitCommandEnvironment('F:\\Git\\cmd\\git.exe', options)
+  assert.equal(gitEnvironment.PATH, 'F:\\Git\\cmd')
+  assert.equal(gitEnvironment.ComSpec, 'C:\\Windows\\System32\\cmd.exe')
+  assert.throws(() => createNpmCommandEnvironment('D:\\nodejs\\node.exe', 'E:\\release', {
+    ...options,
+    runtimeEnvironment: { ...options.runtimeEnvironment, ComSpec: 'D:\\Windows\\System32\\cmd.exe' },
+  }), /does not match SystemRoot/)
+})
+
 test('npm identity seals the complete package tree loaded by npm-cli.js', async () => {
   const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-npm-package-'))
   const packageRoot = path.join(temporary, 'npm')

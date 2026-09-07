@@ -562,23 +562,46 @@ function validateCommandEnvironment(environment) {
   return result;
 }
 
-function windowsRuntimeEnvironment(executable) {
-  const systemRoot = path.join(path.parse(path.resolve(executable)).root, 'Windows');
+function windowsRuntimeValue(environment, name) {
+  if (!environment || typeof environment !== 'object' || Array.isArray(environment)) {
+    fail('Windows runtime environment is required.', 'command_invalid');
+  }
+  const matches = Object.entries(environment).filter(([key]) => key.toLowerCase() === name.toLowerCase());
+  if (matches.length !== 1) fail(`Windows runtime ${name} is missing or ambiguous.`, 'command_invalid');
+  const value = matches[0][1];
+  if (typeof value !== 'string' || /[\0\r\n]/.test(value) || !path.win32.isAbsolute(value)) {
+    fail(`Windows runtime ${name} is invalid.`, 'command_invalid');
+  }
+  return path.win32.normalize(value);
+}
+
+function createWindowsRuntimeEnvironment(environment = process.env) {
+  const systemRoot = windowsRuntimeValue(environment, 'SystemRoot');
+  const windir = windowsRuntimeValue(environment, 'WINDIR');
+  const comSpec = windowsRuntimeValue(environment, 'ComSpec');
+  const equalPath = (left, right) => left.toLowerCase() === right.toLowerCase();
+  if (!equalPath(systemRoot, windir)) fail('Windows runtime roots do not match.', 'command_invalid');
+  const expectedComSpec = path.win32.join(systemRoot, 'System32', 'cmd.exe');
+  if (!equalPath(comSpec, expectedComSpec)) fail('Windows command shell does not match SystemRoot.', 'command_invalid');
   return {
     SystemRoot: systemRoot,
     WINDIR: systemRoot,
-    ComSpec: path.join(systemRoot, 'System32', 'cmd.exe'),
+    ComSpec: expectedComSpec,
     PATHEXT: '.COM;.EXE;.BAT;.CMD',
   };
 }
 
-export function createGitCommandEnvironment(gitExecutable) {
-  const git = path.resolve(gitExecutable);
+export function createGitCommandEnvironment(gitExecutable, {
+  platform = process.platform,
+  runtimeEnvironment = process.env,
+} = {}) {
+  const runtimePath = platform === 'win32' ? path.win32 : path;
+  const git = runtimePath.resolve(gitExecutable);
   return {
-    ...(process.platform === 'win32' ? windowsRuntimeEnvironment(git) : {}),
-    PATH: process.platform === 'win32' ? path.dirname(git) : `${path.dirname(git)}:/usr/bin:/bin`,
+    ...(platform === 'win32' ? createWindowsRuntimeEnvironment(runtimeEnvironment) : {}),
+    PATH: platform === 'win32' ? runtimePath.dirname(git) : `${runtimePath.dirname(git)}:/usr/bin:/bin`,
     GIT_CONFIG_NOSYSTEM: '1',
-    GIT_CONFIG_GLOBAL: process.platform === 'win32' ? 'NUL' : '/dev/null',
+    GIT_CONFIG_GLOBAL: platform === 'win32' ? 'NUL' : '/dev/null',
     GIT_TERMINAL_PROMPT: '0',
     GCM_INTERACTIVE: 'Never',
     GIT_OPTIONAL_LOCKS: '0',
@@ -586,29 +609,32 @@ export function createGitCommandEnvironment(gitExecutable) {
   };
 }
 
-export function createNpmCommandEnvironment(nodeExecutable, cwd) {
-  const node = path.resolve(nodeExecutable);
-  const root = path.resolve(cwd);
-  const shell = process.platform === 'win32'
-    ? path.join(path.parse(node).root, 'Windows', 'System32', 'cmd.exe')
-    : '/bin/sh';
+export function createNpmCommandEnvironment(nodeExecutable, cwd, {
+  platform = process.platform,
+  runtimeEnvironment = process.env,
+} = {}) {
+  const runtimePath = platform === 'win32' ? path.win32 : path;
+  const node = runtimePath.resolve(nodeExecutable);
+  const root = runtimePath.resolve(cwd);
+  const windowsRuntime = platform === 'win32' ? createWindowsRuntimeEnvironment(runtimeEnvironment) : {};
+  const shell = platform === 'win32' ? windowsRuntime.ComSpec : '/bin/sh';
   return {
-    ...(process.platform === 'win32' ? windowsRuntimeEnvironment(node) : {}),
-    PATH: process.platform === 'win32' ? path.dirname(node) : `${path.dirname(node)}:/usr/bin:/bin`,
+    ...windowsRuntime,
+    PATH: platform === 'win32' ? runtimePath.dirname(node) : `${runtimePath.dirname(node)}:/usr/bin:/bin`,
     CI: 'true',
     LANG: 'C',
     LC_ALL: 'C',
     TEMP: root,
     TMP: root,
     NPM_CONFIG_AUDIT: 'false',
-    NPM_CONFIG_CACHE: path.join(root, '.npm-cache'),
+    NPM_CONFIG_CACHE: runtimePath.join(root, '.npm-cache'),
     NPM_CONFIG_FUND: 'false',
-    NPM_CONFIG_GLOBALCONFIG: process.platform === 'win32' ? 'NUL' : '/dev/null',
+    NPM_CONFIG_GLOBALCONFIG: platform === 'win32' ? 'NUL' : '/dev/null',
     NPM_CONFIG_IGNORE_SCRIPTS: 'true',
     NPM_CONFIG_REGISTRY: 'https://registry.npmjs.org/',
     NPM_CONFIG_SCRIPT_SHELL: shell,
     NPM_CONFIG_UPDATE_NOTIFIER: 'false',
-    NPM_CONFIG_USERCONFIG: process.platform === 'win32' ? 'NUL' : '/dev/null',
+    NPM_CONFIG_USERCONFIG: platform === 'win32' ? 'NUL' : '/dev/null',
   };
 }
 
