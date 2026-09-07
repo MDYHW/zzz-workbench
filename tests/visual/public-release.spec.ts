@@ -224,7 +224,7 @@ test.beforeAll(async () => {
   admittedRuntimeEntries = candidate.manifest.entries
 })
 
-test('emits separately addressed sanitized raster files without inline copies', async () => {
+test('emits separately addressed sanitized raster files without inline copies', async ({ page }) => {
   const generatedFiles = await readArtifactTree(path.resolve('dist'))
   const rasterFiles = generatedFiles.filter(({ path: filePath }) => /\.(?:png|webp)$/.test(filePath))
   expect(rasterFiles.length).toBeGreaterThan(0)
@@ -234,6 +234,16 @@ test('emits separately addressed sanitized raster files without inline copies', 
   }
   for (const file of generatedFiles.filter(({ path: filePath }) => /\.(?:css|html|js)$/.test(filePath))) {
     expect(file.bytes.toString('utf8')).not.toMatch(/data:image\/(?:png|webp)(?:;|,)/i)
+  }
+  await openInitialWorkbench(page, releaseViewports[1])
+  for (let offset = 0; offset < rasterFiles.length; offset += 24) {
+    const dimensions = await page.evaluate(async (filePaths) => Promise.all(filePaths.map(async (filePath) => {
+      const image = new Image()
+      image.src = new URL(filePath, window.location.href).href
+      await image.decode()
+      return { height: image.naturalHeight, width: image.naturalWidth }
+    })), rasterFiles.slice(offset, offset + 24).map(({ path: filePath }) => filePath))
+    expect(dimensions.every(({ height, width }) => height > 0 && width > 0)).toBe(true)
   }
 })
 

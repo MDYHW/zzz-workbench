@@ -1138,6 +1138,25 @@ function boundPrivateFragments(buildInput, suppliedFragments, privateBindings) {
   return normalizeForbiddenFragments([...supplied, ...derived], { rejectDuplicates: false });
 }
 
+function validateRasterSourceClosure(sourceFiles, generatedFiles) {
+  if (!Array.isArray(sourceFiles)) fail('Source asset snapshot is invalid.', 'orchestration_invalid');
+  const sourceRasterDigests = new Set();
+  for (const file of sourceFiles) {
+    if (!file || typeof file.path !== 'string' || !/\.(?:png|webp)$/.test(file.path)) continue;
+    if (!Buffer.isBuffer(file.bytes)) fail(`Source raster is invalid: ${file.path}`, 'type_invalid');
+    if (!stripRasterMetadata(file.path, file.bytes).equals(file.bytes)) {
+      fail(`Source raster metadata is forbidden: ${file.path}`, 'content_forbidden');
+    }
+    sourceRasterDigests.add(sha256(file.bytes));
+  }
+  for (const file of generatedFiles) {
+    if (!file || typeof file.path !== 'string' || !/\.(?:png|webp)$/.test(file.path)) continue;
+    if (!Buffer.isBuffer(file.bytes) || !sourceRasterDigests.has(sha256(file.bytes))) {
+      fail(`Generated raster does not match the immutable source snapshot: ${file.path}`, 'content_forbidden');
+    }
+  }
+}
+
 export async function buildCandidateArtifact({
   buildInput,
   buildExpectation,
@@ -1162,12 +1181,14 @@ export async function buildCandidateArtifact({
   );
   requireString(phase, 'Release phase');
   requireExactKeys(privateBindings, ['github', 'publishingChild', 'tools'], 'Private execution bindings');
+  const sourceRasterFiles = await readGeneratedFiles({ root: path.join(verifiedBuildInput.extractionRoot, 'src', 'assets') });
   await install({ cwd: verifiedBuildInput.extractionRoot, command: 'npm', args: ['ci', '--ignore-scripts'] });
   await build({ cwd: verifiedBuildInput.extractionRoot, command: 'npm', args: ['run', 'build'] });
   const generatedFiles = await readGeneratedFiles({ root: path.join(verifiedBuildInput.extractionRoot, 'dist') });
   if (!Array.isArray(generatedFiles) || !generatedFiles.some((file) => file.path === '.nojekyll')) {
     fail('Generated output must include the public host control file.', 'tree_invalid');
   }
+  validateRasterSourceClosure(sourceRasterFiles, generatedFiles);
   const files = cloneFiles(generatedFiles)
     .sort((left, right) => compareCanonicalPath(left.path, right.path));
   const admission = cloneJson({

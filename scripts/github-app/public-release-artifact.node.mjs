@@ -844,10 +844,11 @@ test('candidate build runs once, then later acceptance performs no install or bu
   assert.equal(candidate.expectation.sourceContext.tools.git.path, path.resolve('C:/tools/git.exe'));
   assert.ok(candidate.admission.forbiddenFragments.includes('private-owner'));
   assert.ok(candidate.admission.forbiddenFragments.includes(fixture.input.controllerRoot.toLowerCase()));
-  assert.deepEqual(events.map(([event]) => event), ['install', 'build', 'read']);
-  assert.deepEqual(events[0][1].args, ['ci', '--ignore-scripts']);
-  assert.deepEqual(events[1][1].args, ['run', 'build']);
-  assert.equal(events[2][1].root, path.join(fixture.input.extractionRoot, 'dist'));
+  assert.deepEqual(events.map(([event]) => event), ['read', 'install', 'build', 'read']);
+  assert.equal(events[0][1].root, path.join(fixture.input.extractionRoot, 'src', 'assets'));
+  assert.deepEqual(events[1][1].args, ['ci', '--ignore-scripts']);
+  assert.deepEqual(events[2][1].args, ['run', 'build']);
+  assert.equal(events[3][1].root, path.join(fixture.input.extractionRoot, 'dist'));
 
   events.length = 0;
   const result = await acceptPreparedArtifact({
@@ -863,6 +864,26 @@ test('candidate build runs once, then later acceptance performs no install or bu
 
   assert.equal(result.treeDigest, candidate.manifest.treeDigest);
   assert.deepEqual(events.map(([event]) => event), ['accepted']);
+});
+
+test('candidate build rejects raster bytes absent from the immutable pre-build source snapshot', async () => {
+  const fixture = buildFixture();
+  let reads = 0;
+  await assert.rejects(buildCandidateArtifact({
+    buildInput: fixture.input,
+    buildExpectation: fixture.expected,
+    install: async () => {},
+    build: async () => {},
+    readGeneratedFiles: async () => {
+      const files = minimalFiles();
+      if (reads++ > 0) files[3] = file('assets/mark-abcdef12.webp', webpImageBytes('injected build payload'));
+      return files;
+    },
+    releaseContext: releaseContext(),
+    phase: 'rc-publish',
+    forbiddenFragments: ['private-owner'],
+    privateBindings: privateBindings(),
+  }), (error) => error instanceof ArtifactValidationError && error.code === 'content_forbidden');
 });
 
 test('a publish-prepared artifact remains eligible for a fresh restore-phase decision', async () => {
