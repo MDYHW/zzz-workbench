@@ -8,15 +8,28 @@ export default defineConfig({
       this.emitFile({ type: 'asset', fileName: '.nojekyll', source: '' })
     },
   }, {
-    name: 'strip-public-raster-metadata',
+    name: 'require-public-raster-contract',
     generateBundle(_options, bundle) {
       for (const output of Object.values(bundle)) {
-        if (output.type !== 'asset' || !/\.(?:png|webp)$/.test(output.fileName)) continue
-        output.source = sanitizeRasterMetadata(output.fileName, output.source)
+        if (output.type === 'asset' && /\.(?:png|webp)$/.test(output.fileName)) {
+          if (typeof output.source === 'string') this.error(`Raster output is not binary: ${output.fileName}`)
+          const source = output.source
+          const sanitized = sanitizeRasterMetadata(output.fileName, source)
+          if (sanitized.length !== source.length || sanitized.some((byte, index) => byte !== source[index])) {
+            this.error(`Raster metadata must be removed before asset hashing: ${output.fileName}`)
+          }
+        }
+        const text = output.type === 'chunk'
+          ? output.code
+          : typeof output.source === 'string' ? output.source : undefined
+        if (text && /data:image\/(?:png|webp)(?:;|,)/i.test(text)) {
+          this.error(`Raster assets must not be inlined: ${output.fileName}`)
+        }
       }
     },
   }],
   build: {
+    assetsInlineLimit: 0,
     modulePreload: { polyfill: false },
   },
   test: {

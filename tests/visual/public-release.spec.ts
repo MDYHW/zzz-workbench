@@ -14,6 +14,7 @@ import {
   GITHUB_CONFIG_SCHEMA,
   publishArtifactTree,
 } from '../../scripts/github-app/public-release-github.mjs'
+import { sanitizeRasterMetadata } from '../../scripts/github-app/public-raster-metadata.js'
 
 const releaseViewports = [
   { width: 1440, height: 800 },
@@ -221,6 +222,19 @@ test.beforeAll(async () => {
     throw new Error('Prepared artifact did not cross the mocked publication and reconciliation boundary.')
   }
   admittedRuntimeEntries = candidate.manifest.entries
+})
+
+test('emits separately addressed sanitized raster files without inline copies', async () => {
+  const generatedFiles = await readArtifactTree(path.resolve('dist'))
+  const rasterFiles = generatedFiles.filter(({ path: filePath }) => /\.(?:png|webp)$/.test(filePath))
+  expect(rasterFiles.length).toBeGreaterThan(0)
+  for (const file of rasterFiles) {
+    expect(file.path).toMatch(/^assets\/[A-Za-z0-9][A-Za-z0-9._-]*-[A-Za-z0-9_-]{6,}\.(?:png|webp)$/)
+    expect(Buffer.compare(Buffer.from(sanitizeRasterMetadata(file.path, file.bytes)), file.bytes)).toBe(0)
+  }
+  for (const file of generatedFiles.filter(({ path: filePath }) => /\.(?:css|html|js)$/.test(filePath))) {
+    expect(file.bytes.toString('utf8')).not.toMatch(/data:image\/(?:png|webp)(?:;|,)/i)
+  }
 })
 
 test('keeps the shared legal footer readable and outside the workbench at every release surface', async ({ page }) => {

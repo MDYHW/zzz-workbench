@@ -16,7 +16,9 @@ function invalid(message) {
 }
 
 function stripPngMetadata(bytes, artifactPath) {
-  if (bytes.length < PNG_SIGNATURE.length || !bytes.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE)) return bytes
+  if (bytes.length < PNG_SIGNATURE.length || !bytes.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE)) {
+    invalid(`PNG signature is invalid: ${artifactPath}`)
+  }
   const retained = [bytes.subarray(0, PNG_SIGNATURE.length)]
   let offset = PNG_SIGNATURE.length
   let sawHeader = false
@@ -44,7 +46,9 @@ function stripPngMetadata(bytes, artifactPath) {
 }
 
 function stripWebpMetadata(bytes, artifactPath) {
-  if (bytes.length < 12 || bytes.toString('ascii', 0, 4) !== 'RIFF' || bytes.toString('ascii', 8, 12) !== 'WEBP') return bytes
+  if (bytes.length < 12 || bytes.toString('ascii', 0, 4) !== 'RIFF' || bytes.toString('ascii', 8, 12) !== 'WEBP') {
+    invalid(`WebP signature is invalid: ${artifactPath}`)
+  }
   if (bytes.readUInt32LE(4) + 8 !== bytes.length) invalid(`WebP container is malformed: ${artifactPath}`)
   const chunks = []
   let offset = 12

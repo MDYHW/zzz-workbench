@@ -372,7 +372,8 @@ directory for every attempt; a reconciliation-required result is inspected,
 not retried with a reused directory. `restore` consumes a retained accepted
 candidate and a current trusted-controller seal. `disable-pages` consumes a
 fresh, ten-minute exact-destination confirmation. Each success object names its
-completed state and next manual action; failures are JSON on stderr with a
+completed state. `prepare` names the next command, and `disable-pages` names the
+next manual action. Failures are JSON on stderr with a
 nonzero exit code and an explicit `failed` or `reconcile-required` state.
 
 The command file and every configuration, receipt, manifest, candidate, decision,

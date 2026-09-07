@@ -27,6 +27,7 @@ import {
   validateImmutableBuildInput,
   validateReleaseDecision,
 } from './public-release-artifact.mjs';
+import { sanitizeRasterMetadata } from './public-raster-metadata.js';
 
 const SHA_A = 'a'.repeat(40);
 const SHA_B = 'b'.repeat(40);
@@ -38,6 +39,28 @@ function file(filePath, contents = '') {
   return { path: filePath, mode: REGULAR_FILE_MODE, bytes: Buffer.from(contents) };
 }
 
+function webpChunk(type, contents) {
+  const payload = Buffer.from(contents);
+  const bytes = Buffer.alloc(8 + payload.length + (payload.length % 2));
+  bytes.write(type, 0, 'ascii');
+  bytes.writeUInt32LE(payload.length, 4);
+  payload.copy(bytes, 8);
+  return bytes;
+}
+
+function webpImageBytes(contents = 'pixels', extraChunks = []) {
+  const payload = Buffer.concat([
+    Buffer.from('WEBP'),
+    webpChunk('VP8 ', contents),
+    ...extraChunks,
+  ]);
+  const bytes = Buffer.alloc(8 + payload.length);
+  bytes.write('RIFF', 0, 'ascii');
+  bytes.writeUInt32LE(payload.length, 4);
+  payload.copy(bytes, 8);
+  return bytes;
+}
+
 function indexHtml(policy = REQUIRED_CSP) {
   return `<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="${policy}"><link rel="stylesheet" href="/assets/app-abcdef12.css"></head><body><div id="root"></div><script type="module" src="/assets/app-abcdef12.js"></script></body></html>`;
 }
@@ -47,7 +70,7 @@ function minimalFiles() {
     file('index.html', indexHtml()),
     file('assets/app-abcdef12.js', `document.querySelector("#root").textContent = "ready";${REQUIRED_FOOTER_WORDING.join('')}`),
     file('assets/app-abcdef12.css', '.app{background-image:url("/assets/mark-abcdef12.webp")}'),
-    file('assets/mark-abcdef12.webp', 'image-bytes'),
+    file('assets/mark-abcdef12.webp', webpImageBytes()),
     file('.nojekyll'),
   ];
 }
@@ -312,6 +335,7 @@ test('rejects source map hints, credentials, private fragments, local paths, and
     ['non-home POSIX path', '/opt/build/private/output.js', {}, 'content_forbidden'],
     ['external target', 'const endpoint="https://example.test/data"', {}, 'external_target'],
     ['protocol-relative target', 'const src="//cdn.example.test/app.js"', {}, 'external_target'],
+    ['inline raster', 'const image="data:image/webp;base64,UklGRg=="', {}, 'content_forbidden'],
   ];
   for (const [name, contents, options, code] of cases) {
     await t.test(name, () => {
@@ -322,27 +346,27 @@ test('rejects source map hints, credentials, private fragments, local paths, and
   }
 
   const binary = minimalFiles();
-  binary[3] = file('assets/mark-abcdef12.webp', `binary-prefix ghp_${'x'.repeat(30)} binary-suffix`);
+  binary[3] = file('assets/mark-abcdef12.webp', webpImageBytes(`binary-prefix ghp_${'x'.repeat(30)} binary-suffix`));
   expectCode(() => createArtifactManifest(binary), 'content_forbidden');
 
   const compressedBinary = minimalFiles();
   compressedBinary[3] = file(
     'assets/mark-abcdef12.webp',
-    Buffer.from([0x52, 0x49, 0x46, 0x46, 0xff, 0x2f, 0x2f, 0x61, 0x62, 0x63, 0x2e, 0x74, 0x65, 0x73, 0x74, 0x00]),
+    webpImageBytes(Buffer.from([0xff, 0x2f, 0x2f, 0x61, 0x62, 0x63, 0x2e, 0x74, 0x65, 0x73, 0x74, 0x00])),
   );
   assert.doesNotThrow(() => createArtifactManifest(compressedBinary));
 
   const binaryDrivePrefix = minimalFiles();
   binaryDrivePrefix[3] = file(
     'assets/mark-abcdef12.webp',
-    Buffer.from([0x52, 0x49, 0x46, 0x46, 0x43, 0x3a, 0x5c, 0xff, 0x01, 0x00]),
+    webpImageBytes(Buffer.from([0x43, 0x3a, 0x5c, 0xff, 0x01, 0x00])),
   );
   assert.doesNotThrow(() => createArtifactManifest(binaryDrivePrefix));
 
   const binaryEmbeddedPath = minimalFiles();
   binaryEmbeddedPath[3] = file(
     'assets/mark-abcdef12.webp',
-    Buffer.from([0x52, 0x49, 0x46, 0x46, 0x00, ...Buffer.from('C:\\Users\\private\\asset.png'), 0x00]),
+    webpImageBytes(Buffer.from([0x00, ...Buffer.from('C:\\Users\\private\\asset.png'), 0x00])),
   );
   expectCode(() => createArtifactManifest(binaryEmbeddedPath), 'content_forbidden');
 });
@@ -358,25 +382,12 @@ test('rejects private identifiers and credential shapes in artifact paths', () =
   ]), 'content_forbidden');
 });
 
-test('filesystem ingestion strips container metadata before artifact admission', async () => {
+test('artifact admission rejects raster metadata and accepts explicitly sanitized containers', async () => {
   const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-raster-metadata-'));
-  const webpChunk = (type, contents) => {
-    const bytes = Buffer.alloc(8 + contents.length + (contents.length % 2));
-    bytes.write(type, 0, 'ascii');
-    bytes.writeUInt32LE(contents.length, 4);
-    contents.copy(bytes, 8);
-    return bytes;
-  };
-  const payload = Buffer.concat([
-    Buffer.from('WEBP'),
-    webpChunk('VP8 ', Buffer.from('pixels')),
+  const webp = webpImageBytes('pixels', [
     webpChunk('EXIF', Buffer.from('private-owner')),
     webpChunk('PSAI', Buffer.from('C:\\Users\\private-owner')),
   ]);
-  const webp = Buffer.alloc(8 + payload.length);
-  webp.write('RIFF', 0, 'ascii');
-  webp.writeUInt32LE(payload.length, 4);
-  payload.copy(webp, 8);
   const pngChunk = (type, contents) => {
     const bytes = Buffer.alloc(12 + contents.length);
     bytes.writeUInt32BE(contents.length, 0);
@@ -396,16 +407,29 @@ test('filesystem ingestion strips container metadata before artifact admission',
     await fs.writeFile(path.join(temporary, 'assets', 'mark-abcdef12.webp'), webp);
     await fs.writeFile(path.join(temporary, 'assets', 'portrait-abcdef12.png'), png);
     const ingested = await readArtifactTree(temporary);
-    assert.ok(ingested.every(({ bytes }) => !bytes.includes(Buffer.from('private-owner'))));
-    assert.ok(ingested.every(({ bytes }) => !bytes.includes(Buffer.from('PSAI'))));
+    assert.ok(ingested.some(({ bytes }) => bytes.includes(Buffer.from('private-owner'))));
     const direct = minimalFiles();
     direct[3] = file('assets/mark-abcdef12.webp', webp);
     expectCode(() => createArtifactManifest(direct), 'content_forbidden');
-    direct[3] = file('assets/portrait-abcdef12.png', png);
+    direct[3] = file('assets/mark-abcdef12.webp', sanitizeRasterMetadata('assets/mark-abcdef12.webp', webp));
+    direct.push(file('assets/portrait-abcdef12.png', png));
     expectCode(() => createArtifactManifest(direct), 'content_forbidden');
+    const pngIndex = direct.findIndex(({ path: artifactPath }) => artifactPath.endsWith('.png'));
+    direct[pngIndex] = file('assets/portrait-abcdef12.png', sanitizeRasterMetadata('assets/portrait-abcdef12.png', png));
+    assert.doesNotThrow(() => createArtifactManifest(direct));
   } finally {
     await fs.rm(temporary, { recursive: true, force: true });
   }
+});
+
+test('rejects raster extension and signature mismatches', () => {
+  const webp = minimalFiles();
+  webp[3] = file('assets/mark-abcdef12.webp', 'not a WebP container');
+  expectCode(() => createArtifactManifest(webp), 'content_invalid');
+  expectCode(() => createArtifactManifest([
+    ...minimalFiles(),
+    file('assets/portrait-abcdef12.png', webpImageBytes()),
+  ]), 'content_invalid');
 });
 
 test('public admission requires one canonical case-insensitive private-identifier set', () => {
@@ -437,7 +461,10 @@ test('private-identifier admission compares canonically equivalent Unicode in te
   for (const variant of variants) {
     const files = minimalFiles();
     const index = files.findIndex((entry) => entry.path === variant.path);
-    files[index] = { ...files[index], bytes: variant.bytes };
+    files[index] = {
+      ...files[index],
+      bytes: variant.path.endsWith('.webp') ? webpImageBytes(variant.bytes) : variant.bytes,
+    };
     expectCode(() => createArtifactManifestRaw(files, {
       forbiddenFragments: [composed],
     }), 'content_forbidden');
@@ -455,12 +482,12 @@ test('binary admission scans meaningful ASCII and UTF-16 metadata without treati
   ];
   for (const [index, bytes] of variants.entries()) {
     const files = minimalFiles();
-    files[3] = { ...files[3], bytes };
+    files[3] = { ...files[3], bytes: webpImageBytes(bytes) };
     const options = index === variants.length - 1 ? { forbiddenFragments: ['비공개-소유자'] } : {};
     expectCode(() => createArtifactManifest(files, options), 'content_forbidden');
   }
   const files = minimalFiles();
-  files[3] = { ...files[3], bytes: Buffer.from([0x91, 0x2f, 0x61, 0x2f, 0xff]) };
+  files[3] = { ...files[3], bytes: webpImageBytes(Buffer.from([0x91, 0x2f, 0x61, 0x2f, 0xff])) };
   createArtifactManifest(files);
 });
 
@@ -478,7 +505,7 @@ test('binary admission rejects short complete absolute paths without a private i
   ];
   for (const bytes of variants) {
     const files = minimalFiles();
-    files[3] = { ...files[3], bytes };
+    files[3] = { ...files[3], bytes: webpImageBytes(bytes) };
     expectCode(() => createArtifactManifest(files), 'content_forbidden');
   }
 });
@@ -492,7 +519,7 @@ test('binary admission rejects short configured private identifiers in every sup
   ];
   for (const [index, bytes] of variants.entries()) {
     const files = minimalFiles();
-    files[3] = { ...files[3], bytes };
+    files[3] = { ...files[3], bytes: webpImageBytes(bytes) };
     expectCode(() => createArtifactManifest(files, {
       forbiddenFragments: [index === 1 ? '소유자7' : 'owner7'],
     }), 'content_forbidden');

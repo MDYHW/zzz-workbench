@@ -374,6 +374,9 @@ function validateFileContent(
   const identityTexts = textOutput ? scanTexts : binaryIdentityViews(file.bytes);
   const scanText = scanTexts.join('\0');
   if (textOutput && scanText.includes('\ufffd')) fail(`Text output is not valid UTF-8: ${file.path}`, 'content_invalid');
+  if (textOutput && /data:image\/(?:png|webp)(?:;|,)/i.test(scanText)) {
+    fail(`Inline raster data is forbidden: ${file.path}`, 'content_forbidden');
+  }
   if (file.path === 'index.html' && /&(?:#[xX][0-9A-Fa-f]+|#[0-9]+|[A-Za-z][A-Za-z0-9]+);?/.test(scanText)) {
     fail('HTML character references are forbidden in the generated document.', 'content_forbidden');
   }
@@ -546,10 +549,7 @@ export async function readArtifactTree(root, { fsImpl = fs } = {}) {
       const stat = await fsImpl.lstat(absolute);
       if (stat.isSymbolicLink()) fail(`Symlink is forbidden: ${relative}`, 'type_invalid');
       if (stat.isDirectory()) await walk(absolute, relative);
-      else if (stat.isFile()) {
-        const bytes = await fsImpl.readFile(absolute);
-        files.push({ path: relative, mode: REGULAR_FILE_MODE, bytes: stripRasterMetadata(relative, bytes) });
-      }
+      else if (stat.isFile()) files.push({ path: relative, mode: REGULAR_FILE_MODE, bytes: await fsImpl.readFile(absolute) });
       else fail(`Unexpected artifact entry type: ${relative}`, 'type_invalid');
     }
   }
