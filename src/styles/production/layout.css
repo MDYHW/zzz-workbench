@@ -38,24 +38,6 @@
   box-shadow: 0 5px 0 #171a17, 0 9px 18px rgba(0, 0, 0, 0.28);
 }
 
-.masthead__logo {
-  position: relative;
-  flex: 0 0 113px;
-  width: 113px;
-  height: 46px;
-  overflow: hidden;
-}
-
-.masthead__logo img {
-  position: absolute;
-  top: 50%;
-  left: -85px;
-  width: auto;
-  max-width: none;
-  height: 46px;
-  transform: translateY(-50%);
-}
-
 .masthead h1 {
   position: absolute;
   left: 50%;
@@ -514,17 +496,6 @@ main { margin-top: 12px; }
     height: var(--masthead-height);
     min-height: var(--masthead-height);
     padding-inline: 9px;
-  }
-
-  .masthead__logo {
-    flex-basis: 108px;
-    width: 108px;
-    height: 44px;
-  }
-
-  .masthead__logo img {
-    left: -82px;
-    height: 44px;
   }
 
   .masthead h1 { font-size: clamp(19px, 5vw, 25px); }

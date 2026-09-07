@@ -273,6 +273,9 @@ test('keeps the shared legal footer readable and outside the workbench at every 
     for (const openSurface of [openInitialWorkbench, openWorkbench]) {
       await openSurface(page, viewport)
 
+      await expect(page.getByRole('heading', { name: 'ZZZ Setup Workbench' })).toBeVisible()
+      await expect(page.locator('.masthead img')).toHaveCount(0)
+
       const footer = page.getByRole('contentinfo')
       await expect(footer).toHaveCount(1)
       await footer.scrollIntoViewIfNeeded()

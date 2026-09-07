@@ -34,9 +34,12 @@ describe('workbench UI integration', () => {
     expect(screen.getAllByRole('contentinfo')).toHaveLength(1)
     expect(initialFooter).toHaveTextContent('unofficial, non-commercial fan-made website')
     expect(initialFooter).toHaveTextContent('not sponsored, endorsed, or approved by HoYoverse')
-    expect(initialFooter).toHaveTextContent('trademarks and/or copyrighted materials')
+    expect(initialFooter).toHaveTextContent('© All rights reserved by miHoYo')
+    expect(initialFooter).toHaveTextContent(
+      'not derived from Zenless Zone Zero belong to their respective owners',
+    )
     expect(initialFooter).toHaveTextContent('비공식·비상업적 팬메이드 웹사이트')
-    expect(initialFooter).toHaveTextContent('저작권과 상표권')
+    expect(initialFooter).toHaveTextContent('그 밖의 자산과 권리는 각 소유자에게 귀속됩니다')
     expect(initialFooter.querySelectorAll('p')).toHaveLength(2)
     expect(initialFooter.querySelector('p[lang="en"]')).toBeInTheDocument()
     expect(initialFooter.querySelector('p[lang="ko"]')).toBeInTheDocument()
@@ -68,7 +71,8 @@ describe('workbench UI integration', () => {
     const user = userEvent.setup()
     render(<App />)
 
-    expect(screen.getByRole('img', { name: 'Zenless Zone Zero' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'ZZZ Setup Workbench' })).toBeInTheDocument()
+    expect(document.querySelector('.masthead img')).not.toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Editing party' })).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: /Select Agent for slot/ })).toHaveLength(3)
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled()
@@ -310,7 +314,7 @@ describe('workbench UI integration', () => {
 
     await user.click(screen.getByRole('tab', { name: 'View Dialyn setup and Result' }))
     expect(screen.getByRole('region', { name: 'Dialyn setup' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Setup Workbench' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'ZZZ Setup Workbench' })).toBeInTheDocument()
     await user.click(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
 
     expect(screen.getByRole('textbox', { name: 'CRIT Rate hit count' })).toHaveValue('1')
