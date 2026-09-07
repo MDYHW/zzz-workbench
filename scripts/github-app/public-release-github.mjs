@@ -377,12 +377,15 @@ function validateAppIdentity(appResponse, configured, destinationOwner) {
   }
 }
 
-function validateInstallation(installation, configured, destinationOwner, permissions) {
+function validateInstallation(installation, configured, destinationOwner, phase) {
+  const allowedPermissions = phase === 'stop'
+    ? [APP_PERMISSION_PROFILES.stop, APP_PERMISSION_PROFILES.bootstrap]
+    : [APP_PERMISSION_PROFILES[phase]]
   if (installation?.id !== configured.installationId
       || installation?.app_id !== configured.appId
       || installation?.account?.login?.toLowerCase() !== destinationOwner.toLowerCase()
       || installation?.repository_selection !== 'all'
-      || !exactPermissions(installation?.permissions, permissions)) {
+      || !allowedPermissions.some((permissions) => exactPermissions(installation?.permissions, permissions))) {
     fail('GitHub App installation scope or permissions are invalid.', {
       code: 'github_installation_invalid',
     })
@@ -428,7 +431,7 @@ export async function mintInstallationToken({
   const installation = await request(fetchImpl, `/app/installations/${app.installationId}`, {
     headers: jwtHeaders(jwt), timeoutMs,
   })
-  validateInstallation(installation, app, config.destination.owner, permissions)
+  validateInstallation(installation, app, config.destination.owner, phase)
 
   let rawToken = null
   try {

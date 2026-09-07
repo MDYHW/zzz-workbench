@@ -179,6 +179,49 @@ test('bootstrap and stop phases require their distinct exact permission profiles
   }
 })
 
+test('a failed live bootstrap check can mint only a stop-scoped token before dormancy', async () => {
+  const bootstrap = authTransport({ phase: 'bootstrap' })
+  const bootstrapToken = await mintInstallationToken({
+    fetchImpl: bootstrap.fetchImpl, config: bootstrap.current, phase: 'bootstrap', privateKey: PEM,
+    destinationState: 'present', now: 1_700_000_000_000,
+  })
+  await revokeInstallationToken({ fetchImpl: bootstrap.fetchImpl, token: bootstrapToken.token })
+
+  const stop = authTransport({
+    phase: 'stop',
+    permissions: APP_PERMISSION_PROFILES.bootstrap,
+    overrides: {
+      token: {
+        token: TOKEN,
+        expires_at: '2099-09-07T01:00:00Z',
+        permissions: APP_PERMISSION_PROFILES.stop,
+      },
+    },
+  })
+  const stopToken = await mintInstallationToken({
+    fetchImpl: stop.fetchImpl, config: stop.current, phase: 'stop', privateKey: PEM,
+    destinationState: 'present', now: 1_700_000_000_000,
+  })
+  const mint = stop.calls.find(({ url }) => url.endsWith('/access_tokens'))
+  assert.deepEqual(JSON.parse(mint.init.body).permissions, APP_PERMISSION_PROFILES.stop)
+  await revokeInstallationToken({ fetchImpl: stop.fetchImpl, token: stopToken.token })
+  assert.equal(stop.calls.filter(({ url, init }) => (
+    url.endsWith('/installation/token') && init.method === 'DELETE'
+  )).length, 1)
+})
+
+test('stop rejects an installation posture that is neither bootstrap nor dormant', async () => {
+  const mock = authTransport({
+    phase: 'stop',
+    permissions: { administration: 'write', metadata: 'read', pages: 'write' },
+  })
+  await assert.rejects(() => mintInstallationToken({
+    fetchImpl: mock.fetchImpl, config: mock.current, phase: 'stop', privateKey: PEM,
+    destinationState: 'present', now: 1_700_000_000_000,
+  }), (error) => error.code === 'github_installation_invalid')
+  assert.equal(mock.calls.some(({ url }) => url.endsWith('/access_tokens')), false)
+})
+
 test('pre-repository bootstrap mints without a nonexistent repository and verifies the all-repositories installation is empty', async () => {
   const mock = authTransport({ phase: 'bootstrap', overrides: {
     scope: { total_count: 0, repositories: [] },
