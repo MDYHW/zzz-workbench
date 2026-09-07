@@ -719,6 +719,10 @@ function requireSha(value, label) {
   return value
 }
 
+function gitBlobSha(bytes) {
+  return createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex')
+}
+
 function validatePublicationFiles(files) {
   if (!Array.isArray(files) || files.length === 0) {
     fail('Publication files are invalid.', { code: 'github_publication_invalid' })
@@ -828,12 +832,19 @@ export async function publishArtifactTree({
 
   const entries = []
   for (const file of acceptedFiles) {
+    const expectedBlobSha = gitBlobSha(file.bytes)
     const blobSha = await mutationRequest(fetchImpl, `${base}/git/blobs`, {
       method: 'POST',
       headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
       body: { content: file.bytes.toString('base64'), encoding: 'base64' },
       timeoutMs,
-    }, (blob) => requireSha(blob?.sha, 'Blob SHA'))
+    }, (blob) => {
+      const actualBlobSha = requireSha(blob?.sha, 'Blob SHA')
+      if (actualBlobSha !== expectedBlobSha) {
+        fail('GitHub blob identity does not match the accepted bytes.', { code: 'github_blob_mismatch' })
+      }
+      return actualBlobSha
+    })
     entries.push({ path: file.path, mode: file.mode, type: 'blob', sha: blobSha })
   }
   const treeSha = await mutationRequest(fetchImpl, `${base}/git/trees`, {

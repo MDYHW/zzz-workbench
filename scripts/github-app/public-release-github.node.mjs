@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { generateKeyPairSync } from 'node:crypto'
+import { createHash, generateKeyPairSync } from 'node:crypto'
 import { EventEmitter } from 'node:events'
 import { promises as fs } from 'node:fs'
 import os from 'node:os'
@@ -42,8 +42,9 @@ const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 })
 const PEM = privateKey.export({ type: 'pkcs8', format: 'pem' })
 const TOKEN = 'UNIQUE_TOKEN_7'
 const OLD = '1'.repeat(40)
-const BLOB_A = '2'.repeat(40)
-const BLOB_B = '3'.repeat(40)
+const gitBlobSha = (bytes) => createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex')
+const BLOB_A = gitBlobSha(Buffer.from(''))
+const BLOB_B = gitBlobSha(Buffer.from('<!doctype html>'))
 const TREE = '4'.repeat(40)
 const COMMIT = '5'.repeat(40)
 const ARTIFACT = `sha256:${'a'.repeat(64)}`
@@ -370,7 +371,7 @@ test('each rate-limit retry receives a fresh per-attempt timeout signal', async 
 
 function publicationTransport({
   staleOnRecheck = false, refUpdateThrows = false, refUpdateMalformed = false,
-  refUpdateStatus = null, reconcileToCommit = false,
+  refUpdateStatus = null, reconcileToCommit = false, wrongBlobSha = false,
 } = {}) {
   const calls = []
   let refReads = 0
@@ -404,7 +405,8 @@ function publicationTransport({
     }
     if (url.endsWith('/git/blobs')) {
       const input = JSON.parse(init.body)
-      return response({ sha: input.content === Buffer.from('').toString('base64') ? BLOB_A : BLOB_B })
+      const expected = input.content === Buffer.from('').toString('base64') ? BLOB_A : BLOB_B
+      return response({ sha: wrongBlobSha ? '9'.repeat(40) : expected })
     }
     if (url.endsWith('/git/trees')) {
       assert.equal(Object.hasOwn(JSON.parse(init.body), 'base_tree'), false)
@@ -444,6 +446,15 @@ test('publication writes complete blobs/tree/commit and performs one non-force e
   const updates = mock.calls.filter(({ url, init }) => url.includes('/git/ref/heads/main') && init.method === 'PATCH')
   assert.equal(updates.length, 1)
   assert.deepEqual(JSON.parse(updates[0].init.body), { sha: COMMIT, force: false })
+})
+
+test('publication rejects a valid blob identity that does not match the uploaded bytes', async () => {
+  const mock = publicationTransport({ wrongBlobSha: true })
+  await assert.rejects(() => publishArtifactTree({
+    fetchImpl: mock.fetchImpl, token: TOKEN, config: config(), files: files(),
+    artifactTreeDigest: ARTIFACT, expectedTip: OLD,
+  }), (error) => error.code === 'github_request_unknown' && error.state === 'reconcile-required')
+  assert.equal(mock.calls.some(({ url }) => url.endsWith('/git/trees')), false)
 })
 
 test('a changed destination tip aborts before ref mutation and never rebases the prepared commit', async () => {

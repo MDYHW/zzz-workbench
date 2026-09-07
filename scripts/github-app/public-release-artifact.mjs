@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { sanitizeRasterMetadata } from './public-raster-metadata.js';
 
 export const ARTIFACT_SCHEMA = 'zzz-workbench-public-artifact/v1';
 export const ARTIFACT_CANDIDATE_SCHEMA = 'zzz-workbench-public-release-candidate/v1';
@@ -29,7 +30,7 @@ const SHA1 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 const SHA256_IDENTITY = /^sha256:[0-9a-f]{64}$/;
 const ISO_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
-const HASHED_ASSET = /^assets\/[A-Za-z0-9][A-Za-z0-9._-]*-[A-Za-z0-9_-]{6,}\.(?:css|js|png|webp|woff|woff2)$/;
+const HASHED_ASSET = /^assets\/[A-Za-z0-9][A-Za-z0-9._-]*-[A-Za-z0-9_-]{6,}\.(?:css|js|png|webp)$/;
 const TEXT_OUTPUT = /\.(?:css|html|js)$/;
 const EXTERNAL_TARGET = /https?:\/\/[A-Za-z0-9][A-Za-z0-9._~:/?#[\]@!$&'*+,;=%-]*|\/\/[A-Za-z0-9](?:[A-Za-z0-9-]*\.)+[A-Za-z]{2,63}(?:[/:?#][A-Za-z0-9._~:/?#[\]@!$&'*+,;=%-]*)?/g;
 const CREDENTIAL_PATTERNS = [
@@ -342,6 +343,24 @@ function binaryIdentityViews(bytes) {
   return views;
 }
 
+function stripRasterMetadata(artifactPath, bytes) {
+  try {
+    return sanitizeRasterMetadata(artifactPath, bytes);
+  } catch {
+    fail(`Raster container is invalid: ${artifactPath}`, 'content_invalid');
+  }
+}
+
+function validateArtifactPathContent(artifactPath, forbiddenFragments) {
+  const lowerPath = artifactPath.normalize('NFC').toLowerCase().normalize('NFC');
+  for (const fragment of forbiddenFragments) {
+    if (lowerPath.includes(fragment)) fail(`Private identifier is forbidden in artifact path: ${artifactPath}`, 'content_forbidden');
+  }
+  for (const pattern of CREDENTIAL_PATTERNS) {
+    if (pattern.test(artifactPath)) fail(`Credential-like artifact path is forbidden: ${artifactPath}`, 'content_forbidden');
+  }
+}
+
 function validateFileContent(
   file,
   options,
@@ -467,6 +486,10 @@ export function createArtifactManifest(files, {
     }
     paths.add(file.path);
     pathIdentities.add(file.path.toLowerCase());
+    validateArtifactPathContent(file.path, canonicalForbiddenFragments);
+    if (!stripRasterMetadata(file.path, file.bytes).equals(file.bytes)) {
+      fail(`Raster metadata is forbidden: ${file.path}`, 'content_forbidden');
+    }
     validateFileContent(
       file,
       { forbiddenFragments: canonicalForbiddenFragments },
@@ -523,7 +546,10 @@ export async function readArtifactTree(root, { fsImpl = fs } = {}) {
       const stat = await fsImpl.lstat(absolute);
       if (stat.isSymbolicLink()) fail(`Symlink is forbidden: ${relative}`, 'type_invalid');
       if (stat.isDirectory()) await walk(absolute, relative);
-      else if (stat.isFile()) files.push({ path: relative, mode: REGULAR_FILE_MODE, bytes: await fsImpl.readFile(absolute) });
+      else if (stat.isFile()) {
+        const bytes = await fsImpl.readFile(absolute);
+        files.push({ path: relative, mode: REGULAR_FILE_MODE, bytes: stripRasterMetadata(relative, bytes) });
+      }
       else fail(`Unexpected artifact entry type: ${relative}`, 'type_invalid');
     }
   }

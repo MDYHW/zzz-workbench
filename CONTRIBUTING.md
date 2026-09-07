@@ -279,6 +279,102 @@ node <absolute-trusted-main>\scripts\github-app\public-release.mjs restore --inp
 node <absolute-trusted-main>\scripts\github-app\public-release.mjs disable-pages --input-file <absolute-command-json>
 ```
 
+Each command JSON uses `zzz-workbench-public-release-command/v1` and exactly
+the following command-specific `paths` object. These redacted examples show
+shape only; replace every path with the protected absolute path for the actual
+run, keeping all paths distinct and outside the repository except the
+`prepare.repositoryRoot` trusted `main` checkout.
+
+```json
+{
+  "schema": "zzz-workbench-public-release-command/v1",
+  "kind": "prepare",
+  "paths": {
+    "candidate": "C:\\Release\\candidate.json",
+    "decisionTemplate": "C:\\Release\\decision-template.json",
+    "extractionRoot": "C:\\Release\\fresh-extraction",
+    "gitExecutable": "D:\\Tools\\Git\\cmd\\git.exe",
+    "npmCli": "D:\\Tools\\npm\\bin\\npm-cli.js",
+    "githubConfig": "C:\\Release\\github-config.json",
+    "releaseContext": "C:\\Release\\release-context.json",
+    "repositoryRoot": "C:\\PrivateCheckout\\zzz-workbench",
+    "trustedController": "C:\\Release\\trusted-controller.json"
+  }
+}
+```
+
+`githubConfig`, `releaseContext`, `repositoryRoot`, `gitExecutable`, and
+`npmCli` must already exist. `extractionRoot` must already exist as a fresh,
+empty, real directory. `candidate`, `decisionTemplate`, and
+`trustedController` must not exist: `prepare` creates each exclusively. It
+returns the artifact and manifest identities plus the next phase. Review the
+candidate, then copy the emitted decision template to a separate new decision
+file and edit only the decision, issuer, UTC issue/expiry, and phase
+revalidation fields; do not hand-author or edit the candidate or trusted seal.
+
+```json
+{
+  "schema": "zzz-workbench-public-release-command/v1",
+  "kind": "bootstrap",
+  "paths": {
+    "candidate": "C:\\Release\\candidate.json",
+    "decision": "C:\\Release\\bootstrap-decision.json",
+    "githubConfig": "C:\\Release\\github-config.json",
+    "operationDirectory": "C:\\Release\\bootstrap-operation"
+  }
+}
+```
+
+```json
+{
+  "schema": "zzz-workbench-public-release-command/v1",
+  "kind": "publish",
+  "paths": {
+    "candidate": "C:\\Release\\candidate.json",
+    "decision": "C:\\Release\\publish-decision.json",
+    "githubConfig": "C:\\Release\\github-config.json",
+    "operationDirectory": "C:\\Release\\publish-operation"
+  }
+}
+```
+
+```json
+{
+  "schema": "zzz-workbench-public-release-command/v1",
+  "kind": "restore",
+  "paths": {
+    "candidate": "C:\\Release\\retained-candidate.json",
+    "decision": "C:\\Release\\restore-decision.json",
+    "githubConfig": "C:\\Release\\github-config.json",
+    "operationDirectory": "C:\\Release\\restore-operation",
+    "trustedController": "C:\\Release\\current-trusted-controller.json"
+  }
+}
+```
+
+```json
+{
+  "schema": "zzz-workbench-public-release-command/v1",
+  "kind": "disable-pages",
+  "paths": {
+    "githubConfig": "C:\\Release\\github-config.json",
+    "incidentConfirmation": "C:\\Release\\disable-confirmation.json",
+    "operationDirectory": "C:\\Release\\disable-operation",
+    "trustedController": "C:\\Release\\current-trusted-controller.json"
+  }
+}
+```
+
+For the last four commands, every file path is a pre-existing input and
+`operationDirectory` must be a separately created fresh, empty, real directory.
+The controller writes only its sealed child-operation file there. Use a fresh
+directory for every attempt; a reconciliation-required result is inspected,
+not retried with a reused directory. `restore` consumes a retained accepted
+candidate and a current trusted-controller seal. `disable-pages` consumes a
+fresh, ten-minute exact-destination confirmation. Each success object names its
+completed state and next manual action; failures are JSON on stderr with a
+nonzero exit code and an explicit `failed` or `reconcile-required` state.
+
 The command file and every configuration, receipt, manifest, candidate, decision,
 operation directory, and App key stay outside every repository at
 protected absolute paths. Every command file uses the exact versioned schema and

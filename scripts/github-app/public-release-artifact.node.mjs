@@ -347,6 +347,67 @@ test('rejects source map hints, credentials, private fragments, local paths, and
   expectCode(() => createArtifactManifest(binaryEmbeddedPath), 'content_forbidden');
 });
 
+test('rejects private identifiers and credential shapes in artifact paths', () => {
+  expectCode(() => createArtifactManifest([
+    ...minimalFiles(),
+    file('assets/Private-Owner-abcdef12.png', 'image'),
+  ]), 'content_forbidden');
+  expectCode(() => createArtifactManifest([
+    ...minimalFiles(),
+    file(`assets/ghp_${'x'.repeat(30)}-abcdef12.png`, 'image'),
+  ]), 'content_forbidden');
+});
+
+test('filesystem ingestion strips container metadata before artifact admission', async () => {
+  const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-raster-metadata-'));
+  const webpChunk = (type, contents) => {
+    const bytes = Buffer.alloc(8 + contents.length + (contents.length % 2));
+    bytes.write(type, 0, 'ascii');
+    bytes.writeUInt32LE(contents.length, 4);
+    contents.copy(bytes, 8);
+    return bytes;
+  };
+  const payload = Buffer.concat([
+    Buffer.from('WEBP'),
+    webpChunk('VP8 ', Buffer.from('pixels')),
+    webpChunk('EXIF', Buffer.from('private-owner')),
+    webpChunk('PSAI', Buffer.from('C:\\Users\\private-owner')),
+  ]);
+  const webp = Buffer.alloc(8 + payload.length);
+  webp.write('RIFF', 0, 'ascii');
+  webp.writeUInt32LE(payload.length, 4);
+  payload.copy(webp, 8);
+  const pngChunk = (type, contents) => {
+    const bytes = Buffer.alloc(12 + contents.length);
+    bytes.writeUInt32BE(contents.length, 0);
+    bytes.write(type, 4, 'ascii');
+    contents.copy(bytes, 8);
+    return bytes;
+  };
+  const png = Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    pngChunk('IHDR', Buffer.alloc(13)),
+    pngChunk('iCCP', Buffer.from('private-owner')),
+    pngChunk('IDAT', Buffer.from('pixels')),
+    pngChunk('IEND', Buffer.alloc(0)),
+  ]);
+  try {
+    await fs.mkdir(path.join(temporary, 'assets'));
+    await fs.writeFile(path.join(temporary, 'assets', 'mark-abcdef12.webp'), webp);
+    await fs.writeFile(path.join(temporary, 'assets', 'portrait-abcdef12.png'), png);
+    const ingested = await readArtifactTree(temporary);
+    assert.ok(ingested.every(({ bytes }) => !bytes.includes(Buffer.from('private-owner'))));
+    assert.ok(ingested.every(({ bytes }) => !bytes.includes(Buffer.from('PSAI'))));
+    const direct = minimalFiles();
+    direct[3] = file('assets/mark-abcdef12.webp', webp);
+    expectCode(() => createArtifactManifest(direct), 'content_forbidden');
+    direct[3] = file('assets/portrait-abcdef12.png', png);
+    expectCode(() => createArtifactManifest(direct), 'content_forbidden');
+  } finally {
+    await fs.rm(temporary, { recursive: true, force: true });
+  }
+});
+
 test('public admission requires one canonical case-insensitive private-identifier set', () => {
   expectCode(() => createArtifactManifestRaw(minimalFiles()), 'schema_invalid');
   expectCode(() => createArtifactManifestRaw(minimalFiles(), { forbiddenFragments: [] }), 'schema_invalid');
