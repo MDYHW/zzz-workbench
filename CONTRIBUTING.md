@@ -389,6 +389,130 @@ in a command argument, repository file, copied log, or public artifact.
 decision template. `restore` and `disable-pages` consume that separate seal;
 neither accepts a caller-selected executable as current controller authority.
 
+Create `github-config.json` outside every repository with exactly this shape.
+The two App IDs, installation IDs, bot logins, and PEM paths come from the
+neutral Organization's App settings. `allowedPublicActors` is the complete
+allowlist of identities expected to appear publicly. Replace the private
+fragments with every personal login, private owner, and private repository name
+that must not escape; entries are case-insensitively unique and must not overlap
+the neutral public names. Both App records remain present after bootstrap even
+when the protected bootstrap PEM is offline or deleted. Only the key for the
+selected phase must exist: bootstrap uses `bootstrap`; publish and restore use
+`publisher`; `disable-pages` uses the protected bootstrap replacement.
+
+```json
+{
+  "schema": "zzz-workbench-public-release-github/v1",
+  "apiVersion": "2026-03-10",
+  "destination": {
+    "owner": "neutral-workbench",
+    "repository": "neutral-workbench.github.io",
+    "branch": "main"
+  },
+  "apps": {
+    "bootstrap": {
+      "appId": 101,
+      "installationId": 201,
+      "owner": "neutral-workbench",
+      "botLogin": "neutral-bootstrap[bot]",
+      "keyPath": "C:\\Release-Secrets\\bootstrap.pem"
+    },
+    "publisher": {
+      "appId": 102,
+      "installationId": 202,
+      "owner": "neutral-workbench",
+      "botLogin": "neutral-publisher[bot]",
+      "keyPath": "C:\\Release-Secrets\\publisher.pem"
+    }
+  },
+  "allowedPublicActors": [
+    "neutral-bootstrap[bot]",
+    "neutral-publisher[bot]",
+    "github-pages[bot]"
+  ],
+  "forbiddenPrivateIdentifiers": [
+    "private-owner",
+    "private-repository"
+  ]
+}
+```
+
+Create `release-context.json` outside every repository with exactly this shape.
+Set `phase` to the next privileged command. Obtain `expectedRemoteUrl` from
+`git remote get-url origin` in the trusted private `main` checkout. Compute
+`lockfileSha256` from the raw `package-lock.json` bytes at that checkout. From
+the same trusted checkout, print the controller-owned footer identity with
+`node --input-type=module -e "import('./scripts/github-app/public-release-artifact.mjs').then(m=>console.log(m.REQUIRED_FOOTER_DIGEST))"`.
+For each guidance document actually reviewed, choose a stable descriptive ID
+and compute the SHA-256 of its exact raw bytes; changed guidance requires a new
+digest and review. Every digest uses `sha256:` followed by 64 lowercase
+hexadecimal characters. The operator/use object records the accepted use, not
+an inferred legal conclusion. List all private artifact fragments. Leave both
+exception arrays empty unless manual inspection finds an exact inert occurrence;
+never use an exception to permit a request or active browser API.
+
+For example, PowerShell can derive the two raw-file identities without copying
+the files or their contents into a command argument:
+
+```powershell
+$releaseLockHash = (Get-FileHash -Algorithm SHA256 -LiteralPath .\package-lock.json).Hash.ToLowerInvariant()
+"sha256:$releaseLockHash"
+$releaseGuidanceHash = (Get-FileHash -Algorithm SHA256 -LiteralPath 'C:\Release\reviewed-guidance.pdf').Hash.ToLowerInvariant()
+"sha256:$releaseGuidanceHash"
+```
+
+```json
+{
+  "schema": "zzz-workbench-public-release-context/v1",
+  "phase": "bootstrap",
+  "expectedRemoteUrl": "git@github.com:private-owner/private-repository.git",
+  "footerDigest": "sha256:<64-lowercase-hex>",
+  "lockfileSha256": "sha256:<64-lowercase-hex>",
+  "operatorUseModel": {
+    "purpose": "non-commercial fan-made informational website",
+    "commercialUse": false
+  },
+  "guidance": [
+    {
+      "id": "reviewed-guidance-2026-09-07",
+      "digest": "sha256:<64-lowercase-hex>"
+    }
+  ],
+  "admission": {
+    "forbiddenFragments": [
+      "private-owner",
+      "private-repository"
+    ],
+    "inertExternalUrlExceptions": [],
+    "inertRuntimeApiExceptions": []
+  }
+}
+```
+
+`prepare` creates `trusted-controller.json`; do not hand-author it. If an
+incident later requires `disable-pages`, create the confirmation below from
+that file: copy `source.commitSha` to `controllerCommit`, copy the entire
+`sourceContext.github.destination` object without reordering it, and copy
+`sourceContext.github.digest` to `githubConfigDigest`. Set `confirmedAt` to the
+current UTC instant immediately before the command; it expires after ten
+minutes. This confirmation identifies only the exact stop target and does not
+authorize repository deletion or any other recovery mutation.
+
+```json
+{
+  "schema": "zzz-workbench-public-release-disable-confirmation/v1",
+  "action": "disable-pages",
+  "confirmedAt": "2026-09-07T12:34:56.789Z",
+  "controllerCommit": "<40-lowercase-hex-from-trusted-controller>",
+  "destination": {
+    "owner": "neutral-workbench",
+    "repository": "neutral-workbench.github.io",
+    "branch": "main"
+  },
+  "githubConfigDigest": "sha256:<64-lowercase-hex-from-trusted-controller>"
+}
+```
+
 #### Candidate and manual decision
 
 1. Start from a clean local `main` worktree whose `HEAD` equals local

@@ -930,15 +930,23 @@ test('fixed process uses one absolute Node entry, shell false, token-only env, a
   assert.equal(observed.args.some((argument) => argument.includes(TOKEN)), false)
 })
 
-test('injected SIGINT kills the child, returns a non-null close signal, and removes handlers', async () => {
+test('repeated SIGINT stays intercepted until the child closes, then removes handlers', async () => {
   const signals = new EventEmitter()
+  let kills = 0
   const spawnImpl = () => {
     const child = new EventEmitter()
     child.stdin = new PassThrough()
     child.stdout = new PassThrough()
     child.stderr = new PassThrough()
-    child.kill = () => queueMicrotask(() => child.emit('close', null, 'SIGINT'))
-    queueMicrotask(() => signals.emit('SIGINT'))
+    child.kill = () => {
+      kills += 1
+      if (kills === 1) queueMicrotask(() => child.emit('close', null, 'SIGINT'))
+    }
+    queueMicrotask(() => {
+      signals.emit('SIGINT')
+      assert.equal(signals.listenerCount('SIGINT'), 1)
+      signals.emit('SIGINT')
+    })
     return child
   }
   const result = await runFixedChildProcess({
@@ -951,6 +959,7 @@ test('injected SIGINT kills the child, returns a non-null close signal, and remo
     signalSource: signals,
   })
   assert.equal(result.signal, 'SIGINT')
+  assert.equal(kills, 2)
   assert.equal(signals.listenerCount('SIGINT'), 0)
   assert.equal(signals.listenerCount('SIGTERM'), 0)
 })
@@ -1130,7 +1139,7 @@ test('parent treats signalled or malformed post-spawn output as an unknown remot
   }
 })
 
-test('signal received during mint revokes the returned token before spawning and removes handlers', async () => {
+test('repeated signals during mint stay intercepted through token revocation and remove handlers', async () => {
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
   const operationFile = path.join(tempRoot, 'operation.json')
   await fs.writeFile(operationFile, JSON.stringify(fixedCommand('publish', 'publisher', {
@@ -1142,7 +1151,16 @@ test('signal received during mint revokes the returned token before spawning and
   try {
     const fetchImpl = async (url, init) => {
       const result = await mock.fetchImpl(url, init)
-      if (url.endsWith('/access_tokens')) signals.emit('SIGINT')
+      if (url.endsWith('/access_tokens')) {
+        signals.emit('SIGINT')
+        assert.equal(signals.listenerCount('SIGINT'), 1)
+        signals.emit('SIGINT')
+      }
+      if (url.endsWith('/installation/token')) {
+        assert.equal(signals.listenerCount('SIGTERM'), 1)
+        signals.emit('SIGTERM')
+        signals.emit('SIGTERM')
+      }
       return result
     }
     await assert.rejects(runPublishingChild({

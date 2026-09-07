@@ -1142,8 +1142,8 @@ export async function runFixedChildProcess({
       signalSource.removeListener('SIGINT', interrupt)
       signalSource.removeListener('SIGTERM', interrupt)
     }
-    signalSource.once('SIGINT', interrupt)
-    signalSource.once('SIGTERM', interrupt)
+    signalSource.on('SIGINT', interrupt)
+    signalSource.on('SIGTERM', interrupt)
     const rejectInterrupted = () => {
       if (settled) return
       settled = true
@@ -1243,8 +1243,8 @@ export async function runPublishingChild({
   const privateKey = await loadPrivateKey(app.keyPath)
   let interrupted = false
   const onInterrupt = () => { interrupted = true }
-  signalSource.once('SIGINT', onInterrupt)
-  signalSource.once('SIGTERM', onInterrupt)
+  signalSource.on('SIGINT', onInterrupt)
+  signalSource.on('SIGTERM', onInterrupt)
   let minted = null
   let childConfirmedRevocation = false
   try {
