@@ -26,6 +26,7 @@ import {
   dispatchReleaseCommand,
   npmPackageIdentity,
   parseReleaseCli,
+  serializeReleaseCliError,
   validateReleaseCommand,
 } from './public-release.mjs'
 
@@ -166,6 +167,66 @@ const encodedCandidate = (value = candidate()) => ({
       path: file.path, mode: file.mode, contentBase64: file.bytes.toString('base64'),
     })),
   },
+})
+
+test('release CLI serializes only validated safe operational diagnostics', () => {
+  const output = serializeReleaseCliError({
+    code: 'github_operation_and_revocation_unconfirmed',
+    state: 'reconcile-required',
+    message: 'Remote reconciliation is required.',
+    resource: '/repos/neutral-workbench/neutral-workbench.github.io/rulesets',
+    httpStatus: 422,
+    operationDiagnostic: {
+      code: 'github_request_rejected', state: 'reconcile-required',
+      resource: '/repos/neutral-workbench/neutral-workbench.github.io/rulesets', httpStatus: 422,
+      providerBody: `secret ${RELEASE_TOKEN}`,
+    },
+    revocationDiagnostic: {
+      code: 'github_token_revocation_unconfirmed', state: 'reconcile-required',
+      resource: '/installation/token', httpStatus: 502,
+    },
+    providerBody: `provider detail ${RELEASE_TOKEN}`,
+    token: RELEASE_TOKEN,
+  })
+  assert.deepEqual(output, {
+    ok: false,
+    code: 'github_operation_and_revocation_unconfirmed',
+    state: 'reconcile-required',
+    message: 'Remote reconciliation is required.',
+    resource: '/repos/neutral-workbench/neutral-workbench.github.io/rulesets',
+    httpStatus: 422,
+    operationDiagnostic: {
+      code: 'github_request_rejected', state: 'reconcile-required',
+      resource: '/repos/neutral-workbench/neutral-workbench.github.io/rulesets', httpStatus: 422,
+    },
+    revocationDiagnostic: {
+      code: 'github_token_revocation_unconfirmed', state: 'reconcile-required',
+      resource: '/installation/token', httpStatus: 502,
+    },
+  })
+  assert.equal(JSON.stringify(output).includes(RELEASE_TOKEN), false)
+})
+
+test('release CLI omits invalid optional diagnostics and sanitizes non-operational errors', () => {
+  assert.deepEqual(serializeReleaseCliError({
+    code: 'github_request_rejected',
+    state: 'failed',
+    message: 'GitHub rejected the requested operation.',
+    resource: '',
+    httpStatus: 99,
+    operationDiagnostic: { code: '', state: 'failed', resource: '/unsafe', httpStatus: 422 },
+    revocationDiagnostic: { code: 'x', state: '', resource: '/unsafe', httpStatus: 502 },
+  }), {
+    ok: false,
+    code: 'github_request_rejected',
+    state: 'failed',
+    message: 'GitHub rejected the requested operation.',
+  })
+  const generic = serializeReleaseCliError(new Error(`provider body ${RELEASE_TOKEN}`))
+  assert.deepEqual(generic, {
+    ok: false, code: 'release_failed', state: 'failed', message: 'Public release failed.',
+  })
+  assert.equal(JSON.stringify(generic).includes(RELEASE_TOKEN), false)
 })
 
 const trustedController = (head = COMMIT) => {

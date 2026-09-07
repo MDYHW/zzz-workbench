@@ -592,6 +592,20 @@ repository with Pages disabled; inspect that exact remote state and follow the
 manual incident procedure instead of treating it as an RC or retrying through a
 reused operation directory.
 
+Before each bounded attempt to create the temporary ruleset, the controller
+re-reads the exact public repository and requires an empty ruleset list. It may
+retry only after GitHub explicitly rejects the write with HTTP `403` or `422`;
+each retry waits for the fixed bounded delay and repeats that public-and-empty
+readback. It never retries a timeout, transport failure, `5xx`, or another
+ambiguous mutation outcome. A terminal GitHub rejection reports only the safe
+API resource path and HTTP status alongside the existing error code and state;
+it does not copy the provider response body into release output.
+After the private-to-public transition is confirmed, every later bootstrap
+failure is `reconcile-required` because the destination is already partially
+public. If the publication operation and token revocation both become
+unconfirmed, their safe resource and status diagnostics remain separate rather
+than being presented as one ambiguous pair.
+
 Every public artifact commit uses only the neutral App identity and one complete
 tree. Routine publication uses only the contents-write publisher App. Its fixed
 child reads the current authenticated destination tip internally, creates all

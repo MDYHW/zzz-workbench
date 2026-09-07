@@ -8,6 +8,7 @@ import { PassThrough } from 'node:stream'
 import test from 'node:test'
 import {
   APP_PERMISSION_PROFILES,
+  BOOTSTRAP_RULESET_RETRY_DELAYS_MS,
   GITHUB_API_VERSION,
   GITHUB_CONFIG_SCHEMA,
   FIXED_CHILD_MODE,
@@ -658,6 +659,10 @@ test('bootstrap protection starts with the bootstrap App and finalizes with only
   let current = null
   const fetchImpl = async (url, init) => {
     calls.push({ url, init })
+    if (url.endsWith('/neutral-workbench.github.io') && (init.method ?? 'GET') === 'GET') {
+      return response(repository(false))
+    }
+    if (url.endsWith('/rulesets') && (init.method ?? 'GET') === 'GET') return response([])
     if (url.endsWith('/rulesets') && init.method === 'POST') {
       current = { id: 31, ...JSON.parse(init.body) }
       return response(current, 201)
@@ -671,7 +676,9 @@ test('bootstrap protection starts with the bootstrap App and finalizes with only
   }
   const created = await createBootstrapArtifactRuleset({ fetchImpl, token: TOKEN, config: config() })
   assert.equal(created.id, 31)
-  const initial = JSON.parse(calls.find(({ url }) => url.endsWith('/rulesets')).init.body)
+  const initial = JSON.parse(calls.find(({ url, init }) => (
+    url.endsWith('/rulesets') && init.method === 'POST'
+  )).init.body)
   assert.deepEqual(initial.bypass_actors, [{ actor_id: 101, actor_type: 'Integration', bypass_mode: 'always' }])
   assert.deepEqual(initial.rules.map(({ type }) => type), ['deletion', 'non_fast_forward', 'update'])
 
@@ -681,6 +688,185 @@ test('bootstrap protection starts with the bootstrap App and finalizes with only
   assert.equal(finalized.id, 31)
   const final = JSON.parse(calls.find(({ url, init }) => url.endsWith('/rulesets/31') && init.method === 'PUT').init.body)
   assert.deepEqual(final.bypass_actors, [{ actor_id: 102, actor_type: 'Integration', bypass_mode: 'always' }])
+})
+
+test('bootstrap ruleset creation retries only after a rejected write and a fresh public-empty readback', async () => {
+  const calls = []
+  const waits = []
+  let attempts = 0
+  let current = null
+  const fetchImpl = async (url, init = {}) => {
+    const method = init.method ?? 'GET'
+    const requestPath = new URL(url, 'https://api.github.test').pathname
+    calls.push({ method, requestPath })
+    if (requestPath.endsWith('/neutral-workbench.github.io') && method === 'GET') {
+      return response(repository(false))
+    }
+    if (requestPath.endsWith('/rulesets') && method === 'GET') return response([])
+    if (requestPath.endsWith('/rulesets') && method === 'POST') {
+      attempts += 1
+      if (attempts === 1) return response({}, 422)
+      current = { id: 31, ...JSON.parse(init.body) }
+      return response(current, 201)
+    }
+    if (requestPath.endsWith('/rulesets/31') && method === 'GET') return response(current)
+    throw new Error(`Unexpected mock URL: ${method} ${requestPath}`)
+  }
+
+  const created = await createBootstrapArtifactRuleset({
+    fetchImpl,
+    token: TOKEN,
+    config: config(),
+    retryDelaysMs: [7],
+    wait: async (milliseconds) => { waits.push(milliseconds) },
+  })
+
+  assert.equal(created.id, 31)
+  assert.equal(attempts, 2)
+  assert.deepEqual(waits, [7])
+  assert.deepEqual(calls.slice(0, 6).map(({ method, requestPath }) => [method, requestPath.split('/').at(-1)]), [
+    ['GET', 'neutral-workbench.github.io'],
+    ['GET', 'rulesets'],
+    ['POST', 'rulesets'],
+    ['GET', 'neutral-workbench.github.io'],
+    ['GET', 'rulesets'],
+    ['POST', 'rulesets'],
+  ])
+})
+
+test('rate-limit transport cannot retry a bootstrap ruleset POST without a fresh boundary readback', async () => {
+  for (const [status, expectedAttempts] of [[403, 2], [429, 1]]) {
+    const calls = []
+    let attempts = 0
+    let current = null
+    const rawFetch = async (url, init = {}) => {
+      const method = init.method ?? 'GET'
+      const requestPath = new URL(url, 'https://api.github.test').pathname
+      calls.push([method, requestPath])
+      if (requestPath.endsWith('/neutral-workbench.github.io') && method === 'GET') {
+        return response(repository(false))
+      }
+      if (requestPath.endsWith('/rulesets') && method === 'GET') return response([])
+      if (requestPath.endsWith('/rulesets') && method === 'POST') {
+        attempts += 1
+        if (attempts === 1) {
+          return {
+            ok: false,
+            status,
+            headers: { get: (name) => name.toLowerCase() === 'retry-after' ? '0' : null },
+            clone() { return this },
+            async json() { return { message: 'rate limit' } },
+          }
+        }
+        current = { id: 31, ...JSON.parse(init.body) }
+        return response(current, 201)
+      }
+      if (requestPath.endsWith('/rulesets/31') && method === 'GET') return response(current)
+      throw new Error(`Unexpected mock URL: ${method} ${requestPath}`)
+    }
+    const fetchImpl = createRateLimitedFetch(rawFetch, {
+      mutationIntervalMs: 0,
+      maxRetries: 2,
+      wait: async () => {},
+    })
+
+    if (status === 403) {
+      const created = await createBootstrapArtifactRuleset({
+        fetchImpl,
+        token: TOKEN,
+        config: config(),
+        retryDelaysMs: [0],
+        wait: async () => {},
+      })
+      assert.equal(created.id, 31)
+      assert.deepEqual(calls.slice(0, 6).map(([method, requestPath]) => [method, requestPath.split('/').at(-1)]), [
+        ['GET', 'neutral-workbench.github.io'],
+        ['GET', 'rulesets'],
+        ['POST', 'rulesets'],
+        ['GET', 'neutral-workbench.github.io'],
+        ['GET', 'rulesets'],
+        ['POST', 'rulesets'],
+      ])
+    } else {
+      await assert.rejects(() => createBootstrapArtifactRuleset({
+        fetchImpl,
+        token: TOKEN,
+        config: config(),
+        retryDelaysMs: [0],
+        wait: async () => {},
+      }), (error) => error.code === 'github_request_rejected' && error.httpStatus === 429)
+    }
+    assert.equal(attempts, expectedAttempts)
+  }
+})
+
+test('bootstrap ruleset creation never retries ambiguous or unrelated failures and preserves safe diagnostics', async () => {
+  for (const [status, code, state] of [
+    [500, 'github_request_unknown', 'reconcile-required'],
+    [400, 'github_request_rejected', 'failed'],
+  ]) {
+    let attempts = 0
+    const fetchImpl = async (url, init = {}) => {
+      const method = init.method ?? 'GET'
+      const requestPath = new URL(url, 'https://api.github.test').pathname
+      if (requestPath.endsWith('/neutral-workbench.github.io') && method === 'GET') {
+        return response(repository(false))
+      }
+      if (requestPath.endsWith('/rulesets') && method === 'GET') return response([])
+      if (requestPath.endsWith('/rulesets') && method === 'POST') {
+        attempts += 1
+        return response({ message: `provider detail ${TOKEN}` }, status)
+      }
+      throw new Error(`Unexpected mock URL: ${method} ${requestPath}`)
+    }
+
+    await assert.rejects(() => createBootstrapArtifactRuleset({
+      fetchImpl,
+      token: TOKEN,
+      config: config(),
+      retryDelaysMs: [0, 0],
+      wait: async () => {},
+    }), (error) => {
+      assert.equal(error.code, code)
+      assert.equal(error.state, state)
+      assert.equal(error.httpStatus, status)
+      assert.equal(error.resource, '/repos/neutral-workbench/neutral-workbench.github.io/rulesets')
+      assert.equal(JSON.stringify(error).includes(TOKEN), false)
+      return true
+    })
+    assert.equal(attempts, 1)
+  }
+})
+
+test('bootstrap ruleset retry stops when the public-empty boundary no longer holds', async () => {
+  let rulesetReads = 0
+  let attempts = 0
+  const fetchImpl = async (url, init = {}) => {
+    const method = init.method ?? 'GET'
+    const requestPath = new URL(url, 'https://api.github.test').pathname
+    if (requestPath.endsWith('/neutral-workbench.github.io') && method === 'GET') {
+      return response(repository(false))
+    }
+    if (requestPath.endsWith('/rulesets') && method === 'GET') {
+      rulesetReads += 1
+      return response(rulesetReads === 1 ? [] : [{ id: 99 }])
+    }
+    if (requestPath.endsWith('/rulesets') && method === 'POST') {
+      attempts += 1
+      return response({}, 422)
+    }
+    throw new Error(`Unexpected mock URL: ${method} ${requestPath}`)
+  }
+
+  await assert.rejects(() => createBootstrapArtifactRuleset({
+    fetchImpl,
+    token: TOKEN,
+    config: config(),
+    retryDelaysMs: [0],
+    wait: async () => {},
+  }), (error) => error.code === 'github_ruleset_boundary_mismatch')
+  assert.equal(attempts, 1)
+  assert.equal(rulesetReads, 2)
 })
 
 test('public transition and Pages configuration re-read the exact final visibility and root-branch source', async () => {
@@ -705,6 +891,56 @@ test('public transition and Pages configuration re-read the exact final visibili
   }
   assert.equal((await makeDestinationPublic({ fetchImpl, token: TOKEN, config: config() })).private, false)
   assert.equal((await configureRootPages({ fetchImpl, token: TOKEN, config: config() })).source.path, '/')
+})
+
+test('a confirmed public transition makes every failed final visibility read reconcile-required', async () => {
+  const destinationPath = '/repos/neutral-workbench/neutral-workbench.github.io'
+  for (const [finalRead, expected] of [
+    [async () => { throw new Error('connection lost') }, {
+      code: 'github_request_unknown', resource: destinationPath, httpStatus: null,
+    }],
+    [async () => response({}, 503), {
+      code: 'github_request_rejected', resource: destinationPath, httpStatus: 503,
+    }],
+    [async () => response(repository(true)), {
+      code: 'github_repository_mismatch', resource: null, httpStatus: null,
+    }],
+  ]) {
+    let reads = 0
+    const fetchImpl = async (url, init = {}) => {
+      assert.equal(new URL(url).pathname, destinationPath)
+      if ((init.method ?? 'GET') === 'PATCH') return response(repository(false))
+      reads += 1
+      if (reads === 1) return response(repository(true))
+      return finalRead()
+    }
+
+    await assert.rejects(() => makeDestinationPublic({
+      fetchImpl, token: TOKEN, config: config(),
+    }), (error) => {
+      assert.equal(error.code, expected.code)
+      assert.equal(error.state, 'reconcile-required')
+      assert.equal(error.resource, expected.resource)
+      assert.equal(error.httpStatus, expected.httpStatus)
+      return true
+    })
+    assert.equal(reads, 2)
+  }
+})
+
+test('a rejected public transition is not reclassified before GitHub confirms public state', async () => {
+  let reads = 0
+  const fetchImpl = async (_url, init = {}) => {
+    if ((init.method ?? 'GET') === 'PATCH') return response({}, 422)
+    reads += 1
+    return response(repository(true))
+  }
+  await assert.rejects(() => makeDestinationPublic({
+    fetchImpl, token: TOKEN, config: config(),
+  }), (error) => error.code === 'github_request_rejected'
+    && error.state === 'failed'
+    && error.httpStatus === 422)
+  assert.equal(reads, 1)
 })
 
 function encodedFiles() {
@@ -819,6 +1055,7 @@ function successfulOperationTransport(operation, {
       rulesetPhase = 'temporary'
       return response(currentRuleset, 201)
     }
+    if (requestPath.endsWith('/rulesets') && method === 'GET') return response([])
     if (requestPath.endsWith('/rulesets/31') && method === 'PUT') {
       if (rejectFinalRuleset) return response({}, 403)
       currentRuleset = { id: 31, ...JSON.parse(init.body) }
@@ -931,15 +1168,23 @@ test('GitHub Free bootstrap never publishes before temporary protection or enabl
     assert.equal(result.ok, false)
     assert.equal(result.tokenRevoked, true)
     assert.equal(result.result, null)
+    assert.equal(result.error.state, 'reconcile-required')
     assert.equal(result.error.code, failure.rejectTemporaryRuleset || failure.rejectFinalRuleset
       ? 'github_request_rejected'
       : 'github_ruleset_mismatch')
+    if (failure.rejectTemporaryRuleset || failure.rejectFinalRuleset) {
+      assert.equal(result.error.httpStatus, 403)
+      assert.match(result.error.resource, /\/rulesets(?:\/31)?$/)
+    }
     const requests = transport.calls.map(({ url, init }) => ({
       method: init.method ?? 'GET',
       path: new URL(url, 'https://api.github.test').pathname,
     }))
     assert.equal(requests.some(({ method, path }) => method === 'PATCH' && path.endsWith('/git/ref/heads/main')), expectedArtifactMutation)
     assert.equal(requests.some(({ method, path }) => method === 'POST' && path.endsWith('/pages')), false)
+    if (failure.rejectTemporaryRuleset) {
+      assert.equal(requests.filter(({ method, path }) => method === 'POST' && path.endsWith('/rulesets')).length, 3)
+    }
     assert.equal(requests.at(-1).method, 'DELETE')
     assert.equal(requests.at(-1).path.endsWith('/installation/token'), true)
   }
@@ -969,13 +1214,22 @@ test('bootstrap child timeout covers its observed protocol workload and bounded 
     (_value, attempt) => 60_000 * (2 ** attempt),
   ).reduce((total, delay) => total + delay, 0)
   const cleanupReserveMs = 60_000
-  const boundedWorkloadMs = (
-    (transport.calls.length + PUBLICATION_MAX_RATE_LIMIT_RETRIES) * requestTimeoutMs
-    + (observedMutationCount + PUBLICATION_MAX_RATE_LIMIT_RETRIES) * PUBLICATION_MUTATION_INTERVAL_MS
+  const bootstrapRulesetReadinessWaitMs = BOOTSTRAP_RULESET_RETRY_DELAYS_MS
+    .reduce((total, delay) => total + delay, 0)
+  const fixedMutationBudget = 12
+  const readBudget = 24
+  const cleanupCount = 1
+  const mutationBudget = currentFiles.length + fixedMutationBudget
+  const requestBudget = mutationBudget + readBudget + PUBLICATION_MAX_RATE_LIMIT_RETRIES + cleanupCount
+  const exactBoundedWorkloadMs = (
+    requestBudget * requestTimeoutMs
+    + (mutationBudget + PUBLICATION_MAX_RATE_LIMIT_RETRIES + cleanupCount) * PUBLICATION_MUTATION_INTERVAL_MS
     + boundedRetryWaitMs
+    + bootstrapRulesetReadinessWaitMs
     + cleanupReserveMs
   )
-  assert.ok(publicationChildTimeoutMs(command, requestTimeoutMs) >= boundedWorkloadMs)
+  assert.equal(publicationChildTimeoutMs(command, requestTimeoutMs), exactBoundedWorkloadMs)
+  assert.ok(observedMutationCount <= mutationBudget)
 })
 
 test('fixed-child deadlines cover actual slow successful operations through confirmed cleanup', async () => {
@@ -1089,6 +1343,20 @@ test('fixed child preserves both an unknown operation and unconfirmed token revo
   assert.equal(result.error.code, 'github_operation_and_revocation_unconfirmed')
   assert.equal(result.error.state, 'reconcile-required')
   assert.match(result.error.message, /operation and installation token revocation/)
+  assert.equal(result.error.resource, null)
+  assert.equal(result.error.httpStatus, null)
+  assert.deepEqual(result.error.operationDiagnostic, {
+    code: 'github_request_unknown',
+    state: 'reconcile-required',
+    resource: '/repos/neutral-workbench/neutral-workbench.github.io/pages',
+    httpStatus: null,
+  })
+  assert.deepEqual(result.error.revocationDiagnostic, {
+    code: 'github_token_revocation_unconfirmed',
+    state: 'reconcile-required',
+    resource: '/installation/token',
+    httpStatus: 502,
+  })
 })
 
 test('fixed process uses one absolute Node entry, shell false, token-only env, and no token argument', async () => {
@@ -1250,6 +1518,183 @@ test('parent preflight precedes key access and minting, and a confirmed child cl
   }
 })
 
+test('parent preserves safe GitHub status and resource from a rejected fixed-child operation', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('publish', 'publisher', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  try {
+    const mock = authTransport()
+    await assert.rejects(() => runPublishingChild({
+      nodeExecutable: process.execPath,
+      operationFile,
+      childSource: Buffer.from('sealed-source'),
+      preflight: async () => true,
+      loadPrivateKey: async () => PEM,
+      fetchImpl: mock.fetchImpl,
+      childRunner: async () => ({
+        exitCode: 1,
+        signal: null,
+        stdout: JSON.stringify({
+          schema: FIXED_CHILD_RESULT_SCHEMA,
+          ok: false,
+          tokenRevoked: true,
+          result: null,
+          error: {
+            code: 'github_request_rejected',
+            state: 'failed',
+            message: 'GitHub rejected the requested operation.',
+            resource: '/repos/neutral-workbench/neutral-workbench.github.io/rulesets',
+            httpStatus: 422,
+            operationDiagnostic: null,
+            revocationDiagnostic: null,
+          },
+        }),
+      }),
+    }), (error) => {
+      assert.equal(error.code, 'github_request_rejected')
+      assert.equal(error.state, 'failed')
+      assert.equal(error.resource, '/repos/neutral-workbench/neutral-workbench.github.io/rulesets')
+      assert.equal(error.httpStatus, 422)
+      return true
+    })
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test('parent preserves the child operation diagnostic when fallback revocation succeeds', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('publish', 'publisher', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  const operationDiagnostic = {
+    code: 'github_request_unknown',
+    state: 'reconcile-required',
+    resource: '/repos/neutral-workbench/neutral-workbench.github.io/git/ref/heads/main',
+    httpStatus: 502,
+  }
+  const revocationDiagnostic = {
+    code: 'github_token_revocation_unconfirmed',
+    state: 'reconcile-required',
+    resource: '/installation/token',
+    httpStatus: 503,
+  }
+  try {
+    const mock = authTransport()
+    await assert.rejects(() => runPublishingChild({
+      nodeExecutable: process.execPath,
+      operationFile,
+      childSource: Buffer.from('sealed-source'),
+      preflight: async () => true,
+      loadPrivateKey: async () => PEM,
+      fetchImpl: mock.fetchImpl,
+      childRunner: async () => ({
+        exitCode: 1,
+        signal: null,
+        stdout: JSON.stringify({
+          schema: FIXED_CHILD_RESULT_SCHEMA,
+          ok: false,
+          tokenRevoked: false,
+          result: null,
+          error: {
+            code: 'github_operation_and_revocation_unconfirmed',
+            state: 'reconcile-required',
+            message: 'The remote operation and installation token revocation both require reconciliation.',
+            resource: null,
+            httpStatus: null,
+            operationDiagnostic,
+            revocationDiagnostic,
+          },
+        }),
+      }),
+    }), (error) => {
+      assert.equal(error.code, operationDiagnostic.code)
+      assert.equal(error.state, operationDiagnostic.state)
+      assert.equal(error.resource, operationDiagnostic.resource)
+      assert.equal(error.httpStatus, operationDiagnostic.httpStatus)
+      assert.equal(error.operationDiagnostic, null)
+      assert.equal(error.revocationDiagnostic, null)
+      return true
+    })
+    assert.equal(mock.calls.filter(({ url, init }) => (
+      url.endsWith('/installation/token') && init.method === 'DELETE'
+    )).length, 1)
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test('parent combines the child operation diagnostic with a failed fallback revocation', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('publish', 'publisher', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  const operationDiagnostic = {
+    code: 'github_request_unknown',
+    state: 'reconcile-required',
+    resource: '/repos/neutral-workbench/neutral-workbench.github.io/git/ref/heads/main',
+    httpStatus: 502,
+  }
+  const childRevocationDiagnostic = {
+    code: 'github_token_revocation_unconfirmed',
+    state: 'reconcile-required',
+    resource: '/installation/token',
+    httpStatus: 503,
+  }
+  const mock = authTransport()
+  const fetchImpl = async (url, init) => (
+    url.endsWith('/installation/token')
+      ? response({}, 504)
+      : mock.fetchImpl(url, init)
+  )
+  try {
+    await assert.rejects(() => runPublishingChild({
+      nodeExecutable: process.execPath,
+      operationFile,
+      childSource: Buffer.from('sealed-source'),
+      preflight: async () => true,
+      loadPrivateKey: async () => PEM,
+      fetchImpl,
+      childRunner: async () => ({
+        exitCode: 1,
+        signal: null,
+        stdout: JSON.stringify({
+          schema: FIXED_CHILD_RESULT_SCHEMA,
+          ok: false,
+          tokenRevoked: false,
+          result: null,
+          error: {
+            code: 'github_operation_and_revocation_unconfirmed',
+            state: 'reconcile-required',
+            message: 'The remote operation and installation token revocation both require reconciliation.',
+            resource: null,
+            httpStatus: null,
+            operationDiagnostic,
+            revocationDiagnostic: childRevocationDiagnostic,
+          },
+        }),
+      }),
+    }), (error) => {
+      assert.equal(error.code, 'github_operation_and_revocation_unconfirmed')
+      assert.equal(error.state, 'reconcile-required')
+      assert.deepEqual(error.operationDiagnostic, operationDiagnostic)
+      assert.deepEqual(error.revocationDiagnostic, {
+        code: 'github_token_revocation_unconfirmed',
+        state: 'reconcile-required',
+        resource: '/installation/token',
+        httpStatus: 504,
+      })
+      return true
+    })
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
 test('parent performs revocation fallback when the fixed child is interrupted', async () => {
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
   const operationFile = path.join(tempRoot, 'operation.json')
@@ -1301,9 +1746,24 @@ test('parent preserves both child-operation ambiguity and fallback revocation fa
           code: 'github_child_interrupted', state: 'reconcile-required',
         })
       },
-    }), (error) => error.code === 'github_operation_and_revocation_unconfirmed'
-      && error.state === 'reconcile-required'
-      && /operation and installation token revocation/.test(error.message))
+    }), (error) => {
+      assert.equal(error.code, 'github_operation_and_revocation_unconfirmed')
+      assert.equal(error.state, 'reconcile-required')
+      assert.match(error.message, /operation and installation token revocation/)
+      assert.deepEqual(error.operationDiagnostic, {
+        code: 'github_child_interrupted',
+        state: 'reconcile-required',
+        resource: null,
+        httpStatus: null,
+      })
+      assert.deepEqual(error.revocationDiagnostic, {
+        code: 'github_token_revocation_unconfirmed',
+        state: 'reconcile-required',
+        resource: '/installation/token',
+        httpStatus: 502,
+      })
+      return true
+    })
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true })
   }
