@@ -46,9 +46,9 @@ const SHA256_IDENTITY = /^sha256:[0-9a-f]{64}$/
 const SAFE_LOGIN = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/
 const SAFE_REPOSITORY = /^[A-Za-z0-9._-]+$/
 const SAFE_BRANCH = /^(?!.*(?:^|\/)\.\.?(?:\/|$))(?!.*\.\.)(?!.*\/\/)[A-Za-z0-9][A-Za-z0-9._/-]*$/
-const SAFE_TOKEN = /^[A-Za-z0-9_]+$/
 const SAFE_BOT = /^[A-Za-z0-9][A-Za-z0-9-]*\[bot\]$/
 const FILE_MODE = '100644'
+const MAX_INSTALLATION_TOKEN_BYTES = 8 * 1024
 const MAX_PUBLIC_METADATA_PAGES = 10
 const RELEASE_EVENT_TYPES = new Set([
   'CreateEvent',
@@ -80,6 +80,12 @@ export class PublicReleaseGithubError extends Error {
 
 function fail(message, details) {
   throw new PublicReleaseGithubError(message, details)
+}
+
+function isOpaqueInstallationToken(value) {
+  return typeof value === 'string' && value.length > 0
+    && Buffer.byteLength(value, 'utf8') <= MAX_INSTALLATION_TOKEN_BYTES
+    && !/[\u0000-\u001f\u007f-\u009f]/u.test(value)
 }
 
 function isPlainObject(value) {
@@ -446,7 +452,7 @@ export async function mintInstallationToken({
         : { repositories: [config.destination.repository], permissions },
       timeoutMs,
     }, (payload) => {
-      rawToken = typeof payload?.token === 'string' && SAFE_TOKEN.test(payload.token) ? payload.token : null
+      rawToken = isOpaqueInstallationToken(payload?.token) ? payload.token : null
       const expiresAt = Date.parse(payload?.expires_at ?? '')
       if (!rawToken || !exactPermissions(payload?.permissions, permissions)
           || !Number.isFinite(expiresAt) || expiresAt <= now) {
@@ -478,7 +484,7 @@ export async function mintInstallationToken({
 }
 
 export async function revokeInstallationToken({ fetchImpl, token, timeoutMs = 15_000 }) {
-  if (typeof token !== 'string' || !SAFE_TOKEN.test(token)) {
+  if (!isOpaqueInstallationToken(token)) {
     fail('Installation token cleanup could not be prepared.', { code: 'github_token_invalid' })
   }
   try {
@@ -494,7 +500,7 @@ export async function revokeInstallationToken({ fetchImpl, token, timeoutMs = 15
 }
 
 export function publishingChildEnvironment(token) {
-  if (typeof token !== 'string' || !SAFE_TOKEN.test(token)) {
+  if (!isOpaqueInstallationToken(token)) {
     fail('Installation token is invalid.', { code: 'github_token_invalid' })
   }
   return Object.freeze({ [INSTALLATION_TOKEN_ENV]: token })
@@ -836,7 +842,7 @@ export async function publishArtifactTree({
   timeoutMs = 15_000,
 }) {
   validateGithubConfig(config)
-  if (typeof fetchImpl !== 'function' || typeof token !== 'string' || !SAFE_TOKEN.test(token)) {
+  if (typeof fetchImpl !== 'function' || !isOpaqueInstallationToken(token)) {
     fail('GitHub publication could not be prepared.', { code: 'github_publication_invalid' })
   }
   if (!SHA256_IDENTITY.test(artifactTreeDigest ?? '')
@@ -1545,7 +1551,7 @@ async function fixedChildMain() {
   }
   const token = process.env[INSTALLATION_TOKEN_ENV]
   delete process.env[INSTALLATION_TOKEN_ENV]
-  if (typeof token !== 'string' || !SAFE_TOKEN.test(token)) {
+  if (!isOpaqueInstallationToken(token)) {
     fail('Installation token is unavailable.', { code: 'github_token_invalid' })
   }
   let output

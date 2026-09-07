@@ -93,6 +93,22 @@ function response(body: unknown, status = 200) {
   }
 }
 
+function recursiveTreeEntries(entries: Array<{ path: string, mode: string, type: string, sha: string }>) {
+  const directories = new Set<string>()
+  for (const entry of entries) {
+    const parts = entry.path.split('/')
+    for (let length = 1; length < parts.length; length += 1) {
+      directories.add(parts.slice(0, length).join('/'))
+    }
+  }
+  return [
+    ...entries,
+    ...[...directories].map((directory) => ({
+      path: directory, mode: '040000', type: 'tree', sha: fixtureSha('8'),
+    })),
+  ].sort((left, right) => left.path.localeCompare(right.path))
+}
+
 function publicationTransport() {
   const previousTip = fixtureSha('1')
   const treeSha = fixtureSha('4')
@@ -118,7 +134,7 @@ function publicationTransport() {
       return response({ sha: treeSha }, 201)
     }
     if (url.endsWith(`/git/trees/${treeSha}?recursive=1`)) {
-      return response({ sha: treeSha, truncated: false, tree: entries })
+      return response({ sha: treeSha, truncated: false, tree: recursiveTreeEntries(entries) })
     }
     if (url.endsWith('/git/commits')) return response({ sha: commitSha }, 201)
     if (url.endsWith(`/git/commits/${commitSha}`)) {

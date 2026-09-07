@@ -40,7 +40,7 @@ import {
 
 const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 })
 const PEM = privateKey.export({ type: 'pkcs8', format: 'pem' })
-const TOKEN = 'UNIQUE_TOKEN_7'
+const TOKEN = `ghs_102_${'a'.repeat(180)}.${'b'.repeat(160)}-${'c'.repeat(160)}`
 const OLD = '1'.repeat(40)
 const gitBlobSha = (bytes) => createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex')
 const BLOB_A = gitBlobSha(Buffer.from(''))
@@ -159,6 +159,8 @@ test('publisher token is repository-narrow, variable length, exact-permissioned,
   assert.ok(mock.calls.every(({ init }) => init.headers['X-GitHub-Api-Version'] === GITHUB_API_VERSION))
   assert.deepEqual(publishingChildEnvironment(TOKEN), { [INSTALLATION_TOKEN_ENV]: TOKEN })
   assert.deepEqual(publishingChildEnvironment('x'), { [INSTALLATION_TOKEN_ENV]: 'x' })
+  assert.throws(() => publishingChildEnvironment('header\r\ninjection'), /token is invalid/)
+  assert.throws(() => publishingChildEnvironment('x'.repeat(8 * 1024 + 1)), /token is invalid/)
 })
 
 test('bootstrap and stop phases require their distinct exact permission profiles', async () => {
