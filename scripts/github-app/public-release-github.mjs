@@ -12,6 +12,9 @@ export const PUBLIC_BRANCH_RULESET_NAME = 'Protect published artifact'
 export const FIXED_CHILD_SCHEMA = 'zzz-workbench-public-release-github-child/v1'
 export const FIXED_CHILD_RESULT_SCHEMA = 'zzz-workbench-public-release-github-child-result/v1'
 export const FIXED_CHILD_MODE = '--public-release-fixed-child'
+export const PUBLICATION_MUTATION_INTERVAL_MS = 1_000
+export const PUBLICATION_MAX_RATE_LIMIT_RETRIES = 2
+export const PUBLICATION_CHILD_TIMEOUT_MS = 15 * 60_000
 
 export const FIXED_CHILD_OPERATIONS = Object.freeze({
   bootstrap: Object.freeze({ role: 'bootstrap', phase: 'bootstrap', destinationState: 'absent' }),
@@ -269,6 +272,71 @@ async function request(fetchImpl, pathname, {
   return includeResponse ? { body: parsed, response } : parsed
 }
 
+async function mutationRequest(fetchImpl, pathname, options, validate = (value) => value) {
+  try {
+    return validate(await request(fetchImpl, pathname, options))
+  } catch (error) {
+    const safe = sanitizeGithubError(error)
+    if (safe.code === 'github_request_rejected') throw safe
+    throw new PublicReleaseGithubError('GitHub mutation outcome requires reconciliation.', {
+      code: 'github_request_unknown', state: 'reconcile-required', resource: pathname,
+    })
+  }
+}
+
+async function rateLimitDelay(response, attempt, now) {
+  if (![403, 429].includes(response?.status)) return null
+  const retryAfterHeader = response.headers?.get?.('retry-after')
+  const remainingHeader = response.headers?.get?.('x-ratelimit-remaining')
+  let rateLimited = response.status === 429 || retryAfterHeader !== null || remainingHeader === '0'
+  if (!rateLimited && response.status === 403 && typeof response.clone === 'function') {
+    try {
+      const payload = await response.clone().json()
+      rateLimited = typeof payload?.message === 'string' && /(?:rate limit|abuse detection)/i.test(payload.message)
+    } catch {
+      rateLimited = false
+    }
+  }
+  if (!rateLimited) return null
+  const retryAfter = Number(retryAfterHeader)
+  if (retryAfterHeader !== null && Number.isFinite(retryAfter) && retryAfter >= 0) {
+    return Math.ceil(retryAfter * 1_000)
+  }
+  if (remainingHeader === '0') {
+    const resetAt = Number(response.headers?.get?.('x-ratelimit-reset')) * 1_000
+    if (Number.isFinite(resetAt) && resetAt > now()) return Math.ceil(resetAt - now())
+  }
+  return 60_000 * (2 ** attempt)
+}
+
+export function createRateLimitedFetch(fetchImpl, {
+  mutationIntervalMs = PUBLICATION_MUTATION_INTERVAL_MS,
+  maxRetries = PUBLICATION_MAX_RATE_LIMIT_RETRIES,
+  now = () => Date.now(),
+  wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds)),
+} = {}) {
+  if (typeof fetchImpl !== 'function' || !Number.isSafeInteger(mutationIntervalMs) || mutationIntervalMs < 0
+      || !Number.isSafeInteger(maxRetries) || maxRetries < 0 || typeof now !== 'function' || typeof wait !== 'function') {
+    fail('GitHub rate-limit transport is invalid.', { code: 'github_transport_invalid' })
+  }
+  let lastMutationCompletedAt = now()
+  return async (url, init = {}) => {
+    const method = String(init.method ?? 'GET').toUpperCase()
+    const mutation = !['GET', 'HEAD', 'OPTIONS'].includes(method)
+    for (let attempt = 0; ; attempt += 1) {
+      if (mutation) {
+        const remaining = mutationIntervalMs - (now() - lastMutationCompletedAt)
+        if (remaining > 0) await wait(remaining)
+      }
+      const response = await fetchImpl(url, init)
+      if (mutation) lastMutationCompletedAt = now()
+      const retryDelay = await rateLimitDelay(response, attempt, now)
+      if (retryDelay === null || attempt >= maxRetries) return response
+      await wait(retryDelay)
+    }
+  }
+}
+
 function exactPermissions(actual, expected) {
   if (!isPlainObject(actual)) return false
   const actualEntries = Object.entries(actual).filter(([, value]) => value !== undefined).sort()
@@ -350,19 +418,22 @@ export async function mintInstallationToken({
 
   let rawToken = null
   try {
-    const tokenResponse = await request(fetchImpl, `/app/installations/${app.installationId}/access_tokens`, {
+    const tokenResponse = await mutationRequest(fetchImpl, `/app/installations/${app.installationId}/access_tokens`, {
       method: 'POST',
       headers: { ...jwtHeaders(jwt), 'Content-Type': 'application/json' },
       body: destinationState === 'absent'
         ? { permissions }
         : { repositories: [config.destination.repository], permissions },
       timeoutMs,
+    }, (payload) => {
+      rawToken = typeof payload?.token === 'string' && SAFE_TOKEN.test(payload.token) ? payload.token : null
+      const expiresAt = Date.parse(payload?.expires_at ?? '')
+      if (!rawToken || !exactPermissions(payload?.permissions, permissions)
+          || !Number.isFinite(expiresAt) || expiresAt <= now) {
+        fail('Installation token response is invalid.', { code: 'github_token_invalid' })
+      }
+      return payload
     })
-    rawToken = tokenResponse?.token
-    if (typeof rawToken !== 'string' || !SAFE_TOKEN.test(rawToken)
-        || !exactPermissions(tokenResponse?.permissions, permissions)) {
-      fail('Installation token response is invalid.', { code: 'github_token_invalid' })
-    }
     const scope = await request(fetchImpl, '/installation/repositories?per_page=100', {
       headers: tokenHeaders(rawToken), timeoutMs,
     })
@@ -376,7 +447,13 @@ export async function mintInstallationToken({
         throw sanitizeGithubError(revokeError)
       }
     }
-    throw sanitizeGithubError(error)
+    const safe = sanitizeGithubError(error)
+    if (!rawToken && safe.code === 'github_request_unknown') {
+      throw new PublicReleaseGithubError('Installation token issuance is unconfirmed; do not retry until the App installation is reconciled.', {
+        code: 'github_token_issuance_unconfirmed', state: 'reconcile-required',
+      })
+    }
+    throw safe
   }
 }
 
@@ -385,7 +462,7 @@ export async function revokeInstallationToken({ fetchImpl, token, timeoutMs = 15
     fail('Installation token cleanup could not be prepared.', { code: 'github_token_invalid' })
   }
   try {
-    await request(fetchImpl, '/installation/token', {
+    await mutationRequest(fetchImpl, '/installation/token', {
       method: 'DELETE', headers: tokenHeaders(token), timeoutMs,
     })
   } catch {
@@ -434,7 +511,7 @@ export async function createPrivateDestination({ fetchImpl, token, config, timeo
   if (existing !== null) {
     fail('Destination repository already exists.', { code: 'github_destination_exists' })
   }
-  const repository = await request(fetchImpl, `/orgs/${encodeURIComponent(destination.owner)}/repos`, {
+  await mutationRequest(fetchImpl, `/orgs/${encodeURIComponent(destination.owner)}/repos`, {
     method: 'POST',
     headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
     body: {
@@ -445,8 +522,7 @@ export async function createPrivateDestination({ fetchImpl, token, config, timeo
       auto_init: false,
     },
     timeoutMs,
-  })
-  validateRepository(repository, destination, { private: true })
+  }, (repository) => validateRepository(repository, destination, { private: true }))
   return validateRepository(await readRepository(fetchImpl, destination, token, timeoutMs), destination, { private: true })
 }
 
@@ -457,17 +533,18 @@ export async function createNoJekyllRoot({ fetchImpl, token, config, timeoutMs =
   if (await readTip(fetchImpl, destination, token, timeoutMs, true) !== null) {
     fail('Destination branch is not empty.', { code: 'github_destination_not_empty' })
   }
-  const created = await request(fetchImpl, `${base}/contents/.nojekyll`, {
+  const created = await mutationRequest(fetchImpl, `${base}/contents/.nojekyll`, {
     method: 'PUT',
     headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
     body: { message: 'Initialize GitHub Pages host', content: '', branch: destination.branch },
     timeoutMs,
+  }, (payload) => {
+    const commitSha = requireSha(payload?.commit?.sha, 'Root commit SHA')
+    const blobSha = requireSha(payload?.content?.sha, 'Root blob SHA')
+    if (payload?.content?.path !== '.nojekyll') fail('Private host root is invalid.', { code: 'github_root_mismatch' })
+    return { commitSha, blobSha }
   })
-  const commitSha = requireSha(created?.commit?.sha, 'Root commit SHA')
-  const blobSha = requireSha(created?.content?.sha, 'Root blob SHA')
-  if (created?.content?.path !== '.nojekyll') {
-    fail('Private host root is invalid.', { code: 'github_root_mismatch' })
-  }
+  const { commitSha, blobSha } = created
   const commit = await request(fetchImpl, `${base}/git/commits/${commitSha}`, {
     headers: tokenHeaders(token), timeoutMs,
   })
@@ -526,13 +603,13 @@ function validateRuleset(ruleset, config) {
 export async function createArtifactRuleset({ fetchImpl, token, config, timeoutMs = 15_000 }) {
   validateGithubConfig(config)
   const base = repositoryBase(config.destination)
-  const created = await request(fetchImpl, `${base}/rulesets`, {
+  const created = await mutationRequest(fetchImpl, `${base}/rulesets`, {
     method: 'POST',
     headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
     body: expectedRuleset(config),
     timeoutMs,
-  })
-  const ruleset = validateRuleset(created, config)
+  }, (ruleset) => validateRuleset(ruleset, config))
+  const ruleset = created
   return validateRuleset(await request(fetchImpl, `${base}/rulesets/${ruleset.id}`, {
     headers: tokenHeaders(token), timeoutMs,
   }), config)
@@ -550,13 +627,12 @@ export async function makeDestinationPublic({ fetchImpl, token, config, timeoutM
   validateGithubConfig(config)
   const base = repositoryBase(config.destination)
   validateRepository(await readRepository(fetchImpl, config.destination, token, timeoutMs), config.destination, { private: true })
-  const updated = await request(fetchImpl, base, {
+  await mutationRequest(fetchImpl, base, {
     method: 'PATCH',
     headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
     body: { private: false },
     timeoutMs,
-  })
-  validateRepository(updated, config.destination, { private: false })
+  }, (repository) => validateRepository(repository, config.destination, { private: false }))
   return validateRepository(await readRepository(fetchImpl, config.destination, token, timeoutMs), config.destination, { private: false })
 }
 
@@ -575,13 +651,12 @@ function validatePages(pages, config) {
 export async function configureRootPages({ fetchImpl, token, config, timeoutMs = 15_000 }) {
   validateGithubConfig(config)
   const base = repositoryBase(config.destination)
-  const created = await request(fetchImpl, `${base}/pages`, {
+  await mutationRequest(fetchImpl, `${base}/pages`, {
     method: 'POST',
     headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
     body: { build_type: 'legacy', source: { branch: config.destination.branch, path: '/' } },
     timeoutMs,
-  })
-  validatePages(created, config)
+  }, (pages) => validatePages(pages, config))
   return validatePages(await request(fetchImpl, `${base}/pages`, {
     headers: tokenHeaders(token), timeoutMs,
   }), config)
@@ -733,44 +808,42 @@ export async function publishArtifactTree({
 
   const entries = []
   for (const file of acceptedFiles) {
-    const blob = await request(fetchImpl, `${base}/git/blobs`, {
+    const blobSha = await mutationRequest(fetchImpl, `${base}/git/blobs`, {
       method: 'POST',
       headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
       body: { content: file.bytes.toString('base64'), encoding: 'base64' },
       timeoutMs,
-    })
-    entries.push({ path: file.path, mode: file.mode, type: 'blob', sha: requireSha(blob?.sha, 'Blob SHA') })
+    }, (blob) => requireSha(blob?.sha, 'Blob SHA'))
+    entries.push({ path: file.path, mode: file.mode, type: 'blob', sha: blobSha })
   }
-  const tree = await request(fetchImpl, `${base}/git/trees`, {
+  const treeSha = await mutationRequest(fetchImpl, `${base}/git/trees`, {
     method: 'POST',
     headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
     body: { tree: entries },
     timeoutMs,
-  })
-  const treeSha = requireSha(tree?.sha, 'Tree SHA')
+  }, (tree) => requireSha(tree?.sha, 'Tree SHA'))
   await verifyTree(fetchImpl, base, treeSha, entries, token, timeoutMs)
 
-  const commit = await request(fetchImpl, `${base}/git/commits`, {
+  const commitSha = await mutationRequest(fetchImpl, `${base}/git/commits`, {
     method: 'POST',
     headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
     body: { message: commitMessage, tree: treeSha, parents: expectedTip === null ? [] : [expectedTip] },
     timeoutMs,
-  })
-  const commitSha = requireSha(commit?.sha, 'Commit SHA')
+  }, (commit) => requireSha(commit?.sha, 'Commit SHA'))
   await verifyCommit(fetchImpl, base, commitSha, treeSha, expectedTip, token, timeoutMs)
   assertExpectedTip(await readTip(fetchImpl, destination, token, timeoutMs), expectedTip)
 
   let reconciled = false
   try {
     if (expectedTip === null) {
-      await request(fetchImpl, `${base}/git/refs`, {
+      await mutationRequest(fetchImpl, `${base}/git/refs`, {
         method: 'POST',
         headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
         body: { ref: `refs/heads/${destination.branch}`, sha: commitSha },
         timeoutMs,
       })
     } else {
-      await request(fetchImpl, branchRefPath(destination), {
+      await mutationRequest(fetchImpl, branchRefPath(destination), {
         method: 'PATCH',
         headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
         body: { sha: commitSha, force: false },
@@ -1045,7 +1118,7 @@ export async function disablePages({ fetchImpl, token, config, timeoutMs = 15_00
     headers: tokenHeaders(token), timeoutMs, allowNotFound: true,
   })
   if (current !== null) {
-    await request(fetchImpl, pagesPath, {
+    await mutationRequest(fetchImpl, pagesPath, {
       method: 'DELETE', headers: tokenHeaders(token), timeoutMs,
     })
   }
@@ -1165,6 +1238,22 @@ function childError(error) {
   return { code: safe.code, state: safe.state, message: safe.message }
 }
 
+export function publicationChildTimeoutMs(command, requestTimeoutMs = 15_000) {
+  validateFixedChildCommand(command)
+  if (!Number.isSafeInteger(requestTimeoutMs) || requestTimeoutMs < 1) {
+    fail('Publishing request timeout is invalid.', { code: 'github_child_process_invalid' })
+  }
+  const fileCount = command.payload.files?.length ?? 0
+  const mutationCount = command.operation === 'bootstrap'
+    ? fileCount + 9
+    : command.operation === 'publish' ? fileCount + 4 : 2
+  const mutationPacing = mutationCount * PUBLICATION_MUTATION_INTERVAL_MS
+  const boundedReadBudget = 18 * requestTimeoutMs
+  const boundedRateLimitWait = 60_000 + 120_000
+  const cleanupReserve = 60_000
+  return Math.max(120_000, mutationPacing + boundedReadBudget + boundedRateLimitWait + cleanupReserve)
+}
+
 export async function executeFixedChildCommand({
   command,
   token,
@@ -1202,7 +1291,7 @@ export async function runFixedChildProcess({
   inputDigest,
   sourceBytes,
   env,
-  timeoutMs = 120_000,
+  timeoutMs = PUBLICATION_CHILD_TIMEOUT_MS,
   spawnImpl = spawn,
   signalSource = process,
 }) {
@@ -1294,9 +1383,10 @@ export async function runPublishingChild({
   childRunner = runFixedChildProcess,
   childSource,
   signalSource = process,
-  timeoutMs = 120_000,
+  timeoutMs = null,
   authTimeoutMs = 15_000,
   forbiddenRoots = [],
+  now = () => Date.now(),
 }) {
   if (typeof nodeExecutable !== 'string' || !path.isAbsolute(nodeExecutable)) {
     fail('Decision-bound Node executable is unavailable.', { code: 'github_child_process_invalid' })
@@ -1336,13 +1426,20 @@ export async function runPublishingChild({
         code: 'github_child_interrupted', state: 'reconcile-required',
       })
     }
+    const childTimeoutMs = timeoutMs ?? publicationChildTimeoutMs(command, authTimeoutMs)
+    const expiresAt = Date.parse(minted.expiresAt ?? '')
+    if (!Number.isFinite(expiresAt) || expiresAt - now() < childTimeoutMs + 60_000) {
+      fail('Installation token lifetime is insufficient for the bounded publication and cleanup window.', {
+        code: 'github_token_lifetime_insufficient', state: 'failed',
+      })
+    }
     const childProcess = await childRunner({
       nodeExecutable,
       inputFile: operationFile,
       inputDigest: input.digest,
       sourceBytes: childSource,
       env: publishingChildEnvironment(minted.token),
-      timeoutMs,
+      timeoutMs: childTimeoutMs,
       signalSource,
     })
     if (typeof childProcess.stdout !== 'string' || childProcess.stdout.includes(minted.token)) {
@@ -1389,14 +1486,15 @@ async function fixedChildMain() {
     fail('Installation token is unavailable.', { code: 'github_token_invalid' })
   }
   let output
+  const rateLimitedFetch = createRateLimitedFetch(fetch)
   try {
     const { command } = await readFixedChildInput(process.argv[3], fs.readFile, process.argv[4])
-    output = await executeFixedChildCommand({ command, token, fetchImpl: fetch })
+    output = await executeFixedChildCommand({ command, token, fetchImpl: rateLimitedFetch })
   } catch (error) {
     let tokenRevoked = false
     let safe = childError(error)
     try {
-      await revokeInstallationToken({ fetchImpl: fetch, token })
+      await revokeInstallationToken({ fetchImpl: rateLimitedFetch, token })
       tokenRevoked = true
     } catch (revokeError) {
       safe = childError(revokeError)

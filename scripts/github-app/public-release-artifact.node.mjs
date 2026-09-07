@@ -65,8 +65,20 @@ function privateBindings() {
     realPath: path.resolve(`C:/tools/${name}.exe`),
     digest: `sha256:${'8'.repeat(64)}`,
   });
+  const npmPackageRoot = path.resolve('C:/tools/npm');
   return {
-    tools: { git: tool('git'), node: tool('node'), npm: tool('npm') },
+    tools: {
+      git: tool('git'),
+      node: tool('node'),
+      npm: {
+        path: path.join(npmPackageRoot, 'bin', 'npm-cli.js'),
+        realPath: path.join(npmPackageRoot, 'bin', 'npm-cli.js'),
+        digest: `sha256:${'8'.repeat(64)}`,
+        packageRoot: npmPackageRoot,
+        packageFileCount: 3,
+        packageTreeDigest: `sha256:${'9'.repeat(64)}`,
+      },
+    },
     publishingChild: {
       path: 'scripts/github-app/public-release-github.mjs',
       blobSha: 'c'.repeat(40),

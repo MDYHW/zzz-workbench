@@ -4,7 +4,8 @@ import os from 'node:os'
 import path from 'node:path'
 import test from 'node:test'
 import {
-  ARTIFACT_CANDIDATE_SCHEMA, REGULAR_FILE_MODE, REQUIRED_FOOTER_DIGEST,
+  ARTIFACT_CANDIDATE_SCHEMA, REGULAR_FILE_MODE, REQUIRED_CSP, REQUIRED_FOOTER_DIGEST,
+  REQUIRED_FOOTER_WORDING,
   createGitCommandEnvironment, createNpmCommandEnvironment, runDirectCommand, sha256,
 } from './public-release-artifact.mjs'
 import { GITHUB_API_VERSION, GITHUB_CONFIG_SCHEMA, githubConfigIdentity } from './public-release-github.mjs'
@@ -44,6 +45,18 @@ const boundNpmIdentity = () => ({
   packageFileCount: 3,
   packageTreeDigest: digest('5'),
 })
+
+const generatedPublicFiles = () => [
+  {
+    path: 'index.html', mode: REGULAR_FILE_MODE,
+    bytes: Buffer.from(`<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="${REQUIRED_CSP}"><link rel="stylesheet" href="/assets/app-abcdef12.css"></head><body><div id="root"></div><script type="module" src="/assets/app-abcdef12.js"></script></body></html>`),
+  },
+  {
+    path: 'assets/app-abcdef12.js', mode: REGULAR_FILE_MODE,
+    bytes: Buffer.from(`document.querySelector("#root").textContent="ready";${REQUIRED_FOOTER_WORDING.join('')}`),
+  },
+  { path: 'assets/app-abcdef12.css', mode: REGULAR_FILE_MODE, bytes: Buffer.from('.app{display:block}') },
+]
 
 const config = (forbiddenPrivateIdentifiers = ['private-owner', 'private-repository']) => ({
   schema: GITHUB_CONFIG_SCHEMA,
@@ -292,8 +305,6 @@ test('prepare accepts only bootstrap, publish, or restore and binds the extracte
       inertExternalUrlExceptions: [], inertRuntimeApiExceptions: [],
     },
   }
-  let buildExpectation
-  let preparedBindings
   const toolCalls = []
   const result = await dispatchReleaseCommand(command('prepare'), {
     controllerRoot: ROOT,
@@ -307,29 +318,34 @@ test('prepare accepts only bootstrap, publish, or restore and binds the extracte
     },
     writeFile: async (_filePath, value) => { writes.push(value) },
     extractImmutableGitSource: async () => ({
-      ...candidate().expectation.sourceContext,
-      remoteUrl: context.expectedRemoteUrl,
+      branch: 'main',
+      controllerRoot: ROOT,
+      extractedPaths: ['index.html', 'package-lock.json', 'package.json', 'src/main.tsx'],
+      extractedTreeSha: TREE,
+      extractionRoot: external('extract'),
       gitExecutable: GIT,
-      extractionRoot: external('extract'), lockfilePath: external('package-lock.json'),
-      headSha: COMMIT, sourceTreeSha: TREE,
+      gitStatus: '',
+      headSha: COMMIT,
+      lockfilePath: path.join(external('extract'), 'package-lock.json'),
+      nodeVersion: 'v24.19.0',
+      originMainSha: COMMIT,
+      remoteUrl: context.expectedRemoteUrl,
+      repositoryRoot: ROOT,
+      sourceTreeSha: TREE,
     }),
     gitRunner: async () => ({ stdout: Buffer.from(`${BLOB}\n`), stderr: Buffer.alloc(0) }),
     npmPackageIdentity: async () => boundNpmIdentity(),
     toolRunner: async (request) => { toolCalls.push(request) },
-    buildCandidateArtifact: async (options) => {
-      buildExpectation = options.buildExpectation
-      preparedBindings = options.privateBindings
-      await options.install({ cwd: external('extract'), args: ['ci', '--ignore-scripts'] })
-      await options.build({ cwd: external('extract'), args: ['run', 'build'] })
-      return candidate()
-    },
+    readArtifactTree: async () => generatedPublicFiles(),
   })
   assert.equal(result.nextCommand, 'publish')
   assert.equal(writes.length, 3)
-  assert.equal(buildExpectation.gitExecutable, GIT)
-  assert.deepEqual(preparedBindings.github, githubConfigIdentity(config()))
-  assert.equal(preparedBindings.publishingChild.blobSha, BLOB)
-  assert.equal(preparedBindings.tools.node.path, NODE)
+  const prepared = JSON.parse(writes[0])
+  assert.equal(prepared.candidate.expectation.sourceContext.tools.git.path, GIT)
+  assert.deepEqual(prepared.candidate.expectation.sourceContext.github, githubConfigIdentity(config()))
+  assert.equal(prepared.candidate.expectation.sourceContext.publishingChild.blobSha, BLOB)
+  assert.equal(prepared.candidate.expectation.sourceContext.tools.node.path, NODE)
+  assert.deepEqual(prepared.candidate.expectation.sourceContext.tools.npm, boundNpmIdentity())
   assert.deepEqual(toolCalls.map(({ executable, args, shell }) => ({ executable, args, shell })), [
     { executable: NODE, args: [NPM, 'ci', '--ignore-scripts'], shell: false },
     { executable: NODE, args: [NPM, 'run', 'build'], shell: false },

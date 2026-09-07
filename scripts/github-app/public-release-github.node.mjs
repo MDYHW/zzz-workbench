@@ -21,6 +21,7 @@ import {
   createNoJekyllRoot,
   createPrivateDestination,
   createGithubAppJwt,
+  createRateLimitedFetch,
   disablePages,
   executeFixedChildCommand,
   inspectPublicRelease,
@@ -29,6 +30,7 @@ import {
   publishArtifactTree,
   publishArtifactTreeAndRevoke,
   publishingChildEnvironment,
+  publicationChildTimeoutMs,
   runFixedChildProcess,
   runPublishingChild,
   revokeInstallationToken,
@@ -102,7 +104,7 @@ function authTransport({ phase = 'publisher', overrides = {} } = {}) {
     })
     if (url.endsWith('/access_tokens')) return response(overrides.token ?? {
       token: TOKEN,
-      expires_at: '2026-09-07T01:00:00Z',
+      expires_at: '2099-09-07T01:00:00Z',
       permissions,
     })
     if (url.includes('/installation/repositories')) return response(overrides.scope ?? {
@@ -261,7 +263,73 @@ test('a post-mint failure reports unconfirmed revocation instead of concealing a
   }), (error) => error.code === 'github_token_revocation_unconfirmed' && error.state === 'reconcile-required')
 })
 
-function publicationTransport({ staleOnRecheck = false, refUpdateThrows = false, reconcileToCommit = false } = {}) {
+test('an unparseable or structurally invalid successful token response requires credential reconciliation', async () => {
+  for (const malformedToken of [response({}), {
+    ok: true, status: 201, headers: { get: () => null },
+    async json() { throw new Error('truncated') },
+  }]) {
+    const mock = authTransport()
+    let mintCalls = 0
+    const fetchImpl = async (url, init) => {
+      if (url.endsWith('/access_tokens')) {
+        mintCalls += 1
+        return malformedToken
+      }
+      return mock.fetchImpl(url, init)
+    }
+    await assert.rejects(() => mintInstallationToken({
+      fetchImpl, config: mock.current, phase: 'publisher', privateKey: PEM,
+      destinationState: 'present', now: 1_700_000_000_000,
+    }), (error) => error.code === 'github_token_issuance_unconfirmed' && error.state === 'reconcile-required')
+    assert.equal(mintCalls, 1)
+  }
+})
+
+test('rate-limited transport serializes mutations and applies bounded Retry-After handling', async () => {
+  let clock = 0
+  const waits = []
+  const starts = []
+  const responses = [
+    { ok: false, status: 429, headers: { get: (name) => name === 'retry-after' ? '2' : null } },
+    response({ ok: true }),
+    response({ ok: true }),
+  ]
+  const fetchImpl = createRateLimitedFetch(async () => {
+    starts.push(clock)
+    return responses.shift()
+  }, {
+    now: () => clock,
+    wait: async (milliseconds) => { waits.push(milliseconds); clock += milliseconds },
+  })
+  assert.equal((await fetchImpl('https://api.github.test/mutate', { method: 'POST' })).ok, true)
+  assert.equal((await fetchImpl('https://api.github.test/mutate', { method: 'PATCH' })).ok, true)
+  assert.deepEqual(starts, [1_000, 3_000, 4_000])
+  assert.deepEqual(waits, [1_000, 2_000, 1_000])
+})
+
+test('rate-limited transport does not retry ordinary forbidden responses and bounds fallback waits', async () => {
+  let forbiddenCalls = 0
+  const forbidden = createRateLimitedFetch(async () => {
+    forbiddenCalls += 1
+    return response({}, 403)
+  }, { mutationIntervalMs: 0, wait: async () => {} })
+  assert.equal((await forbidden('https://api.github.test/mutate', { method: 'POST' })).status, 403)
+  assert.equal(forbiddenCalls, 1)
+
+  let rateCalls = 0
+  const waits = []
+  const limited = createRateLimitedFetch(async () => {
+    rateCalls += 1
+    return response({}, 429)
+  }, { mutationIntervalMs: 0, wait: async (milliseconds) => { waits.push(milliseconds) } })
+  assert.equal((await limited('https://api.github.test/mutate', { method: 'POST' })).status, 429)
+  assert.equal(rateCalls, 3)
+  assert.deepEqual(waits, [60_000, 120_000])
+})
+
+function publicationTransport({
+  staleOnRecheck = false, refUpdateThrows = false, refUpdateMalformed = false, reconcileToCommit = false,
+} = {}) {
   const calls = []
   let refReads = 0
   let updated = false
@@ -273,6 +341,10 @@ function publicationTransport({ staleOnRecheck = false, refUpdateThrows = false,
     calls.push({ url, init })
     if (url.includes('/git/ref/heads/main')) {
       if (init.method === 'PATCH') {
+        if (refUpdateMalformed) {
+          if (reconcileToCommit) updated = true
+          return { ok: true, status: 200, headers: { get: () => null }, async json() { throw new Error('truncated') } }
+        }
         if (refUpdateThrows) {
           if (reconcileToCommit) updated = true
           throw new Error(`network failure ${TOKEN}`)
@@ -338,18 +410,34 @@ test('a changed destination tip aborts before ref mutation and never rebases the
 })
 
 test('an unknown ref outcome reconciles only when the exact commit and complete tree are observed', async () => {
-  const accepted = publicationTransport({ refUpdateThrows: true, reconcileToCommit: true })
-  const result = await publishArtifactTree({
-    fetchImpl: accepted.fetchImpl, token: TOKEN, config: config(), files: files(),
-    artifactTreeDigest: ARTIFACT, expectedTip: OLD,
-  })
-  assert.equal(result.state, 'reconciled')
+  for (const accepted of [
+    publicationTransport({ refUpdateThrows: true, reconcileToCommit: true }),
+    publicationTransport({ refUpdateMalformed: true, reconcileToCommit: true }),
+  ]) {
+    const result = await publishArtifactTree({
+      fetchImpl: accepted.fetchImpl, token: TOKEN, config: config(), files: files(),
+      artifactTreeDigest: ARTIFACT, expectedTip: OLD,
+    })
+    assert.equal(result.state, 'reconciled')
+  }
 
   const unknown = publicationTransport({ refUpdateThrows: true, reconcileToCommit: false })
   await assert.rejects(() => publishArtifactTree({
     fetchImpl: unknown.fetchImpl, token: TOKEN, config: config(), files: files(),
     artifactTreeDigest: ARTIFACT, expectedTip: OLD,
   }), (error) => error.code === 'github_ref_reconciliation_required' && error.state === 'reconcile-required')
+})
+
+test('publication child deadline scales with the exact artifact and reserves rate-limit cleanup time', () => {
+  const small = fixedCommand('publish', 'publisher', { files: encodedFiles(), artifactTreeDigest: ARTIFACT })
+  const current = fixedCommand('publish', 'publisher', {
+    files: Array.from({ length: 216 }, (_value, index) => ({
+      path: `assets/file-${index}.png`, mode: '100644', contentBase64: '',
+    })),
+    artifactTreeDigest: ARTIFACT,
+  })
+  assert.ok(publicationChildTimeoutMs(current) > publicationChildTimeoutMs(small))
+  assert.ok(publicationChildTimeoutMs(current) < 15 * 60_000)
 })
 
 test('revocation succeeds only on confirmed API success and sanitization drops secret-bearing causes', async () => {

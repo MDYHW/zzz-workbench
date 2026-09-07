@@ -1,5 +1,12 @@
+import { createHash } from 'node:crypto'
+import path from 'node:path'
 import { openInitialWorkbench, openWorkbench } from './support/workbench-page'
 import { expect, test } from './support/visual-test'
+import {
+  REGULAR_FILE_MODE,
+  createArtifactManifest,
+  readArtifactTree,
+} from '../../scripts/github-app/public-release-artifact.mjs'
 
 const releaseViewports = [
   { width: 1440, height: 800 },
@@ -7,6 +14,34 @@ const releaseViewports = [
 ] as const
 
 const exactCsp = "default-src 'none'; base-uri 'none'; connect-src 'self'; font-src 'self'; form-action 'none'; frame-src 'none'; img-src 'self' data:; manifest-src 'self'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; worker-src 'none'"
+
+let admittedRuntimeEntries: Array<{ path: string, size: number, sha256: string }>
+
+test.beforeAll(async () => {
+  const generatedFiles = await readArtifactTree(path.resolve('dist'))
+  const runtimeScripts = generatedFiles.filter(({ path: filePath }) => filePath.endsWith('.js'))
+  if (runtimeScripts.length !== 1) throw new Error('Expected one production runtime script.')
+  const diagnosticUrls = [
+    ['https://react.dev/errors/', 2],
+    ['http://www.w3.org/2000/svg', 5],
+    ['http://www.w3.org/1998/Math/MathML', 3],
+    ['http://www.w3.org/1999/xlink', 7],
+    ['http://www.w3.org/XML/1998/namespace', 3],
+  ] as const
+  const manifest = createArtifactManifest([
+    ...generatedFiles,
+    { path: '.nojekyll', mode: REGULAR_FILE_MODE, bytes: Buffer.alloc(0) },
+  ], {
+    forbiddenFragments: ['private-release-sentinel'],
+    inertExternalUrlExceptions: diagnosticUrls.map(([url, occurrences]) => ({
+      path: runtimeScripts[0].path,
+      url,
+      occurrences,
+      reason: 'non-requesting-diagnostic',
+    })),
+  })
+  admittedRuntimeEntries = manifest.entries.filter(({ path: filePath }) => filePath !== '.nojekyll')
+})
 
 test('keeps the shared legal footer readable and outside the workbench at every release surface', async ({ page }) => {
   for (const viewport of releaseViewports) {
@@ -112,6 +147,16 @@ test('loads only same-origin resources and leaves browser persistence empty', as
   const pageUrl = new URL(page.url())
   expect(requestUrls.every((url) => new URL(url).origin === pageUrl.origin)).toBe(true)
   expect(socketUrls.every((url) => new URL(url).host === pageUrl.host)).toBe(true)
+  for (const entry of admittedRuntimeEntries) {
+    const response = await page.request.get(new URL(entry.path, pageUrl).href)
+    expect(response.ok(), `production artifact URL failed: ${entry.path}`).toBe(true)
+    const bytes = await response.body()
+    expect(bytes.length, `production artifact size changed: ${entry.path}`).toBe(entry.size)
+    expect(
+      createHash('sha256').update(bytes).digest('hex'),
+      `production artifact bytes changed: ${entry.path}`,
+    ).toBe(entry.sha256)
+  }
 
   expect(await context.cookies()).toEqual([])
   expect(await page.evaluate(async () => ({

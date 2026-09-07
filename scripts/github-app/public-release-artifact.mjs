@@ -918,11 +918,22 @@ function validateReleaseBinding(binding, label) {
   requireString(binding.sourceContext.expectedRemoteUrl, `${label} expected remote`);
   requireExactKeys(binding.sourceContext.tools, ['git', 'node', 'npm'], `${label} toolchain`);
   for (const [name, tool] of Object.entries(binding.sourceContext.tools)) {
-    requireExactKeys(tool, ['digest', 'path', 'realPath'], `${label} ${name} tool`);
+    const keys = name === 'npm'
+      ? ['digest', 'packageFileCount', 'packageRoot', 'packageTreeDigest', 'path', 'realPath']
+      : ['digest', 'path', 'realPath'];
+    requireExactKeys(tool, keys, `${label} ${name} tool`);
     for (const key of ['path', 'realPath']) {
       if (typeof tool[key] !== 'string' || !path.isAbsolute(tool[key])) fail(`${label} ${name} tool path is invalid.`, 'decision_invalid');
     }
     requireSha(tool.digest, SHA256_IDENTITY, `${label} ${name} tool digest`);
+    if (name === 'npm') {
+      if (typeof tool.packageRoot !== 'string' || !path.isAbsolute(tool.packageRoot)
+          || !pathsEqual(tool.realPath, path.join(tool.packageRoot, 'bin', 'npm-cli.js'))
+          || !Number.isSafeInteger(tool.packageFileCount) || tool.packageFileCount < 1) {
+        fail(`${label} npm package identity is invalid.`, 'decision_invalid');
+      }
+      requireSha(tool.packageTreeDigest, SHA256_IDENTITY, `${label} npm package tree digest`);
+    }
   }
   validateGitExecutable(binding.sourceContext.tools.git.path);
   requireExactKeys(binding.sourceContext.publishingChild, ['blobSha', 'digest', 'path'], `${label} publishing child`);
