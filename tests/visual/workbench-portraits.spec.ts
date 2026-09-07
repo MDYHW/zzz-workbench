@@ -1,6 +1,8 @@
-import type { Page } from '@playwright/test'
+import { createHash } from 'node:crypto'
+import type { Locator, Page } from '@playwright/test'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { readArtifactTree } from '../../scripts/github-app/public-release-artifact.mjs'
 import { ADMITTED_AGENTS, agentDisplayName } from '../../src/workbench/content/agents'
 import type { AgentId } from '../../src/workbench/content/types'
 import {
@@ -38,6 +40,29 @@ const candidatePoolSnapshotStyle = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   'candidate-pool-snapshot.css',
 )
+
+let emittedSelectorPortraitPaths: Set<string>
+
+test.beforeAll(async () => {
+  const [selectorPortraits, emittedFiles] = await Promise.all([
+    readArtifactTree(path.resolve('src/assets/agents/selector-portraits')),
+    readArtifactTree(path.resolve('dist')),
+  ])
+  const digest = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex')
+  const emittedByDigest = new Map(emittedFiles.map((file) => [digest(file.bytes), file.path]))
+  emittedSelectorPortraitPaths = new Set(selectorPortraits.map((portrait) => {
+    const emittedPath = emittedByDigest.get(digest(portrait.bytes))
+    if (!emittedPath) throw new Error(`Selector portrait was not emitted unchanged: ${portrait.path}`)
+    return emittedPath
+  }))
+})
+
+async function expectEmittedSelectorPortraits(images: Locator): Promise<void> {
+  const paths = await images.evaluateAll((elements) => elements.map((element) => (
+    new URL((element as HTMLImageElement).src).pathname.replace(/^\//, '')
+  )))
+  expect(paths.every((sourcePath) => emittedSelectorPortraitPaths.has(sourcePath))).toBe(true)
+}
 
 const selectorSlugs: Record<AgentId, string> = {
   ...Object.fromEntries(ADMITTED_AGENTS.map(({ id }) => [id, id])),
@@ -345,9 +370,7 @@ async function captureDestinations(page: Page, party: PortraitParty): Promise<vo
     const draftRail = page.locator('.party-editor__draft-rail')
     await expect.soft(draftRail.locator('.draft-slot')).toHaveCount(3)
     await expect.soft(draftRail.locator('.party-editor__portrait--draft img')).toHaveCount(3)
-    expect(await draftRail.locator('.party-editor__portrait--draft img').evaluateAll((images) => (
-      images.every((image) => (image as HTMLImageElement).src.includes('/selector-portraits/'))
-    ))).toBe(true)
+    await expectEmittedSelectorPortraits(draftRail.locator('.party-editor__portrait--draft img'))
     await expectDraftIdentityClearance(page, party.id, destination.id)
     for (let slotIndex = 0; slotIndex < 3; slotIndex += 1) {
       const slot = draftRail.locator('.draft-slot').nth(slotIndex)
@@ -405,9 +428,7 @@ test('Party Edit candidate pool preserves every admitted upper-body portrait des
     const pool = page.getByRole('region', { name: 'Agent candidate pool' })
     const grid = pool.locator('.party-editor__pool-grid')
     await expect.soft(grid.locator('.party-editor__portrait--pool img')).toHaveCount(ADMITTED_AGENTS.length)
-    expect(await grid.locator('.party-editor__portrait--pool img').evaluateAll((images) => (
-      images.every((image) => (image as HTMLImageElement).src.includes('/selector-portraits/'))
-    ))).toBe(true)
+    await expectEmittedSelectorPortraits(grid.locator('.party-editor__portrait--pool img'))
     await expectCandidateIdentityClearance(page, destination.id)
     await clearTransientSourceHighlight(page)
     await expect.soft(grid).toHaveScreenshot(
