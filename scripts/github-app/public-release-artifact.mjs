@@ -17,8 +17,8 @@ export const WORLDWIDE_DELIVERY = Object.freeze({
 });
 export const REQUIRED_CSP = "default-src 'none'; base-uri 'none'; connect-src 'self'; font-src 'self'; form-action 'none'; frame-src 'none'; img-src 'self' data:; manifest-src 'self'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; worker-src 'none'";
 export const REQUIRED_FOOTER_WORDING = Object.freeze([
-  'This is an unofficial, non-commercial fan-made website. It is not sponsored, endorsed, or approved by HoYoverse. Zenless Zone Zero and related game images and assets are trademarks and/or copyrighted materials of HoYoverse and their respective rights holders.',
-  '이 프로젝트는 비공식·비상업적 팬메이드 웹사이트이며 HoYoverse의 후원·보증·승인을 받지 않았습니다. 게임 관련 이미지 및 에셋의 저작권과 상표권은 HoYoverse 및 각 권리자에게 귀속됩니다.',
+  'This is an unofficial, non-commercial fan-made website. It is not sponsored, endorsed, or approved by HoYoverse. © All rights reserved by miHoYo. Other properties and any right, title, and interest thereof and therein (intellectual property rights included) not derived from Zenless Zone Zero belong to their respective owners.',
+  '이 프로젝트는 비공식·비상업적 팬메이드 웹사이트이며 HoYoverse의 후원·보증·승인을 받지 않았습니다. Zenless Zone Zero 관련 이미지와 에셋의 권리는 HoYoverse 및 관련 권리자에게 귀속되며, 그 밖의 자산과 권리는 각 소유자에게 귀속됩니다.',
 ]);
 export const REQUIRED_FOOTER_DIGEST = framedDigestIdentity(
   'zzz-workbench-public-footer/v1',

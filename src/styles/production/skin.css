@@ -1024,15 +1024,6 @@
     --selector-portrait-slash-bottom: 77.08px;
   }
 
-  .masthead__logo {
-    flex-basis: 33px;
-    width: 33px;
-  }
-
-  .masthead__logo img {
-    left: -107px;
-  }
-
   .party-rail > .party-edit-cell {
     flex-basis: 44px;
     min-width: 44px;
