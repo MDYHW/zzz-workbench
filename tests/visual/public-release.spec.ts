@@ -131,6 +131,7 @@ function publicationTransport() {
 
 test.beforeAll(async () => {
   const generatedFiles = await readArtifactTree(path.resolve('dist'))
+  const sourceRasterFiles = await readArtifactTree(path.resolve('src/assets'))
   const runtimeScripts = generatedFiles.filter(({ path: filePath }) => filePath.endsWith('.js'))
   const diagnosticUrls = [
     ['https://react.dev/errors/', 2],
@@ -180,7 +181,11 @@ test.beforeAll(async () => {
     },
     install: async () => {},
     build: async () => {},
-    readGeneratedFiles: async () => generatedFiles,
+    readGeneratedFiles: async ({ root }) => {
+      if (root === path.join(extractionRoot, 'src', 'assets')) return sourceRasterFiles
+      if (root === path.join(extractionRoot, 'dist')) return generatedFiles
+      throw new Error(`Unexpected release tree: ${root}`)
+    },
     releaseContext: {
       footerDigest: REQUIRED_FOOTER_DIGEST,
       guidance: [{ id: 'reviewed-guidance', digest: fixtureDigest('4') }],

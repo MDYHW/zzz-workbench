@@ -46,6 +46,24 @@ const boundNpmIdentity = () => ({
   packageTreeDigest: digest('5'),
 })
 
+const webpImageBytes = () => {
+  const image = Buffer.from('pixels')
+  const chunk = Buffer.alloc(8 + image.length + (image.length % 2))
+  chunk.write('VP8 ', 0, 'ascii')
+  chunk.writeUInt32LE(image.length, 4)
+  image.copy(chunk, 8)
+  const payload = Buffer.concat([Buffer.from('WEBP'), chunk])
+  const bytes = Buffer.alloc(8 + payload.length)
+  bytes.write('RIFF', 0, 'ascii')
+  bytes.writeUInt32LE(payload.length, 4)
+  payload.copy(bytes, 8)
+  return bytes
+}
+
+const sourceRasterFiles = () => [{
+  path: 'equipment/mark.webp', mode: REGULAR_FILE_MODE, bytes: webpImageBytes(),
+}]
+
 const generatedPublicFiles = () => [
   { path: '.nojekyll', mode: REGULAR_FILE_MODE, bytes: Buffer.alloc(0) },
   {
@@ -57,6 +75,7 @@ const generatedPublicFiles = () => [
     bytes: Buffer.from(`document.querySelector("#root").textContent="ready";${REQUIRED_FOOTER_WORDING.join('')}`),
   },
   { path: 'assets/app-abcdef12.css', mode: REGULAR_FILE_MODE, bytes: Buffer.from('.app{display:block}') },
+  { path: 'assets/mark-abcdef12.webp', mode: REGULAR_FILE_MODE, bytes: webpImageBytes() },
 ]
 
 const config = (forbiddenPrivateIdentifiers = ['private-owner', 'private-repository']) => ({
@@ -307,6 +326,7 @@ test('prepare accepts only bootstrap, publish, or restore and binds the extracte
     },
   }
   const toolCalls = []
+  const artifactReads = []
   const result = await dispatchReleaseCommand(command('prepare'), {
     controllerRoot: ROOT,
     nodeExecutable: NODE,
@@ -337,7 +357,12 @@ test('prepare accepts only bootstrap, publish, or restore and binds the extracte
     gitRunner: async () => ({ stdout: Buffer.from(`${BLOB}\n`), stderr: Buffer.alloc(0) }),
     npmPackageIdentity: async () => boundNpmIdentity(),
     toolRunner: async (request) => { toolCalls.push(request) },
-    readArtifactTree: async () => generatedPublicFiles(),
+    readArtifactTree: async (root) => {
+      artifactReads.push(root)
+      if (root === path.join(external('extract'), 'src', 'assets')) return sourceRasterFiles()
+      if (root === path.join(external('extract'), 'dist')) return generatedPublicFiles()
+      throw new Error(`Unexpected release tree: ${root}`)
+    },
   })
   assert.equal(result.nextCommand, 'publish')
   assert.equal(writes.length, 3)
@@ -350,6 +375,10 @@ test('prepare accepts only bootstrap, publish, or restore and binds the extracte
   assert.deepEqual(toolCalls.map(({ executable, args, shell }) => ({ executable, args, shell })), [
     { executable: NODE, args: [NPM, 'ci', '--ignore-scripts'], shell: false },
     { executable: NODE, args: [NPM, 'run', 'build'], shell: false },
+  ])
+  assert.deepEqual(artifactReads, [
+    path.join(external('extract'), 'src', 'assets'),
+    path.join(external('extract'), 'dist'),
   ])
   assert.ok(toolCalls.every(({ env }) => JSON.stringify(env) === JSON.stringify(createNpmCommandEnvironment(NODE, external('extract')))))
   assert.ok(toolCalls.every(({ env }) => (
