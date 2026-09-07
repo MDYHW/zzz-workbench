@@ -389,6 +389,7 @@ test('prepare accepts only bootstrap, publish, or restore and binds the extracte
 
   await assert.rejects(dispatchReleaseCommand(command('prepare'), {
     controllerRoot: ROOT,
+    fsImpl: emptyDirectoryFs(),
     readFile: jsonReader({
       'release-context.json': { ...context, phase: 'rebuild-origin' },
     }),
@@ -543,6 +544,44 @@ test('dirty or mismatched trusted main fails inside preflight before key read', 
     })
     await assert.rejects(dispatchReleaseCommand(command('publish'), fixture.dependencies), /trusted exact main/)
     assert.equal(keyReads, 0)
+  }
+})
+
+test('operation paths cannot enter the repository through a symlinked ancestor', async () => {
+  const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-operation-redirect-'))
+  const repositoryRoot = path.join(temporary, 'repository')
+  const externalRoot = path.join(temporary, 'external')
+  const redirectedRoot = path.join(temporary, 'redirected')
+  const actualOperations = path.join(repositoryRoot, 'operations')
+  try {
+    await fs.mkdir(actualOperations, { recursive: true })
+    await fs.mkdir(externalRoot)
+    try {
+      await fs.symlink(repositoryRoot, redirectedRoot, process.platform === 'win32' ? 'junction' : 'dir')
+    } catch (error) {
+      if (process.platform === 'win32' && ['EPERM', 'UNKNOWN'].includes(error.code)) return
+      throw error
+    }
+    for (const name of ['candidate.json', 'decision.json', 'github.json', 'bootstrap.pem', 'publisher.pem']) {
+      await fs.writeFile(path.join(externalRoot, name), '')
+    }
+    const githubConfig = config()
+    githubConfig.apps.bootstrap.keyPath = path.join(externalRoot, 'bootstrap.pem')
+    githubConfig.apps.publisher.keyPath = path.join(externalRoot, 'publisher.pem')
+    const fixture = mutationDependencies({ githubConfig })
+    fixture.dependencies.controllerRoot = repositoryRoot
+    fixture.dependencies.fsImpl = fs
+    await assert.rejects(dispatchReleaseCommand(command('publish', {
+      candidate: path.join(externalRoot, 'candidate.json'),
+      decision: path.join(externalRoot, 'decision.json'),
+      githubConfig: path.join(externalRoot, 'github.json'),
+      operationDirectory: path.join(redirectedRoot, 'operations'),
+    }), fixture.dependencies), (error) => (
+      error instanceof PublicReleaseError && error.code === 'external_path_required'
+    ))
+    assert.equal((await fs.readdir(actualOperations)).length, 0)
+  } finally {
+    await fs.rm(temporary, { recursive: true, force: true })
   }
 })
 

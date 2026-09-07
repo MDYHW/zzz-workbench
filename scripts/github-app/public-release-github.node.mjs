@@ -330,7 +330,7 @@ test('rate-limited transport serializes mutations and applies bounded Retry-Afte
   assert.deepEqual(waits, [1_000, 2_000, 1_000])
 })
 
-test('rate-limited transport does not retry ordinary forbidden responses and bounds fallback waits', async () => {
+test('rate-limited transport does not retry ordinary forbidden responses and globally bounds fallback waits', async () => {
   let forbiddenCalls = 0
   const forbidden = createRateLimitedFetch(async () => {
     forbiddenCalls += 1
@@ -346,7 +346,8 @@ test('rate-limited transport does not retry ordinary forbidden responses and bou
     return response({}, 429)
   }, { mutationIntervalMs: 0, wait: async (milliseconds) => { waits.push(milliseconds) } })
   assert.equal((await limited('https://api.github.test/mutate', { method: 'POST' })).status, 429)
-  assert.equal(rateCalls, 3)
+  assert.equal((await limited('https://api.github.test/another', { method: 'POST' })).status, 429)
+  assert.equal(rateCalls, 4)
   assert.deepEqual(waits, [60_000, 120_000])
 })
 
@@ -503,7 +504,7 @@ test('an unknown ref outcome reconciles only when the exact commit and complete 
   }), (error) => error.code === 'github_ref_reconciliation_required' && error.state === 'reconcile-required')
 })
 
-test('publication child deadline scales with the exact artifact and reserves rate-limit cleanup time', () => {
+test('publication child deadline covers slow successful requests through confirmed cleanup', async () => {
   const small = fixedCommand('publish', 'publisher', { files: encodedFiles(), artifactTreeDigest: ARTIFACT })
   const current = fixedCommand('publish', 'publisher', {
     files: Array.from({ length: 216 }, (_value, index) => ({
@@ -511,8 +512,27 @@ test('publication child deadline scales with the exact artifact and reserves rat
     })),
     artifactTreeDigest: ARTIFACT,
   })
-  assert.ok(publicationChildTimeoutMs(current) > publicationChildTimeoutMs(small))
-  assert.ok(publicationChildTimeoutMs(current) < 15 * 60_000)
+  const deadline = publicationChildTimeoutMs(current)
+  assert.ok(deadline > publicationChildTimeoutMs(small))
+  assert.ok(deadline > 45 * 60_000)
+  assert.ok(deadline < 60 * 60_000)
+
+  let clock = 0
+  const slow = createRateLimitedFetch(async () => {
+    clock += 4_000
+    return response({}, 204)
+  }, {
+    now: () => clock,
+    wait: async (milliseconds) => { clock += milliseconds },
+  })
+  for (let index = 0; index < 220; index += 1) {
+    assert.equal((await slow(`https://api.github.test/mutation/${index}`, { method: 'POST' })).ok, true)
+  }
+  for (let index = 0; index < 18; index += 1) {
+    assert.equal((await slow(`https://api.github.test/read/${index}`)).ok, true)
+  }
+  assert.equal((await slow('https://api.github.test/installation/token', { method: 'DELETE' })).ok, true)
+  assert.ok(clock < deadline)
 })
 
 test('revocation succeeds only on confirmed API success and sanitization drops secret-bearing causes', async () => {

@@ -15,6 +15,7 @@ export const FIXED_CHILD_MODE = '--public-release-fixed-child'
 export const PUBLICATION_MUTATION_INTERVAL_MS = 1_000
 export const PUBLICATION_MAX_RATE_LIMIT_RETRIES = 2
 export const PUBLICATION_CHILD_TIMEOUT_MS = 15 * 60_000
+const PUBLICATION_REQUEST_TIMEOUT_MS = 10_000
 
 const REQUEST_TIMEOUT_MS = Symbol('request-timeout-ms')
 
@@ -319,14 +320,15 @@ async function rateLimitDelay(response, attempt, now) {
   }
   if (!rateLimited) return null
   const retryAfter = Number(retryAfterHeader)
+  const maximumDelay = 60_000 * (2 ** attempt)
   if (retryAfterHeader !== null && Number.isFinite(retryAfter) && retryAfter >= 0) {
-    return Math.ceil(retryAfter * 1_000)
+    return Math.min(Math.ceil(retryAfter * 1_000), maximumDelay)
   }
   if (remainingHeader === '0') {
     const resetAt = Number(response.headers?.get?.('x-ratelimit-reset')) * 1_000
-    if (Number.isFinite(resetAt) && resetAt > now()) return Math.ceil(resetAt - now())
+    if (Number.isFinite(resetAt) && resetAt > now()) return Math.min(Math.ceil(resetAt - now()), maximumDelay)
   }
-  return 60_000 * (2 ** attempt)
+  return maximumDelay
 }
 
 export function createRateLimitedFetch(fetchImpl, {
@@ -340,6 +342,7 @@ export function createRateLimitedFetch(fetchImpl, {
     fail('GitHub rate-limit transport is invalid.', { code: 'github_transport_invalid' })
   }
   let lastMutationCompletedAt = now()
+  let remainingRateLimitRetries = maxRetries
   return async (url, init = {}) => {
     const method = String(init.method ?? 'GET').toUpperCase()
     const mutation = !['GET', 'HEAD', 'OPTIONS'].includes(method)
@@ -357,7 +360,8 @@ export function createRateLimitedFetch(fetchImpl, {
       })
       if (mutation) lastMutationCompletedAt = now()
       const retryDelay = await rateLimitDelay(response, attempt, now)
-      if (retryDelay === null || attempt >= maxRetries) return response
+      if (retryDelay === null || remainingRateLimitRetries === 0) return response
+      remainingRateLimitRetries -= 1
       await wait(retryDelay)
     }
   }
@@ -1284,7 +1288,7 @@ function combinedReconciliationError(operationError, revocationError) {
   }
 }
 
-export function publicationChildTimeoutMs(command, requestTimeoutMs = 15_000) {
+export function publicationChildTimeoutMs(command, requestTimeoutMs = PUBLICATION_REQUEST_TIMEOUT_MS) {
   validateFixedChildCommand(command)
   if (!Number.isSafeInteger(requestTimeoutMs) || requestTimeoutMs < 1) {
     fail('Publishing request timeout is invalid.', { code: 'github_child_process_invalid' })
@@ -1292,18 +1296,21 @@ export function publicationChildTimeoutMs(command, requestTimeoutMs = 15_000) {
   const budget = PUBLICATION_REQUEST_BUDGETS[command.operation]
   const fileCount = command.payload.files?.length ?? 0
   const mutationCount = fileCount + budget.fixedMutations
-  const mutationPacing = mutationCount * PUBLICATION_MUTATION_INTERVAL_MS
-  const boundedReadBudget = budget.reads * requestTimeoutMs
+  const retryCount = PUBLICATION_MAX_RATE_LIMIT_RETRIES
+  const cleanupCount = 1
+  const requestCount = mutationCount + budget.reads + retryCount + cleanupCount
+  const mutationPacing = (mutationCount + retryCount + cleanupCount) * PUBLICATION_MUTATION_INTERVAL_MS
+  const boundedRequestBudget = requestCount * requestTimeoutMs
   const boundedRateLimitWait = 60_000 + 120_000
   const cleanupReserve = 60_000
-  return Math.max(120_000, mutationPacing + boundedReadBudget + boundedRateLimitWait + cleanupReserve)
+  return Math.max(120_000, mutationPacing + boundedRequestBudget + boundedRateLimitWait + cleanupReserve)
 }
 
 export async function executeFixedChildCommand({
   command,
   token,
   fetchImpl,
-  timeoutMs = 15_000,
+  timeoutMs = PUBLICATION_REQUEST_TIMEOUT_MS,
 }) {
   let result = null
   let operationError = null
@@ -1481,7 +1488,7 @@ export async function runPublishingChild({
         code: 'github_child_interrupted', state: 'reconcile-required',
       })
     }
-    const childTimeoutMs = timeoutMs ?? publicationChildTimeoutMs(command, authTimeoutMs)
+    const childTimeoutMs = timeoutMs ?? publicationChildTimeoutMs(command)
     const expiresAt = Date.parse(minted.expiresAt ?? '')
     if (!Number.isFinite(expiresAt) || expiresAt - now() < childTimeoutMs + 60_000) {
       fail('Installation token lifetime is insufficient for the bounded publication and cleanup window.', {

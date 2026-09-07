@@ -93,6 +93,53 @@ function assertExternalPath(value, repositoryRoot, label) {
   return path.resolve(value)
 }
 
+async function realUnredirectedDirectory(directory, label, fsImpl) {
+  const resolved = path.resolve(directory)
+  let stat
+  let realPath
+  try {
+    [stat, realPath] = await Promise.all([fsImpl.lstat(resolved), fsImpl.realpath(resolved)])
+  } catch {
+    fail(`${label} must be an existing real directory.`, { code: 'external_path_required' })
+  }
+  if (!stat.isDirectory() || stat.isSymbolicLink() || !pathsEqual(realPath, resolved)) {
+    fail(`${label} must be an unredirected real directory.`, { code: 'external_path_required' })
+  }
+  return path.resolve(realPath)
+}
+
+async function verifyExternalExistingPath(value, repositoryRoot, label, fsImpl) {
+  const requested = assertExternalPath(value, repositoryRoot, label)
+  const realRepository = await realUnredirectedDirectory(repositoryRoot, 'Controller repository', fsImpl)
+  let stat
+  let realPath
+  try {
+    [stat, realPath] = await Promise.all([fsImpl.lstat(requested), fsImpl.realpath(requested)])
+  } catch {
+    fail(`${label} must be an existing external path.`, { code: 'external_path_required' })
+  }
+  if (stat.isSymbolicLink() || !pathsEqual(realPath, requested) || isInside(realRepository, realPath)) {
+    fail(`${label} must not redirect into or through the repository.`, { code: 'external_path_required' })
+  }
+  return requested
+}
+
+async function verifyExternalOutputPath(value, repositoryRoot, label, fsImpl) {
+  const requested = assertExternalPath(value, repositoryRoot, label)
+  const realRepository = await realUnredirectedDirectory(repositoryRoot, 'Controller repository', fsImpl)
+  const parent = await realUnredirectedDirectory(path.dirname(requested), `${label} parent`, fsImpl)
+  if (isInside(realRepository, parent)) {
+    fail(`${label} parent must remain outside the repository.`, { code: 'external_path_required' })
+  }
+  return requested
+}
+
+async function verifyGithubKeyPaths(config, dependencies) {
+  for (const [role, app] of Object.entries(config.apps)) {
+    await verifyExternalExistingPath(app.keyPath, dependencies.controllerRoot, `${role} key`, dependencies.fsImpl)
+  }
+}
+
 function validateExecutable(value, names, label) {
   if (typeof value !== 'string' || !path.isAbsolute(value)
       || !names.includes(path.basename(value).toLowerCase())) {
@@ -221,17 +268,20 @@ function publicationFiles(files) {
 }
 
 async function ensureEmptyDirectory(directory, dependencies) {
-  assertExternalPath(directory, dependencies.controllerRoot, 'Operation directory')
+  const verifiedDirectory = await verifyExternalExistingPath(
+    directory, dependencies.controllerRoot, 'Operation directory', dependencies.fsImpl,
+  )
   let stat
   try {
-    stat = await dependencies.fsImpl.lstat(directory)
+    stat = await dependencies.fsImpl.lstat(verifiedDirectory)
   } catch {
     fail('Operation directory must already exist.', { code: 'external_path_required' })
   }
-  if (!stat.isDirectory() || stat.isSymbolicLink() || (await dependencies.fsImpl.readdir(directory)).length !== 0) {
+  if (!stat.isDirectory() || stat.isSymbolicLink()
+      || (await dependencies.fsImpl.readdir(verifiedDirectory)).length !== 0) {
     fail('Operation directory must be a fresh empty directory.', { code: 'external_path_required' })
   }
-  return path.resolve(directory)
+  return verifiedDirectory
 }
 
 async function toolIdentity(executable, names, label, dependencies) {
@@ -346,12 +396,16 @@ async function prepareRelease(command, dependencies) {
   if (!pathsEqual(repositoryRoot, dependencies.controllerRoot)) {
     fail('Prepare must use the trusted controller repository.', { code: 'trusted_source_invalid' })
   }
-  for (const label of ['candidate', 'decisionTemplate', 'extractionRoot', 'gitExecutable', 'githubConfig', 'npmCli', 'releaseContext', 'trustedController']) {
-    assertExternalPath(command.paths[label], repositoryRoot, label)
+  for (const label of ['candidate', 'decisionTemplate', 'trustedController']) {
+    await verifyExternalOutputPath(command.paths[label], repositoryRoot, label, dependencies.fsImpl)
+  }
+  for (const label of ['extractionRoot', 'gitExecutable', 'githubConfig', 'npmCli', 'releaseContext']) {
+    await verifyExternalExistingPath(command.paths[label], repositoryRoot, label, dependencies.fsImpl)
   }
   const context = validateReleaseContext(await readJsonFile(command.paths.releaseContext, dependencies.readFile))
   const config = await readJsonFile(command.paths.githubConfig, dependencies.readFile)
   validateGithubConfig(config, { forbiddenRoots: [dependencies.controllerRoot] })
+  await verifyGithubKeyPaths(config, dependencies)
   const tools = {
     git: await toolIdentity(command.paths.gitExecutable, ['git', 'git.exe'], 'Git', dependencies),
     node: await toolIdentity(dependencies.nodeExecutable, ['node', 'node.exe'], 'Node', dependencies),
@@ -607,12 +661,18 @@ async function readPublicationInputs(command, dependencies) {
   for (const [label, value] of Object.entries(command.paths)) {
     assertExternalPath(value, dependencies.controllerRoot, label)
   }
+  for (const [label, value] of Object.entries(command.paths)) {
+    if (label !== 'operationDirectory') {
+      await verifyExternalExistingPath(value, dependencies.controllerRoot, label, dependencies.fsImpl)
+    }
+  }
   const [candidateValue, decision, config] = await Promise.all([
     readJsonFile(command.paths.candidate, dependencies.readFile),
     readJsonFile(command.paths.decision, dependencies.readFile),
     readJsonFile(command.paths.githubConfig, dependencies.readFile),
   ])
   validateGithubConfig(config, { forbiddenRoots: [dependencies.controllerRoot] })
+  await verifyGithubKeyPaths(config, dependencies)
   return { candidate: decodeCandidate(candidateValue), decision, config }
 }
 
@@ -685,8 +745,14 @@ async function executeDisablePages(command, dependencies) {
   for (const [label, value] of Object.entries(command.paths)) {
     assertExternalPath(value, dependencies.controllerRoot, label)
   }
+  for (const [label, value] of Object.entries(command.paths)) {
+    if (label !== 'operationDirectory') {
+      await verifyExternalExistingPath(value, dependencies.controllerRoot, label, dependencies.fsImpl)
+    }
+  }
   const config = await readJsonFile(command.paths.githubConfig, dependencies.readFile)
   validateGithubConfig(config, { forbiddenRoots: [dependencies.controllerRoot] })
+  await verifyGithubKeyPaths(config, dependencies)
   const trusted = await readJsonFile(command.paths.trustedController, dependencies.readFile)
   const confirmation = await readJsonFile(command.paths.incidentConfirmation, dependencies.readFile)
   exactKeys(trusted, ['schema', 'source', 'sourceContext'], 'Trusted controller binding')
@@ -752,7 +818,7 @@ export async function dispatchReleaseCommand(command, overrides = {}) {
 
 async function main() {
   const cli = parseReleaseCli(process.argv.slice(2))
-  assertExternalPath(cli.inputFile, CONTROLLER_ROOT, 'Release command input')
+  await verifyExternalExistingPath(cli.inputFile, CONTROLLER_ROOT, 'Release command input', fs)
   const command = await readReleaseCommand(cli.inputFile)
   if (command.kind !== cli.kind) fail('Command kind does not match the input file.')
   process.stdout.write(`${JSON.stringify(await dispatchReleaseCommand(command))}\n`)
