@@ -575,11 +575,22 @@ token. A fresh key exists only for its authorized publication window.
 #### Bootstrap and routine publication
 
 While the dedicated Organization is empty, install the neutral publisher App
-for all current and future repositories. The bootstrap App then creates the one
-private root repository, establishes the private `.nojekyll` root needed for an
-empty repository, creates the complete accepted successor tree, installs the
-publisher-only normal-update bypass ruleset, verifies the complete tree, makes
-the repository public, and enables root-branch Pages.
+for all current and future repositories. Use GitHub Free for the Organization.
+The publisher App has only Contents write and Metadata read. The bootstrap App
+initially has Administration write, Contents write, Metadata read, and Pages
+write.
+
+GitHub Free exposes repository rulesets only after the repository is public.
+The bootstrap App therefore creates the one private root repository and its
+`.nojekyll` root, makes that neutral placeholder-only repository public, and
+installs an active ruleset whose sole temporary bypass is the bootstrap App. It
+then creates and verifies the complete accepted successor tree, updates and
+verifies the same ruleset so the publisher App is the sole bypass, and only then
+enables root-branch Pages. Until that last step, no client is served. A failure
+after visibility changes leaves an incomplete public placeholder or artifact
+repository with Pages disabled; inspect that exact remote state and follow the
+manual incident procedure instead of treating it as an RC or retrying through a
+reused operation directory.
 
 Every public artifact commit uses only the neutral App identity and one complete
 tree. Routine publication uses only the contents-write publisher App. Its fixed
@@ -589,8 +600,12 @@ the publisher with Administration or Pages permission.
 
 The bootstrap command confirms token revocation before it returns. After live
 RC verification, use private App settings to create the required protected
-offline replacement, delete the used bootstrap key, remove bootstrap contents
-and repository-administration permissions, and delete the external key file.
+offline replacement, delete the used bootstrap key, remove bootstrap Contents
+permission, and delete the external key file. Keep Administration write,
+Metadata read, and Pages write because GitHub's Pages-delete API requires both
+Administration and Pages write for an installation token. The dormant App has
+no online key or token, and the fixed stop controller still permits only the
+Pages-delete endpoint.
 Verify the App and installation permissions and local key absence manually;
 local absence alone is not proof of provider-side deletion.
 
