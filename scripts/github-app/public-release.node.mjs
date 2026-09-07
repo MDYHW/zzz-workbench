@@ -627,6 +627,33 @@ test('operation paths cannot enter the repository through a symlinked ancestor',
   }
 })
 
+test('prepare output paths cannot enter the repository through a symlinked ancestor', async () => {
+  const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-output-redirect-'))
+  const repositoryRoot = path.join(temporary, 'repository')
+  const redirectedRoot = path.join(temporary, 'redirected')
+  const actualOutputs = path.join(repositoryRoot, 'outputs')
+  try {
+    await fs.mkdir(actualOutputs, { recursive: true })
+    try {
+      await fs.symlink(repositoryRoot, redirectedRoot, process.platform === 'win32' ? 'junction' : 'dir')
+    } catch (error) {
+      if (process.platform === 'win32' && ['EPERM', 'UNKNOWN'].includes(error.code)) return
+      throw error
+    }
+    await assert.rejects(dispatchReleaseCommand(command('prepare', {
+      ...pathsFor('prepare'),
+      repositoryRoot,
+      candidate: path.join(redirectedRoot, 'outputs', 'candidate.json'),
+    }), {
+      controllerRoot: repositoryRoot,
+      fsImpl: fs,
+    }), (error) => error instanceof PublicReleaseError && error.code === 'external_path_required')
+    assert.deepEqual(await fs.readdir(actualOutputs), [])
+  } finally {
+    await fs.rm(temporary, { recursive: true, force: true })
+  }
+})
+
 test('every configured private identifier must be present in the candidate-bound denylist', async () => {
   let keyReads = 0
   const retained = candidate(['private-owner', ROOT.toLowerCase(), GIT.toLowerCase()])

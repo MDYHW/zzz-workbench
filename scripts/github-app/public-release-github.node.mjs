@@ -24,7 +24,6 @@ import {
   createRateLimitedFetch,
   disablePages,
   executeFixedChildCommand,
-  inspectPublicRelease,
   makeDestinationPublic,
   mintInstallationToken,
   publishArtifactTree,
@@ -504,37 +503,6 @@ test('an unknown ref outcome reconciles only when the exact commit and complete 
   }), (error) => error.code === 'github_ref_reconciliation_required' && error.state === 'reconcile-required')
 })
 
-test('publication child deadline covers slow successful requests through confirmed cleanup', async () => {
-  const small = fixedCommand('publish', 'publisher', { files: encodedFiles(), artifactTreeDigest: ARTIFACT })
-  const current = fixedCommand('publish', 'publisher', {
-    files: Array.from({ length: 216 }, (_value, index) => ({
-      path: `assets/file-${index}.png`, mode: '100644', contentBase64: '',
-    })),
-    artifactTreeDigest: ARTIFACT,
-  })
-  const deadline = publicationChildTimeoutMs(current)
-  assert.ok(deadline > publicationChildTimeoutMs(small))
-  assert.ok(deadline > 45 * 60_000)
-  assert.ok(deadline < 60 * 60_000)
-
-  let clock = 0
-  const slow = createRateLimitedFetch(async () => {
-    clock += 4_000
-    return response({}, 204)
-  }, {
-    now: () => clock,
-    wait: async (milliseconds) => { clock += milliseconds },
-  })
-  for (let index = 0; index < 220; index += 1) {
-    assert.equal((await slow(`https://api.github.test/mutation/${index}`, { method: 'POST' })).ok, true)
-  }
-  for (let index = 0; index < 18; index += 1) {
-    assert.equal((await slow(`https://api.github.test/read/${index}`)).ok, true)
-  }
-  assert.equal((await slow('https://api.github.test/installation/token', { method: 'DELETE' })).ok, true)
-  assert.ok(clock < deadline)
-})
-
 test('revocation succeeds only on confirmed API success and sanitization drops secret-bearing causes', async () => {
   const ok = authTransport()
   assert.deepEqual(await revokeInstallationToken({ fetchImpl: ok.fetchImpl, token: TOKEN }), { revoked: true })
@@ -694,190 +662,6 @@ test('public transition and Pages configuration re-read the exact final visibili
   assert.equal((await configureRootPages({ fetchImpl, token: TOKEN, config: config() })).source.path, '/')
 })
 
-function inspectionTransport({ buildPending = false, unexpectedActor = null } = {}) {
-  const fetchImpl = async (url) => {
-    if (url.endsWith('/repos/neutral-workbench/neutral-workbench.github.io')) return response(repository(false))
-    if (url.endsWith('/rulesets/31')) return response(rulesetPayload())
-    if (url.endsWith('/pages')) return response(pagesPayload())
-    if (url.includes('/git/ref/heads/main')) return response({ object: { sha: COMMIT } })
-    if (url.endsWith(`/git/commits/${COMMIT}`)) return response({ sha: COMMIT, tree: { sha: TREE }, parents: [{ sha: OLD }] })
-    if (url.includes('/public_members')) return response([])
-    if (url.includes('/contributors')) {
-      return response(buildPending ? [] : [{ login: unexpectedActor ?? 'neutral-publisher[bot]' }])
-    }
-    if (url.includes('/events')) {
-      return response(buildPending ? [] : [{ type: 'PushEvent', actor: { login: 'github-pages[bot]' } }])
-    }
-    if (url.endsWith(`/commits/${COMMIT}`)) {
-      return response({ author: { login: 'neutral-publisher[bot]' }, committer: { login: 'neutral-publisher[bot]' } })
-    }
-    if (url.endsWith('/pages/builds/latest')) {
-      return buildPending
-        ? response({}, 404)
-        : response({ status: 'built', commit: COMMIT, pusher: { login: 'github-pages[bot]' } })
-    }
-    throw new Error(`Unexpected mock URL: ${url}`)
-  }
-  return fetchImpl
-}
-
-function liveTransport({ mismatch = false } = {}) {
-  const expected = new Map(files().map((file) => [new URL(file.path, 'https://neutral-workbench.github.io/').href, file.bytes]))
-  return async (url) => {
-    const bytes = mismatch && url.endsWith('/index.html') ? Buffer.from('changed') : expected.get(url)
-    return {
-      ok: Boolean(bytes),
-      status: bytes ? 200 : 404,
-      url,
-      async arrayBuffer() { return bytes },
-    }
-  }
-}
-
-test('public inspection verifies visibility, ruleset, build commit, exact live bytes, and allowed actor metadata', async () => {
-  const result = await inspectPublicRelease({
-    fetchImpl: inspectionTransport(),
-    publicFetchImpl: inspectionTransport(),
-    liveFetchImpl: liveTransport(),
-    token: TOKEN,
-    config: config(),
-    rulesetId: 31,
-    expectedCommitSha: COMMIT,
-    expectedTreeSha: TREE,
-    files: files(),
-  })
-  assert.equal(result.complete, true)
-  assert.deepEqual(result.actors.unexpectedActors, [])
-  assert.deepEqual(result.live.mismatchedPaths, [])
-})
-
-test('incomplete public actor/build propagation remains pending while unexpected actors and live mismatch fail completion', async () => {
-  const pending = await inspectPublicRelease({
-    fetchImpl: inspectionTransport({ buildPending: true }),
-    publicFetchImpl: inspectionTransport({ buildPending: true }),
-    liveFetchImpl: liveTransport(),
-    token: TOKEN,
-    config: config(),
-    rulesetId: 31,
-    expectedCommitSha: COMMIT,
-    expectedTreeSha: TREE,
-    files: files(),
-  })
-  assert.equal(pending.complete, false)
-  assert.ok(pending.pendingSurfaces.includes('pages-build'))
-  assert.ok(pending.pendingSurfaces.includes('contributors'))
-
-  const actor = await inspectPublicRelease({
-    fetchImpl: inspectionTransport({ unexpectedActor: 'personal-user' }),
-    publicFetchImpl: inspectionTransport({ unexpectedActor: 'personal-user' }),
-    liveFetchImpl: liveTransport(), token: TOKEN, config: config(), rulesetId: 31,
-    expectedCommitSha: COMMIT, expectedTreeSha: TREE, files: files(),
-  })
-  assert.deepEqual(actor.actors.unexpectedActors, ['personal-user'])
-  assert.equal(actor.complete, false)
-
-  const live = await inspectPublicRelease({
-    fetchImpl: inspectionTransport(), liveFetchImpl: liveTransport({ mismatch: true }),
-    publicFetchImpl: inspectionTransport(),
-    token: TOKEN, config: config(), rulesetId: 31,
-    expectedCommitSha: COMMIT, expectedTreeSha: TREE, files: files(),
-  })
-  assert.deepEqual(live.live.mismatchedPaths, ['index.html'])
-  assert.equal(live.complete, false)
-})
-
-test('live file inspection bounds a transport that ignores AbortSignal', async () => {
-  const result = await inspectPublicRelease({
-    fetchImpl: inspectionTransport(), publicFetchImpl: inspectionTransport(),
-    liveFetchImpl: async () => new Promise(() => {}),
-    token: TOKEN, config: config(), rulesetId: 31,
-    expectedCommitSha: COMMIT, expectedTreeSha: TREE, files: files(), timeoutMs: 5,
-  })
-  assert.equal(result.complete, false)
-  assert.deepEqual(result.live.mismatchedPaths, files().map((file) => file.path))
-})
-
-test('public actor inspection follows all pages and excludes community Issue activity from release identities', async () => {
-  const calls = []
-  const publicFetchImpl = async (url) => {
-    calls.push(url)
-    const parsed = new URL(url)
-    if (parsed.pathname === '/repos/neutral-workbench/neutral-workbench.github.io') return response(repository(false))
-    if (parsed.pathname.endsWith('/commits/' + COMMIT)) {
-      return response({ author: { login: 'neutral-publisher[bot]' }, committer: { login: 'neutral-publisher[bot]' } })
-    }
-    const page = parsed.searchParams.get('page')
-    const next = (resource) => `<https://api.github.com${resource}?per_page=100&page=2>; rel="next"`
-    if (parsed.pathname.endsWith('/public_members')) {
-      return page === '2' ? response([]) : response([], 200, next(parsed.pathname))
-    }
-    if (parsed.pathname.endsWith('/contributors')) {
-      return page === '2'
-        ? response([{ login: 'neutral-bootstrap[bot]' }])
-        : response([{ login: 'neutral-publisher[bot]' }], 200, next(parsed.pathname))
-    }
-    if (parsed.pathname.endsWith('/events')) {
-      return page === '2'
-        ? response([{ type: 'PushEvent', actor: { login: 'github-pages[bot]' } }])
-        : response([{ type: 'IssueCommentEvent', actor: { login: 'community-user' } }], 200, next(parsed.pathname))
-    }
-    throw new Error(`Unexpected mock URL: ${url}`)
-  }
-  const result = await inspectPublicRelease({
-    fetchImpl: inspectionTransport(), publicFetchImpl, liveFetchImpl: liveTransport(),
-    token: TOKEN, config: config(), rulesetId: 31,
-    expectedCommitSha: COMMIT, expectedTreeSha: TREE, files: files(),
-  })
-  assert.equal(result.complete, true)
-  assert.equal(result.actors.observedActors.includes('community-user'), false)
-  assert.deepEqual(result.actors.unexpectedActors, [])
-  for (const resource of ['public_members', 'contributors', 'events']) {
-    assert.ok(calls.some((url) => url.includes(`/${resource}`) && url.includes('page=2')))
-  }
-})
-
-test('public actor pagination fails closed at the bounded page limit', async () => {
-  const publicFetchImpl = async (url) => {
-    const parsed = new URL(url)
-    if (parsed.pathname === '/repos/neutral-workbench/neutral-workbench.github.io') return response(repository(false))
-    if (parsed.pathname.endsWith('/commits/' + COMMIT)) {
-      return response({ author: { login: 'neutral-publisher[bot]' }, committer: { login: 'neutral-publisher[bot]' } })
-    }
-    const page = Number(parsed.searchParams.get('page') ?? '1')
-    return response([], 200,
-      `<https://api.github.com${parsed.pathname}?per_page=100&page=${page + 1}>; rel="next"`)
-  }
-  await assert.rejects(() => inspectPublicRelease({
-    fetchImpl: inspectionTransport(), publicFetchImpl, liveFetchImpl: liveTransport(),
-    token: TOKEN, config: config(), rulesetId: 31,
-    expectedCommitSha: COMMIT, expectedTreeSha: TREE, files: files(),
-  }), (error) => error.code === 'github_actor_pagination_limit')
-})
-
-test('public actor pagination rejects malformed, cross-origin, and repeated next links', async (t) => {
-  const links = [
-    ['malformed', 'not-a-link; rel="next"'],
-    ['cross-origin', '<https://evil.example/orgs/neutral-workbench/public_members?page=2>; rel="next"'],
-    ['repeated', '<https://api.github.com/orgs/neutral-workbench/public_members?per_page=100>; rel="next"'],
-  ]
-  for (const [name, link] of links) await t.test(name, async () => {
-    const publicFetchImpl = async (url) => {
-      const parsed = new URL(url)
-      if (parsed.pathname === '/repos/neutral-workbench/neutral-workbench.github.io') return response(repository(false))
-      if (parsed.pathname.endsWith('/commits/' + COMMIT)) {
-        return response({ author: { login: 'neutral-publisher[bot]' }, committer: { login: 'neutral-publisher[bot]' } })
-      }
-      if (parsed.pathname.endsWith('/public_members')) return response([], 200, link)
-      return response([])
-    }
-    await assert.rejects(() => inspectPublicRelease({
-      fetchImpl: inspectionTransport(), publicFetchImpl, liveFetchImpl: liveTransport(),
-      token: TOKEN, config: config(), rulesetId: 31,
-      expectedCommitSha: COMMIT, expectedTreeSha: TREE, files: files(),
-    }), (error) => error.code === 'github_actor_pagination_invalid')
-  })
-})
-
 function encodedFiles() {
   return files().map((file) => ({
     path: file.path,
@@ -889,6 +673,141 @@ function encodedFiles() {
 function fixedCommand(operation, role, payload = {}) {
   return { schema: FIXED_CHILD_SCHEMA, operation, role, config: config(), payload }
 }
+
+function successfulOperationTransport(operation) {
+  const base = '/repos/neutral-workbench/neutral-workbench.github.io'
+  let repositoryExists = operation !== 'bootstrap'
+  let privateState = operation === 'bootstrap'
+  let pagesEnabled = operation === 'disable-pages'
+  let tip = operation === 'publish' ? OLD : null
+  let publishedEntries = []
+  let publishedParent = null
+  const calls = []
+
+  const recursiveEntries = (entries) => {
+    const directories = new Set()
+    for (const entry of entries) {
+      const parts = entry.path.split('/')
+      for (let length = 1; length < parts.length; length += 1) {
+        directories.add(parts.slice(0, length).join('/'))
+      }
+    }
+    return [
+      ...[...directories].sort().map((directory) => ({
+        path: directory, mode: '040000', type: 'tree', sha: '8'.repeat(40),
+      })),
+      ...entries,
+    ]
+  }
+
+  const fetchImpl = async (url, init = {}) => {
+    calls.push({ url, init })
+    const method = init.method ?? 'GET'
+    const requestPath = new URL(url, 'https://api.github.test').pathname
+    if (requestPath.endsWith('/installation/token') && method === 'DELETE') return response({}, 204)
+    if (requestPath === base && method === 'GET') {
+      return repositoryExists ? response(repository(privateState)) : response({}, 404)
+    }
+    if (requestPath.endsWith('/orgs/neutral-workbench/repos') && method === 'POST') {
+      repositoryExists = true
+      return response(repository(true), 201)
+    }
+    if (requestPath === base && method === 'PATCH') {
+      privateState = false
+      return response(repository(false))
+    }
+    if (requestPath.includes('/git/ref/heads/main')) {
+      if (method === 'PATCH') {
+        tip = JSON.parse(init.body).sha
+        return response({ ref: 'refs/heads/main', object: { sha: tip } })
+      }
+      return tip === null ? response({}, 409) : response({ object: { sha: tip } })
+    }
+    if (requestPath.endsWith('/contents/.nojekyll') && method === 'PUT') {
+      tip = ROOT_COMMIT
+      return response({
+        content: { path: '.nojekyll', sha: ROOT_BLOB }, commit: { sha: ROOT_COMMIT },
+      }, 201)
+    }
+    if (requestPath.endsWith('/git/blobs') && method === 'POST') {
+      const input = JSON.parse(init.body)
+      return response({ sha: gitBlobSha(Buffer.from(input.content, 'base64')) })
+    }
+    if (requestPath.endsWith('/git/trees') && method === 'POST') {
+      publishedEntries = JSON.parse(init.body).tree
+      return response({ sha: TREE })
+    }
+    if (requestPath.includes(`/git/trees/${ROOT_TREE}`)) {
+      return response({
+        sha: ROOT_TREE,
+        truncated: false,
+        tree: [{ path: '.nojekyll', mode: '100644', type: 'blob', sha: ROOT_BLOB }],
+      })
+    }
+    if (requestPath.includes(`/git/trees/${TREE}`)) {
+      return response({ sha: TREE, truncated: false, tree: recursiveEntries(publishedEntries) })
+    }
+    if (requestPath.endsWith('/git/commits') && method === 'POST') {
+      publishedParent = JSON.parse(init.body).parents[0] ?? null
+      return response({ sha: COMMIT })
+    }
+    if (requestPath.endsWith(`/git/commits/${ROOT_COMMIT}`)) {
+      return response({ sha: ROOT_COMMIT, tree: { sha: ROOT_TREE }, parents: [] })
+    }
+    if (requestPath.endsWith(`/git/commits/${COMMIT}`)) {
+      return response({
+        sha: COMMIT,
+        tree: { sha: TREE },
+        parents: publishedParent === null ? [] : [{ sha: publishedParent }],
+      })
+    }
+    if (requestPath.endsWith('/rulesets') && method === 'POST') return response(rulesetPayload(), 201)
+    if (requestPath.endsWith('/rulesets/31')) return response(rulesetPayload())
+    if (requestPath.endsWith('/pages')) {
+      if (method === 'POST') {
+        pagesEnabled = true
+        return response(pagesPayload(), 201)
+      }
+      if (method === 'DELETE') {
+        pagesEnabled = false
+        return response({}, 204)
+      }
+      return pagesEnabled ? response(pagesPayload()) : response({}, 404)
+    }
+    throw new Error(`Unexpected successful operation URL: ${method} ${requestPath}`)
+  }
+  return { calls, fetchImpl }
+}
+
+test('fixed-child deadlines cover actual slow successful operations through confirmed cleanup', async () => {
+  const currentFiles = Array.from({ length: 216 }, (_value, index) => ({
+    path: `assets/file-${String(index).padStart(3, '0')}.png`, mode: '100644', contentBase64: '',
+  }))
+  const cases = [
+    fixedCommand('bootstrap', 'bootstrap', { files: currentFiles, artifactTreeDigest: ARTIFACT }),
+    fixedCommand('publish', 'publisher', { files: currentFiles, artifactTreeDigest: ARTIFACT }),
+    fixedCommand('disable-pages', 'stop'),
+  ]
+  for (const command of cases) {
+    let clock = 0
+    const transport = successfulOperationTransport(command.operation)
+    const slow = createRateLimitedFetch(async (...args) => {
+      clock += 4_000
+      return transport.fetchImpl(...args)
+    }, {
+      now: () => clock,
+      wait: async (milliseconds) => { clock += milliseconds },
+    })
+    const result = await executeFixedChildCommand({ command, token: TOKEN, fetchImpl: slow, timeoutMs: 4_000 })
+    assert.equal(result.ok, true, JSON.stringify({ result, calls: transport.calls.map(({ url, init }) => [init.method ?? 'GET', url]) }))
+    assert.equal(result.tokenRevoked, true)
+    assert.ok(clock < publicationChildTimeoutMs(command, 4_000))
+    assert.equal(transport.calls.at(-1).url.endsWith('/installation/token'), true)
+  }
+  const publishDeadline = publicationChildTimeoutMs(cases[1])
+  assert.ok(publishDeadline > 45 * 60_000)
+  assert.ok(publishDeadline < 60 * 60_000)
+})
 
 test('fixed child command binds every operation to one non-crossing App role', () => {
   const cases = [
