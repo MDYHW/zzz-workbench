@@ -8,8 +8,9 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-Keep at most one active bounded implementation plan. There is currently no
-active plan. Completed verticals are recorded in the milestone index below,
+Keep at most one active bounded implementation plan. The current active plan is
+[public static RC delivery](2026-09-07-001-feat-public-static-rc-delivery-plan.md).
+Completed verticals are recorded in the milestone index below,
 and later Agent verticals still require their own bounded requirement and plan
 after their meaning is settled.
 The authority-governance recovery closed after exact-SHA

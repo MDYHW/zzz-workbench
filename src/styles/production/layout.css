@@ -71,6 +71,19 @@
 
 main { margin-top: 12px; }
 
+.legal-footer {
+  display: grid;
+  gap: 6px;
+  margin-top: 18px;
+  padding: 14px 16px 16px;
+  overflow-wrap: anywhere;
+}
+
+.legal-footer p {
+  max-width: 1120px;
+  margin: 0;
+}
+
 .party-section__current-label {
   display: flex;
   align-items: center;
@@ -490,6 +503,11 @@ main { margin-top: 12px; }
   }
 
   .app-shell { width: calc(100% - 16px); }
+
+  .legal-footer {
+    margin-top: 12px;
+    padding: 12px 10px 14px;
+  }
 
   .masthead {
     gap: 10px;

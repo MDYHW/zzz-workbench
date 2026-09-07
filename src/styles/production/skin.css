@@ -7,6 +7,21 @@
   padding-bottom: 8px;
 }
 
+.legal-footer {
+  border-top: 1px solid #444a41;
+  background: rgba(5, 6, 5, 0.72);
+  box-shadow: inset 32px 3px 0 -30px var(--accent);
+  color: #aeb4a8;
+  font: 700 12px/1.55 var(--mono);
+  letter-spacing: -0.01em;
+}
+
+.legal-footer p[lang="ko"] {
+  color: #858d81;
+  font-family: "Bahnschrift", "Arial Narrow", Arial, sans-serif;
+  font-size: 12px;
+}
+
 .setup-panel > .panel-heading {
   position: absolute;
   width: 1px;

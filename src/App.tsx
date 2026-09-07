@@ -197,6 +197,19 @@ export function App() {
           <AppliedWorkbench state={state} dispatch={dispatch} />
         )}
       </main>
+      <footer className="legal-footer">
+        <p lang="en">
+          This is an unofficial, non-commercial fan-made website. It is not sponsored,
+          endorsed, or approved by HoYoverse. Zenless Zone Zero and related game images
+          and assets are trademarks and/or copyrighted materials of HoYoverse and their
+          respective rights holders.
+        </p>
+        <p lang="ko">
+          이 프로젝트는 비공식·비상업적 팬메이드 웹사이트이며 HoYoverse의 후원·보증·승인을
+          받지 않았습니다. 게임 관련 이미지 및 에셋의 저작권과 상표권은 HoYoverse 및 각
+          권리자에게 귀속됩니다.
+        </p>
+      </footer>
     </div>
   )
 }

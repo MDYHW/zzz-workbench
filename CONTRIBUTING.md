@@ -245,8 +245,6 @@ whether the mutation already completed. The launcher rejects another
 repository, protected branch push, force operation, arbitrary subprocess, or
 broader token scope.
 
-Run the focused governance gate with `npm run test:governance`; `npm run check`
-includes it before the existing behavior, type, and production-build gates.
 The owner-only recovery finalization re-reads the live `recovery` tip, the
 candidate's single creating PR, that PR's actual successful workflow jobs and
 trusted commit statuses, and the live tip again before emitting an attestation.
@@ -262,6 +260,188 @@ The trusted evaluator installs the dependency graph pinned by the trusted
 `recovery` lockfile with lifecycle scripts disabled. It parses selected PR
 TypeScript blobs only as inert syntax for the narrow Agent-local proof and does
 not install, import, or execute the proposed PR's package or code.
+
+### Public static RC delivery
+
+The public client is delivered from a separate neutral Organization and its
+root Pages repository. This workflow never gives the private-development App or
+personal account authority over that public destination. It also never treats a
+passing build, a footer, or repository ownership as legal approval.
+
+The public-release controller under `scripts/github-app/` exposes only five
+mutation commands. Each accepts one absolute external JSON input path:
+
+```text
+node <absolute-trusted-main>\scripts\github-app\public-release.mjs prepare --input-file <absolute-command-json>
+node <absolute-trusted-main>\scripts\github-app\public-release.mjs bootstrap --input-file <absolute-command-json>
+node <absolute-trusted-main>\scripts\github-app\public-release.mjs publish --input-file <absolute-command-json>
+node <absolute-trusted-main>\scripts\github-app\public-release.mjs restore --input-file <absolute-command-json>
+node <absolute-trusted-main>\scripts\github-app\public-release.mjs disable-pages --input-file <absolute-command-json>
+```
+
+The command file and every configuration, receipt, manifest, candidate, decision,
+operation directory, and App key stay outside every repository at
+protected absolute paths. Every command file uses the exact versioned schema and
+contains only the documented command-specific `paths` object; unknown or repeated
+paths fail closed. The operational configuration uses the
+exact neutral Organization, root repository, fixed branch, two App and
+installation identities, neutral bot identities, exact allowed provider actors,
+forbidden private identifiers, and external key paths. Do not put these values
+in a command argument, repository file, copied log, or public artifact.
+`prepare` also writes a current trusted-controller seal beside the candidate and
+decision template. `restore` and `disable-pages` consume that separate seal;
+neither accepts a caller-selected executable as current controller authority.
+
+#### Candidate and manual decision
+
+1. Start from a clean local `main` worktree whose `HEAD` equals local
+   `origin/main`. The trusted controller path must be absolute and that checkout
+   must equal the expected private remote.
+2. Extract the verified Git commit object into a new temporary build root. Use
+   the absolute `npm-cli.js` through the sealed Node 24 executable for
+   `npm ci --ignore-scripts` and one `npm run build`; never enable a command
+   shell to execute `npm.cmd`. Seal and revalidate the complete regular-file
+   npm package tree—including the CLI entry, libraries, metadata, and vendored
+   dependencies—and reject redirects, symlinks, or unsupported entries. No existing
+   `node_modules` or `dist` participates. Git and npm run with separate exact
+   minimal environments: ambient `GIT_*`, `NODE_OPTIONS`, `NODE_PATH`, npm
+   user/global configuration, credentials, and release-private variables are
+   never inherited. A project `.npmrc` is not an accepted build input.
+3. Select the intended privileged phase (`bootstrap`, `publish`, or `restore`)
+   in the external release context. Admit only the generated
+   static tree and `.nojekyll`. Keep the canonical
+   manifest, SHA-256 tree identity, source binding, and receipt private.
+4. Manually review every emitted file's provenance and redistribution basis,
+   the exact footer wording, the non-commercial operator/use model, current
+   guidance, and the actual unrestricted worldwide reach of GitHub Pages. A
+   jurisdiction subset cannot authorize this host.
+5. Store the accepted or rejected exact-schema decision outside the repository.
+   It binds the artifact, wording, guidance identities/digests, issuer, issue
+   time, and reviewer-selected expiry. Revalidate it for each privileged phase;
+   changed bytes, wording, use model, reach, or material guidance requires a new
+   decision.
+
+Keep the trusted-controller seal private and immutable. Regenerate it with a new
+`prepare` after current `main`, Git, Node, the fixed child, or the destination
+configuration changes; a historical artifact decision does not replace this
+current execution seal. The retained artifact candidate itself is phase-neutral:
+for restore, start from its original decision template, select `restore` in the
+phase revalidation, and perform a fresh owner review without rebuilding or
+changing the retained bytes.
+
+The private candidate and decision bind the exact controller root, repository
+root, expected remote, canonical Git/Node executable identities, the complete
+npm package-tree identity and real path,
+the fixed child Git blob and bytes, the canonical GitHub configuration and App
+identities, source commit/tree, and artifact denylist. `prepare` therefore also
+requires the external GitHub configuration. Before reading an App key,
+`bootstrap`, `publish`, and `restore`
+re-run Git directly with `shell: false` and require clean `main`,
+`HEAD == origin/main`, the bound remote, roots, tools, configuration, and
+configured private identifiers. Git system/global configuration and repository
+environment overrides are disabled for those reads. Bootstrap and publish additionally require the
+candidate commit/tree to equal current `main`; restore permits a still-accepted
+historical candidate only when its exact commit/tree exists and is an ancestor
+of current `main`. Bootstrap and publish use the candidate-bound fixed child and
+Node identity. Restore keeps the historical artifact binding but uses fixed-child,
+Git, and Node identities re-verified from current clean `main`, so an old artifact
+never restores through superseded privileged code. The child bytes are streamed
+from the verified Git blob over stdin and never execute a mutable checkout path.
+Build tools and third-party
+Actions never receive a key, key path, release configuration, or installation
+token. A fresh key exists only for its authorized publication window.
+
+#### Bootstrap and routine publication
+
+While the dedicated Organization is empty, install the neutral publisher App
+for all current and future repositories. The bootstrap App then creates the one
+private root repository, establishes the private `.nojekyll` root needed for an
+empty repository, creates the complete accepted successor tree, installs the
+publisher-only normal-update bypass ruleset, verifies the complete tree, makes
+the repository public, and enables root-branch Pages.
+
+Every public artifact commit uses only the neutral App identity and one complete
+tree. Routine publication uses only the contents-write publisher App. Its fixed
+child reads the current authenticated destination tip internally, creates all
+blobs and a complete tree, and performs one non-force ref update. Never widen
+the publisher with Administration or Pages permission.
+
+After live RC verification, revoke the bootstrap token. In private App settings,
+create the required protected offline replacement, delete the used bootstrap
+key, remove bootstrap contents permission, and delete the external key file.
+Verify the App and installation permissions and local key absence manually;
+local absence alone is not proof of provider-side deletion.
+
+#### Manual live verification and Beta handoff
+
+The controller does not claim live verification. Before announcing the RC or
+Beta, manually inspect the exact neutral Organization and repository and record
+the observation privately. Confirm repository visibility, default branch and
+ruleset, Pages source and deployed commit, and every manifest path against its
+expected bytes. In a clean browser session, confirm the stable URL loads, the
+client makes only expected same-origin requests, and no private identifier or
+credential appears in the document, assets, requests, storage, or error output.
+Inspect public commit, contributor, deployment, and event identities after
+provider metadata has settled. Unexpected or incomplete evidence blocks the
+announcement.
+
+Repeat the artifact decision, deployed-byte, actor, and dormant bootstrap-key
+checks immediately before Beta. GitHub Issues may be enabled as intake only;
+confirm the personal account is not exposed through ownership, commits,
+automation, replies, or moderation activity, and disable unintended discussion
+surfaces.
+
+The owner-reviewed announcement candidate must include:
+
+- the stable Pages URL;
+- `UI`, `Setup`, `Result`, `source`, and `operation` as suggested feedback
+  keywords;
+- optional browser/device context and a redacted screenshot;
+- notice that GitHub Issues and community chat are public, third-party-hosted
+  submissions;
+- a warning not to include personal or game-account identifiers and to remove
+  those details from screenshots;
+- the intake-only Issues and community-chat discussion split; and
+- the rule that the personal account does not reply, close, label, or triage in
+  public. If unsafe disclosure needs moderation, pause Issues and use GitHub's
+  private support or moderation path.
+
+Publication never posts or announces Beta automatically.
+
+#### Stop and incident recovery
+
+On any failed gate, unexpected public byte or actor, suspected credential leak,
+loss of operator control, or ambiguous mutation, stop new publication and revoke
+the active token and affected key. Run `disable-pages` with only the external
+configuration, an exact current trusted-controller binding, an explicit
+destination/incident confirmation, and a fresh empty operation directory. It
+rechecks current clean `main`, tool and child identities, the configuration
+digest, and the exact destination before reading the stop key. It uses the fixed Pages
+child and can neither delete the repository nor rewrite its contents. Reconcile
+the exact live repository, ref, Pages, App installation, and credential state
+manually before any later publication. Use `restore` only with a newly accepted
+exact candidate and current restore-phase decision.
+
+There is no automated repository-delete, capture, rebuild, status, or recovery
+command. If repository deletion is necessary, first keep the required private
+incident evidence and an independently prepared supported artifact outside all
+repositories, disable Pages, and verify the exact neutral Organization and root
+repository. The product owner must then explicitly confirm the irreversible
+deletion in GitHub's private Organization UI and perform it there manually.
+Never authorize deletion from a chat approval, saved command file, App child, or
+local script. After deletion, recreate only through a fresh `prepare` with phase
+`bootstrap`, a fresh exact-artifact decision, and a separate `bootstrap` call;
+do not reuse an earlier publication operation.
+
+Deleting the controlled origin cannot retract forks, clones, archives, provider
+caches, search indexes, or material already observed by others. Record that as
+irreversible exposure and complete the required private provider/legal follow-up;
+never report global erasure. Rotate or retire affected keys privately, then
+repeat the complete manual live-verification checklist before service or
+announcement resumes.
+
+Run the focused governance gate with `npm run test:governance`; `npm run check`
+includes it before the existing behavior, type, and production-build gates.
 
 ## Definition of done
 
