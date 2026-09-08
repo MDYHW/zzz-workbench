@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { setupPolicyFor, W_ENGINES, type EngineId } from './content'
 import { createPreparedState, workbenchReducer, type WorkbenchState } from './state'
 import { createSetupShortcutUrl, readSetupShortcut } from './setup-shortcut'
@@ -87,5 +87,14 @@ describe('Setup shortcuts', () => {
       const firstSubstats = slots[0].substats as Record<string, number>
       delete firstSubstats[Object.keys(firstSubstats)[0]]
     }))).toBeNull()
+  })
+
+  it('rejects oversized input before decoding it', () => {
+    const decode = vi.spyOn(globalThis, 'atob')
+
+    expect(readSetupShortcut(`#setup=${'A'.repeat(20_000)}`)).toBeNull()
+    expect(decode).not.toHaveBeenCalled()
+
+    decode.mockRestore()
   })
 })

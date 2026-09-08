@@ -26,6 +26,7 @@ import {
 
 const SHORTCUT_VERSION = 1
 const SHORTCUT_KEY = 'setup'
+const MAX_SHORTCUT_HASH_LENGTH = 16_384
 const MAIN_SLOTS = ['slot4', 'slot5', 'slot6'] as const
 const POOLS = ['full', 'nonLimited'] as const
 
@@ -221,6 +222,7 @@ function stateFromPayload(value: unknown): WorkbenchState | null {
 }
 
 export function readSetupShortcut(hash: string): WorkbenchState | null {
+  if (hash.length > MAX_SHORTCUT_HASH_LENGTH) return null
   try {
     const raw = hash.startsWith('#') ? hash.slice(1) : hash
     const parameters = new URLSearchParams(raw)
