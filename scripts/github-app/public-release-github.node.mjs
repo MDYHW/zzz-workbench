@@ -1002,6 +1002,8 @@ function successfulOperationTransport(operation, {
   rejectFinalRuleset = false,
   staleTemporaryRulesetReadback = false,
   staleFinalRulesetReadback = false,
+  omitFalseUpdateParameters = false,
+  reportTrueUpdateParameters = false,
 } = {}) {
   const base = '/repos/neutral-workbench/neutral-workbench.github.io'
   let repositoryExists = operation !== 'bootstrap'
@@ -1013,6 +1015,17 @@ function successfulOperationTransport(operation, {
   let currentRuleset = null
   let rulesetPhase = null
   const calls = []
+
+  const rulesetResponse = (ruleset) => ({
+    ...ruleset,
+    rules: ruleset.rules.map((rule) => {
+      if (rule.type !== 'update') return rule
+      if (omitFalseUpdateParameters) return { type: 'update' }
+      return reportTrueUpdateParameters
+        ? { type: 'update', parameters: { update_allows_fetch_and_merge: true } }
+        : rule
+    }),
+  })
 
   const recursiveEntries = (entries) => {
     const directories = new Set()
@@ -1093,14 +1106,14 @@ function successfulOperationTransport(operation, {
     }
     if (requestPath.endsWith('/rulesets') && method === 'POST') {
       if (rejectTemporaryRuleset) return response({}, 403)
-      currentRuleset = { id: 31, ...JSON.parse(init.body) }
+      currentRuleset = rulesetResponse({ id: 31, ...JSON.parse(init.body) })
       rulesetPhase = 'temporary'
       return response(currentRuleset, 201)
     }
     if (requestPath.endsWith('/rulesets') && method === 'GET') return response([])
     if (requestPath.endsWith('/rulesets/31') && method === 'PUT') {
       if (rejectFinalRuleset) return response({}, 403)
-      currentRuleset = { id: 31, ...JSON.parse(init.body) }
+      currentRuleset = rulesetResponse({ id: 31, ...JSON.parse(init.body) })
       rulesetPhase = 'final'
       return response(currentRuleset)
     }
@@ -1184,6 +1197,52 @@ test('GitHub Free bootstrap exposes only the placeholder before protection and e
   assert.deepEqual(finalRulesetMutation.body.bypass_actors, [
     { actor_id: 102, actor_type: 'Integration', bypass_mode: 'always' },
   ])
+})
+
+test('GitHub Free bootstrap accepts ruleset readback that omits an explicit false update default', async () => {
+  const transport = successfulOperationTransport('bootstrap', { omitFalseUpdateParameters: true })
+  const result = await executeFixedChildCommand({
+    command: fixedCommand('bootstrap', 'bootstrap', {
+      files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+    }),
+    token: TOKEN,
+    fetchImpl: transport.fetchImpl,
+  })
+
+  assert.deepEqual(result, successfulChildResult(bootstrapResult()))
+  const rulesetMutations = transport.calls.filter(({ url, init }) => (
+    ['POST', 'PUT'].includes(init.method)
+      && new URL(url, 'https://api.github.test').pathname.includes('/rulesets')
+  ))
+  assert.equal(rulesetMutations.length, 2)
+  for (const { init } of rulesetMutations) {
+    assert.deepEqual(JSON.parse(init.body).rules.at(-1), {
+      type: 'update', parameters: { update_allows_fetch_and_merge: false },
+    })
+  }
+})
+
+test('GitHub Free bootstrap rejects ruleset readback that explicitly enables fetch and merge updates', async () => {
+  const transport = successfulOperationTransport('bootstrap', { reportTrueUpdateParameters: true })
+  const result = await executeFixedChildCommand({
+    command: fixedCommand('bootstrap', 'bootstrap', {
+      files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+    }),
+    token: TOKEN,
+    fetchImpl: transport.fetchImpl,
+  })
+
+  assert.equal(result.operation.ok, false)
+  assert.equal(result.operation.error.code, 'github_request_unknown')
+  assert.equal(result.operation.error.state, 'reconcile-required')
+  assert.match(result.operation.error.resource, /\/rulesets$/)
+  assert.equal(result.revocation.confirmed, true)
+  const requests = transport.calls.map(({ url, init }) => ({
+    method: init.method ?? 'GET',
+    path: new URL(url, 'https://api.github.test').pathname,
+  }))
+  assert.equal(requests.some(({ method, path }) => method === 'PATCH' && path.endsWith('/git/ref/heads/main')), false)
+  assert.equal(requests.some(({ method, path }) => method === 'POST' && path.endsWith('/pages')), false)
 })
 
 test('GitHub Free bootstrap never publishes before temporary protection or enables Pages before final protection', async () => {
