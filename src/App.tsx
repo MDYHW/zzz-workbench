@@ -133,7 +133,8 @@ function CopySetupButton({ state }: { state: WorkbenchState | null }) {
       <button
         className={`masthead-action masthead-action--${status}`}
         type="button"
-        disabled={!isAvailable || status === 'copying'}
+        disabled={!isAvailable}
+        aria-disabled={!isAvailable || status === 'copying'}
         aria-label="Copy Setup shortcut"
         onClick={copySetup}
       >
