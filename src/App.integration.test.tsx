@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { App } from './App'
@@ -14,6 +14,8 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  vi.useRealTimers()
+  vi.restoreAllMocks()
   Object.defineProperty(navigator, 'clipboard', {
     configurable: true,
     value: originalClipboard,
@@ -109,6 +111,38 @@ describe('workbench UI integration', () => {
     finishCopy()
     await waitFor(() => expect(copy).toHaveTextContent('Copied'))
     expect(copy).toHaveFocus()
+  })
+
+  it('expires copy feedback and clears its timer on unmount', async () => {
+    vi.useFakeTimers()
+    const state = createPreparedState({}, ['dialyn', 'anbySoldier0', 'lucia'], 1)
+    window.history.replaceState(
+      null,
+      '',
+      new URL(createSetupShortcutUrl(state, window.location.href)).hash,
+    )
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    })
+    const { unmount } = render(<App />)
+    const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
+
+    fireEvent.click(copy)
+    await act(async () => { await Promise.resolve() })
+    expect(copy).toHaveTextContent('Copied')
+
+    act(() => vi.advanceTimersByTime(1800))
+    expect(copy).toHaveTextContent(/^Copy$/)
+
+    fireEvent.click(copy)
+    await act(async () => { await Promise.resolve() })
+    expect(copy).toHaveTextContent('Copied')
+    expect(vi.getTimerCount()).toBe(1)
+
+    unmount()
+    expect(vi.getTimerCount()).toBe(0)
   })
 
   it('suppresses clipboard feedback after shortcut navigation replaces the Setup', async () => {
