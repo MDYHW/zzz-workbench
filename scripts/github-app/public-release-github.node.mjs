@@ -436,25 +436,27 @@ function publicationTransport({
   const fetchImpl = async (url, init) => {
     calls.push({ url, init })
     if (url.includes('/git/ref/heads/main')) {
-      if (init.method === 'PATCH') {
-        if (refUpdateStatus !== null) {
-          if (reconcileToCommit) updated = true
-          return response({}, refUpdateStatus)
-        }
-        if (refUpdateMalformed) {
-          if (reconcileToCommit) updated = true
-          return { ok: true, status: 200, headers: { get: () => null }, async json() { throw new Error('truncated') } }
-        }
-        if (refUpdateThrows) {
-          if (reconcileToCommit) updated = true
-          throw new Error(`network failure ${TOKEN}`)
-        }
-        updated = true
-        return response({ ref: 'refs/heads/main', object: { sha: COMMIT } })
-      }
+      assert.equal(init.method, 'GET')
       refReads += 1
       if (staleOnRecheck && refReads === 2) return response({ object: { sha: '9'.repeat(40) } })
       return response({ object: { sha: updated ? COMMIT : OLD } })
+    }
+    if (url.includes('/git/refs/heads/main')) {
+      assert.equal(init.method, 'PATCH')
+      if (refUpdateStatus !== null) {
+        if (reconcileToCommit) updated = true
+        return response({}, refUpdateStatus)
+      }
+      if (refUpdateMalformed) {
+        if (reconcileToCommit) updated = true
+        return { ok: true, status: 200, headers: { get: () => null }, async json() { throw new Error('truncated') } }
+      }
+      if (refUpdateThrows) {
+        if (reconcileToCommit) updated = true
+        throw new Error(`network failure ${TOKEN}`)
+      }
+      updated = true
+      return response({ ref: 'refs/heads/main', object: { sha: COMMIT } })
     }
     if (url.endsWith('/git/blobs')) {
       const input = JSON.parse(init.body)
@@ -497,7 +499,7 @@ test('publication verifies recursive directory entries and performs one non-forc
   assert.equal(result.commitSha, COMMIT)
   const treeCall = mock.calls.find(({ url, init }) => url.endsWith('/git/trees') && init.method === 'POST')
   assert.deepEqual(Object.keys(JSON.parse(treeCall.init.body)), ['tree'])
-  const updates = mock.calls.filter(({ url, init }) => url.includes('/git/ref/heads/main') && init.method === 'PATCH')
+  const updates = mock.calls.filter(({ url, init }) => url.includes('/git/refs/heads/main') && init.method === 'PATCH')
   assert.equal(updates.length, 1)
   assert.deepEqual(JSON.parse(updates[0].init.body), { sha: COMMIT, force: false })
 })
@@ -1060,11 +1062,13 @@ function successfulOperationTransport(operation, {
       return response(repository(false))
     }
     if (requestPath.includes('/git/ref/heads/main')) {
-      if (method === 'PATCH') {
-        tip = JSON.parse(init.body).sha
-        return response({ ref: 'refs/heads/main', object: { sha: tip } })
-      }
+      assert.equal(method, 'GET')
       return tip === null ? response({}, 409) : response({ object: { sha: tip } })
+    }
+    if (requestPath.includes('/git/refs/heads/main')) {
+      assert.equal(method, 'PATCH')
+      tip = JSON.parse(init.body).sha
+      return response({ ref: 'refs/heads/main', object: { sha: tip } })
     }
     if (requestPath.endsWith('/contents/.nojekyll') && method === 'PUT') {
       tip = ROOT_COMMIT
@@ -1183,7 +1187,7 @@ test('GitHub Free bootstrap exposes only the placeholder before protection and e
 
   const publicMutation = findMutation(({ method, path }) => method === 'PATCH' && path.endsWith('/neutral-workbench.github.io'))
   const temporaryRulesetMutation = findMutation(({ method, path }) => method === 'POST' && path.endsWith('/rulesets'))
-  const artifactMutation = findMutation(({ method, path }) => method === 'PATCH' && path.endsWith('/git/ref/heads/main'))
+  const artifactMutation = findMutation(({ method, path }) => method === 'PATCH' && path.endsWith('/git/refs/heads/main'))
   const finalRulesetMutation = findMutation(({ method, path }) => method === 'PUT' && path.endsWith('/rulesets/31'))
   const pagesMutation = findMutation(({ method, path }) => method === 'POST' && path.endsWith('/pages'))
 
@@ -1241,7 +1245,7 @@ test('GitHub Free bootstrap rejects ruleset readback that explicitly enables fet
     method: init.method ?? 'GET',
     path: new URL(url, 'https://api.github.test').pathname,
   }))
-  assert.equal(requests.some(({ method, path }) => method === 'PATCH' && path.endsWith('/git/ref/heads/main')), false)
+  assert.equal(requests.some(({ method, path }) => method === 'PATCH' && path.endsWith('/git/refs/heads/main')), false)
   assert.equal(requests.some(({ method, path }) => method === 'POST' && path.endsWith('/pages')), false)
 })
 
@@ -1275,7 +1279,7 @@ test('GitHub Free bootstrap never publishes before temporary protection or enabl
       method: init.method ?? 'GET',
       path: new URL(url, 'https://api.github.test').pathname,
     }))
-    assert.equal(requests.some(({ method, path }) => method === 'PATCH' && path.endsWith('/git/ref/heads/main')), expectedArtifactMutation)
+    assert.equal(requests.some(({ method, path }) => method === 'PATCH' && path.endsWith('/git/refs/heads/main')), expectedArtifactMutation)
     assert.equal(requests.some(({ method, path }) => method === 'POST' && path.endsWith('/pages')), false)
     if (failure.rejectTemporaryRuleset) {
       assert.equal(requests.filter(({ method, path }) => method === 'POST' && path.endsWith('/rulesets')).length, 3)
@@ -2252,31 +2256,36 @@ test('parent preserves safe GitHub status and resource from a rejected fixed-chi
     files: encodedFiles(), artifactTreeDigest: ARTIFACT,
   })))
   try {
-    const mock = authTransport()
-    await assert.rejects(() => runPublishingChild({
-      nodeExecutable: process.execPath,
-      operationFile,
-      childSource: Buffer.from('sealed-source'),
-      preflight: async () => true,
-      loadPrivateKey: async () => PEM,
-      fetchImpl: mock.fetchImpl,
-      childRunner: async () => ({
-        exitCode: 1,
-        signal: null,
-        stdout: JSON.stringify(failedChildResult({
+    for (const resource of [
+      '/repos/neutral-workbench/neutral-workbench.github.io/git/ref/heads/main',
+      '/repos/neutral-workbench/neutral-workbench.github.io/git/refs/heads/main',
+    ]) {
+      const mock = authTransport()
+      await assert.rejects(() => runPublishingChild({
+        nodeExecutable: process.execPath,
+        operationFile,
+        childSource: Buffer.from('sealed-source'),
+        preflight: async () => true,
+        loadPrivateKey: async () => PEM,
+        fetchImpl: mock.fetchImpl,
+        childRunner: async () => ({
+          exitCode: 1,
+          signal: null,
+          stdout: JSON.stringify(failedChildResult({
             code: 'github_request_rejected',
             state: 'failed',
-            resource: '/repos/neutral-workbench/neutral-workbench.github.io/git/ref/heads/main',
+            resource,
             httpStatus: 422,
-        })),
-      }),
-    }), (error) => {
-      assert.equal(error.code, 'github_request_rejected')
-      assert.equal(error.state, 'failed')
-      assert.equal(error.resource, '/repos/neutral-workbench/neutral-workbench.github.io/git/ref/heads/main')
-      assert.equal(error.httpStatus, 422)
-      return true
-    })
+          })),
+        }),
+      }), (error) => {
+        assert.equal(error.code, 'github_request_rejected')
+        assert.equal(error.state, 'failed')
+        assert.equal(error.resource, resource)
+        assert.equal(error.httpStatus, 422)
+        return true
+      })
+    }
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true })
   }
@@ -2291,7 +2300,7 @@ test('parent preserves the child operation diagnostic when fallback revocation s
   const operationDiagnostic = {
     code: 'github_request_unknown',
     state: 'reconcile-required',
-    resource: '/repos/neutral-workbench/neutral-workbench.github.io/git/ref/heads/main',
+    resource: '/repos/neutral-workbench/neutral-workbench.github.io/git/refs/heads/main',
     httpStatus: 502,
   }
   const revocationDiagnostic = {
@@ -2340,7 +2349,7 @@ test('parent combines the child operation diagnostic with a failed fallback revo
   const operationDiagnostic = {
     code: 'github_request_unknown',
     state: 'reconcile-required',
-    resource: '/repos/neutral-workbench/neutral-workbench.github.io/git/ref/heads/main',
+    resource: '/repos/neutral-workbench/neutral-workbench.github.io/git/refs/heads/main',
     httpStatus: 502,
   }
   const childRevocationDiagnostic = {

@@ -117,11 +117,13 @@ function publicationTransport() {
   let entries: Array<{ path: string, mode: string, type: string, sha: string }> = []
   const fetchImpl = async (url: string, init: { method?: string, body?: string }) => {
     if (url.includes('/git/ref/heads/main')) {
-      if (init.method === 'PATCH') {
-        updated = true
-        throw new Error('ambiguous ref response')
-      }
+      expect(init.method).toBe('GET')
       return response({ object: { sha: updated ? commitSha : previousTip } })
+    }
+    if (url.includes('/git/refs/heads/main')) {
+      expect(init.method).toBe('PATCH')
+      updated = true
+      throw new Error('ambiguous ref response')
     }
     if (url.endsWith('/git/blobs')) {
       const input = JSON.parse(init.body ?? '{}')
