@@ -29,6 +29,24 @@ test('keeps clipped masthead actions visibly keyboard-focused', async ({ page })
     await expect(copy).toBeFocused()
     expect(await copy.evaluate((button) => getComputedStyle(button).boxShadow))
       .toContain('rgb(13, 15, 14) 0px 0px 0px 2px inset')
+
+    await page.emulateMedia({ forcedColors: 'active' })
+    const forcedColorFocus = await copy.evaluate((button) => {
+      const style = getComputedStyle(button)
+      return {
+        boxShadow: style.boxShadow,
+        outlineOffset: style.outlineOffset,
+        outlineStyle: style.outlineStyle,
+        outlineWidth: style.outlineWidth,
+      }
+    })
+    expect(forcedColorFocus).toEqual({
+      boxShadow: 'none',
+      outlineOffset: '-4px',
+      outlineStyle: 'solid',
+      outlineWidth: '2px',
+    })
+    await page.emulateMedia({ forcedColors: 'none' })
   }
 })
 

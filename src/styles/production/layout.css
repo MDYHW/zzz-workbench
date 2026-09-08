@@ -109,6 +109,14 @@
   opacity: .68;
 }
 
+@media (forced-colors: active) {
+  .masthead-action:focus-visible {
+    outline: 2px solid ButtonText;
+    outline-offset: -4px;
+    box-shadow: none;
+  }
+}
+
 main { margin-top: 12px; }
 
 .legal-footer {
