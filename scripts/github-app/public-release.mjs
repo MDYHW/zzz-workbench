@@ -15,6 +15,7 @@ import {
 } from './public-release-artifact.mjs'
 import {
   FIXED_CHILD_SCHEMA,
+  PublicReleaseGithubError,
   githubConfigIdentity,
   runPublishingChild,
   validateGithubConfig,
@@ -820,6 +821,43 @@ export async function dispatchReleaseCommand(command, overrides = {}) {
   }
 }
 
+function serializedReconciliationDiagnostic(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)
+      || typeof value.code !== 'string' || value.code.length === 0
+      || typeof value.state !== 'string' || value.state.length === 0) return null
+  return {
+    code: value.code,
+    state: value.state,
+    ...(typeof value.resource === 'string' && value.resource.length > 0
+      ? { resource: value.resource }
+      : {}),
+    ...(Number.isSafeInteger(value.httpStatus) && value.httpStatus >= 100 && value.httpStatus <= 599
+      ? { httpStatus: value.httpStatus }
+      : {}),
+  }
+}
+
+export function serializeReleaseCliError(error) {
+  const operational = error instanceof PublicReleaseError || error instanceof PublicReleaseGithubError
+  if (!operational) {
+    return { ok: false, code: 'release_failed', state: 'failed', message: 'Public release failed.' }
+  }
+  const operationDiagnostic = serializedReconciliationDiagnostic(error.operationDiagnostic)
+  const revocationDiagnostic = serializedReconciliationDiagnostic(error.revocationDiagnostic)
+  return {
+    ok: false,
+    code: error.code,
+    state: error.state,
+    message: error.message,
+    ...(typeof error.resource === 'string' && error.resource.length > 0 ? { resource: error.resource } : {}),
+    ...(Number.isSafeInteger(error.httpStatus) && error.httpStatus >= 100 && error.httpStatus <= 599
+      ? { httpStatus: error.httpStatus }
+      : {}),
+    ...(operationDiagnostic === null ? {} : { operationDiagnostic }),
+    ...(revocationDiagnostic === null ? {} : { revocationDiagnostic }),
+  }
+}
+
 async function main() {
   const cli = parseReleaseCli(process.argv.slice(2))
   await verifyExternalExistingPath(cli.inputFile, CONTROLLER_ROOT, 'Release command input', fs)
@@ -830,12 +868,7 @@ async function main() {
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   main().catch((error) => {
-    const operational = error instanceof PublicReleaseError
-      || (error && typeof error.code === 'string' && typeof error.state === 'string')
-    const output = operational
-      ? { ok: false, code: error.code, state: error.state, message: error.message }
-      : { ok: false, code: 'release_failed', state: 'failed', message: 'Public release failed.' }
-    process.stderr.write(`${JSON.stringify(output)}\n`)
+    process.stderr.write(`${JSON.stringify(serializeReleaseCliError(error))}\n`)
     process.exitCode = 1
   })
 }

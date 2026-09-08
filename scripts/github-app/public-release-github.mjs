@@ -10,14 +10,16 @@ export const GITHUB_CONFIG_SCHEMA = 'zzz-workbench-public-release-github/v1'
 export const INSTALLATION_TOKEN_ENV = 'ZZZ_WORKBENCH_PUBLIC_RELEASE_INSTALLATION_TOKEN'
 export const PUBLIC_BRANCH_RULESET_NAME = 'Protect published artifact'
 export const FIXED_CHILD_SCHEMA = 'zzz-workbench-public-release-github-child/v1'
-export const FIXED_CHILD_RESULT_SCHEMA = 'zzz-workbench-public-release-github-child-result/v1'
+export const FIXED_CHILD_RESULT_SCHEMA = 'zzz-workbench-public-release-github-child-result/v3'
 export const FIXED_CHILD_MODE = '--public-release-fixed-child'
 export const PUBLICATION_MUTATION_INTERVAL_MS = 1_000
 export const PUBLICATION_MAX_RATE_LIMIT_RETRIES = 2
+export const BOOTSTRAP_RULESET_RETRY_DELAYS_MS = Object.freeze([2_000, 5_000])
 export const PUBLICATION_CHILD_TIMEOUT_MS = 15 * 60_000
 const PUBLICATION_REQUEST_TIMEOUT_MS = 10_000
 
 const REQUEST_TIMEOUT_MS = Symbol('request-timeout-ms')
+const RATE_LIMIT_RETRY_DISABLED = Symbol('rate-limit-retry-disabled')
 
 export const FIXED_CHILD_OPERATIONS = Object.freeze({
   bootstrap: Object.freeze({ role: 'bootstrap', phase: 'bootstrap', destinationState: 'absent' }),
@@ -52,22 +54,92 @@ const SAFE_BOT = /^[A-Za-z0-9][A-Za-z0-9-]*\[bot\]$/
 const FILE_MODE = '100644'
 const MAX_INSTALLATION_TOKEN_BYTES = 8 * 1024
 const PUBLICATION_REQUEST_BUDGETS = Object.freeze({
-  bootstrap: Object.freeze({ fixedMutations: 10, reads: 18 }),
+  bootstrap: Object.freeze({ fixedMutations: 12, reads: 24 }),
   publish: Object.freeze({ fixedMutations: 4, reads: 18 }),
   'disable-pages': Object.freeze({ fixedMutations: 2, reads: 18 }),
 })
+const COMMON_CHILD_OPERATION_ERROR_CODES = [
+  'github_child_input_changed',
+  'github_child_output_invalid',
+  'github_child_role_invalid',
+  'github_child_schema_invalid',
+  'github_config_invalid',
+  'github_publication_failed',
+  'github_request_rejected',
+  'github_request_unknown',
+  'github_response_invalid',
+]
+const CHILD_OPERATION_ERROR_CODES = Object.freeze({
+  bootstrap: new Set([
+    ...COMMON_CHILD_OPERATION_ERROR_CODES,
+    'github_commit_mismatch',
+    'github_destination_exists',
+    'github_destination_not_empty',
+    'github_pages_mismatch',
+    'github_publication_invalid',
+    'github_ref_mismatch',
+    'github_ref_reconciliation_required',
+    'github_repository_mismatch',
+    'github_root_mismatch',
+    'github_ruleset_boundary_mismatch',
+    'github_ruleset_mismatch',
+    'github_stale_tip',
+    'github_tree_mismatch',
+  ]),
+  publish: new Set([
+    ...COMMON_CHILD_OPERATION_ERROR_CODES,
+    'github_commit_mismatch',
+    'github_destination_not_initialized',
+    'github_publication_invalid',
+    'github_ref_mismatch',
+    'github_ref_reconciliation_required',
+    'github_stale_tip',
+    'github_tree_mismatch',
+  ]),
+  'disable-pages': new Set([
+    ...COMMON_CHILD_OPERATION_ERROR_CODES,
+    'github_pages_disable_unconfirmed',
+  ]),
+})
+const CHILD_REVOCATION_ERROR_CODES = new Set([
+  'github_token_invalid',
+  'github_token_revocation_unconfirmed',
+])
+const CHILD_ERROR_STATES = new Set(['failed', 'reconcile-required'])
 
 export class PublicReleaseGithubError extends Error {
   constructor(message = 'GitHub publication failed.', {
     code = 'github_publication_failed',
     state = 'failed',
     resource = null,
+    httpStatus = null,
+    operationDiagnostic = null,
+    revocationDiagnostic = null,
   } = {}) {
     super(message)
     this.name = 'PublicReleaseGithubError'
     this.code = code
     this.state = state
     this.resource = resource
+    this.httpStatus = Number.isSafeInteger(httpStatus) && httpStatus >= 100 && httpStatus <= 599
+      ? httpStatus
+      : null
+    this.operationDiagnostic = safeReconciliationDiagnostic(operationDiagnostic)
+    this.revocationDiagnostic = safeReconciliationDiagnostic(revocationDiagnostic)
+  }
+}
+
+function safeReconciliationDiagnostic(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)
+      || typeof value.code !== 'string' || value.code.length === 0
+      || typeof value.state !== 'string' || value.state.length === 0) return null
+  return {
+    code: value.code,
+    state: value.state,
+    resource: typeof value.resource === 'string' && value.resource.length > 0 ? value.resource : null,
+    httpStatus: Number.isSafeInteger(value.httpStatus) && value.httpStatus >= 100 && value.httpStatus <= 599
+      ? value.httpStatus
+      : null,
   }
 }
 
@@ -85,6 +157,12 @@ function isPlainObject(value) {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return false
   const prototype = Object.getPrototypeOf(value)
   return prototype === Object.prototype || prototype === null
+}
+
+function containsSecret(value, secret) {
+  if (typeof value === 'string') return value.includes(secret)
+  if (Array.isArray(value)) return value.some((entry) => containsSecret(entry, secret))
+  return isPlainObject(value) && Object.values(value).some((entry) => containsSecret(entry, secret))
 }
 
 function exactKeys(value, expected, label) {
@@ -244,7 +322,7 @@ async function responseJson(response, resource) {
 
 async function request(fetchImpl, pathname, {
   method = 'GET', headers = {}, body, allowNotFound = false, allowEmptyRepository = false,
-  includeResponse = false, timeoutMs = 15_000,
+  includeResponse = false, timeoutMs = 15_000, retryRateLimit = true,
 } = {}) {
   let response
   try {
@@ -254,6 +332,7 @@ async function request(fetchImpl, pathname, {
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
       signal: AbortSignal.timeout(timeoutMs),
       [REQUEST_TIMEOUT_MS]: timeoutMs,
+      ...(retryRateLimit ? {} : { [RATE_LIMIT_RETRY_DISABLED]: true }),
     })
   } catch {
     throw new PublicReleaseGithubError('GitHub request outcome is unknown.', {
@@ -267,10 +346,11 @@ async function request(fetchImpl, pathname, {
     if (mutation && response.status >= 500) {
       throw new PublicReleaseGithubError('GitHub mutation outcome requires reconciliation.', {
         code: 'github_request_unknown', state: 'reconcile-required', resource: pathname,
+        httpStatus: response.status,
       })
     }
     fail('GitHub rejected the requested operation.', {
-      code: 'github_request_rejected', resource: pathname,
+      code: 'github_request_rejected', resource: pathname, httpStatus: response.status,
     })
   }
   if (response.status === 204) return includeResponse ? { body: null, response } : null
@@ -286,6 +366,7 @@ async function mutationRequest(fetchImpl, pathname, options, validate = (value) 
     if (safe.code === 'github_request_rejected') throw safe
     throw new PublicReleaseGithubError('GitHub mutation outcome requires reconciliation.', {
       code: 'github_request_unknown', state: 'reconcile-required', resource: pathname,
+      httpStatus: safe.httpStatus,
     })
   }
 }
@@ -332,8 +413,10 @@ export function createRateLimitedFetch(fetchImpl, {
     const method = String(init.method ?? 'GET').toUpperCase()
     const mutation = !['GET', 'HEAD', 'OPTIONS'].includes(method)
     const attemptTimeoutMs = init[REQUEST_TIMEOUT_MS]
+    const retryRateLimit = init[RATE_LIMIT_RETRY_DISABLED] !== true
     const fetchInit = { ...init }
     delete fetchInit[REQUEST_TIMEOUT_MS]
+    delete fetchInit[RATE_LIMIT_RETRY_DISABLED]
     for (let attempt = 0; ; attempt += 1) {
       if (mutation) {
         const remaining = mutationIntervalMs - (now() - lastMutationCompletedAt)
@@ -344,6 +427,7 @@ export function createRateLimitedFetch(fetchImpl, {
         ...(attemptTimeoutMs === undefined ? {} : { signal: AbortSignal.timeout(attemptTimeoutMs) }),
       })
       if (mutation) lastMutationCompletedAt = now()
+      if (!retryRateLimit) return response
       const retryDelay = await rateLimitDelay(response, attempt, now)
       if (retryDelay === null || remainingRateLimitRetries === 0) return response
       remainingRateLimitRetries -= 1
@@ -483,9 +567,12 @@ export async function revokeInstallationToken({ fetchImpl, token, timeoutMs = 15
     await mutationRequest(fetchImpl, '/installation/token', {
       method: 'DELETE', headers: tokenHeaders(token), timeoutMs,
     })
-  } catch {
+  } catch (error) {
+    const safe = sanitizeGithubError(error)
     throw new PublicReleaseGithubError('Installation token revocation is unconfirmed.', {
       code: 'github_token_revocation_unconfirmed', state: 'reconcile-required',
+      resource: safe.resource,
+      httpStatus: safe.httpStatus,
     })
   }
   return { revoked: true }
@@ -621,16 +708,59 @@ function validateRuleset(ruleset, config, bypassRole) {
   return ruleset
 }
 
-export async function createBootstrapArtifactRuleset({ fetchImpl, token, config, timeoutMs = 15_000 }) {
+async function verifyBootstrapRulesetCreationBoundary(fetchImpl, token, config, timeoutMs) {
+  validateRepository(
+    await readRepository(fetchImpl, config.destination, token, timeoutMs),
+    config.destination,
+    { private: false },
+  )
+  const rulesets = await request(fetchImpl, `${repositoryBase(config.destination)}/rulesets`, {
+    headers: tokenHeaders(token), timeoutMs,
+  })
+  if (!Array.isArray(rulesets) || rulesets.length !== 0) {
+    fail('Destination ruleset creation boundary is invalid.', {
+      code: 'github_ruleset_boundary_mismatch',
+      resource: `${repositoryBase(config.destination)}/rulesets`,
+    })
+  }
+}
+
+export async function createBootstrapArtifactRuleset({
+  fetchImpl,
+  token,
+  config,
+  timeoutMs = 15_000,
+  retryDelaysMs = BOOTSTRAP_RULESET_RETRY_DELAYS_MS,
+  wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds)),
+}) {
   validateGithubConfig(config)
+  if (!Array.isArray(retryDelaysMs) || retryDelaysMs.length > BOOTSTRAP_RULESET_RETRY_DELAYS_MS.length
+      || retryDelaysMs.some((delay) => !Number.isSafeInteger(delay) || delay < 0 || delay > 30_000)
+      || typeof wait !== 'function') {
+    fail('Bootstrap ruleset retry boundary is invalid.', { code: 'github_transport_invalid' })
+  }
   const base = repositoryBase(config.destination)
-  const created = await mutationRequest(fetchImpl, `${base}/rulesets`, {
-    method: 'POST',
-    headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
-    body: expectedRuleset(config, 'bootstrap'),
-    timeoutMs,
-  }, (ruleset) => validateRuleset(ruleset, config, 'bootstrap'))
-  const ruleset = created
+  const rulesetPath = `${base}/rulesets`
+  let ruleset = null
+  for (let attempt = 0; ruleset === null; attempt += 1) {
+    await verifyBootstrapRulesetCreationBoundary(fetchImpl, token, config, timeoutMs)
+    try {
+      ruleset = await mutationRequest(fetchImpl, rulesetPath, {
+        method: 'POST',
+        headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
+        body: expectedRuleset(config, 'bootstrap'),
+        timeoutMs,
+        retryRateLimit: false,
+      }, (created) => validateRuleset(created, config, 'bootstrap'))
+    } catch (error) {
+      const safe = sanitizeGithubError(error)
+      const retryableRejectedWrite = safe.code === 'github_request_rejected'
+        && [403, 422].includes(safe.httpStatus)
+        && attempt < retryDelaysMs.length
+      if (!retryableRejectedWrite) throw safe
+      await wait(retryDelaysMs[attempt])
+    }
+  }
   return validateRuleset(await request(fetchImpl, `${base}/rulesets/${ruleset.id}`, {
     headers: tokenHeaders(token), timeoutMs,
   }), config, 'bootstrap')
@@ -661,7 +791,23 @@ export async function makeDestinationPublic({ fetchImpl, token, config, timeoutM
     body: { private: false },
     timeoutMs,
   }, (repository) => validateRepository(repository, config.destination, { private: false }))
-  return validateRepository(await readRepository(fetchImpl, config.destination, token, timeoutMs), config.destination, { private: false })
+  try {
+    return validateRepository(
+      await readRepository(fetchImpl, config.destination, token, timeoutMs),
+      config.destination,
+      { private: false },
+    )
+  } catch (error) {
+    const safe = sanitizeGithubError(error)
+    throw new PublicReleaseGithubError(safe.message, {
+      code: safe.code,
+      state: 'reconcile-required',
+      resource: safe.resource,
+      httpStatus: safe.httpStatus,
+      operationDiagnostic: safe.operationDiagnostic,
+      revocationDiagnostic: safe.revocationDiagnostic,
+    })
+  }
 }
 
 function validatePages(pages, config) {
@@ -701,19 +847,31 @@ export async function bootstrapPublicDestination({
   await createPrivateDestination({ fetchImpl, token, config, timeoutMs })
   const root = await createNoJekyllRoot({ fetchImpl, token, config, timeoutMs })
   await makeDestinationPublic({ fetchImpl, token, config, timeoutMs })
-  const ruleset = await createBootstrapArtifactRuleset({ fetchImpl, token, config, timeoutMs })
-  const publication = await publishArtifactTree({
-    fetchImpl,
-    token,
-    config,
-    files,
-    artifactTreeDigest,
-    expectedTip: root.commitSha,
-    timeoutMs,
-  })
-  await finalizeArtifactRuleset({ fetchImpl, token, config, rulesetId: ruleset.id, timeoutMs })
-  const pages = await configureRootPages({ fetchImpl, token, config, timeoutMs })
-  return { state: 'bootstrapped', rootCommitSha: root.commitSha, publication, rulesetId: ruleset.id, pagesUrl: pages.html_url }
+  try {
+    const ruleset = await createBootstrapArtifactRuleset({ fetchImpl, token, config, timeoutMs })
+    const publication = await publishArtifactTree({
+      fetchImpl,
+      token,
+      config,
+      files,
+      artifactTreeDigest,
+      expectedTip: root.commitSha,
+      timeoutMs,
+    })
+    await finalizeArtifactRuleset({ fetchImpl, token, config, rulesetId: ruleset.id, timeoutMs })
+    const pages = await configureRootPages({ fetchImpl, token, config, timeoutMs })
+    return { state: 'bootstrapped', rootCommitSha: root.commitSha, publication, rulesetId: ruleset.id, pagesUrl: pages.html_url }
+  } catch (error) {
+    const safe = sanitizeGithubError(error)
+    throw new PublicReleaseGithubError(safe.message, {
+      code: safe.code,
+      state: 'reconcile-required',
+      resource: safe.resource,
+      httpStatus: safe.httpStatus,
+      operationDiagnostic: safe.operationDiagnostic,
+      revocationDiagnostic: safe.revocationDiagnostic,
+    })
+  }
 }
 
 function branchRefPath(destination) {
@@ -1065,7 +1223,36 @@ async function dispatchFixedChildOperation(command, { fetchImpl, token, timeoutM
 
 function childError(error) {
   const safe = sanitizeGithubError(error)
-  return { code: safe.code, state: safe.state, message: safe.message }
+  return {
+    code: safe.code,
+    state: safe.state,
+    message: safe.message,
+    resource: safe.resource,
+    httpStatus: safe.httpStatus,
+    operationDiagnostic: safe.operationDiagnostic,
+    revocationDiagnostic: safe.revocationDiagnostic,
+  }
+}
+
+function childDiagnostic(error) {
+  const safe = sanitizeGithubError(error)
+  return {
+    code: safe.code,
+    state: safe.state,
+    resource: safe.resource,
+    httpStatus: safe.httpStatus,
+  }
+}
+
+function errorFromChildDiagnostic(diagnostic) {
+  const message = diagnostic.state === 'reconcile-required'
+    ? 'The remote operation requires reconciliation.'
+    : 'The remote operation failed.'
+  return new PublicReleaseGithubError(message, diagnostic)
+}
+
+function reconciliationDiagnostic(error) {
+  return safeReconciliationDiagnostic(error)
 }
 
 function combinedReconciliationError(operationError, revocationError) {
@@ -1074,6 +1261,10 @@ function combinedReconciliationError(operationError, revocationError) {
     code: 'github_operation_and_revocation_unconfirmed',
     state: 'reconcile-required',
     message: 'The remote operation and installation token revocation both require reconciliation.',
+    resource: null,
+    httpStatus: null,
+    operationDiagnostic: reconciliationDiagnostic(operationError),
+    revocationDiagnostic: reconciliationDiagnostic(revocationError),
   }
 }
 
@@ -1091,8 +1282,14 @@ export function publicationChildTimeoutMs(command, requestTimeoutMs = PUBLICATIO
   const mutationPacing = (mutationCount + retryCount + cleanupCount) * PUBLICATION_MUTATION_INTERVAL_MS
   const boundedRequestBudget = requestCount * requestTimeoutMs
   const boundedRateLimitWait = 60_000 + 120_000
+  const bootstrapRulesetReadinessWait = command.operation === 'bootstrap'
+    ? BOOTSTRAP_RULESET_RETRY_DELAYS_MS.reduce((total, delay) => total + delay, 0)
+    : 0
   const cleanupReserve = 60_000
-  return Math.max(120_000, mutationPacing + boundedRequestBudget + boundedRateLimitWait + cleanupReserve)
+  return Math.max(
+    120_000,
+    mutationPacing + boundedRequestBudget + boundedRateLimitWait + bootstrapRulesetReadinessWait + cleanupReserve,
+  )
 }
 
 export async function executeFixedChildCommand({
@@ -1103,26 +1300,30 @@ export async function executeFixedChildCommand({
 }) {
   let result = null
   let operationError = null
-  let tokenRevoked = false
+  let revocationError = null
   try {
     validateFixedChildCommand(command)
     result = await dispatchFixedChildOperation(command, { fetchImpl, token, timeoutMs })
   } catch (error) {
-    operationError = childError(error)
+    operationError = childDiagnostic(error)
   } finally {
     try {
       await revokeInstallationToken({ fetchImpl, token, timeoutMs })
-      tokenRevoked = true
     } catch (error) {
-      operationError = combinedReconciliationError(operationError, childError(error))
+      revocationError = childDiagnostic(error)
     }
   }
   return {
     schema: FIXED_CHILD_RESULT_SCHEMA,
-    ok: operationError === null,
-    tokenRevoked,
-    result: operationError === null ? result : null,
-    error: operationError,
+    operation: {
+      ok: operationError === null,
+      result: operationError === null ? result : null,
+      error: operationError,
+    },
+    revocation: {
+      confirmed: revocationError === null,
+      error: revocationError,
+    },
   }
 }
 
@@ -1209,18 +1410,193 @@ export async function runFixedChildProcess({
   })
 }
 
-function validateChildResult(value) {
-  exactKeys(value, ['schema', 'ok', 'tokenRevoked', 'result', 'error'], 'Fixed child result')
-  if (value.schema !== FIXED_CHILD_RESULT_SCHEMA || typeof value.ok !== 'boolean'
-      || typeof value.tokenRevoked !== 'boolean'
-      || (value.ok && (value.error !== null || value.result === null))
-      || (!value.ok && (value.result !== null || !isPlainObject(value.error)))) {
+function validatePublicationResult(value, command, expectedPreviousTip = null) {
+  exactKeys(value, ['state', 'artifactTreeDigest', 'commitSha', 'treeSha', 'previousTip'], 'Publication result')
+  if (!['published', 'reconciled'].includes(value.state)
+      || value.artifactTreeDigest !== command.payload.artifactTreeDigest
+      || !SHA1.test(value.commitSha ?? '')
+      || !SHA1.test(value.treeSha ?? '')
+      || !SHA1.test(value.previousTip ?? '')
+      || (expectedPreviousTip !== null && value.previousTip !== expectedPreviousTip)) {
+    fail('Publication result is invalid.', { code: 'github_child_output_invalid' })
+  }
+  return value
+}
+
+function validateChildSuccessResult(value, command) {
+  if (!isPlainObject(value)) fail('Fixed child success result is invalid.', { code: 'github_child_output_invalid' })
+  if (command.operation === 'disable-pages') {
+    exactKeys(value, ['disabled'], 'Pages disable result')
+    if (value.disabled !== true) fail('Pages disable result is invalid.', { code: 'github_child_output_invalid' })
+    return value
+  }
+  if (command.operation === 'publish') return validatePublicationResult(value, command)
+  exactKeys(value, ['state', 'rootCommitSha', 'publication', 'rulesetId', 'pagesUrl'], 'Bootstrap result')
+  let pagesUrlIsExact = false
+  try {
+    pagesUrlIsExact = new URL(value.pagesUrl).href.toLowerCase()
+      === `https://${command.config.destination.owner.toLowerCase()}.github.io/`
+  } catch {
+    pagesUrlIsExact = false
+  }
+  if (value.state !== 'bootstrapped' || !SHA1.test(value.rootCommitSha ?? '')
+      || !Number.isSafeInteger(value.rulesetId) || value.rulesetId <= 0 || !pagesUrlIsExact) {
+    fail('Bootstrap result is invalid.', { code: 'github_child_output_invalid' })
+  }
+  validatePublicationResult(value.publication, command, value.rootCommitSha)
+  return value
+}
+
+function childOperationResourceAllowed(resource, command) {
+  if (resource === null) return true
+  if (resource === 'destination-ref') return ['bootstrap', 'publish'].includes(command.operation)
+  if (typeof resource !== 'string') return false
+  const base = repositoryBase(command.config.destination)
+  if (command.operation === 'bootstrap'
+      && resource === `/orgs/${encodeURIComponent(command.config.destination.owner)}/repos`) {
+    return true
+  }
+  const exact = command.operation === 'bootstrap'
+    ? new Set([
+        base,
+        `${base}/contents/.nojekyll`,
+        `${base}/git/blobs`,
+        `${base}/git/commits`,
+        `${base}/git/trees`,
+        `${base}/pages`,
+        `${base}/rulesets`,
+        branchRefPath(command.config.destination),
+      ])
+    : command.operation === 'publish'
+      ? new Set([
+          `${base}/git/blobs`,
+          `${base}/git/commits`,
+          `${base}/git/trees`,
+          branchRefPath(command.config.destination),
+        ])
+      : new Set([`${base}/pages`])
+  if (exact.has(resource)) return true
+  if (command.operation === 'bootstrap' && resource.startsWith(`${base}/rulesets/`)) {
+    return /^[1-9][0-9]*$/.test(resource.slice(`${base}/rulesets/`.length))
+  }
+  if (['bootstrap', 'publish'].includes(command.operation)
+      && resource.startsWith(`${base}/git/commits/`)) {
+    return SHA1.test(resource.slice(`${base}/git/commits/`.length))
+  }
+  if (['bootstrap', 'publish'].includes(command.operation)
+      && resource.startsWith(`${base}/git/trees/`)) {
+    const suffix = resource.slice(`${base}/git/trees/`.length)
+    return SHA1.test(suffix.replace(/\?recursive=1$/, '')) && suffix.endsWith('?recursive=1')
+  }
+  return false
+}
+
+function childOperationDiagnosticMatchesSource(value, command) {
+  if (!CHILD_OPERATION_ERROR_CODES[command.operation].has(value.code)) return false
+  if (value.code === 'github_child_input_changed') {
+    return value.state === 'failed' && value.resource === null && value.httpStatus === null
+  }
+  if (value.code === 'github_request_unknown') {
+    return value.state === 'reconcile-required'
+      && value.resource !== null
+      && value.resource !== 'destination-ref'
+      && childOperationResourceAllowed(value.resource, command)
+      && (value.httpStatus === null || value.httpStatus >= 500)
+  }
+  if (value.code === 'github_request_rejected') {
+    return (value.state === 'failed' || (command.operation === 'bootstrap' && value.state === 'reconcile-required'))
+      && typeof value.resource === 'string'
+      && value.resource !== 'destination-ref'
+      && childOperationResourceAllowed(value.resource, command)
+      && value.httpStatus !== null
+      && (value.httpStatus < 200 || value.httpStatus >= 300)
+  }
+  if (value.code === 'github_response_invalid') {
+    return (value.state === 'failed' || (command.operation === 'bootstrap' && value.state === 'reconcile-required'))
+      && (value.resource === null
+        ? command.operation !== 'disable-pages'
+        : childOperationResourceAllowed(value.resource, command))
+      && value.httpStatus === null
+  }
+  if (value.code === 'github_ref_reconciliation_required') {
+    return value.state === 'reconcile-required'
+      && value.resource === 'destination-ref'
+      && value.httpStatus === null
+  }
+  if (value.code === 'github_stale_tip') {
+    return value.state === (command.operation === 'bootstrap' ? 'reconcile-required' : 'failed')
+      && value.resource === 'destination-ref'
+      && value.httpStatus === null
+  }
+  if (value.code === 'github_ruleset_boundary_mismatch') {
+    return command.operation === 'bootstrap'
+      && value.state === 'reconcile-required'
+      && value.resource === `${repositoryBase(command.config.destination)}/rulesets`
+      && value.httpStatus === null
+  }
+  const commonPreOperationCode = [
+    'github_child_output_invalid',
+    'github_child_role_invalid',
+    'github_child_schema_invalid',
+    'github_config_invalid',
+  ].includes(value.code)
+  if (value.resource !== null || value.httpStatus !== null) return false
+  if (commonPreOperationCode) return value.state === 'failed'
+  if (command.operation !== 'bootstrap') return value.state === 'failed'
+  if (['github_commit_mismatch', 'github_tree_mismatch'].includes(value.code)) {
+    return ['failed', 'reconcile-required'].includes(value.state)
+  }
+  if (['github_destination_exists', 'github_destination_not_empty', 'github_root_mismatch'].includes(value.code)) {
+    return value.state === 'failed'
+  }
+  if (value.code === 'github_repository_mismatch') {
+    return ['failed', 'reconcile-required'].includes(value.state)
+  }
+  return value.state === 'reconcile-required'
+}
+
+function validateChildDiagnostic(value, command, kind) {
+  exactKeys(value, ['code', 'state', 'resource', 'httpStatus'], `Fixed child ${kind} error`)
+  const allowedCodes = kind === 'revocation'
+    ? CHILD_REVOCATION_ERROR_CODES
+    : CHILD_OPERATION_ERROR_CODES[command.operation]
+  if (!allowedCodes.has(value.code) || !CHILD_ERROR_STATES.has(value.state)
+      || (value.httpStatus !== null
+        && (!Number.isSafeInteger(value.httpStatus) || value.httpStatus < 100 || value.httpStatus > 599))) {
+    fail(`Fixed child ${kind} error is invalid.`, { code: 'github_child_output_invalid' })
+  }
+  if (kind === 'revocation') {
+    const sourceDefined = value.code === 'github_token_invalid'
+      ? value.state === 'failed' && value.resource === null && value.httpStatus === null
+      : value.state === 'reconcile-required'
+        && value.resource === '/installation/token'
+        && (value.httpStatus === null || value.httpStatus < 200 || value.httpStatus >= 300)
+    if (!sourceDefined) {
+      fail('Fixed child revocation error is invalid.', { code: 'github_child_output_invalid' })
+    }
+  } else if (!childOperationDiagnosticMatchesSource(value, command)) {
+    fail('Fixed child operation error is not reachable for its command.', { code: 'github_child_output_invalid' })
+  }
+  return value
+}
+
+function validateChildResult(value, command) {
+  exactKeys(value, ['schema', 'operation', 'revocation'], 'Fixed child result')
+  if (value.schema !== FIXED_CHILD_RESULT_SCHEMA) {
     fail('Fixed child result is invalid.', { code: 'github_child_output_invalid' })
   }
-  if (value.error !== null) {
-    exactKeys(value.error, ['code', 'state', 'message'], 'Fixed child error')
-    for (const key of ['code', 'state', 'message']) requiredString(value.error[key], `Fixed child error ${key}`)
+  exactKeys(value.operation, ['ok', 'result', 'error'], 'Fixed child operation outcome')
+  exactKeys(value.revocation, ['confirmed', 'error'], 'Fixed child revocation outcome')
+  if (typeof value.operation.ok !== 'boolean' || typeof value.revocation.confirmed !== 'boolean'
+      || (value.operation.ok && (value.operation.error !== null || value.operation.result === null))
+      || (!value.operation.ok && (value.operation.result !== null || !isPlainObject(value.operation.error)))
+      || (value.revocation.confirmed && value.revocation.error !== null)
+      || (!value.revocation.confirmed && !isPlainObject(value.revocation.error))) {
+    fail('Fixed child result is invalid.', { code: 'github_child_output_invalid' })
   }
+  if (value.operation.ok) validateChildSuccessResult(value.operation.result, command)
+  else validateChildDiagnostic(value.operation.error, command, 'operation')
+  if (!value.revocation.confirmed) validateChildDiagnostic(value.revocation.error, command, 'revocation')
   return value
 }
 
@@ -1261,6 +1637,7 @@ export async function runPublishingChild({
   signalSource.on('SIGTERM', onInterrupt)
   let minted = null
   let childConfirmedRevocation = false
+  let parentRevocationAttempted = false
   try {
     minted = await mintInstallationToken({
       fetchImpl,
@@ -1305,35 +1682,63 @@ export async function runPublishingChild({
     }
     let childResult
     try {
-      childResult = validateChildResult(JSON.parse(childProcess.stdout.trim()))
+      const parsed = JSON.parse(childProcess.stdout.trim())
+      if (containsSecret(parsed, minted.token)) throw new Error('secret in child output')
+      childResult = validateChildResult(parsed, command)
     } catch {
       fail('Fixed publishing child output is invalid.', {
         code: 'github_child_output_invalid', state: 'reconcile-required',
       })
     }
-    childConfirmedRevocation = childResult.tokenRevoked
-    if (childProcess.exitCode !== (childResult.ok ? 0 : 1)
-        || !childResult.tokenRevoked) {
-      fail('Fixed publishing child did not complete safely.', {
-        code: 'github_child_interrupted', state: 'reconcile-required',
+    childConfirmedRevocation = childResult.revocation.confirmed
+    const childSucceeded = childResult.operation.ok && childResult.revocation.confirmed
+    if (childProcess.exitCode !== (childSucceeded ? 0 : 1)) {
+      fail('Fixed publishing child output is invalid.', {
+        code: 'github_child_output_invalid', state: 'reconcile-required',
       })
     }
-    if (!childResult.ok) {
-      throw new PublicReleaseGithubError(childResult.error.message, {
-        code: childResult.error.code, state: childResult.error.state,
-      })
+    const operationError = childResult.operation.ok
+      ? null
+      : errorFromChildDiagnostic(childResult.operation.error)
+    if (!childResult.revocation.confirmed) {
+      parentRevocationAttempted = true
+      try {
+        await revokeInstallationToken({ fetchImpl, token: minted.token, timeoutMs: authTimeoutMs })
+        childConfirmedRevocation = true
+      } catch (revokeError) {
+        const failure = combinedReconciliationError(
+          operationError === null ? null : childError(operationError),
+          childError(revokeError),
+        )
+        throw new PublicReleaseGithubError(failure.message, {
+          code: failure.code,
+          state: failure.state,
+          resource: failure.resource,
+          httpStatus: failure.httpStatus,
+          operationDiagnostic: failure.operationDiagnostic,
+          revocationDiagnostic: failure.revocationDiagnostic,
+        })
+      }
     }
-    return childResult.result
+    if (operationError !== null) throw operationError
+    return childResult.operation.result
   } catch (error) {
     let safe = childError(error)
-    if (minted && !childConfirmedRevocation) {
+    if (minted && !childConfirmedRevocation && !parentRevocationAttempted) {
       try {
         await revokeInstallationToken({ fetchImpl, token: minted.token, timeoutMs: authTimeoutMs })
       } catch (revokeError) {
         safe = combinedReconciliationError(safe, childError(revokeError))
       }
     }
-    throw new PublicReleaseGithubError(safe.message, { code: safe.code, state: safe.state })
+    throw new PublicReleaseGithubError(safe.message, {
+      code: safe.code,
+      state: safe.state,
+      resource: safe.resource,
+      httpStatus: safe.httpStatus,
+      operationDiagnostic: safe.operationDiagnostic,
+      revocationDiagnostic: safe.revocationDiagnostic,
+    })
   } finally {
     signalSource.removeListener('SIGINT', onInterrupt)
     signalSource.removeListener('SIGTERM', onInterrupt)
@@ -1356,40 +1761,72 @@ async function fixedChildMain() {
     const { command } = await readFixedChildInput(process.argv[3], fs.readFile, process.argv[4])
     output = await executeFixedChildCommand({ command, token, fetchImpl: rateLimitedFetch })
   } catch (error) {
-    let tokenRevoked = false
-    let safe = childError(error)
+    let revocationError = null
     try {
       await revokeInstallationToken({ fetchImpl: rateLimitedFetch, token })
-      tokenRevoked = true
     } catch (revokeError) {
-      safe = combinedReconciliationError(safe, childError(revokeError))
+      revocationError = childDiagnostic(revokeError)
     }
     output = {
       schema: FIXED_CHILD_RESULT_SCHEMA,
-      ok: false,
-      tokenRevoked,
-      result: null,
-      error: safe,
+      operation: { ok: false, result: null, error: childDiagnostic(error) },
+      revocation: { confirmed: revocationError === null, error: revocationError },
     }
   }
-  let serialized = JSON.stringify(output)
-  if (serialized.includes(token)) {
-    serialized = JSON.stringify({
+  if (containsSecret(output, token)) {
+    output = {
       schema: FIXED_CHILD_RESULT_SCHEMA,
-      ok: false,
-      tokenRevoked: output.tokenRevoked,
-      result: null,
-      error: { code: 'github_child_output_invalid', state: 'failed', message: 'Fixed publishing child output is invalid.' },
-    })
+      operation: {
+        ok: false,
+        result: null,
+        error: {
+          code: 'github_child_output_invalid',
+          state: 'failed',
+          resource: null,
+          httpStatus: null,
+        },
+      },
+      revocation: output.revocation,
+    }
   }
-  process.stdout.write(`${serialized}\n`)
-  process.exitCode = output.ok ? 0 : 1
+  process.stdout.write(`${JSON.stringify(output)}\n`)
+  process.exitCode = output.operation.ok && output.revocation.confirmed ? 0 : 1
+}
+
+function unrecoverableFixedChildOutput() {
+  return {
+    schema: FIXED_CHILD_RESULT_SCHEMA,
+    operation: {
+      ok: false,
+      result: null,
+      error: {
+        code: 'github_child_output_invalid',
+        state: 'failed',
+        resource: null,
+        httpStatus: null,
+      },
+    },
+    revocation: {
+      confirmed: false,
+      error: {
+        code: 'github_token_invalid',
+        state: 'failed',
+        resource: null,
+        httpStatus: null,
+      },
+    },
+  }
 }
 
 export function sanitizeGithubError(error) {
   if (error instanceof PublicReleaseGithubError) {
     return new PublicReleaseGithubError(error.message, {
-      code: error.code, state: error.state, resource: error.resource,
+      code: error.code,
+      state: error.state,
+      resource: error.resource,
+      httpStatus: error.httpStatus,
+      operationDiagnostic: error.operationDiagnostic,
+      revocationDiagnostic: error.revocationDiagnostic,
     })
   }
   return new PublicReleaseGithubError('GitHub publication failed.')
@@ -1397,15 +1834,8 @@ export function sanitizeGithubError(error) {
 
 if ((import.meta.url === pathToFileURL(process.argv[1] ?? '').href && process.argv[2] === FIXED_CHILD_MODE)
     || (process.argv[1] === '-' && process.argv[2] === FIXED_CHILD_MODE)) {
-  fixedChildMain().catch((error) => {
-    const safe = childError(error)
-    process.stdout.write(`${JSON.stringify({
-      schema: FIXED_CHILD_RESULT_SCHEMA,
-      ok: false,
-      tokenRevoked: false,
-      result: null,
-      error: safe,
-    })}\n`)
+  fixedChildMain().catch(() => {
+    process.stdout.write(`${JSON.stringify(unrecoverableFixedChildOutput())}\n`)
     process.exitCode = 1
   })
 }
