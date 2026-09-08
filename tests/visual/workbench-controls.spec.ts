@@ -17,6 +17,7 @@ test('keeps clipped masthead actions visibly keyboard-focused', async ({ page })
   for (const viewport of [viewports[0], partyEditViewports[partyEditViewports.length - 1]]) {
     await openWorkbench(page, viewport)
 
+    await page.getByRole('heading', { name: 'ZZZ Setup Workbench' }).click()
     await page.keyboard.press('Tab')
     const copy = page.getByRole('button', { name: 'Copy Setup shortcut' })
     await expect(copy).toBeFocused()
