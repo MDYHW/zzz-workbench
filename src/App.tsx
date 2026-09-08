@@ -52,6 +52,8 @@ function CopySetupButton({ state }: { state: WorkbenchState | null }) {
   const copyInFlight = useRef(false)
   const isMounted = useRef(true)
   const resetTimer = useRef<number | null>(null)
+  const currentState = useRef(state)
+  currentState.current = state
   const isAvailable = state !== null && isCompleteWorkbench(state)
 
   useEffect(() => {
@@ -73,6 +75,7 @@ function CopySetupButton({ state }: { state: WorkbenchState | null }) {
 
   const copySetup = async () => {
     if (!state || !isCompleteWorkbench(state) || copyInFlight.current) return
+    const copiedState = state
     copyInFlight.current = true
     if (resetTimer.current !== null) {
       window.clearTimeout(resetTimer.current)
@@ -82,9 +85,15 @@ function CopySetupButton({ state }: { state: WorkbenchState | null }) {
     try {
       if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable')
       await navigator.clipboard.writeText(createSetupShortcutUrl(state, window.location.href))
-      if (isMounted.current) showTemporaryStatus('copied')
+      if (isMounted.current) {
+        if (currentState.current === copiedState) showTemporaryStatus('copied')
+        else setStatus('idle')
+      }
     } catch {
-      if (isMounted.current) showTemporaryStatus('failed')
+      if (isMounted.current) {
+        if (currentState.current === copiedState) showTemporaryStatus('failed')
+        else setStatus('idle')
+      }
     } finally {
       copyInFlight.current = false
     }

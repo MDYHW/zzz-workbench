@@ -111,6 +111,57 @@ describe('workbench UI integration', () => {
     expect(copy).toHaveFocus()
   })
 
+  it('suppresses clipboard feedback after shortcut navigation replaces the Setup', async () => {
+    const initial = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
+    const replacement = createPreparedState({}, ['dialyn', 'anbySoldier0', 'lucia'], 1)
+    window.history.replaceState(
+      null,
+      '',
+      new URL(createSetupShortcutUrl(initial, window.location.href)).hash,
+    )
+    let finishInitialCopy!: () => void
+    let finishReplacementCopy!: () => void
+    const writeText = vi.fn()
+      .mockReturnValueOnce(new Promise<void>((resolve) => { finishInitialCopy = resolve }))
+      .mockReturnValueOnce(new Promise<void>((resolve) => { finishReplacementCopy = resolve }))
+    const user = userEvent.setup()
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    })
+    render(<App />)
+
+    const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
+    await user.click(copy)
+    expect(copy).toHaveTextContent('Copying')
+
+    window.location.hash = new URL(
+      createSetupShortcutUrl(replacement, window.location.href),
+    ).hash
+    await waitFor(() => expect(screen.getByRole('tab', {
+      name: 'View Anby: Soldier 0 setup and Result',
+    })).toHaveAttribute('aria-selected', 'true'))
+
+    finishInitialCopy()
+    await waitFor(() => expect(copy).toHaveTextContent(/^Copy$/))
+    expect(copy).not.toHaveTextContent('Copied')
+    expect(within(document.querySelector('.masthead-actions')!).getByRole('status'))
+      .toHaveTextContent('')
+
+    await user.click(copy)
+    expect(copy).toHaveTextContent('Copying')
+    window.location.hash = 'setup=unsupported'
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Editing party' }))
+      .toBeInTheDocument())
+
+    finishReplacementCopy()
+    await waitFor(() => expect(copy).toHaveTextContent(/^Copy$/))
+    expect(copy).toBeDisabled()
+    expect(copy).not.toHaveTextContent('Copied')
+    expect(within(document.querySelector('.masthead-actions')!).getByRole('status'))
+      .toHaveTextContent('')
+  })
+
   it('falls back atomically to initial Party Edit for an invalid shortcut', () => {
     window.history.replaceState(null, '', '/#setup=unsupported')
     render(<App />)
