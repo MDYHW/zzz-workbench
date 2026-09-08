@@ -200,6 +200,34 @@ describe('workbench UI integration', () => {
       .toHaveTextContent('')
   })
 
+  it('reports a delayed copy after draft-only Party Edit changes', async () => {
+    const state = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
+    window.history.replaceState(
+      null,
+      '',
+      new URL(createSetupShortcutUrl(state, window.location.href)).hash,
+    )
+    let finishCopy!: () => void
+    const writeText = vi.fn().mockReturnValue(new Promise<void>((resolve) => {
+      finishCopy = resolve
+    }))
+    const user = userEvent.setup()
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    })
+    render(<App />)
+
+    const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
+    await user.click(copy)
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    expect(screen.getByRole('heading', { name: 'Editing party' })).toBeInTheDocument()
+
+    finishCopy()
+    await waitFor(() => expect(copy).toHaveTextContent('Copied'))
+    expect(readSetupShortcut(new URL(String(writeText.mock.calls[0][0])).hash)).toEqual(state)
+  })
+
   it('falls back atomically to initial Party Edit for an invalid shortcut', () => {
     window.history.replaceState(null, '', '/#setup=unsupported')
     render(<App />)

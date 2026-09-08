@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState, type Dispatch } from 'react'
+import { useEffect, useMemo, useReducer, useRef, useState, type Dispatch } from 'react'
 import { AgentSetup } from './components/AgentSetup'
 import { PartyWorkbench } from './components/PartyWorkbench'
 import { PartyEditor } from './components/PartyEditor'
@@ -52,9 +52,14 @@ function CopySetupButton({ state }: { state: WorkbenchState | null }) {
   const copyInFlight = useRef(false)
   const isMounted = useRef(true)
   const resetTimer = useRef<number | null>(null)
-  const currentState = useRef(state)
-  currentState.current = state
-  const isAvailable = state !== null && isCompleteWorkbench(state)
+  const shortcutUrl = useMemo(() => (
+    state !== null && isCompleteWorkbench(state)
+      ? createSetupShortcutUrl(state, window.location.href)
+      : null
+  ), [state])
+  const currentShortcutUrl = useRef(shortcutUrl)
+  currentShortcutUrl.current = shortcutUrl
+  const isAvailable = shortcutUrl !== null
 
   useEffect(() => {
     isMounted.current = true
@@ -71,7 +76,7 @@ function CopySetupButton({ state }: { state: WorkbenchState | null }) {
       resetTimer.current = null
     }
     setStatus('idle')
-  }, [state])
+  }, [shortcutUrl])
 
   const showTemporaryStatus = (next: 'copied' | 'failed') => {
     setStatus(next)
@@ -83,8 +88,8 @@ function CopySetupButton({ state }: { state: WorkbenchState | null }) {
   }
 
   const copySetup = async () => {
-    if (!state || !isCompleteWorkbench(state) || copyInFlight.current) return
-    const copiedState = state
+    if (!shortcutUrl || copyInFlight.current) return
+    const copiedUrl = shortcutUrl
     copyInFlight.current = true
     if (resetTimer.current !== null) {
       window.clearTimeout(resetTimer.current)
@@ -93,14 +98,14 @@ function CopySetupButton({ state }: { state: WorkbenchState | null }) {
     setStatus('copying')
     try {
       if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable')
-      await navigator.clipboard.writeText(createSetupShortcutUrl(state, window.location.href))
+      await navigator.clipboard.writeText(copiedUrl)
       if (isMounted.current) {
-        if (currentState.current === copiedState) showTemporaryStatus('copied')
+        if (currentShortcutUrl.current === copiedUrl) showTemporaryStatus('copied')
         else setStatus('idle')
       }
     } catch {
       if (isMounted.current) {
-        if (currentState.current === copiedState) showTemporaryStatus('failed')
+        if (currentShortcutUrl.current === copiedUrl) showTemporaryStatus('failed')
         else setStatus('idle')
       }
     } finally {
