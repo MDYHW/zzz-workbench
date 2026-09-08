@@ -694,6 +694,13 @@ function canonicalJson(value) {
   return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`
 }
 
+function normalizeObservedRules(rules) {
+  if (!Array.isArray(rules)) return rules
+  return rules.map((rule) => rule?.type === 'update' && !Object.hasOwn(rule, 'parameters')
+    ? { ...rule, parameters: { update_allows_fetch_and_merge: false } }
+    : rule)
+}
+
 function validateRuleset(ruleset, config, bypassRole) {
   const expected = expectedRuleset(config, bypassRole)
   if (!Number.isSafeInteger(ruleset?.id) || ruleset.id <= 0
@@ -702,7 +709,7 @@ function validateRuleset(ruleset, config, bypassRole) {
       || ruleset?.enforcement !== expected.enforcement
       || canonicalJson(ruleset?.bypass_actors) !== canonicalJson(expected.bypass_actors)
       || canonicalJson(ruleset?.conditions) !== canonicalJson(expected.conditions)
-      || canonicalJson(ruleset?.rules) !== canonicalJson(expected.rules)) {
+      || canonicalJson(normalizeObservedRules(ruleset?.rules)) !== canonicalJson(expected.rules)) {
     fail('Destination branch ruleset is invalid.', { code: 'github_ruleset_mismatch' })
   }
   return ruleset
