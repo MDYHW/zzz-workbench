@@ -17,12 +17,15 @@ import {
 import { ADMITTED_AGENTS, agentDisplayName, type AgentId, type MainSlot } from './workbench/content'
 import {
   createInitialWorkbenchState,
+  isCompleteWorkbench,
   isInitialWorkbenchState,
   workbenchSessionReducer,
   type AppliedSlot,
   type WorkbenchAction,
+  type WorkbenchSessionState,
   type WorkbenchState,
 } from './workbench/state'
+import { createSetupShortcutUrl, readSetupShortcut } from './workbench/setup-shortcut'
 
 const emptySourceLinks: Record<SourceToneChannel, SourceLink | null> = {
   pointer: null,
@@ -33,6 +36,91 @@ const focusPartyEditTrigger = () => requestAnimationFrame(() => (
   document.querySelector<HTMLButtonElement>('.party-edit-trigger')?.focus()
 ))
 
+type AppAction = WorkbenchAction | {
+  type: 'followShortcutNavigation'
+  state: WorkbenchSessionState
+}
+
+const appReducer = (state: WorkbenchSessionState, action: AppAction): WorkbenchSessionState => (
+  action.type === 'followShortcutNavigation'
+    ? action.state
+    : workbenchSessionReducer(state, action)
+)
+
+function CopySetupButton({ state }: { state: WorkbenchState | null }) {
+  const [status, setStatus] = useState<'idle' | 'copying' | 'copied' | 'failed'>('idle')
+  const copyInFlight = useRef(false)
+  const isMounted = useRef(true)
+  const resetTimer = useRef<number | null>(null)
+  const isAvailable = state !== null && isCompleteWorkbench(state)
+
+  useEffect(() => {
+    isMounted.current = true
+    return () => {
+      isMounted.current = false
+      if (resetTimer.current !== null) window.clearTimeout(resetTimer.current)
+    }
+  }, [])
+
+  const showTemporaryStatus = (next: 'copied' | 'failed') => {
+    setStatus(next)
+    if (resetTimer.current !== null) window.clearTimeout(resetTimer.current)
+    resetTimer.current = window.setTimeout(() => {
+      setStatus('idle')
+      resetTimer.current = null
+    }, 1800)
+  }
+
+  const copySetup = async () => {
+    if (!state || !isCompleteWorkbench(state) || copyInFlight.current) return
+    copyInFlight.current = true
+    if (resetTimer.current !== null) {
+      window.clearTimeout(resetTimer.current)
+      resetTimer.current = null
+    }
+    setStatus('copying')
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable')
+      await navigator.clipboard.writeText(createSetupShortcutUrl(state, window.location.href))
+      if (isMounted.current) showTemporaryStatus('copied')
+    } catch {
+      if (isMounted.current) showTemporaryStatus('failed')
+    } finally {
+      copyInFlight.current = false
+    }
+  }
+
+  const label = status === 'copying'
+    ? 'Copying'
+    : status === 'copied'
+      ? 'Copied'
+      : status === 'failed'
+        ? 'Copy failed'
+        : 'Copy'
+  const announcement = status === 'copying'
+    ? 'Copying Setup shortcut.'
+    : status === 'copied'
+      ? 'Setup shortcut copied.'
+      : status === 'failed'
+        ? 'Setup shortcut could not be copied.'
+        : ''
+
+  return (
+    <div className="masthead-actions">
+      <button
+        className={`masthead-action masthead-action--${status}`}
+        type="button"
+        disabled={!isAvailable || status === 'copying'}
+        aria-label="Copy Setup shortcut"
+        onClick={copySetup}
+      >
+        {label}
+      </button>
+      <span className="sr-only" role="status" aria-live="polite">{announcement}</span>
+    </div>
+  )
+}
+
 const requiredSelectionKey = (selection: RequiredSetupSelection) => selection.kind === 'disc'
   ? `${selection.slot}:disc:${selection.piece}`
   : selection.kind === 'mainStat'
@@ -42,11 +130,13 @@ const requiredSelectionKey = (selection: RequiredSetupSelection) => selection.ki
 function AppliedWorkbench({
   state,
   dispatch,
+  initialViewedSlot,
 }: {
   state: WorkbenchState
   dispatch: Dispatch<WorkbenchAction>
+  initialViewedSlot: AppliedSlot
 }) {
-  const [viewedSlot, setViewedSlot] = useState<AppliedSlot>(0)
+  const [viewedSlot, setViewedSlot] = useState<AppliedSlot>(initialViewedSlot)
   const [sourceLinks, setSourceLinks] = useState(emptySourceLinks)
   const [targetStunDmgMultiplier, setTargetStunDmgMultiplier] = useState(150)
   const incompleteSelections = incompleteRequiredSelections(state)
@@ -170,16 +260,33 @@ function AppliedWorkbench({
 }
 
 export function App() {
+  const [initialState] = useState<WorkbenchSessionState>(() => (
+    readSetupShortcut(window.location.hash) ?? createInitialWorkbenchState()
+  ))
   const [state, dispatch] = useReducer(
-    workbenchSessionReducer,
-    undefined,
-    createInitialWorkbenchState,
+    appReducer,
+    initialState,
   )
+  const appliedState = isInitialWorkbenchState(state) ? null : state
+  const currentShortcutState = readSetupShortcut(window.location.hash)
+
+  useEffect(() => {
+    const followShortcutNavigation = () => {
+      const shortcutState = readSetupShortcut(window.location.hash)
+      dispatch({
+        type: 'followShortcutNavigation',
+        state: shortcutState ?? createInitialWorkbenchState(),
+      })
+    }
+    window.addEventListener('hashchange', followShortcutNavigation)
+    return () => window.removeEventListener('hashchange', followShortcutNavigation)
+  }, [])
 
   return (
     <div className="app-shell">
       <header className="masthead">
         <h1>ZZZ Setup Workbench</h1>
+        <CopySetupButton state={appliedState} />
       </header>
       <main>
         {isInitialWorkbenchState(state) ? (
@@ -190,7 +297,12 @@ export function App() {
             onClosed={focusPartyEditTrigger}
           />
         ) : (
-          <AppliedWorkbench state={state} dispatch={dispatch} />
+          <AppliedWorkbench
+            key={window.location.hash || 'ordinary-entry'}
+            state={state}
+            dispatch={dispatch}
+            initialViewedSlot={currentShortcutState?.focusSlot ?? 0}
+          />
         )}
       </main>
       <footer className="legal-footer">

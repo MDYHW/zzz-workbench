@@ -540,16 +540,36 @@ create a second client configuration or runtime account dependency.
 - Do not publish the private repository, its source history, or a public source
   mirror, and do not make the public destination a development repository.
 - Do not add a backend, API, authentication, persistence, analytics, telemetry,
-  cookies, storage, service worker, address-derived state, or custom domain.
-- Do not add a Copy button or encoded Setup URL. That older sharing direction is
-  outside current `SW-022` and requires its own later authority decision and
-  supporting requirement before implementation.
+  cookies, storage, service worker, ongoing address synchronization, or custom
+  domain. The explicitly copied complete Setup shortcut authorized by `SW-016`
+  and `SW-022` is the sole address-derived initial state.
 - Do not add an in-client feedback link, issue template, changelog, promotional
   panel, RC badge, Beta badge, or second legal surface.
 - Do not treat a footer, repository notice, non-commercial intent, or GitHub
   Pages availability as a license or rights determination.
 - Do not create a permanent asset-rights registry, named-file test catalogue, or
   runtime release validator.
+
+### Explicit Setup shortcut
+
+- R24. The masthead exposes one Copy action for the current Setup. It is
+  unavailable before a complete applied Setup exists and whenever a required
+  applied selection is incomplete.
+- R25. Activating Copy writes one immutable address shortcut to the clipboard
+  without changing the current browser address. The shortcut carries the three
+  ordered admitted Agents, Focus, and each Agent's Mindscape, pool, W-Engine,
+  refinement, four-piece and two-piece Drive Discs, Slot 4–6 main stats, and
+  complete effective-substat counts. It carries no Result, target context,
+  language, or viewed-Agent state.
+- R26. Opening a valid current-version shortcut atomically establishes the
+  complete carried Setup, bypasses initial Party Edit, recalculates Result, and
+  initially views the carried Focus. A malformed, incomplete, invalid, or
+  unsupported-version shortcut applies none of its fields and follows the
+  ordinary empty initial Party Edit without repair, substitution, migration, or
+  partial recovery.
+- R27. Copy feedback is visible and announced accessibly. Copying does not add
+  browser storage, file export, server-held state, application transmission, or
+  ongoing URL synchronization.
 
 ---
 
