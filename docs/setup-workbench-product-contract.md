@@ -1103,6 +1103,16 @@ three Agents for that new context and recalculates Result. Before any party has
 been applied, there is no prior setup or Result to preserve while composing the
 initial draft.
 
+Opening a valid explicitly copied Setup shortcut is the only alternate initial
+entry. It bypasses the initial draft and prepared initialization, atomically
+establishes three ordered admitted Agents, Focus, and one complete selected
+Setup for each Agent, then recalculates Result from those current inputs. Every
+carried identity and selection must be valid together under the current product
+rules. An incomplete, malformed, invalid, or unsupported shortcut applies none
+of its inputs and follows the ordinary initial-draft flow without guessing,
+substitution, migration, or partial recovery. This rule does not choose the
+initially viewed Agent after shortcut entry.
+
 1. Select three distinct admitted Agents and resolve focus.
 2. Prepare all three Agents for the current party using Rank-default Mindscape,
    full pool, authored equipment and main-stat first choices, and zero effective
@@ -1134,8 +1144,9 @@ initial draft.
 
 - provider ingestion, universal schemas, source registries, or persisted output;
 - API, persistence, authentication, application telemetry, server-side
-  application processing, address-derived or cross-visit session state, or
-  hidden build history;
+  application processing, hidden build history, ongoing address
+  synchronization, or address-derived and cross-visit state beyond the
+  explicitly copied Setup shortcut defined below;
 - multiple setup directions, runtime equipment scoring, universal package
   optimization, or per-pool edited-setup memory;
 - damage totals, rotations, uptime, action frequency, average stacks, clear time,
@@ -1146,11 +1157,22 @@ initial draft.
 Generated static client artifacts may be publicly delivered at one stable
 browser URL. This delivery changes only how the current client is reached. It
 does not change Setup, Result, calculation, candidate, preparation, party, or
-in-memory session meaning, and a reload or later visit starts a fresh session.
-The public client payload excludes the private development repository and its
-history, credentials, personal operator information, and files not required by
-the generated client. The browser-delivered bundle itself is public rather
-than secret.
+in-memory session meaning. Without a valid explicitly copied Setup shortcut, a
+reload or later visit starts a fresh session. The public client payload excludes
+the private development repository and its history, credentials, personal
+operator information, and files not required by the generated client. The
+browser-delivered bundle itself is public rather than secret.
+
+A user may explicitly copy an immutable, replayable address shortcut for one
+complete current Setup and retain, reopen, bookmark, or share it. Opening a
+valid shortcut initializes one in-memory session under `SW-016`; Result is
+recalculated from current product meaning. The shortcut carries no displayed
+Result, editable target context, language preference, or viewed-Agent state.
+It authorizes no automatic browser storage, mutable working-copy persistence,
+application-managed saved Setup or file export, ongoing address
+synchronization, partial recovery, inferred replacement, compatibility
+migration, account, API, server-held state, or server transmission of Setup as
+application data.
 
 The publicly deliverable client, including its local build, may include one
 minimal, persistent, non-interactive legal attribution surface required for
@@ -1180,7 +1202,8 @@ release confidence rather than different product behavior or stored state.
 Unavoidable transport request metadata under the static host's policy,
 including requests for state-selected static assets needed to render the
 current client, is a provider operation rather than application telemetry.
-Those requests do not authorize optional analytics or deliberate serialization
-or transmission of Setup or session state as application data. Hosting,
-repository, branch, workflow, and URL identities remain subordinate delivery
-choices rather than permanent product meaning.
+Those requests do not authorize optional analytics or serialization or
+transmission of Setup or session state as application data beyond the explicit
+client-side shortcut above. Hosting, repository, branch, workflow, and URL
+identities remain subordinate delivery choices rather than permanent product
+meaning.
