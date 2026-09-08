@@ -64,6 +64,15 @@ function CopySetupButton({ state }: { state: WorkbenchState | null }) {
     }
   }, [])
 
+  useEffect(() => {
+    if (copyInFlight.current) return
+    if (resetTimer.current !== null) {
+      window.clearTimeout(resetTimer.current)
+      resetTimer.current = null
+    }
+    setStatus('idle')
+  }, [state])
+
   const showTemporaryStatus = (next: 'copied' | 'failed') => {
     setStatus(next)
     if (resetTimer.current !== null) window.clearTimeout(resetTimer.current)

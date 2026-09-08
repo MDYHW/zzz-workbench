@@ -138,11 +138,11 @@ describe('workbench UI integration', () => {
     window.location.hash = new URL(
       createSetupShortcutUrl(replacement, window.location.href),
     ).hash
+    finishInitialCopy()
     await waitFor(() => expect(screen.getByRole('tab', {
       name: 'View Anby: Soldier 0 setup and Result',
     })).toHaveAttribute('aria-selected', 'true'))
 
-    finishInitialCopy()
     await waitFor(() => expect(copy).toHaveTextContent(/^Copy$/))
     expect(copy).not.toHaveTextContent('Copied')
     expect(within(document.querySelector('.masthead-actions')!).getByRole('status'))
@@ -150,14 +150,52 @@ describe('workbench UI integration', () => {
 
     await user.click(copy)
     expect(copy).toHaveTextContent('Copying')
+    finishReplacementCopy()
+    await waitFor(() => expect(copy).toHaveTextContent('Copied'))
+    expect(readSetupShortcut(new URL(String(writeText.mock.calls[1][0])).hash))
+      .toEqual(replacement)
+
     window.location.hash = 'setup=unsupported'
     await waitFor(() => expect(screen.getByRole('heading', { name: 'Editing party' }))
       .toBeInTheDocument())
-
-    finishReplacementCopy()
     await waitFor(() => expect(copy).toHaveTextContent(/^Copy$/))
     expect(copy).toBeDisabled()
     expect(copy).not.toHaveTextContent('Copied')
+    expect(within(document.querySelector('.masthead-actions')!).getByRole('status'))
+      .toHaveTextContent('')
+  })
+
+  it('suppresses a rejected clipboard result after shortcut navigation', async () => {
+    const initial = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
+    const replacement = createPreparedState({}, ['dialyn', 'anbySoldier0', 'lucia'], 1)
+    window.history.replaceState(
+      null,
+      '',
+      new URL(createSetupShortcutUrl(initial, window.location.href)).hash,
+    )
+    let rejectCopy!: (error: Error) => void
+    const writeText = vi.fn().mockReturnValue(new Promise<void>((_, reject) => {
+      rejectCopy = reject
+    }))
+    const user = userEvent.setup()
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    })
+    render(<App />)
+
+    const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
+    await user.click(copy)
+    window.location.hash = new URL(
+      createSetupShortcutUrl(replacement, window.location.href),
+    ).hash
+    await waitFor(() => expect(screen.getByRole('tab', {
+      name: 'View Anby: Soldier 0 setup and Result',
+    })).toHaveAttribute('aria-selected', 'true'))
+
+    rejectCopy(new Error('Clipboard denied'))
+    await waitFor(() => expect(copy).toHaveTextContent(/^Copy$/))
+    expect(copy).not.toHaveTextContent('Copy failed')
     expect(within(document.querySelector('.masthead-actions')!).getByRole('status'))
       .toHaveTextContent('')
   })
