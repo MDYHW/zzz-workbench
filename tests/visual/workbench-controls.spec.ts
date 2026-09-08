@@ -14,6 +14,10 @@ const partyEditViewports = [
 ] as const
 
 test('keeps clipped masthead actions visibly keyboard-focused', async ({ page }) => {
+  await page.context().grantPermissions(['clipboard-write'], {
+    origin: 'http://127.0.0.1:5173',
+  })
+
   for (const viewport of [viewports[0], partyEditViewports[partyEditViewports.length - 1]]) {
     await openWorkbench(page, viewport)
 
