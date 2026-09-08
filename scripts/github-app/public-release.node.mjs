@@ -14,6 +14,7 @@ import {
   GITHUB_API_VERSION,
   GITHUB_CONFIG_SCHEMA,
   INSTALLATION_TOKEN_ENV,
+  PublicReleaseGithubError,
   executeFixedChildCommand,
   githubConfigIdentity,
   runPublishingChild,
@@ -170,10 +171,9 @@ const encodedCandidate = (value = candidate()) => ({
 })
 
 test('release CLI serializes only validated safe operational diagnostics', () => {
-  const output = serializeReleaseCliError({
+  const output = serializeReleaseCliError(new PublicReleaseGithubError('Remote reconciliation is required.', {
     code: 'github_operation_and_revocation_unconfirmed',
     state: 'reconcile-required',
-    message: 'Remote reconciliation is required.',
     resource: '/repos/neutral-workbench/neutral-workbench.github.io/rulesets',
     httpStatus: 422,
     operationDiagnostic: {
@@ -185,9 +185,7 @@ test('release CLI serializes only validated safe operational diagnostics', () =>
       code: 'github_token_revocation_unconfirmed', state: 'reconcile-required',
       resource: '/installation/token', httpStatus: 502,
     },
-    providerBody: `provider detail ${RELEASE_TOKEN}`,
-    token: RELEASE_TOKEN,
-  })
+  }))
   assert.deepEqual(output, {
     ok: false,
     code: 'github_operation_and_revocation_unconfirmed',
@@ -208,15 +206,14 @@ test('release CLI serializes only validated safe operational diagnostics', () =>
 })
 
 test('release CLI omits invalid optional diagnostics and sanitizes non-operational errors', () => {
-  assert.deepEqual(serializeReleaseCliError({
+  assert.deepEqual(serializeReleaseCliError(new PublicReleaseGithubError('GitHub rejected the requested operation.', {
     code: 'github_request_rejected',
     state: 'failed',
-    message: 'GitHub rejected the requested operation.',
     resource: '',
     httpStatus: 99,
     operationDiagnostic: { code: '', state: 'failed', resource: '/unsafe', httpStatus: 422 },
     revocationDiagnostic: { code: 'x', state: '', resource: '/unsafe', httpStatus: 502 },
-  }), {
+  })), {
     ok: false,
     code: 'github_request_rejected',
     state: 'failed',
@@ -227,6 +224,11 @@ test('release CLI omits invalid optional diagnostics and sanitizes non-operation
     ok: false, code: 'release_failed', state: 'failed', message: 'Public release failed.',
   })
   assert.equal(JSON.stringify(generic).includes(RELEASE_TOKEN), false)
+  assert.deepEqual(serializeReleaseCliError({
+    code: 'github_request_rejected', state: 'failed', message: `provider body ${RELEASE_TOKEN}`,
+  }), {
+    ok: false, code: 'release_failed', state: 'failed', message: 'Public release failed.',
+  })
 })
 
 const trustedController = (head = COMMIT) => {
@@ -1010,7 +1012,7 @@ test('disable-pages composes controller routing, both authorized App postures, s
             fetchImpl,
           })
           return {
-            exitCode: childResult.ok ? 0 : 1,
+            exitCode: childResult.operation.ok && childResult.revocation.confirmed ? 0 : 1,
             signal: null,
             stdout: JSON.stringify(childResult),
           }

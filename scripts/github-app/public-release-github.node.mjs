@@ -516,7 +516,10 @@ test('publication rejects a valid blob identity that does not match the uploaded
   await assert.rejects(() => publishArtifactTree({
     fetchImpl: mock.fetchImpl, token: TOKEN, config: config(), files: files(),
     artifactTreeDigest: ARTIFACT, expectedTip: OLD,
-  }), (error) => error.code === 'github_request_unknown' && error.state === 'reconcile-required')
+  }), (error) => error.code === 'github_request_unknown'
+    && error.state === 'reconcile-required'
+    && error.resource === '/repos/neutral-workbench/neutral-workbench.github.io/git/blobs'
+    && error.httpStatus === null)
   assert.equal(mock.calls.some(({ url }) => url.endsWith('/git/trees')), false)
 })
 
@@ -955,6 +958,45 @@ function fixedCommand(operation, role, payload = {}) {
   return { schema: FIXED_CHILD_SCHEMA, operation, role, config: config(), payload }
 }
 
+function successfulChildResult(result) {
+  return {
+    schema: FIXED_CHILD_RESULT_SCHEMA,
+    operation: { ok: true, result, error: null },
+    revocation: { confirmed: true, error: null },
+  }
+}
+
+function publicationResult(previousTip = OLD) {
+  return {
+    state: 'published',
+    artifactTreeDigest: ARTIFACT,
+    commitSha: COMMIT,
+    treeSha: TREE,
+    previousTip,
+  }
+}
+
+function bootstrapResult() {
+  return {
+    state: 'bootstrapped',
+    rootCommitSha: ROOT_COMMIT,
+    publication: publicationResult(ROOT_COMMIT),
+    rulesetId: 31,
+    pagesUrl: 'https://neutral-workbench.github.io/',
+  }
+}
+
+function failedChildResult(operationError, revocationError = null) {
+  return {
+    schema: FIXED_CHILD_RESULT_SCHEMA,
+    operation: { ok: false, result: null, error: operationError },
+    revocation: {
+      confirmed: revocationError === null,
+      error: revocationError,
+    },
+  }
+}
+
 function successfulOperationTransport(operation, {
   rejectTemporaryRuleset = false,
   rejectFinalRuleset = false,
@@ -1102,11 +1144,7 @@ test('GitHub Free bootstrap exposes only the placeholder before protection and e
     token: TOKEN,
     fetchImpl: transport.fetchImpl,
   })
-  assert.deepEqual(result, {
-    schema: FIXED_CHILD_RESULT_SCHEMA,
-    ok: true,
-    tokenRevoked: true,
-    result: {
+  assert.deepEqual(result, successfulChildResult({
       state: 'bootstrapped',
       rootCommitSha: ROOT_COMMIT,
       publication: {
@@ -1118,9 +1156,7 @@ test('GitHub Free bootstrap exposes only the placeholder before protection and e
       },
       rulesetId: 31,
       pagesUrl: 'https://neutral-workbench.github.io/',
-    },
-    error: null,
-  })
+  }))
 
   const mutations = transport.calls
     .map(({ url, init }, index) => ({
@@ -1165,16 +1201,16 @@ test('GitHub Free bootstrap never publishes before temporary protection or enabl
       token: TOKEN,
       fetchImpl: transport.fetchImpl,
     })
-    assert.equal(result.ok, false)
-    assert.equal(result.tokenRevoked, true)
-    assert.equal(result.result, null)
-    assert.equal(result.error.state, 'reconcile-required')
-    assert.equal(result.error.code, failure.rejectTemporaryRuleset || failure.rejectFinalRuleset
+    assert.equal(result.operation.ok, false)
+    assert.equal(result.revocation.confirmed, true)
+    assert.equal(result.operation.result, null)
+    assert.equal(result.operation.error.state, 'reconcile-required')
+    assert.equal(result.operation.error.code, failure.rejectTemporaryRuleset || failure.rejectFinalRuleset
       ? 'github_request_rejected'
       : 'github_ruleset_mismatch')
     if (failure.rejectTemporaryRuleset || failure.rejectFinalRuleset) {
-      assert.equal(result.error.httpStatus, 403)
-      assert.match(result.error.resource, /\/rulesets(?:\/31)?$/)
+      assert.equal(result.operation.error.httpStatus, 403)
+      assert.match(result.operation.error.resource, /\/rulesets(?:\/31)?$/)
     }
     const requests = transport.calls.map(({ url, init }) => ({
       method: init.method ?? 'GET',
@@ -1202,7 +1238,7 @@ test('bootstrap child timeout covers its observed protocol workload and bounded 
   const result = await executeFixedChildCommand({
     command, token: TOKEN, fetchImpl: transport.fetchImpl, timeoutMs: requestTimeoutMs,
   })
-  assert.equal(result.ok, true)
+  assert.equal(result.operation.ok, true)
 
   const observedMutationCount = transport.calls.filter(({ init }) => (init.method ?? 'GET') !== 'GET').length
   const cleanup = transport.calls.at(-1)
@@ -1252,8 +1288,8 @@ test('fixed-child deadlines cover actual slow successful operations through conf
       wait: async (milliseconds) => { clock += milliseconds },
     })
     const result = await executeFixedChildCommand({ command, token: TOKEN, fetchImpl: slow, timeoutMs: 4_000 })
-    assert.equal(result.ok, true, JSON.stringify({ result, calls: transport.calls.map(({ url, init }) => [init.method ?? 'GET', url]) }))
-    assert.equal(result.tokenRevoked, true)
+    assert.equal(result.operation.ok, true, JSON.stringify({ result, calls: transport.calls.map(({ url, init }) => [init.method ?? 'GET', url]) }))
+    assert.equal(result.revocation.confirmed, true)
     assert.ok(clock < publicationChildTimeoutMs(command, 4_000))
     assert.equal(transport.calls.at(-1).url.endsWith('/installation/token'), true)
   }
@@ -1295,8 +1331,8 @@ test('publisher child reads the authenticated current tip inside the child befor
     token: TOKEN,
     fetchImpl,
   })
-  assert.equal(result.ok, true)
-  assert.equal(result.result.previousTip, OLD)
+  assert.equal(result.operation.ok, true)
+  assert.equal(result.operation.result.previousTip, OLD)
   assert.ok(refReads >= 4)
   const update = publication.calls.find(({ init }) => init.method === 'PATCH')
   assert.deepEqual(JSON.parse(update.init.body), { sha: COMMIT, force: false })
@@ -1323,8 +1359,8 @@ test('fixed child revokes its token in finally after success and known operation
       command: fixedCommand('disable-pages', 'stop'), token: TOKEN, fetchImpl,
     })
     assert.equal(result.schema, FIXED_CHILD_RESULT_SCHEMA)
-    assert.equal(result.ok, !failOperation)
-    assert.equal(result.tokenRevoked, true)
+    assert.equal(result.operation.ok, !failOperation)
+    assert.equal(result.revocation.confirmed, true)
     assert.equal(revoked, 1)
     assert.ok(!JSON.stringify(result).includes(TOKEN))
   }
@@ -1338,20 +1374,15 @@ test('fixed child preserves both an unknown operation and unconfirmed token revo
   const result = await executeFixedChildCommand({
     command: fixedCommand('disable-pages', 'stop'), token: TOKEN, fetchImpl,
   })
-  assert.equal(result.ok, false)
-  assert.equal(result.tokenRevoked, false)
-  assert.equal(result.error.code, 'github_operation_and_revocation_unconfirmed')
-  assert.equal(result.error.state, 'reconcile-required')
-  assert.match(result.error.message, /operation and installation token revocation/)
-  assert.equal(result.error.resource, null)
-  assert.equal(result.error.httpStatus, null)
-  assert.deepEqual(result.error.operationDiagnostic, {
+  assert.equal(result.operation.ok, false)
+  assert.equal(result.revocation.confirmed, false)
+  assert.deepEqual(result.operation.error, {
     code: 'github_request_unknown',
     state: 'reconcile-required',
     resource: '/repos/neutral-workbench/neutral-workbench.github.io/pages',
     httpStatus: null,
   })
-  assert.deepEqual(result.error.revocationDiagnostic, {
+  assert.deepEqual(result.revocation.error, {
     code: 'github_token_revocation_unconfirmed',
     state: 'reconcile-required',
     resource: '/installation/token',
@@ -1369,13 +1400,7 @@ test('fixed process uses one absolute Node entry, shell false, token-only env, a
     child.stderr = new PassThrough()
     child.kill = () => {}
     queueMicrotask(() => {
-      child.stdout.end(`${JSON.stringify({
-        schema: FIXED_CHILD_RESULT_SCHEMA,
-        ok: true,
-        tokenRevoked: true,
-        result: { state: 'published' },
-        error: null,
-      })}\n`)
+      child.stdout.end(`${JSON.stringify(successfulChildResult(publicationResult()))}\n`)
       child.emit('close', 0, null)
     })
     return child
@@ -1500,19 +1525,662 @@ test('parent preflight precedes key access and minting, and a confirmed child cl
         return {
           exitCode: 0,
           signal: null,
-          stdout: JSON.stringify({
-            schema: FIXED_CHILD_RESULT_SCHEMA,
-            ok: true,
-            tokenRevoked: true,
-            result: { state: 'published' },
-            error: null,
-          }),
+          stdout: JSON.stringify(successfulChildResult(publicationResult())),
         }
       },
     })
-    assert.deepEqual(result, { state: 'published' })
+    assert.deepEqual(result, publicationResult())
     assert.deepEqual(order.slice(0, 3), ['preflight', 'key', 'fetch'])
     assert.equal(mock.calls.some(({ url }) => url.endsWith('/installation/token')), false)
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test('parent rejects success output that does not exactly bind the requested operation and artifact', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('publish', 'publisher', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  try {
+    for (const invalidResult of [
+      { ...publicationResult(), providerBody: 'provider-internal-body' },
+      { ...publicationResult(), artifactTreeDigest: `sha256:${'f'.repeat(64)}` },
+    ]) {
+      const mock = authTransport()
+      await assert.rejects(() => runPublishingChild({
+        nodeExecutable: process.execPath,
+        operationFile,
+        childSource: Buffer.from('sealed-source'),
+        preflight: async () => true,
+        loadPrivateKey: async () => PEM,
+        fetchImpl: mock.fetchImpl,
+        childRunner: async () => ({
+          exitCode: 0,
+          signal: null,
+          stdout: JSON.stringify(successfulChildResult(invalidResult)),
+        }),
+      }), (error) => error.code === 'github_child_output_invalid' && error.state === 'reconcile-required')
+      assert.equal(mock.calls.filter(({ url, init }) => (
+        url.endsWith('/installation/token') && init.method === 'DELETE'
+      )).length, 1)
+    }
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test('parent rejects malformed bootstrap and disable-pages success payloads at their command boundaries', async () => {
+  const cases = [
+    {
+      command: fixedCommand('bootstrap', 'bootstrap', {
+        files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+      }),
+      invalidResults: [
+        { ...bootstrapResult(), providerBody: 'provider-internal-body' },
+        {
+          ...bootstrapResult(),
+          publication: {
+            ...bootstrapResult().publication,
+            artifactTreeDigest: `sha256:${'f'.repeat(64)}`,
+          },
+        },
+      ],
+      transport: () => authTransport({ phase: 'bootstrap', overrides: {
+        scope: { total_count: 0, repositories: [] },
+      } }),
+    },
+    {
+      command: fixedCommand('disable-pages', 'stop'),
+      invalidResults: [
+        { disabled: true, providerBody: 'provider-internal-body' },
+        { disabled: false },
+      ],
+      transport: () => authTransport({ phase: 'stop' }),
+    },
+  ]
+  for (const { command, invalidResults, transport } of cases) {
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+    const operationFile = path.join(tempRoot, 'operation.json')
+    await fs.writeFile(operationFile, JSON.stringify(command))
+    try {
+      for (const invalidResult of invalidResults) {
+        const mock = transport()
+        await assert.rejects(() => runPublishingChild({
+          nodeExecutable: process.execPath,
+          operationFile,
+          childSource: Buffer.from('sealed-source'),
+          preflight: async () => true,
+          loadPrivateKey: async () => PEM,
+          fetchImpl: mock.fetchImpl,
+          childRunner: async () => ({
+            exitCode: 0,
+            signal: null,
+            stdout: JSON.stringify(successfulChildResult(invalidResult)),
+          }),
+        }), (error) => error.code === 'github_child_output_invalid' && error.state === 'reconcile-required')
+        assert.equal(mock.calls.filter(({ url, init }) => (
+          url.endsWith('/installation/token') && init.method === 'DELETE'
+        )).length, 1)
+      }
+    } finally {
+      await fs.rm(tempRoot, { recursive: true, force: true })
+    }
+  }
+})
+
+test('parent accepts only the source-defined child input-change diagnostic shape', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('publish', 'publisher', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  const diagnostic = {
+    code: 'github_child_input_changed',
+    state: 'failed',
+    resource: null,
+    httpStatus: null,
+  }
+  try {
+    const accepted = authTransport()
+    await assert.rejects(() => runPublishingChild({
+      nodeExecutable: process.execPath,
+      operationFile,
+      childSource: Buffer.from('sealed-source'),
+      preflight: async () => true,
+      loadPrivateKey: async () => PEM,
+      fetchImpl: accepted.fetchImpl,
+      childRunner: async () => ({
+        exitCode: 1,
+        signal: null,
+        stdout: JSON.stringify(failedChildResult(diagnostic)),
+      }),
+    }), (error) => error.code === diagnostic.code
+      && error.state === diagnostic.state
+      && error.resource === null
+      && error.httpStatus === null)
+    assert.equal(accepted.calls.some(({ url }) => url.endsWith('/installation/token')), false)
+
+    for (const invalidDiagnostic of [
+      { ...diagnostic, state: 'reconcile-required' },
+      { ...diagnostic, resource: 'destination-ref' },
+      { ...diagnostic, httpStatus: 409 },
+    ]) {
+      const rejected = authTransport()
+      await assert.rejects(() => runPublishingChild({
+        nodeExecutable: process.execPath,
+        operationFile,
+        childSource: Buffer.from('sealed-source'),
+        preflight: async () => true,
+        loadPrivateKey: async () => PEM,
+        fetchImpl: rejected.fetchImpl,
+        childRunner: async () => ({
+          exitCode: 1,
+          signal: null,
+          stdout: JSON.stringify(failedChildResult(invalidDiagnostic)),
+        }),
+      }), (error) => error.code === 'github_child_output_invalid'
+        && error.state === 'reconcile-required')
+      assert.equal(rejected.calls.filter(({ url, init }) => (
+        url.endsWith('/installation/token') && init.method === 'DELETE'
+      )).length, 1)
+    }
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test('parent accepts the exact bootstrap repository-creation diagnostic resource', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('bootstrap', 'bootstrap', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  const diagnostic = {
+    code: 'github_request_rejected',
+    state: 'failed',
+    resource: '/orgs/neutral-workbench/repos',
+    httpStatus: 422,
+  }
+  try {
+    const mock = authTransport({ phase: 'bootstrap', overrides: {
+      scope: { total_count: 0, repositories: [] },
+    } })
+    await assert.rejects(() => runPublishingChild({
+      nodeExecutable: process.execPath,
+      operationFile,
+      childSource: Buffer.from('sealed-source'),
+      preflight: async () => true,
+      loadPrivateKey: async () => PEM,
+      fetchImpl: mock.fetchImpl,
+      childRunner: async () => ({
+        exitCode: 1,
+        signal: null,
+        stdout: JSON.stringify(failedChildResult(diagnostic)),
+      }),
+    }), (error) => error.code === diagnostic.code
+      && error.state === diagnostic.state
+      && error.resource === diagnostic.resource
+      && error.httpStatus === diagnostic.httpStatus)
+    assert.equal(mock.calls.some(({ url }) => url.endsWith('/installation/token')), false)
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test('parent rejects impossible request-unknown diagnostic tuples', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('publish', 'publisher', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  const refResource = '/repos/neutral-workbench/neutral-workbench.github.io/git/ref/heads/main'
+  try {
+    for (const diagnostic of [
+      {
+        code: 'github_request_unknown',
+        state: 'failed',
+        resource: refResource,
+        httpStatus: null,
+      },
+      {
+        code: 'github_request_unknown',
+        state: 'reconcile-required',
+        resource: null,
+        httpStatus: null,
+      },
+    ]) {
+      const mock = authTransport()
+      await assert.rejects(() => runPublishingChild({
+        nodeExecutable: process.execPath,
+        operationFile,
+        childSource: Buffer.from('sealed-source'),
+        preflight: async () => true,
+        loadPrivateKey: async () => PEM,
+        fetchImpl: mock.fetchImpl,
+        childRunner: async () => ({
+          exitCode: 1,
+          signal: null,
+          stdout: JSON.stringify(failedChildResult(diagnostic)),
+        }),
+      }), (error) => error.code === 'github_child_output_invalid'
+        && error.state === 'reconcile-required')
+      assert.equal(mock.calls.filter(({ url, init }) => (
+        url.endsWith('/installation/token') && init.method === 'DELETE'
+      )).length, 1)
+    }
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test('parent rejects an operation diagnostic resource unreachable by its command', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('disable-pages', 'stop')))
+  try {
+    const mock = authTransport({ phase: 'stop' })
+    await assert.rejects(() => runPublishingChild({
+      nodeExecutable: process.execPath,
+      operationFile,
+      childSource: Buffer.from('sealed-source'),
+      preflight: async () => true,
+      loadPrivateKey: async () => PEM,
+      fetchImpl: mock.fetchImpl,
+      childRunner: async () => ({
+        exitCode: 1,
+        signal: null,
+        stdout: JSON.stringify(failedChildResult({
+          code: 'github_request_rejected',
+          state: 'failed',
+          resource: '/repos/neutral-workbench/neutral-workbench.github.io/git/ref/heads/main',
+          httpStatus: 422,
+        })),
+      }),
+    }), (error) => error.code === 'github_child_output_invalid'
+      && error.state === 'reconcile-required')
+    assert.equal(mock.calls.filter(({ url, init }) => (
+      url.endsWith('/installation/token') && init.method === 'DELETE'
+    )).length, 1)
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test('parent accepts bootstrap commit and tree mismatches before and after the public transition', async () => {
+  const bootstrapCommand = fixedCommand('bootstrap', 'bootstrap', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })
+  const bootstrapTransport = () => authTransport({ phase: 'bootstrap', overrides: {
+    scope: { total_count: 0, repositories: [] },
+  } })
+  for (const code of ['github_commit_mismatch', 'github_tree_mismatch']) {
+    for (const state of ['failed', 'reconcile-required']) {
+      const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+      const operationFile = path.join(tempRoot, 'operation.json')
+      await fs.writeFile(operationFile, JSON.stringify(bootstrapCommand))
+      try {
+        const mock = bootstrapTransport()
+        await assert.rejects(() => runPublishingChild({
+          nodeExecutable: process.execPath,
+          operationFile,
+          childSource: Buffer.from('sealed-source'),
+          preflight: async () => true,
+          loadPrivateKey: async () => PEM,
+          fetchImpl: mock.fetchImpl,
+          childRunner: async () => ({
+            exitCode: 1,
+            signal: null,
+            stdout: JSON.stringify(failedChildResult({
+              code,
+              state,
+              resource: null,
+              httpStatus: null,
+            })),
+          }),
+        }), (error) => error.code === code && error.state === state)
+        assert.equal(mock.calls.some(({ url }) => url.endsWith('/installation/token')), false)
+      } finally {
+        await fs.rm(tempRoot, { recursive: true, force: true })
+      }
+    }
+  }
+})
+
+test('parent rejects fabricated direct blob-mismatch diagnostics for every command', async () => {
+  const cases = [
+    {
+      command: fixedCommand('bootstrap', 'bootstrap', {
+        files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+      }),
+      state: 'reconcile-required',
+      transport: () => authTransport({ phase: 'bootstrap', overrides: {
+        scope: { total_count: 0, repositories: [] },
+      } }),
+    },
+    {
+      command: fixedCommand('publish', 'publisher', {
+        files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+      }),
+      state: 'failed',
+      transport: () => authTransport(),
+    },
+    {
+      command: fixedCommand('disable-pages', 'stop'),
+      state: 'failed',
+      transport: () => authTransport({ phase: 'stop' }),
+    },
+  ]
+  for (const item of cases) {
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+    const operationFile = path.join(tempRoot, 'operation.json')
+    await fs.writeFile(operationFile, JSON.stringify(item.command))
+    try {
+      const mock = item.transport()
+      await assert.rejects(() => runPublishingChild({
+        nodeExecutable: process.execPath,
+        operationFile,
+        childSource: Buffer.from('sealed-source'),
+        preflight: async () => true,
+        loadPrivateKey: async () => PEM,
+        fetchImpl: mock.fetchImpl,
+        childRunner: async () => ({
+          exitCode: 1,
+          signal: null,
+          stdout: JSON.stringify(failedChildResult({
+            code: 'github_blob_mismatch',
+            state: item.state,
+            resource: null,
+            httpStatus: null,
+          })),
+        }),
+      }), (error) => error.code === 'github_child_output_invalid'
+        && error.state === 'reconcile-required')
+      assert.equal(mock.calls.filter(({ url, init }) => (
+        url.endsWith('/installation/token') && init.method === 'DELETE'
+      )).length, 1)
+    } finally {
+      await fs.rm(tempRoot, { recursive: true, force: true })
+    }
+  }
+})
+
+test('parent rejects a successful confirmed-revocation envelope with a nonzero exit', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('publish', 'publisher', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  try {
+    const mock = authTransport()
+    await assert.rejects(() => runPublishingChild({
+      nodeExecutable: process.execPath,
+      operationFile,
+      childSource: Buffer.from('sealed-source'),
+      preflight: async () => true,
+      loadPrivateKey: async () => PEM,
+      fetchImpl: mock.fetchImpl,
+      childRunner: async () => ({
+        exitCode: 1,
+        signal: null,
+        stdout: JSON.stringify(successfulChildResult(publicationResult())),
+      }),
+    }), (error) => error.code === 'github_child_output_invalid'
+      && error.state === 'reconcile-required')
+    assert.equal(mock.calls.some(({ url }) => url.endsWith('/installation/token')), false)
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test('parent accepts only source-defined revocation diagnostic tuples', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('publish', 'publisher', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  const successfulOperation = { ok: true, result: publicationResult(), error: null }
+  const unrecoverableOperation = {
+    ok: false,
+    result: null,
+    error: {
+      code: 'github_child_output_invalid',
+      state: 'failed',
+      resource: null,
+      httpStatus: null,
+    },
+  }
+  const childResult = (error, operation = successfulOperation) => ({
+    schema: FIXED_CHILD_RESULT_SCHEMA,
+    operation,
+    revocation: { confirmed: false, error },
+  })
+  try {
+    const tokenInvalid = {
+      code: 'github_token_invalid',
+      state: 'failed',
+      resource: null,
+      httpStatus: null,
+    }
+    const tokenInvalidMock = authTransport()
+    await assert.rejects(() => runPublishingChild({
+      nodeExecutable: process.execPath,
+      operationFile,
+      childSource: Buffer.from('sealed-source'),
+      preflight: async () => true,
+      loadPrivateKey: async () => PEM,
+      fetchImpl: tokenInvalidMock.fetchImpl,
+      childRunner: async () => ({
+        exitCode: 1,
+        signal: null,
+        stdout: JSON.stringify(childResult(tokenInvalid, unrecoverableOperation)),
+      }),
+    }), (error) => error.code === 'github_child_output_invalid' && error.state === 'failed')
+    assert.equal(tokenInvalidMock.calls.filter(({ url, init }) => (
+      url.endsWith('/installation/token') && init.method === 'DELETE'
+    )).length, 1)
+
+    for (const diagnostic of [
+      {
+        code: 'github_token_revocation_unconfirmed',
+        state: 'reconcile-required',
+        resource: '/installation/token',
+        httpStatus: null,
+      },
+      {
+        code: 'github_token_revocation_unconfirmed',
+        state: 'reconcile-required',
+        resource: '/installation/token',
+        httpStatus: 503,
+      },
+    ]) {
+      const mock = authTransport()
+      const result = await runPublishingChild({
+        nodeExecutable: process.execPath,
+        operationFile,
+        childSource: Buffer.from('sealed-source'),
+        preflight: async () => true,
+        loadPrivateKey: async () => PEM,
+        fetchImpl: mock.fetchImpl,
+        childRunner: async () => ({
+          exitCode: 1,
+          signal: null,
+          stdout: JSON.stringify(childResult(diagnostic)),
+        }),
+      })
+      assert.deepEqual(result, publicationResult())
+      assert.equal(mock.calls.filter(({ url, init }) => (
+        url.endsWith('/installation/token') && init.method === 'DELETE'
+      )).length, 1)
+    }
+
+    for (const diagnostic of [
+      {
+        code: 'github_token_invalid',
+        state: 'reconcile-required',
+        resource: null,
+        httpStatus: null,
+      },
+      {
+        code: 'github_token_invalid',
+        state: 'failed',
+        resource: null,
+        httpStatus: 401,
+      },
+      {
+        code: 'github_token_revocation_unconfirmed',
+        state: 'reconcile-required',
+        resource: '/installation/token',
+        httpStatus: 204,
+      },
+    ]) {
+      const mock = authTransport()
+      await assert.rejects(() => runPublishingChild({
+        nodeExecutable: process.execPath,
+        operationFile,
+        childSource: Buffer.from('sealed-source'),
+        preflight: async () => true,
+        loadPrivateKey: async () => PEM,
+        fetchImpl: mock.fetchImpl,
+        childRunner: async () => ({
+          exitCode: 1,
+          signal: null,
+          stdout: JSON.stringify(childResult(
+            diagnostic,
+            diagnostic.code === 'github_token_invalid' ? unrecoverableOperation : successfulOperation,
+          )),
+        }),
+      }), (error) => error.code === 'github_child_output_invalid'
+        && error.state === 'reconcile-required')
+      assert.equal(mock.calls.filter(({ url, init }) => (
+        url.endsWith('/installation/token') && init.method === 'DELETE'
+      )).length, 1)
+    }
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test('parent detects a JSON-escaped credential anywhere in parsed child output', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  const escapedToken = 'ghs_opaque"credential'
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('publish', 'publisher', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  try {
+    const mock = authTransport({ overrides: {
+      token: {
+        token: escapedToken,
+        expires_at: '2099-09-07T01:00:00Z',
+        permissions: APP_PERMISSION_PROFILES.publisher,
+      },
+    } })
+    const stdout = JSON.stringify(failedChildResult({
+      code: escapedToken,
+      state: 'failed',
+      resource: null,
+      httpStatus: null,
+    }))
+    assert.equal(stdout.includes(escapedToken), false)
+    await assert.rejects(() => runPublishingChild({
+      nodeExecutable: process.execPath,
+      operationFile,
+      childSource: Buffer.from('sealed-source'),
+      preflight: async () => true,
+      loadPrivateKey: async () => PEM,
+      fetchImpl: mock.fetchImpl,
+      childRunner: async () => ({ exitCode: 1, signal: null, stdout }),
+    }), (error) => {
+      assert.equal(error.code, 'github_child_output_invalid')
+      assert.equal(JSON.stringify(error).includes(escapedToken), false)
+      return true
+    })
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test('parent returns a verified operation result after fallback confirms token revocation', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('publish', 'publisher', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  const revocationError = {
+    code: 'github_token_revocation_unconfirmed',
+    state: 'reconcile-required',
+    resource: '/installation/token',
+    httpStatus: 503,
+  }
+  try {
+    const mock = authTransport()
+    const result = await runPublishingChild({
+      nodeExecutable: process.execPath,
+      operationFile,
+      childSource: Buffer.from('sealed-source'),
+      preflight: async () => true,
+      loadPrivateKey: async () => PEM,
+      fetchImpl: mock.fetchImpl,
+      childRunner: async () => ({
+        exitCode: 1,
+        signal: null,
+        stdout: JSON.stringify({
+          schema: FIXED_CHILD_RESULT_SCHEMA,
+          operation: { ok: true, result: publicationResult(), error: null },
+          revocation: { confirmed: false, error: revocationError },
+        }),
+      }),
+    })
+    assert.deepEqual(result, publicationResult())
+    assert.equal(mock.calls.filter(({ url, init }) => (
+      url.endsWith('/installation/token') && init.method === 'DELETE'
+    )).length, 1)
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test('parent reports only revocation uncertainty when the operation succeeded but both cleanup attempts fail', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('publish', 'publisher', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  const revocationError = {
+    code: 'github_token_revocation_unconfirmed',
+    state: 'reconcile-required',
+    resource: '/installation/token',
+    httpStatus: 503,
+  }
+  try {
+    const mock = authTransport()
+    const fetchImpl = async (url, init) => (
+      url.endsWith('/installation/token') ? response({}, 504) : mock.fetchImpl(url, init)
+    )
+    await assert.rejects(() => runPublishingChild({
+      nodeExecutable: process.execPath,
+      operationFile,
+      childSource: Buffer.from('sealed-source'),
+      preflight: async () => true,
+      loadPrivateKey: async () => PEM,
+      fetchImpl,
+      childRunner: async () => ({
+        exitCode: 1,
+        signal: null,
+        stdout: JSON.stringify({
+          schema: FIXED_CHILD_RESULT_SCHEMA,
+          operation: { ok: true, result: publicationResult(), error: null },
+          revocation: { confirmed: false, error: revocationError },
+        }),
+      }),
+    }), (error) => {
+      assert.equal(error.code, 'github_token_revocation_unconfirmed')
+      assert.equal(error.operationDiagnostic, null)
+      assert.equal(error.revocationDiagnostic, null)
+      return true
+    })
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true })
   }
@@ -1536,26 +2204,17 @@ test('parent preserves safe GitHub status and resource from a rejected fixed-chi
       childRunner: async () => ({
         exitCode: 1,
         signal: null,
-        stdout: JSON.stringify({
-          schema: FIXED_CHILD_RESULT_SCHEMA,
-          ok: false,
-          tokenRevoked: true,
-          result: null,
-          error: {
+        stdout: JSON.stringify(failedChildResult({
             code: 'github_request_rejected',
             state: 'failed',
-            message: 'GitHub rejected the requested operation.',
-            resource: '/repos/neutral-workbench/neutral-workbench.github.io/rulesets',
+            resource: '/repos/neutral-workbench/neutral-workbench.github.io/git/ref/heads/main',
             httpStatus: 422,
-            operationDiagnostic: null,
-            revocationDiagnostic: null,
-          },
-        }),
+        })),
       }),
     }), (error) => {
       assert.equal(error.code, 'github_request_rejected')
       assert.equal(error.state, 'failed')
-      assert.equal(error.resource, '/repos/neutral-workbench/neutral-workbench.github.io/rulesets')
+      assert.equal(error.resource, '/repos/neutral-workbench/neutral-workbench.github.io/git/ref/heads/main')
       assert.equal(error.httpStatus, 422)
       return true
     })
@@ -1594,21 +2253,7 @@ test('parent preserves the child operation diagnostic when fallback revocation s
       childRunner: async () => ({
         exitCode: 1,
         signal: null,
-        stdout: JSON.stringify({
-          schema: FIXED_CHILD_RESULT_SCHEMA,
-          ok: false,
-          tokenRevoked: false,
-          result: null,
-          error: {
-            code: 'github_operation_and_revocation_unconfirmed',
-            state: 'reconcile-required',
-            message: 'The remote operation and installation token revocation both require reconciliation.',
-            resource: null,
-            httpStatus: null,
-            operationDiagnostic,
-            revocationDiagnostic,
-          },
-        }),
+        stdout: JSON.stringify(failedChildResult(operationDiagnostic, revocationDiagnostic)),
       }),
     }), (error) => {
       assert.equal(error.code, operationDiagnostic.code)
@@ -1662,21 +2307,7 @@ test('parent combines the child operation diagnostic with a failed fallback revo
       childRunner: async () => ({
         exitCode: 1,
         signal: null,
-        stdout: JSON.stringify({
-          schema: FIXED_CHILD_RESULT_SCHEMA,
-          ok: false,
-          tokenRevoked: false,
-          result: null,
-          error: {
-            code: 'github_operation_and_revocation_unconfirmed',
-            state: 'reconcile-required',
-            message: 'The remote operation and installation token revocation both require reconciliation.',
-            resource: null,
-            httpStatus: null,
-            operationDiagnostic,
-            revocationDiagnostic: childRevocationDiagnostic,
-          },
-        }),
+        stdout: JSON.stringify(failedChildResult(operationDiagnostic, childRevocationDiagnostic)),
       }),
     }), (error) => {
       assert.equal(error.code, 'github_operation_and_revocation_unconfirmed')

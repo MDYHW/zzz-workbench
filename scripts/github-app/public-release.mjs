@@ -15,6 +15,7 @@ import {
 } from './public-release-artifact.mjs'
 import {
   FIXED_CHILD_SCHEMA,
+  PublicReleaseGithubError,
   githubConfigIdentity,
   runPublishingChild,
   validateGithubConfig,
@@ -837,8 +838,7 @@ function serializedReconciliationDiagnostic(value) {
 }
 
 export function serializeReleaseCliError(error) {
-  const operational = error instanceof PublicReleaseError
-    || (error && typeof error.code === 'string' && typeof error.state === 'string')
+  const operational = error instanceof PublicReleaseError || error instanceof PublicReleaseGithubError
   if (!operational) {
     return { ok: false, code: 'release_failed', state: 'failed', message: 'Public release failed.' }
   }
