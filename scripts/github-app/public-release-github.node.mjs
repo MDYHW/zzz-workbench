@@ -586,11 +586,16 @@ function repository(privateState, id = 77) {
   }
 }
 
-function pagesPayload() {
+function pagesPayload(overrides = {}) {
   return {
-    build_type: 'legacy',
+    url: 'https://api.github.com/repos/neutral-workbench/neutral-workbench.github.io/pages',
+    status: 'built',
+    cname: null,
+    custom_404: false,
     source: { branch: 'main', path: '/' },
     html_url: 'https://neutral-workbench.github.io/',
+    public: true,
+    ...overrides,
   }
 }
 
@@ -896,6 +901,109 @@ test('public transition and Pages configuration re-read the exact final visibili
   }
   assert.equal((await makeDestinationPublic({ fetchImpl, token: TOKEN, config: config() })).private, false)
   assert.equal((await configureRootPages({ fetchImpl, token: TOKEN, config: config() })).source.path, '/')
+})
+
+test('Pages accepts the documented response shape without optional build_type', async () => {
+  const calls = []
+  const fetchImpl = async (url, init = {}) => {
+    calls.push({ method: init.method ?? 'GET', path: new URL(url).pathname })
+    return response(pagesPayload(), (init.method ?? 'GET') === 'POST' ? 201 : 200)
+  }
+
+  const pages = await configureRootPages({ fetchImpl, token: TOKEN, config: config() })
+  assert.deepEqual(pages.source, { branch: 'main', path: '/' })
+  assert.equal(pages.html_url, 'https://neutral-workbench.github.io/')
+  assert.deepEqual(calls.map(({ method }) => method), ['POST', 'GET'])
+})
+
+test('Pages derives the fixed root URL when the optional response URL is omitted', async () => {
+  const { html_url: _omitted, ...withoutHtmlUrl } = pagesPayload()
+  const fetchImpl = async (_url, init = {}) => response(
+    withoutHtmlUrl,
+    (init.method ?? 'GET') === 'POST' ? 201 : 200,
+  )
+
+  const pages = await configureRootPages({ fetchImpl, token: TOKEN, config: config() })
+  assert.equal(pages.html_url, 'https://neutral-workbench.github.io/')
+})
+
+test('Pages rejects present contradictory build type or malformed URL after exact readback', async () => {
+  for (const payload of [
+    pagesPayload({ build_type: 'workflow' }),
+    pagesPayload({ html_url: 'not a URL' }),
+  ]) {
+    const fetchImpl = async (_url, init = {}) => response(
+      payload,
+      (init.method ?? 'GET') === 'POST' ? 201 : 200,
+    )
+
+    await assert.rejects(
+      configureRootPages({ fetchImpl, token: TOKEN, config: config() }),
+      (error) => error.code === 'github_pages_mismatch' && error.state === 'reconcile-required',
+    )
+  }
+})
+
+test('Pages reconciles unknown, malformed, or minimal creation outcomes through exact GET state', async () => {
+  for (const createResult of [
+    async () => { throw new Error('timeout after write') },
+    async () => ({ ok: true, status: 201, json: async () => { throw new Error('invalid JSON') } }),
+    async () => response({}, 201),
+    async () => response({}, 503),
+    async () => response(pagesPayload({ html_url: 'not a URL' }), 201),
+  ]) {
+    const calls = []
+    const fetchImpl = async (url, init = {}) => {
+      const method = init.method ?? 'GET'
+      calls.push({ method, path: new URL(url).pathname })
+      return method === 'POST' ? createResult() : response(pagesPayload())
+    }
+
+    const pages = await configureRootPages({ fetchImpl, token: TOKEN, config: config() })
+    assert.equal(pages.html_url, 'https://neutral-workbench.github.io/')
+    assert.deepEqual(calls.map(({ method }) => method), ['POST', 'GET'])
+  }
+})
+
+test('Pages preserves a rejected creation without attempting GET reconciliation', async () => {
+  let calls = 0
+  const fetchImpl = async (_url, init = {}) => {
+    calls += 1
+    assert.equal(init.method, 'POST')
+    return response({}, 422)
+  }
+
+  await assert.rejects(
+    configureRootPages({ fetchImpl, token: TOKEN, config: config() }),
+    (error) => error.code === 'github_request_rejected'
+      && error.state === 'failed'
+      && error.httpStatus === 422,
+  )
+  assert.equal(calls, 1)
+})
+
+test('Pages unknown creation outcomes stay reconcile-required without exact source readback', async () => {
+  for (const readback of [
+    response({}, 404),
+    response(pagesPayload({ source: undefined })),
+    response(pagesPayload({ source: { branch: 'other', path: '/' } })),
+    response(pagesPayload({ source: { branch: 'main', path: '/docs' } })),
+  ]) {
+    let calls = 0
+    const fetchImpl = async (_url, init = {}) => {
+      calls += 1
+      return (init.method ?? 'GET') === 'POST'
+        ? Promise.reject(new Error('timeout after write'))
+        : readback
+    }
+
+    await assert.rejects(
+      configureRootPages({ fetchImpl, token: TOKEN, config: config() }),
+      (error) => error.state === 'reconcile-required'
+        && error.resource === '/repos/neutral-workbench/neutral-workbench.github.io/pages',
+    )
+    assert.equal(calls, 2)
+  }
 })
 
 test('a confirmed public transition makes every failed final visibility read reconcile-required', async () => {
@@ -1765,6 +1873,44 @@ test('parent accepts the exact bootstrap repository-creation diagnostic resource
     state: 'failed',
     resource: '/orgs/neutral-workbench/repos',
     httpStatus: 422,
+  }
+  try {
+    const mock = authTransport({ phase: 'bootstrap', overrides: {
+      scope: { total_count: 0, repositories: [] },
+    } })
+    await assert.rejects(() => runPublishingChild({
+      nodeExecutable: process.execPath,
+      operationFile,
+      childSource: Buffer.from('sealed-source'),
+      preflight: async () => true,
+      loadPrivateKey: async () => PEM,
+      fetchImpl: mock.fetchImpl,
+      childRunner: async () => ({
+        exitCode: 1,
+        signal: null,
+        stdout: JSON.stringify(failedChildResult(diagnostic)),
+      }),
+    }), (error) => error.code === diagnostic.code
+      && error.state === diagnostic.state
+      && error.resource === diagnostic.resource
+      && error.httpStatus === diagnostic.httpStatus)
+    assert.equal(mock.calls.some(({ url }) => url.endsWith('/installation/token')), false)
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test('parent preserves the exact bootstrap Pages mismatch diagnostic', async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zzz-public-child-'))
+  const operationFile = path.join(tempRoot, 'operation.json')
+  await fs.writeFile(operationFile, JSON.stringify(fixedCommand('bootstrap', 'bootstrap', {
+    files: encodedFiles(), artifactTreeDigest: ARTIFACT,
+  })))
+  const diagnostic = {
+    code: 'github_pages_mismatch',
+    state: 'reconcile-required',
+    resource: '/repos/neutral-workbench/neutral-workbench.github.io/pages',
+    httpStatus: null,
   }
   try {
     const mock = authTransport({ phase: 'bootstrap', overrides: {

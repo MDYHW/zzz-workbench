@@ -817,30 +817,68 @@ export async function makeDestinationPublic({ fetchImpl, token, config, timeoutM
   }
 }
 
-function validatePages(pages, config) {
+function validatePages(pages, config, { requireSource = false } = {}) {
+  const resource = `${repositoryBase(config.destination)}/pages`
   const expectedUrl = `https://${config.destination.owner.toLowerCase()}.github.io/`
-  if (pages?.build_type !== 'legacy'
-      || pages?.source?.branch !== config.destination.branch
-      || pages?.source?.path !== '/'
-      || typeof pages?.html_url !== 'string'
-      || new URL(pages.html_url).href.toLowerCase() !== expectedUrl) {
-    fail('GitHub Pages source is invalid.', { code: 'github_pages_mismatch' })
+  const expectedSource = { branch: config.destination.branch, path: '/' }
+  const sourcePresent = isPlainObject(pages) && Object.hasOwn(pages, 'source')
+  const sourceMatches = sourcePresent
+    && pages.source?.branch === expectedSource.branch
+    && pages.source?.path === expectedSource.path
+  let urlMatches = true
+  if (isPlainObject(pages) && Object.hasOwn(pages, 'html_url')) {
+    try {
+      urlMatches = typeof pages.html_url === 'string'
+        && new URL(pages.html_url).href.toLowerCase() === expectedUrl
+    } catch {
+      urlMatches = false
+    }
   }
-  return pages
+  if (!isPlainObject(pages)
+      || (Object.hasOwn(pages, 'build_type') && pages.build_type !== 'legacy')
+      || (sourcePresent && !sourceMatches)
+      || (requireSource && !sourceMatches)
+      || !urlMatches) {
+    fail('GitHub Pages source is invalid.', { code: 'github_pages_mismatch', resource })
+  }
+  return { source: expectedSource, html_url: expectedUrl }
 }
 
 export async function configureRootPages({ fetchImpl, token, config, timeoutMs = 15_000 }) {
   validateGithubConfig(config)
   const base = repositoryBase(config.destination)
-  await mutationRequest(fetchImpl, `${base}/pages`, {
-    method: 'POST',
-    headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
-    body: { build_type: 'legacy', source: { branch: config.destination.branch, path: '/' } },
-    timeoutMs,
-  }, (pages) => validatePages(pages, config))
-  return validatePages(await request(fetchImpl, `${base}/pages`, {
-    headers: tokenHeaders(token), timeoutMs,
-  }), config)
+  const pagesPath = `${base}/pages`
+  try {
+    await mutationRequest(fetchImpl, pagesPath, {
+      method: 'POST',
+      headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
+      body: { build_type: 'legacy', source: { branch: config.destination.branch, path: '/' } },
+      timeoutMs,
+    }, (pages) => validatePages(pages, config))
+  } catch (error) {
+    const safe = sanitizeGithubError(error)
+    if (safe.code !== 'github_request_unknown') throw safe
+  }
+
+  try {
+    const pages = await request(fetchImpl, pagesPath, {
+      headers: tokenHeaders(token), timeoutMs, allowNotFound: true,
+    })
+    if (pages === null) {
+      fail('GitHub Pages creation could not be verified.', {
+        code: 'github_pages_mismatch', resource: pagesPath,
+      })
+    }
+    return validatePages(pages, config, { requireSource: true })
+  } catch (error) {
+    const safe = sanitizeGithubError(error)
+    throw new PublicReleaseGithubError('GitHub Pages creation requires reconciliation.', {
+      code: safe.code,
+      state: 'reconcile-required',
+      resource: pagesPath,
+      httpStatus: safe.httpStatus,
+    })
+  }
 }
 
 export async function bootstrapPublicDestination({
@@ -1545,6 +1583,12 @@ function childOperationDiagnosticMatchesSource(value, command) {
     return command.operation === 'bootstrap'
       && value.state === 'reconcile-required'
       && value.resource === `${repositoryBase(command.config.destination)}/rulesets`
+      && value.httpStatus === null
+  }
+  if (value.code === 'github_pages_mismatch') {
+    return command.operation === 'bootstrap'
+      && value.state === 'reconcile-required'
+      && value.resource === `${repositoryBase(command.config.destination)}/pages`
       && value.httpStatus === null
   }
   const commonPreOperationCode = [
