@@ -881,8 +881,12 @@ export async function bootstrapPublicDestination({
   }
 }
 
-function branchRefPath(destination) {
+function branchRefReadPath(destination) {
   return `${repositoryBase(destination)}/git/ref/heads/${destination.branch.split('/').map(encodeURIComponent).join('/')}`
+}
+
+function branchRefUpdatePath(destination) {
+  return `${repositoryBase(destination)}/git/refs/heads/${destination.branch.split('/').map(encodeURIComponent).join('/')}`
 }
 
 function requireSha(value, label) {
@@ -917,7 +921,7 @@ function validatePublicationFiles(files) {
 }
 
 async function readTip(fetchImpl, destination, token, timeoutMs, allowEmptyRepository = false) {
-  const ref = await request(fetchImpl, branchRefPath(destination), {
+  const ref = await request(fetchImpl, branchRefReadPath(destination), {
     headers: tokenHeaders(token), allowNotFound: true, allowEmptyRepository, timeoutMs,
   })
   if (ref === null) return null
@@ -1068,7 +1072,7 @@ export async function publishArtifactTree({
         timeoutMs,
       })
     } else {
-      await mutationRequest(fetchImpl, branchRefPath(destination), {
+      await mutationRequest(fetchImpl, branchRefUpdatePath(destination), {
         method: 'PATCH',
         headers: { ...tokenHeaders(token), 'Content-Type': 'application/json' },
         body: { sha: commitSha, force: false },
@@ -1472,14 +1476,16 @@ function childOperationResourceAllowed(resource, command) {
         `${base}/git/trees`,
         `${base}/pages`,
         `${base}/rulesets`,
-        branchRefPath(command.config.destination),
+        branchRefReadPath(command.config.destination),
+        branchRefUpdatePath(command.config.destination),
       ])
     : command.operation === 'publish'
       ? new Set([
           `${base}/git/blobs`,
           `${base}/git/commits`,
           `${base}/git/trees`,
-          branchRefPath(command.config.destination),
+          branchRefReadPath(command.config.destination),
+          branchRefUpdatePath(command.config.destination),
         ])
       : new Set([`${base}/pages`])
   if (exact.has(resource)) return true
