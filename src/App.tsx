@@ -170,6 +170,7 @@ function LanguageToggle() {
         <button
           type="button"
           key={option.locale}
+          lang={option.locale}
           className={locale === option.locale ? 'is-selected' : ''}
           aria-label={option.aria}
           aria-pressed={locale === option.locale}
@@ -357,7 +358,7 @@ function WorkbenchApp() {
   return (
     <div className="app-shell">
       <header className="masthead">
-        <h1>ZZZ Setup Workbench</h1>
+        <h1 lang="en">ZZZ Setup Workbench</h1>
         <div className="masthead-actions">
           <CopySetupButton state={appliedState} />
           <LanguageToggle />

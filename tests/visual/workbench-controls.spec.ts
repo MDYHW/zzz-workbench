@@ -24,9 +24,15 @@ test('keeps both language presentations readable and the masthead utilities orde
     await expect(language).toBeVisible()
     await expect(page.getByRole('heading', { name: '파티 편성 중' })).toBeVisible()
 
-    const [copyBox, languageBox] = await Promise.all([copy.boundingBox(), language.boundingBox()])
+    const [titleBox, copyBox, languageBox] = await Promise.all([
+      page.locator('.masthead h1').boundingBox(),
+      copy.boundingBox(),
+      language.boundingBox(),
+    ])
+    expect(titleBox).not.toBeNull()
     expect(copyBox).not.toBeNull()
     expect(languageBox).not.toBeNull()
+    expect(titleBox!.x + titleBox!.width).toBeLessThanOrEqual(copyBox!.x + 1)
     expect(copyBox!.x + copyBox!.width).toBeLessThanOrEqual(languageBox!.x + 1)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
 
@@ -46,11 +52,32 @@ test('keeps both language presentations readable and the masthead utilities orde
     await expect(page.getByRole('columnheader', { name: '초기' })).toBeVisible()
     await expect(page.getByRole('columnheader', { name: '전투 입장' })).toBeVisible()
     await expect(page.getByRole('columnheader', { name: '최종' })).toBeVisible()
+    expect(await page.getByRole('heading', { name: '01 기본 설정' }).evaluate((heading) => (
+      getComputedStyle(heading).fontFamily
+    ))).toContain('SUIT Variable')
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
+
+    if (viewport.width === 320) {
+      const refinementTops = await page.locator('.refinement-control button').evaluateAll((buttons) => (
+        buttons.map((button) => button.getBoundingClientRect().top)
+      ))
+      expect(Math.max(...refinementTops) - Math.min(...refinementTops)).toBeLessThan(1)
+
+      const firstMetricSurfaces = page.locator('.agent-result tbody tr:not(.breakdown-row)').first().locator(':scope > td')
+      expect(await firstMetricSurfaces.evaluateAll((cells) => cells.map((cell) => (
+        getComputedStyle(cell, '::before').content.replaceAll('"', '')
+      )))).toEqual(['초기', '전투 입장', '최종'])
+    }
 
     await page.getByRole('button', { name: 'Display in English' }).click()
     await expect(page.getByRole('heading', { name: '01 Loadout' })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Copy Setup shortcut' })).toBeVisible()
+    if (viewport.width === 320) {
+      const firstMetricSurfaces = page.locator('.agent-result tbody tr:not(.breakdown-row)').first().locator(':scope > td')
+      expect(await firstMetricSurfaces.evaluateAll((cells) => cells.map((cell) => (
+        getComputedStyle(cell, '::before').content.replaceAll('"', '')
+      )))).toEqual(['Initial', 'Combat', 'Fully enabled'])
+    }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
   }
 })

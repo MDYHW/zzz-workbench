@@ -325,7 +325,7 @@ function SourceMatrix({
                   </span>
                 </th>
                 {shownSurfaces.map((surface) => (
-                  <td key={surface}>
+                  <td key={surface} data-surface-label={localizedSurface(surface, locale)}>
                     {row.amounts[surface] === undefined
                       ? null
                       : <b>{formatContributionValue(row.amounts[surface]!, row.displays[surface], unit, row.notations[surface], row.referenceValues[surface], locale)}</b>}
@@ -424,7 +424,7 @@ function Gauge({
               className={`gauge__fill${isThresholdOnlyActive ? ' is-active' : ''}`}
               style={{ width: `${isThresholdOnlyActive ? 100 : progress}%` }}
             >
-              {isThresholdOnlyActive ? 'Active' : null}
+              {isThresholdOnlyActive ? <span lang="en">Active</span> : null}
             </span>
             {threshold !== undefined && !isThresholdOnlyActive && <i className="gauge__threshold" style={{ left: `${threshold}%` }} />}
           </div>
@@ -433,13 +433,14 @@ function Gauge({
               {gauge.threshold !== undefined && (
                 <small
                   className={`gauge__threshold-copy${gauge.cap === undefined || gauge.cap === gauge.threshold ? ' is-terminal' : ''}`}
+                  lang="en"
                   style={gauge.cap !== undefined && gauge.cap !== gauge.threshold ? { left: `${threshold}%` } : undefined}
                 >
                   Threshold {formatNumber(gauge.threshold, thresholdDecimals)}
                 </small>
               )}
               {gauge.cap !== undefined && gauge.cap !== gauge.threshold && (
-                <small className="gauge__cap-copy">Cap {formatNumber(gauge.cap, capDecimals)}</small>
+                <small className="gauge__cap-copy" lang="en">Cap {formatNumber(gauge.cap, capDecimals)}</small>
               )}
             </div>
           )}
@@ -631,7 +632,7 @@ function ActionRows({
                       )}
                     </th>
                     {allSurfaces.map((surface) => (
-                      <td key={surface}>
+                      <td key={surface} data-surface-label={localizedSurface(surface, locale)}>
                         {Math.abs(action.values[surface] - parentValues[surface]) < 0.0001
                           ? <span className="action-result--empty">{'—'}</span>
                           : <b className="action-result-value">{formatValue(
@@ -670,7 +671,7 @@ function ActionRows({
                             </span>
                           </th>
                           {allSurfaces.map((surface) => (
-                            <td key={surface}>
+                            <td key={surface} data-surface-label={localizedSurface(surface, locale)}>
                               {row.amounts[surface] === undefined
                                 ? null
                                 : <b>{formatContributionValue(row.amounts[surface]!, row.displays[surface], metric.unit, row.notations[surface], row.referenceValues[surface], locale)}</b>}
@@ -924,7 +925,7 @@ export function ResultPanel({
                           : <span className="metric-label">{localizedMetric(metric.id, metric.label, locale)}</span>}
                       </th>
                       {allSurfaces.map((surface) => (
-                        <td key={surface}>
+                        <td key={surface} data-surface-label={localizedSurface(surface, locale)}>
                           <span className="result-value">
                             {formatValue(metric.values[surface], metric.unit, metric.decimals)}
                           </span>
