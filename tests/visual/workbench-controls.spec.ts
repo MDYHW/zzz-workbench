@@ -188,6 +188,41 @@ test('keeps W-Engine refinement beside the selected equipment at every viewport'
   }
 })
 
+test('separates gauge cap and threshold into stable vertical lanes', async ({ page }) => {
+  for (const viewport of viewports) {
+    await openInitialWorkbench(page, viewport)
+    for (const [slot, agent] of [
+      [1, /Jane, Physical, Anomaly/],
+      [2, /Dialyn, Physical, Stun/],
+      [3, /Lucia, Ether, Support/],
+    ] as const) {
+      await page.getByRole('button', { name: `Select Agent for slot ${slot}` }).click()
+      await page.getByRole('button', { name: agent }).click()
+    }
+    await page.getByRole('button', { name: 'Apply party' }).click()
+    await page.getByRole('button', { name: 'Anomaly Proficiency', exact: true }).click()
+
+    const gauge = page.locator('.gauge').filter({ hasText: 'At Passion · flat ATK' })
+    const cap = gauge.locator('.gauge__cap-copy')
+    const track = gauge.locator('.gauge__track')
+    const threshold = gauge.locator('.gauge__threshold-copy')
+    await expect(gauge).toBeVisible()
+    await expect(cap).toBeVisible()
+    await expect(threshold).toBeVisible()
+
+    const [capBox, trackBox, thresholdBox] = await Promise.all([
+      cap.boundingBox(),
+      track.boundingBox(),
+      threshold.boundingBox(),
+    ])
+    expect(capBox).not.toBeNull()
+    expect(trackBox).not.toBeNull()
+    expect(thresholdBox).not.toBeNull()
+    expect(capBox!.y + capBox!.height).toBeLessThanOrEqual(trackBox!.y)
+    expect(thresholdBox!.y).toBeGreaterThanOrEqual(trackBox!.y + trackBox!.height)
+  }
+})
+
 test('keeps Drive Disc art clear of piece labels at every viewport', async ({ page }) => {
   for (const viewport of viewports) {
     await openWorkbench(page, viewport)

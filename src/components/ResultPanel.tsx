@@ -419,6 +419,11 @@ function Gauge({
           </strong>
         </div>
         <div className="gauge__rail">
+          {gauge.cap !== undefined && gauge.cap !== gauge.threshold && (
+            <div className="gauge__cap-line" aria-hidden="true">
+              <small className="gauge__cap-copy" lang="en">Cap {formatNumber(gauge.cap, capDecimals)}</small>
+            </div>
+          )}
           <div className="gauge__track" aria-hidden="true">
             <span
               className={`gauge__fill${isThresholdOnlyActive ? ' is-active' : ''}`}
@@ -428,7 +433,7 @@ function Gauge({
             </span>
             {threshold !== undefined && !isThresholdOnlyActive && <i className="gauge__threshold" style={{ left: `${threshold}%` }} />}
           </div>
-          {!isThresholdOnlyActive && (
+          {!isThresholdOnlyActive && gauge.threshold !== undefined && (
             <div className="gauge__scale" aria-hidden="true">
               {gauge.threshold !== undefined && (
                 <small
@@ -438,9 +443,6 @@ function Gauge({
                 >
                   Threshold {formatNumber(gauge.threshold, thresholdDecimals)}
                 </small>
-              )}
-              {gauge.cap !== undefined && gauge.cap !== gauge.threshold && (
-                <small className="gauge__cap-copy" lang="en">Cap {formatNumber(gauge.cap, capDecimals)}</small>
               )}
             </div>
           )}

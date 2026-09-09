@@ -706,14 +706,12 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
             effect: {
               kind: 'modifier', metricId: 'critRate', earliestSurface: 'fully',
               action: JANE_ASSAULT_TARGET,
-              sourceDetail: 'Completed Fully Enabled Anomaly Proficiency',
-              sourceDetailPresentationId: 'completed-fully-anomaly-proficiency',
             },
           },
         },
         {
-          presentationId: 'passion-flat-atk',
-          label: 'Passion flat ATK',
+          presentationId: 'at-passion-flat-atk',
+          label: 'At Passion · flat ATK',
           unit: '',
           cap: VERTICAL_VALUES.jane.passionAtkCap,
           transform: {
@@ -724,8 +722,6 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
           },
           emission: {
             kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully',
-            sourceDetail: 'Passion · completed Fully Enabled AP',
-            sourceDetailPresentationId: 'passion-completed-fully-anomaly-proficiency',
           },
         },
       ],
@@ -783,8 +779,6 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
             emission: {
               kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully',
               action: JANE_PASSION_TARGET,
-              sourceDetail: 'Completed Fully Enabled Anomaly Proficiency',
-              sourceDetailPresentationId: 'completed-fully-anomaly-proficiency',
             },
           },
         ],

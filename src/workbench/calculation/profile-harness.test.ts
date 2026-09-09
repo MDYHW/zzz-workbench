@@ -229,7 +229,7 @@ describe('profile calculation harness', () => {
             basisLabel: 'Fully Enabled Sheer Force',
             basisCap: 960,
             output: {
-              label: 'Additional flat ATK', statId: 'atk', region: 'flat',
+              label: 'flat ATK', statId: 'atk', region: 'flat',
               transform: { basisIncrement: 1, outputIncrement: 1.25, outputCap: 1_200 },
               cap: 1_200, unit: '',
             },
@@ -1198,7 +1198,7 @@ describe('profile calculation harness', () => {
     const afterBen = agentResult(after, 'ben')
 
     expect(beforeAstra.metrics.find(({ id }) => id === 'atk')?.gauges[0]).toEqual(
-      expect.objectContaining({ outputLabel: 'Core flat ATK' }),
+      expect.objectContaining({ outputLabel: 'Squad flat ATK' }),
     )
     expect(afterAstra.metrics.find(({ id }) => id === 'atk')?.gauges[0]?.outputValue)
       .toBeGreaterThan(beforeAstra.metrics.find(({ id }) => id === 'atk')!.gauges[0]!.outputValue)

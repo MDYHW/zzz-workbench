@@ -196,8 +196,8 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
       basisPresentationId: 'fully-sheer-force',
       basisCap: VERTICAL_VALUES.norma.sheerAtkCap / VERTICAL_VALUES.norma.sheerAtkPerPoint,
       output: {
-        presentationId: 'additional-flat-atk',
-        label: 'Additional flat ATK',
+        presentationId: 'flat-atk',
+        label: 'flat ATK',
         statId: 'atk',
         region: 'flat',
         transform: {
@@ -405,7 +405,7 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
   } else if (agent === 'qingyi') {
     relationships.push(mod('dmgBonus', VERTICAL_VALUES.qingyi.flashDmg, core, QINGYI_ENCHANTED), mod('dazeBonus', VERTICAL_VALUES.qingyi.flashDaze, core, QINGYI_ENCHANTED), provider(core, 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.qingyi.coreStunMultiplier }), mod('dmgBonus', VERTICAL_VALUES.qingyi.coreChainDmg, core, QINGYI_CHAIN))
     if (qingyiAdditionalIsActive(ids, slot)) relationships.push(mod('dazeBonus', VERTICAL_VALUES.qingyi.additionalBasicDaze, ability, QINGYI_BASIC))
-    if (qingyiAdditionalIsActive(ids, slot)) relationships.push({ kind: 'gauge', source: ability, basis: { statId: 'impact', surface: 'each' }, basisLabel: 'Fully Enabled Impact', basisPresentationId: 'fully-impact', basisThreshold: VERTICAL_VALUES.qingyi.additionalImpactThreshold, basisCap: VERTICAL_VALUES.qingyi.additionalImpactCap, metricId: 'impact', outputs: [{ presentationId: 'additional-flat-atk', label: 'Additional flat ATK', unit: '', cap: VERTICAL_VALUES.qingyi.additionalAtkCap, transform: { basisThreshold: VERTICAL_VALUES.qingyi.additionalImpactThreshold, basisIncrement: 1, outputIncrement: VERTICAL_VALUES.qingyi.additionalAtkPerImpact, outputCap: VERTICAL_VALUES.qingyi.additionalAtkCap }, emission: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'initial' } }] })
+    if (qingyiAdditionalIsActive(ids, slot)) relationships.push({ kind: 'gauge', source: ability, basis: { statId: 'impact', surface: 'each' }, basisLabel: 'Fully Enabled Impact', basisPresentationId: 'fully-impact', basisThreshold: VERTICAL_VALUES.qingyi.additionalImpactThreshold, basisCap: VERTICAL_VALUES.qingyi.additionalImpactCap, metricId: 'impact', outputs: [{ presentationId: 'flat-atk', label: 'flat ATK', unit: '', cap: VERTICAL_VALUES.qingyi.additionalAtkCap, transform: { basisThreshold: VERTICAL_VALUES.qingyi.additionalImpactThreshold, basisIncrement: 1, outputIncrement: VERTICAL_VALUES.qingyi.additionalAtkPerImpact, outputCap: VERTICAL_VALUES.qingyi.additionalAtkCap }, emission: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'initial' } }] })
     if (selected >= 1) relationships.push(mod('critRate', VERTICAL_VALUES.qingyi.mindscapeCritRate, mind(agent, slot, selected, 1)))
     if (selected >= 2) relationships.push(provider(mind(agent, slot, selected, 2), 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.qingyi.mindscapeStunMultiplier - VERTICAL_VALUES.qingyi.coreStunMultiplier }), mod('dazeBonus', VERTICAL_VALUES.qingyi.mindscapeDaze, mind(agent, slot, selected, 2)))
     if (selected >= 6) relationships.push(mod('critDmg', VERTICAL_VALUES.qingyi.mindscapeEnchantedCritDmg, mind(agent, slot, selected, 6), QINGYI_ENCHANTED), provider(mind(agent, slot, selected, 6), 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.qingyi.mindscapeResReduction }, { formulas: DAMAGE }))

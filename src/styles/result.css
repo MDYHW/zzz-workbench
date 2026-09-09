@@ -47,7 +47,8 @@
 }
 
 .gauge__source,
-.gauge__threshold-copy {
+.gauge__threshold-copy,
+.gauge__cap-copy {
   font-size: clamp(9px, 2.15cqw, 10px);
 }
 

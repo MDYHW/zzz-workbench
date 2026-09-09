@@ -4,6 +4,7 @@ import {
   localizedDiscEffectLine,
   localizedEnginePassiveLine,
   localizedPresentation,
+  localizedSourceDetail,
   localizedSourceLabel,
   translationCoverage,
 } from './localization'
@@ -67,5 +68,22 @@ describe('localization identity', () => {
     expect(localizedSourceLabel(source, 'ko')).toBe('지원 스킬')
     expect(localizedPresentation('stun-duration-extension', 'changed fallback', 'ko'))
       .toBe('그로기 지속 시간 연장')
+    expect(localizedPresentation('crit-dmg-times-35-percent', 'changed fallback', 'ko'))
+      .toBe('치명타 피해 × 35%')
+  })
+
+  it('preserves dynamic equipment and Mindscape tier values in Korean source details', () => {
+    const source: ResultSource = {
+      label: 'Selected source',
+      detail: 'W5 · M6',
+      detailParts: [
+        { presentationId: 'w-engine-refinement', label: 'W5' },
+        { presentationId: 'mindscape-tier', label: 'M6' },
+      ],
+      ownerAgentId: 'seed',
+      locus: 'w-engine',
+    }
+
+    expect(localizedSourceDetail(source, 'ko')).toBe('W5 · M6')
   })
 })

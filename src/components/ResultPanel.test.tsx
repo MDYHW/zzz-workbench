@@ -341,6 +341,9 @@ describe('ResultPanel operation presentation', () => {
     })
     expect(within(gauge).getByText('+15.0% / 75%')).toBeInTheDocument()
     expect(within(gauge).getByText('Threshold 40.0')).toBeInTheDocument()
+    expect(within(gauge).getByText('Cap 90')).toBeInTheDocument()
+    expect(Array.from(gauge.querySelector('.gauge__rail')!.children).map(({ className }) => className))
+      .toEqual(['gauge__cap-line', 'gauge__track', 'gauge__scale'])
   })
 
   it('renders every gauge attached to one metric as a separate accessible group', async () => {
