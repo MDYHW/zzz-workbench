@@ -104,6 +104,40 @@ pass the repository's required governance-policy check, behavior tests, type
 checking, production build, and any applicable stable-environment Playwright
 visual check. A passing local run cannot replace a required remote status.
 
+### Actions budget discipline
+
+Use local verification as the development loop and reserve GitHub Actions for
+reviewable checkpoints:
+
+- Run focused tests while iterating, then run `npm run check` before the first
+  push and after any material local revision.
+- Accumulate coherent local commits when useful, but push only a reviewable
+  checkpoint. Do not use repeated pushes as a substitute for local diagnosis.
+- Continue an existing pull request when its identity remains valid. Create a
+  replacement pull request only when the protected unique-head lifecycle
+  requires it, and give that replacement a new head commit.
+- Diagnose a failed job before rerunning it. Do not repeatedly rerun quota,
+  artifact-capacity, or provider failures that cannot change without an
+  external state change.
+- Review mutations pass through a permissionless, always-skipped signal job so
+  they trigger trusted default-branch evaluation without allocating a runner.
+- Successful visual checks retain no uploaded artifact. A failed visual check
+  may upload only its generated diagnostic report and test results for three
+  days; the committed visual baselines remain in Git.
+
+These limits reduce runner and storage consumption without weakening any of the
+required remote contexts or the protected acceptance boundary.
+
+Event ownership stays explicit: PR head lifecycle changes run PR Validation and
+Visual Baseline, and either completion asks the trusted dispatcher to re-read
+current state. PR body edits dispatch directly; review changes complete the
+permissionless skipped Review Signal relay; evidence-comment changes, `main`
+updates, and manual recovery retain their dedicated triggers. If an expected
+trusted evaluation is absent after its source workflow completes, diagnose that
+source first. Then run
+`gh workflow run trusted-governance.yml -f pr_number=<PR_NUMBER>` once. Do not
+rerun a child workflow merely to manufacture another dispatcher event.
+
 The promotion boundary preserves the recovery history while establishing the
 permanent branch topology:
 

@@ -29,13 +29,12 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run test:visual
       - name: Upload visual comparison evidence
-        if: ${{ always() }}
+        if: ${{ failure() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: visual-baseline-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
           path: |
             playwright-report/
             test-results/
-            tests/visual/workbench-portraits.spec.ts-snapshots/
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 3

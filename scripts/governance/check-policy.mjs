@@ -333,16 +333,15 @@ const VISUAL_JOB = [
   '      - run: npm ci --ignore-scripts',
   '      - run: npm run test:visual',
   '      - name: Upload visual comparison evidence',
-  '        if: ${{ always() }}',
+  '        if: ${{ failure() }}',
   '        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02',
   '        with:',
   '          name: visual-baseline-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}',
   '          path: |',
   '            playwright-report/',
   '            test-results/',
-  '            tests/visual/workbench-portraits.spec.ts-snapshots/',
   '          if-no-files-found: warn',
-  '          retention-days: 14',
+  '          retention-days: 3',
 ]
 
 const VISUAL_WORKFLOW = [
@@ -1230,6 +1229,78 @@ export function validateTrustedWorkflowConcurrency(source) {
   return true
 }
 
+function normalizedWorkflowLines(source) {
+  return source.replace(/\r\n?/g, '\n').split('\n')
+    .filter((line) => line.trim())
+    .map((line) => `${line.match(/^\s*/)[0].length}:${line.trim().replace(/\s+/g, ' ')}`)
+}
+
+const TRUSTED_WORKFLOW_EVENTS = normalizedWorkflowLines([
+  'on:',
+  '  pull_request_target:',
+  '    types: [edited]',
+  '  issue_comment:',
+  '    types: [created, edited, deleted]',
+  '  workflow_run:',
+  '    workflows: [PR Validation, Visual Baseline Validation, Review Signal]',
+  '    types: [completed]',
+  '  push:',
+  '    branches: [main]',
+  '  workflow_dispatch:',
+  '    inputs:',
+  '      pr_number:',
+  '        description: <operator-copy>',
+  '        required: false',
+  '        type: string',
+].join('\n'))
+
+export function validateTrustedWorkflowEvents(source) {
+  const normalized = typeof source === 'string' ? source.replace(/\r\n?/g, '\n') : ''
+  const start = normalized.indexOf('on:\n')
+  const end = normalized.indexOf('\n\npermissions:', start)
+  const eventLines = start >= 0 && end >= 0
+    ? normalizedWorkflowLines(normalized.slice(start, end).replace(
+      /^        description:\s+.+$/gm,
+      '        description: <operator-copy>',
+    ))
+    : []
+  if (!sameStrings(eventLines, TRUSTED_WORKFLOW_EVENTS)) {
+    fail('Trusted workflow does not preserve its bounded direct event surface.')
+  }
+  return true
+}
+
+const REVIEW_SIGNAL_WORKFLOW = normalizedWorkflowLines([
+  'name: Review Signal',
+  '',
+  'on:',
+  '  pull_request_review:',
+  '    types: [submitted, edited, dismissed]',
+  '',
+  'permissions: {}',
+  '',
+  'jobs:',
+  '  signal:',
+  '    name: <job-name>',
+  '    if: ${{ false }}',
+  '    runs-on: ubuntu-latest',
+  '    steps:',
+  '      - run: <relay-note>',
+  '',
+].join('\n'))
+
+export function validateReviewSignalWorkflow(source) {
+  const normalized = typeof source === 'string' ? source.replace(/\r\n?/g, '\n') : ''
+  const behaviorSource = normalized
+    .replace(/^    name:\s+.+$/gm, '    name: <job-name>')
+    .replace(/^      - run:\s+.+$/gm, '      - run: <relay-note>')
+  const behaviorLines = normalizedWorkflowLines(behaviorSource)
+  if (!sameStrings(behaviorLines, REVIEW_SIGNAL_WORKFLOW)) {
+    fail('Review signal workflow does not preserve its permissionless skipped-job relay.')
+  }
+  return true
+}
+
 async function walkFiles(root, relative = '') {
   const directory = path.join(root, relative)
   const entries = await fs.readdir(directory, { withFileTypes: true })
@@ -1286,6 +1357,8 @@ export async function validateRepository(root = process.cwd(), { requireComplete
   if (jobNames.some((name) => ['Trusted Governance', 'Protected Approval'].includes(name))) fail('A workflow job collides with a trusted status name.')
   const trustedWorkflow = workflowSources.get('.github/workflows/trusted-governance.yml') ?? ''
   validateTrustedWorkflowConcurrency(trustedWorkflow)
+  validateTrustedWorkflowEvents(trustedWorkflow)
+  validateReviewSignalWorkflow(workflowSources.get('.github/workflows/review-signal.yml') ?? '')
   if (!/^\s*pull_request_target:/m.test(trustedWorkflow)
     || !/^\s+statuses:\s+write\s*$/m.test(trustedWorkflow)
     || !/ref:\s+main/.test(trustedWorkflow)
