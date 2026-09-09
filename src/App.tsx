@@ -90,6 +90,7 @@ function CopySetupButton({ state }: { state: WorkbenchState | null }) {
   const copySetup = async () => {
     if (!shortcutUrl || copyInFlight.current) return
     const copiedUrl = shortcutUrl
+    const copiedFromHash = window.location.hash
     copyInFlight.current = true
     if (resetTimer.current !== null) {
       window.clearTimeout(resetTimer.current)
@@ -100,12 +101,16 @@ function CopySetupButton({ state }: { state: WorkbenchState | null }) {
       if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable')
       await navigator.clipboard.writeText(copiedUrl)
       if (isMounted.current) {
-        if (currentShortcutUrl.current === copiedUrl) showTemporaryStatus('copied')
+        if (window.location.hash === copiedFromHash && currentShortcutUrl.current === copiedUrl) {
+          showTemporaryStatus('copied')
+        }
         else setStatus('idle')
       }
     } catch {
       if (isMounted.current) {
-        if (currentShortcutUrl.current === copiedUrl) showTemporaryStatus('failed')
+        if (window.location.hash === copiedFromHash && currentShortcutUrl.current === copiedUrl) {
+          showTemporaryStatus('failed')
+        }
         else setStatus('idle')
       }
     } finally {

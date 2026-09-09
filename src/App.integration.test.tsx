@@ -201,6 +201,50 @@ describe('workbench UI integration', () => {
       .toHaveTextContent('')
   })
 
+  it.each([
+    ['resolved', 'Copied'],
+    ['rejected', 'Copy failed'],
+  ] as const)('suppresses a %s clipboard result as soon as the address hash changes', async (
+    outcome,
+    staleLabel,
+  ) => {
+    const initial = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
+    const replacement = createPreparedState({}, ['dialyn', 'anbySoldier0', 'lucia'], 1)
+    window.history.replaceState(
+      null,
+      '',
+      new URL(createSetupShortcutUrl(initial, window.location.href)).hash,
+    )
+    let resolveCopy!: () => void
+    let rejectCopy!: (error: Error) => void
+    const writeText = vi.fn().mockReturnValue(new Promise<void>((resolve, reject) => {
+      resolveCopy = resolve
+      rejectCopy = reject
+    }))
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    })
+    render(<App />)
+
+    const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
+    fireEvent.click(copy)
+    window.history.replaceState(
+      null,
+      '',
+      new URL(createSetupShortcutUrl(replacement, window.location.href)).hash,
+    )
+
+    if (outcome === 'resolved') resolveCopy()
+    else rejectCopy(new Error('Clipboard denied'))
+    await act(async () => { await Promise.resolve() })
+
+    expect(copy).toHaveTextContent(/^Copy$/)
+    expect(copy).not.toHaveTextContent(staleLabel)
+    expect(within(document.querySelector('.masthead-actions')!).getByRole('status'))
+      .toHaveTextContent('')
+  })
+
   it('suppresses a rejected clipboard result after shortcut navigation', async () => {
     const initial = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
     const replacement = createPreparedState({}, ['dialyn', 'anbySoldier0', 'lucia'], 1)
