@@ -2,7 +2,7 @@ name: Trusted Governance Dispatcher
 
 on:
   pull_request_target:
-    types: [opened, edited, synchronize, reopened, ready_for_review]
+    types: [edited]
   issue_comment:
     types: [created, edited, deleted]
   workflow_run:

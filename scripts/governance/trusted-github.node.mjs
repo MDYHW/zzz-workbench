@@ -225,6 +225,9 @@ test('event routing covers PR edits, comment deletion, workflow runs, protected-
     eventName: 'workflow_run', event: { workflow_run: { head_sha: HEAD, pull_requests: [] } }, api,
   }), [8])
   assert.deepEqual(await resolveEventPullRequests({
+    eventName: 'workflow_run', event: { workflow_run: { head_sha: HEAD, pull_requests: [{ number: 7 }] } }, api,
+  }), [7])
+  assert.deepEqual(await resolveEventPullRequests({
     eventName: 'push', event: { ref: 'refs/heads/main' }, api,
   }), [9])
 })
