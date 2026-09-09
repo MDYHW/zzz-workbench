@@ -311,7 +311,7 @@ describe('workbench UI integration', () => {
       configurable: true,
       value: { writeText },
     })
-    render(<App />)
+    renderEnglishApp()
 
     const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
     fireEvent.click(copy)
@@ -325,7 +325,7 @@ describe('workbench UI integration', () => {
     else rejectCopy(new Error('Clipboard denied'))
     await act(async () => { await Promise.resolve() })
 
-    expect(copy).toHaveTextContent(/^Copy$/)
+    expect(copy).toHaveClass('masthead-action--idle')
     expect(copy).not.toHaveTextContent(staleLabel)
     expect(within(document.querySelector('.masthead-actions')!).getByRole('status'))
       .toHaveTextContent('')
