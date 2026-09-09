@@ -31,11 +31,13 @@ import {
   validateFinalization,
   validateFrozenRoster,
   validateProtectedApproval,
+  validateReviewSignalWorkflow,
   validateVisualWorkflow,
   validateReviewEvidence,
   validateRepository,
   validateSupportingRequirementRuleIds,
   validateTrustedWorkflowConcurrency,
+  validateTrustedWorkflowEvents,
 } from './check-policy.mjs'
 
 const BASE = '1'.repeat(40)
@@ -512,16 +514,15 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run test:visual
       - name: Upload visual comparison evidence
-        if: \${{ always() }}
+        if: \${{ failure() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: visual-baseline-\${{ github.event.pull_request.number }}-\${{ github.event.pull_request.head.sha }}
           path: |
             playwright-report/
             test-results/
-            tests/visual/workbench-portraits.spec.ts-snapshots/
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 3
 `
   assert.equal(validateVisualWorkflow(workflow), true)
 
@@ -530,12 +531,12 @@ jobs:
     '          persist-credentials: false',
     '      - run: npm ci --ignore-scripts',
     '      - run: npm run test:visual',
-    '        if: \${{ always() }}',
+    '        if: \${{ failure() }}',
     '        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02',
     '          name: visual-baseline-\${{ github.event.pull_request.number }}-\${{ github.event.pull_request.head.sha }}',
     '            playwright-report/',
     '            test-results/',
-    '            tests/visual/workbench-portraits.spec.ts-snapshots/',
+    '          retention-days: 3',
   ]) {
     assert.throws(() => validateVisualWorkflow(workflow.replace(required, '')), /Visual workflow/)
   }
@@ -917,4 +918,105 @@ test('trusted governance serializes event runs without cancelling PR-attached ch
   assert.throws(() => validateTrustedWorkflowConcurrency(queued.replace('trusted-governance-dispatcher', 'trusted-governance-${{ github.run_id }}')), /globally queued/)
   assert.throws(() => validateTrustedWorkflowConcurrency(`${queued}\n${queued}`), /globally queued/)
   assert.throws(() => validateTrustedWorkflowConcurrency(queued.replace('  queue: max', '  queue: max\n  unexpected: true')), /globally queued/)
+})
+
+test('trusted governance reacts to mutable evidence without redundant PR lifecycle dispatches', () => {
+  const workflow = `name: Trusted Governance Dispatcher
+
+on:
+  pull_request_target:
+    types: [edited]
+  issue_comment:
+    types: [created, edited, deleted]
+  workflow_run:
+    workflows: [PR Validation, Visual Baseline Validation, Review Signal]
+    types: [completed]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Optional open protected PR number; blank revalidates all.
+        required: false
+        type: string
+
+permissions:
+  contents: read
+`
+  assert.equal(validateTrustedWorkflowEvents(workflow), true)
+  assert.equal(validateTrustedWorkflowEvents(workflow.replace(
+    'description: Optional open protected PR number; blank revalidates all.',
+    'description: Revalidate one protected pull request, or all when blank.',
+  )), true)
+  assert.throws(
+    () => validateTrustedWorkflowEvents(workflow.replace(
+      '        required: false',
+      '        description: Extra ignored-looking copy.\n        required: false',
+    )),
+    /bounded direct event surface/,
+  )
+  assert.throws(
+    () => validateTrustedWorkflowEvents(workflow.replace('types: [edited]', 'types: [opened, edited, synchronize]')),
+    /bounded direct event surface/,
+  )
+  assert.throws(
+    () => validateTrustedWorkflowEvents(workflow.replace('Visual Baseline Validation, Review Signal]', 'Visual Baseline Validation]')),
+    /bounded direct event surface/,
+  )
+  assert.throws(
+    () => validateTrustedWorkflowEvents(workflow.replace('  pull_request_target:\n    types: [edited]\n', '')),
+    /bounded direct event surface/,
+  )
+})
+
+test('review changes use a permissionless skipped-job relay', () => {
+  const workflow = `name: Review Signal
+
+on:
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+
+permissions: {}
+
+jobs:
+  signal:
+    name: Review Signal Event
+    if: \${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "The skipped job preserves a default-branch review event signal without allocating a runner."
+`
+  assert.equal(validateReviewSignalWorkflow(workflow), true)
+  assert.equal(validateReviewSignalWorkflow(workflow.replace(
+    'The skipped job preserves a default-branch review event signal without allocating a runner.',
+    'Review changes are relayed without runner allocation.',
+  )), true)
+  assert.equal(validateReviewSignalWorkflow(workflow.replace('name: Review Signal Event', 'name: Review Relay Event')), true)
+  assert.throws(
+    () => validateReviewSignalWorkflow(workflow.replace(
+      '    if: \${{ false }}',
+      '    name: Extra ignored-looking copy\n    if: \${{ false }}',
+    )),
+    /permissionless skipped-job relay/,
+  )
+  assert.throws(
+    () => validateReviewSignalWorkflow(workflow.replace('name: Review Signal', 'name: Renamed Signal')),
+    /permissionless skipped-job relay/,
+  )
+  assert.throws(
+    () => validateReviewSignalWorkflow(workflow.replace(/\s+steps:\n\s+- run:.*\n/, '\n')),
+    /permissionless skipped-job relay/,
+  )
+  assert.throws(
+    () => validateReviewSignalWorkflow(workflow.replace('      - run:', '  - run:')),
+    /permissionless skipped-job relay/,
+  )
+  assert.throws(
+    () => validateReviewSignalWorkflow(workflow.replace('permissions: {}', 'permissions:\n  statuses: write')),
+    /permissionless skipped-job relay/,
+  )
+  assert.throws(
+    () => validateReviewSignalWorkflow(workflow.replace('if: \${{ false }}', 'if: \${{ always() }}')),
+    /permissionless skipped-job relay/,
+  )
 })
