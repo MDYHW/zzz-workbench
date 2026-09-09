@@ -31,17 +31,17 @@ const syntheticSourceInstance = selectSource(
 
 const sharedTarget = actionTarget([
   canonicalAction('Basic Attack'),
-  sourceLocalAction('Source-local outcome'),
+  sourceLocalAction('test-source-local-outcome', 'Source-local outcome'),
 ])
 
 const canonicalTarget = actionTarget([canonicalAction('Basic Attack')])
 
 const leafTarget = actionTarget([
-  actionForm('Basic Attack', 'Falling Petals - Slaughter'),
+  actionForm('Basic Attack', 'seed-falling-petals-slaughter', 'Falling Petals - Slaughter'),
 ])
 
 const sourceLocalTarget = actionTarget(
-  [sourceLocalAction('Source-local outcome')],
+  [sourceLocalAction('test-source-local-outcome', 'Source-local outcome')],
 )
 
 const actionScopes: readonly ActionScopeNode[] = [{
@@ -99,9 +99,9 @@ describe('Result composition', () => {
       | 'Chain Attack'
       | 'Ultimate'
     >()
-    expect(actionOutcomeLabel(actionForm('EX Special Attack', 'Cloud-Shaper')))
+    expect(actionOutcomeLabel(actionForm('EX Special Attack', 'yixuan-cloud-shaper', 'Cloud-Shaper')))
       .toBe('EX Special Attack: Cloud-Shaper')
-    expect(actionOutcomeLabel(sourceLocalAction('Corrode Bone')))
+    expect(actionOutcomeLabel(sourceLocalAction('cissia-corrode-bone', 'Corrode Bone')))
       .toBe('Corrode Bone')
     expect(actionTarget([], ['aftershock'])).toMatchObject({
       outcomes: [],
@@ -120,10 +120,10 @@ describe('Result composition', () => {
       canonicalAction('Ultimate'),
     ])
     const differentForm = actionTarget([
-      actionForm('Basic Attack', 'Falling Petals - Slaughter'),
+      actionForm('Basic Attack', 'seed-falling-petals-slaughter', 'Falling Petals - Slaughter'),
     ])
     const differentLocal = actionTarget([
-      sourceLocalAction('Corrode Bone'),
+      sourceLocalAction('cissia-corrode-bone', 'Corrode Bone'),
     ])
     expect(sameActionTarget(effectTarget, projectedTarget)).toBe(true)
     expect(sameActionTarget(effectTarget, differentForm)).toBe(false)
@@ -157,8 +157,8 @@ describe('Result composition', () => {
       canonicalAction('Ultimate'),
     ])
     const visibleTarget = actionTarget([
-      sourceLocalAction('Corrode Bone'),
-      actionForm('Basic Attack', "Serpent's Kiss"),
+      sourceLocalAction('cissia-corrode-bone', 'Corrode Bone'),
+      actionForm('Basic Attack', 'cissia-serpents-kiss', "Serpent's Kiss"),
     ])
     const rows = composeActionHierarchy(
       surfaces(0, 0, 0),

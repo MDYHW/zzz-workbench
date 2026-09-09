@@ -1,12 +1,17 @@
 import { useEffect, useRef, type KeyboardEvent, type ReactNode } from 'react'
 import {
   ADMITTED_AGENTS,
-  agentDisplayName,
   type AgentAttribute,
   type AgentId,
   type AgentRank,
   type AgentSpecialty,
 } from '../workbench/content'
+import {
+  localizedAgentName,
+  localizedAttribute,
+  localizedSpecialty,
+  useLocalization,
+} from '../localization'
 import type { RequiredSetupSelection } from '../workbench/candidates'
 import type { AppliedAgentSlot, AppliedSlot } from '../workbench/state'
 import { AGENT_PORTRAITS, portraitSourceStyle } from './agentPortraits'
@@ -49,12 +54,14 @@ interface PartyWorkbenchProps extends SourceInteractionProps {
 }
 
 function RankMark({ rank }: { rank: AgentRank }) {
-  return <span className="rank-mark" aria-label={`${rank} Rank`}><img src={RANK_MARKS[rank]} alt="" /></span>
+  const { locale } = useLocalization()
+  return <span className="rank-mark" aria-label={locale === 'ko' ? `${rank}급` : `${rank} Rank`}><img src={RANK_MARKS[rank]} alt="" /></span>
 }
 
 function IdentityMarks({ attribute, specialty }: { attribute: AgentAttribute; specialty: AgentSpecialty }) {
+  const { locale } = useLocalization()
   return (
-    <span className="identity-pair identity-pair--symbols" aria-label={`${attribute}, ${specialty}`}>
+    <span className="identity-pair identity-pair--symbols" aria-label={`${localizedAttribute(attribute, locale)}, ${localizedSpecialty(specialty, locale)}`}>
       <img src={ATTRIBUTE_MARKS[attribute]} alt="" />
       <img src={SPECIALTY_MARKS[specialty]} alt="" />
     </span>
@@ -72,8 +79,9 @@ interface SlotControlProps extends SourceInteractionProps {
 }
 
 function PartySelector({ activeSourceTargetAgentId, activeSourceTone, agentId, isFocus, isIncomplete = false, isInactive = false, isSelected, onSourceToneChange, onSelect, onKeyDown, slot }: SlotControlProps & { isInactive?: boolean; isSelected: boolean }) {
+  const { locale, t } = useLocalization()
   const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
-  const agentName = agentDisplayName(agent)
+  const agentName = localizedAgentName(agentId, locale)
   const slotTone = agentSlotTone(slot)
   const isTargetedSource = activeSourceTargetAgentId === agentId
   const tone = isTargetedSource && activeSourceTone ? activeSourceTone : slotTone
@@ -93,8 +101,12 @@ function PartySelector({ activeSourceTargetAgentId, activeSourceTone, agentId, i
       aria-selected={isInactive ? undefined : isSelected}
       aria-controls={isInactive ? undefined : `party-panel-${slot + 1}`}
       aria-label={isInactive
-        ? `${agentName} applied slot, inactive while editing party${isIncomplete ? ', setup incomplete' : ''}`
-        : `View ${agentName} setup and Result${isIncomplete ? ', setup incomplete' : ''}`}
+        ? locale === 'ko'
+          ? `${agentName} 적용 슬롯, 파티 편성 중 비활성${isIncomplete ? ', 세팅 미완료' : ''}`
+          : `${agentName} applied slot, inactive while editing party${isIncomplete ? ', setup incomplete' : ''}`
+        : locale === 'ko'
+          ? `${agentName} 세팅과 결과 보기${isIncomplete ? ', 세팅 미완료' : ''}`
+          : `View ${agentName} setup and Result${isIncomplete ? ', setup incomplete' : ''}`}
       onClick={isInactive ? undefined : onSelect}
       onKeyDown={isInactive ? undefined : onKeyDown}
       {...sourceToneEvents(slotTone, onSourceToneChange)}
@@ -109,21 +121,22 @@ function PartySelector({ activeSourceTargetAgentId, activeSourceTone, agentId, i
           <IdentityMarks attribute={agent.attribute} specialty={agent.specialty} />
         </span>
       </span>
-      <strong className={`focus-marker ${isFocus ? '' : 'focus-marker--reserved'}`} aria-hidden={!isFocus}>Focus</strong>
-      {isIncomplete && <span className="slot-incomplete-marker">Setup incomplete</span>}
+      <strong className={`focus-marker ${isFocus ? '' : 'focus-marker--reserved'}`} aria-hidden={!isFocus}>{t('focus')}</strong>
+      {isIncomplete && <span className="slot-incomplete-marker">{t('setupIncomplete')}</span>}
     </button>
   )
 }
 
 function WorkspaceIdentity({ agentId, isFocus, isIncomplete = false }: Pick<SlotControlProps, 'agentId' | 'isFocus' | 'isIncomplete'>) {
+  const { locale, t } = useLocalization()
   const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
-  const agentName = agentDisplayName(agent)
+  const agentName = localizedAgentName(agentId, locale)
   const className = `workspace-identity${isIncomplete ? ' is-setup-incomplete' : ''}`
 
   return (
     <section
       className={className}
-      aria-label={`${agentName} identity`}
+      aria-label={locale === 'ko' ? `${agentName} 정보` : `${agentName} identity`}
       data-agent={agent.id}
     >
       <PortraitArt agentId={agent.id} className="workspace-identity__portrait" />
@@ -133,8 +146,8 @@ function WorkspaceIdentity({ agentId, isFocus, isIncomplete = false }: Pick<Slot
           <RankMark rank={agent.rank} />
           <IdentityMarks attribute={agent.attribute} specialty={agent.specialty} />
         </span>
-        <strong className={`focus-marker ${isFocus ? '' : 'focus-marker--reserved'}`} aria-hidden={!isFocus}>Focus</strong>
-        {isIncomplete && <span className="slot-incomplete-marker">Setup incomplete</span>}
+        <strong className={`focus-marker ${isFocus ? '' : 'focus-marker--reserved'}`} aria-hidden={!isFocus}>{t('focus')}</strong>
+        {isIncomplete && <span className="slot-incomplete-marker">{t('setupIncomplete')}</span>}
       </span>
     </section>
   )
@@ -154,6 +167,7 @@ export function PartyWorkbench({
   setup,
   result,
 }: PartyWorkbenchProps) {
+  const { locale, t } = useLocalization()
   const previousViewedSlot = useRef<AppliedSlot>(viewedSlot)
 
   useEffect(() => {
@@ -189,13 +203,13 @@ export function PartyWorkbench({
         id="party-heading"
         className={isPartyEditing ? 'party-section__current-label' : 'sr-only'}
       >
-        {isPartyEditing ? 'Current party' : 'Applied party'}
+        {isPartyEditing ? t('currentParty') : t('appliedParty')}
       </h2>
       <div className="party-rail">
         <ol
           className="party-tabs"
           role={isPartyEditing ? undefined : 'tablist'}
-          aria-label="Applied party slots"
+          aria-label={locale === 'ko' ? '적용된 파티 슬롯' : 'Applied party slots'}
         >
           {slots.map(({ agentId }, slot) => {
             const slotPosition = slot as AppliedSlot
@@ -226,14 +240,14 @@ export function PartyWorkbench({
             type="button"
             className="party-edit-trigger"
             disabled={isPartyEditing}
-            aria-label="Edit party"
+            aria-label={t('editParty')}
             onClick={isPartyEditing ? undefined : onEditParty}
           >
             <span className="party-edit-trigger__content">
               <span className="party-edit-trigger__mark" aria-hidden="true">+</span>
               <span>
-                <strong>Edit party</strong>
-                <small>Change formation</small>
+                <strong>{t('editParty')}</strong>
+                <small>{t('changeFormation')}</small>
               </span>
             </span>
           </button>

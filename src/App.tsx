@@ -14,7 +14,7 @@ import {
   incompleteRequiredSelections,
   type RequiredSetupSelection,
 } from './workbench/candidates'
-import { ADMITTED_AGENTS, agentDisplayName, type AgentId, type MainSlot } from './workbench/content'
+import { type AgentId, type MainSlot } from './workbench/content'
 import {
   createInitialWorkbenchState,
   isCompleteWorkbench,
@@ -26,6 +26,13 @@ import {
   type WorkbenchState,
 } from './workbench/state'
 import { createSetupShortcutUrl, readSetupShortcut } from './workbench/setup-shortcut'
+import {
+  LocalizationProvider,
+  localizedAgentName,
+  localizedStat,
+  useLocalization,
+  type Locale,
+} from './localization'
 
 const emptySourceLinks: Record<SourceToneChannel, SourceLink | null> = {
   pointer: null,
@@ -48,6 +55,7 @@ const appReducer = (state: WorkbenchSessionState, action: AppAction): WorkbenchS
 )
 
 function CopySetupButton({ state }: { state: WorkbenchState | null }) {
+  const { t } = useLocalization()
   const [status, setStatus] = useState<'idle' | 'copying' | 'copied' | 'failed'>('idle')
   const copyInFlight = useRef(false)
   const isMounted = useRef(true)
@@ -119,33 +127,57 @@ function CopySetupButton({ state }: { state: WorkbenchState | null }) {
   }
 
   const label = status === 'copying'
-    ? 'Copying'
+    ? t('copying')
     : status === 'copied'
-      ? 'Copied'
+      ? t('copied')
       : status === 'failed'
-        ? 'Copy failed'
-        : 'Copy'
+        ? t('copyFailed')
+        : t('copySetup')
   const announcement = status === 'copying'
-    ? 'Copying Setup shortcut.'
+    ? t('copyingAnnouncement')
     : status === 'copied'
-      ? 'Setup shortcut copied.'
+      ? t('copiedAnnouncement')
       : status === 'failed'
-        ? 'Setup shortcut could not be copied.'
+        ? t('failedAnnouncement')
         : ''
 
   return (
-    <div className="masthead-actions">
+    <div className="copy-action">
       <button
         className={`masthead-action masthead-action--${status}`}
         type="button"
         disabled={!isAvailable}
         aria-disabled={!isAvailable || status === 'copying'}
-        aria-label="Copy Setup shortcut"
+        aria-label={t('copyAria')}
         onClick={copySetup}
       >
         {label}
       </button>
       <span className="sr-only" role="status" aria-live="polite">{announcement}</span>
+    </div>
+  )
+}
+
+function LanguageToggle() {
+  const { locale, setLocale } = useLocalization()
+  const options: ReadonlyArray<{ locale: Locale; label: string; aria: string }> = [
+    { locale: 'ko', label: '한국어', aria: '한국어로 표시' },
+    { locale: 'en', label: 'EN', aria: 'Display in English' },
+  ]
+  return (
+    <div className="language-toggle" role="group" aria-label={locale === 'ko' ? '표시 언어' : 'Display language'}>
+      {options.map((option) => (
+        <button
+          type="button"
+          key={option.locale}
+          className={locale === option.locale ? 'is-selected' : ''}
+          aria-label={option.aria}
+          aria-pressed={locale === option.locale}
+          onClick={() => setLocale(option.locale)}
+        >
+          {option.label}
+        </button>
+      ))}
     </div>
   )
 }
@@ -165,6 +197,7 @@ function AppliedWorkbench({
   dispatch: Dispatch<WorkbenchAction>
   initialViewedSlot: AppliedSlot
 }) {
+  const { locale } = useLocalization()
   const [viewedSlot, setViewedSlot] = useState<AppliedSlot>(initialViewedSlot)
   const [sourceLinks, setSourceLinks] = useState(emptySourceLinks)
   const [targetStunDmgMultiplier, setTargetStunDmgMultiplier] = useState(150)
@@ -232,17 +265,25 @@ function AppliedWorkbench({
 
     const selections = incompleteSelections.map((selection) => {
       const { agentId } = selection
-      const agentName = agentDisplayName(ADMITTED_AGENTS.find(({ id }) => id === agentId)!)
+      const agentName = localizedAgentName(agentId, locale)
       return selection.kind === 'disc'
-        ? `${agentName} ${selection.piece === 'fourPiece' ? '4-piece' : '2-piece'} Drive Disc`
+        ? locale === 'ko'
+          ? `${agentName} ${selection.piece === 'fourPiece' ? '4세트' : '2세트'} 디스크`
+          : `${agentName} ${selection.piece === 'fourPiece' ? '4-piece' : '2-piece'} Drive Disc`
         : selection.kind === 'mainStat'
-          ? `${agentName} Disc ${selection.mainSlot.replace('slot', '')} main stat`
-          : `${agentName} ${selection.substatId === 'critRate' ? 'CRIT Rate' : selection.substatId} hit count`
+          ? locale === 'ko'
+            ? `${agentName} 디스크 ${selection.mainSlot.replace('slot', '')}번 주옵션`
+            : `${agentName} Disc ${selection.mainSlot.replace('slot', '')} main stat`
+          : locale === 'ko'
+            ? `${agentName} ${localizedStat(selection.substatId, selection.substatId, locale)} 유효 횟수`
+            : `${agentName} ${selection.substatId === 'critRate' ? 'CRIT Rate' : selection.substatId} hit count`
     })
     setCandidateAnnouncement(
-      `${incompleteSelections.length} setup selections now require a choice: ${selections.join(' and ')}.`,
+      locale === 'ko'
+        ? `${incompleteSelections.length}개 세팅 항목을 다시 선택해야 합니다: ${selections.join(', ')}.`
+        : `${incompleteSelections.length} setup selections now require a choice: ${selections.join(' and ')}.`,
     )
-  }, [incompleteKey])
+  }, [incompleteKey, locale])
 
   return (
     <>
@@ -288,7 +329,8 @@ function AppliedWorkbench({
   )
 }
 
-export function App() {
+function WorkbenchApp() {
+  const { setLocale } = useLocalization()
   const [initialState] = useState<WorkbenchSessionState>(() => (
     readSetupShortcut(window.location.hash) ?? createInitialWorkbenchState()
   ))
@@ -302,6 +344,7 @@ export function App() {
   useEffect(() => {
     const followShortcutNavigation = () => {
       const shortcutState = readSetupShortcut(window.location.hash)
+      setLocale('ko')
       dispatch({
         type: 'followShortcutNavigation',
         state: shortcutState ?? createInitialWorkbenchState(),
@@ -309,13 +352,16 @@ export function App() {
     }
     window.addEventListener('hashchange', followShortcutNavigation)
     return () => window.removeEventListener('hashchange', followShortcutNavigation)
-  }, [])
+  }, [setLocale])
 
   return (
     <div className="app-shell">
       <header className="masthead">
         <h1>ZZZ Setup Workbench</h1>
-        <CopySetupButton state={appliedState} />
+        <div className="masthead-actions">
+          <CopySetupButton state={appliedState} />
+          <LanguageToggle />
+        </div>
       </header>
       <main>
         {isInitialWorkbenchState(state) ? (
@@ -350,4 +396,8 @@ export function App() {
       </footer>
     </div>
   )
+}
+
+export function App() {
+  return <LocalizationProvider><WorkbenchApp /></LocalizationProvider>
 }

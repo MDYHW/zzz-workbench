@@ -1,11 +1,16 @@
-import { useEffect, useRef, useState, type Dispatch } from 'react'
+import { useEffect, useMemo, useRef, useState, type Dispatch } from 'react'
 import {
   ADMITTED_AGENTS,
-  agentDisplayName,
   type AgentAttribute,
   type AgentId,
   type AgentSpecialty,
 } from '../workbench/content'
+import {
+  localizedAgentName,
+  localizedAttribute,
+  localizedSpecialty,
+  useLocalization,
+} from '../localization'
 import {
   isInitialWorkbenchState,
   type AppliedSlot,
@@ -17,7 +22,6 @@ import {
 import { ATTRIBUTE_MARKS, RANK_MARKS, SPECIALTY_MARKS } from './agentIdentityMarks'
 import { AGENT_SELECTOR_PORTRAITS } from './agentSelectorPortraits'
 
-const AGENT_NAME_COLLATOR = new Intl.Collator('en', { numeric: true, sensitivity: 'base' })
 type PartyEditAttributeFilter = Exclude<AgentAttribute, 'Auric Ink' | 'Honed Edge' | 'Frost'>
 
 const PARTY_EDIT_ATTRIBUTE_GROUPS: Record<AgentAttribute, PartyEditAttributeFilter> = {
@@ -39,15 +43,10 @@ const PARTY_EDIT_ATTRIBUTE_LABELS: Partial<Record<PartyEditAttributeFilter, stri
   Physical: 'Physical Attribute family, including Honed Edge',
 }
 
-const SORTED_AGENTS = [...ADMITTED_AGENTS].sort((left, right) => (
-  AGENT_NAME_COLLATOR.compare(agentDisplayName(left), agentDisplayName(right))
-))
 const ATTRIBUTE_FILTERS = [...new Set(ADMITTED_AGENTS.map((agent) => (
   PARTY_EDIT_ATTRIBUTE_GROUPS[agent.attribute]
 )))]
-  .sort((left, right) => AGENT_NAME_COLLATOR.compare(left, right))
 const SPECIALTY_FILTERS = [...new Set(ADMITTED_AGENTS.map((agent) => agent.specialty))]
-  .sort((left, right) => AGENT_NAME_COLLATOR.compare(left, right))
 
 function DraftPortrait({ agentId }: { agentId: AgentId }) {
   return (
@@ -73,6 +72,7 @@ interface PartyEditorProps {
 }
 
 export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorProps) {
+  const { locale, t } = useLocalization()
   const [target, setTarget] = useState<AppliedSlot | null>(null)
   const [focusOpen, setFocusOpen] = useState(false)
   const [attribute, setAttribute] = useState<'all' | PartyEditAttributeFilter>('all')
@@ -86,7 +86,20 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
   const changed = isInitialParty
     || draft.focusSlot !== state.focusSlot
     || draft.agentIds.some((agentId, index) => agentId !== state.slots[index].agentId)
-  const candidates = SORTED_AGENTS.filter((agent) => (
+  const collator = useMemo(() => new Intl.Collator(locale === 'ko' ? 'ko-KR' : 'en-US', {
+    numeric: true,
+    sensitivity: 'base',
+  }), [locale])
+  const sortedAgents = useMemo(() => [...ADMITTED_AGENTS].sort((left, right) => (
+    collator.compare(localizedAgentName(left.id, locale), localizedAgentName(right.id, locale))
+  )), [collator, locale])
+  const attributeFilters = useMemo(() => [...ATTRIBUTE_FILTERS].sort((left, right) => (
+    collator.compare(localizedAttribute(left, locale), localizedAttribute(right, locale))
+  )), [collator, locale])
+  const specialtyFilters = useMemo(() => [...SPECIALTY_FILTERS].sort((left, right) => (
+    collator.compare(localizedSpecialty(left, locale), localizedSpecialty(right, locale))
+  )), [collator, locale])
+  const candidates = sortedAgents.filter((agent) => (
     (attribute === 'all' || PARTY_EDIT_ATTRIBUTE_GROUPS[agent.attribute] === attribute)
     && (specialty === 'all' || agent.specialty === specialty)
   ))
@@ -112,14 +125,16 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
     : ADMITTED_AGENTS.find((agent) => agent.id === draft.agentIds[selectedFocusSlot]) ?? null
   const selectedAgentCount = draft.agentIds.filter((agentId) => agentId !== null).length
   const focusStatus = !completeParty
-    ? `${selectedAgentCount} of 3 Agents selected.`
+    ? locale === 'ko' ? `에이전트 3명 중 ${selectedAgentCount}명을 선택했습니다.` : `${selectedAgentCount} of 3 Agents selected.`
     : eligible.length === 1
-    ? `${agentDisplayName(ADMITTED_AGENTS.find((agent) => agent.id === draft.agentIds[eligible[0]])!)} is Focus automatically.`
+    ? locale === 'ko'
+      ? `${localizedAgentName(draft.agentIds[eligible[0]]!, locale)}이(가) 자동으로 주력이 됩니다.`
+      : `${localizedAgentName(draft.agentIds[eligible[0]]!, locale)} is Focus automatically.`
     : eligible.length === 0
-      ? 'No eligible Focus Agent. Replace one draft member before applying.'
+      ? locale === 'ko' ? '주력으로 지정할 수 있는 에이전트가 없습니다. 적용하기 전에 파티원을 교체하세요.' : 'No eligible Focus Agent. Replace one draft member before applying.'
       : selectedFocus
-        ? `${agentDisplayName(selectedFocus)} is Focus.`
-        : 'Choose a Focus Agent before applying.'
+        ? locale === 'ko' ? `${localizedAgentName(selectedFocus.id, locale)}이(가) 주력입니다.` : `${localizedAgentName(selectedFocus.id, locale)} is Focus.`
+        : locale === 'ko' ? '적용하기 전에 주력 에이전트를 선택하세요.' : 'Choose a Focus Agent before applying.'
 
   useEffect(() => { draftSlots.current[0]?.focus() }, [])
   useEffect(() => {
@@ -158,12 +173,12 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
   return (
     <section className="party-editor" aria-labelledby="party-editor-heading">
       <div className="party-editor__heading">
-        <h2 id="party-editor-heading">Editing party</h2>
-        <span aria-live="polite">{target === null ? focusStatus : `Replacing slot ${target + 1}. ${availableCandidates.length} available Agents.`}</span>
+        <h2 id="party-editor-heading">{t('editingParty')}</h2>
+        <span aria-live="polite">{target === null ? focusStatus : locale === 'ko' ? `${target + 1}번 슬롯 교체 중. 선택 가능한 에이전트 ${availableCandidates.length}명.` : `Replacing slot ${target + 1}. ${availableCandidates.length} available Agents.`}</span>
       </div>
       <div className="party-editor__formation">
         <div className="party-editor__draft-rail">
-          <ol className="party-editor__slots" aria-label="Draft party slots">
+          <ol className="party-editor__slots" aria-label={locale === 'ko' ? '편집 중인 파티 슬롯' : 'Draft party slots'}>
             {draft.agentIds.map((agentId, slot) => {
               const selected = target === slot
               if (agentId === null) {
@@ -174,21 +189,21 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
                       type="button"
                       className={`draft-slot draft-slot--empty${selected ? ' is-target' : ''}`}
                       aria-pressed={selected}
-                      aria-label={`Select Agent for slot ${slot + 1}`}
+                      aria-label={locale === 'ko' ? `${slot + 1}번 슬롯 에이전트 선택` : `Select Agent for slot ${slot + 1}`}
                       onClick={() => {
                         setTarget(selected ? null : (slot as AppliedSlot))
                         setFocusOpen(false)
                       }}
                     >
                       <span className="draft-slot__empty-mark" aria-hidden="true">+</span>
-                      <strong className="draft-slot__empty-label">Select Agent</strong>
-                      <span className="draft-slot__replace" aria-hidden="true">Select</span>
+                      <strong className="draft-slot__empty-label">{t('selectAgent')}</strong>
+                      <span className="draft-slot__replace" aria-hidden="true">{t('select')}</span>
                     </button>
                   </li>
                 )
               }
               const agent = ADMITTED_AGENTS.find((item) => item.id === agentId)!
-              const agentName = agentDisplayName(agent)
+              const agentName = localizedAgentName(agent.id, locale)
               const isFocus = draft.focusSlot === slot
               return (
                 <li key={slot}>
@@ -197,7 +212,7 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
                     type="button"
                     className={`draft-slot${selected ? ' is-target' : ''}${isFocus ? ' is-focus' : ''}`}
                     aria-pressed={selected}
-                    aria-label={`Replace slot ${slot + 1}, ${agentName}`}
+                    aria-label={locale === 'ko' ? `${slot + 1}번 슬롯 ${agentName} 교체` : `Replace slot ${slot + 1}, ${agentName}`}
                     onClick={() => {
                       setTarget(selected ? null : (slot as AppliedSlot))
                       setFocusOpen(false)
@@ -212,8 +227,8 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
                         <img src={SPECIALTY_MARKS[agent.specialty]} alt="" />
                       </span>
                     </span>
-                    <span className="draft-slot__replace" aria-hidden="true">Replace</span>
-                    <span className="draft-slot__focus-marker" aria-hidden="true">Focus</span>
+                    <span className="draft-slot__replace" aria-hidden="true">{t('replace')}</span>
+                    <span className="draft-slot__focus-marker" aria-hidden="true">{t('focus')}</span>
                   </button>
                 </li>
               )
@@ -226,12 +241,12 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
               className="party-editor__focus-change"
               aria-expanded={eligible.length > 1 ? focusOpen : false}
               aria-controls={focusOpen && eligible.length > 1 ? 'party-editor-focus-popup' : undefined}
-              aria-label={eligible.length > 1 ? 'Change Focus Agent' : focusStatus}
+              aria-label={eligible.length > 1 ? (locale === 'ko' ? '주력 에이전트 변경' : 'Change Focus Agent') : focusStatus}
               disabled={eligible.length < 2}
               onClick={() => setFocusOpen((open) => !open)}
             >
               <span className="party-editor__focus-ring" aria-hidden="true" />
-              <span>Focus<br />change</span>
+              <span>{t('focus')}<br />{locale === 'ko' ? '변경' : 'change'}</span>
             </button>
           </div>
         </div>
@@ -241,20 +256,20 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
             className={`party-editor__focus-popup party-editor__focus-popup--${eligible.length}`}
           >
             <div className="party-editor__focus-heading">
-              <strong>Select Focus</strong>
-              <span>Treated as on-field</span>
+              <strong>{t('selectFocus')}</strong>
+              <span>{t('treatedOnField')}</span>
             </div>
-            <div ref={focusOptions} className="party-editor__focus-options" role="group" aria-label="Eligible Focus Agents">
+            <div ref={focusOptions} className="party-editor__focus-options" role="group" aria-label={locale === 'ko' ? '주력 지정 가능 에이전트' : 'Eligible Focus Agents'}>
               {eligible.map((slot) => {
                 const agent = ADMITTED_AGENTS.find((item) => item.id === draft.agentIds[slot])!
-                const agentName = agentDisplayName(agent)
+                const agentName = localizedAgentName(agent.id, locale)
                 return (
                   <button
                     key={slot}
                     type="button"
                     className={`party-editor__focus-option${draft.focusSlot === slot ? ' is-selected' : ''}`}
                     aria-pressed={draft.focusSlot === slot}
-                    aria-label={`Set ${agentName} as Focus`}
+                    aria-label={locale === 'ko' ? `${agentName}을(를) 주력으로 지정` : `Set ${agentName} as Focus`}
                     onClick={() => {
                       dispatch({ type: 'setDraftFocus', slot })
                       setFocusOpen(false)
@@ -280,39 +295,40 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
       </div>
       {target !== null && (
         <>
-          <div className="party-editor__filters" aria-label="Agent filters">
+          <div className="party-editor__filters" aria-label={locale === 'ko' ? '에이전트 필터' : 'Agent filters'}>
             <fieldset className="party-editor__filter-row">
-              <legend>Attribute</legend>
+              <legend>{t('attribute')}</legend>
               <div>
-                <button type="button" className={attribute === 'all' ? 'is-selected' : ''} aria-pressed={attribute === 'all'} onClick={() => setAttribute('all')}>All</button>
-                {ATTRIBUTE_FILTERS.map((value) => (
-                  <button key={value} type="button" className={attribute === value ? 'is-selected' : ''} aria-pressed={attribute === value} aria-label={PARTY_EDIT_ATTRIBUTE_LABELS[value] ?? `${value} Attribute`} onClick={() => setAttribute(value)}>
+                <button type="button" className={attribute === 'all' ? 'is-selected' : ''} aria-pressed={attribute === 'all'} onClick={() => setAttribute('all')}>{t('all')}</button>
+                {attributeFilters.map((value) => (
+                  <button key={value} type="button" className={attribute === value ? 'is-selected' : ''} aria-pressed={attribute === value} aria-label={locale === 'ko' ? `${localizedAttribute(value, locale)} 속성 계열` : PARTY_EDIT_ATTRIBUTE_LABELS[value] ?? `${value} Attribute`} onClick={() => setAttribute(value)}>
                     <img src={ATTRIBUTE_MARKS[value]} alt="" />
-                    <span>{value}</span>
+                    <span>{localizedAttribute(value, locale)}</span>
                   </button>
                 ))}
               </div>
             </fieldset>
             <fieldset className="party-editor__filter-row">
-              <legend>Specialty</legend>
+              <legend>{t('specialty')}</legend>
               <div>
-                <button type="button" className={specialty === 'all' ? 'is-selected' : ''} aria-pressed={specialty === 'all'} onClick={() => setSpecialty('all')}>All</button>
-                {SPECIALTY_FILTERS.map((value) => (
-                  <button key={value} type="button" className={specialty === value ? 'is-selected' : ''} aria-pressed={specialty === value} aria-label={`${value} Specialty`} onClick={() => setSpecialty(value)}>
+                <button type="button" className={specialty === 'all' ? 'is-selected' : ''} aria-pressed={specialty === 'all'} onClick={() => setSpecialty('all')}>{t('all')}</button>
+                {specialtyFilters.map((value) => (
+                  <button key={value} type="button" className={specialty === value ? 'is-selected' : ''} aria-pressed={specialty === value} aria-label={locale === 'ko' ? `${localizedSpecialty(value, locale)} 특성` : `${value} Specialty`} onClick={() => setSpecialty(value)}>
                     <img src={SPECIALTY_MARKS[value]} alt="" />
-                    <span>{value}</span>
+                    <span>{localizedSpecialty(value, locale)}</span>
                   </button>
                 ))}
               </div>
             </fieldset>
           </div>
-          <div className="party-editor__pool" ref={candidatePool} role="region" aria-label="Agent candidate pool">
-            {candidates.length === 0 && <p className="party-editor__empty" role="status">No Agents match these filters.</p>}
+          <div className="party-editor__pool" ref={candidatePool} role="region" aria-label={locale === 'ko' ? '에이전트 후보 목록' : 'Agent candidate pool'}>
+            {candidates.length === 0 && <p className="party-editor__empty" role="status">{t('noMatchingAgents')}</p>}
             <div className="party-editor__pool-grid">{candidates.map((agent) => {
               const occupied = draft.agentIds.includes(agent.id)
               const occupiedSlot = draft.agentIds.indexOf(agent.id)
-              const agentName = agentDisplayName(agent)
-              return <button key={agent.id} type="button" className={`agent-pool-card${occupied ? ' is-occupied' : ''}`} data-agent={agent.id} disabled={occupied} aria-label={`${occupied ? 'Unavailable, ' : ''}${agentName}, ${agent.attribute}, ${agent.specialty}, ${agent.rank} Rank${occupied ? `, Slot ${occupiedSlot + 1}` : ''}`} onClick={() => {
+              const agentName = localizedAgentName(agent.id, locale)
+              const identityLabel = `${agentName}, ${localizedAttribute(agent.attribute, locale)}, ${localizedSpecialty(agent.specialty, locale)}, ${locale === 'ko' ? `${agent.rank}급` : `${agent.rank} Rank`}`
+              return <button key={agent.id} type="button" className={`agent-pool-card${occupied ? ' is-occupied' : ''}`} data-agent={agent.id} disabled={occupied} aria-label={locale === 'ko' ? `${occupied ? '선택 불가, ' : ''}${identityLabel}${occupied ? `, ${occupiedSlot + 1}번 슬롯` : ''}` : `${occupied ? 'Unavailable, ' : ''}${identityLabel}${occupied ? `, Slot ${occupiedSlot + 1}` : ''}`} onClick={() => {
                 dispatch({ type: 'replaceDraftAgent', slot: target, agentId: agent.id })
                 setTarget(null)
                 setFocusOpen(false)
@@ -329,7 +345,7 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
                       <img src={ATTRIBUTE_MARKS[agent.attribute]} alt="" />
                       <img src={SPECIALTY_MARKS[agent.specialty]} alt="" />
                     </span>
-                    {occupied && <small className="agent-pool-card__occupied">Slot {occupiedSlot + 1}</small>}
+                    {occupied && <small className="agent-pool-card__occupied">{locale === 'ko' ? `${occupiedSlot + 1}번 슬롯` : `Slot ${occupiedSlot + 1}`}</small>}
                   </span>
                 </span>
               </button>
@@ -337,7 +353,7 @@ export function PartyEditor({ draft, state, dispatch, onClosed }: PartyEditorPro
           </div>
         </>
       )}
-      <div className="party-editor__actions"><button type="button" disabled={isInitialParty} onClick={close}>Cancel</button><button type="button" disabled={!canApply && !canResolveFocus} onClick={apply}>Apply party</button></div>
+      <div className="party-editor__actions"><button type="button" disabled={isInitialParty} onClick={close}>{t('cancel')}</button><button type="button" disabled={!canApply && !canResolveFocus} onClick={apply}>{t('applyParty')}</button></div>
     </section>
   )
 }

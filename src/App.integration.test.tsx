@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { App } from './App'
 import { AGENT_SELECTOR_PORTRAITS } from './components/agentSelectorPortraits'
+import { localizedAgentName } from './localization'
 import { ADMITTED_AGENTS, agentDisplayName, type AgentId } from './workbench/content'
 import { createPreparedState } from './workbench/state'
 import { createSetupShortcutUrl, readSetupShortcut } from './workbench/setup-shortcut'
@@ -22,9 +23,15 @@ afterEach(() => {
   })
 })
 
+function renderEnglishApp() {
+  const rendered = render(<App />)
+  fireEvent.click(screen.getByRole('button', { name: 'Display in English' }))
+  return rendered
+}
+
 async function renderPreparedFixtureParty() {
   const user = userEvent.setup()
-  render(<App />)
+  renderEnglishApp()
 
   for (const [slot, agent] of [
     [1, /Yixuan, Auric Ink, Rupture/],
@@ -39,6 +46,85 @@ async function renderPreparedFixtureParty() {
 }
 
 describe('workbench UI integration', () => {
+  it('defaults to Korean without storing or encoding the language choice', () => {
+    window.localStorage.clear()
+    window.sessionStorage.clear()
+    const address = window.location.href
+
+    render(<App />)
+
+    expect(document.documentElement).toHaveAttribute('lang', 'ko')
+    expect(screen.getByRole('heading', { name: '파티 편성 중' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '한국어로 표시' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Display in English' })).toHaveAttribute('aria-pressed', 'false')
+    expect(window.location.href).toBe(address)
+    expect(window.localStorage).toHaveLength(0)
+    expect(window.sessionStorage).toHaveLength(0)
+  })
+
+  it('switches only presentation language while preserving the current editor state', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const address = window.location.href
+
+    await user.click(screen.getByRole('button', { name: '1번 슬롯 에이전트 선택' }))
+    const selectedCandidate = screen.getByRole('button', { name: /레미엘, 광휘, 이상, S급/ })
+    await user.click(selectedCandidate)
+    await user.click(screen.getByRole('button', { name: '2번 슬롯 에이전트 선택' }))
+    const koreanPool = screen.getByRole('region', { name: '에이전트 후보 목록' })
+    const koreanIds = within(koreanPool).getAllByRole('button')
+      .map((card) => card.dataset.agent as AgentId)
+    const koreanNames = koreanIds.map((agentId) => localizedAgentName(agentId, 'ko'))
+    expect(koreanNames).toEqual([...koreanNames].sort(new Intl.Collator('ko-KR', {
+      numeric: true,
+      sensitivity: 'base',
+    }).compare))
+
+    await user.click(screen.getByRole('button', { name: 'Display in English' }))
+
+    expect(document.documentElement).toHaveAttribute('lang', 'en')
+    expect(screen.getByRole('heading', { name: 'Editing party' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Replace slot 1, Remielle/ })).toBeInTheDocument()
+    const englishPool = screen.getByRole('region', { name: 'Agent candidate pool' })
+    const englishIds = within(englishPool).getAllByRole('button')
+      .map((card) => card.dataset.agent as AgentId)
+    const englishNames = englishIds.map((agentId) => localizedAgentName(agentId, 'en'))
+    expect(englishNames).toEqual([...englishNames].sort(new Intl.Collator('en-US', {
+      numeric: true,
+      sensitivity: 'base',
+    }).compare))
+    expect(screen.getByRole('button', { name: 'Display in English' })).toHaveAttribute('aria-pressed', 'true')
+    expect(window.location.href).toBe(address)
+    expect(window.localStorage).toHaveLength(0)
+    expect(window.sessionStorage).toHaveLength(0)
+  })
+
+  it('preserves applied selection and open disclosure state across language changes', async () => {
+    const state = createPreparedState({}, ['dialyn', 'anbySoldier0', 'lucia'], 1)
+    window.history.replaceState(
+      null,
+      '',
+      new URL(createSetupShortcutUrl(state, window.location.href)).hash,
+    )
+    const user = userEvent.setup()
+    render(<App />)
+
+    const viewed = screen.getByRole('tab', { name: '0호·엔비 세팅과 결과 보기' })
+    expect(viewed).toHaveAttribute('aria-selected', 'true')
+    const engine = screen.getByRole('button', { name: /에서 W-엔진 변경/ })
+    await user.click(engine)
+    expect(engine).toHaveAttribute('aria-expanded', 'true')
+
+    await user.click(screen.getByRole('button', { name: 'Display in English' }))
+
+    expect(screen.getByRole('tab', { name: 'View Anby: Soldier 0 setup and Result' }))
+      .toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('button', { name: /Change W-Engine from/ }))
+      .toHaveAttribute('aria-expanded', 'true')
+    expect(document.querySelector('.selector-region--engine')).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: /^Select .* W[1-5]$/ }).length).toBeGreaterThan(0)
+  })
+
   it('copies a complete Setup shortcut without changing the current address', async () => {
     const state = createPreparedState({}, ['dialyn', 'anbySoldier0', 'lucia'], 1)
     const shortcut = createSetupShortcutUrl(state, window.location.href)
@@ -51,7 +137,7 @@ describe('workbench UI integration', () => {
       value: { writeText },
     })
 
-    render(<App />)
+    renderEnglishApp()
 
     const focused = screen.getByRole('tab', { name: 'View Anby: Soldier 0 setup and Result' })
     expect(focused).toHaveAttribute('aria-selected', 'true')
@@ -96,7 +182,7 @@ describe('workbench UI integration', () => {
       configurable: true,
       value: { writeText },
     })
-    render(<App />)
+    renderEnglishApp()
 
     const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
     await user.click(copy)
@@ -128,7 +214,7 @@ describe('workbench UI integration', () => {
       configurable: true,
       value: { writeText },
     })
-    const { unmount } = render(<App />)
+    const { unmount } = renderEnglishApp()
     const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
 
     fireEvent.click(copy)
@@ -136,7 +222,7 @@ describe('workbench UI integration', () => {
     expect(copy).toHaveTextContent('Copied')
 
     act(() => vi.advanceTimersByTime(1800))
-    expect(copy).toHaveTextContent(/^Copy$/)
+    expect(copy).toHaveTextContent(/^Copy setup$/)
 
     fireEvent.click(copy)
     await act(async () => { await Promise.resolve() })
@@ -165,7 +251,7 @@ describe('workbench UI integration', () => {
       configurable: true,
       value: { writeText },
     })
-    render(<App />)
+    renderEnglishApp()
 
     const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
     await user.click(copy)
@@ -176,25 +262,25 @@ describe('workbench UI integration', () => {
     ).hash
     finishInitialCopy()
     await waitFor(() => expect(screen.getByRole('tab', {
-      name: 'View Anby: Soldier 0 setup and Result',
+      name: '0호·엔비 세팅과 결과 보기',
     })).toHaveAttribute('aria-selected', 'true'))
 
-    await waitFor(() => expect(copy).toHaveTextContent(/^Copy$/))
+    await waitFor(() => expect(copy).toHaveTextContent(/^세팅 복사$/))
     expect(copy).not.toHaveTextContent('Copied')
     expect(within(document.querySelector('.masthead-actions')!).getByRole('status'))
       .toHaveTextContent('')
 
     await user.click(copy)
-    expect(copy).toHaveTextContent('Copying')
+    expect(copy).toHaveTextContent('복사 중')
     finishReplacementCopy()
-    await waitFor(() => expect(copy).toHaveTextContent('Copied'))
+    await waitFor(() => expect(copy).toHaveTextContent('복사됨'))
     expect(readSetupShortcut(new URL(String(writeText.mock.calls[1][0])).hash))
       .toEqual(replacement)
 
     window.location.hash = 'setup=unsupported'
-    await waitFor(() => expect(screen.getByRole('heading', { name: 'Editing party' }))
+    await waitFor(() => expect(screen.getByRole('heading', { name: '파티 편성 중' }))
       .toBeInTheDocument())
-    await waitFor(() => expect(copy).toHaveTextContent(/^Copy$/))
+    await waitFor(() => expect(copy).toHaveTextContent(/^세팅 복사$/))
     expect(copy).toBeDisabled()
     expect(copy).not.toHaveTextContent('Copied')
     expect(within(document.querySelector('.masthead-actions')!).getByRole('status'))
@@ -262,7 +348,7 @@ describe('workbench UI integration', () => {
       configurable: true,
       value: { writeText },
     })
-    render(<App />)
+    renderEnglishApp()
 
     const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
     await user.click(copy)
@@ -270,11 +356,11 @@ describe('workbench UI integration', () => {
       createSetupShortcutUrl(replacement, window.location.href),
     ).hash
     await waitFor(() => expect(screen.getByRole('tab', {
-      name: 'View Anby: Soldier 0 setup and Result',
+      name: '0호·엔비 세팅과 결과 보기',
     })).toHaveAttribute('aria-selected', 'true'))
 
     rejectCopy(new Error('Clipboard denied'))
-    await waitFor(() => expect(copy).toHaveTextContent(/^Copy$/))
+    await waitFor(() => expect(copy).toHaveTextContent(/^세팅 복사$/))
     expect(copy).not.toHaveTextContent('Copy failed')
     expect(within(document.querySelector('.masthead-actions')!).getByRole('status'))
       .toHaveTextContent('')
@@ -296,7 +382,7 @@ describe('workbench UI integration', () => {
       configurable: true,
       value: { writeText },
     })
-    render(<App />)
+    renderEnglishApp()
 
     const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
     await user.click(copy)
@@ -310,7 +396,7 @@ describe('workbench UI integration', () => {
 
   it('falls back atomically to initial Party Edit for an invalid shortcut', () => {
     window.history.replaceState(null, '', '/#setup=unsupported')
-    render(<App />)
+    renderEnglishApp()
 
     expect(screen.getByRole('heading', { name: 'Editing party' })).toBeInTheDocument()
     expect(screen.queryByRole('tablist', { name: 'Applied party slots' })).not.toBeInTheDocument()
@@ -325,7 +411,7 @@ describe('workbench UI integration', () => {
       '',
       new URL(createSetupShortcutUrl(initial, window.location.href)).hash,
     )
-    render(<App />)
+    renderEnglishApp()
 
     expect(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
       .toHaveAttribute('aria-selected', 'true')
@@ -335,16 +421,16 @@ describe('workbench UI integration', () => {
     ).hash
 
     await waitFor(() => expect(screen.getByRole('tab', {
-      name: 'View Anby: Soldier 0 setup and Result',
+      name: '0호·엔비 세팅과 결과 보기',
     })).toHaveAttribute('aria-selected', 'true'))
-    expect(screen.getByRole('heading', { name: 'Anby: Soldier 0 Result' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '0호·엔비 결과' })).toBeInTheDocument()
 
     window.location.hash = 'setup=unsupported'
 
-    await waitFor(() => expect(screen.getByRole('heading', { name: 'Editing party' }))
+    await waitFor(() => expect(screen.getByRole('heading', { name: '파티 편성 중' }))
       .toBeInTheDocument())
-    expect(screen.queryByRole('tablist', { name: 'Applied party slots' })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Copy Setup shortcut' })).toBeDisabled()
+    expect(screen.queryByRole('tablist', { name: '적용된 파티 슬롯' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '세팅 바로가기 복사' })).toBeDisabled()
   })
 
   it('keeps one non-interactive legal footer across the initial and applied states', async () => {
@@ -352,7 +438,7 @@ describe('workbench UI integration', () => {
     window.sessionStorage.clear()
 
     const user = userEvent.setup()
-    render(<App />)
+    renderEnglishApp()
 
     const initialFooter = screen.getByRole('contentinfo')
     const initialCopy = initialFooter.textContent
@@ -394,7 +480,7 @@ describe('workbench UI integration', () => {
 
   it('starts in empty Party Edit and prepares the first complete party', async () => {
     const user = userEvent.setup()
-    render(<App />)
+    renderEnglishApp()
 
     expect(screen.getByRole('heading', { name: 'ZZZ Setup Workbench' })).toBeInTheDocument()
     expect(document.querySelector('.masthead img')).not.toBeInTheDocument()
@@ -448,7 +534,7 @@ describe('workbench UI integration', () => {
 
   it('resolves initial Focus eligibility before the first Apply', async () => {
     const user = userEvent.setup()
-    render(<App />)
+    renderEnglishApp()
 
     for (const [slot, agent] of [
       [1, /Trigger, Electric, Stun/],

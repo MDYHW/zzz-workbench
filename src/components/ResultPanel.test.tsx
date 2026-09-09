@@ -159,7 +159,7 @@ describe('ResultPanel action hierarchy', () => {
           id: 'shared',
           outcomes: [
             canonicalAction('Basic Attack'),
-            sourceLocalAction('Source-local outcome'),
+            sourceLocalAction('test-source-local-outcome', 'Source-local outcome'),
           ],
           tags: [],
           metricId: 'dmgBonus',
@@ -207,7 +207,7 @@ describe('ResultPanel action hierarchy', () => {
       metrics: [],
       actionModifiers: [{
         id: 'assaultCritRate',
-        outcomes: [sourceLocalAction('Assault')],
+        outcomes: [sourceLocalAction('assault', 'Assault')],
         tags: [],
         metricId: 'critRate',
         values: surfaces(0, 0, 98.6),
@@ -247,7 +247,7 @@ describe('ResultPanel action hierarchy', () => {
       }],
       actionModifiers: [{
         id: 'derivedFactor',
-        outcomes: [sourceLocalAction('Derived anomaly')],
+        outcomes: [sourceLocalAction('test-derived-anomaly', 'Derived anomaly')],
         tags: [],
         metricId: 'refringeFactor',
         values: surfaces(0, 0, 9.4),

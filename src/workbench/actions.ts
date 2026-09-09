@@ -13,9 +13,10 @@ export type ActionTag = 'aftershock'
 
 export type ActionOutcome =
   | { kind: 'canonical'; action: CanonicalActionKind }
-  | { kind: 'form'; action: CanonicalActionKind; form: string }
+  | { kind: 'form'; action: CanonicalActionKind; formId: string; form: string }
   | {
     kind: 'source-local'
+    outcomeId: string
     label: string
   }
 
@@ -48,13 +49,16 @@ export const canonicalAction = (
 
 export const actionForm = (
   action: CanonicalActionKind,
+  formId: string,
   form: string,
-): ActionOutcome => ({ kind: 'form', action, form })
+): ActionOutcome => ({ kind: 'form', action, formId, form })
 
 export const sourceLocalAction = (
+  outcomeId: string,
   label: string,
 ): ActionOutcome => ({
   kind: 'source-local',
+  outcomeId,
   label,
 })
 
@@ -66,10 +70,10 @@ function sameOutcome(left: ActionOutcome, right: ActionOutcome): boolean {
     case 'form':
       return right.kind === 'form'
         && left.action === right.action
-        && left.form === right.form
+        && left.formId === right.formId
     case 'source-local':
       return right.kind === 'source-local'
-        && left.label === right.label
+        && left.outcomeId === right.outcomeId
   }
 }
 
@@ -103,41 +107,41 @@ export function sameActionTarget(
 
 // Disorder has one qualifying outcome across holder and recipient clauses.
 // Sharing its identity lets the composition layer retain one Result row.
-export const DISORDER_TARGET = actionTarget([sourceLocalAction('Disorder')])
+export const DISORDER_TARGET = actionTarget([sourceLocalAction('disorder', 'Disorder')])
 
 // Attribute Anomaly is shared by holder-local anomaly rows and providers whose
 // matching Attribute is selected through Focus.
 export const ATTRIBUTE_ANOMALY_TARGET = actionTarget([
-  sourceLocalAction('Attribute Anomaly'),
+  sourceLocalAction('attribute-anomaly', 'Attribute Anomaly'),
 ])
 
 // Windswept is Wind's Attribute Anomaly. Vortex has a separate coefficient and
 // never inherits Disorder or the generic Attribute Anomaly target by default.
-export const WINDSWEPT_TARGET = actionTarget([sourceLocalAction('Windswept')])
-export const VORTEX_TARGET = actionTarget([sourceLocalAction('Vortex')])
+export const WINDSWEPT_TARGET = actionTarget([sourceLocalAction('windswept', 'Windswept')])
+export const VORTEX_TARGET = actionTarget([sourceLocalAction('vortex', 'Vortex')])
 
 // Abloom and Corruption are exact current anomaly outcomes. They remain action
 // identities inside the existing anomaly formula family rather than becoming
 // formula families or reaction registries.
-export const ABLOOM_TARGET = actionTarget([sourceLocalAction('Abloom')])
-export const CORRUPTION_TARGET = actionTarget([sourceLocalAction('Corruption')])
+export const ABLOOM_TARGET = actionTarget([sourceLocalAction('abloom', 'Abloom')])
+export const CORRUPTION_TARGET = actionTarget([sourceLocalAction('corruption', 'Corruption')])
 
 // Remielle's two formula-local outcomes stay distinct from ordinary Attribute
 // Anomaly and from each other. Neither target inherits another anomaly family.
-export const LUMINIZE_TARGET = actionTarget([sourceLocalAction('Luminize')])
-export const REFRINGE_TARGET = actionTarget([sourceLocalAction('Refringe')])
+export const LUMINIZE_TARGET = actionTarget([sourceLocalAction('luminize', 'Luminize')])
+export const REFRINGE_TARGET = actionTarget([sourceLocalAction('refringe', 'Refringe')])
 
 // Miyabi's target-state buildup outcomes are shared across her provider and
 // every current anomaly-buildup recipient. They remain separate so the Fully
 // Enabled projection never combines mutually exclusive target conditions.
 export const MIYABI_ICEFIRE_BUILDUP_TARGET = actionTarget([
-  sourceLocalAction('Frost Buildup · Icefire target'),
+  sourceLocalAction('frost-buildup-icefire-target', 'Frost Buildup · Icefire target'),
 ])
 export const MIYABI_FROSTBURN_BUILDUP_TARGET = actionTarget([
-  sourceLocalAction('Anomaly Buildup · Frostburn target'),
+  sourceLocalAction('anomaly-buildup-frostburn-target', 'Anomaly Buildup · Frostburn target'),
 ])
 export const MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET = actionTarget([
-  sourceLocalAction('Anomaly Buildup · After Frostburn removal'),
+  sourceLocalAction('anomaly-buildup-after-frostburn-removal', 'Anomaly Buildup · After Frostburn removal'),
 ])
 
 export function actionOutcomeLabel(outcome: ActionOutcome): string {

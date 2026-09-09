@@ -22,6 +22,7 @@ export interface BaseStatAtom {
   value: number
   source: SelectedSourceInstance
   sourceDetail?: string
+  sourceDetailPresentationId?: string
 }
 
 export interface DerivedStatAtom {
@@ -31,6 +32,7 @@ export interface DerivedStatAtom {
   value: number
   source: SelectedSourceInstance
   sourceDetail?: string
+  sourceDetailPresentationId?: string
 }
 
 export type StatAtom = BaseStatAtom | DerivedStatAtom
@@ -52,6 +54,7 @@ export interface AutomaticEnergyRecoveryOperation {
   value: number
   source: SelectedSourceInstance
   sourceDetail?: string
+  sourceDetailPresentationId?: string
 }
 
 export interface ComposedAutomaticEnergyRecovery {

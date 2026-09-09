@@ -252,7 +252,7 @@ describe('shared calculation integration', () => {
     )
 
     expect(action('velinaWindswept').outcomes).toEqual([
-      { kind: 'source-local', label: 'Windswept' },
+      { kind: 'source-local', outcomeId: 'windswept', label: 'Windswept' },
     ])
     for (const [id, outcomes] of [
       ['velinaCondensedCycloneAbloom', [
@@ -271,7 +271,7 @@ describe('shared calculation integration', () => {
       expect(action(id)).toMatchObject({ outcomes, baseActionId: 'velinaWindswept' })
     }
     expect(action('velinaVortex').outcomes).toEqual([
-      { kind: 'source-local', label: 'Vortex' },
+      { kind: 'source-local', outcomeId: 'vortex', label: 'Vortex' },
     ])
     expect(action('velinaVortex').baseActionId).toBeUndefined()
     for (const [id, amount] of [
@@ -621,8 +621,13 @@ describe('shared calculation integration', () => {
       .toBe(false)
     expect(remielle.operations).toEqual(expect.arrayContaining([
       expect.objectContaining({
-        label: 'Stun duration extension · Flower & Feather Dance',
+        label: 'Stun duration extension',
+        presentationId: 'stun-duration-extension',
         value: VERTICAL_VALUES.remielle.assistStunExtension,
+        source: expect.objectContaining({
+          label: 'Assist',
+          detail: 'Flower & Feather Dance',
+        }),
       }),
       expect.objectContaining({
         label: 'Rainbow’s End / Fleeting Grace · Luminize triggers',
@@ -998,7 +1003,7 @@ describe('shared calculation integration', () => {
     const harmonizing = trigger.actionModifiers
       .find(({ id }) => id === 'triggerHarmonizingShot')!
     expect(harmonizing.target?.outcomes).toEqual([
-      { kind: 'source-local', label: 'Harmonizing Shot' },
+      { kind: 'source-local', outcomeId: 'trigger-harmonizing-shot', label: 'Harmonizing Shot' },
     ])
     expect(harmonizing.breakdown.fully)
       .toContainEqual(expect.objectContaining({ label: 'Shockstar Disco' }))
