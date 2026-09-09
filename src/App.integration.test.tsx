@@ -1,9 +1,26 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { App } from './App'
 import { AGENT_SELECTOR_PORTRAITS } from './components/agentSelectorPortraits'
 import { ADMITTED_AGENTS, agentDisplayName, type AgentId } from './workbench/content'
+import { createPreparedState } from './workbench/state'
+import { createSetupShortcutUrl, readSetupShortcut } from './workbench/setup-shortcut'
+
+const originalClipboard = navigator.clipboard
+
+beforeEach(() => {
+  window.history.replaceState(null, '', '/')
+})
+
+afterEach(() => {
+  vi.useRealTimers()
+  vi.restoreAllMocks()
+  Object.defineProperty(navigator, 'clipboard', {
+    configurable: true,
+    value: originalClipboard,
+  })
+})
 
 async function renderPreparedFixtureParty() {
   const user = userEvent.setup()
@@ -22,6 +39,314 @@ async function renderPreparedFixtureParty() {
 }
 
 describe('workbench UI integration', () => {
+  it('copies a complete Setup shortcut without changing the current address', async () => {
+    const state = createPreparedState({}, ['dialyn', 'anbySoldier0', 'lucia'], 1)
+    const shortcut = createSetupShortcutUrl(state, window.location.href)
+    window.history.replaceState(null, '', `${window.location.pathname}?manual=1${new URL(shortcut).hash}`)
+    const addressBeforeCopy = window.location.href
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    const user = userEvent.setup()
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    })
+
+    render(<App />)
+
+    const focused = screen.getByRole('tab', { name: 'View Anby: Soldier 0 setup and Result' })
+    expect(focused).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('region', { name: 'Anby: Soldier 0 setup' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Anby: Soldier 0 Result' })).toBeInTheDocument()
+
+    const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
+    expect(copy).toBeEnabled()
+    await user.click(copy)
+
+    expect(writeText).toHaveBeenCalledOnce()
+    const copiedUrl = writeText.mock.calls[0][0] as string
+    expect(window.location.href).toBe(addressBeforeCopy)
+    expect(new URL(copiedUrl).search).toBe('')
+    expect(readSetupShortcut(new URL(copiedUrl).hash)).toEqual(state)
+    expect(copy).toHaveTextContent('Copied')
+    expect(copy).toHaveFocus()
+    expect(focused).toHaveAttribute('aria-selected', 'true')
+    expect(within(document.querySelector('.masthead-actions')!).getByRole('status'))
+      .toHaveTextContent('Setup shortcut copied.')
+
+    writeText.mockRejectedValueOnce(new Error('Clipboard denied'))
+    await user.click(copy)
+    expect(window.location.href).toBe(addressBeforeCopy)
+    expect(copy).toHaveTextContent('Copy failed')
+    expect(within(document.querySelector('.masthead-actions')!).getByRole('status'))
+      .toHaveTextContent('Setup shortcut could not be copied.')
+  })
+
+  it('isolates each copy from older feedback and allows only one write at a time', async () => {
+    const state = createPreparedState({}, ['dialyn', 'anbySoldier0', 'lucia'], 1)
+    const shortcut = createSetupShortcutUrl(state, window.location.href)
+    window.history.replaceState(null, '', new URL(shortcut).hash)
+    let finishCopy!: () => void
+    const pendingCopy = new Promise<void>((resolve) => { finishCopy = resolve })
+    const writeText = vi.fn()
+      .mockResolvedValueOnce(undefined)
+      .mockReturnValueOnce(pendingCopy)
+    const clearTimeout = vi.spyOn(window, 'clearTimeout')
+    const user = userEvent.setup()
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    })
+    render(<App />)
+
+    const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
+    await user.click(copy)
+    await waitFor(() => expect(copy).toHaveTextContent('Copied'))
+    await user.click(copy)
+    expect(copy).toHaveAttribute('aria-disabled', 'true')
+    expect(copy).toBeEnabled()
+    expect(copy).toHaveTextContent('Copying')
+    expect(copy).toHaveFocus()
+    expect(clearTimeout).toHaveBeenCalled()
+    fireEvent.click(copy)
+    expect(writeText).toHaveBeenCalledTimes(2)
+
+    finishCopy()
+    await waitFor(() => expect(copy).toHaveTextContent('Copied'))
+    expect(copy).toHaveFocus()
+  })
+
+  it('expires copy feedback and clears its timer on unmount', async () => {
+    vi.useFakeTimers()
+    const state = createPreparedState({}, ['dialyn', 'anbySoldier0', 'lucia'], 1)
+    window.history.replaceState(
+      null,
+      '',
+      new URL(createSetupShortcutUrl(state, window.location.href)).hash,
+    )
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    })
+    const { unmount } = render(<App />)
+    const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
+
+    fireEvent.click(copy)
+    await act(async () => { await Promise.resolve() })
+    expect(copy).toHaveTextContent('Copied')
+
+    act(() => vi.advanceTimersByTime(1800))
+    expect(copy).toHaveTextContent(/^Copy$/)
+
+    fireEvent.click(copy)
+    await act(async () => { await Promise.resolve() })
+    expect(copy).toHaveTextContent('Copied')
+    expect(vi.getTimerCount()).toBe(1)
+
+    unmount()
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('suppresses clipboard feedback after shortcut navigation replaces the Setup', async () => {
+    const initial = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
+    const replacement = createPreparedState({}, ['dialyn', 'anbySoldier0', 'lucia'], 1)
+    window.history.replaceState(
+      null,
+      '',
+      new URL(createSetupShortcutUrl(initial, window.location.href)).hash,
+    )
+    let finishInitialCopy!: () => void
+    let finishReplacementCopy!: () => void
+    const writeText = vi.fn()
+      .mockReturnValueOnce(new Promise<void>((resolve) => { finishInitialCopy = resolve }))
+      .mockReturnValueOnce(new Promise<void>((resolve) => { finishReplacementCopy = resolve }))
+    const user = userEvent.setup()
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    })
+    render(<App />)
+
+    const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
+    await user.click(copy)
+    expect(copy).toHaveTextContent('Copying')
+
+    window.location.hash = new URL(
+      createSetupShortcutUrl(replacement, window.location.href),
+    ).hash
+    finishInitialCopy()
+    await waitFor(() => expect(screen.getByRole('tab', {
+      name: 'View Anby: Soldier 0 setup and Result',
+    })).toHaveAttribute('aria-selected', 'true'))
+
+    await waitFor(() => expect(copy).toHaveTextContent(/^Copy$/))
+    expect(copy).not.toHaveTextContent('Copied')
+    expect(within(document.querySelector('.masthead-actions')!).getByRole('status'))
+      .toHaveTextContent('')
+
+    await user.click(copy)
+    expect(copy).toHaveTextContent('Copying')
+    finishReplacementCopy()
+    await waitFor(() => expect(copy).toHaveTextContent('Copied'))
+    expect(readSetupShortcut(new URL(String(writeText.mock.calls[1][0])).hash))
+      .toEqual(replacement)
+
+    window.location.hash = 'setup=unsupported'
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Editing party' }))
+      .toBeInTheDocument())
+    await waitFor(() => expect(copy).toHaveTextContent(/^Copy$/))
+    expect(copy).toBeDisabled()
+    expect(copy).not.toHaveTextContent('Copied')
+    expect(within(document.querySelector('.masthead-actions')!).getByRole('status'))
+      .toHaveTextContent('')
+  })
+
+  it.each([
+    ['resolved', 'Copied'],
+    ['rejected', 'Copy failed'],
+  ] as const)('suppresses a %s clipboard result as soon as the address hash changes', async (
+    outcome,
+    staleLabel,
+  ) => {
+    const initial = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
+    const replacement = createPreparedState({}, ['dialyn', 'anbySoldier0', 'lucia'], 1)
+    window.history.replaceState(
+      null,
+      '',
+      new URL(createSetupShortcutUrl(initial, window.location.href)).hash,
+    )
+    let resolveCopy!: () => void
+    let rejectCopy!: (error: Error) => void
+    const writeText = vi.fn().mockReturnValue(new Promise<void>((resolve, reject) => {
+      resolveCopy = resolve
+      rejectCopy = reject
+    }))
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    })
+    render(<App />)
+
+    const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
+    fireEvent.click(copy)
+    window.history.replaceState(
+      null,
+      '',
+      new URL(createSetupShortcutUrl(replacement, window.location.href)).hash,
+    )
+
+    if (outcome === 'resolved') resolveCopy()
+    else rejectCopy(new Error('Clipboard denied'))
+    await act(async () => { await Promise.resolve() })
+
+    expect(copy).toHaveTextContent(/^Copy$/)
+    expect(copy).not.toHaveTextContent(staleLabel)
+    expect(within(document.querySelector('.masthead-actions')!).getByRole('status'))
+      .toHaveTextContent('')
+  })
+
+  it('suppresses a rejected clipboard result after shortcut navigation', async () => {
+    const initial = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
+    const replacement = createPreparedState({}, ['dialyn', 'anbySoldier0', 'lucia'], 1)
+    window.history.replaceState(
+      null,
+      '',
+      new URL(createSetupShortcutUrl(initial, window.location.href)).hash,
+    )
+    let rejectCopy!: (error: Error) => void
+    const writeText = vi.fn().mockReturnValue(new Promise<void>((_, reject) => {
+      rejectCopy = reject
+    }))
+    const user = userEvent.setup()
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    })
+    render(<App />)
+
+    const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
+    await user.click(copy)
+    window.location.hash = new URL(
+      createSetupShortcutUrl(replacement, window.location.href),
+    ).hash
+    await waitFor(() => expect(screen.getByRole('tab', {
+      name: 'View Anby: Soldier 0 setup and Result',
+    })).toHaveAttribute('aria-selected', 'true'))
+
+    rejectCopy(new Error('Clipboard denied'))
+    await waitFor(() => expect(copy).toHaveTextContent(/^Copy$/))
+    expect(copy).not.toHaveTextContent('Copy failed')
+    expect(within(document.querySelector('.masthead-actions')!).getByRole('status'))
+      .toHaveTextContent('')
+  })
+
+  it('reports a delayed copy after draft-only Party Edit changes', async () => {
+    const state = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
+    window.history.replaceState(
+      null,
+      '',
+      new URL(createSetupShortcutUrl(state, window.location.href)).hash,
+    )
+    let finishCopy!: () => void
+    const writeText = vi.fn().mockReturnValue(new Promise<void>((resolve) => {
+      finishCopy = resolve
+    }))
+    const user = userEvent.setup()
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    })
+    render(<App />)
+
+    const copy = screen.getByRole('button', { name: 'Copy Setup shortcut' })
+    await user.click(copy)
+    await user.click(screen.getByRole('button', { name: 'Edit party' }))
+    expect(screen.getByRole('heading', { name: 'Editing party' })).toBeInTheDocument()
+
+    finishCopy()
+    await waitFor(() => expect(copy).toHaveTextContent('Copied'))
+    expect(readSetupShortcut(new URL(String(writeText.mock.calls[0][0])).hash)).toEqual(state)
+  })
+
+  it('falls back atomically to initial Party Edit for an invalid shortcut', () => {
+    window.history.replaceState(null, '', '/#setup=unsupported')
+    render(<App />)
+
+    expect(screen.getByRole('heading', { name: 'Editing party' })).toBeInTheDocument()
+    expect(screen.queryByRole('tablist', { name: 'Applied party slots' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Copy Setup shortcut' })).toBeDisabled()
+  })
+
+  it('atomically follows Setup shortcut navigation within the current tab', async () => {
+    const initial = createPreparedState({}, ['yixuan', 'dialyn', 'lucia'], 0)
+    const replacement = createPreparedState({}, ['dialyn', 'anbySoldier0', 'lucia'], 1)
+    window.history.replaceState(
+      null,
+      '',
+      new URL(createSetupShortcutUrl(initial, window.location.href)).hash,
+    )
+    render(<App />)
+
+    expect(screen.getByRole('tab', { name: 'View Yixuan setup and Result' }))
+      .toHaveAttribute('aria-selected', 'true')
+
+    window.location.hash = new URL(
+      createSetupShortcutUrl(replacement, window.location.href),
+    ).hash
+
+    await waitFor(() => expect(screen.getByRole('tab', {
+      name: 'View Anby: Soldier 0 setup and Result',
+    })).toHaveAttribute('aria-selected', 'true'))
+    expect(screen.getByRole('heading', { name: 'Anby: Soldier 0 Result' })).toBeInTheDocument()
+
+    window.location.hash = 'setup=unsupported'
+
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Editing party' }))
+      .toBeInTheDocument())
+    expect(screen.queryByRole('tablist', { name: 'Applied party slots' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Copy Setup shortcut' })).toBeDisabled()
+  })
+
   it('keeps one non-interactive legal footer across the initial and applied states', async () => {
     window.localStorage.clear()
     window.sessionStorage.clear()

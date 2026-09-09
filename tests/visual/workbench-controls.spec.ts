@@ -13,6 +13,50 @@ const partyEditViewports = [
   { width: 320, height: 900 },
 ] as const
 
+test('keeps clipped masthead actions visibly keyboard-focused', async ({ page }) => {
+  await page.context().grantPermissions(['clipboard-write'], {
+    origin: 'http://127.0.0.1:5173',
+  })
+
+  for (const viewport of [viewports[0], partyEditViewports[partyEditViewports.length - 1]]) {
+    await openWorkbench(page, viewport)
+
+    await expect(page.getByRole('button', { name: 'Edit party' })).toBeFocused()
+    await page.keyboard.press('Shift+Tab')
+    await expect(page.getByRole('tab', { selected: true })).toBeFocused()
+    await page.keyboard.press('Shift+Tab')
+    const copy = page.getByRole('button', { name: 'Copy Setup shortcut' })
+    await expect(copy).toBeFocused()
+    await expect(copy).toHaveCSS('outline-style', 'none')
+    expect(await copy.evaluate((button) => getComputedStyle(button).boxShadow))
+      .toContain('rgb(240, 213, 46) 0px 0px 0px 2px inset')
+
+    await page.keyboard.press('Enter')
+    await expect(copy).toHaveText('Copied')
+    await expect(copy).toBeFocused()
+    expect(await copy.evaluate((button) => getComputedStyle(button).boxShadow))
+      .toContain('rgb(13, 15, 14) 0px 0px 0px 2px inset')
+
+    await page.emulateMedia({ forcedColors: 'active' })
+    const forcedColorFocus = await copy.evaluate((button) => {
+      const style = getComputedStyle(button)
+      return {
+        boxShadow: style.boxShadow,
+        outlineOffset: style.outlineOffset,
+        outlineStyle: style.outlineStyle,
+        outlineWidth: style.outlineWidth,
+      }
+    })
+    expect(forcedColorFocus).toEqual({
+      boxShadow: 'none',
+      outlineOffset: '-4px',
+      outlineStyle: 'solid',
+      outlineWidth: '2px',
+    })
+    await page.emulateMedia({ forcedColors: 'none' })
+  }
+})
+
 test('starts with three empty Party Edit destinations and no applied workspace', async ({ page }) => {
   for (const viewport of [
     { width: 1440, height: 900 },

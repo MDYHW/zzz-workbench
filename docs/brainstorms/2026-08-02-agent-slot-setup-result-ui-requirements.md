@@ -132,6 +132,17 @@ Focus choice, and shared candidate pool without changing their product meaning.
   composition for ordinary applied-party viewing. Every later Party Edit opens
   from the current applied party and retains the established Cancel and Apply
   behavior.
+- R-053: The title masthead reserves its right side for compact session
+  utilities. Copy appears there before the separately scoped language control,
+  uses the established dark-paper, thin-line, clipped-corner grammar, and does
+  not compete with Apply party as a primary action.
+- R-054: Copy is disabled without one complete applied Setup. Activation keeps
+  the current page and viewed Agent unchanged, reports success or failure in the
+  control and to assistive technology, and returns to its idle label without
+  moving focus.
+- R-055: A valid explicitly copied Setup shortcut initially selects its carried
+  Focus in the party rail and workspace. That entry default does not couple later
+  viewed-Agent selection to Focus or alter ordinary initial composition.
 
 ### Setup
 
@@ -225,6 +236,14 @@ Focus choice, and shared candidate pool without changing their product meaning.
 - The assertions remain meaningful with equivalent Agent fixtures. Named
   Agents are used only to realize zero-, one-, and multi-eligible Focus states;
   no exact Agent roster, equipment value, or catalogue membership is frozen.
+- The Setup shortcut is a second initial-entry mechanism, not an extension of
+  prepared initialization. Its tests independently cover complete-state
+  serialization, current-rule atomic rejection, invalid-entry fallback,
+  carried-Focus initial viewing, same-tab shortcut navigation, clipboard
+  success and failure, unchanged address/view/focus, and single in-flight Copy
+  behavior. Fixtures use Agents
+  only to realize Focus and contextual candidate relationships rather than
+  freezing a supported roster or item catalogue.
 
 ## Acceptance examples
 
