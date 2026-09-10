@@ -603,22 +603,43 @@ export function useLocalization(): LocalizationValue {
   return useContext(LocalizationContext)
 }
 
+const hasOnlyNonEmptyText = (values: readonly (string | undefined)[]) => (
+  values.every((value) => typeof value === 'string' && value.trim().length > 0)
+)
+
 export const translationCoverage = {
-  agents: Object.keys(koAgentNames).length === ADMITTED_AGENTS.length,
-  engines: Object.keys(koEngineNames).length === Object.keys(W_ENGINES).length,
-  discs: Object.keys(koDiscNames).length === Object.keys(DRIVE_DISCS).length,
-  actionForms: Object.values(koActionForms).every(Boolean),
-  sourceLocalOutcomes: Object.values(koSourceLocalOutcomes).every(Boolean),
+  agents: Object.keys(koAgentNames).length === ADMITTED_AGENTS.length
+    && hasOnlyNonEmptyText(Object.values(koAgentNames)),
+  engines: Object.keys(koEngineNames).length === Object.keys(W_ENGINES).length
+    && hasOnlyNonEmptyText(Object.values(koEngineNames)),
+  discs: Object.keys(koDiscNames).length === Object.keys(DRIVE_DISCS).length
+    && hasOnlyNonEmptyText(Object.values(koDiscNames)),
+  ui: hasOnlyNonEmptyText(Object.values(koUi)),
+  attributes: hasOnlyNonEmptyText(Object.values(koAttributes)),
+  specialties: hasOnlyNonEmptyText(Object.values(koSpecialties)),
+  actions: hasOnlyNonEmptyText(Object.values(koActions)),
+  actionForms: hasOnlyNonEmptyText(Object.values(koActionForms)),
+  sourceLocalOutcomes: hasOnlyNonEmptyText(Object.values(koSourceLocalOutcomes)),
+  surfaces: hasOnlyNonEmptyText(Object.values(koSurfaces)),
+  surfaceDescriptions: hasOnlyNonEmptyText(Object.values(koSurfaceDescriptions)),
+  metrics: hasOnlyNonEmptyText(Object.values(koMetrics)),
+  stats: hasOnlyNonEmptyText(Object.values(koStats)),
+  sourceLoci: hasOnlyNonEmptyText(Object.values(koSourceLoci)),
+  calculationSources: hasOnlyNonEmptyText(Object.values(koCalculationSources)),
   presentations: Object.values(koPresentation).every(Boolean),
   engineEffects: (Object.entries(W_ENGINES) as Array<[EngineId, (typeof W_ENGINES)[EngineId]]>)
     .every(([engineId, engine]) => ([1, 2, 3, 4, 5] as const)
-      .every((refinement) => engine.passiveLines(refinement).length === koEnginePassiveTemplates[engineId].length)),
+      .every((refinement) => engine.passiveLines(refinement).length === koEnginePassiveTemplates[engineId].length
+        && hasOnlyNonEmptyText(koEnginePassiveTemplates[engineId]))),
   discEffects: (Object.entries(DRIVE_DISCS) as Array<[DiscId, (typeof DRIVE_DISCS)[DiscId]]>)
     .every(([discId, disc]) => {
-      if (koDiscEffectTemplates[discId].twoPiece.length !== 1) return false
+      const templates = koDiscEffectTemplates[discId]
+      if (templates.twoPiece.length !== 1
+          || !hasOnlyNonEmptyText(templates.twoPiece)
+          || !hasOnlyNonEmptyText(templates.fourPiece)) return false
       return (Object.keys(koAttributes) as AgentAttribute[]).every((attribute) => {
         const effects = disc.fourPieceEffectsForHolder?.(attribute) ?? disc.fourPieceEffects ?? []
-        return effects.length === koDiscEffectTemplates[discId].fourPiece.length
+        return effects.length === templates.fourPiece.length
       })
     }),
 } as const

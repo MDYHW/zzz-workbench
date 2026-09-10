@@ -30,8 +30,9 @@ describe('localization identity', () => {
     for (const [engineId, engine] of Object.entries(W_ENGINES)) {
       for (const refinement of [1, 2, 3, 4, 5] as const) {
         engine.passiveLines(refinement).forEach((line, index) => {
-          expect(localizedEnginePassiveLine(engineId as keyof typeof W_ENGINES, index, line, 'ko'))
-            .not.toBe(line)
+          const localized = localizedEnginePassiveLine(engineId as keyof typeof W_ENGINES, index, line, 'ko')
+          expect(localized.trim()).not.toBe('')
+          expect(localized).not.toBe(line)
         })
       }
     }
@@ -41,13 +42,14 @@ describe('localization identity', () => {
     ]
     for (const [discId, disc] of Object.entries(DRIVE_DISCS)) {
       const typedDiscId = discId as keyof typeof DRIVE_DISCS
-      expect(localizedDiscEffectLine(typedDiscId, 'twoPiece', 0, disc.twoPieceEffect, 'ko'))
-        .toBeTruthy()
+      const localizedTwoPiece = localizedDiscEffectLine(typedDiscId, 'twoPiece', 0, disc.twoPieceEffect, 'ko')
+      expect(localizedTwoPiece.trim()).not.toBe('')
       for (const attribute of attributes) {
         const effects = disc.fourPieceEffectsForHolder?.(attribute) ?? disc.fourPieceEffects ?? []
         effects.forEach((line, index) => {
-          expect(localizedDiscEffectLine(typedDiscId, 'fourPiece', index, line, 'ko', attribute))
-            .not.toBe(line)
+          const localized = localizedDiscEffectLine(typedDiscId, 'fourPiece', index, line, 'ko', attribute)
+          expect(localized.trim()).not.toBe('')
+          expect(localized).not.toBe(line)
         })
       }
     }

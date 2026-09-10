@@ -14,6 +14,13 @@ const partyEditViewports = [
 ] as const
 
 test('keeps both language presentations readable and the masthead utilities ordered', async ({ page }) => {
+  const successfulFontUrls = new Set<string>()
+  page.on('response', (response) => {
+    if (response.ok() && new URL(response.url()).pathname.endsWith('.ttf')) {
+      successfulFontUrls.add(response.url())
+    }
+  })
+
   for (const viewport of [{ width: 1440, height: 900 }, { width: 320, height: 900 }]) {
     await page.setViewportSize(viewport)
     await page.goto('/')
@@ -62,6 +69,14 @@ test('keeps both language presentations readable and the masthead utilities orde
     expect(await page.getByRole('heading', { name: '01 기본 설정' }).evaluate((heading) => (
       getComputedStyle(heading).fontFamily
     ))).toContain('SUIT Variable')
+    expect(await page.evaluate(async () => {
+      await document.fonts.ready
+      const statuses: FontFaceLoadStatus[] = []
+      document.fonts.forEach((font) => {
+        if (font.family.replaceAll('"', '') === 'SUIT Variable') statuses.push(font.status)
+      })
+      return statuses
+    })).toContain('loaded')
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
 
     if (viewport.width === 320) {
@@ -91,6 +106,9 @@ test('keeps both language presentations readable and the masthead utilities orde
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
   }
+
+  expect([...successfulFontUrls]).toHaveLength(1)
+  expect(new URL([...successfulFontUrls][0]).origin).toBe(new URL(page.url()).origin)
 })
 
 test('keeps rounded masthead actions visibly keyboard-focused', async ({ page }) => {

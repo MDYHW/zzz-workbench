@@ -128,6 +128,26 @@ describe('Result composition', () => {
     expect(sameActionTarget(effectTarget, projectedTarget)).toBe(true)
     expect(sameActionTarget(effectTarget, differentForm)).toBe(false)
     expect(sameActionTarget(effectTarget, differentLocal)).toBe(false)
+    expect(sameActionTarget(
+      actionTarget([actionForm('Basic Attack', 'seed-falling-petals-slaughter', 'Old display copy')]),
+      actionTarget([actionForm('Basic Attack', 'seed-falling-petals-slaughter', 'Localized display copy')]),
+    )).toBe(true)
+    expect(sameActionTarget(
+      actionTarget([actionForm('Basic Attack', 'seed-falling-petals-slaughter', 'Shared display copy')]),
+      actionTarget([actionForm('Basic Attack', 'seed-falling-petals-downfall', 'Shared display copy')]),
+    )).toBe(false)
+    expect(sameActionTarget(
+      actionTarget([sourceLocalAction('luminize', 'Old display copy')]),
+      actionTarget([sourceLocalAction('luminize', 'Localized display copy')]),
+    )).toBe(true)
+    expect(sameActionTarget(
+      actionTarget([sourceLocalAction('luminize', 'Shared display copy')]),
+      actionTarget([sourceLocalAction('refringe', 'Shared display copy')]),
+    )).toBe(false)
+    expect(sameActionTarget(
+      actionTarget([sourceLocalAction('flavor-match', 'Shared display copy', 'Electric')]),
+      actionTarget([sourceLocalAction('flavor-match', 'Shared display copy', 'Fire')]),
+    )).toBe(false)
 
     const rows = composeActionHierarchy(
       surfaces(0, 0, 0),
