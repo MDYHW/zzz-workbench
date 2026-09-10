@@ -29,6 +29,7 @@ This requirement records the ownership boundary for the current calculation surf
 
 Inspect `src/workbench/calculate.ts#calculateParty`, `src/workbench/calculation/profile-harness.ts#evaluateProfileParty`, and `src/workbench/state.ts#workbenchReducer` as current behavior-bearing consumers. Shared behavior coverage must preserve numeric values, source and breakdown ordering, actions, operations, gauges, Focus/viewed independence, completeness, and the party, target-rebuild, direct-edit, invalidation, and reselect lifecycle. Tests prove behavior and composed flows; file layout, helper names, exact counts, and Agent roster snapshots are not requirements.
 
-Do not change public Result or reducer contracts, add another Result surface,
-research new content, preserve a legacy execution path, or build a generic
-calculator, catalogue, optimizer, solver, simulator, or persistence layer.
+Preserve observable calculation and reducer behavior when changing internal
+representations. This boundary adds no Result surface, researched content,
+legacy execution path, generic calculator, catalogue, optimizer, solver,
+simulator, or persistence layer.

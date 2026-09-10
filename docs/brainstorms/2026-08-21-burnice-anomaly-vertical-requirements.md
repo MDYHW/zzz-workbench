@@ -40,7 +40,7 @@ general-damage build.
   Multiplier.
 - `docs/workbench-ui-design-rules.md` owns one visible output per changed
   quantity, source-linked numeric breakdowns, compressed Setup copy, and
-  portrait verification. Existing `GaugeResult.additionalOutputs`,
+  portrait verification. Existing `GaugeResult.outputs`,
   `ActionModifier`, `ResultOperation`, provider delivery, composition, Setup,
   and Result consumers are sufficient; no generic reaction simulator is
   required.
