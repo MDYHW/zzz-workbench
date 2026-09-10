@@ -149,8 +149,15 @@ function publicationTransport() {
 
 test.beforeAll(async () => {
   const generatedFiles = await readArtifactTree(path.resolve('dist'))
-  const sourceRasterFiles = await readArtifactTree(path.resolve('src/assets'))
+  const sourceAssetFiles = await readArtifactTree(path.resolve('src/assets'))
   const runtimeScripts = generatedFiles.filter(({ path: filePath }) => filePath.endsWith('.js'))
+  const singleGeneratedAsset = (pattern: RegExp, label: string) => {
+    const matches = generatedFiles.filter(({ path: filePath }) => pattern.test(filePath))
+    if (matches.length !== 1) throw new Error(`Expected one generated ${label}; found ${matches.length}`)
+    return matches[0]
+  }
+  const fontAsset = singleGeneratedAsset(/^assets\/[A-Za-z0-9][A-Za-z0-9._-]*-[A-Za-z0-9_-]{6,}\.ttf$/, 'TrueType font')
+  const licenseAsset = singleGeneratedAsset(/^assets\/[A-Za-z0-9][A-Za-z0-9._-]*-LICENSE-[A-Za-z0-9_-]{6,}\.txt$/, 'font license')
   const diagnosticUrls = [
     ['https://react.dev/errors/', 2],
     ['http://www.w3.org/2000/svg', 5],
@@ -169,7 +176,12 @@ test.beforeAll(async () => {
       throw new Error(`Production diagnostic inventory changed: ${url}`)
     }
     return exceptions
-  })
+  }).concat([
+    { path: fontAsset.path, url: 'http://sun.fo/suit', occurrences: 1, reason: 'non-requesting-diagnostic' as const },
+    { path: fontAsset.path, url: 'http://scripts.sil.org/OFL', occurrences: 1, reason: 'non-requesting-diagnostic' as const },
+    { path: licenseAsset.path, url: 'http://sun.fo/suit', occurrences: 1, reason: 'non-requesting-diagnostic' as const },
+    { path: licenseAsset.path, url: 'https://scripts.sil.org/OFL', occurrences: 1, reason: 'non-requesting-diagnostic' as const },
+  ])
   const controllerRoot = path.resolve('/release-controller')
   const extractionRoot = path.resolve('/release-extracted')
   const gitExecutable = path.resolve('/release-tools/git')
@@ -200,7 +212,7 @@ test.beforeAll(async () => {
     install: async () => {},
     build: async () => {},
     readGeneratedFiles: async ({ root }) => {
-      if (root === path.join(extractionRoot, 'src', 'assets')) return sourceRasterFiles
+      if (root === path.join(extractionRoot, 'src', 'assets')) return sourceAssetFiles
       if (root === path.join(extractionRoot, 'dist')) return generatedFiles
       throw new Error(`Unexpected release tree: ${root}`)
     },
@@ -402,7 +414,7 @@ test('loads only same-origin resources and leaves browser persistence empty', as
       expect(await persistedState()).toEqual(emptyState)
 
       await page.reload()
-      await expect(page.getByRole('heading', { name: 'Editing party' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: '파티 편성 중' })).toBeVisible()
       await expect(page.getByRole('contentinfo')).toHaveCount(1)
       expect(await context.cookies()).toEqual([])
       expect(await persistedState()).toEqual(emptyState)
