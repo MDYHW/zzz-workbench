@@ -30,8 +30,9 @@ const SHA1 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 const SHA256_IDENTITY = /^sha256:[0-9a-f]{64}$/;
 const ISO_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
-const HASHED_ASSET = /^assets\/[A-Za-z0-9][A-Za-z0-9._-]*-[A-Za-z0-9_-]{6,}\.(?:css|js|png|webp)$/;
-const TEXT_OUTPUT = /\.(?:css|html|js)$/;
+const HASHED_ASSET = /^assets\/[A-Za-z0-9][A-Za-z0-9._-]*-[A-Za-z0-9_-]{6,}\.(?:css|js|png|ttf|webp)$/;
+const HASHED_LICENSE = /^assets\/[A-Za-z0-9][A-Za-z0-9._-]*-LICENSE-[A-Za-z0-9_-]{6,}\.txt$/;
+const TEXT_OUTPUT = /\.(?:css|html|js|txt)$/;
 const EXTERNAL_TARGET = /https?:\/\/[A-Za-z0-9][A-Za-z0-9._~:/?#[\]@!$&'*+,;=%-]*|\/\/[A-Za-z0-9](?:[A-Za-z0-9-]*\.)+[A-Za-z]{2,63}(?:[/:?#][A-Za-z0-9._~:/?#[\]@!$&'*+,;=%-]*)?/g;
 const CREDENTIAL_PATTERNS = [
   /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
@@ -180,8 +181,88 @@ export function normalizeArtifactPath(value) {
 }
 
 function validateAllowedPath(artifactPath) {
-  if (artifactPath === 'index.html' || artifactPath === '.nojekyll' || HASHED_ASSET.test(artifactPath)) return;
+  if (artifactPath === 'index.html' || artifactPath === '.nojekyll'
+      || HASHED_ASSET.test(artifactPath) || HASHED_LICENSE.test(artifactPath)) return;
   fail(`Artifact path is not allowlisted: ${artifactPath}`, 'path_not_allowlisted');
+}
+
+function decodeUtf16Be(bytes) {
+  if (bytes.length % 2 !== 0) fail('TrueType name text is malformed.', 'content_invalid');
+  let value = '';
+  for (let index = 0; index < bytes.length; index += 2) {
+    value += String.fromCharCode(bytes.readUInt16BE(index));
+  }
+  return value;
+}
+
+function validateTrueTypeFont(artifactPath, bytes) {
+  if (!artifactPath.endsWith('.ttf')) return null;
+  const invalid = () => fail(`TrueType font is invalid: ${artifactPath}`, 'content_invalid');
+  if (bytes.length < 12 || bytes.readUInt32BE(0) !== 0x00010000) invalid();
+  const numTables = bytes.readUInt16BE(4);
+  const directoryEnd = 12 + (numTables * 16);
+  if (numTables === 0 || numTables > 4096 || directoryEnd > bytes.length) invalid();
+
+  const tables = new Map();
+  const ranges = [];
+  for (let index = 0; index < numTables; index += 1) {
+    const record = 12 + (index * 16);
+    const tag = bytes.toString('ascii', record, record + 4);
+    const offset = bytes.readUInt32BE(record + 8);
+    const length = bytes.readUInt32BE(record + 12);
+    if (!/^[\x20-\x7e]{4}$/.test(tag) || tables.has(tag) || length === 0
+        || offset % 4 !== 0 || offset < directoryEnd || offset + length > bytes.length) invalid();
+    tables.set(tag, { offset, length });
+    ranges.push({ offset, end: offset + length });
+  }
+  ranges.sort((left, right) => left.offset - right.offset);
+  if (ranges.some((range, index) => index > 0 && range.offset < ranges[index - 1].end)) invalid();
+
+  const required = ['OS/2', 'cmap', 'fvar', 'glyf', 'head', 'hhea', 'hmtx', 'loca', 'maxp', 'name', 'post'];
+  if (required.some((tag) => !tables.has(tag))) invalid();
+  const head = tables.get('head');
+  if (head.length < 54 || bytes.readUInt32BE(head.offset + 12) !== 0x5f0f3cf5) invalid();
+  const maxp = tables.get('maxp');
+  if (maxp.length < 6 || bytes.readUInt16BE(maxp.offset + 4) === 0) invalid();
+
+  const fvar = tables.get('fvar');
+  if (fvar.length < 16 || bytes.readUInt16BE(fvar.offset) !== 1) invalid();
+  const axesOffset = bytes.readUInt16BE(fvar.offset + 4);
+  const axisCount = bytes.readUInt16BE(fvar.offset + 8);
+  const axisSize = bytes.readUInt16BE(fvar.offset + 10);
+  const instanceCount = bytes.readUInt16BE(fvar.offset + 12);
+  const instanceSize = bytes.readUInt16BE(fvar.offset + 14);
+  if (axesOffset < 16 || axisCount === 0 || axisSize < 20
+      || instanceSize < 4 + (axisCount * 4)
+      || axesOffset + (axisCount * axisSize) + (instanceCount * instanceSize) > fvar.length) invalid();
+
+  const name = tables.get('name');
+  if (name.length < 6) invalid();
+  const nameFormat = bytes.readUInt16BE(name.offset);
+  const nameCount = bytes.readUInt16BE(name.offset + 2);
+  const storageOffset = bytes.readUInt16BE(name.offset + 4);
+  const recordsEnd = 6 + (nameCount * 12);
+  if (nameFormat !== 0 || nameCount === 0 || recordsEnd > name.length
+      || storageOffset < recordsEnd || storageOffset > name.length) invalid();
+  const metadataTexts = [];
+  const coveredStorage = Buffer.alloc(name.length - storageOffset);
+  for (let index = 0; index < nameCount; index += 1) {
+    const record = name.offset + 6 + (index * 12);
+    const platform = bytes.readUInt16BE(record);
+    const encoding = bytes.readUInt16BE(record + 2);
+    const length = bytes.readUInt16BE(record + 8);
+    const relativeOffset = bytes.readUInt16BE(record + 10);
+    const start = name.offset + storageOffset + relativeOffset;
+    if (length === 0 || start < name.offset + storageOffset || start + length > name.offset + name.length) invalid();
+    if (platform !== 3 || encoding !== 1) invalid();
+    metadataTexts.push(decodeUtf16Be(bytes.subarray(start, start + length)));
+    coveredStorage.fill(1, relativeOffset, relativeOffset + length);
+  }
+  if (coveredStorage.includes(0)) invalid();
+  return {
+    metadataTexts: metadataTexts.filter(Boolean),
+    nameRange: { start: name.offset, end: name.offset + name.length },
+  };
 }
 
 function countOccurrences(haystack, needle) {
@@ -197,7 +278,9 @@ function countOccurrences(haystack, needle) {
 function validateException(exception) {
   requireExactKeys(exception, ['path', 'url', 'occurrences', 'reason'], 'Inert external URL exception');
   const artifactPath = normalizeArtifactPath(exception.path);
-  if (!TEXT_OUTPUT.test(artifactPath)) fail('Inert URL exception must name a text output.', 'exception_invalid');
+  if (!TEXT_OUTPUT.test(artifactPath) && !artifactPath.endsWith('.ttf')) {
+    fail('Inert URL exception must name inspectable text or TrueType metadata.', 'exception_invalid');
+  }
   if (typeof exception.url !== 'string' || !/^https?:\/\//.test(exception.url)) {
     fail('Inert URL exception must name one exact HTTP(S) URL.', 'exception_invalid');
   }
@@ -343,6 +426,44 @@ function binaryIdentityViews(bytes) {
   return views;
 }
 
+function binaryExternalTargets(bytes, excludedRanges = []) {
+  const hits = [];
+  const collect = (text, byteOffset, stride) => {
+    for (const match of text.matchAll(new RegExp(EXTERNAL_TARGET.source, 'g'))) {
+      hits.push({
+        url: match[0],
+        start: byteOffset + (match.index * stride),
+        end: byteOffset + ((match.index + match[0].length) * stride),
+      });
+    }
+  };
+  collect(bytes.toString('latin1'), 0, 1);
+  for (const littleEndian of [true, false]) {
+    for (const offset of [0, 1]) {
+      let value = '';
+      for (let index = offset; index + 1 < bytes.length; index += 2) {
+        const code = littleEndian ? bytes.readUInt16LE(index) : bytes.readUInt16BE(index);
+        value += String.fromCharCode(code);
+      }
+      collect(value, offset, 2);
+    }
+  }
+  const physical = [];
+  for (const hit of hits.sort((left, right) => left.start - right.start || left.end - right.end)) {
+    if (excludedRanges.some((range) => hit.start < range.end && range.start < hit.end)) continue;
+    const duplicate = physical.find((retained) => (
+      retained.url === hit.url
+      && Math.abs(retained.start - hit.start) <= 1
+      && Math.abs(retained.end - hit.end) <= 1
+    ));
+    if (duplicate) {
+      duplicate.start = Math.min(duplicate.start, hit.start);
+      duplicate.end = Math.max(duplicate.end, hit.end);
+    } else physical.push(hit);
+  }
+  return physical.map(({ url }) => url);
+}
+
 function stripRasterMetadata(artifactPath, bytes) {
   try {
     return sanitizeRasterMetadata(artifactPath, bytes);
@@ -370,8 +491,12 @@ function validateFileContent(
   runtimeExceptionInventory,
 ) {
   const textOutput = TEXT_OUTPUT.test(file.path);
-  const scanTexts = textOutput ? [file.bytes.toString('utf8')] : binaryMetadataRuns(file.bytes);
-  const identityTexts = textOutput ? scanTexts : binaryIdentityViews(file.bytes);
+  const scanTexts = textOutput
+    ? [file.bytes.toString('utf8')]
+    : [...new Set([...binaryMetadataRuns(file.bytes), ...(file.fontMetadataTexts ?? [])])];
+  const identityTexts = textOutput
+    ? scanTexts
+    : [...binaryIdentityViews(file.bytes), ...(file.fontMetadataTexts ?? [])];
   const scanText = scanTexts.join('\0');
   if (textOutput && scanText.includes('\ufffd')) fail(`Text output is not valid UTF-8: ${file.path}`, 'content_invalid');
   if (textOutput && /data:image\/(?:png|webp)(?:;|,)/i.test(scanText)) {
@@ -408,11 +533,18 @@ function validateFileContent(
     }
   }
 
-  if (!textOutput) {
+  if (!textOutput && !file.fontMetadataTexts) {
     return;
   }
   const text = scanText;
-  const externalTargets = [...text.matchAll(EXTERNAL_TARGET)];
+  const externalTargets = textOutput
+    ? [...text.matchAll(EXTERNAL_TARGET)].map((match) => match[0])
+    : [
+        ...file.fontMetadataTexts.flatMap((metadata) => (
+          [...metadata.matchAll(new RegExp(EXTERNAL_TARGET.source, 'g'))].map((match) => match[0])
+        )),
+        ...binaryExternalTargets(file.bytes, [file.fontNameRange]),
+      ];
 
   if (/\.(?:html|js)$/.test(file.path)) {
     const allowedRuntimeApis = runtimeExceptionsByPath.get(file.path) ?? new Map();
@@ -429,14 +561,14 @@ function validateFileContent(
 
   const allowed = exceptionsByPath.get(file.path) ?? new Map();
   const found = new Map();
-  for (const match of externalTargets) {
-    const url = match[0];
+  for (const url of externalTargets) {
     if (!allowed.has(url)) fail(`External target is forbidden in ${file.path}.`, 'external_target');
     found.set(url, (found.get(url) ?? 0) + 1);
   }
   for (const [url, exception] of allowed) {
     const actual = found.get(url) ?? 0;
-    if (actual !== exception.occurrences || countOccurrences(text, url) !== exception.occurrences) {
+    if (actual !== exception.occurrences
+        || (textOutput && countOccurrences(text, url) !== exception.occurrences)) {
       fail(`Inert URL inventory does not match ${file.path}.`, 'exception_mismatch');
     }
     exceptionInventory.push({ ...exception, observedOccurrences: actual });
@@ -450,7 +582,16 @@ function validateFileRecord(file) {
   if (file.mode !== REGULAR_FILE_MODE || !Buffer.isBuffer(file.bytes)) {
     fail(`Artifact entry is not a regular file: ${artifactPath}`, 'type_invalid');
   }
-  return { path: artifactPath, mode: file.mode, bytes: file.bytes };
+  const fontInspection = validateTrueTypeFont(artifactPath, file.bytes);
+  return {
+    path: artifactPath,
+    mode: file.mode,
+    bytes: file.bytes,
+    ...(fontInspection ? {
+      fontMetadataTexts: fontInspection.metadataTexts,
+      fontNameRange: fontInspection.nameRange,
+    } : {}),
+  };
 }
 
 export function createArtifactManifest(files, {
@@ -1157,21 +1298,36 @@ function boundPrivateFragments(buildInput, suppliedFragments, privateBindings) {
   return normalizeForbiddenFragments([...supplied, ...derived], { rejectDuplicates: false });
 }
 
-function validateRasterSourceClosure(sourceFiles, generatedFiles) {
+function validateImmutableAssetSourceClosure(sourceFiles, generatedFiles) {
   if (!Array.isArray(sourceFiles)) fail('Source asset snapshot is invalid.', 'orchestration_invalid');
-  const sourceRasterDigests = new Set();
+  const sourceDigests = new Map([
+    ['raster', new Set()],
+    ['font', new Set()],
+    ['license', new Set()],
+  ]);
   for (const file of sourceFiles) {
-    if (!file || typeof file.path !== 'string' || !/\.(?:png|webp)$/.test(file.path)) continue;
-    if (!Buffer.isBuffer(file.bytes)) fail(`Source raster is invalid: ${file.path}`, 'type_invalid');
-    if (!stripRasterMetadata(file.path, file.bytes).equals(file.bytes)) {
+    if (!file || typeof file.path !== 'string') continue;
+    const kind = /\.(?:png|webp)$/.test(file.path) ? 'raster'
+      : file.path.endsWith('.ttf') ? 'font'
+        : /(?:^|\/)[A-Za-z0-9][A-Za-z0-9._-]*-LICENSE\.txt$/.test(file.path) ? 'license'
+          : null;
+    if (!kind) continue;
+    if (!Buffer.isBuffer(file.bytes)) fail(`Source asset is invalid: ${file.path}`, 'type_invalid');
+    if (kind === 'raster' && !stripRasterMetadata(file.path, file.bytes).equals(file.bytes)) {
       fail(`Source raster metadata is forbidden: ${file.path}`, 'content_forbidden');
     }
-    sourceRasterDigests.add(sha256(file.bytes));
+    if (kind === 'font') validateTrueTypeFont(file.path, file.bytes);
+    sourceDigests.get(kind).add(sha256(file.bytes));
   }
   for (const file of generatedFiles) {
-    if (!file || typeof file.path !== 'string' || !/\.(?:png|webp)$/.test(file.path)) continue;
-    if (!Buffer.isBuffer(file.bytes) || !sourceRasterDigests.has(sha256(file.bytes))) {
-      fail(`Generated raster does not match the immutable source snapshot: ${file.path}`, 'content_forbidden');
+    if (!file || typeof file.path !== 'string') continue;
+    const kind = /\.(?:png|webp)$/.test(file.path) ? 'raster'
+      : file.path.endsWith('.ttf') ? 'font'
+        : HASHED_LICENSE.test(file.path) ? 'license'
+          : null;
+    if (!kind) continue;
+    if (!Buffer.isBuffer(file.bytes) || !sourceDigests.get(kind).has(sha256(file.bytes))) {
+      fail(`Generated ${kind} does not match the immutable source snapshot: ${file.path}`, 'content_forbidden');
     }
   }
 }
@@ -1200,14 +1356,14 @@ export async function buildCandidateArtifact({
   );
   requireString(phase, 'Release phase');
   requireExactKeys(privateBindings, ['github', 'publishingChild', 'tools'], 'Private execution bindings');
-  const sourceRasterFiles = await readGeneratedFiles({ root: path.join(verifiedBuildInput.extractionRoot, 'src', 'assets') });
+  const sourceAssetFiles = await readGeneratedFiles({ root: path.join(verifiedBuildInput.extractionRoot, 'src', 'assets') });
   await install({ cwd: verifiedBuildInput.extractionRoot, command: 'npm', args: ['ci', '--ignore-scripts'] });
   await build({ cwd: verifiedBuildInput.extractionRoot, command: 'npm', args: ['run', 'build'] });
   const generatedFiles = await readGeneratedFiles({ root: path.join(verifiedBuildInput.extractionRoot, 'dist') });
   if (!Array.isArray(generatedFiles) || !generatedFiles.some((file) => file.path === '.nojekyll')) {
     fail('Generated output must include the public host control file.', 'tree_invalid');
   }
-  validateRasterSourceClosure(sourceRasterFiles, generatedFiles);
+  validateImmutableAssetSourceClosure(sourceAssetFiles, generatedFiles);
   const files = cloneFiles(generatedFiles)
     .sort((left, right) => compareCanonicalPath(left.path, right.path));
   const admission = cloneJson({
