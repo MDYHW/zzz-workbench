@@ -16,11 +16,11 @@ Result-to-Setup feedback path.
 
 | Owner | Current meaning used by this unit | Bounded consequence |
 | --- | --- | --- |
-| `SW-007` | An active material broad pre-PEN relationship removes admitted Slot 5 PEN Ratio and Puffer Electro 2-piece only for a recipient whose Setup direction consumes the DEF region | Source identity does not decide pressure; relationship applicability does |
+| `SW-020` | An applicable broad pre-PEN relationship supplies authored preparation and independent Slot 5 PEN Ratio / Puffer Electro 2-piece consequences for a Setup DEF-region direction | Source identity does not decide pressure; relationship applicability and the bounded authored consequence do |
 | `SW-009`, `SW-015` | Authored/contextual choices, selected pressure, allocation, representative preparation, zero supplied counts, and reconciliation remain acyclic and ordered | Party Apply prepares all holders; pool/Mindscape rebuild prepares only the target; direct edits only clear invalid selections |
 | `FM-008` | Formula breadth establishes applicability, not ranking or a replacement setup | Setup uses primary plus residual formula participation without importing Result participation or numbers |
 | `GV-006` | Holder, trigger, affected scope, recipient, and action are independent relationships | Provider self-receipt and party receipt use delivery semantics; action-scoped effects remain contrasts |
-| `SF-001`, `SF-003` | Retain only structure needed by a current consumer and keep the smallest sufficient relationship | Share the active relationship and applicability matcher; do not add unused Disc pressure metadata or a universal graph |
+| `SF-005`, `SF-003` | Retain only structure needed by a current consumer and keep the smallest sufficient relationship | Share the active relationship and applicability matcher; do not add unused Disc pressure metadata or a universal graph |
 
 ## Requirements
 
