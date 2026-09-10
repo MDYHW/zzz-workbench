@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "test": "vitest run",
+    "check:repo": "node scripts/governance/check-policy.mjs repository",
     "test:governance": "node --test scripts/governance/*.node.mjs scripts/github-app/*.node.mjs",
     "test:visual": "playwright test",
     "test:visual:server": "vite build && npm run preview",

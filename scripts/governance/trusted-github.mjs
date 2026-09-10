@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { parseAst } from 'rolldown/parseAst'
 import {
   EVIDENCE_MARKER,
+  DOCUMENTATION_CHECK_SCOPE_INPUTS,
   PolicyError,
   REVIEW_APP_AUTHOR,
   REQUIRED_CONTEXTS,
@@ -21,7 +22,8 @@ import {
   proveOwnerCorrectionShape,
   trustedDecision,
   validateChildOutcomes,
-  isVisualNotApplicableDiff,
+  isDocumentationCheckScope,
+  validatePrValidationWorkflow,
   validateVisualWorkflow,
   validateFinalization,
   validateRepository,
@@ -298,7 +300,7 @@ async function fetchFinalizationWorkflowRuns(api, pr, expectedRunIds) {
   return result
 }
 
-function latestSuccessfulFinalizationRuns(workflowState, pr, expectedRunIds, visualNotApplicable = false) {
+function latestSuccessfulFinalizationRuns(workflowState, pr, expectedRunIds, notApplicable = {}) {
   if (!SHA.test(pr.base?.sha ?? '') || !SHA.test(pr.head?.sha ?? '')) {
     fail('Creating-PR base or head identity is unavailable.')
   }
@@ -308,7 +310,7 @@ function latestSuccessfulFinalizationRuns(workflowState, pr, expectedRunIds, vis
     headSha: pr.head.sha,
     prValidationWorkflowId: workflowState.prValidationWorkflowId,
     visualWorkflowId: workflowState.visualWorkflowId,
-    visualNotApplicable,
+    documentationChecksNotApplicable: notApplicable.documentationChecksNotApplicable,
   })
   const selectedRunIds = checks.runs.map(({ id }) => Number(id)).sort((left, right) => left - right)
   const recordedRunIds = expectedRunIds.map(Number).sort((left, right) => left - right)
@@ -492,7 +494,7 @@ async function buildFinalizationEvidenceSnapshot({ api, pr, runSet, candidateSha
   const policy = await derivePolicyState({
     treeDiff, body: current.body ?? '', readText, baseTree, ruleState,
   })
-  const visualNotApplicable = await visualNotApplicableForDiff({ treeDiff, baseTree, headTree, readText })
+  const notApplicable = await notApplicableScopeForDiff({ treeDiff, baseTree, headTree, readText })
   return {
     prNumber: pr.number,
     baseSha: runSet.baseSha,
@@ -505,7 +507,7 @@ async function buildFinalizationEvidenceSnapshot({ api, pr, runSet, candidateSha
     classificationError: policy.classificationError,
     changeCategories: policy.classification.matrix?.categories ?? [],
     changedPaths: policy.paths,
-    visualNotApplicable,
+    ...notApplicable,
     acceptedAcrRecords: policy.acrState.accepted,
     acrBaseRecords: policy.acrState.records,
     acrTransaction: policy.acrTransaction,
@@ -554,7 +556,7 @@ export async function verifyRemoteFinalization({
     api, pr, runSet: { baseSha: pr.base.sha, headSha: pr.head.sha }, candidateSha,
   })
   const runSet = latestSuccessfulFinalizationRuns(
-    workflowState, pr, recordedRunIds, evidenceSnapshot.visualNotApplicable,
+    workflowState, pr, recordedRunIds, evidenceSnapshot,
   )
   evaluateEvidenceSnapshot(evidenceSnapshot)
   const actual = {
@@ -598,20 +600,28 @@ function explicitVisualTransaction(paths) {
   return paths.some((filePath) => categoryForPath(filePath) === 'visual-baseline')
 }
 
-async function visualNotApplicableForDiff({ treeDiff, baseTree, headTree, readText }) {
-  if (!isVisualNotApplicableDiff(treeDiff.entries)) return false
-  const base = baseTree.get('.github/workflows/visual-baseline.yml')
-  const head = headTree.get('.github/workflows/visual-baseline.yml')
-  if (!base || !head || base.type !== 'blob' || base.mode !== '100644'
-    || head.type !== 'blob' || head.mode !== '100644' || base.sha !== head.sha) return false
-  const source = await readText(base)
-  try {
-    validateVisualWorkflow(source)
-    return true
-  } catch (error) {
-    if (!(error instanceof PolicyError)) throw error
-    return false
+function unchangedRegularInput(baseTree, headTree, filePath) {
+  const base = baseTree.get(filePath)
+  const head = headTree.get(filePath)
+  return base?.type === 'blob' && base.mode === '100644'
+    && head?.type === 'blob' && head.mode === '100644' && base.sha === head.sha
+}
+
+async function notApplicableScopeForDiff({ treeDiff, baseTree, headTree, readText }) {
+  const result = { documentationChecksNotApplicable: false }
+  if (isDocumentationCheckScope(treeDiff.entries)
+    && DOCUMENTATION_CHECK_SCOPE_INPUTS.every((filePath) => unchangedRegularInput(baseTree, headTree, filePath))) {
+    const prWorkflow = await readText(baseTree.get('.github/workflows/pr-validation.yml'))
+    const visualWorkflow = await readText(baseTree.get('.github/workflows/visual-baseline.yml'))
+    try {
+      validatePrValidationWorkflow(prWorkflow)
+      validateVisualWorkflow(visualWorkflow)
+      return { documentationChecksNotApplicable: true }
+    } catch (error) {
+      if (!(error instanceof PolicyError)) throw error
+    }
   }
+  return result
 }
 
 function sourceLines(source) {
@@ -1257,7 +1267,7 @@ export async function buildCurrentSnapshot({
   const policy = await derivePolicyState({
     treeDiff, body: pr.body ?? '', readText, baseTree, ruleState,
   })
-  const visualNotApplicable = await visualNotApplicableForDiff({ treeDiff, baseTree, headTree, readText })
+  const notApplicable = await notApplicableScopeForDiff({ treeDiff, baseTree, headTree, readText })
   return {
     prNumber,
     baseSha: pr.base.sha,
@@ -1270,7 +1280,7 @@ export async function buildCurrentSnapshot({
     classificationError: policy.classificationError,
     changeCategories: policy.classification.matrix?.categories ?? [],
     changedPaths: policy.paths,
-    visualNotApplicable,
+    ...notApplicable,
     acceptedAcrRecords: policy.acrState.accepted,
     acrBaseRecords: policy.acrState.records,
     acrTransaction: policy.acrTransaction,

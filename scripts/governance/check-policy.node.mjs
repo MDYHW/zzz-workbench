@@ -2,7 +2,6 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import test from 'node:test'
-import { runInNewContext } from 'node:vm'
 import {
   EVIDENCE_MARKER,
   PolicyError,
@@ -32,6 +31,7 @@ import {
   validateFinalization,
   validateFrozenRoster,
   validateProtectedApproval,
+  validatePrValidationWorkflow,
   validateReviewSignalWorkflow,
   validateVisualWorkflow,
   validateReviewEvidence,
@@ -39,7 +39,7 @@ import {
   validateSupportingRequirementRuleIds,
   validateTrustedWorkflowConcurrency,
   validateTrustedWorkflowEvents,
-  isVisualNotApplicableDiff,
+  isDocumentationCheckScope,
 } from './check-policy.mjs'
 
 const BASE = '1'.repeat(40)
@@ -59,88 +59,6 @@ function treeEntry(path, baseSha = BASE, headSha = HEAD) {
 
 function visualWorkflowSource() {
   return readFileSync(join(process.cwd(), '.github/workflows/visual-baseline.yml'), 'utf8')
-}
-
-function visualScopeScript() {
-  const workflow = visualWorkflowSource().replace(/\r\n?/g, '\n')
-  const startToken = "          node --input-type=module <<'NODE'\n"
-  const endToken = '\n          NODE\n'
-  const start = workflow.indexOf(startToken)
-  const end = workflow.indexOf(endToken, start + startToken.length)
-  assert.notEqual(start, -1)
-  assert.notEqual(end, -1)
-  const imports = [
-    "import { appendFileSync } from 'node:fs'",
-    "import { execFileSync } from 'node:child_process'",
-  ]
-  let source = workflow.slice(start + startToken.length, end)
-    .split('\n')
-    .map((line) => line.startsWith('          ') ? line.slice(10) : line)
-    .join('\n')
-  for (const statement of imports) {
-    assert.equal(source.split(statement).length, 2)
-    source = source.replace(`${statement}\n`, '')
-  }
-  assert.doesNotMatch(source, /^import /m)
-  return source
-}
-
-function rawVisualRecord(path, {
-  status = 'M',
-  oldMode = status === 'A' ? '000000' : '100644',
-  newMode = status === 'D' ? '000000' : '100644',
-  oldSha = oldMode === '000000' ? '0'.repeat(40) : BASE,
-  newSha = newMode === '000000' ? '0'.repeat(40) : HEAD,
-} = {}) {
-  return `:${oldMode} ${newMode} ${oldSha} ${newSha} ${status}\0${path}\0`
-}
-
-function visualTreeEntry(path, {
-  status = 'M',
-  oldMode = status === 'A' ? '000000' : '100644',
-  newMode = status === 'D' ? '000000' : '100644',
-  oldSha = oldMode === '000000' ? '0'.repeat(40) : BASE,
-  newSha = newMode === '000000' ? '0'.repeat(40) : HEAD,
-} = {}) {
-  const side = (mode, sha) => mode === '000000' ? null : {
-    mode,
-    type: mode === '160000' ? 'commit' : 'blob',
-    sha,
-  }
-  return { path, base: side(oldMode, oldSha), head: side(newMode, newSha) }
-}
-
-function executeVisualScope(raw, { base = BASE, head = HEAD } = {}) {
-  const calls = []
-  const writes = []
-  runInNewContext(visualScopeScript(), {
-    process: { env: { BASE_SHA: base, HEAD_SHA: head, GITHUB_ENV: 'github-env' } },
-    execFileSync(command, args, options) {
-      calls.push({ command, args: [...args], options: { ...options } })
-      return raw
-    },
-    appendFileSync(filePath, value) {
-      writes.push({ filePath, value })
-    },
-  })
-  return { calls, writes }
-}
-
-function visualScopeResult(raw, options) {
-  const result = executeVisualScope(raw, options)
-  assert.deepEqual(result.calls, [{
-    command: 'git',
-    args: [
-      'diff', '--raw', '-z', '--no-renames', '--no-ext-diff', '--no-textconv', '--abbrev=40',
-      options?.base ?? BASE, options?.head ?? HEAD, '--',
-    ],
-    options: { encoding: 'utf8' },
-  }])
-  assert.deepEqual(result.writes.map(({ filePath }) => filePath), ['github-env'])
-  assert.equal(result.writes.length, 1)
-  const match = /^VISUAL_NOT_APPLICABLE=(true|false)\n$/.exec(result.writes[0].value)
-  assert.ok(match)
-  return match[1] === 'true'
 }
 
 function localFacts() {
@@ -570,112 +488,19 @@ test('U9 visual inputs retain one protected transaction category', () => {
   ]) assert.equal(categoryForPath(visualPath), 'visual-baseline')
 })
 
-test('U4 visual N/A is limited to regular Markdown supporting documentation', () => {
-  assert.equal(isVisualNotApplicableDiff([
+test('U3 trusted documentation scope includes only approved documentation categories', () => {
+  assert.equal(isDocumentationCheckScope([
     treeEntry('docs/plans/example.md'),
-    treeEntry('docs/brainstorms/example.md', BASE, null),
-    treeEntry('docs/solutions/example.md', null, HEAD),
-    treeEntry('docs/roadmaps/example.md'),
-    treeEntry('docs/ideation/example.md'),
+    treeEntry('docs/setup-workbench-product-contract.md'),
+    treeEntry('docs/authority-changes/2026-09-10-001-example.md'),
   ]), true)
-  for (const entry of [
-    treeEntry('docs/audits/example.md'),
-    treeEntry('docs/plans/example.txt'),
-    treeEntry('src/app.css'),
-    treeEntry('docs/brainstorms/2026-08-15-authority-governance-recovery-requirements.md'),
-    treeEntry('docs/plans/2026-08-15-003-fix-authority-governance-recovery-plan.md'),
-    treeEntry('docs/plans/example.md', null, null),
-    {
-      ...treeEntry('docs/plans/example.md'),
-      base: { mode: '100755', type: 'blob', sha: BASE },
-      head: { mode: '100755', type: 'blob', sha: HEAD },
-    },
-    {
-      ...treeEntry('docs/plans/example.md'),
-      base: { mode: '120000', type: 'blob', sha: BASE },
-      head: { mode: '120000', type: 'blob', sha: HEAD },
-    },
-    {
-      ...treeEntry('docs/plans/example.md'),
-      base: { mode: '160000', type: 'commit', sha: BASE },
-      head: { mode: '160000', type: 'commit', sha: HEAD },
-    },
-    { ...treeEntry('docs/plans/example.md'), head: { mode: '120000', type: 'blob', sha: HEAD } },
-    { ...treeEntry('docs/plans/example.md'), head: { mode: '100644', type: 'tree', sha: HEAD } },
-  ]) assert.equal(isVisualNotApplicableDiff([entry]), false)
-  assert.equal(isVisualNotApplicableDiff([treeEntry('docs/plans/example.md'), treeEntry('src/app.css')]), false)
+  assert.equal(isDocumentationCheckScope([
+    treeEntry('docs/plans/example.md'),
+    treeEntry('scripts/governance/check-policy.mjs'),
+  ]), false)
 })
 
-test('U4 visual workflow classifier derives N/A from exact event SHAs and raw Git identity', () => {
-  const singleRecordCases = [
-    ['docs/plans/added.md', { status: 'A' }],
-    ['docs/brainstorms/deleted.md', { status: 'D' }],
-    ['docs/solutions/edited.md', {}],
-    ['docs/plans/.md', {}],
-    ['docs/plans/example.txt', {}],
-    ['unknown/example.md', {}],
-    ['docs/brainstorms/2026-08-15-authority-governance-recovery-requirements.md', {}],
-    ['docs/plans/2026-08-15-003-fix-authority-governance-recovery-plan.md', {}],
-    ['docs/plans/executable.md', { oldMode: '100755', newMode: '100755' }],
-    ['docs/plans/symlink.md', { oldMode: '120000', newMode: '120000' }],
-    ['docs/plans/submodule.md', { oldMode: '160000', newMode: '160000' }],
-    ['docs/plans/type-change.md', { status: 'T', oldMode: '100644', newMode: '120000' }],
-    ['docs/plans/was-executable.md', { oldMode: '100755', newMode: '100644' }],
-    ['docs/plans/was-symlink.md', { status: 'T', oldMode: '120000', newMode: '100644' }],
-    ['docs/plans/was-submodule.md', { status: 'T', oldMode: '160000', newMode: '100644' }],
-  ]
-  for (const [path, options] of singleRecordCases) {
-    assert.equal(
-      visualScopeResult(rawVisualRecord(path, options)),
-      isVisualNotApplicableDiff([visualTreeEntry(path, options)]),
-    )
-  }
-
-  const multipleEntries = [
-    visualTreeEntry('docs/roadmaps/one.md'),
-    visualTreeEntry('docs/ideation/two.md', { status: 'A' }),
-  ]
-  assert.equal(
-    visualScopeResult(
-      rawVisualRecord('docs/roadmaps/one.md')
-        + rawVisualRecord('docs/ideation/two.md', { status: 'A' }),
-    ),
-    isVisualNotApplicableDiff(multipleEntries),
-  )
-  assert.equal(
-    visualScopeResult(rawVisualRecord('docs/plans/example.md') + rawVisualRecord('src/app.css')),
-    isVisualNotApplicableDiff([visualTreeEntry('docs/plans/example.md'), visualTreeEntry('src/app.css')]),
-  )
-})
-
-test('U4 visual workflow classifier rejects incomplete or inconsistent raw Git identity', () => {
-  for (const raw of [
-    '',
-    rawVisualRecord('docs/plans/example.md').slice(0, -1),
-    `:100644 100644 ${BASE} ${HEAD} M\0`,
-    `100644 100644 ${BASE} ${HEAD} M\0docs/plans/example.md\0`,
-    `:100600 100644 ${BASE} ${HEAD} M\0docs/plans/example.md\0`,
-    `:100644 100644 ${'g'.repeat(40)} ${HEAD} M\0docs/plans/example.md\0`,
-    rawVisualRecord('docs/plans/example.md', { status: 'A', oldMode: '100644' }),
-    rawVisualRecord('docs/plans/example.md', { status: 'D', newMode: '100644' }),
-    rawVisualRecord('docs/plans/example.md', { status: 'M', oldMode: '000000' }),
-    rawVisualRecord('docs/plans/example.md', { status: 'T', newMode: '000000' }),
-    rawVisualRecord('docs/plans/example.md', { oldSha: BASE, newSha: BASE }),
-    `:100644 100644 ${BASE} ${HEAD} X\0docs/plans/example.md\0`,
-  ]) assert.throws(() => executeVisualScope(raw), /Visual baseline diff/)
-
-  for (const [base, head] of [
-    ['', HEAD],
-    [BASE, 'short'],
-    ['A'.repeat(40), HEAD],
-    [BASE, `${HEAD}0`],
-  ]) assert.throws(
-    () => executeVisualScope(rawVisualRecord('docs/plans/example.md'), { base, head }),
-    /Visual baseline commit identity is invalid/,
-  )
-})
-
-test('U9 visual workflow pins screenshot execution and failure evidence', () => {
+test('U3 workflows pin documentation scope and runtime execution', () => {
   const currentWorkflow = visualWorkflowSource()
   assert.equal(validateVisualWorkflow(currentWorkflow), true)
   const workflowSource = currentWorkflow
@@ -683,6 +508,9 @@ test('U9 visual workflow pins screenshot execution and failure evidence', () => 
   for (const required of [
     '      image: mcr.microsoft.com/playwright@sha256:baed2032d533817f3dbe6425de795788430ba345e819a1201337009ba17c9d07',
     '          persist-credentials: false',
+    '      - name: Determine documentation-only verification scope',
+    '        run: node scripts/governance/documentation-check-scope.mjs',
+    "        if: \${{ env.DOCUMENTATION_CHECKS_NOT_APPLICABLE == 'true' }}",
     '      - run: npm ci --ignore-scripts',
     '      - run: npm run test:visual',
     '        if: \${{ failure() }}',
@@ -699,6 +527,14 @@ test('U9 visual workflow pins screenshot execution and failure evidence', () => 
     () => validateVisualWorkflow(workflowSource.replace('      - run: npm run test:visual', '      - run: true')),
     /Visual workflow/,
   )
+
+  const prWorkflow = readFileSync(join(process.cwd(), '.github/workflows/pr-validation.yml'), 'utf8')
+  assert.equal(validatePrValidationWorkflow(prWorkflow), true)
+  for (const mutation of [
+    prWorkflow.replace('name: Behavior Tests', 'name: Behavior'),
+    prWorkflow.replace('npm run check:repo', 'npm test'),
+    prWorkflow.replace('node scripts/governance/documentation-check-scope.mjs', 'true'),
+  ]) assert.throws(() => validatePrValidationWorkflow(mutation), /Pull-request validation workflow/)
 })
 
 test('AE4 proves one realistic additive Agent seam and protects a nearby shared helper edit', () => {
@@ -878,24 +714,52 @@ test('required workflow aggregation binds exact run identity and fails closed on
   skippedMarker[1].jobs[0].steps = [{ name: 'Visual baseline not applicable', conclusion: 'skipped' }]
   assert.deepEqual(validateChildOutcomes(skippedMarker, expected).jobs, REQUIRED_JOB_NAMES)
 
-  const validMarker = validationRuns()
-  validMarker[1].jobs[0].steps = [{ name: 'Visual baseline not applicable', conclusion: 'success' }]
-  assert.deepEqual(validateChildOutcomes(validMarker, { ...expected, visualNotApplicable: true }).jobs, REQUIRED_JOB_NAMES)
-  assert.throws(() => validateChildOutcomes(validMarker, expected), /not independently verified/)
-  assert.throws(() => validateChildOutcomes(validationRuns(), { ...expected, visualNotApplicable: true }), /marker is absent/)
+  const documentationMarkers = [
+    ['Behavior Tests', 'Behavior tests not applicable'],
+    ['Type Check', 'Type check not applicable'],
+    ['Production Build', 'Production build not applicable'],
+    ['Visual Baseline', 'Visual baseline not applicable'],
+  ]
+  const documentationRuns = validationRuns()
+  for (const [jobName, markerName] of documentationMarkers) {
+    documentationRuns.flatMap(({ jobs }) => jobs).find(({ name }) => name === jobName).steps = [
+      { name: markerName, conclusion: 'success' },
+    ]
+  }
+  assert.deepEqual(validateChildOutcomes(documentationRuns, {
+    ...expected, documentationChecksNotApplicable: true,
+  }).jobs, REQUIRED_JOB_NAMES)
+  assert.throws(() => validateChildOutcomes(documentationRuns, expected), /not independently verified/)
+  for (const [jobName, markerName] of documentationMarkers) {
+    const absent = structuredClone(documentationRuns)
+    absent.flatMap(({ jobs }) => jobs).find(({ name }) => name === jobName).steps = []
+    assert.throws(
+      () => validateChildOutcomes(absent, { ...expected, documentationChecksNotApplicable: true }),
+      new RegExp(`${jobName} not-applicable marker is absent`),
+    )
+    const failed = structuredClone(documentationRuns)
+    failed.flatMap(({ jobs }) => jobs).find(({ name }) => name === jobName).steps[0].conclusion = 'failure'
+    assert.throws(
+      () => validateChildOutcomes(failed, { ...expected, documentationChecksNotApplicable: true }),
+      new RegExp(`${jobName} not-applicable marker is invalid`),
+    )
+    const duplicate = structuredClone(documentationRuns)
+    duplicate.flatMap(({ jobs }) => jobs).find(({ name }) => name === jobName).steps.push({
+      name: markerName, conclusion: 'success',
+    })
+    assert.throws(
+      () => validateChildOutcomes(duplicate, { ...expected, documentationChecksNotApplicable: true }),
+      new RegExp(`${jobName} not-applicable marker is invalid`),
+    )
+  }
+  const misplaced = structuredClone(documentationRuns)
+  misplaced[0].jobs[0].steps = []
+  misplaced[0].jobs[1].steps.push({ name: 'Behavior tests not applicable', conclusion: 'success' })
+  assert.throws(
+    () => validateChildOutcomes(misplaced, { ...expected, documentationChecksNotApplicable: true }),
+    /Behavior Tests not-applicable marker is invalid/,
+  )
 
-  const duplicateMarker = structuredClone(validMarker)
-  duplicateMarker[1].jobs[0].steps.push({ name: 'Visual baseline not applicable', conclusion: 'success' })
-  assert.throws(
-    () => validateChildOutcomes(duplicateMarker, { ...expected, visualNotApplicable: true }),
-    /marker is invalid/,
-  )
-  const failedMarker = structuredClone(validMarker)
-  failedMarker[1].jobs[0].steps[0].conclusion = 'failure'
-  assert.throws(
-    () => validateChildOutcomes(failedMarker, { ...expected, visualNotApplicable: true }),
-    /marker is invalid/,
-  )
   for (const conclusion of ['failure', 'cancelled', 'skipped', 'neutral']) {
     const runs = validationRuns()
     runs[0].jobs[0].conclusion = conclusion

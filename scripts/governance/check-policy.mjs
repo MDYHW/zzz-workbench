@@ -3,6 +3,12 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseAst } from 'rolldown/parseAst'
+import {
+  DOCUMENTATION_CHECK_SCOPE_INPUTS,
+  isDocumentationCheckScope,
+} from './documentation-check-scope.mjs'
+
+export { DOCUMENTATION_CHECK_SCOPE_INPUTS, isDocumentationCheckScope } from './documentation-check-scope.mjs'
 
 export const PRODUCT_OWNER = 'Min-DongYoung'
 export const REVIEW_APP_AUTHOR = 'zzz-workbench-agent-mdy[bot]'
@@ -79,6 +85,13 @@ export const REQUIRED_JOB_NAMES = Object.freeze(
   REQUIRED_CONTEXTS.filter(({ kind }) => kind === 'check').map(({ name }) => name),
 )
 
+const NOT_APPLICABLE_MARKERS = Object.freeze(new Map([
+  ['Behavior Tests', 'Behavior tests not applicable'],
+  ['Type Check', 'Type check not applicable'],
+  ['Production Build', 'Production build not applicable'],
+  ['Visual Baseline', 'Visual baseline not applicable'],
+]))
+
 export const REQUIRED_CONTEXT_NAMES = Object.freeze(REQUIRED_CONTEXTS.map(({ name }) => name))
 
 const SHA = /^[0-9a-f]{40}$/
@@ -117,13 +130,7 @@ const VISUAL_PATHS = new Set([
   'playwright.config.js',
 ])
 
-const VISUAL_NA_DOCUMENTATION_ROOTS = Object.freeze([
-  'docs/plans/',
-  'docs/brainstorms/',
-  'docs/solutions/',
-  'docs/roadmaps/',
-  'docs/ideation/',
-])
+const PR_VALIDATION_WORKFLOW_DIGEST = 'sha256:10a4ba44473c6ee0636658e742cd1c03746d71e5183ccf95c2d1bfd5dd95c7fd'
 
 const GOVERNANCE_FILES = new Set([
   '.gitattributes',
@@ -339,59 +346,18 @@ const VISUAL_JOB = [
   '        with:',
   '          node-version: 24',
   '          cache: npm',
-  '      - name: Determine whether visual baseline is not applicable',
-  '        id: visual-scope',
+  '      - name: Determine documentation-only verification scope',
   '        env:',
   '          BASE_SHA: ${{ github.event.pull_request.base.sha }}',
   '          HEAD_SHA: ${{ github.event.pull_request.head.sha }}',
-  '        run: |',
-  '          node --input-type=module <<\'NODE\'',
-  '          import { appendFileSync } from \'node:fs\'',
-  '          import { execFileSync } from \'node:child_process\'',
-  '',
-  '          const sha = /^[0-9a-f]{40}$/',
-  '          const base = process.env.BASE_SHA ?? \'\'',
-  '          const head = process.env.HEAD_SHA ?? \'\'',
-  '          if (!sha.test(base) || !sha.test(head)) throw new Error(\'Visual baseline commit identity is invalid.\')',
-  '          const raw = execFileSync(\'git\', [',
-  '            \'diff\', \'--raw\', \'-z\', \'--no-renames\', \'--no-ext-diff\', \'--no-textconv\', \'--abbrev=40\', base, head, \'--\',',
-  '          ], { encoding: \'utf8\' })',
-  '          const fields = raw.split(\'\\0\')',
-  '          if (fields.pop() !== \'\' || fields.length === 0 || fields.length % 2 !== 0) {',
-  '            throw new Error(\'Visual baseline diff records are invalid.\')',
-  '          }',
-  '          const governancePaths = new Set([',
-  '            \'docs/brainstorms/2026-08-15-authority-governance-recovery-requirements.md\',',
-  '            \'docs/plans/2026-08-15-003-fix-authority-governance-recovery-plan.md\',',
-  '          ])',
-  '          const zero = \'0\'.repeat(40)',
-  '          let notApplicable = true',
-  '          for (let index = 0; index < fields.length; index += 2) {',
-  '            const header = /^:(000000|100644|100755|120000|160000) (000000|100644|100755|120000|160000) ([0-9a-f]{40}) ([0-9a-f]{40}) ([AMDT])$/.exec(fields[index])',
-  '            if (!header) throw new Error(\'Visual baseline diff header is invalid.\')',
-  '            const [, oldMode, newMode, oldSha, newSha, status] = header',
-  '            const path = fields[index + 1]',
-  '            if (!path || (oldMode === \'000000\') !== (oldSha === zero)',
-  '              || (newMode === \'000000\') !== (newSha === zero)',
-  '              || (status === \'A\' && (oldMode !== \'000000\' || newMode === \'000000\'))',
-  '              || (status === \'D\' && (newMode !== \'000000\' || oldMode === \'000000\'))',
-  '              || ([\'M\', \'T\'].includes(status) && (oldMode === \'000000\' || newMode === \'000000\'))',
-  '              || (oldMode === newMode && oldSha === newSha)) {',
-  '              throw new Error(\'Visual baseline diff pair is invalid.\')',
-  '            }',
-  '            notApplicable &&= /^docs\\/(?:plans|brainstorms|solutions|roadmaps|ideation)\\//.test(path) && path.endsWith(\'.md\')',
-  '              && !governancePaths.has(path)',
-  '              && [oldMode, newMode].every((mode) => [\'000000\', \'100644\'].includes(mode))',
-  '          }',
-  '          appendFileSync(process.env.GITHUB_ENV, `VISUAL_NOT_APPLICABLE=${notApplicable}\\n`)',
-  '          NODE',
+  '        run: node scripts/governance/documentation-check-scope.mjs',
   '      - name: Visual baseline not applicable',
-  '        if: ${{ env.VISUAL_NOT_APPLICABLE == \'true\' }}',
+  '        if: ${{ env.DOCUMENTATION_CHECKS_NOT_APPLICABLE == \'true\' }}',
   '        run: echo \'Visual baseline not applicable for regular Markdown documentation changes.\' >> "$GITHUB_STEP_SUMMARY"',
   '      - run: npm ci --ignore-scripts',
-  '        if: ${{ env.VISUAL_NOT_APPLICABLE != \'true\' }}',
+  '        if: ${{ env.DOCUMENTATION_CHECKS_NOT_APPLICABLE != \'true\' }}',
   '      - run: npm run test:visual',
-  '        if: ${{ env.VISUAL_NOT_APPLICABLE != \'true\' }}',
+  '        if: ${{ env.DOCUMENTATION_CHECKS_NOT_APPLICABLE != \'true\' }}',
   '      - name: Upload visual comparison evidence',
   '        if: ${{ failure() }}',
   '        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02',
@@ -431,15 +397,17 @@ export function validateVisualWorkflow(source) {
   return true
 }
 
-export function isVisualNotApplicableDiff(entries) {
-  if (!Array.isArray(entries) || entries.length === 0) return false
-  return entries.every(({ path: filePath, base, head }) => {
-    const path = normalizePath(filePath)
-    if (!path.endsWith('.md') || !VISUAL_NA_DOCUMENTATION_ROOTS.some((root) => path.startsWith(root))) return false
-    if (categoryForPath(path) !== 'supporting-doc') return false
-    return Boolean(base || head)
-      && [base, head].filter(Boolean).every((entry) => entry.type === 'blob' && entry.mode === '100644')
-  })
+function sourceDigest(source) {
+  if (typeof source !== 'string') return ''
+  const normalized = source.replace(/\r\n?/g, '\n')
+  return `sha256:${createHash('sha256').update(normalized).digest('hex')}`
+}
+
+export function validatePrValidationWorkflow(source) {
+  if (sourceDigest(source) !== PR_VALIDATION_WORKFLOW_DIGEST) {
+    fail('Pull-request validation workflow is not bound to the approved documentation scope gate.')
+  }
+  return true
 }
 
 export function evaluateChangeMatrix(paths, { visualTransaction = false, authorityDecision = false } = {}) {
@@ -802,17 +770,17 @@ export function validateChildOutcomes(runs, expected) {
     const matches = jobs.filter((job) => job.name === name)
     if (matches.length !== 1 || matches[0].conclusion !== 'success') fail(`Required job ${name} did not finish exactly once with success.`)
   }
-  const visualJob = jobs.find((job) => job.name === 'Visual Baseline')
-  const notApplicableSteps = (visualJob?.steps ?? []).filter(({ name }) => name === 'Visual baseline not applicable')
-  if (notApplicableSteps.length > 1 || notApplicableSteps.some(({ conclusion }) => !['success', 'skipped'].includes(conclusion))) {
-    fail('Visual baseline not-applicable marker is invalid.')
-  }
-  if (notApplicableSteps.some(({ conclusion }) => conclusion === 'success') && expected.visualNotApplicable !== true) {
-    fail('Visual baseline not-applicable marker is not independently verified.')
-  }
-  if (expected.visualNotApplicable === true
-    && (notApplicableSteps.length !== 1 || notApplicableSteps[0].conclusion !== 'success')) {
-    fail('Visual baseline not-applicable marker is absent.')
+  for (const [jobName, markerName] of NOT_APPLICABLE_MARKERS) {
+    const occurrences = jobs.flatMap((job) => (job.steps ?? [])
+      .filter(({ name }) => name === markerName)
+      .map((step) => ({ job: job.name, conclusion: step.conclusion })))
+    if (occurrences.length > 1 || occurrences.some(({ job, conclusion }) => (
+      job !== jobName || !['success', 'skipped'].includes(conclusion)
+    ))) fail(`${jobName} not-applicable marker is invalid.`)
+    const required = expected.documentationChecksNotApplicable === true
+    const succeeded = occurrences.length === 1 && occurrences[0].conclusion === 'success'
+    if (succeeded && !required) fail(`${jobName} not-applicable marker is not independently verified.`)
+    if (required && !succeeded) fail(`${jobName} not-applicable marker is absent.`)
   }
   return { runs: selected, jobs: REQUIRED_JOB_NAMES }
 }
@@ -1518,6 +1486,7 @@ export async function validateRepository(root = process.cwd(), { requireComplete
     fail('Trusted workflow does not preserve its trusted-base metadata-only boundary.')
   }
   const prWorkflow = workflowSources.get('.github/workflows/pr-validation.yml') ?? ''
+  validatePrValidationWorkflow(prWorkflow)
   if (!/^\s*pull_request:/m.test(prWorkflow)
     || !/^\s+contents:\s+read\s*$/m.test(prWorkflow)
     || !/persist-credentials:\s+false/.test(prWorkflow)

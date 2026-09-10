@@ -304,6 +304,12 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
   const workflowBlob = '8'.repeat(40)
   const changedWorkflowBlob = '9'.repeat(40)
   const trustedWorkflow = await fs.readFile(new URL('../../.github/workflows/visual-baseline.yml', import.meta.url), 'utf8')
+  const prWorkflowBlob = 'a'.repeat(40)
+  const changedPrWorkflowBlob = 'b'.repeat(40)
+  const helperBlob = 'c'.repeat(40)
+  const changedHelperBlob = 'd'.repeat(40)
+  const trustedPrWorkflow = await fs.readFile(new URL('../../.github/workflows/pr-validation.yml', import.meta.url), 'utf8')
+  const trustedHelper = await fs.readFile(new URL('./documentation-check-scope.mjs', import.meta.url), 'utf8')
   const runQueries = []
   let duplicateLifecycle = false
   let requirementPath = 'docs/brainstorms/x.md'
@@ -314,6 +320,8 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
   let baseWorkflowBlob = workflowBlob
   let headWorkflowBlob = workflowBlob
   let workflowSource = trustedWorkflow
+  let headPrWorkflowBlob = prWorkflowBlob
+  let headHelperBlob = helperBlob
   const api = {
     json: async (pathname) => {
       if (pathname.endsWith('/pulls/4')) return {
@@ -329,6 +337,10 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
           { path: requirementPath, type: 'blob', mode: '100644', sha: baseBlob },
           ...(includeWorkflow ? [{
             path: '.github/workflows/visual-baseline.yml', type: 'blob', mode: '100644', sha: baseWorkflowBlob,
+          }, {
+            path: '.github/workflows/pr-validation.yml', type: 'blob', mode: '100644', sha: prWorkflowBlob,
+          }, {
+            path: 'scripts/governance/documentation-check-scope.mjs', type: 'blob', mode: '100644', sha: helperBlob,
           }] : []),
         ],
       }
@@ -338,6 +350,10 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
           ...(requirementHead ? [{ path: requirementPath, ...requirementHead, sha: headBlob }] : []),
           ...(includeWorkflow ? [{
             path: '.github/workflows/visual-baseline.yml', type: 'blob', mode: '100644', sha: headWorkflowBlob,
+          }, {
+            path: '.github/workflows/pr-validation.yml', type: 'blob', mode: '100644', sha: headPrWorkflowBlob,
+          }, {
+            path: 'scripts/governance/documentation-check-scope.mjs', type: 'blob', mode: '100644', sha: headHelperBlob,
           }] : []),
         ],
       }
@@ -349,6 +365,12 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
       }
       if (pathname.endsWith(`/git/blobs/${workflowBlob}`) || pathname.endsWith(`/git/blobs/${changedWorkflowBlob}`)) {
         return { encoding: 'base64', size: Buffer.byteLength(workflowSource), content: Buffer.from(workflowSource).toString('base64') }
+      }
+      if (pathname.endsWith(`/git/blobs/${prWorkflowBlob}`) || pathname.endsWith(`/git/blobs/${changedPrWorkflowBlob}`)) {
+        return { encoding: 'base64', size: Buffer.byteLength(trustedPrWorkflow), content: Buffer.from(trustedPrWorkflow).toString('base64') }
+      }
+      if (pathname.endsWith(`/git/blobs/${helperBlob}`) || pathname.endsWith(`/git/blobs/${changedHelperBlob}`)) {
+        return { encoding: 'base64', size: Buffer.byteLength(trustedHelper), content: Buffer.from(trustedHelper).toString('base64') }
       }
       if (pathname.endsWith('/actions/workflows/pr-validation.yml')) return { id: 101 }
       if (pathname.endsWith('/actions/workflows/visual-baseline.yml')) return { id: 102 }
@@ -368,7 +390,15 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
         }] : [current]
       }
       if (pathname.includes('/actions/runs/501/jobs')) return ['Behavior Tests', 'Type Check', 'Production Build']
-        .map((name, index) => ({ id: index + 1, name, conclusion: 'success', steps: [] }))
+        .map((name, index) => ({
+          id: index + 1,
+          name,
+          conclusion: 'success',
+          steps: [{
+            name: `${name === 'Behavior Tests' ? 'Behavior tests' : name === 'Type Check' ? 'Type check' : 'Production build'} not applicable`,
+            conclusion: 'success',
+          }],
+        }))
       if (pathname.includes('/actions/runs/502/jobs')) return [{
         id: 4,
         name: 'Visual Baseline',
@@ -409,7 +439,7 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
   assert.equal(current.headSha, HEAD)
   assert.deepEqual(current.changeCategories, ['supporting-doc'])
   assert.equal(current.classification, 'agent-local')
-  assert.equal(current.visualNotApplicable, true)
+  assert.equal(current.documentationChecksNotApplicable, true)
   assert.equal(current.prValidationWorkflowId, 101)
   assert.equal(current.visualWorkflowId, 102)
   assert.deepEqual(current.runs.find(({ workflowId }) => workflowId === 102).jobs[0].steps, [
@@ -420,16 +450,22 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
   assert.ok(runQueries.every((pathname) => !pathname.includes(`head_sha=${OTHER}`)))
 
   headWorkflowBlob = changedWorkflowBlob
-  assert.equal((await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })).visualNotApplicable, false)
+  assert.equal((await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })).documentationChecksNotApplicable, false)
   headWorkflowBlob = workflowBlob
+  headPrWorkflowBlob = changedPrWorkflowBlob
+  assert.equal((await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })).documentationChecksNotApplicable, false)
+  headPrWorkflowBlob = prWorkflowBlob
+  headHelperBlob = changedHelperBlob
+  assert.equal((await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })).documentationChecksNotApplicable, false)
+  headHelperBlob = helperBlob
   includeWorkflow = false
-  assert.equal((await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })).visualNotApplicable, false)
+  assert.equal((await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })).documentationChecksNotApplicable, false)
   includeWorkflow = true
   workflowSource = 'name: Legacy visual workflow\n'
-  assert.equal((await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })).visualNotApplicable, false)
+  assert.equal((await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })).documentationChecksNotApplicable, false)
   workflowSource = trustedWorkflow
   requirementPath = 'docs/plans/example.txt'
-  assert.equal((await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })).visualNotApplicable, false)
+  assert.equal((await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })).documentationChecksNotApplicable, false)
   requirementPath = 'docs/brainstorms/x.md'
   requirementSource = 'Stale requirement cites `SF-001`.'
   await assert.rejects(
@@ -467,6 +503,7 @@ test('current snapshot adapter binds live PR, exact trees, trusted owners, and w
   requirementBaseSource = '### Party-Slot Continuity\n\nCurrent continuity rule.\n'
   requirementSource = '### Party-Slot Continuity\n\n**Rule ID:** `UI-002`\n\nCurrent continuity rule.\n'
   const identifierOnly = await buildCurrentSnapshot({ api, prNumber: 4, root: '/trusted', readFile })
+  assert.equal(identifierOnly.documentationChecksNotApplicable, true)
   assert.deepEqual(identifierOnly.identifierOnlyOwnerChange, {
     path: 'docs/workbench-ui-design-rules.md',
     newRuleIds: ['UI-002'],
@@ -591,13 +628,18 @@ test('finalization consumes actual creating-PR outcomes and rechecks the live re
   const docsHeadBlob = 'b'.repeat(40)
   const workflowBlob = 'c'.repeat(40)
   const changedWorkflowBlob = 'd'.repeat(40)
-  const legacyWorkflowBlob = 'e'.repeat(40)
+  const prePolicyWorkflowBlob = '6f073ea1e922e306d5cedd0f2e9152a570138179'
+  const prWorkflowBlob = 'e'.repeat(40)
+  const helperBlob = 'f'.repeat(40)
   const trustedWorkflow = await fs.readFile(new URL('../../.github/workflows/visual-baseline.yml', import.meta.url), 'utf8')
+  const trustedPrWorkflow = await fs.readFile(new URL('../../.github/workflows/pr-validation.yml', import.meta.url), 'utf8')
+  const trustedHelper = await fs.readFile(new URL('./documentation-check-scope.mjs', import.meta.url), 'utf8')
   blobSources.set(docsBaseBlob, 'base plan')
   blobSources.set(docsHeadBlob, 'head plan')
   blobSources.set(workflowBlob, trustedWorkflow)
   blobSources.set(changedWorkflowBlob, trustedWorkflow)
-  blobSources.set(legacyWorkflowBlob, 'name: Legacy visual workflow\n')
+  blobSources.set(prWorkflowBlob, trustedPrWorkflow)
+  blobSources.set(helperBlob, trustedHelper)
   let blobSequence = 10
   const ownerTreeEntries = [...ownerSources].map(([filePath, source]) => {
     const sha = String(blobSequence++).padStart(40, '0')
@@ -607,13 +649,19 @@ test('finalization consumes actual creating-PR outcomes and rechecks the live re
   const workflowEntry = (sha) => ({
     path: '.github/workflows/visual-baseline.yml', type: 'blob', mode: '100644', sha,
   })
+  const currentScopeEntries = [
+    { path: '.github/workflows/pr-validation.yml', type: 'blob', mode: '100644', sha: prWorkflowBlob },
+    { path: 'scripts/governance/documentation-check-scope.mjs', type: 'blob', mode: '100644', sha: helperBlob },
+  ]
   const treesFor = ({ docsDiff, workflowState }) => {
     const baseWorkflow = workflowState === 'missing' ? []
-      : [workflowEntry(workflowState === 'legacy' ? legacyWorkflowBlob : workflowBlob)]
+      : [workflowEntry(workflowState === 'pre-policy' ? prePolicyWorkflowBlob : workflowBlob),
+        ...(workflowState === 'pre-policy' ? [] : currentScopeEntries)]
     const headWorkflow = workflowState === 'missing' ? []
-      : [workflowEntry(workflowState === 'legacy'
-        ? legacyWorkflowBlob
-        : workflowState === 'changed' ? changedWorkflowBlob : workflowBlob)]
+      : [workflowEntry(workflowState === 'pre-policy'
+        ? prePolicyWorkflowBlob
+        : workflowState === 'changed' ? changedWorkflowBlob : workflowBlob),
+      ...(workflowState === 'pre-policy' ? [] : currentScopeEntries)]
     const path = docsDiff ? docsPath : changedPath
     const baseBlob = docsDiff ? docsBaseBlob : baseChangedBlob
     const headBlob = docsDiff ? docsHeadBlob : headChangedBlob
@@ -716,7 +764,17 @@ test('finalization consumes actual creating-PR outcomes and rechecks the live re
         pull_requests: [],
       }]
       if (pathname.includes('/actions/runs/201/jobs')) return ['Behavior Tests', 'Type Check', 'Production Build']
-        .map((name, index) => ({ id: index + 1, name, conclusion: 'success', steps: [] }))
+        .map((name, index) => ({
+          id: index + 1,
+          name,
+          conclusion: 'success',
+          steps: markerConclusion === undefined || workflowState === 'pre-policy'
+            ? []
+            : [{
+              name: `${name === 'Behavior Tests' ? 'Behavior tests' : name === 'Type Check' ? 'Type check' : 'Production build'} not applicable`,
+              conclusion: markerConclusion,
+            }],
+        }))
       if (pathname.includes('/actions/runs/202/jobs')) return [{
         id: 4,
         name: 'Visual Baseline',
@@ -762,10 +820,20 @@ test('finalization consumes actual creating-PR outcomes and rechecks the live re
   })
   assert.equal(notApplicable.creatingPr, 4)
 
+  tipReads = 0
+  const historicalFullRuns = await verifyRemoteFinalization({
+    api: finalizationApi(candidate, { docsDiff: true, workflowState: 'pre-policy' }),
+    actor: 'Min-DongYoung',
+    candidateSha: candidate,
+    root: '/trusted',
+    repositoryValidator,
+  })
+  assert.equal(historicalFullRuns.creatingPr, 4)
+
   for (const options of [
     { markerConclusion: 'success' },
     { docsDiff: true, workflowState: 'changed', markerConclusion: 'success' },
-    { docsDiff: true, workflowState: 'legacy', markerConclusion: 'success' },
+    { docsDiff: true, workflowState: 'missing', markerConclusion: 'success' },
   ]) {
     tipReads = 0
     await assert.rejects(() => verifyRemoteFinalization({
