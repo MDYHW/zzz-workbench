@@ -34,8 +34,9 @@ export type RequiredSetupSelection =
 function recipientHasMaterialBroadPrePenPressure(
   state: WorkbenchState,
   slot: AppliedSlot,
+  purpose: 'slot5' | 'twoPiece',
 ): boolean {
-  return activeCandidatePressures(state, slot)
+  return activeCandidatePressures(state, slot, purpose)
     .includes('materialBroadPrePenDefBypass')
 }
 
@@ -101,7 +102,7 @@ export function effectiveTwoPieceIds(
   const sourceDerived = activeSourceCandidateInputAdditions(state, slot)
     .flatMap(({ twoPiece }) => twoPiece ?? [])
   const candidates = [...new Set([...base, ...selectedDerived, ...sourceDerived])]
-  const pressureFiltered = recipientHasMaterialBroadPrePenPressure(state, slot)
+  const pressureFiltered = recipientHasMaterialBroadPrePenPressure(state, slot, 'twoPiece')
     ? candidates.filter((candidateId) => candidateId !== 'pufferElectro')
     : candidates
   return compressSameEffectTwoPieceIds(
@@ -194,7 +195,7 @@ export function effectiveMainStatIds(
   return effectiveMainStatIdsForPressure(
     agentId,
     mainSlot,
-    recipientHasMaterialBroadPrePenPressure(state, slot),
+    recipientHasMaterialBroadPrePenPressure(state, slot, 'slot5'),
     state.slots[slot].setup.fourPieceId,
     sourceDerived,
   )

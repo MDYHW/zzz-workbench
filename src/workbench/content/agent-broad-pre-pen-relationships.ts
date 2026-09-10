@@ -84,7 +84,7 @@ export function agentBroadPrePenRelationships(
   }
   if (agentId === 'cissia') return [cissiaGauge(state, slot)]
   if (agentId === 'evelyn' && setup.mindscape >= 1) {
-    return [{ kind: 'modifier', atom: {
+    return [{ kind: 'modifier', setupPolicy: { penRatioMainStat: 'prepared-only' }, atom: {
       metricId: 'defIgnore', earliestSurface: 'combat',
       value: VERTICAL_VALUES.evelyn.mindscapeDefIgnore,
       source: selectedMindscapeSource('evelyn', slot, setup.mindscape, 1),

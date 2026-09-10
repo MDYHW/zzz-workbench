@@ -56,12 +56,16 @@ function recipientContext(state: WorkbenchState, recipientSlot: AppliedSlot) {
 export function activeCandidatePressures(
   state: WorkbenchState,
   recipientSlot: AppliedSlot,
+  purpose: 'preparation' | 'slot5' | 'twoPiece' = 'preparation',
 ): CandidatePressure[] {
   if (!directionUsesDefRegion(state.slots[recipientSlot].agentId)) return []
   const recipient = recipientContext(state, recipientSlot)
   const pressure = state.slots.some((_, sourceSlot) => (
     activeBroadPrePenRelationships(state, sourceSlot as AppliedSlot)
-      .some((provider) => providerAppliesToRecipient(provider, recipient, state.focusSlot))
+      .some((provider) => (
+        providerAppliesToRecipient(provider, recipient, state.focusSlot)
+          && (purpose !== 'slot5' || provider.setupPolicy?.penRatioMainStat !== 'prepared-only')
+      ))
   ))
   return pressure ? [BROAD_PRE_PEN_PRESSURE] : []
 }

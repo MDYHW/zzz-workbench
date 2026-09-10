@@ -21,6 +21,7 @@ function localModifierAsSelfProvider(relationship: Extract<ProfileRelationship, 
     kind: 'provider',
     source: atom.source,
     delivery: { recipient: 'self' },
+    ...(relationship.setupPolicy ? { setupPolicy: relationship.setupPolicy } : {}),
     effect: {
       kind: 'modifier',
       metricId: atom.metricId,

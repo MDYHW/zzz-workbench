@@ -167,8 +167,15 @@ The prose requirements govern if this diagram and the text ever differ.
   Direct selection remains Evelyn-local and existing non-stacking Result rules
   resolve duplicate Astral holders.
 - R9. Material broad pre-PEN pressure removes Evelyn's Slot 5 PEN Ratio and
-  standalone Puffer Electro 2-piece. Seed M2's broad Besiege DEF Ignore supplies
-  that pressure only when Evelyn is the current Vanguard. Spectral Gaze's broad
+  standalone Puffer Electro 2-piece. Evelyn's own M1 instead prepares Fire DMG
+  while retaining the editable Slot 5 PEN Ratio direction in both pools: the
+  modest broad ignore does not erase its competitive use with substantial
+  party DMG Bonus or PEN supply. This is a prepared-main-only outcome, not
+  immunity to another applicable membership pressure. Puffer Electro 2-piece
+  remains excluded under M1; its smaller PEN supply does not displace the
+  competitive CRIT complement in the authored complete package. Seed M2's
+  broad Besiege DEF Ignore supplies that pressure only when Evelyn is the
+  current Vanguard. Spectral Gaze's broad
   enemy DEF Reduction supplies it through Evelyn's current `general_damage`
   participation; Evelyn identity, Fire Attribute, and Attack Specialty are not
   exceptions. Neither source removes the separately authored contextual Puffer

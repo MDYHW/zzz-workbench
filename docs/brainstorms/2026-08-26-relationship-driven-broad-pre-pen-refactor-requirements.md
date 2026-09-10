@@ -51,8 +51,12 @@ Result-to-Setup feedback path.
   conditionally active Sunna M1 paths. This is not a closed source roster: a
   future source participates by producing the same relationship, not by being
   appended to a candidate-pressure identity list.
-- R6. The common pressure consumer removes only Slot 5 PEN Ratio and Puffer
-  Electro 2-piece. It does not remove Puffer Electro 4-piece, provider-basis
+- R6. The common pressure consumer resolves preparation, Slot 5 PEN Ratio,
+  and Puffer Electro 2-piece consequences separately. A retained relationship
+  may carry an authored prepared-only main-stat outcome without changing its
+  Result effect or preventing another applicable source from removing that
+  main-stat candidate. This does not introduce a numeric cutoff or a provider
+  identity branch. It does not remove Puffer Electro 4-piece, provider-basis
   PEN on a recipient without a Setup DEF-region damage direction, or a choice
   merely because a large or similarly named modifier exists.
 - R7. Pressure-safe first choices remain authored complete local packages.

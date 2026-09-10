@@ -110,6 +110,16 @@ describe('shared broad pre-PEN applicability', () => {
     expect(delivered[0].modifierAtoms).toHaveLength(2)
     expect(delivered[1].modifierAtoms).toHaveLength(0)
     expect(delivered[2].modifierAtoms).toHaveLength(1)
+    const preparedOnly: ProfileRelationship = {
+      kind: 'modifier',
+      atom: { metricId: 'defIgnore', earliestSurface: 'combat', value: 12, source },
+      setupPolicy: { penRatioMainStat: 'prepared-only' },
+    }
+    expect(broadPrePenProviderFor(preparedOnly)).toMatchObject({
+      delivery: { recipient: 'self' },
+      setupPolicy: preparedOnly.setupPolicy,
+      effect: { metricId: 'defIgnore', value: preparedOnly.atom.value },
+    })
     expect(broadPrePenProviderFor({
       kind: 'modifier',
       atom: {
