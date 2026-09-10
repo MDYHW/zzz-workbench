@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useReducer, useRef, useState, type Dispatch } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+  type Dispatch,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from 'react'
 import { AgentSetup } from './components/AgentSetup'
 import { PartyWorkbench } from './components/PartyWorkbench'
 import { PartyEditor } from './components/PartyEditor'
@@ -151,34 +159,142 @@ function CopySetupButton({ state }: { state: WorkbenchState | null }) {
         aria-label={t('copyAria')}
         onClick={copySetup}
       >
-        {label}
+        <UtilityIcon kind={status === 'copied' ? 'check' : 'copy'} />
+        <span className="masthead-action__label">{label}</span>
       </button>
       <span className="sr-only" role="status" aria-live="polite">{announcement}</span>
     </div>
   )
 }
 
+function UtilityIcon({ kind }: { kind: 'copy' | 'check' | 'language' }) {
+  return (
+    <svg className="masthead-utility-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      {kind === 'copy' ? (
+        <>
+          <rect x="8" y="8" width="11" height="11" rx="2" />
+          <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
+        </>
+      ) : kind === 'check' ? (
+        <path d="m5 12 4 4L19 6" />
+      ) : (
+        <>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+        </>
+      )}
+    </svg>
+  )
+}
+
 function LanguageToggle() {
   const { locale, setLocale } = useLocalization()
-  const options: ReadonlyArray<{ locale: Locale; label: string; aria: string }> = [
-    { locale: 'ko', label: '한국어', aria: '한국어로 표시' },
-    { locale: 'en', label: 'EN', aria: 'Display in English' },
+  const [isOpen, setIsOpen] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const options: ReadonlyArray<{ locale: Locale; label: string; code: string; aria: string }> = [
+    { locale: 'ko', label: '한국어', code: 'KO', aria: '한국어로 표시' },
+    { locale: 'en', label: 'English', code: 'EN', aria: 'Display in English' },
   ]
+
+  const focusMenuOption = (position: 'first' | 'last') => {
+    requestAnimationFrame(() => {
+      const items = Array.from(
+        rootRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitemradio"]') ?? [],
+      )
+      const target = position === 'first' ? items[0] : items.at(-1)
+      target?.focus()
+    })
+  }
+
+  useEffect(() => {
+    if (!isOpen) return
+    const closeOutside = (event: PointerEvent) => {
+      if (event.target instanceof Node && !rootRef.current?.contains(event.target)) setIsOpen(false)
+    }
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      setIsOpen(false)
+      triggerRef.current?.focus()
+    }
+    document.addEventListener('pointerdown', closeOutside)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeOutside)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [isOpen])
+
+  const selectLocale = (nextLocale: Locale) => {
+    setLocale(nextLocale)
+    setIsOpen(false)
+    requestAnimationFrame(() => triggerRef.current?.focus())
+  }
+
+  const moveMenuFocus = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    const items = Array.from(
+      rootRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitemradio"]') ?? [],
+    )
+    const current = items.indexOf(document.activeElement as HTMLButtonElement)
+    let next: number | null = null
+    if (event.key === 'ArrowDown') next = current < items.length - 1 ? current + 1 : 0
+    if (event.key === 'ArrowUp') next = current > 0 ? current - 1 : items.length - 1
+    if (event.key === 'Home') next = 0
+    if (event.key === 'End') next = items.length - 1
+    if (next === null) return
+    event.preventDefault()
+    items[next]?.focus()
+  }
+
+  const currentLabel = locale === 'ko' ? '한국어' : 'English'
+  const menuLabel = locale === 'ko' ? '표시 언어' : 'Display language'
   return (
-    <div className="language-toggle" role="group" aria-label={locale === 'ko' ? '표시 언어' : 'Display language'}>
-      {options.map((option) => (
-        <button
-          type="button"
-          key={option.locale}
-          lang={option.locale}
-          className={locale === option.locale ? 'is-selected' : ''}
-          aria-label={option.aria}
-          aria-pressed={locale === option.locale}
-          onClick={() => setLocale(option.locale)}
-        >
-          {option.label}
-        </button>
-      ))}
+    <div className="language-menu" ref={rootRef}>
+      <button
+        className="language-trigger"
+        type="button"
+        ref={triggerRef}
+        aria-label={`${menuLabel}: ${currentLabel}`}
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
+        onClick={() => setIsOpen((open) => !open)}
+        onKeyDown={(event) => {
+          if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return
+          event.preventDefault()
+          setIsOpen(true)
+          focusMenuOption(event.key === 'ArrowDown' ? 'first' : 'last')
+        }}
+      >
+        <UtilityIcon kind="language" />
+        <span className="language-trigger__label" lang={locale}>{currentLabel}</span>
+        <span className="language-trigger__chevron" aria-hidden="true" />
+      </button>
+      <div
+        className="language-popover"
+        role="menu"
+        aria-label={menuLabel}
+        hidden={!isOpen}
+        onKeyDown={moveMenuFocus}
+      >
+        {options.map((option) => (
+          <button
+            type="button"
+            role="menuitemradio"
+            key={option.locale}
+            lang={option.locale}
+            data-locale={option.locale}
+            aria-label={option.aria}
+            aria-checked={locale === option.locale}
+            onClick={() => selectLocale(option.locale)}
+          >
+            <span className="language-option__check" aria-hidden="true">
+              {locale === option.locale ? '✓' : ''}
+            </span>
+            <span>{option.label}</span>
+            <small>{option.code}</small>
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

@@ -26,7 +26,8 @@ export async function waitForWorkbenchRender(page: Page): Promise<void> {
 export async function openInitialWorkbench(page: Page, viewport?: Viewport): Promise<void> {
   if (viewport) await page.setViewportSize(viewport)
   await page.goto('/')
-  await page.getByRole('button', { name: 'Display in English' }).click()
+  await page.getByRole('button', { name: '표시 언어: 한국어' }).click()
+  await page.getByRole('menuitemradio', { name: 'Display in English' }).click()
   await waitForWorkbenchRender(page)
 }
 

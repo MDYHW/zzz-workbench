@@ -163,10 +163,16 @@ of the calculation.
   official terminology and remain distinct. When both are required, one source
   row presents them together in `category: detail` order. Translation does not
   merge a trigger, affected action, recipient, source owner, or operation.
+  `Aftershock` uses the single fixed Korean term `여진 피해` in every
+  presentation context rather than varying by action, tag, or effect wording.
 - R18. The Copy action is visibly `세팅 복사` in Korean and `Copy setup` in
   English. Its progress, success, failure, and assistive announcements use the
   selected language while preserving the existing disabled, single-in-flight,
-  focus, address, and feedback-reset behavior.
+  focus, address, and feedback-reset behavior. Copy and the current-language
+  trigger use the approved rounded masthead-utility form with explicit icons;
+  desktop retains concise labels, while narrow layouts reduce both controls to
+  equal circular icon buttons. Language choices open from one current-language
+  trigger, and the narrow menu uses the approved reduced width.
 
 **Shared presentation and accessibility**
 
@@ -175,10 +181,11 @@ of the calculation.
   both languages. The existing legal footer remains simultaneously English and
   Korean, with each language identified correctly, regardless of the selected
   control.
-- R20. Both languages preserve readable content, visible focus, established
-  clipped-paper control grammar, and the supported desktop and narrow layouts
-  without horizontal page scrolling, clipping, overlap, or a smaller type size
-  used only to accommodate one translation.
+- R20. Both languages preserve readable content, visible focus, the established
+  ZZZ visual grammar including the approved rounded masthead utilities, and the
+  supported desktop and narrow layouts without horizontal page scrolling,
+  clipping, overlap, or a smaller type size used only to accommodate one
+  translation.
 - R21. Localization changes presentation only. Existing source highlighting
   continues to resolve from source identity and locus rather than translated
   words; a source-free or surface-free relationship does not gain a new source
@@ -267,9 +274,9 @@ of the calculation.
   server-held preference, or language in the Setup shortcut.
 - Do not change setup directions, candidates, representatives, preparation,
   calculations, Result meaning, source ownership, or operation admission.
-- Do not redesign the Copy shortcut, masthead, footer, or broader ZZZ visual
-  system beyond the layout work necessary for the accepted language control
-  and translated copy.
+- Do not redesign the footer or broader ZZZ visual system. Masthead changes are
+  bounded to the approved Copy and current-language utility controls, their
+  menu, and the layout work necessary for translated copy.
 - Do not combine this feature with GitHub Actions artifact-retention policy or
   current Copy-PR finalization work.
 

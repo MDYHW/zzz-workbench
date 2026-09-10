@@ -198,12 +198,18 @@ tests.
 
 **Work:**
 
-- Place Copy immediately left of a two-segment `한국어 | EN` control in the
+- Place Copy immediately left of one current-language menu trigger in the
   existing masthead action group.
 - Localize Copy idle/progress/success/failure and announcements without changing
   its single-flight, disabled, focus, or reset behavior.
-- Use the existing dark-paper, thin-line, clipped-corner ZZZ visual grammar;
-  selected locale is visually and accessibly explicit.
+- Use the existing dark-paper, thin-line, yellow-accent ZZZ visual grammar with
+  the approved icon-led rounded utility form: concise labels on desktop and
+  equal circular icon controls on narrow layouts. The menu keeps the selected
+  locale visually and accessibly explicit and uses its approved narrower mobile
+  width.
+- Close the language menu on selection, outside activation, and Escape; support
+  keyboard entry and movement while returning focus to its trigger on a
+  committed selection or Escape.
 - Verify title centering and narrow-layout fit without language-specific font
   shrinking or horizontal page scroll.
 

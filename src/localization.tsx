@@ -259,7 +259,7 @@ const koMetrics: Record<EffectMetric, string> = {
 const koStats: Partial<Record<MainStatId | SubstatId | string, string>> = {
   critRate: '치명타 확률', critDmg: '치명타 피해', etherDmg: '에테르 피해 보너스', hpPct: 'HP',
   hpFlat: 'HP', atkPct: '공격력', atkFlat: '공격력', physicalDmg: '물리 피해 보너스',
-  penRatio: '관통률', impact: '충격력', energyRegenPct: '에너지 자동 회복', electricDmg: '전기 피해 보너스',
+  penRatio: '관통률', impact: '충격력', impactPct: '충격력', energyRegenPct: '에너지 자동 회복', electricDmg: '전기 피해 보너스',
   fireDmg: '불 피해 보너스', iceDmg: '얼음 피해 보너스', windDmg: '바람 피해 보너스',
   defPct: '방어력', anomalyProficiency: '이상 마스터리', anomalyMastery: '이상 장악력',
 }
@@ -308,7 +308,7 @@ const koEnginePassiveTemplates = {
   bashfulDemon: ['파티 공격력 +{0}%'],
   brimstone: ['공격력 +{0}%'],
   serpentineSeeker: ['치명타 확률 +{0}%', '전기 피해 · 방어력 무시 +{0}%'],
-  bellicoseBlaze: ['치명타 확률 +{0}%', '불 추가 공격 방어력 무시 +{0}%'],
+  bellicoseBlaze: ['치명타 확률 +{0}%', '불 속성 여진 피해 방어력 무시 +{0}%'],
   drillRigRedAxis: ['일반 공격 및 대시 공격 전기 피해 +{0}%'],
   heartstringNocturne: ['치명타 피해 +{0}%', '콤보 스킬 및 궁극기 불 저항 무시 +{0}%'],
   steelCushion: ['물리 피해 +{0}%', '배후 공격 피해 +{0}%'],
@@ -352,7 +352,7 @@ const koDiscEffectTemplates = {
   king: { twoPiece: ['그로기 수치 +{0}%'], fourPiece: ['파티 치명타 피해 +{0}%'] },
   swingJazz: { twoPiece: ['에너지 자동 회복 +{0}%'], fourPiece: ['파티 피해 +{0}%'] },
   moonlight: { twoPiece: ['에너지 자동 회복 +{0}%'], fourPiece: ['파티 피해 +{0}%'] },
-  shadowHarmony: { twoPiece: ['추가 공격 및 대시 공격 피해 +{0}%'], fourPiece: ['공격력 +{0}%', '치명타 확률 +{0}%'] },
+  shadowHarmony: { twoPiece: ['여진 피해 및 대시 공격 피해 +{0}%'], fourPiece: ['공격력 +{0}%', '치명타 확률 +{0}%'] },
   shockstar: { twoPiece: ['충격력 +{0}%'], fourPiece: ['일반 공격, 대시 공격 및 회피 반격 그로기 수치 +{0}%'] },
   astralVoice: { twoPiece: ['공격력 +{0}%'], fourPiece: ['교대 출전한 에이전트 피해 +{0}%'] },
   hormonePunk: { twoPiece: ['공격력 +{0}%'], fourPiece: ['공격력 +{0}%'] },
@@ -424,7 +424,7 @@ const koPresentation: Record<string, string> = {
   'combat-impact-bonus': '전투 입장 충격력 보너스',
   'combat-crit-dmg-bonus': '전투 입장 치명타 피해 보너스',
   'special-ex-ultimate-daze-bonus': '특수·강화 특수 스킬·궁극기 그로기 보너스',
-  'aftershock-daze-bonus': '추가 공격 그로기 보너스',
+  'aftershock-daze-bonus': '여진 피해 그로기 보너스',
   'fire-ice-dmg-bonus': '불/얼음 피해 보너스',
   impact: '충격력',
   'veil-vulnerability': '장막 취약',
@@ -579,7 +579,7 @@ export function localizedActionOutcome(outcome: ActionOutcome, locale: Locale): 
 }
 
 export function localizedActionTag(tag: ActionTag, locale: Locale): string {
-  return locale === 'ko' && tag === 'aftershock' ? '추가 공격' : 'Aftershock'
+  return locale === 'ko' && tag === 'aftershock' ? '여진 피해' : 'Aftershock'
 }
 
 export function localizedPresentation(

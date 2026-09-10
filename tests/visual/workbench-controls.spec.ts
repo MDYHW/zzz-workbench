@@ -19,7 +19,7 @@ test('keeps both language presentations readable and the masthead utilities orde
     await page.goto('/')
 
     const copy = page.getByRole('button', { name: '세팅 바로가기 복사' })
-    const language = page.getByRole('group', { name: '표시 언어' })
+    const language = page.getByRole('button', { name: '표시 언어: 한국어' })
     await expect(copy).toBeVisible()
     await expect(language).toBeVisible()
     await expect(page.getByRole('heading', { name: '파티 편성 중' })).toBeVisible()
@@ -34,6 +34,13 @@ test('keeps both language presentations readable and the masthead utilities orde
     expect(languageBox).not.toBeNull()
     expect(titleBox!.x + titleBox!.width).toBeLessThanOrEqual(copyBox!.x + 1)
     expect(copyBox!.x + copyBox!.width).toBeLessThanOrEqual(languageBox!.x + 1)
+    if (viewport.width === 320) {
+      expect(copyBox!.width).toBe(36)
+      expect(languageBox!.width).toBe(36)
+    } else {
+      expect(await copy.evaluate((button) => getComputedStyle(button).borderRadius)).toBe('999px')
+      expect(await language.evaluate((button) => getComputedStyle(button).borderRadius)).toBe('999px')
+    }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
 
     for (const [slot, agent] of [
@@ -69,7 +76,11 @@ test('keeps both language presentations readable and the masthead utilities orde
       )))).toEqual(['초기', '전투 입장', '최종'])
     }
 
-    await page.getByRole('button', { name: 'Display in English' }).click()
+    await language.click()
+    const languageMenu = page.getByRole('menu', { name: '표시 언어' })
+    await expect(languageMenu).toBeVisible()
+    if (viewport.width === 320) expect((await languageMenu.boundingBox())?.width).toBe(144)
+    await page.getByRole('menuitemradio', { name: 'Display in English' }).click()
     await expect(page.getByRole('heading', { name: '01 Loadout' })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Copy Setup shortcut' })).toBeVisible()
     if (viewport.width === 320) {
@@ -82,7 +93,7 @@ test('keeps both language presentations readable and the masthead utilities orde
   }
 })
 
-test('keeps clipped masthead actions visibly keyboard-focused', async ({ page }) => {
+test('keeps rounded masthead actions visibly keyboard-focused', async ({ page }) => {
   await page.context().grantPermissions(['clipboard-write'], {
     origin: 'http://127.0.0.1:5173',
   })
@@ -94,9 +105,7 @@ test('keeps clipped masthead actions visibly keyboard-focused', async ({ page })
     await page.keyboard.press('Shift+Tab')
     await expect(page.getByRole('tab', { selected: true })).toBeFocused()
     await page.keyboard.press('Shift+Tab')
-    await expect(page.getByRole('button', { name: 'Display in English' })).toBeFocused()
-    await page.keyboard.press('Shift+Tab')
-    await expect(page.getByRole('button', { name: '한국어로 표시' })).toBeFocused()
+    await expect(page.getByRole('button', { name: 'Display language: English' })).toBeFocused()
     await page.keyboard.press('Shift+Tab')
     const copy = page.getByRole('button', { name: 'Copy Setup shortcut' })
     await expect(copy).toBeFocused()

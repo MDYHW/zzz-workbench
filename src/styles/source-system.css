@@ -17,7 +17,7 @@
 .source-tone--substat-3 { --source-hue: #2eb5a2; }
 
 /* Viewed Agent sources */
-.source-tone--core { --source-hue: #edaa69; }
+.source-tone--core { --source-hue: #fff0f6; }
 .source-tone--additional { --source-hue: #d5df62; }
 .source-tone--basic { --source-hue: #4a91df; }
 .source-tone--assist { --source-hue: #53c5df; }

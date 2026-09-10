@@ -25,7 +25,8 @@ afterEach(() => {
 
 function renderEnglishApp() {
   const rendered = render(<App />)
-  fireEvent.click(screen.getByRole('button', { name: 'Display in English' }))
+  fireEvent.click(screen.getByRole('button', { name: '표시 언어: 한국어' }))
+  fireEvent.click(screen.getByRole('menuitemradio', { name: 'Display in English' }))
   return rendered
 }
 
@@ -55,8 +56,13 @@ describe('workbench UI integration', () => {
 
     expect(document.documentElement).toHaveAttribute('lang', 'ko')
     expect(screen.getByRole('heading', { name: '파티 편성 중' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '한국어로 표시' })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByRole('button', { name: 'Display in English' })).toHaveAttribute('aria-pressed', 'false')
+    const language = screen.getByRole('button', { name: '표시 언어: 한국어' })
+    expect(language).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(language)
+    expect(screen.getByRole('menuitemradio', { name: '한국어로 표시' }))
+      .toHaveAttribute('aria-checked', 'true')
+    expect(screen.getByRole('menuitemradio', { name: 'Display in English' }))
+      .toHaveAttribute('aria-checked', 'false')
     expect(window.location.href).toBe(address)
     expect(window.localStorage).toHaveLength(0)
     expect(window.sessionStorage).toHaveLength(0)
@@ -80,7 +86,8 @@ describe('workbench UI integration', () => {
       sensitivity: 'base',
     }).compare))
 
-    await user.click(screen.getByRole('button', { name: 'Display in English' }))
+    await user.click(screen.getByRole('button', { name: '표시 언어: 한국어' }))
+    await user.click(screen.getByRole('menuitemradio', { name: 'Display in English' }))
 
     expect(document.documentElement).toHaveAttribute('lang', 'en')
     expect(screen.getByRole('heading', { name: 'Editing party' })).toBeInTheDocument()
@@ -93,7 +100,10 @@ describe('workbench UI integration', () => {
       numeric: true,
       sensitivity: 'base',
     }).compare))
-    expect(screen.getByRole('button', { name: 'Display in English' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Display language: English' }))
+      .toHaveAttribute('aria-expanded', 'false')
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Display language: English' }))
+      .toHaveFocus())
     expect(window.location.href).toBe(address)
     expect(window.localStorage).toHaveLength(0)
     expect(window.sessionStorage).toHaveLength(0)
@@ -115,7 +125,8 @@ describe('workbench UI integration', () => {
     await user.click(engine)
     expect(engine).toHaveAttribute('aria-expanded', 'true')
 
-    await user.click(screen.getByRole('button', { name: 'Display in English' }))
+    await user.click(screen.getByRole('button', { name: '표시 언어: 한국어' }))
+    await user.click(screen.getByRole('menuitemradio', { name: 'Display in English' }))
 
     expect(screen.getByRole('tab', { name: 'View Anby: Soldier 0 setup and Result' }))
       .toHaveAttribute('aria-selected', 'true')
@@ -123,6 +134,26 @@ describe('workbench UI integration', () => {
       .toHaveAttribute('aria-expanded', 'true')
     expect(document.querySelector('.selector-region--engine')).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: /^Select .* W[1-5]$/ }).length).toBeGreaterThan(0)
+  })
+
+  it('supports keyboard entry and dismissal for the language menu', async () => {
+    render(<App />)
+    const trigger = screen.getByRole('button', { name: '표시 언어: 한국어' })
+
+    trigger.focus()
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+    expect(trigger).toHaveAttribute('aria-expanded', 'true')
+    await waitFor(() => expect(screen.getByRole('menuitemradio', { name: '한국어로 표시' }))
+      .toHaveFocus())
+
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
+    expect(trigger).toHaveFocus()
+
+    fireEvent.click(trigger)
+    expect(trigger).toHaveAttribute('aria-expanded', 'true')
+    fireEvent.pointerDown(document.body)
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
   })
 
   it('copies a complete Setup shortcut without changing the current address', async () => {

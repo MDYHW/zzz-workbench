@@ -623,13 +623,13 @@ function ActionRows({
                           onClick={() => toggleAction(actionKey)}
                         >
                           {action.tags.includes('aftershock')
-                            ? <span className="action-tag" aria-label={localizedActionTag('aftershock', locale)}>{locale === 'ko' ? '추가 공격' : 'AFTERSHOCK'}</span>
+                            ? <span className="action-tag" aria-label={localizedActionTag('aftershock', locale)}>{locale === 'ko' ? '여진 피해' : 'AFTERSHOCK'}</span>
                             : <span className="action-lines">{actionLabels.map((label) => <span key={label}>{label}</span>)}</span>}
                           <i aria-hidden="true">{isExpanded ? '\u2212' : '+'}</i>
                         </button>
                       ) : (
                         action.tags.includes('aftershock')
-                          ? <span className="action-tag" aria-label={localizedActionTag('aftershock', locale)}>{locale === 'ko' ? '추가 공격' : 'AFTERSHOCK'}</span>
+                          ? <span className="action-tag" aria-label={localizedActionTag('aftershock', locale)}>{locale === 'ko' ? '여진 피해' : 'AFTERSHOCK'}</span>
                           : <span className="action-lines">{actionLabels.map((label) => <span key={label}>{label}</span>)}</span>
                       )}
                     </th>

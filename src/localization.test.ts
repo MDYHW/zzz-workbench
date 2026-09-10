@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
   localizedActionOutcome,
+  localizedActionTag,
   localizedDiscEffectLine,
   localizedEnginePassiveLine,
   localizedPresentation,
   localizedSourceDetail,
   localizedSourceLabel,
+  localizedStat,
   translationCoverage,
 } from './localization'
 import { DRIVE_DISCS, W_ENGINES, type AgentAttribute } from './workbench/content'
@@ -14,6 +16,13 @@ import type { ResultSource } from './workbench/effects'
 describe('localization identity', () => {
   it('covers every admitted entity collection generically', () => {
     expect(Object.values(translationCoverage).every(Boolean)).toBe(true)
+  })
+
+  it('covers every admitted W-Engine advanced stat through stable stat identity', () => {
+    for (const engine of Object.values(W_ENGINES)) {
+      expect(localizedStat(engine.advancedStat.id, '__missing_advanced_stat__', 'ko'))
+        .not.toBe('__missing_advanced_stat__')
+    }
   })
 
   it('covers every reachable equipment effect through stable equipment identity', () => {
@@ -55,6 +64,31 @@ describe('localization identity', () => {
       outcomeId: 'luminize',
       label: 'changed fallback',
     }, 'ko')).toBe('휘광')
+  })
+
+  it('uses one fixed Korean Aftershock term across every presentation context', () => {
+    expect(localizedActionTag('aftershock', 'ko')).toBe('여진 피해')
+    expect(localizedPresentation('aftershock-daze-bonus', 'changed fallback', 'ko'))
+      .toBe('여진 피해 그로기 보너스')
+
+    for (const [engineId, engine] of Object.entries(W_ENGINES)) {
+      engine.passiveLines(1).forEach((line, index) => {
+        if (!line.includes('Aftershock')) return
+        expect(localizedEnginePassiveLine(engineId as keyof typeof W_ENGINES, index, line, 'ko'))
+          .toContain('여진 피해')
+      })
+    }
+
+    for (const [discId, disc] of Object.entries(DRIVE_DISCS)) {
+      if (!disc.twoPieceEffect.includes('Aftershock')) continue
+      expect(localizedDiscEffectLine(
+        discId as keyof typeof DRIVE_DISCS,
+        'twoPiece',
+        0,
+        disc.twoPieceEffect,
+        'ko',
+      )).toContain('여진 피해')
+    }
   })
 
   it('selects Korean source and result copy by structured identity', () => {
