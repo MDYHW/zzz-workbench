@@ -31,6 +31,7 @@ import {
   validateFinalization,
   validateFrozenRoster,
   validateProtectedApproval,
+  validatePrValidationWorkflow,
   validateReviewSignalWorkflow,
   validateVisualWorkflow,
   validateReviewEvidence,
@@ -38,6 +39,7 @@ import {
   validateSupportingRequirementRuleIds,
   validateTrustedWorkflowConcurrency,
   validateTrustedWorkflowEvents,
+  isDocumentationCheckScope,
 } from './check-policy.mjs'
 
 const BASE = '1'.repeat(40)
@@ -53,6 +55,10 @@ function treeEntry(path, baseSha = BASE, headSha = HEAD) {
     base: baseSha ? { mode: '100644', type: 'blob', sha: baseSha } : null,
     head: headSha ? { mode: '100644', type: 'blob', sha: headSha } : null,
   }
+}
+
+function visualWorkflowSource() {
+  return readFileSync(join(process.cwd(), '.github/workflows/visual-baseline.yml'), 'utf8')
 }
 
 function localFacts() {
@@ -482,53 +488,29 @@ test('U9 visual inputs retain one protected transaction category', () => {
   ]) assert.equal(categoryForPath(visualPath), 'visual-baseline')
 })
 
-test('U9 visual workflow pins screenshot execution and failure evidence', () => {
-  const workflow = `name: Visual Baseline Validation
+test('U3 trusted documentation scope includes only approved documentation categories', () => {
+  assert.equal(isDocumentationCheckScope([
+    treeEntry('docs/plans/example.md'),
+    treeEntry('docs/setup-workbench-product-contract.md'),
+    treeEntry('docs/authority-changes/2026-09-10-001-example.md'),
+  ]), true)
+  assert.equal(isDocumentationCheckScope([
+    treeEntry('docs/plans/example.md'),
+    treeEntry('scripts/governance/check-policy.mjs'),
+  ]), false)
+})
 
-on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-
-permissions:
-  contents: read
-
-concurrency:
-  group: visual-baseline-\${{ github.event.pull_request.number }}
-  cancel-in-progress: true
-
-jobs:
-  visual-baseline:
-    name: Visual Baseline
-    runs-on: ubuntu-latest
-    container:
-      image: mcr.microsoft.com/playwright@sha256:baed2032d533817f3dbe6425de795788430ba345e819a1201337009ba17c9d07
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci --ignore-scripts
-      - run: npm run test:visual
-      - name: Upload visual comparison evidence
-        if: \${{ failure() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: visual-baseline-\${{ github.event.pull_request.number }}-\${{ github.event.pull_request.head.sha }}
-          path: |
-            playwright-report/
-            test-results/
-          if-no-files-found: warn
-          retention-days: 3
-`
-  assert.equal(validateVisualWorkflow(workflow), true)
+test('U3 workflows pin documentation scope and runtime execution', () => {
+  const currentWorkflow = visualWorkflowSource()
+  assert.equal(validateVisualWorkflow(currentWorkflow), true)
+  const workflowSource = currentWorkflow
 
   for (const required of [
     '      image: mcr.microsoft.com/playwright@sha256:baed2032d533817f3dbe6425de795788430ba345e819a1201337009ba17c9d07',
     '          persist-credentials: false',
+    '      - name: Determine documentation-only verification scope',
+    '        run: node scripts/governance/documentation-check-scope.mjs',
+    "        if: \${{ env.DOCUMENTATION_CHECKS_NOT_APPLICABLE == 'true' }}",
     '      - run: npm ci --ignore-scripts',
     '      - run: npm run test:visual',
     '        if: \${{ failure() }}',
@@ -538,13 +520,21 @@ jobs:
     '            test-results/',
     '          retention-days: 3',
   ]) {
-    assert.throws(() => validateVisualWorkflow(workflow.replace(required, '')), /Visual workflow/)
+    assert.throws(() => validateVisualWorkflow(workflowSource.replace(required, '')), /Visual workflow/)
   }
 
   assert.throws(
-    () => validateVisualWorkflow(workflow.replace('      - run: npm run test:visual', '      - run: true')),
+    () => validateVisualWorkflow(workflowSource.replace('      - run: npm run test:visual', '      - run: true')),
     /Visual workflow/,
   )
+
+  const prWorkflow = readFileSync(join(process.cwd(), '.github/workflows/pr-validation.yml'), 'utf8')
+  assert.equal(validatePrValidationWorkflow(prWorkflow), true)
+  for (const mutation of [
+    prWorkflow.replace('name: Behavior Tests', 'name: Behavior'),
+    prWorkflow.replace('npm run check:repo', 'npm test'),
+    prWorkflow.replace('node scripts/governance/documentation-check-scope.mjs', 'true'),
+  ]) assert.throws(() => validatePrValidationWorkflow(mutation), /Pull-request validation workflow/)
 })
 
 test('AE4 proves one realistic additive Agent seam and protects a nearby shared helper edit', () => {
@@ -720,6 +710,56 @@ test('required workflow aggregation binds exact run identity and fails closed on
     prValidationWorkflowId: 101, visualWorkflowId: 102,
   }
   assert.deepEqual(validateChildOutcomes(validationRuns(), expected).jobs, REQUIRED_JOB_NAMES)
+  const skippedMarker = validationRuns()
+  skippedMarker[1].jobs[0].steps = [{ name: 'Visual baseline not applicable', conclusion: 'skipped' }]
+  assert.deepEqual(validateChildOutcomes(skippedMarker, expected).jobs, REQUIRED_JOB_NAMES)
+
+  const documentationMarkers = [
+    ['Behavior Tests', 'Behavior tests not applicable'],
+    ['Type Check', 'Type check not applicable'],
+    ['Production Build', 'Production build not applicable'],
+    ['Visual Baseline', 'Visual baseline not applicable'],
+  ]
+  const documentationRuns = validationRuns()
+  for (const [jobName, markerName] of documentationMarkers) {
+    documentationRuns.flatMap(({ jobs }) => jobs).find(({ name }) => name === jobName).steps = [
+      { name: markerName, conclusion: 'success' },
+    ]
+  }
+  assert.deepEqual(validateChildOutcomes(documentationRuns, {
+    ...expected, documentationChecksNotApplicable: true,
+  }).jobs, REQUIRED_JOB_NAMES)
+  assert.throws(() => validateChildOutcomes(documentationRuns, expected), /not independently verified/)
+  for (const [jobName, markerName] of documentationMarkers) {
+    const absent = structuredClone(documentationRuns)
+    absent.flatMap(({ jobs }) => jobs).find(({ name }) => name === jobName).steps = []
+    assert.throws(
+      () => validateChildOutcomes(absent, { ...expected, documentationChecksNotApplicable: true }),
+      new RegExp(`${jobName} not-applicable marker is absent`),
+    )
+    const failed = structuredClone(documentationRuns)
+    failed.flatMap(({ jobs }) => jobs).find(({ name }) => name === jobName).steps[0].conclusion = 'failure'
+    assert.throws(
+      () => validateChildOutcomes(failed, { ...expected, documentationChecksNotApplicable: true }),
+      new RegExp(`${jobName} not-applicable marker is invalid`),
+    )
+    const duplicate = structuredClone(documentationRuns)
+    duplicate.flatMap(({ jobs }) => jobs).find(({ name }) => name === jobName).steps.push({
+      name: markerName, conclusion: 'success',
+    })
+    assert.throws(
+      () => validateChildOutcomes(duplicate, { ...expected, documentationChecksNotApplicable: true }),
+      new RegExp(`${jobName} not-applicable marker is invalid`),
+    )
+  }
+  const misplaced = structuredClone(documentationRuns)
+  misplaced[0].jobs[0].steps = []
+  misplaced[0].jobs[1].steps.push({ name: 'Behavior tests not applicable', conclusion: 'success' })
+  assert.throws(
+    () => validateChildOutcomes(misplaced, { ...expected, documentationChecksNotApplicable: true }),
+    /Behavior Tests not-applicable marker is invalid/,
+  )
+
   for (const conclusion of ['failure', 'cancelled', 'skipped', 'neutral']) {
     const runs = validationRuns()
     runs[0].jobs[0].conclusion = conclusion

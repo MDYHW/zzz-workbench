@@ -5,10 +5,12 @@ subordinate decision history, not a sixth permanent authority, product
 requirement, source archive, or implementation plan. Current meaning remains
 only in the five permanent Markdown owners directly under `docs/`.
 
-Repository-governance rule [`GOV-001`](../../AGENTS.md#authority-change-and-trace-governance)
-owns the transaction. One protected PR carries one proposed decision and ACR
-files only. An accepted record must merge before a separate owner-only
-amendment; dependent requirements, code, and tests follow in later changes.
+Repository-governance rule [`GOV-004`](../../AGENTS.md#authority-change-and-trace-governance)
+owns transaction forms and ordering. This file owns record shape and state.
+One protected decision PR may include its accepted record and affected permanent
+owners; an ACR-only decision remains available. Dependent work follows the
+merged owner amendment. A proven meaning-preserving owner correction uses the
+ACR-free path in `GOV-004` and does not create a decision record.
 
 ## File identity
 
@@ -23,7 +25,7 @@ Use exactly one status:
 
 - `proposed`: review or owner decision is not complete; it authorizes nothing;
 - `accepted`: the product owner accepted the recorded change on the latest
-  revision; a separate owner-only amendment may follow after merge;
+  revision; it may accompany its owner amendment or authorize a later one;
 - `rejected`: the proposed change was not accepted and the existing owner
   remains current; or
 - `superseded`: a later accepted record replaced this accepted decision and is
@@ -32,11 +34,11 @@ Use exactly one status:
 Before its initial merge, a record moves from `proposed` to exactly one owner
 outcome: `accepted` or `rejected`. After merge, `rejected` and `superseded` are
 terminal. An `accepted` record may move only to `superseded`, and only in the
-same ACR-only transaction that adds one later accepted successor whose
+same decision transaction that adds one later accepted successor whose
 `supersedes` points back to it. The earlier record's `superseded_by` must point
 to that successor. No record may supersede itself. The named predecessor must
 be `accepted` in the protected base revision and transition atomically to
-`superseded` with those reciprocal links in the same ACR-only PR.
+`superseded` with those reciprocal links in the same decision PR.
 
 Except for that reciprocal `accepted` to `superseded` link update, a merged
 record's decision, evidence, impact, owner outcome, and decision time are
@@ -97,7 +99,8 @@ The current case that could disprove an over-broad proposal and why it differs.
 - Production and tests affected:
 - Visible Setup or Result consequence:
 
-This is an impact inventory, not permission to edit those artifacts in this PR.
+Only affected permanent owners may accompany this decision under `GOV-004`;
+the remaining inventory identifies dependent work for later changes.
 
 ## Approval result
 
@@ -107,7 +110,7 @@ This is an impact inventory, not permission to edit those artifacts in this PR.
 ```
 
 Independent semantic review and exact PR, base SHA, head SHA, and diff-digest
-binding are external PR evidence required by `GOV-001`. They are deliberately
+binding are external PR evidence required by `GOV-004`. They are deliberately
 not embedded in the record: adding evidence created from a commit back into
 that commit would immediately make the binding stale. The owner records the
 product decision and decision time in the ACR before its final revision. A
@@ -122,21 +125,20 @@ Before merging an ACR PR, verify all of the following:
 - the record contains exactly one decision and every required section;
 - every existing-rule reference resolves to one stable ID in its owning
   permanent file;
-- every later owner-amendment PR cites an already-merged accepted record whose
-  Existing rule intersects the amendment trace on the same current Rule ID in
-  that permanent file; an unrelated accepted record, including one for a
-  different rule in the same owner, cannot authorize the amendment;
+- every accompanying or later owner amendment cites the same accepted record;
+  its Existing rule and the trace intersect on a current Rule ID in each changed
+  permanent owner. Later amendments use an already-merged record. An unrelated
+  record, or a different rule in the same owner, cannot authorize an amendment;
 - external independent review evidence reconstructs the owner, consumer,
   similar case, contrast, and impact instead of accepting this record as its
-  premise, and binds the exact latest PR revision as required by `GOV-001`;
-- the PR changes no permanent owner, supporting requirement, plan, production
-  file, test, or audit-completion entry;
+  premise, and binds the exact latest PR revision as required by `GOV-004`;
+- any permanent-owner edits implement that one accepted decision; no supporting
+  requirement, plan, production file, test, or audit-completion entry is mixed in;
 - `accepted` or `rejected` matches the recorded owner outcome at the exact
   latest head and has fresh owner approval; and
 - any `superseded` transition has reciprocal links to exactly one later
   accepted record while preserving the earlier decision and owner outcome.
 
-Merging an accepted ACR changes no current product meaning by itself. The next
-authorized transaction is a separate protected amendment to the affected
-permanent owner. Merging a rejected or superseded record authorizes no such
+An ACR alone changes no current meaning; its accompanying or later merged
+permanent-owner amendment does. Rejected and superseded records authorize no
 amendment.

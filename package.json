@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "scripts": {
     "test": "vitest run",
+    "check:repo": "node scripts/governance/check-policy.mjs repository",
     "test:governance": "node --test scripts/governance/*.node.mjs scripts/github-app/*.node.mjs",
     "test:visual": "playwright test",
-    "test:visual:server": "npm run build && npm run preview",
+    "test:visual:server": "vite build && npm run preview",
     "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "preview": "vite preview --host 127.0.0.1 --port 5173 --strictPort",
     "build": "tsc -b && vite build",

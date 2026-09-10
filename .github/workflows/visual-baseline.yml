@@ -21,13 +21,24 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          fetch-depth: 2
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: 24
           cache: npm
+      - name: Determine documentation-only verification scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node scripts/governance/documentation-check-scope.mjs
+      - name: Visual baseline not applicable
+        if: ${{ env.DOCUMENTATION_CHECKS_NOT_APPLICABLE == 'true' }}
+        run: echo 'Visual baseline not applicable for regular Markdown documentation changes.' >> "$GITHUB_STEP_SUMMARY"
       - run: npm ci --ignore-scripts
+        if: ${{ env.DOCUMENTATION_CHECKS_NOT_APPLICABLE != 'true' }}
       - run: npm run test:visual
+        if: ${{ env.DOCUMENTATION_CHECKS_NOT_APPLICABLE != 'true' }}
       - name: Upload visual comparison evidence
         if: ${{ failure() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

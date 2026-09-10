@@ -1,7 +1,7 @@
 ## Authority trace
 
 - Change classification: protected
-- Protected reason: Replace with the exact `GOV-001` reason, or `Not applicable: <reason>` for a structurally Agent-local change.
+- Protected reason: Replace with the exact `GOV-004` reason, or `Not applicable: <reason>` for a structurally Agent-local change.
 - Owning Rule IDs: `SW-###`; `SF-###`
 - Exact consumers: `path/to/file.ts#symbol`; `path/to/other.ts#symbol`
 - Nearest similar current case: Name the closest established consumer and the relevant shared meaning.
@@ -11,6 +11,13 @@
 - Visible Setup or Result consequence: State the exact user-visible outcome.
 - Behavior verification: Name mechanism tests, build, and browser or visual evidence when relevant.
 - Prerequisites: Cite accepted ACR and owner amendment references, or `Not applicable: <reason>`.
+
+For a single-owner wording correction only, add
+`- Authority correction: meaning-preserving` to this trace. Omit it for other
+transactions. Independent review must prove unchanged meaning; unchanged Rule
+IDs or passing tests do not establish equivalence. One accepted decision may
+instead include its ACR and all affected owners, matched by each owner's Rule
+ID. Dependent artifacts follow the merged owner change.
 
 ## Testing delta
 

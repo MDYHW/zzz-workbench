@@ -8,6 +8,11 @@ status: accepted
 
 ## Summary
 
+Recovery promotion is complete. Baseline, audit, and finalization clauses below
+describe that bounded recovery and apply again only to an explicitly authorized
+recovery operation. Current changes follow the transaction owner in `AGENTS.md` and
+`CONTRIBUTING.md`; they do not repeat bootstrap or reopen all Agent cohorts.
+
 Preserve the current repository as an explicitly unverified baseline, establish
 enforceable authority-change and validation governance, and re-audit every
 current Agent vertical before promoting a trusted `main` or resuming expansion.
@@ -103,10 +108,11 @@ Prose requirements govern if this diagram and the text ever differ.
   - **Trigger:** A bounded audit or future vertical finds that current permanent
     authority genuinely cannot decide a required product meaning.
   - **Actors:** A1, A2, A4, A5, A6
-  - **Steps:** Stop feature work; create one durable change record; independently
-    verify its evidence and impact; obtain product-owner approval; change only
-    the owning authority in a separate protected change; resume feature work in
-    a later change.
+  - **Steps:** Stop dependent feature work; follow the transaction owner in
+    `AGENTS.md` for one durable
+    decision and its affected owners, independent review, and fresh approval;
+    resume dependent work after the owner amendment merges. Meaning-preserving
+    wording corrections use that rule's separate ACR-free path.
   - **Outcome:** A vertical cannot rewrite the rule that is supposed to govern it.
   - **Covered by:** R5, R6, R7, R10, R13, R14
 
@@ -155,9 +161,10 @@ Prose requirements govern if this diagram and the text ever differ.
   contrast, impact, status, and approval result. Its status is one of proposed,
   accepted, superseded, or rejected; it records why authority changed but does
   not become another owner of current meaning.
-- R7. A vertical may not amend a permanent owner in the same bounded change.
-  An accepted authority change requires a separate user-approved change before
-  dependent requirements, plans, production code, or tests proceed. Required
+- R7. The [governance rule in AGENTS.md](../../AGENTS.md#authority-change-and-trace-governance)
+  owns authority transaction forms and ordering. A decision record
+  may accompany its affected permanent owners, but dependent requirements,
+  plans, production, and tests wait for the merged owner amendment. Required
   policy checks reject mixed authority-and-feature changes.
 - R8. Assign stable rule IDs only to high-risk cross-cutting meanings: formula
   regions, source-fact and Result admission, W-Engine and Drive Disc gates,
@@ -182,10 +189,9 @@ Prose requirements govern if this diagram and the text ever differ.
   grant only the permissions needed to push non-protected branches and manage
   pull requests, deny administration and protection bypass, and keep its
   credentials outside the repository.
-- R12. Protected-branch acceptance requires governance-policy checks, behavior
-  tests, type checking, production build, and stable-environment Playwright
-  visual checks when relevant. Local checks provide fast feedback but are not
-  the final enforcement boundary.
+- R12. Protected-branch acceptance requires the six contexts and any trusted
+  documentation-only runtime N/A proof defined by the governance rule. Local checks
+  provide fast feedback but are not the final enforcement boundary.
 - R13. A settled Agent-local vertical may merge automatically after independent
   review and all required checks. Any R10 change requires fresh product-owner
   approval after the latest reviewable revision; later changes invalidate the

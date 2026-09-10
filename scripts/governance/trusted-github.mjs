@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { parseAst } from 'rolldown/parseAst'
 import {
   EVIDENCE_MARKER,
+  DOCUMENTATION_CHECK_SCOPE_INPUTS,
   PolicyError,
   REVIEW_APP_AUTHOR,
   REQUIRED_CONTEXTS,
@@ -18,8 +19,12 @@ import {
   parseAcrDocument,
   parseAuthorityTrace,
   proveIdentifierOnlyOwnerChange,
+  proveOwnerCorrectionShape,
   trustedDecision,
   validateChildOutcomes,
+  isDocumentationCheckScope,
+  validatePrValidationWorkflow,
+  validateVisualWorkflow,
   validateFinalization,
   validateRepository,
   validateAuthorityTrace,
@@ -246,7 +251,12 @@ async function fetchWorkflowRuns(api, pr) {
         statusSha: run.head_sha,
         status: run.status,
         conclusion: run.conclusion,
-        jobs: jobs.map((job) => ({ id: job.id, name: job.name, conclusion: job.conclusion })),
+        jobs: jobs.map((job) => ({
+          id: job.id,
+          name: job.name,
+          conclusion: job.conclusion,
+          steps: (job.steps ?? []).map((step) => ({ name: step.name, conclusion: step.conclusion })),
+        })),
       })
     }
   }
@@ -278,14 +288,19 @@ async function fetchFinalizationWorkflowRuns(api, pr, expectedRunIds) {
         statusSha: run.head_sha,
         status: run.status,
         conclusion: run.conclusion,
-        jobs: jobs.map((job) => ({ id: job.id, name: job.name, conclusion: job.conclusion })),
+        jobs: jobs.map((job) => ({
+          id: job.id,
+          name: job.name,
+          conclusion: job.conclusion,
+          steps: (job.steps ?? []).map((step) => ({ name: step.name, conclusion: step.conclusion })),
+        })),
       })
     }
   }
   return result
 }
 
-function latestSuccessfulFinalizationRuns(workflowState, pr, expectedRunIds) {
+function latestSuccessfulFinalizationRuns(workflowState, pr, expectedRunIds, notApplicable = {}) {
   if (!SHA.test(pr.base?.sha ?? '') || !SHA.test(pr.head?.sha ?? '')) {
     fail('Creating-PR base or head identity is unavailable.')
   }
@@ -295,6 +310,7 @@ function latestSuccessfulFinalizationRuns(workflowState, pr, expectedRunIds) {
     headSha: pr.head.sha,
     prValidationWorkflowId: workflowState.prValidationWorkflowId,
     visualWorkflowId: workflowState.visualWorkflowId,
+    documentationChecksNotApplicable: notApplicable.documentationChecksNotApplicable,
   })
   const selectedRunIds = checks.runs.map(({ id }) => Number(id)).sort((left, right) => left - right)
   const recordedRunIds = expectedRunIds.map(Number).sort((left, right) => left - right)
@@ -390,6 +406,7 @@ async function derivePolicyState({ treeDiff, body, readText, baseTree, ruleState
       structuralFacts,
       declaration,
       visualTransaction: explicitVisualTransaction(paths),
+      authorityDecision: ruleState.currentRuleIds.includes('GOV-004'),
     })
   } catch (error) {
     classificationError = error instanceof Error ? error.message : 'Change classification failed.'
@@ -401,12 +418,13 @@ async function derivePolicyState({ treeDiff, body, readText, baseTree, ruleState
   }
   const acrState = await readBaseAcrState(baseTree, readText, ruleState.knownRuleIds)
   let identifierOnlyOwnerChange = null
+  let ownerCorrection = null
   if (classification.matrix?.categories.includes('permanent-owner')) {
     const [ownerEntry] = treeDiff.entries
     if (treeDiff.entries.length === 1 && categoryForPath(ownerEntry.path) === 'permanent-owner'
       && ownerEntry.base?.type === 'blob' && ownerEntry.base.mode === '100644'
       && ownerEntry.head?.type === 'blob' && ownerEntry.head.mode === '100644') {
-      identifierOnlyOwnerChange = proveIdentifierOnlyOwnerChange([{
+      const ownerChanges = [{
         path: ownerEntry.path,
         baseType: ownerEntry.base.type,
         baseMode: ownerEntry.base.mode,
@@ -414,17 +432,26 @@ async function derivePolicyState({ treeDiff, body, readText, baseTree, ruleState
         headMode: ownerEntry.head.mode,
         baseSource: await readText(ownerEntry.base),
         headSource: await readText(ownerEntry.head),
-      }], ruleState)
+      }]
+      identifierOnlyOwnerChange = proveIdentifierOnlyOwnerChange(ownerChanges, ruleState)
+      ownerCorrection = proveOwnerCorrectionShape(ownerChanges)
     }
   }
   let acrTransaction
   if (classification.matrix?.categories.includes('acr-instance')) {
     acrTransaction = {
-      changes: await Promise.all(treeDiff.entries.map(async ({ path: filePath, base, head }) => ({
-        path: filePath,
-        baseSource: base ? await readText(base) : null,
-        headSource: head ? await readText(head) : null,
-      }))),
+      changes: await Promise.all(treeDiff.entries
+        .filter(({ path: filePath }) => categoryForPath(filePath) === 'acr-instance')
+        .map(async ({ path: filePath, base, head }) => {
+          if ([base, head].filter(Boolean).some((entry) => entry.type !== 'blob' || entry.mode !== '100644')) {
+            fail('Authority Change Records must be regular 100644 blobs.')
+          }
+          return {
+            path: filePath,
+            baseSource: base ? await readText(base) : null,
+            headSource: head ? await readText(head) : null,
+          }
+        })),
     }
     validateAcrTransaction(acrTransaction, {
       currentRuleIds: ruleState.currentRuleIds,
@@ -439,6 +466,7 @@ async function derivePolicyState({ treeDiff, body, readText, baseTree, ruleState
     acrState,
     acrTransaction,
     identifierOnlyOwnerChange,
+    ownerCorrection,
   }
 }
 
@@ -466,6 +494,7 @@ async function buildFinalizationEvidenceSnapshot({ api, pr, runSet, candidateSha
   const policy = await derivePolicyState({
     treeDiff, body: current.body ?? '', readText, baseTree, ruleState,
   })
+  const notApplicable = await notApplicableScopeForDiff({ treeDiff, baseTree, headTree, readText })
   return {
     prNumber: pr.number,
     baseSha: runSet.baseSha,
@@ -478,10 +507,12 @@ async function buildFinalizationEvidenceSnapshot({ api, pr, runSet, candidateSha
     classificationError: policy.classificationError,
     changeCategories: policy.classification.matrix?.categories ?? [],
     changedPaths: policy.paths,
+    ...notApplicable,
     acceptedAcrRecords: policy.acrState.accepted,
     acrBaseRecords: policy.acrState.records,
     acrTransaction: policy.acrTransaction,
     identifierOnlyOwnerChange: policy.identifierOnlyOwnerChange,
+    ownerCorrection: policy.ownerCorrection,
     mechanismDigest,
     knownRuleIds: ruleState.currentRuleIds,
     acrKnownRuleIds: ruleState.knownRuleIds,
@@ -521,8 +552,12 @@ export async function verifyRemoteFinalization({
     trustedStatuses.governanceBinding.runs.visual,
   ]
   const workflowState = await fetchFinalizationWorkflowRuns(api, pr, recordedRunIds)
-  const runSet = latestSuccessfulFinalizationRuns(workflowState, pr, recordedRunIds)
-  const evidenceSnapshot = await buildFinalizationEvidenceSnapshot({ api, pr, runSet, candidateSha })
+  const evidenceSnapshot = await buildFinalizationEvidenceSnapshot({
+    api, pr, runSet: { baseSha: pr.base.sha, headSha: pr.head.sha }, candidateSha,
+  })
+  const runSet = latestSuccessfulFinalizationRuns(
+    workflowState, pr, recordedRunIds, evidenceSnapshot,
+  )
   evaluateEvidenceSnapshot(evidenceSnapshot)
   const actual = {
     ...trustedStatuses.contexts,
@@ -563,6 +598,30 @@ function declaredClassification(body) {
 
 function explicitVisualTransaction(paths) {
   return paths.some((filePath) => categoryForPath(filePath) === 'visual-baseline')
+}
+
+function unchangedRegularInput(baseTree, headTree, filePath) {
+  const base = baseTree.get(filePath)
+  const head = headTree.get(filePath)
+  return base?.type === 'blob' && base.mode === '100644'
+    && head?.type === 'blob' && head.mode === '100644' && base.sha === head.sha
+}
+
+async function notApplicableScopeForDiff({ treeDiff, baseTree, headTree, readText }) {
+  const result = { documentationChecksNotApplicable: false }
+  if (isDocumentationCheckScope(treeDiff.entries)
+    && DOCUMENTATION_CHECK_SCOPE_INPUTS.every((filePath) => unchangedRegularInput(baseTree, headTree, filePath))) {
+    const prWorkflow = await readText(baseTree.get('.github/workflows/pr-validation.yml'))
+    const visualWorkflow = await readText(baseTree.get('.github/workflows/visual-baseline.yml'))
+    try {
+      validatePrValidationWorkflow(prWorkflow)
+      validateVisualWorkflow(visualWorkflow)
+      return { documentationChecksNotApplicable: true }
+    } catch (error) {
+      if (!(error instanceof PolicyError)) throw error
+    }
+  }
+  return result
 }
 
 function sourceLines(source) {
@@ -1208,6 +1267,7 @@ export async function buildCurrentSnapshot({
   const policy = await derivePolicyState({
     treeDiff, body: pr.body ?? '', readText, baseTree, ruleState,
   })
+  const notApplicable = await notApplicableScopeForDiff({ treeDiff, baseTree, headTree, readText })
   return {
     prNumber,
     baseSha: pr.base.sha,
@@ -1220,10 +1280,12 @@ export async function buildCurrentSnapshot({
     classificationError: policy.classificationError,
     changeCategories: policy.classification.matrix?.categories ?? [],
     changedPaths: policy.paths,
+    ...notApplicable,
     acceptedAcrRecords: policy.acrState.accepted,
     acrBaseRecords: policy.acrState.records,
     acrTransaction: policy.acrTransaction,
     identifierOnlyOwnerChange: policy.identifierOnlyOwnerChange,
+    ownerCorrection: policy.ownerCorrection,
     mechanismDigest,
     knownRuleIds: ruleState.currentRuleIds,
     acrKnownRuleIds: ruleState.knownRuleIds,
@@ -1245,13 +1307,6 @@ export function evaluateSnapshot(snapshot) {
 function evaluateEvidence(snapshot, comments) {
   if (snapshot.classificationError) throw new PolicyError(snapshot.classificationError)
   if (snapshot.declarationMismatch) throw new PolicyError('Pull request classification attempts to lower trusted protection.')
-  if (snapshot.changeCategories?.includes('acr-instance')) {
-    validateAcrTransaction(snapshot.acrTransaction, {
-      currentRuleIds: snapshot.knownRuleIds,
-      knownRuleIds: snapshot.acrKnownRuleIds,
-      baseRecords: snapshot.acrBaseRecords,
-    })
-  }
   const trace = validateAuthorityTrace(parseAuthorityTrace(snapshot.body), {
     knownRuleIds: snapshot.knownRuleIds,
     computedClassification: snapshot.classification,
@@ -1259,6 +1314,10 @@ function evaluateEvidence(snapshot, comments) {
     acceptedAcrRecords: snapshot.acceptedAcrRecords,
     changedPaths: snapshot.changedPaths,
     identifierOnlyOwnerChange: snapshot.identifierOnlyOwnerChange,
+    ownerCorrection: snapshot.ownerCorrection,
+    acrTransaction: snapshot.acrTransaction,
+    acrBaseRecords: snapshot.acrBaseRecords,
+    acrKnownRuleIds: snapshot.acrKnownRuleIds,
   })
   const evidence = validateReviewEvidence(comments, {
     prNumber: snapshot.prNumber,
