@@ -23,8 +23,9 @@ game facts, setup policy, or user-visible behavior.
 - `src/workbench/content/` and its `content.ts` facade hold retained facts for
   currently admitted Agents. Those facts serve current consumers and do not
   form a catalogue.
-- Behavior tests are the executable contract for calculation, state transitions,
-  preservation and reset rules, and user-visible interactions.
+- Behavior tests verify already-settled calculation, state transitions,
+  preservation, reset, and interactions. Passing tests do not establish product
+  meaning or validate their own source assumptions.
 - Components and browser verification own the concrete presentation of the
   behavior already settled by the authorities, requirements, and active plan.
 - Git commits record reviewed history. A commit does not replace any owner above.
@@ -42,9 +43,9 @@ game facts, setup policy, or user-visible behavior.
    user-visible checkpoint.
 4. Implement from the visible outcome backward with the smallest representation
    that serves the current checkpoint.
-5. Add behavior-bearing tests at the narrowest useful layer. Prefer assertions
-   about inputs and observable outputs over file shape, component structure, or
-   incidental copy.
+5. Apply the `Testing delta` gate in `AGENTS.md`. Extend shared behavior coverage
+   only for a new mechanism or uncovered visible failure; do not mirror content
+   values, file layout, or incidental copy in new tests.
 6. Run `npm run check`.
 7. If presentation or interaction changed, verify the affected flow in a real
    browser at desktop and narrow widths. Check interactions, horizontal
@@ -91,7 +92,7 @@ objective gates.
 npm run check
 ```
 
-The command runs the complete automated test suite and a production build. It
+The command runs governance and behavior tests, type checking, and a production build. It
 is the minimum repeatable gate before review or commit. Browser verification is
 required in addition when a change has a visual or interactive consumer; it is
 not represented as passing merely because the build succeeds.
@@ -124,6 +125,12 @@ reviewable checkpoints:
 - Successful visual checks retain no uploaded artifact. A failed visual check
   may upload only its generated diagnostic report and test results for three
   days; the committed visual baselines remain in Git.
+- `Type Check` owns the remote TypeScript check; `Production Build` runs Vite
+  without repeating it. `Visual Baseline` remains a required successful job.
+  Only regular supporting Markdown changes may report not applicable, after
+  the trusted evaluator independently verifies the exact base/head file scope,
+  modes, workflow, and successful not-applicable step. Authority, governance,
+  runtime, asset, mixed, and unknown changes retain full visual verification.
 
 These limits reduce runner and storage consumption without weakening any of the
 required remote contexts or the protected acceptance boundary.
@@ -138,26 +145,17 @@ source first. Then run
 `gh workflow run trusted-governance.yml -f pr_number=<PR_NUMBER>` once. Do not
 rerun a child workflow merely to manufacture another dispatcher event.
 
-The promotion boundary preserves the recovery history while establishing the
-permanent branch topology:
+The completed recovery promotion established this branch topology:
 
 - `unverified-baseline` and `unverified-baseline-3b2456a` preserve the exact
   forensic checkpoint and may not move;
 - `recovery` is the frozen attested checkpoint and remains distinct from trusted
   `main`;
-- protected `main` accepts pull requests only and is the permanent default;
-- the completed bootstrap phase required a fresh product-owner approval for
-  every recovery pull request and kept App merge disabled until the full
-  ruleset and reviewer-evidence workflow was proven;
-- under the current conditional gate, the project GitHub App may author and
-  merge non-protected branches and pull requests without another owner review,
-  while protected changes still require the fresh approval defined below and
-  the App never receives protection bypass; and
-- no Agent vertical, frozen plan, or roadmap continuation resumes until the
-  recovery acceptance and promotion flow succeeds.
+- protected `main` accepts pull requests only and is the permanent default.
 
-Repository operations and checks enforce this boundary. They do not define
-product meaning or make a secondary requirement authoritative.
+The current conditional approval gate below applies to new work. The App has
+no protection bypass. Completed bootstrap steps remain in Git history and the
+recovery postmortem; they are not an active prerequisite for every new vertical.
 
 ### Pull-request evidence and conditional approval
 
@@ -291,7 +289,7 @@ unique creating PR instead of depending on that transient array. It never
 synthesizes success from the local gate.
 
 The trusted evaluator installs the dependency graph pinned by the trusted
-`recovery` lockfile with lifecycle scripts disabled. It parses selected PR
+`main` lockfile with lifecycle scripts disabled. It parses selected PR
 TypeScript blobs only as inert syntax for the narrow Agent-local proof and does
 not install, import, or execute the proposed PR's package or code.
 
