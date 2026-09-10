@@ -8,8 +8,7 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-Keep at most one active bounded implementation plan. The active plan is
-[maintenance compression](2026-09-10-maintenance-compression-plan.md).
+Keep at most one active bounded implementation plan. There is no active plan.
 Completed verticals are recorded in the milestone index below,
 and later Agent verticals still require their own bounded requirement and plan
 after their meaning is settled.
@@ -61,6 +60,7 @@ and author the new local outcome from current consumers instead.
 | Date | Milestone | Current durable owners |
 | --- | --- | --- |
 | 2026-09-10 | Implemented reviewed owner corrections, one-decision authority transactions, and trusted documentation-only runtime N/A | [Repository governance](../../AGENTS.md#authority-change-and-trace-governance), [ACR lifecycle](../authority-changes/README.md), validation workflows, and shared policy/adapter tests |
+| 2026-09-10 | Compressed obsolete calculation-boundary instructions, corrected the current gauge consumer reference, and removed overridden selector CSS while preserving behavior and geometry | [Applied-party boundary](../brainstorms/2026-08-07-applied-party-calculation-boundary-requirements.md), [calculation boundary](../brainstorms/2026-08-07-calculation-module-boundary-requirements.md), [shared harness](../brainstorms/2026-08-21-shared-source-calculation-harness-requirements.md), current Result and selector consumers; checkpoints `c3224b0`, `1f9ba71` |
 | 2026-09-10 | Corrected committed substat drafts, fact-derived bilingual equipment copy, gauge output projection, and narrow Result disclosure; isolated verification-cost work on `codex/audit-verification-cost` at `e530c0f` | Current Setup/localization/Result consumers and shared behavior/geometry tests; implementation checkpoint `07dad1c` |
 | 2026-09-10 | Preserved threshold non-stacking delivery and Combat entry effects while unifying equipment materialization | Current equipment facts/materializers, shared profile harness and equipment tests; checkpoint `34191ba` |
 | 2026-08-01 to 2026-08-05 | Established the first Yixuan/Dialyn/Lucia setup-to-Result loop, integrated three-slot workbench, and retained Mindscape behavior | [First-vertical baseline requirements](../brainstorms/2026-08-06-first-vertical-completion-review-requirements.md), [product contract](../setup-workbench-product-contract.md), [UI requirements](../brainstorms/2026-08-02-agent-slot-setup-result-ui-requirements.md), [UI design rules](../workbench-ui-design-rules.md) |
