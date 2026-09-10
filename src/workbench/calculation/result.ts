@@ -77,12 +77,7 @@ export interface GaugeResult {
   current: number
   threshold?: number
   cap?: number
-  outputLabel: string
-  outputPresentationId: StaticPresentationId
-  outputValue: number
-  outputCap?: number
-  outputUnit: string
-  additionalOutputs?: Array<{
+  outputs: Array<{
     presentationId: StaticPresentationId
     label: string
     value: number

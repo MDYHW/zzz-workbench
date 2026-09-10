@@ -12,11 +12,15 @@ import { operatingIntervalFor } from '../setup-policies'
 import { equipmentEffectStatMeaning } from '../stat-meanings'
 import {
   equipmentEffectAppliesToAttribute,
+  equipmentEffectBaseValue,
+  equipmentEffectMaximumValue,
   type AgentId,
   type EquipmentEffectFact,
+  type Refinement,
 } from '../types'
 import type { SelectedSetupObservation } from './equipment'
 import { projectEquipmentEffectRelationships } from './equipment-effect-relationships'
+import { projectMinimumStatEquipmentEffect } from './minimum-stat-effect-projector'
 import {
   equipmentEffectAppliesInOperatingInterval,
   equipmentEffectCanBeActivated,
@@ -124,6 +128,7 @@ export interface EquipmentEffectMaterializationContext {
   partyAgentIds: readonly AgentId[]
   focusAgentId: AgentId
   source: SelectedSourceInstance
+  refinement?: Refinement
   observation?: SelectedSetupObservation
   amountsForEffect: (
     effectKey: string,
@@ -132,13 +137,6 @@ export interface EquipmentEffectMaterializationContext {
   effectIsHolderApplicable?: (effectKey: string) => boolean
   omitEffectKeys?: ReadonlySet<string>
   includeEffect?: (effectKey: string, fact: EquipmentEffectFact) => boolean
-  projectEffect?: (input: {
-    effectKey: string
-    fact: EquipmentEffectFact
-    amount: number
-    earliestSurface: SurfaceKey
-    delivery?: EquipmentDelivery
-  }) => ProfileRelationship[]
 }
 
 /**
@@ -154,12 +152,12 @@ export function materializeEquipmentEffects(
     partyAgentIds,
     focusAgentId,
     source,
+    refinement,
     observation,
     amountsForEffect,
     effectIsHolderApplicable = () => true,
     omitEffectKeys = new Set<string>(),
     includeEffect = () => true,
-    projectEffect,
   } = context
   const interval = operatingIntervalFor(agentId, focusAgentId)
   const holderAttribute = partyAgentIds.length === 3
@@ -188,17 +186,25 @@ export function materializeEquipmentEffects(
     ) return []
     if (!recipient && !hasLocalConsumer(fact, observation)) return []
 
-    const delivery = recipient ? providerDelivery(fact, holderAttribute) : undefined
+    const delivery = providerDelivery(fact, holderAttribute)
+    if (fact.activation?.kind === 'minimum-stat') {
+      return projectMinimumStatEquipmentEffect({
+        source,
+        fact,
+        baseAmount: equipmentEffectBaseValue(fact, refinement),
+        maximumAmount: equipmentEffectMaximumValue(fact, refinement),
+        earliestSurface: fact.earliestSurface ?? 'fully',
+        delivery,
+      })
+    }
     return amountsForEffect(effectKey, fact).flatMap(({ amount, earliestSurface }) => (
-      projectEffect
-        ? projectEffect({ effectKey, fact, amount, earliestSurface, ...(delivery ? { delivery } : {}) })
-        : projectEquipmentEffectRelationships({
-            source,
-            fact,
-            amount,
-            earliestSurface,
-            ...(delivery ? { delivery } : {}),
-          })
+      projectEquipmentEffectRelationships({
+        source,
+        fact,
+        amount,
+        earliestSurface,
+        ...(recipient ? { delivery } : {}),
+      })
     ))
   })
 }

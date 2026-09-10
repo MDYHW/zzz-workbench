@@ -201,10 +201,7 @@ describe('shared calculation integration', () => {
       basisLabel: 'Initial Energy Regen',
       threshold: VERTICAL_VALUES.velina.coreEnergyThreshold,
       cap: VERTICAL_VALUES.velina.coreEnergyCap,
-      outputLabel: 'DMG Bonus',
-      outputValue: VERTICAL_VALUES.velina.coreDmgCap,
-      outputCap: VERTICAL_VALUES.velina.coreDmgCap,
-      additionalOutputs: [{
+      outputs: [{ label: 'DMG Bonus', value: VERTICAL_VALUES.velina.coreDmgCap, cap: VERTICAL_VALUES.velina.coreDmgCap, unit: '%' }, {
         label: 'Anomaly Mastery',
         value: VERTICAL_VALUES.velina.coreMasteryCap,
         cap: VERTICAL_VALUES.velina.coreMasteryCap,
@@ -239,10 +236,10 @@ describe('shared calculation integration', () => {
       * VERTICAL_VALUES.velina.coreMasteryPerEnergy
     expect(underCapEnergy.values.initial).toBeLessThan(VERTICAL_VALUES.velina.coreEnergyCap)
     expect(underCapGauge.current).toBeCloseTo(underCapEnergy.values.initial, 10)
-    expect(underCapGauge.outputValue).toBeCloseTo(expectedDmg, 10)
-    expect(underCapGauge.outputValue).toBeLessThan(VERTICAL_VALUES.velina.coreDmgCap)
-    expect(underCapGauge.additionalOutputs?.[0]?.value).toBeCloseTo(expectedMastery, 10)
-    expect(underCapGauge.additionalOutputs?.[0]?.value)
+    expect(underCapGauge.outputs[0]!.value).toBeCloseTo(expectedDmg, 10)
+    expect(underCapGauge.outputs[0]!.value).toBeLessThan(VERTICAL_VALUES.velina.coreDmgCap)
+    expect(underCapGauge.outputs[1]?.value).toBeCloseTo(expectedMastery, 10)
+    expect(underCapGauge.outputs[1]?.value)
       .toBeLessThan(VERTICAL_VALUES.velina.coreMasteryCap)
     expect(underCapMetric('dmgBonus').breakdown.fully).toContainEqual(
       expect.objectContaining({ label: 'Core Passive', amount: expectedDmg }),
@@ -450,7 +447,7 @@ describe('shared calculation integration', () => {
     expect(attributeAnomalySources.filter((label) => (
       label === 'Ode of Resurrected Wings'
     ))).toHaveLength(1)
-    expect(attributeAnomalySources.filter((label) => (
+    expect(attributeAnomaly.breakdown.combat.filter(({ label }) => (
       label === 'Feathered Fate'
     ))).toHaveLength(1)
     expect(remielle.actionModifiers.some(({ id }) => (
@@ -479,19 +476,17 @@ describe('shared calculation integration', () => {
         amount: VERTICAL_VALUES.remielle.additionalBuildup,
       }),
     )
-    const threeAnomalyAtkGauge = metric('atk').gauges.find(({ outputLabel }) => (
-      outputLabel === 'Squad flat ATK'
+    const threeAnomalyAtkGauge = metric('atk').gauges.find(({ outputs }) => (
+      outputs.some(({ label }) => label === 'Squad flat ATK')
     ))!
     expect(threeAnomalyAtkGauge).toEqual(expect.objectContaining({
       basisLabel: 'Initial ATK',
       current: metric('atk').values.initial,
-      outputLabel: 'Squad flat ATK',
-      outputValue: Math.min(
+      outputs: [expect.objectContaining({ label: 'Squad flat ATK', value: Math.min(
         metric('atk').values.initial
           * VERTICAL_VALUES.remielle.additionalAtkRatioByAnomalyCount[2] / 100,
         VERTICAL_VALUES.remielle.additionalAtkCap,
-      ),
-      outputCap: VERTICAL_VALUES.remielle.additionalAtkCap,
+      ), cap: VERTICAL_VALUES.remielle.additionalAtkCap })],
     }))
     const threeAnomalyRecipient = result.agents.find(({ agentId }) => (
       agentId === 'promeia'
@@ -500,7 +495,7 @@ describe('shared calculation integration', () => {
       .breakdown.fully).toContainEqual(expect.objectContaining({
       label: 'Additional Ability',
       ownerAgentId: 'remielle',
-      amount: threeAnomalyAtkGauge.outputValue,
+      amount: threeAnomalyAtkGauge.outputs[0]!.value,
     }))
 
     const twoAnomalyResult = calculateParty(createPreparedState(
@@ -510,19 +505,18 @@ describe('shared calculation integration', () => {
       agentId === 'remielle'
     ))!
     const twoAnomalyAtk = twoAnomalyRemielle.metrics.find(({ id }) => id === 'atk')!
-    const twoAnomalyAtkGauge = twoAnomalyAtk.gauges.find(({ outputLabel }) => (
-      outputLabel === 'Squad flat ATK'
+    const twoAnomalyAtkGauge = twoAnomalyAtk.gauges.find(({ outputs }) => (
+      outputs.some(({ label }) => label === 'Squad flat ATK')
     ))!
     expect(twoAnomalyAtkGauge).toEqual(expect.objectContaining({
       current: twoAnomalyAtk.values.initial,
-      outputValue: Math.min(
+      outputs: [expect.objectContaining({ value: Math.min(
         twoAnomalyAtk.values.initial
           * VERTICAL_VALUES.remielle.additionalAtkRatioByAnomalyCount[1] / 100,
         VERTICAL_VALUES.remielle.additionalAtkCap,
-      ),
-      outputCap: VERTICAL_VALUES.remielle.additionalAtkCap,
+      ), cap: VERTICAL_VALUES.remielle.additionalAtkCap })],
     }))
-    expect(twoAnomalyAtkGauge.outputValue).toBeLessThan(threeAnomalyAtkGauge.outputValue)
+    expect(twoAnomalyAtkGauge.outputs[0]!.value).toBeLessThan(threeAnomalyAtkGauge.outputs[0]!.value)
     const twoAnomalyRecipient = twoAnomalyResult.agents.find(({ agentId }) => (
       agentId === 'promeia'
     ))!
@@ -530,7 +524,7 @@ describe('shared calculation integration', () => {
       .breakdown.fully).toContainEqual(expect.objectContaining({
         label: 'Additional Ability',
       ownerAgentId: 'remielle',
-      amount: twoAnomalyAtkGauge.outputValue,
+      amount: twoAnomalyAtkGauge.outputs[0]!.value,
       }))
 
     const m3Remielle = calculateParty(workbenchReducer(
@@ -721,7 +715,7 @@ describe('shared calculation integration', () => {
     const withoutLucia = withoutResult.agents.find(({ agentId }) => agentId === 'norma')!
     const lucia = withResult.agents.find(({ agentId }) => agentId === 'lucia')!
     const deliveredSheer = lucia.metrics.find(({ id }) => id === 'maxHp')!.gauges
-      .find(({ outputLabel }) => outputLabel === 'Squad Sheer Force')!.outputValue
+      .find(({ outputs }) => outputs.some(({ label }) => label === 'Squad Sheer Force'))!.outputs[0]!.value
     const withSheer = withLucia.metrics.find(({ id }) => id === 'sheerForce')!
     const withoutSheer = withoutLucia.metrics.find(({ id }) => id === 'sheerForce')!
     const withAtk = withLucia.metrics.find(({ id }) => id === 'atk')!
@@ -730,10 +724,10 @@ describe('shared calculation integration', () => {
     expect(withSheer.values.fully).toBe(deliveredSheer)
     expect(withSheer.gauges[0]).toEqual(expect.objectContaining({
       current: deliveredSheer,
-      outputValue: Math.min(
+      outputs: [expect.objectContaining({ value: Math.min(
         deliveredSheer * VERTICAL_VALUES.norma.sheerAtkPerPoint,
         VERTICAL_VALUES.norma.sheerAtkCap,
-      ),
+      ) })],
     }))
     expect(withAtk.values.fully - withoutAtk.values.fully).toBe(
       Math.min(
@@ -743,7 +737,7 @@ describe('shared calculation integration', () => {
     )
     expect(withoutSheer.values.fully).toBe(0)
     expect(withoutSheer.gauges[0]).toEqual(expect.objectContaining({
-      current: 0, outputValue: 0,
+      current: 0, outputs: [expect.objectContaining({ value: 0 })],
     }))
   })
 
@@ -872,7 +866,7 @@ describe('shared calculation integration', () => {
 
     expect(critRate.values.fully).toBeGreaterThan(gauge.cap!)
     expect(gauge.current).toBe(critRate.values.fully)
-    expect(gauge.outputValue).toBe(gauge.outputCap)
+    expect(gauge.outputs[0]!.value).toBe(gauge.outputs[0]!.cap)
   })
 
   it('inherits canonical Basic effects into Miyabi Basic outcomes without affecting Dodge Counter', () => {
@@ -1176,8 +1170,8 @@ describe('shared calculation integration', () => {
       const agent = calculateParty(createPreparedState({}, agentIds, 0))!.agents
         .find(({ agentId }) => agentId === agentIds[0])!
       return agent.metrics.find(({ id }) => id === 'anomalyProficiency')?.gauges
-        .find(({ source, outputLabel }) => (
-          source.label === 'Timeweaver' && outputLabel === 'Disorder DMG Bonus'
+        .find(({ source, outputs }) => (
+          source.label === 'Timeweaver' && outputs.some(({ label }) => label === 'Disorder DMG Bonus')
         ))
     }
 

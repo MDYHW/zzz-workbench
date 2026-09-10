@@ -10,7 +10,6 @@ import {
   type Refinement,
 } from '../types'
 import type { SelectedSetupObservation } from './equipment'
-import { projectMinimumStatEquipmentEffect } from './minimum-stat-effect-projector'
 import { materializeEquipmentEffects } from './equipment-effect-materializer'
 
 function baseSurface(fact: EquipmentEffectFact): SurfaceKey {
@@ -53,14 +52,6 @@ function effectAmounts(
   ]
 }
 
-function minimumStatEffectAmounts(
-  fact: EquipmentEffectFact,
-  refinement: Refinement,
-): readonly { amount: number; earliestSurface: SurfaceKey }[] {
-  const amount = equipmentEffectMaximumValue(fact, refinement)
-  return amount ? [{ amount, earliestSurface: 'fully' }] : []
-}
-
 export interface SelectedWEngineEffectMaterializationContext {
   agentId: AgentId
   partyAgentIds: readonly AgentId[]
@@ -74,7 +65,7 @@ export interface SelectedWEngineEffectMaterializationContext {
 }
 
 /**
- * Materializes ordinary source-owned W-Engine clauses without consulting the
+ * Materializes source-owned W-Engine clauses without consulting the
  * W-Engine identity. Item-specific code is reserved for clauses whose current
  * consumer is a genuinely distinct operation or whose source relationship is
  * not yet expressible by the shared fact grammar.
@@ -83,31 +74,16 @@ export function materializeSelectedWEngineEffects(
   effects: Readonly<Record<string, EquipmentEffectFact>>,
   context: SelectedWEngineEffectMaterializationContext,
 ): ProfileRelationship[] {
-  const ordinary = materializeEquipmentEffects(effects, {
+  return materializeEquipmentEffects(effects, {
     ...context,
     amountsForEffect: (_effectKey, fact) => effectAmounts(fact, context.refinement),
     includeEffect: (effectKey, fact) => (
-      fact.activation?.kind !== 'minimum-stat'
+      (fact.activation?.kind !== 'minimum-stat' || (
+        equipmentEffectMaximumValue(fact, context.refinement) !== 0
+        && (context.observation === undefined
+          || context.observation.baseStats[fact.activation.statId] !== undefined)
+      ))
       && (context.includeEffect?.(effectKey, fact) ?? true)
     ),
   })
-  const thresholds = materializeEquipmentEffects(effects, {
-    ...context,
-    amountsForEffect: (_effectKey, fact) => minimumStatEffectAmounts(fact, context.refinement),
-    includeEffect: (effectKey, fact) => (
-      fact.activation?.kind === 'minimum-stat'
-      && (
-        context.observation === undefined
-        || context.observation.baseStats[fact.activation.statId] !== undefined
-      )
-      && (context.includeEffect?.(effectKey, fact) ?? true)
-    ),
-    projectEffect: ({ fact }) => projectMinimumStatEquipmentEffect({
-      source: context.source,
-      fact,
-      baseAmount: equipmentEffectBaseValue(fact, context.refinement),
-      maximumAmount: equipmentEffectMaximumValue(fact, context.refinement),
-    }),
-  })
-  return [...ordinary, ...thresholds]
 }

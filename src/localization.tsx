@@ -33,6 +33,7 @@ import type { EffectMetric, SurfaceKey } from './workbench/effects'
 import type { ResultSource } from './workbench/effects'
 import type { SourceDefinitionKey, SourceDefinitionLocus } from './workbench/content/source-definitions'
 import { KOREAN_PRESENTATION, type PresentationId, type PresentationValues } from './presentation'
+import type { EquipmentCopyLine } from './workbench/content/equipment-copy'
 
 export type Locale = 'ko' | 'en'
 
@@ -290,7 +291,7 @@ const koEnginePassiveTemplates = {
   tremorTrigramVessel: ['강화 특수 스킬 및 궁극기 피해 +{0}%', '파티원이 피해를 받거나 회복 시 · 에너지 +{0}'],
   roaringFurnace: ['강화 특수 스킬, 콤보 스킬 및 궁극기 그로기 수치 +{0}%', '파티 피해 +{0}%'],
   myriadEclipse: ['치명타 피해 +{0}%', '방어력 무시 +{0}%'],
-  krakensCradle: ['얼음 관입 피해 +{0}%', 'HP 최대치가 {0}% 이하일 때 · 치명타 확률 +{1}%'],
+  krakensCradle: ['얼음 관입 피해 +{0}%', '현재 HP가 최대 HP의 {0}% 이하일 때 · 치명타 확률 +{1}%'],
   grillOWisp: ['불 피해 +{0}%', '치명타 확률 +{0}%'],
   wrathfulVajra: ['치명타 확률 +{0}%', '강화 특수 스킬 · 불 관입 피해 +{0}%'],
   starlightRiderFaceplate: ['치명타 확률 +{0}%', '물리 관입 피해 +{0}%'],
@@ -436,14 +437,13 @@ export function localizeText(text: string, locale: Locale): string {
 
 function renderEquipmentTemplate(
   template: string | undefined,
-  fallback: string,
+  fallback: EquipmentCopyLine,
   attribute?: AgentAttribute,
 ): string {
-  if (!template) return fallback
-  const values = fallback.match(/\d+(?:\.\d+)?/g) ?? []
+  if (!template) return fallback.text
   return template
     .replaceAll('{attribute}', attribute ? koAttributes[attribute] : '')
-    .replace(/\{(\d+)\}/g, (_, index: string) => values[Number(index)] ?? '')
+    .replace(/\{(\d+)\}/g, (_, index: string) => fallback.values[Number(index)]?.toString() ?? '')
 }
 
 export function localizedAgentName(agentId: AgentId, locale: Locale): string {
@@ -572,12 +572,12 @@ export function localizedSourceDetail(source: ResultSource, locale: Locale): str
 export function localizedEnginePassiveLine(
   engineId: EngineId,
   lineIndex: number,
-  line: string,
+  line: EquipmentCopyLine,
   locale: Locale,
 ): string {
   return locale === 'ko'
     ? renderEquipmentTemplate(koEnginePassiveTemplates[engineId][lineIndex], line)
-    : line
+    : line.text
 }
 
 /** Setup copy is selected by stable Disc identity, piece, and line position. */
@@ -585,13 +585,13 @@ export function localizedDiscEffectLine(
   discId: DiscId,
   piece: 'twoPiece' | 'fourPiece',
   lineIndex: number,
-  line: string,
+  line: EquipmentCopyLine,
   locale: Locale,
   holderAttribute?: AgentAttribute,
 ): string {
   return locale === 'ko'
     ? renderEquipmentTemplate(koDiscEffectTemplates[discId][piece][lineIndex], line, holderAttribute)
-    : line
+    : line.text
 }
 
 interface LocalizationValue {

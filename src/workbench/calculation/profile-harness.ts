@@ -323,8 +323,7 @@ function modifierEffect(atom: ModifierAtom) {
 }
 
 function gaugeResult(gauge: EvaluatedGauge): GaugeResult {
-  const [first, ...rest] = gauge.outputs
-  if (!first) throw new Error('A Result gauge requires an admitted output')
+  if (gauge.outputs.length === 0) throw new Error('A Result gauge requires an admitted output')
   return {
     source: resultSourceFor(
       gauge.source,
@@ -335,20 +334,13 @@ function gaugeResult(gauge: EvaluatedGauge): GaugeResult {
     current: gauge.current,
     ...(gauge.threshold === undefined ? {} : { threshold: gauge.threshold }),
     ...(gauge.cap === undefined ? {} : { cap: gauge.cap }),
-    outputLabel: first.label,
-    outputPresentationId: first.presentationId,
-    outputValue: first.value,
-    ...(first.cap === undefined ? {} : { outputCap: first.cap }),
-    outputUnit: first.unit,
-    ...(rest.length === 0 ? {} : {
-      additionalOutputs: rest.map((output) => ({
-        presentationId: output.presentationId,
-        label: output.label,
-        value: output.value,
-        ...(output.cap === undefined ? {} : { cap: output.cap }),
-        unit: output.unit,
-      })),
-    }),
+    outputs: gauge.outputs.map((output) => ({
+      presentationId: output.presentationId,
+      label: output.label,
+      value: output.value,
+      ...(output.cap === undefined ? {} : { cap: output.cap }),
+      unit: output.unit,
+    })),
     ...(gauge.presentation ? { presentation: gauge.presentation } : {}),
     ...(gauge.decimals ? { decimals: gauge.decimals } : {}),
   }

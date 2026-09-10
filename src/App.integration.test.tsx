@@ -784,13 +784,36 @@ describe('workbench UI integration', () => {
       .toHaveAttribute('aria-selected', 'true')
   })
 
-  it('recalculates a direct Setup edit and keeps its source connected to Result', async () => {
+  it('commits and restores direct Setup drafts while keeping Result and source linkage consistent', async () => {
     const user = await renderPreparedFixtureParty()
 
     const before = screen.getByRole('row', { name: /CRIT Rate/ }).textContent
     await user.click(screen.getByRole('button', { name: 'Increase CRIT Rate hits' }))
     const after = screen.getByRole('row', { name: /CRIT Rate/ }).textContent
     expect(after).not.toBe(before)
+
+    const count = screen.getByRole('textbox', { name: 'CRIT Rate hit count' })
+    await user.clear(count)
+    await user.type(count, '10')
+    await user.tab()
+    const committedResult = screen.getByRole('row', { name: /CRIT Rate/ }).textContent
+    for (const finish of ['blur', 'enter']) {
+      await user.clear(count)
+      expect(count).toHaveValue('')
+      if (finish === 'blur') await user.tab()
+      else await user.keyboard('{Enter}')
+      expect(count).toHaveValue('10')
+      expect(count).toHaveAttribute('aria-invalid', 'false')
+      expect(screen.getByRole('row', { name: /CRIT Rate/ }).textContent).toBe(committedResult)
+    }
+    const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined)
+    await user.click(screen.getByRole('button', { name: 'Copy Setup shortcut' }))
+    const copied = readSetupShortcut(new URL(writeText.mock.calls[0][0]).hash)
+    expect(copied?.slots[0].setup.substats.critRate).toBe(10)
+    await user.clear(count)
+    await user.type(count, '11{Enter}')
+    expect(count).toHaveValue('11')
+    expect(screen.getByRole('row', { name: /CRIT Rate/ }).textContent).not.toBe(committedResult)
 
     await user.click(screen.getByRole('button', {
       name: 'Change 2-piece Drive Disc from Branch & Blade Song',

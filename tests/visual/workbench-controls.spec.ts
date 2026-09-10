@@ -250,6 +250,45 @@ test('separates gauge cap and threshold into stable vertical lanes', async ({ pa
   }
 })
 
+test('keeps expanded Result sources inside their row and later quantities reachable', async ({ page }) => {
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    await openInitialWorkbench(page, viewport)
+    for (const [slot, agent] of [
+      [1, /Remielle, Lumiflux, Anomaly/],
+      [2, /Ellen, Ice, Attack/],
+      [3, /Astra Yao, Ether, Support/],
+    ] as const) {
+      await page.getByRole('button', { name: `Select Agent for slot ${slot}` }).click()
+      await page.getByRole('button', { name: agent }).click()
+    }
+    await page.getByRole('button', { name: 'Apply party' }).click()
+    await page.getByRole('tab', { name: 'View Remielle setup and Result' }).click()
+    await page.getByRole('button', { name: 'Anomaly Proficiency', exact: true }).click()
+    await expect(page.locator('.action-source-detail:visible')).toHaveCount(0)
+    await page.getByRole('button', { name: 'Anomaly DMG Bonus', exact: true }).click()
+    await page.getByRole('button', { name: 'Show sources for Attribute Anomaly', exact: true }).click()
+
+    const geometry = await page.locator('.agent-result').evaluate((result) => {
+      const rows = Array.from(result.querySelectorAll(':scope > .result-table-wrap > table > tbody > tr'))
+      return rows.map((row, index) => {
+        const box = row.getBoundingClientRect()
+        const next = rows[index + 1]?.getBoundingClientRect()
+        const content = row.querySelector('.breakdown-grid')?.getBoundingClientRect()
+        return { bottom: box.bottom, nextTop: next?.top, contentBottom: content?.bottom }
+      })
+    })
+    expect(geometry.filter((row) => row.contentBottom !== undefined)).toHaveLength(2)
+    for (const row of geometry) {
+      if (row.nextTop !== undefined) expect(row.bottom).toBeLessThanOrEqual(row.nextTop + 1)
+      if (row.contentBottom !== undefined) expect(row.contentBottom).toBeLessThanOrEqual(row.bottom + 1)
+    }
+    expect(await page.locator('.agent-result').evaluate((result) => (
+      Array.from(result.querySelectorAll('.source-matrix-wrap, .action-matrix-wrap'))
+        .every((element) => element.scrollWidth <= element.clientWidth + 1)
+    ))).toBe(true)
+  }
+})
+
 test('keeps Drive Disc art clear of piece labels at every viewport', async ({ page }) => {
   for (const viewport of viewports) {
     await openWorkbench(page, viewport)

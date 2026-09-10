@@ -1,5 +1,6 @@
 import type { ActionTag, CanonicalActionKind } from '../actions'
 import type { SurfaceKey } from '../effects'
+import type { EquipmentCopyLine } from './equipment-copy'
 
 export type PoolId = 'full' | 'nonLimited'
 
@@ -375,16 +376,16 @@ export interface WEngineChoice {
   baseAtk: number
   advancedStat: AdvancedStat
   image: string
-  passiveLines: (refinement: Refinement) => string[]
+  passiveLines: (refinement: Refinement) => EquipmentCopyLine[]
   passiveSpecialty: AgentSpecialty
 }
 
 export interface DriveDiscChoice {
   name: string
   image: string
-  twoPieceEffect: string
-  fourPieceEffects?: string[]
-  fourPieceEffectsForHolder?: (holderAttribute: AgentAttribute) => string[]
+  twoPieceEffect: EquipmentCopyLine
+  fourPieceEffects?: EquipmentCopyLine[]
+  fourPieceEffectsForHolder?: (holderAttribute: AgentAttribute) => EquipmentCopyLine[]
 }
 
 export interface MainStatChoice {

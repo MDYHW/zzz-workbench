@@ -1,6 +1,6 @@
-import type { ProfileRelationship } from '../../calculation/relationships'
+import type { DeliveryRule, ProfileRelationship } from '../../calculation/relationships'
 import type { SelectedSourceInstance } from '../../calculation/source-instance'
-import { CRIT_DAMAGE_FORMULAS } from '../../formula-policy'
+import type { SurfaceKey } from '../../effects'
 import { equipmentEffectStatMeaning } from '../stat-meanings'
 import type { EquipmentEffectFact } from '../types'
 import {
@@ -58,18 +58,6 @@ function statEffectLabel(fact: EquipmentEffectFact): string {
   }
 }
 
-function statDelivery(fact: EquipmentEffectFact) {
-  switch (fact.modifier) {
-    case 'critRate':
-    case 'critDmg':
-      return { formulas: CRIT_DAMAGE_FORMULAS }
-    case 'anomalyProficiency':
-      return { formulas: ['anomaly_damage'] as const }
-    default:
-      return {}
-  }
-}
-
 function targetLabel(fact: EquipmentEffectFact): string {
   return equipmentEffectActionTargets(fact).flatMap((target) => target.outcomes.map((outcome) => {
     switch (outcome.kind) {
@@ -85,11 +73,15 @@ export function projectMinimumStatEquipmentEffect({
   fact,
   baseAmount,
   maximumAmount,
+  earliestSurface,
+  delivery,
 }: {
   source: SelectedSourceInstance
   fact: EquipmentEffectFact
   baseAmount: number
   maximumAmount: number
+  earliestSurface: SurfaceKey
+  delivery: Omit<DeliveryRule, 'recipient'>
 }): ProfileRelationship[] {
   const activation = fact.activation
   if (activation?.kind !== 'minimum-stat') return []
@@ -138,15 +130,15 @@ export function projectMinimumStatEquipmentEffect({
     kind: 'stat' as const,
     statId: stat.statId,
     region: stat.region,
-    earliestSurface: 'fully' as const,
+    earliestSurface,
   }
-  const emission = {
-    kind: 'provider' as const,
-    delivery: fact.scope?.recipient
-      ? equipmentProviderEmission(fact, providerEffect, statDelivery(fact)).delivery
-      : { recipient: 'self' as const, ...statDelivery(fact) },
-    effect: providerEffect,
-  }
+  const emission = fact.scope?.recipient
+    ? equipmentProviderEmission(fact, providerEffect, delivery)
+    : {
+        kind: 'provider' as const,
+        delivery: { recipient: 'self' as const, ...delivery },
+        effect: providerEffect,
+      }
   return [{
     kind: 'gauge', source,
     basis: { statId: activation.statId, surface: 'initial' },

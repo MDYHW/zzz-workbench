@@ -1021,7 +1021,7 @@ button.main-stat-block:focus-visible {
     white-space: nowrap;
   }
   .agent-result table,
-  .agent-result tbody { display: block; width: 100%; }
+  .agent-result tbody:not([hidden]) { display: block; width: 100%; }
   .agent-result tbody tr:not(.breakdown-row) {
     display: grid;
     grid-template-columns: 1fr;

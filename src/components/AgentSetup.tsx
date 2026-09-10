@@ -30,6 +30,7 @@ import {
 } from '../localization'
 import { effectiveSubstatChoices } from '../workbench/candidates'
 import type { AgentSetupState, AppliedSlot, Mindscape, WorkbenchAction } from '../workbench/state'
+import type { EquipmentCopyLine } from '../workbench/content/equipment-copy'
 import {
   sourceToneEvents,
   useSelectionFocusReturn,
@@ -346,7 +347,7 @@ function DiscEffectRows({
   piece,
 }: {
   discId: DiscId
-  fourPieceEffects: readonly string[]
+  fourPieceEffects: readonly EquipmentCopyLine[]
   holderAttribute: AgentAttribute
   piece: 'fourPiece' | 'twoPiece'
 }) {
@@ -366,7 +367,7 @@ function DiscEffectRows({
   return (
     <span className="disc-effect-rows disc-effect-rows--four-piece">
       {fourPieceEffects.map((effect, index) => (
-        <span key={effect}>
+        <span key={effect.text}>
           <small>{index === 0 ? (locale === 'ko' ? '4세트' : '4PC') : ''}</small>
           <b>{localizedDiscEffectLine(discId, 'fourPiece', index, effect, locale, holderAttribute)}</b>
         </span>
@@ -777,6 +778,7 @@ function SubstatStepper({
 
   const commitDraft = () => {
     if (draft === '') {
+      setDraft(count === undefined ? '' : String(count))
       return
     }
 
