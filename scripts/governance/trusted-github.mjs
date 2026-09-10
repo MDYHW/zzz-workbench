@@ -20,6 +20,8 @@ import {
   proveIdentifierOnlyOwnerChange,
   trustedDecision,
   validateChildOutcomes,
+  isVisualNotApplicableDiff,
+  validateVisualWorkflow,
   validateFinalization,
   validateRepository,
   validateAuthorityTrace,
@@ -246,7 +248,12 @@ async function fetchWorkflowRuns(api, pr) {
         statusSha: run.head_sha,
         status: run.status,
         conclusion: run.conclusion,
-        jobs: jobs.map((job) => ({ id: job.id, name: job.name, conclusion: job.conclusion })),
+        jobs: jobs.map((job) => ({
+          id: job.id,
+          name: job.name,
+          conclusion: job.conclusion,
+          steps: (job.steps ?? []).map((step) => ({ name: step.name, conclusion: step.conclusion })),
+        })),
       })
     }
   }
@@ -278,14 +285,19 @@ async function fetchFinalizationWorkflowRuns(api, pr, expectedRunIds) {
         statusSha: run.head_sha,
         status: run.status,
         conclusion: run.conclusion,
-        jobs: jobs.map((job) => ({ id: job.id, name: job.name, conclusion: job.conclusion })),
+        jobs: jobs.map((job) => ({
+          id: job.id,
+          name: job.name,
+          conclusion: job.conclusion,
+          steps: (job.steps ?? []).map((step) => ({ name: step.name, conclusion: step.conclusion })),
+        })),
       })
     }
   }
   return result
 }
 
-function latestSuccessfulFinalizationRuns(workflowState, pr, expectedRunIds) {
+function latestSuccessfulFinalizationRuns(workflowState, pr, expectedRunIds, visualNotApplicable = false) {
   if (!SHA.test(pr.base?.sha ?? '') || !SHA.test(pr.head?.sha ?? '')) {
     fail('Creating-PR base or head identity is unavailable.')
   }
@@ -295,6 +307,7 @@ function latestSuccessfulFinalizationRuns(workflowState, pr, expectedRunIds) {
     headSha: pr.head.sha,
     prValidationWorkflowId: workflowState.prValidationWorkflowId,
     visualWorkflowId: workflowState.visualWorkflowId,
+    visualNotApplicable,
   })
   const selectedRunIds = checks.runs.map(({ id }) => Number(id)).sort((left, right) => left - right)
   const recordedRunIds = expectedRunIds.map(Number).sort((left, right) => left - right)
@@ -466,6 +479,7 @@ async function buildFinalizationEvidenceSnapshot({ api, pr, runSet, candidateSha
   const policy = await derivePolicyState({
     treeDiff, body: current.body ?? '', readText, baseTree, ruleState,
   })
+  const visualNotApplicable = await visualNotApplicableForDiff({ treeDiff, baseTree, headTree, readText })
   return {
     prNumber: pr.number,
     baseSha: runSet.baseSha,
@@ -478,6 +492,7 @@ async function buildFinalizationEvidenceSnapshot({ api, pr, runSet, candidateSha
     classificationError: policy.classificationError,
     changeCategories: policy.classification.matrix?.categories ?? [],
     changedPaths: policy.paths,
+    visualNotApplicable,
     acceptedAcrRecords: policy.acrState.accepted,
     acrBaseRecords: policy.acrState.records,
     acrTransaction: policy.acrTransaction,
@@ -521,8 +536,12 @@ export async function verifyRemoteFinalization({
     trustedStatuses.governanceBinding.runs.visual,
   ]
   const workflowState = await fetchFinalizationWorkflowRuns(api, pr, recordedRunIds)
-  const runSet = latestSuccessfulFinalizationRuns(workflowState, pr, recordedRunIds)
-  const evidenceSnapshot = await buildFinalizationEvidenceSnapshot({ api, pr, runSet, candidateSha })
+  const evidenceSnapshot = await buildFinalizationEvidenceSnapshot({
+    api, pr, runSet: { baseSha: pr.base.sha, headSha: pr.head.sha }, candidateSha,
+  })
+  const runSet = latestSuccessfulFinalizationRuns(
+    workflowState, pr, recordedRunIds, evidenceSnapshot.visualNotApplicable,
+  )
   evaluateEvidenceSnapshot(evidenceSnapshot)
   const actual = {
     ...trustedStatuses.contexts,
@@ -563,6 +582,22 @@ function declaredClassification(body) {
 
 function explicitVisualTransaction(paths) {
   return paths.some((filePath) => categoryForPath(filePath) === 'visual-baseline')
+}
+
+async function visualNotApplicableForDiff({ treeDiff, baseTree, headTree, readText }) {
+  if (!isVisualNotApplicableDiff(treeDiff.entries)) return false
+  const base = baseTree.get('.github/workflows/visual-baseline.yml')
+  const head = headTree.get('.github/workflows/visual-baseline.yml')
+  if (!base || !head || base.type !== 'blob' || base.mode !== '100644'
+    || head.type !== 'blob' || head.mode !== '100644' || base.sha !== head.sha) return false
+  const source = await readText(base)
+  try {
+    validateVisualWorkflow(source)
+    return true
+  } catch (error) {
+    if (!(error instanceof PolicyError)) throw error
+    return false
+  }
 }
 
 function sourceLines(source) {
@@ -1208,6 +1243,7 @@ export async function buildCurrentSnapshot({
   const policy = await derivePolicyState({
     treeDiff, body: pr.body ?? '', readText, baseTree, ruleState,
   })
+  const visualNotApplicable = await visualNotApplicableForDiff({ treeDiff, baseTree, headTree, readText })
   return {
     prNumber,
     baseSha: pr.base.sha,
@@ -1220,6 +1256,7 @@ export async function buildCurrentSnapshot({
     classificationError: policy.classificationError,
     changeCategories: policy.classification.matrix?.categories ?? [],
     changedPaths: policy.paths,
+    visualNotApplicable,
     acceptedAcrRecords: policy.acrState.accepted,
     acrBaseRecords: policy.acrState.records,
     acrTransaction: policy.acrTransaction,

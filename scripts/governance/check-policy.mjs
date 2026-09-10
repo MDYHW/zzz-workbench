@@ -117,6 +117,14 @@ const VISUAL_PATHS = new Set([
   'playwright.config.js',
 ])
 
+const VISUAL_NA_DOCUMENTATION_ROOTS = Object.freeze([
+  'docs/plans/',
+  'docs/brainstorms/',
+  'docs/solutions/',
+  'docs/roadmaps/',
+  'docs/ideation/',
+])
+
 const GOVERNANCE_FILES = new Set([
   '.gitattributes',
   '.gitignore',
@@ -325,13 +333,65 @@ const VISUAL_JOB = [
   '    steps:',
   '      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1',
   '        with:',
+  '          fetch-depth: 2',
   '          persist-credentials: false',
   '      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020',
   '        with:',
   '          node-version: 24',
   '          cache: npm',
+  '      - name: Determine whether visual baseline is not applicable',
+  '        id: visual-scope',
+  '        env:',
+  '          BASE_SHA: ${{ github.event.pull_request.base.sha }}',
+  '          HEAD_SHA: ${{ github.event.pull_request.head.sha }}',
+  '        run: |',
+  '          node --input-type=module <<\'NODE\'',
+  '          import { appendFileSync } from \'node:fs\'',
+  '          import { execFileSync } from \'node:child_process\'',
+  '',
+  '          const sha = /^[0-9a-f]{40}$/',
+  '          const base = process.env.BASE_SHA ?? \'\'',
+  '          const head = process.env.HEAD_SHA ?? \'\'',
+  '          if (!sha.test(base) || !sha.test(head)) throw new Error(\'Visual baseline commit identity is invalid.\')',
+  '          const raw = execFileSync(\'git\', [',
+  '            \'diff\', \'--raw\', \'-z\', \'--no-renames\', \'--no-ext-diff\', \'--no-textconv\', \'--abbrev=40\', base, head, \'--\',',
+  '          ], { encoding: \'utf8\' })',
+  '          const fields = raw.split(\'\\0\')',
+  '          if (fields.pop() !== \'\' || fields.length === 0 || fields.length % 2 !== 0) {',
+  '            throw new Error(\'Visual baseline diff records are invalid.\')',
+  '          }',
+  '          const governancePaths = new Set([',
+  '            \'docs/brainstorms/2026-08-15-authority-governance-recovery-requirements.md\',',
+  '            \'docs/plans/2026-08-15-003-fix-authority-governance-recovery-plan.md\',',
+  '          ])',
+  '          const zero = \'0\'.repeat(40)',
+  '          let notApplicable = true',
+  '          for (let index = 0; index < fields.length; index += 2) {',
+  '            const header = /^:(000000|100644|100755|120000|160000) (000000|100644|100755|120000|160000) ([0-9a-f]{40}) ([0-9a-f]{40}) ([AMDT])$/.exec(fields[index])',
+  '            if (!header) throw new Error(\'Visual baseline diff header is invalid.\')',
+  '            const [, oldMode, newMode, oldSha, newSha, status] = header',
+  '            const path = fields[index + 1]',
+  '            if (!path || (oldMode === \'000000\') !== (oldSha === zero)',
+  '              || (newMode === \'000000\') !== (newSha === zero)',
+  '              || (status === \'A\' && (oldMode !== \'000000\' || newMode === \'000000\'))',
+  '              || (status === \'D\' && (newMode !== \'000000\' || oldMode === \'000000\'))',
+  '              || ([\'M\', \'T\'].includes(status) && (oldMode === \'000000\' || newMode === \'000000\'))',
+  '              || (oldMode === newMode && oldSha === newSha)) {',
+  '              throw new Error(\'Visual baseline diff pair is invalid.\')',
+  '            }',
+  '            notApplicable &&= /^docs\\/(?:plans|brainstorms|solutions|roadmaps|ideation)\\//.test(path) && path.endsWith(\'.md\')',
+  '              && !governancePaths.has(path)',
+  '              && [oldMode, newMode].every((mode) => [\'000000\', \'100644\'].includes(mode))',
+  '          }',
+  '          appendFileSync(process.env.GITHUB_ENV, `VISUAL_NOT_APPLICABLE=${notApplicable}\\n`)',
+  '          NODE',
+  '      - name: Visual baseline not applicable',
+  '        if: ${{ env.VISUAL_NOT_APPLICABLE == \'true\' }}',
+  '        run: echo \'Visual baseline not applicable for regular Markdown documentation changes.\' >> "$GITHUB_STEP_SUMMARY"',
   '      - run: npm ci --ignore-scripts',
+  '        if: ${{ env.VISUAL_NOT_APPLICABLE != \'true\' }}',
   '      - run: npm run test:visual',
+  '        if: ${{ env.VISUAL_NOT_APPLICABLE != \'true\' }}',
   '      - name: Upload visual comparison evidence',
   '        if: ${{ failure() }}',
   '        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02',
@@ -369,6 +429,17 @@ export function validateVisualWorkflow(source) {
     fail('Visual workflow is not bound to the pinned screenshot comparison gate.')
   }
   return true
+}
+
+export function isVisualNotApplicableDiff(entries) {
+  if (!Array.isArray(entries) || entries.length === 0) return false
+  return entries.every(({ path: filePath, base, head }) => {
+    const path = normalizePath(filePath)
+    if (!path.endsWith('.md') || !VISUAL_NA_DOCUMENTATION_ROOTS.some((root) => path.startsWith(root))) return false
+    if (categoryForPath(path) !== 'supporting-doc') return false
+    return Boolean(base || head)
+      && [base, head].filter(Boolean).every((entry) => entry.type === 'blob' && entry.mode === '100644')
+  })
 }
 
 export function evaluateChangeMatrix(paths, { visualTransaction = false } = {}) {
@@ -691,6 +762,18 @@ export function validateChildOutcomes(runs, expected) {
   for (const name of REQUIRED_JOB_NAMES) {
     const matches = jobs.filter((job) => job.name === name)
     if (matches.length !== 1 || matches[0].conclusion !== 'success') fail(`Required job ${name} did not finish exactly once with success.`)
+  }
+  const visualJob = jobs.find((job) => job.name === 'Visual Baseline')
+  const notApplicableSteps = (visualJob?.steps ?? []).filter(({ name }) => name === 'Visual baseline not applicable')
+  if (notApplicableSteps.length > 1 || notApplicableSteps.some(({ conclusion }) => !['success', 'skipped'].includes(conclusion))) {
+    fail('Visual baseline not-applicable marker is invalid.')
+  }
+  if (notApplicableSteps.some(({ conclusion }) => conclusion === 'success') && expected.visualNotApplicable !== true) {
+    fail('Visual baseline not-applicable marker is not independently verified.')
+  }
+  if (expected.visualNotApplicable === true
+    && (notApplicableSteps.length !== 1 || notApplicableSteps[0].conclusion !== 'success')) {
+    fail('Visual baseline not-applicable marker is absent.')
   }
   return { runs: selected, jobs: REQUIRED_JOB_NAMES }
 }
