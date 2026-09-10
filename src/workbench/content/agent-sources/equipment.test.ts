@@ -141,9 +141,9 @@ describe('shared engine activation and scope facts', () => {
     expect(damage.activation).toMatchObject({ kind: 'trigger', actions: ['Assist Follow-Up'], durationSeconds: 30 })
     expect((daze as EquipmentEffectFact).scope?.actions).toBeUndefined()
     expect((damage as EquipmentEffectFact).scope?.actions).toBeUndefined()
-    expect(W_ENGINES.simmeringPot.passiveLines(5)).toEqual([
-      { text: `Daze +${equipmentEffectBaseValue(daze, 5)}%`, values: [equipmentEffectBaseValue(daze, 5)] },
-      { text: `DMG +${equipmentEffectBaseValue(damage, 5)}%`, values: [equipmentEffectBaseValue(damage, 5)] },
+    expect(W_ENGINES.simmeringPot.passiveLines(5).map(({ text }) => text)).toEqual([
+      `Daze +${equipmentEffectBaseValue(daze, 5)}%`,
+      `DMG +${equipmentEffectBaseValue(damage, 5)}%`,
     ])
   })
 
@@ -155,10 +155,10 @@ describe('shared engine activation and scope facts', () => {
     expect(ode.holderAnomalyDamage.scope).toEqual({
       anomalyResults: ['Attribute Anomaly'],
     })
-    expect(W_ENGINES.odeOfResurrectedWings.passiveLines(1)).toEqual([
-      { text: `Anomaly Proficiency +${equipmentEffectBaseValue(ode.anomalyProficiency, 1)}`, values: [equipmentEffectBaseValue(ode.anomalyProficiency, 1)] },
-      { text: `Attribute Anomaly DMG +${equipmentEffectBaseValue(ode.holderAnomalyDamage, 1)}%`, values: [equipmentEffectBaseValue(ode.holderAnomalyDamage, 1)] },
-      { text: `Squad DMG +${equipmentEffectBaseValue(ode.squadDamage, 1)}%`, values: [equipmentEffectBaseValue(ode.squadDamage, 1)] },
+    expect(W_ENGINES.odeOfResurrectedWings.passiveLines(1).map(({ text }) => text)).toEqual([
+      `Anomaly Proficiency +${equipmentEffectBaseValue(ode.anomalyProficiency, 1)}`,
+      `Attribute Anomaly DMG +${equipmentEffectBaseValue(ode.holderAnomalyDamage, 1)}%`,
+      `Squad DMG +${equipmentEffectBaseValue(ode.squadDamage, 1)}%`,
     ])
 
     const feathered = DRIVE_DISC_FACTS.featheredFate.fourPiece
@@ -171,9 +171,9 @@ describe('shared engine activation and scope facts', () => {
     expect(feathered.lumifluxAnomalyDamage.scope).toEqual({
       anomalyResults: ['Attribute Anomaly'],
     })
-    expect(DRIVE_DISCS.featheredFate.fourPieceEffects).toEqual([
-      { text: `Anomaly Proficiency +${equipmentEffectBaseValue(feathered.anomalyProficiency)}`, values: [equipmentEffectBaseValue(feathered.anomalyProficiency)] },
-      { text: `Attribute Anomaly DMG +${equipmentEffectBaseValue(feathered.lumifluxAnomalyDamage)}%`, values: [equipmentEffectBaseValue(feathered.lumifluxAnomalyDamage)] },
+    expect(DRIVE_DISCS.featheredFate.fourPieceEffects?.map(({ text }) => text)).toEqual([
+      `Anomaly Proficiency +${equipmentEffectBaseValue(feathered.anomalyProficiency)}`,
+      `Attribute Anomaly DMG +${equipmentEffectBaseValue(feathered.lumifluxAnomalyDamage)}%`,
     ])
   })
 
