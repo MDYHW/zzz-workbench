@@ -1096,12 +1096,12 @@ replace the user's valid selection inside the control.
 **Rule ID:** `SW-016`
 
 Party editing creates a draft without changing the applied party, focus,
-setups, or Result. The applied Result remains visible while the user changes
-the draft. Cancel discards only the draft and leaves the applied state
+setups, or Result. Cancel discards only the draft and leaves the applied state
 unchanged. Apply commits the resolved draft party and focus, then prepares all
 three Agents for that new context and recalculates Result. Before any party has
 been applied, there is no prior setup or Result to preserve while composing the
-initial draft.
+initial draft. Edit-time presentation is owned by
+[Party Editing](workbench-ui-design-rules.md#party-editing) (`UI-006`).
 
 Opening a valid explicitly copied Setup shortcut is the only alternate initial
 entry. It bypasses the initial draft and prepared initialization, atomically
