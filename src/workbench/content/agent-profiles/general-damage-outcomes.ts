@@ -15,7 +15,7 @@ import type { StatId, StatRegion } from '../../calculation/stat-composer'
 import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from '../agent-sources/equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from '../agent-sources/sources'
 import { agentBroadPrePenRelationships } from '../agent-broad-pre-pen-relationships'
-import type { PresentationId } from '../../../presentation'
+import type { PresentationDetail, StaticPresentationId } from '../../../presentation'
 
 type Agent = 'pyrois' | 'sigrid' | 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen' | 'soldier11' | 'zhuYuan' | 'orphie' | 'harumasa' | 'nekomata' | 'billy' | 'yeShunguang' | 'miyabi' | 'anton'
 type Slot = 0 | 1 | 2
@@ -101,9 +101,9 @@ const ANTON_BURST_BASIC_PILEDRIVER = actionTarget([sourceLocalAction('anton-burs
 const ANTON_BURST_DODGE_DRILL = actionTarget([sourceLocalAction('anton-burst-mode-dodge-drill', 'Burst Mode Dodge Counter · Drill')])
 const src = (agent: Agent, slot: Slot, id: string, label: string, locus: 'identity' | 'core' | 'additional' | 'basic' | 'assist' | 'chain' | 'special' | 'ex-special' | 'ultimate' = 'core') => selectedAgentSource(agent, slot, id, label, locus)
 const m = (id: EffectMetric, label: string, unit = '', statId?: MetricProjection['statId'], admission?: MetricProjection['admission']): MetricProjection => ({ id, label, unit, decimals: unit === '/s' ? 2 : unit === '%' ? 1 : 0, ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }), ...(admission ? { admission } : {}) })
-function stat(source: ReturnType<typeof selectedAgentSource>, statId: StatId, value: number, region: Exclude<StatRegion, 'base'> = 'flat', earliestSurface: SurfaceKey = 'fully', detail?: string): ProfileRelationship { return { kind: 'stat', atom: { statId, region, value, earliestSurface, source, ...(detail ? { sourceDetail: detail } : {}) } } }
-function mod(source: ReturnType<typeof selectedAgentSource>, metricId: EffectMetric, value: number, action?: ActionTarget, earliestSurface: SurfaceKey = 'fully', detail?: string, detailPresentationId?: PresentationId): ProfileRelationship { return { kind: 'modifier', atom: { metricId, value, earliestSurface, source, ...(action ? { action } : {}), ...(detail ? { sourceDetail: detail } : {}), ...(detailPresentationId ? { sourceDetailPresentationId: detailPresentationId } : {}) } } }
-function operation(source: ReturnType<typeof selectedAgentSource>, presentationId: PresentationId, label: string, value: number, unit = '%', presentation?: 'scale'): ProfileRelationship { return { kind: 'operation', atom: { presentationId, label, value, unit, source, ...(presentation ? { presentation } : {}) } } }
+function stat(source: ReturnType<typeof selectedAgentSource>, statId: StatId, value: number, region: Exclude<StatRegion, 'base'> = 'flat', earliestSurface: SurfaceKey = 'fully', detail?: PresentationDetail): ProfileRelationship { return { kind: 'stat', atom: { statId, region, value, earliestSurface, source, ...(detail ? { sourceDetail: detail } : {}) } } }
+function mod(source: ReturnType<typeof selectedAgentSource>, metricId: EffectMetric, value: number, action?: ActionTarget, earliestSurface: SurfaceKey = 'fully', detail?: PresentationDetail): ProfileRelationship { return { kind: 'modifier', atom: { metricId, value, earliestSurface, source, ...(action ? { action } : {}), ...(detail ? { sourceDetail: detail } : {}) } } }
+function operation(source: ReturnType<typeof selectedAgentSource>, presentationId: StaticPresentationId, label: string, value: number, unit = '%', presentation?: 'scale'): ProfileRelationship { return { kind: 'operation', atom: { presentationId, label, value, unit, source, ...(presentation ? { presentation } : {}) } } }
 
 function partyQualification(agent: Agent, ids: readonly AgentId[], slot: Slot): boolean {
   switch (agent) {
@@ -148,7 +148,7 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
       CHAIN,
     ))
   }
-  const addMetric = (metric: EffectMetric, value: number, source = core, action?: ActionTarget, surface: 'combat'|'fully' = 'fully', detail?: string) => {
+  const addMetric = (metric: EffectMetric, value: number, source = core, action?: ActionTarget, surface: 'combat'|'fully' = 'fully', detail?: PresentationDetail) => {
     if (!value) return
     add(
       !action && (metric === 'critRate' || metric === 'critDmg' || metric === 'penRatio')
@@ -159,11 +159,11 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
   const addAtk = (value: number, source = core, surface: 'initial'|'combat'|'fully' = 'fully') => { if (value) add(stat(source, 'atk', value, 'percentage', surface)) }
   switch (agent) {
     case 'pyrois':
-      addMetric('critDmg', VERTICAL_VALUES.pyrois.coreUltimateCritDmg, core, ULT, 'fully', 'Mirage · Against Stunned enemies')
-      addMetric('dmgBonus', VERTICAL_VALUES.pyrois.coreDmg, core, undefined, 'fully', 'Sunflare')
+      addMetric('critDmg', VERTICAL_VALUES.pyrois.coreUltimateCritDmg, core, ULT, 'fully', { label: 'Mirage · Against Stunned enemies', presentationId: 'mirage-against-stunned-enemies' })
+      addMetric('dmgBonus', VERTICAL_VALUES.pyrois.coreDmg, core, undefined, 'fully', { label: 'Sunflare', presentationId: 'sunflare' })
       addMetric('critDmg', qualified ? VERTICAL_VALUES.pyrois.additionalCritDmg : 0, ability)
       if (setup.mindscape >= 1) addMetric('critRate', VERTICAL_VALUES.pyrois.mindscapeCritRate, mind(1))
-      if (setup.mindscape >= 4) addMetric('dazeBonus', VERTICAL_VALUES.pyrois.mindscapeDaze, mind(4), undefined, 'fully', 'Shielded after EX Special Attack Perfect Block')
+      if (setup.mindscape >= 4) addMetric('dazeBonus', VERTICAL_VALUES.pyrois.mindscapeDaze, mind(4), undefined, 'fully', { label: 'Shielded after EX Special Attack Perfect Block', presentationId: 'shielded-after-ex-special-perfect-block' })
       actions.push(
         { metricId: 'critDmg', scopes: PYROIS_ULTIMATE_SCOPES },
         actionProjection('defIgnore', 'pyroisBasicUltimateDefIgnore', BASIC_ULT),
@@ -257,7 +257,7 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
       add({ kind: 'provider', source: ultimate, delivery: { recipient: 'all-party', formulas: CRIT_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.cissia.ultimateSquadCritDmg } })
       if (setup.mindscape >= 1) {
         add({ kind: 'provider', source: mind(1), delivery: { recipient: 'enemy-context', attributes: ['Electric'], formulas: ['general_damage'] }, effect: { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'combat', value: VERTICAL_VALUES.cissia.mindscapeBroadElectricResIgnore } })
-        add({ kind: 'provider', source: mind(1), delivery: { recipient: 'enemy-context', attributes: ['Electric'], formulas: ['general_damage'], eligibleAgentIds: ['cissia'] }, effect: { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'fully', value: VERTICAL_VALUES.cissia.mindscapeCorrodeElectricResIgnore, action: CISSIA_CORRODE, sourceDetail: 'Corrode Bone', sourceDetailPresentationId: 'corrode-bone' } })
+        add({ kind: 'provider', source: mind(1), delivery: { recipient: 'enemy-context', attributes: ['Electric'], formulas: ['general_damage'], eligibleAgentIds: ['cissia'] }, effect: { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'fully', value: VERTICAL_VALUES.cissia.mindscapeCorrodeElectricResIgnore, action: CISSIA_CORRODE, sourceDetail: { label: 'Corrode Bone', presentationId: 'corrode-bone' } } })
       }
       if (setup.mindscape >= 2) addMetric('dmgBonus', VERTICAL_VALUES.cissia.mindscapeSerpentDmg, mind(2), CISSIA_SERPENT)
       const basicScopes = [{
@@ -459,7 +459,7 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
         value: veilCap,
         source: selectedCalculationSource(agent, slot, 'veil-vulnerability-cap', 'Veil Vulnerability cap'),
       }
-      add(mod(targetSource, 'stunDmgMultiplier', targetStun - 100, undefined, 'fully', 'Above 100%', 'above-100-percent'))
+      add(mod(targetSource, 'stunDmgMultiplier', targetStun - 100, undefined, 'fully', { label: 'Above 100%', presentationId: 'above-100-percent' }))
       add({ kind: 'projection-gauge', source: targetSource, metricId: 'stunDmgMultiplier', basisLabel: 'Raw Stun DMG Multiplier bonus', basisPresentationId: 'raw-stun-dmg-multiplier-bonus', basisCap: veilCap, output: { presentationId: 'veil-vulnerability', label: 'Veil Vulnerability', unit: '%', transform: { basisIncrement: 1, outputIncrement: 1, outputCap: veilCap }, cap: veilCap } })
       actions.push(
         { metricId: 'dmgBonus', scopes: [{ id: 'yeExSpecialDmg', target: YE_EX }, { id: 'yeUltimateDmg', target: YE_ULT }, { id: 'yeBackAttackDmg', target: BACK }] },
@@ -571,8 +571,7 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
             earliestSurface: 'fully',
             action: AFTERSHOCK_TARGET,
             display: { value: 35, unit: '%', decimals: 0 },
-            sourceDetail: 'CRIT DMG × 35%',
-            sourceDetailPresentationId: 'crit-dmg-times-35-percent',
+            sourceDetail: { label: 'CRIT DMG × 35%', presentationId: 'crit-dmg-times-35-percent' },
           },
         },
       }],

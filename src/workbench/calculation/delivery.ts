@@ -104,12 +104,6 @@ function deliverEffect(
           ...(effect.composition ? { composition: effect.composition } : {}),
           ...(effect.display ? { display: effect.display } : {}),
           ...(effect.sourceDetail ? { sourceDetail: effect.sourceDetail } : {}),
-          ...(effect.sourceDetailPresentationId
-            ? { sourceDetailPresentationId: effect.sourceDetailPresentationId }
-            : {}),
-          ...(effect.sourceDetailPresentationValues
-            ? { sourceDetailPresentationValues: effect.sourceDetailPresentationValues }
-            : {}),
         },
         provider,
         recipientSlot,
@@ -126,12 +120,6 @@ function deliverEffect(
           ...(effect.composition ? { composition: effect.composition } : {}),
           ...(effect.display ? { display: effect.display } : {}),
           ...(effect.sourceDetail ? { sourceDetail: effect.sourceDetail } : {}),
-          ...(effect.sourceDetailPresentationId
-            ? { sourceDetailPresentationId: effect.sourceDetailPresentationId }
-            : {}),
-          ...(effect.sourceDetailPresentationValues
-            ? { sourceDetailPresentationValues: effect.sourceDetailPresentationValues }
-            : {}),
         },
         provider,
         recipientSlot,
@@ -140,19 +128,13 @@ function deliverEffect(
     case 'operation':
       delivered.operations.push({
         atom: {
-          ...(effect.presentationId ? { presentationId: effect.presentationId } : {}),
+          presentationId: effect.presentationId,
           label: effect.label,
           value: effect.value,
           unit: effect.unit,
           source,
           ...(effect.presentation ? { presentation: effect.presentation } : {}),
           ...(effect.sourceDetail ? { sourceDetail: effect.sourceDetail } : {}),
-          ...(effect.sourceDetailPresentationId
-            ? { sourceDetailPresentationId: effect.sourceDetailPresentationId }
-            : {}),
-          ...(effect.sourceDetailPresentationValues
-            ? { sourceDetailPresentationValues: effect.sourceDetailPresentationValues }
-            : {}),
         },
         provider,
         recipientSlot,

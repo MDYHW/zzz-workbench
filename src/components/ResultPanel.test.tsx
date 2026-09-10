@@ -349,10 +349,12 @@ describe('ResultPanel operation presentation', () => {
         gauges: [{
           source: syntheticSource,
           basisLabel: 'Fully Enabled CRIT Rate',
+          basisPresentationId: 'fully-crit-rate',
           current: 50,
           threshold: 40,
           cap: 90,
           outputLabel: 'Aftershock Daze bonus',
+          outputPresentationId: 'aftershock-daze-bonus',
           outputValue: 15,
           outputCap: 75,
           outputUnit: '%',
@@ -360,12 +362,14 @@ describe('ResultPanel operation presentation', () => {
       }],
       operations: [
         {
+          presentationId: 'enemy-stun-duration',
           label: 'Enemy Stun duration',
           source: syntheticSource,
           value: 2,
           unit: 's',
         },
         {
+          presentationId: 'next-quick-assist-daze',
           label: 'Next Quick Assist Daze',
           source: syntheticSource,
           value: 50,
@@ -416,20 +420,24 @@ describe('ResultPanel operation presentation', () => {
         gauges: [{
           source: syntheticSource,
           basisLabel: 'Initial CRIT Rate',
+          basisPresentationId: 'initial-crit-rate',
           current: 50,
           threshold: 40,
           cap: 100,
           outputLabel: 'First output',
+          outputPresentationId: 'dmg-bonus',
           outputValue: 10,
           outputCap: 20,
           outputUnit: '%',
         }, {
           source: { ...syntheticSource, label: 'Second source', locus: 'additional' },
           basisLabel: 'Fully Enabled CRIT Rate',
+          basisPresentationId: 'fully-crit-rate',
           current: 70,
           threshold: 60,
           cap: 90,
           outputLabel: 'Second output',
+          outputPresentationId: 'squad-dmg-bonus',
           outputValue: 15,
           outputCap: 30,
           outputUnit: '%',
@@ -459,16 +467,18 @@ describe('ResultPanel operation presentation', () => {
         gauges: [{
           source: syntheticSource,
           basisLabel: 'Fully Enabled Anomaly Mastery',
+          basisPresentationId: 'fully-anomaly-mastery',
           current: 201.12,
           threshold: 100,
           cap: 200,
           outputLabel: 'Anomaly Buildup Rate',
+          outputPresentationId: 'anomaly-buildup-rate',
           outputValue: 20,
           outputCap: 20,
           outputUnit: '%',
           additionalOutputs: [
-            { label: 'Attribute Anomaly DMG', value: 26, cap: 26, unit: '%' },
-            { label: 'Disorder DMG', value: 26, cap: 26, unit: '%' },
+            { presentationId: 'attribute-anomaly-dmg', label: 'Attribute Anomaly DMG', value: 26, cap: 26, unit: '%' },
+            { presentationId: 'disorder-dmg', label: 'Disorder DMG', value: 26, cap: 26, unit: '%' },
           ],
           decimals: { current: 2, threshold: 0, cap: 0, output: 2, outputCap: 0 },
         }],
@@ -493,7 +503,9 @@ describe('ResultPanel operation presentation', () => {
           gauges: [{
             source: syntheticSource,
             basisLabel: 'Initial ATK', current: 125, threshold: 100,
+            basisPresentationId: 'initial-atk',
             outputLabel: 'Squad flat ATK', outputValue: 25, outputUnit: '',
+            outputPresentationId: 'squad-flat-atk',
           }],
         },
         {
@@ -502,7 +514,9 @@ describe('ResultPanel operation presentation', () => {
           gauges: [{
             source: syntheticSource,
             basisLabel: 'Initial CRIT Rate', current: 80, threshold: 50, cap: 100,
+            basisPresentationId: 'initial-crit-rate',
             outputLabel: 'Daze Bonus', outputValue: 15, outputCap: 20, outputUnit: '%',
+            outputPresentationId: 'aftershock-daze-bonus',
           }],
         },
       ],
@@ -530,6 +544,7 @@ describe('ResultPanel operation presentation', () => {
     renderResult(syntheticResult({
       operations: [
         {
+          presentationId: 'action-dmg-multiplier',
           label: 'Basic Attack DMG Multiplier',
           source: syntheticSource,
           value: 1.25,
@@ -537,6 +552,7 @@ describe('ResultPanel operation presentation', () => {
           presentation: 'scale',
         },
         {
+          presentationId: 'action-dmg-multiplier',
           label: 'Ultimate DMG Multiplier',
           source: syntheticSource,
           value: 1.25,
@@ -572,10 +588,12 @@ describe('ResultPanel operation presentation', () => {
       gauges: [{
         source: syntheticSource,
         basisLabel: 'Initial CRIT Rate',
+        basisPresentationId: 'initial-crit-rate',
         current,
         threshold: 80,
         cap: 80,
         outputLabel: 'Basic Attack DMG Multiplier',
+        outputPresentationId: 'action-dmg-multiplier',
         outputValue,
         outputUnit: '',
         presentation: 'scale' as const,

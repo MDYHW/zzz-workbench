@@ -1,5 +1,5 @@
 import type { ActionTarget } from '../actions'
-import type { PresentationId, PresentationValues } from '../../presentation'
+import type { PresentationDetail, StaticPresentationId } from '../../presentation'
 import type { AgentId, AgentSpecialty, FormulaFamily } from '../content/types'
 import type {
   EffectAttribute,
@@ -51,9 +51,7 @@ export interface RelationshipDisplay {
 export type ProfileStatAtom = StatAtom & {
   composition?: HighestOnlyComposition
   display?: RelationshipDisplay
-  sourceDetail?: string
-  sourceDetailPresentationId?: PresentationId
-  sourceDetailPresentationValues?: PresentationValues
+  sourceDetail?: PresentationDetail
 }
 
 export interface ModifierAtom {
@@ -64,21 +62,17 @@ export interface ModifierAtom {
   action?: ActionTarget
   composition?: HighestOnlyComposition
   display?: RelationshipDisplay
-  sourceDetail?: string
-  sourceDetailPresentationId?: PresentationId
-  sourceDetailPresentationValues?: PresentationValues
+  sourceDetail?: PresentationDetail
 }
 
 export interface OperationAtom {
-  presentationId?: PresentationId
+  presentationId: StaticPresentationId
   label: string
   value: number
   unit: string
   source: SelectedSourceInstance
   presentation?: 'scale'
-  sourceDetail?: string
-  sourceDetailPresentationId?: PresentationId
-  sourceDetailPresentationValues?: PresentationValues
+  sourceDetail?: PresentationDetail
 }
 
 export type AutomaticEnergyAtom = AutomaticEnergyRecoveryOperation
@@ -107,9 +101,7 @@ export type ProviderEffect =
     value: number
     composition?: HighestOnlyComposition
     display?: RelationshipDisplay
-    sourceDetail?: string
-    sourceDetailPresentationId?: PresentationId
-    sourceDetailPresentationValues?: PresentationValues
+    sourceDetail?: PresentationDetail
   }
   | {
     kind: 'modifier'
@@ -119,20 +111,16 @@ export type ProviderEffect =
     action?: ActionTarget
     composition?: HighestOnlyComposition
     display?: RelationshipDisplay
-    sourceDetail?: string
-    sourceDetailPresentationId?: PresentationId
-    sourceDetailPresentationValues?: PresentationValues
+    sourceDetail?: PresentationDetail
   }
   | {
     kind: 'operation'
-    presentationId?: PresentationId
+    presentationId: StaticPresentationId
     label: string
     value: number
     unit: string
     presentation?: 'scale'
-    sourceDetail?: string
-    sourceDetailPresentationId?: PresentationId
-    sourceDetailPresentationValues?: PresentationValues
+    sourceDetail?: PresentationDetail
   }
 
 export type ProviderEffectTemplate =
@@ -168,9 +156,7 @@ export type LinearEmission =
     earliestSurface: SurfaceKey
     composition?: HighestOnlyComposition
     display?: RelationshipDisplay
-    sourceDetail?: string
-    sourceDetailPresentationId?: PresentationId
-    sourceDetailPresentationValues?: PresentationValues
+    sourceDetail?: PresentationDetail
   }
   | {
     kind: 'modifier'
@@ -179,19 +165,15 @@ export type LinearEmission =
     action?: ActionTarget
     composition?: HighestOnlyComposition
     display?: RelationshipDisplay
-    sourceDetail?: string
-    sourceDetailPresentationId?: PresentationId
-    sourceDetailPresentationValues?: PresentationValues
+    sourceDetail?: PresentationDetail
   }
   | {
     kind: 'operation'
-    presentationId?: PresentationId
+    presentationId: StaticPresentationId
     label: string
     unit: string
     presentation?: 'scale'
-    sourceDetail?: string
-    sourceDetailPresentationId?: PresentationId
-    sourceDetailPresentationValues?: PresentationValues
+    sourceDetail?: PresentationDetail
   }
   | {
     kind: 'provider'
@@ -216,7 +198,7 @@ export type PostDeliveryLinearRelationship = Omit<LinearRelationship, 'kind'> & 
 }
 
 interface GaugeOutputPresentation {
-  presentationId?: PresentationId
+  presentationId: StaticPresentationId
   label: string
   unit: string
   cap?: number
@@ -238,12 +220,10 @@ interface GaugeRelationshipBase {
   source: SelectedSourceInstance
   basis: LinearBasis
   basisLabel: string
-  basisPresentationId?: PresentationId
+  basisPresentationId: StaticPresentationId
   metricId: EffectMetric
   presentation?: 'scale'
-  sourceDetail?: string
-  sourceDetailPresentationId?: PresentationId
-  sourceDetailPresentationValues?: PresentationValues
+  sourceDetail?: PresentationDetail
   decimals?: {
     current?: number
     threshold?: number
@@ -289,18 +269,16 @@ export interface ThresholdOperationRelationship {
   source: SelectedSourceInstance
   basis: { statId: StatId }
   basisLabels: Record<Exclude<SurfaceKey, 'initial'>, string>
-  basisPresentationIds?: Record<Exclude<SurfaceKey, 'initial'>, PresentationId>
+  basisPresentationIds: Record<Exclude<SurfaceKey, 'initial'>, StaticPresentationId>
   threshold: number
   metricId: EffectMetric
   outputLabel: string
-  outputPresentationId?: PresentationId
+  outputPresentationId: StaticPresentationId
   inactiveValue: number
   activeValue: number
   unit: string
   presentation?: 'scale'
-  sourceDetail?: string
-  sourceDetailPresentationId?: PresentationId
-  sourceDetailPresentationValues?: PresentationValues
+  sourceDetail?: PresentationDetail
   decimals?: EvaluatedGauge['decimals']
 }
 
@@ -310,10 +288,10 @@ export interface ProjectionGaugeRelationship {
   source: SelectedSourceInstance
   metricId: EffectMetric
   basisLabel: string
-  basisPresentationId?: PresentationId
+  basisPresentationId: StaticPresentationId
   basisCap: number
   output: {
-    presentationId?: PresentationId
+    presentationId: StaticPresentationId
     label: string
     transform: LinearTransform
     cap?: number
@@ -321,9 +299,7 @@ export interface ProjectionGaugeRelationship {
     decimals?: number
   }
   presentation?: 'scale'
-  sourceDetail?: string
-  sourceDetailPresentationId?: PresentationId
-  sourceDetailPresentationValues?: PresentationValues
+  sourceDetail?: PresentationDetail
   decimals?: EvaluatedGauge['decimals']
 }
 
@@ -337,7 +313,7 @@ export interface PostDeliveryStatModifierGaugeRelationship {
   source: SelectedSourceInstance
   basis: { statId: StatId; surface: Exclude<SurfaceKey, 'initial'> }
   basisLabel: string
-  basisPresentationId?: PresentationId
+  basisPresentationId: StaticPresentationId
   basisValueCap?: number
   basisCap: number
   gaugeMetricId: EffectMetric
@@ -345,7 +321,7 @@ export interface PostDeliveryStatModifierGaugeRelationship {
   action: ActionTarget
   modifierSurface: Exclude<SurfaceKey, 'initial'>
   output: {
-    presentationId?: PresentationId
+    presentationId: StaticPresentationId
     label: string
     value:
       | { kind: 'linear'; transform: LinearTransform }
@@ -360,9 +336,7 @@ export interface PostDeliveryStatModifierGaugeRelationship {
     decimals?: number
   }
   presentation?: 'scale'
-  sourceDetail?: string
-  sourceDetailPresentationId?: PresentationId
-  sourceDetailPresentationValues?: PresentationValues
+  sourceDetail?: PresentationDetail
   decimals?: EvaluatedGauge['decimals']
 }
 
@@ -379,10 +353,10 @@ export interface PostDeliveryMetricStatGaugeRelationship {
     surface: Exclude<SurfaceKey, 'initial'>
   }
   basisLabel: string
-  basisPresentationId?: PresentationId
+  basisPresentationId: StaticPresentationId
   basisCap?: number
   output: {
-    presentationId?: PresentationId
+    presentationId: StaticPresentationId
     label: string
     statId: StatId
     region: Exclude<StatRegion, 'base'>
@@ -392,9 +366,7 @@ export interface PostDeliveryMetricStatGaugeRelationship {
     decimals?: number
   }
   presentation?: 'scale'
-  sourceDetail?: string
-  sourceDetailPresentationId?: PresentationId
-  sourceDetailPresentationValues?: PresentationValues
+  sourceDetail?: PresentationDetail
   decimals?: EvaluatedGauge['decimals']
 }
 
@@ -410,9 +382,7 @@ export interface SurfaceStatDerivedMetricRelationship {
     statId: StatId
     multiplier: number
   }[]
-  sourceDetail?: string
-  sourceDetailPresentationId?: PresentationId
-  sourceDetailPresentationValues?: PresentationValues
+  sourceDetail?: PresentationDetail
 }
 
 export type ProfileRelationship =
@@ -435,12 +405,12 @@ export interface EvaluatedGauge {
   source: SelectedSourceInstance
   metricId: EffectMetric
   basisLabel: string
-  basisPresentationId?: PresentationId
+  basisPresentationId: StaticPresentationId
   current: number
   threshold?: number
   cap?: number
   outputs: Array<{
-    presentationId?: PresentationId
+    presentationId: StaticPresentationId
     label: string
     value: number
     cap?: number
@@ -448,9 +418,7 @@ export interface EvaluatedGauge {
     decimals?: number
   }>
   presentation?: 'scale'
-  sourceDetail?: string
-  sourceDetailPresentationId?: PresentationId
-  sourceDetailPresentationValues?: PresentationValues
+  sourceDetail?: PresentationDetail
   decimals?: GaugeRelationshipBase['decimals']
 }
 
@@ -553,9 +521,6 @@ function emitLinearValue(
         ...(emission.composition ? { composition: emission.composition } : {}),
         ...(emission.display ? { display: emission.display } : {}),
         ...(emission.sourceDetail ? { sourceDetail: emission.sourceDetail } : {}),
-        ...(emission.sourceDetailPresentationId
-          ? { sourceDetailPresentationId: emission.sourceDetailPresentationId }
-          : {}),
       })
       return
     case 'modifier':
@@ -568,9 +533,6 @@ function emitLinearValue(
         ...(emission.composition ? { composition: emission.composition } : {}),
         ...(emission.display ? { display: emission.display } : {}),
         ...(emission.sourceDetail ? { sourceDetail: emission.sourceDetail } : {}),
-        ...(emission.sourceDetailPresentationId
-          ? { sourceDetailPresentationId: emission.sourceDetailPresentationId }
-          : {}),
       })
       return
     case 'operation':
@@ -721,16 +683,14 @@ export function evaluateRelationships(
           source: relationship.source,
           metricId: relationship.metricId,
           basisLabel: relationship.basisLabel,
-          ...(relationship.basisPresentationId
-            ? { basisPresentationId: relationship.basisPresentationId }
-            : {}),
+          basisPresentationId: relationship.basisPresentationId,
           current,
           ...(relationship.basisThreshold === undefined
             ? {}
             : { threshold: relationship.basisThreshold }),
           ...(relationship.basisCap === undefined ? {} : { cap: relationship.basisCap }),
           outputs: relationship.outputs.map((output, index) => ({
-            ...(output.presentationId ? { presentationId: output.presentationId } : {}),
+            presentationId: output.presentationId,
             label: output.label,
             value: values[index],
             ...(output.cap === undefined ? {} : { cap: output.cap }),
@@ -739,12 +699,6 @@ export function evaluateRelationships(
           })),
           ...(relationship.presentation ? { presentation: relationship.presentation } : {}),
           ...(relationship.sourceDetail ? { sourceDetail: relationship.sourceDetail } : {}),
-          ...(relationship.sourceDetailPresentationId
-            ? { sourceDetailPresentationId: relationship.sourceDetailPresentationId }
-            : {}),
-          ...(relationship.sourceDetailPresentationValues
-            ? { sourceDetailPresentationValues: relationship.sourceDetailPresentationValues }
-            : {}),
           ...(relationship.decimals ? { decimals: relationship.decimals } : {}),
         })
         break
@@ -774,25 +728,18 @@ export function evaluatePostDeliveryMetricStatGauge(
       ...(relationship.sourceDetail
         ? { sourceDetail: relationship.sourceDetail }
         : {}),
-      ...(relationship.sourceDetailPresentationId
-        ? { sourceDetailPresentationId: relationship.sourceDetailPresentationId }
-        : {}),
     },
     gauge: {
       source: relationship.source,
       metricId: relationship.basis.metricId,
       basisLabel: relationship.basisLabel,
-      ...(relationship.basisPresentationId
-        ? { basisPresentationId: relationship.basisPresentationId }
-        : {}),
+      basisPresentationId: relationship.basisPresentationId,
       current,
       ...(relationship.basisCap === undefined
         ? {}
         : { cap: relationship.basisCap }),
       outputs: [{
-        ...(relationship.output.presentationId
-          ? { presentationId: relationship.output.presentationId }
-          : {}),
+        presentationId: relationship.output.presentationId,
         label: relationship.output.label,
         value,
         ...(relationship.output.cap === undefined
@@ -808,9 +755,6 @@ export function evaluatePostDeliveryMetricStatGauge(
         : {}),
       ...(relationship.sourceDetail
         ? { sourceDetail: relationship.sourceDetail }
-        : {}),
-      ...(relationship.sourceDetailPresentationId
-        ? { sourceDetailPresentationId: relationship.sourceDetailPresentationId }
         : {}),
       ...(relationship.decimals ? { decimals: relationship.decimals } : {}),
     },
@@ -841,14 +785,12 @@ export function evaluatePostDeliveryRelationships(
         source: relationship.source,
         metricId: relationship.metricId,
         basisLabel: relationship.basisLabel,
-        ...(relationship.basisPresentationId
-          ? { basisPresentationId: relationship.basisPresentationId }
-          : {}),
+        basisPresentationId: relationship.basisPresentationId,
         current,
         ...(relationship.basisThreshold === undefined ? {} : { threshold: relationship.basisThreshold }),
         ...(relationship.basisCap === undefined ? {} : { cap: relationship.basisCap }),
         outputs: relationship.outputs.map((output, index) => ({
-          ...(output.presentationId ? { presentationId: output.presentationId } : {}),
+          presentationId: output.presentationId,
           label: output.label,
           value: values[index],
           ...(output.cap === undefined ? {} : { cap: output.cap }),
@@ -857,9 +799,6 @@ export function evaluatePostDeliveryRelationships(
         })),
         ...(relationship.presentation ? { presentation: relationship.presentation } : {}),
         ...(relationship.sourceDetail ? { sourceDetail: relationship.sourceDetail } : {}),
-        ...(relationship.sourceDetailPresentationId
-          ? { sourceDetailPresentationId: relationship.sourceDetailPresentationId }
-          : {}),
         ...(relationship.decimals ? { decimals: relationship.decimals } : {}),
       })
     }
@@ -889,41 +828,29 @@ export function evaluateThresholdOperation(
       source: relationship.source,
       metricId: relationship.metricId,
       basisLabel: relationship.basisLabels[basisSurface],
-      ...(relationship.basisPresentationIds
-        ? { basisPresentationId: relationship.basisPresentationIds[basisSurface] }
-        : {}),
+      basisPresentationId: relationship.basisPresentationIds[basisSurface],
       current: stat.values[basisSurface],
       threshold: relationship.threshold,
       cap: relationship.threshold,
       outputs: [{
-        ...(relationship.outputPresentationId
-          ? { presentationId: relationship.outputPresentationId }
-          : {}),
+        presentationId: relationship.outputPresentationId,
         label: relationship.outputLabel,
         value: outputValue,
         unit: relationship.unit,
       }],
       ...(relationship.presentation ? { presentation: relationship.presentation } : {}),
       ...(relationship.sourceDetail ? { sourceDetail: relationship.sourceDetail } : {}),
-      ...(relationship.sourceDetailPresentationId
-        ? { sourceDetailPresentationId: relationship.sourceDetailPresentationId }
-        : {}),
       ...(relationship.decimals ? { decimals: relationship.decimals } : {}),
     },
     ...(qualifyingSurface ? {
       operation: {
-        ...(relationship.outputPresentationId
-          ? { presentationId: relationship.outputPresentationId }
-          : {}),
+        presentationId: relationship.outputPresentationId,
         label: relationship.outputLabel,
         value: relationship.activeValue,
         unit: relationship.unit,
         source: relationship.source,
         ...(relationship.presentation ? { presentation: relationship.presentation } : {}),
         ...(relationship.sourceDetail ? { sourceDetail: relationship.sourceDetail } : {}),
-        ...(relationship.sourceDetailPresentationId
-          ? { sourceDetailPresentationId: relationship.sourceDetailPresentationId }
-          : {}),
       },
     } : {}),
   }
@@ -937,15 +864,11 @@ export function evaluateProjectionGauge(
     source: relationship.source,
     metricId: relationship.metricId,
     basisLabel: relationship.basisLabel,
-    ...(relationship.basisPresentationId
-      ? { basisPresentationId: relationship.basisPresentationId }
-      : {}),
+    basisPresentationId: relationship.basisPresentationId,
     current,
     cap: relationship.basisCap,
     outputs: [{
-      ...(relationship.output.presentationId
-        ? { presentationId: relationship.output.presentationId }
-        : {}),
+      presentationId: relationship.output.presentationId,
       label: relationship.output.label,
       value: linearDerivedOutput({
         basisValue: current,
@@ -961,9 +884,6 @@ export function evaluateProjectionGauge(
     }],
     ...(relationship.presentation ? { presentation: relationship.presentation } : {}),
     ...(relationship.sourceDetail ? { sourceDetail: relationship.sourceDetail } : {}),
-    ...(relationship.sourceDetailPresentationId
-      ? { sourceDetailPresentationId: relationship.sourceDetailPresentationId }
-      : {}),
     ...(relationship.decimals ? { decimals: relationship.decimals } : {}),
   }
 }
@@ -1001,24 +921,17 @@ export function evaluatePostDeliveryStatModifierGauge(
       source: relationship.source,
       action: relationship.action,
       ...(relationship.sourceDetail ? { sourceDetail: relationship.sourceDetail } : {}),
-      ...(relationship.sourceDetailPresentationId
-        ? { sourceDetailPresentationId: relationship.sourceDetailPresentationId }
-        : {}),
     },
     gauge: {
       source: relationship.source,
       metricId: relationship.gaugeMetricId,
       basisLabel: relationship.basisLabel,
-      ...(relationship.basisPresentationId
-        ? { basisPresentationId: relationship.basisPresentationId }
-        : {}),
+      basisPresentationId: relationship.basisPresentationId,
       current,
       ...(threshold === undefined ? {} : { threshold }),
       cap: relationship.basisCap,
       outputs: [{
-        ...(relationship.output.presentationId
-          ? { presentationId: relationship.output.presentationId }
-          : {}),
+        presentationId: relationship.output.presentationId,
         label: relationship.output.label,
         value,
         ...(relationship.output.cap === undefined
@@ -1031,9 +944,6 @@ export function evaluatePostDeliveryStatModifierGauge(
       }],
       ...(relationship.presentation ? { presentation: relationship.presentation } : {}),
       ...(relationship.sourceDetail ? { sourceDetail: relationship.sourceDetail } : {}),
-      ...(relationship.sourceDetailPresentationId
-        ? { sourceDetailPresentationId: relationship.sourceDetailPresentationId }
-        : {}),
       ...(relationship.decimals ? { decimals: relationship.decimals } : {}),
     },
   }

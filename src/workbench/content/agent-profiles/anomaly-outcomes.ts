@@ -327,8 +327,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
           metricId: 'refringeFactor',
           earliestSurface: 'fully',
           action: REFRINGE_TARGET,
-          sourceDetail: 'Distinct Refringe formula factor',
-          sourceDetailPresentationId: 'distinct-refringe-formula-factor',
+          sourceDetail: { label: 'Distinct Refringe formula factor', presentationId: 'distinct-refringe-formula-factor' },
         },
       }],
     })
@@ -346,8 +345,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
           metricId: 'luminizeMultiplier',
           earliestSurface: 'fully',
           action: LUMINIZE_TARGET,
-          sourceDetail: 'Added Luminize DMG multiplier',
-          sourceDetailPresentationId: 'added-luminize-dmg-multiplier',
+          sourceDetail: { label: 'Added Luminize DMG multiplier', presentationId: 'added-luminize-dmg-multiplier' },
         },
       }],
     })
@@ -365,8 +363,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
         metricId: 'dmgBonus',
         earliestSurface: 'fully',
         value: VERTICAL_VALUES.remielle.phaseFlowDmgBySkillTier[skillTier],
-        sourceDetail: 'Phase Flow',
-        sourceDetailPresentationId: 'phase-flow',
+        sourceDetail: { label: 'Phase Flow', presentationId: 'phase-flow' },
       },
       DAMAGE,
     ))
@@ -378,8 +375,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
         value: VERTICAL_VALUES.remielle.assistStunExtension,
         unit: 's',
         source: assist,
-        sourceDetail: 'Flower & Feather Dance',
-        sourceDetailPresentationId: 'flower-feather-dance',
+        sourceDetail: { label: 'Flower & Feather Dance', presentationId: 'flower-feather-dance' },
       },
     })
 
@@ -426,8 +422,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
           metricId: 'anomalyBuildupBonus',
           earliestSurface: 'fully',
           value: VERTICAL_VALUES.remielle.additionalBuildup,
-          sourceDetail: 'Prismatic target',
-          sourceDetailPresentationId: 'prismatic-target',
+          sourceDetail: { label: 'Prismatic target', presentationId: 'prismatic-target' },
         },
         ['anomaly_buildup'],
       ))
@@ -449,8 +444,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
           earliestSurface: 'fully',
           value: VERTICAL_VALUES.remielle.mindscape1OtherAnomalyDmg,
           action: ATTRIBUTE_ANOMALY_TARGET,
-          sourceDetail: 'Phase Flow',
-          sourceDetailPresentationId: 'phase-flow',
+          sourceDetail: { label: 'Phase Flow', presentationId: 'phase-flow' },
         },
         ['anomaly_damage'],
       ))
@@ -475,8 +469,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
           metricId: 'defIgnore',
           earliestSurface: 'fully',
           value: VERTICAL_VALUES.remielle.mindscape2AnomalyDefIgnore,
-          sourceDetail: 'Prismatic target',
-          sourceDetailPresentationId: 'prismatic-target',
+          sourceDetail: { label: 'Prismatic target', presentationId: 'prismatic-target' },
         },
       })
     }
@@ -826,7 +819,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
       kind: 'modifier',
       atom: {
         metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.yanagi.coreElectricDmg,
-        source: core, sourceDetail: 'Against an EX-hit target', sourceDetailPresentationId: 'against-ex-hit-target',
+        source: core, sourceDetail: { label: 'Against an EX-hit target', presentationId: 'against-ex-hit-target' },
       },
     })
     if (additionalActive) add(mod(ability, 'anomalyBuildupBonus', VERTICAL_VALUES.yanagi.additionalElectricBuildup))
@@ -846,7 +839,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
       'enemy-context',
       {
         kind: 'modifier', metricId: 'penRatio', earliestSurface: 'fully',
-        value: VERTICAL_VALUES.yanagi.mindscape4PenRatio, sourceDetail: 'Against an Exposed target', sourceDetailPresentationId: 'against-exposed-target',
+        value: VERTICAL_VALUES.yanagi.mindscape4PenRatio, sourceDetail: { label: 'Against an Exposed target', presentationId: 'against-exposed-target' },
       },
       DEF_DAMAGE_FORMULAS,
     ))
@@ -900,8 +893,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
         {
           kind: 'modifier', metricId: 'anomalyDmgBonus', earliestSurface: 'fully',
           value: VERTICAL_VALUES.alice.mindscape2DisorderDmg, action: DISORDER_TARGET,
-          sourceDetail: 'Against an enemy suffering Physical Anomaly',
-          sourceDetailPresentationId: 'against-physical-anomaly-enemy',
+          sourceDetail: { label: 'Against an enemy suffering Physical Anomaly', presentationId: 'against-physical-anomaly-enemy' },
         },
         ['anomaly_damage'],
       ))
@@ -948,8 +940,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
         {
           kind: 'modifier', metricId: 'anomalyDmgBonus', earliestSurface: 'fully',
           value: VERTICAL_VALUES.vivian.additionalDisorderDmg, action: DISORDER_TARGET,
-          sourceDetail: 'Against an enemy suffering Corruption',
-          sourceDetailPresentationId: 'against-corrupted-enemy',
+          sourceDetail: { label: 'Against an enemy suffering Corruption', presentationId: 'against-corrupted-enemy' },
         },
         ['anomaly_damage'],
       ))
@@ -961,8 +952,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
         {
           kind: 'modifier', metricId: 'anomalyDmgBonus', earliestSurface: 'fully',
           value: VERTICAL_VALUES.vivian.mindscape1AnomalyDmg, action,
-          sourceDetail: 'Against a target under Prophecy',
-          sourceDetailPresentationId: 'against-prophecy-target',
+          sourceDetail: { label: 'Against a target under Prophecy', presentationId: 'against-prophecy-target' },
         },
         ['anomaly_damage'],
       ))
@@ -1012,7 +1002,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
         atom: {
           metricId: 'anomalyBuildupResReduction', earliestSurface: 'fully',
           value: VERTICAL_VALUES.aria.mindscape1EtherBuildupResIgnore,
-          action: ARIA_BUILDUP, source: mind(1), sourceDetail: 'Ignores Ether Anomaly Buildup RES', sourceDetailPresentationId: 'ignores-ether-anomaly-buildup-res',
+          action: ARIA_BUILDUP, source: mind(1), sourceDetail: { label: 'Ignores Ether Anomaly Buildup RES', presentationId: 'ignores-ether-anomaly-buildup-res' },
         },
       })
     }
@@ -1059,8 +1049,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
           },
           emission: {
             kind: 'stat', statId: 'anomalyProficiency', region: 'flat', earliestSurface: 'fully',
-            sourceDetail: 'From Initial Anomaly Mastery above 150',
-            sourceDetailPresentationId: 'from-initial-anomaly-mastery-above-150',
+            sourceDetail: { label: 'From Initial Anomaly Mastery above 150', presentationId: 'from-initial-anomaly-mastery-above-150' },
           },
         },
         {
@@ -1073,8 +1062,8 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
             kind: 'provider', delivery: { recipient: 'all-party', formulas: ['anomaly_damage'] },
             effect: {
               kind: 'modifier', metricId: 'anomalyDmgBonus', earliestSurface: 'fully',
-              action: ABLOOM_TARGET, sourceDetail: 'From Promeia Initial Anomaly Mastery above 150',
-              sourceDetailPresentationId: 'from-promeia-initial-anomaly-mastery-above-150',
+              action: ABLOOM_TARGET,
+              sourceDetail: { label: 'From Promeia Initial Anomaly Mastery above 150', presentationId: 'from-promeia-initial-anomaly-mastery-above-150' },
             },
           },
         },
@@ -1098,8 +1087,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
         {
           kind: 'modifier', metricId: 'defIgnore', earliestSurface: 'fully',
           value: VERTICAL_VALUES.promeia.additionalAbloomDefIgnore, action: ABLOOM_TARGET,
-          sourceDetail: 'Against a target under Presumption',
-          sourceDetailPresentationId: 'against-presumption-target',
+          sourceDetail: { label: 'Against a target under Presumption', presentationId: 'against-presumption-target' },
         },
         ['anomaly_damage'],
       ))
@@ -1109,7 +1097,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
         {
           kind: 'modifier', metricId: 'defIgnore', earliestSurface: 'fully',
           value: VERTICAL_VALUES.promeia.mindscape1AbloomDefIgnore - VERTICAL_VALUES.promeia.additionalAbloomDefIgnore,
-          action: ABLOOM_TARGET, sourceDetail: 'Against a target under Presumption', sourceDetailPresentationId: 'against-presumption-target',
+          action: ABLOOM_TARGET, sourceDetail: { label: 'Against a target under Presumption', presentationId: 'against-presumption-target' },
         },
         ['anomaly_damage'],
       ))
@@ -1192,8 +1180,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
       {
         kind: 'modifier', metricId: 'anomalyBuildupResReduction', earliestSurface: 'fully',
         value: VERTICAL_VALUES.velina.coreBuildupResReduction,
-        sourceDetail: 'Sweeping Cyclone · Wind Anomaly Buildup RES',
-        sourceDetailPresentationId: 'sweeping-cyclone-wind-anomaly-buildup-res',
+        sourceDetail: { label: 'Sweeping Cyclone · Wind Anomaly Buildup RES', presentationId: 'sweeping-cyclone-wind-anomaly-buildup-res' },
       },
       ['anomaly_buildup'],
       ['Wind'],
@@ -1204,8 +1191,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
       {
         kind: 'modifier', metricId: 'anomalyBuildupResReduction', earliestSurface: 'fully',
         value: VERTICAL_VALUES.velina.coreBuildupResReduction,
-        sourceDetail: 'Contamination Attribute · selected by Focus',
-        sourceDetailPresentationId: 'contamination-attribute-selected-by-focus',
+        sourceDetail: { label: 'Contamination Attribute · selected by Focus', presentationId: 'contamination-attribute-selected-by-focus' },
       },
       ['anomaly_buildup'],
       [contaminationAttribute],
@@ -1228,8 +1214,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
         {
           kind: 'modifier', metricId: 'anomalyBuildupResReduction', earliestSurface: 'fully',
           value: VERTICAL_VALUES.velina.additionalBuildupResReduction,
-          sourceDetail: 'Sweeping Cyclone · Wind Anomaly Buildup RES',
-          sourceDetailPresentationId: 'sweeping-cyclone-wind-anomaly-buildup-res',
+          sourceDetail: { label: 'Sweeping Cyclone · Wind Anomaly Buildup RES', presentationId: 'sweeping-cyclone-wind-anomaly-buildup-res' },
         },
         ['anomaly_buildup'],
         ['Wind'],
@@ -1240,8 +1225,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
         {
           kind: 'modifier', metricId: 'anomalyBuildupResReduction', earliestSurface: 'fully',
           value: VERTICAL_VALUES.velina.additionalBuildupResReduction,
-          sourceDetail: 'Contamination Attribute · selected by Focus',
-          sourceDetailPresentationId: 'contamination-attribute-selected-by-focus',
+          sourceDetail: { label: 'Contamination Attribute · selected by Focus', presentationId: 'contamination-attribute-selected-by-focus' },
         },
         ['anomaly_buildup'],
         [contaminationAttribute],

@@ -227,8 +227,10 @@ describe('profile calculation harness', () => {
             source: normaCore,
             basis: { metricId: 'sheerForce', surface: 'fully' },
             basisLabel: 'Fully Enabled Sheer Force',
+            basisPresentationId: 'fully-sheer-force',
             basisCap: 960,
             output: {
+              presentationId: 'flat-atk',
               label: 'flat ATK', statId: 'atk', region: 'flat',
               transform: { basisIncrement: 1, outputIncrement: 1.25, outputCap: 1_200 },
               cap: 1_200, unit: '',
@@ -297,11 +299,13 @@ describe('profile calculation harness', () => {
             source: janeCore,
             basis: { statId: 'anomalyProficiency', surface: 'fully' },
             basisLabel: 'Fully Enabled Anomaly Proficiency',
+            basisPresentationId: 'fully-anomaly-proficiency',
             basisThreshold: 200,
             basisCap: 420,
             metricId: 'anomalyProficiency',
             outputs: [
               {
+                presentationId: 'assault-crit-rate',
                 label: 'Scoped CRIT Rate', unit: '%', cap: 100,
                 transform: { basisIncrement: 1, outputIncrement: 0.5, outputCap: 100 },
                 emission: {
@@ -314,6 +318,7 @@ describe('profile calculation harness', () => {
                 },
               },
               {
+                presentationId: 'flat-atk',
                 label: 'Derived flat ATK', unit: '', cap: 600,
                 transform: {
                   basisThreshold: 120, basisIncrement: 1,
@@ -468,9 +473,11 @@ describe('profile calculation harness', () => {
           source: secondSource,
           basis: { statId: 'critRate', surface: 'initial' },
           basisLabel: 'Initial CRIT Rate',
+          basisPresentationId: 'initial-crit-rate',
           basisCap: 100,
           metricId: 'critRate',
           outputs: [{
+            presentationId: 'dmg-bonus',
             label: 'Parallel output', unit: '%',
             transform: { basisIncrement: 1, outputIncrement: 0.1 },
             emission: {
@@ -869,8 +876,14 @@ describe('profile calculation harness', () => {
           },
           effect: {
             kind: 'operation',
+            presentationId: 'next-quick-assist-daze',
             label: 'Next action Daze',
             value: 50, unit: '%',
+            sourceDetail: {
+              label: 'Idyllic Cadenza · level 12',
+              presentationId: 'idyllic-cadenza-level',
+              presentationValues: { level: 12 },
+            },
           },
         }],
       },
@@ -880,7 +893,16 @@ describe('profile calculation harness', () => {
 
     const result = evaluateProfileParty(state, profiles)!
     expect(agentResult(result, 'trigger').operations).toEqual([
-      expect.objectContaining({ label: 'Next action Daze', value: 50 }),
+      expect.objectContaining({
+        label: 'Next action Daze',
+        value: 50,
+        source: expect.objectContaining({
+          detailParts: [expect.objectContaining({
+            presentationId: 'idyllic-cadenza-level',
+            presentationValues: { level: 12 },
+          })],
+        }),
+      }),
     ])
     expect(agentResult(result, 'trigger').operations[0].source.ownerAgentId).toBe('astraYao')
     expect(agentResult(result, 'astraYao').operations).toEqual([])
@@ -906,6 +928,7 @@ describe('profile calculation harness', () => {
             delivery: { recipient: 'all-party', formulas: ['daze_buildup'] },
             effect: {
               kind: 'operation',
+              presentationId: 'next-quick-assist-daze',
               label: 'Daze operation', value: 50, unit: '%',
             },
           },
@@ -914,6 +937,7 @@ describe('profile calculation harness', () => {
             delivery: { recipient: 'all-party', formulas: ['general_damage'] },
             effect: {
               kind: 'operation',
+              presentationId: 'action-dmg-multiplier',
               label: 'General operation', value: 25, unit: '%',
             },
           },
@@ -1236,8 +1260,10 @@ describe('profile calculation harness', () => {
             kind: 'gauge', source: derived,
             basis: { statId: 'impact', surface: 'each' },
             basisLabel: 'Fully Enabled Impact', basisThreshold: 120, basisCap: 220,
+            basisPresentationId: 'fully-impact',
             metricId: 'impact',
             outputs: [{
+              presentationId: 'flat-atk',
               label: 'Derived flat ATK', unit: '', cap: 600,
               transform: { basisThreshold: 120, basisIncrement: 1, outputIncrement: 6, outputCap: 600 },
               emission: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'initial' },
@@ -1281,8 +1307,10 @@ describe('profile calculation harness', () => {
               kind: 'threshold-operation', source,
               basis: { statId: 'critRate' },
               basisLabels: { combat: 'Combat CRIT Rate', fully: 'Fully Enabled CRIT Rate' },
+              basisPresentationIds: { combat: 'combat-crit-rate', fully: 'fully-crit-rate' },
               threshold: 80, metricId: 'critRate',
               outputLabel: 'Action DMG Multiplier', inactiveValue: 1, activeValue: 1.25,
+              outputPresentationId: 'action-dmg-multiplier',
               unit: '', presentation: 'scale',
             },
           ],
@@ -1333,8 +1361,10 @@ describe('profile calculation harness', () => {
           {
             kind: 'gauge', source,
             basis: { statId: 'atk', surface: 'initial' }, basisLabel: 'Initial ATK',
+            basisPresentationId: 'initial-atk',
             basisThreshold: 100, metricId: 'atk',
             outputs: [{
+              presentationId: 'squad-flat-atk',
               label: 'Squad flat ATK', unit: '',
               transform: { basisThreshold: 100, basisIncrement: 1, outputIncrement: 1 },
               emission: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully' },
@@ -1380,14 +1410,16 @@ describe('profile calculation harness', () => {
           {
             kind: 'modifier', atom: {
               metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: 50,
-              source: target, sourceDetail: 'Above 100%',
+              source: target, sourceDetail: { label: 'Above 100%', presentationId: 'above-100-percent' },
             },
           },
           {
             kind: 'projection-gauge', source: target,
             metricId: 'stunDmgMultiplier', basisLabel: 'Raw Stun DMG Multiplier bonus',
+            basisPresentationId: 'raw-stun-dmg-multiplier-bonus',
             basisCap: 110,
             output: {
+              presentationId: 'veil-vulnerability',
               label: 'Veil Vulnerability',
               transform: { basisIncrement: 1, outputIncrement: 1, outputCap: 110 },
               cap: 110, unit: '%',
@@ -1446,10 +1478,12 @@ describe('profile calculation harness', () => {
             source: timeweaver,
             basis: { statId: 'anomalyProficiency', surface: 'fully' },
             basisLabel: 'Fully Enabled Anomaly Proficiency',
+            basisPresentationId: 'fully-anomaly-proficiency',
             basisCap: 375,
             gaugeMetricId: 'anomalyProficiency', modifierMetricId: 'anomalyDmgBonus',
             action: DISORDER_TARGET, modifierSurface: 'fully',
             output: {
+              presentationId: 'disorder-dmg-bonus',
               label: 'Disorder DMG Bonus',
               value: {
                 kind: 'activation', threshold: 375,
@@ -1529,6 +1563,7 @@ describe('profile calculation harness', () => {
             source,
             basis: { statId: 'critRate', surface: 'fully' },
             basisLabel: 'Fully Enabled CRIT Rate',
+            basisPresentationId: 'fully-crit-rate',
             basisValueCap: 100,
             basisCap: 90,
             gaugeMetricId: 'critRate',
@@ -1536,6 +1571,7 @@ describe('profile calculation harness', () => {
             action: AFTERSHOCK_TARGET,
             modifierSurface: 'fully',
             output: {
+              presentationId: 'aftershock-daze-bonus',
               label: 'Action Daze bonus',
               value: {
                 kind: 'linear',
@@ -1678,10 +1714,12 @@ describe('profile calculation harness', () => {
           source: lighterAdditional,
           basis: { statId: 'impact', surface: 'fully' },
           basisLabel: 'Fully Enabled Impact',
+          basisPresentationId: 'fully-impact',
           basisThreshold: 170,
           basisCap: 270,
           metricId: 'impact',
           outputs: [{
+            presentationId: 'dmg-bonus',
             label: 'Elemental DMG Bonus', unit: '%', cap: 75,
             transform: {
               basisThreshold: 170, basisIncrement: 10,
@@ -1791,7 +1829,7 @@ describe('profile calculation harness', () => {
               { statId: 'atk', multiplier: 0.3 },
               { statId: 'maxHp', multiplier: 0.1 },
             ],
-            sourceDetail: 'Current ATK × 0.3 + Current Max HP × 0.1',
+            sourceDetail: { label: 'Current ATK × 0.3 + Current Max HP × 0.1', presentationId: 'current-atk-and-max-hp-sheer-formula' },
           },
           {
             kind: 'modifier',

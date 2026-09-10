@@ -2,11 +2,11 @@ import type { AgentId } from '../content'
 import type { EffectMetric, ResultSource, SurfaceKey } from '../effects'
 import type { ActionOutcome, ActionTag, ActionTarget } from '../actions'
 import type { SelectedSourceInstance } from './source-instance'
-import type { PresentationId, PresentationValues } from '../../presentation'
+import type { PresentationDetail, StaticPresentationId } from '../../presentation'
 
 function selectedSourceDetail(
   source: SelectedSourceInstance,
-): { presentationId: PresentationId; presentationValues?: PresentationValues; label: string } | undefined {
+): PresentationDetail | undefined {
   const { key } = source.definition
   switch (key.kind) {
     case 'w-engine-base':
@@ -36,16 +36,12 @@ function selectedSourceDetail(
 
 export function resultSourceFor(
   source: SelectedSourceInstance,
-  detail?: string,
-  detailPresentationId?: PresentationId,
-  detailPresentationValues?: PresentationValues,
+  detail?: PresentationDetail,
 ): ResultSource {
   const selectedDetail = selectedSourceDetail(source)
   const detailParts = [
     selectedDetail,
-    detail && detailPresentationId
-      ? { presentationId: detailPresentationId, presentationValues: detailPresentationValues, label: detail }
-      : undefined,
+    detail,
   ].filter((part): part is NonNullable<typeof part> => Boolean(part))
   const selectedRole = source.selection?.kind === 'drive-disc'
     ? source.selection.selectedRole
@@ -58,7 +54,7 @@ export function resultSourceFor(
     ownerAgentId: source.holderAgentId,
     locus,
     sourceKey: source.definition.key,
-    detail: [selectedDetail?.label, detail].filter(Boolean).join(' · ') || undefined,
+    detail: [selectedDetail?.label, detail?.label].filter(Boolean).join(' · ') || undefined,
     detailParts: detailParts.length > 0 ? detailParts : undefined,
   }
 }
@@ -77,17 +73,17 @@ export interface Contribution extends ResultSource {
 export interface GaugeResult {
   source: ResultSource
   basisLabel: string
-  basisPresentationId?: PresentationId
+  basisPresentationId: StaticPresentationId
   current: number
   threshold?: number
   cap?: number
   outputLabel: string
-  outputPresentationId?: PresentationId
+  outputPresentationId: StaticPresentationId
   outputValue: number
   outputCap?: number
   outputUnit: string
   additionalOutputs?: Array<{
-    presentationId?: PresentationId
+    presentationId: StaticPresentationId
     label: string
     value: number
     cap?: number
@@ -129,7 +125,7 @@ export interface ActionModifier {
 }
 
 export interface ResultOperation {
-  presentationId?: PresentationId
+  presentationId: StaticPresentationId
   label: string
   source: ResultSource
   value: number

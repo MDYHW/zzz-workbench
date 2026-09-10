@@ -1,5 +1,5 @@
 import type { SurfaceKey } from '../effects'
-import type { PresentationId, PresentationValues } from '../../presentation'
+import type { PresentationDetail } from '../../presentation'
 import type { SelectedSourceInstance } from './source-instance'
 
 export type StatId =
@@ -22,9 +22,7 @@ export interface BaseStatAtom {
   earliestSurface: 'initial'
   value: number
   source: SelectedSourceInstance
-  sourceDetail?: string
-  sourceDetailPresentationId?: PresentationId
-  sourceDetailPresentationValues?: PresentationValues
+  sourceDetail?: PresentationDetail
 }
 
 export interface DerivedStatAtom {
@@ -33,9 +31,7 @@ export interface DerivedStatAtom {
   earliestSurface: SurfaceKey
   value: number
   source: SelectedSourceInstance
-  sourceDetail?: string
-  sourceDetailPresentationId?: PresentationId
-  sourceDetailPresentationValues?: PresentationValues
+  sourceDetail?: PresentationDetail
 }
 
 export type StatAtom = BaseStatAtom | DerivedStatAtom
@@ -56,9 +52,7 @@ export interface AutomaticEnergyRecoveryOperation {
   earliestSurface: SurfaceKey
   value: number
   source: SelectedSourceInstance
-  sourceDetail?: string
-  sourceDetailPresentationId?: PresentationId
-  sourceDetailPresentationValues?: PresentationValues
+  sourceDetail?: PresentationDetail
 }
 
 export interface ComposedAutomaticEnergyRecovery {

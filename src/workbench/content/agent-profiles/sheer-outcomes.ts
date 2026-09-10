@@ -151,8 +151,7 @@ function buildSheerOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slo
       { statId: 'atk', multiplier: VERTICAL_VALUES.rupture.currentAtkToSheer },
       { statId: 'maxHp', multiplier: VERTICAL_VALUES.rupture.currentHpToSheer },
     ],
-    sourceDetail: 'Current ATK × 0.3 + Current Max HP × 0.1',
-    sourceDetailPresentationId: 'current-atk-and-max-hp-sheer-formula',
+    sourceDetail: { label: 'Current ATK × 0.3 + Current Max HP × 0.1', presentationId: 'current-atk-and-max-hp-sheer-formula' },
   })
   return { agentId: agent, appliedPartySlot: slot, relationships, metrics, ...(actions.length ? { actions } : {}) }
 }

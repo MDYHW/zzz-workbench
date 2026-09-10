@@ -237,7 +237,7 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
     if (selected >= 1) relationships.push(provider(
       mind(agent, slot, selected, 1),
       'enemy-context',
-      { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.norma.mindscape1ResReduction, sourceDetail: 'Armor-Piercing or High-Explosive Warhead hit', sourceDetailPresentationId: 'armor-piercing-or-high-explosive-warhead-hit' },
+      { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.norma.mindscape1ResReduction, sourceDetail: { label: 'Armor-Piercing or High-Explosive Warhead hit', presentationId: 'armor-piercing-or-high-explosive-warhead-hit' } },
       { formulas: DAMAGE },
     ))
     if (selected >= 6) relationships.push(
@@ -348,8 +348,7 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
         earliestSurface: 'fully',
         value: VERTICAL_VALUES.lighter.coreCombatImpact,
         source: core,
-        sourceDetail: 'Empowered Basic Attack: 5th hit',
-        sourceDetailPresentationId: 'empowered-basic-fifth-hit',
+        sourceDetail: { label: 'Empowered Basic Attack: 5th hit', presentationId: 'empowered-basic-fifth-hit' },
       },
     })
     if (active) {

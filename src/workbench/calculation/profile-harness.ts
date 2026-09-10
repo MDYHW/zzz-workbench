@@ -174,8 +174,6 @@ function deriveSurfaceStatMetric(
     ...resultSourceFor(
       relationship.source,
       relationship.sourceDetail,
-      relationship.sourceDetailPresentationId,
-      relationship.sourceDetailPresentationValues,
     ),
     amount: value,
     notation: 'surface-value',
@@ -265,8 +263,6 @@ function statContributionResult(contribution: StatContribution): Contribution {
     ...resultSourceFor(
       atom.source,
       atom.sourceDetail,
-      atom.sourceDetailPresentationId,
-      atom.sourceDetailPresentationValues,
     ),
     amount: derivedValue,
     ...(atom.region === 'percentage'
@@ -292,8 +288,6 @@ function statBreakdown(stat: ResolvedStat): ResultMetric['breakdown'] {
     const origin = resultSourceFor(
       atom.source,
       atom.sourceDetail,
-      atom.sourceDetailPresentationId,
-      atom.sourceDetailPresentationValues,
     )
     breakdown[atom.earliestSurface].push({
       ...origin,
@@ -319,8 +313,6 @@ function modifierEffect(atom: ModifierAtom) {
     source: resultSourceFor(
       atom.source,
       atom.sourceDetail,
-      atom.sourceDetailPresentationId,
-      atom.sourceDetailPresentationValues,
     ),
     sourceInstance: atom.source,
     ...(atom.action ? { action: atom.action } : {}),
@@ -337,8 +329,6 @@ function gaugeResult(gauge: EvaluatedGauge): GaugeResult {
     source: resultSourceFor(
       gauge.source,
       gauge.sourceDetail,
-      gauge.sourceDetailPresentationId,
-      gauge.sourceDetailPresentationValues,
     ),
     basisLabel: gauge.basisLabel,
     basisPresentationId: gauge.basisPresentationId,
@@ -401,8 +391,6 @@ function projectMetrics(
           ...resultSourceFor(
             operation.source,
             operation.sourceDetail,
-            operation.sourceDetailPresentationId,
-            operation.sourceDetailPresentationValues,
           ),
           amount: operation.value,
         })))
@@ -450,8 +438,6 @@ function projectOperations(operations: readonly OperationAtom[]): AgentResult['o
     source: resultSourceFor(
       operation.source,
       operation.sourceDetail,
-      operation.sourceDetailPresentationId,
-      operation.sourceDetailPresentationValues,
     ),
     value: operation.value,
     unit: operation.unit,

@@ -55,7 +55,7 @@ function cissiaGauge(
         },
         effect: {
           kind: 'modifier', metricId: 'defIgnore', earliestSurface: 'combat',
-          sourceDetail: 'Corrosion', sourceDetailPresentationId: 'corrosion',
+          sourceDetail: { label: 'Corrosion', presentationId: 'corrosion' },
         },
       },
     }],
@@ -75,7 +75,7 @@ export function agentBroadPrePenRelationships(
       return [provider(source, {
         kind: 'modifier', metricId: 'defIgnore', earliestSurface: 'combat',
         value: VERTICAL_VALUES.seed.mindscapeBesiegeDefIgnore,
-        sourceDetail: 'Besiege', sourceDetailPresentationId: 'besiege',
+        sourceDetail: { label: 'Besiege', presentationId: 'besiege' },
       }, {
         recipient: 'enemy-context', formulas: ['general_damage'],
         eligibleAgentIds: ['seed', vanguard],

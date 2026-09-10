@@ -8,7 +8,7 @@ import {
 } from './equipment-eligibility'
 import { equipmentEffectModifierMeaning } from './equipment-effect-relationships'
 import { equipmentProviderEmission } from './equipment-provider'
-import type { PresentationId } from '../../../presentation'
+import type { StaticPresentationId } from '../../../presentation'
 
 function minimumStatLabel(statId: Extract<EquipmentEffectFact['activation'], { kind: 'minimum-stat' }>['statId']): string {
   switch (statId) {
@@ -21,7 +21,7 @@ function minimumStatLabel(statId: Extract<EquipmentEffectFact['activation'], { k
 function minimumStatPresentationId(
   surface: 'initial' | 'fully',
   statId: Extract<EquipmentEffectFact['activation'], { kind: 'minimum-stat' }>['statId'],
-): PresentationId {
+): StaticPresentationId {
   switch (`${surface}:${statId}`) {
     case 'initial:anomalyProficiency': return 'initial-anomaly-proficiency'
     case 'initial:anomalyMastery': return 'initial-anomaly-mastery'
@@ -33,7 +33,7 @@ function minimumStatPresentationId(
   }
 }
 
-function minimumStatOutputPresentationId(fact: EquipmentEffectFact): PresentationId {
+function minimumStatOutputPresentationId(fact: EquipmentEffectFact): StaticPresentationId {
   if (fact.modifier === 'anomalyDmgBonus' && fact.scope?.anomalyResults?.includes('Disorder')) {
     return 'disorder-dmg-bonus'
   }

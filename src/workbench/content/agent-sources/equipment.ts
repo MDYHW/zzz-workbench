@@ -53,6 +53,7 @@ export {
 } from './equipment-eligibility'
 import { selectedWEngineRelationships } from './w-engine-relationships'
 import { equipmentEffectActionTargets } from './equipment-eligibility'
+import type { PresentationDetail } from '../../../presentation'
 
 export interface CompleteSelectedSetup {
   engineId: EngineId
@@ -156,7 +157,7 @@ function statRelationship(
   source: SelectedSourceInstance,
   meaning: StatInputMeaning,
   value: number,
-  sourceDetail?: string,
+  sourceDetail?: PresentationDetail,
 ): ProfileRelationship {
   return {
     kind: 'stat',
@@ -315,7 +316,7 @@ function substatRelationships(
         defineEffectiveSubstatSource(
           (index + 1) as 1 | 2 | 3,
           choice.id,
-          'Effective substat hits',
+          choice.label,
         ),
         agentId,
         appliedPartySlot,
@@ -328,7 +329,6 @@ function substatRelationships(
       ),
       meaning,
       count! * EFFECTIVE_SUBSTAT_VALUES[choice.id].perHit,
-      choice.label,
     )]
     })
 }

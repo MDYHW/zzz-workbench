@@ -117,6 +117,9 @@ export const KOREAN_PRESENTATION = {
   'all-attribute-res-ignore': '모든 속성 저항 무시',
   'reachable-healing-condition': '달성 가능한 치유 조건',
   'against-shocked-enemies': '감전 상태의 적 대상',
+  'mirage-against-stunned-enemies': '미라지 · 그로기 상태의 적 대상',
+  sunflare: '선플레어',
+  'shielded-after-ex-special-perfect-block': '강화 특수 스킬 정밀 가드 후 실드 보유',
   'seed-additional-setup': '추가 능력 효과',
   'action-dmg-multiplier': '공격 피해 배율',
   'automatic-energy': '에너지 자동 회복',
@@ -124,13 +127,25 @@ export const KOREAN_PRESENTATION = {
 
 export type PresentationId = keyof typeof KOREAN_PRESENTATION
 
+export type DynamicPresentationId =
+  | 'w-engine-refinement'
+  | 'mindscape-tier'
+  | 'mindscape-darkbreaker'
+  | 'idyllic-cadenza-level'
+
+export type StaticPresentationId = Exclude<PresentationId, DynamicPresentationId>
+
 export interface PresentationValues {
   level?: number
   refinement?: number
   tier?: number
 }
 
-export interface PresentationDescriptor {
-  presentationId: PresentationId
-  presentationValues?: PresentationValues
-}
+export type PresentationDescriptor =
+  | { presentationId: StaticPresentationId; presentationValues?: never }
+  | { presentationId: 'w-engine-refinement'; presentationValues: { refinement: number } }
+  | { presentationId: 'mindscape-tier'; presentationValues: { tier: number } }
+  | { presentationId: 'mindscape-darkbreaker'; presentationValues: { tier: number } }
+  | { presentationId: 'idyllic-cadenza-level'; presentationValues: { level: number } }
+
+export type PresentationDetail = PresentationDescriptor & { label: string }
