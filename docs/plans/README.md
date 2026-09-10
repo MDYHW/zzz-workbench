@@ -8,8 +8,7 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-Keep at most one active bounded implementation plan. The active plan is
-[Korean and English Language Toggle](2026-09-09-001-feat-korean-english-language-toggle-plan.md).
+Keep at most one active bounded implementation plan. There is no active plan.
 Completed verticals are recorded in the milestone index below,
 and later Agent verticals still require their own bounded requirement and plan
 after their meaning is settled.
@@ -99,6 +98,7 @@ and author the new local outcome from current consumers instead.
 | 2026-09-02 | Added Remielle through contextual Lumiflux Attribute derivation, distinct Refringe and Luminize relationships, competitive full and non-limited packages, count-sensitive party delivery, composed lifecycle behavior, and calibrated Agent and equipment assets, closing the through-3.1 expansion cohort | [Remielle requirements](../brainstorms/2026-09-01-remielle-vertical-requirements.md), [product contract](../setup-workbench-product-contract.md), [formula mechanics](../zzz-formula-mechanics.md), [source-fact boundary](../source-fact-boundary.md), [UI design rules](../workbench-ui-design-rules.md), current content and calculation consumers |
 | 2026-09-03 | Replaced expanding and compact party slots with three fixed persistent selectors and one selected-Agent Identity, Setup, and Result workspace while preserving Setup edits, source linkage, keyboard navigation, and Party Edit lifecycle | [UI requirements](../brainstorms/2026-08-02-agent-slot-setup-result-ui-requirements.md), [ZZZ-style direction](../brainstorms/2026-08-03-zzz-style-and-integrated-slot-direction.md), [UI design rules](../workbench-ui-design-rules.md), [PartyWorkbench](../../src/components/PartyWorkbench.tsx), [App](../../src/App.tsx) |
 | 2026-09-07 | Prepared the non-live public static RC delivery boundary with exact artifact admission, a GitHub Free-compatible protected bootstrap, neutral GitHub App publication and Pages-disable recovery, one shared legal footer, and local/browser verification while leaving repository creation and live readiness to the owner-run procedure | [public static RC requirements](../brainstorms/2026-09-06-public-static-release-candidate-requirements.md), [operator procedure](../../CONTRIBUTING.md), current release controller and tests |
+| 2026-09-10 | Added Korean-default and English workbench presentation through stable domain identities, locale-free setup shortcuts, in-place state preservation, responsive masthead controls, an immutable Korean font, and public artifact admission without changing Setup or Result meaning | [language-toggle requirements](../brainstorms/2026-09-09-korean-english-language-toggle-requirements.md), [product contract](../setup-workbench-product-contract.md), [UI design rules](../workbench-ui-design-rules.md), current localization, presentation, and public-release consumers |
 
 For removed plan detail, use Git history for `docs/plans/`. The milestone index
 does not validate current product behavior; the linked owners and current
