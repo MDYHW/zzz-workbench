@@ -16,6 +16,9 @@ import type {
 import {
   ADMITTED_AGENTS,
   DRIVE_DISCS,
+  EFFECTIVE_SUBSTAT_VALUES,
+  FIXED_MAIN_STATS,
+  MAIN_STATS,
   W_ENGINES,
   agentDisplayName,
   type AgentAttribute,
@@ -266,7 +269,7 @@ const koMetrics: Record<EffectMetric, string> = {
 
 const koStats: Partial<Record<MainStatId | SubstatId | string, string>> = {
   critRate: '치명타 확률', critDmg: '치명타 피해', etherDmg: '에테르 피해 보너스', hpPct: 'HP',
-  hpFlat: 'HP', atkPct: '공격력', atkFlat: '공격력', physicalDmg: '물리 피해 보너스',
+  hpFlat: 'HP', atkPct: '공격력', atkFlat: '공격력', defFlat: '방어력', physicalDmg: '물리 피해 보너스',
   penRatio: '관통률', impact: '충격력', impactPct: '충격력', energyRegenPct: '에너지 자동 회복', electricDmg: '전기 피해 보너스',
   fireDmg: '불 피해 보너스', iceDmg: '얼음 피해 보너스', windDmg: '바람 피해 보너스',
   defPct: '방어력', anomalyProficiency: '이상 마스터리', anomalyMastery: '이상 장악력',
@@ -623,7 +626,12 @@ export const translationCoverage = {
   surfaces: hasOnlyNonEmptyText(Object.values(koSurfaces)),
   surfaceDescriptions: hasOnlyNonEmptyText(Object.values(koSurfaceDescriptions)),
   metrics: hasOnlyNonEmptyText(Object.values(koMetrics)),
-  stats: hasOnlyNonEmptyText(Object.values(koStats)),
+  stats: [...new Set([
+    ...Object.values(FIXED_MAIN_STATS).map(({ stat }) => stat),
+    ...Object.values(MAIN_STATS).map(({ id }) => id),
+    ...Object.values(EFFECTIVE_SUBSTAT_VALUES).map(({ id }) => id),
+    ...Object.values(W_ENGINES).map(({ advancedStat }) => advancedStat.id),
+  ])].every((statId) => hasOnlyNonEmptyText([koStats[statId]])),
   sourceLoci: hasOnlyNonEmptyText(Object.values(koSourceLoci)),
   calculationSources: hasOnlyNonEmptyText(Object.values(koCalculationSources)),
   presentations: Object.values(koPresentation).every(Boolean),

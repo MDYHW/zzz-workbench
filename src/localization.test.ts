@@ -16,7 +16,7 @@ import type { ResultSource } from './workbench/effects'
 
 describe('localization identity', () => {
   it('covers every admitted entity collection generically', () => {
-    expect(Object.values(translationCoverage).every(Boolean)).toBe(true)
+    expect(Object.entries(translationCoverage).filter(([, covered]) => !covered)).toEqual([])
   })
 
   it('covers every admitted W-Engine advanced stat through stable stat identity', () => {
