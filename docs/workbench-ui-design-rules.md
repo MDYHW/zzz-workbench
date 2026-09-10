@@ -209,7 +209,7 @@ The Result table uses the width required for its exact aggregates and
 disclosure. It does not consume surplus width merely because it is available,
 but source matrices and action differences must not be compressed while Setup
 already has its admitted readable footprint. In that state, newly reclaimed
-expanded-slot width belongs to Result. Setup type and internal structure must be
+workspace width belongs to Result. Setup type and internal structure must be
 reconsidered when its readable footprint cannot be preserved.
 
 ### Result Source Presentation
@@ -520,9 +520,9 @@ normalized input also requires roster-complete desktop and narrow comparison
 in the persistent three-slot rail, including its inactive Party Edit state, and
 in the Party Edit draft rail and candidate pool that reuse the derivative.
 
-### Expanded Slot Composition
+### Selected-Agent Workspace Composition
 
-The desktop expanded slot reads left to right as Identity, Setup, and Result.
+The desktop selected-Agent workspace reads left to right as Identity, Setup, and Result.
 Setup and Result remain adjacent. Identity is a constrained identification
 plane; it may create a soft asymmetric seam into Setup, but artwork, color, and
 decoration must not cover Setup content or make Identity the workbench's visual
@@ -624,7 +624,7 @@ Geometry may be linear, orbital, or another coherent structure. It must make
 this order and the relationship between groups more apparent than the shape
 itself.
 
-The current expanded-slot direction uses a top-to-bottom assembly stack because
+The current workspace direction uses a top-to-bottom assembly stack because
 Setup shares constrained horizontal space with the adjacent Result. W-Engine
 and refinement occupy one row, the 4-piece and 2-piece fields remain adjacent,
 main stats form the next group, and effective-substat counts finish the flow.
@@ -824,9 +824,10 @@ clipping, keyboard focus visibility, and no horizontal overflow.
 
 At minimum, select the applicable cases:
 
-- all three party slots compact;
-- each supported party slot expanded while the other two remain compact;
-- an expanded slot that is not the focused character;
+- three persistent party selectors with exactly one selected-Agent workspace;
+- each applied Agent viewed in that workspace while all three selectors stay in
+  stable party order, including reselecting the viewed Agent without collapse;
+- a viewed Agent who is not Focus, without changing Focus or the applied Setup;
 - W-Engine, Drive Disc 4-piece, Drive Disc 2-piece, and each main-stat selector;
 - zero, one, two, and three currently offered effective-substat hit counts,
   including the complete zero-input empty scaffold, selected-pressure removal
