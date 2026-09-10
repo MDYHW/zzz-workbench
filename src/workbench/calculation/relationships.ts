@@ -128,11 +128,17 @@ export type ProviderEffectTemplate =
     ? Effect extends ProviderEffect ? Omit<Effect, 'value'> : never
     : never
 
+/** Authored Setup consequence, independent of the retained numeric effect. */
+export interface BroadPrePenSetupPolicy {
+  penRatioMainStat: 'prepared-only'
+}
+
 export interface ProviderRelationship {
   kind: 'provider'
   source: SelectedSourceInstance
   delivery: DeliveryRule
   effect: ProviderEffect
+  setupPolicy?: BroadPrePenSetupPolicy
 }
 
 export interface LinearTransform {
@@ -387,7 +393,7 @@ export interface SurfaceStatDerivedMetricRelationship {
 
 export type ProfileRelationship =
   | { kind: 'stat'; atom: ProfileStatAtom }
-  | { kind: 'modifier'; atom: ModifierAtom }
+  | { kind: 'modifier'; atom: ModifierAtom; setupPolicy?: BroadPrePenSetupPolicy }
   | { kind: 'automatic-energy'; atom: AutomaticEnergyAtom }
   | LinearRelationship
   | GaugeRelationship

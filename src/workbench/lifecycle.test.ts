@@ -707,6 +707,45 @@ describe('shared preparation and edit lifecycle', () => {
     expect(effectiveMainStatIds(sheerContrast, 0, 'slot5')).toEqual(before)
   })
 
+  it('keeps a prepared-only main editable until a separate membership pressure applies', () => {
+    let state = createPreparedState({ trigger: 'nonLimited' }, ['evelyn', 'trigger', 'astraYao'], 0)
+    state = workbenchReducer(state, { type: 'setMindscape', slot: 0, mindscape: 1 })
+    expect(state.slots[0].setup.mains.slot5).toBe('fireDmg')
+    expect(effectiveMainStatIds(state, 0, 'slot5')).toContain('penRatio')
+    expect(effectiveTwoPieceIds(state, 0)).not.toContain('pufferElectro')
+    const initialResult = calculateParty(state)!
+    const initialDefIgnore = initialResult.agents[0].metrics.find(({ id }) => id === 'defIgnore')!
+    expect(initialDefIgnore.values.combat).toBeGreaterThan(0)
+
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'penRatio',
+    })
+    expect(state.slots[0].setup.mains.slot5).toBe('penRatio')
+    expect(calculateParty(state)!.agents[0].metrics.find(({ id }) => id === 'defIgnore'))
+      .toEqual(initialDefIgnore)
+
+    state = workbenchReducer(state, { type: 'switchPool', slot: 1, pool: 'full' })
+    expect(effectiveMainStatIds(state, 0, 'slot5')).not.toContain('penRatio')
+    expect(state.slots[0].setup.mains.slot5).toBeNull()
+    expect(calculateParty(state)).toBeNull()
+
+    state = workbenchReducer(state, {
+      type: 'selectEngine', slot: 1, engineId: 'iceJadeTeapot',
+    })
+    expect(effectiveMainStatIds(state, 0, 'slot5')).toContain('penRatio')
+    expect(state.slots[0].setup.mains.slot5).toBeNull()
+    expect(calculateParty(state)).toBeNull()
+    state = workbenchReducer(state, {
+      type: 'selectMainStat', slot: 0, mainSlot: 'slot5', mainStatId: 'penRatio',
+    })
+    expect(calculateParty(state)).not.toBeNull()
+
+    state = workbenchReducer(state, { type: 'switchPool', slot: 0, pool: 'nonLimited' })
+    expect(state.slots[0].setup.mains.slot5).toBe('fireDmg')
+    expect(effectiveMainStatIds(state, 0, 'slot5')).toContain('penRatio')
+    expect(calculateParty(state)).not.toBeNull()
+  })
+
   it('allocates a non-stacking prepared package through holder policy in party and target rebuilds', () => {
     let state = createPreparedState({}, ['nicole', 'lucy', 'zhuYuan'], 2)
     expect(state.slots.map(({ setup }) => setup.fourPieceId))
