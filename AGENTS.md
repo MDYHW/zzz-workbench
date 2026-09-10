@@ -43,7 +43,7 @@ do not become product authorities.
 The rule in this section governs repository transactions. It is not a sixth
 permanent product or game authority and cannot supply a product conclusion.
 
-**Governance Rule ID:** `GOV-001`
+**Governance Rule ID:** `GOV-004`
 
 The `GOV-###` namespace belongs to repository governance in this file. Allocate
 its numbers monotonically and never reuse one. A wording clarification that
@@ -54,30 +54,36 @@ transactions.
 Historical ACRs continue to resolve retired identifiers from that owner-local
 ledger, while new traces and new ACR decisions may cite only current Rule IDs.
 
-When current permanent authority cannot decide a required product meaning:
+Choose the transaction from the actual change:
 
-1. Stop dependent requirement, plan, production, test, and audit-completion
-   work. A current implementation, test, review, or user approval of dependent
-   code cannot fill the missing owner.
-2. Open one Authority Change Record for one decision using
-   `docs/authority-changes/README.md`. Its protected PR contains ACR files only;
-   it does not amend a permanent owner or dependent artifact.
-3. Independently reconstruct the existing owner rule, exact current consumer,
-   nearest similar case, contrast, impact, and proposed change. The ACR remains
-   subordinate decision history and does not become current meaning.
-4. Record the product owner's accepted or rejected outcome on the latest ACR
-   revision and obtain fresh owner approval before merging that record. A
-   proposed, rejected, or stale record authorizes no authority amendment.
-5. After an accepted ACR is merged, amend only the affected permanent owner in
-   a separate protected PR. The cited immutable accepted record must reference
-   the same current Rule ID named by the amendment trace in that permanent
-   file; an unrelated accepted record, including one for a different rule in
-   the same owner, cannot authorize the amendment. That PR contains no
-   requirements, plans, production code, tests, or audit completion.
-6. Only after the owner amendment merges may later bounded changes correct
-   subordinate requirements, implementation, and tests. Their verification
-   proves fidelity to the already-current owner rather than validating the
-   owner change.
+- **Meaning-preserving correction:** one permanent-owner-only protected PR may
+  correct wording without an ACR. Its structured Authority trace includes
+  `Authority correction: meaning-preserving`. The owner remains a regular
+  non-executable Markdown file and its current and retired Rule ID sets remain
+  unchanged. Independent review must reconstruct the existing meaning and
+  demonstrate semantic equivalence, including the nearest consumer and contrast.
+  Unchanged IDs, a small diff, current implementation, or passing tests cannot
+  prove equivalence. A changed or unresolved meaning takes the decision path.
+- **Changed decision:** stop dependent requirements, plans, production, tests,
+  and audit completion. Record one decision using
+  `docs/authority-changes/README.md`; independently reconstruct the owner,
+  consumer, similar case, contrast, impact, and proposed change. One protected
+  PR may contain that accepted ACR and all affected permanent owners. Every
+  changed owner must match the same accepted record and trace through a current
+  Rule ID belonging to that owner. An unrelated record or a different rule in
+  the same owner cannot authorize its amendment. Record the owner's outcome
+  before the final revision and obtain fresh exact-head approval after review.
+  Proposed, rejected, superseded, or stale records authorize no amendment.
+- **Separate record or later amendment:** an ACR-only decision remains valid.
+  A later protected owner-only amendment may use an already-merged accepted
+  record with the same per-owner Rule ID matching. These are available when
+  the decision and amendment are separately reviewable, not mandatory stages.
+
+All three forms exclude dependent requirements, plans, production, tests, and
+audit completion. Only after the owner amendment merges may dependent work
+resume; its verification proves fidelity to the now-current owner. An ACR
+alone is decision history and changes no current meaning. Every permanent-owner
+transaction retains independent exact-head evidence and fresh owner approval.
 
 The ACR state machine and post-merge mutation boundary have one owner:
 `docs/authority-changes/README.md`. This rule owns the transaction ordering but
@@ -87,11 +93,11 @@ does not duplicate or redefine those record transitions.
 
 **Governance Rule ID:** `GOV-003`
 
-A permanent owner may receive stable Rule IDs before an ACR only when the
-trusted evaluator proves an identifier-only bootstrap. This is the sole
-exception to the accepted-ACR prerequisite for a permanent-owner transaction.
+A permanent owner may receive stable Rule IDs without an ACR only when the
+trusted evaluator proves an identifier-only bootstrap. A meaning-preserving
+correction under `GOV-004` cannot add or change identifiers.
 It exists so an already-current unnumbered rule can participate in the exact
-same-Rule-ID trace required by `GOV-001`; it does not authorize a product or
+same-Rule-ID trace required by `GOV-004`; it does not authorize a product or
 semantic conclusion.
 
 The protected owner-only PR may add one or more `Rule ID` marker blocks and no
@@ -109,14 +115,14 @@ and head blobs after removing only those new marker blocks. A text edit, heading
 edit, second identifier on one rule, movement, deletion, replacement,
 renumbering, retirement, split, merge, file-mode change, cross-owner change, or
 mixed artifact fails this exception and remains subject to the ordinary
-`GOV-001` sequence.
+`GOV-004` decision path.
 
 An identifier-only bootstrap remains protected and requires independent exact-
-head evidence plus fresh owner approval. Its Authority trace cites `GOV-001`
+head evidence plus fresh owner approval. Its Authority trace cites `GOV-004`
 and explains the unnumbered current rule, but cites no ACR as a prerequisite.
 After merge, the new IDs are current owner identities and a later ACR may cite
 them. That later ACR and every semantic owner amendment still follow the full
-`GOV-001` transaction order.
+`GOV-004` decision path.
 
 Every new or re-audited high-risk conclusion carries this structured trace in
 the PR description rather than in a repository answer catalogue:
@@ -164,10 +170,16 @@ The six required merge contexts have unique meanings and names:
 
 - `Trusted Governance` is a commit status for the current PR head SHA;
 - `Protected Approval` is a separate commit status for that same head SHA;
-- `Behavior Tests`, `Type Check`, and `Production Build` are exact PR job names;
-  and
-- `Visual Baseline` is always present and reports either an exact success or an
-  explicit policy-verified not-applicable success.
+- `Behavior Tests`, `Type Check`, `Production Build`, and `Visual Baseline`
+  are exact PR job names.
+
+All four job contexts are always present. Known regular supporting,
+permanent-owner, or ACR-instance Markdown may use explicit policy-verified
+not-applicable success for runtime suites; repository/rule validation still
+runs. Governance/configuration, runtime/build/test inputs, assets, unknown or
+mixed paths, and nonregular files retain full verification. The trusted
+evaluator verifies exact scope, modes, unchanged approved workflow/helper
+inputs, and successful not-applicable steps independently of PR claims.
 
 The trusted evaluator accepts only exactly one successful current job for each
 required name. Missing, failed, cancelled, skipped, neutral, duplicate, stale,
@@ -264,10 +276,21 @@ read back the full rules and rejection probes before resuming recovery.
 
 ## Retired Governance Rule IDs
 
+- `GOV-001` -> `GOV-004`: replaced mandatory separate record and owner stages
+  with reviewed corrections and one-decision transactions, and bounded
+  documentation-only runtime verification.
 - `GOV-002` -> `GOV-003`: replaced the identifier-only bootstrap rule to add
   the sole legacy level-two `Current Non-Goals` boundary.
 
 ## Controller Re-grounding And Authoring
+
+Apply this section to new or changed source-backed product meaning. A refreshed
+controller performs the re-grounding below before owning requirements. Existing
+settled meaning reused by a bounded implementation correction needs the affected
+owner/consumer/contrast and verification, not an unrelated full-roster audit.
+Equipment comparison and reciprocal impact checks apply only when their stated
+candidate, representative, or shared-source trigger is present. Documentation
+and governance work follows its own transaction and affected-consumer review.
 
 A controller refresh is accepted only when it demonstrates operational use of
 the repository authorities. Reading or summarizing the five permanent owners,
@@ -339,7 +362,11 @@ itself establish semantic readiness.
      meaning. Correctness or reachability in one sink does not close the other.
   5. **Lifecycle closure:** when selected input, preparation, allocation, or
      contextual state is involved, close every applicable rebuild, direct-edit,
-     invalidation, incomplete, pressure, and reselect transition.
+     invalidation, incomplete, pressure, and reselect transition. Selected-input
+     acceptance covers pressure present, absent, and reselected states,
+     candidate membership, invalid-selection clearing without fallback,
+     completeness, and the contrasting consumer through shared mechanism and
+     representative-flow tests.
 
   Across the closure, name each distinct current owning Rule ID, consumer or
   owner-authorized absence, nearest similar and contrasting case, countermodel
@@ -479,9 +506,6 @@ itself establish semantic readiness.
   requirements and keep the eliminated roster and working comparison transient.
   This reciprocal inspection is an authoring gate, not a runtime validator,
   equipment catalogue, dependency registry, or automatic candidate mutation.
-- Secondary requirements cannot validate themselves. They and all downstream
-  verification remain subject to the ordered closure and `Meaning settled` gate
-  above.
 - When a new preparation or allocation pass runs beside an existing pass,
   acceptance includes one shared flow that traverses both passes in their
   permanent-authority order and one contrasting flow. Isolated unit examples
@@ -493,11 +517,6 @@ itself establish semantic readiness.
   owner, inspect the closest established consumer, actively seek a contrasting
   consumer, and state why the recommendation survives or fails that comparison.
   Reject unsupported feedback even when it comes from an earlier controller.
-- A selected-input dependency is not closed by one snapshot. Acceptance covers
-  the pressure present, absent, and reselected states, including candidate
-  membership, invalid-selection clearing without fallback, completeness, and
-  the preserved contrasting consumer. Keep this in shared mechanism and
-  representative-flow tests rather than creating a suite per Agent.
 
 ## Work
 

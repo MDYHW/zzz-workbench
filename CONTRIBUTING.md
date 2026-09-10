@@ -15,7 +15,7 @@ game facts, setup policy, or user-visible behavior.
   approved outcome; it is not another permanent authority or a durable product
   rule.
 - `docs/authority-changes/` preserves one-decision change history governed by
-  `GOV-001`; it records why authority changed but never supplies current
+  `GOV-004`; it records why authority changed but never supplies current
   meaning.
 - `docs/audits/` stores compact recovery scope, status, mechanism manifest
   digests, and merged references. It contains no Agent answers or Version
@@ -35,9 +35,10 @@ game facts, setup policy, or user-visible behavior.
 1. Identify the current user input, visible choice, or Result affected by the
    change. If none exists, apply the repository's single-retention gate before
    adding structure or facts.
-2. Read the applicable permanent authority. Change an authority only when
-   product meaning or policy changes; do not use implementation details to fill
-   an authority gap.
+2. Read the applicable permanent authority. For wording corrections or changed
+   meaning, use the transaction in `GOV-004`; implementation cannot fill an
+   authority gap. Apply only the authoring checks triggered by this change in
+   `AGENTS.md`, keeping source and candidate judgments with their owners.
 3. After requirements are accepted, follow the active-plan contract in
    [`docs/plans/README.md`](docs/plans/README.md) for a non-trivial
    user-visible checkpoint.
@@ -46,7 +47,7 @@ game facts, setup policy, or user-visible behavior.
 5. Apply the `Testing delta` gate in `AGENTS.md`. Extend shared behavior coverage
    only for a new mechanism or uncovered visible failure; do not mirror content
    values, file layout, or incidental copy in new tests.
-6. Run `npm run check`.
+6. Run the applicable canonical local gate below.
 7. If presentation or interaction changed, verify the affected flow in a real
    browser at desktop and narrow widths. Check interactions, horizontal
    overflow, and console errors.
@@ -60,25 +61,24 @@ game facts, setup policy, or user-visible behavior.
 ## Authority traces and change records
 
 Repository-governance rule
-[`GOV-001`](AGENTS.md#authority-change-and-trace-governance) owns the required
-transaction when permanent authority cannot decide a product meaning. An
-Authority Change Record follows the schema and lifecycle in
+[`GOV-004`](AGENTS.md#authority-change-and-trace-governance) owns transaction
+selection: reviewed meaning-preserving correction, one accepted decision with
+its owners, or a separate record/later amendment. An Authority Change Record
+follows the schema and lifecycle in
 [`docs/authority-changes/README.md`](docs/authority-changes/README.md); it is
 decision history, not current product authority.
 
 - Put the structured authority trace in the PR description. Do not add a
   permanent trace matrix or Agent answer file to the repository.
-- Keep an ACR-only PR separate from the later permanent-owner-only amendment
-  and from every dependent requirement, plan, production, or test change.
+- Keep dependent requirements, plans, production, and tests out of the authority
+  transaction and begin them only after the owner amendment merges.
 - Cite stable owner Rule IDs rather than copying their rule text. Missing owner
   support stops the change; code and tests cannot supply it.
 - Publish independent semantic-review evidence outside the proposed diff and
   bind it to the current PR, base SHA, head SHA, diff digest, Rule IDs, and
   consumer paths. A later reviewable revision makes prior evidence stale.
-- Update the compact recovery audit index only after the referenced change has
-  merged. Store cohort scope, status, mechanism manifest digest, accepted
-  merged PR/SHA references, and the index PR number, never per-Agent
-  conclusions.
+- Recovery index/finalization work follows its dedicated section below; normal
+  feature work does not reopen the completed recovery inventory.
 
 Protected authority, governance, shared-semantic, CI, and visual-baseline
 changes require fresh product-owner approval of their latest revision. A
@@ -92,26 +92,27 @@ objective gates.
 npm run check
 ```
 
-The command runs governance and behavior tests, type checking, and a production build. It
-is the minimum repeatable gate before review or commit. Browser verification is
-required in addition when a change has a visual or interactive consumer; it is
-not represented as passing merely because the build succeeds.
+The command runs governance and behavior tests, type checking, and a production
+build. Use it before review or commit for production, governance, configuration,
+or mixed changes. For the trusted documentation-only scope defined by `GOV-004`,
+run `npm run check:repo`; runtime suites have no changed consumer. Browser
+verification additionally applies to changed presentation or interaction.
 
 ## Protected remote gate
 
 The repository has one protected pull-request flow, so local checks
 are necessary feedback but not the acceptance boundary. Protected changes must
-pass the repository's required governance-policy check, behavior tests, type
-checking, production build, and any applicable stable-environment Playwright
-visual check. A passing local run cannot replace a required remote status.
+pass all six required contexts defined by `GOV-004`. Documentation-only runtime
+N/A results must satisfy that rule's independent policy checks; skipped jobs
+are never accepted. A local run cannot replace a required remote status.
 
 ### Actions budget discipline
 
 Use local verification as the development loop and reserve GitHub Actions for
 reviewable checkpoints:
 
-- Run focused tests while iterating, then run `npm run check` before the first
-  push and after any material local revision.
+- Run focused tests while iterating, then the applicable local gate before the
+  first push and after any material local revision.
 - Accumulate coherent local commits when useful, but push only a reviewable
   checkpoint. Do not use repeated pushes as a substitute for local diagnosis.
 - Continue an existing pull request when its identity remains valid. Create a
@@ -126,11 +127,9 @@ reviewable checkpoints:
   may upload only its generated diagnostic report and test results for three
   days; the committed visual baselines remain in Git.
 - `Type Check` owns the remote TypeScript check; `Production Build` runs Vite
-  without repeating it. `Visual Baseline` remains a required successful job.
-  Only regular supporting Markdown changes may report not applicable, after
-  the trusted evaluator independently verifies the exact base/head file scope,
-  modes, workflow, and successful not-applicable step. Authority, governance,
-  runtime, asset, mixed, and unknown changes retain full visual verification.
+  without repeating it. Documentation-only N/A jobs avoid runtime installation
+  and execution while `Behavior Tests` retains repository/rule validation.
+  `GOV-004` owns eligibility and trusted verification; PR claims cannot select it.
 
 These limits reduce runner and storage consumption without weakening any of the
 required remote contexts or the protected acceptance boundary.
