@@ -15,7 +15,6 @@ import {
 import { projectEquipmentEffectRelationships } from './equipment-effect-relationships'
 import { materializeSelectedDriveDiscEffects } from './drive-disc-effect-materializer'
 import { materializeSelectedWEngineEffects } from './w-engine-effect-materializer'
-import { projectMinimumStatEquipmentEffect } from './minimum-stat-effect-projector'
 import {
   selectedWEngineBroadPrePenRelationships,
   selectedWEngineRelationships,
@@ -35,15 +34,15 @@ describe('shared engine activation and scope facts', () => {
       'trigger',
       0,
     )
-    const relationships = projectMinimumStatEquipmentEffect({
-      source: syntheticSource,
-      fact: effect({
+    const relationships = materializeSelectedDriveDiscEffects({
+      threshold: effect({
         modifier: 'critDmg', value: 15,
         activation: { kind: 'minimum-stat', statId: 'critRate', threshold: 50 },
         scope: { recipient: 'squad' },
       }),
-      baseAmount: 15,
-      maximumAmount: 15,
+    }, {
+      source: syntheticSource, agentId: 'trigger', focusAgentId: 'anbySoldier0',
+      partyAgentIds: ['trigger', 'anbySoldier0'],
     })
     expect(relationships).toMatchObject([{
       kind: 'gauge', basis: { statId: 'critRate' },
@@ -61,16 +60,16 @@ describe('shared engine activation and scope facts', () => {
       'trigger',
       0,
     )
-    const [relationship] = projectMinimumStatEquipmentEffect({
-      source: syntheticSource,
-      fact: effect({
+    const [relationship] = materializeSelectedDriveDiscEffects({
+      threshold: effect({
         modifier: 'critDmg', value: 15,
         progression: { kind: 'conditions', perCondition: 15, maxConditions: 1 },
         activation: { kind: 'minimum-stat', statId: 'critRate', threshold: 50 },
         scope: { recipient: 'squad' },
       }),
-      baseAmount: 15,
-      maximumAmount: 30,
+    }, {
+      source: syntheticSource, agentId: 'trigger', focusAgentId: 'anbySoldier0',
+      partyAgentIds: ['trigger', 'anbySoldier0'],
     })
     expect(relationship).toMatchObject({
       kind: 'gauge',
@@ -90,15 +89,15 @@ describe('shared engine activation and scope facts', () => {
       'trigger',
       0,
     )
-    expect(() => projectMinimumStatEquipmentEffect({
-      source: syntheticSource,
-      fact: effect({
+    expect(() => materializeSelectedDriveDiscEffects({
+      threshold: effect({
         modifier: 'dazeBonus', value: 20,
         activation: { kind: 'minimum-stat', statId: 'critRate', threshold: 50 },
         scope: { actions: ['Basic Attack'] },
       }),
-      baseAmount: 20,
-      maximumAmount: 20,
+    }, {
+      source: syntheticSource, agentId: 'trigger', focusAgentId: 'anbySoldier0',
+      partyAgentIds: ['trigger', 'anbySoldier0'],
     })).toThrow('Unsupported minimum-stat action output: dazeBonus')
   })
 
@@ -835,6 +834,32 @@ describe('ordinary Drive Disc effect materialization', () => {
         effect: { kind: 'modifier', metricId: 'anomalyBuildupResReduction', value: 20 },
       },
     ])
+  })
+
+  it('keeps entry-only and Initial-threshold disc effects on the Combat surface', () => {
+    const context = {
+      agentId: 'remielle' as const, focusAgentId: 'ellen' as const,
+      partyAgentIds: ['remielle', 'ellen', 'astraYao'] as const,
+      source: selectSource(defineCalculationSource('entry-disc', 'Entry disc'), 'remielle', 0),
+    }
+    expect(materializeSelectedDriveDiscEffects(DRIVE_DISC_FACTS.featheredFate.fourPiece, context))
+      .toMatchObject([
+        { kind: 'stat', atom: { statId: 'anomalyProficiency', earliestSurface: 'combat' } },
+        { kind: 'modifier', atom: { metricId: 'anomalyDmgBonus', earliestSurface: 'combat' } },
+      ])
+    expect(materializeSelectedDriveDiscEffects(DRIVE_DISC_FACTS.branchAndBlade.fourPiece, {
+      ...context, agentId: 'miyabi', focusAgentId: 'miyabi',
+      partyAgentIds: ['miyabi', 'lycaon', 'astraYao'],
+      source: selectSource(defineCalculationSource('threshold-disc', 'Threshold disc'), 'miyabi', 0),
+    })).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'gauge', basis: { statId: 'anomalyMastery', surface: 'initial' },
+        outputs: [expect.objectContaining({
+          emission: expect.objectContaining({ effect: expect.objectContaining({ earliestSurface: 'combat' }) }),
+        })],
+      }),
+      expect.objectContaining({ kind: 'stat', atom: expect.objectContaining({ statId: 'critRate', earliestSurface: 'fully' }) }),
+    ]))
   })
 
   it('materializes White Water Ballad from party and holder Ether Veil capabilities', () => {

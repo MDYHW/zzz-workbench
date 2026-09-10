@@ -450,7 +450,7 @@ describe('shared calculation integration', () => {
     expect(attributeAnomalySources.filter((label) => (
       label === 'Ode of Resurrected Wings'
     ))).toHaveLength(1)
-    expect(attributeAnomalySources.filter((label) => (
+    expect(attributeAnomaly.breakdown.combat.filter(({ label }) => (
       label === 'Feathered Fate'
     ))).toHaveLength(1)
     expect(remielle.actionModifiers.some(({ id }) => (

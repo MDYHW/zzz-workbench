@@ -11,10 +11,12 @@ import {
   equipmentEffectBaseValue,
   type AgentId,
   type DiscId,
+  type EquipmentEffectFact,
 } from '../content/types'
 import { createPreparedState, workbenchReducer, type WorkbenchState } from '../state'
 import { activeCandidatePressures } from '../candidate-context'
 import { selectedDriveDiscRelationships } from '../content/agent-sources/drive-disc-relationships'
+import { materializeSelectedDriveDiscEffects } from '../content/agent-sources/drive-disc-effect-materializer'
 import {
   requireCompleteSelectedSetup,
   selectedDiscSource,
@@ -662,6 +664,49 @@ describe('profile calculation harness', () => {
         amount: 18,
         display: { value: 15, unit: '%', decimals: 0 },
       }))
+  })
+
+  it('preserves threshold surfaces and highest-only delivery through equipment materialization', () => {
+    const state = createPreparedState({}, ['ellen', 'lycaon', 'grace'], 0)
+    const fact: EquipmentEffectFact = {
+      modifier: 'critDmg', unit: '%', value: 15,
+      progression: { kind: 'conditions', perCondition: 15, maxConditions: 1 },
+      activation: { kind: 'minimum-stat', statId: 'critRate', threshold: 50 },
+      scope: { recipient: 'squad', attributes: ['Ice'] },
+      earliestSurface: 'combat', composition: 'highest-only',
+    }
+    const definition = defineCalculationSource('threshold-delivery', 'Threshold delivery')
+    const calculate = (first: number, second: number) => evaluateProfileParty(
+      state,
+      state.slots.map(({ agentId }, index): AgentSourceProfile => {
+        const slot = index as 0 | 1 | 2
+        return {
+          agentId, appliedPartySlot: slot, metrics: [critRateMetric, critDmgMetric],
+          relationships: [
+            baseStat(agentId, slot, 'critRate', [first, second, 50][slot]),
+            baseStat(agentId, slot, 'critDmg', 50),
+            ...(slot === 2 ? [] : materializeSelectedDriveDiscEffects({ threshold: fact }, {
+              agentId, focusAgentId: 'ellen',
+              partyAgentIds: state.slots.map(({ agentId: id }) => id),
+              source: selectSource(definition, agentId, slot),
+            })),
+          ],
+        }
+      }),
+    )!
+
+    for (const [first, second, bonus] of [[49.9, 49.9, 15], [49.9, 50, 30], [50, 50, 30]]) {
+      const result = calculate(first, second)
+      for (const recipient of ['ellen', 'lycaon'] as const) {
+        const metric = agentResult(result, recipient).metrics.find(({ id }) => id === 'critDmg')!
+        expect(metric.values).toEqual({ initial: 50, combat: 50 + bonus, fully: 50 + bonus })
+      }
+      expect(agentResult(result, 'grace').metrics.find(({ id }) => id === 'critDmg')!.values)
+        .toEqual({ initial: 50, combat: 50, fully: 50 })
+    }
+    const equal = agentResult(calculate(50, 50), 'ellen').metrics.find(({ id }) => id === 'critDmg')!
+    expect(equal.breakdown.combat.filter(({ notation }) => notation === 'equal-nonstack-origin'))
+      .toMatchObject([{ amount: 0, referenceValue: 30 }])
   })
 
   it('reconciles distinct highest-only origins but fails on one duplicated selected relationship', () => {

@@ -8,7 +8,10 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-Keep at most one active bounded implementation plan. There is no active plan.
+Keep at most one active bounded implementation plan. There is no active
+implementation unit. The verified
+[equipment effect projection plan](2026-09-10-equipment-projection-simplification.md)
+is retained until a requested checkpoint commit preserves its body.
 Completed verticals are recorded in the milestone index below,
 and later Agent verticals still require their own bounded requirement and plan
 after their meaning is settled.

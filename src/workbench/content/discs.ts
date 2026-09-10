@@ -41,10 +41,12 @@ export const DRIVE_DISC_FACTS = {
     fourPiece: {
       anomalyProficiency: {
         modifier: 'anomalyProficiency', unit: '', value: 50,
+        earliestSurface: 'combat',
         activation: { kind: 'trigger', fieldEntry: true, durationSeconds: 15 },
       },
       lumifluxAnomalyDamage: {
         modifier: 'anomalyDmgBonus', unit: '%', value: 15,
+        earliestSurface: 'combat',
         scope: { anomalyResults: ['Attribute Anomaly'] },
         activation: {
           kind: 'trigger', fieldEntry: true, durationSeconds: 15,
@@ -103,7 +105,7 @@ export const DRIVE_DISC_FACTS = {
       critDamage: { modifier: 'critDmg', unit: '%', value: 16 },
     },
     fourPiece: {
-      critDamage: { modifier: 'critDmg', unit: '%', value: 30, activation: { kind: 'minimum-stat', statId: 'anomalyMastery', threshold: 115 } },
+      critDamage: { modifier: 'critDmg', unit: '%', value: 30, earliestSurface: 'combat', activation: { kind: 'minimum-stat', statId: 'anomalyMastery', threshold: 115 } },
       critRate: { modifier: 'critRate', unit: '%', value: 12 },
     },
   },
