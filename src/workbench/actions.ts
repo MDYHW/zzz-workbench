@@ -1,3 +1,5 @@
+import type { AgentAttribute } from './content/types'
+
 export type CanonicalActionKind =
   | 'Basic Attack'
   | 'Dash Attack'
@@ -11,14 +13,71 @@ export type CanonicalActionKind =
 
 export type ActionTag = 'aftershock'
 
+export type ActionFormId =
+  | 'piper-downward-smash'
+  | 'burnice-mixed-flame'
+  | 'yanagi-rapid-thrust'
+  | 'alice-celestial-overture'
+  | 'aria-enhanced'
+  | 'qingyi-enchanted-moonlit-blossoms'
+  | 'koleda-enhanced-furnace-fire'
+  | 'anby-thunderbolt'
+  | 'lycaon-fully-charged'
+  | 'nangong-charged'
+  | 'sigrid-converging-spear'
+  | 'seed-falling-petals-slaughter'
+  | 'seed-falling-petals-downfall'
+  | 'cissia-serpents-kiss'
+  | 'caesar-overpowered-shield-bash'
+  | 'against-shielded-enemy'
+  | 'zhao-final-verdict'
+  | 'seth-electrified'
+  | 'yixuan-cloud-shaper'
+  | 'yixuan-ashen-ink-becomes-shadows'
+
+export type SourceLocalOutcomeId =
+  | 'disorder' | 'attribute-anomaly' | 'windswept' | 'vortex' | 'abloom' | 'corruption'
+  | 'luminize' | 'refringe' | 'frost-buildup-icefire-target'
+  | 'anomaly-buildup-frostburn-target' | 'anomaly-buildup-after-frostburn-removal'
+  | 'trigger-harmonizing-shot' | 'lycaon-glacial-waltz' | 'lighter-empowered-basic-fifth-hit'
+  | 'norma-armor-piercing-warhead' | 'norma-high-explosive-warhead'
+  | 'shock' | 'assault' | 'jane-passion-state' | 'burnice-afterburn' | 'burnice-tossing'
+  | 'burnice-double-shot' | 'burnice-special-afterburn' | 'burn'
+  | 'velina-sweeping-cyclone' | 'wind-anomaly-buildup-wind-anomaly-target'
+  | 'velina-condensed-cyclone' | 'ellen-charged-arctic-ambush' | 'ellen-flash-freeze-basic'
+  | 'ellen-icy-blade' | 'ellen-glacial-blade-wave' | 'sigrid-unbridled-spear-attacks'
+  | 'back-attacks' | 'cissia-corrode-bone' | 'corin-extended-chainsaw-actions'
+  | 'hugo-totalize' | 'soldier11-fire-suppression-basic' | 'soldier11-fire-suppression-dash'
+  | 'against-stunned-enemies' | 'zhu-yuan-enhanced-shotshell-basic'
+  | 'zhu-yuan-enhanced-shotshell-dash' | 'zhu-yuan-enhanced-shotshell-basic-stunned'
+  | 'zhu-yuan-enhanced-shotshell-dash-stunned' | 'orphie-heat-charge'
+  | 'harumasa-hiten-no-tsuru-slash' | 'harumasa-chasing-thunder'
+  | 'ye-shunguang-enlightened-mind-soaring-light' | 'ye-shunguang-cleaving-heavens'
+  | 'miyabi-shimotsuki' | 'miyabi-shimotsuki-after-disorder' | 'miyabi-frostburn-break'
+  | 'miyabi-kazahana' | 'anton-piledriver' | 'anton-drill' | 'anton-burst-mode-basic'
+  | 'anton-burst-mode-dodge-counter' | 'anton-burst-mode-basic-drill'
+  | 'anton-burst-mode-basic-piledriver' | 'anton-burst-mode-dodge-drill'
+  | 'caesar-overpowered-shield-bash' | 'ben-special-ex-block-counter' | 'seth-defensive-assist'
+  | 'starlight-billy-full-throttle-starlight' | 'starlight-billy-cool-wheelie'
+  | 'starlight-billy-flying-kick' | 'banyue-lions-roar' | 'banyue-lions-roar-wrath'
+  | 'banyue-mountain-tremor' | 'banyue-mountain-tremor-wrath'
+  | 'banyue-toppling-mountain' | 'banyue-crushing-peaks'
+  | 'flavor-match'
+
 export type ActionOutcome =
   | { kind: 'canonical'; action: CanonicalActionKind }
-  | { kind: 'form'; action: CanonicalActionKind; formId: string; form: string }
-  | {
+  | { kind: 'form'; action: CanonicalActionKind; formId: ActionFormId; form: string }
+  | ({
     kind: 'source-local'
-    outcomeId: string
+    outcomeId: Exclude<SourceLocalOutcomeId, 'flavor-match'>
     label: string
-  }
+    qualifier?: never
+  } | {
+    kind: 'source-local'
+    outcomeId: 'flavor-match'
+    label: string
+    qualifier: AgentAttribute
+  })
 
 declare const actionTargetBrand: unique symbol
 
@@ -49,18 +108,32 @@ export const canonicalAction = (
 
 export const actionForm = (
   action: CanonicalActionKind,
-  formId: string,
+  formId: ActionFormId,
   form: string,
 ): ActionOutcome => ({ kind: 'form', action, formId, form })
 
-export const sourceLocalAction = (
-  outcomeId: string,
+type FixedSourceLocalOutcomeId = Exclude<SourceLocalOutcomeId, 'flavor-match'>
+
+export function sourceLocalAction(
+  outcomeId: FixedSourceLocalOutcomeId,
   label: string,
-): ActionOutcome => ({
-  kind: 'source-local',
-  outcomeId,
-  label,
-})
+): ActionOutcome
+export function sourceLocalAction(
+  outcomeId: 'flavor-match',
+  label: string,
+  qualifier: AgentAttribute,
+): ActionOutcome
+export function sourceLocalAction(
+  outcomeId: SourceLocalOutcomeId,
+  label: string,
+  qualifier?: AgentAttribute,
+): ActionOutcome {
+  if (outcomeId === 'flavor-match') {
+    if (!qualifier) throw new Error('Flavor Match requires an Attribute qualifier')
+    return { kind: 'source-local', outcomeId, label, qualifier }
+  }
+  return { kind: 'source-local', outcomeId, label }
+}
 
 function sameOutcome(left: ActionOutcome, right: ActionOutcome): boolean {
   if (left.kind !== right.kind) return false
@@ -74,6 +147,7 @@ function sameOutcome(left: ActionOutcome, right: ActionOutcome): boolean {
     case 'source-local':
       return right.kind === 'source-local'
         && left.outcomeId === right.outcomeId
+        && left.qualifier === right.qualifier
   }
 }
 

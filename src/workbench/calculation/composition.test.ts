@@ -31,7 +31,7 @@ const syntheticSourceInstance = selectSource(
 
 const sharedTarget = actionTarget([
   canonicalAction('Basic Attack'),
-  sourceLocalAction('test-source-local-outcome', 'Source-local outcome'),
+  sourceLocalAction('refringe', 'Source-local outcome'),
 ])
 
 const canonicalTarget = actionTarget([canonicalAction('Basic Attack')])
@@ -41,7 +41,7 @@ const leafTarget = actionTarget([
 ])
 
 const sourceLocalTarget = actionTarget(
-  [sourceLocalAction('test-source-local-outcome', 'Source-local outcome')],
+  [sourceLocalAction('refringe', 'Source-local outcome')],
 )
 
 const actionScopes: readonly ActionScopeNode[] = [{

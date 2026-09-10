@@ -8,6 +8,7 @@ import {
   localizedSourceDetail,
   localizedSourceLabel,
   localizedStat,
+  localizedUnit,
   translationCoverage,
 } from './localization'
 import { DRIVE_DISCS, W_ENGINES, type AgentAttribute } from './workbench/content'
@@ -64,6 +65,12 @@ describe('localization identity', () => {
       outcomeId: 'luminize',
       label: 'changed fallback',
     }, 'ko')).toBe('휘광')
+    expect(localizedActionOutcome({
+      kind: 'source-local',
+      outcomeId: 'flavor-match',
+      label: 'changed fallback',
+      qualifier: 'Electric',
+    }, 'ko')).toBe('동일 속성 공격')
   })
 
   it('uses one fixed Korean Aftershock term across every presentation context', () => {
@@ -111,13 +118,36 @@ describe('localization identity', () => {
       label: 'Selected source',
       detail: 'W5 · M6',
       detailParts: [
-        { presentationId: 'w-engine-refinement', label: 'W5' },
-        { presentationId: 'mindscape-tier', label: 'M6' },
+        { presentationId: 'w-engine-refinement', presentationValues: { refinement: 5 }, label: 'W5' },
+        { presentationId: 'mindscape-tier', presentationValues: { tier: 6 }, label: 'M6' },
       ],
       ownerAgentId: 'seed',
       locus: 'w-engine',
     }
 
     expect(localizedSourceDetail(source, 'ko')).toBe('W5 · M6')
+    expect(localizedPresentation(
+      'mindscape-darkbreaker',
+      'changed fallback',
+      'ko',
+      { tier: 6 },
+    )).toBe('형상 시네마 6단계 · 마계를 가르는 어둠')
+    expect(localizedPresentation(
+      'idyllic-cadenza-level',
+      'changed fallback',
+      'ko',
+      { level: 3 },
+    )).toBe('아름다운 칸타빌레 · 레벨 3')
+    expect(() => localizedPresentation(
+      'mindscape-darkbreaker',
+      'changed fallback',
+      'ko',
+    )).toThrow('Missing tier')
+  })
+
+  it('localizes operation units without changing their numeric meaning', () => {
+    expect(localizedUnit('% ATK', 'ko')).toBe('% 공격력')
+    expect(localizedUnit('% ATK', 'en')).toBe('% ATK')
+    expect(localizedUnit('%', 'ko')).toBe('%')
   })
 })

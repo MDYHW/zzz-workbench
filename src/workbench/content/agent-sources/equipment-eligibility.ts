@@ -1,10 +1,18 @@
-import { actionTarget, canonicalAction, sourceLocalAction, type ActionTarget } from '../../actions'
+import {
+  actionTarget,
+  canonicalAction,
+  sourceLocalAction,
+  type ActionTarget,
+  type SourceLocalOutcomeId,
+} from '../../actions'
 import { effectAttributeForAgent, effectAttributeForPartySlot } from '../../formula-policy'
 import { ADMITTED_AGENTS, agentCanPerformOperation } from '../agents'
 import type { OperatingInterval } from '../setup-policies'
 import type { AgentId, EquipmentEffectAnomalyResult, EquipmentEffectFact } from '../types'
 
-function anomalyResultPresentationId(result: EquipmentEffectAnomalyResult): string {
+function anomalyResultPresentationId(
+  result: EquipmentEffectAnomalyResult,
+): Exclude<SourceLocalOutcomeId, 'flavor-match'> {
   switch (result) {
     case 'Attribute Anomaly': return 'attribute-anomaly'
     case 'Disorder': return 'disorder'

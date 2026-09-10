@@ -10,6 +10,7 @@ import {
   localizedSourceLabel,
   localizedSurface,
   localizedSurfaceDescription,
+  localizedUnit,
   useLocalization,
   type Locale,
 } from '../localization'
@@ -714,7 +715,7 @@ function Operations({
           const tone = sourceTone(operation.source, agentId, partyAgentIds)
           const value = formatOperationValue(
             operation.value,
-            operation.unit,
+            localizedUnit(operation.unit, locale),
             operation.presentation === 'scale' ? 2 : 1,
             operation.presentation,
           )

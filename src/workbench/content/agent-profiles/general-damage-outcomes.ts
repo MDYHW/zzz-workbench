@@ -15,6 +15,7 @@ import type { StatId, StatRegion } from '../../calculation/stat-composer'
 import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from '../agent-sources/equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from '../agent-sources/sources'
 import { agentBroadPrePenRelationships } from '../agent-broad-pre-pen-relationships'
+import type { PresentationId } from '../../../presentation'
 
 type Agent = 'pyrois' | 'sigrid' | 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen' | 'soldier11' | 'zhuYuan' | 'orphie' | 'harumasa' | 'nekomata' | 'billy' | 'yeShunguang' | 'miyabi' | 'anton'
 type Slot = 0 | 1 | 2
@@ -101,8 +102,8 @@ const ANTON_BURST_DODGE_DRILL = actionTarget([sourceLocalAction('anton-burst-mod
 const src = (agent: Agent, slot: Slot, id: string, label: string, locus: 'identity' | 'core' | 'additional' | 'basic' | 'assist' | 'chain' | 'special' | 'ex-special' | 'ultimate' = 'core') => selectedAgentSource(agent, slot, id, label, locus)
 const m = (id: EffectMetric, label: string, unit = '', statId?: MetricProjection['statId'], admission?: MetricProjection['admission']): MetricProjection => ({ id, label, unit, decimals: unit === '/s' ? 2 : unit === '%' ? 1 : 0, ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }), ...(admission ? { admission } : {}) })
 function stat(source: ReturnType<typeof selectedAgentSource>, statId: StatId, value: number, region: Exclude<StatRegion, 'base'> = 'flat', earliestSurface: SurfaceKey = 'fully', detail?: string): ProfileRelationship { return { kind: 'stat', atom: { statId, region, value, earliestSurface, source, ...(detail ? { sourceDetail: detail } : {}) } } }
-function mod(source: ReturnType<typeof selectedAgentSource>, metricId: EffectMetric, value: number, action?: ActionTarget, earliestSurface: SurfaceKey = 'fully', detail?: string, detailPresentationId?: string): ProfileRelationship { return { kind: 'modifier', atom: { metricId, value, earliestSurface, source, ...(action ? { action } : {}), ...(detail ? { sourceDetail: detail } : {}), ...(detailPresentationId ? { sourceDetailPresentationId: detailPresentationId } : {}) } } }
-function operation(source: ReturnType<typeof selectedAgentSource>, presentationId: string, label: string, value: number, unit = '%', presentation?: 'scale'): ProfileRelationship { return { kind: 'operation', atom: { presentationId, label, value, unit, source, ...(presentation ? { presentation } : {}) } } }
+function mod(source: ReturnType<typeof selectedAgentSource>, metricId: EffectMetric, value: number, action?: ActionTarget, earliestSurface: SurfaceKey = 'fully', detail?: string, detailPresentationId?: PresentationId): ProfileRelationship { return { kind: 'modifier', atom: { metricId, value, earliestSurface, source, ...(action ? { action } : {}), ...(detail ? { sourceDetail: detail } : {}), ...(detailPresentationId ? { sourceDetailPresentationId: detailPresentationId } : {}) } } }
+function operation(source: ReturnType<typeof selectedAgentSource>, presentationId: PresentationId, label: string, value: number, unit = '%', presentation?: 'scale'): ProfileRelationship { return { kind: 'operation', atom: { presentationId, label, value, unit, source, ...(presentation ? { presentation } : {}) } } }
 
 function partyQualification(agent: Agent, ids: readonly AgentId[], slot: Slot): boolean {
   switch (agent) {

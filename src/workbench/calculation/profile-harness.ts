@@ -175,6 +175,7 @@ function deriveSurfaceStatMetric(
       relationship.source,
       relationship.sourceDetail,
       relationship.sourceDetailPresentationId,
+      relationship.sourceDetailPresentationValues,
     ),
     amount: value,
     notation: 'surface-value',
@@ -261,7 +262,12 @@ function recipientContexts(
 function statContributionResult(contribution: StatContribution): Contribution {
   const { atom, rawValue, derivedValue } = contribution
   return {
-    ...resultSourceFor(atom.source, atom.sourceDetail, atom.sourceDetailPresentationId),
+    ...resultSourceFor(
+      atom.source,
+      atom.sourceDetail,
+      atom.sourceDetailPresentationId,
+      atom.sourceDetailPresentationValues,
+    ),
     amount: derivedValue,
     ...(atom.region === 'percentage'
       ? { display: { value: rawValue, unit: '%' as const, decimals: Number.isInteger(rawValue) ? 0 : 1 } }
@@ -287,6 +293,7 @@ function statBreakdown(stat: ResolvedStat): ResultMetric['breakdown'] {
       atom.source,
       atom.sourceDetail,
       atom.sourceDetailPresentationId,
+      atom.sourceDetailPresentationValues,
     )
     breakdown[atom.earliestSurface].push({
       ...origin,
@@ -309,7 +316,12 @@ function modifierEffect(atom: ModifierAtom) {
     metric: atom.metricId,
     earliestSurface: atom.earliestSurface,
     amount: atom.value,
-    source: resultSourceFor(atom.source, atom.sourceDetail, atom.sourceDetailPresentationId),
+    source: resultSourceFor(
+      atom.source,
+      atom.sourceDetail,
+      atom.sourceDetailPresentationId,
+      atom.sourceDetailPresentationValues,
+    ),
     sourceInstance: atom.source,
     ...(atom.action ? { action: atom.action } : {}),
     ...(atom.composition ? { composition: atom.composition } : {}),
@@ -326,6 +338,7 @@ function gaugeResult(gauge: EvaluatedGauge): GaugeResult {
       gauge.source,
       gauge.sourceDetail,
       gauge.sourceDetailPresentationId,
+      gauge.sourceDetailPresentationValues,
     ),
     basisLabel: gauge.basisLabel,
     basisPresentationId: gauge.basisPresentationId,
@@ -389,6 +402,7 @@ function projectMetrics(
             operation.source,
             operation.sourceDetail,
             operation.sourceDetailPresentationId,
+            operation.sourceDetailPresentationValues,
           ),
           amount: operation.value,
         })))
@@ -437,6 +451,7 @@ function projectOperations(operations: readonly OperationAtom[]): AgentResult['o
       operation.source,
       operation.sourceDetail,
       operation.sourceDetailPresentationId,
+      operation.sourceDetailPresentationValues,
     ),
     value: operation.value,
     unit: operation.unit,

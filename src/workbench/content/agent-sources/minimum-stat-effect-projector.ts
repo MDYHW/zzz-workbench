@@ -8,6 +8,7 @@ import {
 } from './equipment-eligibility'
 import { equipmentEffectModifierMeaning } from './equipment-effect-relationships'
 import { equipmentProviderEmission } from './equipment-provider'
+import type { PresentationId } from '../../../presentation'
 
 function minimumStatLabel(statId: Extract<EquipmentEffectFact['activation'], { kind: 'minimum-stat' }>['statId']): string {
   switch (statId) {
@@ -15,6 +16,31 @@ function minimumStatLabel(statId: Extract<EquipmentEffectFact['activation'], { k
     case 'anomalyMastery': return 'Anomaly Mastery'
     case 'critRate': return 'CRIT Rate'
   }
+}
+
+function minimumStatPresentationId(
+  surface: 'initial' | 'fully',
+  statId: Extract<EquipmentEffectFact['activation'], { kind: 'minimum-stat' }>['statId'],
+): PresentationId {
+  switch (`${surface}:${statId}`) {
+    case 'initial:anomalyProficiency': return 'initial-anomaly-proficiency'
+    case 'initial:anomalyMastery': return 'initial-anomaly-mastery'
+    case 'initial:critRate': return 'initial-crit-rate'
+    case 'fully:anomalyProficiency': return 'fully-anomaly-proficiency'
+    case 'fully:anomalyMastery': return 'fully-anomaly-mastery'
+    case 'fully:critRate': return 'fully-crit-rate'
+    default: throw new Error(`Unsupported minimum-stat presentation: ${surface}:${statId}`)
+  }
+}
+
+function minimumStatOutputPresentationId(fact: EquipmentEffectFact): PresentationId {
+  if (fact.modifier === 'anomalyDmgBonus' && fact.scope?.anomalyResults?.includes('Disorder')) {
+    return 'disorder-dmg-bonus'
+  }
+  if (fact.modifier === 'critDmg') {
+    return fact.scope?.recipient === 'squad' ? 'squad-crit-dmg' : 'crit-dmg'
+  }
+  throw new Error(`Unsupported minimum-stat output presentation: ${fact.modifier}`)
 }
 
 function statEffectLabel(fact: EquipmentEffectFact): string {
@@ -82,11 +108,13 @@ export function projectMinimumStatEquipmentEffect({
       kind: 'post-delivery-stat-modifier-gauge', source,
       basis: { statId: activation.statId, surface: 'fully' },
       basisLabel: `Fully Enabled ${minimumStatLabel(activation.statId)}`,
+      basisPresentationId: minimumStatPresentationId('fully', activation.statId),
       basisCap: activation.threshold,
       gaugeMetricId: activation.statId,
       modifierMetricId,
       action: actions[0], modifierSurface: 'fully',
       output: {
+        presentationId: minimumStatOutputPresentationId(fact),
         label: `${targetLabel(fact)} DMG Bonus`,
         value: {
           kind: 'activation', threshold: activation.threshold,
@@ -123,9 +151,11 @@ export function projectMinimumStatEquipmentEffect({
     kind: 'gauge', source,
     basis: { statId: activation.statId, surface: 'initial' },
     basisLabel: `Initial ${minimumStatLabel(activation.statId)}`,
+    basisPresentationId: minimumStatPresentationId('initial', activation.statId),
     basisThreshold: activation.threshold, basisCap: activation.threshold,
     metricId: activation.statId,
     outputs: [{
+      presentationId: minimumStatOutputPresentationId(fact),
       label, unit: fact.unit, cap: maximumAmount,
       activation: {
         inactiveValue: fact.progression ? baseAmount : 0,

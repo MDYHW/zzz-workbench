@@ -107,6 +107,9 @@ function deliverEffect(
           ...(effect.sourceDetailPresentationId
             ? { sourceDetailPresentationId: effect.sourceDetailPresentationId }
             : {}),
+          ...(effect.sourceDetailPresentationValues
+            ? { sourceDetailPresentationValues: effect.sourceDetailPresentationValues }
+            : {}),
         },
         provider,
         recipientSlot,
@@ -126,6 +129,9 @@ function deliverEffect(
           ...(effect.sourceDetailPresentationId
             ? { sourceDetailPresentationId: effect.sourceDetailPresentationId }
             : {}),
+          ...(effect.sourceDetailPresentationValues
+            ? { sourceDetailPresentationValues: effect.sourceDetailPresentationValues }
+            : {}),
         },
         provider,
         recipientSlot,
@@ -143,6 +149,9 @@ function deliverEffect(
           ...(effect.sourceDetail ? { sourceDetail: effect.sourceDetail } : {}),
           ...(effect.sourceDetailPresentationId
             ? { sourceDetailPresentationId: effect.sourceDetailPresentationId }
+            : {}),
+          ...(effect.sourceDetailPresentationValues
+            ? { sourceDetailPresentationValues: effect.sourceDetailPresentationValues }
             : {}),
         },
         provider,

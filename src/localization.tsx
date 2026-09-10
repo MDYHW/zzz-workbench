@@ -6,7 +6,13 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import type { ActionOutcome, ActionTag, CanonicalActionKind } from './workbench/actions'
+import type {
+  ActionFormId,
+  ActionOutcome,
+  ActionTag,
+  CanonicalActionKind,
+  SourceLocalOutcomeId,
+} from './workbench/actions'
 import {
   ADMITTED_AGENTS,
   DRIVE_DISCS,
@@ -23,6 +29,7 @@ import {
 import type { EffectMetric, SurfaceKey } from './workbench/effects'
 import type { ResultSource } from './workbench/effects'
 import type { SourceDefinitionKey, SourceDefinitionLocus } from './workbench/content/source-definitions'
+import { KOREAN_PRESENTATION, type PresentationId, type PresentationValues } from './presentation'
 
 export type Locale = 'ko' | 'en'
 
@@ -135,7 +142,7 @@ const koActions: Record<CanonicalActionKind, string> = {
   'Assist Follow-Up': '지원 후속타', 'Chain Attack': '콤보 스킬', Ultimate: '궁극기',
 }
 
-const koActionForms: Record<string, string> = {
+const koActionForms = {
   'piper-downward-smash': '내려찍기',
   'burnice-mixed-flame': '활활 스티어링',
   'yanagi-rapid-thrust': '빠른 찌르기',
@@ -156,9 +163,9 @@ const koActionForms: Record<string, string> = {
   'seth-electrified': '뇌정 참격-감전',
   'yixuan-cloud-shaper': '짙은 구름의 술',
   'yixuan-ashen-ink-becomes-shadows': '먹과 함께 사라져라',
-}
+} as const satisfies Record<ActionFormId, string>
 
-const koSourceLocalOutcomes: Record<string, string> = {
+const koSourceLocalOutcomes = {
   disorder: '혼돈',
   'attribute-anomaly': '속성 이상',
   windswept: '풍화',
@@ -230,7 +237,8 @@ const koSourceLocalOutcomes: Record<string, string> = {
   'banyue-mountain-tremor-wrath': '강화 특수 스킬: 요동치는 산·분노',
   'banyue-toppling-mountain': '일반 공격: 무너진 산',
   'banyue-crushing-peaks': '일반 공격: 산악 분쇄',
-}
+  'flavor-match': '동일 속성 공격',
+} as const satisfies Record<SourceLocalOutcomeId, string>
 
 const koSurfaces: Record<SurfaceKey, string> = { initial: '초기', combat: '전투 입장', fully: '최종' }
 const enSurfaces: Record<SurfaceKey, string> = { initial: 'Initial', combat: 'Combat', fully: 'Fully enabled' }
@@ -387,118 +395,7 @@ const koSourceLoci: Partial<Record<SourceDefinitionLocus, string>> = {
   target: '타깃',
 }
 
-const koPresentation: Record<string, string> = {
-  'disc-piece-2': '2세트',
-  'disc-piece-4': '4세트',
-  'equal-non-stacking-origin': '동일한 비중첩 출처',
-  'initial-atk': '초기 공격력',
-  'initial-energy-regen': '초기 에너지 자동 회복',
-  'initial-crit-rate': '초기 치명타 확률',
-  'initial-max-hp': '초기 HP 최대치',
-  'initial-pen-ratio': '초기 관통률',
-  'initial-anomaly-mastery': '초기 이상 장악력',
-  'combat-crit-rate': '전투 입장 치명타 확률',
-  'fully-crit-rate': '최종 치명타 확률',
-  'fully-impact': '최종 충격력',
-  'fully-sheer-force': '최종 관입력',
-  'fully-anomaly-proficiency': '최종 이상 마스터리',
-  'fully-anomaly-mastery': '최종 이상 장악력',
-  'raw-stun-dmg-multiplier-bonus': '그로기 약체 배율 보너스 원값',
-  'squad-flat-atk': '파티 고정 공격력',
-  'squad-atk': '파티 공격력',
-  'flat-atk': '고정 공격력',
-  'focus-flat-atk': '주력 고정 공격력',
-  'focus-sheer-force': '주력 관입력',
-  'squad-sheer-force': '파티 관입력',
-  'squad-crit-dmg': '파티 치명타 피해',
-  'squad-dmg-bonus': '파티 피해 보너스',
-  'other-party-pen-ratio': '다른 파티원 관통률',
-  'anomaly-buildup-rate': '이상 축적 효율',
-  'attribute-anomaly-dmg': '속성 이상 피해',
-  'disorder-dmg': '혼돈 피해',
-  'afterburn-dmg-bonus': '잿불 피해 보너스',
-  'assault-crit-rate': '강타 치명타 확률',
-  'at-passion-flat-atk': '열광 상태 · 고정 공격력',
-  'anomaly-mastery': '이상 장악력',
-  'dmg-bonus': '피해 보너스',
-  'combat-impact-bonus': '전투 입장 충격력 보너스',
-  'combat-crit-dmg-bonus': '전투 입장 치명타 피해 보너스',
-  'special-ex-ultimate-daze-bonus': '특수·강화 특수 스킬·궁극기 그로기 보너스',
-  'aftershock-daze-bonus': '여진 피해 그로기 보너스',
-  'fire-ice-dmg-bonus': '불/얼음 피해 보너스',
-  impact: '충격력',
-  'veil-vulnerability': '장막 취약',
-  'frost-anomaly-buildup-bonus': '서리 이상 축적 보너스',
-  'chain-ultimate-dmg-multiplier': '콤보 스킬 및 궁극기 피해 배율',
-  'totalize-added-dmg-multiplier': '결산 추가 피해 배율',
-  'totalize-maximum-daze-return': '결산 최대 그로기 반환',
-  'ex-special-non-stunned-daze-scale': '비그로기 적 대상 강화 특수 스킬 그로기 배율',
-  'ex-special-non-stunned-totalize-added-dmg-multiplier': '비그로기 적 대상 강화 특수 스킬 결산 추가 피해 배율',
-  'original-shock-dmg-scale': '기존 감전 피해',
-  'enemy-stun-duration': '적 그로기 지속 시간',
-  'stun-duration-extension': '그로기 지속 시간 연장',
-  'flower-feather-dance': '꽃깃의 춤',
-  'added-abloom-dmg-multiplier': '난개 추가 피해 배율',
-  'added-afterburn-dmg-multiplier': '잿불 추가 피해 배율',
-  'added-vortex-dmg-multiplier': '난류 추가 피해 배율',
-  'burn-duration': '연소 지속 시간',
-  'frostbite-duration': '서리한 지속 시간',
-  'shock-duration': '감전 지속 시간',
-  'disorder-dmg-multiplier': '혼돈 피해 배율',
-  'maximum-disorder-dmg-multiplier': '최대 혼돈 피해 배율',
-  'luminize-trigger-count': '드리운 무지개 / 우아한 날갯짓 · 휘광 발동 횟수',
-  'crushing-peaks-added-dmg-multiplier': '일반 공격: 산악 분쇄 추가 피해 배율',
-  'next-quick-assist-daze': '다음 빠른 지원 그로기 수치',
-  'final-verdict-max-hp': '일반 공격: 최후의 심판 최대 차지 HP 최대치',
-  'next-quick-assist': '다음 빠른 지원',
-  'final-verdict-maximum-charge': '최후의 심판 · 최대 차지',
-  'distinct-refringe-formula-factor': '독립적인 변이 계수',
-  'added-luminize-dmg-multiplier': '휘광 추가 피해 배율',
-  'phase-flow': '상변하는 시류',
-  'prismatic-target': '프리즘 타깃',
-  'against-ex-hit-target': '강화 특수 스킬에 명중한 타깃 대상',
-  'against-exposed-target': '간파 상태의 타깃 대상',
-  'against-physical-anomaly-enemy': '물리 이상 상태의 적 대상',
-  'against-corrupted-enemy': '침식 상태의 적 대상',
-  'against-prophecy-target': '예언 상태의 타깃 대상',
-  'ignores-ether-anomaly-buildup-res': '에테르 이상 축적 저항 무시',
-  'from-initial-anomaly-mastery-above-150': '초기 이상 장악력 150 초과분',
-  'from-promeia-initial-anomaly-mastery-above-150': '프로미아의 초기 이상 장악력 150 초과분',
-  'against-presumption-target': '선입견 상태의 타깃 대상',
-  'sweeping-cyclone-wind-anomaly-buildup-res': '광역 사이클론 · 바람 이상 축적 저항',
-  'contamination-attribute-selected-by-focus': '오염 속성 · 주력으로 선택',
-  'armor-piercing-or-high-explosive-warhead-hit': '파괴 탄두 또는 고폭 탄두 명중',
-  'empowered-basic-fifth-hit': '강화 일반 공격 5단',
-  'current-atk-and-max-hp-sheer-formula': '현재 공격력 × 0.3 + 현재 HP 최대치 × 0.1',
-  'corrode-bone': '침투',
-  'above-100-percent': '100% 초과분',
-  'crit-dmg-times-35-percent': '치명타 피해 × 35%',
-  'shield-of-firm-resolve': '굳은 의지의 방패',
-  darkbreaker: '마계를 가르는 어둠',
-  'ether-veil-wellspring': '에테르 베일: 샘물',
-  'dreamers-nursery-rhyme': '꿈꾸는 이의 자장가',
-  'darkbreaker-and-wellspring': '마계를 가르는 어둠 + 샘물',
-  'mindscape-2-tier': '형상 시네마 2단계',
-  '3-stacks': '3스택',
-  '10-stacks': '10스택',
-  'rebellious-assault': '반격의 기세',
-  'invulnerable-block-counter': '무적 가드 반격',
-  'after-ex-special-or-follow-up': '강화 특수 스킬 또는 후속 공격 후',
-  'after-perfect-block-retaliation-or-defensive-assist': '정밀 가드·방어 반격·패링 지원 후',
-  'special-attack-skill-level-plus-2': '특수 스킬 레벨 +2',
-  'radiant-aegis-atk-replacement': '찬란한 방패 공격력 대체',
-  'while-radiant-aegis-active': '찬란한 방패 활성 중',
-  'against-shielded-enemy': '실드 보유 적 대상',
-  'ultimate-skill-level-plus-2': '궁극기 레벨 +2',
-  'guaranteed-crit': '확정 치명타',
-  'core-crit-rate-increase': '핵심 패시브 치명타 확률 증가',
-  'all-attribute-res-ignore': '모든 속성 저항 무시',
-  'reachable-healing-condition': '달성 가능한 치유 조건',
-  'against-shocked-enemies': '감전 상태의 적 대상',
-  'seed-additional-setup': '추가 능력 효과',
-  'action-dmg-multiplier': '공격 피해 배율',
-  'automatic-energy': '에너지 자동 회복',
-}
+const koPresentation = KOREAN_PRESENTATION
 
 const koCalculationSources: Record<string, string> = {
   'crit-rate-cap': '표시 치명타 확률 상한',
@@ -574,26 +471,30 @@ export function localizedActionOutcome(outcome: ActionOutcome, locale: Locale): 
   }
   if (outcome.kind === 'canonical') return koActions[outcome.action]
   if (outcome.kind === 'form') return `${koActions[outcome.action]}: ${koActionForms[outcome.formId] ?? outcome.form}`
-  if (outcome.outcomeId.startsWith('flavor-match-')) return '동일 속성 공격'
-  return koSourceLocalOutcomes[outcome.outcomeId] ?? outcome.label
+  return koSourceLocalOutcomes[outcome.outcomeId]
 }
 
 export function localizedActionTag(tag: ActionTag, locale: Locale): string {
   return locale === 'ko' && tag === 'aftershock' ? '여진 피해' : 'Aftershock'
 }
 
+export function localizedUnit(unit: string, locale: Locale): string {
+  return locale === 'ko' && unit === '% ATK' ? '% 공격력' : unit
+}
+
 export function localizedPresentation(
-  presentationId: string | undefined,
+  presentationId: PresentationId | undefined,
   fallback: string,
   locale: Locale,
+  values?: PresentationValues,
 ): string {
   if (locale === 'en') return fallback
-  if (presentationId?.startsWith('idyllic-cadenza-level-')) {
-    return `아름다운 칸타빌레 · 레벨 ${presentationId.slice('idyllic-cadenza-level-'.length)}`
-  }
-  const darkbreakerTier = presentationId?.match(/^mindscape-(\d+)-darkbreaker$/)
-  if (darkbreakerTier) return `형상 시네마 ${darkbreakerTier[1]}단계 · 마계를 가르는 어둠`
-  return presentationId ? koPresentation[presentationId] ?? localizeText(fallback, locale) : localizeText(fallback, locale)
+  if (!presentationId) return localizeText(fallback, locale)
+  return koPresentation[presentationId].replace(/\{(level|refinement|tier)\}/g, (_, key: keyof PresentationValues) => {
+    const value = values?.[key]
+    if (value === undefined) throw new Error(`Missing ${key} for presentation ${presentationId}`)
+    return value.toString()
+  })
 }
 
 function localizedSourceKey(key: SourceDefinitionKey, locus: SourceDefinitionLocus): string | undefined {
@@ -636,7 +537,12 @@ export function localizedSourceDetail(source: ResultSource, locale: Locale): str
   if (locale === 'en') return source.detail
   if (source.detailParts?.length) {
     return source.detailParts
-      .map((part) => localizedPresentation(part.presentationId, part.label, locale))
+      .map((part) => localizedPresentation(
+        part.presentationId,
+        part.label,
+        locale,
+        part.presentationValues,
+      ))
       .join(' · ')
   }
   return localizeText(source.detail, locale)
@@ -701,6 +607,9 @@ export const translationCoverage = {
   agents: Object.keys(koAgentNames).length === ADMITTED_AGENTS.length,
   engines: Object.keys(koEngineNames).length === Object.keys(W_ENGINES).length,
   discs: Object.keys(koDiscNames).length === Object.keys(DRIVE_DISCS).length,
+  actionForms: Object.values(koActionForms).every(Boolean),
+  sourceLocalOutcomes: Object.values(koSourceLocalOutcomes).every(Boolean),
+  presentations: Object.values(koPresentation).every(Boolean),
   engineEffects: (Object.entries(W_ENGINES) as Array<[EngineId, (typeof W_ENGINES)[EngineId]]>)
     .every(([engineId, engine]) => ([1, 2, 3, 4, 5] as const)
       .every((refinement) => engine.passiveLines(refinement).length === koEnginePassiveTemplates[engineId].length)),

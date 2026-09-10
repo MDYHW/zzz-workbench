@@ -78,13 +78,13 @@ of the calculation.
 
 **Control and session behavior**
 
-- R1. The title masthead ends with one compact segmented `한국어 | EN` language
-  control. The existing Setup-copy action sits immediately to its left. The
-  language control remains a session utility and does not compete visually with
-  Party Apply.
-- R2. Korean is selected on initial render. The selected segment is visually
-  and accessibly identifiable, and activating the already-selected language is
-  a no-op.
+- R1. The title masthead ends with one compact current-language trigger that
+  opens the `한국어` and `EN` choices. The existing Setup-copy action sits
+  immediately to its left. The language control remains a session utility and
+  does not compete visually with Party Apply.
+- R2. Korean is selected on initial render. The trigger identifies the current
+  language visually and accessibly, the open menu identifies the selected
+  choice, and activating the already-selected language is a no-op.
 - R3. Language preference lives only in the current page session. It is not
   stored in a cookie, local storage, session storage, account, server, or Setup
   shortcut, and it does not create a language-specific URL.

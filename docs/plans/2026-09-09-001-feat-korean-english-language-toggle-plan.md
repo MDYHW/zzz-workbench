@@ -18,8 +18,8 @@ kept local until that prerequisite PR merges, and then replayed onto current
 
 ## Visible Outcome and Preserved Contrast
 
-- The masthead presents `세팅 복사` followed by a compact `한국어 | EN`
-  segmented control; English presents `Copy setup` with the same control.
+- The masthead presents `세팅 복사` followed by one compact current-language
+  menu trigger; English presents `Copy setup` with the same control.
 - Switching language updates visible and assistive presentation in place while
   preserving every live editor, selector, disclosure, focus, Setup, and Result
   state.

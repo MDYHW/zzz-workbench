@@ -1,4 +1,5 @@
 import type { ActionTarget } from '../actions'
+import type { PresentationId, PresentationValues } from '../../presentation'
 import type { AgentId, AgentSpecialty, FormulaFamily } from '../content/types'
 import type {
   EffectAttribute,
@@ -51,7 +52,8 @@ export type ProfileStatAtom = StatAtom & {
   composition?: HighestOnlyComposition
   display?: RelationshipDisplay
   sourceDetail?: string
-  sourceDetailPresentationId?: string
+  sourceDetailPresentationId?: PresentationId
+  sourceDetailPresentationValues?: PresentationValues
 }
 
 export interface ModifierAtom {
@@ -63,18 +65,20 @@ export interface ModifierAtom {
   composition?: HighestOnlyComposition
   display?: RelationshipDisplay
   sourceDetail?: string
-  sourceDetailPresentationId?: string
+  sourceDetailPresentationId?: PresentationId
+  sourceDetailPresentationValues?: PresentationValues
 }
 
 export interface OperationAtom {
-  presentationId?: string
+  presentationId?: PresentationId
   label: string
   value: number
   unit: string
   source: SelectedSourceInstance
   presentation?: 'scale'
   sourceDetail?: string
-  sourceDetailPresentationId?: string
+  sourceDetailPresentationId?: PresentationId
+  sourceDetailPresentationValues?: PresentationValues
 }
 
 export type AutomaticEnergyAtom = AutomaticEnergyRecoveryOperation
@@ -104,7 +108,8 @@ export type ProviderEffect =
     composition?: HighestOnlyComposition
     display?: RelationshipDisplay
     sourceDetail?: string
-    sourceDetailPresentationId?: string
+    sourceDetailPresentationId?: PresentationId
+    sourceDetailPresentationValues?: PresentationValues
   }
   | {
     kind: 'modifier'
@@ -115,17 +120,19 @@ export type ProviderEffect =
     composition?: HighestOnlyComposition
     display?: RelationshipDisplay
     sourceDetail?: string
-    sourceDetailPresentationId?: string
+    sourceDetailPresentationId?: PresentationId
+    sourceDetailPresentationValues?: PresentationValues
   }
   | {
     kind: 'operation'
-    presentationId?: string
+    presentationId?: PresentationId
     label: string
     value: number
     unit: string
     presentation?: 'scale'
     sourceDetail?: string
-    sourceDetailPresentationId?: string
+    sourceDetailPresentationId?: PresentationId
+    sourceDetailPresentationValues?: PresentationValues
   }
 
 export type ProviderEffectTemplate =
@@ -162,7 +169,8 @@ export type LinearEmission =
     composition?: HighestOnlyComposition
     display?: RelationshipDisplay
     sourceDetail?: string
-    sourceDetailPresentationId?: string
+    sourceDetailPresentationId?: PresentationId
+    sourceDetailPresentationValues?: PresentationValues
   }
   | {
     kind: 'modifier'
@@ -172,16 +180,18 @@ export type LinearEmission =
     composition?: HighestOnlyComposition
     display?: RelationshipDisplay
     sourceDetail?: string
-    sourceDetailPresentationId?: string
+    sourceDetailPresentationId?: PresentationId
+    sourceDetailPresentationValues?: PresentationValues
   }
   | {
     kind: 'operation'
-    presentationId?: string
+    presentationId?: PresentationId
     label: string
     unit: string
     presentation?: 'scale'
     sourceDetail?: string
-    sourceDetailPresentationId?: string
+    sourceDetailPresentationId?: PresentationId
+    sourceDetailPresentationValues?: PresentationValues
   }
   | {
     kind: 'provider'
@@ -206,7 +216,7 @@ export type PostDeliveryLinearRelationship = Omit<LinearRelationship, 'kind'> & 
 }
 
 interface GaugeOutputPresentation {
-  presentationId?: string
+  presentationId?: PresentationId
   label: string
   unit: string
   cap?: number
@@ -228,11 +238,12 @@ interface GaugeRelationshipBase {
   source: SelectedSourceInstance
   basis: LinearBasis
   basisLabel: string
-  basisPresentationId?: string
+  basisPresentationId?: PresentationId
   metricId: EffectMetric
   presentation?: 'scale'
   sourceDetail?: string
-  sourceDetailPresentationId?: string
+  sourceDetailPresentationId?: PresentationId
+  sourceDetailPresentationValues?: PresentationValues
   decimals?: {
     current?: number
     threshold?: number
@@ -278,17 +289,18 @@ export interface ThresholdOperationRelationship {
   source: SelectedSourceInstance
   basis: { statId: StatId }
   basisLabels: Record<Exclude<SurfaceKey, 'initial'>, string>
-  basisPresentationIds?: Record<Exclude<SurfaceKey, 'initial'>, string>
+  basisPresentationIds?: Record<Exclude<SurfaceKey, 'initial'>, PresentationId>
   threshold: number
   metricId: EffectMetric
   outputLabel: string
-  outputPresentationId?: string
+  outputPresentationId?: PresentationId
   inactiveValue: number
   activeValue: number
   unit: string
   presentation?: 'scale'
   sourceDetail?: string
-  sourceDetailPresentationId?: string
+  sourceDetailPresentationId?: PresentationId
+  sourceDetailPresentationValues?: PresentationValues
   decimals?: EvaluatedGauge['decimals']
 }
 
@@ -298,10 +310,10 @@ export interface ProjectionGaugeRelationship {
   source: SelectedSourceInstance
   metricId: EffectMetric
   basisLabel: string
-  basisPresentationId?: string
+  basisPresentationId?: PresentationId
   basisCap: number
   output: {
-    presentationId?: string
+    presentationId?: PresentationId
     label: string
     transform: LinearTransform
     cap?: number
@@ -310,7 +322,8 @@ export interface ProjectionGaugeRelationship {
   }
   presentation?: 'scale'
   sourceDetail?: string
-  sourceDetailPresentationId?: string
+  sourceDetailPresentationId?: PresentationId
+  sourceDetailPresentationValues?: PresentationValues
   decimals?: EvaluatedGauge['decimals']
 }
 
@@ -324,7 +337,7 @@ export interface PostDeliveryStatModifierGaugeRelationship {
   source: SelectedSourceInstance
   basis: { statId: StatId; surface: Exclude<SurfaceKey, 'initial'> }
   basisLabel: string
-  basisPresentationId?: string
+  basisPresentationId?: PresentationId
   basisValueCap?: number
   basisCap: number
   gaugeMetricId: EffectMetric
@@ -332,7 +345,7 @@ export interface PostDeliveryStatModifierGaugeRelationship {
   action: ActionTarget
   modifierSurface: Exclude<SurfaceKey, 'initial'>
   output: {
-    presentationId?: string
+    presentationId?: PresentationId
     label: string
     value:
       | { kind: 'linear'; transform: LinearTransform }
@@ -348,7 +361,8 @@ export interface PostDeliveryStatModifierGaugeRelationship {
   }
   presentation?: 'scale'
   sourceDetail?: string
-  sourceDetailPresentationId?: string
+  sourceDetailPresentationId?: PresentationId
+  sourceDetailPresentationValues?: PresentationValues
   decimals?: EvaluatedGauge['decimals']
 }
 
@@ -365,10 +379,10 @@ export interface PostDeliveryMetricStatGaugeRelationship {
     surface: Exclude<SurfaceKey, 'initial'>
   }
   basisLabel: string
-  basisPresentationId?: string
+  basisPresentationId?: PresentationId
   basisCap?: number
   output: {
-    presentationId?: string
+    presentationId?: PresentationId
     label: string
     statId: StatId
     region: Exclude<StatRegion, 'base'>
@@ -379,7 +393,8 @@ export interface PostDeliveryMetricStatGaugeRelationship {
   }
   presentation?: 'scale'
   sourceDetail?: string
-  sourceDetailPresentationId?: string
+  sourceDetailPresentationId?: PresentationId
+  sourceDetailPresentationValues?: PresentationValues
   decimals?: EvaluatedGauge['decimals']
 }
 
@@ -396,7 +411,8 @@ export interface SurfaceStatDerivedMetricRelationship {
     multiplier: number
   }[]
   sourceDetail?: string
-  sourceDetailPresentationId?: string
+  sourceDetailPresentationId?: PresentationId
+  sourceDetailPresentationValues?: PresentationValues
 }
 
 export type ProfileRelationship =
@@ -419,12 +435,12 @@ export interface EvaluatedGauge {
   source: SelectedSourceInstance
   metricId: EffectMetric
   basisLabel: string
-  basisPresentationId?: string
+  basisPresentationId?: PresentationId
   current: number
   threshold?: number
   cap?: number
   outputs: Array<{
-    presentationId?: string
+    presentationId?: PresentationId
     label: string
     value: number
     cap?: number
@@ -433,7 +449,8 @@ export interface EvaluatedGauge {
   }>
   presentation?: 'scale'
   sourceDetail?: string
-  sourceDetailPresentationId?: string
+  sourceDetailPresentationId?: PresentationId
+  sourceDetailPresentationValues?: PresentationValues
   decimals?: GaugeRelationshipBase['decimals']
 }
 
@@ -724,6 +741,9 @@ export function evaluateRelationships(
           ...(relationship.sourceDetail ? { sourceDetail: relationship.sourceDetail } : {}),
           ...(relationship.sourceDetailPresentationId
             ? { sourceDetailPresentationId: relationship.sourceDetailPresentationId }
+            : {}),
+          ...(relationship.sourceDetailPresentationValues
+            ? { sourceDetailPresentationValues: relationship.sourceDetailPresentationValues }
             : {}),
           ...(relationship.decimals ? { decimals: relationship.decimals } : {}),
         })

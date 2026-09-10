@@ -2,19 +2,28 @@ import type { AgentId } from '../content'
 import type { EffectMetric, ResultSource, SurfaceKey } from '../effects'
 import type { ActionOutcome, ActionTag, ActionTarget } from '../actions'
 import type { SelectedSourceInstance } from './source-instance'
+import type { PresentationId, PresentationValues } from '../../presentation'
 
 function selectedSourceDetail(
   source: SelectedSourceInstance,
-): { presentationId: string; label: string } | undefined {
+): { presentationId: PresentationId; presentationValues?: PresentationValues; label: string } | undefined {
   const { key } = source.definition
   switch (key.kind) {
     case 'w-engine-base':
     case 'w-engine':
       return source.selection?.kind === 'refinement'
-        ? { presentationId: 'w-engine-refinement', label: `W${source.selection.refinement}` }
+        ? {
+          presentationId: 'w-engine-refinement',
+          presentationValues: { refinement: source.selection.refinement },
+          label: `W${source.selection.refinement}`,
+        }
         : undefined
     case 'mindscape':
-      return { presentationId: 'mindscape-tier', label: `M${key.tier}` }
+      return {
+        presentationId: 'mindscape-tier',
+        presentationValues: { tier: key.tier },
+        label: `M${key.tier}`,
+      }
     case 'drive-disc':
       return {
         presentationId: key.piece === '4-piece' ? 'disc-piece-4' : 'disc-piece-2',
@@ -28,15 +37,16 @@ function selectedSourceDetail(
 export function resultSourceFor(
   source: SelectedSourceInstance,
   detail?: string,
-  detailPresentationId?: string,
+  detailPresentationId?: PresentationId,
+  detailPresentationValues?: PresentationValues,
 ): ResultSource {
   const selectedDetail = selectedSourceDetail(source)
   const detailParts = [
     selectedDetail,
     detail && detailPresentationId
-      ? { presentationId: detailPresentationId, label: detail }
+      ? { presentationId: detailPresentationId, presentationValues: detailPresentationValues, label: detail }
       : undefined,
-  ].filter((part): part is { presentationId: string; label: string } => Boolean(part))
+  ].filter((part): part is NonNullable<typeof part> => Boolean(part))
   const selectedRole = source.selection?.kind === 'drive-disc'
     ? source.selection.selectedRole
     : undefined
@@ -67,17 +77,17 @@ export interface Contribution extends ResultSource {
 export interface GaugeResult {
   source: ResultSource
   basisLabel: string
-  basisPresentationId?: string
+  basisPresentationId?: PresentationId
   current: number
   threshold?: number
   cap?: number
   outputLabel: string
-  outputPresentationId?: string
+  outputPresentationId?: PresentationId
   outputValue: number
   outputCap?: number
   outputUnit: string
   additionalOutputs?: Array<{
-    presentationId?: string
+    presentationId?: PresentationId
     label: string
     value: number
     cap?: number
@@ -119,7 +129,7 @@ export interface ActionModifier {
 }
 
 export interface ResultOperation {
-  presentationId?: string
+  presentationId?: PresentationId
   label: string
   source: ResultSource
   value: number

@@ -1,4 +1,5 @@
 import type { ActionTarget } from './actions'
+import type { PresentationDescriptor } from '../presentation'
 import type { HighestOnlyComposition } from './calculation/relationships'
 import type { SelectedSourceInstance } from './calculation/source-instance'
 import type { SourceDefinitionKey, SourceDefinitionLocus } from './content/source-definitions'
@@ -19,7 +20,7 @@ export type SourceLocus = SourceDefinitionLocus
 export interface ResultSource {
   label: string
   detail?: string
-  detailParts?: readonly { presentationId: string; label: string }[]
+  detailParts?: readonly (PresentationDescriptor & { label: string })[]
   ownerAgentId: AgentId
   locus: SourceLocus
   sourceKey?: SourceDefinitionKey
