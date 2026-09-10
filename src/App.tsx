@@ -41,6 +41,7 @@ import {
   useLocalization,
   type Locale,
 } from './localization'
+import suitLicenseUrl from './assets/fonts/SUIT-LICENSE.txt?url'
 
 const emptySourceLinks: Record<SourceToneChannel, SourceLink | null> = {
   pointer: null,
@@ -497,7 +498,7 @@ function WorkbenchApp() {
           />
         )}
       </main>
-      <footer className="legal-footer">
+      <footer className="legal-footer" data-font-license={suitLicenseUrl}>
         <p lang="en">
           This is an unofficial, non-commercial fan-made website. It is not sponsored,
           endorsed, or approved by HoYoverse. © All rights reserved by miHoYo. Other

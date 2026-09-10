@@ -483,6 +483,7 @@ describe('workbench UI integration', () => {
     expect(initialFooter).toHaveTextContent('비공식·비상업적 팬메이드 웹사이트')
     expect(initialFooter).toHaveTextContent('그 밖의 자산과 권리는 각 소유자에게 귀속됩니다')
     expect(initialFooter.querySelectorAll('p')).toHaveLength(2)
+    expect(initialFooter).toHaveAttribute('data-font-license', expect.stringContaining('SUIT-LICENSE'))
     expect(initialFooter.querySelector('p[lang="en"]')).toBeInTheDocument()
     expect(initialFooter.querySelector('p[lang="ko"]')).toBeInTheDocument()
     expect(initialFooter.querySelector(
