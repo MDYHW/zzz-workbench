@@ -62,6 +62,93 @@ function webpImageBytes(contents = 'pixels', extraChunks = []) {
   return bytes;
 }
 
+function utf16Be(value) {
+  const bytes = Buffer.alloc(value.length * 2);
+  for (let index = 0; index < value.length; index += 1) bytes.writeUInt16BE(value.charCodeAt(index), index * 2);
+  return bytes;
+}
+
+function trueTypeBytes(metadata = ['Fixture Variable']) {
+  const strings = metadata.map(utf16Be);
+  const nameHeaderLength = 6 + (strings.length * 12);
+  const name = Buffer.alloc(nameHeaderLength + strings.reduce((sum, value) => sum + value.length, 0));
+  name.writeUInt16BE(strings.length, 2);
+  name.writeUInt16BE(nameHeaderLength, 4);
+  let stringOffset = 0;
+  strings.forEach((value, index) => {
+    const record = 6 + (index * 12);
+    name.writeUInt16BE(3, record);
+    name.writeUInt16BE(1, record + 2);
+    name.writeUInt16BE(0x0409, record + 4);
+    name.writeUInt16BE(index + 1, record + 6);
+    name.writeUInt16BE(value.length, record + 8);
+    name.writeUInt16BE(stringOffset, record + 10);
+    value.copy(name, nameHeaderLength + stringOffset);
+    stringOffset += value.length;
+  });
+
+  const head = Buffer.alloc(54);
+  head.writeUInt32BE(0x00010000, 0);
+  head.writeUInt32BE(0x5f0f3cf5, 12);
+  const maxp = Buffer.alloc(32);
+  maxp.writeUInt32BE(0x00010000, 0);
+  maxp.writeUInt16BE(1, 4);
+  const fvar = Buffer.alloc(36);
+  fvar.writeUInt16BE(1, 0);
+  fvar.writeUInt16BE(16, 4);
+  fvar.writeUInt16BE(2, 6);
+  fvar.writeUInt16BE(1, 8);
+  fvar.writeUInt16BE(20, 10);
+  fvar.writeUInt16BE(0, 12);
+  fvar.writeUInt16BE(8, 14);
+  fvar.write('wght', 16, 'ascii');
+
+  const tables = new Map([
+    ['OS/2', Buffer.alloc(68)],
+    ['cmap', Buffer.alloc(4)],
+    ['fvar', fvar],
+    ['glyf', Buffer.alloc(4)],
+    ['head', head],
+    ['hhea', Buffer.alloc(36)],
+    ['hmtx', Buffer.alloc(4)],
+    ['loca', Buffer.alloc(4)],
+    ['maxp', maxp],
+    ['name', name],
+    ['post', Buffer.alloc(128)],
+  ]);
+  const directoryEnd = 12 + (tables.size * 16);
+  let total = directoryEnd;
+  for (const value of tables.values()) {
+    total = (total + 3) & ~3;
+    total += value.length;
+  }
+  const bytes = Buffer.alloc(total);
+  bytes.writeUInt32BE(0x00010000, 0);
+  bytes.writeUInt16BE(tables.size, 4);
+  let offset = directoryEnd;
+  let index = 0;
+  for (const [tag, value] of tables) {
+    offset = (offset + 3) & ~3;
+    const record = 12 + (index * 16);
+    bytes.write(tag, record, 'ascii');
+    bytes.writeUInt32BE(offset, record + 8);
+    bytes.writeUInt32BE(value.length, record + 12);
+    value.copy(bytes, offset);
+    offset += value.length;
+    index += 1;
+  }
+  return bytes;
+}
+
+function trueTypeTableRecord(bytes, wantedTag) {
+  const numTables = bytes.readUInt16BE(4);
+  for (let index = 0; index < numTables; index += 1) {
+    const record = 12 + (index * 16);
+    if (bytes.toString('ascii', record, record + 4) === wantedTag) return record;
+  }
+  throw new Error(`Missing test table: ${wantedTag}`);
+}
+
 function indexHtml(policy = REQUIRED_CSP) {
   return `<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="${policy}"><link rel="stylesheet" href="/assets/app-abcdef12.css"></head><body><div id="root"></div><script type="module" src="/assets/app-abcdef12.js"></script></body></html>`;
 }
@@ -340,6 +427,156 @@ test('rejects non-runtime, ambiguous, colliding, or incomplete output paths', as
   ];
   for (const [name, files, code] of cases) {
     await t.test(name, () => expectCode(() => createArtifactManifest(files), code));
+  }
+});
+
+test('admits only inspected hashed font and dependency-license assets', () => {
+  const licensePath = 'assets/Typeface-LICENSE-abcdef12.txt';
+  const fontPath = 'assets/Typeface-Variable-abcdef12.ttf';
+  const licenseUrl = 'https://scripts.sil.org/OFL';
+  const exception = (path) => ({ path, url: licenseUrl, occurrences: 1, reason: 'non-requesting-diagnostic' });
+  const files = [
+    ...minimalFiles(),
+    file(fontPath, trueTypeBytes([licenseUrl])),
+    file(licensePath, `SIL Open Font License: ${licenseUrl}`),
+  ];
+
+  const exceptions = [exception(fontPath), exception(licensePath)];
+  const manifest = createArtifactManifest(files, { inertExternalUrlExceptions: exceptions });
+  assert.deepEqual(manifest.inertExternalUrlInventory, exceptions.map((entry) => ({
+    ...entry, observedOccurrences: 1,
+  })).sort((left, right) => left.path.localeCompare(right.path)));
+  expectCode(() => createArtifactManifest(files), 'external_target');
+  const repeatedFont = [
+    ...minimalFiles(),
+    file(fontPath, trueTypeBytes([licenseUrl, licenseUrl])),
+  ];
+  const repeatedException = { ...exception(fontPath), occurrences: 2 };
+  assert.equal(createArtifactManifest(repeatedFont, {
+    inertExternalUrlExceptions: [repeatedException],
+  }).inertExternalUrlInventory[0].observedOccurrences, 2);
+  expectCode(() => createArtifactManifest(repeatedFont, {
+    inertExternalUrlExceptions: [exception(fontPath)],
+  }), 'exception_mismatch');
+  const customTableUrl = 'https://example.test/font';
+  const customTableVariants = [
+    ['ASCII', Buffer.from(customTableUrl, 'ascii'), 0],
+    ['UTF-16BE', utf16Be(customTableUrl), 0],
+    ['UTF-16LE', Buffer.from(customTableUrl, 'utf16le'), 0],
+    ['odd-aligned UTF-16BE', utf16Be(customTableUrl), 1],
+  ];
+  for (const [, payload, extraOffset] of customTableVariants) {
+    const customTableFont = trueTypeBytes();
+    const postRecord = trueTypeTableRecord(customTableFont, 'post');
+    payload.copy(customTableFont, customTableFont.readUInt32BE(postRecord + 8) + extraOffset);
+    const customTableFiles = [...minimalFiles(), file(fontPath, customTableFont)];
+    expectCode(() => createArtifactManifest(customTableFiles), 'external_target');
+    assert.equal(createArtifactManifest(customTableFiles, {
+      inertExternalUrlExceptions: [{
+        path: fontPath,
+        url: customTableUrl,
+        occurrences: 1,
+        reason: 'non-requesting-diagnostic',
+      }],
+    }).inertExternalUrlInventory[0].observedOccurrences, 1);
+  }
+  expectCode(() => createArtifactManifest([
+    ...minimalFiles(), file('assets/notes-abcdef12.txt', 'not a dependency license'),
+  ]), 'path_not_allowlisted');
+  expectCode(() => createArtifactManifest([
+    ...minimalFiles(), file('assets/Typeface-LICENSE.txt', 'unhashed license'),
+  ]), 'path_not_allowlisted');
+  expectCode(() => createArtifactManifest([
+    ...minimalFiles(), file('assets/Typeface-LICENSE-abcdef12.TXT', 'wrong case'),
+  ]), 'path_not_allowlisted');
+  expectCode(() => createArtifactManifest([
+    ...minimalFiles(), file(fontPath, 'not a TrueType font'),
+  ]), 'content_invalid');
+  const truncated = trueTypeBytes().subarray(0, 80);
+  expectCode(() => createArtifactManifest([
+    ...minimalFiles(), file(fontPath, truncated),
+  ]), 'content_invalid');
+  const leaked = [
+    ...minimalFiles(),
+    file(fontPath, trueTypeBytes(['C:\\Users\\private-owner\\font-source'])),
+  ];
+  expectCode(() => createArtifactManifest(leaked), 'content_forbidden');
+});
+
+test('rejects malformed TrueType structure before treating font metadata as inert', async (t) => {
+  const fontPath = 'assets/Typeface-Variable-abcdef12.ttf';
+  const reject = (bytes) => expectCode(() => createArtifactManifest([
+    ...minimalFiles(), file(fontPath, bytes),
+  ]), 'content_invalid');
+  const cases = [
+    ['zero table count', (bytes) => bytes.writeUInt16BE(0, 4)],
+    ['excessive table count', (bytes) => bytes.writeUInt16BE(4097, 4)],
+    ['duplicate table', (bytes) => bytes.write('OS/2', 12 + 16, 'ascii')],
+    ['zero-length table', (bytes) => bytes.writeUInt32BE(0, 12 + 12)],
+    ['misaligned table', (bytes) => bytes.writeUInt32BE(bytes.readUInt32BE(12 + 8) + 1, 12 + 8)],
+    ['out-of-bounds table', (bytes) => bytes.writeUInt32BE(bytes.length, 12 + 12)],
+    ['overlapping table', (bytes) => bytes.writeUInt32BE(bytes.readUInt32BE(12 + 8), 12 + 16 + 8)],
+    ['missing variable table', (bytes) => bytes.write('zzzz', trueTypeTableRecord(bytes, 'fvar'), 'ascii')],
+    ['invalid head magic', (bytes) => {
+      const record = trueTypeTableRecord(bytes, 'head');
+      bytes.writeUInt32BE(0, bytes.readUInt32BE(record + 8) + 12);
+    }],
+    ['empty axis set', (bytes) => {
+      const record = trueTypeTableRecord(bytes, 'fvar');
+      bytes.writeUInt16BE(0, bytes.readUInt32BE(record + 8) + 8);
+    }],
+    ['out-of-bounds variation instances', (bytes) => {
+      const record = trueTypeTableRecord(bytes, 'fvar');
+      bytes.writeUInt16BE(0xffff, bytes.readUInt32BE(record + 8) + 12);
+    }],
+    ['zero glyph count', (bytes) => {
+      const record = trueTypeTableRecord(bytes, 'maxp');
+      bytes.writeUInt16BE(0, bytes.readUInt32BE(record + 8) + 4);
+    }],
+    ['name storage before records', (bytes) => {
+      const record = trueTypeTableRecord(bytes, 'name');
+      bytes.writeUInt16BE(6, bytes.readUInt32BE(record + 8) + 4);
+    }],
+    ['empty name record set', (bytes) => {
+      const record = trueTypeTableRecord(bytes, 'name');
+      bytes.writeUInt16BE(0, bytes.readUInt32BE(record + 8) + 2);
+    }],
+    ['unparsed format-1 language tags', (bytes) => {
+      const record = trueTypeTableRecord(bytes, 'name');
+      bytes.writeUInt16BE(1, bytes.readUInt32BE(record + 8));
+    }],
+    ['out-of-bounds name string', (bytes) => {
+      const record = trueTypeTableRecord(bytes, 'name');
+      const offset = bytes.readUInt32BE(record + 8);
+      bytes.writeUInt16BE(0xffff, offset + 6 + 8);
+    }],
+    ['odd UTF-16 name length', (bytes) => {
+      const record = trueTypeTableRecord(bytes, 'name');
+      const offset = bytes.readUInt32BE(record + 8);
+      bytes.writeUInt16BE(3, offset + 6 + 8);
+    }],
+    ['unreferenced name storage', (bytes) => {
+      const record = trueTypeTableRecord(bytes, 'name');
+      const offset = bytes.readUInt32BE(record + 8);
+      bytes.writeUInt16BE(2, offset + 6 + 10);
+    }],
+    ['unsupported name platform', (bytes) => {
+      const record = trueTypeTableRecord(bytes, 'name');
+      const offset = bytes.readUInt32BE(record + 8);
+      bytes.writeUInt16BE(2, offset + 6);
+    }],
+    ['unsupported Windows name encoding', (bytes) => {
+      const record = trueTypeTableRecord(bytes, 'name');
+      const offset = bytes.readUInt32BE(record + 8);
+      bytes.writeUInt16BE(4, offset + 6 + 2);
+    }],
+  ];
+  for (const [name, mutate] of cases) {
+    await t.test(name, () => {
+      const bytes = trueTypeBytes();
+      mutate(bytes);
+      reject(bytes);
+    });
   }
 });
 
@@ -967,6 +1204,72 @@ test('candidate build rejects raster bytes absent from the immutable pre-build s
     forbiddenFragments: ['private-owner'],
     privateBindings: privateBindings(),
   }), (error) => error instanceof ArtifactValidationError && error.code === 'content_forbidden');
+});
+
+test('candidate build source-closes emitted TrueType fonts and dependency licenses', async (t) => {
+  const fixture = buildFixture();
+  const fontA = trueTypeBytes(['Typeface A Variable']);
+  const fontB = trueTypeBytes(['Typeface B Variable']);
+  const licenseA = Buffer.from('Typeface A redistribution terms');
+  const licenseB = Buffer.from('Typeface B redistribution terms');
+  const sourceFiles = [
+    file('images/mark.webp', minimalFiles()[3].bytes),
+    file('fonts/TypefaceA-Variable.ttf', fontA),
+    file('fonts/TypefaceA-LICENSE.txt', licenseA),
+    file('fonts/TypefaceB-Variable.ttf', fontB),
+    file('fonts/TypefaceB-LICENSE.txt', licenseB),
+  ];
+  const generatedFiles = [
+    ...minimalFiles(),
+    file('assets/TypefaceA-Variable-abcdef12.ttf', fontA),
+    file('assets/TypefaceA-LICENSE-abcdef12.txt', licenseA),
+    file('assets/TypefaceB-Variable-abcdef12.ttf', fontB),
+    file('assets/TypefaceB-LICENSE-abcdef12.txt', licenseB),
+  ];
+  const attempt = (generated) => {
+    let reads = 0;
+    return buildCandidateArtifact({
+      buildInput: fixture.input,
+      buildExpectation: fixture.expected,
+      install: async () => {},
+      build: async () => {},
+      readGeneratedFiles: async () => (reads++ === 0 ? sourceFiles : generated),
+      releaseContext: releaseContext(),
+      phase: 'rc-publish',
+      forbiddenFragments: ['private-owner'],
+      privateBindings: privateBindings(),
+    });
+  };
+
+  const candidate = await attempt(generatedFiles);
+  for (const expected of generatedFiles.filter((entry) => /\.(?:ttf|txt)$/.test(entry.path))) {
+    const retained = candidate.files.find((entry) => entry.path === expected.path);
+    const manifested = candidate.manifest.entries.find((entry) => entry.path === expected.path);
+    assert.ok(retained);
+    assert.ok(retained.bytes.equals(expected.bytes));
+    assert.deepEqual(manifested, {
+      path: expected.path,
+      mode: REGULAR_FILE_MODE,
+      size: expected.bytes.length,
+      sha256: sha256(expected.bytes),
+    });
+  }
+  await t.test('font mismatch', async () => {
+    const changed = generatedFiles.map((entry) => entry.path.startsWith('assets/TypefaceB-') && entry.path.endsWith('.ttf')
+      ? file(entry.path, trueTypeBytes(['Different font']))
+      : entry);
+    await assert.rejects(attempt(changed), (error) => (
+      error instanceof ArtifactValidationError && error.code === 'content_forbidden'
+    ));
+  });
+  await t.test('license mismatch', async () => {
+    const changed = generatedFiles.map((entry) => entry.path.startsWith('assets/TypefaceB-') && entry.path.endsWith('.txt')
+      ? file(entry.path, 'different license')
+      : entry);
+    await assert.rejects(attempt(changed), (error) => (
+      error instanceof ArtifactValidationError && error.code === 'content_forbidden'
+    ));
+  });
 });
 
 test('a publish-prepared artifact remains eligible for a fresh restore-phase decision', async () => {
