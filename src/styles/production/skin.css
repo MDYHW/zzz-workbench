@@ -822,6 +822,14 @@
 
 .gauge__rail { grid-area: rail; min-width: 0; }
 
+.gauge__cap-line {
+  display: flex;
+  min-height: 12px;
+  align-items: flex-end;
+  justify-content: flex-end;
+  margin-bottom: 4px;
+}
+
 .gauge__track {
   position: relative;
   width: 100%;
@@ -859,8 +867,7 @@
   margin-top: 4px;
 }
 
-.gauge__threshold-copy,
-.gauge__cap-copy {
+.gauge__threshold-copy {
   position: absolute;
   top: 0;
   margin: 0;
@@ -872,7 +879,14 @@
 
 .gauge__threshold-copy { transform: translateX(-50%); }
 .gauge__threshold-copy.is-terminal { right: 0; left: auto; transform: none; }
-.gauge__cap-copy { right: 0; }
+
+.gauge__cap-copy {
+  margin: 0;
+  color: #60655d;
+  font: 800 8px/1 var(--mono);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
 
 .gauge__outputs {
   display: grid;

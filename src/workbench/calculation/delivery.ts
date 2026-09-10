@@ -128,6 +128,7 @@ function deliverEffect(
     case 'operation':
       delivered.operations.push({
         atom: {
+          presentationId: effect.presentationId,
           label: effect.label,
           value: effect.value,
           unit: effect.unit,

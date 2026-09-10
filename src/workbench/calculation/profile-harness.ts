@@ -171,7 +171,10 @@ function deriveSurfaceStatMetric(
   }, 0)
   const values = surfaces(amount('initial'), amount('combat'), amount('fully'))
   const contribution = (value: number): Contribution => ({
-    ...resultSourceFor(relationship.source, relationship.sourceDetail),
+    ...resultSourceFor(
+      relationship.source,
+      relationship.sourceDetail,
+    ),
     amount: value,
     notation: 'surface-value',
   })
@@ -257,7 +260,10 @@ function recipientContexts(
 function statContributionResult(contribution: StatContribution): Contribution {
   const { atom, rawValue, derivedValue } = contribution
   return {
-    ...resultSourceFor(atom.source, atom.sourceDetail),
+    ...resultSourceFor(
+      atom.source,
+      atom.sourceDetail,
+    ),
     amount: derivedValue,
     ...(atom.region === 'percentage'
       ? { display: { value: rawValue, unit: '%' as const, decimals: Number.isInteger(rawValue) ? 0 : 1 } }
@@ -279,11 +285,17 @@ function statBreakdown(stat: ResolvedStat): ResultMetric['breakdown'] {
   )
   for (const atom of stat.equalOrigins) {
     if (atom.source.definition.visibility !== 'visible') continue
+    const origin = resultSourceFor(
+      atom.source,
+      atom.sourceDetail,
+    )
     breakdown[atom.earliestSurface].push({
-      ...resultSourceFor(
-        atom.source,
-        [atom.sourceDetail, 'equal non-stacking origin'].filter(Boolean).join(' · '),
-      ),
+      ...origin,
+      detail: [origin.detail, 'equal non-stacking origin'].filter(Boolean).join(' · '),
+      detailParts: [
+        ...(origin.detailParts ?? []),
+        { presentationId: 'equal-non-stacking-origin', label: 'equal non-stacking origin' },
+      ],
       amount: 0,
       notation: 'equal-nonstack-origin',
       referenceValue: atom.value,
@@ -298,7 +310,10 @@ function modifierEffect(atom: ModifierAtom) {
     metric: atom.metricId,
     earliestSurface: atom.earliestSurface,
     amount: atom.value,
-    source: resultSourceFor(atom.source, atom.sourceDetail),
+    source: resultSourceFor(
+      atom.source,
+      atom.sourceDetail,
+    ),
     sourceInstance: atom.source,
     ...(atom.action ? { action: atom.action } : {}),
     ...(atom.composition ? { composition: atom.composition } : {}),
@@ -311,17 +326,23 @@ function gaugeResult(gauge: EvaluatedGauge): GaugeResult {
   const [first, ...rest] = gauge.outputs
   if (!first) throw new Error('A Result gauge requires an admitted output')
   return {
-    source: resultSourceFor(gauge.source, gauge.sourceDetail),
+    source: resultSourceFor(
+      gauge.source,
+      gauge.sourceDetail,
+    ),
     basisLabel: gauge.basisLabel,
+    basisPresentationId: gauge.basisPresentationId,
     current: gauge.current,
     ...(gauge.threshold === undefined ? {} : { threshold: gauge.threshold }),
     ...(gauge.cap === undefined ? {} : { cap: gauge.cap }),
     outputLabel: first.label,
+    outputPresentationId: first.presentationId,
     outputValue: first.value,
     ...(first.cap === undefined ? {} : { outputCap: first.cap }),
     outputUnit: first.unit,
     ...(rest.length === 0 ? {} : {
       additionalOutputs: rest.map((output) => ({
+        presentationId: output.presentationId,
         label: output.label,
         value: output.value,
         ...(output.cap === undefined ? {} : { cap: output.cap }),
@@ -367,7 +388,10 @@ function projectMetrics(
     if (energy) {
       for (const surface of ['initial', 'combat', 'fully'] as const) {
         baseBreakdown[surface].push(...energy.disclosedOperations[surface].map((operation) => ({
-          ...resultSourceFor(operation.source, operation.sourceDetail),
+          ...resultSourceFor(
+            operation.source,
+            operation.sourceDetail,
+          ),
           amount: operation.value,
         })))
       }
@@ -409,8 +433,12 @@ function projectMetrics(
 
 function projectOperations(operations: readonly OperationAtom[]): AgentResult['operations'] {
   return operations.map((operation) => ({
+    presentationId: operation.presentationId,
     label: operation.label,
-    source: resultSourceFor(operation.source, operation.sourceDetail),
+    source: resultSourceFor(
+      operation.source,
+      operation.sourceDetail,
+    ),
     value: operation.value,
     unit: operation.unit,
     ...(operation.presentation ? { presentation: operation.presentation } : {}),

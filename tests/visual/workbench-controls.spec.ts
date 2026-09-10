@@ -13,7 +13,105 @@ const partyEditViewports = [
   { width: 320, height: 900 },
 ] as const
 
-test('keeps clipped masthead actions visibly keyboard-focused', async ({ page }) => {
+test('keeps both language presentations readable and the masthead utilities ordered', async ({ page }) => {
+  const successfulFontUrls = new Set<string>()
+  page.on('response', (response) => {
+    if (response.ok() && new URL(response.url()).pathname.endsWith('.ttf')) {
+      successfulFontUrls.add(response.url())
+    }
+  })
+
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 320, height: 900 }]) {
+    await page.setViewportSize(viewport)
+    await page.goto('/')
+
+    const copy = page.getByRole('button', { name: '세팅 바로가기 복사' })
+    const language = page.getByRole('button', { name: '표시 언어: 한국어' })
+    await expect(copy).toBeVisible()
+    await expect(language).toBeVisible()
+    await expect(page.getByRole('heading', { name: '파티 편성 중' })).toBeVisible()
+
+    const [titleBox, copyBox, languageBox] = await Promise.all([
+      page.locator('.masthead h1').boundingBox(),
+      copy.boundingBox(),
+      language.boundingBox(),
+    ])
+    expect(titleBox).not.toBeNull()
+    expect(copyBox).not.toBeNull()
+    expect(languageBox).not.toBeNull()
+    expect(titleBox!.x + titleBox!.width).toBeLessThanOrEqual(copyBox!.x + 1)
+    expect(copyBox!.x + copyBox!.width).toBeLessThanOrEqual(languageBox!.x + 1)
+    if (viewport.width === 320) {
+      expect(copyBox!.width).toBe(36)
+      expect(languageBox!.width).toBe(36)
+    } else {
+      expect(await copy.evaluate((button) => getComputedStyle(button).borderRadius)).toBe('999px')
+      expect(await language.evaluate((button) => getComputedStyle(button).borderRadius)).toBe('999px')
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
+
+    for (const [slot, agent] of [
+      [1, /의현, 현묵, 명파/],
+      [2, /다이아린, 물리, 격파/],
+      [3, /루시아, 에테르, 지원/],
+    ] as const) {
+      await page.getByRole('button', { name: `${slot}번 슬롯 에이전트 선택` }).click()
+      await page.getByRole('button', { name: agent }).click()
+    }
+    await page.getByRole('button', { name: '편성 적용' }).click()
+    await expect(page.getByRole('heading', { name: '01 기본 설정' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '02 W-엔진' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '03 디스크' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '04 스탯 설정' })).toBeVisible()
+    await expect(page.getByRole('columnheader', { name: '초기' })).toBeVisible()
+    await expect(page.getByRole('columnheader', { name: '전투 입장' })).toBeVisible()
+    await expect(page.getByRole('columnheader', { name: '최종' })).toBeVisible()
+    expect(await page.getByRole('heading', { name: '01 기본 설정' }).evaluate((heading) => (
+      getComputedStyle(heading).fontFamily
+    ))).toContain('SUIT Variable')
+    expect(await page.evaluate(async () => {
+      await document.fonts.ready
+      const statuses: FontFaceLoadStatus[] = []
+      document.fonts.forEach((font) => {
+        if (font.family.replaceAll('"', '') === 'SUIT Variable') statuses.push(font.status)
+      })
+      return statuses
+    })).toContain('loaded')
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
+
+    if (viewport.width === 320) {
+      const refinementTops = await page.locator('.refinement-control button').evaluateAll((buttons) => (
+        buttons.map((button) => button.getBoundingClientRect().top)
+      ))
+      expect(Math.max(...refinementTops) - Math.min(...refinementTops)).toBeLessThan(1)
+
+      const firstMetricSurfaces = page.locator('.agent-result tbody tr:not(.breakdown-row)').first().locator(':scope > td')
+      expect(await firstMetricSurfaces.evaluateAll((cells) => cells.map((cell) => (
+        getComputedStyle(cell, '::before').content.replaceAll('"', '')
+      )))).toEqual(['초기', '전투 입장', '최종'])
+    }
+
+    await language.click()
+    const languageMenu = page.getByRole('menu', { name: '표시 언어' })
+    await expect(languageMenu).toBeVisible()
+    if (viewport.width === 320) expect((await languageMenu.boundingBox())?.width).toBe(144)
+    await page.getByRole('menuitemradio', { name: 'Display in English' }).click()
+    await expect(page.getByRole('heading', { name: '01 Loadout' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Copy Setup shortcut' })).toBeVisible()
+    if (viewport.width === 320) {
+      const firstMetricSurfaces = page.locator('.agent-result tbody tr:not(.breakdown-row)').first().locator(':scope > td')
+      expect(await firstMetricSurfaces.evaluateAll((cells) => cells.map((cell) => (
+        getComputedStyle(cell, '::before').content.replaceAll('"', '')
+      )))).toEqual(['Initial', 'Combat', 'Fully enabled'])
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
+  }
+
+  expect([...successfulFontUrls]).toHaveLength(1)
+  expect(new URL([...successfulFontUrls][0]).origin).toBe(new URL(page.url()).origin)
+})
+
+test('keeps rounded masthead actions visibly keyboard-focused', async ({ page }) => {
   await page.context().grantPermissions(['clipboard-write'], {
     origin: 'http://127.0.0.1:5173',
   })
@@ -24,6 +122,8 @@ test('keeps clipped masthead actions visibly keyboard-focused', async ({ page })
     await expect(page.getByRole('button', { name: 'Edit party' })).toBeFocused()
     await page.keyboard.press('Shift+Tab')
     await expect(page.getByRole('tab', { selected: true })).toBeFocused()
+    await page.keyboard.press('Shift+Tab')
+    await expect(page.getByRole('button', { name: 'Display language: English' })).toBeFocused()
     await page.keyboard.press('Shift+Tab')
     const copy = page.getByRole('button', { name: 'Copy Setup shortcut' })
     await expect(copy).toBeFocused()
@@ -112,6 +212,41 @@ test('keeps W-Engine refinement beside the selected equipment at every viewport'
       (button) => getComputedStyle(button).backgroundColor,
     )
     expect(selectedBackground).not.toBe(unselectedBackground)
+  }
+})
+
+test('separates gauge cap and threshold into stable vertical lanes', async ({ page }) => {
+  for (const viewport of viewports) {
+    await openInitialWorkbench(page, viewport)
+    for (const [slot, agent] of [
+      [1, /Jane, Physical, Anomaly/],
+      [2, /Dialyn, Physical, Stun/],
+      [3, /Lucia, Ether, Support/],
+    ] as const) {
+      await page.getByRole('button', { name: `Select Agent for slot ${slot}` }).click()
+      await page.getByRole('button', { name: agent }).click()
+    }
+    await page.getByRole('button', { name: 'Apply party' }).click()
+    await page.getByRole('button', { name: 'Anomaly Proficiency', exact: true }).click()
+
+    const gauge = page.locator('.gauge').filter({ hasText: 'At Passion · flat ATK' })
+    const cap = gauge.locator('.gauge__cap-copy')
+    const track = gauge.locator('.gauge__track')
+    const threshold = gauge.locator('.gauge__threshold-copy')
+    await expect(gauge).toBeVisible()
+    await expect(cap).toBeVisible()
+    await expect(threshold).toBeVisible()
+
+    const [capBox, trackBox, thresholdBox] = await Promise.all([
+      cap.boundingBox(),
+      track.boundingBox(),
+      threshold.boundingBox(),
+    ])
+    expect(capBox).not.toBeNull()
+    expect(trackBox).not.toBeNull()
+    expect(thresholdBox).not.toBeNull()
+    expect(capBox!.y + capBox!.height).toBeLessThanOrEqual(trackBox!.y)
+    expect(thresholdBox!.y).toBeGreaterThanOrEqual(trackBox!.y + trackBox!.height)
   }
 })
 

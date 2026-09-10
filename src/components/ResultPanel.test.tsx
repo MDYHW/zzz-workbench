@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { AgentResult } from '../workbench/calculation/result'
 import { surfaces } from '../workbench/calculation/composition'
 import { canonicalAction, sourceLocalAction } from '../workbench/actions'
+import { LocalizationProvider } from '../localization'
 import { ResultPanel } from './ResultPanel'
 
 const syntheticSource = {
@@ -159,7 +160,7 @@ describe('ResultPanel action hierarchy', () => {
           id: 'shared',
           outcomes: [
             canonicalAction('Basic Attack'),
-            sourceLocalAction('Source-local outcome'),
+            sourceLocalAction('refringe', 'Source-local outcome'),
           ],
           tags: [],
           metricId: 'dmgBonus',
@@ -207,7 +208,7 @@ describe('ResultPanel action hierarchy', () => {
       metrics: [],
       actionModifiers: [{
         id: 'assaultCritRate',
-        outcomes: [sourceLocalAction('Assault')],
+        outcomes: [sourceLocalAction('assault', 'Assault')],
         tags: [],
         metricId: 'critRate',
         values: surfaces(0, 0, 98.6),
@@ -247,7 +248,7 @@ describe('ResultPanel action hierarchy', () => {
       }],
       actionModifiers: [{
         id: 'derivedFactor',
-        outcomes: [sourceLocalAction('Derived anomaly')],
+        outcomes: [sourceLocalAction('luminize', 'Derived anomaly')],
         tags: [],
         metricId: 'refringeFactor',
         values: surfaces(0, 0, 9.4),
@@ -278,6 +279,62 @@ describe('ResultPanel action hierarchy', () => {
 })
 
 describe('ResultPanel operation presentation', () => {
+  it('projects structured Result labels and operation units into Korean', async () => {
+    const user = userEvent.setup()
+    render(
+      <LocalizationProvider>
+        <ResultPanel
+          activeSourceTone={null}
+          agentResult={syntheticResult({
+            metrics: [{
+              id: 'energyRegen',
+              label: 'Energy Regen',
+              unit: '',
+              decimals: 2,
+              values: surfaces(3.68, 3.68, 3.68),
+              breakdown: surfaces([], [], []),
+              gauges: [{
+                source: {
+                  ...syntheticSource,
+                  detail: 'Corrosion',
+                  detailParts: [{ presentationId: 'corrosion', label: 'Corrosion' }],
+                },
+                basisLabel: 'Initial Energy Regen',
+                basisPresentationId: 'initial-energy-regen',
+                current: 3.68,
+                threshold: 3,
+                cap: 3.68,
+                outputLabel: 'Electric DEF Ignore',
+                outputPresentationId: 'electric-def-ignore',
+                outputValue: 15,
+                outputCap: 15,
+                outputUnit: '%',
+              }],
+            }],
+            operations: [{
+              label: 'Next Quick Assist Daze',
+              presentationId: 'next-quick-assist-daze',
+              source: syntheticSource,
+              value: 50,
+              unit: '% ATK',
+            }],
+          })}
+          onSourceToneChange={() => {}}
+          partyAgentIds={['seed', 'cissia', 'astraYao']}
+        />
+      </LocalizationProvider>,
+    )
+
+    expect(screen.getByText('다음 빠른 지원 그로기 수치')).toBeInTheDocument()
+    expect(screen.getByText('+50.0% 공격력')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '에너지 자동 회복' }))
+    const gauge = screen.getByRole('group', {
+      name: '초기 에너지 자동 회복: current 3.7, cap 4, threshold 3.0; 전기 방어력 무시: +15.0%, cap 15%',
+    })
+    expect(within(gauge).getByText('전기 방어력 무시')).toBeInTheDocument()
+    expect(within(gauge).getByText('침식')).toBeInTheDocument()
+  })
+
   it('preserves additive operations and gauge output', async () => {
     const user = userEvent.setup()
     const onSourceToneChange = vi.fn()
@@ -292,10 +349,12 @@ describe('ResultPanel operation presentation', () => {
         gauges: [{
           source: syntheticSource,
           basisLabel: 'Fully Enabled CRIT Rate',
+          basisPresentationId: 'fully-crit-rate',
           current: 50,
           threshold: 40,
           cap: 90,
           outputLabel: 'Aftershock Daze bonus',
+          outputPresentationId: 'aftershock-daze-bonus',
           outputValue: 15,
           outputCap: 75,
           outputUnit: '%',
@@ -303,12 +362,14 @@ describe('ResultPanel operation presentation', () => {
       }],
       operations: [
         {
+          presentationId: 'enemy-stun-duration',
           label: 'Enemy Stun duration',
           source: syntheticSource,
           value: 2,
           unit: 's',
         },
         {
+          presentationId: 'next-quick-assist-daze',
           label: 'Next Quick Assist Daze',
           source: syntheticSource,
           value: 50,
@@ -341,6 +402,9 @@ describe('ResultPanel operation presentation', () => {
     })
     expect(within(gauge).getByText('+15.0% / 75%')).toBeInTheDocument()
     expect(within(gauge).getByText('Threshold 40.0')).toBeInTheDocument()
+    expect(within(gauge).getByText('Cap 90')).toBeInTheDocument()
+    expect(Array.from(gauge.querySelector('.gauge__rail')!.children).map(({ className }) => className))
+      .toEqual(['gauge__cap-line', 'gauge__track', 'gauge__scale'])
   })
 
   it('renders every gauge attached to one metric as a separate accessible group', async () => {
@@ -356,20 +420,24 @@ describe('ResultPanel operation presentation', () => {
         gauges: [{
           source: syntheticSource,
           basisLabel: 'Initial CRIT Rate',
+          basisPresentationId: 'initial-crit-rate',
           current: 50,
           threshold: 40,
           cap: 100,
           outputLabel: 'First output',
+          outputPresentationId: 'dmg-bonus',
           outputValue: 10,
           outputCap: 20,
           outputUnit: '%',
         }, {
           source: { ...syntheticSource, label: 'Second source', locus: 'additional' },
           basisLabel: 'Fully Enabled CRIT Rate',
+          basisPresentationId: 'fully-crit-rate',
           current: 70,
           threshold: 60,
           cap: 90,
           outputLabel: 'Second output',
+          outputPresentationId: 'squad-dmg-bonus',
           outputValue: 15,
           outputCap: 30,
           outputUnit: '%',
@@ -399,16 +467,18 @@ describe('ResultPanel operation presentation', () => {
         gauges: [{
           source: syntheticSource,
           basisLabel: 'Fully Enabled Anomaly Mastery',
+          basisPresentationId: 'fully-anomaly-mastery',
           current: 201.12,
           threshold: 100,
           cap: 200,
           outputLabel: 'Anomaly Buildup Rate',
+          outputPresentationId: 'anomaly-buildup-rate',
           outputValue: 20,
           outputCap: 20,
           outputUnit: '%',
           additionalOutputs: [
-            { label: 'Attribute Anomaly DMG', value: 26, cap: 26, unit: '%' },
-            { label: 'Disorder DMG', value: 26, cap: 26, unit: '%' },
+            { presentationId: 'attribute-anomaly-dmg', label: 'Attribute Anomaly DMG', value: 26, cap: 26, unit: '%' },
+            { presentationId: 'disorder-dmg', label: 'Disorder DMG', value: 26, cap: 26, unit: '%' },
           ],
           decimals: { current: 2, threshold: 0, cap: 0, output: 2, outputCap: 0 },
         }],
@@ -433,7 +503,9 @@ describe('ResultPanel operation presentation', () => {
           gauges: [{
             source: syntheticSource,
             basisLabel: 'Initial ATK', current: 125, threshold: 100,
+            basisPresentationId: 'initial-atk',
             outputLabel: 'Squad flat ATK', outputValue: 25, outputUnit: '',
+            outputPresentationId: 'squad-flat-atk',
           }],
         },
         {
@@ -442,7 +514,9 @@ describe('ResultPanel operation presentation', () => {
           gauges: [{
             source: syntheticSource,
             basisLabel: 'Initial CRIT Rate', current: 80, threshold: 50, cap: 100,
+            basisPresentationId: 'initial-crit-rate',
             outputLabel: 'Daze Bonus', outputValue: 15, outputCap: 20, outputUnit: '%',
+            outputPresentationId: 'aftershock-daze-bonus',
           }],
         },
       ],
@@ -470,6 +544,7 @@ describe('ResultPanel operation presentation', () => {
     renderResult(syntheticResult({
       operations: [
         {
+          presentationId: 'action-dmg-multiplier',
           label: 'Basic Attack DMG Multiplier',
           source: syntheticSource,
           value: 1.25,
@@ -477,6 +552,7 @@ describe('ResultPanel operation presentation', () => {
           presentation: 'scale',
         },
         {
+          presentationId: 'action-dmg-multiplier',
           label: 'Ultimate DMG Multiplier',
           source: syntheticSource,
           value: 1.25,
@@ -512,10 +588,12 @@ describe('ResultPanel operation presentation', () => {
       gauges: [{
         source: syntheticSource,
         basisLabel: 'Initial CRIT Rate',
+        basisPresentationId: 'initial-crit-rate',
         current,
         threshold: 80,
         cap: 80,
         outputLabel: 'Basic Attack DMG Multiplier',
+        outputPresentationId: 'action-dmg-multiplier',
         outputValue,
         outputUnit: '',
         presentation: 'scale' as const,

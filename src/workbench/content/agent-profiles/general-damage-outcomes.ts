@@ -15,6 +15,7 @@ import type { StatId, StatRegion } from '../../calculation/stat-composer'
 import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from '../agent-sources/equipment'
 import { selectedAgentSource, selectedCalculationSource, selectedMindscapeSource } from '../agent-sources/sources'
 import { agentBroadPrePenRelationships } from '../agent-broad-pre-pen-relationships'
+import type { PresentationDetail, StaticPresentationId } from '../../../presentation'
 
 type Agent = 'pyrois' | 'sigrid' | 'anbySoldier0' | 'seed' | 'cissia' | 'evelyn' | 'corin' | 'hugo' | 'ellen' | 'soldier11' | 'zhuYuan' | 'orphie' | 'harumasa' | 'nekomata' | 'billy' | 'yeShunguang' | 'miyabi' | 'anton'
 type Slot = 0 | 1 | 2
@@ -31,14 +32,14 @@ const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   billy: { atk: VERTICAL_VALUES.billy.atk, critRate: VERTICAL_VALUES.billy.critRate, critDmg: VERTICAL_VALUES.billy.critDmg }, yeShunguang: { atk: VERTICAL_VALUES.yeShunguang.atk, critRate: VERTICAL_VALUES.yeShunguang.critRate, critDmg: VERTICAL_VALUES.yeShunguang.critDmg }, miyabi: { atk: VERTICAL_VALUES.miyabi.atk, critRate: VERTICAL_VALUES.miyabi.critRate, critDmg: VERTICAL_VALUES.miyabi.critDmg, anomalyMastery: VERTICAL_VALUES.miyabi.anomalyMastery },
   anton: { atk: VERTICAL_VALUES.anton.atk, critRate: VERTICAL_VALUES.anton.critRate, critDmg: VERTICAL_VALUES.anton.critDmg, energyRegen: VERTICAL_VALUES.anton.baseEnergyRegen },
 }
-const A = (name: CanonicalActionKind, form?: string) => form ? actionForm(name, form) : canonicalAction(name)
+const A = (name: CanonicalActionKind) => canonicalAction(name)
 const BASIC_ULT = actionTarget([A('Basic Attack'), A('Ultimate')])
 const BASIC_DASH = actionTarget([A('Basic Attack'), A('Dash Attack')])
 const ELLEN_CORE = actionTarget([
-  sourceLocalAction('Charged Arctic Ambush'),
-  sourceLocalAction('Flash Freeze Basic'),
-  sourceLocalAction('Icy Blade'),
-  sourceLocalAction('Glacial Blade Wave'),
+  sourceLocalAction('ellen-charged-arctic-ambush', 'Charged Arctic Ambush'),
+  sourceLocalAction('ellen-flash-freeze-basic', 'Flash Freeze Basic'),
+  sourceLocalAction('ellen-icy-blade', 'Icy Blade'),
+  sourceLocalAction('ellen-glacial-blade-wave', 'Glacial Blade Wave'),
   A('Chain Attack'), A('Ultimate'),
 ])
 const BASIC = actionTarget([A('Basic Attack')])
@@ -51,58 +52,58 @@ const PYROIS_ULTIMATE_SCOPES = [{
   id: 'pyroisUltimate',
   target: ULT,
 }] satisfies readonly ActionScopeNode[]
-const SIGRID_CONVERGING = actionTarget([actionForm('Basic Attack', 'Converging Spear')])
+const SIGRID_CONVERGING = actionTarget([actionForm('Basic Attack', 'sigrid-converging-spear', 'Converging Spear')])
 const SIGRID_UNBRIDLED_AND_CONVERGING = actionTarget([
-  sourceLocalAction('Unbridled Spear attacks'),
+  sourceLocalAction('sigrid-unbridled-spear-attacks', 'Unbridled Spear attacks'),
   ...SIGRID_CONVERGING.outcomes,
 ])
 const CHAIN_ULT = actionTarget([A('Chain Attack'), A('Ultimate')])
-const BACK = actionTarget([sourceLocalAction('Back attacks')])
-const SEED_SLAUGHTER = actionTarget([actionForm('Basic Attack', 'Falling Petals - Slaughter')])
-const SEED_DOWNFALL = actionTarget([actionForm('Basic Attack', 'Falling Petals - Downfall')])
+const BACK = actionTarget([sourceLocalAction('back-attacks', 'Back attacks')])
+const SEED_SLAUGHTER = actionTarget([actionForm('Basic Attack', 'seed-falling-petals-slaughter', 'Falling Petals - Slaughter')])
+const SEED_DOWNFALL = actionTarget([actionForm('Basic Attack', 'seed-falling-petals-downfall', 'Falling Petals - Downfall')])
 const SEED_BASIC = actionTarget([...SEED_SLAUGHTER.outcomes, ...SEED_DOWNFALL.outcomes])
 const SEED_ACTIONS = actionTarget([...SEED_BASIC.outcomes, ...ULT.outcomes])
-const CISSIA_CORRODE = actionTarget([sourceLocalAction('Corrode Bone')])
-const CISSIA_SERPENT = actionTarget([actionForm('Basic Attack', "Serpent's Kiss")])
+const CISSIA_CORRODE = actionTarget([sourceLocalAction('cissia-corrode-bone', 'Corrode Bone')])
+const CISSIA_SERPENT = actionTarget([actionForm('Basic Attack', 'cissia-serpents-kiss', "Serpent's Kiss")])
 const CISSIA_BASIC = actionTarget([...CISSIA_CORRODE.outcomes, ...CISSIA_SERPENT.outcomes])
-const CORIN_CHAINSAW = actionTarget([sourceLocalAction('Extended chainsaw actions')])
+const CORIN_CHAINSAW = actionTarget([sourceLocalAction('corin-extended-chainsaw-actions', 'Extended chainsaw actions')])
 const CORIN_BASIC_ULT = actionTarget([A('Basic Attack'), A('Ultimate')])
-const HUGO_TOTALIZE = actionTarget([sourceLocalAction('Totalize')])
-const FIRE_SUPPRESSION_BASIC = actionTarget([sourceLocalAction('Fire Suppression Basic Attack')])
-const FIRE_SUPPRESSION_DASH = actionTarget([sourceLocalAction('Fire Suppression Dash Attack')])
-const STUNNED = actionTarget([sourceLocalAction('Against Stunned enemies')])
-const ZHU_ENHANCED_BASIC = actionTarget([sourceLocalAction('Enhanced Shotshell Basic Attack')])
-const ZHU_ENHANCED_DASH = actionTarget([sourceLocalAction('Enhanced Shotshell Dash Attack')])
-const ZHU_STUNNED_BASIC = actionTarget([sourceLocalAction('Enhanced Shotshell Basic Attack against Stunned enemies')])
-const ZHU_STUNNED_DASH = actionTarget([sourceLocalAction('Enhanced Shotshell Dash Attack against Stunned enemies')])
+const HUGO_TOTALIZE = actionTarget([sourceLocalAction('hugo-totalize', 'Totalize')])
+const FIRE_SUPPRESSION_BASIC = actionTarget([sourceLocalAction('soldier11-fire-suppression-basic', 'Fire Suppression Basic Attack')])
+const FIRE_SUPPRESSION_DASH = actionTarget([sourceLocalAction('soldier11-fire-suppression-dash', 'Fire Suppression Dash Attack')])
+const STUNNED = actionTarget([sourceLocalAction('against-stunned-enemies', 'Against Stunned enemies')])
+const ZHU_ENHANCED_BASIC = actionTarget([sourceLocalAction('zhu-yuan-enhanced-shotshell-basic', 'Enhanced Shotshell Basic Attack')])
+const ZHU_ENHANCED_DASH = actionTarget([sourceLocalAction('zhu-yuan-enhanced-shotshell-dash', 'Enhanced Shotshell Dash Attack')])
+const ZHU_STUNNED_BASIC = actionTarget([sourceLocalAction('zhu-yuan-enhanced-shotshell-basic-stunned', 'Enhanced Shotshell Basic Attack against Stunned enemies')])
+const ZHU_STUNNED_DASH = actionTarget([sourceLocalAction('zhu-yuan-enhanced-shotshell-dash-stunned', 'Enhanced Shotshell Dash Attack against Stunned enemies')])
 const ORPHIE_SPECIAL_EX_CHAIN_ULT = actionTarget([A('Special Attack'), A('EX Special Attack'), A('Chain Attack'), A('Ultimate')])
-const ORPHIE_HEAT_ULT = actionTarget([sourceLocalAction('Heat Charge'), A('Ultimate')])
-const HARUMASA_SLASH_OUTCOME = sourceLocalAction('Dash Attack: Hiten no Tsuru - Slash')
-const HARUMASA_CHASING_OUTCOME = sourceLocalAction('Chasing Thunder')
+const ORPHIE_HEAT_ULT = actionTarget([sourceLocalAction('orphie-heat-charge', 'Heat Charge'), A('Ultimate')])
+const HARUMASA_SLASH_OUTCOME = sourceLocalAction('harumasa-hiten-no-tsuru-slash', 'Dash Attack: Hiten no Tsuru - Slash')
+const HARUMASA_CHASING_OUTCOME = sourceLocalAction('harumasa-chasing-thunder', 'Chasing Thunder')
 const HARUMASA_SLASH = actionTarget([HARUMASA_SLASH_OUTCOME])
 const HARUMASA_CORE = actionTarget([HARUMASA_SLASH_OUTCOME, HARUMASA_CHASING_OUTCOME, A('Ultimate')])
 const HARUMASA_DASH_CHASING = actionTarget([HARUMASA_SLASH_OUTCOME, HARUMASA_CHASING_OUTCOME])
 const NEKOMATA_EX_DODGE = actionTarget([A('EX Special Attack'), A('Dodge Counter')])
 const BILLY_CROUCHING = actionTarget([A('Basic Attack'), A('Dash Attack'), A('Dodge Counter'), A('Special Attack'), A('EX Special Attack'), A('Ultimate')])
-const YE_EX = actionTarget([sourceLocalAction('EX Special Attack: Enlightened Mind - Soaring Light')])
-const YE_ULT = actionTarget([sourceLocalAction('Ultimate: Cleaving Heavens')])
+const YE_EX = actionTarget([sourceLocalAction('ye-shunguang-enlightened-mind-soaring-light', 'EX Special Attack: Enlightened Mind - Soaring Light')])
+const YE_ULT = actionTarget([sourceLocalAction('ye-shunguang-cleaving-heavens', 'Ultimate: Cleaving Heavens')])
 const YE_M2 = actionTarget([...YE_EX.outcomes, ...YE_ULT.outcomes])
-const MIYABI_SHIMOTSUKI = actionTarget([sourceLocalAction('Shimotsuki')])
-const MIYABI_SHIMOTSUKI_AFTER_DISORDER = actionTarget([sourceLocalAction('Shimotsuki · After Disorder')])
-const MIYABI_FROSTBURN_BREAK = actionTarget([sourceLocalAction('Frostburn-Break')])
-const MIYABI_KAZAHANA = actionTarget([sourceLocalAction('Kazahana')])
-const ANTON_PILEDRIVER = actionTarget([sourceLocalAction('Piledriver')])
-const ANTON_DRILL = actionTarget([sourceLocalAction('Drill')])
-const ANTON_BURST_BASIC = actionTarget([sourceLocalAction('Burst Mode Basic Attack')])
-const ANTON_BURST_DODGE = actionTarget([sourceLocalAction('Burst Mode Dodge Counter')])
-const ANTON_BURST_BASIC_DRILL = actionTarget([sourceLocalAction('Burst Mode Basic Attack · Drill')])
-const ANTON_BURST_BASIC_PILEDRIVER = actionTarget([sourceLocalAction('Burst Mode Basic Attack · Piledriver')])
-const ANTON_BURST_DODGE_DRILL = actionTarget([sourceLocalAction('Burst Mode Dodge Counter · Drill')])
+const MIYABI_SHIMOTSUKI = actionTarget([sourceLocalAction('miyabi-shimotsuki', 'Shimotsuki')])
+const MIYABI_SHIMOTSUKI_AFTER_DISORDER = actionTarget([sourceLocalAction('miyabi-shimotsuki-after-disorder', 'Shimotsuki · After Disorder')])
+const MIYABI_FROSTBURN_BREAK = actionTarget([sourceLocalAction('miyabi-frostburn-break', 'Frostburn-Break')])
+const MIYABI_KAZAHANA = actionTarget([sourceLocalAction('miyabi-kazahana', 'Kazahana')])
+const ANTON_PILEDRIVER = actionTarget([sourceLocalAction('anton-piledriver', 'Piledriver')])
+const ANTON_DRILL = actionTarget([sourceLocalAction('anton-drill', 'Drill')])
+const ANTON_BURST_BASIC = actionTarget([sourceLocalAction('anton-burst-mode-basic', 'Burst Mode Basic Attack')])
+const ANTON_BURST_DODGE = actionTarget([sourceLocalAction('anton-burst-mode-dodge-counter', 'Burst Mode Dodge Counter')])
+const ANTON_BURST_BASIC_DRILL = actionTarget([sourceLocalAction('anton-burst-mode-basic-drill', 'Burst Mode Basic Attack · Drill')])
+const ANTON_BURST_BASIC_PILEDRIVER = actionTarget([sourceLocalAction('anton-burst-mode-basic-piledriver', 'Burst Mode Basic Attack · Piledriver')])
+const ANTON_BURST_DODGE_DRILL = actionTarget([sourceLocalAction('anton-burst-mode-dodge-drill', 'Burst Mode Dodge Counter · Drill')])
 const src = (agent: Agent, slot: Slot, id: string, label: string, locus: 'identity' | 'core' | 'additional' | 'basic' | 'assist' | 'chain' | 'special' | 'ex-special' | 'ultimate' = 'core') => selectedAgentSource(agent, slot, id, label, locus)
 const m = (id: EffectMetric, label: string, unit = '', statId?: MetricProjection['statId'], admission?: MetricProjection['admission']): MetricProjection => ({ id, label, unit, decimals: unit === '/s' ? 2 : unit === '%' ? 1 : 0, ...(statId ? { statId } : { baseValues: { initial: 0, combat: 0, fully: 0 } }), ...(admission ? { admission } : {}) })
-function stat(source: ReturnType<typeof selectedAgentSource>, statId: StatId, value: number, region: Exclude<StatRegion, 'base'> = 'flat', earliestSurface: SurfaceKey = 'fully', detail?: string): ProfileRelationship { return { kind: 'stat', atom: { statId, region, value, earliestSurface, source, ...(detail ? { sourceDetail: detail } : {}) } } }
-function mod(source: ReturnType<typeof selectedAgentSource>, metricId: EffectMetric, value: number, action?: ActionTarget, earliestSurface: SurfaceKey = 'fully', detail?: string): ProfileRelationship { return { kind: 'modifier', atom: { metricId, value, earliestSurface, source, ...(action ? { action } : {}), ...(detail ? { sourceDetail: detail } : {}) } } }
-function operation(source: ReturnType<typeof selectedAgentSource>, label: string, value: number, unit = '%', presentation?: 'scale'): ProfileRelationship { return { kind: 'operation', atom: { label, value, unit, source, ...(presentation ? { presentation } : {}) } } }
+function stat(source: ReturnType<typeof selectedAgentSource>, statId: StatId, value: number, region: Exclude<StatRegion, 'base'> = 'flat', earliestSurface: SurfaceKey = 'fully', detail?: PresentationDetail): ProfileRelationship { return { kind: 'stat', atom: { statId, region, value, earliestSurface, source, ...(detail ? { sourceDetail: detail } : {}) } } }
+function mod(source: ReturnType<typeof selectedAgentSource>, metricId: EffectMetric, value: number, action?: ActionTarget, earliestSurface: SurfaceKey = 'fully', detail?: PresentationDetail): ProfileRelationship { return { kind: 'modifier', atom: { metricId, value, earliestSurface, source, ...(action ? { action } : {}), ...(detail ? { sourceDetail: detail } : {}) } } }
+function operation(source: ReturnType<typeof selectedAgentSource>, presentationId: StaticPresentationId, label: string, value: number, unit = '%', presentation?: 'scale'): ProfileRelationship { return { kind: 'operation', atom: { presentationId, label, value, unit, source, ...(presentation ? { presentation } : {}) } } }
 
 function partyQualification(agent: Agent, ids: readonly AgentId[], slot: Slot): boolean {
   switch (agent) {
@@ -147,7 +148,7 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
       CHAIN,
     ))
   }
-  const addMetric = (metric: EffectMetric, value: number, source = core, action?: ActionTarget, surface: 'combat'|'fully' = 'fully', detail?: string) => {
+  const addMetric = (metric: EffectMetric, value: number, source = core, action?: ActionTarget, surface: 'combat'|'fully' = 'fully', detail?: PresentationDetail) => {
     if (!value) return
     add(
       !action && (metric === 'critRate' || metric === 'critDmg' || metric === 'penRatio')
@@ -158,11 +159,11 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
   const addAtk = (value: number, source = core, surface: 'initial'|'combat'|'fully' = 'fully') => { if (value) add(stat(source, 'atk', value, 'percentage', surface)) }
   switch (agent) {
     case 'pyrois':
-      addMetric('critDmg', VERTICAL_VALUES.pyrois.coreUltimateCritDmg, core, ULT, 'fully', 'Mirage · Against Stunned enemies')
-      addMetric('dmgBonus', VERTICAL_VALUES.pyrois.coreDmg, core, undefined, 'fully', 'Sunflare')
+      addMetric('critDmg', VERTICAL_VALUES.pyrois.coreUltimateCritDmg, core, ULT, 'fully', { label: 'Mirage · Against Stunned enemies', presentationId: 'mirage-against-stunned-enemies' })
+      addMetric('dmgBonus', VERTICAL_VALUES.pyrois.coreDmg, core, undefined, 'fully', { label: 'Sunflare', presentationId: 'sunflare' })
       addMetric('critDmg', qualified ? VERTICAL_VALUES.pyrois.additionalCritDmg : 0, ability)
       if (setup.mindscape >= 1) addMetric('critRate', VERTICAL_VALUES.pyrois.mindscapeCritRate, mind(1))
-      if (setup.mindscape >= 4) addMetric('dazeBonus', VERTICAL_VALUES.pyrois.mindscapeDaze, mind(4), undefined, 'fully', 'Shielded after EX Special Attack Perfect Block')
+      if (setup.mindscape >= 4) addMetric('dazeBonus', VERTICAL_VALUES.pyrois.mindscapeDaze, mind(4), undefined, 'fully', { label: 'Shielded after EX Special Attack Perfect Block', presentationId: 'shielded-after-ex-special-perfect-block' })
       actions.push(
         { metricId: 'critDmg', scopes: PYROIS_ULTIMATE_SCOPES },
         actionProjection('defIgnore', 'pyroisBasicUltimateDefIgnore', BASIC_ULT),
@@ -256,7 +257,7 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
       add({ kind: 'provider', source: ultimate, delivery: { recipient: 'all-party', formulas: CRIT_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.cissia.ultimateSquadCritDmg } })
       if (setup.mindscape >= 1) {
         add({ kind: 'provider', source: mind(1), delivery: { recipient: 'enemy-context', attributes: ['Electric'], formulas: ['general_damage'] }, effect: { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'combat', value: VERTICAL_VALUES.cissia.mindscapeBroadElectricResIgnore } })
-        add({ kind: 'provider', source: mind(1), delivery: { recipient: 'enemy-context', attributes: ['Electric'], formulas: ['general_damage'], eligibleAgentIds: ['cissia'] }, effect: { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'fully', value: VERTICAL_VALUES.cissia.mindscapeCorrodeElectricResIgnore, action: CISSIA_CORRODE, sourceDetail: 'Corrode Bone' } })
+        add({ kind: 'provider', source: mind(1), delivery: { recipient: 'enemy-context', attributes: ['Electric'], formulas: ['general_damage'], eligibleAgentIds: ['cissia'] }, effect: { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'fully', value: VERTICAL_VALUES.cissia.mindscapeCorrodeElectricResIgnore, action: CISSIA_CORRODE, sourceDetail: { label: 'Corrode Bone', presentationId: 'corrode-bone' } } })
       }
       if (setup.mindscape >= 2) addMetric('dmgBonus', VERTICAL_VALUES.cissia.mindscapeSerpentDmg, mind(2), CISSIA_SERPENT)
       const basicScopes = [{
@@ -281,7 +282,7 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
       addMetric('critRate', VERTICAL_VALUES.evelyn.coreCritRate, core, undefined, 'combat')
       if (qualified) {
         addMetric('dmgBonus', VERTICAL_VALUES.evelyn.additionalChainUltimateDmg, ability, CHAIN_ULT, 'combat')
-        add({ kind: 'threshold-operation', source: ability, basis: { statId: 'critRate' }, basisLabels: { combat: 'Combat CRIT Rate', fully: 'Fully Enabled CRIT Rate' }, threshold: VERTICAL_VALUES.evelyn.additionalCritThreshold, metricId: 'critRate', outputLabel: 'Chain Attack & Ultimate DMG Multiplier', inactiveValue: 1, activeValue: VERTICAL_VALUES.evelyn.additionalMultiplier, unit: '', presentation: 'scale' })
+        add({ kind: 'threshold-operation', source: ability, basis: { statId: 'critRate' }, basisLabels: { combat: 'Combat CRIT Rate', fully: 'Fully Enabled CRIT Rate' }, basisPresentationIds: { combat: 'combat-crit-rate', fully: 'fully-crit-rate' }, threshold: VERTICAL_VALUES.evelyn.additionalCritThreshold, metricId: 'critRate', outputLabel: 'Chain Attack & Ultimate DMG Multiplier', outputPresentationId: 'chain-ultimate-dmg-multiplier', inactiveValue: 1, activeValue: VERTICAL_VALUES.evelyn.additionalMultiplier, unit: '', presentation: 'scale' })
       }
       if (setup.mindscape >= 2) addAtk(VERTICAL_VALUES.evelyn.mindscapeAtk, mind(2), 'combat')
       if (setup.mindscape >= 4) addMetric('critDmg', VERTICAL_VALUES.evelyn.mindscapeCritDmg, mind(4))
@@ -307,14 +308,14 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
       const stuns = ids.filter((id, index) => index !== slot && ADMITTED_AGENTS.find((summary) => summary.id === id)?.specialty === 'Stun').length
       const stunAtk = stuns >= 2 ? values.coreAtkTwoStun : stuns === 1 ? values.coreAtkOneStun : 0
       if (stunAtk) add(stat(core, 'atk', stunAtk))
-      add(operation(core, 'Totalize added DMG Multiplier', values.coreTotalizeMultiplier))
-      add(operation(core, 'Totalize maximum Daze return', values.coreDazeReturn))
-      add(operation(core, 'EX Special Daze against non-Stunned enemies', 1 + values.exNonStunnedDaze / 100, '', 'scale'))
+      add(operation(core, 'totalize-added-dmg-multiplier', 'Totalize added DMG Multiplier', values.coreTotalizeMultiplier))
+      add(operation(core, 'totalize-maximum-daze-return', 'Totalize maximum Daze return', values.coreDazeReturn))
+      add(operation(core, 'ex-special-non-stunned-daze-scale', 'EX Special Daze against non-Stunned enemies', 1 + values.exNonStunnedDaze / 100, '', 'scale'))
       if (qualified) { addMetric('dmgBonus', values.additionalChainDmg, ability, CHAIN); addMetric('dmgBonus', values.additionalTotalizeDmg, ability, HUGO_TOTALIZE) }
       if (setup.mindscape >= 1) { addMetric('critRate', values.mindscapeCritRate, mind(1), undefined, 'combat'); addMetric('critDmg', values.mindscapeCritDmg, mind(1), undefined, 'combat') }
       if (setup.mindscape >= 2) addMetric('defIgnore', values.mindscapeTotalizeDefIgnore, mind(2), HUGO_TOTALIZE)
       if (setup.mindscape >= 4) addMetric('resIgnore', values.mindscapeIceResIgnore, mind(4))
-      if (setup.mindscape >= 6) { addMetric('dmgBonus', values.mindscapeTotalizeDmg, mind(6), HUGO_TOTALIZE); add(operation(mind(6), 'EX Special non-Stunned Totalize added DMG Multiplier', values.mindscapeExTotalizeMultiplier)) }
+      if (setup.mindscape >= 6) { addMetric('dmgBonus', values.mindscapeTotalizeDmg, mind(6), HUGO_TOTALIZE); add(operation(mind(6), 'ex-special-non-stunned-totalize-added-dmg-multiplier', 'EX Special non-Stunned Totalize added DMG Multiplier', values.mindscapeExTotalizeMultiplier)) }
       const damageScopes = [{ id: 'hugoChain', target: CHAIN }, { id: 'hugoUltimate', target: ULT }, { id: 'hugoTotalize', target: HUGO_TOTALIZE }, { id: 'hugoBackAttack', target: BACK }] satisfies readonly ActionScopeNode[]
       actions.push({ metricId: 'dmgBonus', scopes: damageScopes }, { metricId: 'defIgnore', scopes: [{ id: 'hugoBasicUltimateDefIgnore', target: BASIC_ULT }, { id: 'hugoTotalizeDefIgnore', target: HUGO_TOTALIZE }] })
       break
@@ -328,9 +329,9 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
       addMetric('resIgnore', values.potentialIceResIgnore, potential)
       if (setup.mindscape >= 1) addMetric('critRate', values.mindscapeCritRate, mind(1), undefined, 'combat')
       if (setup.mindscape >= 2) addMetric('critDmg', values.mindscapeExCritDmg, mind(2), EX)
-      if (setup.mindscape >= 6) { addMetric('penRatio', values.mindscapePenRatio, mind(6)); addMetric('dmgBonus', values.mindscapeChargedDmg, mind(6), actionTarget([sourceLocalAction('Charged Arctic Ambush')])) }
+      if (setup.mindscape >= 6) { addMetric('penRatio', values.mindscapePenRatio, mind(6)); addMetric('dmgBonus', values.mindscapeChargedDmg, mind(6), actionTarget([sourceLocalAction('ellen-charged-arctic-ambush', 'Charged Arctic Ambush')])) }
       actions.push(
-        { metricId: 'dmgBonus', scopes: [{ id: 'ellenBasicDashDmg', target: BASIC_DASH }, { id: 'ellenCoreActions', target: ELLEN_CORE }, { id: 'ellenEx', target: EX }, { id: 'ellenCharged', target: actionTarget([sourceLocalAction('Charged Arctic Ambush')]) }, { id: 'ellenUltimate', target: ULT }, { id: 'ellenBackAttack', target: BACK }] },
+        { metricId: 'dmgBonus', scopes: [{ id: 'ellenBasicDashDmg', target: BASIC_DASH }, { id: 'ellenCoreActions', target: ELLEN_CORE }, { id: 'ellenEx', target: EX }, { id: 'ellenCharged', target: actionTarget([sourceLocalAction('ellen-charged-arctic-ambush', 'Charged Arctic Ambush')]) }, { id: 'ellenUltimate', target: ULT }, { id: 'ellenBackAttack', target: BACK }] },
         { metricId: 'critDmg', scopes: [{ id: 'ellenCoreCritDmg', target: ELLEN_CORE }, { id: 'ellenExCritDmg', target: EX }] },
         actionProjection('defIgnore', 'ellenBasicUltimateDefIgnore', BASIC_ULT),
       )
@@ -389,9 +390,9 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
       if (setup.mindscape >= 4) addMetric('dmgBonus', VERTICAL_VALUES.orphie.mindscapeActionDmg, mind(4), ORPHIE_HEAT_ULT)
       add({
         kind: 'gauge', source: core,
-        basis: { statId: 'energyRegen', surface: 'initial' }, basisLabel: 'Initial Energy Regen',
+        basis: { statId: 'energyRegen', surface: 'initial' }, basisLabel: 'Initial Energy Regen', basisPresentationId: 'initial-energy-regen',
         basisThreshold: VERTICAL_VALUES.orphie.coreEnergyThreshold, basisCap: 3.7, metricId: 'energyRegen',
-        outputs: [{ label: 'Squad ATK', unit: '', cap: VERTICAL_VALUES.orphie.coreSquadAtkCap, transform: { basisThreshold: VERTICAL_VALUES.orphie.coreEnergyThreshold, basisIncrement: VERTICAL_VALUES.orphie.coreEnergyIncrement, baseOutput: VERTICAL_VALUES.orphie.coreSquadAtkBase, outputIncrement: VERTICAL_VALUES.orphie.coreSquadAtkPerIncrement, outputCap: VERTICAL_VALUES.orphie.coreSquadAtkCap }, emission: { kind: 'provider', delivery: all, effect: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully' } } }],
+        outputs: [{ presentationId: 'squad-atk', label: 'Squad ATK', unit: '', cap: VERTICAL_VALUES.orphie.coreSquadAtkCap, transform: { basisThreshold: VERTICAL_VALUES.orphie.coreEnergyThreshold, basisIncrement: VERTICAL_VALUES.orphie.coreEnergyIncrement, baseOutput: VERTICAL_VALUES.orphie.coreSquadAtkBase, outputIncrement: VERTICAL_VALUES.orphie.coreSquadAtkPerIncrement, outputCap: VERTICAL_VALUES.orphie.coreSquadAtkCap }, emission: { kind: 'provider', delivery: all, effect: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully' } } }],
         decimals: { current: 3, threshold: 1, cap: 1, output: 0, outputCap: 0 },
       })
       actions.push(
@@ -458,8 +459,8 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
         value: veilCap,
         source: selectedCalculationSource(agent, slot, 'veil-vulnerability-cap', 'Veil Vulnerability cap'),
       }
-      add(mod(targetSource, 'stunDmgMultiplier', targetStun - 100, undefined, 'fully', 'Above 100%'))
-      add({ kind: 'projection-gauge', source: targetSource, metricId: 'stunDmgMultiplier', basisLabel: 'Raw Stun DMG Multiplier bonus', basisCap: veilCap, output: { label: 'Veil Vulnerability', unit: '%', transform: { basisIncrement: 1, outputIncrement: 1, outputCap: veilCap }, cap: veilCap } })
+      add(mod(targetSource, 'stunDmgMultiplier', targetStun - 100, undefined, 'fully', { label: 'Above 100%', presentationId: 'above-100-percent' }))
+      add({ kind: 'projection-gauge', source: targetSource, metricId: 'stunDmgMultiplier', basisLabel: 'Raw Stun DMG Multiplier bonus', basisPresentationId: 'raw-stun-dmg-multiplier-bonus', basisCap: veilCap, output: { presentationId: 'veil-vulnerability', label: 'Veil Vulnerability', unit: '%', transform: { basisIncrement: 1, outputIncrement: 1, outputCap: veilCap }, cap: veilCap } })
       actions.push(
         { metricId: 'dmgBonus', scopes: [{ id: 'yeExSpecialDmg', target: YE_EX }, { id: 'yeUltimateDmg', target: YE_ULT }, { id: 'yeBackAttackDmg', target: BACK }] },
         actionProjection('defIgnore', 'yeEnlightenedActionsDefIgnore', YE_M2),
@@ -473,11 +474,11 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
       add({
         kind: 'post-delivery-stat-modifier-gauge', source: core,
         basis: { statId: 'critRate', surface: 'fully' },
-        basisLabel: 'Fully Enabled CRIT Rate', basisValueCap: 100,
+        basisLabel: 'Fully Enabled CRIT Rate', basisPresentationId: 'fully-crit-rate', basisValueCap: 100,
         basisCap: values.frostBuildupCap,
         gaugeMetricId: 'critRate', modifierMetricId: 'anomalyBuildupBonus', action: MIYABI_ICEFIRE_BUILDUP_TARGET,
         modifierSurface: 'fully',
-        output: { label: 'Frost Anomaly Buildup Bonus', value: { kind: 'linear', transform: { basisIncrement: 1, outputIncrement: values.frostBuildupPerCrit, outputCap: values.frostBuildupCap } }, cap: values.frostBuildupCap, unit: '%' },
+        output: { presentationId: 'frost-anomaly-buildup-bonus', label: 'Frost Anomaly Buildup Bonus', value: { kind: 'linear', transform: { basisIncrement: 1, outputIncrement: values.frostBuildupPerCrit, outputCap: values.frostBuildupCap } }, cap: values.frostBuildupCap, unit: '%' },
         decimals: { current: 1, cap: 0, output: 1, outputCap: 0 },
       })
       if (qualified) {
@@ -517,7 +518,7 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
       const values = VERTICAL_VALUES.anton
       addMetric('dmgBonus', values.corePiledriverDmg, core, ANTON_PILEDRIVER)
       addMetric('dmgBonus', values.coreDrillDmg, core, ANTON_DRILL)
-      if (qualified) add(operation(ability, 'Original Shock DMG', values.additionalShockDmg / 100, '', 'scale'))
+      if (qualified) add(operation(ability, 'original-shock-dmg-scale', 'Original Shock DMG', values.additionalShockDmg / 100, '', 'scale'))
       if (setup.mindscape >= 4) add({ kind: 'provider', source: mind(4), delivery: { recipient: 'all-party', formulas: CRIT_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'critRate', region: 'flat', earliestSurface: 'fully', value: values.mindscapeCritRate } })
       if (setup.mindscape >= 6) {
         addMetric('dmgBonus', values.mindscapeBurstDmg, mind(6), ANTON_BURST_BASIC)
@@ -570,7 +571,7 @@ function buildGeneralDamageOutcomeProfile(agent: Agent, state: WorkbenchState, s
             earliestSurface: 'fully',
             action: AFTERSHOCK_TARGET,
             display: { value: 35, unit: '%', decimals: 0 },
-            sourceDetail: '35% of Fully Enabled CRIT DMG',
+            sourceDetail: { label: 'CRIT DMG × 35%', presentationId: 'crit-dmg-times-35-percent' },
           },
         },
       }],

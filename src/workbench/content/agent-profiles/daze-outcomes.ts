@@ -59,31 +59,31 @@ const provider = (src: ReturnType<typeof source>, recipient: 'all-party' | 'focu
 const BASIC_DASH_DODGE = actionTarget([canonicalAction('Basic Attack'), canonicalAction('Dash Attack'), canonicalAction('Dodge Counter')])
 const LYCAON_CHARGED = BASIC_DASH_DODGE
 const BASIC = actionTarget([canonicalAction('Basic Attack')])
-const TRIGGER_HARMONIZING_SHOT = actionTarget([sourceLocalAction('Harmonizing Shot')])
+const TRIGGER_HARMONIZING_SHOT = actionTarget([sourceLocalAction('trigger-harmonizing-shot', 'Harmonizing Shot')])
 const LYCAON_BASIC = actionTarget([canonicalAction('Basic Attack')])
 const LYCAON_EX = actionTarget([canonicalAction('EX Special Attack')])
-const LYCAON_GLACIAL = actionTarget([sourceLocalAction('Glacial Waltz')])
+const LYCAON_GLACIAL = actionTarget([sourceLocalAction('lycaon-glacial-waltz', 'Glacial Waltz')])
 const EX_CHAIN_ULT = actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Chain Attack'), canonicalAction('Ultimate')])
-const LIGHTER_FIVE = actionTarget([sourceLocalAction('Empowered Basic Attack: 5th hit')])
+const LIGHTER_FIVE = actionTarget([sourceLocalAction('lighter-empowered-basic-fifth-hit', 'Empowered Basic Attack: 5th hit')])
 const LIGHTER_BASIC_DASH_DODGE = BASIC_DASH_DODGE
 const LIGHTER_BASIC = actionTarget([canonicalAction('Basic Attack')])
 const QINGYI_BASIC = actionTarget([canonicalAction('Basic Attack')])
-const QINGYI_ENCHANTED = actionTarget([actionForm('Basic Attack', 'Enchanted Moonlit Blossoms')])
+const QINGYI_ENCHANTED = actionTarget([actionForm('Basic Attack', 'qingyi-enchanted-moonlit-blossoms', 'Enchanted Moonlit Blossoms')])
 const QINGYI_CHAIN = actionTarget([canonicalAction('Chain Attack')])
-const KOLEDA_ENHANCED = actionTarget([actionForm('Basic Attack', 'Enhanced Furnace Fire')])
+const KOLEDA_ENHANCED = actionTarget([actionForm('Basic Attack', 'koleda-enhanced-furnace-fire', 'Enhanced Furnace Fire')])
 const KOLEDA_BASIC_DASH_DODGE = BASIC_DASH_DODGE
 const KOLEDA_BASIC = actionTarget([canonicalAction('Basic Attack')])
 const KOLEDA_SPECIAL = actionTarget([canonicalAction('Special Attack')])
 const KOLEDA_EX = actionTarget([canonicalAction('EX Special Attack')])
 const ANBY_BASIC = actionTarget([canonicalAction('Basic Attack')])
-const ANBY_THUNDERBOLT = actionTarget([actionForm('Basic Attack', 'Thunderbolt')])
+const ANBY_THUNDERBOLT = actionTarget([actionForm('Basic Attack', 'anby-thunderbolt', 'Thunderbolt')])
 const ANBY_EX = actionTarget([canonicalAction('EX Special Attack')])
 const ANBY_SPECIAL = actionTarget([canonicalAction('Special Attack')])
 const ANBY_DASH_DODGE = actionTarget([canonicalAction('Dash Attack'), canonicalAction('Dodge Counter')])
-const LYCAON_FULL_EX = actionTarget([actionForm('EX Special Attack', 'Fully charged')])
+const LYCAON_FULL_EX = actionTarget([actionForm('EX Special Attack', 'lycaon-fully-charged', 'Fully charged')])
 const LYCAON_ASSIST = actionTarget([canonicalAction('Assist Follow-Up')])
 const NANGONG_CHAIN = actionTarget([canonicalAction('Chain Attack')])
-const NANGONG_CHARGED_BASIC = actionTarget([actionForm('Basic Attack', 'Charged')])
+const NANGONG_CHARGED_BASIC = actionTarget([actionForm('Basic Attack', 'nangong-charged', 'Charged')])
 const NANGONG_ANOMALY_SCOPES = [
   {
     id: 'nangongAttributeAnomaly', target: ATTRIBUTE_ANOMALY_TARGET,
@@ -93,8 +93,8 @@ const NANGONG_ANOMALY_SCOPES = [
 ] satisfies readonly ActionScopeNode[]
 const PULCHRA_CORE_COMPLETE = actionTarget([canonicalAction('EX Special Attack'), canonicalAction('Assist Follow-Up'), canonicalAction('Chain Attack'), canonicalAction('Ultimate')])
 const NORMA_CORE_DAZE = actionTarget([canonicalAction('Special Attack'), canonicalAction('EX Special Attack'), canonicalAction('Ultimate')])
-const NORMA_ARMOR_PIERCING = actionTarget([sourceLocalAction('Armor-Piercing Warhead')])
-const NORMA_HIGH_EXPLOSIVE = actionTarget([sourceLocalAction('High-Explosive Warhead')])
+const NORMA_ARMOR_PIERCING = actionTarget([sourceLocalAction('norma-armor-piercing-warhead', 'Armor-Piercing Warhead')])
+const NORMA_HIGH_EXPLOSIVE = actionTarget([sourceLocalAction('norma-high-explosive-warhead', 'High-Explosive Warhead')])
 
 function partyAgent(agentId: string) { return ADMITTED_AGENTS.find(({ id }) => id === agentId)! }
 function another(ids: readonly string[], slot: Slot, predicate: (id: string) => boolean) {
@@ -159,12 +159,13 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
       source: core,
       basis: { statId: 'critRate', surface: 'initial' },
       basisLabel: 'Initial CRIT Rate',
+      basisPresentationId: 'initial-crit-rate',
       basisThreshold: VERTICAL_VALUES.norma.coreCritThreshold,
       basisCap: 100,
       metricId: 'critRate',
       outputs: [
         {
-          label: 'Combat CRIT DMG bonus', unit: '%',
+          presentationId: 'combat-crit-dmg-bonus', label: 'Combat CRIT DMG bonus', unit: '%',
           cap: VERTICAL_VALUES.norma.coreCritDmgCap,
           transform: {
             basisThreshold: VERTICAL_VALUES.norma.coreCritThreshold,
@@ -175,7 +176,7 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
           emission: { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'combat' },
         },
         {
-          label: 'Special/EX/Ultimate Daze bonus', unit: '%',
+          presentationId: 'special-ex-ultimate-daze-bonus', label: 'Special/EX/Ultimate Daze bonus', unit: '%',
           cap: VERTICAL_VALUES.norma.coreDazeCap,
           transform: {
             basisThreshold: VERTICAL_VALUES.norma.coreCritThreshold,
@@ -192,9 +193,11 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
       source: core,
       basis: { metricId: 'sheerForce', surface: 'fully' },
       basisLabel: 'Fully Enabled Sheer Force',
+      basisPresentationId: 'fully-sheer-force',
       basisCap: VERTICAL_VALUES.norma.sheerAtkCap / VERTICAL_VALUES.norma.sheerAtkPerPoint,
       output: {
-        label: 'Additional flat ATK',
+        presentationId: 'flat-atk',
+        label: 'flat ATK',
         statId: 'atk',
         region: 'flat',
         transform: {
@@ -216,7 +219,7 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
           value: VERTICAL_VALUES.norma.additionalTechDivide
             * VERTICAL_VALUES.norma.additionalStacks,
         }),
-        { kind: 'operation', atom: { label: 'Enemy Stun duration', value: VERTICAL_VALUES.norma.additionalStunDuration, unit: 's', source: ability } },
+        { kind: 'operation', atom: { presentationId: 'enemy-stun-duration', label: 'Enemy Stun duration', value: VERTICAL_VALUES.norma.additionalStunDuration, unit: 's', source: ability } },
         stat('atk', 'flat', VERTICAL_VALUES.norma.additionalAtk, ability),
         provider(ability, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.norma.additionalDmg }, { formulas: DAMAGE }),
       )
@@ -234,7 +237,7 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
     if (selected >= 1) relationships.push(provider(
       mind(agent, slot, selected, 1),
       'enemy-context',
-      { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.norma.mindscape1ResReduction, sourceDetail: 'Armor-Piercing or High-Explosive Warhead hit' },
+      { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.norma.mindscape1ResReduction, sourceDetail: { label: 'Armor-Piercing or High-Explosive Warhead hit', presentationId: 'armor-piercing-or-high-explosive-warhead-hit' } },
       { formulas: DAMAGE },
     ))
     if (selected >= 6) relationships.push(
@@ -247,8 +250,8 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
       actionProjection('dmgBonus', 'normaHighExplosiveDmg', NORMA_HIGH_EXPLOSIVE),
     )
   } else if (agent === 'dialyn') {
-    relationships.push({ kind: 'gauge', source: core, basis: { statId: 'critRate', surface: 'initial' }, basisLabel: 'Initial CRIT Rate', basisThreshold: VERTICAL_VALUES.dialyn.critThreshold, basisCap: 100, metricId: 'critRate', outputs: [{ label: 'Combat Impact bonus', unit: '', transform: { basisThreshold: VERTICAL_VALUES.dialyn.critThreshold, basisIncrement: 1, outputIncrement: VERTICAL_VALUES.dialyn.impactPerCrit, outputCap: VERTICAL_VALUES.dialyn.impactBonusCap }, emission: { kind: 'stat', statId: 'impact', region: 'flat', earliestSurface: 'combat' } }] } as ProfileRelationship)
-    relationships.push(provider(ability, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.party.dialynDmg }, { formulas: DAMAGE }), provider(core, 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.party.dialynStunMultiplier }), { kind: 'operation', atom: { label: 'Enemy Stun duration', value: VERTICAL_VALUES.party.dialynStunExtension, unit: 's', source: core } })
+    relationships.push({ kind: 'gauge', source: core, basis: { statId: 'critRate', surface: 'initial' }, basisLabel: 'Initial CRIT Rate', basisPresentationId: 'initial-crit-rate', basisThreshold: VERTICAL_VALUES.dialyn.critThreshold, basisCap: 100, metricId: 'critRate', outputs: [{ presentationId: 'combat-impact-bonus', label: 'Combat Impact bonus', unit: '', transform: { basisThreshold: VERTICAL_VALUES.dialyn.critThreshold, basisIncrement: 1, outputIncrement: VERTICAL_VALUES.dialyn.impactPerCrit, outputCap: VERTICAL_VALUES.dialyn.impactBonusCap }, emission: { kind: 'stat', statId: 'impact', region: 'flat', earliestSurface: 'combat' } }] } as ProfileRelationship)
+    relationships.push(provider(ability, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.party.dialynDmg }, { formulas: DAMAGE }), provider(core, 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.party.dialynStunMultiplier }), { kind: 'operation', atom: { presentationId: 'enemy-stun-duration', label: 'Enemy Stun duration', value: VERTICAL_VALUES.party.dialynStunExtension, unit: 's', source: core } })
     if (selected >= 1) relationships.push(provider(mind(agent, slot, selected, 1), 'enemy-context', { kind: 'modifier', metricId: 'resIgnore', earliestSurface: 'fully', value: VERTICAL_VALUES.dialyn.mindscapeResIgnore }))
     if (selected >= 2) relationships.push(provider(mind(agent, slot, selected, 2), 'focus', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.dialyn.mindscapeDmg }), provider(mind(agent, slot, selected, 2), 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.dialyn.mindscapeStunMultiplier }))
   } else if (agent === 'trigger') {
@@ -261,6 +264,7 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
         source: ability,
         basis: { statId: 'critRate', surface: 'fully' },
         basisLabel: 'Fully Enabled CRIT Rate',
+        basisPresentationId: 'fully-crit-rate',
         basisValueCap: 100,
         basisCap: 90,
         gaugeMetricId: 'critRate',
@@ -268,6 +272,7 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
         action: TRIGGER_HARMONIZING_SHOT,
         modifierSurface: 'fully',
         output: {
+          presentationId: 'aftershock-daze-bonus',
           label: 'Aftershock Daze bonus',
           value: {
             kind: 'linear',
@@ -327,12 +332,12 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
     if (selected >= 1) relationships.push(mod('dazeBonus', VERTICAL_VALUES.lycaon.mindscapeExDaze, mind(agent, slot, selected, 1), LYCAON_EX), mod('dazeBonus', VERTICAL_VALUES.lycaon.mindscapeFullChargeDaze, mind(agent, slot, selected, 1), LYCAON_FULL_EX))
     actions.push({ metricId: 'dazeBonus', scopes: [{ id: 'lycaonCharged', target: LYCAON_CHARGED, children: [{ id: 'lycaonBasic', target: LYCAON_BASIC }] }, { id: 'lycaonEx', target: LYCAON_EX, children: [{ id: 'lycaonFullChargeEx', target: LYCAON_FULL_EX }] }, { id: 'lycaonAssist', target: LYCAON_ASSIST }, { id: 'lycaonGlacialWaltz', target: LYCAON_GLACIAL }] }, actionProjection('impact', 'lycaonPotential', LYCAON_CHARGED))
   } else if (agent === 'juFufu') {
-    relationships.push({ kind: 'gauge', source: core, basis: { statId: 'atk', surface: 'initial' }, basisLabel: 'Initial ATK', basisThreshold: VERTICAL_VALUES.juFufu.coreCritDmgThreshold, basisCap: VERTICAL_VALUES.juFufu.coreCritDmgCapAtk, metricId: 'atk', outputs: [{ label: 'Squad CRIT DMG', unit: '%', cap: VERTICAL_VALUES.juFufu.coreCritDmg + VERTICAL_VALUES.juFufu.coreCritDmgBonusCap, transform: { basisThreshold: VERTICAL_VALUES.juFufu.coreCritDmgThreshold, basisIncrement: 100, baseOutput: VERTICAL_VALUES.juFufu.coreCritDmg, outputIncrement: VERTICAL_VALUES.juFufu.coreCritDmgPer100Atk, outputCap: VERTICAL_VALUES.juFufu.coreCritDmg + VERTICAL_VALUES.juFufu.coreCritDmgBonusCap }, emission: { kind: 'provider', delivery: { recipient: 'all-party', formulas: CRIT_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully' } } }] }, provider(core, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.juFufu.coreChainDmg, action: actionTarget([canonicalAction('Chain Attack')]) }, { formulas: DAMAGE }), provider(core, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.juFufu.coreUltimateDmg, action: actionTarget([canonicalAction('Ultimate')]) }, { formulas: DAMAGE }), stat('impact', 'flat', VERTICAL_VALUES.juFufu.coreImpact, core, 'combat'))
+    relationships.push({ kind: 'gauge', source: core, basis: { statId: 'atk', surface: 'initial' }, basisLabel: 'Initial ATK', basisPresentationId: 'initial-atk', basisThreshold: VERTICAL_VALUES.juFufu.coreCritDmgThreshold, basisCap: VERTICAL_VALUES.juFufu.coreCritDmgCapAtk, metricId: 'atk', outputs: [{ presentationId: 'squad-crit-dmg', label: 'Squad CRIT DMG', unit: '%', cap: VERTICAL_VALUES.juFufu.coreCritDmg + VERTICAL_VALUES.juFufu.coreCritDmgBonusCap, transform: { basisThreshold: VERTICAL_VALUES.juFufu.coreCritDmgThreshold, basisIncrement: 100, baseOutput: VERTICAL_VALUES.juFufu.coreCritDmg, outputIncrement: VERTICAL_VALUES.juFufu.coreCritDmgPer100Atk, outputCap: VERTICAL_VALUES.juFufu.coreCritDmg + VERTICAL_VALUES.juFufu.coreCritDmgBonusCap }, emission: { kind: 'provider', delivery: { recipient: 'all-party', formulas: CRIT_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully' } } }] }, provider(core, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.juFufu.coreChainDmg, action: actionTarget([canonicalAction('Chain Attack')]) }, { formulas: DAMAGE }), provider(core, 'all-party', { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.juFufu.coreUltimateDmg, action: actionTarget([canonicalAction('Ultimate')]) }, { formulas: DAMAGE }), stat('impact', 'flat', VERTICAL_VALUES.juFufu.coreImpact, core, 'combat'))
     if (selected >= 1) relationships.push(mod('critRate', VERTICAL_VALUES.juFufu.mindscapeCritRate, mind(agent, slot, selected, 1), undefined, 'combat'), provider(mind(agent, slot, selected, 1), 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.juFufu.mindscapeStunMultiplier, action: actionTarget([canonicalAction('Chain Attack')]) }))
     if (selected >= 2) relationships.push(provider(mind(agent, slot, selected, 2), 'all-party', { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.juFufu.mindscapeSquadCritDmg }, { formulas: CRIT_DAMAGE_FORMULAS }))
   } else if (agent === 'lighter') {
     const active = another(ids, slot, (id) => partyAgent(id).specialty === 'Attack') || sameFaction(ids, slot)
-    relationships.push(provider(core, 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.lighter.coreFireIceResReduction }, { attributes: ['Fire', 'Ice'] }), { kind: 'operation', atom: { label: 'Enemy Stun duration', value: selected >= 1 ? VERTICAL_VALUES.lighter.mindscapeStunExtension : VERTICAL_VALUES.lighter.coreStunExtension, unit: 's', source: selected >= 1 ? mind(agent, slot, selected, 1) : core } })
+    relationships.push(provider(core, 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.lighter.coreFireIceResReduction }, { attributes: ['Fire', 'Ice'] }), { kind: 'operation', atom: { presentationId: 'enemy-stun-duration', label: 'Enemy Stun duration', value: selected >= 1 ? VERTICAL_VALUES.lighter.mindscapeStunExtension : VERTICAL_VALUES.lighter.coreStunExtension, unit: 's', source: selected >= 1 ? mind(agent, slot, selected, 1) : core } })
     if (selected >= 1) relationships.push(provider(mind(agent, slot, selected, 1), 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.lighter.mindscapeFireIceResReduction }, { attributes: ['Fire', 'Ice'] }))
     if (selected >= 2) relationships.push(provider(mind(agent, slot, selected, 2), 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.lighter.mindscapeStunMultiplier }))
     relationships.push({
@@ -343,7 +348,7 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
         earliestSurface: 'fully',
         value: VERTICAL_VALUES.lighter.coreCombatImpact,
         source: core,
-        sourceDetail: 'Empowered Basic Attack: 5th hit',
+        sourceDetail: { label: 'Empowered Basic Attack: 5th hit', presentationId: 'empowered-basic-fifth-hit' },
       },
     })
     if (active) {
@@ -355,10 +360,12 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
         source: ability,
         basis: { statId: 'impact', surface: 'fully' },
         basisLabel: 'Fully Enabled Impact',
+        basisPresentationId: 'fully-impact',
         basisThreshold: VERTICAL_VALUES.lighter.elationBaseImpact,
         basisCap: 270,
         metricId: 'impact',
         outputs: [{
+          presentationId: 'fire-ice-dmg-bonus',
           label: 'Fire/Ice DMG Bonus',
           unit: '%',
           cap: VERTICAL_VALUES.lighter.elationFireIceDmgCap * outputMultiplier,
@@ -397,7 +404,7 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
   } else if (agent === 'qingyi') {
     relationships.push(mod('dmgBonus', VERTICAL_VALUES.qingyi.flashDmg, core, QINGYI_ENCHANTED), mod('dazeBonus', VERTICAL_VALUES.qingyi.flashDaze, core, QINGYI_ENCHANTED), provider(core, 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.qingyi.coreStunMultiplier }), mod('dmgBonus', VERTICAL_VALUES.qingyi.coreChainDmg, core, QINGYI_CHAIN))
     if (qingyiAdditionalIsActive(ids, slot)) relationships.push(mod('dazeBonus', VERTICAL_VALUES.qingyi.additionalBasicDaze, ability, QINGYI_BASIC))
-    if (qingyiAdditionalIsActive(ids, slot)) relationships.push({ kind: 'gauge', source: ability, basis: { statId: 'impact', surface: 'each' }, basisLabel: 'Fully Enabled Impact', basisThreshold: VERTICAL_VALUES.qingyi.additionalImpactThreshold, basisCap: VERTICAL_VALUES.qingyi.additionalImpactCap, metricId: 'impact', outputs: [{ label: 'Additional flat ATK', unit: '', cap: VERTICAL_VALUES.qingyi.additionalAtkCap, transform: { basisThreshold: VERTICAL_VALUES.qingyi.additionalImpactThreshold, basisIncrement: 1, outputIncrement: VERTICAL_VALUES.qingyi.additionalAtkPerImpact, outputCap: VERTICAL_VALUES.qingyi.additionalAtkCap }, emission: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'initial' } }] })
+    if (qingyiAdditionalIsActive(ids, slot)) relationships.push({ kind: 'gauge', source: ability, basis: { statId: 'impact', surface: 'each' }, basisLabel: 'Fully Enabled Impact', basisPresentationId: 'fully-impact', basisThreshold: VERTICAL_VALUES.qingyi.additionalImpactThreshold, basisCap: VERTICAL_VALUES.qingyi.additionalImpactCap, metricId: 'impact', outputs: [{ presentationId: 'flat-atk', label: 'flat ATK', unit: '', cap: VERTICAL_VALUES.qingyi.additionalAtkCap, transform: { basisThreshold: VERTICAL_VALUES.qingyi.additionalImpactThreshold, basisIncrement: 1, outputIncrement: VERTICAL_VALUES.qingyi.additionalAtkPerImpact, outputCap: VERTICAL_VALUES.qingyi.additionalAtkCap }, emission: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'initial' } }] })
     if (selected >= 1) relationships.push(mod('critRate', VERTICAL_VALUES.qingyi.mindscapeCritRate, mind(agent, slot, selected, 1)))
     if (selected >= 2) relationships.push(provider(mind(agent, slot, selected, 2), 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.qingyi.mindscapeStunMultiplier - VERTICAL_VALUES.qingyi.coreStunMultiplier }), mod('dazeBonus', VERTICAL_VALUES.qingyi.mindscapeDaze, mind(agent, slot, selected, 2)))
     if (selected >= 6) relationships.push(mod('critDmg', VERTICAL_VALUES.qingyi.mindscapeEnchantedCritDmg, mind(agent, slot, selected, 6), QINGYI_ENCHANTED), provider(mind(agent, slot, selected, 6), 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.qingyi.mindscapeResReduction }, { formulas: DAMAGE }))
@@ -415,10 +422,11 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
       kind: 'gauge', source: core,
       basis: { statId: 'anomalyMastery', surface: 'initial' },
       basisLabel: 'Initial Anomaly Mastery',
+      basisPresentationId: 'initial-anomaly-mastery',
       basisThreshold: VERTICAL_VALUES.nangongYu.coreImpactThreshold,
       metricId: 'anomalyMastery',
       outputs: [{
-        label: 'Impact', unit: '',
+        presentationId: 'impact', label: 'Impact', unit: '',
         transform: { basisThreshold: VERTICAL_VALUES.nangongYu.coreImpactThreshold, basisIncrement: 1, outputIncrement: VERTICAL_VALUES.nangongYu.coreImpactPerMastery },
         emission: { kind: 'stat', statId: 'impact', region: 'flat', earliestSurface: 'combat' },
       }],
@@ -433,10 +441,10 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
       add(provider(ability, 'all-party', { kind: 'modifier', metricId: 'anomalyBuildupBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.additionalChainBuildup, action: NANGONG_CHAIN }, { formulas: ['anomaly_buildup'] }))
       add(provider(ability, 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.additionalStunMultiplier }, { formulas: DAMAGE }))
       if (setup.mindscape >= 2) add(provider(mind(agent, slot, selected, 2), 'enemy-context', { kind: 'modifier', metricId: 'stunDmgMultiplier', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.mindscape2StunMultiplier - VERTICAL_VALUES.nangongYu.additionalStunMultiplier }, { formulas: DAMAGE }))
-      add({ kind: 'operation', atom: { label: 'Enemy Stun duration', value: VERTICAL_VALUES.nangongYu.additionalStunDuration, unit: 's', source: ability } })
+      add({ kind: 'operation', atom: { presentationId: 'enemy-stun-duration', label: 'Enemy Stun duration', value: VERTICAL_VALUES.nangongYu.additionalStunDuration, unit: 's', source: ability } })
     }
     add({ kind: 'provider', source: ultimate, delivery: { recipient: 'all-party', formulas: DAMAGE }, effect: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.ultimateAtk } })
-    add({ kind: 'operation', atom: { label: 'Added Abloom DMG Multiplier', value: setup.mindscape >= 2 ? VERTICAL_VALUES.nangongYu.mindscape2AddedAbloomMultiplier : VERTICAL_VALUES.nangongYu.addedAbloomMultiplier, unit: '%', source: setup.mindscape >= 2 ? mind(agent, slot, selected, 2) : core } })
+    add({ kind: 'operation', atom: { presentationId: 'added-abloom-dmg-multiplier', label: 'Added Abloom DMG Multiplier', value: setup.mindscape >= 2 ? VERTICAL_VALUES.nangongYu.mindscape2AddedAbloomMultiplier : VERTICAL_VALUES.nangongYu.addedAbloomMultiplier, unit: '%', source: setup.mindscape >= 2 ? mind(agent, slot, selected, 2) : core } })
     if (setup.mindscape >= 1) add(provider(mind(agent, slot, selected, 1), 'enemy-context', { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.mindscape1ResReduction }, { formulas: DAMAGE }))
     if (setup.mindscape >= 4) {
       add({ kind: 'stat', atom: { statId: 'anomalyProficiency', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.nangongYu.mindscape4Ap, source: mind(agent, slot, selected, 4) } })

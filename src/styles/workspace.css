@@ -1032,9 +1032,7 @@ button.main-stat-block:focus-visible {
   .agent-result tbody tr:not(.breakdown-row) > th,
   .agent-result tbody tr:not(.breakdown-row) > td { display: grid; grid-template-columns: 1fr auto; align-items: center; width: 100%; border-bottom: 1px solid #cbc4b7; text-align: right; }
   .agent-result tbody tr:not(.breakdown-row) > td { padding: 7px 9px; font-size: 11px; }
-  .agent-result tbody tr:not(.breakdown-row) > td:nth-of-type(1)::before { content: "Initial"; }
-  .agent-result tbody tr:not(.breakdown-row) > td:nth-of-type(2)::before { content: "Combat"; }
-  .agent-result tbody tr:not(.breakdown-row) > td:nth-of-type(3)::before { content: "Fully enabled"; }
+  .agent-result tbody tr:not(.breakdown-row) > td::before { content: attr(data-surface-label); }
   .agent-result tbody tr:not(.breakdown-row) > td::before { justify-self: start; color: #706a61; font: 800 7px/1 var(--mono); text-transform: uppercase; }
   .agent-result tbody tr:not(.breakdown-row) > td .result-value { justify-self: end; }
   .breakdown-row { display: block; }

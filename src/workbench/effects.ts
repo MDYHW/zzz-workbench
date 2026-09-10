@@ -1,7 +1,8 @@
 import type { ActionTarget } from './actions'
+import type { PresentationDetail } from '../presentation'
 import type { HighestOnlyComposition } from './calculation/relationships'
 import type { SelectedSourceInstance } from './calculation/source-instance'
-import type { SourceDefinitionLocus } from './content/source-definitions'
+import type { SourceDefinitionKey, SourceDefinitionLocus } from './content/source-definitions'
 import {
   DRIVE_DISC_FACTS,
   DRIVE_DISCS,
@@ -19,8 +20,10 @@ export type SourceLocus = SourceDefinitionLocus
 export interface ResultSource {
   label: string
   detail?: string
+  detailParts?: readonly PresentationDetail[]
   ownerAgentId: AgentId
   locus: SourceLocus
+  sourceKey?: SourceDefinitionKey
 }
 
 export interface ResolvedSetupInput {
@@ -58,7 +61,9 @@ export const source = (
   ownerAgentId: AgentId,
   locus: SourceLocus,
   detail?: string,
-): ResultSource => ({ label, detail, ownerAgentId, locus })
+  sourceKey?: SourceDefinitionKey,
+  detailParts?: ResultSource['detailParts'],
+): ResultSource => ({ label, detail, detailParts, ownerAgentId, locus, sourceKey })
 
 type InitialDiscStatModifier =
   | 'maxHp' | 'atk' | 'impact' | 'critRate' | 'critDmg'
@@ -92,6 +97,8 @@ function discSource(
     agentId,
     ownerPiece === '4-piece' ? 'disc-4pc' : 'disc-2pc',
     '2-piece',
+    { kind: 'drive-disc', discId, piece: ownerPiece },
+    [{ presentationId: 'disc-piece-2', label: '2-piece' }],
   )
 }
 

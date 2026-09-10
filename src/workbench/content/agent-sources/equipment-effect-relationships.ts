@@ -8,6 +8,7 @@ import type { SelectedSourceInstance } from '../../calculation/source-instance'
 import type { EffectMetric, SurfaceKey } from '../../effects'
 import { equipmentEffectStatMeaning } from '../stat-meanings'
 import type { EquipmentEffectFact } from '../types'
+import type { PresentationDetail } from '../../../presentation'
 import { equipmentEffectActionTargets } from './equipment-eligibility'
 import { equipmentProviderRelationship } from './equipment-provider'
 
@@ -50,7 +51,7 @@ export interface EquipmentEffectProjection {
   action?: ActionTarget | null
   /** Keeps an established Result metric surface instead of composing an ordinary stat. */
   projection?: 'modifier'
-  sourceDetail?: string
+  sourceDetail?: PresentationDetail
 }
 
 /**

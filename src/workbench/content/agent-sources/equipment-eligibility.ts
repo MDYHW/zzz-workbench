@@ -1,8 +1,27 @@
-import { actionTarget, canonicalAction, sourceLocalAction, type ActionTarget } from '../../actions'
+import {
+  actionTarget,
+  canonicalAction,
+  sourceLocalAction,
+  type ActionTarget,
+  type SourceLocalOutcomeId,
+} from '../../actions'
 import { effectAttributeForAgent, effectAttributeForPartySlot } from '../../formula-policy'
 import { ADMITTED_AGENTS, agentCanPerformOperation } from '../agents'
 import type { OperatingInterval } from '../setup-policies'
-import type { AgentId, EquipmentEffectFact } from '../types'
+import type { AgentId, EquipmentEffectAnomalyResult, EquipmentEffectFact } from '../types'
+
+function anomalyResultPresentationId(
+  result: EquipmentEffectAnomalyResult,
+): Exclude<SourceLocalOutcomeId, 'flavor-match'> {
+  switch (result) {
+    case 'Attribute Anomaly': return 'attribute-anomaly'
+    case 'Disorder': return 'disorder'
+    case 'Windswept': return 'windswept'
+    case 'Vortex': return 'vortex'
+    case 'Abloom': return 'abloom'
+    case 'Refringe': return 'refringe'
+  }
+}
 
 /** Derives independent source-stated outcome and tag target groups. */
 export function equipmentEffectActionTargets(
@@ -11,10 +30,10 @@ export function equipmentEffectActionTargets(
   const scope = effect.scope
   const actions = (scope?.actions ?? []).map(canonicalAction)
   const anomalyResults = (scope?.anomalyResults ?? []).map((result) => (
-    actionTarget([sourceLocalAction(result)])
+    actionTarget([sourceLocalAction(anomalyResultPresentationId(result), result)])
   ))
   const conditions = scope?.condition === 'backAttack'
-    ? [actionTarget([sourceLocalAction('Back attacks')])]
+    ? [actionTarget([sourceLocalAction('back-attacks', 'Back attacks')])]
     : []
   const tags = [...(scope?.tags ?? [])]
   return [

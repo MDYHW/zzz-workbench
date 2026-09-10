@@ -6,7 +6,6 @@ import {
   MAIN_STATS,
   mainStatDisplay,
   ADMITTED_AGENTS,
-  agentDisplayName,
   SEED_SETUP_PASSIVE_LINES,
   W_ENGINES,
   type AgentAttribute,
@@ -19,6 +18,16 @@ import {
   type Refinement,
   type SubstatChoice,
 } from '../workbench/content'
+import {
+  localizedAgentName,
+  localizedDiscName,
+  localizedDiscEffectLine,
+  localizedEngineName,
+  localizedEnginePassiveLine,
+  localizedPresentation,
+  localizedStat,
+  useLocalization,
+} from '../localization'
 import { effectiveSubstatChoices } from '../workbench/candidates'
 import type { AgentSetupState, AppliedSlot, Mindscape, WorkbenchAction } from '../workbench/state'
 import {
@@ -57,17 +66,18 @@ function PoolSelection({
   mindscape: Mindscape
   pool: PoolId
 } & SourceInteractionProps) {
+  const { locale, t } = useLocalization()
   return (
     <section className="setup-group pool-fieldset" aria-labelledby={agentId + '-loadout-heading'}>
-      <h3 id={agentId + '-loadout-heading'}><span>01</span> Loadout</h3>
+      <h3 id={agentId + '-loadout-heading'}><span>01</span> {t('loadout')}</h3>
       <div className="loadout-control-grid">
         <div
           className={targetClass('mindscape-control', 'mindscape', activeSourceTone)}
           data-source-tone="mindscape"
           {...sourceToneEvents('mindscape', onSourceToneChange)}
         >
-          <h4 className="loadout-control__group-heading">Mindscape</h4>
-          <div className="mindscape-rail" role="group" aria-label="Mindscape">
+          <h4 className="loadout-control__group-heading">{t('mindscape')}</h4>
+          <div className="mindscape-rail" role="group" aria-label={t('mindscape')}>
             {([0, 1, 2, 3, 4, 5, 6] as Mindscape[]).map((level) => (
               <button
                 type="button"
@@ -82,32 +92,33 @@ function PoolSelection({
           </div>
         </div>
         <div className="pool-control">
-          <h4 className="loadout-control__group-heading">W-Engine Pool</h4>
+          <h4 className="loadout-control__group-heading">{t('enginePool')}</h4>
           <div className="segmented-control">
             <button
               type="button"
               className={pool === 'full' ? 'is-selected' : ''}
-              aria-label="Full pool"
+              aria-label={locale === 'ko' ? '전체 W-엔진 범위' : 'Full pool'}
               aria-pressed={pool === 'full'}
               onClick={() => dispatch({ type: 'switchPool', slot, pool: 'full' })}
             >
-              Full
+              {t('full')}
             </button>
             <button
               type="button"
               className={pool === 'nonLimited' ? 'is-selected' : ''}
               aria-pressed={pool === 'nonLimited'}
+              aria-label={locale === 'ko' ? '상시 범위: 한정 S급 W-엔진을 제외하고 등록된 상시 S급과 A급 W-엔진 포함' : 'Non-limited pool: excludes limited S-Rank W-Engines and includes admitted non-limited S-Rank and A-Rank W-Engines'}
               onClick={() => dispatch({ type: 'switchPool', slot, pool: 'nonLimited' })}
             >
-              Non-limited
+              {t('nonLimited')}
             </button>
           </div>
         </div>
       </div>
       {agentId === 'seed' && (
-        <div className="equipment-effects" aria-label="Seed Additional Ability">
+        <div className="equipment-effects" aria-label={locale === 'ko' ? '시드 추가 능력' : 'Seed Additional Ability'}>
           {SEED_SETUP_PASSIVE_LINES.map((line) => (
-            <span key={line}>Additional Ability · {line}</span>
+            <span key={line}>{locale === 'ko' ? '추가 능력' : 'Additional Ability'} · {localizedPresentation('seed-additional-setup', line, locale)}</span>
           ))}
         </div>
       )}
@@ -136,6 +147,7 @@ function SelectionSurface({
   fixedRef?: Ref<HTMLDivElement>
   fixedTabIndex?: number
 }) {
+  const { t } = useLocalization()
   return editable ? (
     <button
       type="button"
@@ -158,7 +170,7 @@ function SelectionSurface({
       tabIndex={fixedTabIndex}
     >
       {children}
-      <span className="selection-surface__fixed" role="img" aria-label="Fixed selection" />
+      <span className="selection-surface__fixed" role="img" aria-label={t('fixedSelection')} />
     </div>
   )
 }
@@ -176,10 +188,15 @@ function EngineCard({
   compact?: boolean
   candidate?: boolean
 }) {
+  const { locale } = useLocalization()
   const engine = W_ENGINES[engineId]
-  const passiveLines = engine.passiveLines(refinement)
+  const passiveLines = engine.passiveLines(refinement).map((line, index) => (
+    localizedEnginePassiveLine(engineId, index, line, locale)
+  ))
+  const engineName = localizedEngineName(engineId, locale)
+  const advancedStatLabel = localizedStat(engine.advancedStat.id, engine.advancedStat.label, locale)
   const accessibleDescription = [
-    `${engine.advancedStat.label} +${engine.advancedStat.value}${engine.advancedStat.unit}`,
+    `${advancedStatLabel} +${engine.advancedStat.value}${engine.advancedStat.unit}`,
     ...passiveLines,
   ].join('. ')
   return (
@@ -189,13 +206,13 @@ function EngineCard({
       </span>
       <span className="equipment-copy">
         <span className="equipment-name-line">
-          <strong>{engine.name}</strong>
+          <strong>{engineName}</strong>
           <span className="equipment-rank">
             {candidate ? engine.rank + ' / W' + refinement : engine.rank}
           </span>
         </span>
         <span className="equipment-advanced">
-          {engine.advancedStat.label}
+          {advancedStatLabel}
           <b>+{engine.advancedStat.value}{engine.advancedStat.unit}</b>
         </span>
         {!compact && (
@@ -226,6 +243,7 @@ function EngineSelection({
   openSelector: string | null
   setOpenSelector: (value: string | null) => void
 } & SourceInteractionProps) {
+  const { locale, t } = useLocalization()
   const engineId = setup.engineId
   const refinement = setup.refinement
   if (!engineId || !refinement) return null
@@ -244,13 +262,13 @@ function EngineSelection({
       aria-labelledby={agentId + '-engine-heading'}
       {...sourceToneEvents('w-engine', onSourceToneChange)}
     >
-      <h3 id={agentId + '-engine-heading'}><span>02</span> W-Engine</h3>
+      <h3 id={agentId + '-engine-heading'}><span>02</span> {t('engine')}</h3>
       <div className="selection-stack">
         <SelectionSurface
           ariaLabel={
             alternatives.length
-              ? `Change W-Engine from ${W_ENGINES[engineId].name}`
-              : `${W_ENGINES[engineId].name} selected`
+              ? locale === 'ko' ? `${localizedEngineName(engineId, locale)}에서 W-엔진 변경` : `Change W-Engine from ${localizedEngineName(engineId, locale)}`
+              : locale === 'ko' ? `${localizedEngineName(engineId, locale)} 선택됨` : `${localizedEngineName(engineId, locale)} selected`
           }
           editable={alternatives.length > 0}
           expanded={isOpen}
@@ -265,7 +283,7 @@ function EngineSelection({
           />
         </SelectionSurface>
         {isOpen && (
-          <div className="selector-region selector-region--engine" aria-label="W-Engine candidates">
+          <div className="selector-region selector-region--engine" aria-label={locale === 'ko' ? 'W-엔진 후보' : 'W-Engine candidates'}>
             {alternatives.map((candidateId) => {
               const candidate = W_ENGINES[candidateId]
               const candidateDescriptionId = `${agentId}-${candidateId}-engine-candidate-details`
@@ -274,7 +292,7 @@ function EngineSelection({
                   type="button"
                   className="selector-candidate selector-candidate--engine"
                   key={candidateId}
-                  aria-label={`Select ${candidate.name} W${defaultRefinementFor(candidate.rank)}`}
+                  aria-label={locale === 'ko' ? `${localizedEngineName(candidateId, locale)} W${defaultRefinementFor(candidate.rank)} 선택` : `Select ${candidate.name} W${defaultRefinementFor(candidate.rank)}`}
                   aria-describedby={candidateDescriptionId}
                   onClick={() => {
                     dispatch({ type: 'selectEngine', slot, engineId: candidateId })
@@ -297,7 +315,7 @@ function EngineSelection({
       <div
         className="refinement-control"
         role="group"
-        aria-label={W_ENGINES[engineId].name + ' refinement'}
+        aria-label={locale === 'ko' ? `${localizedEngineName(engineId, locale)} 개조 단계` : W_ENGINES[engineId].name + ' refinement'}
       >
         <div>
           {([1, 2, 3, 4, 5] as Refinement[]).map((rank) => (
@@ -324,19 +342,22 @@ function EngineSelection({
 function DiscEffectRows({
   discId,
   fourPieceEffects,
+  holderAttribute,
   piece,
 }: {
   discId: DiscId
   fourPieceEffects: readonly string[]
+  holderAttribute: AgentAttribute
   piece: 'fourPiece' | 'twoPiece'
 }) {
+  const { locale } = useLocalization()
   const disc = DRIVE_DISCS[discId]
   if (piece === 'twoPiece') {
     return (
       <span className="disc-effect-rows disc-effect-rows--two-piece">
         <span>
-          <small>2PC</small>
-          <b>{disc.twoPieceEffect}</b>
+          <small>{locale === 'ko' ? '2세트' : '2PC'}</small>
+          <b>{localizedDiscEffectLine(discId, 'twoPiece', 0, disc.twoPieceEffect, locale, holderAttribute)}</b>
         </span>
       </span>
     )
@@ -346,13 +367,13 @@ function DiscEffectRows({
     <span className="disc-effect-rows disc-effect-rows--four-piece">
       {fourPieceEffects.map((effect, index) => (
         <span key={effect}>
-          <small>{index === 0 ? '4PC' : ''}</small>
-          <b>{effect}</b>
+          <small>{index === 0 ? (locale === 'ko' ? '4세트' : '4PC') : ''}</small>
+          <b>{localizedDiscEffectLine(discId, 'fourPiece', index, effect, locale, holderAttribute)}</b>
         </span>
       ))}
       <span className="disc-effect-row--two-piece">
-        <small>2PC</small>
-        <b>{disc.twoPieceEffect}</b>
+        <small>{locale === 'ko' ? '2세트' : '2PC'}</small>
+        <b>{localizedDiscEffectLine(discId, 'twoPiece', 0, disc.twoPieceEffect, locale, holderAttribute)}</b>
       </span>
     </span>
   )
@@ -371,23 +392,36 @@ function DiscCard({
   piece: 'fourPiece' | 'twoPiece'
   showHead?: boolean
 }) {
+  const { locale } = useLocalization()
   const disc = DRIVE_DISCS[discId]
   const fourPieceEffects = disc.fourPieceEffectsForHolder?.(holderAttribute)
     ?? disc.fourPieceEffects
     ?? []
   const accessibleDescription = piece === 'fourPiece'
-    ? [...fourPieceEffects, disc.twoPieceEffect].join('. ')
-    : disc.twoPieceEffect
+    ? [
+        ...fourPieceEffects.map((effect, index) => localizedDiscEffectLine(discId, 'fourPiece', index, effect, locale, holderAttribute)),
+        localizedDiscEffectLine(discId, 'twoPiece', 0, disc.twoPieceEffect, locale, holderAttribute),
+      ].join('. ')
+    : localizedDiscEffectLine(discId, 'twoPiece', 0, disc.twoPieceEffect, locale, holderAttribute)
   return (
     <>
       {showHead && (
-        <small className="disc-card__head">{piece === 'fourPiece' ? '4PC' : '2PC'}</small>
+        <small className="disc-card__head">{
+          locale === 'ko'
+            ? piece === 'fourPiece' ? '4세트' : '2세트'
+            : piece === 'fourPiece' ? '4PC' : '2PC'
+        }</small>
       )}
       <span className="equipment-art equipment-art--disc">
         <img src={disc.image} alt="" />
       </span>
       <span className="equipment-copy">
-        <DiscEffectRows discId={discId} fourPieceEffects={fourPieceEffects} piece={piece} />
+        <DiscEffectRows
+          discId={discId}
+          fourPieceEffects={fourPieceEffects}
+          holderAttribute={holderAttribute}
+          piece={piece}
+        />
       </span>
       {descriptionId && <span className="sr-only" id={descriptionId}>{accessibleDescription}</span>}
     </>
@@ -421,6 +455,7 @@ function DiscSelection({
   otherPieceId: DiscId | null
   setOpenSelector: (value: string | null) => void
 } & SourceInteractionProps) {
+  const { locale, t } = useLocalization()
   const tone = piece === 'fourPiece' ? 'disc-4pc' : 'disc-2pc'
   const selectorId = `${agentId}-${piece}`
   const alternatives = piece === 'twoPiece'
@@ -431,10 +466,10 @@ function DiscSelection({
       || Boolean(selectedId && twoPieceCandidates.includes(selectedId))
     ))
   const isOpen = openSelector === selectorId
-  const selectedName = selectedId ? DRIVE_DISCS[selectedId].name : null
+  const selectedName = selectedId ? localizedDiscName(selectedId, locale) : null
   const holderAttribute = ADMITTED_AGENTS.find(({ id }) => id === agentId)!.attribute
   const selectedDescriptionId = selectedId ? `${selectorId}-details` : undefined
-  const pieceLabel = piece === 'fourPiece' ? '4-piece' : '2-piece'
+  const pieceLabel = piece === 'fourPiece' ? (locale === 'ko' ? '4세트' : '4-piece') : (locale === 'ko' ? '2세트' : '2-piece')
   const focusTargetRef = useRef<HTMLElement | null>(null)
   const [shouldReturnFocus, setShouldReturnFocus] = useState(false)
 
@@ -453,10 +488,10 @@ function DiscSelection({
       <SelectionSurface
         ariaLabel={
           selectedId === null
-            ? `${pieceLabel} Drive Disc required`
+            ? locale === 'ko' ? `${pieceLabel} 디스크 선택 필요` : `${pieceLabel} Drive Disc required`
             : alternatives.length
-              ? `Change ${pieceLabel} Drive Disc from ${selectedName}`
-              : `${selectedName} selected as ${pieceLabel}`
+              ? locale === 'ko' ? `${selectedName}에서 ${pieceLabel} 디스크 변경` : `Change ${pieceLabel} Drive Disc from ${selectedName}`
+              : locale === 'ko' ? `${selectedName}, ${pieceLabel}로 선택됨` : `${selectedName} selected as ${pieceLabel}`
         }
         editable={selectedId === null || alternatives.length > 0}
         expanded={isOpen}
@@ -477,25 +512,25 @@ function DiscSelection({
         ) : (
           <span className="disc-required">
             <small className="disc-card__head">{piece === 'fourPiece' ? '4PC' : '2PC'}</small>
-            <strong>Drive Disc required</strong>
-            <span>Select</span>
+            <strong>{locale === 'ko' ? '디스크 선택 필요' : 'Drive Disc required'}</strong>
+            <span>{t('select')}</span>
           </span>
         )}
       </SelectionSurface>
       {isOpen && (
         <div
           className="selector-region selector-region--disc"
-          aria-label={piece + ' Drive Disc candidates'}
+          aria-label={locale === 'ko' ? `${pieceLabel} 디스크 후보` : piece + ' Drive Disc candidates'}
         >
           {alternatives.map((candidateId) => {
-            const candidateName = DRIVE_DISCS[candidateId].name
+            const candidateName = localizedDiscName(candidateId, locale)
             const candidateDescriptionId = `${selectorId}-${candidateId}-candidate-details`
             return (
               <button
                 type="button"
                 className="selector-candidate selector-candidate--disc"
                 key={candidateId}
-                aria-label={`Select ${candidateName} as ${piece}`}
+                aria-label={locale === 'ko' ? `${candidateName}을(를) ${pieceLabel}로 선택` : `Select ${candidateName} as ${piece}`}
                 aria-describedby={candidateDescriptionId}
                 onClick={() => {
                   dispatch({ type: 'selectDisc', slot, piece, discId: candidateId })
@@ -539,6 +574,7 @@ function MainStatSelection({
   setOpenSelector: (value: string | null) => void
   mainSlot: MainSlot
 } & SourceInteractionProps) {
+  const { locale, t } = useLocalization()
   const tone = `disc-slot-${mainSlot.replace('slot', '')}`
   const selectorId = `${agentId}-${mainSlot}`
   const alternatives = mainStatId === null
@@ -557,9 +593,9 @@ function MainStatSelection({
 
   const selectedContent = selected && (
     <>
-      <small className="main-stat-block__slot">DISC {mainSlot.replace('slot', '')}</small>
+      <small className="main-stat-block__slot">{locale === 'ko' ? '디스크' : 'DISC'} {mainSlot.replace('slot', '')}</small>
       <span className="main-stat-block__details">
-        <span>{selected.label}</span>
+        <span>{localizedStat(mainStatId!, selected.label, locale)}</span>
         <strong>{mainStatDisplay(selected.numericValue, selected.unit)}</strong>
       </span>
     </>
@@ -567,10 +603,10 @@ function MainStatSelection({
 
   const requiredContent = (
     <>
-      <small className="main-stat-block__slot">DISC {mainSlot.replace('slot', '')}</small>
+      <small className="main-stat-block__slot">{locale === 'ko' ? '디스크' : 'DISC'} {mainSlot.replace('slot', '')}</small>
       <span className="main-stat-block__details main-stat-block__details--required">
-        <span>Main stat required</span>
-        <strong>Select</strong>
+        <span>{locale === 'ko' ? '주옵션 선택 필요' : 'Main stat required'}</span>
+        <strong>{t('select')}</strong>
       </span>
     </>
   )
@@ -586,8 +622,8 @@ function MainStatSelection({
           type="button"
           className={`main-stat-block main-stat-block--editable${mainStatId === null ? ' main-stat-block--required' : ''}`}
           aria-label={mainStatId === null
-            ? `Disc ${mainSlot.replace('slot', '')} main stat required`
-            : `Change Disc ${mainSlot.replace('slot', '')} main stat from ${selected!.label}`}
+            ? locale === 'ko' ? `디스크 ${mainSlot.replace('slot', '')}번 주옵션 선택 필요` : `Disc ${mainSlot.replace('slot', '')} main stat required`
+            : locale === 'ko' ? `디스크 ${mainSlot.replace('slot', '')}번 주옵션 ${localizedStat(mainStatId!, selected!.label, locale)}에서 변경` : `Change Disc ${mainSlot.replace('slot', '')} main stat from ${selected!.label}`}
           aria-expanded={isOpen}
           ref={(node) => { focusTargetRef.current = node }}
           onClick={() => setOpenSelector(isOpen ? null : selectorId)}
@@ -598,18 +634,18 @@ function MainStatSelection({
       ) : (
         <div
           className="main-stat-block main-stat-block--fixed"
-          aria-label={`Disc ${mainSlot.replace('slot', '')} ${selected!.label} selected`}
+          aria-label={locale === 'ko' ? `디스크 ${mainSlot.replace('slot', '')}번 ${localizedStat(mainStatId!, selected!.label, locale)} 선택됨` : `Disc ${mainSlot.replace('slot', '')} ${selected!.label} selected`}
           ref={(node) => { focusTargetRef.current = node }}
           tabIndex={-1}
         >
           {selectedContent}
-          <span className="main-stat-block__fixed" role="img" aria-label="Fixed selection" />
+          <span className="main-stat-block__fixed" role="img" aria-label={t('fixedSelection')} />
         </div>
       )}
       {isOpen && (
         <div
           className="selector-region selector-region--main"
-          aria-label={'Disc ' + mainSlot.replace('slot', '') + ' main-stat candidates'}
+          aria-label={locale === 'ko' ? `디스크 ${mainSlot.replace('slot', '')}번 주옵션 후보` : 'Disc ' + mainSlot.replace('slot', '') + ' main-stat candidates'}
         >
           {alternatives.map((candidateId) => {
             const candidate = MAIN_STATS[candidateId]
@@ -617,7 +653,7 @@ function MainStatSelection({
               <button
                 type="button"
                 key={candidateId}
-                aria-label={`Select ${candidate.label} for Disc ${mainSlot.replace('slot', '')}`}
+                aria-label={locale === 'ko' ? `디스크 ${mainSlot.replace('slot', '')}번에 ${localizedStat(candidateId, candidate.label, locale)} 선택` : `Select ${candidate.label} for Disc ${mainSlot.replace('slot', '')}`}
                 onClick={() => {
                   dispatch({
                     type: 'selectMainStat',
@@ -629,7 +665,7 @@ function MainStatSelection({
                   setShouldReturnFocus(true)
                 }}
               >
-                <span>{candidate.label}</span>
+                <span>{localizedStat(candidateId, candidate.label, locale)}</span>
                 <strong>{mainStatDisplay(candidate.numericValue, candidate.unit)}</strong>
               </button>
             )
@@ -661,12 +697,13 @@ function EquipmentSelection({
   openSelector: string | null
   setOpenSelector: (value: string | null) => void
 } & SourceInteractionProps) {
+  const { t } = useLocalization()
   return (
     <section
       className="setup-group prepared-block"
       aria-labelledby={agentId + '-disc-heading'}
     >
-      <h3 id={agentId + '-disc-heading'}><span>03</span> Drive Discs</h3>
+      <h3 id={agentId + '-disc-heading'}><span>03</span> {t('driveDiscs')}</h3>
       <div className="disc-grid">
         <DiscSelection
           activeSourceTone={activeSourceTone}
@@ -714,6 +751,7 @@ function SubstatStepper({
   onSourceToneChange,
   perHit,
   requiredDescriptionId,
+  statId,
   tone,
   unit,
 }: {
@@ -724,11 +762,14 @@ function SubstatStepper({
   onSetCount: (value: number) => void
   perHit: number
   requiredDescriptionId: string
+  statId: string
   tone: string
   unit: string
 } & SourceInteractionProps) {
+  const { locale } = useLocalization()
   const [draft, setDraft] = useState(count === undefined ? '' : String(count))
-  const displayLabel = label === 'Anomaly Proficiency' ? 'AP' : label
+  const translatedLabel = localizedStat(statId, label, locale)
+  const displayLabel = label === 'Anomaly Proficiency' ? (locale === 'ko' ? '이상 마스터리' : 'AP') : translatedLabel
 
   useEffect(() => {
     setDraft(count === undefined ? '' : String(count))
@@ -759,17 +800,17 @@ function SubstatStepper({
     >
       <div className="substat-copy">
         <strong>{displayLabel}</strong>
-        <span>+{perHit}{unit}/hit</span>
+        <span>+{perHit}{unit}/{locale === 'ko' ? '회' : 'hit'}</span>
       </div>
       <div className="stepper">
         <button
           type="button"
-          aria-label={`Decrease ${label} hits`}
+          aria-label={locale === 'ko' ? `${translatedLabel} 유효 횟수 감소` : `Decrease ${label} hits`}
           disabled={count === undefined || count === 0}
           onClick={onDecrease}
         >{'\u2212'}</button>
         <input
-          aria-label={`${label} hit count`}
+          aria-label={locale === 'ko' ? `${translatedLabel} 유효 횟수` : `${label} hit count`}
           aria-invalid={count === undefined}
           aria-describedby={count === undefined ? requiredDescriptionId : undefined}
           inputMode="numeric"
@@ -794,12 +835,12 @@ function SubstatStepper({
         />
         <button
           type="button"
-          aria-label={`Increase ${label} hits`}
+          aria-label={locale === 'ko' ? `${translatedLabel} 유효 횟수 증가` : `Increase ${label} hits`}
           disabled={count === 36}
           onClick={onIncrease}
         >+</button>
       </div>
-      {count === undefined && <span id={requiredDescriptionId} className="substat-required">Hit count required</span>}
+      {count === undefined && <span id={requiredDescriptionId} className="substat-required">{locale === 'ko' ? '유효 횟수 선택 필요' : 'Hit count required'}</span>}
     </div>
   )
 }
@@ -825,14 +866,15 @@ function StatBank({
   openSelector: string | null
   setOpenSelector: (value: string | null) => void
 } & SourceInteractionProps) {
+  const { locale, t } = useLocalization()
   const agent = ADMITTED_AGENTS.find(({ id }) => id === agentId)!
-  const agentName = agentDisplayName(agent)
+  const agentName = localizedAgentName(agent.id, locale)
 
   return (
     <section className="setup-group stat-bank" aria-labelledby={agentId + '-stat-bank-heading'}>
-      <h3 id={agentId + '-stat-bank-heading'}><span>04</span> Stat Bank</h3>
-      <h4 className="stat-bank__group-heading stat-bank__group-heading--main">Main stats</h4>
-      <div className="main-stat-grid" aria-label={agentName + ' prepared main stats'}>
+      <h3 id={agentId + '-stat-bank-heading'}><span>04</span> {t('statBank')}</h3>
+      <h4 className="stat-bank__group-heading stat-bank__group-heading--main">{t('mainStats')}</h4>
+      <div className="main-stat-grid" aria-label={locale === 'ko' ? `${agentName} 준비된 주옵션` : agentName + ' prepared main stats'}>
         {(['slot4', 'slot5', 'slot6'] as MainSlot[]).map((mainSlot) => (
           <MainStatSelection
             activeSourceTone={activeSourceTone}
@@ -849,8 +891,8 @@ function StatBank({
           />
         ))}
       </div>
-      <h4 className="stat-bank__group-heading stat-bank__group-heading--substats">Effective substats</h4>
-      <div className="substat-grid" aria-label={agentName + ' prepared effective substats'}>
+      <h4 className="stat-bank__group-heading stat-bank__group-heading--substats">{t('effectiveSubstats')}</h4>
+      <div className="substat-grid" aria-label={locale === 'ko' ? `${agentName} 준비된 유효 부옵션` : agentName + ' prepared effective substats'}>
         {(substatChoices ?? effectiveSubstatChoices(agentId, setup)).map((choice, index) => (
           <SubstatStepper
             activeSourceTone={activeSourceTone}
@@ -878,6 +920,7 @@ function StatBank({
             onSourceToneChange={onSourceToneChange}
             perHit={choice.perHit}
             requiredDescriptionId={`${agentId}-${choice.id}-hit-count-required`}
+            statId={choice.id}
             tone={`substat-${index + 1}`}
             unit={choice.unit}
           />
@@ -899,16 +942,17 @@ export function AgentSetup({
   setup,
   substatChoices,
 }: AgentSetupProps) {
+  const { locale } = useLocalization()
   const [openSelector, setOpenSelector] = useState<string | null>(null)
   const agent = ADMITTED_AGENTS.find(({ id }) => id === agentId)!
-  const agentName = agentDisplayName(agent)
+  const agentName = localizedAgentName(agent.id, locale)
 
   useEffect(() => {
     setOpenSelector(null)
   }, [agentId, setup.mindscape, setup.pool])
 
   return (
-    <section className="setup-panel" aria-label={agentName + ' setup'}>
+    <section className="setup-panel" aria-label={locale === 'ko' ? `${agentName} 세팅` : agentName + ' setup'}>
       <div className="setup-chassis">
         <PoolSelection
           activeSourceTone={activeSourceTone}

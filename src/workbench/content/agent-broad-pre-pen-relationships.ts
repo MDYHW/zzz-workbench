@@ -37,10 +37,12 @@ function cissiaGauge(
     source,
     basis: { statId: 'energyRegen', surface: 'initial' },
     basisLabel: 'Initial Energy Regen',
+    basisPresentationId: 'initial-energy-regen',
     basisThreshold: VERTICAL_VALUES.cissia.coreEnergyThreshold,
     basisCap: 3.68,
     metricId: 'energyRegen',
     outputs: [{
+      presentationId: 'electric-def-ignore',
       label: 'Electric DEF Ignore',
       unit: '%',
       cap: VERTICAL_VALUES.cissia.coreDefIgnoreCap * scale,
@@ -53,7 +55,7 @@ function cissiaGauge(
         },
         effect: {
           kind: 'modifier', metricId: 'defIgnore', earliestSurface: 'combat',
-          sourceDetail: 'Corrosion',
+          sourceDetail: { label: 'Corrosion', presentationId: 'corrosion' },
         },
       },
     }],
@@ -72,7 +74,8 @@ export function agentBroadPrePenRelationships(
       const source = selectedMindscapeSource('seed', slot, setup.mindscape, 2)
       return [provider(source, {
         kind: 'modifier', metricId: 'defIgnore', earliestSurface: 'combat',
-        value: VERTICAL_VALUES.seed.mindscapeBesiegeDefIgnore, sourceDetail: 'Besiege',
+        value: VERTICAL_VALUES.seed.mindscapeBesiegeDefIgnore,
+        sourceDetail: { label: 'Besiege', presentationId: 'besiege' },
       }, {
         recipient: 'enemy-context', formulas: ['general_damage'],
         eligibleAgentIds: ['seed', vanguard],

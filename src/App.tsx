@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useReducer, useRef, useState, type Dispatch } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+  type Dispatch,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from 'react'
 import { AgentSetup } from './components/AgentSetup'
 import { PartyWorkbench } from './components/PartyWorkbench'
 import { PartyEditor } from './components/PartyEditor'
@@ -14,7 +22,7 @@ import {
   incompleteRequiredSelections,
   type RequiredSetupSelection,
 } from './workbench/candidates'
-import { ADMITTED_AGENTS, agentDisplayName, type AgentId, type MainSlot } from './workbench/content'
+import { type AgentId, type MainSlot } from './workbench/content'
 import {
   createInitialWorkbenchState,
   isCompleteWorkbench,
@@ -26,6 +34,14 @@ import {
   type WorkbenchState,
 } from './workbench/state'
 import { createSetupShortcutUrl, readSetupShortcut } from './workbench/setup-shortcut'
+import {
+  LocalizationProvider,
+  localizedAgentName,
+  localizedStat,
+  useLocalization,
+  type Locale,
+} from './localization'
+import suitLicenseUrl from './assets/fonts/SUIT-LICENSE.txt?url'
 
 const emptySourceLinks: Record<SourceToneChannel, SourceLink | null> = {
   pointer: null,
@@ -48,6 +64,7 @@ const appReducer = (state: WorkbenchSessionState, action: AppAction): WorkbenchS
 )
 
 function CopySetupButton({ state }: { state: WorkbenchState | null }) {
+  const { t } = useLocalization()
   const [status, setStatus] = useState<'idle' | 'copying' | 'copied' | 'failed'>('idle')
   const copyInFlight = useRef(false)
   const isMounted = useRef(true)
@@ -119,33 +136,166 @@ function CopySetupButton({ state }: { state: WorkbenchState | null }) {
   }
 
   const label = status === 'copying'
-    ? 'Copying'
+    ? t('copying')
     : status === 'copied'
-      ? 'Copied'
+      ? t('copied')
       : status === 'failed'
-        ? 'Copy failed'
-        : 'Copy'
+        ? t('copyFailed')
+        : t('copySetup')
   const announcement = status === 'copying'
-    ? 'Copying Setup shortcut.'
+    ? t('copyingAnnouncement')
     : status === 'copied'
-      ? 'Setup shortcut copied.'
+      ? t('copiedAnnouncement')
       : status === 'failed'
-        ? 'Setup shortcut could not be copied.'
+        ? t('failedAnnouncement')
         : ''
 
   return (
-    <div className="masthead-actions">
+    <div className="copy-action">
       <button
         className={`masthead-action masthead-action--${status}`}
         type="button"
         disabled={!isAvailable}
         aria-disabled={!isAvailable || status === 'copying'}
-        aria-label="Copy Setup shortcut"
+        aria-label={t('copyAria')}
         onClick={copySetup}
       >
-        {label}
+        <UtilityIcon kind={status === 'copied' ? 'check' : 'copy'} />
+        <span className="masthead-action__label">{label}</span>
       </button>
       <span className="sr-only" role="status" aria-live="polite">{announcement}</span>
+    </div>
+  )
+}
+
+function UtilityIcon({ kind }: { kind: 'copy' | 'check' | 'language' }) {
+  return (
+    <svg className="masthead-utility-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      {kind === 'copy' ? (
+        <>
+          <rect x="8" y="8" width="11" height="11" rx="2" />
+          <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
+        </>
+      ) : kind === 'check' ? (
+        <path d="m5 12 4 4L19 6" />
+      ) : (
+        <>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+        </>
+      )}
+    </svg>
+  )
+}
+
+function LanguageToggle() {
+  const { locale, setLocale } = useLocalization()
+  const [isOpen, setIsOpen] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const options: ReadonlyArray<{ locale: Locale; label: string; code: string; aria: string }> = [
+    { locale: 'ko', label: '한국어', code: 'KO', aria: '한국어로 표시' },
+    { locale: 'en', label: 'English', code: 'EN', aria: 'Display in English' },
+  ]
+
+  const focusMenuOption = (position: 'first' | 'last') => {
+    requestAnimationFrame(() => {
+      const items = Array.from(
+        rootRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitemradio"]') ?? [],
+      )
+      const target = position === 'first' ? items[0] : items.at(-1)
+      target?.focus()
+    })
+  }
+
+  useEffect(() => {
+    if (!isOpen) return
+    const closeOutside = (event: PointerEvent) => {
+      if (event.target instanceof Node && !rootRef.current?.contains(event.target)) setIsOpen(false)
+    }
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      setIsOpen(false)
+      triggerRef.current?.focus()
+    }
+    document.addEventListener('pointerdown', closeOutside)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeOutside)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [isOpen])
+
+  const selectLocale = (nextLocale: Locale) => {
+    setLocale(nextLocale)
+    setIsOpen(false)
+    requestAnimationFrame(() => triggerRef.current?.focus())
+  }
+
+  const moveMenuFocus = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    const items = Array.from(
+      rootRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitemradio"]') ?? [],
+    )
+    const current = items.indexOf(document.activeElement as HTMLButtonElement)
+    let next: number | null = null
+    if (event.key === 'ArrowDown') next = current < items.length - 1 ? current + 1 : 0
+    if (event.key === 'ArrowUp') next = current > 0 ? current - 1 : items.length - 1
+    if (event.key === 'Home') next = 0
+    if (event.key === 'End') next = items.length - 1
+    if (next === null) return
+    event.preventDefault()
+    items[next]?.focus()
+  }
+
+  const currentLabel = locale === 'ko' ? '한국어' : 'English'
+  const menuLabel = locale === 'ko' ? '표시 언어' : 'Display language'
+  return (
+    <div className="language-menu" ref={rootRef}>
+      <button
+        className="language-trigger"
+        type="button"
+        ref={triggerRef}
+        aria-label={`${menuLabel}: ${currentLabel}`}
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
+        onClick={() => setIsOpen((open) => !open)}
+        onKeyDown={(event) => {
+          if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return
+          event.preventDefault()
+          setIsOpen(true)
+          focusMenuOption(event.key === 'ArrowDown' ? 'first' : 'last')
+        }}
+      >
+        <UtilityIcon kind="language" />
+        <span className="language-trigger__label" lang={locale}>{currentLabel}</span>
+        <span className="language-trigger__chevron" aria-hidden="true" />
+      </button>
+      <div
+        className="language-popover"
+        role="menu"
+        aria-label={menuLabel}
+        hidden={!isOpen}
+        onKeyDown={moveMenuFocus}
+      >
+        {options.map((option) => (
+          <button
+            type="button"
+            role="menuitemradio"
+            key={option.locale}
+            lang={option.locale}
+            data-locale={option.locale}
+            aria-label={option.aria}
+            aria-checked={locale === option.locale}
+            onClick={() => selectLocale(option.locale)}
+          >
+            <span className="language-option__check" aria-hidden="true">
+              {locale === option.locale ? '✓' : ''}
+            </span>
+            <span>{option.label}</span>
+            <small>{option.code}</small>
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
@@ -165,6 +315,7 @@ function AppliedWorkbench({
   dispatch: Dispatch<WorkbenchAction>
   initialViewedSlot: AppliedSlot
 }) {
+  const { locale } = useLocalization()
   const [viewedSlot, setViewedSlot] = useState<AppliedSlot>(initialViewedSlot)
   const [sourceLinks, setSourceLinks] = useState(emptySourceLinks)
   const [targetStunDmgMultiplier, setTargetStunDmgMultiplier] = useState(150)
@@ -232,17 +383,25 @@ function AppliedWorkbench({
 
     const selections = incompleteSelections.map((selection) => {
       const { agentId } = selection
-      const agentName = agentDisplayName(ADMITTED_AGENTS.find(({ id }) => id === agentId)!)
+      const agentName = localizedAgentName(agentId, locale)
       return selection.kind === 'disc'
-        ? `${agentName} ${selection.piece === 'fourPiece' ? '4-piece' : '2-piece'} Drive Disc`
+        ? locale === 'ko'
+          ? `${agentName} ${selection.piece === 'fourPiece' ? '4세트' : '2세트'} 디스크`
+          : `${agentName} ${selection.piece === 'fourPiece' ? '4-piece' : '2-piece'} Drive Disc`
         : selection.kind === 'mainStat'
-          ? `${agentName} Disc ${selection.mainSlot.replace('slot', '')} main stat`
-          : `${agentName} ${selection.substatId === 'critRate' ? 'CRIT Rate' : selection.substatId} hit count`
+          ? locale === 'ko'
+            ? `${agentName} 디스크 ${selection.mainSlot.replace('slot', '')}번 주옵션`
+            : `${agentName} Disc ${selection.mainSlot.replace('slot', '')} main stat`
+          : locale === 'ko'
+            ? `${agentName} ${localizedStat(selection.substatId, selection.substatId, locale)} 유효 횟수`
+            : `${agentName} ${selection.substatId === 'critRate' ? 'CRIT Rate' : selection.substatId} hit count`
     })
     setCandidateAnnouncement(
-      `${incompleteSelections.length} setup selections now require a choice: ${selections.join(' and ')}.`,
+      locale === 'ko'
+        ? `${incompleteSelections.length}개 세팅 항목을 다시 선택해야 합니다: ${selections.join(', ')}.`
+        : `${incompleteSelections.length} setup selections now require a choice: ${selections.join(' and ')}.`,
     )
-  }, [incompleteKey])
+  }, [incompleteKey, locale])
 
   return (
     <>
@@ -288,7 +447,8 @@ function AppliedWorkbench({
   )
 }
 
-export function App() {
+function WorkbenchApp() {
+  const { setLocale } = useLocalization()
   const [initialState] = useState<WorkbenchSessionState>(() => (
     readSetupShortcut(window.location.hash) ?? createInitialWorkbenchState()
   ))
@@ -302,6 +462,7 @@ export function App() {
   useEffect(() => {
     const followShortcutNavigation = () => {
       const shortcutState = readSetupShortcut(window.location.hash)
+      setLocale('ko')
       dispatch({
         type: 'followShortcutNavigation',
         state: shortcutState ?? createInitialWorkbenchState(),
@@ -309,13 +470,16 @@ export function App() {
     }
     window.addEventListener('hashchange', followShortcutNavigation)
     return () => window.removeEventListener('hashchange', followShortcutNavigation)
-  }, [])
+  }, [setLocale])
 
   return (
     <div className="app-shell">
       <header className="masthead">
-        <h1>ZZZ Setup Workbench</h1>
-        <CopySetupButton state={appliedState} />
+        <h1 lang="en">ZZZ Setup Workbench</h1>
+        <div className="masthead-actions">
+          <CopySetupButton state={appliedState} />
+          <LanguageToggle />
+        </div>
       </header>
       <main>
         {isInitialWorkbenchState(state) ? (
@@ -334,7 +498,7 @@ export function App() {
           />
         )}
       </main>
-      <footer className="legal-footer">
+      <footer className="legal-footer" data-font-license={suitLicenseUrl}>
         <p lang="en">
           This is an unofficial, non-commercial fan-made website. It is not sponsored,
           endorsed, or approved by HoYoverse. © All rights reserved by miHoYo. Other
@@ -350,4 +514,8 @@ export function App() {
       </footer>
     </div>
   )
+}
+
+export function App() {
+  return <LocalizationProvider><WorkbenchApp /></LocalizationProvider>
 }

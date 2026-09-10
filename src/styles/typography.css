@@ -1,0 +1,72 @@
+@font-face {
+  font-family: "SUIT Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../assets/fonts/SUIT-Variable.ttf") format("truetype-variations");
+}
+
+:root {
+  --font-korean: "SUIT Variable", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+
+/*
+ * The English skin is deliberately narrow and highly tracked. Korean keeps
+ * that geometry, but needs its own glyph metrics and compact natural tracking.
+ * Explicit lang="en" fragments retain the existing Latin display treatment.
+ */
+html[lang="ko"] :lang(ko) {
+  font-family: var(--font-korean) !important;
+  letter-spacing: -0.012em;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+html[lang="ko"] :lang(ko):where(button, summary, h2, h3, h4, h5, h6, label, legend) {
+  line-height: 1.18;
+}
+
+html[lang="ko"] :lang(ko):where(p, small) {
+  line-height: 1.45;
+}
+
+html[lang="ko"] :lang(en) {
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+html[lang="ko"] .setup-chassis .disc-effect-rows > span {
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 4px;
+}
+
+html[lang="ko"] .setup-chassis .selector-candidate--disc .disc-effect-rows > span {
+  grid-template-columns: 36px minmax(0, 1fr);
+}
+
+@media (max-width: 420px) {
+  .masthead h1 {
+    max-width: calc(100% - 168px);
+    overflow: hidden;
+    font-size: clamp(13px, 4vw, 16px);
+  }
+
+  .setup-chassis .equipment-fieldset {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .setup-chassis .equipment-fieldset > .selection-stack,
+  .setup-chassis .equipment-fieldset > .refinement-control {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .setup-chassis .refinement-control {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .setup-chassis .refinement-control > div {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr);
+  }
+}
