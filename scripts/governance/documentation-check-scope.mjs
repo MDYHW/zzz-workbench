@@ -105,6 +105,7 @@ export function runDocumentationCheckScope({
   baseSha,
   headSha,
   environmentFile,
+  cwd = process.cwd(),
   execute = execFileSync,
   append = appendFileSync,
 } = {}) {
@@ -115,9 +116,10 @@ export function runDocumentationCheckScope({
     throw new Error('Documentation check environment file is unavailable.')
   }
   const raw = execute('git', [
+    '-c', `safe.directory=${path.resolve(cwd).replaceAll('\\', '/')}`,
     'diff', '--raw', '-z', '--no-renames', '--no-ext-diff', '--no-textconv', '--abbrev=40',
     baseSha, headSha, '--',
-  ], { encoding: 'utf8' })
+  ], { cwd, encoding: 'utf8' })
   const notApplicable = isDocumentationCheckScope(parseRawDocumentationDiff(raw))
   append(environmentFile, `DOCUMENTATION_CHECKS_NOT_APPLICABLE=${notApplicable}\n`)
   return notApplicable

@@ -1,4 +1,8 @@
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import test from 'node:test'
 import {
   isDocumentationCheckScope,
@@ -52,10 +56,11 @@ test('documentation scope accepts known regular supporting, owner, and ACR Markd
   assert.deepEqual(execution.calls, [{
     command: 'git',
     args: [
+      '-c', `safe.directory=${process.cwd().replaceAll('\\', '/')}`,
       'diff', '--raw', '-z', '--no-renames', '--no-ext-diff', '--no-textconv', '--abbrev=40',
       BASE, HEAD, '--',
     ],
-    settings: { encoding: 'utf8' },
+    settings: { cwd: process.cwd(), encoding: 'utf8' },
   }])
   assert.deepEqual(execution.writes, [{
     filePath: 'github-env',
@@ -130,4 +135,41 @@ test('scope runner rejects invalid event identity and unavailable output', () =>
     () => execute(rawRecord('docs/plans/example.md'), { environmentFile: '' }),
     /environment file/,
   )
+})
+
+test('scope reads exact commits under container ownership without global or wildcard trust', () => {
+  const tempRoot = realpathSync(tmpdir())
+  const fixture = mkdtempSync(path.join(tempRoot, 'documentation-scope-'))
+  const env = { ...process.env, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: process.platform === 'win32' ? 'NUL' : '/dev/null' }
+  const git = (...args) => execFileSync('git', args, { cwd: fixture, env, encoding: 'utf8', stdio: 'pipe' }).trim()
+  try {
+    git('init', '--quiet')
+    mkdirSync(path.join(fixture, 'docs/plans'), { recursive: true })
+    const document = path.join(fixture, 'docs/plans/example.md')
+    const commit = (message) => {
+      git('add', '--', 'docs/plans/example.md')
+      git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '--quiet', '-m', message)
+      return git('rev-parse', 'HEAD')
+    }
+    writeFileSync(document, 'Before\n')
+    const baseSha = commit('base')
+    writeFileSync(document, 'After\n')
+    const headSha = commit('head')
+    const containerEnv = { ...env, GIT_TEST_ASSUME_DIFFERENT_OWNER: '1' }
+    assert.throws(() => execFileSync('git', ['diff', '--raw', baseSha, headSha, '--'], {
+      cwd: fixture, env: containerEnv, stdio: 'pipe',
+    }), /Could not access|dubious ownership/)
+    const writes = []
+    assert.equal(runDocumentationCheckScope({
+      baseSha, headSha, cwd: fixture, environmentFile: 'github-env',
+      execute: (command, args, options) => execFileSync(command, args, { ...options, env: containerEnv, stdio: 'pipe' }),
+      append: (_file, value) => writes.push(value),
+    }), true)
+    assert.deepEqual(writes, ['DOCUMENTATION_CHECKS_NOT_APPLICABLE=true\n'])
+    assert.equal(git('config', '--local', '--list').includes('safe.directory='), false)
+  } finally {
+    assert.equal(path.dirname(fixture), tempRoot)
+    assert.ok(path.basename(fixture).startsWith('documentation-scope-'))
+    rmSync(fixture, { recursive: true, force: true })
+  }
 })
