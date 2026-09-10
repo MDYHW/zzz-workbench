@@ -142,8 +142,8 @@ describe('shared engine activation and scope facts', () => {
     expect((daze as EquipmentEffectFact).scope?.actions).toBeUndefined()
     expect((damage as EquipmentEffectFact).scope?.actions).toBeUndefined()
     expect(W_ENGINES.simmeringPot.passiveLines(5)).toEqual([
-      `Daze +${equipmentEffectBaseValue(daze, 5)}%`,
-      `DMG +${equipmentEffectBaseValue(damage, 5)}%`,
+      { text: `Daze +${equipmentEffectBaseValue(daze, 5)}%`, values: [equipmentEffectBaseValue(daze, 5)] },
+      { text: `DMG +${equipmentEffectBaseValue(damage, 5)}%`, values: [equipmentEffectBaseValue(damage, 5)] },
     ])
   })
 
@@ -156,9 +156,9 @@ describe('shared engine activation and scope facts', () => {
       anomalyResults: ['Attribute Anomaly'],
     })
     expect(W_ENGINES.odeOfResurrectedWings.passiveLines(1)).toEqual([
-      `Anomaly Proficiency +${equipmentEffectBaseValue(ode.anomalyProficiency, 1)}`,
-      `Attribute Anomaly DMG +${equipmentEffectBaseValue(ode.holderAnomalyDamage, 1)}%`,
-      `Squad DMG +${equipmentEffectBaseValue(ode.squadDamage, 1)}%`,
+      { text: `Anomaly Proficiency +${equipmentEffectBaseValue(ode.anomalyProficiency, 1)}`, values: [equipmentEffectBaseValue(ode.anomalyProficiency, 1)] },
+      { text: `Attribute Anomaly DMG +${equipmentEffectBaseValue(ode.holderAnomalyDamage, 1)}%`, values: [equipmentEffectBaseValue(ode.holderAnomalyDamage, 1)] },
+      { text: `Squad DMG +${equipmentEffectBaseValue(ode.squadDamage, 1)}%`, values: [equipmentEffectBaseValue(ode.squadDamage, 1)] },
     ])
 
     const feathered = DRIVE_DISC_FACTS.featheredFate.fourPiece
@@ -172,8 +172,8 @@ describe('shared engine activation and scope facts', () => {
       anomalyResults: ['Attribute Anomaly'],
     })
     expect(DRIVE_DISCS.featheredFate.fourPieceEffects).toEqual([
-      `Anomaly Proficiency +${equipmentEffectBaseValue(feathered.anomalyProficiency)}`,
-      `Attribute Anomaly DMG +${equipmentEffectBaseValue(feathered.lumifluxAnomalyDamage)}%`,
+      { text: `Anomaly Proficiency +${equipmentEffectBaseValue(feathered.anomalyProficiency)}`, values: [equipmentEffectBaseValue(feathered.anomalyProficiency)] },
+      { text: `Attribute Anomaly DMG +${equipmentEffectBaseValue(feathered.lumifluxAnomalyDamage)}%`, values: [equipmentEffectBaseValue(feathered.lumifluxAnomalyDamage)] },
     ])
   })
 

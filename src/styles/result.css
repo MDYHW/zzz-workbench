@@ -57,6 +57,22 @@
   font-size: clamp(11px, 2.45cqw, 12px);
 }
 
+@media (max-width: 520px) {
+  .agent-result .breakdown-row > td,
+  .agent-result .source-matrix tbody th,
+  .agent-result .source-matrix tbody td {
+    height: auto;
+  }
+
+  .agent-result .source-matrix {
+    min-width: 0;
+  }
+
+  .agent-result .source-matrix tbody th span {
+    white-space: normal;
+  }
+}
+
 @media (min-width: 521px) {
   .source-matrix-wrap,
   .action-matrix-wrap {

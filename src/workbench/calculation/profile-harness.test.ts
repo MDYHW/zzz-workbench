@@ -15,7 +15,6 @@ import {
 } from '../content/types'
 import { createPreparedState, workbenchReducer, type WorkbenchState } from '../state'
 import { activeCandidatePressures } from '../candidate-context'
-import { selectedDriveDiscRelationships } from '../content/agent-sources/drive-disc-relationships'
 import { materializeSelectedDriveDiscEffects } from '../content/agent-sources/drive-disc-effect-materializer'
 import {
   requireCompleteSelectedSetup,
@@ -154,20 +153,16 @@ function selectedFourPieceRelationships(
     fourPieceId,
     twoPieceId: 'woodpecker' as const,
   }
-  return selectedDriveDiscRelationships({
-    agentId,
-    appliedPartySlot,
-    setup,
-    observation: {
-      baseStats: { critRate: 0 },
-      modifierMetrics: ['dmgBonus'],
+  return materializeSelectedDriveDiscEffects(
+    DRIVE_DISC_FACTS[fourPieceId].fourPiece,
+    {
+      agentId,
+      focusAgentId: state.slots[state.focusSlot].agentId,
+      partyAgentIds: state.slots.map(({ agentId: partyAgentId }) => partyAgentId),
+      observation: { baseStats: { critRate: 0 }, modifierMetrics: ['dmgBonus'] },
+      source: selectedDiscSource(agentId, appliedPartySlot, setup, fourPieceId, '4-piece'),
     },
-    focusAgentId: state.slots[state.focusSlot].agentId,
-    partyAgentIds: state.slots.map(({ agentId: partyAgentId }) => partyAgentId),
-    source: selectedDiscSource(
-      agentId, appliedPartySlot, setup, fourPieceId, '4-piece',
-    ),
-  })
+  )
 }
 
 function postDeliveryAftershockProvider(
@@ -260,7 +255,7 @@ describe('profile calculation harness', () => {
     const norma = agentResult(result, 'norma')
     expect(norma.metrics.find(({ id }) => id === 'sheerForce')!.values.fully).toBe(400)
     expect(norma.metrics.find(({ id }) => id === 'sheerForce')!.gauges[0])
-      .toEqual(expect.objectContaining({ current: 400, outputValue: 500 }))
+      .toEqual(expect.objectContaining({ current: 400, outputs: [expect.objectContaining({ value: 500 })] }))
     expect(norma.metrics.find(({ id }) => id === 'atk')!.values.fully).toBe(1_500)
     expect(agentResult(result, 'yixuan').metrics[0].values.fully).toBe(1_000)
   })
@@ -385,10 +380,9 @@ describe('profile calculation harness', () => {
     expect(jane.metrics.find(({ id }) => id === 'atk')!.values.fully).toBe(1068)
     expect(janeAp.gauges[0]).toEqual(expect.objectContaining({
       current: 214,
-      outputLabel: 'Scoped CRIT Rate',
-      additionalOutputs: [expect.objectContaining({ label: 'Derived flat ATK', value: 188 })],
+      outputs: [expect.objectContaining({ label: 'Scoped CRIT Rate' }), expect.objectContaining({ label: 'Derived flat ATK', value: 188 })],
     }))
-    expect(janeAp.gauges[0]!.outputValue).toBe(100)
+    expect(janeAp.gauges[0]!.outputs[0]!.value).toBe(100)
     expect(jane.actionModifiers.find(({ id }) => id === 'janeAssaultCritRate')!.values.fully)
       .toBe(100)
     expect(jane.actionModifiers.find(({ id }) => id === 'janeAssaultCritDmg')!.values.fully).toBe(80)
@@ -499,8 +493,8 @@ describe('profile calculation harness', () => {
     const metric = agentResult(evaluateProfileParty(state, profiles)!, 'jane')
       .metrics.find(({ id }) => id === 'critRate')!
     expect(metric.values).toEqual({ initial: 45, combat: 65, fully: 65 })
-    expect(metric.gauges.map(({ outputLabel, outputValue }) => (
-      [outputLabel, outputValue]
+    expect(metric.gauges.map(({ outputs }) => (
+      [outputs[0]!.label, outputs[0]!.value]
     ))).toEqual([
       [thresholdOutput.label, thresholdOutput.activation.inactiveValue],
       ['Parallel output', 4.5],
@@ -540,8 +534,7 @@ describe('profile calculation harness', () => {
     expect(metrics[0]!.gauges[0]).toMatchObject({
       basisLabel: 'Initial CRIT Rate',
       current: 0,
-      outputLabel: thresholdOutput.label,
-      outputValue: thresholdOutput.activation.inactiveValue,
+      outputs: [expect.objectContaining({ label: thresholdOutput.label, value: thresholdOutput.activation.inactiveValue })],
     })
   })
 
@@ -1267,10 +1260,10 @@ describe('profile calculation harness', () => {
     const afterBen = agentResult(after, 'ben')
 
     expect(beforeAstra.metrics.find(({ id }) => id === 'atk')?.gauges[0]).toEqual(
-      expect.objectContaining({ outputLabel: 'Squad flat ATK' }),
+      expect.objectContaining({ outputs: [expect.objectContaining({ label: 'Squad flat ATK' })] }),
     )
-    expect(afterAstra.metrics.find(({ id }) => id === 'atk')?.gauges[0]?.outputValue)
-      .toBeGreaterThan(beforeAstra.metrics.find(({ id }) => id === 'atk')!.gauges[0]!.outputValue)
+    expect(afterAstra.metrics.find(({ id }) => id === 'atk')?.gauges[0]?.outputs[0]?.value)
+      .toBeGreaterThan(beforeAstra.metrics.find(({ id }) => id === 'atk')!.gauges[0]!.outputs[0]!.value)
     expect(afterBen.metrics.find(({ id }) => id === 'atk')!.values.fully)
       .toBeGreaterThan(beforeBen.metrics.find(({ id }) => id === 'atk')!.values.fully)
     expect(afterBen.metrics.find(({ id }) => id === 'atk')!.breakdown.fully)
@@ -1326,7 +1319,7 @@ describe('profile calculation harness', () => {
     expect(result.metrics.find(({ id }) => id === 'atk')?.values)
       .toEqual({ initial: 1060, combat: 1216, fully: 1372 })
     expect(result.metrics.find(({ id }) => id === 'impact')?.gauges[0])
-      .toEqual(expect.objectContaining({ current: 182, outputValue: 372 }))
+      .toEqual(expect.objectContaining({ current: 182, outputs: [expect.objectContaining({ value: 372 })] }))
   })
 
   it('keeps a completed-stat activation gauge below threshold and emits only at the earliest qualifying surface', () => {
@@ -1368,13 +1361,13 @@ describe('profile calculation harness', () => {
 
     const below = evaluate(20, 10)
     expect(below.metrics[0].gauges[0]).toEqual(expect.objectContaining({
-      basisLabel: 'Fully Enabled CRIT Rate', current: 70, outputValue: 1,
+      basisLabel: 'Fully Enabled CRIT Rate', current: 70, outputs: [expect.objectContaining({ value: 1 })],
     }))
     expect(below.operations).toEqual([])
 
     const fully = evaluate(20, 25)
     expect(fully.metrics[0].gauges[0]).toEqual(expect.objectContaining({
-      basisLabel: 'Fully Enabled CRIT Rate', current: 85, outputValue: 1.25,
+      basisLabel: 'Fully Enabled CRIT Rate', current: 85, outputs: [expect.objectContaining({ value: 1.25 })],
     }))
     expect(fully.operations).toEqual([
       expect.objectContaining({ label: 'Action DMG Multiplier', value: 1.25 }),
@@ -1383,7 +1376,7 @@ describe('profile calculation harness', () => {
 
     const combat = evaluate(45, 10)
     expect(combat.metrics[0].gauges[0]).toEqual(expect.objectContaining({
-      basisLabel: 'Combat CRIT Rate', current: 85, outputValue: 1.25,
+      basisLabel: 'Combat CRIT Rate', current: 85, outputs: [expect.objectContaining({ value: 1.25 })],
     }))
     expect(combat.operations[0]).toEqual(expect.objectContaining({
       label: 'Action DMG Multiplier', value: 1.25,
@@ -1423,10 +1416,10 @@ describe('profile calculation harness', () => {
 
     const gauge = agentResult(evaluateProfileParty(state, profiles)!, 'astraYao').metrics[0].gauges[0]!
     expect(gauge).toEqual(expect.objectContaining({
-      basisLabel: 'Initial ATK', current: 125, threshold: 100, outputValue: 25,
+      basisLabel: 'Initial ATK', current: 125, threshold: 100, outputs: [expect.objectContaining({ value: 25 })],
     }))
     expect(gauge).not.toHaveProperty('cap')
-    expect(gauge).not.toHaveProperty('outputCap')
+    expect(gauge.outputs[0]).not.toHaveProperty('cap')
   })
 
   it('projects an applied cap while retaining the pre-cap gauge basis', () => {
@@ -1489,7 +1482,7 @@ describe('profile calculation harness', () => {
     const metric = agentResult(evaluateProfileParty(state, profiles)!, 'yeShunguang').metrics[0]
     expect(metric.values.fully).toBe(110)
     expect(metric.gauges[0]).toEqual(expect.objectContaining({
-      current: 130, cap: 110, outputValue: 110, outputCap: 110,
+      current: 130, cap: 110, outputs: [expect.objectContaining({ value: 110, cap: 110 })],
     }))
     expect(metric.breakdown.fully).toContainEqual(expect.objectContaining({
       locus: 'target', amount: 50,
@@ -1560,20 +1553,20 @@ describe('profile calculation harness', () => {
     const below = agentResult(evaluateProfileParty(state, profilesFor(34))!, 'grace')
     expect(below.metrics[0].values.fully).toBe(374)
     expect(below.metrics[0].gauges[0]).toEqual(expect.objectContaining({
-      current: 374, threshold: 375, outputValue: 0,
+      current: 374, threshold: 375, outputs: [expect.objectContaining({ value: 0 })],
     }))
     expect(below.actionModifiers).toEqual([])
 
     const at = agentResult(evaluateProfileParty(state, profilesFor(35))!, 'grace')
     expect(at.metrics[0].gauges[0]).toEqual(expect.objectContaining({
-      current: 375, threshold: 375, outputValue: 25,
+      current: 375, threshold: 375, outputs: [expect.objectContaining({ value: 25 })],
     }))
     expect(at.actionModifiers[0].values.fully).toBe(25)
 
     const above = agentResult(evaluateProfileParty(state, profilesFor(40))!, 'grace')
     expect(above.metrics[0].values.fully).toBe(380)
     expect(above.metrics[0].gauges[0]).toEqual(expect.objectContaining({
-      current: 380, threshold: 375, outputValue: 25,
+      current: 380, threshold: 375, outputs: [expect.objectContaining({ value: 25 })],
     }))
     expect(above.actionModifiers).toEqual([
       expect.objectContaining({ id: 'graceDisorder', values: expect.objectContaining({ fully: 25 }) }),
@@ -1643,8 +1636,7 @@ describe('profile calculation harness', () => {
       current: 100,
       threshold: 40,
       cap: 90,
-      outputValue: 30,
-      outputCap: 75,
+      outputs: [expect.objectContaining({ value: 30, cap: 75 })],
     }))
     expect(result.actionModifiers[0].values.fully).toBe(30)
   })
@@ -1814,7 +1806,7 @@ describe('profile calculation harness', () => {
     const soldier = agentResult(result, 'soldier11')
 
     expect(lighter.metrics[0].values.fully).toBeCloseTo(293.992, 10)
-    expect(lighter.metrics[0].gauges[0]?.outputValue).toBeCloseTo(36.996, 10)
+    expect(lighter.metrics[0].gauges[0]?.outputs[0]?.value).toBeCloseTo(36.996, 10)
     expect(lighter.metrics[0].breakdown.fully.find(
       ({ label }) => label === 'Core Passive',
     )?.display).toEqual({ value: 20, unit: '%', decimals: 0 })

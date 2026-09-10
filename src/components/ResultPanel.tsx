@@ -362,13 +362,7 @@ function Gauge({
   const capDecimals = gauge.decimals?.cap ?? 0
   const outputDecimals = gauge.decimals?.output ?? (gauge.presentation === 'scale' ? 2 : 1)
   const outputCapDecimals = gauge.decimals?.outputCap ?? 0
-  const outputs = [{
-    presentationId: gauge.outputPresentationId,
-    label: gauge.outputLabel,
-    value: gauge.outputValue,
-    cap: gauge.outputCap,
-    unit: gauge.outputUnit,
-  }, ...(gauge.additionalOutputs ?? [])]
+  const outputs = gauge.outputs
   const isThresholdOnlyActive = gauge.threshold !== undefined
     && (gauge.cap === undefined || gauge.cap === gauge.threshold)
     && gauge.current >= gauge.threshold

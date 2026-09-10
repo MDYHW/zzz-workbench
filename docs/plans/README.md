@@ -8,10 +8,8 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-Keep at most one active bounded implementation plan. There is no active
-implementation unit. The verified
-[equipment effect projection plan](2026-09-10-equipment-projection-simplification.md)
-is retained until a requested checkpoint commit preserves its body.
+Keep at most one active bounded implementation plan. The active plan is
+[Astra audit follow-through](2026-09-10-astra-audit-follow-through.md).
 Completed verticals are recorded in the milestone index below,
 and later Agent verticals still require their own bounded requirement and plan
 after their meaning is settled.
@@ -63,6 +61,7 @@ and author the new local outcome from current consumers instead.
 | Date | Milestone | Current durable owners |
 | --- | --- | --- |
 | 2026-09-10 | Implemented reviewed owner corrections, one-decision authority transactions, and trusted documentation-only runtime N/A | [Repository governance](../../AGENTS.md#authority-change-and-trace-governance), [ACR lifecycle](../authority-changes/README.md), validation workflows, and shared policy/adapter tests |
+| 2026-09-10 | Preserved threshold non-stacking delivery and Combat entry effects while unifying equipment materialization | Current equipment facts/materializers, shared profile harness and equipment tests; checkpoint `34191ba` |
 | 2026-08-01 to 2026-08-05 | Established the first Yixuan/Dialyn/Lucia setup-to-Result loop, integrated three-slot workbench, and retained Mindscape behavior | [First-vertical baseline requirements](../brainstorms/2026-08-06-first-vertical-completion-review-requirements.md), [product contract](../setup-workbench-product-contract.md), [UI requirements](../brainstorms/2026-08-02-agent-slot-setup-result-ui-requirements.md), [UI design rules](../workbench-ui-design-rules.md) |
 | 2026-08-07 | Separated applied-party state, provider/recipient calculation phases, Agent-local calculation ownership, and behavior-oriented test families | [Applied-party requirements](../brainstorms/2026-08-07-applied-party-calculation-boundary-requirements.md), [calculation-module requirements](../brainstorms/2026-08-07-calculation-module-boundary-requirements.md), current calculation code and tests |
 | 2026-08-07 to 2026-08-09 | Added the Anby: Soldier 0/Trigger/Astra vertical, Party Edit, contextual candidate pressure, and party-directed preparation | [Anby: Soldier 0 requirements](../brainstorms/2026-08-07-soldier-zero-vertical-requirements.md), [product contract](../setup-workbench-product-contract.md) |

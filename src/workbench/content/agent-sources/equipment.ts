@@ -44,7 +44,7 @@ import {
   type SubstatChoice,
   type SubstatId,
 } from '../types'
-import { selectedDriveDiscRelationships } from './drive-disc-relationships'
+import { materializeSelectedDriveDiscEffects } from './drive-disc-effect-materializer'
 import { projectEquipmentEffectRelationships } from './equipment-effect-relationships'
 export {
   equipmentEffectActionTargets,
@@ -464,14 +464,9 @@ export function selectedEquipmentRelationships(
       source: engineSource,
       passiveEligible: isWEnginePassiveEligible(agentId, setup.engineId),
     }),
-    ...selectedDriveDiscRelationships({
-      agentId,
-      appliedPartySlot,
-      setup,
-      observation,
-      focusAgentId,
-      partyAgentIds,
-      source: discSource,
-    }),
+    ...materializeSelectedDriveDiscEffects(
+      DRIVE_DISC_FACTS[setup.fourPieceId].fourPiece,
+      { agentId, focusAgentId, partyAgentIds, source: discSource, observation },
+    ),
   ]
 }

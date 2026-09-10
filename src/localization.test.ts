@@ -12,9 +12,19 @@ import {
   translationCoverage,
 } from './localization'
 import { DRIVE_DISCS, W_ENGINES, type AgentAttribute } from './workbench/content'
+import { equipmentLine } from './workbench/content/equipment-copy'
 import type { ResultSource } from './workbench/effects'
 
 describe('localization identity', () => {
+  it('uses supplied presentation values instead of English numeric text', () => {
+    const line = equipmentLine`HP ≤${50}% · CRIT Rate +${equipmentLine`${20}%`}`
+    const reordered = { ...line, text: 'Variant 999: CRIT Rate +20% when HP ≤50%' }
+    expect(localizedEnginePassiveLine('krakensCradle', 1, reordered, 'ko'))
+      .toBe(localizedEnginePassiveLine('krakensCradle', 1, line, 'ko'))
+    expect(localizedEnginePassiveLine('krakensCradle', 1, reordered, 'ko'))
+      .toBe('현재 HP가 최대 HP의 50% 이하일 때 · 치명타 확률 +20%')
+  })
+
   it('covers every admitted entity collection generically', () => {
     expect(Object.entries(translationCoverage).filter(([, covered]) => !covered)).toEqual([])
   })
@@ -32,7 +42,7 @@ describe('localization identity', () => {
         engine.passiveLines(refinement).forEach((line, index) => {
           const localized = localizedEnginePassiveLine(engineId as keyof typeof W_ENGINES, index, line, 'ko')
           expect(localized.trim()).not.toBe('')
-          expect(localized).not.toBe(line)
+          expect(localized).not.toBe(line.text)
         })
       }
     }
@@ -49,7 +59,7 @@ describe('localization identity', () => {
         effects.forEach((line, index) => {
           const localized = localizedDiscEffectLine(typedDiscId, 'fourPiece', index, line, 'ko', attribute)
           expect(localized.trim()).not.toBe('')
-          expect(localized).not.toBe(line)
+          expect(localized).not.toBe(line.text)
         })
       }
     }
@@ -82,14 +92,14 @@ describe('localization identity', () => {
 
     for (const [engineId, engine] of Object.entries(W_ENGINES)) {
       engine.passiveLines(1).forEach((line, index) => {
-        if (!line.includes('Aftershock')) return
+        if (!line.text.includes('Aftershock')) return
         expect(localizedEnginePassiveLine(engineId as keyof typeof W_ENGINES, index, line, 'ko'))
           .toContain('여진 피해')
       })
     }
 
     for (const [discId, disc] of Object.entries(DRIVE_DISCS)) {
-      if (!disc.twoPieceEffect.includes('Aftershock')) continue
+      if (!disc.twoPieceEffect.text.includes('Aftershock')) continue
       expect(localizedDiscEffectLine(
         discId as keyof typeof DRIVE_DISCS,
         'twoPiece',
