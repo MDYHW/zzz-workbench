@@ -18,6 +18,7 @@ import {
   parseAcrDocument,
   parseAuthorityTrace,
   proveIdentifierOnlyOwnerChange,
+  proveOwnerCorrectionShape,
   trustedDecision,
   validateChildOutcomes,
   isVisualNotApplicableDiff,
@@ -403,6 +404,7 @@ async function derivePolicyState({ treeDiff, body, readText, baseTree, ruleState
       structuralFacts,
       declaration,
       visualTransaction: explicitVisualTransaction(paths),
+      authorityDecision: ruleState.currentRuleIds.includes('GOV-004'),
     })
   } catch (error) {
     classificationError = error instanceof Error ? error.message : 'Change classification failed.'
@@ -414,12 +416,13 @@ async function derivePolicyState({ treeDiff, body, readText, baseTree, ruleState
   }
   const acrState = await readBaseAcrState(baseTree, readText, ruleState.knownRuleIds)
   let identifierOnlyOwnerChange = null
+  let ownerCorrection = null
   if (classification.matrix?.categories.includes('permanent-owner')) {
     const [ownerEntry] = treeDiff.entries
     if (treeDiff.entries.length === 1 && categoryForPath(ownerEntry.path) === 'permanent-owner'
       && ownerEntry.base?.type === 'blob' && ownerEntry.base.mode === '100644'
       && ownerEntry.head?.type === 'blob' && ownerEntry.head.mode === '100644') {
-      identifierOnlyOwnerChange = proveIdentifierOnlyOwnerChange([{
+      const ownerChanges = [{
         path: ownerEntry.path,
         baseType: ownerEntry.base.type,
         baseMode: ownerEntry.base.mode,
@@ -427,17 +430,26 @@ async function derivePolicyState({ treeDiff, body, readText, baseTree, ruleState
         headMode: ownerEntry.head.mode,
         baseSource: await readText(ownerEntry.base),
         headSource: await readText(ownerEntry.head),
-      }], ruleState)
+      }]
+      identifierOnlyOwnerChange = proveIdentifierOnlyOwnerChange(ownerChanges, ruleState)
+      ownerCorrection = proveOwnerCorrectionShape(ownerChanges)
     }
   }
   let acrTransaction
   if (classification.matrix?.categories.includes('acr-instance')) {
     acrTransaction = {
-      changes: await Promise.all(treeDiff.entries.map(async ({ path: filePath, base, head }) => ({
-        path: filePath,
-        baseSource: base ? await readText(base) : null,
-        headSource: head ? await readText(head) : null,
-      }))),
+      changes: await Promise.all(treeDiff.entries
+        .filter(({ path: filePath }) => categoryForPath(filePath) === 'acr-instance')
+        .map(async ({ path: filePath, base, head }) => {
+          if ([base, head].filter(Boolean).some((entry) => entry.type !== 'blob' || entry.mode !== '100644')) {
+            fail('Authority Change Records must be regular 100644 blobs.')
+          }
+          return {
+            path: filePath,
+            baseSource: base ? await readText(base) : null,
+            headSource: head ? await readText(head) : null,
+          }
+        })),
     }
     validateAcrTransaction(acrTransaction, {
       currentRuleIds: ruleState.currentRuleIds,
@@ -452,6 +464,7 @@ async function derivePolicyState({ treeDiff, body, readText, baseTree, ruleState
     acrState,
     acrTransaction,
     identifierOnlyOwnerChange,
+    ownerCorrection,
   }
 }
 
@@ -497,6 +510,7 @@ async function buildFinalizationEvidenceSnapshot({ api, pr, runSet, candidateSha
     acrBaseRecords: policy.acrState.records,
     acrTransaction: policy.acrTransaction,
     identifierOnlyOwnerChange: policy.identifierOnlyOwnerChange,
+    ownerCorrection: policy.ownerCorrection,
     mechanismDigest,
     knownRuleIds: ruleState.currentRuleIds,
     acrKnownRuleIds: ruleState.knownRuleIds,
@@ -1261,6 +1275,7 @@ export async function buildCurrentSnapshot({
     acrBaseRecords: policy.acrState.records,
     acrTransaction: policy.acrTransaction,
     identifierOnlyOwnerChange: policy.identifierOnlyOwnerChange,
+    ownerCorrection: policy.ownerCorrection,
     mechanismDigest,
     knownRuleIds: ruleState.currentRuleIds,
     acrKnownRuleIds: ruleState.knownRuleIds,
@@ -1282,13 +1297,6 @@ export function evaluateSnapshot(snapshot) {
 function evaluateEvidence(snapshot, comments) {
   if (snapshot.classificationError) throw new PolicyError(snapshot.classificationError)
   if (snapshot.declarationMismatch) throw new PolicyError('Pull request classification attempts to lower trusted protection.')
-  if (snapshot.changeCategories?.includes('acr-instance')) {
-    validateAcrTransaction(snapshot.acrTransaction, {
-      currentRuleIds: snapshot.knownRuleIds,
-      knownRuleIds: snapshot.acrKnownRuleIds,
-      baseRecords: snapshot.acrBaseRecords,
-    })
-  }
   const trace = validateAuthorityTrace(parseAuthorityTrace(snapshot.body), {
     knownRuleIds: snapshot.knownRuleIds,
     computedClassification: snapshot.classification,
@@ -1296,6 +1304,10 @@ function evaluateEvidence(snapshot, comments) {
     acceptedAcrRecords: snapshot.acceptedAcrRecords,
     changedPaths: snapshot.changedPaths,
     identifierOnlyOwnerChange: snapshot.identifierOnlyOwnerChange,
+    ownerCorrection: snapshot.ownerCorrection,
+    acrTransaction: snapshot.acrTransaction,
+    acrBaseRecords: snapshot.acrBaseRecords,
+    acrKnownRuleIds: snapshot.acrKnownRuleIds,
   })
   const evidence = validateReviewEvidence(comments, {
     prNumber: snapshot.prNumber,

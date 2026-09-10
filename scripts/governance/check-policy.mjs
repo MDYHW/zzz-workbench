@@ -442,13 +442,14 @@ export function isVisualNotApplicableDiff(entries) {
   })
 }
 
-export function evaluateChangeMatrix(paths, { visualTransaction = false } = {}) {
+export function evaluateChangeMatrix(paths, { visualTransaction = false, authorityDecision = false } = {}) {
   const normalizedPaths = sortedUnique(paths.map(normalizePath), 'Changed paths')
   const byCategory = Object.fromEntries(normalizedPaths.map((path) => [path, categoryForPath(path)]))
   const categories = [...new Set(Object.values(byCategory))].sort()
   if (categories.includes('unknown')) fail('Unknown changed path fails closed.')
-  if (categories.includes('permanent-owner') && categories.length !== 1) fail('Permanent-owner changes must be owner-only.')
-  if (categories.includes('acr-instance') && categories.length !== 1) fail('Authority Change Records must be ACR-only.')
+  const decisionOnly = authorityDecision && categories.every((category) => ['permanent-owner', 'acr-instance'].includes(category))
+  if (categories.includes('permanent-owner') && categories.length !== 1 && !decisionOnly) fail('Permanent-owner changes must be owner-only or one accepted decision.')
+  if (categories.includes('acr-instance') && categories.length !== 1 && !decisionOnly) fail('Authority Change Records must be ACR-only or one accepted decision.')
   if (categories.includes('audit-index') && categories.length !== 1) fail('Recovery audit index changes must be index-only.')
   if (categories.includes('governance') && categories.includes('production-test') && !visualTransaction) {
     fail('Governance and production changes cannot share a transaction.')
@@ -558,8 +559,8 @@ export function proveAgentLocal(structuralFacts, changedPaths = undefined) {
   return { local: true, reason: 'Trusted structure proves one additive Agent-local transaction.', newAgentId }
 }
 
-export function computeChangeClassification({ paths, structuralFacts, declaration, visualTransaction = false }) {
-  const matrix = evaluateChangeMatrix(paths, { visualTransaction })
+export function computeChangeClassification({ paths, structuralFacts, declaration, visualTransaction = false, authorityDecision = false }) {
+  const matrix = evaluateChangeMatrix(paths, { visualTransaction, authorityDecision })
   const protectedCategories = new Set(['permanent-owner', 'acr-instance', 'audit-index', 'governance', 'visual-baseline'])
   let classification = matrix.categories.some((category) => protectedCategories.has(category)) ? 'protected' : 'agent-local'
   let reason = classification === 'protected' ? 'Changed paths require product-owner protection.' : 'No protected path changed.'
@@ -608,10 +609,13 @@ export function parseAuthorityTrace(body) {
     const match = line.match(/^[-*]\s+([^:]+):\s*(.*)$/)
     if (!match) continue
     const label = match[1].trim()
-    if (!TRACE_FIELDS.includes(label) || Object.hasOwn(fields, label)) fail('Authority trace field is unknown or duplicated.')
+    if ((!TRACE_FIELDS.includes(label) && label !== 'Authority correction') || Object.hasOwn(fields, label)) fail('Authority trace field is unknown or duplicated.')
     fields[label] = requireMeaningful(match[2], label)
   }
   if (TRACE_FIELDS.some((field) => !Object.hasOwn(fields, field))) fail('Authority trace is incomplete.')
+  if (Object.hasOwn(fields, 'Authority correction') && fields['Authority correction'] !== 'meaning-preserving') {
+    fail('Authority correction claim is invalid.')
+  }
   const classification = fields['Change classification']
   if (!['agent-local', 'protected'].includes(classification)) fail('Authority trace classification is invalid.')
   const unwrap = (value) => /^`[^`\r\n]+`$/.test(value.trim()) ? value.trim().slice(1, -1).trim() : value.trim()
@@ -627,6 +631,7 @@ export function authorityTraceDigest(trace) {
     fail('Authority trace cannot be digested.')
   }
   const fields = Object.fromEntries(TRACE_FIELDS.map((field) => [field, trace.fields[field]]))
+  if (Object.hasOwn(trace.fields, 'Authority correction')) fields['Authority correction'] = trace.fields['Authority correction']
   return `sha256:${createHash('sha256').update(`${JSON.stringify({ version: 1, fields })}\n`, 'utf8').digest('hex')}`
 }
 
@@ -637,6 +642,10 @@ export function validateAuthorityTrace(trace, {
   acceptedAcrRecords = [],
   changedPaths = [],
   identifierOnlyOwnerChange = null,
+  ownerCorrection = null,
+  acrTransaction,
+  acrBaseRecords = [],
+  acrKnownRuleIds = knownRuleIds,
 }) {
   const known = new Set(knownRuleIds)
   if (trace.ruleIds.some((id) => !known.has(id))) fail('Authority trace references an unknown Rule ID.')
@@ -644,31 +653,61 @@ export function validateAuthorityTrace(trace, {
   if (computedClassification === 'protected' && /^(?:n\/?a|not applicable)\s*[:—-]/i.test(trace.fields['Protected reason'])) {
     fail('Protected change lacks a protected reason.')
   }
+  const currentTransactions = known.has('GOV-004')
+  const correction = trace.fields['Authority correction']
+  if (correction) {
+    if (!currentTransactions || correction !== 'meaning-preserving'
+      || changeCategories.length !== 1 || changeCategories[0] !== 'permanent-owner'
+      || changedPaths.length !== 1 || ownerCorrection?.path !== changedPaths[0]
+      || !trace.ruleIds.some((id) => PERMANENT_OWNER_BY_RULE_PREFIX.get(id.split('-')[0]) === ownerCorrection.path)
+      || /ACR-\d{4}-\d{2}-\d{2}-\d{3}/.test(trace.fields.Prerequisites)) {
+      fail('Authority correction lacks an explicit single-owner, unchanged-identity proof and trace.')
+    }
+    return trace
+  }
+  let decision = null
+  let decisionRecord = null
+  if (changeCategories.includes('acr-instance')) {
+    decision = validateAcrTransaction(acrTransaction, {
+      currentRuleIds: knownRuleIds, knownRuleIds: acrKnownRuleIds, baseRecords: acrBaseRecords,
+    })
+    if (decision.acceptedId) {
+      const addition = acrTransaction.changes.find(({ baseSource = null }) => baseSource === null)
+      decisionRecord = parseAcrDocument(addition.path, addition.headSource, { knownRuleIds })
+    }
+  }
   if (changeCategories.includes('permanent-owner')) {
-    const cited = [...trace.fields.Prerequisites.matchAll(/ACR-\d{4}-\d{2}-\d{2}-\d{3}/g)].map((match) => match[0])
+    const cited = [...new Set([...trace.fields.Prerequisites.matchAll(/ACR-\d{4}-\d{2}-\d{2}-\d{3}/g)].map((match) => match[0]))]
     const changedOwners = changedPaths.filter((filePath) => PERMANENT_OWNERS.has(filePath))
     if (identifierOnlyOwnerChange) {
       if (changedOwners.length !== 1
+        || changedPaths.length !== 1
         || identifierOnlyOwnerChange.path !== changedOwners[0]
         || !Array.isArray(identifierOnlyOwnerChange.newRuleIds)
         || identifierOnlyOwnerChange.newRuleIds.length === 0
         || cited.length !== 0
-        || !trace.ruleIds.includes('GOV-001')) {
+        || !trace.ruleIds.includes(currentTransactions ? 'GOV-004' : 'GOV-001')) {
         fail('Identifier-only owner change trace is invalid.')
       }
       return trace
     }
-    const records = new Map(acceptedAcrRecords.map((record) => [record.id, record]))
-    if (changedOwners.length !== 1 || cited.length === 0 || cited.some((id) => !records.has(id))) {
+    if (decision && (!currentTransactions || !decisionRecord || cited.length !== 1 || cited[0] !== decision.acceptedId)) {
+      fail('A combined owner decision requires its one validated accepted Authority Change Record.')
+    }
+    const records = new Map(acceptedAcrRecords
+      .filter(({ id }) => id !== decision?.supersededId)
+      .map((record) => [record.id, record]))
+    if (decisionRecord && currentTransactions) records.set(decisionRecord.id, decisionRecord)
+    if (changedOwners.length === 0 || (!currentTransactions && changedOwners.length !== 1)
+      || cited.length === 0 || cited.some((id) => !records.has(id))) {
       fail('Permanent-owner change lacks an already-merged accepted Authority Change Record prerequisite.')
     }
-    const changedOwner = changedOwners[0]
+    if (currentTransactions && cited.length !== 1) fail('An owner transaction must cite one accepted decision.')
     const related = cited.map((id) => records.get(id)).some(({ ruleIds = [] }) => (
-      ruleIds.some((ruleId) => trace.ruleIds.includes(ruleId)
-        && PERMANENT_OWNER_BY_RULE_PREFIX.get(ruleId.split('-')[0]) === changedOwner)
+      changedOwners.every((changedOwner) => ruleIds.some((ruleId) => trace.ruleIds.includes(ruleId)
+        && PERMANENT_OWNER_BY_RULE_PREFIX.get(ruleId.split('-')[0]) === changedOwner))
     ))
-    const tracedOwner = trace.ruleIds.some((ruleId) => PERMANENT_OWNER_BY_RULE_PREFIX.get(ruleId.split('-')[0]) === changedOwner)
-    if (!related || !tracedOwner) fail('Authority Change Record and trace do not govern the amended permanent owner.')
+    if (!related) fail('Authority Change Record and trace do not govern every amended permanent owner.')
   }
   return trace
 }
@@ -788,14 +827,11 @@ export function trustedDecision(input) {
     acceptedAcrRecords: input.acceptedAcrRecords,
     changedPaths: input.changedPaths,
     identifierOnlyOwnerChange: input.identifierOnlyOwnerChange,
+    ownerCorrection: input.ownerCorrection,
+    acrTransaction: input.acrTransaction,
+    acrBaseRecords: input.acrBaseRecords,
+    acrKnownRuleIds: input.acrKnownRuleIds,
   })
-  if (input.changeCategories?.includes('acr-instance')) {
-    validateAcrTransaction(input.acrTransaction, {
-      currentRuleIds: input.knownRuleIds,
-      knownRuleIds: input.acrKnownRuleIds ?? input.knownRuleIds,
-      baseRecords: input.acrBaseRecords,
-    })
-  }
   const evidence = validateReviewEvidence(input.comments, {
     prNumber: input.prNumber,
     baseSha: input.baseSha,
@@ -852,6 +888,43 @@ export function governanceSnapshotVersion(snapshot) {
   return `sha256:${createHash('sha256').update(`${JSON.stringify(normalized)}\n`, 'utf8').digest('hex')}`
 }
 
+function ownerRuleIdentifiers(filePath, text) {
+  const currentIds = [...text.matchAll(/\*\*(?:Governance )?Rule ID:\*\*\s*`((?:SW|SF|UI|FM|GV|GOV)-\d{3})`/g)].map((match) => match[1])
+  const retired = []
+  const heading = filePath === 'AGENTS.md' ? 'Retired Governance Rule IDs' : 'Retired Rule IDs'
+  const start = text.search(new RegExp(`^## ${heading}$`, 'm'))
+  if (start >= 0) {
+    const remainder = text.slice(start).replace(/^##[^\n]*\n/, '')
+    const next = remainder.search(/^##\s+/m)
+    const section = next >= 0 ? remainder.slice(0, next) : remainder
+    for (const match of section.matchAll(/^\s*(?:-\s*)?`?((?:SW|SF|UI|FM|GV|GOV)-\d{3})`?\s*->\s*([^:\n]+):\s*(\S.*)$/gm)) {
+      retired.push({ id: match[1], successors: [...match[2].matchAll(/(?:SW|SF|UI|FM|GV|GOV)-\d{3}/g)].map((item) => item[0]) })
+    }
+  }
+  return { currentIds, retired }
+}
+
+// This proves transaction shape only. Exact-head independent review establishes
+// semantic equivalence; matching identifiers cannot establish it automatically.
+export function proveOwnerCorrectionShape(changes) {
+  if (!Array.isArray(changes) || changes.length !== 1) return null
+  const change = changes[0]
+  const prefix = RULE_PREFIX_BY_PERMANENT_OWNER.get(change?.path)
+  if (!prefix || change.baseType !== 'blob' || change.headType !== 'blob'
+    || change.baseMode !== '100644' || change.headMode !== '100644'
+    || typeof change.baseSource !== 'string' || typeof change.headSource !== 'string') return null
+  const states = [change.baseSource, change.headSource].map((source) => ownerRuleIdentifiers(change.path, source))
+  for (const { currentIds, retired } of states) {
+    const ids = [...currentIds, ...retired.map(({ id }) => id)]
+    if (currentIds.length === 0 || new Set(ids).size !== ids.length
+      || ids.some((id) => !id.startsWith(`${prefix}-`))) return null
+  }
+  if (!sameStrings(states[0].currentIds.sort(), states[1].currentIds.sort())) return null
+  const ledger = ({ retired }) => retired.map(({ id, successors }) => `${id}:${[...successors].sort().join(',')}`).sort()
+  if (!sameStrings(ledger(states[0]), ledger(states[1]))) return null
+  return Object.freeze({ path: change.path })
+}
+
 export function extractRuleIdState(ownerTexts) {
   if (!Array.isArray(ownerTexts) || ownerTexts.length !== 6) fail('Exactly five permanent owners and AGENTS are required.')
   const currentIds = []
@@ -860,17 +933,9 @@ export function extractRuleIdState(ownerTexts) {
     const path = normalizePath(rawPath)
     if (!PERMANENT_OWNERS.has(path) && path !== 'AGENTS.md') fail('Rule IDs were read from a non-owner file.')
     if (typeof text !== 'string') fail('Owner text is unavailable.')
-    for (const match of text.matchAll(/\*\*(?:Governance )?Rule ID:\*\*\s*`((?:SW|SF|UI|FM|GV|GOV)-\d{3})`/g)) currentIds.push(match[1])
-    const heading = path === 'AGENTS.md' ? 'Retired Governance Rule IDs' : 'Retired Rule IDs'
-    const start = text.search(new RegExp(`^## ${heading}$`, 'm'))
-    if (start >= 0) {
-      const remainder = text.slice(start).replace(/^##[^\n]*\n/, '')
-      const next = remainder.search(/^##\s+/m)
-      const section = next >= 0 ? remainder.slice(0, next) : remainder
-      for (const match of section.matchAll(/^\s*(?:-\s*)?`?((?:SW|SF|UI|FM|GV|GOV)-\d{3})`?\s*->\s*([^:\n]+):\s*(\S.*)$/gm)) {
-        retired.push({ id: match[1], successors: [...match[2].matchAll(/(?:SW|SF|UI|FM|GV|GOV)-\d{3}/g)].map((item) => item[0]) })
-      }
-    }
+    const identifiers = ownerRuleIdentifiers(path, text)
+    currentIds.push(...identifiers.currentIds)
+    retired.push(...identifiers.retired)
   }
   const retiredIds = retired.map(({ id }) => id)
   const knownRuleIds = [...currentIds, ...retiredIds]
