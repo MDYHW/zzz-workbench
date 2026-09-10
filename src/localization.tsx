@@ -383,7 +383,20 @@ const koDiscEffectTemplates = {
   notesFromTheChained: { twoPiece: ['얼음 피해 +{0}%'], fourPiece: ['이상 마스터리 +{0}', '파티 속성 이상 및 혼돈 피해 +{0}%'] },
 } as const satisfies Record<DiscId, { twoPiece: readonly string[]; fourPiece: readonly string[] }>
 
-const koSourceLoci: Partial<Record<SourceDefinitionLocus, string>> = {
+type DirectSourceLocus = Exclude<
+  SourceDefinitionLocus,
+  | 'w-engine'
+  | 'disc-4pc'
+  | 'disc-2pc'
+  | 'disc-slot-4'
+  | 'disc-slot-5'
+  | 'disc-slot-6'
+  | 'substat-1'
+  | 'substat-2'
+  | 'substat-3'
+>
+
+const koSourceLoci = {
   identity: '고유 효과',
   core: '핵심 패시브',
   additional: '추가 능력',
@@ -396,7 +409,11 @@ const koSourceLoci: Partial<Record<SourceDefinitionLocus, string>> = {
   mindscape: '형상 시네마',
   calculation: '계산',
   target: '타깃',
-}
+} as const satisfies Record<DirectSourceLocus, string>
+
+const localizedSourceLocus = (locus: SourceDefinitionLocus): string | undefined => (
+  Object.hasOwn(koSourceLoci, locus) ? koSourceLoci[locus as DirectSourceLocus] : undefined
+)
 
 const koPresentation = KOREAN_PRESENTATION
 
@@ -508,7 +525,7 @@ function localizedSourceKey(key: SourceDefinitionKey, locus: SourceDefinitionLoc
       if (key.sourceId === 'potential') return '잠재 능력'
       if (key.sourceId === 'stances') return '자세 효과'
       if (key.sourceId === 'rupture-sheer-force') return '명파 특성'
-      return koSourceLoci[locus]
+      return localizedSourceLocus(locus)
     case 'mindscape':
       return '형상 시네마'
     case 'w-engine-base':
@@ -523,7 +540,7 @@ function localizedSourceKey(key: SourceDefinitionKey, locus: SourceDefinitionLoc
       return koStats[key.statId]
     case 'calculation': {
       const calculationId = key.calculationId.split(':').at(-1)!
-      return koCalculationSources[calculationId] ?? koSourceLoci[locus]
+      return koCalculationSources[calculationId] ?? localizedSourceLocus(locus)
     }
   }
 }
@@ -532,7 +549,7 @@ export function localizedSourceLabel(source: ResultSource, locale: Locale): stri
   if (locale === 'en') return source.label
   return source.sourceKey
     ? localizedSourceKey(source.sourceKey, source.locus) ?? localizeText(source.label, locale)
-    : koSourceLoci[source.locus] ?? localizeText(source.label, locale)
+    : localizedSourceLocus(source.locus) ?? localizeText(source.label, locale)
 }
 
 export function localizedSourceDetail(source: ResultSource, locale: Locale): string | undefined {
