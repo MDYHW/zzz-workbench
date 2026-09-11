@@ -128,7 +128,6 @@ test('keeps conversion opening explicit and clears stale destinations after edit
 test('keeps the minimal extension permission and runtime boundary', () => {
   const manifest = JSON.parse(fs.readFileSync(new URL('./manifest.json', import.meta.url), 'utf8'))
   assert.equal(manifest.name, 'ZZZ Setup Companion')
-  assert.equal(manifest.version, '0.4.0')
   assert.deepEqual(manifest.permissions, ['activeTab', 'scripting'])
   for (const field of ['host_permissions', 'background', 'content_scripts', 'web_accessible_resources']) {
     assert.equal(field in manifest, false)

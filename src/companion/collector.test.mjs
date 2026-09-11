@@ -25,6 +25,7 @@ function fixture(mode = 'normal', serializedCollector = null) {
   }
   const document = window.document
   let clicks = 0
+  let homeVisits = 0
   let interrupt
   const add = document.addEventListener.bind(document)
   document.addEventListener = (type, listener, ...rest) => {
@@ -40,6 +41,9 @@ function fixture(mode = 'normal', serializedCollector = null) {
   }
   function list() {
     const current = page('#/zzz/roles/all')
+    if (mode === 'home-account-change' && homeVisits) {
+      window.history.replaceState({}, '', '#/zzz/roles/all?role_id=changed&server=fixture')
+    }
     targets.forEach((target, index) => {
       if (mode === 'missing' && index === 1) return
       const card = document.createElement('p')
@@ -48,6 +52,13 @@ function fixture(mode = 'normal', serializedCollector = null) {
       card.onclick = () => detail(target, index)
       current.append(card)
     })
+  }
+  function home() {
+    homeVisits += 1
+    const current = page('#/zzz')
+    window.history.replaceState({}, '', '#/zzz')
+    current.innerHTML = '<span class="rightText_fixture">전체 에이전트</span>'
+    current.querySelector('span').onclick = list
   }
   function detail(target, index) {
     const current = page(`#/zzz/roles/${9_001 + index}/detail`)
@@ -58,6 +69,14 @@ function fixture(mode = 'normal', serializedCollector = null) {
       <div class="weapon-info"><img class="rank" src="images/role-star-5.fixture.png"></div>
       ${Array.from({ length: 6 }, (_, slot) => `<div class="equip-info-${slot + 1}"></div>`).join('')}`
     current.querySelector('button').onclick = list
+    if (mode === 'home' || mode === 'home-account-change') {
+      current.querySelector('button').remove()
+      const header = document.createElement('div')
+      header.className = 'header_fixture'
+      header.innerHTML = '<img src="images/home-icon.fixture.png">'
+      header.querySelector('img').onclick = home
+      current.prepend(header)
+    }
     if (mode === 'hidden-rank') current.querySelector('.rank-list > div').hidden = true
     window.setTimeout(() => current.querySelectorAll('use').forEach((use, rank) => {
       use.setAttribute('href', `#gti--zzz-game-mindscape-0${rank + 1}fixture`)
@@ -98,7 +117,7 @@ function fixture(mode = 'normal', serializedCollector = null) {
   window.eval(serializedCollector
     ? `globalThis.collectParty = (${serializedCollector})`
     : source.replace('export async function', 'async function'))
-  return { window, run: () => window.collectParty(targets), clicks: () => clicks }
+  return { window, run: () => window.collectParty(targets), clicks: () => clicks, homeVisits: () => homeVisits }
 }
 
 test('the generated collector remains self-contained when Chrome serializes its exported function', async () => {
@@ -107,12 +126,13 @@ test('the generated collector remains self-contained when Chrome serializes its 
   assert.ok(generated)
   const moduleUrl = `data:text/javascript;base64,${generated.bytes.toString('base64')}`
   const { collectParty } = await import(moduleUrl)
-  const current = fixture('normal', collectParty.toString())
+  const current = fixture('home', collectParty.toString())
   try {
     const result = await current.run()
     assert.equal(result.ok, true, result.error)
     assert.equal(result.data.format, 'zzz-party-gear-display-v1')
     assert.equal(current.clicks(), 21)
+    assert.equal(current.homeVisits(), 2)
   } finally { current.window.close() }
 })
 
@@ -140,7 +160,7 @@ test('ignores hidden option rows and hidden descendants inside a visible option 
   } finally { current.window.close() }
 })
 
-for (const mode of ['missing', 'wrong-name', 'wrong-slot', 'interruption', 'account-change', 'hidden-cell', 'hidden-rank']) {
+for (const mode of ['missing', 'wrong-name', 'wrong-slot', 'interruption', 'account-change', 'home-account-change', 'hidden-cell', 'hidden-rank']) {
   test(`clears the entire collection on ${mode}`, async () => {
     const current = fixture(mode)
     try {
