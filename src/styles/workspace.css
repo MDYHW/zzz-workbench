@@ -578,31 +578,6 @@ button.engine-candidate:hover { border-color: var(--accent-soft); background: #2
   padding-right: 41px;
 }
 
-.disc-effect-rows {
-  display: grid;
-  gap: 3px;
-}
-
-.disc-effect-rows > span {
-  display: grid;
-  min-width: 0;
-  grid-template-columns: 24px minmax(0, 1fr);
-  align-items: baseline;
-  gap: 4px;
-}
-
-.disc-effect-rows small {
-  color: var(--muted);
-  font: 800 7px/1 var(--mono);
-}
-
-.disc-effect-rows b {
-  color: #bdb6aa;
-  font-size: 8px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
 .main-stat-grid > .main-stat-selection {
   position: relative;
   display: block;
@@ -1008,36 +983,7 @@ button.main-stat-block:focus-visible {
   .main-stat-grid { gap: 4px; }
   .main-stat-grid > div { min-height: 70px; }
   .main-stat-grid dd { padding: 7px 5px; }
-  .result-panel { padding-right: 9px; padding-left: 9px; }
-  .agent-result { border: 0; }
-  .agent-result thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-  }
-  .agent-result table,
-  .agent-result tbody:not([hidden]) { display: block; width: 100%; }
-  .agent-result tbody tr:not(.breakdown-row) {
-    display: grid;
-    grid-template-columns: 1fr;
-    margin-bottom: 7px;
-    border: 1px solid #aaa397;
-    background: #eee9df;
-  }
-  .agent-result tbody tr:not(.breakdown-row) > th,
-  .agent-result tbody tr:not(.breakdown-row) > td { display: grid; grid-template-columns: 1fr auto; align-items: center; width: 100%; border-bottom: 1px solid #cbc4b7; text-align: right; }
-  .agent-result tbody tr:not(.breakdown-row) > td { padding: 7px 9px; font-size: 11px; }
-  .agent-result tbody tr:not(.breakdown-row) > td::before { content: attr(data-surface-label); }
-  .agent-result tbody tr:not(.breakdown-row) > td::before { justify-self: start; color: #706a61; font: 800 7px/1 var(--mono); text-transform: uppercase; }
-  .agent-result tbody tr:not(.breakdown-row) > td .result-value { justify-self: end; }
-  .breakdown-row { display: block; }
-  .breakdown-row > td { display: block; width: 100%; }
-  .action-differences { overflow-x: auto; }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
