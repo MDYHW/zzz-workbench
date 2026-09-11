@@ -95,6 +95,7 @@
 }
 
 .setup-chassis :is(.mindscape-rail, .segmented-control) { gap: 4px; }
+.setup-chassis .mindscape-rail button { white-space: nowrap; }
 
 .setup-chassis .segmented-control {
   padding: 0;
@@ -751,6 +752,8 @@
 }
 
 @container setup (max-width: 420px) {
+  .setup-chassis .mindscape-rail { gap: 2px; }
+
   .setup-chassis .equipment-fieldset {
     grid-template-columns: minmax(0, 1fr);
   }

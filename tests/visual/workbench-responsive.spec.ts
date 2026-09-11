@@ -25,6 +25,14 @@ for (const width of [320, 390, 750, 769, 800, 1100, 1280]) {
       const title = await page.locator('.masthead h1').boundingBox()
       const actions = await page.locator('.masthead-actions').boundingBox()
       expect(title!.x + title!.width).toBeLessThanOrEqual(actions!.x + 1)
+      expect(await page.locator('.mindscape-rail button').evaluateAll((buttons) => buttons.every((button) => {
+        const range = document.createRange()
+        range.selectNodeContents(button)
+        const lines = new Set(Array.from(range.getClientRects()).map((rect) => Math.round(rect.top)))
+        const text = range.getBoundingClientRect()
+        const control = button.getBoundingClientRect()
+        return lines.size === 1 && text.left >= control.left && text.right <= control.right
+      }))).toBe(true)
 
       for (let slot = 0; slot < 3; slot++) {
         await page.getByRole('tab').nth(slot).click()
