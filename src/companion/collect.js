@@ -117,7 +117,8 @@ export async function collectParty(targets) {
   };
   const goToList = async () => {
     if (/^#\/zzz\/roles\/\d+\/detail$/.test(route())) {
-      await transition(one(document, '[class^="backIcon_"]'), ['#/zzz/roles/all', '#/zzz'],
+      const returnControl = one(document, '[class^="backIcon_"], [class^="header_"] > img[src^="images/home-icon."]');
+      await transition(returnControl, ['#/zzz/roles/all', '#/zzz'],
         () => ['#/zzz/roles/all', '#/zzz'].includes(route()));
     }
     if (route() === '#/zzz') {
