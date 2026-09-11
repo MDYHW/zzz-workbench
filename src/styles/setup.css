@@ -311,46 +311,6 @@
   height: 92px;
 }
 
-.setup-chassis .disc-effect-rows {
-  display: grid;
-  align-self: stretch;
-  container-type: inline-size;
-  grid-template-rows: repeat(2, minmax(12px, auto));
-}
-
-.setup-chassis .disc-effect-rows--four-piece:has(> span:nth-child(3)),
-.setup-chassis .disc-grid:has(.disc-effect-rows--four-piece > span:nth-child(3)) .disc-effect-rows--two-piece {
-  grid-template-rows: repeat(3, minmax(12px, auto));
-  min-height: 44px;
-}
-
-.setup-chassis .disc-effect-rows--four-piece:has(> span:nth-child(3)) > .disc-effect-row--two-piece,
-.setup-chassis .disc-grid:has(.disc-effect-rows--four-piece > span:nth-child(3)) .disc-effect-rows--two-piece > span {
-  grid-row: 3;
-}
-
-.setup-chassis .disc-effect-rows > span {
-  display: grid;
-  min-width: 0;
-}
-
-.setup-chassis .disc-effect-rows small,
-.setup-chassis .disc-effect-rows b {
-  font-size: 10px;
-  line-height: 1.2;
-}
-
-.setup-chassis .disc-effect-rows small {
-  color: var(--muted);
-  font-family: var(--mono);
-  font-weight: 800;
-}
-
-.setup-chassis .disc-effect-rows b {
-  font-family: "Bahnschrift Condensed", "Arial Narrow", sans-serif;
-  font-weight: 700;
-}
-
 .setup-chassis .stat-bank__group-heading {
   display: flex;
   align-items: center;
@@ -563,38 +523,6 @@
 
   .setup-chassis .disc-selection .selection-surface {
     row-gap: 4px;
-  }
-
-  .setup-chassis .disc-effect-rows {
-    --disc-effect-row-height: clamp(14px, calc(1.667vw - 10px), 18px);
-    grid-template-rows: repeat(2, minmax(var(--disc-effect-row-height), auto));
-    min-height: calc(var(--disc-effect-row-height) + var(--disc-effect-row-height) + 4px);
-  }
-
-  .setup-chassis .disc-effect-rows--four-piece:has(> span:nth-child(3)),
-  .setup-chassis .disc-grid:has(.disc-effect-rows--four-piece > span:nth-child(3)) .disc-effect-rows--two-piece {
-    grid-template-rows: repeat(3, minmax(var(--disc-effect-row-height), auto));
-    min-height: calc(
-      var(--disc-effect-row-height) +
-      var(--disc-effect-row-height) +
-      var(--disc-effect-row-height) +
-      8px
-    );
-  }
-
-  .setup-chassis .disc-effect-rows > span {
-    grid-template-columns: 20px minmax(0, 1fr);
-    align-items: center;
-    gap: 4px;
-  }
-
-  .setup-chassis .disc-effect-rows small {
-    font-size: 11px;
-  }
-
-  .setup-chassis .disc-effect-rows b {
-    font-size: clamp(10.5px, 8.75cqi, 14.5px);
-    line-height: 1.15;
   }
 
   .setup-chassis .main-stat-grid {
@@ -816,58 +744,6 @@
   .loadout-control-grid {
     grid-template-columns: 1fr;
   }
-}
-
-/* Result labels wrap naturally; source qualifiers own their semantic second line. */
-.metric-toggle > span,
-.metric-label {
-  min-width: 0;
-  white-space: normal;
-  overflow-wrap: normal;
-  text-wrap: balance;
-}
-
-.metric-toggle > span {
-  display: block;
-}
-
-.metric-label {
-  display: grid;
-  align-content: center;
-}
-
-.source-matrix tbody th .source-copy {
-  display: inline-flex;
-  max-width: calc(100% - 14px);
-  flex-direction: column;
-  gap: 2px;
-  overflow: visible;
-  white-space: normal;
-  vertical-align: middle;
-}
-
-.source-matrix tbody th .source-copy > span,
-.source-matrix tbody th .source-copy > small {
-  display: block;
-  white-space: normal;
-  overflow-wrap: break-word;
-  text-wrap: balance;
-}
-
-.source-matrix tbody th .source-copy > small::before {
-  content: none;
-}
-
-.source-matrix tbody th,
-.source-matrix tbody td {
-  padding-right: 6px;
-  padding-left: 6px;
-}
-
-.source-matrix tbody th > i {
-  width: 7px;
-  height: 7px;
-  margin-right: 5px;
 }
 
 /* Fixed-state locks overlay the existing field without reserving a track. */
