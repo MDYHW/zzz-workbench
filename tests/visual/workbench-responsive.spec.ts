@@ -1,7 +1,7 @@
 import { openInitialWorkbench, waitForWorkbenchRender } from './support/workbench-page'
 import { expect, test } from './support/visual-test'
 
-for (const width of [320, 390, 769, 800, 1100, 1280]) {
+for (const width of [320, 390, 750, 769, 800, 1100, 1280]) {
   test(`keeps equipment text and masthead actions separate at ${width}px`, async ({ page }) => {
     await openInitialWorkbench(page, { width, height: 900 })
     for (const [slot, name] of [
