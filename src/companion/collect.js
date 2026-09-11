@@ -11,6 +11,14 @@ export async function collectParty(targets) {
   let ownedPopup = null;
   const onInput = event => { if (event.isTrusted) interrupted = true; };
   const visible = el => !!el && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
+  const visibleText = el => {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let value = '';
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (visible(node.parentElement)) value += node.nodeValue;
+    }
+    return value;
+  };
   const normalize = name => name.normalize('NFKC').replace(/[「」『』]/g, '').replace(/\s+/g, ' ').trim();
   const one = (scope, selector) => {
     const matches = [...scope.querySelectorAll(selector)].filter(visible);
@@ -18,7 +26,8 @@ export async function collectParty(targets) {
     return matches[0];
   };
   const text = el => {
-    const value = el.textContent.trim();
+    if (!visible(el)) throw new Error('필수 장비 표시값이 보이지 않습니다.');
+    const value = visibleText(el).trim();
     if (!value || value.length > 160) throw new Error('장비 표시값을 확인할 수 없습니다.');
     return value;
   };
@@ -60,7 +69,7 @@ export async function collectParty(targets) {
   };
   const stats = (popup, selector, count) => {
     const region = one(popup, selector);
-    const rows = [...region.querySelectorAll(':scope > div > div')];
+    const rows = [...region.querySelectorAll(':scope > div > div')].filter(visible);
     if (count === 4 ? rows.length > 4 : rows.length !== count) throw new Error('옵션 개수가 예상과 다릅니다.');
     return rows.map(row => {
       const cells = [...row.querySelectorAll(':scope > span')];
@@ -136,11 +145,11 @@ export async function collectParty(targets) {
     for (const target of targets) {
     await goToList();
     const cards = [...document.querySelectorAll('.gt-card__info-outside')]
-      .filter(el => visible(el) && target.names.includes(normalize(el.textContent)));
+      .filter(el => visible(el) && target.names.includes(normalize(visibleText(el))));
     if (cards.length !== 1) throw new Error(`${target.names[0]}를 목록에서 찾지 못했습니다. 보유 여부와 필터를 확인하세요.`);
     await transition(cards[0], [], () =>
       /^#\/zzz\/roles\/[1-9]\d*\/detail$/.test(route()) && [...document.querySelectorAll('.role-base-info .nickname')]
-        .some(el => visible(el) && target.names.includes(normalize(el.textContent)))
+        .some(el => visible(el) && target.names.includes(normalize(visibleText(el))))
       && [...document.querySelectorAll('.weapon-info')].some(visible), true);
     const base = one(document, '.role-base-info');
     const name = text(one(base, '.nickname'));
@@ -151,7 +160,7 @@ export async function collectParty(targets) {
       if (!base.isConnected || !visible(base) || text(one(base, '.nickname')) !== name) {
         throw new Error('돌파를 읽는 중 에이전트 화면이 변경되었습니다.');
       }
-      const rankIcons = [...one(base, '.rank-list').children];
+      const rankIcons = [...one(base, '.rank-list').children].filter(visible);
       if (rankIcons.length < 6) return false;
       if (rankIcons.length !== 6) throw new Error('돌파 표시를 확인할 수 없습니다.');
       const hrefs = rankIcons.map(icon => icon.querySelector('use')?.getAttribute('href') || '');
@@ -175,7 +184,7 @@ export async function collectParty(targets) {
     const buttons = [engineButton, ...Array.from({ length: 6 }, (_, i) => one(document, `.equip-info-${i + 1}`))];
     const fingerprint = () => buttons.map(button => {
       if (!button.isConnected || !visible(button)) throw new Error('장비 화면이 변경되었습니다.');
-      return [...button.querySelectorAll('img')].map(image => image.getAttribute('src')).join('|') + button.textContent;
+      return [...button.querySelectorAll('img')].filter(visible).map(image => image.getAttribute('src')).join('|') + visibleText(button);
     }).join('\n');
     const before = fingerprint();
 
@@ -220,4 +229,3 @@ export async function collectParty(targets) {
     globalThis.__zzzGearCollectionRunning = false;
   }
 }
-

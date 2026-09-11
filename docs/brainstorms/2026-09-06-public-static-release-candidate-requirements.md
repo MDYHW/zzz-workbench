@@ -164,7 +164,7 @@ announcement state only.
   minimum host control file, and the bounded companion download and minimal
   installation/use help authorized by `SW-022`. The download contains generated
   runtime files and required extension installation metadata only. It contains no private source
-  tree, source history, project documentation, package metadata, test input,
+  tree, source history, project documentation, development package metadata, test input,
   development configuration, credential, source map, absolute local path, or
   private-repository identity.
 - R4. Public commits use only the neutral bootstrap or publisher App identity as

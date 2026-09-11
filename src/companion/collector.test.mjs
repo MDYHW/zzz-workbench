@@ -58,6 +58,7 @@ function fixture(mode = 'normal', serializedCollector = null) {
       <div class="weapon-info"><img class="rank" src="images/role-star-5.fixture.png"></div>
       ${Array.from({ length: 6 }, (_, slot) => `<div class="equip-info-${slot + 1}"></div>`).join('')}`
     current.querySelector('button').onclick = list
+    if (mode === 'hidden-rank') current.querySelector('.rank-list > div').hidden = true
     window.setTimeout(() => current.querySelectorAll('use').forEach((use, rank) => {
       use.setAttribute('href', `#gti--zzz-game-mindscape-0${rank + 1}fixture`)
     }), 40)
@@ -71,6 +72,17 @@ function fixture(mode = 'normal', serializedCollector = null) {
         </div></div><div class="base-attrs"><div><div><span>공격력</span><span>30%</span></div></div></div>
         <div class="upper-attrs"><div>${['치명타 확률', '치명타 피해', 'HP'].map((label) => `<div><span>${label}</span><span>3%</span></div>`).join('')}</div></div></div>`
       current.append(popup)
+      if (mode === 'hidden-data' && slot) {
+        const hiddenRow = document.createElement('div')
+        hiddenRow.hidden = true
+        hiddenRow.innerHTML = '<span>HIDDEN_FIXTURE</span><span>321</span>'
+        popup.querySelector('.upper-attrs > div').append(hiddenRow)
+        const hiddenText = document.createElement('span')
+        hiddenText.hidden = true
+        hiddenText.textContent = 'HIDDEN_FIXTURE'
+        popup.querySelector('.base-attrs span:last-child').append(hiddenText)
+      }
+      if (mode === 'hidden-cell' && slot) popup.querySelector('.base-attrs span:last-child').hidden = true
       popup.querySelector('button').onclick = () => { popup.hidden = true }
       if (mode === 'interruption' && index === 1 && slot === 2) interrupt()
       if (mode === 'account-change' && index === 1 && slot === 2) {
@@ -117,7 +129,18 @@ test('collects synthetic visible gear, normalized names, delayed Mindscape SVGs,
   } finally { current.window.close() }
 })
 
-for (const mode of ['missing', 'wrong-name', 'wrong-slot', 'interruption', 'account-change']) {
+test('ignores hidden option rows and hidden descendants inside a visible option value', async () => {
+  const current = fixture('hidden-data')
+  try {
+    const result = await current.run()
+    assert.equal(result.ok, true, result.error)
+    assert.equal(result.data.members[0].discs[0].substats.length, 3)
+    assert.equal(result.data.members[0].discs[0].main.value, '30%')
+    assert.doesNotMatch(JSON.stringify(result), /HIDDEN_FIXTURE/)
+  } finally { current.window.close() }
+})
+
+for (const mode of ['missing', 'wrong-name', 'wrong-slot', 'interruption', 'account-change', 'hidden-cell', 'hidden-rank']) {
   test(`clears the entire collection on ${mode}`, async () => {
     const current = fixture(mode)
     try {
