@@ -1103,8 +1103,9 @@ been applied, there is no prior setup or Result to preserve while composing the
 initial draft. Edit-time presentation is owned by
 [Party Editing](workbench-ui-design-rules.md#party-editing) (`UI-006`).
 
-Opening a valid explicitly copied Setup shortcut is the only alternate initial
-entry. It bypasses the initial draft and prepared initialization, atomically
+Opening a valid explicitly requested Setup shortcut, copied from the workbench
+or produced by the bounded companion under `SW-022`, is the only alternate
+initial entry. It bypasses the initial draft and prepared initialization, atomically
 establishes three ordered admitted Agents, Focus, and one complete selected
 Setup for each Agent, then recalculates Result from those current inputs. Every
 carried identity and selection must be valid together under the current product
@@ -1142,7 +1143,8 @@ initially viewed Agent after shortcut entry.
 
 **Rule ID:** `SW-022`
 
-- provider ingestion, universal schemas, source registries, or persisted output;
+- provider ingestion beyond the bounded companion below, universal schemas,
+  source registries, or persisted output;
 - API, persistence, authentication, application telemetry, server-side
   application processing, hidden build history, ongoing address
   synchronization, or address-derived and cross-visit state beyond the
@@ -1173,6 +1175,28 @@ application-managed saved Setup or file export, ongoing address
 synchronization, partial recovery, inferred replacement, compatibility
 migration, account, API, server-held state, or server transmission of Setup as
 application data.
+
+A user-invoked local browser companion may read equipment visibly presented in
+the user's official HoYoLAB session for the three admitted Agents selected in
+the workbench. It converts only currently supported Setup inputs, preserves
+party and Focus, uses the full W-Engine pool, and applies the existing completed-
+growth assumptions without estimating future upgrades. An explicitly authored
+same-effect 2-piece relationship may map to the unique currently offered legal
+identity while preserving the selected 4-piece and different-set legality.
+Other unsupported selections block conversion or require an explicit comparison
+choice. Excluded values and changed identities remain available for inspection.
+Only a complete valid shortcut may be offered, and opening it requires the
+user's action; `SW-016` still accepts all inputs atomically or none.
+
+This companion grants no credential or cookie collection, hidden account-data
+access, direct authenticated API requests, remote data processing, background
+synchronization, persistent gear storage, or broader ingestion surface. The
+official page may perform its ordinary authenticated requests during user-
+invoked navigation. Generated companion runtime files and required installation
+metadata may be publicly downloaded with minimal installation and usage help,
+subject to the same exact-artifact release review and public-output exclusions
+as the static client. Private source provenance, development files, account
+fixtures, and credentials remain excluded from those downloads.
 
 The publicly deliverable client, including its local build, may include one
 minimal, persistent, non-interactive legal attribution surface required for
