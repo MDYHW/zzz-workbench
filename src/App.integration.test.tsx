@@ -30,6 +30,28 @@ function renderEnglishApp() {
   return rendered
 }
 
+it('offers a local download with bilingual installation help and keyboard dismissal', async () => {
+  const user = userEvent.setup()
+  render(<App />)
+  const trigger = screen.getByLabelText('장비 가져오기 안내')
+  await user.click(trigger)
+  expect(trigger.closest('details')).toHaveAttribute('open')
+  const download = screen.getByRole('link', { name: '확장 기능 ZIP 다운로드' })
+  expect(download).toHaveAttribute('href', '/downloads/zzz-setup-companion.zip')
+  expect(download).toHaveAttribute('download')
+  download.focus()
+  await user.keyboard('{Escape}')
+  expect(trigger.closest('details')).not.toHaveAttribute('open')
+  expect(trigger).toHaveFocus()
+  await user.click(screen.getByRole('button', { name: '표시 언어: 한국어' }))
+  await user.click(screen.getByRole('menuitemradio', { name: 'Display in English' }))
+  await user.click(screen.getByLabelText('Gear import guide'))
+  expect(screen.getByRole('link', { name: 'Download extension ZIP' })).toHaveAttribute('download')
+  await user.click(screen.getByRole('heading', { name: 'ZZZ Setup Workbench' }))
+  expect(trigger.closest('details')).not.toHaveAttribute('open')
+  expect(window.location.hash).toBe('')
+})
+
 async function renderPreparedFixtureParty() {
   const user = userEvent.setup()
   renderEnglishApp()

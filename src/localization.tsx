@@ -98,6 +98,7 @@ const koDiscNames = {
 } as const satisfies Record<DiscId, string>
 
 const enUi = {
+  hoyolabAria: 'Open HoYoLAB battle records (new tab)',
   copySetup: 'Copy setup', copying: 'Copying', copied: 'Copied', copyFailed: 'Copy failed',
   copyAria: 'Copy Setup shortcut', copyingAnnouncement: 'Copying Setup shortcut.',
   copiedAnnouncement: 'Setup shortcut copied.', failedAnnouncement: 'Setup shortcut could not be copied.',
@@ -116,6 +117,7 @@ const enUi = {
 
 type UiKey = keyof typeof enUi
 const koUi = {
+  hoyolabAria: 'HoYoLAB 전적 열기 (새 탭)',
   copySetup: '세팅 복사', copying: '복사 중', copied: '복사됨', copyFailed: '복사 실패',
   copyAria: '세팅 바로가기 복사', copyingAnnouncement: '세팅 바로가기를 복사하고 있습니다.',
   copiedAnnouncement: '세팅 바로가기를 복사했습니다.', failedAnnouncement: '세팅 바로가기를 복사하지 못했습니다.',

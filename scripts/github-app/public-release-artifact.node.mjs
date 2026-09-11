@@ -29,6 +29,8 @@ import {
   validateReleaseDecision,
 } from './public-release-artifact.mjs';
 import { sanitizeRasterMetadata } from './public-raster-metadata.js';
+import { COMPANION_DOWNLOAD, COMPANION_FILES, createCompanionArchive, readCompanionArchive } from './companion/archive.mjs';
+import { buildCompanion } from './companion/build.mjs';
 
 const SHA_A = 'a'.repeat(40);
 const SHA_B = 'b'.repeat(40);
@@ -162,6 +164,66 @@ function minimalFiles() {
     file('.nojekyll'),
   ];
 }
+
+function companionFiles() {
+  const manifest = {
+    manifest_version: 3, name: 'Fixture companion', version: '1.0.0', description: 'Visible gear reader',
+    permissions: ['activeTab', 'scripting'], action: { default_popup: 'popup.html', default_title: 'Gear' },
+    content_security_policy: { extension_pages: "script-src 'self'; object-src 'none'; connect-src 'none'; img-src 'self'; style-src 'self'" },
+  };
+  return COMPANION_FILES.map(name => ({ path: name, bytes: Buffer.from(name === 'manifest.json' ? JSON.stringify(manifest) : '') }));
+}
+
+test('companion ZIP is deterministic, canonical and inspected for nested private content', () => {
+  const entries = companionFiles();
+  const zip = createCompanionArchive(entries);
+  assert.deepEqual(zip, createCompanionArchive([...entries].reverse()));
+  assert.deepEqual(readCompanionArchive(zip), entries);
+  createArtifactManifest([...minimalFiles(), file(COMPANION_DOWNLOAD, zip)]);
+  for (const forbidden of ['private-owner', 'document.cookie', 'fetch("https://example.com")', '//# sourceMappingURL=private.map']) {
+    const changed = entries.map(entry => entry.path === 'adapter.js' ? { ...entry, bytes: Buffer.from(forbidden) } : entry);
+    assert.throws(() => createArtifactManifest([...minimalFiles(), file(COMPANION_DOWNLOAD, createCompanionArchive(changed))]));
+  }
+  for (const changed of [Buffer.concat([zip, Buffer.from('extra')]), zip.subarray(0, -1)]) {
+    expectCode(() => createArtifactManifest([...minimalFiles(), file(COMPANION_DOWNLOAD, changed)]), 'companion_invalid');
+  }
+  const corrupted = Buffer.from(zip);
+  corrupted[4] ^= 1;
+  assert.throws(() => readCompanionArchive(corrupted));
+  assert.throws(() => createCompanionArchive(entries.map((entry, i) => i === 0 ? { ...entry, path: '../adapter.js' } : entry)));
+  assert.throws(() => createCompanionArchive([...entries, { path: 'source-version.json', bytes: Buffer.from('{}') }]));
+});
+
+test('companion installation metadata cannot add host, storage or background privileges', () => {
+  for (const change of [
+    manifest => { manifest.permissions.push('cookies'); },
+    manifest => { manifest.host_permissions = ['<all_urls>']; },
+    manifest => { manifest.background = { service_worker: 'adapter.js' }; },
+    manifest => { manifest.content_security_policy.extension_pages = "script-src 'self'; connect-src *"; },
+  ]) {
+    const entries = companionFiles();
+    const manifest = JSON.parse(entries[2].bytes);
+    change(manifest);
+    entries[2].bytes = Buffer.from(JSON.stringify(manifest));
+    assert.throws(() => createArtifactManifest([...minimalFiles(), file(COMPANION_DOWNLOAD, createCompanionArchive(entries))]));
+  }
+});
+
+test('only the fixed user navigation targets are added to the public URL boundary', () => {
+  const files = minimalFiles();
+  files[1].bytes = Buffer.concat([files[1].bytes, Buffer.from('"https://act.hoyolab.com/app/zzz-game-record/index.html?lang=ko-kr&hyl_presentation_style=fullscreen#/zzz"')]);
+  createArtifactManifest(files);
+  files[1].bytes = Buffer.concat([files[1].bytes, Buffer.from('"https://act.hoyolab.com/other"')]);
+  expectCode(() => createArtifactManifest(files), 'external_target');
+});
+
+test('the generated companion passes the same nested public-artifact boundary', async () => {
+  const zip = await buildCompanion();
+  const manifest = createArtifactManifest([...minimalFiles(), file(COMPANION_DOWNLOAD, zip)], {
+    forbiddenFragments: ['private-owner', 'source-version', 'workbenchcommit'],
+  });
+  assert.ok(manifest.entries.some(entry => entry.path === COMPANION_DOWNLOAD));
+});
 
 function createArtifactManifest(files, options = {}) {
   return createArtifactManifestRaw(files, {

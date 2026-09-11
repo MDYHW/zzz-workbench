@@ -7,3 +7,4 @@ dist/
 .github-app-*.json
 playwright-report/
 test-results/
+src/companion/.test/
