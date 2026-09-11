@@ -66,7 +66,7 @@ concepts required by the
   without horizontal scrolling.
 - Exactly one selector represents the viewed Agent. A separate workspace below
   the selector presents that Agent's Identity, Setup, and Result.
-- When a valid explicitly copied Setup shortcut creates the initial applied
+- When a valid explicitly requested Setup shortcut creates the initial applied
   session under `SW-016`, the initially viewed Agent is the carried Focus. This
   is an entry presentation default rather than carried viewed-Agent state or an
   ongoing coupling: later viewed selection and Focus changes remain independent.
