@@ -160,8 +160,10 @@ announcement state only.
   access beyond the one eventual destination. The concrete Organization,
   repository, and URL names remain operational configuration outside product
   meaning.
-- R3. The public repository contains only the generated runtime tree and the
-  minimum host control file required to serve it. It contains no private source
+- R3. The public repository contains only the generated runtime tree, the
+  minimum host control file, and the bounded companion download and minimal
+  installation/use help authorized by `SW-022`. The download contains generated
+  runtime files and required extension installation metadata only. It contains no private source
   tree, source history, project documentation, package metadata, test input,
   development configuration, credential, source map, absolute local path, or
   private-repository identity.
@@ -188,6 +190,11 @@ announcement state only.
   inventories embedded URL strings and permits an inert dependency diagnostic
   reference only after proving that the client never requests it. A browser
   bundle is public output and is never treated as a secret.
+  The companion ZIP is inspected entry by entry, including its exact required
+  manifest permissions and local-only runtime boundary; opaque archives are
+  not accepted. Only explicit navigation to the official HoYoLAB record page
+  and the workbench is added. This does not permit external application-data
+  requests, broad extension host access, or hidden account-data access.
 - R7. Before any public write, one current manual review accounts for the
   provenance and rights basis of every publicly emitted asset in the exact
   generated manifest, including bundled code/library output and game-derived
@@ -324,7 +331,13 @@ announcement state only.
 
 - R14. Local, RC, and Beta builds render the same client. Delivery does not
   change Setup, Result, calculation, candidates, preparation, party behavior,
-  or in-memory session state; reload or a later visit starts a fresh session.
+  or in-memory session state; reload or a later visit starts a fresh session
+  unless an explicitly requested valid Setup shortcut is opened under `SW-016`.
+  The header provides the official HoYoLAB shortcut beside Copy Setting and a
+  subordinate expandable companion download/help action. Help identifies the
+  desktop browser/manual-install boundary and the sequence: choose party and
+  Focus, copy Setting, log in on HoYoLAB, read the three Agents, inspect any
+  exclusions or explicit alternatives, and open the complete workbench URL.
 - R15. One semantic page footer follows the application content in both Party
   Edit and applied-workbench states. It is visually subordinate but readable at
   supported desktop and narrow viewports, does not obscure or shift interactive

@@ -4,6 +4,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { sanitizeRasterMetadata } from './public-raster-metadata.js';
+import { COMPANION_DOWNLOAD, readCompanionArchive } from './companion/archive.mjs';
 
 export const ARTIFACT_SCHEMA = 'zzz-workbench-public-artifact/v1';
 export const ARTIFACT_CANDIDATE_SCHEMA = 'zzz-workbench-public-release-candidate/v1';
@@ -32,7 +33,9 @@ const SHA256_IDENTITY = /^sha256:[0-9a-f]{64}$/;
 const ISO_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 const HASHED_ASSET = /^assets\/[A-Za-z0-9][A-Za-z0-9._-]*-[A-Za-z0-9_-]{6,}\.(?:css|js|png|ttf|webp)$/;
 const HASHED_LICENSE = /^assets\/[A-Za-z0-9][A-Za-z0-9._-]*-LICENSE-[A-Za-z0-9_-]{6,}\.txt$/;
-const TEXT_OUTPUT = /\.(?:css|html|js|txt)$/;
+const TEXT_OUTPUT = /\.(?:css|html|js|json|txt)$/;
+const HOYOLAB_SHORTCUT = 'https://act.hoyolab.com/app/zzz-game-record/index.html?lang=ko-kr&hyl_presentation_style=fullscreen#/zzz';
+const COMPANION_NAVIGATION = new Set(['https://act.hoyolab.com', 'https://zzz-setup-workbench.github.io/', 'https://zzz-setup-workbench.github.io/#setup=']);
 const EXTERNAL_TARGET = /https?:\/\/[A-Za-z0-9][A-Za-z0-9._~:/?#[\]@!$&'*+,;=%-]*|\/\/[A-Za-z0-9](?:[A-Za-z0-9-]*\.)+[A-Za-z]{2,63}(?:[/:?#][A-Za-z0-9._~:/?#[\]@!$&'*+,;=%-]*)?/g;
 const CREDENTIAL_PATTERNS = [
   /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
@@ -181,7 +184,7 @@ export function normalizeArtifactPath(value) {
 }
 
 function validateAllowedPath(artifactPath) {
-  if (artifactPath === 'index.html' || artifactPath === '.nojekyll'
+  if (artifactPath === 'index.html' || artifactPath === '.nojekyll' || artifactPath === COMPANION_DOWNLOAD
       || HASHED_ASSET.test(artifactPath) || HASHED_LICENSE.test(artifactPath)) return;
   fail(`Artifact path is not allowlisted: ${artifactPath}`, 'path_not_allowlisted');
 }
@@ -513,7 +516,9 @@ function validateFileContent(
   // metadata-path detection only for substantial printable runs; text outputs
   // continue to receive the complete absolute-path scan.
   const pathScans = textOutput
-    ? [{ texts: [scanText], patterns: ABSOLUTE_LOCAL_PATHS }]
+    ? [{ texts: [options.companion
+      ? scanText.replace(/(["'`])\/app\/zzz-game-record\/index\.html\1/g, '""')
+      : scanText.replace(/(["'`])\/downloads\/zzz-setup-companion\.zip\1/g, '""')], patterns: ABSOLUTE_LOCAL_PATHS }]
     : [
         { texts: scanTexts, patterns: ABSOLUTE_LOCAL_PATHS },
         {
@@ -562,6 +567,8 @@ function validateFileContent(
   const allowed = exceptionsByPath.get(file.path) ?? new Map();
   const found = new Map();
   for (const url of externalTargets) {
+    if ((!options.companion && /\.js$/.test(file.path) && url === HOYOLAB_SHORTCUT)
+      || (options.companion && COMPANION_NAVIGATION.has(url))) continue;
     if (!allowed.has(url)) fail(`External target is forbidden in ${file.path}.`, 'external_target');
     found.set(url, (found.get(url) ?? 0) + 1);
   }
@@ -572,6 +579,28 @@ function validateFileContent(
       fail(`Inert URL inventory does not match ${file.path}.`, 'exception_mismatch');
     }
     exceptionInventory.push({ ...exception, observedOccurrences: actual });
+  }
+}
+
+function validateCompanionArchive(file, forbiddenFragments) {
+  let entries;
+  try { entries = readCompanionArchive(file.bytes); }
+  catch { fail('Companion ZIP must have the exact canonical runtime entries.', 'companion_invalid'); }
+  let manifest;
+  try { manifest = JSON.parse(entries.find(entry => entry.path === 'manifest.json').bytes.toString('utf8')); }
+  catch { fail('Companion manifest is invalid.', 'companion_invalid'); }
+  requireExactKeys(manifest, ['manifest_version', 'name', 'version', 'description', 'permissions', 'action', 'content_security_policy'], 'Companion manifest');
+  requireExactKeys(manifest.action, ['default_popup', 'default_title'], 'Companion action');
+  requireExactKeys(manifest.content_security_policy, ['extension_pages'], 'Companion CSP');
+  if (manifest.manifest_version !== 3 || !/^\d+\.\d+\.\d+$/.test(manifest.version)
+    || !Array.isArray(manifest.permissions) || [...manifest.permissions].sort().join(',') !== 'activeTab,scripting'
+    || manifest.action.default_popup !== 'popup.html'
+    || [manifest.name, manifest.description, manifest.action.default_title].some(value => typeof value !== 'string' || !value || value.length > 200)
+    || manifest.content_security_policy.extension_pages !== "script-src 'self'; object-src 'none'; connect-src 'none'; img-src 'self'; style-src 'self'") {
+    fail('Companion installation privileges exceed the local invoked reader.', 'companion_invalid');
+  }
+  for (const entry of entries) {
+    validateFileContent(entry, { forbiddenFragments, companion: true }, new Map(), [], new Map(), []);
   }
 }
 
@@ -631,6 +660,10 @@ export function createArtifactManifest(files, {
     paths.add(file.path);
     pathIdentities.add(file.path.toLowerCase());
     validateArtifactPathContent(file.path, canonicalForbiddenFragments);
+    if (file.path === COMPANION_DOWNLOAD) {
+      validateCompanionArchive(file, canonicalForbiddenFragments);
+      continue;
+    }
     if (!stripRasterMetadata(file.path, file.bytes).equals(file.bytes)) {
       fail(`Raster metadata is forbidden: ${file.path}`, 'content_forbidden');
     }

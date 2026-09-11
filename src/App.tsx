@@ -1,3 +1,4 @@
+import { CompanionHelp } from './CompanionHelp'
 import {
   useEffect,
   useMemo,
@@ -168,7 +169,7 @@ function CopySetupButton({ state }: { state: WorkbenchState | null }) {
   )
 }
 
-function UtilityIcon({ kind }: { kind: 'copy' | 'check' | 'language' }) {
+function UtilityIcon({ kind }: { kind: 'copy' | 'check' | 'language' | 'external' }) {
   return (
     <svg className="masthead-utility-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       {kind === 'copy' ? (
@@ -178,6 +179,11 @@ function UtilityIcon({ kind }: { kind: 'copy' | 'check' | 'language' }) {
         </>
       ) : kind === 'check' ? (
         <path d="m5 12 4 4L19 6" />
+      ) : kind === 'external' ? (
+        <>
+          <path d="M14 4h6v6M20 4l-9 9" />
+          <path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4" />
+        </>
       ) : (
         <>
           <circle cx="12" cy="12" r="9" />
@@ -448,7 +454,7 @@ function AppliedWorkbench({
 }
 
 function WorkbenchApp() {
-  const { setLocale } = useLocalization()
+  const { setLocale, t } = useLocalization()
   const [initialState] = useState<WorkbenchSessionState>(() => (
     readSetupShortcut(window.location.hash) ?? createInitialWorkbenchState()
   ))
@@ -477,7 +483,19 @@ function WorkbenchApp() {
       <header className="masthead">
         <h1 lang="en">ZZZ Setup Workbench</h1>
         <div className="masthead-actions">
+          <a
+            className="masthead-action"
+            href="https://act.hoyolab.com/app/zzz-game-record/index.html?lang=ko-kr&hyl_presentation_style=fullscreen#/zzz"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t('hoyolabAria')}
+            title={t('hoyolabAria')}
+          >
+            <UtilityIcon kind="external" />
+            <span className="masthead-action__label">HoYoLAB</span>
+          </a>
           <CopySetupButton state={appliedState} />
+          <CompanionHelp />
           <LanguageToggle />
         </div>
       </header>

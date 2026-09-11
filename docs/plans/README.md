@@ -8,7 +8,8 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-Keep at most one active bounded implementation plan. There is no active plan.
+Keep at most one active bounded implementation plan. The active plan is
+[bounded gear companion delivery](2026-09-11-gear-companion.md).
 Completed verticals are recorded in the milestone index below,
 and later Agent verticals still require their own bounded requirement and plan
 after their meaning is settled.

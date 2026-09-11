@@ -2,7 +2,8 @@
   "name": "zzz-workbench",
   "version": "1.0.0",
   "scripts": {
-    "test": "vitest run",
+    "test": "vitest run && npm run test:companion",
+    "test:companion": "node scripts/github-app/companion/build.mjs && node --test src/companion/*.test.mjs",
     "check:repo": "node scripts/governance/check-policy.mjs repository",
     "test:governance": "node --test scripts/governance/*.node.mjs scripts/github-app/*.node.mjs",
     "test:visual": "playwright test",
@@ -10,7 +11,7 @@
     "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "preview": "vite preview --host 127.0.0.1 --port 5173 --strictPort",
     "build": "tsc -b && vite build",
-    "check": "npm run test:governance && vitest run && tsc -b && vite build",
+    "check": "npm run test:governance && npm test && tsc -b && vite build",
     "test:watch": "vitest"
   },
   "type": "module",

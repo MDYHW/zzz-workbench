@@ -83,6 +83,8 @@
   box-shadow: inset 0 0 0 2px #090b09;
   cursor: pointer;
   font: 900 10px/1 var(--mono);
+  text-decoration: none;
+  white-space: nowrap;
   letter-spacing: .05em;
   transition: background 120ms ease, border-color 120ms ease, color 120ms ease, opacity 120ms ease;
 }
@@ -112,6 +114,46 @@
 }
 
 .masthead-action__label { text-transform: uppercase; }
+
+.companion-help > summary { list-style: none; }
+.companion-help > summary::-webkit-details-marker { display: none; }
+.companion-help[open] > summary { border-color: var(--accent); }
+.companion-help__panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: min(420px, calc(100vw - 40px));
+  max-height: calc(100dvh - 80px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px;
+  box-sizing: border-box;
+  border: 1px solid #596057;
+  border-radius: 12px;
+  background: #171b17;
+  color: #e4e8df;
+  box-shadow: 0 14px 32px #0009;
+  font: 400 13px/1.6 var(--font-korean);
+  letter-spacing: 0;
+}
+.companion-help__panel h2 { margin: 0; font-size: 18px; }
+.companion-help__panel h3 { margin: 18px 0 6px; font-size: 14px; }
+.companion-help__panel p { margin: 12px 0 0; }
+.companion-help__panel ol { margin: 0; padding-left: 20px; }
+.companion-help__panel li + li { margin-top: 6px; }
+.companion-help__panel .companion-help__platform { margin: 3px 0 14px; color: #b9c0b4; }
+.companion-help__download {
+  display: block;
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #111510;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 800;
+}
+.companion-help__download:focus-visible { outline: 2px solid white; outline-offset: 3px; }
+.companion-help__update { color: #b9c0b4; font-size: 12px; }
 
 .language-trigger__chevron {
   width: 7px;
@@ -769,7 +811,13 @@ main { margin-top: 12px; }
   .masthead h1 {
     max-width: 100%;
     overflow: hidden;
+    text-overflow: ellipsis;
     font-size: clamp(13px, 4vw, 16px);
   }
 
+}
+
+@media (min-width: 1101px) and (max-width: 1280px) {
+  .masthead-action__label, .language-trigger__label, .language-trigger__chevron { display: none; }
+  .masthead-action, .language-trigger { width: 36px; min-width: 36px; padding: 0; }
 }
