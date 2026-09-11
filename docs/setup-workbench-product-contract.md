@@ -1148,7 +1148,7 @@ initially viewed Agent after shortcut entry.
 - API, persistence, authentication, application telemetry, server-side
   application processing, hidden build history, ongoing address
   synchronization, or address-derived and cross-visit state beyond the
-  explicitly copied Setup shortcut defined below;
+  explicitly requested Setup shortcut defined below;
 - multiple setup directions, runtime equipment scoring, universal package
   optimization, or per-pool edited-setup memory;
 - damage totals, rotations, uptime, action frequency, average stacks, clear time,
@@ -1159,7 +1159,7 @@ initially viewed Agent after shortcut entry.
 Generated static client artifacts may be publicly delivered at one stable
 browser URL. This delivery changes only how the current client is reached. It
 does not change Setup, Result, calculation, candidate, preparation, party, or
-in-memory session meaning. Without a valid explicitly copied Setup shortcut, a
+in-memory session meaning. Without a valid explicitly requested Setup shortcut, a
 reload or later visit starts a fresh session. The public client payload excludes
 the private development repository and its history, credentials, personal
 operator information, and files not required by the generated client. The
