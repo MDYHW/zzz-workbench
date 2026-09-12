@@ -16,7 +16,7 @@ Promeia converts excess initial AM into personal AP and a squad Abloom bonus.
 
 The permanent owners are `SF-002`-`SF-005`, `GV-001`-`GV-003` and
 `GV-005`-`GV-009`, `FM-001`-`FM-004` and `FM-006`-`FM-011`,
-`SW-002`-`SW-016`, and `UI-001`-`UI-004`. This requirement settles only the
+`SW-002`-`SW-006`, `SW-008`-`SW-020`, and `UI-001`-`UI-004`. This requirement settles only the
 bounded outcomes below. It does not create an Abloom damage formula, reaction
 registry, or a rule for later Agents.
 
