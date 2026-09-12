@@ -8,9 +8,7 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-Keep at most one active bounded implementation plan. The completed
-[CSV-informed setup corrections](2026-09-12-csv-setup-corrections-plan.md)
-is retained only until its checkpoint commit.
+Keep at most one active bounded implementation plan. There is no active plan.
 Completed verticals are recorded in the milestone index below,
 and later Agent verticals still require their own bounded requirement and plan
 after their meaning is settled.
