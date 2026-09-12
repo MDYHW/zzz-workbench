@@ -28,9 +28,9 @@ const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   yuzuha: { atk: VERTICAL_VALUES.yuzuha.atk, anomalyMastery: VERTICAL_VALUES.yuzuha.anomalyMastery, energyRegen: VERTICAL_VALUES.yuzuha.baseEnergyRegen },
   burnice: { atk: VERTICAL_VALUES.burnice.atk, anomalyProficiency: VERTICAL_VALUES.burnice.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.burnice.anomalyMastery, critRate: VERTICAL_VALUES.burnice.critRate, energyRegen: VERTICAL_VALUES.burnice.baseEnergyRegen, penRatio: 0 },
   jane: { atk: VERTICAL_VALUES.jane.atk, anomalyProficiency: VERTICAL_VALUES.jane.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.jane.anomalyMastery, penRatio: 0 },
-  yanagi: { atk: VERTICAL_VALUES.yanagi.atk, anomalyProficiency: VERTICAL_VALUES.yanagi.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.yanagi.anomalyMastery, penRatio: 0 },
+  yanagi: { atk: VERTICAL_VALUES.yanagi.atk, anomalyProficiency: VERTICAL_VALUES.yanagi.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.yanagi.anomalyMastery, energyRegen: VERTICAL_VALUES.yanagi.baseEnergyRegen, penRatio: 0 },
   alice: { atk: VERTICAL_VALUES.alice.atk, anomalyProficiency: VERTICAL_VALUES.alice.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.alice.anomalyMastery, penRatio: 0 },
-  vivian: { atk: VERTICAL_VALUES.vivian.atk, anomalyProficiency: VERTICAL_VALUES.vivian.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.vivian.anomalyMastery, penRatio: 0 },
+  vivian: { atk: VERTICAL_VALUES.vivian.atk, anomalyProficiency: VERTICAL_VALUES.vivian.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.vivian.anomalyMastery, energyRegen: VERTICAL_VALUES.vivian.baseEnergyRegen, penRatio: 0 },
   aria: { atk: VERTICAL_VALUES.aria.atk, anomalyProficiency: VERTICAL_VALUES.aria.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.aria.anomalyMastery, penRatio: 0 },
   promeia: { atk: VERTICAL_VALUES.promeia.atk, anomalyProficiency: VERTICAL_VALUES.promeia.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.promeia.anomalyMastery, penRatio: 0 },
   velina: { atk: VERTICAL_VALUES.velina.atk, anomalyProficiency: VERTICAL_VALUES.velina.anomalyProficiency, anomalyMastery: VERTICAL_VALUES.velina.anomalyMastery, energyRegen: VERTICAL_VALUES.velina.baseEnergyRegen, penRatio: 0 },
@@ -851,6 +851,7 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
       { metricId: 'anomalyDmgBonus', scopes: YANAGI_ANOMALY_SCOPES },
     )
     const metrics = anomalyDealerMetrics()
+    metrics.splice(3, 0, m('energyRegen', 'Energy Regen', '/s', 'energyRegen', 'disclosed-or-action', 2))
     return { agentId: agent, appliedPartySlot: slot, relationships, metrics, actions }
   }
   if (agent === 'alice') {
@@ -978,7 +979,9 @@ function buildAnomalyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: S
       actionProjection('defIgnore', 'vivianAbloomDefIgnore', ABLOOM_TARGET),
       actionProjection('resIgnore', 'vivianAbloomResIgnore', ABLOOM_TARGET),
     )
-    return { agentId: agent, appliedPartySlot: slot, relationships, metrics: anomalyDealerMetrics(), actions }
+    const metrics = anomalyDealerMetrics()
+    metrics.splice(3, 0, m('energyRegen', 'Energy Regen', '/s', 'energyRegen', 'disclosed-or-action', 2))
+    return { agentId: agent, appliedPartySlot: slot, relationships, metrics, actions }
   }
   if (agent === 'aria') {
     add(stat(core, 'anomalyProficiency', VERTICAL_VALUES.aria.coreAnomalyProficiency, 'flat', 'initial'))

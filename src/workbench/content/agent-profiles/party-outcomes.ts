@@ -9,6 +9,7 @@ import { anotherAgentHasSpecialty, anotherAgentSharesAttribute, anotherAgentShar
 import { DRIVE_DISC_FACTS } from '../discs'
 import { W_ENGINES } from '../engines'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
+import { FORMULA_PARTICIPATION_BY_AGENT } from '../setup-options'
 import { defineAgentBaseSource } from '../source-definitions'
 import { type AgentSpecialty } from '../types'
 import { requireCompleteSelectedSetup, selectedEquipmentRelationships, selectedSetupRelationships, type SelectedSetupObservation } from '../agent-sources/equipment'
@@ -39,7 +40,7 @@ const NANGONG_CHAIN = actionTarget([canonicalAction('Chain Attack')])
 const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   lucia: { maxHp: VERTICAL_VALUES.lucia.hp, energyRegen: VERTICAL_VALUES.lucia.baseEnergyRegen },
   astraYao: { atk: VERTICAL_VALUES.astraYao.atk, energyRegen: VERTICAL_VALUES.astraYao.baseEnergyRegen },
-  soukaku: { atk: VERTICAL_VALUES.soukaku.atk, energyRegen: VERTICAL_VALUES.soukaku.baseEnergyRegen },
+  soukaku: { atk: VERTICAL_VALUES.soukaku.atk, energyRegen: VERTICAL_VALUES.soukaku.baseEnergyRegen, anomalyMastery: VERTICAL_VALUES.soukaku.anomalyMastery },
   lucy: { atk: VERTICAL_VALUES.lucy.atk, energyRegen: VERTICAL_VALUES.lucy.baseEnergyRegen },
   nicole: { energyRegen: VERTICAL_VALUES.nicole.baseEnergyRegen },
   panYinhu: { atk: VERTICAL_VALUES.panYinhu.atk, impact: VERTICAL_VALUES.panYinhu.impact, energyRegen: VERTICAL_VALUES.panYinhu.baseEnergyRegen },
@@ -54,6 +55,7 @@ const m = (id: MetricProjection['id'], label: string, unit: string, statId?: Met
 
 function src(agent: Agent, slot: Slot, id: string, label: string, locus: 'core' | 'additional' | 'basic' | 'assist' | 'chain' | 'special' | 'ex-special' | 'ultimate' = 'core') { return selectedAgentSource(agent, slot, id, label, locus) }
 function buildPartyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot): AgentSourceProfile {
+  const projectsBuildup = FORMULA_PARTICIPATION_BY_AGENT[agent].result.includes('anomaly_buildup')
   const setup = { ...requireCompleteSelectedSetup(state.slots[slot].setup), mindscape: state.slots[slot].setup.mindscape }
   const baseStats = {
     ...BASE[agent],
@@ -76,7 +78,7 @@ function buildPartyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slo
     effectiveSubstats: effectiveSubstatChoicesForSlot(state, slot),
     modifierMetrics: [
       'dmgBonus', 'dazeBonus',
-      ...(agent === 'seth'
+      ...(projectsBuildup
         ? ['anomalyBuildupBonus', 'anomalyBuildupResReduction'] as const
         : []),
     ],
@@ -203,7 +205,13 @@ function buildPartyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slo
   } else if (agent === 'soukaku') {
     add({ kind: 'gauge', source: own('core', SOURCE_LABELS.soukakuCore), basis: { statId: 'atk', surface: 'initial' }, basisLabel: 'Initial ATK', basisPresentationId: 'initial-atk', basisCap: VERTICAL_VALUES.soukaku.coreAtkCap, metricId: 'atk', outputs: [{ presentationId: 'focus-flat-atk', label: 'Focus flat ATK', unit: '', cap: VERTICAL_VALUES.soukaku.coreOutputCap, transform: { basisIncrement: 100 / VERTICAL_VALUES.soukaku.coreAtkRatio, outputIncrement: 1, outputCap: VERTICAL_VALUES.soukaku.coreOutputCap }, emission: { kind: 'provider', delivery: { recipient: 'focus' }, effect: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully' } } }] })
     if (anotherAgentSharesAttribute(agentIds, slot) || anotherAgentSharesFaction(agentIds, slot)) add({ kind: 'provider', source: own('additional', SOURCE_LABELS.soukakuAbility, 'additional'), delivery: { recipient: 'all-party', attributes: ['Ice'] }, effect: { kind: 'modifier', metricId: 'dmgBonus', earliestSurface: 'fully', value: VERTICAL_VALUES.soukaku.additionalIceDmg } }); if (setup.mindscape >= 4) add({ kind: 'provider', source: mind(4), delivery: { recipient: 'enemy-context', attributes: ['Ice'] }, effect: { kind: 'modifier', metricId: 'resReduction', earliestSurface: 'fully', value: VERTICAL_VALUES.soukaku.mindscapeIceResReduction } })
-    metrics = [m('atk', 'ATK', '', 'atk'), m('energyRegen', 'Energy Regen', '/s', 'energyRegen')]
+    metrics = [
+      m('atk', 'ATK', '', 'atk'),
+      m('energyRegen', 'Energy Regen', '/s', 'energyRegen'),
+      m('anomalyMastery', 'Anomaly Mastery', '', 'anomalyMastery', 'disclosed-or-action', 1),
+      m('anomalyBuildupBonus', 'Anomaly Buildup Bonus', '%', undefined, 'nonzero-or-action'),
+      m('anomalyBuildupResReduction', 'Anomaly Buildup RES Reduction', '%', undefined, 'nonzero-or-action'),
+    ]
   } else if (agent === 'lucy') {
     const tier = setup.mindscape >= 5 ? 2 : setup.mindscape >= 3 ? 1 : 0; const ratio = VERTICAL_VALUES.lucy.coreAtkRatioByMindscapeTier[tier]; const base = VERTICAL_VALUES.lucy.coreAtkBaseByMindscapeTier[tier]
     add({ kind: 'gauge', source: tier === 0 ? own('core', SOURCE_LABELS.lucyCore) : mind(tier === 1 ? 3 : 5), basis: { statId: 'atk', surface: 'initial' }, basisLabel: 'Initial ATK', basisPresentationId: 'initial-atk', basisCap: (VERTICAL_VALUES.lucy.coreAtkOutputCap - base) / (ratio / 100), metricId: 'atk', outputs: [{ presentationId: 'squad-flat-atk', label: 'Squad flat ATK', unit: '', cap: VERTICAL_VALUES.lucy.coreAtkOutputCap, transform: { basisIncrement: 100, baseOutput: base, outputIncrement: ratio, outputCap: VERTICAL_VALUES.lucy.coreAtkOutputCap }, emission: { kind: 'provider', delivery: all, effect: { kind: 'stat', statId: 'atk', region: 'flat', earliestSurface: 'fully' } } }], ...(tier === 0 ? { sourceDetail: { label: 'Rebellious Assault', presentationId: 'rebellious-assault' } } : {}) }); if (setup.mindscape >= 4) add({ kind: 'provider', source: mind(4), delivery: { ...all, formulas: CRIT_DAMAGE_FORMULAS }, effect: { kind: 'stat', statId: 'critDmg', region: 'flat', earliestSurface: 'fully', value: VERTICAL_VALUES.lucy.mindscapeSquadCritDmg } })
@@ -309,7 +317,7 @@ function buildPartyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slo
   }
   const nangongSlot = agentIds.indexOf('nangongYu')
   if (
-    agent === 'seth'
+    projectsBuildup
     && nangongSlot >= 0
     && nangongSlot !== slot
     && nangongAdditionalIsActive(agentIds, nangongSlot)
@@ -320,7 +328,7 @@ function buildPartyOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slo
     ]
   }
   const miyabiSlot = agentIds.indexOf('miyabi')
-  if (agent === 'seth' && miyabiSlot >= 0 && miyabiSlot !== slot) {
+  if (projectsBuildup && miyabiSlot >= 0 && miyabiSlot !== slot) {
     actions = [
       ...(actions ?? []),
       actionProjection('anomalyBuildupBonus', 'miyabiFrostburnBuildup', MIYABI_FROSTBURN_BUILDUP_TARGET),

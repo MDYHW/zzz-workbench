@@ -110,6 +110,10 @@ version switch, named-party table, or guide-backed evidence payload.
   supply. Non-limited Sol keeps the same legal Disc package with CRIT Rate Slot
   4; its fixed supply and the finite opportunity establish the stability
   advantage that selects Sol over the higher-ATK alternative.
+  Slot 4 additionally offers ATK% for packages with sufficient fixed and
+  future CRIT supply. Ellen's retained core-action CRIT DMG makes this a
+  competitive ATK/CRIT allocation beside the existing CRIT mains; reduced
+  fixed CRIT supply favors those mains. Keep both prepared packages unchanged.
 
 ### Soukaku equipment authoring
 
@@ -136,14 +140,27 @@ version switch, named-party table, or guide-backed evidence payload.
   EX-triggered Ice Anomaly Buildup RES reduction used by matching Ice buildup
   recipients; its holder AP contributes zero and is not a personal anomaly
   direction for Soukaku.
-  Her 2-piece candidates are Swing Jazz, Moonlight Lullaby, Hormone Punk, and
-  Astral Voice, subject to the established same-effect identity lifecycle.
+  Her 2-piece candidates are Swing Jazz, Moonlight Lullaby, Hormone Punk,
+  Astral Voice, and Phaethon's Melody, subject to the established same-effect
+  identity lifecycle.
 - R10. Both Soukaku pools prepare Moonlight 4-piece plus Astral Voice 2-piece,
   ATK% / ATK% / Energy Regen mains, and zero substats. The selected Kaboom fact
   reaches her completed-Core ATK cap at zero supplied substats. The package
   therefore spends Slot 6 on Energy Regen rather than
   oversupplying ATK. This does not remove ATK substats from other legal edited
   packages that can fall below the cap.
+  Slot 6 additionally admits AM for Ice buildup support, particularly the
+  Ice/Frost Disorder route for Miyabi. This is a base editable alternative,
+  not a party-triggered prepared replacement. It trades EX supply against
+  buildup per action without requiring personal anomaly damage. Adequate
+  external Disorder or an Energy bottleneck favors the existing recovery
+  direction. Phaethon's Melody additionally offers an AM 2-piece complement,
+  preserving Energy or ATK in Slot 6 at the cost of existing two-piece Energy
+  or ATK supply. The ATK provider cap and both prepared packages stay unchanged;
+  an unmet provider cap favors ATK supply. AP inputs remain excluded.
+  Retain completed base AM 93 internally. Show its aggregate only with a current
+  disclosed contribution, gauge or action outcome; base AM alone creates no row.
+  Project applicable buildup bonuses and buildup RES reduction, including separately scoped party effects.
 
 ### Current Agent, party, and equipment projection
 

@@ -49,6 +49,38 @@ test('maps an authored same-effect 2-piece input only to the unique exposed lega
   assert.match(result.notices.join('\n'), /동일 효과로 반영/)
 })
 
+test('maps same-effect inputs across expanded groups while preserving the complete setup', () => {
+  for (const scenario of [
+    { agents: ['aria', 'norma', 'pyrois'], slot: 0, input: 'The Sky Ablaze', expected: 'shiningAria', substat: 'Anomaly Proficiency' },
+    { agents: ['yanagi', 'norma', 'pyrois'], slot: 0, input: 'Feathered Fate', expected: 'freedomBlues', substat: 'Anomaly Proficiency' },
+    { agents: ['ellen', 'lycaon', 'soukaku'], slot: 0, input: 'Notes From the Chained', expected: 'polarMetal', substat: 'CRIT Rate' },
+  ]) {
+    const state = createPreparedState({}, scenario.agents, 0)
+    const party = readParty(createSetupShortcutUrl(state, SITE))
+    const gear = syntheticGear(state)
+    const member = gear.members[scenario.slot]
+    const substatId = scenario.substat === 'CRIT Rate' ? 'critRate' : 'anomalyProficiency'
+    member.discs[0].substats = [{
+      label: scenario.substat,
+      value: `${EFFECTIVE_SUBSTAT_VALUES[substatId].perHit * 2}${EFFECTIVE_SUBSTAT_VALUES[substatId].unit}`,
+    }]
+    const expectedResult = convertGear(party, gear)
+    assert.deepEqual(expectedResult.errors, [])
+    const expectedSetup = readSetupShortcut(new URL(expectedResult.url).hash).slots[scenario.slot].setup
+
+    for (const disc of member.discs.slice(4)) disc.name = scenario.input
+    const result = convertGear(party, gear)
+    assert.deepEqual(result.errors, [])
+    const setup = readSetupShortcut(new URL(result.url).hash).slots[scenario.slot].setup
+    assert.equal(setup.twoPieceId, scenario.expected)
+    assert.notEqual(setup.twoPieceId, setup.fourPieceId)
+    assert.equal(setup.fourPieceId, expectedSetup.fourPieceId)
+    assert.deepEqual(setup.mains, expectedSetup.mains)
+    assert.deepEqual(setup.substats, expectedSetup.substats)
+    assert.match(result.notices.join('\n'), /동일 효과로 반영/)
+  }
+})
+
 test('retains acquired substat rolls while completed levels add no future upgrades', () => {
   const state = prepared()
   const gear = syntheticGear(state)

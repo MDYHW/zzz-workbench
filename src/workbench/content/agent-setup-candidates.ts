@@ -222,7 +222,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
   },
   lycaon: {
     fourPiece: ['king', 'astralVoice', 'shockstar'],
-    twoPiece: ['shockstar', 'king', 'swingJazz'],
+    twoPiece: ['shockstar', 'king', 'swingJazz', 'phaethonsMelody'],
     selectedFourPiece: {
       king: {
         twoPiece: ['woodpecker'],
@@ -236,7 +236,7 @@ export const DISC_IDS_BY_AGENT_AND_PIECE: Record<AgentId, AgentDiscCandidatePoli
     twoPiece: ['pufferElectro', 'polarMetal', 'woodpecker', 'branchAndBlade', 'astralVoice', 'hormonePunk'],
     contextualFourPiece: [{ opportunity: 'received-ultimate', discId: 'pufferElectro' }],
   },
-  soukaku: { fourPiece: ['moonlight', 'astralVoice', 'freedomBlues'], twoPiece: ['swingJazz', 'moonlight', 'hormonePunk', 'astralVoice'] },
+  soukaku: { fourPiece: ['moonlight', 'astralVoice', 'freedomBlues'], twoPiece: ['swingJazz', 'moonlight', 'hormonePunk', 'astralVoice', 'phaethonsMelody'] },
   soldier11: {
     fourPiece: ['woodpecker', 'dawnsBloom', 'infernoMetal'],
     twoPiece: ['infernoMetal', 'woodpecker', 'branchAndBlade', 'dawnsBloom', 'pufferElectro', 'hormonePunk', 'astralVoice'],

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ZZZ Setup Companion",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "선택한 파티의 HoYoLAB 장비를 읽어 현재 ZZZ Setup Workbench 설정으로 변환합니다.",
   "permissions": [
     "activeTab",

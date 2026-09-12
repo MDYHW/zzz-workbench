@@ -14,9 +14,9 @@ action outcome, but they consume it differently: Vivian is a primarily
 off-field Ether Anomaly dealer, Aria is an on-field Ether Anomaly dealer, and
 Promeia converts excess initial AM into personal AP and a squad Abloom bonus.
 
-The permanent owners are `SF-001`-`SF-004`, `GV-001`-`GV-003` and
+The permanent owners are `SF-002`-`SF-005`, `GV-001`-`GV-003` and
 `GV-005`-`GV-009`, `FM-001`-`FM-004` and `FM-006`-`FM-011`,
-`SW-002`-`SW-016`, and `UI-001`-`UI-004`. This requirement settles only the
+`SW-002`-`SW-006`, `SW-008`-`SW-020`, and `UI-001`-`UI-004`. This requirement settles only the
 bounded outcomes below. It does not create an Abloom damage formula, reaction
 registry, or a rule for later Agents.
 
@@ -54,7 +54,9 @@ registry, or a rule for later Agents.
   modifier relationships: Corruption DMG +12%, and Disorder DMG +12% against
   an enemy suffering Corruption. The latter condition is source detail, not a
   recipient Attribute restriction. Exclude Feather, Flight Feather, cadence,
-  duration, and base Abloom arithmetic.
+  duration, and base Abloom arithmetic from Result. EX-fed Feather supply
+  remains a bounded role-resource reason for editable Energy Regen; it does
+  not introduce Feather counts, event rates, or a rotation model.
 - R3. Retain only Mindscape outcomes with current consumers. M1 gives all-party
   Attribute Anomaly and Disorder DMG +16% against a target under Prophecy. M2
   gives Vivian Ether buildup +25%, raises her Abloom source coefficient by
@@ -82,7 +84,15 @@ registry, or a rule for later Agents.
   Ether 2-piece direction and expose only one identity at a time through the
   shared same-effect rule. Puffer Electro, Hormone Punk, and Astral Voice remain
   materially different PEN or ATK directions. Prepare AP/Ether DMG/AM in Slots 4/5/6; Slot 5 also
-  admits PEN Ratio and ATK%. Effective substats are AP and ATK%.
+  admits PEN Ratio and ATK%. Slot 6 also admits Energy Regen for EX-fed Feather
+  supply when alternate acquisition routes do not meet consumption. It trades
+  personal buildup for resource supply, while AM remains the prepared choice
+  in both pools at every Mindscape. Existing Feather returns or sufficient
+  Assist/Ultimate supply weaken that alternative without removing its base
+  membership. Effective substats are AP and ATK%. Result composes completed
+  base automatic Energy Regen 1.2/s with selected equipment and main stats;
+  show the row only with a current disclosed contribution, gauge or action
+  outcome, not base recovery alone. Do not convert action grants into recovery per second.
 
 **Aria**
 

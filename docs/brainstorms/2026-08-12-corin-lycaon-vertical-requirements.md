@@ -257,7 +257,7 @@ and genuine multi-recipient effects keep their actual rules.
   its Energy Regen and squad DMG therefore do not form a legal Lycaon
   4-piece package.
 - R15. Lycaon's base 2-piece candidates are Shockstar Disco, King of the Summit,
-  and Swing Jazz, subject to the different-set rule. Swing Jazz is the authored
+  Swing Jazz, and Phaethon's Melody, subject to the different-set rule. Swing Jazz is the authored
   Energy Regen identity because neither Swing Jazz nor Moonlight Lullaby has a
   legal 4-piece role for Lycaon; Moonlight remains Support-holder-only and its
   exact source fact does not create a duplicate Lycaon 2-piece decision.
@@ -268,8 +268,16 @@ and genuine multi-recipient effects keep their actual rules.
   choice and has no effective-substat candidates. Selecting King adds CRIT Rate
   to Slot 4 and CRIT Rate effective-substat hits because its holder threshold
   is then a current buffer consumer. Slot 5 always offers Ice DMG and ATK%; Slot
-  6 offers Impact and Energy Regen. Slot 5 prepares Ice DMG and Slot 6 prepares
+  6 offers Impact, Energy Regen, and AM. Slot 5 prepares Ice DMG and Slot 6 prepares
   Impact. CRIT DMG is not retained merely as personal damage.
+  AM is a base editable Ice-buildup support alternative for the Ice/Frost
+  Disorder route with Miyabi. It trades Daze or EX supply for buildup per
+  action; sufficient external Disorder or a Daze/Energy bottleneck favors the
+  existing choices. Keep both pools' representatives and King allocation
+  unchanged. Phaethon's Melody is also an editable AM 2-piece complement: it
+  retains Impact or Energy in Slot 6 at the cost of the existing two-piece
+  Daze, Energy or CRIT supply. These choices grant no personal anomaly damage
+  or AP inputs.
 - R17. Lycaon's local full representative is Blazing Laurel W1, King 4-piece,
   Shockstar 2-piece, CRIT Rate / Ice DMG / Impact mains, and zero effective
   substats. His local non-limited representative changes only the W-Engine to
@@ -373,7 +381,11 @@ and genuine multi-recipient effects keep their actual rules.
 - R29. With selected King, Lycaon exposes the current CRIT Rate basis and its
   threshold gauge, plus Impact, Energy Regen when nonzero, Daze Bonus, retained
   action-Daze differences, Stun DMG Multiplier when qualified, and applicable
-  party or enemy modifiers. Without selected King, the CRIT row, threshold
+  party or enemy modifiers.
+  Retain completed base AM 91 internally. Show its aggregate only with a current
+  disclosed contribution, gauge or action outcome; base AM alone creates no row.
+  Preserve applicable buildup modifiers and party action scopes independently of Daze.
+  Without selected King, the CRIT row, threshold
   gauge, CRIT Slot 4 candidate, CRIT effective-substat input, and Woodpecker
   2-piece candidate are all absent. Result remains empty whenever any required
   applied selection or newly restored effective-substat count is missing.

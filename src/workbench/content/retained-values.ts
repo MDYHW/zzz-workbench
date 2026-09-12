@@ -311,6 +311,7 @@ export const VERTICAL_VALUES = {
   },
   lycaon: {
     impact: 137,
+    anomalyMastery: 91,
     critRate: 5,
     baseEnergyRegen: 1.2,
     coreChargedDaze: 80,
@@ -330,7 +331,7 @@ export const VERTICAL_VALUES = {
     mindscapePenRatio: 20, mindscapeChargedDmg: 250,
   },
   soukaku: {
-    atk: 665, baseEnergyRegen: 1.56,
+    atk: 665, baseEnergyRegen: 1.56, anomalyMastery: 93,
     coreAtkRatio: 40, coreAtkCap: 2500, coreOutputCap: 1000,
     additionalIceDmg: 20, mindscapeIceResReduction: 10,
   },
@@ -577,6 +578,7 @@ export const VERTICAL_VALUES = {
   },
   yanagi: {
     atk: 872,
+    baseEnergyRegen: 1.2,
     anomalyProficiency: 114,
     anomalyMastery: 148,
     stanceElectricDmg: 10,
@@ -605,6 +607,7 @@ export const VERTICAL_VALUES = {
   },
   vivian: {
     atk: 880,
+    baseEnergyRegen: 1.2,
     anomalyProficiency: 118,
     anomalyMastery: 144,
     additionalCorruptionDmg: 12,

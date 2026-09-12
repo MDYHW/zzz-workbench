@@ -49,23 +49,23 @@ function compressSameEffectTwoPieceIds(
   selectedFourPieceId: DiscId | null,
 ): DiscId[] {
   return SAME_EFFECT_TWO_PIECE_RELATIONSHIPS.reduce<DiscId[]>((current, relationship) => {
-    const [first, second] = relationship.members
-    if (!authored.includes(first) || !authored.includes(second)) return current
+    const authoredMembers: DiscId[] = relationship.members.filter((id) => authored.includes(id))
+    if (authoredMembers.length < 2) return current
 
-    const selectedComplement = selectedFourPieceId === first
-      ? second
-      : selectedFourPieceId === second
-        ? first
-        : null
-    const baseRoles = relationship.members.filter((id) => baseFourPieceIds.includes(id))
-    const contextualRoles = relationship.members.filter((id) => effectiveFourPieceIds.includes(id))
-    const exposed = selectedComplement
-      ?? (baseRoles.length === 1 ? baseRoles[0] : null)
+    const selected = selectedFourPieceId && authoredMembers.includes(selectedFourPieceId)
+      ? selectedFourPieceId
+      : null
+    const remaining = selected
+      ? authoredMembers.filter((id) => id !== selected)
+      : authoredMembers
+    const baseRoles = remaining.filter((id) => baseFourPieceIds.includes(id))
+    const contextualRoles = remaining.filter((id) => effectiveFourPieceIds.includes(id))
+    const exposed = (baseRoles.length === 1 ? baseRoles[0] : null)
       ?? (contextualRoles.length === 1 ? contextualRoles[0] : null)
-      ?? relationship.canonical
+      ?? (remaining.includes(relationship.canonical) ? relationship.canonical : remaining[0])
 
     return current.filter((id) => (
-      !relationship.members.some((member) => member === id) || id === exposed
+      !authoredMembers.includes(id) || id === exposed
     ))
   }, [...authored])
 }

@@ -91,7 +91,12 @@ and equipment consequences, so no shared named-Agent rule is warranted.
   The compact Basic route that activates Blazing does not turn this broader
   action-scoped Daze package into a second authored delivery direction.
 - R8. Base main choices are ATK% in Slot 4, ATK%/Fire DMG in Slot 5, and ATK%/
-  Impact in Slot 6. Base effective substats are ATK% and flat ATK. Selecting
+  Impact/Energy Regen in Slot 6. Energy is the editable repeated-EX resource
+  alternative, trading fixed ATK-provider or Daze supply for EX access.
+  An unmet ATK cap or a Daze bottleneck favors the existing mains. Both pools'
+  prepared choices and the Core cap remain unchanged; no action frequency or
+  automatic off-field EX grant is inferred. Base effective substats are ATK%
+  and flat ATK. Selecting
   King additionally exposes CRIT Rate Slot 4, Woodpecker 2-piece, and CRIT Rate
   substats solely to reach King's source-owned threshold. Leaving King clears
   invalid selected inputs without fallback; reselecting King restores membership but no
