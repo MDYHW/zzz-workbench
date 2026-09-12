@@ -48,9 +48,9 @@ export const FORMULA_PARTICIPATION_BY_AGENT: Record<
   cissia: { setup: { primary: ['general_damage'], residual: [] }, result: ['general_damage', 'daze_buildup'] },
   evelyn: { setup: { primary: ['general_damage'], residual: [] }, result: ['general_damage'] },
   corin: { setup: { primary: ['general_damage'], residual: [] }, result: ['general_damage'] },
-  lycaon: { setup: { primary: ['daze_buildup'], residual: [] }, result: ['daze_buildup'] },
+  lycaon: { setup: { primary: ['daze_buildup'], residual: ['anomaly_buildup'] }, result: ['daze_buildup', 'anomaly_buildup'] },
   ellen: { setup: { primary: ['general_damage'], residual: [] }, result: ['general_damage'] },
-  soukaku: { setup: { primary: [], residual: [] }, result: [] },
+  soukaku: { setup: { primary: [], residual: ['anomaly_buildup'] }, result: ['anomaly_buildup'] },
   soldier11: { setup: { primary: ['general_damage'], residual: [] }, result: ['general_damage'] },
   lighter: { setup: { primary: ['daze_buildup'], residual: [] }, result: ['daze_buildup'] },
   lucy: { setup: { primary: [], residual: [] }, result: [] },
@@ -161,7 +161,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   juFufu: {
     slot4: ['atkPct'],
     slot5: ['atkPct', 'fireDmg'],
-    slot6: ['atkPct', 'impact'],
+    slot6: ['atkPct', 'impact', 'energyRegenPct'],
   },
   panYinhu: {
     slot4: ['atkPct'],
@@ -226,13 +226,13 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
   lycaon: {
     slot4: ['atkPct'],
     slot5: ['iceDmg', 'atkPct'],
-    slot6: ['impact', 'energyRegenPct'],
+    slot6: ['impact', 'energyRegenPct', 'anomalyMastery'],
   },
   ellen: {
-    slot4: ['critRate', 'critDmg'], slot5: ['iceDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
+    slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['iceDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
   },
   soukaku: {
-    slot4: ['atkPct'], slot5: ['atkPct'], slot6: ['atkPct', 'energyRegenPct'],
+    slot4: ['atkPct'], slot5: ['atkPct'], slot6: ['atkPct', 'energyRegenPct', 'anomalyMastery'],
   },
   soldier11: {
     slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['fireDmg', 'penRatio', 'atkPct'], slot6: ['atkPct'],
@@ -244,13 +244,13 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['atkPct'], slot5: ['atkPct'], slot6: ['energyRegenPct'],
   },
   zhuYuan: {
-    slot4: ['critRate', 'critDmg'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
+    slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['atkPct'],
   },
   nicole: {
     slot4: ['atkPct', 'anomalyProficiency'], slot5: ['etherDmg'], slot6: ['energyRegenPct'],
   },
   orphie: {
-    slot4: ['critRate', 'critDmg'], slot5: ['fireDmg', 'atkPct'],
+    slot4: ['critRate', 'critDmg', 'atkPct'], slot5: ['fireDmg', 'atkPct'],
     slot6: ['energyRegenPct', 'atkPct'],
   },
   pulchra: {
@@ -275,7 +275,7 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot6: ['atkPct'],
   },
   koleda: {
-    slot4: ['atkPct'], slot5: ['fireDmg', 'atkPct'], slot6: ['impact'],
+    slot4: ['atkPct'], slot5: ['fireDmg', 'atkPct'], slot6: ['impact', 'energyRegenPct'],
   },
   anby: {
     slot4: ['atkPct'], slot5: ['electricDmg', 'atkPct'],
@@ -323,13 +323,13 @@ export const MAIN_STAT_IDS_BY_AGENT_AND_SLOT: Record<
     slot4: ['anomalyProficiency', 'atkPct'], slot5: ['electricDmg', 'atkPct'], slot6: ['energyRegenPct', 'anomalyMastery'],
   },
   yanagi: {
-    slot4: ['anomalyProficiency', 'atkPct'], slot5: ['penRatio', 'electricDmg', 'atkPct'], slot6: ['anomalyMastery', 'atkPct'],
+    slot4: ['anomalyProficiency', 'atkPct'], slot5: ['penRatio', 'electricDmg', 'atkPct'], slot6: ['anomalyMastery', 'atkPct', 'energyRegenPct'],
   },
   alice: {
     slot4: ['anomalyProficiency', 'atkPct'], slot5: ['penRatio', 'physicalDmg', 'atkPct'], slot6: ['anomalyMastery'],
   },
   vivian: {
-    slot4: ['anomalyProficiency'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['anomalyMastery'],
+    slot4: ['anomalyProficiency'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['anomalyMastery', 'energyRegenPct'],
   },
   aria: {
     slot4: ['anomalyProficiency', 'atkPct'], slot5: ['etherDmg', 'atkPct', 'penRatio'], slot6: ['anomalyMastery'],

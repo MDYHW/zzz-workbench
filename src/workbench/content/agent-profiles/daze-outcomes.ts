@@ -5,7 +5,7 @@ import { actionProjection, type ActionProjection, type AgentSourceProfile, type 
 import type { ProfileRelationship } from '../../calculation/relationships'
 import type { WorkbenchState } from '../../state'
 import { CRIT_DAMAGE_FORMULAS, REGULAR_DAMAGE_FORMULAS } from '../../formula-policy'
-import { anotherAgentSharesAttribute, anotherAgentSharesFaction, qingyiAdditionalIsActive, triggerAdditionalIsActive } from '../../party-conditions'
+import { anotherAgentSharesAttribute, anotherAgentSharesFaction, nangongAdditionalIsActive, qingyiAdditionalIsActive, triggerAdditionalIsActive } from '../../party-conditions'
 import { ADMITTED_AGENTS } from '../agents'
 import { SOURCE_LABELS, VERTICAL_VALUES } from '../retained-values'
 import { FORMULA_PARTICIPATION_BY_AGENT } from '../setup-options'
@@ -28,7 +28,7 @@ const DAMAGE = REGULAR_DAMAGE_FORMULAS
 const BASE: Record<Agent, SelectedSetupObservation['baseStats']> = {
   dialyn: { critRate: VERTICAL_VALUES.dialyn.critRate, impact: VERTICAL_VALUES.dialyn.impact, energyRegen: VERTICAL_VALUES.dialyn.baseEnergyRegen },
   trigger: { critRate: VERTICAL_VALUES.trigger.critRate, critDmg: VERTICAL_VALUES.trigger.critDmg, impact: VERTICAL_VALUES.trigger.impact },
-  lycaon: { critRate: VERTICAL_VALUES.lycaon.critRate, impact: VERTICAL_VALUES.lycaon.impact, energyRegen: VERTICAL_VALUES.lycaon.baseEnergyRegen },
+  lycaon: { critRate: VERTICAL_VALUES.lycaon.critRate, impact: VERTICAL_VALUES.lycaon.impact, energyRegen: VERTICAL_VALUES.lycaon.baseEnergyRegen, anomalyMastery: VERTICAL_VALUES.lycaon.anomalyMastery },
   juFufu: { atk: VERTICAL_VALUES.juFufu.atk, critRate: VERTICAL_VALUES.juFufu.critRate, impact: VERTICAL_VALUES.juFufu.impact, energyRegen: VERTICAL_VALUES.juFufu.baseEnergyRegen },
   lighter: { critRate: VERTICAL_VALUES.lighter.critRate, impact: VERTICAL_VALUES.lighter.impact, energyRegen: VERTICAL_VALUES.lighter.baseEnergyRegen },
   pulchra: { critRate: VERTICAL_VALUES.pulchra.critRate, impact: VERTICAL_VALUES.pulchra.impact, energyRegen: VERTICAL_VALUES.pulchra.baseEnergyRegen },
@@ -113,6 +113,7 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
   const ability = abilityKey in SOURCE_LABELS ? source(agent, slot, 'additional', SOURCE_LABELS[abilityKey], 'additional') : core
   const alwaysProjectsCrit = ['dialyn', 'trigger', 'juFufu', 'qingyi', 'norma'].includes(agent)
   const projectsConditionalCrit = setup.fourPieceId === 'king' || ['koleda', 'anby'].includes(agent)
+  const projectsBuildup = FORMULA_PARTICIPATION_BY_AGENT[agent].result.includes('anomaly_buildup')
   const metrics: MetricProjection[] = [
     ...(BASE[agent].atk !== undefined ? [m('atk', 'ATK', '', 'atk')] : []),
     ...(alwaysProjectsCrit || projectsConditionalCrit
@@ -130,17 +131,21 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
       m('penRatio', 'PEN Ratio', '%', 'penRatio', 'disclosed-or-action'),
       m('anomalyBuildupResReduction', 'Anomaly Buildup RES Reduction', '%', undefined, 'nonzero-or-action'),
     ] : []),
+    ...(agent === 'lycaon' ? [
+      { ...m('anomalyMastery', 'Anomaly Mastery', '', 'anomalyMastery', 'disclosed-or-action'), decimals: 1 },
+      m('anomalyBuildupResReduction', 'Anomaly Buildup RES Reduction', '%', undefined, 'nonzero-or-action'),
+    ] : []),
     m('impact', 'Impact', '', 'impact'),
     ...(BASE[agent].energyRegen !== undefined ? [m('energyRegen', 'Energy Regen', '/s', 'energyRegen', agent === 'dialyn' ? undefined : 'disclosed-or-action')] : []),
     ...(agent === 'norma' ? [m('sheerForce', 'Sheer Force', '', undefined, 'nonzero-or-action')] : []),
     ...(agent === 'norma' ? [m('penRatio', 'PEN Ratio', '%', 'penRatio', 'disclosed-or-action')] : []),
-    ...(agent === 'nangongYu' ? [m('anomalyBuildupBonus', 'Anomaly Buildup Bonus', '%', undefined, 'nonzero-or-action')] : []),
+    ...(projectsBuildup ? [m('anomalyBuildupBonus', 'Anomaly Buildup Bonus', '%', undefined, 'nonzero-or-action')] : []),
     m('dazeBonus', 'Daze Bonus', '%', undefined, 'nonzero-or-action'), m('dmgBonus', 'DMG Bonus', '%', undefined, 'nonzero-or-action'), m('stunDmgMultiplier', 'Stun DMG Multiplier', '%', undefined, 'nonzero-or-action'), m('resReduction', 'RES Reduction', '%', undefined, 'nonzero-or-action'), m('resIgnore', 'RES Ignore', '%', undefined, 'nonzero-or-action'), m('defReduction', 'DEF Reduction', '%', undefined, 'nonzero-or-action'),
     ...(agent === 'trigger' ? [m('defIgnore', 'DEF Ignore', '%', undefined, 'nonzero-or-action')] : []),
   ]
   const actions: ActionProjection[] = []
   const miyabiSlot = ids.indexOf('miyabi')
-  if (agent === 'nangongYu' && miyabiSlot >= 0 && miyabiSlot !== slot) {
+  if (projectsBuildup && miyabiSlot >= 0 && miyabiSlot !== slot) {
     actions.push(actionProjection(
       'anomalyBuildupBonus',
       'miyabiFrostburnBuildup',
@@ -151,6 +156,10 @@ function buildDazeOutcomeProfile(agent: Agent, state: WorkbenchState, slot: Slot
       'miyabiFrostburnRemovedBuildup',
       MIYABI_FROSTBURN_REMOVED_BUILDUP_TARGET,
     ))
+  }
+  const nangongSlot = ids.indexOf('nangongYu')
+  if (projectsBuildup && nangongSlot >= 0 && nangongSlot !== slot && nangongAdditionalIsActive(ids, nangongSlot)) {
+    actions.push(actionProjection('anomalyBuildupBonus', 'chainAttackAnomalyBuildup', actionTarget([canonicalAction('Chain Attack')])))
   }
   const add = (relationship: ProfileRelationship) => relationships.push(relationship)
   if (agent === 'norma') {

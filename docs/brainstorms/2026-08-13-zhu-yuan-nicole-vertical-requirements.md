@@ -106,7 +106,11 @@ personal-support damage roles, runtime equipment scoring, or guide evidence.
   reversal preserves Chaotic without turning exact stack uptime into a runtime
   input. Both broad packages displace Woodpecker's weaker same-role 4-piece
   package.
-- R9. Full prepares The Sky Ablaze 4-piece plus Branch & Blade 2-piece;
+- R9. Slot 4 offers CRIT Rate, CRIT DMG, and ATK%. The ATK alternate uses sufficient
+  ability, equipment and party CRIT supply to move finite future investment
+  toward CRIT substats. Reduced CRIT supply favors the existing CRIT mains;
+  candidate admission does not change prepared first choices. Full prepares
+  The Sky Ablaze 4-piece plus Branch & Blade 2-piece;
   non-limited prepares The Sky Ablaze plus Woodpecker 2-piece. Both use ATK% in
   Slots 5 and 6 and zero substats. Slot 4 follows only already-applied fixed
   CRIT supply rather than runtime scoring. Full uses CRIT DMG while Zhu Yuan's

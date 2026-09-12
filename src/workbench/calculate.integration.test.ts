@@ -27,6 +27,62 @@ function profileStateFor(agentId: AgentId) {
 }
 
 describe('shared calculation integration', () => {
+  it('trades resource and Daze inputs for support buildup without creating personal anomaly damage', () => {
+    let state = createPreparedState({}, ['miyabi', 'lycaon', 'soukaku'], 0)
+    state = workbenchReducer(state, { type: 'selectDisc', slot: 2, piece: 'fourPiece', discId: 'freedomBlues' })
+    const prepared = state
+    const before = calculateParty(state)!
+    for (const slot of [1, 2] as const) state = workbenchReducer(state, {
+      type: 'selectMainStat', slot, mainSlot: 'slot6', mainStatId: 'anomalyMastery',
+    })
+    const after = calculateParty(state)!
+    for (const slot of [1, 2] as const) {
+      const current = after.agents[slot]
+      expect(before.agents[slot].metrics.some(({ id }) => id === 'anomalyMastery')).toBe(false)
+      expect(current.metrics.find(({ id }) => id === 'anomalyMastery')!.values.initial)
+        .toBeGreaterThan(VERTICAL_VALUES[slot === 1 ? 'lycaon' : 'soukaku'].anomalyMastery)
+      expect(current.metrics.some(({ id }) => id === 'anomalyDmgBonus')).toBe(false)
+      expect(current.metrics.some(({ id }) => id === 'anomalyProficiency')).toBe(false)
+      expect(current.actionModifiers.find(({ id }) => id === 'miyabiFrostburnBuildup')!
+        .breakdown.fully.some(({ ownerAgentId }) => ownerAgentId === 'miyabi')).toBe(true)
+    }
+    expect(after.agents[1].metrics.find(({ id }) => id === 'impact')!.values.initial)
+      .toBeLessThan(before.agents[1].metrics.find(({ id }) => id === 'impact')!.values.initial)
+    const previousAtk = before.agents[2].metrics.find(({ id }) => id === 'atk')!
+    const currentAtk = after.agents[2].metrics.find(({ id }) => id === 'atk')!
+    expect(currentAtk.values).toEqual(previousAtk.values)
+    expect(currentAtk.gauges).toEqual(previousAtk.gauges)
+    expect(after.agents[2].metrics.find(({ id }) => id === 'energyRegen')!.values.initial)
+      .toBeLessThan(before.agents[2].metrics.find(({ id }) => id === 'energyRegen')!.values.initial)
+    for (const slot of [1, 2] as const) expect(after.agents[slot].metrics
+      .find(({ id }) => id === 'anomalyBuildupResReduction')!.breakdown.fully
+      .some(({ ownerAgentId }) => ownerAgentId === 'soukaku')).toBe(true)
+    for (const slot of [1, 2] as const) state = workbenchReducer(state, {
+      type: 'selectMainStat', slot, mainSlot: 'slot6', mainStatId: prepared.slots[slot].setup.mains.slot6!,
+    })
+    expect(calculateParty(state)).toEqual(before)
+  })
+
+  it.each([0, 1] as const)('projects a resource main trade in slot %i without changing other setups', (slot) => {
+    const prepared = createPreparedState({}, ['yanagi', 'vivian', 'astraYao'], 0)
+    const before = calculateParty(prepared)!.agents[slot]
+    const edited = workbenchReducer(prepared, {
+      type: 'selectMainStat', slot, mainSlot: 'slot6', mainStatId: 'energyRegenPct',
+    })
+    const after = calculateParty(edited)!.agents[slot]
+    expect(before.metrics.some(({ id }) => id === 'energyRegen')).toBe(false)
+    expect(after.metrics.find(({ id }) => id === 'energyRegen')!.values.initial)
+      .toBeGreaterThan(VERTICAL_VALUES[slot === 0 ? 'yanagi' : 'vivian'].baseEnergyRegen)
+    expect(after.metrics.find(({ id }) => id === 'anomalyMastery')!.values.initial)
+      .toBeLessThan(before.metrics.find(({ id }) => id === 'anomalyMastery')!.values.initial)
+    expect(edited.slots[slot === 0 ? 1 : 0]).toEqual(prepared.slots[slot === 0 ? 1 : 0])
+    expect(edited.slots[2]).toEqual(prepared.slots[2])
+    const restored = workbenchReducer(edited, {
+      type: 'selectMainStat', slot, mainSlot: 'slot6', mainStatId: 'anomalyMastery',
+    })
+    expect(calculateParty(restored)!.agents[slot]).toEqual(before)
+  })
+
   it('routes every admitted Agent through the same complete profile evaluator', () => {
     for (const { id } of ADMITTED_AGENTS) {
       const state = profileStateFor(id)

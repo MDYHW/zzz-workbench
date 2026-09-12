@@ -218,7 +218,10 @@ Koleda adds no new common mechanism.
   already reaches 16% at two stacks.
   This does not establish a universal Stun order.
 - R16. Koleda's base main candidates are ATK% in Slot 4, Fire DMG/ATK% in Slot
-  5, and Impact in Slot 6. She has no base effective substats. Selected King
+  5, and Impact or Energy Regen in Slot 6. Energy preserves a repeated-EX
+  resource alternative at the cost of Daze per action; adequate Energy or a
+  Daze bottleneck favors Impact. Both pools keep prepared Impact and the
+  existing King allocation. She has no base effective substats. Selected King
   adds CRIT Rate in Slot 4 and as an effective substat solely for the 50%
   threshold. Leaving King clears invalid CRIT inputs without fallback;
   reselecting King restores candidate membership at a zero count.

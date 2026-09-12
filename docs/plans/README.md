@@ -8,7 +8,9 @@ remains subordinate to them.
 
 ## Plan lifecycle
 
-Keep at most one active bounded implementation plan. There is no active plan.
+Keep at most one active bounded implementation plan. The completed
+[CSV-informed setup corrections](2026-09-12-csv-setup-corrections-plan.md)
+is retained only until its checkpoint commit.
 Completed verticals are recorded in the milestone index below,
 and later Agent verticals still require their own bounded requirement and plan
 after their meaning is settled.
@@ -59,6 +61,7 @@ and author the new local outcome from current consumers instead.
 
 | Date | Milestone | Current durable owners |
 | --- | --- | --- |
+| 2026-09-12 | Corrected equivalent two-piece imports and added bounded ATK, resource and buildup comparisons with matching Result disclosure; prepared defaults remain unchanged | Affected Agent supporting requirements; shared Disc groups and Setup/Result consumers |
 | 2026-09-11 | Implemented the bounded HoYoLAB gear companion, generated runtime download and compact installation help; public publication remains subject to the exact-artifact release gate | [public release requirements](../brainstorms/2026-09-06-public-static-release-candidate-requirements.md), [product contract](../setup-workbench-product-contract.md), [UI rules](../workbench-ui-design-rules.md) |
 | 2026-09-10 | Implemented reviewed owner corrections, one-decision authority transactions, and trusted documentation-only runtime N/A | [Repository governance](../../AGENTS.md#authority-change-and-trace-governance), [ACR lifecycle](../authority-changes/README.md), validation workflows, and shared policy/adapter tests |
 | 2026-09-10 | Corrected equipment composition, committed edits, bilingual copy and Result disclosures; unified materialization and gauge outputs; compressed obsolete calculation guidance and selector styles | [Applied-party boundary](../brainstorms/2026-08-07-applied-party-calculation-boundary-requirements.md), [calculation boundary](../brainstorms/2026-08-07-calculation-module-boundary-requirements.md), [shared harness](../brainstorms/2026-08-21-shared-source-calculation-harness-requirements.md), current equipment/Setup/Result consumers and shared behavior/geometry tests |

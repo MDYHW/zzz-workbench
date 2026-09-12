@@ -153,7 +153,13 @@ prepared consequence.
   opportunity, and current competitive preference make Freedom the prepared
   complement. Positive Electric 2-piece supply does not itself displace it.
 - R8. Yanagi offers AP or ATK% in Slot 4; PEN Ratio, Electric DMG, or ATK% in
-  Slot 5; and AM or ATK% in Slot 6. Prepare AP/PEN/AM in both pools. Effective
+  Slot 5; and AM, ATK%, or Energy Regen in Slot 6. Energy supports repeated EX
+  access for her retained Polarity Disorder entry role at the cost of buildup
+  per action or ATK supply. Sustained on-field buildup or adequate Energy
+  favors AM. Prepare AP/PEN/AM in both pools. Retain base Energy Regen 1.2/s
+  and compose selected recovery effects through the existing automatic-Energy
+  stat; base recovery alone creates no Result row and action grants do not
+  become recovery per second. Effective
   substats are AP and ATK%, initialized at zero. Broad pre-PEN pressure removes
   Puffer and Slot 5 PEN and prepares Electric DMG; it does not replace the
   already distinct Freedom 2-piece. Direct pressure changes only clear an

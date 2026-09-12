@@ -107,7 +107,13 @@ Aftershock catalogue.
   Moonlight Lullaby. They retain Aftershock, Fire, CRIT, ATK, and Energy axes in
   whole-package combination; same-effect ATK and Energy identities follow the
   existing exact-identity lifecycle.
-- R8. Full prepares Shadow Harmony 4-piece plus Swing Jazz 2-piece, CRIT DMG /
+- R8. Slot 4 also offers ATK%
+  beside CRIT Rate and CRIT DMG. With sufficient fixed CRIT supply it preserves
+  Energy Slot 6 while reallocating future hits from ATK to CRIT for personal
+  damage, including the Heartstring and Marcato routes. ATK does not increase
+  the Energy-based squad provider. An ATK-heavy or CRIT-deficient package
+  favors a CRIT main. Full prepares Shadow Harmony 4-piece plus Swing Jazz
+  2-piece, CRIT DMG /
   Fire DMG / Energy Regen mains, and zero substats. Its selected W-Engine,
   Shadow, and Agent-local Core supply leave too little of the conservative
   eight-hit CRIT opportunity for another fixed CRIT-Rate main, so CRIT DMG

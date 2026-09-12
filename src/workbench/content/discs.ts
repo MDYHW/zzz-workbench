@@ -554,9 +554,10 @@ export const SAME_EFFECT_TWO_PIECE_RELATIONSHIPS = [
   { members: ['swingJazz', 'moonlight'], canonical: 'swingJazz' },
   { members: ['whiteWaterBallad', 'fangedMetal'], canonical: 'whiteWaterBallad' },
   { members: ['bunnyInWonderland', 'yunkui'], canonical: 'bunnyInWonderland' },
-  { members: ['freedomBlues', 'chaosJazz'], canonical: 'freedomBlues' },
-  { members: ['chaoticMetal', 'shiningAria'], canonical: 'chaoticMetal' },
+  { members: ['freedomBlues', 'chaosJazz', 'featheredFate'], canonical: 'freedomBlues' },
+  { members: ['chaoticMetal', 'shiningAria', 'skyAblaze'], canonical: 'chaoticMetal' },
+  { members: ['polarMetal', 'notesFromTheChained'], canonical: 'polarMetal' },
 ] as const satisfies readonly {
-  members: readonly [DiscId, DiscId]
+  members: readonly [DiscId, DiscId, ...DiscId[]]
   canonical: DiscId
 }[]
